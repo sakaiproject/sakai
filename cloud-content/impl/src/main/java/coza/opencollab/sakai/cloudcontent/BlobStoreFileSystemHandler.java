@@ -7,6 +7,9 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +19,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FileSystemHandler;
 
 import io.minio.GetObjectArgs;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -24,6 +29,7 @@ import io.minio.StatObjectArgs;
 import io.minio.StatObjectResponse;
 import io.minio.http.Method;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * MinIO-backed implementation of {@link FileSystemHandler} using the legacy
@@ -31,6 +37,7 @@ import lombok.Setter;
  * jclouds handler.
  */
 @Setter
+@Slf4j
 public class BlobStoreFileSystemHandler implements FileSystemHandler {
 
     private ServerConfigurationService serverConfigurationService;
@@ -60,16 +67,86 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     }
 
     public void init() {
+        // Validate required credentials before constructing the client
+        if (endpoint == null || endpoint.trim().isEmpty()) {
+            String msg = "Missing required configuration 'endpoint' for bean 'org.sakaiproject.content.api.FileSystemHandler.blobstore' (key: endpoint@org.sakaiproject.content.api.FileSystemHandler.blobstore)";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        if (identity == null || identity.trim().isEmpty()) {
+            String msg = "Missing required configuration 'identity' (aka accessKey) for bean 'org.sakaiproject.content.api.FileSystemHandler.blobstore' (key: identity@org.sakaiproject.content.api.FileSystemHandler.blobstore)";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        if (credential == null || credential.trim().isEmpty()) {
+            String msg = "Missing required configuration 'credential' (aka secretKey) for bean 'org.sakaiproject.content.api.FileSystemHandler.blobstore' (key: credential@org.sakaiproject.content.api.FileSystemHandler.blobstore)";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+
+        // Validate numeric configuration with sensible defaults / fail fast
+        long defaultMaxBlobStreamSize = 104857600L; // 100 MiB
+        long configuredMaxBlobStreamSize = serverConfigurationService.getLong("cloud.content.maxblobstream.size", defaultMaxBlobStreamSize);
+        if (configuredMaxBlobStreamSize <= 0) {
+            String msg = "Invalid 'cloud.content.maxblobstream.size' (" + configuredMaxBlobStreamSize + "): must be a positive integer";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        this.maxBlobStreamSize = configuredMaxBlobStreamSize;
+
+        int configuredSignedUrlExpiry = serverConfigurationService.getInt("cloud.content.signedurl.expiry", 600);
+        if (configuredSignedUrlExpiry <= 0) {
+            String msg = "Invalid 'cloud.content.signedurl.expiry' (" + configuredSignedUrlExpiry + "): must be a positive integer (seconds)";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        this.signedUrlExpiry = configuredSignedUrlExpiry;
+
+        int configuredPartSizeMb = serverConfigurationService.getInt("cloud.content.multipart.partsize.mb", 10);
+        if (configuredPartSizeMb <= 0) {
+            String msg = "Invalid 'cloud.content.multipart.partsize.mb' (" + configuredPartSizeMb + "): must be a positive integer (MiB)";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        // Enforce minimum 5 MiB per S3/MinIO multipart rules and compute safely
+        long partSizeBytes = Math.max(5, configuredPartSizeMb) * 1024L * 1024L;
+        if (partSizeBytes > Integer.MAX_VALUE) {
+            // Cap to Integer.MAX_VALUE to satisfy MinIO client API (int)
+            log.warn("'cloud.content.multipart.partsize.mb' too large ({} MiB). Capping to {} bytes.", configuredPartSizeMb, Integer.MAX_VALUE);
+            this.partSize = Integer.MAX_VALUE;
+        } else {
+            this.partSize = (int) partSizeBytes;
+        }
+
+        // Validate temporary blob directory (optional)
+        String tmpDir = serverConfigurationService.getString("cloud.content.temporary.directory", null);
+        if (tmpDir != null && !tmpDir.trim().isEmpty()) {
+            try {
+                Path tmpPath = Paths.get(tmpDir);
+                if (!Files.exists(tmpPath)) {
+                    Files.createDirectories(tmpPath);
+                }
+                if (!Files.isDirectory(tmpPath)) {
+                    throw new IllegalArgumentException("Configured 'cloud.content.temporary.directory' is not a directory: " + tmpDir);
+                }
+                if (!Files.isWritable(tmpPath)) {
+                    throw new IllegalArgumentException("Configured 'cloud.content.temporary.directory' is not writable: " + tmpDir);
+                }
+                this.temporaryBlobDirectory = tmpPath.toFile().getAbsolutePath();
+            } catch (IOException | RuntimeException e) {
+                String msg = "Invalid 'cloud.content.temporary.directory' (" + tmpDir + "): " + e.getMessage();
+                log.error(msg, e);
+                throw new IllegalArgumentException(msg, e);
+            }
+        } else {
+            this.temporaryBlobDirectory = null;
+        }
+
+        // All checks passed; construct the MinIO client last
         this.client = MinioClient.builder()
                 .endpoint(endpoint)
                 .credentials(identity, credential)
                 .build();
-
-        this.maxBlobStreamSize = serverConfigurationService.getInt("cloud.content.maxblobstream.size", 104857600);
-        this.temporaryBlobDirectory = serverConfigurationService.getString("cloud.content.temporary.directory", null);
-        int configuredPartSize = serverConfigurationService.getInt("cloud.content.multipart.partsize.mb", 10);
-        this.partSize = Math.max(5, configuredPartSize) * 1024 * 1024;
-        this.signedUrlExpiry = serverConfigurationService.getInt("cloud.content.signedurl.expiry", 600);
     }
 
     public void destroy() {
@@ -106,6 +183,8 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                 File tmp = (temporaryBlobDirectory != null)
                         ? File.createTempFile("minio", ".tmp", new File(temporaryBlobDirectory))
                         : File.createTempFile("minio", ".tmp");
+                // Guard against process crashes; still delete explicitly on close
+                tmp.deleteOnExit();
                 try (FileOutputStream fos = new FileOutputStream(tmp)) {
                     byte[] buffer = new byte[8192];
                     int read;
@@ -115,7 +194,30 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                 } finally {
                     in.close();
                 }
-                return new FileInputStream(tmp);
+                final File toDelete = tmp;
+                final FileInputStream fis = new FileInputStream(toDelete);
+                return new FilterInputStream(fis) {
+                    @Override
+                    public void close() throws IOException {
+                        IOException closeEx = null;
+                        try {
+                            super.close();
+                        } catch (IOException e) {
+                            closeEx = e;
+                        } finally {
+                            try {
+                                if (!toDelete.delete() && toDelete.exists()) {
+                                    log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
+                                }
+                            } catch (Exception delEx) {
+                                log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), delEx);
+                            }
+                            if (closeEx != null) {
+                                throw closeEx;
+                            }
+                        }
+                    }
+                };
             } else {
                 return in;
             }
@@ -164,10 +266,14 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         }
     }
 
-    private void createContainerIfNotExist(String container) throws Exception {
-        boolean exists = client.bucketExists(b -> b.bucket(container));
-        if (!exists) {
-            client.makeBucket(b -> b.bucket(container));
+    private void createContainerIfNotExist(String container) throws IOException {
+        try {
+            boolean exists = client.bucketExists(BucketExistsArgs.builder().bucket(container).build());
+            if (!exists) {
+                client.makeBucket(MakeBucketArgs.builder().bucket(container).build());
+            }
+        } catch (Exception e) {
+            throw new IOException("Unable to ensure bucket exists: " + container, e);
         }
     }
 
@@ -242,4 +348,3 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         String name;
     }
 }
-
