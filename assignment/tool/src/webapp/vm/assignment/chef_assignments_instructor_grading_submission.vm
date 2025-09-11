@@ -511,7 +511,7 @@
                                 <div class="row-override">
                                     <label>$formattedText.escapeHtml($!submitterName)</label>
                                     <div class="shorttext">
-                                        <span$tlang.getString("gen.grade.override")</span>
+                                        <span>$tlang.getString("gen.grade.override")</span>
                                         <select name="$group_name_grade" id="grade">
                                             <option value=""#if($!group_value_grade.equals(
                                                 ""))selected="selected"#end>$tlang.getString(

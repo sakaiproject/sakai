@@ -97,6 +97,10 @@ public class AssignmentToolUtils {
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
+    public static boolean allowGroupOverrides(Assignment a, AssignmentService assignmentService) {
+        return a.getIsGroup() && !assignmentService.assignmentUsesAnonymousGrading(a);
+    }
+
     /**
      * scale the point value by "factor" if there is a valid point grade
      */
@@ -334,7 +338,7 @@ public class AssignmentToolUtils {
                 }
             }
 
-            if (a.getIsGroup()) {
+            if (allowGroupOverrides(a, assignmentService)) {
                 // group project only set a grade override for submitters
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     String submitterGradeOverride = StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter()));
