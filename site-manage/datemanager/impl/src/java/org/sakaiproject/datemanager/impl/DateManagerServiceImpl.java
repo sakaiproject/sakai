@@ -1341,7 +1341,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 
                                 String entityType = (String)jsonForum.get(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME);
                                 DateManagerUpdate update;
-                                if(rb.getString("itemtype.forum").equals(entityType)) {
+                                // Check if this is a forum (including draft forums) by checking if entityType starts with the forum type
+                                final String forumType = StringUtils.defaultString(rb.getString("itemtype.forum"));
+                                if (StringUtils.startsWith(StringUtils.trimToEmpty(entityType), forumType)) {
                                         BaseForum forum = forumManager.getForumById(true, forumId);
                                         if (forum == null) {
                                                 errors.add(new DateManagerError("forum",rb.getFormattedMessage("error.item.not.found", new Object[]{rb.getString("tool.forums.item.name")}), "forums", toolTitle, idx));
@@ -1403,7 +1405,7 @@ public class DateManagerServiceImpl implements DateManagerService {
                                                 forum.setCloseDate(closeDateTemp);
                                         }
                                 }
-                                forumManager.saveDiscussionForum(forum);
+                                forumManager.saveDiscussionForum(forum, Boolean.TRUE.equals(forum.getDraft()));
                         } else {
                                 DiscussionTopic topic = (DiscussionTopic) update.object;
                                 if(topic.getAvailabilityRestricted()) {
