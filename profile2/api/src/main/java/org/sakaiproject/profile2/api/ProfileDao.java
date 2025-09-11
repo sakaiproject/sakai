@@ -38,45 +38,45 @@ public interface ProfileDao {
      *
      * @param userId        userId of the user
      */
-    public ProfileImageUploaded getProfileImage(String userId);
+    ProfileImageUploaded getProfileImage(String userId);
 
     /**
      * @param profileImage  ProfileImageUploaded obj
      */
-    public boolean saveProfileImage(ProfileImageUploaded profileImage);
+    boolean saveProfileImage(ProfileImageUploaded profileImage);
 
     /**
      * Invalidate the current profile image for a user.
      *
      * @param userUuid  the uuid for the user
      */
-    public boolean removeProfileImage(String userUuid);
+    boolean removeProfileImage(String userUuid);
 
     /**
      * Get the ProfileImageOfficial record from the database for the given user
      * @param userUuid      uuid of the user
      * @return
      */
-    public ProfileImageOfficial getOfficialImage(String userUuid);
+    ProfileImageOfficial getOfficialImage(String userUuid);
 
     /**
      * Save the ProfileImageOfficial record the database
      * @param officialImage     ProfileImageOfficial object
      * @return
      */
-    public boolean saveOfficialImage(ProfileImageOfficial officialImage);
+    boolean saveOfficialImage(ProfileImageOfficial officialImage);
 
     /**
      * Get a SocialNetworkingInfo record for a user
      * @param userId        uuid of the user
      * @return
      */
-    public Optional<SocialNetworkingInfo> getSocialNetworkingInfo(String userId);
+    Optional<SocialNetworkingInfo> getSocialNetworkingInfo(String userId);
 
     /**
      * Save a SocialNetworkingInfo record
      * @param socialNetworkingInfo  SocialNetworkingInfo object
      * @return
      */
-    public boolean saveSocialNetworkingInfo(SocialNetworkingInfo socialNetworkingInfo);
+    boolean saveSocialNetworkingInfo(SocialNetworkingInfo socialNetworkingInfo);
 }
