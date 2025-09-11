@@ -1,7 +1,8 @@
-## Openstack Swift Sakai Resources
+## MinIO Sakai Resources
 
-The cloud implementation of FileSystemHandler. This implementation writes and
-reads files to and from cloud storage including OpenStack-Swift and S3.
+The cloud implementation of `FileSystemHandler` backed by a MinIO/S3
+compatible object store. This replaces the previous jclouds based handlers for
+Swift and generic S3 providers.
 
 ## Authors
 
@@ -20,24 +21,22 @@ profile of the top-level build as well.
 To use cloud rather than the default file/database storage, settings must be
 configured in two places:
 
- * sakai-configuration.xml
- * local.properties (or another like sakai.properties)
+ * `sakai-configuration.xml`
+ * `local.properties` (or another like `sakai.properties`)
 
-The only setting in sakai-configuration.xml needed is the bean alias to activate
-this handler rather than the default. This file must be a valid Spring bean
-config file; either create it in its entirety or just add this alias. Only one
-handler may be active.
+The only setting in `sakai-configuration.xml` needed is the bean alias to
+activate this handler rather than the default. This file must be a valid Spring
+bean config file; either create it in its entirety or just add this alias. Only
+one handler may be active. To avoid configuration changes, this handler uses the
+same alias as the former jclouds BlobStore implementation.
 
 ~~~~
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-  <!-- Swift handler -->
-  <alias name="org.sakaiproject.content.api.FileSystemHandler.swift" alias="org.sakaiproject.content.api.FileSystemHandler" />
-
-  <!-- Generic BlobStore handler, currently only for AWS S3 -->
-  <!-- <alias name="org.sakaiproject.content.api.FileSystemHandler.blobstore" alias="org.sakaiproject.content.api.FileSystemHandler" /> -->
+  <!-- MinIO-backed BlobStore handler -->
+  <alias name="org.sakaiproject.content.api.FileSystemHandler.blobstore" alias="org.sakaiproject.content.api.FileSystemHandler" />
 </beans>
 ~~~~
 
@@ -51,24 +50,19 @@ pseudo-folders as needed, adding unneeded depth in your object store. The
 as the paths will mirror the resource IDs/URLs.
 
 Settings are only required for the active handler, but may be supplied for an
-inactive handler as well. Pay close attention to the suffix (swift/blobstore)
-and the slight differences in the available keys. For example, the endpoint
-is required for Swift, while the baseContainer is required for S3. The provider
-is optional for BlobStore, since only aws-s3 is the only one currently available
-and is the default.
+inactive handler as well. All properties are suffixed with
+`@org.sakaiproject.content.api.FileSystemHandler.blobstore`.
 
 ~~~~
-endpoint@org.sakaiproject.content.api.FileSystemHandler.swift     = http://swift.server:5000/v2.0/
-identity@org.sakaiproject.content.api.FileSystemHandler.swift     = tenant:username
-credential@org.sakaiproject.content.api.FileSystemHandler.swift   = password
-region@org.sakaiproject.content.api.FileSystemHandler.swift       = RegionOne
-useIdForPath@org.sakaiproject.content.api.FileSystemHandler.swift = true
-
-provider@org.sakaiproject.content.api.FileSystemHandler.blobstore      = aws-s3
-identity@org.sakaiproject.content.api.FileSystemHandler.blobstore      = <S3 Access Key ID>
-credential@org.sakaiproject.content.api.FileSystemHandler.blobstore    = <S3 Secret Access Key>
-baseContainer@org.sakaiproject.content.api.FileSystemHandler.blobstore = your-bucket-name
-useIdForPath@org.sakaiproject.content.api.FileSystemHandler.blobstore  = true
+endpoint@org.sakaiproject.content.api.FileSystemHandler.blobstore     = https://minio.example.edu
+identity@org.sakaiproject.content.api.FileSystemHandler.blobstore     = <ACCESS_KEY>
+credential@org.sakaiproject.content.api.FileSystemHandler.blobstore   = <SECRET_KEY>
+baseContainer@org.sakaiproject.content.api.FileSystemHandler.blobstore= sakai-content
+useIdForPath@org.sakaiproject.content.api.FileSystemHandler.blobstore = true
+cloud.content.signedurl.expiry                                   = 600
+cloud.content.multipart.partsize.mb                              = 10
+cloud.content.maxblobstream.size                                 = 104857600
+cloud.content.temporary.directory                                = /var/tmp/sakai-blobs
 
 bodyPath@org.sakaiproject.content.api.ContentHostingService=/content/live/
 bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService=/content/deleted/
@@ -81,10 +75,6 @@ as the properties files. See Confluence for an overview:
 
 ## Testing
 
-Because the tests work against a real backend, they are disabled by default. To
-run them, you must activate the `swift-tests` profile (e.g.,
-`mvn -Pswift-tests install`) and set your configuration. The settings for the
-Swift tests is in `impl/src/test/resources/swift.properties`. These are
-straightforward and align with the names/values needed for real usage. The
-tests will clean up after themselves unless `deleteEmptyContainers` is set to
-false, which can be used to validate content in a container afterward.
+Integration tests require access to a MinIO server. Launch a local MinIO
+container and configure the properties above before running
+`mvn -pl cloud-content/impl test`.
