@@ -13434,8 +13434,12 @@ public class AssignmentAction extends PagedResourceActionII {
             // Unassigned option (-1) shown first
             catTable.put(-1L, rb.getString("grading.unassigned"));
 
-            gradingService.getCategoryDefinitions(gradebookUid, gradebookUid).stream()
-                .forEach(c -> catTable.put(c.getId(), c.getName()));
+            List<CategoryDefinition> categoryDefinitions = gradingService.getCategoryDefinitions(gradebookUid, gradebookUid);
+            if (categoryDefinitions != null) {
+                for (CategoryDefinition c : categoryDefinitions) {
+                    catTable.put(c.getId(), c.getName());
+                }
+            }
         }
         return catTable;
     }
