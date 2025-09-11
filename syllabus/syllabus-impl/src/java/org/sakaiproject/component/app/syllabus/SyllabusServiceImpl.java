@@ -22,6 +22,7 @@ package org.sakaiproject.component.app.syllabus;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1024,8 +1025,13 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 
 		SyllabusItem item = syllabusManager.getSyllabusItemByContextId(fromContext);
 
-		return syllabusManager.getSyllabiForSyllabusItem(item).stream()
-			.map(d -> Map.of("id", d.getSyllabusId().toString(), "title", d.getTitle())).collect(Collectors.toList());
+		return (item != null)
+			? syllabusManager.getSyllabiForSyllabusItem(item).stream()
+			.map(d -> Map.of(
+				"id", d.getSyllabusId().toString(),
+				"title", StringUtils.defaultString(d.getTitle())
+			)).collect(Collectors.toList())
+			: Collections.emptyList();
 	}
 
 	@Transactional

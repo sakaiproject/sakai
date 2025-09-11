@@ -1450,6 +1450,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll("button.tool-items-button").forEach(btn => {
 
     const iconEl = btn.querySelector("i");
+    // Using custom expand/collapse states because the button does not control a conventional panel grouped by a div.
+    // It instead is controlling the display of a set of table rows.
+    const collapseState = btn.getAttribute("data-collapse-state");
+    const expandState = btn.getAttribute("data-expand-state");
 
     btn.addEventListener("click", e => {
 
@@ -1460,11 +1464,15 @@ document.addEventListener('DOMContentLoaded', () => {
         siteManage.toolsCollapsed.set(toolId, true);
         iconEl.classList.remove("bi-caret-down-fill");
         iconEl.classList.add("bi-caret-right-fill");
+        btn.setAttribute("title", expandState);
+        btn.setAttribute("aria-label", expandState);
       } else {
         document.querySelectorAll(`.tool-item-row[data-tool-id="${toolId}"]`).forEach(row => row.classList.remove("d-none"));
         siteManage.toolsCollapsed.set(toolId, false);
         iconEl.classList.remove("bi-caret-right-fill");
         iconEl.classList.add("bi-caret-down-fill");
+        btn.setAttribute("title", collapseState);
+        btn.setAttribute("aria-label", collapseState);
       }
 
       // If we've loaded the item data for this tool already, just return.
@@ -1496,8 +1504,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
           siteManage.toolsLoaded.push(toolId);
 
-          const numberRows = Object.values(sites).reduce((a, v) => v.length > a ? v.length : a, 0);
+          const numberRows = Object.values(sites).reduce((a, v) => v?.length > a ? v?.length : a, 0);
 
+          // Sort items alphabetically by title before listing them in the DOM
+          siteIds.forEach(siteId => {
+              let items = Array.isArray(sites[siteId]) ? sites[siteId] : [];
+              sites[siteId] = items; // normalize
+              items.sort((a, b) => (a?.title ?? '').localeCompare((b?.title ?? ''), undefined, { sensitivity: 'base' }));
+          });
+
+          let insertHtml = ``;
           for (let i = 0; i < numberRows; i++) {
 
             let tr = `
@@ -1523,7 +1539,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         data-site-id="${siteId}"
                         class="ms-3 tool-item-checkbox"
                         value="${itemId}" ${toolCheckbox.checked ? "checked" : "" } />
-                    <label class="ms-2" for="item-${itemId}">${items[i].title}</label>
+                    <label class="ms-2 d-inline" for="item-${itemId}">${items[i].title}</label>
                   </td>`;
               } else {
                 tr += `<td>&nbsp;</td>`;
@@ -1531,12 +1547,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             tr += "</tr>";
-
-            currentInsertionRow.insertAdjacentHTML("afterend", tr);
-
-            // Set to the newly inserted tr
-            currentInsertionRow = document.querySelector(`tr[data-tool-id="${toolId}"]`);
+            insertHtml += tr;
           }
+
+          currentInsertionRow.insertAdjacentHTML("afterend", insertHtml);
 
           document.querySelectorAll(".tool-item-checkbox").forEach(cb => {
 
