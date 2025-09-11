@@ -486,7 +486,8 @@
                     </p>
                 #end
 
-                #if ($assignment.IsGroup)
+                ## Hide Grade Overrides UI when anonymous grading is enabled for group assignments
+                #if ($assignment.IsGroup && !$value_CheckAnonymousGrading)
                     <div class="form-group" id="tempGradeOverride">
                         <input type="checkbox" id="allowGradeOverrideToggle"
                                #if ($value_grades && $value_grades.size() > 0) checked="checked"#end
