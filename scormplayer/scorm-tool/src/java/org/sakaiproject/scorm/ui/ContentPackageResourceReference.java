@@ -16,9 +16,7 @@
 package org.sakaiproject.scorm.ui;
 
 import lombok.extern.slf4j.Slf4j;
-
-import org.apache.wicket.Application;
-import org.apache.wicket.WicketRuntimeException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.request.HttpHeaderCollection;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -26,14 +24,16 @@ import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.PartWriterCallback;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.resource.IResourceStream;
-
+import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.sakaiproject.scorm.service.sakai.impl.ContentPackageSakaiResource;
 import org.sakaiproject.scorm.ui.player.util.CompressingContentPackageResourceStream;
 import org.sakaiproject.scorm.ui.player.util.ContentPackageWebResource;
-import org.sakaiproject.scorm.ui.player.util.ContentPackageWebResource.WicketContentPackageWebResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 
-import static org.apache.wicket.request.resource.AbstractResource.CONTENT_RANGE_ENDBYTE;
-import static org.apache.wicket.request.resource.AbstractResource.CONTENT_RANGE_STARTBYTE;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.sakaiproject.scorm.api.ScormConstants.ROOT_DIRECTORY;
 
@@ -55,64 +55,69 @@ public class ContentPackageResourceReference extends ResourceReference
         return new ContentPackageResource();
     }
 
-    public class ContentPackageResource extends AbstractResource
-    {
+    public class ContentPackageResource extends AbstractResource {
+
         @Override
-        protected ResourceResponse newResourceResponse( Attributes attributes )
-        {
-            StringBuilder b = new StringBuilder( ROOT_DIRECTORY + attributes.getParameters().get( "resourceID" ).toString() + "/" + attributes.getParameters().get( "resourceName" ).toString() );
-            for( int i = 0; i < attributes.getParameters().getIndexedCount(); i++ )
-            {
-                if (attributes.getParameters().get( i ).toString().equals( "contentpackages"))
-                {
-                    break;
-                }
-                b.append( "/" ).append( attributes.getParameters().get( i ) );
-            }
-            String resourceName = b.toString();
+        protected ResourceResponse newResourceResponse(Attributes attributes) {
+            final String resourceId = attributes.getParameters().get("resourceID").toString();
+            final String resourceName = attributes.getParameters().get("resourceName").toString();
 
-            ContentPackageWebResource resource = ((WicketContentPackageWebResource) Application.get().getSharedResources()
-                    .get( ContentPackageSakaiResource.class, resourceName, null, null, null, false ).getResource()).getResource();
-            IResourceStream stream = resource.getResourceStream();
+            log.debug("Process request for resource id/name [{}/{}]", resourceId, resourceName);
+            if (StringUtils.isNoneBlank(resourceId, resourceName)) {
 
-            try
-            {
-                long size = stream.length().bytes();
-                final boolean compressed = stream instanceof CompressingContentPackageResourceStream;
-                ResourceResponse resourceResponse = new ResourceResponse()
-                {
-                    @Override
-                    public HttpHeaderCollection getHeaders()
-                    {
-                        HttpHeaderCollection headers = super.getHeaders();
-                        if (compressed)
-                        {
-                            if (headers == null)
-                            {
-                                headers = new HttpHeaderCollection();
+                String base = ROOT_DIRECTORY + resourceId + "/" + resourceName;
+                String suffix = IntStream.range(0, attributes.getParameters().getIndexedCount())
+                        .mapToObj(i -> attributes.getParameters().get(i).toString())
+                        .takeWhile(s -> !"contentpackages".equals(s))
+                        .map(s -> "/" + s)
+                        .collect(Collectors.joining());
+
+                String path = base + suffix;
+
+                // resource not found in shared resources, so attempt to get resource from Sakai
+                log.debug("Resource not found in webapp's resources, check in Sakai's resources: {}", path);
+                ContentPackageSakaiResource cpResource = new ContentPackageSakaiResource(path, path, 0, "application/octet-stream");
+                ContentPackageWebResource webResource = new ContentPackageWebResource(cpResource);
+                IResourceStream stream = webResource.getResourceStream();
+
+                try {
+                    long size = stream.length().bytes();
+                    ResourceResponse resourceResponse = new ResourceResponse() {
+                        @Override
+                        public HttpHeaderCollection getHeaders() {
+                            HttpHeaderCollection headers = super.getHeaders();
+                            if (stream instanceof CompressingContentPackageResourceStream) {
+                                if (headers == null) {
+                                    headers = new HttpHeaderCollection();
+                                }
+                                headers.addHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
                             }
-                            headers.addHeader("Content-Encoding", "gzip");
+                            return headers;
                         }
-                        return headers;
-                    }
-                };
-                resourceResponse.setContentLength( size );
-                resourceResponse.setContentType( stream.getContentType() );
-                resourceResponse.setTextEncoding( "utf-8" );
-                resourceResponse.setAcceptRange( ContentRangeType.BYTES );
-                resourceResponse.setFileName( resource.getName() );
+                    };
+                    resourceResponse.setContentLength(size);
+                    resourceResponse.setContentType(stream.getContentType());
+                    resourceResponse.setTextEncoding(StandardCharsets.UTF_8.name());
+                    resourceResponse.setAcceptRange(ContentRangeType.BYTES);
+                    resourceResponse.setFileName(resourceName);
+                    resourceResponse.setLastModified(stream.lastModifiedTime());
 
-                RequestCycle cycle = RequestCycle.get();
-                Long startbyte = cycle.getMetaData( CONTENT_RANGE_STARTBYTE );
-                Long endbyte = cycle.getMetaData( CONTENT_RANGE_ENDBYTE );
-                resourceResponse.setWriteCallback( new PartWriterCallback( stream.getInputStream(), size, startbyte, endbyte ).setClose( true ) );
-                return resourceResponse;
+                    RequestCycle cycle = RequestCycle.get();
+                    Long startbyte = cycle.getMetaData(CONTENT_RANGE_STARTBYTE);
+                    Long endbyte = cycle.getMetaData(CONTENT_RANGE_ENDBYTE);
+                    resourceResponse.setWriteCallback(new PartWriterCallback(stream.getInputStream(), size, startbyte, endbyte).setClose(true));
+                    return resourceResponse;
+                } catch (ResourceStreamNotFoundException rsnfe) {
+                    log.debug("Resource not found [{}], {}", path, rsnfe.toString());
+                } catch (Exception e) {
+                    log.warn("Could not process response for resource [{}]", path, e);
+                }
             }
-            catch( Exception ex )
-            {
-                log.error( "Error returning response for stream", ex );
-                throw new WicketRuntimeException( "An error occurred while processing the media resource response", ex );
-            }
+            // if we couldn't serve the requested resource then return a http 404
+            log.debug("Could not serve resource [{}], return http 404 Not Found", resourceName);
+            ResourceResponse resourceResponse = new ResourceResponse();
+            resourceResponse.setError(HttpStatus.NOT_FOUND.value(), "Resource not found: " + resourceName);
+            return resourceResponse;
         }
     }
 }

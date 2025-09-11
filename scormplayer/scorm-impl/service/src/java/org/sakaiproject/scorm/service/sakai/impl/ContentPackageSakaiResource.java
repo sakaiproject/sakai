@@ -61,11 +61,12 @@ public class ContentPackageSakaiResource extends ContentPackageResource
 		}
 		catch (IdUnusedException e)
 		{
-			log.error("Could not stream content from this path: {}", getPath(), e);
+			log.warn("CHS resource not found with id [{}], {}", contentResourceId, e.toString());
 			throw new ResourceNotFoundException(getPath());
 		}
 		catch (Exception e)
 		{
+            log.warn("Could not stream content from this path [{}], {}", getPath(), e.toString());
 			throw new RuntimeException(e);
 		}
 	}
