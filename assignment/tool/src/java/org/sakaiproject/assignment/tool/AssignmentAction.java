@@ -3143,12 +3143,16 @@ public class AssignmentAction extends PagedResourceActionII {
 
         Integer scaleFactor;
         Boolean anonGrading;
+        // Preserve the user's selection from state if present (e.g., when the form
+        // is re-rendered after validation alerts like past-due warning). Otherwise
+        // fall back to the assignment's stored value (when editing) or default.
+        Boolean anonFromState = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
         if (a != null) {
             scaleFactor = a.getScaleFactor() != null ? a.getScaleFactor() : assignmentService.getScaleFactor();
-            anonGrading = assignmentService.assignmentUsesAnonymousGrading(a);
+            anonGrading = anonFromState != null ? anonFromState : assignmentService.assignmentUsesAnonymousGrading(a);
         } else {
             scaleFactor = assignmentService.getScaleFactor();
-            anonGrading = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
+            anonGrading = anonFromState;
         }
 
         Assignment.GradeType gradeType = Assignment.GradeType.values()[(Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE)];
