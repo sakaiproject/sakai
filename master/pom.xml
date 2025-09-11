@@ -47,7 +47,7 @@
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.38</sakai.lombok.version>
+    <sakai.lombok.version>1.18.40</sakai.lombok.version>
     <sakai.lucene.version>9.11.1</sakai.lucene.version>
     <sakai.netty.version>4.1.112.Final</sakai.netty.version>
     <sakai.node.version>v22.14.0</sakai.node.version>
