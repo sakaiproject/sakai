@@ -67,6 +67,14 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     }
 
     public void init() {
+        // Back-compat: if endpoint not set, try derive from legacy provider key
+        if (endpoint == null || endpoint.trim().isEmpty()) {
+            String derived = resolveEndpointFromLegacyProvider();
+            if (derived != null) {
+                endpoint = derived;
+                log.info("Derived S3 endpoint '{}' from legacy provider=aws-s3; consider setting endpoint@{} explicitly.", endpoint, LEGACY_BEAN_ID);
+            }
+        }
         // Validate required credentials before constructing the client
         if (endpoint == null || endpoint.trim().isEmpty()) {
             String msg = "Missing required configuration 'endpoint' for bean 'org.sakaiproject.content.api.FileSystemHandler.blobstore' (key: endpoint@org.sakaiproject.content.api.FileSystemHandler.blobstore)";
@@ -147,6 +155,35 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                 .endpoint(endpoint)
                 .credentials(identity, credential)
                 .build();
+    }
+
+    private static final String LEGACY_BEAN_ID = "org.sakaiproject.content.api.FileSystemHandler.blobstore";
+
+    /**
+     * Legacy compatibility: if old jclouds config used provider=aws-s3 without an explicit endpoint,
+     * infer a reasonable AWS S3 endpoint (optionally using region@... if present).
+     * Returns null if no inference can be made.
+     */
+    private String resolveEndpointFromLegacyProvider() {
+        try {
+            String provider = serverConfigurationService.getString("provider@" + LEGACY_BEAN_ID);
+            if (provider != null) provider = provider.trim();
+            if (provider == null || provider.isEmpty()) {
+                return null;
+            }
+            if ("aws-s3".equalsIgnoreCase(provider) || "s3".equalsIgnoreCase(provider)) {
+                String region = serverConfigurationService.getString("region@" + LEGACY_BEAN_ID);
+                region = (region == null ? null : region.trim());
+                if (region == null || region.isEmpty()) {
+                    return "https://s3.amazonaws.com";
+                } else {
+                    return "https://s3." + region + ".amazonaws.com";
+                }
+            }
+        } catch (RuntimeException e) {
+            log.warn("Unable to resolve endpoint from legacy provider setting", e);
+        }
+        return null;
     }
 
     public void destroy() {
