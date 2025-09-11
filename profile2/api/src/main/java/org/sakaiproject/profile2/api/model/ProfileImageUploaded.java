@@ -54,19 +54,15 @@ public class ProfileImageUploaded implements PersistableEntity<String> {
     @Column(name = "RESOURCE_AVATAR", length = 4000, nullable = false)
 	private String avatarResource;
 
-    @Column(name = "IS_CURRENT", nullable = false)
-	private Boolean current;
-
 	/** 
 	 * Additional constructor to create a ProfileImage record in one go
 	 */
-	public ProfileImageUploaded(String userId, String mainResource, String thumbnailResource, String avatarResource, boolean current) {
+	public ProfileImageUploaded(String userId, String mainResource, String thumbnailResource, String avatarResource) {
 
 		this.userId = userId;
 		this.mainResource = mainResource;
 		this.thumbnailResource = thumbnailResource;
 		this.avatarResource = avatarResource;
-		this.current = current;
 	}
 
     public String getId() {

@@ -410,7 +410,7 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
          * SAVE IMAGE RESOURCE IDS
          */
         //save
-        ProfileImageUploaded profileImage = new ProfileImageUploaded(userUuid, mainResourceId, thumbnailResourceId, avatarResourceId, true);
+        ProfileImageUploaded profileImage = new ProfileImageUploaded(userUuid, mainResourceId, thumbnailResourceId, avatarResourceId);
         if (dao.saveProfileImage(profileImage)) {
             log.info("Added a new profile image for user: " + userUuid);
             return true;
