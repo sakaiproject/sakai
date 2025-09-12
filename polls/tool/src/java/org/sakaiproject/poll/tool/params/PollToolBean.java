@@ -167,12 +167,6 @@ public class PollToolBean {
 			throw new  IllegalArgumentException("close_before_open");
 		}
 
-		if (poll.getMinOptions() > poll.getMaxOptions()) {
-			log.debug("Min options greater than max options");
-			messages.addMessage(new TargettedMessage("min_greater_than_max"," min greater than max"));
-			throw new  IllegalArgumentException("min_greater_than_max");
-		}
-
 		if (poll.getText().trim() == null || poll.getText().length() == 0 ) {
 			log.debug("Poll question is Empty!");
 			messages.addMessage(new TargettedMessage("error_no_text","no text"));
@@ -183,6 +177,13 @@ public class PollToolBean {
 
 		poll.setDetails(PollUtils.cleanupHtmlPtags(externalLogic.processFormattedText(poll.getDetails(), new StringBuilder())));
 		log.debug("about to save poll " + poll);
+		
+		if (poll.getMinOptions() > poll.getMaxOptions()) {
+			log.debug("Poll min options is greater than max options");
+			messages.addMessage(new TargettedMessage("min_greater_than_max"));
+			return null;
+		}
+		
 		manager.savePoll(poll);
 
 		log.info("Poll saved with id of " + poll.getPollId());

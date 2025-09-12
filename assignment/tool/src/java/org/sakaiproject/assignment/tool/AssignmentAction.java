@@ -3334,12 +3334,16 @@ public class AssignmentAction extends PagedResourceActionII {
 
         Integer scaleFactor;
         Boolean anonGrading;
+        // Preserve the user's selection from state if present (e.g., when the form
+        // is re-rendered after validation alerts like past-due warning). Otherwise
+        // fall back to the assignment's stored value (when editing) or default.
+        Boolean anonFromState = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
         if (a != null) {
             scaleFactor = a.getScaleFactor() != null ? a.getScaleFactor() : assignmentService.getScaleFactor();
-            anonGrading = assignmentService.assignmentUsesAnonymousGrading(a);
+            anonGrading = anonFromState != null ? anonFromState : assignmentService.assignmentUsesAnonymousGrading(a);
         } else {
             scaleFactor = assignmentService.getScaleFactor();
-            anonGrading = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
+            anonGrading = anonFromState;
         }
 
         Assignment.GradeType gradeType = Assignment.GradeType.values()[(Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE)];
@@ -10121,13 +10125,17 @@ public class AssignmentAction extends PagedResourceActionII {
             case GRADEBOOK_INTEGRATION_ADD:
                 if (!post) {  // save as draft, retain original values for now
                     properties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
-                    properties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
+                    if (StringUtils.isNotBlank(associateGradebookAssignment)) {
+                        properties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
+                    }
                     break;
                 }
                 associateGradebookAssignment = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
             case GRADEBOOK_INTEGRATION_ASSOCIATE:
                 properties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
-                properties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
+                if (StringUtils.isNotBlank(associateGradebookAssignment)) {
+                    properties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
+                }
                 break;
             case GRADEBOOK_INTEGRATION_NO:
             default:
