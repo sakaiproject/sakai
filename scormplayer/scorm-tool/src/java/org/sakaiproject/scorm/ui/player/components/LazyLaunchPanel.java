@@ -203,7 +203,7 @@ public class LazyLaunchPanel extends LazyLoadPanel
 		{
 			String resourceName = cpResource.getPath();
 
-			ContentPackageWebResource resource = (ContentPackageWebResource) getApplication().getSharedResources().get(ScormPlayerPage.class, resourceName, null, null, null, false);
+			ContentPackageWebResource resource = (ContentPackageWebResource) getApplication().getSharedResources().get(ScormPlayerPage.class, resourceName, null, null, null, true);
 			if (resource == null || resource.lastModifiedTime().toEpochMilli() != cpResource.getLastModified())
 			{
 				ContentPackageWebResource webResource = new ContentPackageWebResource(cpResource);
