@@ -31,6 +31,7 @@ import org.sakaiproject.scorm.ui.player.util.CompressingContentPackageResourceSt
 import org.sakaiproject.scorm.ui.player.util.ContentPackageWebResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
@@ -78,7 +79,7 @@ public class ContentPackageResourceReference extends ResourceReference
 
                 // resource not found in shared resources, so attempt to get resource from Sakai
                 log.debug("Resource not found in webapp's resources, check in Sakai's resources: {}", path);
-                ContentPackageSakaiResource cpResource = new ContentPackageSakaiResource(path, path, 0, "application/octet-stream");
+                ContentPackageSakaiResource cpResource = new ContentPackageSakaiResource(path, path, 0, MediaType.APPLICATION_OCTET_STREAM_VALUE);
                 ContentPackageWebResource webResource = new ContentPackageWebResource(cpResource);
                 IResourceStream stream = webResource.getResourceStream();
 
@@ -89,9 +90,6 @@ public class ContentPackageResourceReference extends ResourceReference
                         public HttpHeaderCollection getHeaders() {
                             HttpHeaderCollection headers = super.getHeaders();
                             if (stream instanceof CompressingContentPackageResourceStream) {
-                                if (headers == null) {
-                                    headers = new HttpHeaderCollection();
-                                }
                                 headers.addHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
                             }
                             return headers;
@@ -118,7 +116,7 @@ public class ContentPackageResourceReference extends ResourceReference
             // if we couldn't serve the requested resource then return a http 404
             log.debug("Could not serve resource [{}], return http 404 Not Found", resourceName);
             ResourceResponse resourceResponse = new ResourceResponse();
-            resourceResponse.setError(HttpStatus.NOT_FOUND.value(), "Resource not found: " + resourceName);
+            resourceResponse.setError(HttpStatus.NOT_FOUND.value(), "Resource not found");
             return resourceResponse;
         }
     }
