@@ -39,5 +39,4 @@ public class UserController extends AbstractSakaiApiController{
           .contentType(MediaType.APPLICATION_JSON)
           .body(Map.of("isSuperUser", securityService.isSuperUser()));
     }
-
 }

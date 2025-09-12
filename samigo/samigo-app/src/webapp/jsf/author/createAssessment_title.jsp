@@ -58,9 +58,8 @@
             <div class="col-md-6">
                 <h2><h:outputText value="#{authorFrontDoorMessages.assessment_scratch}" rendered="#{authorization.createAssessment}" /></h2>
 
-                <div class="form-group form-inline form-control-required">
-                    <h:outputLabel for="title" value="#{authorFrontDoorMessages.assessment_create}"/>
-                    <span class="text-danger">*</span>
+                <div class="form-group form-inline">
+                    <h:outputLabel for="title" value="#{authorFrontDoorMessages.assessment_create}" styleClass="required" />
                     <h:inputText id="title" maxlength="255" value="#{author.assessTitle}" styleClass="form-control" />
                 </div>
 

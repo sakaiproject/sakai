@@ -11,3 +11,4 @@ coverage/
 /screenshots/.current/
 /screenshots/.diff/
 meta.json
+.nvmrc

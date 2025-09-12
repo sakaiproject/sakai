@@ -25,7 +25,7 @@ import org.tsugi.lti.LTIConstants;
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.lti.api.UserPictureSetter;
-import org.sakaiproject.profile2.logic.ProfileImageLogic;
+import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -35,7 +35,7 @@ import org.sakaiproject.user.api.User;
 public class UserPictureSetterImpl implements UserPictureSetter {
 
     @Setter
-    private ProfileImageLogic profileImageLogic = null;
+    private ProfileService profileService;
 
     /**
      * LTI-155. If Profile2 is installed, set the profile picture to the user_image url, if supplied.
@@ -58,7 +58,7 @@ public class UserPictureSetterImpl implements UserPictureSetter {
     		log.debug("User image supplied by consumer: {}", imageUrl);
 
             try {
-                profileImageLogic.saveOfficialImageUrl(user.getId(), imageUrl);
+                profileService.saveOfficialImageUrl(user.getId(), imageUrl);
             } catch(Exception e) {
                 log.error("Failed to setup launcher's Profile2 picture.", e.toString());
             }
