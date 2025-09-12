@@ -123,9 +123,16 @@ public class DefaultFileSystemHandler implements FileSystemHandler {
         if (!src.exists()) {
             throw new IOException("Source file does not exist: " + src.getAbsolutePath());
         }
+        // Fail fast on directory sources – this method is for files only
+        if (src.isDirectory()) {
+            throw new IOException("Source is a directory (not a file): " + src.getAbsolutePath());
+        }
 
         File parent = dst.getParentFile();
-        if (parent != null) parent.mkdirs();
+        if (parent != null) {
+            // Create destination parent directories, propagating IOExceptions
+            Files.createDirectories(parent.toPath());
+        }
 
         // replace if present to mirror saveInputStream semantics
         Files.copy(src.toPath(), dst.toPath(), StandardCopyOption.REPLACE_EXISTING);

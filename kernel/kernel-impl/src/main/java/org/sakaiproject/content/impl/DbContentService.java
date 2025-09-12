@@ -3055,6 +3055,7 @@ public class DbContentService extends BaseContentService
         String fileName = isolateName(new_id);
         fileName = Validator.escapeResourceName(fileName);
         String folderId = isolateContainingId(new_id);
+        new_id = folderId + fileName;
 
         ResourceProperties properties = resource.getProperties();
         String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
@@ -3085,7 +3086,8 @@ public class DbContentService extends BaseContentService
                         long length = fileSystemHandler.copy(src.m_id, bodyPath, src.m_filePath, dst.m_id, bodyPath, dst.m_filePath);
                         dst.setContentLength(length);
                     } catch (IOException ioe) {
-                        log.warn("Server-side copy failed ({}). Falling back to stream copy.", ioe.toString());
+                        log.warn("Server-side copy failed; falling back to stream copy. src={}, dst={}",
+                                src.m_filePath, dst.m_filePath, ioe);
                         edit.setContent(resource.streamContent());
                     }
                 } else {

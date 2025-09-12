@@ -7609,28 +7609,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				{
 					toCollection = getCollection(toContext);
 				}
-				catch (IdUnusedException eee)
+				catch (IdUnusedException | TypeException eee)
 				{
 					log.error(this + toContext, eee);
 				}
-				catch (TypeException eee)
-				{
-					log.error(this + toContext, eee);
-				}
-			}
-			catch(IdUsedException ee)
-			{
-				log.error(this + toContext, ee);
-			}
-			catch(IdInvalidException ee)
-			{
-				log.error(this + toContext, ee);
-			}
-			catch (PermissionException ee)
-			{
-				log.error(this + toContext, ee);
-			}
-			catch (InconsistentException ee)
+            }
+			catch(IdUsedException | InconsistentException | PermissionException | IdInvalidException ee)
 			{
 				log.error(this + toContext, ee);
 			}
@@ -7642,16 +7626,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				}
 			}
 		}
-		catch (TypeException e)
-		{
-			log.error(this + toContext, e);
-		}
-		catch (PermissionException e)
+		catch (TypeException | PermissionException e)
 		{
 			log.error(this + toContext, e);
 		}
 
-		if (toCollection != null)
+        if (toCollection != null)
 		{
 			// get the list of all resources for importing
 			try
@@ -7674,16 +7654,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				for (ContentEntity oResource : oResources) {
 					String oId = oResource.getId();
 
-					if (resourceIds != null && resourceIds.size() > 0)
+					if (resourceIds != null && !resourceIds.isEmpty())
 					{
 						// only import those with ids inside the list
 						toBeImported = false;
 						for (int j = 0; j < resourceIds.size() && !toBeImported; j++)
 						{
-							if (resourceIds.get(j).equals(oId))
-							{
-								toBeImported = true;
-							}
+                            if (resourceIds.get(j).equals(oId)) {
+                                toBeImported = true;
+                                break;
+                            }
 						}
 					}
 
@@ -7720,7 +7700,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 						boolean isCollection = false;
 						try {
 							isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-						} catch (Exception e) {
+						} catch (Exception ignored) {
 						}
 
 						if (isCollection) {
@@ -7730,7 +7710,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 								// import properties
 								ResourcePropertiesEdit p = edit.getPropertiesEdit();
 								p.clear();
-								p.addAll(oProperties);
+								addProperties(p, oProperties); // skip live properties; commit path will set them
 								edit.setAvailability(((ContentCollection) oResource).isHidden(), ((ContentCollection) oResource).getReleaseDate(), ((ContentCollection) oResource).getRetractDate());
 								// SAK-23305
 								hideImportedContent(edit);
@@ -7752,24 +7732,33 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
                             edit.setContentSha256(src.getContentSha256());
                             edit.setResourceType(src.getResourceType());
 
-                            boolean didReferenceCopy = false;
                             // Fast path: reference-copy when using filesystem/object storage
                             if (bodyPath != null && edit instanceof BaseResourceEdit && src instanceof BaseResourceEdit && src.getContentLength() > 0) {
                                 // Point the new resource at the same underlying blob
                                 ((BaseResourceEdit) edit).setReferenceCopy(src.getId());
                                 ((BaseResourceEdit) edit).m_filePath = ((BaseResourceEdit) src).m_filePath;
                                 ((BaseResourceEdit) edit).setContentLength(src.getContentLength());
-                                didReferenceCopy = true;
                             } else {
                                 // Fallback: stream through the app
-                                edit.setContent(src.streamContent());
+                                // Capture the stream so we can close it if setContent throws.
+                                InputStream contentStream = null;
+                                try {
+                                    contentStream = src.streamContent();
+                                    // On success, ownership transfers to the edit; do not close here.
+                                    edit.setContent(contentStream);
+                                    contentStream = null; // prevent close in finally
+                                } finally {
+                                    if (contentStream != null) {
+                                        try { contentStream.close(); } catch (IOException ioe) { /* best-effort */ }
+                                    }
+                                }
                             }
 
                             edit.setAvailability(src.isHidden(), src.getReleaseDate(), src.getRetractDate());
                             // import properties
                             ResourcePropertiesEdit p = edit.getPropertiesEdit();
                             p.clear();
-                            p.addAll(oProperties);
+                            addProperties(p, oProperties); // skip live properties; commit path will set them
                             // SAK-23305
                             hideImportedContent(edit);
                             // Register the events
