@@ -4136,8 +4136,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 Assignment a = assignment.get();
                 setScoringAgentProperties(context, a, s, true);
 
-                // try to put in grade overrides
-                if (a.getIsGroup()) {
+                // try to put in grade overrides (not applicable when anonymous grading is enabled)
+                if (AssignmentToolUtils.allowGroupOverrides(a, assignmentService)) {
                     context.put("ownerGroupId", s.getGroupId());
                     Map<String, Object> grades = new HashMap<>();
                     for (String userId : users.keySet()) {
@@ -5196,22 +5196,21 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("groupsReviewersMap", groupsReviewersMap);
             }
 
-            // try to put in grade overrides
-            if (assignment.getIsGroup()) {
-                Map<String, Object> ugrades = new HashMap<>();
-                Map<String, String> p = assignment.getProperties();
+            // try to put in grade overrides for list context (not when anonymous grading)
+            if (AssignmentToolUtils.allowGroupOverrides(assignment, assignmentService)) {
+                Map<String, Object> userGrades = new HashMap<>();
                 for (SubmitterSubmission ss : userSubmissions) {
                     if (ss != null && ss.getSubmission() != null) {
-                        List<String> users = ss.getSubmission().getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
+                        List<String> users = ss.getSubmission().getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).toList();
                         for (String user : users) {
                             String agrade = assignmentService.getGradeForSubmitter(ss.getSubmission(), user);
                             if (agrade != null) {
-                                ugrades.put(user, agrade);
+                                userGrades.put(user, agrade);
                             }
                         }
                     }
                 }
-                context.put("value_grades", ugrades);
+                context.put("value_grades", userGrades);
 
             }
 
@@ -11563,13 +11562,13 @@ public class AssignmentAction extends PagedResourceActionII {
                 String grade = assignmentService.getGradeDisplay(s.getGrade(), a.getTypeOfGrade(), a.getScaleFactor());
                 state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
 
-                // populate grade overrides if they exist
-                if (a.getIsGroup()) {
-	                for (AssignmentSubmissionSubmitter submitter : s.getSubmitters()) {
-	                    String gradeOverride = assignmentService.getGradeForSubmitter(s, submitter.getSubmitter());
-	                    if (!StringUtils.equals(grade, gradeOverride)) {
-	                        state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), gradeOverride);
-	                    }
+                // populate grade overrides if they exist (skip when anonymous grading)
+                if (AssignmentToolUtils.allowGroupOverrides(a, assignmentService)) {
+                        for (AssignmentSubmissionSubmitter submitter : s.getSubmitters()) {
+                            String gradeOverride = assignmentService.getGradeForSubmitter(s, submitter.getSubmitter());
+                            if (!StringUtils.equals(grade, gradeOverride)) {
+                                state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter(), gradeOverride);
+                            }
 	                }
                 }
 
@@ -12565,8 +12564,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     addAlert(state, rb.getString("plespethe2"));
                 }
 
-                // check for grade overrides
-                if (a.getIsGroup()) {
+                // check for grade overrides (not applicable when anonymous grading)
+                if (AssignmentToolUtils.allowGroupOverrides(a, assignmentService)) {
                     HashMap<String, String> scaledValues = new HashMap<String, String>();
                     Set<AssignmentSubmissionSubmitter> submitters = submission.getSubmitters();
                     for (AssignmentSubmissionSubmitter submitter : submitters) {
