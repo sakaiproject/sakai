@@ -9,6 +9,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.lang.reflect.Method;
 
@@ -369,7 +370,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         BlobStore store = getBlobStore();
         // Server-side copy with metadata override so the destination reflects destId/destFilePath
         // Encode id similarly to saveInputStream to satisfy provider metadata charset restrictions
-        String asciiID = Base64.encodeBase64String(destId.getBytes("UTF8"));
+        String asciiID = Base64.encodeBase64String(destId.getBytes(StandardCharsets.UTF_8));
         CopyOptions opts = buildCopyOptionsWithUserMetadata(ImmutableMap.of("id", asciiID, "path", destFilePath));
         store.copyBlob(src.container, src.name, dst.container, dst.name, opts);
         // Return size of the destination
