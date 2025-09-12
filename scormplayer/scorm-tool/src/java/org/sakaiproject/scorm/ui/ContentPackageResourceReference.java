@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.request.HttpHeaderCollection;
 import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.PartWriterCallback;
@@ -59,16 +60,17 @@ public class ContentPackageResourceReference extends ResourceReference
 
         @Override
         protected ResourceResponse newResourceResponse(Attributes attributes) {
-            final String resourceId = attributes.getParameters().get("resourceID").toString();
-            final String resourceName = attributes.getParameters().get("resourceName").toString();
+            final String resourceId = attributes.getParameters().get("resourceID").toOptionalString();
+            final String resourceName = attributes.getParameters().get("resourceName").toOptionalString();
 
             log.debug("Process request for resource id/name [{}/{}]", resourceId, resourceName);
             if (StringUtils.isNoneBlank(resourceId, resourceName)) {
 
                 String base = ROOT_DIRECTORY + resourceId + "/" + resourceName;
-                String suffix = IntStream.range(0, attributes.getParameters().getIndexedCount())
-                        .mapToObj(i -> attributes.getParameters().get(i).toString())
-                        .takeWhile(s -> !"contentpackages".equals(s))
+                PageParameters parameters = attributes.getParameters();
+                String suffix = IntStream.range(0, parameters.getIndexedCount())
+                        .mapToObj(i -> parameters.get(i).toString())
+                        .takeWhile(s -> !"contentpackages".equalsIgnoreCase(s))
                         .map(s -> "/" + s)
                         .collect(Collectors.joining());
 
@@ -98,13 +100,13 @@ public class ContentPackageResourceReference extends ResourceReference
                     resourceResponse.setContentLength(size);
                     resourceResponse.setContentType(stream.getContentType());
                     resourceResponse.setTextEncoding(StandardCharsets.UTF_8.name());
-                    resourceResponse.setAcceptRange(ContentRangeType.BYTES);
+                    resourceResponse.setAcceptRange(AbstractResource.ContentRangeType.BYTES);
                     resourceResponse.setFileName(resourceName);
                     resourceResponse.setLastModified(stream.lastModifiedTime());
 
                     RequestCycle cycle = RequestCycle.get();
-                    Long startbyte = cycle.getMetaData(CONTENT_RANGE_STARTBYTE);
-                    Long endbyte = cycle.getMetaData(CONTENT_RANGE_ENDBYTE);
+                    Long startbyte = cycle.getMetaData(AbstractResource.CONTENT_RANGE_STARTBYTE);
+                    Long endbyte = cycle.getMetaData(AbstractResource.CONTENT_RANGE_ENDBYTE);
                     resourceResponse.setWriteCallback(new PartWriterCallback(stream.getInputStream(), size, startbyte, endbyte).setClose(true));
                     return resourceResponse;
                 } catch (ResourceStreamNotFoundException rsnfe) {
