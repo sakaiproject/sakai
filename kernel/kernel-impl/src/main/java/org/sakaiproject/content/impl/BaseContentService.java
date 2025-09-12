@@ -5636,6 +5636,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
                     InputStream stream = new BufferedInputStream(edit.streamContent());
                     edit.setContent(stream);
                     detectedByMagic = tikaDetector.detect(stream, metadata).toString();
+
+                    // Prevent incorrect HTML to XHTML conversion
+                    if ("application/xhtml+xml".equals(detectedByMagic) && "text/html".equalsIgnoreCase(currentContentType)) {
+                        if (!isValidXHTML(stream)) {
+                            log.debug("Preventing incorrect XHTML detection for [{}], keeping HTML content type", edit.getId());
+                            detectedByMagic = currentContentType;
+                        }
+                    }
                 } catch (Exception e) {
                     log.warn("tika mimetype detection failed when trying to get the resource data: {}", e.toString());
                 }
@@ -5689,6 +5697,42 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		}
 		
 	} // commitResource
+
+
+	/**
+	 * Validates if the content is actually valid XHTML
+	 */
+	private boolean isValidXHTML(InputStream stream) {
+		try {
+			stream.mark(2048);
+			byte[] buffer = new byte[1024];
+			int bytesRead = stream.read(buffer);
+			stream.reset();
+
+			if (bytesRead <= 0) {
+				return false;
+			}
+
+			String content = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8);
+			String contentLower = content.toLowerCase();
+
+			// HTML5 DOCTYPE (case insensitive, strict format) indicates HTML, not XHTML
+			if (contentLower.matches("(?i).*<!doctype\\\\s+html>.*")) {
+				return false;
+			}
+
+			// True XHTML must have XML declaration AND proper XHTML DOCTYPE
+			boolean hasXmlDeclaration = content.contains("<?xml");
+			boolean hasXhtmlDoctype = content.contains("dtd xhtml");
+
+			// XHTML requires both XML declaration and XHTML DOCTYPE
+			return hasXmlDeclaration && hasXhtmlDoctype;
+
+		} catch (IOException e) {
+			log.debug("Error validating XHTML for content: {}", e.toString());
+			return false;
+		}
+	}
 
     /**
 	 * This timer task is run by the timer thread based on the period set above
