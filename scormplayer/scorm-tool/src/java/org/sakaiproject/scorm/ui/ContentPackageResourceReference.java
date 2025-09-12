@@ -31,7 +31,6 @@ import org.sakaiproject.scorm.ui.player.util.CompressingContentPackageResourceSt
 import org.sakaiproject.scorm.ui.player.util.ContentPackageWebResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
@@ -78,8 +77,7 @@ public class ContentPackageResourceReference extends ResourceReference
                 String path = base + suffix;
 
                 // resource not found in shared resources, so attempt to get resource from Sakai
-                log.debug("Resource not found in webapp's resources, check in Sakai's resources: {}", path);
-                ContentPackageSakaiResource cpResource = new ContentPackageSakaiResource(path, path, 0, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+                ContentPackageSakaiResource cpResource = new ContentPackageSakaiResource(path, path);
                 ContentPackageWebResource webResource = new ContentPackageWebResource(cpResource);
                 IResourceStream stream = webResource.getResourceStream();
 
@@ -96,8 +94,9 @@ public class ContentPackageResourceReference extends ResourceReference
                         }
                     };
                     resourceResponse.setContentLength(size);
-                    resourceResponse.setContentType(stream.getContentType());
-                    resourceResponse.setTextEncoding(StandardCharsets.UTF_8.name());
+                    String contentType = stream.getContentType();
+                    resourceResponse.setContentType(contentType);
+                    if (contentType.startsWith("text/")) resourceResponse.setTextEncoding(StandardCharsets.UTF_8.name());
                     resourceResponse.setAcceptRange(AbstractResource.ContentRangeType.BYTES);
                     resourceResponse.setFileName(resourceName);
                     resourceResponse.setLastModified(stream.lastModifiedTime());

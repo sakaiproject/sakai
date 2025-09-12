@@ -32,101 +32,71 @@ import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.time.api.Time;
 
 @Slf4j
-public class ContentPackageSakaiResource extends ContentPackageResource
-{
+public class ContentPackageSakaiResource extends ContentPackageResource {
 	private static final long serialVersionUID = 1L;
 
-	private static final ContentHostingService contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+	private static final ContentHostingService contentHostingService = ComponentManager.get(ContentHostingService.class);
 
 	String contentResourceId;
+	ContentResource contentResource;
 
-	public ContentPackageSakaiResource(String path, ContentResource contentResource)
-	{
-		this(path, contentResource.getId(), contentResource.getContentLength(), contentResource.getContentType());
-	}
+    public ContentPackageSakaiResource(String path, ContentResource contentResource) {
+        super(path);
+        this.contentResource = contentResource;
+        this.contentResourceId = contentResource.getId();
+    }
 
-	public ContentPackageSakaiResource(String path, String contentResourceId, long contentLength, String mimeType)
-	{
-		super(path);
-		this.contentResourceId = contentResourceId;
-	}
+    public ContentPackageSakaiResource(String path, String contentResourceId) {
+        super(path);
+        this.contentResourceId = contentResourceId;
+        try {
+            this.contentResource = contentHostingService.getResource(contentResourceId);
+        } catch (PermissionException e) {
+            log.warn("User lacks permission to access CHS resource [{}], {}", contentResourceId, e.toString());
+        } catch (IdUnusedException e) {
+            log.warn("CHS resource not found with id [{}], {}", contentResourceId, e.toString());
+        } catch (TypeException e) {
+            log.warn("CHS resource is a collection [{}], {}", contentResourceId, e.toString());
+        }
+    }
 
-	@Override
-	public InputStream getInputStream() throws ResourceNotFoundException
-	{
-		try
-		{
-			ContentResource resource = contentHostingService.getResource(contentResourceId);
-			return resource.streamContent();
-		}
-		catch (IdUnusedException e)
-		{
-			log.warn("CHS resource not found with id [{}], {}", contentResourceId, e.toString());
-			throw new ResourceNotFoundException(getPath());
-		}
-		catch (Exception e)
-		{
-            log.warn("Could not stream content from this path [{}], {}", getPath(), e.toString());
-			throw new RuntimeException(e);
-		}
-	}
+    @Override
+    public InputStream getInputStream() throws ResourceNotFoundException {
+        if (contentResource == null) throw new ResourceNotFoundException(contentResourceId);
+        try {
+            return contentResource.streamContent();
+        } catch (Exception e) {
+            throw new ResourceNotFoundException(contentResourceId);
+        }
+    }
 
-	@Override
-	public long getLastModified()
-	{
-		try
-		{
-			ContentResource resource = contentHostingService.getResource(contentResourceId);
-			Time modiefied = resource.getProperties().getTimeProperty(resource.getProperties().getNamePropModifiedDate());
-			if (modiefied != null)
-			{
-				return modiefied.getTime();
-			}
-			else
-			{
-				Time created = resource.getProperties().getTimeProperty(resource.getProperties().getNamePropCreationDate());
-				if (created != null)
-				{
-					return created.getTime();
-				}
-			}
-		}
-		catch (EntityPropertyNotDefinedException | EntityPropertyTypeException | PermissionException | IdUnusedException | TypeException e)
-		{
-			// ignore
-		}
+    @Override
+    public long getLastModified() {
+        if (contentResource != null && contentResource.getProperties() != null) {
+            try {
+                Time modified = contentResource.getProperties().getTimeProperty(contentResource.getProperties().getNamePropModifiedDate());
+                if (modified != null) {
+                    return modified.getTime();
+                }
 
-		return System.currentTimeMillis();
-	}
+                Time created = contentResource.getProperties().getTimeProperty(contentResource.getProperties().getNamePropCreationDate());
+                if (created != null) {
+                    return created.getTime();
+                }
+            } catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e) {
+                log.debug("Creation/Modified time property not found for resource [{}], {}", contentResourceId, e.toString());
+            }
+        }
+        return System.currentTimeMillis();
+    }
 
-	@Override
-	public long getLength()
-	{
-		try
-		{
-			ContentResource resource = contentHostingService.getResource(contentResourceId);
-			return resource.getContentLength();
-		}
-		catch (PermissionException | IdUnusedException | TypeException e)
-		{
-			// ignore
-		}
-		return -1;
-	}
+    @Override
+    public long getLength() {
+        return contentResource != null ? Math.max(0, contentResource.getContentLength()) : 0;
+    }
 
-	@Override
-	public String getMimeType()
-	{
-		try
-		{
-			ContentResource resource = contentHostingService.getResource(contentResourceId);
-			return resource.getContentType();
-		}
-		catch (PermissionException | IdUnusedException | TypeException e)
-		{
-			// ignore
-		}
-
-		return "";
-	}
+    @Override
+    public String getMimeType() {
+        return contentResource != null ? contentResource.getContentType() : "application/octet-stream";
+    }
 }
