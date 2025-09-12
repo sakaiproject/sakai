@@ -1988,7 +1988,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			Set<String> navigationToolIds = siteService.getSite(fromContext).getOrderedPages()
 				.stream().map(SitePage::getId).collect(Collectors.toSet());
 			
-			return simplePageToolDao.getSitePages(fromContext).stream()
+			List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
+			if (sitePages == null || sitePages.isEmpty()) {
+				return Collections.emptyList();
+			}
+			
+			return sitePages.stream()
 				.filter(page -> navigationToolIds.contains(page.getToolId()))
 				.map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle()))
 				.collect(Collectors.toList());
