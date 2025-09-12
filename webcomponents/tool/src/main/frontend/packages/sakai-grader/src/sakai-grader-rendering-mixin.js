@@ -536,7 +536,7 @@ export const graderRenderingMixin = Base => class extends Base {
             ` : nothing }
             <!-- end hasAssociatedRubric -->
 
-            ${this._submission.groupId ? html`
+            ${this._submission.groupId && !this.gradable.anonymousGrading ? html`
               <div id="grader-overrides-wrapper">
                 <label>
                   <input type="checkbox" id="grader-override-toggle" ?checked=${this._showOverrides} @click=${e => this._showOverrides = e.target.checked} />

@@ -98,6 +98,21 @@ public class AssignmentToolUtils {
     private static ResourceLoader rb = new ResourceLoader("assignment");
 
     /**
+     * Returns {@code true} when per-submitter grade overrides are permitted: the assignment is a group
+     * assignment and anonymous grading is NOT enabled for that assignment.
+     *
+     * @param a the assignment to check
+     * @param assignmentService the AssignmentService used to determine anonymous grading
+     * @return {@code true} if the assignment is a group assignment and anonymous grading is disabled
+     * @throws NullPointerException if {@code a} or {@code assignmentService} is {@code null}
+     */
+    public static boolean allowGroupOverrides(Assignment a, AssignmentService assignmentService) {
+        Objects.requireNonNull(a, "assignment");
+        Objects.requireNonNull(assignmentService, "assignmentService");
+        return a.getIsGroup() && !assignmentService.assignmentUsesAnonymousGrading(a);
+    }
+
+    /**
      * scale the point value by "factor" if there is a valid point grade
      */
     public String scalePointGrade(String point, int factor, List<String> alerts) {
@@ -334,11 +349,12 @@ public class AssignmentToolUtils {
                 }
             }
 
-            if (a.getIsGroup()) {
+            if (allowGroupOverrides(a, assignmentService)) {
                 // group project only set a grade override for submitters
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     String submitterGradeOverride = StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter()));
-                    if (!StringUtils.equals(submitterGradeOverride, submitter.getGrade())) {
+                    String current = StringUtils.trimToNull(submitter.getGrade());
+                    if (!StringUtils.equals(submitterGradeOverride, current)) {
                         submitter.setGrade(submitterGradeOverride);
                     }
                 }
