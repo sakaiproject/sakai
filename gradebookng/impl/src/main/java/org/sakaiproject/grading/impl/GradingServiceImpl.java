@@ -2499,8 +2499,11 @@ public class GradingServiceImpl implements GradingService {
 
         Long gradebookId = getGradebook(gradebookUid).getId();
 
+        // Return categories sorted to match Gradebook Settings order. This ensures
+        // consistent ordering across Gradebook, Assignments, and Tests & Quizzes.
         return getCategories(gradebookId).stream()
             .map(category -> buildCategoryDefinition(category, siteId))
+            .sorted(org.sakaiproject.grading.api.CategoryDefinition.orderComparator)
             .collect(Collectors.toList());
     }
 
