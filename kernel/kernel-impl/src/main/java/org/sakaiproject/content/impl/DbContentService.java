@@ -3061,18 +3061,13 @@ public class DbContentService extends BaseContentService
         if (displayName == null) displayName = fileName;
         String new_displayName = displayName;
 
-        String basename = fileName;
-        String extension = "";
-        int index = fileName.lastIndexOf(".");
-        if (index >= 0) {
-            basename = fileName.substring(0, index);
-            extension = fileName.substring(index);
-        }
+        String basename = org.apache.commons.io.FilenameUtils.getBaseName(fileName);
+        String ext = org.apache.commons.io.FilenameUtils.getExtension(fileName);
+        String extension = ext.isEmpty() ? "" : "." + ext;
 
-        boolean still_trying = true;
         int attempt = 0;
 
-        while (still_trying && attempt < MAXIMUM_ATTEMPTS_FOR_UNIQUENESS) {
+        while (attempt < MAXIMUM_ATTEMPTS_FOR_UNIQUENESS) {
             try {
                 ContentResourceEdit edit = addResource(new_id);
                 edit.setContentType(resource.getContentType());
@@ -3108,7 +3103,6 @@ public class DbContentService extends BaseContentService
                 return new_id;
             } catch (IdUsedException e) {
                 try { getResource(new_id); } catch (Exception ee) { throw e; }
-                if (attempt >= MAXIMUM_ATTEMPTS_FOR_UNIQUENESS) { throw e; }
                 attempt++;
                 new_id = folderId + basename + "-" + attempt + extension;
                 new_displayName = displayName + " (" + attempt + ")";
