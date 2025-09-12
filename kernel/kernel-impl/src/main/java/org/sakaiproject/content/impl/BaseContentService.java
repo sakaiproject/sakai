@@ -5634,8 +5634,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
                 try {
                     // tika detect doesn't modify the original stream but stream must support reset
                     InputStream stream = new BufferedInputStream(edit.streamContent());
+                    // Mark before Tika so we can rewind to the start for any subsequent peeks
+                    stream.mark(8192);
                     edit.setContent(stream);
                     detectedByMagic = tikaDetector.detect(stream, metadata).toString();
+                    // Rewind to the beginning for follow-up validation checks
+                    stream.reset();
 
                     // Prevent incorrect HTML to XHTML conversion
                     if ("application/xhtml+xml".equals(detectedByMagic) && "text/html".equalsIgnoreCase(currentContentType)) {
@@ -5714,10 +5718,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			}
 
 			String content = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8);
-			String contentLower = content.toLowerCase();
+			String contentLower = content.toLowerCase(Locale.ROOT);
 
 			// HTML5 DOCTYPE (case insensitive, strict format) indicates HTML, not XHTML
-			if (contentLower.matches("(?i).*<!doctype\\\\s+html>.*")) {
+			if (contentLower.matches("(?i).*<!doctype\\s+html>.*")) {
 				return false;
 			}
 
