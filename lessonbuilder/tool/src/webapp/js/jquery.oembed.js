@@ -124,9 +124,10 @@
     }
 
     function getRequestUrl(provider, externalUrl) {
-        var url = provider.apiendpoint,
+        let url = (provider && provider.apiendpoint) ? provider.apiendpoint : null,
             qs = "",
             i;
+        if (!url) return "";
         url += (url.indexOf("?") <= 0) ? "?" : "&";
         url = url.replace('#', '%23');
 
@@ -221,13 +222,19 @@
                 success({code: externalUrl.replace(embedProvider.templateRegex, embedProvider.template)}, externalUrl, container);
             }
         } else {
+            // If the provider does not define an apiendpoint (e.g., 'opengraph' fallback),
+            // there is nothing to request. Avoid errors and treat as provider not found.
+            if (!embedProvider || !embedProvider.apiendpoint) {
+                settings.onProviderNotFound.call(container, externalUrl);
+                return;
+            }
 
-            var requestUrl = getRequestUrl(embedProvider, externalUrl);
+            const requestUrl = getRequestUrl(embedProvider, externalUrl);
             ajaxopts = $.extend({
                 url: requestUrl,
                 dataType: embedProvider.dataType || 'jsonp',
                 success: function (data) {
-                    var oembedData = $.extend({}, data);
+                    const oembedData = $.extend({}, data);
                     switch (oembedData.type) {
                         case "file": //Deviant Art has this
                         case "photo":
