@@ -350,6 +350,32 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
             return true;
         }
     }
+
+    @Override
+    public long copy(String sourceId, String sourceRoot, String sourceFilePath,
+                     String destId, String destRoot, String destFilePath) throws IOException {
+        ContainerAndName src = getContainerAndName(sourceId, sourceRoot, sourceFilePath);
+        ContainerAndName dst = getContainerAndName(destId, destRoot, destFilePath);
+        createContainerIfNotExist(dst.container);
+
+        ObjectApi srcApi = swiftApi.getObjectApi(region, src.container);
+        SwiftObject so = srcApi.get(src.name, GetOptions.NONE);
+        if (so == null) {
+            throw new IOException("Source object not found for copy: " + src.container + "/" + src.name);
+        }
+
+        byte[] bytes = FileCopyUtils.copyToByteArray(so.getPayload().openStream());
+        ObjectApi dstApi = swiftApi.getObjectApi(region, dst.container);
+        Payload payload = null;
+        try {
+            payload = Payloads.newInputStreamPayload(new ByteArrayInputStream(bytes));
+            dstApi.put(dst.name, payload, PutOptions.Builder.metadata(ImmutableMap.of("id", destId, "path", destFilePath)));
+        } finally {
+            if (payload != null) payload.release();
+        }
+
+        return bytes.length;
+    }
     
     /**
      * Checks the space used for the account against the space available.

@@ -16,6 +16,7 @@ import org.jclouds.ContextBuilder;
 import org.jclouds.aws.s3.AWSS3ProviderMetadata;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
+import org.jclouds.blobstore.options.CopyOptions;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.http.HttpRequest;
@@ -342,6 +343,36 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             deleteContainerIfEmpty(can.container);
             return true;
         }
+    }
+    
+    @Override
+    public long copy(String sourceId, String sourceRoot, String sourceFilePath,
+                     String destId, String destRoot, String destFilePath) throws IOException {
+        ContainerAndName src = getContainerAndName(sourceId, sourceRoot, sourceFilePath);
+        ContainerAndName dst = getContainerAndName(destId, destRoot, destFilePath);
+        createContainerIfNotExist(dst.container);
+        BlobStore store = getBlobStore();
+        try {
+            // Prefer server-side copy when provider supports it
+            store.copyBlob(src.container, src.name, dst.container, dst.name, CopyOptions.NONE);
+        } catch (UnsupportedOperationException uoe) {
+            // Fallback: stream via this JVM
+            Blob blob = store.getBlob(src.container, src.name);
+            if (blob == null) throw new IOException("Source object not found for copy: " + src.container + "/" + src.name);
+            Payload payload = blob.getPayload();
+            try {
+                Blob dest = store.blobBuilder(dst.name).payload(payload).contentLength(blob.getMetadata().getSize()).build();
+                store.putBlob(dst.container, dest);
+            } finally {
+                payload.release();
+            }
+        }
+        // Return size of the destination
+        Blob copied = store.getBlob(dst.container, dst.name);
+        if (copied == null || copied.getMetadata().getSize() == null) {
+            throw new IOException("Failed to verify copied object size for: " + dst.container + "/" + dst.name);
+        }
+        return copied.getMetadata().getSize();
     }
     
     /**
