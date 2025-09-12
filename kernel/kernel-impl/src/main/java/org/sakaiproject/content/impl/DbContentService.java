@@ -70,8 +70,12 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.KernelConfigurationError;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
@@ -84,10 +88,14 @@ import org.sakaiproject.util.DbSingleStorage;
 import org.sakaiproject.util.EntityReaderAdapter;
 import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.Validator;
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.event.api.NotificationService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
+import static org.sakaiproject.content.util.IdUtil.isolateName;
 
 /**
  * <p>
@@ -3029,6 +3037,87 @@ public class DbContentService extends BaseContentService
     public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
     {
         return  m_storage.getResourcesOfType(resourceType, pageSize, page);
+    }
+
+    /**
+     * Optimized copy that uses reference-copy (no bytes) for filesystem-backed storage
+     * when requested, and otherwise performs a server-side blob copy via the FileSystemHandler
+     * when possible. Falls back to streaming copy when neither is available.
+     */
+    @Override
+    protected String copyResource(ContentResource resource, String new_id, boolean referenceCopy) throws PermissionException, IdUnusedException,
+        TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException {
+
+        if (StringUtils.isBlank(new_id)) {
+            throw new IllegalArgumentException("new_id must not be null");
+        }
+
+        String fileName = isolateName(new_id);
+        fileName = Validator.escapeResourceName(fileName);
+        String folderId = isolateContainingId(new_id);
+
+        ResourceProperties properties = resource.getProperties();
+        String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+        if (displayName == null) displayName = fileName;
+        String new_displayName = displayName;
+
+        String basename = fileName;
+        String extension = "";
+        int index = fileName.lastIndexOf(".");
+        if (index >= 0) {
+            basename = fileName.substring(0, index);
+            extension = fileName.substring(index);
+        }
+
+        boolean still_trying = true;
+        int attempt = 0;
+
+        while (still_trying && attempt < MAXIMUM_ATTEMPTS_FOR_UNIQUENESS) {
+            try {
+                ContentResourceEdit edit = addResource(new_id);
+                edit.setContentType(resource.getContentType());
+                edit.setResourceType(resource.getResourceType());
+                edit.setContentSha256(resource.getContentSha256());
+
+                if (referenceCopy && edit instanceof BaseResourceEdit && resource instanceof BaseResourceEdit) {
+                    ((BaseResourceEdit) edit).setReferenceCopy(resource.getId());
+                    ((BaseResourceEdit) edit).m_filePath = ((BaseResourceEdit) resource).m_filePath;
+                    ((BaseResourceEdit) edit).setContentLength(resource.getContentLength());
+                } else if (bodyPath != null && edit instanceof BaseResourceEdit && resource instanceof BaseResourceEdit && resource.getContentLength() > 0) {
+                    BaseResourceEdit src = (BaseResourceEdit) resource;
+                    BaseResourceEdit dst = (BaseResourceEdit) edit; // file path allocated
+                    try {
+                        long length = fileSystemHandler.copy(src.m_id, bodyPath, src.m_filePath, dst.m_id, bodyPath, dst.m_filePath);
+                        dst.setContentLength(length);
+                    } catch (IOException ioe) {
+                        log.warn("Server-side copy failed ({}). Falling back to stream copy.", ioe.toString());
+                        edit.setContent(resource.streamContent());
+                    }
+                } else {
+                    edit.setContent(resource.streamContent());
+                }
+
+                // Copy properties and availability
+                ResourcePropertiesEdit newProps = edit.getPropertiesEdit();
+                addProperties(newProps, properties);
+                newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, new_displayName);
+                edit.setAvailability(resource.isHidden(), resource.getReleaseDate(), resource.getRetractDate());
+
+                // Commit without the extra content-detection pass
+                commitResourceEdit(edit, NotificationService.NOTI_NONE);
+                return new_id;
+            } catch (IdUsedException e) {
+                try { getResource(new_id); } catch (Exception ee) { throw e; }
+                if (attempt >= MAXIMUM_ATTEMPTS_FOR_UNIQUENESS) { throw e; }
+                attempt++;
+                new_id = folderId + basename + "-" + attempt + extension;
+                new_displayName = displayName + " (" + attempt + ")";
+            } catch (InconsistentException | IdInvalidException e) {
+                throw new TypeException(new_id);
+            }
+        }
+
+        return new_id;
     }
 
 }

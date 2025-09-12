@@ -15,6 +15,21 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.jclouds.ContextBuilder;
+import org.jclouds.aws.s3.AWSS3ProviderMetadata;
+import org.jclouds.blobstore.BlobStore;
+import org.jclouds.blobstore.BlobStoreContext;
+import org.jclouds.blobstore.options.CopyOptions;
+import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.domain.StorageMetadata;
+import org.jclouds.http.HttpRequest;
+import org.jclouds.io.Payload;
+import org.jclouds.io.Payloads;
+import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
+import org.jclouds.openstack.swift.v1.SwiftApiMetadata;
+import org.jclouds.osgi.ApiRegistry;
+import org.jclouds.osgi.ProviderRegistry;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FileSystemHandler;
 
@@ -344,9 +359,52 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             client.removeObject(
                     RemoveObjectArgs.builder().bucket(can.container).object(can.name).build());
             return true;
-        } catch (Exception e) {
-            log.warn("Failed to delete object {}/{}: {}", can.container, can.name, e.getMessage(), e);
-            return false;
+        }
+    }
+    
+    @Override
+    public long copy(String sourceId, String sourceRoot, String sourceFilePath,
+                     String destId, String destRoot, String destFilePath) throws IOException {
+        ContainerAndName src = getContainerAndName(sourceId, sourceRoot, sourceFilePath);
+        ContainerAndName dst = getContainerAndName(destId, destRoot, destFilePath);
+        createContainerIfNotExist(dst.container);
+        BlobStore store = getBlobStore();
+        try {
+            // Prefer server-side copy when provider supports it
+            store.copyBlob(src.container, src.name, dst.container, dst.name, CopyOptions.NONE);
+        } catch (UnsupportedOperationException uoe) {
+            // Fallback: stream via this JVM
+            Blob blob = store.getBlob(src.container, src.name);
+            if (blob == null) throw new IOException("Source object not found for copy: " + src.container + "/" + src.name);
+            Payload payload = blob.getPayload();
+            try {
+                Blob dest = store.blobBuilder(dst.name).payload(payload).contentLength(blob.getMetadata().getSize()).build();
+                store.putBlob(dst.container, dest);
+            } finally {
+                payload.release();
+            }
+        }
+        // Return size of the destination
+        Blob copied = store.getBlob(dst.container, dst.name);
+        if (copied == null || copied.getMetadata().getSize() == null) {
+            throw new IOException("Failed to verify copied object size for: " + dst.container + "/" + dst.name);
+        }
+        return copied.getMetadata().getSize();
+    }
+    
+    /**
+     * Make sure the container exists.
+     */
+    private void createContainerIfNotExist(String container) {
+        getBlobStore().createContainerInLocation(null, container);
+    }
+    
+    /**
+     * Delete the container if it is empty.
+     */
+    private void deleteContainerIfEmpty(String container){
+        if(deleteEmptyContainers) {
+            getBlobStore().deleteContainerIfEmpty(container);
         }
     }
 

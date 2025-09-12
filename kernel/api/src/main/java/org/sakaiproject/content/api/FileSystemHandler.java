@@ -67,4 +67,20 @@ public interface FileSystemHandler {
      * @return If the path was deleted.
      */
     public boolean delete(String id, String root, String filePath);
+
+    /**
+     * Copy a file within the underlying storage without streaming through the application.
+     * Implementations should perform a server-side/object-store copy when possible.
+     *
+     * @param sourceId The id of the source resource. Will not be null or empty.
+     * @param sourceRoot The root of the source storage. Could be null or empty.
+     * @param sourceFilePath The path of the source file. Will not be null or empty.
+     * @param destId The id of the destination resource. Will not be null or empty.
+     * @param destRoot The root of the destination storage. Could be null or empty.
+     * @param destFilePath The destination path to write to. Will not be null or empty.
+     * @return The content size in bytes after the copy.
+     * @throws IOException If the copy operation fails.
+     */
+    public long copy(String sourceId, String sourceRoot, String sourceFilePath,
+                     String destId, String destRoot, String destFilePath) throws IOException;
 }

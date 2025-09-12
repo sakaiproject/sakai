@@ -7744,45 +7744,58 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 							traversalMap.put(oResource.getUrl(), nUrl);
 							traversalMap.putAll(transferCopyEntities(oResource.getId(), nId, resourceIds, null));
 						} else {
-							try {
-								// add resource
-								ContentResourceEdit edit = addResource(nId);
-								edit.setContentType(((ContentResource) oResource).getContentType());
-								edit.setContentSha256(((ContentResource) oResource).getContentSha256());
-								edit.setResourceType(((ContentResource) oResource).getResourceType());
-								edit.setContent(((ContentResource) oResource).streamContent());
-								edit.setAvailability(((ContentResource) oResource).isHidden(), ((ContentResource) oResource).getReleaseDate(), ((ContentResource) oResource).getRetractDate());
-								//edit.setContent(((ContentResource) oResource).getContent());
-								// import properties
-								ResourcePropertiesEdit p = edit.getPropertiesEdit();
-								p.clear();
-								p.addAll(oProperties);
-								// SAK-23305
-								hideImportedContent(edit);
-								//Register the events
-								this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_ADD, edit.getReference(), true, NotificationService.NOTI_NONE));
-								boolean contentUpdated = ((BaseResourceEdit) edit).m_body != null || ((BaseResourceEdit) edit).m_contentStream != null;
-								if (contentUpdated){
-									this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_NEW_VERSION, edit.getReference(), true, NotificationService.NOTI_NONE));
-								}
-								// complete the edit
-								m_storage.commitResource(edit);
-								((BaseResourceEdit) edit).closeEdit();
-								nUrl = edit.getUrl();
-								traversalMap.put(oResource.getId(), nId);
-								traversalMap.put(oResource.getUrl(), nUrl);
+                        try {
+                            // add resource
+                            ContentResourceEdit edit = addResource(nId);
+                            ContentResource src = (ContentResource) oResource;
+                            edit.setContentType(src.getContentType());
+                            edit.setContentSha256(src.getContentSha256());
+                            edit.setResourceType(src.getResourceType());
 
-								ContentChangeHandler cch = resourceTypeRegistry.getContentChangeHandler(((ContentResource) oResource).getResourceType());
-								if (cch != null) {
-									cch.copy(((ContentResource) oResource));
-								}
-							} catch (IdUsedException e) {
-								// Resource already exists, thats ok, but we should still put it in the traversalMap
-								traversalMap.put(oResource.getId(), nId);
-								traversalMap.put(oResource.getUrl(), nUrl);
-							} catch (PermissionException|IdInvalidException|InconsistentException|ServerOverloadException e) {
-							}
-						} // if
+                            boolean didReferenceCopy = false;
+                            // Fast path: reference-copy when using filesystem/object storage
+                            if (bodyPath != null && edit instanceof BaseResourceEdit && src instanceof BaseResourceEdit && src.getContentLength() > 0) {
+                                // Point the new resource at the same underlying blob
+                                ((BaseResourceEdit) edit).setReferenceCopy(src.getId());
+                                ((BaseResourceEdit) edit).m_filePath = ((BaseResourceEdit) src).m_filePath;
+                                ((BaseResourceEdit) edit).setContentLength(src.getContentLength());
+                                didReferenceCopy = true;
+                            } else {
+                                // Fallback: stream through the app
+                                edit.setContent(src.streamContent());
+                            }
+
+                            edit.setAvailability(src.isHidden(), src.getReleaseDate(), src.getRetractDate());
+                            // import properties
+                            ResourcePropertiesEdit p = edit.getPropertiesEdit();
+                            p.clear();
+                            p.addAll(oProperties);
+                            // SAK-23305
+                            hideImportedContent(edit);
+                            // Register the events
+                            this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_ADD, edit.getReference(), true, NotificationService.NOTI_NONE));
+                            boolean contentUpdated = ((BaseResourceEdit) edit).m_body != null || ((BaseResourceEdit) edit).m_contentStream != null;
+                            if (contentUpdated){
+                                this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_NEW_VERSION, edit.getReference(), true, NotificationService.NOTI_NONE));
+                            }
+                            // complete the edit
+                            m_storage.commitResource(edit);
+                            ((BaseResourceEdit) edit).closeEdit();
+                            nUrl = edit.getUrl();
+                            traversalMap.put(oResource.getId(), nId);
+                            traversalMap.put(oResource.getUrl(), nUrl);
+
+                            ContentChangeHandler cch = resourceTypeRegistry.getContentChangeHandler(src.getResourceType());
+                            if (cch != null) {
+                                cch.copy(src);
+                            }
+                        } catch (IdUsedException e) {
+                            // Resource already exists, thats ok, but we should still put it in the traversalMap
+                            traversalMap.put(oResource.getId(), nId);
+                            traversalMap.put(oResource.getUrl(), nUrl);
+                        } catch (PermissionException|IdInvalidException|InconsistentException|ServerOverloadException e) {
+                        }
+                        } // if
 					} // if
 				} // for
 			} catch (IdUnusedException|TypeException|PermissionException e) {
