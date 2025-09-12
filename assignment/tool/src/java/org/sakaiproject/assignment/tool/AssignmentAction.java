@@ -3852,8 +3852,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 // selected category
                 context.put("value_Category", state.getAttribute(NEW_ASSIGNMENT_CATEGORY));
 
+                // Preserve insertion order (matches Gradebook Settings order)
                 List<Long> categoryList = new ArrayList<>(categoryTable.keySet());
-                Collections.sort(categoryList);
                 context.put("categoryKeys", categoryList);
                 context.put("categoryTable", categoryTable);
             } else {
@@ -13434,13 +13434,20 @@ public class AssignmentAction extends PagedResourceActionII {
      * @return
      */
     private Map<Long, String> getCategoryTable() {
-        Map<Long, String> catTable = new HashMap<>();
+        // Preserve ordering: first "Unassigned", then categories in the Gradebook Settings order
+        Map<Long, String> catTable = new LinkedHashMap<>();
         String gradebookUid = toolManager.getCurrentPlacement().getContext();
 
         if (canGrade() && gradingService.isCategoriesEnabled(gradebookUid)) {
-            catTable = gradingService.getCategoryDefinitions(gradebookUid, gradebookUid).stream()
-                .collect(Collectors.toMap(c -> c.getId(), c -> c.getName()));
+            // Unassigned option (-1) shown first
             catTable.put(-1L, rb.getString("grading.unassigned"));
+
+            List<CategoryDefinition> categoryDefinitions = gradingService.getCategoryDefinitions(gradebookUid, gradebookUid);
+            if (categoryDefinitions != null) {
+                for (CategoryDefinition c : categoryDefinitions) {
+                    catTable.put(c.getId(), c.getName());
+                }
+            }
         }
         return catTable;
     }
