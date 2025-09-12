@@ -5198,20 +5198,19 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // try to put in grade overrides for list context (not when anonymous grading)
             if (AssignmentToolUtils.allowGroupOverrides(assignment, assignmentService)) {
-                Map<String, Object> ugrades = new HashMap<>();
-                Map<String, String> p = assignment.getProperties();
+                Map<String, Object> userGrades = new HashMap<>();
                 for (SubmitterSubmission ss : userSubmissions) {
                     if (ss != null && ss.getSubmission() != null) {
-                        List<String> users = ss.getSubmission().getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
+                        List<String> users = ss.getSubmission().getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).toList();
                         for (String user : users) {
                             String agrade = assignmentService.getGradeForSubmitter(ss.getSubmission(), user);
                             if (agrade != null) {
-                                ugrades.put(user, agrade);
+                                userGrades.put(user, agrade);
                             }
                         }
                     }
                 }
-                context.put("value_grades", ugrades);
+                context.put("value_grades", userGrades);
 
             }
 
