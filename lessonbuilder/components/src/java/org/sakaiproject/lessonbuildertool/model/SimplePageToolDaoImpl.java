@@ -988,6 +988,20 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 	}
 
+	/**
+	 * Find the main SimplePage for a LessonBuilder tool by its site page ID (toolId)
+	 * This method is used by the portal to check if a LessonBuilder page should be hidden from navigation
+	 * @param sitePageId the site page ID (which corresponds to toolId in LessonBuilder)
+	 * @return the SimplePage or null if not found
+	 */
+	public SimplePage findSimplePageBySitePageId(String sitePageId) {
+		Long pageId = getTopLevelPageId(sitePageId);
+		if (pageId != null) {
+			return getPage(pageId);
+		}
+		return null;
+	}
+
 	public List<ToolConfiguration> getSiteTools(String siteId) {
 
 		try {

@@ -57,20 +57,20 @@ class SubPageNavigation {
             <div id="${collapseId}" class="lessons-subpages-collapse ${(isExpanded) ? "show" : "collapse"}">
                 <ul class="nav flex-column pe-2">
                     <li class="nav-item">
-                        <a class="btn btn-nav rounded-end text-start ps-5" href="${mainLink}">
+                        <a class="btn btn-nav w-100 rounded-end text-start ps-5" href="${mainLink}">
                             <i class="me-2 si si-sakai-lessonbuildertool" aria-hidden="true"></i>
                             <span>${this.i18n.main_link_name}</span>
-                            ${(props.disabled === 'true') ? `<i class="bi-slash-circle ms-2"></i>` : ""}
-                            ${(props.hidden === 'true' && props.disabled !== 'true') ? `<i class = "si si-hidden ms-2"></i>` : ""}
+                            ${(props.disabled === 'true') ? `<i class="bi-slash-circle ms-2 float-end"></i>` : ""}
+                            ${(props.hidden === 'true' && props.disabled !== 'true') ? `<i class = "bi bi-eye-slash-fill ms-2 float-end"></i>` : ""}
                         </a>
                     </li>
                     ${subpages.map((subpage) => `
                         <li class="nav-item">
-                            <a class="btn btn-nav rounded-end text-start ps-5 ${((props.disabled === 'true' && props.disabledDueToPrerequisite === 'true') || (subpage.disabled === 'true' && subpage.disabledDueToPrerequisite === 'true')) ? `disabled` : ``}" href="${this.buildSubpageUrlFor(subpage)}">
+                            <a class="btn btn-nav w-100 rounded-end text-start ps-5 ${((props.disabled === 'true' && props.disabledDueToPrerequisite === 'true') || (subpage.disabled === 'true' && subpage.disabledDueToPrerequisite === 'true')) ? `disabled` : ``}" href="${this.buildSubpageUrlFor(subpage)}">
                                 <i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>
                                 <span>${subpage.name}</span>
-                                ${(props.disabled === 'true' || subpage.disabled === 'true') ? `<i class="bi-slash-circle ms-2"></i>` : ``}
-                                ${(subpage.hidden === 'true' && !(props.disabled === 'true' || subpage.disabled === 'true')) ? `<i class="si si-hidden ms-2"></i>` : ``}
+                                ${(props.disabled === 'true' || subpage.disabled === 'true') ? `<i class="bi-slash-circle ms-2 float-end"></i>` : ``}
+                                ${(subpage.hidden === 'true' && !(props.disabled === 'true' || subpage.disabled === 'true')) ? `<i class="bi bi-eye-slash-fill ms-2 float-end"></i>` : ``}
                             </a>
                         </li>
                     `).join("")}
