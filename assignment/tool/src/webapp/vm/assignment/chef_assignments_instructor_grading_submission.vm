@@ -486,7 +486,8 @@
                     </p>
                 #end
 
-                #if ($assignment.IsGroup)
+                ## Hide Grade Overrides UI when anonymous grading is enabled for group assignments
+                #if ($assignment.IsGroup && !$value_CheckAnonymousGrading)
                     <div class="form-group" id="tempGradeOverride">
                         <input type="checkbox" id="allowGradeOverrideToggle"
                                #if ($value_grades && $value_grades.size() > 0) checked="checked"#end
@@ -510,7 +511,7 @@
                                 <div class="row-override">
                                     <label>$formattedText.escapeHtml($!submitterName)</label>
                                     <div class="shorttext">
-                                        <span$tlang.getString("gen.grade.override")</span>
+                                        <span>$tlang.getString("gen.grade.override")</span>
                                         <select name="$group_name_grade" id="grade">
                                             <option value=""#if($!group_value_grade.equals(
                                                 ""))selected="selected"#end>$tlang.getString(
