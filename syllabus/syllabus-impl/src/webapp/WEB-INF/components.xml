@@ -79,7 +79,7 @@
 
 	<bean id="syllabusSearchAdapter"
 		class="org.sakaiproject.component.app.syllabus.SyllabusContentProducer"
-		init-method="init" destroy-method="destroy">
+		init-method="init">
 		<property name="addEvents">
 			<list>
 				<value>syllabus.post.new</value>
