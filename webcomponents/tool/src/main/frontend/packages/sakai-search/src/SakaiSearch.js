@@ -28,6 +28,7 @@ export class SakaiSearch extends SakaiElement {
       "lessons": "si si-sakai-lessonbuildertool",
       "commons": "si si-sakai-commons",
       "content": "si si-sakai-resources",
+      "syllabus": "si si-sakai-syllabus",
       "wiki": "si si-sakai-rwiki"
     };
 
@@ -43,6 +44,7 @@ export class SakaiSearch extends SakaiElement {
         "lessons": this._i18n.toolname_lesson,
         "commons": this._i18n.toolname_commons,
         "content": this._i18n.toolname_resources,
+        "syllabus": this._i18n.toolname_syllabus,
         "wiki": this._i18n.toolname_wiki
       };
     });
