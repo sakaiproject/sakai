@@ -24,7 +24,8 @@ export class SakaiProfile extends SakaiShadowElement {
 
     this.loadTranslations("profile-wc");
 
-    this._imageUrl = `/direct/profile/${this.userId}/image/${getSiteId() ? `?siteId=${getSiteId()}` : ""}`;
+    const siteId = getSiteId();
+    this._imageUrl = `/api/users/${this.userId}/profile/image/${siteId ? `?siteId=${siteId}` : ""}`;
   }
 
   fetchProfileData() {
@@ -71,17 +72,12 @@ export class SakaiProfile extends SakaiShadowElement {
           </div>
         </div>
         <div class="body">
-          ${this._profile.pronunciation || this._profile.pronunciationRecordingUrl ? html`
-          <div class="label">${this._i18n.name_pronunciation}</div>
-          <div class="field pronunciation">
-            ${this._profile.pronunciation ? html`
-            <div>${this._profile.pronunciation}</div>
-            ` : nothing}
-            ${this._profile.hasPronunciationRecording ? html`
-            <sakai-pronunciation-player user-id="${this.userId}"></sakai-pronunciation-player>
-            ` : nothing}
-          </div>
-          ` : ""}
+          ${this._profile.hasPronunciationRecording ? html`
+            <div class="label">${this._i18n.name_pronunciation}</div>
+            <div class="field pronunciation">
+              <sakai-pronunciation-player user-id="${this.userId}"></sakai-pronunciation-player>
+            </div>
+          ` : nothing}
           ${this._profile.email ? html`
           <div class="label">${this._i18n.email}</div>
           <div class="field">${this._profile.email}</div>

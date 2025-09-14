@@ -31,3 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
     e.target.querySelector("sakai-notifications")?._clearTestNotifications();
   });
 });
+
+portal.displayProfile = e => {
+
+  document.querySelector("sakai-account").setAttribute("user-id", e.target.dataset.userId);
+  bootstrap.Modal.getOrCreateInstance(document.getElementById("account-details-modal")).show();
+};

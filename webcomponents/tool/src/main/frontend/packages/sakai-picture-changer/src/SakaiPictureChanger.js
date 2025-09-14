@@ -7,8 +7,7 @@ export class SakaiPictureChanger extends SakaiElement {
 
   static properties = {
 
-    dialogTitle: { attribute: "dialog-title", type: String },
-
+    userId: { attribute: "user-id", type: String },
     _imageUrl: { state: true },
     _uploadError: { state: true },
     _removeError: { state: true },
@@ -20,6 +19,16 @@ export class SakaiPictureChanger extends SakaiElement {
     super();
 
     this.loadTranslations("sakai-picture-changer");
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+
+    super.attributeChangedCallback(name, oldValue, newValue);
+
+    if (name === "user-id") {
+      console.log(this.userId);
+      this._loadExisting();
+    }
   }
 
   _attachCropper() {
@@ -47,13 +56,7 @@ export class SakaiPictureChanger extends SakaiElement {
   }
 
   firstUpdated() {
-    // Add an event listener for the Bootstrap 'show.bs.modal' event
-    const modal = this.renderRoot.querySelector("#profile-image-upload");
-    if (modal) {
-      modal.addEventListener("show.bs.modal", () => {
-        this._loadExisting();
-      });
-    }
+    this._loadExisting();
   }
 
   _filePicked(e) {
@@ -116,40 +119,34 @@ export class SakaiPictureChanger extends SakaiElement {
     this._needsSave = true;
   }
 
-  _refreshProfileImageTagsAndHideDialog() {
+  _refreshProfileImageTags() {
 
     const d = new Date();
 
-    const imageUrl = `/direct/profile/${getUserId()}/image?${d.getTime()}`;
-    document.querySelectorAll(".sakai-accountProfileImage")
-      .forEach(pic => pic.setAttribute("src", imageUrl));
+    const imageUrl = `/api/users/${this.userId}/profile/image?${d.getTime()}`;
+    console.log(imageUrl);
 
-    const style = `background-image: url(${imageUrl})`;
+    if (this.userId === getUserId()) {
+      document.querySelectorAll(".sakai-accountProfileImage")
+        .forEach(pic => pic.setAttribute("src", imageUrl));
+    }
 
-    document.querySelectorAll(`.sakai-user-photo[data-user-id='${getUserId()}']`).forEach(up => {
-      up.setAttribute("style", style);
-    });
-    // Update the profile image on the page
-    const myPhoto = document.getElementById("myPhoto");
-    myPhoto && (myPhoto.src = imageUrl);
+    document.querySelectorAll(`.sakai-user-photo[user-id='${this.userId}']`).forEach(up => up.refresh());
   }
 
   _loadExisting() {
 
-    const url = `/direct/profile-image/details?_=${Date.now()}`;
-    fetch(url, { credentials: "include" }).then(r => r.json()).then(json => {
+    const url = `/api/users/${this.userId}/profile/image/details?_=${Date.now()}`;
+    fetch(url).then(r => r.json()).then(json => {
 
       if (json.status == "SUCCESS") {
         if (!json.isDefault) {
           this._imageUrl = `${json.url}?_=${Date.now()}`;
-          this.updateComplete.then(() => {
-            this._attachCropper();
-          });
+          this.updateComplete.then(() => this._attachCropper());
         } else {
           this._imageUrl = null;
         }
       }
-      this.csrfToken = json.csrf_token;
     });
   }
 
@@ -159,10 +156,9 @@ export class SakaiPictureChanger extends SakaiElement {
     const postBody = new URLSearchParams();
     postBody.append("base64", base64);
 
-    const url = "/direct/profile-image/upload";
+    const url = `/api/users/${this.userId}/profile/image`;
 
     fetch(url, {
-      credentials: "include",
       headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
       method: "POST",
       body: postBody,
@@ -181,7 +177,8 @@ export class SakaiPictureChanger extends SakaiElement {
         this._uploadError = false;
         this._needsSave = false;
         this._loadExisting();
-        this._refreshProfileImageTagsAndHideDialog();
+        this._refreshProfileImageTags();
+        this.dispatchEvent(new CustomEvent("updated"));
       } else {
         this._uploadError = true;
       }
@@ -189,28 +186,32 @@ export class SakaiPictureChanger extends SakaiElement {
     .catch (error => console.error(error));
   }
 
+  _cancel() {
+    this.dispatchEvent(new CustomEvent("cancel"));
+  }
+
   _remove() {
 
-    const url = "/direct/profile-image/remove";
-    fetch(url, {
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify({ sakaiCsrfToken: this.csrfToken }),
-    })
+    const url = `/api/users/${this.userId}/profile/image`;
+    fetch(url, { method: "DELETE" })
     .then(r => {
 
       if (r.ok) {
         this._removeError = false;
         this._needsSave = false;
         this._loadExisting();
-        this._refreshProfileImageTagsAndHideDialog();
+        this._refreshProfileImageTags();
+        this.dispatchEvent(new CustomEvent("updated"));
       } else {
         this._removeError = true;
         throw new Error(`Network error while removing profile image at ${url}`);
       }
     })
     .catch (error => console.error(error));
+  }
+
+  _fireDoneEvent() {
+    this.dispatchEvent(new CustomEvent("done"));
   }
 
   shouldUpdate() {
@@ -221,63 +222,51 @@ export class SakaiPictureChanger extends SakaiElement {
 
     return html`
 
-    <div class="modal fade" id="profile-image-upload" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5>${this.dialogTitle}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div>
+        <div id="remove-error" class="sak-banner-error" style="display: ${this._removeError ? "block" : "none"}">${this._i18n.remove_error}</div>
+        <div id="upload-error" class="sak-banner-error" style="display: ${this._uploadError ? "block" : "none"}">${this._i18n.upload_error}</div>
 
-        </div>
-        <div class="modal-body">
+        <div id="image-editor-crop-wrapper">
+          <div id="cropme">
+            <input type="file" accept="image/*" value="Choose an image" @change=${this._filePicked} />
+            ${this._imageUrl ?
+              html`<img id="image" class="max-width-100" src="${this._imageUrl}" alt="${this._i18n.profile_image}" />` :
+              html`<div class="text-muted text-center p-3">${this._i18n.no_image}</div>`
+            }
 
-            <div id="remove-error" class="sak-banner-error" style="display: ${this._removeError ? "block" : "none"}">${this._i18n.remove_error}</div>
-            <div id="upload-error" class="sak-banner-error" style="display: ${this._uploadError ? "block" : "none"}">${this._i18n.upload_error}</div>
-
-            <div id="image-editor-crop-wrapper">
-              <div id="cropme">
-                <input type="file" accept="image/*" value="Choose an image" @change=${this._filePicked} />
-                ${this._imageUrl ?
-                  html`<img id="image" class="max-width-100" src="${this._imageUrl}" alt="${this._i18n.profile_image}" />` :
-                  html`<div class="text-muted text-center p-3">${this._i18n.no_image}</div>`
-                }
-
-                <div id="image-editor-controls-wrapper" class="d-${this._imageUrl ? "block" : "none"}">
-                  <div id="controls">
-                    <sakai-button @click=${this._zoomIn} type="small" title="${this._i18n.zoom_in}" arial-label="${this._i18n.zoom_in}">
-                      <sakai-icon type="add"></sakai-icon>
-                    </sakai-button>
-                    <sakai-button @click=${this._zoomOut} type="small" title="${this._i18n.zoom_out}" arial-label="${this._i18n.zoom_out}">
-                      <sakai-icon type="minus"></sakai-icon>
-                    </sakai-button>
-                    <sakai-button @click=${this._up} type="small" title="${this._i18n.pan_up}" arial-label="${this._i18n.pan_up}">
-                      <sakai-icon type="up"></sakai-icon>
-                    </sakai-button>
-                    <sakai-button @click=${this._down} type="small" title="${this._i18n.pan_down}" arial-label="${this._i18n.pan_down}">
-                      <sakai-icon type="down"></sakai-icon>
-                    </sakai-button>
-                    <sakai-button @click=${this._left} type="small" title="${this._i18n.pan_left}" arial-label="${this._i18n.pan_left}">
-                      <sakai-icon type="left"></sakai-icon>
-                    </sakai-button>
-                    <sakai-button @click=${this._right} type="small" title="${this._i18n.pan_right}" arial-label="${this._i18n.pan_right}">
-                      <sakai-icon type="right"></sakai-icon>
-                    </sakai-button>
-                    <sakai-button @click=${this._rotate} type="small" title="${this._i18n.rotate}" arial-label="${this._i18n.rotate}">
-                      <sakai-icon type="refresh"></sakai-icon>
-                    </sakai-button>
-                  </div>
-                </div>
+            <div id="image-editor-controls-wrapper" class="d-${this._imageUrl ? "block" : "none"}">
+              <div id="controls">
+                <sakai-button @click=${this._zoomIn} type="small" title="${this._i18n.zoom_in}" arial-label="${this._i18n.zoom_in}">
+                  <sakai-icon type="add"></sakai-icon>
+                </sakai-button>
+                <sakai-button @click=${this._zoomOut} type="small" title="${this._i18n.zoom_out}" arial-label="${this._i18n.zoom_out}">
+                  <sakai-icon type="minus"></sakai-icon>
+                </sakai-button>
+                <sakai-button @click=${this._up} type="small" title="${this._i18n.pan_up}" arial-label="${this._i18n.pan_up}">
+                  <sakai-icon type="up"></sakai-icon>
+                </sakai-button>
+                <sakai-button @click=${this._down} type="small" title="${this._i18n.pan_down}" arial-label="${this._i18n.pan_down}">
+                  <sakai-icon type="down"></sakai-icon>
+                </sakai-button>
+                <sakai-button @click=${this._left} type="small" title="${this._i18n.pan_left}" arial-label="${this._i18n.pan_left}">
+                  <sakai-icon type="left"></sakai-icon>
+                </sakai-button>
+                <sakai-button @click=${this._right} type="small" title="${this._i18n.pan_right}" arial-label="${this._i18n.pan_right}">
+                  <sakai-icon type="right"></sakai-icon>
+                </sakai-button>
+                <sakai-button @click=${this._rotate} type="small" title="${this._i18n.rotate}" arial-label="${this._i18n.rotate}">
+                  <sakai-icon type="refresh"></sakai-icon>
+                </sakai-button>
               </div>
             </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary float-start" data-bs-dismiss="modal" @click=${this._save} ?disabled=${!this._needsSave}>${this._i18n.save}</button>
-          <button class="btn btn-secondary float-end" @click="${this._remove}">${this._i18n.remove}</button>
-          <button class="btn btn-secondary float-start" data-bs-dismiss="modal">${this._i18n.cancel}</button>
+            <div class="d-flex mt-3">
+              <button class="btn btn-primary me-1" @click=${this._save} ?disabled=${!this._needsSave}>${this._i18n.save}</button>
+              <button class="btn btn-secondary" @click=${this._cancel}>${this._i18n.cancel}</button>
+              <button class="btn btn-secondary ms-auto" @click=${this._remove}>${this._i18n.remove}</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
     `;
   }
 }

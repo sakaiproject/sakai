@@ -452,8 +452,6 @@ public class PrivateMessagesTool {
 
   @Getter
   private boolean showProfileInfoMsg = false;
-  @Getter
-  private boolean showProfileLink = false;
 
   private final DraftRecipientsDelegate drDelegate;
   
@@ -470,7 +468,6 @@ public class PrivateMessagesTool {
   public PrivateMessagesTool()
   {    
 	  showProfileInfoMsg = ServerConfigurationService.getBoolean("msgcntr.messages.showProfileInfo", true);
-	  showProfileLink = showProfileInfoMsg && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
 	  drDelegate = new DraftRecipientsDelegate();
 	  PrivateMessageSchedulerService = ComponentManager.get(PrivateMessageSchedulerService.class);
   }
