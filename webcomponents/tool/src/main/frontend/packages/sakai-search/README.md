@@ -1,17 +1,24 @@
-# sakai-search
+# @sakai-ui/sakai-search
+
+The Sakai search component.
+
+## Description
+
+This component provides search functionality for Sakai, allowing users to search for content across the platform.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-search
+npm install @sakai-ui/sakai-search
 ```
 
 ## Usage
 
-```html
-import { getUserId } from "@sakai-ui/sakai-search";
+```javascript
+import '@sakai-ui/sakai-search/sakai-search.js';
 
-const userId = getUserId();
+// In your HTML
+<sakai-search></sakai-search>
 ```
 
 ## Linting and formatting
@@ -19,10 +26,8 @@ const userId = getUserId();
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
+npm run lint:fix
 ```
-
-To automatically fix linting and formatting errors, run
 
 ## Testing with Web Test Runner
 
@@ -31,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

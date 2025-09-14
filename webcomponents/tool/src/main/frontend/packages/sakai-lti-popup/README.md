@@ -1,24 +1,24 @@
-# @sakai-ui/sakai-calendar
+# @sakai-ui/sakai-lti-popup
 
-The Sakai calendar component.
+The Sakai LTI popup component.
 
 ## Description
 
-This component displays a calendar view for Sakai events and assignments, allowing users to see their schedule.
+This component provides a popup for displaying LTI tools in Sakai.
 
 ## Installation
 
 ```bash
-npm install @sakai-ui/sakai-calendar
+npm install @sakai-ui/sakai-lti-popup
 ```
 
 ## Usage
 
 ```javascript
-import '@sakai-ui/sakai-calendar/sakai-calendar.js';
+import '@sakai-ui/sakai-lti-popup/sakai-lti-popup.js';
 
 // In your HTML
-<sakai-calendar></sakai-calendar>
+<sakai-lti-popup></sakai-lti-popup>
 ```
 
 ## Linting and formatting

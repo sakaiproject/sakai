@@ -1,24 +1,24 @@
-# @sakai-ui/sakai-calendar
+# @sakai-ui/sakai-icon
 
-The Sakai calendar component.
+The Sakai icon component.
 
 ## Description
 
-This component displays a calendar view for Sakai events and assignments, allowing users to see their schedule.
+This component provides a standardized way to display icons in Sakai, using FontAwesome icons.
 
 ## Installation
 
 ```bash
-npm install @sakai-ui/sakai-calendar
+npm install @sakai-ui/sakai-icon
 ```
 
 ## Usage
 
 ```javascript
-import '@sakai-ui/sakai-calendar/sakai-calendar.js';
+import '@sakai-ui/sakai-icon/sakai-icon.js';
 
 // In your HTML
-<sakai-calendar></sakai-calendar>
+<sakai-icon icon="calendar"></sakai-icon>
 ```
 
 ## Linting and formatting

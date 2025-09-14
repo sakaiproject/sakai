@@ -1,24 +1,24 @@
-# @sakai-ui/sakai-calendar
+# @sakai-ui/sakai-lti-iframe
 
-The Sakai calendar component.
+The Sakai LTI iframe component.
 
 ## Description
 
-This component displays a calendar view for Sakai events and assignments, allowing users to see their schedule.
+This component provides an iframe for displaying LTI tools in Sakai.
 
 ## Installation
 
 ```bash
-npm install @sakai-ui/sakai-calendar
+npm install @sakai-ui/sakai-lti-iframe
 ```
 
 ## Usage
 
 ```javascript
-import '@sakai-ui/sakai-calendar/sakai-calendar.js';
+import '@sakai-ui/sakai-lti-iframe/sakai-lti-iframe.js';
 
 // In your HTML
-<sakai-calendar></sakai-calendar>
+<sakai-lti-iframe></sakai-lti-iframe>
 ```
 
 ## Linting and formatting

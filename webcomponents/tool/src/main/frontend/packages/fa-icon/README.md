@@ -1,24 +1,24 @@
-# @sakai-ui/sakai-calendar
+# @sakai-ui/fa-icon
 
-The Sakai calendar component.
+A FontAwesome custom element.
 
 ## Description
 
-This component displays a calendar view for Sakai events and assignments, allowing users to see their schedule.
+This component provides a custom element for displaying FontAwesome icons in Sakai.
 
 ## Installation
 
 ```bash
-npm install @sakai-ui/sakai-calendar
+npm install @sakai-ui/fa-icon
 ```
 
 ## Usage
 
 ```javascript
-import '@sakai-ui/sakai-calendar/sakai-calendar.js';
+import '@sakai-ui/fa-icon/fa-icon.js';
 
 // In your HTML
-<sakai-calendar></sakai-calendar>
+<fa-icon icon="calendar"></fa-icon>
 ```
 
 ## Linting and formatting

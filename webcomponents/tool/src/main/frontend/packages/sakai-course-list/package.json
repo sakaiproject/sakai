@@ -6,8 +6,7 @@
   "module": "index.js",
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "web-test-runner --coverage",
-    "test:dev": "cd ../../ && npm run test:dev"
+    "test": "wtr"
   },
   "files": [
     "*.js",
@@ -15,8 +14,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sakaiproject/sakai-ui.git",
-    "directory": "packages/sakai-course-list"
+    "url": "git+https://github.com/sakaiproject/sakai",
+    "directory": "webcomponents/tool/src/main/frontend/packages/sakai-course-list"
   },
   "keywords": [
     "sakai",
@@ -27,10 +26,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "bugs": {
-    "url": "https://github.com/sakaiproject/sakai-ui/issues"
-  },
-  "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/sakai-course-list#readme",
   "dependencies": {
     "@sakai-ui/sakai-course-card": "file:../sakai-course-card",
     "@sakai-ui/sakai-i18n": "file:../sakai-i18n",

@@ -4,11 +4,11 @@
   "description": "",
   "license": "ECL-2.0",
   "author": "The Sakai Project <sakai.user.interface@gmail.com>",
-  "homepage": "https://github.com/sakaiproject/sakai-ui/",
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/sakai-account#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sakaiproject/sakai-ui",
-    "directory": "packages/sakai-account"
+    "url": "git+https://github.com/sakaiproject/sakai",
+    "directory": "webcomponents/tool/src/main/frontend/packages/sakai-account"
   },
   "main": "index.js",
   "module": "index.js",
