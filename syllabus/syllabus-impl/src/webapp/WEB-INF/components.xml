@@ -80,17 +80,6 @@
 	<bean id="syllabusSearchAdapter"
 		class="org.sakaiproject.component.app.syllabus.SyllabusContentProducer"
 		init-method="init">
-		<property name="addEvents">
-			<list>
-				<value>syllabus.post.new</value>
-				<value>syllabus.post.change</value>
-			</list>
-		</property>
-		<property name="removeEvents">
-			<list>
-				<value>syllabus.delete</value>
-			</list>
-		</property>
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="syllabusManager" ref="org.sakaiproject.api.app.syllabus.SyllabusManager"/>
 		<property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>

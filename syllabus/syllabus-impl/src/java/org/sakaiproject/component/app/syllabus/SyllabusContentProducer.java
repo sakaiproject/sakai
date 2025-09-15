@@ -86,16 +86,23 @@ public class SyllabusContentProducer implements EntityContentProducer {
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
 
-	protected void init() throws Exception {
+	public void init() {
 		
 		if (serverConfigurationService != null && serverConfigurationService.getBoolean("search.enable", false)) {
-			for (Iterator<String> i = addEvents.iterator(); i.hasNext();) {
-				getSearchService().registerFunction((String) i.next());
-			}
-			for (Iterator<String> i = removeEvents.iterator(); i.hasNext();) {
-				getSearchService().registerFunction((String) i.next());
-			}
-			getSearchIndexBuilder().registerEntityContentProducer(this);
+			
+			addEvents.add(SyllabusService.EVENT_SYLLABUS_POST_NEW);
+			addEvents.add(SyllabusService.EVENT_SYLLABUS_POST_CHANGE);
+			addEvents.add(SyllabusService.EVENT_SYLLABUS_DRAFT_NEW);
+			addEvents.add(SyllabusService.EVENT_SYLLABUS_DRAFT_CHANGE);
+			
+			removeEvents.add(SyllabusService.EVENT_SYLLABUS_DELETE_POST);
+			
+			// Register all events with search service
+			addEvents.forEach(e -> searchService.registerFunction(e));
+			removeEvents.forEach(e -> searchService.registerFunction(e));
+			
+			// Register this content producer with the search index builder
+			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 	}
 
@@ -290,8 +297,9 @@ public class SyllabusContentProducer implements EntityContentProducer {
 			Site site = siteService.getSite(siteId);
 			ToolConfiguration toolConfig = site.getToolForCommonId("sakai.syllabus");
 			if (toolConfig != null) {
-				// Use direct tool URL approach
-				return "/portal/directtool/" + toolConfig.getId() + 
+				// Use proper portal URL from configuration
+				return serverConfigurationService.getPortalUrl() + 
+					   "/directtool/" + toolConfig.getId() + 
 					   "?itemId=" + syllabusId + "&action=read_item";
 			}
 		} catch (Exception e) {
@@ -299,7 +307,7 @@ public class SyllabusContentProducer implements EntityContentProducer {
 		}
 		
 		// Fallback to regular site URL
-		return "/portal/site/" + siteId + "/tool/sakai.syllabus";
+		return serverConfigurationService.getPortalUrl() + "/site/" + siteId + "/tool/sakai.syllabus";
 	}
 
 	@Override
