@@ -30,7 +30,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -287,7 +286,7 @@ public class MainController {
 		String siteId = req.getRequestURI().split("/")[3];
 
 		try {
-			byte[] csvData = dateManagerService.exportCsvData(siteId);
+			byte[] csvData     = dateManagerService.exportCsvData(siteId);
 
 			HttpHeaders headers = new HttpHeaders();
 			String siteName;
@@ -321,10 +320,11 @@ public class MainController {
 	 */
 	@GetMapping(value = {"/date-manager/page/import"})
 	public String showImportPage(Model model, HttpServletRequest request, HttpServletResponse response) {
-		String siteId = dateManagerService.getCurrentSiteId();
-		String userId = sessionManager.getCurrentSessionUserId();
-
 		model = getModelWithLocale(model, request, response);
+
+		// Ensure a fresh start on reload by clearing any cached import list and preview
+		dateManagerService.clearToolsToImport();
+		dateManagerService.clearToolsCsvPreview();
 
 		return "import_page";
 	}
@@ -347,8 +347,8 @@ public class MainController {
 			
 			model = getModelWithLocale(model, request, response);
 			if (!tools.isEmpty()) {
-				model.addAttribute("tools", tools);
-				return "confirm_import";
+				// Store preview handled by service; redirect to GET to unify model shape (PRG)
+				return "redirect:/date-manager/page/import/confirm";
 			} else {
 				model.addAttribute("errorMessage", rb.getString("page.import.error.any.date"));
 				return "import_page";
@@ -372,11 +372,11 @@ public class MainController {
 	@GetMapping(value = {"/date-manager/page/import/confirm"}) 
 	public String showConfirmImport(Model model, HttpServletRequest request, HttpServletResponse response) {
 		model = getModelWithLocale(model, request, response);
-		List<DateManagerService.ToolImportData> toolsToImport = dateManagerService.getToolsToImport();
-		if (toolsToImport.size() > 0) {
-			// Note: tools would need to be stored in session or retrieved again
-			model.addAttribute("errorMessage", rb.getString("page.import.error.no.file"));
-			return "import_page";
+		List<List<Object>> preview = dateManagerService.getToolsCsvPreview();
+		if (!preview.isEmpty()) {
+			// populate the model so confirm_import.html can render the list
+			model.addAttribute("tools", preview);
+			return "confirm_import";
 		} else {
 			model.addAttribute("errorMessage", rb.getString("page.import.error.no.file"));
 			return "import_page";
@@ -438,6 +438,9 @@ public class MainController {
 				
 				dateManagerService.updateTool(currentToolId, dateValidation);
 			}
+			// Clear per-session cached tools to import and preview after successful confirmation
+			dateManagerService.clearToolsToImport();
+			dateManagerService.clearToolsCsvPreview();
 			return this.showIndex("", model, request, response);
 		} else {
 			model.addAttribute("errors", errors);

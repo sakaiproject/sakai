@@ -273,4 +273,48 @@ describe("sakai-grader tests", () => {
     expect(gradeInput.value).to.equal("85");
     expect(el._submission.grade).to.equal("85");
   });
+
+  it ("does not show grade overrides for anonymous group grading", async () => {
+
+    const gradingData = JSON.parse(JSON.stringify(data.gradableData));
+    gradingData.gradable.anonymousGrading = true;
+    gradingData.gradable.access = "GROUP";
+
+    // Create a simple group and a group submission
+    const group = { id: "g1", title: "Group 1", users: [ "u1", "u2" ] };
+    gradingData.groups = [ group ];
+
+    const submission = {
+      id: "sub1",
+      hydrated: true,
+      visible: true,
+      submitted: true,
+      dateSubmittedEpochSeconds: Math.floor(Date.now() / 1000),
+      dateSubmitted: new Date().toDateString(),
+      groupId: group.id,
+      // Submitters are anonymised in this mode server-side; details are irrelevant here
+      submitters: [
+        { id: "u1", displayId: null, sortName: "Anon One", displayName: "anonymous" },
+        { id: "u2", displayId: null, sortName: "Anon Two", displayName: "anonymous" },
+      ],
+    };
+
+    gradingData.submissions = [ submission ];
+    gradingData.totalSubmissions = 1;
+
+    const url = `/direct/assignment/gradable.json?gradableId=${gradingData.gradable.id}&submissionId=${submission.id}`;
+    fetchMock.get(url, gradingData);
+
+    const el = await fixture(html`
+      <sakai-grader gradable-id="${gradingData.gradable.id}"
+          submission-id="${submission.id}">
+      </sakai-grader>
+    `);
+
+    await waitUntil(() => !el._loadingData);
+    await elementUpdated(el);
+
+    // The Assign Grade Overrides UI must not be present when anonymousGrading is true
+    expect(el.querySelector("#grader-overrides-wrapper")).to.not.exist;
+  });
 });
