@@ -43,7 +43,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -62,19 +61,13 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 @Slf4j
 public class RepublishAssessmentListener implements ActionListener {
 
-	private static final GradebookServiceHelper gbsHelper =
-	    IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-	private static final boolean integrated =
-	    IntegrationContextFactory.getInstance().isIntegrated();
-	
-	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
-	private TaskService taskService = ComponentManager.get(TaskService.class);
+	private final CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+	private final TaskService taskService = ComponentManager.get(TaskService.class);
 	private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
-	private EventTrackingService eventTrackingService;
-	public RepublishAssessmentListener() {
-		eventTrackingService = ComponentManager.get(EventTrackingService.class);
-	}
+	private final EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
+
+	@Override
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
 				.lookupBean("assessmentBean");
