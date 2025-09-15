@@ -20,7 +20,9 @@
 	<property name="parent" type="long" />
 	<property name="topParent" type="long" />
 	<property name="hidden" type="boolean" />
-	<property name="hiddenFromNavigation" type="boolean" />
+	<property name="hiddenFromNavigation" type="boolean">
+		<column name="hiddenFromNavigation" default="false" />
+	</property>
 	<property name="releaseDate" type="timestamp" />
 	<property name="gradebookPoints" type="double" />
 	<property name="owner" type="string" length="99" />

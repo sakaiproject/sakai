@@ -440,7 +440,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					boolean lbHidden = isLessonBuilderPageHiddenFromNavigation(page.getId(), page.getSiteId());
 					boolean hideFromNavEffective = !lessonbuilderUpdater && lbHidden;
 					pageMap.put("isHiddenFromNavigation", hideFromNavEffective);
-					if (hideFromNavEffective) {
+					if (lbHidden) {
 						pageMap.put("hidden", Boolean.TRUE);
 					}
 				} catch (IdUnusedException e) {
