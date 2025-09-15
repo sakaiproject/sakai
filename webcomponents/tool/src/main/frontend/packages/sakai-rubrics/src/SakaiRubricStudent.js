@@ -14,7 +14,8 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     toolId: { attribute: "tool-id", type: String },
     siteId: { attribute: "site-id", type: String },
     preview: { type: Boolean },
-    instructor: { type: String },
+    // Treat instructor as a Boolean, not a String.
+    instructor: { type: Boolean },
     evaluatedItemId: { attribute: "evaluated-item-id", type: String },
     evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
     rubricId: { attribute: "rubric-id", type: String },
@@ -82,12 +83,15 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
   }
 
   shouldUpdate() {
-    return this.siteId && this._i18nLoaded && this._rubric && (this.instructor || !this.options.hideStudentPreview || this.options["rbcs-associate"] != 2);
+    // Render when loaded and either instructor is viewing, or student preview is allowed
+    // and the association is not dynamic (rbcs-associate != 2).
+    return this.siteId
+      && this._i18nLoaded
+      && this._rubric
+      && (this.instructor || (!this.options.hideStudentPreview && this.options["rbcs-associate"] != 2));
   }
 
   render() {
-
-    const isInstructor = this.instructor && this.instructor === "true";
 
     return html`
       <div class="rubric-details grading student-view">
@@ -107,7 +111,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
           </h3>
         ` : nothing }
 
-        ${isInstructor ? html`
+        ${this.instructor ? html`
           <select @change=${this._viewSelected} class="mb-3"
               aria-label="${this._i18n.rubric_view_selection_title}"
               title="${this._i18n.rubric_view_selection_title}" .value=${this._currentView}>
