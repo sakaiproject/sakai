@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="org.sakaiproject.profile2.api.repository.ProfileImageOfficialRepository"
+      class="org.sakaiproject.profile2.impl.repository.ProfileImageOfficialRepositoryImpl">
+    <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+  </bean>
+
+  <bean id="org.sakaiproject.profile2.api.repository.ProfileImageUploadedRepository"
+      class="org.sakaiproject.profile2.impl.repository.ProfileImageUploadedRepositoryImpl">
+    <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+  </bean>
+
+  <bean id="org.sakaiproject.profile2.api.repository.SocialNetworkingInfoRepository"
+      class="org.sakaiproject.profile2.impl.repository.SocialNetworkingInfoRepositoryImpl">
+    <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+  </bean>
+
+  <!--  SakaiProxy -->
+  <bean id="org.sakaiproject.profile2.api.SakaiProxy"
+      class="org.sakaiproject.profile2.impl.SakaiProxyImpl">
+  </bean>
+  
+  <bean id="org.sakaiproject.profile2.api.ProfileDao"
+      class="org.sakaiproject.profile2.impl.ProfileDaoImpl">
+  </bean>
+        
+  <bean id="profileHibernateMappings"
+      class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+    <property name="annotatedClasses">
+      <list>
+        <value>org.sakaiproject.profile2.api.model.ProfileImageOfficial</value>
+        <value>org.sakaiproject.profile2.api.model.ProfileImageUploaded</value>
+        <value>org.sakaiproject.profile2.api.model.SocialNetworkingInfo</value>
+      </list>
+    </property>
+  </bean>
+    
+  <bean id="org.sakaiproject.profile2.api.ProfileService"
+    class="org.sakaiproject.profile2.impl.ProfileServiceImpl"
+    init-method="init">
+  </bean>
+  
+  <bean id="org.sakaiproject.profile2.impl.ProfileContentProducer"
+    class="org.sakaiproject.profile2.impl.ProfileContentProducer" init-method="init">
+  </bean>
+
+</beans>

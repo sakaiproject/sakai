@@ -102,8 +102,8 @@ export default {
         return "";
       }
       var url = window.location.protocol + "//" + window.location.host;
-      url += "/direct/profile/";
-      url += this.userId + "/image";
+      url += "/api/users/";
+      url += this.userId + "/profile/image";
       url += this.offical
         ? "/official"
         : this.size <= 80
