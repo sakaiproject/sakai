@@ -27,7 +27,7 @@ export class SakaiPronunciationPlayer extends SakaiShadowElement {
   set userId(value) {
 
     this._userId = value;
-    this._src = `/direct/profile/${value}/pronunciation?v=${Math.floor(Math.random() * 100)}`;
+    this._src = `/api/users/${value}/profile/pronunciation?v=${Math.floor(Math.random() * 100)}`;
   }
 
   get userId() { return this._userId; }

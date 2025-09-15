@@ -103,7 +103,7 @@ import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.URLUtils;
-import org.sakaiproject.profile2.service.ProfileImageService;
+import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -173,7 +173,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     private String portalXLoginIcon;
     private String portalXLoginText;
     private String preferenceToolId;
-    private String profileToolId;
     private String sakaiVersion;
     private String serverId;
     private String serviceName;
@@ -221,7 +220,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     @Autowired private PASystem paSystem;
     @Autowired private PortalService portalService;
     @Autowired private PreferencesService preferencesService;
-    @Autowired private ProfileImageService profileImageService;
+    @Autowired private ProfileService profileService;
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SessionManager sessionManager;
@@ -277,7 +276,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         poweredByImage = serverConfigurationService.getStrings(PROP_POWERED_BY_IMAGE);
         poweredByUrl = serverConfigurationService.getStrings(PROP_POWERED_BY_URL);
         preferenceToolId = serverConfigurationService.getString("portal.preferencestool", "sakai.preferences");
-        profileToolId = serverConfigurationService.getString("portal.profiletool", "sakai.profile2");
         sakaiThemeSwitcherEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_THEMES_SWITCHER, true);
         sakaiThemesAutoDetectDarkEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_THEMES_AUTO_DARK, true);
         sakaiThemesEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_THEMES, true);
@@ -965,9 +963,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
                     // set profile urls
                     ToolConfiguration toolConfig = userSite.getToolForCommonId(preferenceToolId);
                     if (toolConfig != null) rcontext.put("prefsToolUrl", "/portal/directtool/" + toolConfig.getId());
-
-                    toolConfig = userSite.getToolForCommonId(profileToolId);
-                    if (toolConfig != null) rcontext.put("profileToolUrl", "/portal/directtool/" + toolConfig.getId());
                 }
             } catch (Exception e) {
                 log.warn("Failed to get the users [{}] workspace, {}", userId, e.toString());
@@ -1018,7 +1013,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
 
         rcontext.put("homeToolTitle", MESSAGES.getString("sitenav_home_tool_title"));
 
-        rcontext.put("profileImageUrl", profileImageService.getProfileImageURL(userId, userEid, true));
+        rcontext.put("profileImageUrl", profileService.getProfileImageURL(userId, true));
 
         // Format properties for MathJax.
         rcontext.put("mathJaxFormat", mathJaxFormat);
