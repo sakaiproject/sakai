@@ -91,7 +91,7 @@
 	
 	<bean id="calendarSearchAdapter"
 		class="org.sakaiproject.calendar.impl.CalendarContentProducer"
-		init-method="init" destroy-method="destroy">
+		init-method="init">
 		<property name="addEvents">
 			<list>
 				<value>calendar.new</value>

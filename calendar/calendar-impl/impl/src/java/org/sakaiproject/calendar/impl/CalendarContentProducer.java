@@ -83,9 +83,8 @@ public class CalendarContentProducer implements EntityContentProducer {
 	private ServerConfigurationService serverConfigurationService;
 
 	protected void init() throws Exception {
-		log.info("init()");
 		
-		if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
+		if (serverConfigurationService != null && serverConfigurationService.getBoolean("search.enable", false)) {
 			for (Iterator<String> i = addEvents.iterator(); i.hasNext();) {
 				getSearchService().registerFunction((String) i.next());
 			}
@@ -96,12 +95,6 @@ public class CalendarContentProducer implements EntityContentProducer {
 		}
 	}
 
-	/**
-	 * Destroy
-	 */
-	protected void destroy() {
-		log.info("destroy()");
-	}
 
 	private Reference getReference(String reference) {
 		try {
@@ -204,7 +197,7 @@ public class CalendarContentProducer implements EntityContentProducer {
 			SearchUtils.appendCleanString(type, sb);
 		}
 		
-		log.debug("Calendar Event Content for reference: {} is: {}", ref.getReference(), sb.toString());
+		log.debug("Indexed calendar event content for reference: {}", ref.getReference());
 		return sb.toString();
 	}
 
@@ -313,10 +306,7 @@ public class CalendarContentProducer implements EntityContentProducer {
 		} catch (Exception e) {
 			log.debug("Error getting tool configuration for site: {}", siteId, e);
 		}
-		
-		// Fallback to regular site URL
-		return "/portal/site/" + siteId + "/tool/sakai.schedule?eventReference=" + reference + 
-			   "&panel=Main&sakai_action=doDescription&sakai.state.reset=true";
+			return "";
 	}
 
 	@Override
