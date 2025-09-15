@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tasks.api.Priorities;
@@ -99,10 +100,12 @@ public class RepublishAssessmentListener implements ActionListener {
 		if (author.getIsRepublishAndRegrade() && hasGradingData) {
 			publishedAssessmentService.regradePublishedAssessment(assessment, publishedAssessmentSettings.getupdateMostCurrentSubmission());
 		}
-        // Emit immediate or scheduled availability events based on start times
-        emitAvailabilityEvents(assessment, publishedAssessmentSettings);
-		publishedAssessmentService.updateGradebook((PublishedAssessmentData) assessment.getData());
-		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
+        // Determine notification preference and emit availability events accordingly
+        PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
+        boolean sendNotification = publishRepublishNotification.isSendNotification();
+        emitAvailabilityEvents(assessment, publishedAssessmentSettings, sendNotification);
+        // Keep gradebook update position unchanged
+        publishedAssessmentService.updateGradebook((PublishedAssessmentData) assessment.getData());
 
 		PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
 		String subject = publishRepublishNotification.getNotificationSubject();
@@ -168,24 +171,38 @@ public class RepublishAssessmentListener implements ActionListener {
 		author.setOutcome("author");
 	}
 
-    // Posts immediate events and schedules future availability events as needed
-    private void emitAvailabilityEvents(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings) {
+    // Posts immediate events and schedules future availability events as needed.
+    // When sendNotification is false, events are created with NOTI_NONE to avoid user notifications.
+    private void emitAvailabilityEvents(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings, boolean sendNotification) {
 
         List<ExtendedTime> extendedTimes = publishedAssessmentSettings.getExtendedTimes();
         Instant now = Instant.now();
         Instant baseStart = (assessment.getStartDate() != null) ? assessment.getStartDate().toInstant() : now;
+        int notiMask = sendNotification ? NotificationService.NOTI_OPTIONAL : NotificationService.NOTI_NONE;
         if (baseStart.isBefore(now)) {
-            eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
+            eventTrackingService.post(eventTrackingService.newEvent(
+                SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE,
+                "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),
+                true,
+                notiMask));
             if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
                 for (ExtendedTime exTime : extendedTimes) {
                     Instant startInstant = (exTime.getStartDate() != null) ? exTime.getStartDate().toInstant() : null;
                     if (startInstant != null && startInstant.isAfter(now)) {
-                        eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
+                        eventTrackingService.delay(eventTrackingService.newEvent(
+                            SamigoConstants.EVENT_ASSESSMENT_AVAILABLE,
+                            "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),
+                            true,
+                            notiMask), startInstant);
                     }
                 }
             }
         } else {
-            eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), baseStart);
+            eventTrackingService.delay(eventTrackingService.newEvent(
+                SamigoConstants.EVENT_ASSESSMENT_AVAILABLE,
+                "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),
+                true,
+                notiMask), baseStart);
             if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
                 for (ExtendedTime exTime : extendedTimes) {
                     Instant startInstant = (exTime.getStartDate() != null) ? exTime.getStartDate().toInstant() : null;
@@ -193,9 +210,17 @@ public class RepublishAssessmentListener implements ActionListener {
                         continue;
                     }
                     if (startInstant.isBefore(now)) {
-                        eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
+                        eventTrackingService.post(eventTrackingService.newEvent(
+                            SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE,
+                            "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),
+                            true,
+                            notiMask));
                     } else if (startInstant.isAfter(now) && !baseStart.equals(startInstant)) {
-                        eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
+                        eventTrackingService.delay(eventTrackingService.newEvent(
+                            SamigoConstants.EVENT_ASSESSMENT_AVAILABLE,
+                            "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),
+                            true,
+                            notiMask), startInstant);
                     }
                 }
             }
