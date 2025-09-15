@@ -17,6 +17,7 @@ package org.sakaiproject.scorm.ui;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.wicket.request.HttpHeaderCollection;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -93,18 +94,44 @@ public class ContentPackageResourceReference extends ResourceReference
                             return headers;
                         }
                     };
-                    resourceResponse.setContentLength(size);
                     String contentType = stream.getContentType();
                     resourceResponse.setContentType(contentType);
-                    if (contentType.startsWith("text/")) resourceResponse.setTextEncoding(StandardCharsets.UTF_8.name());
+                    if (Strings.CI.startsWith(contentType, "text/")) resourceResponse.setTextEncoding(StandardCharsets.UTF_8.name());
                     resourceResponse.setAcceptRange(AbstractResource.ContentRangeType.BYTES);
                     resourceResponse.setFileName(resourceName);
                     resourceResponse.setLastModified(stream.lastModifiedTime());
 
                     RequestCycle cycle = RequestCycle.get();
-                    Long startbyte = cycle.getMetaData(AbstractResource.CONTENT_RANGE_STARTBYTE);
-                    Long endbyte = cycle.getMetaData(AbstractResource.CONTENT_RANGE_ENDBYTE);
-                    resourceResponse.setWriteCallback(new PartWriterCallback(stream.getInputStream(), size, startbyte, endbyte).setClose(true));
+                    Long startbyte = cycle.getMetaData(CONTENT_RANGE_STARTBYTE);
+                    Long endbyte = cycle.getMetaData(CONTENT_RANGE_ENDBYTE);
+
+                    // Normalize range only if a start byte was provided
+                    if (startbyte != null) {
+                        long from = startbyte;
+                        long to = (endbyte == null || endbyte >= size) ? (size - 1) : endbyte;
+
+                        if (from < 0 || from >= size || to < from) {
+                            // Unsatisfiable range 416
+                            resourceResponse.setStatusCode(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+                            resourceResponse.setContentRange(String.format("bytes */%d", size));
+                            resourceResponse.setContentLength(0);
+                            return resourceResponse;
+                        }
+
+                        // Partial content 206
+                        resourceResponse.setStatusCode(HttpStatus.PARTIAL_CONTENT.value());
+                        resourceResponse.setContentRange(String.format("bytes %d-%d/%d", from, to, size));
+                        resourceResponse.setContentLength(to - from + 1);
+                        resourceResponse.setWriteCallback(
+                                new PartWriterCallback(stream.getInputStream(), size, from, to).setClose(true)
+                        );
+                    } else {
+                        // Full content 200
+                        resourceResponse.setContentLength(size);
+                        resourceResponse.setWriteCallback(
+                                new PartWriterCallback(stream.getInputStream(), size, null, null).setClose(true)
+                        );
+                    }
                     return resourceResponse;
                 } catch (ResourceStreamNotFoundException rsnfe) {
                     log.debug("Resource not found [{}], {}", path, rsnfe.toString());
