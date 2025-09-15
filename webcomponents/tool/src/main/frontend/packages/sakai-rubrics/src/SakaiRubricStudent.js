@@ -15,7 +15,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     siteId: { attribute: "site-id", type: String },
     preview: { type: Boolean },
     // Treat instructor as a proper Boolean, parsing string values like "false"/"0" as false.
-    instructor: { type: Boolean, converter: { fromAttribute: v => v !== null && v !== 'false' && v !== '0' } },
+    instructor: { type: Boolean, converter: { fromAttribute: v => v !== null && v !== "false" && v !== "0" } },
     evaluatedItemId: { attribute: "evaluated-item-id", type: String },
     evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
     rubricId: { attribute: "rubric-id", type: String },
