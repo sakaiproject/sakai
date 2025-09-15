@@ -568,13 +568,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 			rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 
-			m_useMimeMagic = serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
-			m_ignoreExtensions = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.extensions"))
-					.map(Arrays::asList)
-					.orElse(Collections.emptyList());
-			m_ignoreMimeTypes = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes"))
-					.map(Arrays::asList)
-					.orElse(Collections.emptyList());
+        m_useMimeMagic = serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
+        // Normalize ignore lists to lowercase and supply sensible defaults if unset
+        m_ignoreExtensions = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.extensions"))
+                    .map(Arrays::asList)
+                    .map(list -> list.stream().filter(StringUtils::isNotBlank)
+                            .map(s -> s.toLowerCase(Locale.ROOT).trim())
+                            .collect(Collectors.toList()))
+                    .orElseGet(() -> Arrays.asList("js", "html", "htm", "css", "txt"));
+        m_ignoreMimeTypes = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes"))
+                    .map(Arrays::asList)
+                    .map(list -> list.stream().filter(StringUtils::isNotBlank)
+                            .map(s -> s.toLowerCase(Locale.ROOT).trim())
+                            .collect(Collectors.toList()))
+                    .orElse(Collections.emptyList());
 
 			tikaDetector = new DefaultDetector(this.getClass().getClassLoader());
 
@@ -5628,16 +5635,23 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
             }
 
             // tika magic and name detection
-            if (m_useMimeMagic
-                    && !m_ignoreExtensions.contains(org.springframework.util.StringUtils.getFilenameExtension(edit.getId()))
-                    && !CollectionUtils.containsAny(m_ignoreMimeTypes, currentContentType, detectedByName)) {
-                try {
-                    // tika detect doesn't modify the original stream but stream must support reset
-                    InputStream stream = new BufferedInputStream(edit.streamContent());
-                    edit.setContent(stream);
-                    detectedByMagic = tikaDetector.detect(stream, metadata).toString();
-                } catch (Exception e) {
-                    log.warn("tika mimetype detection failed when trying to get the resource data: {}", e.toString());
+            if (m_useMimeMagic) {
+                String ext = org.springframework.util.StringUtils.getFilenameExtension(edit.getId());
+                ext = ext == null ? null : ext.toLowerCase(Locale.ROOT);
+                String currentTypeLc = StringUtils.defaultString(currentContentType).toLowerCase(Locale.ROOT);
+                String detectedByNameLc = StringUtils.defaultString(detectedByName).toLowerCase(Locale.ROOT);
+                boolean skipMagicByExt = ext != null && m_ignoreExtensions.contains(ext);
+                boolean skipMagicByMime = CollectionUtils.containsAny(m_ignoreMimeTypes, currentTypeLc, detectedByNameLc);
+
+                if (!skipMagicByExt && !skipMagicByMime) {
+                    try {
+                        // tika detect doesn't modify the original stream but stream must support reset
+                        InputStream stream = new BufferedInputStream(edit.streamContent());
+                        edit.setContent(stream);
+                        detectedByMagic = tikaDetector.detect(stream, metadata).toString();
+                    } catch (Exception e) {
+                        log.warn("tika mimetype detection failed when trying to get the resource data: {}", e.toString());
+                    }
                 }
             }
         }
