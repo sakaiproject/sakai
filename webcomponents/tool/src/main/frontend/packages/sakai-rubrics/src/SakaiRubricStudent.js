@@ -14,8 +14,8 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     toolId: { attribute: "tool-id", type: String },
     siteId: { attribute: "site-id", type: String },
     preview: { type: Boolean },
-    // Treat instructor as a Boolean, not a String.
-    instructor: { type: Boolean },
+    // Treat instructor as a proper Boolean, parsing string values like "false"/"0" as false.
+    instructor: { type: Boolean, converter: { fromAttribute: v => v !== null && v !== 'false' && v !== '0' } },
     evaluatedItemId: { attribute: "evaluated-item-id", type: String },
     evaluatedItemOwnerId: { attribute: "evaluated-item-owner-id", type: String },
     rubricId: { attribute: "rubric-id", type: String },
@@ -39,7 +39,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     this.instanceSalt = Math.floor(Math.random() * Date.now());
   }
 
-  get dynamic () { return this.options && this.options["rbcs-associate"] === 2; }
+  get dynamic () { return Number(this.options?.["rbcs-associate"]) === 2; }
 
   attributeChangedCallback(name, oldValue, newValue) {
 
@@ -88,7 +88,7 @@ export class SakaiRubricStudent extends rubricsApiMixin(RubricsElement) {
     return this.siteId
       && this._i18nLoaded
       && this._rubric
-      && (this.instructor || (!this.options.hideStudentPreview && this.options["rbcs-associate"] != 2));
+      && (this.instructor || (!this.options.hideStudentPreview && Number(this.options?.["rbcs-associate"]) !== 2));
   }
 
   render() {
