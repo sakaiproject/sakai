@@ -429,18 +429,20 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		pageMap.put("description", getPageDescription(page));
 
 		// Check if this is a LessonBuilder page that should be hidden from navigation
-		List<ToolConfiguration> tools = page.getTools();
-		if (tools != null && !tools.isEmpty()) {
-			ToolConfiguration firstTool = tools.get(0);
-			pageMap.put("toolId", firstTool.getToolId());
+		if (toolList != null && !toolList.isEmpty()) {
+			ToolConfiguration firstTool = toolList.get(0);
+			pageMap.put("wellKnownToolId", firstTool.getToolId());
 
 			if ("sakai.lessonbuildertool".equals(firstTool.getToolId())) {
 				try {
 					Site pageSite = siteService.getSite(page.getSiteId());
 					boolean lessonbuilderUpdater = securityService.unlock("lessonbuilder.upd", pageSite.getReference());
-					boolean isHiddenFromNav = isLessonBuilderPageHiddenFromNavigation(page.getId(), page.getSiteId());
-					pageMap.put("isHiddenFromNavigation", lessonbuilderUpdater ? Boolean.FALSE : isHiddenFromNav);
-					if (isHiddenFromNav) pageMap.put("hidden", Boolean.TRUE);
+					boolean lbHidden = isLessonBuilderPageHiddenFromNavigation(page.getId(), page.getSiteId());
+					boolean hideFromNavEffective = !lessonbuilderUpdater && lbHidden;
+					pageMap.put("isHiddenFromNavigation", hideFromNavEffective);
+					if (hideFromNavEffective) {
+						pageMap.put("hidden", Boolean.TRUE);
+					}
 				} catch (IdUnusedException e) {
 					pageMap.put("isHiddenFromNavigation", Boolean.FALSE);
 				}
@@ -1580,7 +1582,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				}
 			}
 		} catch (Exception e) {
-			log.warn("Error checking if LessonBuilder page is hidden: {}", e.getMessage(), e);
+			log.warn("Error checking hiddenFromNavigation for LessonBuilder pageId={} siteId={}", pageId, siteId, e);
 		}
 		return Boolean.FALSE;
 	}

@@ -1680,10 +1680,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 				//get new page's Hidden property
 				String hiddenString = pageElement.getAttribute("hidden");
-				if (StringUtils.isNotEmpty(hiddenString)) page.setHidden(Boolean.valueOf(hiddenString));
-
 				String hiddenFromNavigationString = pageElement.getAttribute("hiddenfromnavigation");
-				if (StringUtils.isNotEmpty(hiddenFromNavigationString)) page.setHiddenFromNavigation(Boolean.valueOf(hiddenFromNavigationString));
+				boolean navHidden = StringUtils.equalsIgnoreCase(hiddenFromNavigationString, "true");
+				if (StringUtils.isNotEmpty(hiddenString)) {
+					boolean hidden = StringUtils.equalsIgnoreCase(hiddenString, "true");
+					// Export writes hidden = (hidden || navHidden); restore original 3-state.
+					if (navHidden) hidden = false;
+					page.setHidden(hidden);
+				}
+				if (StringUtils.isNotEmpty(hiddenFromNavigationString)) {
+					page.setHiddenFromNavigation(navHidden);
+				}
 
 				// Carry over the custom CSS sheet if present. These are of the form
 				// "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID

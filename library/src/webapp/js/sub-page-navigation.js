@@ -66,7 +66,7 @@ class SubPageNavigation {
                     </li>
                     ${subpages.map((subpage) => `
                         <li class="nav-item">
-                            <a class="btn btn-nav w-100 rounded-end text-start ps-5 ${((props.disabled === 'true' && props.disabledDueToPrerequisite === 'true') || (subpage.disabled === 'true' && subpage.disabledDueToPrerequisite === 'true')) ? `disabled` : ``}" href="${this.buildSubpageUrlFor(subpage)}">
+                            <a class="btn btn-nav w-100 rounded-end text-start ps-5 ${((props.disabled === 'true' && props.disabledDueToPrerequisite === 'true') || (subpage.disabled === 'true' && subpage.disabledDueToPrerequisite === 'true')) ? `disabled` : ``}" href="${this.buildSubpageUrlFor(subpage)}" ${((props.disabled === 'true' && props.disabledDueToPrerequisite === 'true') || (subpage.disabled === 'true' && subpage.disabledDueToPrerequisite === 'true')) ? `aria-disabled="true" tabindex="-1"` : ``}>
                                 <i class="me-2 bi bi-arrow-return-right" aria-hidden="true"></i>
                                 <span>${subpage.name}</span>
                                 ${(props.disabled === 'true' || subpage.disabled === 'true') ? `<i class="bi-slash-circle ms-2 float-end"></i>` : ``}

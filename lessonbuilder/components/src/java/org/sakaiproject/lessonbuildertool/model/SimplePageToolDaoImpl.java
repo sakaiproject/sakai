@@ -994,12 +994,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	 * @param sitePageId the site page ID (which corresponds to toolId in LessonBuilder)
 	 * @return the SimplePage or null if not found
 	 */
+	@Override
 	public SimplePage findSimplePageBySitePageId(String sitePageId) {
-		Long pageId = getTopLevelPageId(sitePageId);
-		if (pageId != null) {
-			return getPage(pageId);
-		}
-		return null;
+
+		return findPageWithToolId(sitePageId);
 	}
 
 	public List<ToolConfiguration> getSiteTools(String siteId) {

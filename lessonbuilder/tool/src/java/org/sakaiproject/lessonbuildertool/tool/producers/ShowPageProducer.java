@@ -4493,12 +4493,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UISelect buttonColors = UISelect.make(form, "btncolor", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.buttonColor}", SimplePageBean.NewColors[0]);
 
 		// Determine current visibility state
-		String currentVisibility2 = "visible";
-		if (currentPage.isHidden()) {
-			currentVisibility2 = "hide";
-		} else if (currentPage.isHiddenFromNavigation()) {
-			currentVisibility2 = "hideFromNav";
-		}
+		String currentVisibility2 = computeVisibilityChoice(currentPage);
 
 		UISelect visibilityRadios2 = UISelect.make(form, "visibility-select-2",
 			new String[] {"visible", "hide", "hideFromNav"}, 
@@ -4920,12 +4915,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "hideContainer");
 
 			// Determine current visibility state
-			String currentVisibility = "visible";
-			if (page.isHidden()) {
-				currentVisibility = "hide";
-			} else if (page.isHiddenFromNavigation()) {
-				currentVisibility = "hideFromNav";
-			}
+			String currentVisibility = computeVisibilityChoice(page);
 
 			UISelect visibilityRadios = UISelect.make(form, "visibility-select",
 				new String[] {"visible", "hide", "hideFromNav"}, 
@@ -5063,6 +5053,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UICommand.make(form, "create-title", messageLocator.getMessage("simplepage.save"), "#{simplePageBean.editTitle}");
 		UICommand.make(form, "cancel-title", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+	}
+
+	private static String computeVisibilityChoice(SimplePage page) {
+		if (page == null) return "visible";
+		if (page.isHidden()) return "hide";
+		if (page.isHiddenFromNavigation()) return "hideFromNav";
+		return "visible";
 	}
 
 	private void createNewPageDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem) {
