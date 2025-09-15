@@ -1382,14 +1382,23 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         .find(`.gb-item-filter :checkbox[value='${assignmentId}']`)
         .trigger("click");
     } else if (categoryId) {
-      const column = GbGradeTable.colModelForCategoryId(categoryId);
-      if (column && column.categoryName) {
+      let column;
+
+      try {
+        column = GbGradeTable.colModelForCategoryId(categoryId);
+      } catch (error) {
+        return;
+      }
+
+      if (!column || !column.categoryName) {
+        return;
+      }
+
       $togglePanel
         .find(
-          `.gb-item-category-score-filter :checkbox[value="${column.categoryName}"]`
+          `.gb-item-category-score-filter :checkbox[value="${CSS.escape(column.categoryName)}"]`
         )
         .trigger("click");
-      }
     }
   })
   .on("click", ".gb-dropdown-menu .gb-message-students", function (event) {
@@ -3344,4 +3353,3 @@ GradebookAPI._POST = function(url, data, onSuccess, onError) {
   .then(r => onSuccess())
   .catch (() => onError());
 };
-
