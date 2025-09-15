@@ -37,6 +37,9 @@
 
 	table.resourcesList{
 		tr{
+			a {
+				color: var(--sakai-text-color-2);
+			}
 			&:first-child{
 				td, th{
 					font-size: #{$default-font-size};
@@ -49,8 +52,14 @@
 				}
 			}
 			&.inactive {
-				* {
+				*:not(button):not(button *):not(ul *) {
 					color: var(--sakai-text-color-disabled) !important;
+				}
+				button, button * {
+					color: var(--button-primary-text-color) !important;
+				}
+				ul * {
+					color: var(--sakai-text-color-2) !important;
 				}
 				.resource-name, .resource-access, .resource-creator, .resource-modified, .resource-size {
 					font-style: italic;
@@ -58,10 +67,7 @@
 				.not-available {
 					font-size: initial;
 				}
-				button {
-					border:1px solid var(--sakai-border-color) !important;
-				}
-			} 
+			}
 		}
 
 		td.attach{
@@ -281,11 +287,6 @@
 	.specialLink .resource-name {
 		position: relative;
 		top: 5px;
-	}
-	
-	.specialLink.title a.si::before {
-		margin-left: -1.1rem;
-		position: relative;
 	}
 
 	#content-display-columns-dropdown .btn {

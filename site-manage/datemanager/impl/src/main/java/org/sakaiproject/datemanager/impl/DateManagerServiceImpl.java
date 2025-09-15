@@ -151,7 +151,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 	private final String[] columnsCsvStrings;
 	private final String[][] columnsNames;
-	private List<ToolImportData> toolsToImport;
 
 	public DateManagerServiceImpl() {
 		inputDateFormatter = new DateTimeFormatterBuilder()
@@ -186,7 +185,6 @@ public class DateManagerServiceImpl implements DateManagerService {
 				{"id", "title", "open_date", "due_date"},
 				{"id", "title", "open_date", "due_date", "extraInfo"},
 				{"id", "title", "open_date"}};
-		toolsToImport = new ArrayList<>();
     }
 
 	public void init() {
@@ -196,7 +194,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 
 	private String getCurrentToolSessionAttribute(String name) {
 		ToolSession session = sessionManager.getCurrentToolSession();
-		return session != null ? session.getAttribute(name).toString() : "";
+		if (session == null) return "";
+		Object v = session.getAttribute(name);
+		return v != null ? v.toString() : "";
 	}
 
 	@Override
@@ -1430,7 +1430,9 @@ public class DateManagerServiceImpl implements DateManagerService {
 
                                 String entityType = (String)jsonForum.get(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME);
                                 DateManagerUpdate update;
-                                if(resourceLoader.getString("itemtype.forum").equals(entityType)) {
+                                // Check if this is a forum (including draft forums) by checking if entityType starts with the forum type
+                                final String forumType = StringUtils.defaultString(resourceLoader.getString("itemtype.forum"));
+                                if (StringUtils.startsWith(StringUtils.trimToEmpty(entityType), forumType)) {
                                         BaseForum forum = forumManager.getForumById(true, forumId);
                                         if (forum == null) {
                                                 errors.add(new DateManagerError("forum", resourceLoader.getFormattedMessage("error.item.not.found", resourceLoader.getString("tool.forums.item.name")), "forums", toolTitle, idx));
@@ -1489,7 +1491,7 @@ public class DateManagerServiceImpl implements DateManagerService {
                                                 forum.setCloseDate(closeDateTemp);
                                         }
                                 }
-                                forumManager.saveDiscussionForum(forum);
+                                forumManager.saveDiscussionForum(forum, Boolean.TRUE.equals(forum.getDraft()));
                         } else {
                                 DiscussionTopic topic = (DiscussionTopic) update.object;
                                 if(topic.getAvailabilityRestricted()) {
@@ -1996,7 +1998,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				this.updateLessons(dateManagerValidation);
 			}
 		} catch (Exception ex) {
-			log.error("Cannot update the tool {} receibed", toolId, ex); 
+			log.error("Cannot update tool '{}'", toolId, ex); 
 		}
 	}
 
@@ -2015,26 +2017,56 @@ public class DateManagerServiceImpl implements DateManagerService {
 		if (DateManagerConstants.COMMON_ID_ASSIGNMENTS.equals(toolId.replaceAll("\"", ""))) {
 			try {
 				Assignment assignment = assignmentService.getAssignment(id);
-				changed = this.compareDates(Date.from(assignment.getOpenDate()), columns[2]) 
-						|| this.compareDates(Date.from(assignment.getDueDate()), columns[3])
-						|| this.compareDates(Date.from(assignment.getCloseDate()), columns[4]);
+				Date openDate  = assignment.getOpenDate()  != null ? Date.from(assignment.getOpenDate())  : null;
+				Date dueDate   = assignment.getDueDate()   != null ? Date.from(assignment.getDueDate())   : null;
+				Date closeDate = assignment.getCloseDate() != null ? Date.from(assignment.getCloseDate()) : null;
+
+				String openCsv  = (columns.length > 2 ? columns[2] : "");
+				String dueCsv   = (columns.length > 3 ? columns[3] : "");
+				String closeCsv = (columns.length > 4 ? columns[4] : "");
+
+				boolean openChanged  = this.compareDates(openDate, openCsv);
+				boolean dueChanged   = this.compareDates(dueDate, dueCsv);
+				boolean closeChanged = this.compareDates(closeDate, closeCsv);
+				changed = openChanged || dueChanged || closeChanged;
+				
+				log.debug("Assignment '{}' change details: open={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), close={} (DB: '{}' vs CSV: '{}')",
+					id, openChanged, this.formatToUserDateFormat(openDate), openCsv,
+					dueChanged, this.formatToUserDateFormat(dueDate), dueCsv,
+					closeChanged, this.formatToUserDateFormat(closeDate), closeCsv);
 			} catch (Exception ex) {
-				log.error("Cannot identify the tool Content received", ex);
+				log.error("Cannot identify the tool content for assignment id '{}'", id, ex);
 			}
 		} else if (DateManagerConstants.COMMON_ID_ASSESSMENTS.equals(toolId.replaceAll("\"", ""))) {
 			if (pubAssessmentServiceQueries.isPublishedAssessmentIdValid(Long.parseLong(id))) {
 				PublishedAssessmentFacade pubAssessment = pubAssessmentServiceQueries.getPublishedAssessment(Long.parseLong(id));
-				changed = this.compareDates(pubAssessment.getStartDate(), columns[2])
-						|| this.compareDates(pubAssessment.getDueDate(), (columns.length > 3? columns[3] : ""))
-						|| this.compareDates(pubAssessment.getRetractDate(), (columns.length > 4? columns[4] : ""));
+				final String startCsv = (columns.length > 2 ? columns[2] : "");
+				boolean startChanged = this.compareDates(pubAssessment.getStartDate(), startCsv);
+				boolean dueChanged = this.compareDates(pubAssessment.getDueDate(), (columns.length > 3? columns[3] : ""));
+				boolean retractChanged = this.compareDates(pubAssessment.getRetractDate(), (columns.length > 4? columns[4] : ""));
+				changed = startChanged || dueChanged || retractChanged;
+				
+				log.debug("Published Assessment '{}' change details: start={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), retract={} (DB: '{}' vs CSV: '{}')", 
+					id, startChanged, this.formatToUserDateFormat(pubAssessment.getStartDate()), startCsv,
+					dueChanged, this.formatToUserDateFormat(pubAssessment.getDueDate()), (columns.length > 3? columns[3] : ""),
+					retractChanged, this.formatToUserDateFormat(pubAssessment.getRetractDate()), (columns.length > 4? columns[4] : ""));
 			} else {
 				AssessmentData assesmentData = assessmentServiceQueries.loadAssessment(Long.parseLong(id));
 				AssessmentAccessControlIfc control = assesmentData.getAssessmentAccessControl();
-				changed = this.compareDates(control.getStartDate(), columns[2])
-						|| this.compareDates(control.getDueDate(), (columns.length > 3? columns[3] : ""))
-						|| this.compareDates(control.getRetractDate(), (columns.length > 4? columns[4] : ""))
-						|| this.compareDates(control.getFeedbackDate(), (columns.length > 5? columns[5] : ""))
-						|| this.compareDates(control.getFeedbackEndDate(), (columns.length > 6? columns[6] : ""));
+				final String startCsv = (columns.length > 2 ? columns[2] : "");
+				boolean startChanged = this.compareDates(control.getStartDate(), startCsv);
+				boolean dueChanged = this.compareDates(control.getDueDate(), (columns.length > 3? columns[3] : ""));
+				boolean retractChanged = this.compareDates(control.getRetractDate(), (columns.length > 4? columns[4] : ""));
+				boolean feedbackStartChanged = this.compareDates(control.getFeedbackDate(), (columns.length > 5? columns[5] : ""));
+				boolean feedbackEndChanged = this.compareDates(control.getFeedbackEndDate(), (columns.length > 6? columns[6] : ""));
+				changed = startChanged || dueChanged || retractChanged || feedbackStartChanged || feedbackEndChanged;
+				
+				log.debug("Draft Assessment '{}' change details: start={} (DB: '{}' vs CSV: '{}'), due={} (DB: '{}' vs CSV: '{}'), retract={} (DB: '{}' vs CSV: '{}'), feedbackStart={} (DB: '{}' vs CSV: '{}'), feedbackEnd={} (DB: '{}' vs CSV: '{}')", 
+					id, startChanged, this.formatToUserDateFormat(control.getStartDate()), startCsv,
+					dueChanged, this.formatToUserDateFormat(control.getDueDate()), (columns.length > 3? columns[3] : ""),
+					retractChanged, this.formatToUserDateFormat(control.getRetractDate()), (columns.length > 4? columns[4] : ""),
+					feedbackStartChanged, this.formatToUserDateFormat(control.getFeedbackDate()), (columns.length > 5? columns[5] : ""),
+					feedbackEndChanged, this.formatToUserDateFormat(control.getFeedbackEndDate()), (columns.length > 6? columns[6] : ""));
 			}
 		} else if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId.replaceAll("\"", ""))) {
 			org.sakaiproject.grading.api.Assignment gbitem = gradingService.getAssignment(getCurrentSiteId(), getCurrentSiteId(), Long.parseLong(id));
@@ -2158,12 +2190,24 @@ public class DateManagerServiceImpl implements DateManagerService {
 		boolean isDifferent = false;
 		if (dateString != null && StringUtils.isNotBlank(dateString.replaceAll("\"", ""))) {
 			if (date != null) {
-				isDifferent = this.stringToDate(dateString.replaceAll("\"", "")).compareTo(this.stringToDate(this.formatToUserDateFormat(date))) != 0;
+				try {
+					Date csvDate = this.stringToDate(dateString.replaceAll("\"", ""));
+					String csvNorm = this.formatToUserDateFormat(csvDate);
+					String dbNorm  = this.formatToUserDateFormat(date);
+					isDifferent = !Objects.equals(csvNorm, dbNorm);
+				} catch (Exception e) {
+					log.warn("Error comparing dates. Original date: '{}', CSV date string: '{}'", 
+							this.formatToUserDateFormat(date), dateString, e);
+					// If we can't parse the date, assume it's different to be safe
+					isDifferent = true;
+				}
 			} else {
 				isDifferent = true;
 			}
 		} else if (date != null) {
-			isDifferent = true;
+			// CSV has empty/blank date but DB has a date - treat as unchanged
+			// This handles cases where the CSV export intentionally omits certain dates
+			isDifferent = false;
 		}
 		return isDifferent;
 	}
@@ -2177,8 +2221,24 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 */
 	public Date stringToDate(String dateString) {
 		ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
-		LocalDateTime localDateTime = LocalDateTime.parse(dateString, inputDateTimeFormatter);
-		return Date.from(localDateTime.atZone(zone).toInstant());
+		try {
+			if (dateString.endsWith("Z") || dateString.matches(".*[+-]\\d{2}:?\\d{2}$")) {
+				java.time.OffsetDateTime odt = java.time.OffsetDateTime.parse(dateString, inputDateTimeFormatter);
+				return Date.from(odt.toInstant());
+			} else {
+				LocalDateTime localDateTime = LocalDateTime.parse(dateString, inputDateTimeFormatter);
+				return Date.from(localDateTime.atZone(zone).toInstant());
+			}
+		} catch (DateTimeParseException e) {
+			// Fallback: parse as date-only (no time) using inputDateFormatter
+			try {
+				LocalDate dateOnly = LocalDate.parse(dateString, inputDateFormatter);
+				return Date.from(dateOnly.atStartOfDay(zone).toInstant());
+			} catch (DateTimeParseException e2) {
+				log.warn("Unable to parse '{}' with either datetime or date-only formats", dateString, e2);
+				throw e2;
+			}
+		}
 	}
 
 	/**
@@ -2345,16 +2405,17 @@ public class DateManagerServiceImpl implements DateManagerService {
 					String toolInfoString = toolInfoObject.toString();
 					toolColumns[j] = toolInfoString != null? toolInfoString : "";
 				} else {
-					String toolInfoString = ((String) toolInfoObject);
-					if (columnsNames[j].equals("title")) {
+					String toolInfoString = toolInfoObject != null ? toolInfoObject.toString() : null;
+					if (columnsNames[j].equals("title") && toolInfoString != null) {
 						toolInfoString = toolInfoString.replaceAll("[;,\"]", "_");
 					}
 					String extraInfo = (String) ((JSONObject) toolJson.get(i)).get(DateManagerConstants.JSON_EXTRAINFO_PARAM_NAME);
-					if (columnsNames[j].equals("title") && extraInfo != null && extraInfo.contains(resourceLoader.getString("itemtype.draft"))) {
+					if (columnsNames[j].equals("title") && toolInfoString != null && extraInfo != null && extraInfo.contains(resourceLoader.getString("itemtype.draft"))) {
 						toolInfoString += " (" + resourceLoader.getString("itemtype.draft") + ")";
 					}
-					if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId) && !columnsNames[j].equals("title")) {
-						toolInfoString = toolInfoString.split("T")[0];
+					if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId) && !columnsNames[j].equals("title") && toolInfoString != null) {
+						int t = toolInfoString.indexOf('T');
+						toolInfoString = t > 0 ? toolInfoString.substring(0, t) : toolInfoString;
 					}
 					toolColumns[j] = toolInfoString != null? toolInfoString : "";
 				}
@@ -2371,10 +2432,17 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 * @return The list of tools with their data for confirmation display.
 	 */
 	@Override
-	public List<List<Object>> importCsvData(InputStream csvInputStream, String siteId) throws Exception {
-		toolsToImport = new ArrayList<>();
+    public List<List<Object>> importCsvData(InputStream csvInputStream, String siteId) throws Exception {
+        // Build list locally to avoid shared mutable state across requests
+        List<ToolImportData> importList = new ArrayList<>();
+        // Clear any previous per-session cache to avoid cross-request leakage
+        ToolSession tsImport = sessionManager.getCurrentToolSession();
+        if (tsImport != null) {
+            tsImport.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
+            tsImport.removeAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY);
+        }
         List<List<Object>> tools;
-        try (
+		try (
 			// Create CSVReader with the configured separator
 			InputStreamReader inputReader = new InputStreamReader(csvInputStream, StandardCharsets.UTF_8);
 			CSVReader reader = new CSVReaderBuilder(inputReader)
@@ -2398,8 +2466,18 @@ public class DateManagerServiceImpl implements DateManagerService {
 			reader.readNext();
 			
 			while ((nextLine = reader.readNext()) != null) {
+				log.debug("Processing CSV line: {} columns, content: {}", nextLine.length, Arrays.toString(nextLine));
+				
 				// Handle empty lines (tool separators)
-				if (nextLine.length == 1 && StringUtils.isBlank(nextLine[0])) {
+				// Empty lines can have multiple columns with all blank values
+				boolean isEmptyLine = true;
+				for (String cell : nextLine) {
+					if (StringUtils.isNotBlank(cell)) {
+						isEmptyLine = false;
+						break;
+					}
+				}
+				if (isEmptyLine) {
 					// Empty line indicates new tool section
 					if (hasChanged && !toolHeader.isEmpty() && !toolContent.isEmpty()) {
 						tool.add(getToolTitle(currentToolId));
@@ -2417,9 +2495,11 @@ public class DateManagerServiceImpl implements DateManagerService {
 				}
 				
 				// Handle tool title lines (e.g., "sakai.assignment(Assignments)")
-				if (nextLine.length == 1 && nextLine[0].contains("(") && nextLine[0].contains(")")) {
-					String toolLine = nextLine[0];
-					currentToolId = toolLine.substring(0, toolLine.indexOf("("));
+				// Tool headers may have multiple columns but only first column contains the tool info
+				if (nextLine.length >= 1 && nextLine[0].contains("(") && nextLine[0].contains(")")) {
+					String toolLine = nextLine[0].trim();
+					currentToolId = toolLine.substring(0, toolLine.indexOf("(")).trim();
+					log.debug("Found tool header: '{}', extracted toolId: '{}'", toolLine, currentToolId);
 					isHeader = true;
 					continue;
 				}
@@ -2431,34 +2511,44 @@ public class DateManagerServiceImpl implements DateManagerService {
 					// Copy all columns except the first (ID column)
 					toolColumns = Arrays.copyOfRange(nextLine, 1, nextLine.length);
 
-					// Check if this row has changes (skip for header rows)
-					boolean isChanged = true;
-					if (!isHeader) {
+					// Check if this row has changes (skip for header rows and empty rows)
+					log.debug("Processing data row: isHeader={}, firstCol='{}', toolId='{}'", isHeader, nextLine[0], currentToolId);
+					boolean rowChanged = false;
+					if (!isHeader && StringUtils.isNotBlank(nextLine[0]) && StringUtils.isNotBlank(currentToolId)) {
 						try {
-							isChanged = isChanged(currentToolId, nextLine);
+							rowChanged = isChanged(currentToolId, nextLine);
+							log.debug("Change detection for tool '{}', id '{}': {}", currentToolId, nextLine[0], rowChanged);
 						} catch (Exception ex) {
-							log.error("Cannot identify if it is changed or not in {}", currentToolId);
-							isChanged = false;
+							log.error("Cannot identify if it is changed or not in {} for id '{}'", currentToolId, nextLine[0], ex);
+							rowChanged = false;
 						}
-						if (isChanged) {
+						
+						if (rowChanged) {
 							ToolImportData data = new ToolImportData();
 							data.toolId = currentToolId;
 							data.index = idx;
 							data.columns = nextLine;
-							toolsToImport.add(data);
+							importList.add(data);
+							// Persist per session to avoid cross-request leakage
+							ToolSession ts = sessionManager.getCurrentToolSession();
+							if (ts != null) {
+								ts.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(importList));
+							}
 						}
+					} else {
+						log.debug("Skipping row: isHeader={}, firstCol='{}', toolId='{}'", isHeader, nextLine[0], currentToolId);
 					}
 					
 					idx++;
-					if (isChanged) {
-						if (isHeader) {
-							isHeader = false;
-							toolHeader = new ArrayList<>();
-							toolHeader.add(toolColumns);
-						} else {
-							hasChanged = true;
-							toolContent.add(toolColumns);
-						}
+					if (isHeader) {
+						// This is the column header row, reset isHeader for subsequent data rows
+						isHeader = false;
+						toolHeader = new ArrayList<>();
+						toolHeader.add(toolColumns);
+					} else if (rowChanged) {
+						// This is a data row with changes
+						hasChanged = true;
+						toolContent.add(toolColumns);
 					}
 				}
 			}
@@ -2474,17 +2564,83 @@ public class DateManagerServiceImpl implements DateManagerService {
 			log.error("Cannot identify the file received", ex);
 			throw new Exception("Error processing CSV file", ex);
 		}
-		
-		return tools;
-	}
+        // Store preview structure for confirm page (PRG compatibility)
+        setToolsCsvPreview(tools);
+        return tools;
+    }
 
 	/**
 	 * Gets the tools to import data for processing.
 	 *
 	 * @return The list of tools to import.
 	 */
-	@Override
-	public List<ToolImportData> getToolsToImport() {
-		return toolsToImport;
-	}
+    @Override
+    public List<ToolImportData> getToolsToImport() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        Object v = ts != null ? ts.getAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY) : null;
+        if (v instanceof List) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<ToolImportData> list = (List<ToolImportData>) v;
+                return list;
+            } catch (ClassCastException e) {
+                // fall through to empty
+            }
+        }
+        return List.of();
+    }
+
+    @Override
+    public List<List<Object>> getToolsCsvPreview() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        Object v = ts != null ? ts.getAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY) : null;
+        if (v instanceof List) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<List<Object>> preview = (List<List<Object>>) v;
+                return preview;
+            } catch (ClassCastException e) {
+                // fall through
+            }
+        }
+        return List.of();
+    }
+
+    @Override
+    public void setToolsToImport(List<ToolImportData> tools) {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts == null) return;
+        if (tools == null || tools.isEmpty()) {
+            ts.removeAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY);
+        } else {
+            ts.setAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY, new ArrayList<>(tools));
+        }
+    }
+
+    @Override
+    public void clearToolsToImport() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts != null) {
+            ts.removeAttribute(DateManagerService.TOOLS_TO_IMPORT_SESSION_KEY);
+        }
+    }
+
+    @Override
+    public void setToolsCsvPreview(List<List<Object>> preview) {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts == null) return;
+        if (preview == null || preview.isEmpty()) {
+            ts.removeAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY);
+        } else {
+            ts.setAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY, new ArrayList<>(preview));
+        }
+    }
+
+    @Override
+    public void clearToolsCsvPreview() {
+        ToolSession ts = sessionManager.getCurrentToolSession();
+        if (ts != null) {
+            ts.removeAttribute(DateManagerService.TOOLS_CSV_PREVIEW_SESSION_KEY);
+        }
+    }
 }

@@ -48,6 +48,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-jpa</artifactId>
+    </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
@@ -62,17 +66,9 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>${basedir}/src/resources</directory>
+        <directory>${basedir}/src/main/resources</directory>
 				<includes>
 					<include>**/*.properties</include>
-					<include>**/*.xml</include>
-				</includes>
-				<filtering>false</filtering>
-			</resource>
-			<resource>
-				<directory>${basedir}/src/java</directory>
-				<includes>
-					<include>**/*.xml</include>
 				</includes>
 				<filtering>false</filtering>
 			</resource>
