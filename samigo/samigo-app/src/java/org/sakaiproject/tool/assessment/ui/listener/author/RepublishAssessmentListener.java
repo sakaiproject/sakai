@@ -98,10 +98,7 @@ public class RepublishAssessmentListener implements ActionListener {
 		if (author.getIsRepublishAndRegrade() && hasGradingData) {
 			publishedAssessmentService.regradePublishedAssessment(assessment, publishedAssessmentSettings.getupdateMostCurrentSubmission());
 		}
-		postUserNotification(assessment, publishedAssessmentSettings);
-		eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
-		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
-		publishedAssessmentService.saveAssessment(assessment);
+        postUserNotification(assessment, publishedAssessmentSettings);
 		publishedAssessmentService.updateGradebook((PublishedAssessmentData) assessment.getData());
 		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
 
@@ -167,33 +164,37 @@ public class RepublishAssessmentListener implements ActionListener {
 		author.setOutcome("author");
 	}
 
-	private void postUserNotification(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings) {
+    private void postUserNotification(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings) {
 
-		List<ExtendedTime> extendedTimes = publishedAssessmentSettings.getExtendedTimes();
-		Instant instant = assessment.getStartDate().toInstant();
-		if (instant.isBefore(Instant.now())) {
-			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
-			if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
+        List<ExtendedTime> extendedTimes = publishedAssessmentSettings.getExtendedTimes();
+        Instant now = Instant.now();
+        Instant baseStart = (assessment.getStartDate() != null) ? assessment.getStartDate().toInstant() : now;
+        if (baseStart.isBefore(now)) {
+            eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
+            if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
                 for (ExtendedTime exTime : extendedTimes) {
-                    Instant startInstant = exTime.getStartDate().toInstant();
-                    if (startInstant.isAfter(Instant.now())) {
+                    Instant startInstant = (exTime.getStartDate() != null) ? exTime.getStartDate().toInstant() : null;
+                    if (startInstant != null && startInstant.isAfter(now)) {
                         eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
                     }
                 }
-			}
-		} else {
-			eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), instant);
-			if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
+            }
+        } else {
+            eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), baseStart);
+            if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
                 for (ExtendedTime exTime : extendedTimes) {
-                    Instant startInstant = exTime.getStartDate().toInstant();
-                    if (startInstant.isBefore(Instant.now())) {
+                    Instant startInstant = (exTime.getStartDate() != null) ? exTime.getStartDate().toInstant() : null;
+                    if (startInstant == null) {
+                        continue;
+                    }
+                    if (startInstant.isBefore(now)) {
                         eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
-                    } else if (startInstant.isAfter(Instant.now()) && !instant.equals(startInstant)) {
+                    } else if (startInstant.isAfter(now) && !baseStart.equals(startInstant)) {
                         eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
                     }
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 
 }
