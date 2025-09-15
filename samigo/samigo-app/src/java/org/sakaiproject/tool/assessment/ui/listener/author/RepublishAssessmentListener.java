@@ -61,11 +61,19 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 @Slf4j
 public class RepublishAssessmentListener implements ActionListener {
 
-	private final CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
-	private final TaskService taskService = ComponentManager.get(TaskService.class);
-	private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
-	private final EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
+		private final CalendarServiceHelper calendarService;
+		private final TaskService taskService;
+	    private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+	    private final SamigoAvailableNotificationService samigoAvailableNotificationService;
+	    private final EventTrackingService eventTrackingService;
+
+    public RepublishAssessmentListener() {
+        // Prefer fetching services in the constructor to avoid initialization in a static-like context
+        this.calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+        this.taskService = ComponentManager.get(TaskService.class);
+        this.samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
+        this.eventTrackingService = ComponentManager.get(EventTrackingService.class);
+    }
 
 	@Override
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
