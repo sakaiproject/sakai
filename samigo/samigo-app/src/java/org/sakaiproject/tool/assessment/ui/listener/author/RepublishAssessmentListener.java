@@ -91,7 +91,8 @@ public class RepublishAssessmentListener implements ActionListener {
 		if (author.getIsRepublishAndRegrade() && hasGradingData) {
 			publishedAssessmentService.regradePublishedAssessment(assessment, publishedAssessmentSettings.getupdateMostCurrentSubmission());
 		}
-        postUserNotification(assessment, publishedAssessmentSettings);
+        // Emit immediate or scheduled availability events based on start times
+        emitAvailabilityEvents(assessment, publishedAssessmentSettings);
 		publishedAssessmentService.updateGradebook((PublishedAssessmentData) assessment.getData());
 		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
 
@@ -139,11 +140,13 @@ public class RepublishAssessmentListener implements ActionListener {
 			task.setDue((assessment.getDueDate() == null ? null : assessment.getDueDate().toInstant()));
 			SelectItem[] usersMap = publishedAssessmentSettings.getUsersInSite();
 			Set<String> users = new HashSet<>();
-			for(SelectItem item : usersMap) {
-                            String userId = (String)item.getValue(); 
-                            if (StringUtils.isNotBlank(userId)) {
-				users.add(userId);
-                            }
+			if (usersMap != null) {
+				for (SelectItem item : usersMap) {
+					String userId = (String) item.getValue();
+					if (StringUtils.isNotBlank(userId)) {
+						users.add(userId);
+					}
+				}
 			}
 			taskService.createTask(task, users, Priorities.HIGH);
 		}
@@ -157,7 +160,8 @@ public class RepublishAssessmentListener implements ActionListener {
 		author.setOutcome("author");
 	}
 
-    private void postUserNotification(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings) {
+    // Posts immediate events and schedules future availability events as needed
+    private void emitAvailabilityEvents(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings) {
 
         List<ExtendedTime> extendedTimes = publishedAssessmentSettings.getExtendedTimes();
         Instant now = Instant.now();
