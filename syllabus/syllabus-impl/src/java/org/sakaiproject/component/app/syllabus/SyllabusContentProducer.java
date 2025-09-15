@@ -88,7 +88,7 @@ public class SyllabusContentProducer implements EntityContentProducer {
 
 	protected void init() throws Exception {
 		
-		if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
+		if (serverConfigurationService != null && serverConfigurationService.getBoolean("search.enable", false)) {
 			for (Iterator<String> i = addEvents.iterator(); i.hasNext();) {
 				getSearchService().registerFunction((String) i.next());
 			}
