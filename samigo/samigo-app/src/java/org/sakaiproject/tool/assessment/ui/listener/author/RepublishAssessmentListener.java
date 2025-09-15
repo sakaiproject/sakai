@@ -157,7 +157,10 @@ public class RepublishAssessmentListener implements ActionListener {
 			}
 			taskService.createTask(task, users, Priorities.HIGH);
 		}
-		// Update scheduled assessment available notification only if instructor opted in
+		// Update scheduled assessment available notification according to instructor choice
+		// Always clear any existing scheduled notifications to avoid duplicates or stale schedules,
+		// then schedule new ones only if opted in.
+		samigoAvailableNotificationService.removeScheduledAssessmentNotification(publishedAssessmentId);
 		if (publishRepublishNotification.isSendNotification()) {
 			samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(publishedAssessmentId);
 		}
