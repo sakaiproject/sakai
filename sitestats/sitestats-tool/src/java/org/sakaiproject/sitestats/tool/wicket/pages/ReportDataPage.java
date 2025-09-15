@@ -20,8 +20,6 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -101,14 +99,6 @@ public class ReportDataPage extends BasePage {
 	private int							selectedWidth		= 0;
 	private int							selectedHeight		= 0;
 
-	public ReportDataPage(final ReportDefModel reportDef) {
-		this(reportDef, null, null);
-	}
-
-	public ReportDataPage(final ReportDefModel reportDef, final PageParameters pageParameters) {
-		this(reportDef, pageParameters, null);
-	}
-
 	public ReportDataPage(final ReportDefModel reportDef, final PageParameters pageParameters, final WebPage returnPage) {
 		this.reportDefModel = reportDef;
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
@@ -120,7 +110,7 @@ public class ReportDataPage extends BasePage {
 			siteId = realSiteId;
 		}
 		if(returnPage == null) {
-			this.returnPage = new ReportsPage(pageParameters);			
+			this.returnPage = new ReportsPage(pageParameters);
 		}else{
 			this.returnPage = returnPage;
 		}
@@ -184,8 +174,8 @@ public class ReportDataPage extends BasePage {
 				PageParameters params = new PageParameters();
 				params.set("printVersion", "true");
 				params.set("siteId", siteId);
-				setResponsePage(new ReportDataPage(reportDefModel, params));
-			}			
+				setResponsePage(new ReportDataPage(reportDefModel, params, getWebPage()));
+			}
 		};
 		printLink.setVersioned(false);
 		toPrintVersion.add(printLink);
@@ -280,7 +270,7 @@ public class ReportDataPage extends BasePage {
 				setResponsePage(returnPage);
 				super.onSubmit();
 			}
-		}.setVisible(!inPrintVersion));
+		});
 		form.add(new Button("export") {
 			@Override
 			public void onSubmit() {
@@ -618,9 +608,7 @@ public class ReportDataPage extends BasePage {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
 		response.setContentType("application/vnd.ms-excel");
-		fileName = fileName + ".xls";
-		// Filename has to be encoded because the siteId can contain non utf-8 chars.
-		response.setAttachmentHeader(this.encodeFileName(fileName));
+		response.setAttachmentHeader(fileName + ".xls");
 		response.setHeader("Cache-Control", "max-age=0");
 		response.setContentLength(hssfWorkbookBytes.length);
 		OutputStream out = null;
@@ -646,9 +634,7 @@ public class ReportDataPage extends BasePage {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
 		response.setContentType("text/comma-separated-values");
-		fileName = fileName + ".csv";
-		// Filename has to be encoded because the siteId can contain non utf-8 chars.
-		response.setAttachmentHeader(this.encodeFileName(fileName));
+		response.setAttachmentHeader(fileName + ".csv");
 		response.setHeader("Cache-Control", "max-age=0");
 		response.setContentLength(csvString.length());
 		OutputStream out = null;
@@ -674,9 +660,7 @@ public class ReportDataPage extends BasePage {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
 		response.setContentType("application/pdf");
-		fileName = fileName + ".pdf";
-		// Filename has to be encoded because the siteId can contain non utf-8 chars.
-		response.setAttachmentHeader(this.encodeFileName(fileName));
+		response.setAttachmentHeader(fileName + ".pdf");
 		response.setHeader("Cache-Control", "max-age=0");
 		response.setContentLength(pdf.length);
 		OutputStream out = null;
@@ -767,14 +751,6 @@ public class ReportDataPage extends BasePage {
 	
 	public String getReportUserSelection() {
 		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportUserSelection(report);
-	}
-
-	private String encodeFileName(String fileName) {
-		try {
-			return URLEncoder.encode(fileName, StandardCharsets.UTF_8.displayName()); 
-		} catch (Exception ex) {
-			return fileName;
-		}
 	}
 
 }

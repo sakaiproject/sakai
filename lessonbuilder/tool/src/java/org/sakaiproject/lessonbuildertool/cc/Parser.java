@@ -144,14 +144,14 @@ public class Parser extends AbstractParser {
       Element manifest=this.getXML(utils, IMS_MANIFEST);
       processManifest(manifest, canvas_module_meta, the_handler);
     } catch (Exception e) {
-	the_handler.getSimplePageBean().setErrKey("simplepage.cc-error", "");
-	log.info("parse error, stack trace follows " + e);
+      the_handler.getSimplePageBean().setErrKey("simplepage.cc-error", "");
+        log.warn("Failed to parse {}.", IMS_MANIFEST, e);
     }
   }
   
   private void
   processManifest(Element the_manifest, Element the_canvas_module_meta, DefaultHandler the_handler) throws ParseException {
-    log.debug("the_manifest {} the_canvas_module_meta {} the_handler", the_manifest, the_canvas_module_meta, the_handler);
+    log.debug("the_manifest {} the_canvas_module_meta {} the_handler {}", the_manifest, the_canvas_module_meta, the_handler);
     ns = new Ns();
     the_handler.setNs(ns);
     // figure out which version we have, and set up ns to know about it
@@ -176,15 +176,14 @@ public class Parser extends AbstractParser {
 	return;
     }
 
-    log.debug("Found version " + ns.getNs());
+    log.debug("Found version {}", ns.getNs());
 
     the_handler.startManifest();
     the_handler.setManifestXml(the_manifest);
     if ( the_canvas_module_meta != null && the_handler instanceof org.sakaiproject.lessonbuildertool.cc.PrintHandler) {
         ((org.sakaiproject.lessonbuildertool.cc.PrintHandler)the_handler).setCanvasModuleMetaXml(the_canvas_module_meta);
     }
-    if (processAuthorization(the_manifest, the_handler))
-	return; // don't process CCs with authorization
+    if (processAuthorization(the_manifest, the_handler)) return; // don't process CCs with authorization
     processManifestMetadata(the_manifest, the_handler);
     preProcessResources(the_manifest.getChild(CC_RESOURCES, ns.getNs()), the_handler);
     XPath path=null;

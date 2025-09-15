@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +53,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.ScormContentService;
@@ -408,7 +411,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 		ScormEntity entity = null;
 		if( StringUtils.isBlank( entityID ) )
 		{
-			throw new IllegalArgumentException( "You must supply a valid reference string" );
+			throw new EntityException("Invalid identifier provided for scormEntity", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}
 		else
 		{
@@ -435,7 +438,7 @@ public class ScormEntityProviderImpl implements ScormEntityProvider, CoreEntityP
 			}
 			else
 			{
-				throw new IllegalArgumentException( "You must supply a valid reference string" );
+				throw new EntityException("Invalid identifier provided for scormEntity", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
 			}
 		}
 

@@ -710,7 +710,7 @@ body.is-logged-out{
 		}
 	}
 	@media #{$phone}{
-		display: none;
+		display: inline;
 	}
 }
 

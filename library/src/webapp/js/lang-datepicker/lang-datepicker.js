@@ -183,23 +183,34 @@ const defaults = {
   }
   
   class SakaiDateTimePicker {
-	constructor(options) {
-	  this.options = { ...defaults, ...options };
-	  this.options.useTime = Boolean(this.options.useTime === 1 || this.options.useTime === true);
-	  
-	  // Handle both selector strings and DOM elements
-	  this.element = typeof this.options.input === 'string' 
-		? document.querySelector(this.options.input)
-		: this.options.input;
-	  
-	  if (!this.element) {
-		console.error("Input element not found:", this.options.input);
-		return;
-	  }
-	  
-	  this.init();
-	}
-  
+    constructor(options) {
+      this.options = { ...defaults, ...options };
+
+      // Normalize useTime to a boolean, accepting 1/0, '1'/'0', true/false, 'true'/'false'
+      const normalizeBoolean = (v) => {
+        if (typeof v === 'boolean') return v;
+        if (typeof v === 'number') return v === 1;
+        if (typeof v === 'string') {
+          const s = v.trim().toLowerCase();
+          return s === '1' || s === 'true' || s === 'yes' || s === 'on';
+        }
+        return Boolean(v);
+      };
+      this.options.useTime = normalizeBoolean(this.options.useTime);
+
+      // Handle both selector strings and DOM elements
+      this.element = typeof this.options.input === 'string' 
+          ? document.querySelector(this.options.input)
+          : this.options.input;
+
+      if (!this.element) {
+        console.error("Input element not found:", this.options.input);
+        return;
+      }
+
+      this.init();
+    }
+
 	init() {
 	  // Process initial date value
 	  const initialDate = this.getInitialDate();

@@ -14,9 +14,6 @@
     <packaging>war</packaging>
     
     <dependencies>
-
-        <!-- HACK -->
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>lti-api</artifactId>
