@@ -71,7 +71,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="account-details-modal-label">${rloader.sit_account_details}</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${rloader.sit_close_page}"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${rloader.sit_closepage}"></button>
       </div>
       <div class="modal-body">
         <sakai-account user-id="${loginUserId}"></sakai-account>
