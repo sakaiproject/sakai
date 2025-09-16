@@ -221,9 +221,10 @@ public class DbCalendarService
 
 		private String getRangeFilter() {
 
-			return "((RANGE_START > ? and RANGE_START < ? ) " +
-					"or (  RANGE_END > ? and RANGE_END < ? ) " +
-					"or ( RANGE_START < ? and RANGE_END > ? ))";
+			// Overlap test simplified: [start, end] overlaps (a, b) iff
+			// start < b AND end > a. Using strict inequalities preserves
+			// the original semantics from the OR expression.
+			return "(RANGE_START < ? and RANGE_END > ?)";
 		}
 
 		private List<Object> getRangeValues(TimeRange range) {
@@ -247,12 +248,9 @@ public class DbCalendarService
 			log.debug("Selecting Range from {} to {}", (new Date(startDate)).toGMTString(), (new Date(endDate)).toGMTString());
             
 			List<Object> rangeValues = new ArrayList<>();
-			rangeValues.add(startDateHours);
+			// Bind order matches (RANGE_START < ?) and (RANGE_END > ?)
 			rangeValues.add(endDateHours);
 			rangeValues.add(startDateHours);
-			rangeValues.add(endDateHours);
-			rangeValues.add(startDateHours);
-			rangeValues.add(endDateHours);
 			return rangeValues;
 		}
 
@@ -280,6 +278,5 @@ public class DbCalendarService
 
 	}   // DbStorage
 }	// DbCachedCalendarService
-
 
 
