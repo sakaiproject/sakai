@@ -271,7 +271,8 @@ implements ActionListener
 	        assessment.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
 	    }
 
-		postUserNotification(assessmentSettings, assessment ,  oldExtendedTimes,  oldStartDate);
+		// Emit immediate or scheduled availability events based on new settings
+		emitAvailabilityEvents(assessmentSettings, assessment ,  oldExtendedTimes,  oldStartDate);
 
 	    // l. FINALLY: save the assessment
 	    assessmentService.saveAssessment(assessment);
@@ -307,7 +308,8 @@ implements ActionListener
 	}
 
 
-	private void postUserNotification(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, List<ExtendedTime> oldExtendedTimes, Date oldStartDate) {
+	// Posts immediate events and schedules future availability events as needed
+	private void emitAvailabilityEvents(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, List<ExtendedTime> oldExtendedTimes, Date oldStartDate) {
 
 		if (!Objects.equals(assessment.getStatus(), AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS)) {
 			Date newStartDate = assessmentSettings.getStartDate();
