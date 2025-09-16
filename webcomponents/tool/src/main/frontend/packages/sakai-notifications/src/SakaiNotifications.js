@@ -26,6 +26,34 @@ export class SakaiNotifications extends SakaiElement {
 
     super();
 
+    /*
+      Polyfill for Notification in unsupported environments.
+      The Notification object can be undefined when browsing inside an iOS or Android webview.
+      See: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API
+    */
+    if (typeof window.Notification === "undefined") {
+      window.Notification = function() {};
+      window.Notification.permission = "denied";
+      window.Notification.requestPermission = function(cb) {
+        if (cb) cb("denied");
+        return Promise.resolve("denied");
+      };
+    }
+
+    /*
+      Polyfill for navigator.setAppBadge in unsupported environments.
+      This API may be undefined in several environments
+      See: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/setAppBadge
+    */
+    if (typeof navigator.setAppBadge === "undefined") {
+      navigator.setAppBadge = function() {
+        return Promise.resolve();
+      };
+      navigator.clearAppBadge = function() {
+        return Promise.resolve();
+      };
+    }
+
     window.addEventListener("online", () => this._online = true );
 
     this._filteredNotifications = new Map();
@@ -205,7 +233,7 @@ export class SakaiNotifications extends SakaiElement {
 
     const unviewed = this.notifications.filter(n => !n.viewed).length;
     this.dispatchEvent(new CustomEvent("notifications-loaded", { detail: { count: unviewed }, bubbles: true }));
-    navigator.setAppBadge && navigator.setAppBadge(unviewed);
+    navigator.setAppBadge(unviewed);
   }
 
   _clearNotification(e) {
@@ -500,7 +528,7 @@ export class SakaiNotifications extends SakaiElement {
         ` : nothing}
 
         <div class="d-flex justify-content-between my-2">
-          ${this._online && this.pushEnabled && Notification.permission === "granted" ? html`
+          ${this._online && this._pushEnabled && Notification.permission === "granted" ? html`
             <div>
               <button class="btn ${this._highlightTestButton ? "btn-primary" : "btn-secondary"} btn-sm"
                   @click=${this._sendTestNotification}>

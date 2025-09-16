@@ -245,7 +245,6 @@
 								</th>									
 							#end
 						</tr>
-						#if ($!view == "view.all")
 						#set ($rowCount=0)
 						#foreach ($ann_item in $showMessagesList)
 							#set ($rowCount =$rowCount + 1)
@@ -337,7 +336,6 @@
 					</div>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
-			#end
 		#else
 			</div> ##end navPanel						
 			<div class="instruction clear">

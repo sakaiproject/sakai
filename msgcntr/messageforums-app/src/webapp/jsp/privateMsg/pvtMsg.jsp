@@ -268,14 +268,14 @@
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
-					<span class="bi bi-paperclip" aria-hidden="true"></span>
+					<h:outputText value="" styleClass="bi bi-paperclip" escape="false" />
 					<h:outputText value="#{msgs.msg_has_attach}" styleClass="sr-only" />
 				</f:facet>
 				<h:outputText value="" styleClass="bi bi-paperclip" escape="false" rendered="#{rcvdItems.msg.hasAttachments}" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		        	<span class="bi bi-reply-fill" aria-hidden="true"></span>
+					<h:outputText value="" styleClass="bi bi-reply-fill" escape="false" />
 					<h:outputText value="#{msgs.pvt_msgs_replied}" styleClass="sr-only" />
 				</f:facet>
 				<h:outputText value="" styleClass="bi bi-reply-fill" escape="false" rendered="#{rcvdItems.replied}" />

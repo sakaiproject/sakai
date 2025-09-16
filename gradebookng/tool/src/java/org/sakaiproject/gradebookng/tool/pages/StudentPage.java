@@ -62,7 +62,6 @@ public class StudentPage extends BasePage {
 
 		add(new Label("heading", new StringResourceModel("heading.studentpage").setParameters(u.getDisplayName())));
 		StudentGradeSummaryGradesPanel sgsgp = new StudentGradeSummaryGradesPanel("summary", Model.ofMap(userData));
-		sgsgp.setCurrentGradebookAndSite(gradebookUid, siteId);
 		add(sgsgp);
 
 		EventHelper.postStudentViewEvent(this.businessService.getGradebook(gradebookUid, siteId), u.getId());

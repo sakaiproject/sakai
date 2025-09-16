@@ -897,18 +897,31 @@ public class PortalServiceImpl implements PortalService, Observer
 	public void reorderPinnedSites(String userId, List<String> siteIds) {
 		if (StringUtils.isBlank(userId)) return;
 
-		List<String> reversedSiteIds = new ArrayList<>(siteIds);
-		Collections.reverse(reversedSiteIds);
+		if(!serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
+			pinnedSiteRepository.deleteByUserId(userId);
 
-		pinnedSiteRepository.deleteByUserId(userId);
+			for (int i = 0; i < siteIds.size(); i++) {
 
-		for (int i = 0; i < reversedSiteIds.size(); i++) {
+				PinnedSite pin = new PinnedSite();
+				pin.setUserId(userId);
+				pin.setSiteId(siteIds.get(i));
+				pin.setPosition(i);
+				pinnedSiteRepository.save(pin);
+			}
+		} else {
+			List<String> reversedSiteIds = new ArrayList<>(siteIds);
+			Collections.reverse(reversedSiteIds);
 
-			PinnedSite pin = new PinnedSite();
-			pin.setUserId(userId);
-			pin.setSiteId(reversedSiteIds.get(i));
-			pin.setPosition(i);
-			pinnedSiteRepository.save(pin);
+			pinnedSiteRepository.deleteByUserId(userId);
+
+			for (int i = 0; i < reversedSiteIds.size(); i++) {
+
+				PinnedSite pin = new PinnedSite();
+				pin.setUserId(userId);
+				pin.setSiteId(reversedSiteIds.get(i));
+				pin.setPosition(i);
+				pinnedSiteRepository.save(pin);
+			}
 		}
 	}
 
@@ -922,12 +935,15 @@ public class PortalServiceImpl implements PortalService, Observer
 	public List<String> getPinnedSites(String userId) {
 		if (StringUtils.isBlank(userId)) return Collections.emptyList();
 
-		List<String> pinnedSites = pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
+		List<String> pinned = pinnedSiteRepository
+				.findByUserIdAndHasBeenUnpinnedOrderByPosition(userId, false)
+				.stream()
 				.map(PinnedSite::getSiteId)
 				.collect(Collectors.toList());
-
-		Collections.reverse(pinnedSites);
-		return Collections.unmodifiableList(pinnedSites);
+		if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
+			Collections.reverse(pinned);
+		}
+		return Collections.unmodifiableList(pinned);
 	}
 
 	@Override

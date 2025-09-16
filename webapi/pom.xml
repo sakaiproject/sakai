@@ -112,11 +112,6 @@
             <artifactId>rubrics-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.calendar</groupId>
-            <artifactId>sakai-calendar-util</artifactId>
-            <version>26-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.tags</groupId>
             <artifactId>tags-api</artifactId>
         </dependency>
@@ -148,7 +143,12 @@
         <dependency>
             <groupId>com.github.java-json-tools</groupId>
             <artifactId>json-patch</artifactId>
-            <version>1.12</version>
+            <version>1.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>${json.simple.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>

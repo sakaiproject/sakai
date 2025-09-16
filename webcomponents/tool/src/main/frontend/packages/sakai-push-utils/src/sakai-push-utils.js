@@ -1,6 +1,19 @@
 import getBrowserFingerprint from "get-browser-fingerprint";
 import { getUserId } from "@sakai-ui/sakai-portal-utils";
 
+/*
+  Polyfill for ServiceWorker in unsupported environments.
+*/
+if ( typeof navigator.serviceWorker === "undefined") {
+  navigator.serviceWorker = {
+    register: () => Promise.resolve(),
+    addEventListener: cb => cb(),
+    get ready() {
+      return Promise.resolve();
+    },
+  };
+}
+
 export const NOT_PUSH_CAPABLE = "NOT_PUSH_CAPABLE";
 
 // Push permission states

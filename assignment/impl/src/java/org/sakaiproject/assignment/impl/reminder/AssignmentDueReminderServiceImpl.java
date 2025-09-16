@@ -96,8 +96,6 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
     @Resource private UserMessagingService userMessagingService;
     @Setter private UserTimeService userTimeService;
 
-    private List<String> additionalHeaders = new ArrayList<>();
-
     public void init() {
         log.debug("AssignmentDueReminderService init()");
     }
@@ -111,7 +109,7 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         // Remove any previously scheduled reminder
         removeScheduledReminder(assignmentId);
 
-        long reminderSeconds = 60 * 60 * serverConfigurationService.getInt("assignment.reminder.hours", 24); // Convert hours to seconds
+        long reminderSeconds = 60L * 60 * serverConfigurationService.getInt("assignment.reminder.hours", 24); // Convert hours to seconds
 
         try {
             Assignment assignment = assignmentService.getAssignment(assignmentId);
@@ -121,7 +119,7 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
                 scheduledInvocationManager.createDelayedInvocation(reminderDate, "org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService", assignmentId);
             }
         } catch (IdUnusedException | PermissionException e) {
-            log.error("Error scheduling due date reminder email.", assignmentId, e);
+            log.error("Error scheduling due date reminder email for assignmentId {}", assignmentId, e);
         }
     }
 
@@ -196,13 +194,8 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         String submitterUserId = submitter.getUserId();
         ResourceLoader rl = new ResourceLoader(submitterUserId, "assignment");
 
-        String assignmentTitle = assignment.getTitle();
-        if (assignment.getTitle().length() > 11) {
-            assignmentTitle = assignment.getTitle().substring(0, 11) + "[...]";
-        }
-
         replacements.put("url", getAssignmentUrl(assignment));
-        replacements.put("title", assignmentTitle);
+        replacements.put("title", assignment.getTitle());
 
         replacements.put("siteUrl", site.getUrl());
         replacements.put("siteTitle", site.getTitle());
@@ -227,7 +220,7 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         try {
             user = userDirectoryService.getUser(submitterUserId);
         } catch (UserNotDefinedException unde) {
-            log.error("No user for id {}", submitterUserId);
+            log.error("No user for id {} : {}", submitterUserId, unde.toString());
             return;
         }
 
@@ -293,18 +286,18 @@ public class AssignmentDueReminderServiceImpl implements AssignmentDueReminderSe
         try {
             email = userDirectoryService.getUser(userId).getEmail();
         } catch (UserNotDefinedException e) {
-            log.warn("Cannot get email for id: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+            log.warn("Cannot get email for id {} : {}", userId, e.toString());
         }
         return email;
     }
     private String getUserDisplayName(String userId) {
-        String email = null;
+        String displayName = null;
         try {
-            email = userDirectoryService.getUser(userId).getDisplayName();
+            displayName = userDirectoryService.getUser(userId).getDisplayName();
         } catch (UserNotDefinedException e) {
-            log.warn("Cannot get display name for id: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+            log.warn("Cannot get display name for id {} : {}", userId, e.toString());
         }
-        return email;
+        return displayName;
     }
 
 }

@@ -38,5 +38,10 @@ public interface AssignmentInterface {
 
     public String importObject(String title, String href, String mime, boolean hide);
     public String importObject(Element e, Namespace ns, String base, String baseDir, List<String>attachments, boolean hide);
+    default String importCanvasAssignment(Element assignmentXml, String instructions, boolean hide) {
+        // Default implementation returns null to indicate Canvas assignment import is not supported
+        // Individual implementers can override this method to provide actual Canvas import functionality
+        return null;
+    }
 
 }

@@ -17,6 +17,7 @@
         <span class="visually-hidden">$rloader.portal_home</span>
       </a>
     </div>
+    #parse("/vm/morpheus/includeGatewayNav.vm")
     #parse("/vm/morpheus/includePortalHeaderBreadcrumb.vm")
   </div>
 

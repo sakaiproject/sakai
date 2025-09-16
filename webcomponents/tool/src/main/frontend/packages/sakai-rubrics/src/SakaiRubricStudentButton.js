@@ -58,7 +58,7 @@ export class SakaiRubricStudentButton extends rubricsApiMixin(RubricsElement) {
     this.apiGetAssociation()
       .then(association => {
 
-        if (association && !association.parameters.hideStudentPreview) {
+        if (association && (this.instructor || !association.parameters.hideStudentPreview)) {
           this._rubricId = association.rubricId;
         }
       })

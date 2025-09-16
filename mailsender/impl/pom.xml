@@ -73,8 +73,6 @@
         <dependency>
             <groupId>${sakai.mailarchive.groupId}</groupId>
             <artifactId>sakai-mailarchive-api</artifactId>
-            <version>${sakai.mailarchive.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${sakai.message.groupId}</groupId>

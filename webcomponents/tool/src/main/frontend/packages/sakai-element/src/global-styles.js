@@ -21,14 +21,18 @@ export function getDocumentStyleSheets() {
 
   if (globalSheets !== null) return globalSheets;
 
-  globalSheets = Array.from(document.styleSheets)
-    .map(sheet => {
-      const cssText = Array.from(sheet.cssRules)
+  globalSheets = [];
+
+  for (const sheet of document.styleSheets) {
+    try {
+      const cssText = Array.from(sheet.cssRules || [])
         .filter(rule => rule.constructor.name !== "CSSImportRule")
         .map(rule => rule.cssText)
         .join(" ");
-      return css`${unsafeCSS(cssText)}`;
-    });
-
+      cssText && globalSheets.push(css`${unsafeCSS(cssText)}`);
+    } catch (e) {
+      console.debug(`Skipping stylesheet (${e.name}): ${sheet.href || "inline"}`);
+    }
+  }
   return globalSheets;
 }

@@ -896,7 +896,7 @@
 		height: 23px;
 		font-weight: bold;
 		color: var(--sakai-text-color-inverted);
-		background-image: url(../images/circle.gif);
+		background-image: url(#{$skin-path}images/circle.gif);
 		vertical-align: middle;
 		background-repeat: no-repeat;
 		padding-left: 7px;

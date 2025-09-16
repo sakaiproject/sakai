@@ -46,10 +46,12 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
+import org.apache.fop.fo.ValidationException;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
@@ -215,7 +217,7 @@ public class SiteInfoToolServlet extends HttpServlet
 		// get the participant xml document
 		generateParticipantXMLDocument(document, siteId);
 
-		generatePDF(document, outByteStream);
+		generatePDF(document, outByteStream, siteId);
 		res.setContentLength(outByteStream.size());
 		if (outByteStream.size() > 0)
 		{
@@ -361,9 +363,11 @@ public class SiteInfoToolServlet extends HttpServlet
 	 * @param doc
 	 *        DOM structure
 	 * @param streamOut
+	 * @param siteId
+	 *        Site ID for context information in error logging
 	 */
 	@SuppressWarnings("unchecked")
-	protected void generatePDF(Document doc, OutputStream streamOut)
+	protected void generatePDF(Document doc, OutputStream streamOut, String siteId)
 	{
 		String xslFileName = "participants-all-attrs.xsl";
 		InputStream configInputStream = null;
@@ -385,9 +389,24 @@ public class SiteInfoToolServlet extends HttpServlet
 			Source src = new DOMSource(doc);
 			transformer.transform(src, new SAXResult(fop.getDefaultHandler()));
 		}
+		catch (ValidationException e)
+		{
+			// Count participants for context
+			int participantCount = doc.getElementsByTagName("PARTICIPANT").getLength();
+			int roleCount = doc.getElementsByTagName("ROLE").getLength();
+			int sectionCount = doc.getElementsByTagName("SECTION").getLength();
+			
+			log.error("FOP ValidationException during PDF generation for siteId={} - XSL-FO validation failed. " +
+					"Site has {} participants, {} roles, {} sections. Error: {}", 
+					siteId, participantCount, roleCount, sectionCount, e.getMessage(), e);
+		}
+		catch (FOPException e)
+		{
+			log.error("FOP processing error during PDF generation for siteId={}: {}", siteId, e.getMessage(), e);
+		}
 		catch (Exception e)
 		{
-			log.warn("{}.generatePDF(): {}", this, e.toString());
+			log.error("Unexpected error during PDF generation for siteId={}: {}", siteId, e.getMessage(), e);
 		}
 		finally
 		{

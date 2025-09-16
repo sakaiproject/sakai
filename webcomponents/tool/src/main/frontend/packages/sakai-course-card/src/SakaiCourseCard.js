@@ -1,5 +1,5 @@
-import { html } from "lit";
-import { ifDefined } from "lit-html/directives/if-defined.js";
+import { html, nothing } from "lit";
+import { styleMap } from "lit/directives/style-map.js";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
 import { markNotificationsViewed } from "@sakai-ui/sakai-notifications";
@@ -57,8 +57,13 @@ export class SakaiCourseCard extends SakaiElement {
   render() {
 
     return html`
-      <div class="info-block"
-          style="background: linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end)), url(${ifDefined(this.courseData.image)})">
+      <div
+          class="info-block"
+          style=${styleMap({
+      backgroundImage: this.courseData.image
+        ? `linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end)), url(${this.courseData.image})`
+        : "linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end))"
+    })}>
         <div>
           <a class="${!this.courseData.image ? "no-background" : ""}"
               href="${this.courseData.url}"
@@ -66,9 +71,16 @@ export class SakaiCourseCard extends SakaiElement {
             <div class="ms-2">${this.courseData.title}</div>
           </a>
         </div>
-        <a href="${this.courseData.url}" title="${this._i18n.visit} ${this.courseData.title}">
-          <div class="code-block">${this.courseData.code}</div>
-        </a>
+        ${this.courseData.shortDescription && this.courseData.shortDescription.trim() ? html`
+          <a href="${this.courseData.url}" title="${this._i18n.visit} ${this.courseData.title}">
+            <div
+              class="code-block description-block"
+              title="${this.courseData.shortDescription.trim()}"
+              style="display: -webkit-box; -webkit-line-clamp: var(--sakai-course-card-description-lines, 2); -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+              ${this.courseData.shortDescription.trim()}
+            </div>
+          </a>
+        ` : nothing}
       </div>
 
       <div class="tool-alerts-block">

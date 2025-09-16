@@ -47,7 +47,7 @@
 	            <!-- Print link -->
 	            <span wicket:id="toPrintVersion" style="float: right; padding-top: 12px; padding-right: 2px; clear:both">
 	                <span class="fa fa-print" aria-hidden="true" wicket:message="title:reportres_printversion"></span>
-	                <a wicket:id="printLink" target="_new" wicket:message="title:reportres_printversion" >
+	                <a wicket:id="printLink" wicket:message="title:reportres_printversion" >
 	                    <wicket:message key="reportres_printversion">[reportres_printversion]</wicket:message>
 	                </a>
 	            </span>
@@ -176,7 +176,7 @@
 		            </div>
 		                
 		            <!-- BUTTONS -->
-		            <p class="act">
+		            <p class="act noprint">
 		                <input type="submit" wicket:id="back" wicket:message="value:report_back" class="active"/>
 		                <input type="submit" wicket:id="export" wicket:message="value:bt_export" onclick="showExportButtons();return false;" class="export"/>
 		                

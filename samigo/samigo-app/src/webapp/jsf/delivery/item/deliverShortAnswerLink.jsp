@@ -63,7 +63,7 @@ should be included in file importing DeliveryMessages
              && delivery.navigation ne '1'}" />
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <h:panelGrid rendered="#{(delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true'&& question.modelAnswerIsNotEmpty) || delivery.actionString=='gradeAssessment'}" >
+  <h:panelGrid rendered="#{((delivery.feedbackComponent.showCorrectResponse && delivery.feedbackComponent.showCorrection && !delivery.noFeedback=='true') || delivery.actionString=='gradeAssessment') && question.modelAnswerIsNotEmpty}" >
     <h:panelGroup>
       <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.model} " />
 	    <h:outputText  value="#{question.key}" escape="false"/>

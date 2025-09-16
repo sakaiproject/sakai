@@ -41,7 +41,6 @@ public class ViewCourseGradeLogAction extends InjectableAction implements Serial
 		window.setStudentToReturnFocusTo(studentUuid);
 		window.setReturnFocusToCourseGrade();
 		CourseGradeOverrideLogPanel cgolp = new CourseGradeOverrideLogPanel(window.getContentId(), Model.of(studentUuid), window);
-		cgolp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		window.setContent(cgolp);
 		window.showUnloadConfirmation(false);
 		window.show(target);

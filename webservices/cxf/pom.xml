@@ -191,7 +191,6 @@
         <dependency>
             <groupId>org.sakaiproject.sitemanage</groupId>
             <artifactId>sakai-site-manage-api</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

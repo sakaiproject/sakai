@@ -45,9 +45,7 @@
 	<div class="navPanel">
 		<div class="searchBox">
 			<form action="?#" method="get" class="inlineForm"  >  
-				<label for="search">
-					${rlb.jsp_search}  
-				</label>
+
 				<input type="hidden" name="panel" value="Main" />
 				<input type="text" id="search"  name="search" maxlength="1024" value="${searchModel.search}"/>
 				<input type="submit" name="sb" value="${rlb.jsp_search}" class="mt-1 mt-sm-0"/>

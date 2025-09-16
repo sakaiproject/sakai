@@ -4537,7 +4537,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
                                 } else {
                                     if (newGbAssignment != null) {
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbAssignment.getId().toString());
+                                        if (StringUtils.isNotBlank(newGbAssignment.getId().toString())) {
+                                            nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbAssignment.getId().toString());
+                                        }
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
                                     } else {
                                         nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
@@ -4567,7 +4569,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                             false,
                                             categoryId,
                                             null);
-                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                    if (StringUtils.isNotBlank(nAssignmentRef)) {
+                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                    }
                                     nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
                                 } else {
                                     // internal gradebook items should have already been created and are linked using a Long or a title
@@ -4578,7 +4582,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
                                     } else {
                                         // gb item found just link it
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbAssignment.getId().toString());
+                                        if (StringUtils.isNotBlank(newGbAssignment.getId().toString())) {
+                                            nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbAssignment.getId().toString());
+                                        }
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
                                     }
                                 }

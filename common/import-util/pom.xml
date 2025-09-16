@@ -28,10 +28,6 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
-      <groupId>jakarta.activation</groupId>
-      <artifactId>jakarta.activation-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sakaiproject.common</groupId>
       <artifactId>archive-api</artifactId>
     </dependency>

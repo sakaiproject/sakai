@@ -64,7 +64,6 @@ import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.URLUtils;
-import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -156,7 +155,6 @@ public class SiteHandler extends WorksiteHandler
 	private final EventTrackingService eventTrackingService;
 	private final PresenceService presenceService;
 	private final PreferencesService preferencesService;
-	private final ProfileImageLogic profileImageLogic;
 	private final SecurityService securityService;
 	private final ServerConfigurationService serverConfigurationService;
 	private final SessionManager sessionManager;
@@ -172,7 +170,6 @@ public class SiteHandler extends WorksiteHandler
 		eventTrackingService = ComponentManager.get(EventTrackingService.class);
 		preferencesService = ComponentManager.get(PreferencesService.class);
 		presenceService = ComponentManager.get(PresenceService.class);
-		profileImageLogic = ComponentManager.get(ProfileImageLogic.class);
 		securityService = ComponentManager.get(SecurityService.class);
 		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 		sessionManager = ComponentManager.get(SessionManager.class);
@@ -762,7 +759,6 @@ public class SiteHandler extends WorksiteHandler
 				{
 					includeLogo(rcontext, req, session, siteId);
 					includeTabs(rcontext, req, session, siteId, toolId, getUrlFragment(), false);
-					rcontext.put("picEditorEnabled", profileImageLogic.isPicEditorEnabled());
 				}
 				else
 				{

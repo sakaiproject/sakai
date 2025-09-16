@@ -97,7 +97,7 @@ public class ScoResultsPage extends BaseResultsPage
 
 			IModel breadcrumbModel = new StringResourceModel("uberparent.breadcrumb", this, new Model(contentPackage));
 			addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);	
-			addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, true);
+			addBreadcrumb(new Model(learner.getSortName()), LearnerResultsPage.class, parentParams, true);
 
 			ActivityReport report = resultService.getActivityReport(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId);
 

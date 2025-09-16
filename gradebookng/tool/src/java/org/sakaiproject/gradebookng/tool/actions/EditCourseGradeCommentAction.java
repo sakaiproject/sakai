@@ -40,7 +40,6 @@ public class EditCourseGradeCommentAction extends InjectableAction implements Se
         final GradebookPage gradebookPage = (GradebookPage) target.getPage();
         final GbModalWindow window = gradebookPage.getGradeCommentWindow();
         final EditCourseGradeCommentPanel panel = new EditCourseGradeCommentPanel(window.getContentId(), Model.ofMap(model), window);
-        panel.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
         window.setContent(panel);
         window.showUnloadConfirmation(false);
         window.clearWindowClosedCallbacks();
