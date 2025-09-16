@@ -215,9 +215,9 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
 		}
 		StringBuffer sb = new StringBuffer();
 		sb.append(serverConfigurationService.getServerUrl());
-		sb.append("/direct/profile/");
+		sb.append("/api/users/");
 		sb.append(authorId);
-		sb.append("/image/thumb");
+		sb.append("/profile/image/thumb");
 		return sb.toString();
 	}
 

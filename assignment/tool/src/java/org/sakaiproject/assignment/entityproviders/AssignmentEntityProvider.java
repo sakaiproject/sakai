@@ -1274,7 +1274,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         options.put(GRADE_SUBMISSION_GRADE, grade);
 
         // check for grade overrides
-        if (assignment.getIsGroup()) {
+        if (AssignmentToolUtils.allowGroupOverrides(assignment, assignmentService)) {
             submission.getSubmitters().forEach(s -> {
 
                 String ug = StringUtils.trimToNull((String) params.get(GRADE_SUBMISSION_GRADE + "_" + s.getSubmitter()));
