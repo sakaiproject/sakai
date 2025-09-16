@@ -67,6 +67,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ContentExistsAware;
@@ -2392,7 +2393,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					String messageSiteId = entityManager.newReference(msg.getReference()).getContext();
 					try {
 						Site msgSite = siteService.getSite(messageSiteId);
-						String userRole = msgSite.getMember(currentUserId).getRole().getId();
+						Member member = msgSite.getMember(currentUserId);
+						if (member == null) {
+							log.warn("User {} is not a member of site {}", currentUserId, messageSiteId);
+							return false;
+						}
+						String userRole = member.getRole().getId();
 						return selectedRoles.contains(userRole);
 					} catch (IdUnusedException idue) {
 						log.warn("No site found with id {}", messageSiteId);
