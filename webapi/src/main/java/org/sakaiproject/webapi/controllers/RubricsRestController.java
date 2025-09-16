@@ -187,11 +187,11 @@ public class RubricsRestController extends AbstractSakaiApiController {
             }
             for (Map.Entry<Long, List<ItemGradingData>> entry : itemScores.entrySet()) {
                 List<ItemGradingData> igds = entry.getValue();
-                log.debug("For published item " + entry.getKey());
+                log.debug("For published item {}", entry.getKey());
                 for (ItemGradingData igd : igds) {
                     Double scoreDifference = igd.getAutoScore();
                     boolean matchesPreviousScore = false;
-                    log.debug("Item grading " + igd.getItemGradingId() + " - assessment grading " + igd.getAssessmentGradingId() + " - autoscore " + igd.getAutoScore());
+                    log.debug("Item grading {} - assessment grading {} - autoscore {}", igd.getItemGradingId(), igd.getAssessmentGradingId(), igd.getAutoScore());
                     Optional<EvaluationTransferBean> optBean = rubricsService.getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId("sakai.samigo", "pub."+samigoData, igd.getAssessmentGradingId()+"."+entry.getKey(), gradingService.load(String.valueOf(igd.getAssessmentGradingId()), false).getAgentId(), siteId, false);
                     if (optBean.isPresent()) {
                         EvaluationTransferBean eval = optBean.get();
@@ -207,14 +207,14 @@ public class RubricsRestController extends AbstractSakaiApiController {
                                 Double oldPoints = c.getPoints();
                                 if (matchesPreviousScore && !newPoints.equals(oldPoints)) {
                                     c.setPoints(newPoints);
-                                    log.debug("Updated criterion, substracting old " + oldPoints + " and adding new " + newPoints);
+                                    log.debug("Updated criterion, subtracting old {} and adding new {}", oldPoints, newPoints);
                                     scoreDifference -= oldPoints;
                                     scoreDifference += newPoints;
                                 }
                             // substract points of removed criterions
                             } else if (removeIds.contains(c.getCriterionId()) && c.getSelectedRatingId() != null) {
                                 scoreDifference -= c.getPoints();
-                                log.debug("Deleted criterion, substracting " + c.getPoints());
+                                log.debug("Deleted criterion, subtracting {}", c.getPoints());
                             }
                             // deselect criterions as grade has been modified manually since last rubric evaluation
                             if (!matchesPreviousScore) {
@@ -229,7 +229,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                         if (scoreDifference < 0) {
                             scoreDifference = 0.0;
                         }
-                        log.debug("Score is " + scoreDifference + " and before it was " + igd.getAutoScore());
+                        log.debug("Score is {} and before it was {}", scoreDifference, igd.getAutoScore());
                         eval.setOverallComment(String.valueOf(scoreDifference));
                         rubricsService.saveEvaluation(eval, siteId);
                         log.debug("Rubric evaluation successfully updated");
@@ -287,8 +287,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/default", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EntityModel<CriterionTransferBean>> getDefaultCriterion(@PathVariable String siteId, @PathVariable Long rubricId) {
+    @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/default", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<CriterionTransferBean>> createDefaultCriterion(@PathVariable String siteId, @PathVariable Long rubricId) {
 
         checkSakaiSession();
 
@@ -297,8 +297,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
             .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
-    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/defaultEmpty", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EntityModel<CriterionTransferBean>> getDefaultEmptyCriterion(@PathVariable String siteId, @PathVariable Long rubricId) {
+    @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/defaultEmpty", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<CriterionTransferBean>> createDefaultEmptyCriterion(@PathVariable String siteId, @PathVariable Long rubricId) {
 
         checkSakaiSession();
 
@@ -451,8 +451,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/default", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EntityModel<RatingTransferBean>> getDefaultRating(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long criterionId, @RequestParam Integer position) {
+    @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/default", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<RatingTransferBean>> createDefaultRating(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long criterionId, @RequestParam Integer position) {
 
         checkSakaiSession();
 
