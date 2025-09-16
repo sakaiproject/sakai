@@ -8,7 +8,6 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>login-render-engine-impl</name>
-  <groupId>org.sakaiproject.login</groupId>
   <artifactId>login-render-engine-impl</artifactId>
   <packaging>war</packaging>
   <dependencies>
