@@ -99,8 +99,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return rubricsService.getSharedRubrics().stream().map(b -> entityModelForRubricBean(b)).collect(Collectors.toList());
     }
 
-    @GetMapping(value = "/sites/{siteId}/rubrics/default", produces = MediaType.APPLICATION_JSON_VALUE)
-    EntityModel<RubricTransferBean> getDefaultRubric(@PathVariable String siteId) {
+    @PostMapping(value = "/sites/{siteId}/rubrics/default", produces = MediaType.APPLICATION_JSON_VALUE)
+    EntityModel<RubricTransferBean> createDefaultRubric(@PathVariable String siteId) {
 
         checkSakaiSession();
 
