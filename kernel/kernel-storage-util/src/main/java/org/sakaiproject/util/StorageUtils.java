@@ -314,6 +314,7 @@ public class StorageUtils {
 				parserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 				parserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
 				parserFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+				parserFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 			} catch (Exception e) {
 				log.warn("Failed to apply secure SAX parser features; continuing with defaults", e);
 			}
@@ -327,6 +328,11 @@ public class StorageUtils {
 				reader.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
 				log.warn("Failed to restrict external entity access on SAX reader; continuing with defaults", e);
+			}
+			try {
+				reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+				log.warn("Failed to disable external DTD loading on SAX reader; continuing with defaults", e);
 			}
 		}
 		catch (ParserConfigurationException e)
