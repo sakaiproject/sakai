@@ -2623,7 +2623,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		// these are values that will be have been set if coming
 		// from Preview
-		final String subject = state.getTempSubject()1;
+		final String subject = state.getTempSubject();
 		final String body = state.getTempBody();
 		final Time tempReleaseDate = state.getTempReleaseDate();
 		final Time tempRetractDate = state.getTempRetractDate();
