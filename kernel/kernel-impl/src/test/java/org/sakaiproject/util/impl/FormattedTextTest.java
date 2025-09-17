@@ -1386,6 +1386,13 @@ public class FormattedTextTest {
         // Mixed text
         result = formattedText.encodeUnicode("Hello © world, this is a test with © symbol");
         Assert.assertEquals("Hello &#169; world, this is a test with &#169; symbol", result);
+
+        // Emoji (supplementary plane) support
+        result = formattedText.encodeUnicode("Emoji 🙂");
+        Assert.assertEquals("Emoji &#128578;", result);
+
+        result = formattedText.encodeUnicode("🙂");
+        Assert.assertEquals("&#128578;", result);
     }
 
     @Test

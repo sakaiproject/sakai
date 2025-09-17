@@ -734,12 +734,12 @@ public class FormattedTextImpl implements FormattedText
             // just return the given string without changing it.
             StringBuilder buf = (LAZY_CONSTRUCTION) ? null : new StringBuilder();
             final int len = value.length();
-            for (int i = 0; i < len; i++)
+            for (int i = 0; i < len; )
             {
-                char c = value.charAt(i);
-                if (c < 128)
+                final int codePoint = value.codePointAt(i);
+                if (codePoint < 128)
                 {
-                    if (buf != null) buf.append(c);
+                    if (buf != null) buf.append((char) codePoint);
                 }
                 else
                 {
@@ -747,9 +747,11 @@ public class FormattedTextImpl implements FormattedText
                     // HTML numeric character entity reference like "&#15672;"
                     if (buf == null) buf = new StringBuilder(value.substring(0, i));
                     buf.append("&#");
-                    buf.append(Integer.toString((int) c));
+                    buf.append(codePoint);
                     buf.append(";");
                 }
+
+                i += Character.charCount(codePoint);
             } // for
 
             return (buf == null) ? value : buf.toString();
