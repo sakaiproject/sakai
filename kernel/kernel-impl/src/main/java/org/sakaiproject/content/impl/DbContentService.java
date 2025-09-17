@@ -1742,7 +1742,11 @@ public class DbContentService extends BaseContentService
 
        public int getCountFilePath(String filePath) 
        {
-
+            // Validate filePath up front
+            if (filePath == null || filePath.trim().isEmpty()) {
+                log.warn("getCountFilePath called with null or empty filePath, returning -1");
+                return -1;
+            }
 
             String statement = contentServiceSql.getCountFilePath(resourceTableName);
 
@@ -1759,9 +1763,14 @@ public class DbContentService extends BaseContentService
                     log.debug("Found {} references in main table and {} in deleted table for file: {}", 
                         references - deletedReferences, deletedReferences, filePath);
                 }
-            } catch ( IdUnusedException e ) {
-                log.warn("missing id during countQuery,  {}", e.toString());
+            } catch (IdUnusedException e) {
+                log.warn("missing id during countQuery for filePath: {}, returning -1", filePath);
+                return -1;
+            } catch (Exception e) {
+                log.error("Unexpected exception during countQuery for filePath: {}, returning -1", filePath, e);
+                return -1;
             }
+            
             return references;
        }
 
@@ -1787,7 +1796,10 @@ public class DbContentService extends BaseContentService
                        {
                             int references = getCountFilePath(filePath);
 
-                           if ( references > 1 ) {
+                           if ( references == -1 ) {
+                               log.warn("Failed to count references for filePath: {}, retaining file blob conservatively to prevent accidental deletion", filePath);
+                               log.debug("Retaining file blob for deleted resource_id={} due to reference count failure", edit.getId());
+                           } else if ( references > 1 ) {
                                log.debug("Retaining file blob for deleted resource_id={} because {} total reference(s)", edit.getId(), references);
                            } else {
                                log.debug("Removing deleted resource ({}) content: {} file:{}", edit.getId(), bodyPathDeleted, filePath);
@@ -1986,25 +1998,12 @@ public class DbContentService extends BaseContentService
 							String filePath = ((BaseResourceEdit) edit).m_filePath;
 							if (singleInstanceStore)
 							{
-								// Count references in both main table and deleted table for singleInstanceStore
-								String statement = contentServiceSql.getCountFilePath(resourceTableName);
-								int references = -1;
-								try {
-									references = countQuery(statement, filePath);
+								int references = getCountFilePath(filePath);
 
-									// Also count references in deleted table if it exists
-									if (references <= 1 && resourceDeleteTableName != null) {
-										String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
-										int deletedReferences = countQuery(deleteStatement, filePath);
-										references += deletedReferences;
-										log.debug("Found {} references in main table and {} in deleted table for file: {}", 
-											references - deletedReferences, deletedReferences, filePath);
-									}
-								} catch ( IdUnusedException e ) {
-									log.warn("missing id during countQuery,  {}", e.toString());
-								}
-
-								if ( references > 1 ) {
+								if ( references == -1 ) {
+									log.warn("Failed to count references for filePath: {}, retaining file blob conservatively to prevent accidental deletion", filePath);
+									log.debug("Retaining file blob for resource_id={} due to reference count failure", edit.getId());
+								} else if ( references > 1 ) {
 									log.debug("Retaining file blob for resource_id={} because {} total reference(s)", edit.getId(), references);
 								} else {
 									log.debug("Removing resource ({}) content: {} file:{}", edit.getId(), bodyPath, filePath);
@@ -2424,7 +2423,12 @@ public class DbContentService extends BaseContentService
                 if ( filePath != null ) {
                     int references = getCountFilePath(filePath);
                     log.debug("pre store check, references: {} filePath: {} sha256: {}", references, filePath, resource.getContentSha256());
-                    if ( references > 1 ) {
+                    if ( references == -1 ) {
+                        log.warn("Failed to count references for filePath: {}, regenerating path conservatively to prevent overwriting existing content", filePath);
+                        ((BaseResourceEdit) resource).setFilePath(timeService.newTime());
+                        log.debug("Regenerated path from: {} to: {} due to reference count failure", filePath, ((BaseResourceEdit) resource).m_filePath);
+                        filePath = ((BaseResourceEdit) resource).m_filePath;
+                    } else if ( references > 1 ) {
                         ((BaseResourceEdit) resource).setFilePath(timeService.newTime());
                         log.debug("Regenerated path from: {} to: {} ", filePath, ((BaseResourceEdit) resource).m_filePath);
                         filePath = ((BaseResourceEdit) resource).m_filePath;
