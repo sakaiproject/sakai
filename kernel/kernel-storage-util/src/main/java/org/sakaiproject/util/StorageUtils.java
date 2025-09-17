@@ -30,7 +30,9 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -48,7 +50,10 @@ import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 
@@ -59,7 +64,23 @@ import org.xml.sax.helpers.DefaultHandler;
 @Slf4j
 public class StorageUtils {
 	private static SAXParserFactory parserFactory;
-	private static DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+
+	static {
+		try {
+			dbFactory.setNamespaceAware(true);
+			dbFactory.setXIncludeAware(false);
+			dbFactory.setExpandEntityReferences(false);
+			dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+			dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+		} catch (ParserConfigurationException | IllegalArgumentException e) {
+			log.warn("Failed to apply secure XML parser features; continuing with defaults", e);
+		}
+	}
 
 	/**
 	 * Create a new DOM Document.
@@ -71,13 +92,12 @@ public class StorageUtils {
 		try
 		{
 			DocumentBuilder builder = dbFactory.newDocumentBuilder();
-			Document doc = builder.newDocument();
 
-			return doc;
+            return builder.newDocument();
 		}
 		catch (Exception any)
 		{
-			log.warn("createDocument: " + any.toString());
+            log.warn("createDocument: {}", any.toString());
 			return null;
 		}
 	}
@@ -102,13 +122,13 @@ public class StorageUtils {
 		}
 		catch (Exception e)
 		{
-			doc = null;
+			log.warn("readDocument failed on file: {} with exception: {}", name, e.toString());
 		}
 		finally {
 			if (fis != null) {
 				try {
 					fis.close();
-				} catch (IOException e) {
+				} catch (IOException ignored) {
 				}
 			}
 		}
@@ -119,13 +139,13 @@ public class StorageUtils {
 		try
 		{
 			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
-			InputStreamReader in = new InputStreamReader(new FileInputStream(name), "ISO-8859-1");
+			InputStreamReader in = new InputStreamReader(new FileInputStream(name), StandardCharsets.ISO_8859_1);
 			InputSource inputSource = new InputSource(in);
 			doc = docBuilder.parse(inputSource);
 		}
 		catch (Exception any)
 		{
-			doc = null;
+			log.warn("readDocument ISO8859-read failed on file: {} with exception: {}", name, any.toString());
 		}
 
 		if (doc != null) return doc;
@@ -134,15 +154,14 @@ public class StorageUtils {
 		try
 		{
 			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
-			InputStreamReader in = new InputStreamReader(new FileInputStream(name), "UTF-8");
+			InputStreamReader in = new InputStreamReader(new FileInputStream(name), StandardCharsets.UTF_8);
 			InputSource inputSource = new InputSource(in);
 			doc = docBuilder.parse(inputSource);
 		}
 		catch (Exception any)
 		{
-			log.warn("readDocument failed on file: " + name + " with exception: " + any.toString());
-			doc = null;
-		}
+            log.warn("readDocument UTF8 read failed on file: {} with exception: {}", name, any.toString());
+        }
 
 		return doc;
 	}
@@ -161,8 +180,7 @@ public class StorageUtils {
 			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
 			docBuilder.setErrorHandler(new LoggingSaxErrorHandler());
 			InputSource inputSource = new InputSource(new StringReader(in));
-			Document doc = docBuilder.parse(inputSource);
-			return doc;
+            return docBuilder.parse(inputSource);
 		}
 		catch (SAXParseException spe)
 		{
@@ -171,29 +189,69 @@ public class StorageUtils {
 		}
 		catch (Exception any)
 		{
-			log.warn("readDocumentFromString: {}", any.toString());
+			log.warn("readDocumentFromString failure", any);
 			return null;
 		}
 	}
 
 	private static void logParseFailure(String xml, SAXParseException exception)
 	{
-		String context = extractContext(xml, exception.getColumnNumber());
-		log.error("readDocumentFromString failed at line {}, column {}: {}{}", exception.getLineNumber(),
-				exception.getColumnNumber(), exception.getMessage(),
-				(context.isEmpty() ? "" : " Context: " + context));
+		String context = extractContext(xml, exception.getLineNumber(), exception.getColumnNumber());
+		if (context.isEmpty()) {
+			log.error("readDocumentFromString failed at line {}, column {}: {}", exception.getLineNumber(),
+					exception.getColumnNumber(), exception.getMessage(), exception);
+		} else {
+			log.error("readDocumentFromString failed at line {}, column {}: {} Context: {}",
+					exception.getLineNumber(), exception.getColumnNumber(), exception.getMessage(), context, exception);
+		}
 	}
 
-	private static String extractContext(String xml, int column)
+	private static String extractContext(String xml, int line, int column)
 	{
-		if (xml == null || xml.isEmpty() || column <= 0)
+		if (xml == null || xml.isEmpty() || line <= 0 || column <= 0)
 		{
 			return "";
 		}
 
-		int colIndex = Math.max(0, column - 1);
+		int len = xml.length();
+        int index = 0;
+		int currentLine = 1;
+		int currentCol = 1;
+		while (index < len)
+		{
+			if (currentLine == line && currentCol == column)
+			{
+				break;
+			}
+			char ch = xml.charAt(index);
+			index++;
+			if (ch == '\n')
+			{
+				currentLine++;
+				currentCol = 1;
+			}
+			else if (ch == '\r')
+			{
+				currentLine++;
+				currentCol = 1;
+				if (index < len && xml.charAt(index) == '\n')
+				{
+					index++;
+				}
+			}
+			else
+			{
+				currentCol++;
+			}
+		}
+
+        int colIndex = Math.min(index, len - 1);
 		int start = Math.max(0, colIndex - 80);
-		int end = Math.min(xml.length(), colIndex + 80);
+		int end = Math.min(len, colIndex + 80);
+		if (start >= end)
+		{
+			return "";
+		}
 		String snippet = xml.substring(start, end);
 		return snippet.replaceAll("\\s+", " ");
 	}
@@ -250,11 +308,26 @@ public class StorageUtils {
 			parserFactory = SAXParserFactory.newInstance();
 			parserFactory.setNamespaceAware(false);
 			parserFactory.setValidating(false);
+			parserFactory.setXIncludeAware(false);
+			try {
+				parserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+				parserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+				parserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+				parserFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			} catch (Exception e) {
+				log.warn("Failed to apply secure SAX parser features; continuing with defaults", e);
+			}
 		}
 		try
 		{
 			p = parserFactory.newSAXParser();
-
+			XMLReader reader = p.getXMLReader();
+			try {
+				reader.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+				reader.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+				log.warn("Failed to restrict external entity access on SAX reader; continuing with defaults", e);
+			}
 		}
 		catch (ParserConfigurationException e)
 		{
