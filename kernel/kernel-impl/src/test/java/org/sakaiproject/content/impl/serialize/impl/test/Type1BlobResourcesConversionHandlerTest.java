@@ -34,7 +34,6 @@ import java.sql.Types;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer;
 import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobResourcesConversionHandler;
 
 /**
@@ -45,13 +44,10 @@ import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobResource
 public class Type1BlobResourcesConversionHandlerTest {
 
     private Type1BlobResourcesConversionHandler handler;
-    private Type1BaseContentResourceSerializer serializer;
 
     @Before
     public void setUp() {
         handler = new Type1BlobResourcesConversionHandler();
-        serializer = new Type1BaseContentResourceSerializer();
-        serializer.setTimeService(MockTimeService.mockTimeMillisSince());
     }
 
     /**
