@@ -1740,6 +1740,31 @@ public class DbContentService extends BaseContentService
            }
        }
 
+       public int getCountFilePath(String filePath) 
+       {
+
+
+            String statement = contentServiceSql.getCountFilePath(resourceTableName);
+
+            int references = -1;
+            try {
+                references = countQuery(statement, filePath);
+
+                // Also count references in deleted table if it exists
+                if (references <= 1 && resourceDeleteTableName != null) {
+                    String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
+                    int deletedReferences = countQuery(deleteStatement, filePath);
+
+                    references += deletedReferences;
+                    log.debug("Found {} references in main table and {} in deleted table for file: {}", 
+                        references - deletedReferences, deletedReferences, filePath);
+                }
+            } catch ( IdUnusedException e ) {
+                log.warn("missing id during countQuery,  {}", e.toString());
+            }
+            return references;
+       }
+
        public void removeDeletedResource(ContentResourceEdit edit)
        {
            // delete the body
@@ -1760,23 +1785,7 @@ public class DbContentService extends BaseContentService
                        String filePath = ((BaseResourceEdit) edit).m_filePath;
                        if (singleInstanceStore)
                        {
-                           // Count references in both main table and deleted table for singleInstanceStore
-                           String statement = contentServiceSql.getCountFilePath(resourceTableName);
-                           int references = -1;
-                           try {
-                               references = countQuery(statement, filePath);
-
-                               // Also count references in deleted table if it exists
-                               if (references <= 1 && resourceDeleteTableName != null) {
-                                   String deleteStatement = contentServiceSql.getCountFilePath(resourceDeleteTableName);
-                                   int deletedReferences = countQuery(deleteStatement, filePath);
-                                   references += deletedReferences;
-                                   log.debug("Found {} references in main table and {} in deleted table for file: {}", 
-                                       references - deletedReferences, deletedReferences, filePath);
-                               }
-                           } catch ( IdUnusedException e ) {
-                               log.warn("missing id during countQuery,  {}", e.toString());
-                           }
+                            int references = getCountFilePath(filePath);
 
                            if ( references > 1 ) {
                                log.debug("Retaining file blob for deleted resource_id={} because {} total reference(s)", edit.getId(), references);
@@ -2403,6 +2412,25 @@ public class DbContentService extends BaseContentService
                 DigestInputStream dstream = new DigestInputStream(stream, digest);
 
                 String filePath = ((BaseResourceEdit) resource).m_filePath;
+        
+                // If there are zero or one instances of the file path in the database, we can use the
+                // path as given (creating or replacing the content at the path).  However If this path is
+                // used for more than one contentResource, we are about to store a new stream at
+                // the path and we don't know in advance if the content is identical.   So we need to check the
+                // number of references to the path and if it is more than one we need to regenerate the path.
+                // If the content turns out to be identical we will handle duplicate content resolution after the
+                // content has been stored (below)
+                
+                if ( filePath != null ) {
+                    int references = getCountFilePath(filePath);
+                    log.debug("pre store check, references: {} filePath: {} sha256: {}", references, filePath, resource.getContentSha256());
+                    if ( references > 1 ) {
+                        ((BaseResourceEdit) resource).setFilePath(timeService.newTime());
+                        log.debug("Regenerated path from: {} to: {} ", filePath, ((BaseResourceEdit) resource).m_filePath);
+                        filePath = ((BaseResourceEdit) resource).m_filePath;
+                    }
+                }
+               
                 long byteCount = fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, filePath, dstream);
 
                 MessageDigest md2 = dstream.getMessageDigest();
@@ -2429,7 +2457,7 @@ public class DbContentService extends BaseContentService
                         ((BaseResourceEdit) resource).m_filePath = duplicateFilePath;
                         log.debug("Duplicate body found path={}",duplicateFilePath);
                     } else {
-                        log.debug("Content body us unique id={}",resource.getId());
+                        log.debug("Content body is unique id={}",resource.getId());
                     }
                 }
 
@@ -2950,13 +2978,15 @@ public class DbContentService extends BaseContentService
 
                         // update the record
                         sql = contentServiceSql.getUpdateContentResource3Sql();
-                        fields = new Object[6];
+                        log.debug("convertToFile sql: {}", sql);
+                        fields = new Object[7];
                         fields[0] = edit.m_filePath;
                         fields[1] = serialization;
                         fields[2] = context;
                         fields[3] = Long.valueOf(edit.m_contentLength);
                         fields[4] = edit.getResourceType();
-                        fields[5] = id;
+                        fields[5] = edit.getContentSha256();
+                        fields[6] = id;
 
                         sqlService.dbWrite(connection, sql, fields);
 

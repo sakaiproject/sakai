@@ -12380,7 +12380,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 			m_contentStream = stream;
 			// m_contentLength = 
-		}
+			log.debug("setContent stream m_bodyUpdated={} filePath={}", m_bodyUpdated, m_filePath);
+			m_bodyUpdated = true;
+			}
 
 
 		/**
