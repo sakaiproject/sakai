@@ -29,11 +29,16 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -41,21 +46,20 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 // TODO: Check this against SAK-46484. I cut this code before that patch.
 
 /**
- * A Gradebook is the top-level object in the Sakai Gradebook tool.  Only one
- * Gradebook should be associated with any particular course (or site, as they
- * exist in Sakai 1.5) for any given academic term.  How courses and terms are
- * determined will likely depend on the particular Sakai installation.
+ * A Gradebook is the top-level object in the Sakai Gradebook tool.
  */
 @Entity
 @Table(name = "GB_GRADEBOOK_T")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(onlyExplicitlyIncluded = true)
 public class Gradebook implements PersistableEntity<Long>, Serializable {
 
     @Id
-    @GeneratedValue
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_gradebook_id_sequence")
+    @SequenceGenerator(name = "gb_gradebook_id_sequence", sequenceName = "GB_GRADEBOOK_S")
     @ToString.Include
     private Long id;
 

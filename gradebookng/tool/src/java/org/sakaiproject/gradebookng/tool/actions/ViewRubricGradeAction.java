@@ -44,7 +44,9 @@ public class ViewRubricGradeAction extends InjectableAction implements Serializa
 
         window.setAssignmentToReturnFocusTo(assignmentId);
         window.setStudentToReturnFocusTo(studentUuid);
-        window.setContent(new RubricGradePanel(window.getContentId(), Model.ofMap(model), window));
+        RubricGradePanel rgp = new RubricGradePanel(window.getContentId(), Model.ofMap(model), window);
+        window.setContent(rgp);
+        window.setCssClassName("w_blue gb-rubric-grading-modal");
         window.show(target);
 
         return new EmptyOkResponse();

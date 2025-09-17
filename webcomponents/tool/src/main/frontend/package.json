@@ -8,9 +8,12 @@
   ],
   "scripts": {
     "lint": "eslint \"packages/**/src/*.js\" --max-warnings=0",
+    "lintfix": "eslint \"packages/**/src/*.js\" --max-warnings=0 --fix",
     "bundle": "esbuild \"bundle-entry-points/*.js\" --sourcemap --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
     "analyze-bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
-    "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\""
+    "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\"",
+    "test": "playwright install chromium && wtr",
+    "test:dev": "playwright install chromium && lerna run test --concurrency 1 --stream --since master"
   },
   "keywords": [],
   "author": "",
@@ -18,8 +21,10 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.13.0",
-    "@lion/dialog": "^0.16.1",
-    "@open-wc/testing": "^4.0.0",
+    "@faker-js/faker": "^9.6.0",
+    "@lion/ui": "^0.11.2",
+    "@open-wc/testing": "^3.0.0-next.5",
+    "@sakai-ui/sakai-account": "^3.0.6",
     "@sakai-ui/sakai-button": "file:packages/sakai-button",
     "@sakai-ui/sakai-calendar": "file:packages/sakai-calendar",
     "@sakai-ui/sakai-conversations": "file:packages/sakai-conversations",
@@ -28,7 +33,7 @@
     "@sakai-ui/sakai-dialog-content": "file:packages/sakai-dialog-content",
     "@sakai-ui/sakai-document-viewer": "file:packages/sakai-document-viewer",
     "@sakai-ui/sakai-editor": "file:packages/sakai-editor",
-    "@sakai-ui/sakai-file-list": "file:packages/sakai-file-list",
+    "@sakai-ui/sakai-element": "file:packages/sakai-element",
     "@sakai-ui/sakai-grader": "file:packages/sakai-grader",
     "@sakai-ui/sakai-grades": "file:packages/sakai-grades",
     "@sakai-ui/sakai-group-picker": "file:packages/sakai-group-picker",
@@ -49,23 +54,23 @@
     "@sakai-ui/sakai-tasks": "file:packages/sakai-tasks",
     "@sakai-ui/sakai-user-photo": "file:packages/sakai-user-photo",
     "@sakai-ui/sakai-widgets": "file:packages/sakai-widgets",
-    "@web/test-runner": "^0.19.0",
+    "@web/test-runner": "^0.20.0",
+    "@web/test-runner-playwright": "^0.11.0",
     "esbuild": "^0.24.0",
     "eslint": "^9.13.0",
     "eslint-plugin-html": "^8.1.2",
     "eslint-plugin-lit": "^1.15.0",
     "eslint-plugin-wc": "^2.2.0",
-    "fetch-mock": "^12.2.0",
+    "fetch-mock": "^9.11.0",
     "globals": "^15.11.0",
     "imagesloaded": "^5.0.0",
+    "koa-proxies": "^0.12.4",
+    "lerna": "^8.1.9",
     "lint-staged": "^15.2.10",
+    "lit": "^3.2.1",
     "lit-analyzer": "^2.0.3",
+    "sinon": "^19.0.2",
     "sortablejs": "^1.15.3",
     "temporal-polyfill": "0.2.5"
-  },
-  "dependencies": {
-    "@sakai-ui/sakai-element": "^3.0.6",
-    "lerna": "^8.1.9",
-    "lit": "^3.2.1"
   }
 }

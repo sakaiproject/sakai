@@ -62,12 +62,13 @@ public class Widget extends Panel {
 	private boolean siteStatsView						= false;
 
 
-	public Widget(String id, String iconUrl, String title, List<WidgetMiniStat> widgetMiniStats, List<AbstractTab> widgetTabs, String siteId) {
+	public Widget(String id, String iconClass, String title, List<WidgetMiniStat> widgetMiniStats, List<AbstractTab> widgetTabs, String siteId) {
 		super(id);
-		this.iconUrl = iconUrl;
+		this.iconUrl = iconClass;
 		this.title = title;
 		this.widgetMiniStats = widgetMiniStats;
 		this.tabs = widgetTabs;
+		add(new Label("siteId", siteId));
 
 		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
 		siteStatsView = statsAuthz.isUserAbleToViewSiteStats(siteId);
@@ -82,9 +83,14 @@ public class Widget extends Panel {
 	private void renderWidget() {
 		setRenderBodyOnly(true);
 		removeAll();
-		
-		// Icon
-		add(new ExternalImage("icon", iconUrl));
+
+		WebMarkupContainer icon = new WebMarkupContainer("icon") {
+			@Override
+			protected void onRender() {
+				getResponse().write("<span class='si si-" + iconUrl + " alpha'></span>");
+			}
+		};
+		add(icon);
 		
 		// Title
 		add(new Label("title", title));

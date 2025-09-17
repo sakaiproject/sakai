@@ -18,6 +18,8 @@ package org.sakaiproject.assignment.api;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -51,17 +53,6 @@ public class AssignmentEntity implements Entity {
     private Assignment assignment;
     private Reference reference;
 
-    public void initEntity(Assignment assignment) {
-        if (assignment != null && StringUtils.isNotBlank(assignment.getId())) {
-            // if assignment has an id assume its been persisted
-            this.assignment = assignment;
-            this.assignmentId = assignment.getId();
-            reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
-        } else {
-            log.warn("Can not initialize entity with assignment {}", assignment);
-        }
-    }
-
     public void initEntity(String assignmentId) {
         if (StringUtils.isNotBlank(assignmentId)) {
             try {
@@ -72,7 +63,7 @@ public class AssignmentEntity implements Entity {
                 log.warn("Could not initialize entity with assignment id {}", assignmentId, e);
             }
         } else {
-            log.warn("Can not initialize entity with assignment id {}", assignmentId);
+            log.warn("Can not initialize entity with a blank assignment id {}", assignmentId);
         }
     }
 
@@ -88,6 +79,11 @@ public class AssignmentEntity implements Entity {
     @Override
     public String getReference() {
         return (reference != null) ? reference.getReference() : null;
+    }
+
+    @Override
+    public Optional<Set<String>> getGroupReferences() {
+        return Optional.ofNullable(assignment).map(Assignment::getGroups);
     }
 
     @Override
@@ -116,22 +112,18 @@ public class AssignmentEntity implements Entity {
 
     @Override
     public Element toXml(Document doc, Stack<Element> stack) {
-        String xml = assignmentService.getXmlAssignment(assignment);
-        Document document = null;
-        try (ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes("UTF-8"))) {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            document = builder.parse(in);
-        } catch (UnsupportedEncodingException e) {
-            log.error("Could not read assignment XML input stream", e);
-        } catch (ParserConfigurationException e) {
-            log.error("Could not get instance an of DocumentBuilder", e);
-        } catch (SAXException e) {
-            log.error("Could not parse assignment xml", e);
-        } catch (IOException e) {
-            log.error("IO error", e);
-        }
-        if (document != null) {
-            return document.getDocumentElement();
+        if (assignment != null) {
+            String xml = assignmentService.getXmlAssignment(assignment);
+            Document document = null;
+            try (ByteArrayInputStream in = new ByteArrayInputStream(xml.getBytes("UTF-8"))) {
+                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                document = builder.parse(in);
+            } catch (Exception e) {
+                log.warn("Could not read assignment XML input stream", e);
+            }
+            if (document != null) {
+                return document.getDocumentElement();
+            }
         }
         return null;
     }

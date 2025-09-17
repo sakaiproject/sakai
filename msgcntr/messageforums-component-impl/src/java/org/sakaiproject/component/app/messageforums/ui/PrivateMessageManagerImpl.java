@@ -1218,19 +1218,15 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     try 
     {
-      log.debug("sendPrivateMessage(message: " + message + ", recipients: "
-          + recipients + ")");
+        log.debug("sendPrivateMessage(message: {}, recipients: {})", message, recipients);
 
     if (message == null || recipients == null)
     {
       throw new IllegalArgumentException("Null Argument");
     }
 
-    if (recipients.size() == 0 && !message.getDraft().booleanValue())
+    if (recipients.isEmpty() && !message.getDraft())
     {
-      /** for no just return out
-        throw new IllegalArgumentException("Empty recipient list");
-      **/
       return null;
     }
 
@@ -1263,7 +1259,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     }
 
     //build the message body
-    List additionalHeaders = new ArrayList(1);
+    List<String> additionalHeaders = new ArrayList<>(1);
     additionalHeaders.add("Content-Type: text/html; charset=utf-8");
 
     Area currentArea = null;
@@ -1286,12 +1282,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
     	//create a map for efficient lookup for large sites
     	pfMap = new HashMap<String, PrivateForum>();
-    	for (int i = 0; i < privateForums.size(); i++) {
-    		PrivateForum pf1 = (PrivateForum)privateForums.get(i);
-    		pfMap.put(pf1.getOwner(), pf1);
-    	}
+        for (PrivateForum privateForum : privateForums) {
+            pfMap.put(privateForum.getOwner(), privateForum);
+        }
 
-      List<InternetAddress> fAddresses = new ArrayList();
+      List<InternetAddress> fAddresses = new ArrayList<>();
       boolean forwardingEnabled = getForwardingEnabled(recipients, pfMap, currentUserAsString, contextId, recipientList, fAddresses, asEmail, readReceipt);
       //this only needs to be done if the message is not being sent
     
@@ -1323,7 +1318,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	//we need to add som headers
 	additionalHeaders.add("From: " + systemEmail);
 	String subjectHeader = "Subject: [" + this.getServerName() + "]: ";
-	String siteTitle = this.getSiteTitle(getContextId());
+	String siteTitle = this.getSiteTitle(contextId);
 	if (siteTitle != null) {
 		subjectHeader += siteTitle + ": ";
 	}
@@ -1337,17 +1332,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 
 	if (!isEmailForwardDisabled() && forwardingEnabled)
 	{
-		InternetAddress fAddressesArr[] = new InternetAddress[fAddresses.size()];
+		InternetAddress[] fAddressesArr = new InternetAddress[fAddresses.size()];
 		fAddressesArr = fAddresses.toArray(fAddressesArr);
 		emailService.sendMail(new InternetAddress(systemEmail), fAddressesArr, message.getTitle(), 
-				bodyString, null, replyEmail.toArray(new InternetAddress[replyEmail.size()]), additionalHeaders);
+				bodyString, null, replyEmail.toArray(new InternetAddress[0]), additionalHeaders);
 	}
 
 	return savedMessage.getId();
-  }
-    catch (MessagingException e) 
-    {
-    	log.warn("PrivateMessageManagerImpl.sendPrivateMessage: exception: " + e.getMessage(), e);
+	}
+	catch (MessagingException e) 
+	{
+		log.warn("PrivateMessageManagerImpl.sendPrivateMessage: exception: {}", e.getMessage(), e);
 	}
 	
 	return null;

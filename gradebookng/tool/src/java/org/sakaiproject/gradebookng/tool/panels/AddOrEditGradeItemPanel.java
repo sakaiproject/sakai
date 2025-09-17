@@ -24,7 +24,9 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -62,6 +64,8 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 	private UiMode mode;
 
+	private boolean createAnotherChecked = false;
+
 	public AddOrEditGradeItemPanel(final String id, final GbModalWindow window, final IModel<Long> model) {
 		super(id);
 		this.model = model;
@@ -73,13 +77,32 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		} else {
 			this.mode = UiMode.ADD;
 		}
+   }
+
+	public AddOrEditGradeItemPanel(final String id, final GbModalWindow window, final IModel<Long> model, final boolean createAnotherChecked) {
+		super(id);
+		this.model = model;
+		this.window = window;
+		this.createAnotherChecked = createAnotherChecked;
+
+		// determine mode
+		if (model != null) {
+			this.mode = UiMode.EDIT;
+		} else {
+			this.mode = UiMode.ADD;
+		}
+   }
+
+    @Override
+    public void onInitialize() {
+		super.onInitialize();
 
 		// setup the backing object
 		Assignment assignment;
 
 		if (this.mode == UiMode.EDIT) {
 			final Long assignmentId = this.model.getObject();
-			assignment = this.businessService.getAssignment(assignmentId);
+			assignment = this.businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
 
 			// TODO if we are in edit mode and don't have an assignment, need to error here
 
@@ -89,7 +112,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			// Default released to true
 			assignment.setReleased(true);
 			// If no categories, then default counted to true
-			final Gradebook gradebook = this.businessService.getGradebook();
+			final Gradebook gradebook = this.businessService.getGradebook(currentGradebookUid, currentSiteId);
 			assignment.setCounted(Objects.equals(GradingConstants.CATEGORY_TYPE_NO_CATEGORY, gradebook.getCategoryType()));
 		}
 
@@ -99,12 +122,29 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		// form
 		final Form<Assignment> form = new Form<Assignment>("addOrEditGradeItemForm", formModel);
 
+		// create another container - only visible in ADD mode
+		WebMarkupContainer createAnotherContainer = new WebMarkupContainer("createAnotherContainer") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return AddOrEditGradeItemPanel.this.mode == UiMode.ADD;
+			}
+		};
+		form.add(createAnotherContainer);
+
+		// create another checkbox
+		final CheckBox createAnother = new CheckBox("createAnother", Model.of(this.createAnotherChecked));
+		createAnotherContainer.add(createAnother);
+
+		// modify the submit button to check the checkbox value
 		final GbAjaxButton submit = new GbAjaxButton("submit", form) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target) {
-				createGradeItem(target, form, false);
+				// Get the checkbox value
+				createGradeItem(target, form, createAnother.getModelObject());
 			}
 
 			@Override
@@ -117,28 +157,9 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		submit.add(new Label("submitLabel", getSubmitButtonLabel()));
 		form.add(submit);
 
-		final GbAjaxButton createAnother = new GbAjaxButton("createAnother", form) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onSubmit(final AjaxRequestTarget target) {
-				createGradeItem(target, form, true);
-			}
-
-			@Override
-			protected void onError(final AjaxRequestTarget target) {
-				target.addChildren(form, FeedbackPanel.class);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return AddOrEditGradeItemPanel.this.mode == UiMode.ADD;
-			}
-		};
-		form.add(createAnother);
-
 		// add the common components
-		form.add(new AddOrEditGradeItemPanelContent("subComponents", formModel, this.mode));
+		AddOrEditGradeItemPanelContent aegipc = new AddOrEditGradeItemPanelContent("subComponents", formModel, this.mode);
+		form.add(aegipc);
 
 		// feedback panel
 		form.add(new GbFeedbackPanel("addGradeFeedback"));
@@ -180,7 +201,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		// 1. if category selected and drop/keep highest/lowest selected for that category,
 		// ensure points match the already established maximum for the category.
 		if (assignment.getCategoryId() != null) {
-			final List<CategoryDefinition> categories = AddOrEditGradeItemPanel.this.businessService.getGradebookCategories();
+			final List<CategoryDefinition> categories = AddOrEditGradeItemPanel.this.businessService.getGradebookCategories(currentGradebookUid, currentSiteId);
 			final CategoryDefinition category = categories
 					.stream()
 					.filter(c -> (c.getId().equals(assignment.getCategoryId()))
@@ -191,7 +212,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			if (category != null && !category.getEqualWeight()) {
 				final Assignment mismatched = category.getAssignmentList()
 						.stream()
-						.filter(a -> Double.compare(a.getPoints().doubleValue(), assignment.getPoints().doubleValue()) != 0)
+						.filter(a -> Double.compare(a.getPoints(), assignment.getPoints()) != 0)
 						.findFirst()
 						.orElse(null);
 				if (mismatched != null) {
@@ -225,10 +246,10 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 			try {
 				if (AddOrEditGradeItemPanel.this.mode == UiMode.EDIT) {
 					assignmentId = assignment.getId();
-					AddOrEditGradeItemPanel.this.businessService.updateAssignment(assignment);
+					AddOrEditGradeItemPanel.this.businessService.updateAssignment(currentGradebookUid, currentSiteId, assignment);
 				} 
 				else {
-					assignmentId = AddOrEditGradeItemPanel.this.businessService.addAssignment(assignment);
+					assignmentId = AddOrEditGradeItemPanel.this.businessService.addAssignment(currentGradebookUid, currentSiteId, assignment);
 				}
 				Map<String, String> rubricParams = getRubricParameters("");
 				if (!rubricParams.isEmpty()) {
@@ -266,7 +287,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 							.success(successMessage);
 
 					if (createAnother) {
-						final Component newFormPanel = new AddOrEditGradeItemPanel(this.window.getContentId(), this.window, null);
+						final Component newFormPanel = new AddOrEditGradeItemPanel(this.window.getContentId(), this.window, null, true);
 						AddOrEditGradeItemPanel.this.replaceWith(newFormPanel);
 						this.window.setAssignmentToReturnFocusTo(String.valueOf(assignmentId));
 						this.window.clearWindowClosedCallbacks();

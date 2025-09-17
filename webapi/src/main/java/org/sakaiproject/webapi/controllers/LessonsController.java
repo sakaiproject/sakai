@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.velocity.runtime.resource.ContentResource;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
@@ -55,7 +54,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LessonsController extends AbstractSakaiApiController {
 
-
     private static final String SITE_SEGMENT = "/site/";
 
     private static final SecurityAdvisor ADVISOR_ALLOW_LESSONBUILDER_UPDATE =
@@ -69,7 +67,6 @@ public class LessonsController extends AbstractSakaiApiController {
 
     @Autowired
     private ContentHostingService contentHostingService;
-
 
     @Autowired
     private GradingService gradingService;
@@ -120,7 +117,7 @@ public class LessonsController extends AbstractSakaiApiController {
                     List.of(Optional.ofNullable(item.getGradebookId()), Optional.ofNullable(item.getAltGradebook())).stream()
                             .flatMap(Optional::stream)
                             .forEach(gradebookExternalId -> {
-                                gradingService.removeExternalAssignment(gradebookExternalId, gradebookExternalId);
+                                gradingService.removeExternalAssignment(null, gradebookExternalId, LessonBuilderConstants.TOOL_ID);
                             });
 
                     boolean deleted = false;

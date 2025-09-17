@@ -14,7 +14,7 @@
 		
 			<div class="navIntraTool">
 				<a id="printIcon" href="javascript:" onClick="javascript:window.print();">
-					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+					<span class="bi bi-printer" aria-hidden="true"></span>
 					<h:outputText value="#{msgs.send_to_printer}" />
 				</a>
 				<a value="" href="" onClick="window.close();" >
@@ -38,7 +38,7 @@
 				styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column>
 				<h:panelGroup styleClass="heading">
-					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" 
+					<h:graphicImage value="#{ForumTool.serverUrl}/api/users/#{ForumTool.selectedMessage.message.authorId}/profile/image/thumb" 
 					alt="#{ForumTool.selectedMessage.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}"/>
 						<h:outputText value="#{message.message.title}" styleClass="title" />		          	
 			          	<h:outputText value=" - #{message.anonAwareAuthor}"/>
@@ -58,7 +58,7 @@
 						noarrows="true" styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 						<h:panelGroup styleClass="heading">
-						<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" 
+						<h:graphicImage value="#{ForumTool.serverUrl}/api/users/#{message.message.authorId}/profile/image/thumb" 
 						    alt="#{message.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}"/>
 						<h:outputText value="#{message.message.title}" styleClass="title"/>		          	
 			          	<h:outputText value=" - #{message.anonAwareAuthor}"/>

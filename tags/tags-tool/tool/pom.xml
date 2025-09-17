@@ -13,7 +13,7 @@
   <parent>
     <artifactId>tags-base</artifactId>
     <groupId>org.sakaiproject.tags</groupId>
-    <version>25-SNAPSHOT</version>
+    <version>26-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
 

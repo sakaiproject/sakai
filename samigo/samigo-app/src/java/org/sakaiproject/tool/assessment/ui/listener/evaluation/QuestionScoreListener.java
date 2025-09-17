@@ -228,12 +228,10 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 			}
 			// build a hashMap (publishedItemId, publishedItem)
 			Map<Long, ItemDataIfc> publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
-			log.debug("questionScores(): publishedItemHash.size = "
-					+ publishedItemHash.size());
+			log.debug("publishedItemHash.size = {}", publishedItemHash.size());
 			// build a hashMap (publishedItemTextId, publishedItemText)
 			Map<Long, ItemTextIfc> publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
-			log.debug("questionScores(): publishedItemTextHash.size = "
-					+ publishedItemTextHash.size());
+			log.debug("publishedItemTextHash.size = {}", publishedItemTextHash.size());
 			GradingService delegate = new GradingService();
 			HashMap<Long, TreeMap<Long, ItemTextIfc>>  allItemsHash = new HashMap<>();
 			for (Long thisKey : publishedItemTextHash.keySet()) {
@@ -495,6 +493,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 				bean.setItemId(item.getItemId().toString());
 				bean.setPartName(item.getSection().getSequence().toString());
 				bean.setItemName(item.getSequence().toString());
+				bean.setItemData(item);
 				item.setHint("***"); // Keyword to not show student answer
 				// for short answer/ essey question, if there is a model short
 				// answer for this question

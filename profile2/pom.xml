@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.sakaiproject</groupId>
 		<artifactId>master</artifactId>
-		<version>25-SNAPSHOT</version>
+		<version>26-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Profile2</name>
@@ -14,13 +14,11 @@
 	<!-- ProjectVersion -->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket.version>9.19.0</wicket.version>
 	</properties>
 	<modules>
 		<module>api</module>
 		<module>impl</module>
 		<module>util</module>
-		<module>tool</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -49,32 +47,23 @@
 			</dependency>
 			<!-- external -->
 			<dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket</artifactId>
-				<version>${wicket.version}</version>
-				<type>pom</type>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket-spring</artifactId>
-				<version>${wicket.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket-extensions</artifactId>
-				<version>${wicket.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.wicketstuff</groupId>
-				<artifactId>wicketstuff-objectautocomplete</artifactId>
-				<version>${wicket.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.imgscalr</groupId>
 				<artifactId>imgscalr-lib</artifactId>
 				<version>4.2</version>
 				<scope>compile</scope>
 			</dependency>
 		</dependencies>
-	</dependencyManagement>
+  </dependencyManagement>
+
+  <build>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <!--plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <warSourceDirectory>src/main/webapp</warSourceDirectory>
+        </configuration>
+      </plugin>
+    </plugins-->
+  </build>
 </project>

@@ -29,6 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
+import org.sakaiproject.util.MergeConfig;
 
 /**
  * <p>
@@ -641,4 +642,22 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param  oldSiteId  The site id that the item is being copied from
      */
     Object copyLTIContent(Map<String, Object> ltiContent, String siteId, String oldSiteId);
+
+    /**
+     * Fix LTI launch URLs when copying content between contexts
+     * @param text The text containing LTI launch URLs
+     * @param fromContext The source context
+     * @param toContext The destination context
+     * @return The text with updated LTI launch URLs
+     */
+    String fixLtiLaunchUrls(String text, String fromContext, String toContext, Map<String, String> transversalMap);
+
+    /**
+     * Fix LTI launch URLs when copying content between contexts
+     * @param text The text containing LTI launch URLs
+     * @param toContext The destination context
+     * @param mcx A map of import content items and their tools
+     * @return The text with updated LTI launch URLs
+     */
+    String fixLtiLaunchUrls(String text, String toContext, MergeConfig mcx);
 }

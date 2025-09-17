@@ -103,7 +103,7 @@ import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.URLUtils;
-import org.sakaiproject.profile2.service.ProfileImageService;
+import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -173,7 +173,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     private String portalXLoginIcon;
     private String portalXLoginText;
     private String preferenceToolId;
-    private String profileToolId;
     private String sakaiVersion;
     private String serverId;
     private String serviceName;
@@ -187,14 +186,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     private String[] poweredByImage;
     private String[] poweredByUrl;
     private boolean containerLogin;
-    private boolean debugNotifications;
     private boolean displayUserloginInfo;
     private boolean enableDirect;
     private boolean forceContainer;
     private boolean googleAnonIp;
     private boolean displayHelpIcon;
     private boolean mathJaxEnabled;
-    private boolean notificationsPushEnabled;
     private boolean paSystemEnabled;
     private boolean portalCookieWarnEnabled;
     private boolean portalDirectUrlToolEnabled;
@@ -223,7 +220,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
     @Autowired private PASystem paSystem;
     @Autowired private PortalService portalService;
     @Autowired private PreferencesService preferencesService;
-    @Autowired private ProfileImageService profileImageService;
+    @Autowired private ProfileService profileService;
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SessionManager sessionManager;
@@ -242,7 +239,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
 
         containerLogin = serverConfigurationService.getBoolean(PROP_CONTAINER_LOGIN, false);
         copyrightText = serverConfigurationService.getString(PROP_COPYRIGHT_TEXT);
-        debugNotifications = serverConfigurationService.getBoolean(PROP_PUSH_NOTIFICATIONS_DEBUG, false);
         displayUserloginInfo = serverConfigurationService.getBoolean(PROP_DISPLAY_USER_LOGIN, true);
         enableGAM = serverConfigurationService.getString(PROP_GLOBAL_ALERT_MESSAGE, "false");
         favIconUrl = serverConfigurationService.getString(PROP_PORTAL_FAV_ICON);
@@ -258,7 +254,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         mathJaxEnabled = serverConfigurationService.getBoolean(PROP_MATHJAX_ENABLED, true);
         mathJaxFormat = serverConfigurationService.getStrings(PROP_MATHJAX_FORMAT);
         mathJaxPath = serverConfigurationService.getString(PROP_MATHJAX_SRC_PATH);
-        notificationsPushEnabled = serverConfigurationService.getBoolean(PROP_PUSH_NOTIFICATIONS, true);
         paSystemEnabled = serverConfigurationService.getBoolean(PROP_PA_SYSTEM_ENABLED, true);
         portalCookieWarnUrl = serverConfigurationService.getString(PROP_PORTAL_COOKIE_WARN_URL, "/library/content/cookie_policy.html");
         portalCookieWarnEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_COOKIE_WARN_ENABLED,false);
@@ -281,7 +276,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         poweredByImage = serverConfigurationService.getStrings(PROP_POWERED_BY_IMAGE);
         poweredByUrl = serverConfigurationService.getStrings(PROP_POWERED_BY_URL);
         preferenceToolId = serverConfigurationService.getString("portal.preferencestool", "sakai.preferences");
-        profileToolId = serverConfigurationService.getString("portal.profiletool", "sakai.profile2");
         sakaiThemeSwitcherEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_THEMES_SWITCHER, true);
         sakaiThemesAutoDetectDarkEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_THEMES_AUTO_DARK, true);
         sakaiThemesEnabled = serverConfigurationService.getBoolean(PROP_PORTAL_THEMES, true);
@@ -969,9 +963,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
                     // set profile urls
                     ToolConfiguration toolConfig = userSite.getToolForCommonId(preferenceToolId);
                     if (toolConfig != null) rcontext.put("prefsToolUrl", "/portal/directtool/" + toolConfig.getId());
-
-                    toolConfig = userSite.getToolForCommonId(profileToolId);
-                    if (toolConfig != null) rcontext.put("profileToolUrl", "/portal/directtool/" + toolConfig.getId());
                 }
             } catch (Exception e) {
                 log.warn("Failed to get the users [{}] workspace, {}", userId, e.toString());
@@ -1022,14 +1013,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
 
         rcontext.put("homeToolTitle", MESSAGES.getString("sitenav_home_tool_title"));
 
-        rcontext.put("profileImageUrl", profileImageService.getProfileImageURL(userId, userEid, true));
+        rcontext.put("profileImageUrl", profileService.getProfileImageURL(userId, true));
 
         // Format properties for MathJax.
         rcontext.put("mathJaxFormat", mathJaxFormat);
-
-        rcontext.put("notificationsPushEnabled", notificationsPushEnabled);
-
-        rcontext.put("debugNotifications", debugNotifications);
 
         rcontext.put("tasksEnabled" , tasksEnabled);
 
@@ -1207,6 +1194,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
         String[] parts = getParts(req);
         if ((parts.length > 2) && (parts[1].equals("tool"))) {
             headJs.append("<script src=\"").append(PortalUtils.getWebjarsPath()).append("momentjs/").append(PortalUtils.MOMENTJS_VERSION).append("/min/moment-with-locales.min.js").append(PortalUtils.getCDNQuery()).append("\"></script>\n");
+            headJs.append("<script type=\"module\" src=\"/webcomponents/bundles/sakai-date-picker.js?version=" + PortalUtils.getCDNQuery() + "\"></script>");
         }
 
         headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {}; " +
@@ -1528,7 +1516,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             rcontext.put("bottomNavSakaiVersion", sakaiVersion);
             rcontext.put("bottomNavServer", serverId);
             rcontext.put("useBullhornAlerts", useBullhornAlerts);
-            rcontext.put("bullhornAlertCount", useBullhornAlerts ? userMessagingService.getNotifications().size() : 0);
             rcontext.put("chromeInfoUrl", serverConfigurationService.getString("notifications.chrome.info.url", ""));
             rcontext.put("firefoxInfoUrl", serverConfigurationService.getString("notifications.firefox.info.url", ""));
             rcontext.put("safariInfoUrl", serverConfigurationService.getString("notifications.safari.info.url", ""));

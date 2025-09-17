@@ -35,3 +35,7 @@ library/src/webapp/skin/morpheus-default/
 scormplayer/scorm-tool/contentPackages
 .vscode/
 .java-version
+.aider*
+
+**/.claude/settings.local.json
+.mcp.json

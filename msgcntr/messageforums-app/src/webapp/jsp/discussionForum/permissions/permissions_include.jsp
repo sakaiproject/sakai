@@ -1,21 +1,9 @@
-<%  
-    /** initialize javascript from db **/
-    FacesContext context = FacesContext.getCurrentInstance();
-    Application app = context.getApplication();
-    ValueBinding binding = app.createValueBinding("#{ForumTool}");
-    DiscussionForumTool dft = (DiscussionForumTool) binding.getValue(context);
-    out.print(dft.generatePermissionScript());
-%>
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->
 <mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="#{ForumTool.collapsePermissionPanel}">
-  <%--
-  <f:verbatim><p class="act"></f:verbatim>
-    <h:commandButton immediate="true" action="#{ForumTool.processActionAddGroupsUsers}" value="#{msgs.cdfm_button_bar_add_groups_users}" rendered="#{ForumTool.editMode}"/> 
-  <f:verbatim><p/></f:verbatim>
-  --%>
-
 <script>
   setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+  var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
+
   $(document).ready(function() {
           $('input[id*="\\:revisePostings\\:"], input[id*="\\:deletePostings\\:"]').each(function() {
                   let elementId = $(this).attr("id");
@@ -32,17 +20,35 @@
                   $(this).attr('aria-label', label);
           });
           $('input:checkbox[id^="revise\\:perm"]').each(function() {
-             let elementId = $(this).attr("id");
-             let rowIndex = elementId.split(":")[2];
-             let permRoleLabel = "";
-             if ($("#revise\\:perm\\:"+ rowIndex +"\\:perm_role_label1").length) {
-                 permRoleLabel = "revise:perm:"+ rowIndex +":perm_role_label1";
-             }
-             else if ($("#revise\\:perm\\:"+ rowIndex +"\\:perm_role_label2").length) {
-                 permRoleLabel = "revise:perm:"+ rowIndex +":perm_role_label2";
-             }
-              $(this).attr('aria-labelledby', permRoleLabel + " " + $(this).attr('id') + '_label');
+            let elementId = $(this).attr("id");
+            let rowIndex = elementId.split(":")[2];
+            let permRoleLabel = "";
+
+            if ($("#revise\\:perm\\:"+ rowIndex +"\\:perm_role_label1").length) {
+                permRoleLabel = "revise:perm:"+ rowIndex +":perm_role_label1";
+            } else if ($("#revise\\:perm\\:"+ rowIndex +"\\:perm_role_label2").length) {
+                permRoleLabel = "revise:perm:"+ rowIndex +":perm_role_label2";
+            }
+
+            $(this).attr('aria-labelledby', permRoleLabel + " " + $(this).attr('id') + '_label');
           });
+
+          if (isGradebookGroupEnabled) {
+            $('select[id^="revise\\:perm"]').each(function() {
+              let elementId = $(this).attr("id");
+              let rowIndex = elementId.split(":")[2];
+              const elementSelect = $("#revise\\:perm\\:" + rowIndex + "\\:level");
+              const permissionTrigger = document.getElementById("revise:perm:" + rowIndex + ":customize");
+
+              if (elementSelect) {
+                elementSelect.prop("disabled", true);
+              }
+
+              if (permissionTrigger) {
+                permissionTrigger.style.display = "none";
+              }
+            });
+          }
     });
 </script>
     <h:panelGroup rendered="#{ForumTool.selectedForum.restrictPermissionsForGroups == 'true' && ForumTool.permissionMode == 'forum'}" styleClass="itemAction">
@@ -70,12 +76,11 @@
         </h:panelGroup>
 	</h:panelGroup>
     <h:panelGroup rendered="#{!(ForumTool.selectedForum.restrictPermissionsForGroups || ForumTool.selectedTopic.restrictPermissionsForGroups) || permission.item.type != 3}" styleClass="permissionRow">
-        
         <h:panelGroup styleClass="permissionRoleLabel">
           <h:outputLabel for="level"><h:outputText value="#{permission.name}" id="perm_role_label2" /></h:outputLabel>
         </h:panelGroup> 
           <h:panelGroup style="padding-left:5px">
-          <h:selectOneMenu id="level" value="#{permission.selectedLevel}" onchange="javascript:setCorrespondingCheckboxes(this.id);"  disabled="#{not ForumTool.editMode}">
+          <h:selectOneMenu id="level" value="#{permission.selectedLevel}" onchange="javascript:setCorrespondingCheckboxes(this.id);" disabled="#{not ForumTool.editMode}">
             <f:selectItems value="#{ForumTool.levels}"/>
           </h:selectOneMenu>
         </h:panelGroup>

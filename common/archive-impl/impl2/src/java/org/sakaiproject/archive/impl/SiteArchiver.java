@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
@@ -36,14 +35,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.NamedNodeMap;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -67,62 +63,28 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.Xml;
 
 @Slf4j
+@Setter
 public class SiteArchiver {
 	
-	@Setter private LTIService ltiService;
-
-	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_serverConfigurationService = null;
-	public void setServerConfigurationService(ServerConfigurationService service) {
-		m_serverConfigurationService = service;
-	}
-	/** Dependency: EntityManager. */
-	protected EntityManager m_entityManager = null;
-	public void setEntityManager(EntityManager service) {
-		m_entityManager = service;
-	}
-	
-	/** Dependency: SiteService */
-	protected SiteService m_siteService = null;
-	public void setSiteService(SiteService service) {
-		m_siteService = service;
-	}
-	
-	/** Dependency: AuthzService */
-	protected AuthzGroupService m_authzGroupService = null;
-	public void setAuthzGroupService(AuthzGroupService service) {
-		m_authzGroupService = service;
-	}
-	
-	/** Dependency: UserDirectoryService */
-	protected UserDirectoryService m_userDirectoryService = null;
-	public void setUserDirectoryService(UserDirectoryService service) {
-		m_userDirectoryService = service;
-	}
-	
-	/** Dependency: TimeService */
-	protected TimeService m_timeService = null;
-	public void setTimeService(TimeService service) {
-		m_timeService = service;
-	}
-	
-	/** Dependency: ContentHosting */
-	protected ContentHostingService m_contentHostingService = null;
-	public void setContentHostingService(ContentHostingService service) {
-		m_contentHostingService = service;
-	}
-
-	@Setter private TransactionTemplate transactionTemplate;
+	private LTIService ltiService;
+	private ServerConfigurationService serverConfigurationService;
+	private EntityManager entityManager;
+	private SiteService siteService;
+	private AuthzGroupService authzGroupService;
+	private UserDirectoryService userDirectoryService;
+	private TimeService timeService;
+	private ContentHostingService contentHostingService;
+	private TransactionTemplate transactionTemplate;
 
 	/**
 	 * Capture the naming convention for the site archive folder
 	 */
-	public String getStoragePathForSiteArchive(String siteId, String m_storagePath) {
-		String storagePath = m_storagePath + siteId + "-archive/";
-		return storagePath;
+	public String getStoragePathForSiteArchive(String siteId, String storagePath) {
+		String archivePath = storagePath + siteId + "-archive/";
+		return archivePath;
 	}
 
-	public String archive(String siteId, String m_storagePath, String fromSystem)
+	public String archive(String siteId, String storagePath, String fromSystem)
 	{
 		StringBuilder results = new StringBuilder();
 
@@ -131,7 +93,7 @@ public class SiteArchiver {
 		Site theSite = null;
 		try
 		{
-			theSite = m_siteService.getSite(siteId);
+			theSite = siteService.getSite(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -140,15 +102,15 @@ public class SiteArchiver {
 		}
 
 		// collect all the attachments we need
-		List attachments = m_entityManager.newReferenceList();
+		List attachments = entityManager.newReferenceList();
 
-		Time now = m_timeService.newTime();
+		Time now = timeService.newTime();
 
 		// this is the folder we are writing files to
-		String storagePath = getStoragePathForSiteArchive(siteId, m_storagePath);
+		String archivePath = getStoragePathForSiteArchive(siteId, storagePath);
 
 		// create the directory for the archive
-		File dir = new File(storagePath);
+		File dir = new File(archivePath);
 
 		// clear the directory (if site already archived) so resources are not duplicated
 		try {
@@ -159,20 +121,20 @@ public class SiteArchiver {
 
 		dir.mkdirs();
 
-		// for each registered ResourceService, give it a chance to archve
-		Collection<EntityProducer> producers = m_entityManager.getEntityProducers();
+		// for each registered EntityProducer, give it a chance to archive
+		Collection<EntityProducer> producers = entityManager.getEntityProducers();
         for (EntityProducer producer : producers) {
-            if (producer == null) continue;
-            if (!producer.willArchiveMerge()) continue;
+            if (producer == null || !producer.willArchiveMerge() ) continue;
 
             Document doc = Xml.createDocument();
             Stack stack = new Stack();
             Element root = doc.createElement("archive");
             doc.appendChild(root);
             root.setAttribute("source", siteId);
-            root.setAttribute("server", m_serverConfigurationService.getServerId());
+            root.setAttribute("server", serverConfigurationService.getServerId());
             root.setAttribute("date", now.toString());
             root.setAttribute("system", fromSystem);
+            root.setAttribute("serverurl", serverConfigurationService.getServerUrl());
             root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
             root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
             root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
@@ -187,7 +149,7 @@ public class SiteArchiver {
                                 .append(producer.getLabel())
                                 .append(" [").append(serviceName).append("]")
                                 .append(" =====>\n")
-                                .append(producer.archive(siteId, doc, stack, storagePath, attachments))
+                                .append(producer.archive(siteId, doc, stack, archivePath, attachments))
                                 .append("<===== End ")
                                 .append(serviceName)
                                 .append(" =====>\n\n"));
@@ -201,7 +163,7 @@ public class SiteArchiver {
 
             stack.pop();
 
-            String fileName = storagePath + producer.getLabel() + ".xml";
+            String fileName = archivePath + producer.getLabel() + ".xml";
 
             // fileName
             log.debug("fileName => {}", fileName);
@@ -217,7 +179,7 @@ public class SiteArchiver {
 			Element root = doc.createElement("archive");
 			doc.appendChild(root);
 			root.setAttribute("source", siteId);
-			root.setAttribute("server", m_serverConfigurationService.getServerId());
+			root.setAttribute("server", serverConfigurationService.getServerId());
 			root.setAttribute("date", now.toString());
 			root.setAttribute("system", fromSystem);
 			root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
@@ -227,12 +189,12 @@ public class SiteArchiver {
 			stack.push(root);
 
 			results.append("<===== Attachments =====>\n");
-			results.append(m_contentHostingService.archiveResources(attachments, doc, stack, storagePath));
+			results.append(contentHostingService.archiveResources(attachments, doc, stack, archivePath));
 			results.append("<===== End =====>\n\n");
 
 			stack.pop();
 
-			String fileName = storagePath + "attachment.xml";
+			String fileName = archivePath + "attachment.xml";
 			Xml.writeDocument(doc, fileName);
 		}
 
@@ -254,8 +216,8 @@ public class SiteArchiver {
 		results.append("<===== End =====>\n\n");
 		
 		stack.pop();
-		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/site.xml");
 
+		Xml.writeDocument(doc, storagePath + siteId + "-archive/site.xml");
 
 		// *** Users
 		doc = Xml.createDocument();
@@ -274,7 +236,7 @@ public class SiteArchiver {
 		results.append("<===== End =====>\n\n");
 
 		stack.pop();
-		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/user.xml");
+		Xml.writeDocument(doc, storagePath + siteId + "-archive/user.xml");
 
 		// Write an archive.xml file with status about the export
 		doc = Xml.createDocument();
@@ -290,7 +252,7 @@ public class SiteArchiver {
 		archiveArchive(doc, stack, results.toString());
 		stack.pop();
 
-		Xml.writeDocument(doc, m_storagePath + siteId + "-archive/archive.xml");
+		Xml.writeDocument(doc, storagePath + siteId + "-archive/archive.xml");
 
 		log.info("Completed archive of site {}", siteId);
 
@@ -299,14 +261,13 @@ public class SiteArchiver {
 
 
 	/**
-	* Archive the site definition.
-	* @param site the site.
-	* @param doc The document to contain the xml.
-	* @param stack The stack of elements, the top of which will be the containing
-	* element of the "site" element.
-	*/
-	
-	protected String archiveSite(Site site, Document doc, Stack stack, String fromSystem)
+	 * Archive the site definition.
+	 * @param site the site.
+	 * @param doc The document to contain the xml.
+	 * @param stack The stack of elements, the top of which will be the containing
+	 * element of the "site" element.
+	 */
+	private String archiveSite(Site site, Document doc, Stack stack, String fromSystem)
 	{
 		Element element = doc.createElement(SiteService.APPLICATION_ID);
 		((Element)stack.peek()).appendChild(element);
@@ -315,7 +276,7 @@ public class SiteArchiver {
 		Element siteNode = site.toXml(doc, stack);
 
 		// By default, do not include fields that have secret or password in the name
-		String filter = m_serverConfigurationService.getString("archive.toolproperties.excludefilter","password|secret");
+		String filter = serverConfigurationService.getString("archive.toolproperties.excludefilter","password|secret");
 		Pattern pattern = null;
 		if ( ( ! "none".equals(filter) ) && filter.length() > 0 ) {
 			try {
@@ -327,7 +288,7 @@ public class SiteArchiver {
 		}
 
 		NodeList nl = siteNode.getElementsByTagName("property");
-		List<Element> toRemove = new ArrayList<Element>();
+		List<Element> toRemove = new ArrayList<>();
 
 		for(int i = 0; i < nl.getLength(); i++) {
 			Element proptag = (Element)nl.item(i);
@@ -352,18 +313,18 @@ public class SiteArchiver {
 				}
 			}
 		}
-		for(Element proptag : toRemove ) {
+		for (Element proptag : toRemove ) {
 			proptag.getParentNode().removeChild(proptag);
 		}
 
 		stack.push(siteNode);	
 		
-		String realmId = m_siteService.siteReference(site.getId());
+		String realmId = siteService.siteReference(site.getId());
 
 		try
 		{
 			// Add the site providers
-			Set<String> providerList = m_authzGroupService.getProviderIds(realmId);
+			Set<String> providerList = authzGroupService.getProviderIds(realmId);
 
 			Element providerNode = doc.createElement("providers");
 			((Element)stack.peek()).appendChild(providerNode);
@@ -377,7 +338,7 @@ public class SiteArchiver {
 			List roles = new Vector();
 
 			Role role = null;
-			AuthzGroup realm = m_authzGroupService.getAuthzGroup(realmId);
+			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 			
 			Element realmNode = doc.createElement("roles");
 			((Element)stack.peek()).appendChild(realmNode);
@@ -414,11 +375,11 @@ public class SiteArchiver {
 		}
 		catch(Exception any)
 		{
-			log.warn("archve: exception archiving site: {}: {}", site.getId(), any);
+			log.warn("Exception archiving site: {}: {}", site.getId(), any.toString());
 		}
 	
 		stack.pop();
-		
+
 		return "archiving Site: " + site.getId() + "\n";
 	
 	}	// archiveSite
@@ -440,11 +401,11 @@ public class SiteArchiver {
 		{
 			// get the site's user list
 			List users = new Vector();
-			String realmId = m_siteService.siteReference(site.getId()); //SWG "/site/" + site.getId();
+			String realmId = siteService.siteReference(site.getId()); //SWG "/site/" + site.getId();
 			try
 			{
-				AuthzGroup realm = m_authzGroupService.getAuthzGroup(realmId);
-				users.addAll(m_userDirectoryService.getUsers(realm.getUsers()));
+				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
+				users.addAll(userDirectoryService.getUsers(realm.getUsers()));
 				Collections.sort(users);
 				for (int i = 0; i < users.size(); i++)
 				{

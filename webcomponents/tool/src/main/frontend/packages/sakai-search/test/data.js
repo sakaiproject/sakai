@@ -1,11 +1,12 @@
 export const userId = "adrian";
 
-export const i18nUrl = "/sakai-ws/rest/i18n/getI18nProperties?locale=en_GB&resourceclass=org.sakaiproject.i18n.InternationalizedMessages&resourcebundle=search";
+export const i18nUrl = /getI18nProperties.*search/;
 
 export const i18n = `
 close_results_tooltip=Close the search results
 from_site=from site
 no_results=No Results
+search=Search
 search_result_title=Title:
 search_results=Search Results
 search_sakai_placeholder=Search all Sakai

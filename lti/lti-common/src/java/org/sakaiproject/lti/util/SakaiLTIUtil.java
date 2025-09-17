@@ -73,6 +73,8 @@ import org.sakaiproject.component.api.ServerConfigurationService.ConfigItem;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
@@ -85,6 +87,7 @@ import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -289,10 +292,10 @@ public class SakaiLTIUtil {
 		public static boolean loadFromPlacement(Properties info, Properties launch, Placement placement) {
 			Properties config = placement.getConfig();
 			log.debug("Sakai properties={}", config);
-			String launch_url = toNull(getCorrectProperty(config, LTIService.LTI_LAUNCH, placement));
+			String launch_url = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_LAUNCH, placement));
 			setProperty(info, "launch_url", launch_url);
 			if (launch_url == null) {
-				String xml = toNull(getCorrectProperty(config, "xml", placement));
+				String xml = StringUtils.trimToNull(getCorrectProperty(config, "xml", placement));
 				if (xml == null) {
 					return false;
 				}
@@ -319,7 +322,7 @@ public class SakaiLTIUtil {
 			setProperty(info, LTIService.LTI_TITLE, getCorrectProperty(config, LTI_PORTLET_TOOLTITLE, placement));
 
 			// Pull in and parse the custom parameters
-			String customstr = toNull(getCorrectProperty(config, LTIService.LTI_CUSTOM, placement));
+			String customstr = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_CUSTOM, placement));
 			parseCustom(info, customstr);
 
 			if (info.getProperty("launch_url", null) != null
@@ -569,8 +572,8 @@ public class SakaiLTIUtil {
 	}
 
 	public static void addUserInfo(Properties ltiProps, Properties lti13subst, User user, Map<String, Object> tool) {
-		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
-		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
+		int releasename = LTIUtil.toInt(tool.get(LTIService.LTI_SENDNAME));
+		int releaseemail = LTIUtil.toInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 		if (user != null) {
 			setProperty(ltiProps, LTIConstants.USER_ID, user.getId());
 			setProperty(lti13subst, LTICustomVars.USER_ID, user.getId());
@@ -631,7 +634,8 @@ public class SakaiLTIUtil {
             }
             if (StringUtils.isNotBlank(sakaiRole)) return sakaiRole;
         } catch (GroupNotDefinedException e) {
-			log.error("site realm not found {}", e.getMessage());
+			log.error("site realm not found {}", e.toString());
+			log.debug("Stacktrace:", e);
 		}
 		return null;
 	}
@@ -832,6 +836,7 @@ public class SakaiLTIUtil {
 			site = SiteService.getSite(context);
 		} catch (IdUnusedException e) {
 			log.error("No site/page associated with Launch context={}", context);
+			log.debug("Stacktrace:", e);
 			return false;
 		}
 
@@ -841,7 +846,7 @@ public class SakaiLTIUtil {
 		addGlobalData(site, props, null, rb);
 		ToolConfiguration placement = SiteService.findTool(placementId);
 		Properties config = placement.getConfig();
-		String roleMapProp = toNull(getCorrectProperty(config, LTIService.LTI_ROLEMAP, placement));
+		String roleMapProp = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_ROLEMAP, placement));
 		addRoleInfo(props, null, user, context, roleMapProp);
 		addSiteInfo(props, null, site);
 
@@ -862,9 +867,9 @@ public class SakaiLTIUtil {
 
 		// Start setting the Basici LTI parameters
 		setProperty(props, LTIConstants.RESOURCE_LINK_ID, placementId);
-		String title = toNull(getCorrectProperty(config, LTIService.LTI_TITLE, placement));
+		String title = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_TITLE, placement));
 		if ( title == null ) {
-			title = toNull(getCorrectProperty(config, LTI_PORTLET_TOOLTITLE, placement));
+			title = StringUtils.trimToNull(getCorrectProperty(config, LTI_PORTLET_TOOLTITLE, placement));
 		}
 
 		if (title != null) {
@@ -873,7 +878,7 @@ public class SakaiLTIUtil {
 			setProperty(props, LTIConstants.RESOURCE_LINK_TITLE, placement.getTitle());
 		}
 
-		String description = toNull(getCorrectProperty(config, LTIService.LTI_DESCRIPTION, placement));
+		String description = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_DESCRIPTION, placement));
 		if ( description == null ) {
 			description = title;
 		}
@@ -884,8 +889,8 @@ public class SakaiLTIUtil {
 			setProperty(props, LTIConstants.RESOURCE_LINK_DESCRIPTION, placement.getTitle());
 		}
 
-		String releasename = toNull(getCorrectProperty(config, LTI_PORTLET_RELEASENAME, placement));
-		String releaseemail = toNull(getCorrectProperty(config, LTI_PORTLET_RELEASEEMAIL, placement));
+		String releasename = StringUtils.trimToNull(getCorrectProperty(config, LTI_PORTLET_RELEASENAME, placement));
+		String releaseemail = StringUtils.trimToNull(getCorrectProperty(config, LTI_PORTLET_RELEASEEMAIL, placement));
 
 		User user = UserDirectoryService.getCurrentUser();
 
@@ -900,7 +905,7 @@ public class SakaiLTIUtil {
 			setProperty(props, LTIConstants.USER_ID, user.getId());
 
 			if (ServerConfigurationService.getBoolean(LTI_CONSUMER_USERIMAGE_ENABLED, true)) {
-				String imageUrl = getOurServerUrl() + "/direct/profile/" + user.getId() + "/image";
+				String imageUrl = getOurServerUrl() + "/api/users/" + user.getId() + "/profile/image";
 				setProperty(props, LTIConstants.USER_IMAGE, imageUrl);
 			}
 
@@ -924,10 +929,10 @@ public class SakaiLTIUtil {
 			String allowOutcomes = "false";
 			String gradebookColumn = null;
 
-			String allowOutcomesTool = toNull(getCorrectProperty(config, LTIService.LTI_ALLOWOUTCOMES, placement));
+			String allowOutcomesTool = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_ALLOWOUTCOMES, placement));
 			if ( outcomesEnabled() && !LTI_PORTLET_OFF.equals(allowOutcomesTool) ) {
 				allowOutcomes = "true";
-				gradebookColumn = toNull(getCorrectProperty(config, "assignment", placement));
+				gradebookColumn = StringUtils.trimToNull(getCorrectProperty(config, "assignment", placement));
 			}
 
 			if (result_sourcedid != null) {
@@ -963,7 +968,7 @@ public class SakaiLTIUtil {
 			}
 
 			// Send along the deprecated LinkTool encrypted session if requested
-			String sendsession = toNull(getCorrectProperty(config, "ext_sakai_session", placement));
+			String sendsession = StringUtils.trimToNull(getCorrectProperty(config, "ext_sakai_session", placement));
 			if ("true".equals(sendsession)) {
 				Session s = SessionManager.getCurrentSession();
 				if (s != null) {
@@ -976,9 +981,9 @@ public class SakaiLTIUtil {
 			}
 
 			// Send along the SAK-28125 encrypted session if requested
-			String encryptsession = toNull(getCorrectProperty(config, "ext_sakai_encrypted_session", placement));
-			String secret = toNull(getCorrectProperty(config, LTIService.LTI_SECRET, placement));
-			String key = toNull(getCorrectProperty(config, LTI_PORTLET_KEY, placement));
+			String encryptsession = StringUtils.trimToNull(getCorrectProperty(config, "ext_sakai_encrypted_session", placement));
+			String secret = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_SECRET, placement));
+			String key = StringUtils.trimToNull(getCorrectProperty(config, LTI_PORTLET_KEY, placement));
 			if (secret != null && key != null && "true".equals(encryptsession)
 					&& !SecurityService.isSuperUser()) {
 
@@ -1001,7 +1006,7 @@ public class SakaiLTIUtil {
 		}
 
 		// Send along the content link
-		String contentlink = toNull(getCorrectProperty(config, "contentlink", placement));
+		String contentlink = StringUtils.trimToNull(getCorrectProperty(config, "contentlink", placement));
 		if (contentlink != null) {
 			setProperty(props, "ext_resource_link_content", contentlink);
 		}
@@ -1143,7 +1148,7 @@ public class SakaiLTIUtil {
 				return postError("<p>" + getRB(rb, "error.tool.missing", "Tool item is missing or improperly configured.") + "</p>");
 			}
 
-			int status = getInt(tool.get(LTIService.LTI_STATUS));
+			int status = LTIUtil.toInt(tool.get(LTIService.LTI_STATUS));
 			if (status == 1) {
 				return postError("<p>" + getRB(rb, "tool.disabled", "Tool is currently disabled") + "</p>");
 			}
@@ -1163,12 +1168,13 @@ public class SakaiLTIUtil {
 				site = SiteService.getSite(context);
 			} catch (IdUnusedException e) {
 				log.error("No site/page associated with Launch context={}", context);
+				log.debug("Stacktrace:", e);
 				return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 			}
 
 			// SAK-47573 - Make sure the gradebook is initialised
-			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
-			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+			GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			gradingService.initializeGradebooksForSite(context);
 
 			// See if there are the necessary items
 			String secret = getSecret(tool, content);
@@ -1204,15 +1210,15 @@ public class SakaiLTIUtil {
 			setProperty(toolProps, LTIService.LTI_SECRET, secret);
 			setProperty(toolProps, LTI_PORTLET_KEY, key);
 
-			int debug = getInt(tool.get(LTIService.LTI_DEBUG));
+			int debug = LTIUtil.toInt(tool.get(LTIService.LTI_DEBUG));
 			if (debug == 2) {
-				debug = getInt(content.get(LTIService.LTI_DEBUG));
+				debug = LTIUtil.toInt(content.get(LTIService.LTI_DEBUG));
 			}
 			setProperty(toolProps, LTIService.LTI_DEBUG, debug + "");
 
-			int frameheight = getInt(content.get(LTIService.LTI_FRAMEHEIGHT));
+			int frameheight = LTIUtil.toInt(content.get(LTIService.LTI_FRAMEHEIGHT));
 			if (frameheight < 1) {
-				frameheight = getInt(tool.get(LTIService.LTI_FRAMEHEIGHT));
+				frameheight = LTIUtil.toInt(tool.get(LTIService.LTI_FRAMEHEIGHT));
 			}
 
 			setProperty(toolProps, LTIService.LTI_FRAMEHEIGHT, frameheight + "");
@@ -1265,8 +1271,8 @@ public class SakaiLTIUtil {
 				setProperty(lti13subst, subKey, value);
 			}
 
-			int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
-			int allowroster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
+			int allowoutcomes = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+			int allowroster = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWROSTER));
 			String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 
 			String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
@@ -1419,9 +1425,10 @@ public class SakaiLTIUtil {
 				try {
 					publicKey = LTI13KeySetUtil.getKeyFromKeySet(incoming_kid, tool_keyset);
 				} catch (Exception e) {
-					log.error(e.getMessage(), e);
+					log.error(e.toString(), e);
+					log.debug("Stacktrace:", e);
 					// Sorry - too many exceptions to explain here - lets keep it simple after logging it
-					throw new RuntimeException("Unable to retrieve kid="+incoming_kid+" from "+tool_keyset+" detail="+e.getMessage());
+					throw new RuntimeException("Unable to retrieve kid="+incoming_kid+" from "+tool_keyset+" detail="+e.toString());
 				}
 				// TODO: Store in Earle's super-cluster-cache one day - SAK-43700
 
@@ -1563,12 +1570,13 @@ public class SakaiLTIUtil {
 				site = SiteService.getSite(context);
 			} catch (IdUnusedException e) {
 				log.error("No site/page associated with Launch context={}", context);
+				log.debug("Stacktrace:", e);
 				return postError("<p>" + getRB(rb, "error.site.missing", "Cannot load site.") + context + "</p>");
 			}
 
 			// SAK-47573 - Make sure the gradebook is initialised
-			GradingService g = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
-			org.sakaiproject.grading.api.model.Gradebook gb = g.getGradebook(context);
+			GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
+			gradingService.initializeGradebooksForSite(context);
 
 			User user = UserDirectoryService.getCurrentUser();
 
@@ -1577,8 +1585,8 @@ public class SakaiLTIUtil {
 			addSiteInfo(ltiProps, lti13subst, site);
 			addRoleInfo(ltiProps, lti13subst, user, context, (String) tool.get(LTIService.LTI_ROLEMAP));
 
-			int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
-			int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
+			int releasename = LTIUtil.toInt(tool.get(LTIService.LTI_SENDNAME));
+			int releaseemail = LTIUtil.toInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 			addUserInfo(ltiProps, lti13subst, user, tool);
 
 			// Don't sent the normal return URL when we are doing ContentItem launch
@@ -1588,7 +1596,7 @@ public class SakaiLTIUtil {
 				ltiProps.remove(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 			}
 
-			boolean dodebug = getInt(tool.get(LTIService.LTI_DEBUG)) == 1;
+			boolean dodebug = LTIUtil.toInt(tool.get(LTIService.LTI_DEBUG)) == 1;
 
 			// Merge all the sources of custom vaues and run the substitution
 			Properties custom = new Properties();
@@ -1707,8 +1715,8 @@ public class SakaiLTIUtil {
 
 			// If we do not have LMS-wide info, use the local key/secret
 			if (secret == null) {
-				secret = toNull(toolProps.getProperty(LTIService.LTI_SECRET));
-				key = toNull(toolProps.getProperty(LTI_PORTLET_KEY));
+				secret = StringUtils.trimToNull(toolProps.getProperty(LTIService.LTI_SECRET));
+				key = StringUtils.trimToNull(toolProps.getProperty(LTI_PORTLET_KEY));
 			}
 
 			// If secret is encrypted, decrypt it
@@ -1851,7 +1859,7 @@ public class SakaiLTIUtil {
 	ext_ims_lis_memberships_url: http://localhost:8080/imsblis/service/
 	ext_ims_lti_tool_setting_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3
 	ext_ims_lti_tool_setting_url: http://localhost:8080/imsblis/service/
-	ext_lms: sakai-25-SNAPSHOT
+	ext_lms: sakai-26-SNAPSHOT
 	ext_sakai_academic_session: OTHER
 	ext_sakai_launch_presentation_css_url_list: http://localhost:8080/library/skin/tool_base.css,http://localhost:8080/library/skin/default-skin/tool.css?version=49b21ca5
 	ext_sakai_role: maintain
@@ -1917,7 +1925,7 @@ public class SakaiLTIUtil {
 			lj.email = ltiProps.getProperty(LTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
 
 			lj.nonce = toolProps.getProperty("nonce");
-			lj.issued = new Long(System.currentTimeMillis() / 1000L);
+			lj.issued = Long.valueOf(System.currentTimeMillis() / 1000L);
 			lj.expires = lj.issued + 3600L;
 			lj.deployment_id = getDeploymentId(context_id);
 
@@ -1998,9 +2006,9 @@ public class SakaiLTIUtil {
 				lj.custom.put(custom_key, custom_val);
 			}
 
-			int allowOutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
-			int allowRoster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
-			int allowLineItems = getInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
+			int allowOutcomes = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+			int allowRoster = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWROSTER));
+			int allowLineItems = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 			String sourcedid = ltiProps.getProperty("lis_result_sourcedid");
 
@@ -2178,7 +2186,7 @@ public class SakaiLTIUtil {
 			state = StringUtils.trimToNull(state);
 
 			// This is a comma separated list of valid redirect URLs - lame as heck
-			String lti13_tool_redirect = toNull((String) tool.get(LTIService.LTI13_TOOL_REDIRECT));
+			String lti13_tool_redirect = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_TOOL_REDIRECT));
 
 			// If we have been told to send this to a redirect_uri instead of a launch...
 			String redirect_uri = req.getParameter("redirect_uri");
@@ -2237,7 +2245,7 @@ public class SakaiLTIUtil {
 		}
 
 		public static String getSourceDID(User user, Placement placement, Properties config) {
-			String placementSecret = toNull(getCorrectProperty(config, LTI_PORTLET_PLACEMENTSECRET, placement));
+			String placementSecret = StringUtils.trimToNull(getCorrectProperty(config, LTI_PORTLET_PLACEMENTSECRET, placement));
 			if (placementSecret == null) {
 				return null;
 			}
@@ -2354,7 +2362,8 @@ public class SakaiLTIUtil {
 				AuthzGroup realm = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(realmId);
 				rv = realm.getProviderGroupId();
 			} catch (GroupNotDefinedException e) {
-				log.error("SiteParticipantHelper.getExternalRealmId: site realm not found {}", e.getMessage());
+				log.error("SiteParticipantHelper.getExternalRealmId: site realm not found {}", e.toString());
+				log.debug("Stacktrace:", e);
 			}
 			return rv;
 		} // getExternalRealmId
@@ -2517,11 +2526,11 @@ public class SakaiLTIUtil {
 
 		// If we are not supposed to lookup or set the grade, we are done
 		if (isRead == false && isDelete == false && scoreGiven == null) {
-			return new Boolean(matched);
+			return Boolean.valueOf(matched);
 		}
 
 		// Look up the gradebook column so we can find the max points
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		// Make sure the user exists in the site
@@ -2546,7 +2555,7 @@ public class SakaiLTIUtil {
         // Load assignment if it exists
 		org.sakaiproject.assignment.api.model.Assignment assignment;
         String contentKeyStr = normalProps.getProperty("contentKey");
-        Long contentKey = Foorm.getLongKey(contentKeyStr);
+        Long contentKey = LTIUtil.toLongKey(contentKeyStr);
         if (contentKey > 0) {
                 Map<String, Object> content = new TreeMap<String, Object> ();
                 content.put(LTIService.LTI_ID, contentKey);
@@ -2567,15 +2576,21 @@ public class SakaiLTIUtil {
 		}
 
 		// Now read, set, or delete the non-assignment grade...
+		// For LTI 1.1 columns we don't need to mark them for AGS LineItems retrieval
+		Long tool_id = null;
+		Map<String, Object> content = null;
+
 		Session sess = SessionManager.getCurrentSession();
 
 		SakaiLineItem lineItem = new SakaiLineItem();
 		lineItem.scoreMaximum = 100.0D;
-		org.sakaiproject.grading.api.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem);
+
+		org.sakaiproject.grading.api.Assignment gradebookColumn = getGradebookColumn(site, user_id, title, lineItem, tool_id, content);
 		if (gradebookColumn == null) {
 			log.warn("gradebookColumn or Id is null, cannot proceed with grading in site {} for column {}", siteId, title);
 			return "Grade failure siteId=" + siteId;
 		}
+		String gradebookUid = gradebookColumn.getGradebookUid() != null ? gradebookColumn.getGradebookUid() : siteId;
 
 		try {
 			// Indicate "who" is setting this grade - needs to be a real user account
@@ -2586,13 +2601,13 @@ public class SakaiLTIUtil {
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if (isRead) {
-				String actualGrade = g.getAssignmentScoreString(siteId, gradebookColumn.getId(), user_id);
+				String actualGrade = gradingService.getAssignmentScoreString(gradebookUid, siteId, gradebookColumn.getId(), user_id);
 				Double dGrade = null;
 				if (StringUtils.isNotBlank(actualGrade)) {
-					dGrade = new Double(actualGrade);
+					dGrade = Double.valueOf(actualGrade);
 					dGrade = dGrade / gradebookColumn.getPoints();
 				}
-				CommentDefinition commentDef = g.getAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
+				CommentDefinition commentDef = gradingService.getAssignmentScoreComment(gradebookUid, gradebookColumn.getId(), user_id);
 				Map<String, Object> retMap = new TreeMap<>();
 				retMap.put("grade", dGrade);
 				if (commentDef != null) {
@@ -2600,26 +2615,26 @@ public class SakaiLTIUtil {
 				}
 				retval = retMap;
 			} else if (isDelete) {
-				g.setAssignmentScoreString(siteId,gradebookColumn.getId(), user_id, null, "External Outcome");
-				g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
-				log.info("Delete Score site={} title={} user_id={}", siteId, title, user_id);
+				gradingService.setAssignmentScoreString(gradebookUid, siteId, gradebookColumn.getId(), user_id, null, "External Outcome", null);
+				gradingService.deleteAssignmentScoreComment(gradebookUid, gradebookColumn.getId(), user_id);
+				log.info("Delete Score site={} gradebook={} title={} user_id={}", siteId, gradebookUid, title, user_id);
 				retval = Boolean.TRUE;
 			} else {
 				String gradeI18n = getRoundedGrade(scoreGiven, gradebookColumn.getPoints());
 				gradeI18n = (",").equals((ComponentManager.get(FormattedText.class)).getDecimalSeparator()) ? gradeI18n.replace(".",",") : gradeI18n;
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), user_id, gradeI18n, "External Outcome");
+				gradingService.setAssignmentScoreString(gradebookUid, siteId, gradebookColumn.getId(), user_id, gradeI18n, "External Outcome", null);
 				if ( StringUtils.isBlank(comment) ) {
-					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id);
+					gradingService.deleteAssignmentScoreComment(gradebookUid, gradebookColumn.getId(), user_id);
 				} else {
-					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), user_id, comment);
+					gradingService.setAssignmentScoreComment(gradebookUid, gradebookColumn.getId(), user_id, comment);
 				}
 
-				log.info("Stored Score={} title={} user_id={} score={}", siteId, title, user_id, scoreGiven);
+				log.info("Stored Score site={} gradebook={} title={} user_id={} score={}", siteId, gradebookUid, title, user_id, scoreGiven);
 
 				retval = Boolean.TRUE;
 			}
 		} catch (Exception e) {
-			retval = "Grade failure " + e.getMessage() + " siteId=" + siteId;
+			retval = "Grade failure " + e.toString() + " siteId=" + siteId;
 			log.warn("handleGradebook Grade failure in site: {}, error: {}", siteId, e);
 		} finally {
 			sess.invalidate(); // Make sure to leave no traces
@@ -2639,6 +2654,8 @@ public class SakaiLTIUtil {
 		Object retval;
 		String title;
 
+		log.debug("siteid: {} tool_id: {} lineitem_key: {} userId: {} scoreObj: {}", site.getId(), tool_id, lineitem_key, userId, scoreObj);
+
 		// An empty / null score given means to delete the score
 		SakaiLineItem lineItem = new SakaiLineItem();
 		String siteId = site.getId();
@@ -2648,22 +2665,55 @@ public class SakaiLTIUtil {
 		// Are we in the default lineitem for the content object?
 		// Check if this is as assignment placement and handle it if it is
 		if ( lineitem_key == null ) {
-			org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content);
-			if ( assignment != null ) {
-				retval = handleAssignment(assignment, userId, scoreObj);
-				return retval;
+			pushAdvisor(); // Add security advisor to allow access to assignments
+			try {
+				org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content);
+				if ( assignment != null ) {
+					retval = handleAssignment(assignment, userId, scoreObj);
+					return retval;
+				}
+			} finally {
+				popAdvisor(); // Remove security advisor
 			}
 			title = (String) content.get(LTIService.LTI_TITLE);
 			if (title == null || title.length() < 1) {
 				log.error("Could not determine content title {}", content.get(LTIService.LTI_ID));
 				return "Could not determine content title key="+content.get(LTIService.LTI_ID);
 			}
-			gradebookColumn = getGradebookColumn(site, userId, title, lineItem);
+			gradebookColumn = getGradebookColumn(site, userId, title, lineItem, tool_id, content);
 		} else {
 			gradebookColumn = LineItemUtil.getColumnByKeyDAO(siteId, tool_id, lineitem_key);
 			if ( gradebookColumn == null || gradebookColumn.getName() == null ) {
 				log.error("Could not determine assignment_name title {}", content.get(LTIService.LTI_ID));
 				return "Unable to load column for lineitem_key="+lineitem_key;
+			}
+
+			// Check if this is a gradebook column that is owned by assignments
+			String external_id = gradebookColumn.getExternalId();
+			log.debug("external_id: {} {}", external_id);
+			if ( external_id != null && LineItemUtil.isAssignmentColumn(external_id) ) {
+				pushAdvisor(); // Add security advisor to allow access to assignments
+				try {
+					org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
+					org.sakaiproject.assignment.api.model.Assignment assignment;
+					try {
+						org.sakaiproject.assignment.api.AssignmentReferenceReckoner.AssignmentReference assignmentReference = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().reference(external_id).reckon();
+						log.debug("assignmentReference.id {}", assignmentReference.getId());
+						assignment = assignmentService.getAssignment(assignmentReference.getId());
+					} catch (Exception e) {
+						assignment = null;
+						log.error("Unexpected error getting assignment: {}", e.toString());
+						log.debug("Stacktrace:", e);
+					}
+
+					if ( assignment != null ) {
+						log.debug("Gradebook column is owned by assignment: {}", assignment.getId());
+						retval = handleAssignment(assignment, userId, scoreObj);
+						return retval;
+					}
+				} finally {
+					popAdvisor(); // Remove security advisor
+				}
 			}
 			title = gradebookColumn.getName();
 		}
@@ -2674,15 +2724,15 @@ public class SakaiLTIUtil {
 		}
 
 		// Send the grades to the gradebook
-		Double scoreGiven = scoreObj.scoreGiven;
+		Double scoreGiven = scoreObj.getScoreGiven();
 		String comment = scoreObj.comment;
-		if ( scoreObj.scoreMaximum == null ) scoreObj.scoreMaximum = lineItem.scoreMaximum != null ? lineItem.scoreMaximum : 100D;
-		Double scoreMaximum = scoreObj.scoreMaximum;
+		Double scoreMaximum = scoreObj.getScoreMaximum();
 		log.debug("scoreGiven={} scoreMaximum={} userId={} comment={}", scoreGiven, scoreMaximum, userId, comment);
 
 		// Look up the gradebook column so we can find the max points
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
+		String gradebookUid = gradebookColumn.getGradebookUid() != null ? gradebookColumn.getGradebookUid() : siteId;
 
 		// Fall through to send the grade to a gradebook column
 		// Now read, set, or delete the grade...
@@ -2697,14 +2747,15 @@ public class SakaiLTIUtil {
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if (scoreGiven == null) {
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, null, "External Outcome");
+				gradingService.setAssignmentScoreString(gradebookUid, siteId, gradebookColumn.getId(), userId, null, "External Outcome", null);
+
 				// Since LTI 13 uses update semantics on grade delete, we accept the comment if it is there
 				if ( StringUtils.isBlank(comment) ) {
-					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
+					gradingService.deleteAssignmentScoreComment(gradebookUid, gradebookColumn.getId(), userId);
 				} else {
-					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
+					gradingService.setAssignmentScoreComment(gradebookUid, gradebookColumn.getId(), userId, comment);
 				}
-				log.info("Delete Score site={} title={} userId={}", siteId, title, userId);
+				log.info("Delete Score site={} gradebook={} title={} userId={}", siteId, gradebookUid, title, userId);
 				return Boolean.TRUE;
 			} else {
 				Double gradebookColumnPoints = gradebookColumn.getPoints();
@@ -2716,17 +2767,17 @@ public class SakaiLTIUtil {
 				}
 				String gradeI18n = assignedGrade.toString();
 				gradeI18n = (",").equals((ComponentManager.get(FormattedText.class)).getDecimalSeparator()) ? gradeI18n.replace(".",",") : gradeI18n;
-				g.setAssignmentScoreString(siteId, gradebookColumn.getId(), userId, gradeI18n, "External Outcome");
+				gradingService.setAssignmentScoreString(gradebookUid, siteId, gradebookColumn.getId(), userId, gradeI18n, "External Outcome", null);
 				if ( StringUtils.isBlank(comment) ) {
-					g.deleteAssignmentScoreComment(siteId, gradebookColumn.getId(), userId);
+					gradingService.deleteAssignmentScoreComment(gradebookUid, gradebookColumn.getId(), userId);
 				} else {
-					g.setAssignmentScoreComment(siteId, gradebookColumn.getId(), userId, comment);
+					gradingService.setAssignmentScoreComment(gradebookUid, gradebookColumn.getId(), userId, comment);
 				}
-				log.info("Stored Score={} title={} userId={} score={}", siteId, title, userId, scoreGiven);
+				log.info("Stored Score site={} gradebook={} title={} userId={} score={}", siteId, gradebookUid, title, userId, scoreGiven);
 				return Boolean.TRUE;
 			}
 		} catch (NumberFormatException | AssessmentNotFoundException e) {
-			retval = "Grade failure " + e.getMessage() + " siteId=" + siteId;
+			retval = "Grade failure " + e.toString() + " siteId=" + siteId;
 			log.warn("handleGradebook Grade failure in site: {}, error: {}", siteId, e);
 		} finally {
 			sess.invalidate(); // Make sure to leave no traces
@@ -2736,7 +2787,7 @@ public class SakaiLTIUtil {
 
 	public static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, Map<String, Object> content) {
 
-		Long contentId = Foorm.getLongNull(content.get(LTIService.LTI_ID));
+		Long contentId = LTIUtil.toLongNull(content.get(LTIService.LTI_ID));
 		if ( contentId == null ) return null;
 
 		pushAdvisor();
@@ -2752,15 +2803,20 @@ public class SakaiLTIUtil {
 				return a;
 			}
 			return null;
-		}  finally {
+		} catch (Exception e) {
+			log.error("Unexpected error getting assignment: {}", e.toString());
+			log.debug("Stacktrace:", e);
+		} finally {
 			popAdvisor();
 		}
+		return null;
 	}
 
 	public static Object handleAssignment(org.sakaiproject.assignment.api.model.Assignment a, String userId, Score scoreObj) {
 
 		Integer	scaledGrade = null;
 		String stringGrade = null;
+		log.debug("handleAssignment assignment: {} {} user: {} {}", a.getId(), a.getTitle(), userId, scoreObj.getScoreGiven());
 
 		// Scale up the score if appropriate
 		if (scoreObj.scoreGiven != null) {
@@ -2769,11 +2825,10 @@ public class SakaiLTIUtil {
 			// Sanity check - don't ever divide by zero
 			if ( assignmentScale == 0 ) assignmentScale = 1;
 
-			Integer incomingScoreGiven = new Double(scoreObj.scoreGiven * assignmentScale).intValue();
-			Integer incomingScoreMax = new Double(scoreObj.scoreMaximum * assignmentScale).intValue();
+			Integer incomingScoreGiven = Double.valueOf(scoreObj.getScoreGiven() * assignmentScale).intValue();
+			Integer incomingScoreMax = Double.valueOf(scoreObj.getScoreMaximum() * assignmentScale).intValue();
 			if ( incomingScoreMax == 0 ) incomingScoreMax = assignmentMax;
 			if ( incomingScoreMax == 0 ) incomingScoreMax = 100 * assignmentScale;
-
 
 			if ( incomingScoreMax.equals(assignmentMax) ) {
 				scaledGrade = incomingScoreGiven;
@@ -2786,23 +2841,68 @@ public class SakaiLTIUtil {
 		org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
 		org.sakaiproject.user.api.PreferencesService preferencesService  = ComponentManager.get(org.sakaiproject.user.api.PreferencesService.class);
 		UserTimeService userTimeService = ComponentManager.get(UserTimeService.class);
+		org.sakaiproject.site.api.SiteService siteService = ComponentManager.get(org.sakaiproject.site.api.SiteService.class);
 
 		String activityProgress = scoreObj.activityProgress != null ? scoreObj.activityProgress : Score.ACTIVITY_COMPLETED ;
 		String gradingProgress = scoreObj.gradingProgress != null ? scoreObj.gradingProgress : Score.GRADING_FULLYGRADED;
+		log.debug("activityProgress: {} gradingProgress: {}", activityProgress, gradingProgress);
 
 		User user;
 		try {
 			user = UserDirectoryService.getUser(userId);
 		} catch (org.sakaiproject.user.api.UserNotDefinedException e) {
+			log.debug("Could not look up user {} {}", userId, e.toString());
 			return "Could not look up user "+userId;
 		}
 
 		pushAdvisor();
 		try {
-			org.sakaiproject.assignment.api.model.AssignmentSubmission submission = assignmentService.getSubmission(a.getId(), user);
-			if ( submission == null ) {
-				submission = assignmentService.addSubmission(a.getId(), user.getId());
+			org.sakaiproject.assignment.api.model.AssignmentSubmission submission = null;
+			
+			// For group assignments, we need to find the group the user belongs to
+			if (a.getIsGroup()) {
+				log.debug("This is a group assignment {}", a.getId());
+				String context = a.getContext();
+				try {
+					org.sakaiproject.site.api.Site site = siteService.getSite(context);
+					// Find all groups user is a member of that are also assignment groups
+					Set<String> assignmentGroups = a.getGroups();
+					Collection<org.sakaiproject.site.api.Group> userGroups = site.getGroupsWithMember(userId);
+					
+					// Find the first matching group between assignment groups and user groups
+					String groupId = null;
+					for (org.sakaiproject.site.api.Group group : userGroups) {
+						if (assignmentGroups.contains(group.getReference())) {
+							groupId = group.getId();
+							break;
+						}
+					}
+					
+					if (groupId != null) {
+						log.debug("Found group for user: groupId={} userId={}", groupId, userId);
+						// Try to get existing group submission
+						submission = assignmentService.getSubmission(a.getId(), groupId);
+						if (submission == null) {
+							// Create new submission for the group
+							submission = assignmentService.addSubmission(a.getId(), groupId);
+						}
+					} else {
+						log.warn("No matching group found for user in group assignment: userId={}, assignmentId={}", userId, a.getId());
+					}
+				} catch (org.sakaiproject.exception.IdUnusedException e) {
+					log.warn("Site not found: {}, {}", context, e.toString());
+				}
 			}
+			
+			// If this isn't a group assignment, or we couldn't find a group, get/create individual submission
+			if (submission == null) {
+				submission = assignmentService.getSubmission(a.getId(), user);
+				if (submission == null) {
+					submission = assignmentService.addSubmission(a.getId(), user.getId());
+				}
+			}
+			
+			log.debug("submission: {} {} {}", scaledGrade, user.getId(), submission);
 
 			StringBuilder logEntry = new StringBuilder();
 			DateTimeFormatter dtf = DateTimeFormatter.RFC_1123_DATE_TIME
@@ -2834,7 +2934,11 @@ public class SakaiLTIUtil {
 			submission.setUserSubmission(true);
 			submission.setFeedbackComment(scoreObj.comment);
 			submission.setDateModified(now);
-			submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(userId)).findFirst().ifPresent(s -> s.setSubmittee(true));
+			
+			// For individual submissions or when we know the specific user
+			if (!a.getIsGroup() || submission.getSubmitters().stream().anyMatch(s -> s.getSubmitter().equals(userId))) {
+				submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(userId)).findFirst().ifPresent(s -> s.setSubmittee(true));
+			}
 
 			// SAK-46548 - Any new LTI grade unchecks assignments "released to student"
 			submission.setGradeReleased(false);
@@ -2862,7 +2966,7 @@ public class SakaiLTIUtil {
 
 			 try {
 				assignmentService.updateSubmission(submission);
-				log.info("Submitted submission={} userId={} log={}", submission.getId(), userId, logEntry.toString());
+				log.debug("Submitted submission={} userId={} log={}", submission.getId(), userId, logEntry.toString());
 			} catch (org.sakaiproject.exception.PermissionException e) {
 				log.warn("Could not update submission: {}, {}", submission.getId(), e);
 				return "Could not update submission="+submission.getId()+" "+e;
@@ -2881,17 +2985,16 @@ public class SakaiLTIUtil {
 		Map<String, String> properties = submission.getProperties();
 		List<Integer> keys = properties.keySet().stream()
 				.filter(k -> k.startsWith("log"))
-				.map(k -> new Integer(StringUtils.split(k, "log")[0]))
+				.map(k -> Integer.valueOf(StringUtils.split(k, "log")[0]))
 				.sorted()
 				.collect(Collectors.toList());
 		int next = keys.isEmpty() ? 0 : keys.get(keys.size() - 1) + 1;
 		return keyPrefix + next;
 	}
 
-	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem) {
-		// Look up the gradebook column so we can find the max points
-		GradingService g = (GradingService) ComponentManager
-				.get("org.sakaiproject.grading.api.GradingService");
+	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem, Long tool_id, Map<String, Object> content) {
+		// Look up the gradebook columns so we can find the max points
+		GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
 		String siteId = site.getId();
 
@@ -2899,17 +3002,24 @@ public class SakaiLTIUtil {
 		Double scoreMaximum = lineItem.scoreMaximum == null ? 100D : lineItem.scoreMaximum;
 
 		org.sakaiproject.grading.api.Assignment returnColumn = null;
+		String returnGradebookUid = siteId;
 
 		pushAdvisor();
 
 		try {
-			List gradeboolColumns = g.getAssignments(siteId);
-			for (Iterator i = gradeboolColumns.iterator(); i.hasNext();) {
-				org.sakaiproject.grading.api.Assignment aColumn = (org.sakaiproject.grading.api.Assignment) i.next();
-
-				if (title.trim().equalsIgnoreCase(aColumn.getName().trim())) {
-					returnColumn = aColumn;
-					break;
+			List<String> userGradebooks = Arrays.asList(siteId);
+			if (gradingService.isGradebookGroupEnabled(siteId)) {
+				userGradebooks = gradingService.getGradebookInstancesForUser(siteId, userId);
+				returnGradebookUid = userGradebooks.get(0);
+			}
+			for (String gradebookUid : userGradebooks) {
+				List<org.sakaiproject.grading.api.Assignment> gradebookColumns = gradingService.getAssignments(gradebookUid, siteId, SortType.SORT_BY_NONE);
+				for (org.sakaiproject.grading.api.Assignment aColumn : gradebookColumns) {
+					if (title.trim().equalsIgnoreCase(aColumn.getName().trim())) {
+						returnColumn = aColumn;
+						returnGradebookUid = gradebookUid;
+						break;
+					}
 				}
 			}
 		} finally {
@@ -2924,19 +3034,25 @@ public class SakaiLTIUtil {
 				returnColumn.setPoints(scoreMaximum);
 				returnColumn.setExternallyMaintained(false);
 				returnColumn.setName(title);
+				if ( tool_id != null && content != null ) {
+					String external_id = LineItemUtil.constructExternalId(tool_id, content, lineItem);
+					returnColumn.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
+					returnColumn.setExternalId(external_id);
+				}
 				// SAK-40043
 				Boolean releaseToStudent = lineItem.releaseToStudent == null ? Boolean.TRUE : lineItem.releaseToStudent; // Default to true
 				Boolean includeInComputation = lineItem.includeInComputation == null ? Boolean.TRUE : lineItem.includeInComputation; // Default true
 				returnColumn.setReleased(releaseToStudent); // default true
 				returnColumn.setUngraded(! includeInComputation); // default false
-				Long gradebookColumnId = g.addAssignment(siteId, returnColumn);
+				Long gradebookColumnId = gradingService.addAssignment(returnGradebookUid, siteId, returnColumn);
 				returnColumn.setId(gradebookColumnId);
+				returnColumn.setGradebookUid(returnGradebookUid);
 				log.info("Added gradebook column: {} with Id: {}", title, gradebookColumnId);
 			} catch (ConflictingAssignmentNameException e) {
-				log.warn("ConflictingAssignmentNameException while adding gradebook column {}", e.getMessage());
+				log.warn("ConflictingAssignmentNameException while adding gradebook column {}", e.toString());
 				returnColumn = null; // Just to make sure
 			} catch (Exception e) {
-				log.warn("Exception (may be because GradeBook has not yet been added to the Site) {}", e.getMessage());
+				log.warn("Exception (may be because GradeBook has not yet been added to the Site) {}", e.toString());
 				returnColumn = null; // Just to make double sure
 			} finally {
 				popAdvisor();
@@ -2954,7 +3070,7 @@ public class SakaiLTIUtil {
 	// Returns scoreGiven * points rounded to 2 digits (as a String)
 	// Used for testing and to avoid precision problems
 	public static String getRoundedGrade(Double scoreGiven, Double points) throws Exception {
-		if (scoreGiven < 0.0 || scoreGiven > 1.0) {
+		if (scoreGiven == null || scoreGiven < 0.0 || scoreGiven > 1.0) {
 			throw new Exception("Grade out of range");
 		}
 		scoreGiven = scoreGiven * points;
@@ -2969,7 +3085,7 @@ public class SakaiLTIUtil {
 		// These are the fields from a placement - they are not an exact match
 		// for the fields in tool/content
 		String[] fieldList = {LTI_PORTLET_KEY, LTIService.LTI_SECRET, LTI_PORTLET_PLACEMENTSECRET,
-			LTI_PORTLET_OLDPLACEMENTSECRET, 
+			LTI_PORTLET_OLDPLACEMENTSECRET,
 			LTI_PORTLET_ASSIGNMENT, LTI_PORTLET_ALLOWROSTER, LTI_PORTLET_RELEASENAME, LTI_PORTLET_RELEASEEMAIL,
 			LTI_PORTLET_TOOLSETTING};
 
@@ -2990,7 +3106,7 @@ public class SakaiLTIUtil {
 			retval.setProperty("placementId", placement_id);
 			retval.setProperty(LTIService.LTI_SITE_ID, siteId);
 			for (String field : fieldList) {
-				String value = toNull(getCorrectProperty(config, field, placement));
+				String value = StringUtils.trimToNull(getCorrectProperty(config, field, placement));
 				if (field.equals(LTI_PORTLET_ALLOWROSTER)) {
 					field = LTIService.LTI_ALLOWROSTER;
 				}
@@ -3024,7 +3140,7 @@ public class SakaiLTIUtil {
 			Map<String, Object> tool;
 
 			String contentStr = placement_id.substring(8);
-			Long contentKey = Foorm.getLongKey(contentStr);
+			Long contentKey = LTIUtil.toLongKey(contentStr);
 			if (contentKey < 0) {
 				return null;
 			}
@@ -3043,7 +3159,7 @@ public class SakaiLTIUtil {
 			retval.setProperty("contentKey", contentStr);
 			retval.setProperty(LTIService.LTI_SITE_ID, siteId);
 
-			Long toolKey = Foorm.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+			Long toolKey = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
 			if (toolKey < 0) {
 				return null;
 			}
@@ -3065,7 +3181,7 @@ public class SakaiLTIUtil {
 					continue;
 				}
 				if ("checkbox".equals(type)) {
-					int check = getInt(o);
+					int check = LTIUtil.toInt(o);
 					if (check == 1) {
 						retval.setProperty(field, LTI_PORTLET_ON);
 					} else {
@@ -3084,7 +3200,7 @@ public class SakaiLTIUtil {
 					continue;
 				}
 				if ("checkbox".equals(type)) {
-					int check = getInt(o);
+					int check = LTIUtil.toInt(o);
 					if (check == 1) {
 						retval.setProperty(field, LTI_PORTLET_ON);
 					} else {
@@ -3112,6 +3228,7 @@ public class SakaiLTIUtil {
 		if ( autosubmit ) {
 			sb.append("  if ( message.subject == 'org.sakailms.lti.prelaunch.response' ) {\n");
 			sb.append("    console.log('submitting based on org.sakailms.lti.prelaunch.response');\n    ");
+			sb.append("    clearTimeout(plTimeOut);\n  "); // Cancel current timeout, POST is launched already
 			sb.append(doSubmit);
 			sb.append("  }\n");
 		}
@@ -3120,7 +3237,7 @@ public class SakaiLTIUtil {
 		sb.append("parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');\nconsole.log('Sending prelaunch request');\n\n");
 
 		if ( autosubmit ) {
-			sb.append("setTimeout(function() {\n  console.warn('Submitting after prelaunch timeout');\n  ");
+			sb.append("var plTimeOut = setTimeout(function() {\n  console.warn('Submitting after prelaunch timeout');\n  ");
 			sb.append(doSubmit);
 			sb.append("}, 2000);\n");
 		}
@@ -3131,7 +3248,7 @@ public class SakaiLTIUtil {
 	 * getLaunchCodeKey - Return the launch code key for a content item
 	 */
 	public static String getLaunchCodeKey(Map<String, Object> content) {
-		int id = getInt(content.get(LTIService.LTI_ID));
+		int id = LTIUtil.toInt(content.get(LTIService.LTI_ID));
 		return SESSION_LAUNCH_CODE + id;
 	}
 
@@ -3141,7 +3258,7 @@ public class SakaiLTIUtil {
 	public static String getLaunchCode(Map<String, Object> content) {
 		/*
 		long now = (new java.util.Date()).getTime();
-		int id = getInt(content.get(LTIService.LTI_ID));
+		int id = LTIUtil.toInt(content.get(LTIService.LTI_ID));
 		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 		String base_string = id + ":" + now + ":" + placement_secret;
 		String signature = LegacyShaUtil.sha256Hash(base_string);
@@ -3223,19 +3340,6 @@ public class SakaiLTIUtil {
 		return retval;
 	}
 
-	// Refactored into tsugi-util - mark as legacy later
-	public static String toNull(String str) {
-		return Foorm.toNull(str);
-	}
-
-	public static int getInt(Object o) {
-		return Foorm.getInt(o);
-	}
-
-	public static Long getLongKey(Object key) {
-		return Foorm.getLongKey(key);
-	}
-
 	public static URL getUrlOrNull(String urlString) {
 		if ( urlString == null ) return null;
 		try
@@ -3281,8 +3385,8 @@ public class SakaiLTIUtil {
 			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
 			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
 
-			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
-			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+			if ( local && StringUtils.trimToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.trimToNull(toolSite) != null ) continue;
 
 			if ( launchUrl != null && launchUrl.equals(toolLaunch) ) {
 				log.debug("Matched exact tool {}={}", launchUrl, toolLaunch);
@@ -3299,8 +3403,8 @@ public class SakaiLTIUtil {
 			String toolLaunchBase = stripOffQuery((String) tool.get(LTIService.LTI_LAUNCH));
 			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
 
-			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
-			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+			if ( local && StringUtils.trimToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.trimToNull(toolSite) != null ) continue;
 
 			if ( launchUrlBase != null && launchUrlBase.equals(toolLaunchBase) ) {
 				log.debug("Matched query-free tool {}={}", launchUrl, toolLaunchBase);
@@ -3317,8 +3421,8 @@ public class SakaiLTIUtil {
 			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
 			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
 
-			if ( local && StringUtils.stripToNull(toolSite) == null ) continue;
-			if ( global && StringUtils.stripToNull(toolSite) != null ) continue;
+			if ( local && StringUtils.trimToNull(toolSite) == null ) continue;
+			if ( global && StringUtils.trimToNull(toolSite) != null ) continue;
 
 			String prefix = StringUtils.getCommonPrefix(launchUrl, toolLaunch);
 			if ( prefix.length() > 0 && prefix.length() > bestPrefix.length() ) {
@@ -3356,18 +3460,6 @@ public class SakaiLTIUtil {
 
 		retval = findBestToolMatch(global, launchUrl, toolCheckSum, tools);
 		return retval;
-	}
-
-	public static Long getLong(Object key) {
-		return Foorm.getLong(key);
-	}
-
-	public static Long getLongNull(Object key) {
-		return Foorm.getLongNull(key);
-	}
-
-	public static Double getDoubleNull(Object key) {
-		return LTI13Util.getDoubleNull(key);
 	}
 
 	public static String getStringNull(Object value) {
@@ -3485,7 +3577,7 @@ public class SakaiLTIUtil {
 	 */
 	public static boolean isLTI11(Map<String, Object> tool) {
 		if ( tool == null ) return false;
-		Long toolLTI13 = Foorm.getLong(tool.get(LTIService.LTI13));
+		Long toolLTI13 = LTIUtil.toLong(tool.get(LTIService.LTI13));
 		if ( toolLTI13.equals(LTIService.LTI13_LTI11) ) return true;
 		if ( toolLTI13.equals(LTIService.LTI13_LTI13) ) return false;
 		if ( toolLTI13.equals(LTIService.LTI13_BOTH) ) return true;
@@ -3498,7 +3590,7 @@ public class SakaiLTIUtil {
 	 */
 	public static boolean isLTI13(Map<String, Object> tool) {
 		if ( tool == null ) return false;
-		Long toolLTI13 = Foorm.getLong(tool.get(LTIService.LTI13));
+		Long toolLTI13 = LTIUtil.toLong(tool.get(LTIService.LTI13));
 		if ( toolLTI13.equals(LTIService.LTI13_LTI11) ) return false;
 		if ( toolLTI13.equals(LTIService.LTI13_LTI13) ) return true;
 		if ( toolLTI13.equals(LTIService.LTI13_BOTH) ) return true;
@@ -3540,12 +3632,12 @@ public class SakaiLTIUtil {
 		String height = defaultValue;
 
 		if ( tool != null ) {
-			Long toolFrameHeight = Foorm.getLong(tool.get(LTIService.LTI_FRAMEHEIGHT));
+			Long toolFrameHeight = LTIUtil.toLong(tool.get(LTIService.LTI_FRAMEHEIGHT), -1L);
 			if ( toolFrameHeight > 1 )  height = toolFrameHeight + "px";
 		}
 
 		if (content != null) {
-			Long contentFrameHeight = Foorm.getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
+			Long contentFrameHeight = LTIUtil.toLong(content.get(LTIService.LTI_FRAMEHEIGHT));
 			if ( contentFrameHeight > 0 ) height = contentFrameHeight + "px";
 		}
 
@@ -3559,12 +3651,12 @@ public class SakaiLTIUtil {
 		boolean newpage = defaultValue;
 
 		if (content != null ) {
-			Long contentNewpage = Foorm.getLongNull(content.get(LTIService.LTI_NEWPAGE));
+			Long contentNewpage = LTIUtil.toLongNull(content.get(LTIService.LTI_NEWPAGE));
 			if ( contentNewpage != null ) newpage = (contentNewpage != 0);
 		}
 
 		if ( tool != null ) {
-			Long toolNewpage = Foorm.getLongNull(tool.get(LTIService.LTI_NEWPAGE));
+			Long toolNewpage = LTIUtil.toLongNull(tool.get(LTIService.LTI_NEWPAGE));
 
 			if ( toolNewpage != null ) {
 				// Leave this alone for LTIService.LTI_TOOL_NEWPAGE_CONTENT
@@ -3669,7 +3761,7 @@ public class SakaiLTIUtil {
 			ltiPattern = Pattern.compile(LTIService.LAUNCH_CONTENT_REGEX);
 		}
 		catch (Exception e) {
-			return Long.valueOf(-1);
+			return -1L;
 		}
 		Matcher ltiMatcher = ltiPattern.matcher(launch);
 		if (ltiMatcher.find()) {
@@ -3677,12 +3769,12 @@ public class SakaiLTIUtil {
 			Long contentKey = NumberUtils.toLong(number, -1);
 			return contentKey;
 		}
-		return Long.valueOf(-1);
+		return -1L;
 	}
 
 	public static String getContentLaunch(Map<String, Object> content) {
 		if ( content == null ) return null;
-		int key = getInt(content.get(LTIService.LTI_ID));
+		int key = LTIUtil.toInt(content.get(LTIService.LTI_ID));
 		String siteId = (String) content.get(LTIService.LTI_SITE_ID);
 		if (key < 0 || siteId == null)
 			return null;
@@ -3692,7 +3784,7 @@ public class SakaiLTIUtil {
 	public static String getToolLaunch(Map<String, Object> tool, String siteId) {
 		if ( tool == null ) return null;
 		if ( siteId == null ) return null;
-		int key = getInt(tool.get(LTIService.LTI_ID));
+		int key = LTIUtil.toInt(tool.get(LTIService.LTI_ID));
 		if (key < 0 || siteId == null)
 			return null;
 		return LTIService.LAUNCH_PREFIX + siteId + "/tool:" + key;
@@ -3704,4 +3796,47 @@ public class SakaiLTIUtil {
 		}
 		return LTIService.LAUNCH_PREFIX + siteId + "/export:" + exportType + ((filterId != null && !"".equals(filterId)) ? (":" + filterId) : "");
 	}
+
+	/*
+	 * Parse a rich edtext editor string of the format
+	 *
+	 * <p>Yada</p>
+	 * <p><a class="lti-launch"
+	 * href="http://localhost:8080/access/lti/site/7d529bf7-b856-4400-9da1-ba8670ed1489/content:1"
+	 * rel="noopener" target="_blank">Breakout</a></p>
+	 *
+	 * Extract the lti-launch urls and return them as a list of strings	
+	 *
+	 */
+	public static List<String> extractLtiLaunchUrls(String html) {
+		List<String> retval = new ArrayList<>();
+		if (html == null) {
+			return retval;
+		}
+		Pattern pattern = Pattern.compile("https?://[^\\s\"']+/access/(b)?lti/site/[^\\s\"']+/content:\\d+");
+		Matcher matcher = pattern.matcher(html);
+		while (matcher.find()) {
+			retval.add(matcher.group());
+		}
+		return retval;
+	}
+
+	/**
+	 * Extract the site id and content key from a LTI Launch URL
+	 *
+	 * @param url
+	 * @return an array of two strings, the first is the site id, the second is the content key
+	 */
+	public static String[] getContentKeyAndSiteId(String url) {
+		if (url == null) {
+			return null;
+		}
+		Pattern pattern = Pattern.compile("https?://[^\\s\"']+/access/(?:b)?lti/site/([^\\s\"'/]+)/content:(\\d+)");
+		Matcher matcher = pattern.matcher(url);
+		if (matcher.find()) {
+			return new String[] { matcher.group(1), matcher.group(2) };
+		}
+		return null;
+	}
+
 }

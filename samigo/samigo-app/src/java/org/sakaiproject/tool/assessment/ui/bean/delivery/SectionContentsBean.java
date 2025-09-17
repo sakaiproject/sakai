@@ -47,7 +47,6 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.time.api.UserTimeService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.SectionGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -80,58 +79,50 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
   @Autowired
   @Qualifier("org.sakaiproject.time.api.UserTimeService")
   private UserTimeService userTimeService;
-  private String text;
-  private List<ItemContentsBean> itemContents;
-  private String sectionId;
-  private String number;
-  private double maxPoints;
-  private double points;
-  private int questions;
-  private int numbering;
-  private String numParts;
-  private String description;
-  private int unansweredQuestions; // ItemContentsBeans
-  private List questionNumbers = new ArrayList();
+
+  @Getter @Setter private String text;
+  @Getter @Setter private List<ItemContentsBean> itemContents;
+  @Getter @Setter private String sectionId;
+  @Getter @Setter private String number;
+  @Getter @Setter private double maxPoints;
+  @Getter @Setter private double points;
+  @Getter @Setter private int questions;
+  @Getter @Setter private int numbering;
+  @Getter @Setter private String numParts;
+  @Getter @Setter private String description;
+  @Setter private int unansweredQuestions; // ItemContentsBeans
+  @Getter private List questionNumbers = new ArrayList();
 
   // added section Type , question ordering
-  private Integer sectionAuthorType;
-  private Integer questionOrdering;
-  private Integer numberToBeDrawn;
-  private Long poolIdToBeDrawn;
-  private String poolNameToBeDrawn;
-  private String randomQuestionsDrawDate = "";
-  private String randomQuestionsDrawTime = "";
-  private List attachmentList;
-  private boolean noQuestions;
-  
+  @Getter @Setter private Integer sectionAuthorType;
+  @Getter @Setter private Integer questionOrdering;
+  @Getter @Setter private Integer numberToBeDrawn;
+  @Getter @Setter private Long poolIdToBeDrawn;
+  @Getter @Setter private String poolNameToBeDrawn;
+  @Getter @Setter private String randomQuestionsDrawDate = "";
+  @Getter @Setter private String randomQuestionsDrawTime = "";
+  @Getter @Setter private String randomQuestionsOwnerDisplayName = "";
+  @Getter @Setter private List attachmentList;
+  @Getter @Setter private boolean noQuestions;
+
   @Getter @Setter private SectionGradingData sectionGradingData;
   @Getter private String timeLimit;
   @Getter private boolean timedSection;
 
-  @Setter private Integer numberToBeFixed;
-  @Setter private Long poolIdToBeFixed;
+  @Getter @Setter private Integer numberToBeFixed;
+  @Getter @Setter private Long poolIdToBeFixed;
   @Getter @Setter private String poolNameToBeFixed;
   @Getter @Setter private String fixedQuestionsDrawDate = "";
   @Getter @Setter private String fixedQuestionsDrawTime = "";
-  @Setter private List<Long> poolIdsToBeDrawn;
+  @Getter @Setter private String fixedQuestionsOwnerDisplayName = "";
+  @Getter @Setter private List<Long> poolIdsToBeDrawn;
 
   public SectionContentsBean()
   {
   }
 
-  /**
-   * Part description.
-   * @return Part description.
-   */
-
-  public String getText()
-  {
-    return text;
-  }
-
   public String getNonDefaultText()
   {
-
     if ("Default".equals(text) || "default".equals(text))
     {
       return "";
@@ -139,35 +130,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return text;
   }
 
-  /**
-   * Part description.
-   * @param text Part description.
-   */
-  public void setText(String text)
-  {
-    this.text = text;
-  }
-
-  /**
-   *   Points earned thus far for part.
-   *
-   * @return the points
-   */
-  public double getPoints()
-  {
-    return points;
-  }
-
-  /**
-   * Points earned thus far for part.
-   * @param points
-   */
-  public void setPoints(double points)
-  {
-    this.points = points;
-  }
-
-  /**
+    /**
    * Number unanswered.
    * @return total unanswered.
    */
@@ -176,83 +139,11 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return (int) itemContents.stream().filter(ItemContentsBean::isUnanswered).count();
   }
 
-  /**
-   * Number unanswered.
-   * @param unansweredQuestions
-   */
-  public void setUnansweredQuestions(int unansweredQuestions)
-  {
-    this.unansweredQuestions = unansweredQuestions;
-  }
-
-  /**
-   * Total points the part is worth.
-   * @return max total points for part
-   */
-  public double getMaxPoints()
-  {
-    return maxPoints;
-  }
 
   public double getRoundedMaxPoints()
   {
-    // only show 2 decimal places 
-    
+    // only show 2 decimal places
     return Precision.round(maxPoints, 2);
-  }
-
-  /**
-   * Total points the part is worth.
-   * @param maxPoints points the part is worth.
-   */
-  public void setMaxPoints(double maxPoints)
-  {
-    this.maxPoints = maxPoints;
-  }
-
-  /**
-   * Total number of questions.
-   * @return total number of questions
-   */
-  public int getQuestions()
-  {
-    return questions;
-  }
-
-  /**
-   * Total number of questions.
-   * @param questions number of questions
-   */
-  public void setQuestions(int questions)
-  {
-    this.questions = questions;
-  }
-
-  /**
-   * Total number of questions to list, based on numbering scheme
-   * @return total number of questions
-   */
-  public int getNumbering()
-  {
-    return numbering;
-  }
-
-  /**
-   * Total number of questions to list, based on numbering scheme
-   * @param questions number of questions
-   */
-  public void setNumbering(int newNumbering)
-  {
-    numbering = newNumbering;
-  }
-
-  /**
-   * Contents of part.
-   * @return item contents of part.
-   */
-  public List<ItemContentsBean> getItemContents()
-  {
-    return itemContents;
   }
 
   public List<ItemContentsBean> getItemContentsForRandomDraw()
@@ -273,16 +164,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return itemContents;
   }
 
-  /**
-   * Contents of part.
-   * @param itemContents item contents of part.
-   */
-  public void setItemContents(List<ItemContentsBean> itemContents)
-  {
-    this.itemContents = itemContents;
-  }
-
-  /**
+    /**
    * Get the size of the contents
    */
   public String getItemContentsSize()
@@ -302,58 +184,23 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     // noop
   }
 
-  /**
-   * Display part number.
-   * @return display numbering
-   */
-  public String getNumber()
-  {
-    return number;
-  }
-
-  /**
-   * Display part number.
-   * @param number display numbering
-   */
-  public void setNumber(String number)
-  {
-    this.number = number;
-  }
-
-  // added by daisyf on 11/22/04
-  private String title;
+  @Getter @Setter private String title;
   private String sequence;
 
-  // for display/hide score
   // private boolean showStudentScore;   // show student Assessment Score
   // Chage showStudentScore to showStudentQuestionScore for SAK-7290
   // We consider the display/hide of part(section) score same as question score 
   // We used to consider them as assessment score as you can see above line and 
   // comment (private boolean showStudentScore;   // show student Assessment Score)
-  private boolean showStudentQuestionScore;   // show student Assessment Score
+  @Getter @Setter private boolean showStudentQuestionScore;   // show student Assessment Score
   private String pointsDisplayString;
-
-  public String getTitle()
-  {
-    return this.title;
-  }
-
-  public void setTitle(String title)
-  {
-    this.title = title;
-  }
-
-  public List getQuestionNumbers()
-  {
-    return questionNumbers;
-  }
 
   public void setQuestionNumbers()
   {
     this.questionNumbers = new ArrayList();
     for (int i = 1; i <= this.itemContents.size(); i++)
     {
-      this.questionNumbers.add(new SelectItem( Integer.valueOf(i)));
+      this.questionNumbers.add(new SelectItem(i));
     }
   }
 
@@ -505,8 +352,9 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 	if (section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW) != null) {
 		Long poolid = new Long(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
 		setPoolIdToBeDrawn(poolid);
+		retrievePoolOwnerName(poolid);
 		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.toString().equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) {
-			Integer randomPools = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+			int randomPools = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
 			List<Long> poolIds = new ArrayList<>();
 			poolIds.add(poolid);
 			for (int i = 1; i < randomPools; i++) {
@@ -520,7 +368,7 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 		String poolname = section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
 		if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOLS.equals(Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE))) && 
 				section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT) != null) {
-			Integer count = Integer.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
+			int count = Integer.parseInt(section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT));
 			for (int i = 1; i < count; i++) {
 				poolname += SectionDataIfc.SEPARATOR_COMMA + section.getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW + SectionDataIfc.SEPARATOR_MULTI + i);
 			}
@@ -543,13 +391,28 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 				setRandomQuestionsDrawTime(drawTimeString);
 
 			} catch(Exception e){
-				log.error("Unable to parse date text: " + randomDrawDate, e);
+				log.error("Unable to parse date text: {}", randomDrawDate, e.toString());
 			}
 		}
 	}
   }
 
-  private Instant parseInstant(String dateText) throws ParseException {
+	private void retrievePoolOwnerName(Long poolid) {
+		if (poolid != null) {
+			try {
+				QuestionPoolService questionPoolService = new QuestionPoolService();
+				QuestionPoolFacade pool = questionPoolService.getPool(poolIdToBeDrawn, null);
+				if (pool != null) {
+					setRandomQuestionsOwnerDisplayName(pool.getOwnerDisplayName());
+					setFixedQuestionsOwnerDisplayName(pool.getOwnerDisplayName());
+				}
+			} catch (Exception e) {
+				log.error("Error retrieving question pool owner info, {}", e.toString());
+			}
+		}
+	}
+
+	private Instant parseInstant(String dateText) throws ParseException {
 	try {
 		return LocalDateTime.parse(dateText, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant(ZoneOffset.UTC);
 	} catch (DateTimeParseException ex) {
@@ -579,154 +442,28 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
 	}
   }
 
-  public String getSectionId()
-  {
-    return sectionId;
-  }
 
-  /**
-   * Part description.
-   * @param text Part description.
-   */
-  public void setSectionId(String sectionId)
-  {
-    this.sectionId = sectionId;
-  }
-
-  public String getNumParts()
-  {
-    return numParts;
-  }
-
-  public void setNumParts(String newNum)
-  {
-    numParts = newNum;
-  }
-
-  public String getDescription()
-  {
-    return description;
-  }
-
-  public void setDescription(String newDesc)
-  {
-    description = newDesc;
-  }
-
-  public Integer getSectionAuthorType()
-  {
-    return sectionAuthorType;
-  }
-
-  public String getSectionAuthorTypeString()
+    public String getSectionAuthorTypeString()
   {
     return sectionAuthorType.toString();
   }
 
-  public void setSectionAuthorType(Integer param)
-  {
-    sectionAuthorType = param;
-  }
-
-  public Integer getQuestionOrdering()
-  {
-    return questionOrdering;
-  }
-
-  public String getQuestionOrderingString()
+    public String getQuestionOrderingString()
   {
     return questionOrdering.toString();
   }
 
-  public void setQuestionOrdering(Integer param)
-  {
-    questionOrdering = param;
-  }
-
-  public Integer getNumberToBeDrawn()
-  {
-    return numberToBeDrawn;
-  }
-
-  public Integer getNumberToBeFixed()
-  {
-    return numberToBeFixed;
-  }
-
-  public String getNumberToBeDrawnString()
+    public String getNumberToBeDrawnString()
   {
     return numberToBeDrawn.toString();
   }
 
-  public void setNumberToBeDrawn(Integer param)
-  {
-    numberToBeDrawn = param;
-  }
-
-  public String getNumberToBeFixedString()
+    public String getNumberToBeFixedString()
   {
     return numberToBeFixed.toString();
   }
 
-  public void setNumberToBeFixed(Integer param)
-  {
-    numberToBeFixed = param;
-  }
-
-  public Long getPoolIdToBeDrawn()
-  {
-    return poolIdToBeDrawn;
-  }
-
-  public Long getPoolIdToBeFixed()
-  {
-    return poolIdToBeFixed;
-  }
-
-  public void setPoolIdToBeDrawn(Long param)
-  {
-    poolIdToBeDrawn = param;
-  }
-
-  public List<Long> getPoolIdsToBeDrawn()
-  {
-    return poolIdsToBeDrawn;
-  }
-
-  public void setPoolIdsToBeDrawn(List<Long> param)
-  {
-    poolIdsToBeDrawn = param;
-  }
-
-  public void setPoolNameToBeDrawn(String param)
-  {
-    poolNameToBeDrawn = param;
-  }
-
-  public String getPoolNameToBeDrawn()
-  {
-    return poolNameToBeDrawn;
-  }
-
-  /**
-   * Show the student score currently earned?
-   * @return the score
-   */
-  public boolean isShowStudentQuestionScore()
-  {
-    return showStudentQuestionScore;
-  }
-
-  /**
-   * Set the student score currently earned.
-   * @param setShowStudentQuestionScore true/false Show the student score currently earned?
-   */
-  public void setShowStudentQuestionScore(boolean showStudentQuestionScore)
-  {
-    this.showStudentQuestionScore = showStudentQuestionScore;
-  }
-
-  /**
+    /**
    * If we display the score, return it, followed by a slash.
    * @return either, a) the score followed by a slash, or, b) "" (empty string)
    */
@@ -740,49 +477,17 @@ public class SectionContentsBean extends SpringBeanAutowiringSupport implements 
     return pointsDisplayString;
   }
 
-  public List getAttachmentList() {
-    return attachmentList;
-  }
-
-  public void setAttachmentList(List attachmentList)
-  {
-    this.attachmentList = attachmentList;
-  }
-
   private boolean hasAttachment = false;
   public boolean getHasAttachment(){
-    boolean hasAttachment = false;
-    if (attachmentList!=null && attachmentList.size() >0){
-        hasAttachment = true;
-    }
-    return hasAttachment;
+    boolean hasAttachment = attachmentList != null && !attachmentList.isEmpty();
+      return hasAttachment;
   }
 
   public boolean getNoQuestions() {
 	  return noQuestions;
   }
 
-  public void setNoQuestions(boolean noQuestions)
-  {
-	  this.noQuestions = noQuestions;
-  }
-  public String getRandomQuestionsDrawDate() {
-	  return randomQuestionsDrawDate;
-  }
-
-  public void setRandomQuestionsDrawDate(String randomQuestionsDrawDate) {
-	  this.randomQuestionsDrawDate = randomQuestionsDrawDate;
-  }
-
-  public String getRandomQuestionsDrawTime() {
-	  return randomQuestionsDrawTime;
-  }
-
-  public void setRandomQuestionsDrawTime(String randomQuestionsDrawTime) {
-	  this.randomQuestionsDrawTime = randomQuestionsDrawTime;
-  }
-
-  public boolean isEmiItemPresent() {
+    public boolean isEmiItemPresent() {
     return this.itemContents != null
         ? this.itemContents.stream()
             .filter(item -> TypeIfc.EXTENDED_MATCHING_ITEMS.equals(item.getItemData().getTypeId()))

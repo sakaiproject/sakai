@@ -1,12 +1,13 @@
 {
   "name": "@sakai-ui/sakai-conversations",
   "version": "3.0.6",
-  "description": "The Sakai grader component",
+  "description": "The Sakai conversations tool components",
   "main": "index.js",
   "module": "index.js",
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "web-test-runner --node-resolve --coverage",
+    "test": "wtr --coverage",
+    "test:dev": "cd ../../ && npm run test:dev",
     "test:watch": "web-test-runner --node-resolve --watch"
   },
   "files": [
@@ -18,8 +19,7 @@
     "url": "git+https://github.com/sakaiproject/sakai-ui.git"
   },
   "keywords": [
-    "sakai",
-    "permissions"
+    "sakai"
   ],
   "exports": {
     ".": "./index.js",
@@ -34,12 +34,6 @@
     "url": "https://github.com/sakaiproject/sakai-ui/issues"
   },
   "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
-  "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "@web/test-runner": "^0.19.0",
-    "eslint": "^9.13.0",
-    "fetch-mock": "^12.0.2"
-  },
   "dependencies": {
     "@sakai-ui/sakai-date-picker": "file:../sakai-date-picker",
     "@sakai-ui/sakai-editor": "file:../sakai-editor",
@@ -51,9 +45,6 @@
     "@sakai-ui/sakai-portal-utils": "file:../sakai-portal-utils",
     "@sakai-ui/sakai-search": "file:../sakai-search",
     "@sakai-ui/sakai-toggle": "file:../sakai-toggle",
-    "@sakai-ui/sakai-user-photo": "file:../sakai-user-photo",
-    "lerna": "8.1.9",
-    "lit": "^3.2.1",
-    "lit-analyzer": "2.0.3"
+    "@sakai-ui/sakai-user-photo": "file:../sakai-user-photo"
   }
 }

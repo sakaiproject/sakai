@@ -1,0 +1,47 @@
+#if (${userIsLoggedIn})
+<div class="align-items-center portal-header-breadcrumb  portal-header-breadcrumb-mobile w-100">
+    #if ($!siteParents)
+        #foreach ($parent in $siteParents)
+        <div class="portal-header-breadcrumb-item portal-header-site-title">
+            <a href="$!{parent.siteUrl}" title="$!{parent.siteTitle}">
+                $parent.siteTitle
+            </a>
+        </div>
+        <div class="bi bi-chevron-right portal-header-breadcrumb-separator"></div>
+        #end
+    #end
+
+    #if (!$currentSiteTitle)
+        #set($currentSiteTitle = $siteTitle)
+    #end
+
+    <div id="header-site-title" class="portal-header-breadcrumb-item portal-header-site-title">
+        <a href="$!{siteUrl}" title="$!{currentSiteTitle}">
+            $currentSiteTitle
+        </a>
+    </div>
+
+    #foreach( $page in $sitePages.pageNavTools )
+        #if ($page.current)
+        <div class="bi bi-chevron-right portal-header-breadcrumb-separator"></div>
+        <div class="portal-header-breadcrumb-item header-tool-title">
+            <a href="${page.pageResetUrl}" title="${page.pageTitle}">
+                ${page.pageTitle}
+            </a>
+        </div>
+
+        #if(${sitePages.canManageOverview} && ${page.pageProps.is_home_page})
+            <a href="${sitePages.manageOverviewUrl}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block">
+                <span class="fa fa-pencil"></span>$rloader.sit_manover
+            </a>
+        #end
+        #if(${sitePages.canManageOverviewHome} && ${page.pageProps.is_home_page})
+            <a href="${sitePages.manageOverviewUrlInHome}" title="$rloader.sit_manover" class="Mrphs-hierarchy-item manage-overview-link d-none d-lg-block">
+                <span class="fa fa-pencil"></span>$rloader.sit_manover
+            </a>
+        #end
+
+        #end
+    #end
+</div>
+#end

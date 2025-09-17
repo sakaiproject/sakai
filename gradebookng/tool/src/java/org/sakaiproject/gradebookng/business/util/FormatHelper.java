@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.gradebookng.business.util;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
@@ -34,6 +33,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.springframework.web.util.HtmlUtils;
@@ -41,13 +41,15 @@ import org.sakaiproject.util.ResourceLoader;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.MessageHelper;
 
 @Slf4j
 public class FormatHelper {
 
-	private static ResourceLoader RL = new ResourceLoader();
+	@Setter
+    private static ResourceLoader RL = new ResourceLoader();
 
-	/**
+    /**
 	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with two decimal places precision. And drop off any .0
 	 * if no decimal places.
 	 *
@@ -162,7 +164,7 @@ public class FormatHelper {
 	 * Format a grade, e.g. 00 => 0 0001 => 1 1.0 => 1 1.25 => 1.25 based on the user's locale
 	 *
 	 * @param grade - string representation of a grade
-	 * @return
+	 * @return - string formatted per the user's preferred locale
 	 */
 	public static String formatGradeFromUserLocale(final String grade) {
 		return formatGradeForLocale(grade, RL.getLocale());
@@ -252,7 +254,7 @@ public class FormatHelper {
 	 * @return
 	 */
 	private static String formatDate(final Date date) {
-		final String dateFormatString = MessageHelper.getString("format.date");
+		final String dateFormatString = MessageHelper.getString("format.date", RL.getLocale());
 		final SimpleDateFormat df = new SimpleDateFormat(dateFormatString);
 		return df.format(date);
 	}
@@ -315,12 +317,8 @@ public class FormatHelper {
 		if (StringUtils.isBlank(s)) {
 			return s;
 		}
-		try {
-			return URLEncoder.encode(s, "UTF-8");
-		} catch (final UnsupportedEncodingException e) {
-			throw new AssertionError("UTF-8 not supported");
-		}
-	}
+        return URLEncoder.encode(s, StandardCharsets.UTF_8);
+    }
 
 	/**
 	 * Helper to decode a string and avoid the ridiculous exception that is never thrown
@@ -332,12 +330,8 @@ public class FormatHelper {
 		if (StringUtils.isBlank(s)) {
 			return s;
 		}
-		try {
-			return URLDecoder.decode(s, "UTF-8");
-		} catch (final UnsupportedEncodingException e) {
-			throw new AssertionError("UTF-8 not supported");
-		}
-	}
+        return URLDecoder.decode(s, StandardCharsets.UTF_8);
+    }
 
 	/**
 	 * Returns a list of drop highest/lowest labels based on the settings of the given category.
@@ -360,13 +354,13 @@ public class FormatHelper {
 
 		List<String> info = new ArrayList<>(2);
 		if (dropHighest > 0) {
-			info.add(MessageHelper.getString("label.category.drophighest", dropHighest));
+			info.add(MessageHelper.getString("label.category.drophighest", RL.getLocale(), dropHighest));
 		}
 		if (dropLowest > 0) {
-			info.add(MessageHelper.getString("label.category.droplowest", dropLowest));
+			info.add(MessageHelper.getString("label.category.droplowest", RL.getLocale(), dropLowest));
 		}
 		if (keepHighest > 0) {
-			info.add(MessageHelper.getString("label.category.keephighest", keepHighest));
+			info.add(MessageHelper.getString("label.category.keephighest", RL.getLocale(), keepHighest));
 		}
 
 		return info;

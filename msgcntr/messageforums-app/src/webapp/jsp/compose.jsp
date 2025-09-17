@@ -61,6 +61,7 @@
 				  	if(document.getElementById('compose:list2').selectedIndex != -1){
 				  		//BCC has selected items, so show it
 				  		fadeInBcc(false);
+						document.getElementById('compose:bcc_toggle').checked = true;
 				  	}
 				  	addTagSelector(document.getElementById('compose:list1'));
 				  	addTagSelector(document.getElementById('compose:list2'));
@@ -70,10 +71,25 @@
 					menuLinkSpan.addClass('current');
 					menuLinkSpan.html(menuLink.text());
 
+					// Add initial check for selections
+					handleSelectionChange(document.getElementById('compose:list1'), 'compose:deleteSelection1');
+					handleSelectionChange(document.getElementById('compose:list2'), 'compose:deleteSelection2');
+
 					<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
 						initTagSelector("compose");
 					</f:verbatim>
 				});
+
+				function handleSelectionChange(selectElement, deleteSelectionId) {
+					let hasSelection = false;
+					for (let i = 0; i < selectElement.options.length; i++) {
+						if (selectElement.options[i].selected) {
+							hasSelection = true;
+							break;
+						}
+					}
+					document.getElementById(deleteSelectionId).style.display = hasSelection ? 'inline' : 'none';
+				}
 			</script>
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
 		<!-- compose.jsp -->
@@ -99,7 +115,7 @@
 		  <div class="composeForm">
 				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext required form-control-label">
+						<h:panelGroup styleClass="shorttext form-control-label">
 							<h:outputLabel for="list1">
 								<h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
 								<h:outputText value="#{msgs.pvt_to}"/>
@@ -108,77 +124,43 @@
 					</div>
 					<div class="col-xs-12 col-sm-10">
 						<h:panelGroup styleClass="shorttext">
-							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
+							<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}" onchange="handleSelectionChange(this, 'compose:deleteSelection1')">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 							</h:selectManyListbox>
-							<f:verbatim>
-								<span class="delete_selection">
-									&nbsp;
-							</f:verbatim>
-							<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								<a href="#" onclick="clearSelection(document.getElementById('compose:list1'));">
-							</f:verbatim>
-							<h:outputText value="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								</a>
-								</span>
-							</f:verbatim>
+							<span id="compose:deleteSelection1" class="delete_selection" style="display: none;">
+								<span class="fa fa-trash" aria-hidden="true"></span>
+								<h:outputLink value="#" onclick="clearSelection(document.getElementById('compose:list1')); return false;">
+									<h:outputText value="#{msgs.pvt_bccClear}"/>
+								</h:outputLink>
+							</span>
 						</h:panelGroup>
 					</div>
 				</div>
-				<div class="row bcc-row">
+				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="shorttext bccLink form-control-label">
+						<h:panelGroup styleClass="shorttext form-control-label">
 							<h:outputLabel>
-								<f:verbatim>
-									&nbsp;
-								</f:verbatim>
-								<h:graphicImage url="/../../library/image/silk/add.png" title="#{msgs.pvt_addBcc}" alt="#{msgs.pvt_addBcc}"/>
-								<f:verbatim>
-									<a href="#" onclick="fadeInBcc(true);">
-								</f:verbatim>
-								<h:outputText value="#{msgs.pvt_addBcc}"/>
-								<f:verbatim>
-									</a>
-								</f:verbatim>
-							</h:outputLabel>
-						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext bcc" style="display:none">
-							<h:outputLabel for="list2">
 								<h:outputText value="#{msgs.pvt_bcc}"/>
-								<f:verbatim>
-									<br>
-								</f:verbatim>
-								<h:graphicImage url="/../../library/image/silk/cancel.png" title="#{msgs.pvt_removeBcc}" alt="#{msgs.pvt_removeBcc}"/>
-								<f:verbatim>
-									<a href="#" onclick="fadeOutBcc(true);">
-								</f:verbatim>
-								<h:outputText value="#{msgs.pvt_removeBcc}"/>
-								<f:verbatim>
-									</a>
-									&nbsp;
-								</f:verbatim>
 							</h:outputLabel>
 						</h:panelGroup>
 					</div>
 					<div class="col-xs-12 col-sm-10">
-						<h:panelGroup styleClass="shorttext bccLink"></h:panelGroup>
+						<h:panelGroup>
+							<h:selectBooleanCheckbox id="bcc_toggle" onclick="if(this.checked) { fadeInBcc(true); } else { fadeOutBcc(true); }"/>
+							<h:outputLabel for="bcc_toggle">
+								<h:outputText value="#{msgs.pvt_addBcc}"/>
+							</h:outputLabel>
+						</h:panelGroup>
 						<h:panelGroup styleClass="shorttext bcc" style="display:none">
-							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
+							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}" onchange="handleSelectionChange(this, 'compose:deleteSelection2')">
 								<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 							</h:selectManyListbox>
-							<f:verbatim>
-								&nbsp;
-							</f:verbatim>
-							<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								<a href="#" onclick="clearSelection(document.getElementById('compose:list2'));">
-							</f:verbatim>
-							<h:outputText value="#{msgs.pvt_bccClear}"/>
-							<f:verbatim>
-								</a>
-							</f:verbatim>
+							<span id="compose:deleteSelection2" class="delete_selection" style="display: none;">
+								<span class="fa fa-trash" aria-hidden="true"></span>
+								<h:outputLink value="#" onclick="clearSelection(document.getElementById('compose:list2')); return false;">
+									<h:outputText value="#{msgs.pvt_bccClear}"/>
+								</h:outputLink>
+							</span>
 						</h:panelGroup>
 					</div>
 				</div>
@@ -216,20 +198,6 @@
 						</h:panelGroup>
 					</div>
 				</div>
-				<div class="row">
-					<div class="col-xs-12 col-sm-2">
-						<h:outputLabel for="viewlist">
-							<h:outputText value="#{msgs.pvt_label}" />
-						</h:outputLabel>
-					</div>
-					<div class="col-xs-12 col-sm-10">
-						<h:selectOneListbox size="1" id="viewlist" value="#{PrivateMessagesTool.selectedLabel}">
-							<f:selectItem itemValue="pvt_priority_normal" itemLabel="#{msgs.pvt_priority_normal}"/>
-							<f:selectItem itemValue="pvt_priority_low" itemLabel="#{msgs.pvt_priority_low}"/>
-							<f:selectItem itemValue="pvt_priority_high" itemLabel="#{msgs.pvt_priority_high}"/>
-						</h:selectOneListbox>
-					</div>
-				</div>
 				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
 						<h:panelGroup styleClass="shorttext form-control-label">
@@ -245,29 +213,50 @@
 								<h:outputText value="#{msgs.pvt_scheduler_send_as_email}"/>
 							</h:outputLabel>
 						</h:panelGroup>
+						<h:panelGroup id="openDateSpan" styleClass="openDateSpan calWidget d-none" >
+							<div class="row">
+								<div class="col-xs-12">
+									<h:outputLabel value="#{msgs.pvt_scheduler_send_date} " for="openDate" />
+									<h:inputText id="openDate" styleClass="openDate" value="#{PrivateMessagesTool.schedulerSendDateString}" />
+								</div>
+							</div>
+						</h:panelGroup>
 					</div>
 				</div>
 
-				<h:panelGroup id="openDateSpan" styleClass="indnt9 openDateSpan calWidget d-none" >
-					<h:outputLabel value="#{msgs.pvt_scheduler_send_date} " for="openDate" />
-					<h:inputText id="openDate" styleClass="openDate" value="#{PrivateMessagesTool.schedulerSendDateString}" />
-				</h:panelGroup>
 				<script>
 					localDatePicker({
 						input:'.openDate',
 						allowEmptyDate:true,
 						ashidden: { iso8601: 'openDateISO8601' },
-						getval:'.openDate',
+						val: document.querySelector('.openDate').value,
 						useTime:1
 					});
 					if(document.getElementById('compose:scheduler_send_email').checked) {
 						document.getElementById('compose:openDateSpan').classList.remove('d-none');
 					}
-
 				</script>
 				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:panelGroup styleClass="form-control-label required">
+						<h:panelGroup styleClass="shorttext form-control-label">
+							<h:outputLabel for="viewlist">
+								<h:outputText value="#{msgs.pvt_label}" />
+							</h:outputLabel>
+						</h:panelGroup>
+					</div>
+					<div class="col-xs-12 col-sm-10">
+						<h:panelGroup>
+							<h:selectOneListbox size="1" id="viewlist" value="#{PrivateMessagesTool.selectedLabel}">
+								<f:selectItem itemValue="pvt_priority_normal" itemLabel="#{msgs.pvt_priority_normal}"/>
+								<f:selectItem itemValue="pvt_priority_low" itemLabel="#{msgs.pvt_priority_low}"/>
+								<f:selectItem itemValue="pvt_priority_high" itemLabel="#{msgs.pvt_priority_high}"/>
+							</h:selectOneListbox>
+						</h:panelGroup>
+					</div>
+				</div>
+				<div class="row d-flex">
+					<div class="col-xs-12 col-sm-2">
+						<h:panelGroup styleClass="form-control-label">
 							<h:outputLabel for="subject">
 								<h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_subject}" />
 							</h:outputLabel>

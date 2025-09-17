@@ -27,7 +27,9 @@
 						<xsl:value-of select="PARTICIPANTS/SITE_TITLE" /> - Page <fo:page-number />
 					</fo:block>
 				</fo:static-content>
-				<fo:static-content flow-name="xsl-region-after"> </fo:static-content>
+				<fo:static-content flow-name="xsl-region-after">
+					<fo:block></fo:block>
+				</fo:static-content>
 				<fo:flow flow-name="xsl-region-body" font-size="9pt">
 					<fo:table table-layout="fixed" width="7.5in">
 						<fo:table-column column-width="2.5in" />
@@ -41,32 +43,47 @@
 											<fo:table-column column-width=".5in" />
 											<fo:table-body>
 												<xsl:variable name="unique-list" select="//ROLE[not(.=following::ROLE)]" />
-												<xsl:for-each select="$unique-list">
-													<xsl:sort select="." />
-													<fo:table-row>
-														<fo:table-cell  padding="4pt">
-															<fo:block>
-																<xsl:value-of select="." />
-															</fo:block>
-														</fo:table-cell>
-														<fo:table-cell  padding="4pt">
-															<fo:block text-align="right">
-																<xsl:variable name="this" select="." />
-																<xsl:value-of select="count(//ROLE[text()=$this])" />
-															</fo:block>
-														</fo:table-cell>
-													</fo:table-row>
-												</xsl:for-each>
-												<fo:table-row>
-													<fo:table-cell  padding="4pt" border-top="1pt solid #ccc">
-														<fo:block font-weight="bold"> </fo:block>
-													</fo:table-cell>
-													<fo:table-cell  padding="4pt" border-top="1pt solid #ccc">
-														<fo:block font-weight="bold" text-align="right">
-															<xsl:value-of select="count(//ROLE)" />
-														</fo:block>
-													</fo:table-cell>
-												</fo:table-row>
+												<xsl:choose>
+													<xsl:when test="$unique-list">
+														<xsl:for-each select="$unique-list">
+															<xsl:sort select="." />
+															<fo:table-row>
+																<fo:table-cell  padding="4pt">
+																	<fo:block>
+																		<xsl:value-of select="." />
+																	</fo:block>
+																</fo:table-cell>
+																<fo:table-cell  padding="4pt">
+																	<fo:block text-align="right">
+																		<xsl:variable name="this" select="." />
+																		<xsl:value-of select="count(//ROLE[text()=$this])" />
+																	</fo:block>
+																</fo:table-cell>
+															</fo:table-row>
+														</xsl:for-each>
+														<fo:table-row>
+															<fo:table-cell  padding="4pt" border-top="1pt solid #ccc">
+																<fo:block font-weight="bold"> </fo:block>
+															</fo:table-cell>
+															<fo:table-cell  padding="4pt" border-top="1pt solid #ccc">
+																<fo:block font-weight="bold" text-align="right">
+																	<xsl:value-of select="count(//ROLE)" />
+																</fo:block>
+															</fo:table-cell>
+														</fo:table-row>
+													</xsl:when>
+													<xsl:otherwise>
+														<!-- Empty table case - ensure at least one row exists for FOP 2.10 validation -->
+														<fo:table-row>
+															<fo:table-cell  padding="4pt">
+																<fo:block> </fo:block>
+															</fo:table-cell>
+															<fo:table-cell  padding="4pt">
+																<fo:block text-align="right">0</fo:block>
+															</fo:table-cell>
+														</fo:table-row>
+													</xsl:otherwise>
+												</xsl:choose>
 											</fo:table-body>
 										</fo:table>
 									</fo:block>
@@ -78,22 +95,37 @@
 											<fo:table-column column-width=".5in" />
 											<fo:table-body>
 												<xsl:variable name="unique-list" select="//SECTION[not(.=following::SECTION)]" />
-												<xsl:for-each select="$unique-list">
-													<xsl:sort select="." />
-													<fo:table-row>
-														<fo:table-cell  padding="4pt">
-															<fo:block>
-																<xsl:value-of select="." />
-															</fo:block>
-														</fo:table-cell>
-														<fo:table-cell  padding="4pt">
-															<fo:block text-align="right">
-																<xsl:variable name="this" select="." />
-																<xsl:value-of select="count(//SECTION[text()=$this])" />
-															</fo:block>
-														</fo:table-cell>
-													</fo:table-row>
-												</xsl:for-each>
+												<xsl:choose>
+													<xsl:when test="$unique-list">
+														<xsl:for-each select="$unique-list">
+															<xsl:sort select="." />
+															<fo:table-row>
+																<fo:table-cell  padding="4pt">
+																	<fo:block>
+																		<xsl:value-of select="." />
+																	</fo:block>
+																</fo:table-cell>
+																<fo:table-cell  padding="4pt">
+																	<fo:block text-align="right">
+																		<xsl:variable name="this" select="." />
+																		<xsl:value-of select="count(//SECTION[text()=$this])" />
+																	</fo:block>
+																</fo:table-cell>
+															</fo:table-row>
+														</xsl:for-each>
+													</xsl:when>
+													<xsl:otherwise>
+														<!-- Empty table case - ensure at least one row exists for FOP 2.10 validation -->
+														<fo:table-row>
+															<fo:table-cell  padding="4pt">
+																<fo:block> </fo:block>
+															</fo:table-cell>
+															<fo:table-cell  padding="4pt">
+																<fo:block text-align="right">0</fo:block>
+															</fo:table-cell>
+														</fo:table-row>
+													</xsl:otherwise>
+												</xsl:choose>
 											</fo:table-body>
 										</fo:table>
 									</fo:block>

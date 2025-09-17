@@ -22,6 +22,7 @@
 package org.sakaiproject.user.api;
 
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.IdUnusedException;
@@ -53,6 +54,8 @@ public interface PreferencesService extends EntityProducer
 
 	/** Prefs key under which stuff like the site tab order and hiding is stored. */
 	static final String SITENAV_PREFS_KEY = "sakai:portal:sitenav";
+
+	static final String TAB_LABEL_PREF = "tab:label";
 	
 	/** Prefs key under which stuff like the editor preferences stored. */
 	static final String EDITOR_PREFS_KEY = "sakai:portal:editor";
@@ -68,6 +71,9 @@ public interface PreferencesService extends EntityProducer
 
 	/** Preference key for sakai tutorial flag */
 	static final String TUTORIAL_PREFS = "sakai:portal:tutorialFlag";
+
+	public static final int USE_SITE_TITLE = 1;
+	public static final int USE_SITE_DESCRIPTION = 2;
 
 	/**
 	 * Access a set of preferences associated with this id.
@@ -101,6 +107,16 @@ public interface PreferencesService extends EntityProducer
 	PreferencesEdit add(String id) throws PermissionException, IdUsedException;
 
 	/**
+	 * Edit preferences with automatic commit/cancel handling.
+	 *
+	 * @param userId The user ID whose preferences are being edited
+	 * @param editFunction A function that performs the actual preference modifications
+	 * @return true if the edit was successful and committed, false if there was an error
+	 * @throws IllegalArgumentException if userId is null or empty
+	 */
+	boolean applyEditWithAutoCommit(String userId, Consumer<PreferencesEdit> editFunction);
+
+    /**
 	 * Get a locked Preferences object for editing. Must commit(), cancel() or remove() when done.
 	 * 
 	 * @param id
@@ -146,4 +162,12 @@ public interface PreferencesService extends EntityProducer
 	 * @return
 	 */
 	public Locale getLocale( String userId );
+
+	/**
+	 * Gets the current user's preference for displaying the site title. This can be either
+	 * 1 (use site title), or 2 (use site short description)
+	 *
+	 * @return int The code for the site title display preference
+	 */
+	public int getSiteTitleDisplayPreference();
 }

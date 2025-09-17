@@ -40,6 +40,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -80,6 +81,7 @@ import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
 import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -97,6 +99,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AliasCreatedTimeComparator;
@@ -130,6 +133,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private static final String OVERVIEW_TOOL_TITLE = "overview";
 	private static final String SAK_PROP_FORCE_OVERVIEW_TO_TOP = "portal.forceOverviewToTop";
 	private static final boolean SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT = false;
+	private static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
+	private static final String GRADEBOOK_GROUP_PROPERTY = "gb-group";
+
+	private static final ResourceLoader rb = new ResourceLoader("sitenav");
 
 	private final AliasService aliasService;
 	private final AuthzGroupService authzGroupService;
@@ -298,20 +305,30 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				.collect(Collectors.joining());
     }
 
-	private Map<String, Object> getSiteMap(Site site, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages) {
+	private Map<String, Object> getSiteMap(Site site, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages, Map<String, List<Map<String, String>>> parentToChildSites) {
 
 		Map<String, Object> siteMap = new HashMap<>();
 		siteMap.put("id", site.getId());
-		siteMap.put("title", site.getTitle());
+		String title;
+		if (site.getId().equals("~admin")) {
+			title = rb.getString("sit_mywor_admin");
+		} else if (site.getId().equals("!admin")) {
+			title = rb.getString("sit_admin");
+		} else if (userId != null && site.getId().equals(siteService.getUserSiteId(userId))) {
+			title = rb.getString("sit_mywor");
+		} else {
+			title = site.getTitle();
+		}
+		siteMap.put("title", title);
 		siteMap.put("url", site.getUrl());
 		siteMap.put("type", site.getType());
 		siteMap.put("description", site.getDescription());
 		siteMap.put("shortDescription", site.getShortDescription());
 		siteMap.put("isPinned", pinned);
-        siteMap.put("isHome", userId != null && site.getId().equals(siteService.getUserSiteId(userId)));
-        siteMap.put("isCurrent", site.getId().equals(currentSiteId));
-        siteMap.put("isHidden", hidden);
-        siteMap.put("currentSiteId", currentSiteId);
+		siteMap.put("isHome", userId != null && site.getId().equals(siteService.getUserSiteId(userId)));
+		siteMap.put("isCurrent", site.getId().equals(currentSiteId));
+		siteMap.put("isHidden", hidden);
+		siteMap.put("currentSiteId", currentSiteId);
 		if (includePages) {
 			List<SitePage> pageList = getPermittedPagesInOrder(site);
 			siteMap.put("pages", getPageMaps(pageList, site));
@@ -319,15 +336,34 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			if (Boolean.parseBoolean(site.getProperties().getProperty("subpagenav")) && !pageList.isEmpty()) {
 				siteMap.put("subPages", getSubPages(userId, site.getId(), pageList));
 			}
+			if (parentToChildSites != null) {
+				// Add the childSiteIds: these are the IDs of sites whose parent is the current site.
+				siteMap.put("childSites", parentToChildSites.get(site.getId()));
+				siteMap.put("parentSiteId", site.getProperties().getProperty(PROP_PARENT_ID));
+			}
 		}
 		return siteMap;
 	}
 
 	private List<Map<String, Object>> getSiteMaps(Collection<Site> sites, String currentSiteId, String userId, boolean pinned, boolean hidden, boolean includePages) {
 
+		// Precompute a mapping from parent site IDs to child site IDs.
+		Map<String, List<Map<String, String>>> parentToChildSites;
+		if (!Arrays.asList("false", "never").contains(serverConfigurationService.getString("portal.includesubsites", "false"))) {
+			parentToChildSites = siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+					null, null, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null).stream()
+					.filter(site -> site.getProperties().getProperty(PROP_PARENT_ID) != null)
+					.collect(Collectors.groupingBy(
+							site -> site.getProperties().getProperty(PROP_PARENT_ID),
+							Collectors.mapping(site -> Map.of("id", site.getId(), "title", site.getTitle()), Collectors.toList())
+					));
+		} else {
+			parentToChildSites = null;
+		}
+
 		return sites.stream()
-				.map(site -> getSiteMap(site, currentSiteId, userId, pinned, hidden, includePages))
-				.collect(Collectors.toList());
+			.map(site -> getSiteMap(site, currentSiteId, userId, pinned, hidden, includePages, parentToChildSites))
+			.collect(Collectors.toList());
 	}
 
 	private Map<String, Object> getPageMap(SitePage page, boolean includeSubPage) {
@@ -389,7 +425,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 		pageMap.put("locked", !toolManager.isFirstToolVisibleToAnyNonMaintainerRole(page));
 		pageMap.put("isPopup", page.isPopUp());
-		pageMap.put("title", page.getTitle());
+		pageMap.put("title", formattedText.escapeHtml(page.getTitle()));
 		pageMap.put("description", getPageDescription(page));
 		return pageMap;
 	}
@@ -409,7 +445,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (loggedIn) {
             // Put Home site in context
 			String userId = sessionManager.getCurrentSessionUserId();
-			contextSites.put("homeSite", getSiteMap(getSite(siteService.getUserSiteId(userId)), currentSiteId, userId,false, false, true));
+			contextSites.put("homeSite", getSiteMap(getSite(siteService.getUserSiteId(userId)), currentSiteId, userId,false, false, true, null));
 
 			List<String> excludedSiteIds = getExcludedSiteIds(userId);
 			// Get pinned sites, excluded sites never appear in the pinned list including current site
@@ -447,7 +483,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			// If the current site is excluded it should appear in recent as hidden
 			if (excludedSiteIds.contains(currentSiteId)) {
-				recentSitesMaps.add(getSiteMap(getSite(currentSiteId), currentSiteId, userId, false, true, true));
+				recentSitesMaps.add(getSiteMap(getSite(currentSiteId), currentSiteId, userId, false, true, true, null));
 			}
             contextSites.put("recentSites", recentSitesMaps);
 
@@ -459,9 +495,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		} else {
 			//Get gateway site
-			Site gatewaySite = getSite(serverConfigurationService.getGatewaySiteId());
+			Site gatewaySite = getSite(currentSiteId);
 			if (!gatewaySite.isEmpty()) {
-				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null,false, false, true));
+				contextSites.put("gatewaySite", getSiteMap(gatewaySite, currentSiteId, null,false, false, true, null));
 			}
 		}
 		return contextSites;
@@ -618,7 +654,16 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 		.equals(myWorkspaceSiteId))));
 
-		String siteTitleRaw = getUserSpecificSiteTitle(s, false, false, siteProviders);
+		String siteTitleRaw;
+		if (s.getId().equals("~admin")) {
+			siteTitleRaw = rb.getString("sit_mywor_admin");
+		} else if (s.getId().equals("!admin")) {
+			siteTitleRaw = rb.getString("sit_admin");
+		} else if (myWorkspaceSiteId != null && (s.getId().equals(myWorkspaceSiteId) || effectiveSite.equals(myWorkspaceSiteId))) {
+			siteTitleRaw = rb.getString("sit_mywor");
+		} else {
+			siteTitleRaw = getUserSpecificSiteTitle(s, false, false, siteProviders);
+		}
 		String siteTitle = formattedText.escapeHtml(siteTitleRaw);
 		String siteTitleTruncated = formattedText.escapeHtml(formattedText.makeShortenedText(siteTitleRaw, null, null, null));
 		m.put("siteTitle", siteTitle);
@@ -641,49 +686,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("siteType", s.getType());
 		m.put("siteId", s.getId());
 
-		// TODO: This should come from the site neighbourhood.
-		ResourceProperties rp = s.getProperties();
-		String ourParent = rp.getProperty(PROP_PARENT_ID);
-		// We are not really a child unless the parent exists
-		// And we have a valid pwd
-		boolean isChild = false;
-
-		// Get the current site hierarchy
-		if (ourParent != null && isCurrentSite)
-		{
-			List<Site> pwd = getPwd(s, ourParent);
-			if (pwd != null)
-			{
-				List<Map> l = new ArrayList<>();
-				// SAK-30477
-				// Skip current site size - 1
-				for (int i = 0; i < pwd.size() - 1; i++)
-				{
-					Site site = pwd.get(i);
-					log.debug("PWD[{}]={}{}", i, site.getId(), site.getTitle());
-					Map<String, Object> pm = new HashMap<>();
-					List<String> providers = getProviderIDsForSite(site);
-
-					String parentSiteTitle = getUserSpecificSiteTitle(site, false, false, providers);
-					String parentSiteTitleTruncated = formattedText.makeShortenedText(parentSiteTitle, null, null, null);
-					pm.put("siteTitle", parentSiteTitle);
-					pm.put("siteTitleTrunc", parentSiteTitleTruncated);
-					pm.put("siteUrl", siteUrl + formattedText.escapeUrl(getSiteEffectiveId(site)));
-
-					l.add(pm);
-					isChild = true;
-				}
-				if ( l.size() > 0 ) m.put("pwd", l);
-			}
-		}
-
-		// If we are a child and have a non-zero length, pwd
-		// show breadcrumbs
-		if ( isChild ) {
-			m.put("isChild", Boolean.valueOf(isChild));
-			m.put("parentSite", ourParent);
-		}
-
 		if (includeSummary)
 		{
 			summarizeTool(m, s, "sakai.announce");
@@ -697,6 +699,37 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return m;
 	}
 
+	@Override
+	public List<Map<String, String>> getParentSites(Site s) {
+		ResourceProperties rp = s.getProperties();
+		String ourParent = rp.getProperty(PROP_PARENT_ID);
+
+		// Get the current site hierarchy
+		if (ourParent != null) {
+			List<Site> pwd = getPwd(s, ourParent);
+			if (pwd != null && pwd.size() > 1) {  // Ensure we have at least 2 sites
+				List<Map<String, String>> siteBreadcrumbs = new ArrayList<>();
+				// SAK-30477: Skip current site size - 1
+				for (Site site : pwd.subList(0, pwd.size() - 1)) {
+					log.debug("PWD: {}{}", site.getId(), site.getTitle());
+					Map<String, String> siteData = new HashMap<>();
+					List<String> providers = getProviderIDsForSite(site);
+
+					String parentSiteTitle = getUserSpecificSiteTitle(site, false, false, providers);
+					String parentSiteTitleTruncated = formattedText.makeShortenedText(parentSiteTitle, null, null, null);
+					siteData.put("siteTitle", parentSiteTitle);
+					siteData.put("siteTitleTrunc", parentSiteTitleTruncated);
+					siteData.put("siteUrl", "/portal/site/" + formattedText.escapeUrl(getSiteEffectiveId(site)));
+					siteBreadcrumbs.add(siteData);
+				}
+				if (!siteBreadcrumbs.isEmpty()) {
+					return siteBreadcrumbs;
+				}
+			}
+		}
+
+		return null;
+	}
 	/**
 	* Gets the path of sites back to the root of the tree.
 	* @param s
@@ -974,13 +1007,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		}
 
-		if ( addMoreToolsUrl != null ) {
-			theMap.put("pageNavAddMoreToolsUrl", addMoreToolsUrl);
-			theMap.put("pageNavCanAddMoreTools", true);
-		} else {
-			theMap.put("pageNavCanAddMoreTools", false);
-		}
-
 		if(manageOverviewUrl != null){
 			theMap.put("manageOverviewUrl", manageOverviewUrl);
 			theMap.put("canManageOverview", true);
@@ -999,17 +1025,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		theMap.put("pageNavTools", l);
-		theMap.put("pageMaxIfSingle", serverConfigurationService.getBoolean("portal.experimental.maximizesinglepage", false));
-		theMap.put("pageNavToolsCount", Integer.valueOf(l.size()));
-
-		String helpUrl = serverConfigurationService.getHelpUrl(null);
-		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
-		theMap.put("pageNavHelpUrl", helpUrl);
-		theMap.put("helpMenuClass", ICON_SAKAI + "help");
-		theMap.put("subsiteClass", ICON_SAKAI + "subsite");
-
-		// theMap.put("pageNavSitContentshead",
-		// Web.escapeHtml(rb.getString("sit_contentshead")));
 
 		// Display presence? Global property display.users.present may be always / never / true / false
 		// If true or false, the value may be overriden by the site property display-users-present
@@ -1345,7 +1360,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			for (ToolConfiguration tc : p.getTools()) {
 				boolean thisTool = allowTool(site, tc);
 				boolean unHidden = siteUpdate || ! isHidden(tc);
-				if (thisTool && unHidden) allowPage = true;
+				boolean checkGradebookVisibility = checkGradebookVisibility(tc, site);
+				allowPage = thisTool && unHidden && checkGradebookVisibility;
 			}
 			if (allowPage) newPages.add(p);
 		}
@@ -1374,6 +1390,18 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		return newPages;
+	}
+
+	@Override
+	public boolean checkGradebookVisibility(ToolConfiguration tc, Site site) {
+		//1 if tool is not gb or has no property or user is instructor
+		if (!GRADEBOOK_TOOL_ID.equals(tc.getToolId()) || tc.getPlacementConfig().getProperty(GRADEBOOK_GROUP_PROPERTY) == null || securityService.unlock("section.role.instructor", site.getReference())) {
+			return true;
+		}
+		//2 check user groups match
+		String gbGroup = tc.getPlacementConfig().getProperty(GRADEBOOK_GROUP_PROPERTY);
+		List<String> groupIds = site.getGroupsWithMember(userDirectoryService.getCurrentUser().getId()).stream().map(Group::getId).collect(Collectors.toList());
+		return groupIds.contains(gbGroup);
 	}
 
 	/**

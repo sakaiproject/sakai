@@ -161,10 +161,22 @@ public class JoinableSetController {
         LocalDateTime utcCloseDate = null;
         // Convert input datetimes: from user's time zone to UTC.
         if (StringUtils.isNotBlank(joinableOpenDate)) {
-            utcOpenDate = sakaiService.dateFromUserTimeZoneToUtc(joinableOpenDate);
+            try {
+                utcOpenDate = sakaiService.dateFromUserTimeZoneToUtc(joinableOpenDate);
+            } catch (Exception e) {
+                log.warn("Invalid open date format provided: {}", joinableOpenDate);
+                model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.invalidopendate", null, userLocale));
+                return showJoinableSet(model, joinableSetId);
+            }
         }
         if (StringUtils.isNotBlank(joinableCloseDate)) {
-            utcCloseDate = sakaiService.dateFromUserTimeZoneToUtc(joinableCloseDate);
+            try {
+                utcCloseDate = sakaiService.dateFromUserTimeZoneToUtc(joinableCloseDate);
+            } catch (Exception e) {
+                log.warn("Invalid close date format provided: {}", joinableCloseDate);
+                model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.invalidclosedate", null, userLocale));
+                return showJoinableSet(model, joinableSetId);
+            }
         }
         // If both dates are provided, make sure openDate comes before closeDate.
         if (utcOpenDate != null && utcCloseDate != null && utcOpenDate.isAfter(utcCloseDate)) {

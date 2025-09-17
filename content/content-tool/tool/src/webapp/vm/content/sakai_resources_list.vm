@@ -7,6 +7,7 @@
   .table td, .table th {
     vertical-align: middle !important;
     text-align:left !important;
+	text-indent: 0em;
   }
   .table .attach {
     width:1%;
@@ -359,11 +360,13 @@
 				#set ($actionCount=($actionCount - 1))
 				
 				#set ($width = "$!{item.depth}$unit")
-				#if ($item.depth==0)	
-					#set ($margin="margin-left:0")
+				#if ($item.depth==0)
+					#set ($marginIcon=0.5)
 				#else
-					#set ($margin="margin-left:2em")
-					#set ($marginAction="margin-left:4.7em")
+					#set($marginIcon = $item.depth + 1)
+				#end
+				#if ($item.depth!=0)
+					#set ($marginAction="ps-5")
 				#end
 				############################### Show top level folder #################
 				<tr 
@@ -383,7 +386,8 @@
 							<input type="hidden" name="itemCanRevise" id="itemCanRevise" value="$item.canRevise" />
 						#end
 					</td>
-					<td style="text-indent:$width" class="specialLink title" scope="row">
+					<td style="padding-left:$!{marginIcon}rem;" class="specialLink title d-table-cell align-middle" scope="row">
+					<div class="d-flex align-items-center gap-2">
 					#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 
               #if ($item.canRead())
@@ -415,7 +419,7 @@
 											onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
 										>
 									#else
-										<a class="$item.iconClass" href="${item.accessUrl}" target="${item.target}" title="$clang.getString('sh.openfile')">
+										<a class="$item.iconClass me-2" href="${item.accessUrl}" target="${item.target}" title="$clang.getString('sh.openfile')">
 									#end
 									</a>
 								#end
@@ -433,20 +437,20 @@
 									&#169;
 								#elseif($item.isCollection())
     								#if($item.isTooBigNav())
-                      <span class="resource-name d-inline-block text-truncate">$formattedText.escapeHtml($item.name)</span>
+                      <span class="resource-name d-inline-block">$formattedText.escapeHtml($item.name)</span>
 									#else
 										<a href="#"
     										onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$formattedText.escapeUrl($item.root)';document.getElementById('showForm').submit();"
     										title= "$item.hoverText">
-                        <span class="resource-name d-inline-block text-truncate">$formattedText.escapeHtml($item.name)</span>
+                        <span class="resource-name d-inline-block">$formattedText.escapeHtml($item.name)</span>
     									</a>
 									#end	
 								#else
 									#if($item.isTooBigNav())
-                        <span class="resource-name d-inline-block text-truncate">$formattedText.escapeHtml($item.name)</span>
+                        <span class="resource-name d-inline-block">$formattedText.escapeHtml($item.name)</span>
 									#else
 										<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
-                        <span class="resource-name d-inline-block text-truncate">$formattedText.escapeHtml($item.name)</span>
+                        <span class="resource-name d-inline-block">$formattedText.escapeHtml($item.name)</span>
     									</a>
 									#end
 								#end
@@ -472,6 +476,7 @@
 							#if (!$item.isCollection() && $item.isAllowSecuredAccess())
 								<span class="fa fa-lock" aria-hidden="true" title="$clang.getString('resource.is.secured.access')"></span>
 							#end
+					</div>
 					</td>
 					<td headers="actions1"  style="white-space:nowrap;vertical-align:middle"  class="attach">
 						#if($item.pasteActions && !$item.pasteActions.isEmpty())
@@ -635,12 +640,14 @@
 						#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 						#set($dqid=$item.id.replaceAll("\"", "&quot;"))
 						############################### Show top level folder #################
-					#set ($width = "$!{item.depth}$unit")
-						#if ($item.depth==0)	
-							#set ($margin="margin-left:0")
+						#set ($width = "$!{item.depth}$unit")
+						#if ($item.depth==0)
+							#set ($marginIcon=0.5)
 						#else
-							#set ($margin="margin-left:2em")
-							#set ($marginAction="margin-left:4.7em")
+							#set($marginIcon = $item.depth + 1)
+						#end
+						#if ($item.depth!=0)
+							#set ($marginAction="ps-5")
 						#end
 						############################### Show top level folder #################
 					<tr
@@ -657,7 +664,7 @@
 									#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 								#end
 							</td>
-							<th headers="title" style="text-indent:$width" class="specialLink" scope="row">
+							<th headers="title" style="text-indent:$width; padding-left:$!{marginIcon}rem;" class="specialLink" scope="row">
 						#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 									#if ($item.canRead())
 										#if($item.isCollection())

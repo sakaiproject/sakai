@@ -1,20 +1,21 @@
 import { html, nothing } from "lit";
 import { LionCalendar } from "@lion/ui/calendar.js";
 import "@sakai-ui/sakai-icon";
-import { loadProperties } from "@sakai-ui/sakai-i18n";
 import { calendarStyles } from "./calendar-styles.js";
 import { SakaiSitePicker } from "@sakai-ui/sakai-site-picker";
 import "@sakai-ui/sakai-site-picker/sakai-site-picker.js";
+import { loadProperties } from "@sakai-ui/sakai-i18n";
 
 export class SakaiCalendar extends LionCalendar {
 
   static properties = {
 
-    userId: { attribute: "user-id", type: String },
     siteId: { attribute: "site-id", type: String },
     defer: { type: Boolean },
     _daysEvents: { state: true },
     _events: { state: true },
+    _i18n: { state: true },
+    _sites: { state: true },
   };
 
   constructor() {
@@ -57,12 +58,7 @@ export class SakaiCalendar extends LionCalendar {
 
       this._allEvents = data.events;
       this._events = data.events;
-      if (!this.siteId) {
-        this._sites = data.events.reduce((acc, e) => {
-          if (e.siteId && !acc.some(a => a.siteId === e.siteId)) acc.push({ siteId: e.siteId, title: e.siteTitle });
-          return acc;
-        }, []);
-      }
+      !this.siteId && (this._sites = data.sites);
 
       this.renderRoot.querySelector(".calendar__day-button[today]")?.click();
     })
@@ -139,7 +135,7 @@ export class SakaiCalendar extends LionCalendar {
   render() {
 
     return html`
-      ${!this.siteId ? html`
+      ${!this.siteId && this._sites ? html`
       <div id="site-filter">
         <sakai-site-picker
             .sites=${this._sites}
@@ -159,10 +155,14 @@ export class SakaiCalendar extends LionCalendar {
           </div>
           ${this._daysEvents.map(e => html`
             <div>
-              <a href="${e.url}">
-                <sakai-icon type="${e.tool}" size="small"></sakai-icon>
+              <sakai-icon type="${e.tool}" size="small"></sakai-icon>
+              ${e.url ? html`
+                <a href="${e.url}" role="link" aria-label="${e.title}">
+                  <span>${e.title}</span><span> (${e.siteTitle})</span>
+                </a>
+              ` : html`
                 <span>${e.title}</span><span> (${e.siteTitle})</span>
-              </a>
+              `}
             </div>
           `)}
         </div>

@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
@@ -62,6 +64,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -71,13 +74,13 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.context.annotation.DeferredImportSelector.Group.Entry;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
@@ -699,7 +702,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo) {
 		PublishedAssessmentData a = loadPublishedAssessment(assessmentId);
 		a.setSectionSet(getSectionSetForAssessment(a)); // this is making things slow -pbd
-		Map releaseToGroups = new HashMap();
+		Map<String, String> releaseToGroups = new HashMap<>();
+		Set<String> groupReferences = new HashSet<>();
 		if (withGroupsInfo) {
 			//TreeMap groupsForSite = getGroupsForSite();
 			
@@ -707,9 +711,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
             String siteId = getPublishedAssessmentSiteId(assessmentId.toString());
             Map groupsForSite = getGroupsForSite(siteId);
 			releaseToGroups = getReleaseToGroups(groupsForSite, assessmentId);
+			groupReferences = releaseToGroups.keySet().stream().map(id -> siteService.siteGroupReference(siteId, id)).collect(Collectors.toSet());
 		}
 		
 		PublishedAssessmentFacade f = new PublishedAssessmentFacade(a, releaseToGroups);
+		f.setGroupReferences(groupReferences);
 		return f;
 	}
 	
@@ -726,7 +732,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public PublishedAssessmentFacade publishAssessment(
 			AssessmentFacade assessment) throws Exception {
-
 		PublishedAssessmentData publishedAssessment = preparePublishedAssessment(
 				(AssessmentData) assessment.getData());
 
@@ -777,6 +782,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 						"org.sakaiproject.grading.api.GradingService");
 			}
 
+			// write authorization
+			createAuthorization(publishedAssessment);
+
 			GradebookServiceHelper gbsHelper = IntegrationContextFactory
 					.getInstance().getGradebookServiceHelper();
 
@@ -786,7 +794,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
                     String ref = SamigoReferenceReckoner.reckoner().site(site.getId()).subtype("p")
                                     .id(publishedAssessmentFacade.getPublishedAssessmentId().toString()).reckon().getReference();
                     publishedAssessment.setReference(ref);
-					gbsHelper.addToGradebook(publishedAssessment, publishedAssessment.getCategoryId(), g);
+
+					Map groupsForSite = getGroupsForSite(AgentFacade.getCurrentSiteId());
+					Map<String, String> groupMap = getReleaseToGroups(groupsForSite, publishedAssessment.getPublishedAssessmentId());
+					List<String> selectedGroups = groupMap.keySet().stream().collect(Collectors.toList());
+
+					gbsHelper.buildItemToGradebook(publishedAssessment, selectedGroups, g);
 				} catch (Exception e) {
 					log.error("Removing published assessment: " + e);
 					delete(publishedAssessment);
@@ -795,8 +808,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 			}
 		}
 
-		// write authorization
-		createAuthorization(publishedAssessment);
+
 		return publishedAssessmentFacade;
 	}
 
@@ -1403,7 +1415,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		Set<String> keysGroupIdsMap = new HashSet<>();
 		try {
 			site = siteService.getSite(siteAgentId);
-			siteGroups = site.getGroupsWithMember(userId);
+			if (service.isUserAbleToGradeAll(site.getId(), userId)) {
+				siteGroups = site.getGroups();
+			} else {
+				siteGroups = site.getGroupsWithMember(userId);
+			}
 			Map<String, String> groupIdsMap = siteGroups.stream()
 				.collect(Collectors.toMap(Group::getId, Group::getId));
 			keysGroupIdsMap = groupIdsMap.keySet();
@@ -2401,24 +2417,15 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	 * @param siteId
 	 * @return
 	 */
-	private Map getGroupsForSite(String siteId){
-		Map sortedGroups = new TreeMap();
-		Site site;
+	private Map<String, String> getGroupsForSite(String siteId){
+
 		try {
-			site = siteService.getSite(siteId);
-			Collection groups = site.getGroups();
-			if (groups != null && groups.size() > 0) {
-				Iterator groupIter = groups.iterator();
-				while (groupIter.hasNext()) {
-					Group group = (Group) groupIter.next();
-					sortedGroups.put(group.getId(), group.getTitle());
-				}
-			}
+			return siteService.getSite(siteId).getGroups()
+				.stream().collect(Collectors.toMap(Group::getId, Group::getTitle));
+		} catch (IdUnusedException ex) {
+			log.warn("No site for id {}", siteId);
 		}
-		catch (IdUnusedException ex) {
-			// No site available
-		}
-		return sortedGroups;
+		return Collections.EMPTY_MAP;
 	}
 
 	/**

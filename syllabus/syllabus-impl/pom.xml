@@ -4,7 +4,7 @@
   <parent>
     <artifactId>syllabus-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>25-SNAPSHOT</version>
+    <version>26-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -72,6 +72,10 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.sakaiproject.lti</groupId>
+        <artifactId>lti-api</artifactId>
     </dependency>
   </dependencies>
 

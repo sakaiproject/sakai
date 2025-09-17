@@ -71,12 +71,14 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 ## Community supported versions
 These versions are actively supported by the community.
 
-Sakai 23.3 ([release](http://source.sakaiproject.org/release/23.3/) | [fixes](https://confluence.sakaiproject.org/display/DOC/23.3+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+23+Release+Notes))
+Sakai 25.0 ([release](http://source.sakaiproject.org/release/25.0/) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+25+Release+Notes))
 
-Sakai 22.5 ([release](http://source.sakaiproject.org/release/22.5/) | [fixes](https://confluence.sakaiproject.org/display/DOC/22.5+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+22+Release+Notes))
+Sakai 23.4 ([release](http://source.sakaiproject.org/release/23.4/) | [fixes](https://confluence.sakaiproject.org/display/DOC/23.4+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+23+Release+Notes))
 
 ## Previous community versions which are no longer supported
 These versions are no longer supported by the community and will only receive security changes.
+
+Sakai 22.5 ([release](http://source.sakaiproject.org/release/22.5/) | [fixes](https://confluence.sakaiproject.org/display/DOC/22.5+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+22+Release+Notes))
 
 Sakai 21.5 ([release](http://source.sakaiproject.org/release/21.5/) | [fixes](https://confluence.sakaiproject.org/display/DOC/21.5+Fixes+by+tool) | [notes](https://confluence.sakaiproject.org/display/DOC/Sakai+21+Release+Notes))
 
@@ -92,9 +94,11 @@ For full history of supported releases please see our [release information on co
 
 ## Under Development
 
-[Sakai 23.4](https://confluence.sakaiproject.org/display/REL/Sakai+23+Straw+person) is the current development release of Sakai 23. It is expected to release Q1 2025.
+[Sakai 25.1](https://confluence.sakaiproject.org/display/REL/Sakai+25+Straw+person) is the current development release of Sakai 25. It is expected to release Q3 2025.
 
-[Sakai 22.6](https://confluence.sakaiproject.org/display/REL/Sakai+22+Straw+person) is the current development release of Sakai 22. It is expected to release Q4 2024.
+[Sakai 23.5](https://confluence.sakaiproject.org/display/REL/Sakai+23+Straw+person) is the current development release of Sakai 23. It is expected to release Q4 2025.
+
+[Sakai 22.6](https://confluence.sakaiproject.org/display/REL/Sakai+22+Straw+person) is the current development release of Sakai 22. It is expected to release Q2 2025.
 
 ## Accessibility
 [The Sakai Accessibility Working Group](https://confluence.sakaiproject.org/display/2ACC/Accessibility+Working+Group) is responsible for ensuring that the Sakai framework and its tools are accessible to persons with disabilities. [The Sakai Ra11y plan](https://confluence.sakaiproject.org/display/2ACC/rA11y+Plan) is working towards a VPAT and/or a WCAG2 certification.

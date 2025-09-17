@@ -1,27 +1,27 @@
 $(function () {
 
-    var initDeleteConfirmation = function() {
+    const initDeleteConfirmation = function() {
       $(".tagservice-delete-btn").on("click", function(event) {
         event.preventDefault();
         event.stopPropagation();
 
-        var template = $("#tagserviceDeleteConfirmationModalTemplate").html().trim().toString();
-        var trimPathTemplate = TrimPath.parseTemplate(template, "tagserviceDeleteConfirmationModalTemplate");
+        const template = $("#tagserviceDeleteConfirmationModalTemplate").html().trim().toString();
+        const trimPathTemplate = TrimPath.parseTemplate(template, "tagserviceDeleteConfirmationModalTemplate");
 
-        var $modal = $(trimPathTemplate.process({
+        const $modal = $(trimPathTemplate.process({
                       recordType: $(this).data("record-type"),
                       deleteURL: $(this).prop("href")
                      }));
 
         $(this).closest(".portletBody").append($modal);
 
-        $modal.modal();
+        new bootstrap.Modal($modal[0]).show();
       });
     };
 
 
 
-    var addFormHandlers = function () {
+    const addFormHandlers = function () {
 
         $('.tagservice-cancel-btn').on('click', function () {
             window.location.replace($(this).data('target'));

@@ -29,9 +29,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
-import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
 import org.sakaiproject.profile2.model.MyProfilePanelState;
-import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.ProfileImage;
@@ -91,19 +89,11 @@ public class MyProfile extends BasePage {
 		add(feedbackPanel);
 		feedbackPanel.setVisible(false); //hide by default
 
-		//get the prefs record, or a default if none exists yet
-		final ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
-
-		//if null, throw exception
-		if(prefs == null) {
-			throw new ProfilePreferencesNotDefinedException("Couldn't create default preferences record for " + userUuid);
-		}
-
 		//get SakaiPerson for this user
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
 		//if null, create one 
 		if(sakaiPerson == null) {
-			log.warn("No SakaiPerson for " + userUuid + ". Creating one.");
+			log.warn("No SakaiPerson for {}. Creating one.", userUuid);
 			sakaiPerson = sakaiProxy.createSakaiPerson(userUuid);
 			//if its still null, throw exception
 			if(sakaiPerson == null) {
@@ -137,6 +127,7 @@ public class MyProfile extends BasePage {
 		userProfile.setUserUuid(userUuid);
 
 		userProfile.setNickname(sakaiPerson.getNickname());
+		userProfile.setPersonalSummary(sakaiPerson.getNotes());
 		userProfile.setDisplayName(userDisplayName);
 
 		userProfile.setEmail(userEmail);
@@ -221,6 +212,9 @@ public class MyProfile extends BasePage {
         lockProfileContainer.add(lockProfileLink);
         
         sideLinks.add(lockProfileContainer);
+
+		// Hide the lock button until we work out to use it
+		lockProfileContainer.setVisible(false);
         
         visibleSideLinksCount++;
 		

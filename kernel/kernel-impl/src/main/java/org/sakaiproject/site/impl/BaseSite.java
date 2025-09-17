@@ -1004,9 +1004,7 @@ public class BaseSite implements Site
 		return m_pages;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Collection<Group> getGroups()
 	{
 		// Default to loading the groups if lazy
@@ -1436,9 +1434,7 @@ public class BaseSite implements Site
 		return m_pubView;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Element toXml(Document doc, Stack stack)
 	{
 		Element site = doc.createElement("site");

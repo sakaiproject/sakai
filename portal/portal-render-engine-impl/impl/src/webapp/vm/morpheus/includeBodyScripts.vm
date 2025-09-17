@@ -286,3 +286,18 @@ if ( ! (self == top) ) {
     });
   });
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const dropdownNavIntraTool = document.querySelector('.dropdown-toggle.dropdown-navIntraTool');
+    if (dropdownNavIntraTool) {
+      dropdownNavIntraTool.addEventListener('click', function (e) {
+        e.preventDefault();
+        const navIntraToolMobile = document.querySelector('ul.navIntraTool.navIntraToolMobile');
+        if (!navIntraToolMobile) return;
+        const expanded = navIntraToolMobile.classList.toggle('dropdown-active');
+        this.setAttribute('aria-expanded', `${expanded}`);
+      });
+    }
+  });
+</script>

@@ -69,8 +69,6 @@ import java.lang.IllegalStateException;
 public class CoreAssessmentEntityProviderImpl implements CoreAssessmentEntityProvider,
       CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
-  private static final String CAN_TAKE = "assessment.takeAssessment";
-  private static final String CAN_PUBLISH = "assessment.publishAssessment.any";
   private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
   private SecurityService securityService;
   private GradingServiceAPI gradingService = null;

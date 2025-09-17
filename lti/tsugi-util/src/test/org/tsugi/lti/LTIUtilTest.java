@@ -351,25 +351,6 @@ public class LTIUtilTest {
 	}
 
 	@Test
-	public void toNull() {
-		String result = LTIUtil.toNull(null);
-		assertNull(result);
-
-		result = LTIUtil.toNull("");
-		assertNull(result);
-
-		result = LTIUtil.toNull(" ");
-		assertNull(result);
-
-		result = LTIUtil.toNull("   ");
-		assertNull(result);
-
-		result = LTIUtil.toNull("foobar");
-		assertNotNull(result);
-		assertEquals("foobar", result);
-	}
-
-	@Test
 	public void setProperty() {
 		Map<String, String> theMap = new HashMap<>();
 
@@ -610,5 +591,125 @@ public class LTIUtilTest {
 		String expected = "This \\tis \\ta \\tstring \\twith \\t\\ttabs \\\\and backslashes \\\\";
 		String actual = LTIUtil.escapeSpecialCharacters(input);
 		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void testToInteger() {
+		// Test basic integer values
+		assertEquals("Basic integer value conversion failed", Integer.valueOf(2), LTIUtil.toInteger(Integer.valueOf(2), null));
+		assertEquals("Negative integer value conversion failed", Integer.valueOf(-2), LTIUtil.toInteger(Integer.valueOf(-2), null));
+		assertEquals("Zero value conversion failed", Integer.valueOf(0), LTIUtil.toInteger(Integer.valueOf(0), null));
+		
+		// Test null and invalid inputs
+		Integer defaultVal = Integer.valueOf(42);
+		assertEquals("Null input should return default", defaultVal, LTIUtil.toInteger(null, defaultVal));
+		assertEquals("Invalid string should return default", defaultVal, LTIUtil.toInteger("fred", defaultVal));
+		assertEquals("String 'null' should return default", defaultVal, LTIUtil.toInteger("null", defaultVal));
+		assertEquals("String 'NULL' should return default", defaultVal, LTIUtil.toInteger("NULL", defaultVal));
+		assertEquals("Empty string should return default", defaultVal, LTIUtil.toInteger("", defaultVal));
+		
+		// Test string number formats
+		assertEquals("String integer conversion failed", Integer.valueOf(2), LTIUtil.toInteger("2", null));
+		assertEquals("String negative integer conversion failed", Integer.valueOf(-2), LTIUtil.toInteger("-2", null));
+		assertEquals("String zero conversion failed", Integer.valueOf(0), LTIUtil.toInteger("0", null));
+		assertEquals("Decimal string should return default", defaultVal, LTIUtil.toInteger("2.0", defaultVal));
+		assertEquals("Decimal string should return default", defaultVal, LTIUtil.toInteger("2.5", defaultVal));
+		
+		// Test other number types
+		assertEquals("Long conversion failed", Integer.valueOf(3), LTIUtil.toInteger(Long.valueOf(3), null));
+		assertEquals("Double conversion with no decimal failed", Integer.valueOf(3), LTIUtil.toInteger(Double.valueOf(3.0), null));
+		assertEquals("Double conversion with decimal truncates", Integer.valueOf(3), LTIUtil.toInteger(Double.valueOf(3.9), null));
+		assertEquals("Float conversion failed", Integer.valueOf(3), LTIUtil.toInteger(Float.valueOf(3.0f), null));
+		assertEquals("Short conversion failed", Integer.valueOf(3), LTIUtil.toInteger(Short.valueOf((short)3), null));
+		assertEquals("Byte conversion failed", Integer.valueOf(3), LTIUtil.toInteger(Byte.valueOf((byte)3), null));
+	}
+
+	@Test
+	public void testToInt() {
+		assertEquals("Basic integer conversion failed", 2, LTIUtil.toInt(Integer.valueOf(2)));
+		assertEquals("String conversion failed", 2, LTIUtil.toInt("2"));
+		assertEquals("Default for null should be -1", -1, LTIUtil.toInt(null));
+		assertEquals("Default for invalid string should be -1", -1, LTIUtil.toInt("invalid"));
+	}
+
+	@Test
+	public void testToLong() {
+		// Test basic long values
+		assertEquals("Basic long value conversion failed", Long.valueOf(2L), LTIUtil.toLong(Long.valueOf(2L), null));
+		assertEquals("Negative long value conversion failed", Long.valueOf(-2L), LTIUtil.toLong(Long.valueOf(-2L), null));
+		assertEquals("Zero value conversion failed", Long.valueOf(0L), LTIUtil.toLong(Long.valueOf(0L), null));
+		
+		// Test null and invalid inputs
+		Long defaultVal = Long.valueOf(42L);
+		assertEquals("Null input should return default", defaultVal, LTIUtil.toLong(null, defaultVal));
+		assertEquals("Invalid string should return default", defaultVal, LTIUtil.toLong("fred", defaultVal));
+		assertEquals("String 'null' should return default", defaultVal, LTIUtil.toLong("null", defaultVal));
+		assertEquals("String 'NULL' should return default", defaultVal, LTIUtil.toLong("NULL", defaultVal));
+		assertEquals("Empty string should return default", defaultVal, LTIUtil.toLong("", defaultVal));
+		
+		// Test string number formats
+		assertEquals("String long conversion failed", Long.valueOf(2L), LTIUtil.toLong("2", null));
+		assertEquals("String negative long conversion failed", Long.valueOf(-2L), LTIUtil.toLong("-2", null));
+		assertEquals("String zero conversion failed", Long.valueOf(0L), LTIUtil.toLong("0", null));
+		assertEquals("Decimal string should return default", defaultVal, LTIUtil.toLong("2.5", defaultVal));
+		assertEquals("Decimal string should return default", defaultVal, LTIUtil.toLong("2.0", defaultVal));
+		
+		// Test other number types
+		assertEquals("Integer conversion failed", Long.valueOf(3L), LTIUtil.toLong(Integer.valueOf(3), null));
+		assertEquals("Double conversion with no decimal failed", Long.valueOf(3L), LTIUtil.toLong(Double.valueOf(3.0), null));
+		assertEquals("Double conversion with decimal truncates", Long.valueOf(3L), LTIUtil.toLong(Double.valueOf(3.9), null));
+		assertEquals("Float conversion failed", Long.valueOf(3L), LTIUtil.toLong(Float.valueOf(3.0f), null));
+		assertEquals("Short conversion failed", Long.valueOf(3L), LTIUtil.toLong(Short.valueOf((short)3), null));
+		assertEquals("Byte conversion failed", Long.valueOf(3L), LTIUtil.toLong(Byte.valueOf((byte)3), null));
+	}
+
+	@Test
+	public void testToLongKeyAndNull() {
+		// Test toLongKey (returns -1L as default)
+		assertEquals("Basic long key conversion failed", Long.valueOf(2L), LTIUtil.toLongKey(Long.valueOf(2L)));
+		assertEquals("Null should return -1L", Long.valueOf(-1L), LTIUtil.toLongKey(null));
+		assertEquals("Invalid string should return -1L", Long.valueOf(-1L), LTIUtil.toLongKey("invalid"));
+		
+		// Test toLongNull (returns null as default)
+		assertEquals("Basic long conversion failed", Long.valueOf(2L), LTIUtil.toLongNull(Long.valueOf(2L)));
+		assertNull("Null should return null", LTIUtil.toLongNull(null));
+		assertNull("Invalid string should return null", LTIUtil.toLongNull("invalid"));
+	}
+
+	@Test
+	public void testToDouble() {
+		// Test basic double values
+		assertEquals("Basic double value conversion failed", Double.valueOf(2.0), LTIUtil.toDouble(Double.valueOf(2.0), null));
+		assertEquals("Decimal double value conversion failed", Double.valueOf(2.5), LTIUtil.toDouble(Double.valueOf(2.5), null));
+		assertEquals("Negative double value conversion failed", Double.valueOf(-2.5), LTIUtil.toDouble(Double.valueOf(-2.5), null));
+		
+		// Test null and invalid inputs
+		Double defaultVal = Double.valueOf(42.0);
+		assertEquals("Null input should return default", defaultVal, LTIUtil.toDouble(null, defaultVal));
+		assertEquals("Invalid string should return default", defaultVal, LTIUtil.toDouble("fred", defaultVal));
+		assertEquals("String 'null' should return default", defaultVal, LTIUtil.toDouble("null", defaultVal));
+		assertEquals("String 'NULL' should return default", defaultVal, LTIUtil.toDouble("NULL", defaultVal));
+		assertEquals("Empty string should return default", defaultVal, LTIUtil.toDouble("", defaultVal));
+		
+		// Test string number formats
+		assertEquals("String decimal conversion failed", Double.valueOf(2.0), LTIUtil.toDouble("2.0", null));
+		assertEquals("String float conversion failed", Double.valueOf(2.5), LTIUtil.toDouble("2.5", null));
+		assertEquals("String integer conversion failed", Double.valueOf(2.0), LTIUtil.toDouble("2", null));
+		assertEquals("String negative number conversion failed", Double.valueOf(-2.5), LTIUtil.toDouble("-2.5", null));
+		
+		// Test other number types
+		assertEquals("Long conversion failed", Double.valueOf(3.0), LTIUtil.toDouble(Long.valueOf(3), null));
+		assertEquals("Integer conversion failed", Double.valueOf(3.0), LTIUtil.toDouble(Integer.valueOf(3), null));
+		assertEquals("Float conversion failed", Double.valueOf(3.0), LTIUtil.toDouble(Float.valueOf(3.0f), null));
+		assertEquals("Short conversion failed", Double.valueOf(3.0), LTIUtil.toDouble(Short.valueOf((short)3), null));
+		assertEquals("Byte conversion failed", Double.valueOf(3.0), LTIUtil.toDouble(Byte.valueOf((byte)3), null));
+	}
+
+	@Test
+	public void testToDoubleNull() {
+		assertEquals("Basic double conversion failed", Double.valueOf(2.5), LTIUtil.toDoubleNull(Double.valueOf(2.5)));
+		assertNull("Null should return null", LTIUtil.toDoubleNull(null));
+		assertNull("Invalid string should return null", LTIUtil.toDoubleNull("invalid"));
+		assertEquals("String conversion should work", Double.valueOf(2.5), LTIUtil.toDoubleNull("2.5"));
 	}
 }

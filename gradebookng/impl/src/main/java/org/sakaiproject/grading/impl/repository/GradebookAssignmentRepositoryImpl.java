@@ -20,6 +20,7 @@ import org.hibernate.Session;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.util.List;
@@ -90,6 +91,26 @@ public class GradebookAssignmentRepositoryImpl extends SpringCrudRepositoryImpl<
     }
 
     @Transactional(readOnly = true)
+    public List<GradebookAssignment> findByGradebook_IdAndCategory_IdAndRemoved(Long gradebookId, Long categoryId, Boolean removed) {
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<GradebookAssignment> query = cb.createQuery(GradebookAssignment.class);
+
+        Root<GradebookAssignment> ga = query.from(GradebookAssignment.class);
+        Join<GradebookAssignment, Gradebook> gb = ga.join("gradebook");
+        Join<GradebookAssignment, Category> cat = ga.join("category");
+
+        Predicate byGradebook = cb.equal(gb.get("id"), gradebookId);
+        Predicate byCategoryId = cb.equal(cat.get("id"), categoryId);
+        Predicate byRemoved = cb.equal(ga.get("removed"), removed);
+
+        query.where(cb.and(byGradebook, byCategoryId, byRemoved));
+
+        return session.createQuery(query).list();
+    }
+
+    @Transactional(readOnly = true)
     public List<GradebookAssignment> findByGradebook_IdAndRemovedAndNotCounted(Long gradebookId, Boolean removed, Boolean notCounted) {
 
         Session session = sessionFactory.getCurrentSession();
@@ -129,6 +150,17 @@ public class GradebookAssignmentRepositoryImpl extends SpringCrudRepositoryImpl<
         query.where(cb.and(cb.equal(gb.get("uid"), gradebookUid),
                             cb.equal(ga.get("externalId"), externalId)));
         return session.createQuery(query).uniqueResultOptional();
+    }
+
+    @Transactional(readOnly = true)
+    public List<GradebookAssignment> findByExternalId(String externalId) {
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<GradebookAssignment> query = cb.createQuery(GradebookAssignment.class);
+        Root<GradebookAssignment> ga = query.from(GradebookAssignment.class);
+        query.where(cb.equal(ga.get("externalId"), externalId));
+        return session.createQuery(query).list();
     }
 
     @Transactional(readOnly = true)

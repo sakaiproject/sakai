@@ -38,9 +38,10 @@ public class ViewAssignmentStatisticsAction extends InjectableAction implements 
 		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
 		final GbModalWindow window = gradebookPage.getAssignmentStatisticsWindow();
 		window.setAssignmentToReturnFocusTo(assignmentId);
-		window.setContent(new AssignmentStatisticsPanel(window.getContentId(),
+		AssignmentStatisticsPanel content = new AssignmentStatisticsPanel(window.getContentId(),
 				Model.of(Long.valueOf(assignmentId)),
-				window));
+				window);
+		window.setContent(content);
 		window.show(target);
 
 		return new EmptyOkResponse();

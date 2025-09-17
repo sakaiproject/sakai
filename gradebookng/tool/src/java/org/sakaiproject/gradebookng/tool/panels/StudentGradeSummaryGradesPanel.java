@@ -70,7 +70,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final Gradebook gradebook = this.businessService.getGradebook();
+		final Gradebook gradebook = this.businessService.getGradebook(currentGradebookUid, currentSiteId);
 
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
 		final boolean groupedByCategoryByDefault = (Boolean) modelData.get("groupedByCategoryByDefault");
@@ -95,7 +95,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final String userId = (String) modelData.get("studentUuid");
 
 		final Gradebook gradebook = getGradebook();
-		String studentCourseGradeComment = this.businessService.getAssignmentGradeComment(businessService.getCurrentSiteId(), this.businessService.getCourseGradeId(gradebook.getId()), userId);
+		String studentCourseGradeComment = this.businessService.getAssignmentGradeComment(getCurrentSiteId(), this.businessService.getCourseGradeId(gradebook.getId()), userId);
 		if (StringUtils.isEmpty(studentCourseGradeComment)){
 			studentCourseGradeComment = " -";
 		}
@@ -108,9 +108,9 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				this.businessService.getShowCalculatedGrade());
 
 		// build up table data
-		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
+		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(currentGradebookUid, currentSiteId, userId);
 		final SortType sortedBy = this.isGroupedByCategory ? SortType.SORT_BY_CATEGORY : SortType.SORT_BY_SORTING;
-		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId, sortedBy);
+		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(currentGradebookUid, currentSiteId, userId, sortedBy);
 
 		final List<String> categoryNames = new ArrayList<>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
@@ -137,7 +137,9 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 					categoryNamesToAssignments.get(categoryName).add(assignment);
 				}
 			}
-			// get the category scores and mark any dropped items
+			// get all category scores in one efficient operation and mark any dropped items
+			final Map<Long, CategoryScoreData> allCategoryScores = this.businessService.getAllCategoryScoresForStudent(currentGradebookUid, currentSiteId, userId, false); // Dont include non-released items in the category calc
+			
 			for (final String catName : categoryNamesToAssignments.keySet()) {
 				if (catName.equals(getString(GradebookPage.UNCATEGORISED))) {
 					continue;
@@ -147,12 +149,14 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				if (!catItems.isEmpty()) {
 					final Long catId = catItems.get(0).getCategoryId();
 					if (catId != null) {
-						this.businessService.getCategoryScoreForStudent(catId, userId, false) // Dont include non-released items in the category calc
-							.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages, grades));
+						final CategoryScoreData categoryScore = allCategoryScores.get(catId);
+						if (categoryScore != null) {
+							storeAvgAndMarkIfDropped(categoryScore, catId, categoryAverages, grades);
+						}
 					}
 				}
 			}
-			categoriesMap = this.businessService.getGradebookCategoriesForStudent(userId).stream()
+			categoriesMap = this.businessService.getGradebookCategoriesForStudent(currentGradebookUid, currentSiteId, userId).stream()
 				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
 		}
 
@@ -166,16 +170,17 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		tableModel.put("isCategoryWeightEnabled", isCategoryWeightEnabled());
 		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
 		tableModel.put("showingStudentView", true);
-		tableModel.put("gradingType", gradebook.getGradeType());
+		tableModel.put("gradeType", gradebook.getGradeType());
 		tableModel.put("categoriesMap", categoriesMap);
 		tableModel.put("studentUuid", userId);
 
-		addOrReplace(new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String, Object>>() {
+		GradeSummaryTablePanel gstp = new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String, Object>>() {
 			@Override
 			public Map<String, Object> load() {
 				return tableModel;
 			}
-		}).setVisible(this.isAssignmentsDisplayed && this.someAssignmentsReleased));
+		});
+		addOrReplace(gstp.setVisible(this.isAssignmentsDisplayed && this.someAssignmentsReleased));
 
 		// no assignments message
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments") {
@@ -200,7 +205,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		addOrReplace(courseGradePanel);
 
 		// course grade, via the formatter
-		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(userId);
+		final CourseGradeTransferBean courseGrade = this.businessService.getCourseGrade(currentGradebookUid, currentSiteId, userId);
 
 		courseGradePanel.addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 
@@ -212,11 +217,8 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
 
-				statsWindow.setContent(new StudentCourseGradeStatisticsPanel(
-						statsWindow.getContentId(),
-						Model.of(StudentGradeSummaryGradesPanel.this
-								.getCurrentSiteId()),
-						statsWindow, courseGrade));
+				StudentCourseGradeStatisticsPanel scgsp = new StudentCourseGradeStatisticsPanel(statsWindow.getContentId(), statsWindow, courseGrade);
+				statsWindow.setContent(scgsp);
 				statsWindow.show(target);
 			}
 

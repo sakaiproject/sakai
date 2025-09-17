@@ -64,7 +64,6 @@ public class VisitsWidget extends Panel {
 		this.siteId = siteId;
 		this.currentUserId = currentUserId;
 		setRenderBodyOnly(true);
-		setOutputMarkupId(true);
 
 		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
 		boolean siteStatsView = statsAuthz.isUserAbleToViewSiteStats(siteId);
@@ -111,10 +110,9 @@ public class VisitsWidget extends Panel {
 		});
 
 		// Final Widget object		
-		String icon = StatsManager.SILK_ICONS_DIR + "user_gray.png";
 		String title = (String) new ResourceModel("overview_title_visits").getObject();
 		if (siteStatsAll) {
-			add(new Widget("widget", icon, title, widgetMiniStats, tabs, siteId));
+			add(new Widget("widget", "sakai-singleuser", title, widgetMiniStats, tabs, siteId));
 		} else {
 			add(new StudentVisitsWidget("widget", widgetMiniStats));
 		}

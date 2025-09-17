@@ -175,7 +175,11 @@
 											</span>
 										</td>
 										<td headers="assignment" data-order="$assignmentTitle">
-											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&submitterId=$formattedText.escapeUrl($member.Id)&option=lisofass2")">$assignmentTitle</a>
+											#if ($submission && $submission.submitted)
+												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($submissionReference)&submitterId=$formattedText.escapeUrl($member.Id)&option=lisofass2")">$assignmentTitle</a>
+											#else
+												$assignmentTitle
+											#end
 											#if ($allowAddAssignment && $allowSubmitByInstructor)
 											#set( $submitSpinnerID = "submitFor_" + $member.Id + "_" + $formattedText.escapeUrl($assignmentReference) )
 											<div class="itemAction spinnerBesideContainer">

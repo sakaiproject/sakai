@@ -91,11 +91,23 @@ export class SakaiRubricAssociation extends RubricsElement {
         if (r.status === 204) {
           return {};
         }
-        return r.json();
+        return r.text().then(text => {
+          if (!text) {
+            this.style.display = "none";
+            return {};
+          }
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            console.error("Failed to parse response as JSON:", e);
+            return {};
+          }
+        });
       }
 
       if (r.status === 404) {
         this.style.display = "none";
+        return {};
       }
 
       throw new Error("Network error while getting association");
@@ -139,9 +151,12 @@ export class SakaiRubricAssociation extends RubricsElement {
 
     this._rubrics = data.slice().filter(rubric => !rubric.draft);
 
-    if (this._rubrics.length && this.isAssociated != 1) {
+    if (this._rubrics.length && this.isAssociated != 1 && !this.association?.rubricId) {
       // Not associated yet, select the first rubric in the list.
       this._selectedRubricId = this._rubrics[0].id;
+    }
+    if (this.association?.rubricId) {
+      this._selectedRubricId = parseInt(this.association.rubricId, 10);
     }
   }
 
@@ -168,8 +183,6 @@ export class SakaiRubricAssociation extends RubricsElement {
   }
 
   render() {
-
-    console.debug("SakaiRubricAssociation.render()");
 
     return html`
       <h4>${this._i18n.grading_rubric}</h4>
@@ -207,7 +220,7 @@ export class SakaiRubricAssociation extends RubricsElement {
                 class="form-control"
                 ?disabled=${this.isAssociated != 1 || this.readOnly}>
               ${this._rubrics.map(r => html`
-              <option value="${r.id}" ?selected=${r.id === this._selectedRubricId}>
+              <option value="${r.id}" ?selected=${r.id == this._selectedRubricId ? "selected" : undefined}>
                 ${r.title} ${r.maxPoints ? `(${r.maxPoints} ${this._i18n.points})` : ""}
               </option>
               `)}

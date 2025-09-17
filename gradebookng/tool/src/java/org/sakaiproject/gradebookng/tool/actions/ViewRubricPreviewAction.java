@@ -37,7 +37,8 @@ public class ViewRubricPreviewAction extends InjectableAction implements Seriali
         final GradebookPage gradebookPage = (GradebookPage) target.getPage();
         final GbModalWindow window = gradebookPage.getRubricPreviewWindow();
         window.setAssignmentToReturnFocusTo(assignmentId);
-        window.setContent(new RubricPreviewPanel(window.getContentId(), Model.of(model), window));
+        RubricPreviewPanel rpp = new RubricPreviewPanel(window.getContentId(), Model.of(model), window);
+        window.setContent(rpp);
         window.show(target);
         return new EmptyOkResponse();
     }

@@ -21,10 +21,12 @@ package org.sakaiproject.sitestats.tool.wicket.components;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
@@ -72,7 +74,7 @@ public class LastJobRun extends Panel {
 		
 		setRenderBodyOnly(true);
 		
-		final WebMarkupContainer lastJobRun = new WebMarkupContainer("lastJobRun");
+		WebMarkupContainer lastJobRun = new WebMarkupContainer("lastJobRun");
 		boolean lastJobRunVisible = !statsUpdateManager.isCollectThreadEnabled() && statsManager.isLastJobRunDateVisible(); 
 		lastJobRun.setVisible(lastJobRunVisible);
 		add(lastJobRun);
@@ -88,6 +90,11 @@ public class LastJobRun extends Panel {
 				String localSakaiName = Locator.getFacade().getStatsManager().getLocalSakaiName();
 				StringResourceModel model = new StringResourceModel("lastJobRun_server_time").setParameters(localSakaiName, serverDateStr);
 				lastJobRunServerDate.setDefaultModel(model);
+
+				WebMarkupContainer lastJobRunImage = new WebMarkupContainer("lastJobRunImage");
+				lastJobRunImage.add(new AttributeModifier("title", new ResourceModel("info_last_update")));
+				lastJobRun.add(lastJobRunImage);
+
 			}catch(Exception e){
 				lastJobRunDate.setDefaultModel(new Model());
 				lastJobRunServerDate.setDefaultModel(new Model());

@@ -13,7 +13,7 @@
 		
 			<div class="navIntraTool">
 				<a id="printIcon" href="javascript:" onClick="javascript:window.print();">
-					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+					<span class="bi bi-printer" aria-hidden="true"></span>
 					<h:outputText value="#{msgs.send_to_printer}" />
 				</a>
 				<a value="" href="" onClick="window.close();" >
@@ -36,7 +36,7 @@
 						noarrows="true" styleClass="table table-hover table-striped table-bordered printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 				<h:panelGroup styleClass="heading">
-					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" 
+					<h:graphicImage value="#{ForumTool.serverUrl}/api/users/#{message.message.authorId}/profile/image/thumb" alt="#{message.message.author}" 
 					    styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}" />
 						<%-- message has been submitted and has bene denied  approval by moderator--%>
 					<h:outputText value="#{msgs.cdfm_msg_denied_label}"  styleClass="messageDenied"  rendered="#{message.msgDenied}" />

@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.rubrics.impl.test;
 
+import org.apache.commons.lang3.StringUtils;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,11 +32,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.Stack;
+import java.util.stream.Collectors;
 
 import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
@@ -47,12 +54,14 @@ import org.sakaiproject.rubrics.api.model.Criterion;
 import org.sakaiproject.rubrics.api.model.EvaluatedItemOwnerType;
 import org.sakaiproject.rubrics.api.model.Evaluation;
 import org.sakaiproject.rubrics.api.model.EvaluationStatus;
+import org.sakaiproject.rubrics.api.model.Rating;
 import org.sakaiproject.rubrics.api.model.ReturnedEvaluation;
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.AssociationRepository;
 import org.sakaiproject.rubrics.api.repository.CriterionRepository;
 import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
+import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
 import org.sakaiproject.rubrics.impl.RubricsServiceImpl;
 import org.sakaiproject.site.api.Site;
@@ -64,11 +73,23 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Xml;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,6 +102,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     @Autowired private CriterionRepository criterionRepository;
     @Autowired private EvaluationRepository evaluationRepository;
     @Autowired private ReturnedEvaluationRepository returnedEvaluationRepository;
+    @Autowired private RubricRepository rubricRepository;
     @Autowired private RubricsService rubricsService;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -231,15 +253,15 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
     @Test
     public void getRubrics() {
-
         switchToUser1();
-
-        assertThrows(SecurityException.class, () -> rubricsService.getRubricsForSite(siteId));
+        // Expect empty list instead of exception
+        List<RubricTransferBean> userRubrics = rubricsService.getRubricsForSite(siteId);
+        assertTrue(userRubrics.isEmpty());
 
         switchToTeachingAssistant();
-
-        // Should still throw it as the user doesn't have rubrics.editor
-        assertThrows(SecurityException.class, () -> rubricsService.getRubricsForSite(siteId));
+        // Should also return empty list
+        List<RubricTransferBean> taRubrics = rubricsService.getRubricsForSite(siteId);
+        assertTrue(taRubrics.isEmpty());
 
         switchToInstructor();
         rubricsService.createDefaultRubric(siteId);
@@ -258,7 +280,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         String newDescription = "Sandwiches of the world";
         rubricBean.setTitle(newTitle);
         rubricBean = rubricsService.saveRubric(rubricBean);
-        assertEquals(rubricBean.getTitle(), newTitle);
+        assertEquals(newTitle, rubricBean.getTitle());
     }
 
     @Test
@@ -476,8 +498,6 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         CriterionTransferBean criterionBean = rubricBean.getCriteria().get(1);
         int initialRatingsSize = criterionBean.getRatings().size();
         RatingTransferBean ratingBean = criterionBean.getRatings().get(2);
-
-        System.out.println(ratingBean.getPoints());
 
         switchToUser1();
         assertThrows(SecurityException.class, () -> rubricsService.deleteRating(ratingBean.getId(), criterionBean.getId(), siteId, rubricBean.getId()));
@@ -773,6 +793,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
     @Test
     public void contextualFilenameNoEvaluation() {
+
         switchToInstructor();
         RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
         String toolId = "sakai.assignment";
@@ -788,6 +809,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
     @Test
     public void contextualFilename() throws UserNotDefinedException {
+
         switchToInstructor();
         RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
         String toolId = "sakai.assignment";
@@ -805,6 +827,212 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         when(userDirectoryService.getUser("user1")).thenReturn(user1User);
         String filename = rubricsService.createContextualFilename(rubric, toolId, toolItem1, evaluation1.getEvaluatedItemId(), siteId);
         assertEquals(rubric.getTitle() + '_' + user1SortName, filename);
+    }
+
+    @Test
+    public void archive() {
+
+        switchToInstructor();
+
+        RubricTransferBean rubric1 = rubricsService.createDefaultRubric(siteId);
+        String title1 = "Cheese Sandwich";
+        rubric1.setTitle(title1);
+        String rubric1Criteria1Rating1Description = "This is great";
+        rubric1.getCriteria().get(0).getRatings().get(0).setDescription(rubric1Criteria1Rating1Description);
+        rubricsService.saveRubric(rubric1);
+
+        String rubric2CriteriaDescription = "Rate those sandwiches";
+        RubricTransferBean rubric2 = rubricsService.createDefaultRubric(siteId);
+        String title2 = "Egg Sandwich";
+        rubric2.setTitle(title2);
+        rubric2.getCriteria().get(0).setDescription(rubric2CriteriaDescription);
+        rubricsService.saveRubric(rubric2);
+
+        RubricTransferBean rubric3 = rubricsService.createDefaultRubric(siteId);
+        String title3 = "Ham Sandwich";
+        rubric3.setTitle(title3);
+        rubricsService.saveRubric(rubric3);
+
+        RubricTransferBean[] rubrics = new RubricTransferBean[] { rubric1, rubric2, rubric3 };
+
+        Document doc = Xml.createDocument();
+        Stack<Element> stack = new Stack<>();
+
+        Element root = doc.createElement("archive");
+        doc.appendChild(root);
+        root.setAttribute("source", siteId);
+        root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
+        root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
+        root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
+        stack.push(root);
+
+        String results = rubricsService.archive(siteId, doc, stack, "", null);
+
+        assertEquals(1, stack.size());
+
+        NodeList rubricsNode = root.getElementsByTagName(rubricsService.getLabel());
+        assertEquals(1, rubricsNode.getLength());
+
+        NodeList rubricNodes = ((Element) rubricsNode.item(0)).getElementsByTagName("rubric");
+        assertEquals(3, rubricNodes.getLength());
+
+        for (int i = 0; i < rubricNodes.getLength(); i++) {
+
+            RubricTransferBean rubricBean = rubrics[i];
+            Element rubricEl = (Element) rubricNodes.item(i);
+
+            assertEquals(rubricBean.getTitle(), rubricEl.getAttribute("title"));
+            assertEquals(Double.toString(rubricBean.getMaxPoints()), rubricEl.getAttribute("max-points"));
+            assertEquals(Boolean.toString(rubricBean.getWeighted()), rubricEl.getAttribute("weighted"));
+            assertEquals(Boolean.toString(rubricBean.getAdhoc()), rubricEl.getAttribute("adhoc"));
+
+            NodeList criteriaNodes = rubricEl.getElementsByTagName("criteria");
+            assertEquals(1, criteriaNodes.getLength());
+
+            NodeList criterionNodes = ((Element) criteriaNodes.item(0)).getElementsByTagName("criterion");
+            assertEquals(rubricBean.getCriteria().size(), criterionNodes.getLength());
+
+            for (int j = 0; j < criterionNodes.getLength(); j++) {
+
+                CriterionTransferBean criterionBean = rubrics[i].getCriteria().get(j);
+                Element criterionEl = (Element) criterionNodes.item(j);
+
+                assertEquals(criterionBean.getTitle(), criterionEl.getAttribute("title"));
+                assertEquals(Float.toString(criterionBean.getWeight()), criterionEl.getAttribute("weight"));
+
+                String criterionDescription = criterionBean.getDescription();
+                if (StringUtils.isNotBlank(criterionDescription)) {
+                    NodeList descriptionNodes = criterionEl.getElementsByTagName("description");
+                    assertEquals(1, descriptionNodes.getLength());
+                    CDATASection descriptionNode = (CDATASection) descriptionNodes.item(0).getFirstChild();
+                    assertNotNull(descriptionNode);
+                    assertEquals(criterionDescription, descriptionNode.getNodeValue());
+                }
+
+                NodeList ratingsNodes = criterionEl.getElementsByTagName("ratings");
+                assertEquals(1, ratingsNodes.getLength());
+
+                NodeList ratingNodes = ((Element) ratingsNodes.item(0)).getElementsByTagName("rating");
+                assertEquals(criterionBean.getRatings().size(), ratingNodes.getLength());
+
+                for (int k = 0; k < ratingNodes.getLength(); k++) {
+
+                    RatingTransferBean ratingBean = criterionBean.getRatings().get(k);
+                    Element ratingEl = (Element) ratingNodes.item(k);
+
+                    assertEquals(ratingBean.getTitle(), ratingEl.getAttribute("title"));
+                    assertEquals(Double.toString(ratingBean.getPoints()), ratingEl.getAttribute("points"));
+
+                    String ratingDescription = ratingBean.getDescription();
+                    if (StringUtils.isNotBlank(ratingDescription)) {
+                        NodeList ratingDescriptionNodes = ratingEl.getElementsByTagName("description");
+                        CDATASection ratingDescriptionNode = (CDATASection) ratingDescriptionNodes.item(0).getFirstChild();
+                        assertNotNull(ratingDescriptionNode);
+                        assertEquals(ratingDescription, ratingDescriptionNode.getNodeValue());
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void merge() {
+
+        Document doc = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/rubrics.xml"));
+
+        Element root = doc.getDocumentElement();
+
+        String fromSite = root.getAttribute("source");
+        String toSite = "my-new-site";
+
+        switchToInstructor(toSite);
+
+        Element rubricsElement = doc.createElement("not-rubrics");
+
+        rubricsService.merge(toSite, rubricsElement, "", fromSite, null, null, null);
+
+        assertEquals("Invalid xml document", rubricsService.merge(siteId, rubricsElement, "", fromSite, null, null, null));
+
+        rubricsElement = (Element) root.getElementsByTagName(rubricsService.getLabel()).item(0);
+
+        rubricsService.merge(toSite, rubricsElement, "", fromSite, null, null, null);
+
+        NodeList rubricNodes = rubricsElement.getElementsByTagName("rubric");
+
+        List<Rubric> rubrics = rubricRepository.findByOwnerId(toSite);
+
+        for (int i = 0; i < rubricNodes.getLength(); i++) {
+            Element rubricEl = (Element) rubricNodes.item(i);
+            String rubricTitle = rubricEl.getAttribute("title");
+            Optional<Rubric> optRubric = rubrics.stream().filter(r -> r.getTitle().equals(rubricTitle)).findAny();
+            assertTrue(optRubric.isPresent());
+            Rubric rubric = optRubric.get();
+            //assertEquals(Double.valueOf(rubricEl.getAttribute("max-points")), rubric.getMaxPoints());
+            assertEquals(Boolean.valueOf(rubricEl.getAttribute("adhoc")), rubric.getAdhoc());
+            assertEquals(Boolean.valueOf(rubricEl.getAttribute("weighted")), rubric.getWeighted());
+
+            NodeList criterionNodes = ((Element) rubricEl.getElementsByTagName("criteria").item(0))
+                                        .getElementsByTagName("criterion");
+            List<Criterion> criteria = rubric.getCriteria();
+            assertEquals(criterionNodes.getLength(), criteria.size());
+
+            for (int j = 0; j < criterionNodes.getLength(); j++) {
+                Element criterionEl = (Element) criterionNodes.item(j);
+                String criterionTitle = criterionEl.getAttribute("title");
+                Optional<Criterion> optCriterion = criteria.stream().filter(c -> c.getTitle().equals(criterionEl.getAttribute("title"))).findAny();
+                assertTrue(optCriterion.isPresent());
+                Criterion criterion = optCriterion.get();
+                NodeList descriptionNodes = criterionEl.getElementsByTagName("description");
+                if (descriptionNodes.getLength() == 1) {
+                    assertEquals(descriptionNodes.item(0).getFirstChild().getNodeValue(), criterion.getDescription());
+                }
+
+                NodeList ratingNodes = ((Element) criterionEl.getElementsByTagName("ratings").item(0))
+                                            .getElementsByTagName("rating");
+                List<Rating> ratings = criterion.getRatings();
+                for (int k = 0; k < ratingNodes.getLength(); k++) {
+                    Element ratingEl = (Element) ratingNodes.item(j);
+                    String ratingTitle = ratingEl.getAttribute("title");
+                    Optional<Rating> optRating = ratings.stream().filter(r -> r.getTitle().equals(ratingEl.getAttribute("title"))).findAny();
+                    assertTrue(optRating.isPresent());
+                    Rating rating = optRating.get();
+                    assertEquals(Double.valueOf(ratingEl.getAttribute("points")), rating.getPoints());
+
+                    NodeList ratingDescriptionNodes = ratingEl.getElementsByTagName("description");
+                    if (ratingDescriptionNodes.getLength() == 1) {
+                        assertEquals(ratingDescriptionNodes.item(0).getFirstChild().getNodeValue(), rating.getDescription());
+                    }
+                }
+            }
+        }
+
+        // Now let's try and merge again. The original rubrics with the same titles should remain and
+        // not be replaced or duplicated.
+        rubricsService.merge(toSite, rubricsElement, "", fromSite, null, null, null);
+
+        assertEquals(rubrics.size(), rubricRepository.findByOwnerId(toSite).size());
+
+        Set<String> oldTitles = rubrics.stream().map(Rubric::getTitle).collect(Collectors.toSet());
+
+        // Now let's try and merge this set of rubrics. It has one with a different title, but the
+        // rest the same, so we should end up with only one rubric being added.
+        Document doc2 = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/rubrics2.xml"));
+
+        Element root2 = doc2.getDocumentElement();
+
+        rubricsElement = (Element) root2.getElementsByTagName(rubricsService.getLabel()).item(0);
+
+        rubricsService.merge(toSite, rubricsElement, "", fromSite, null, null, null);
+
+        String extraTitle = "Smurfs";
+
+        assertEquals(rubrics.size() + 1, rubricRepository.findByOwnerId(toSite).size());
+
+        Set<String> newTitles = rubricRepository.findByOwnerId(toSite)
+            .stream().map(Rubric::getTitle).collect(Collectors.toSet());
+
+        assertFalse(oldTitles.contains(extraTitle));
+        assertTrue(newTitles.contains(extraTitle));
     }
 
     private EvaluationTransferBean buildEvaluation(Long associationId, RubricTransferBean rubricBean, String toolItemId) {
@@ -830,6 +1058,7 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     private void setupStudentPermissions() {
+
         when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteRef)).thenReturn(false);
         when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EVALUATOR, siteRef)).thenReturn(false);
         when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EVALUEE, siteRef)).thenReturn(true);
@@ -872,10 +1101,20 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     private void switchToInstructor() {
+        switchToInstructor(null);
+    }
 
-        when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, siteRef)).thenReturn(true);
-        when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EVALUATOR, siteRef)).thenReturn(true);
-        when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EVALUEE, siteRef)).thenReturn(false);
+    private void switchToInstructor(String siteId) {
+
+        String ref = siteId != null ? "/site/" + siteId : siteRef;
+
+        if (siteId != null) {
+            when(siteService.siteReference(siteId)).thenReturn(ref);
+        }
+
+        when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EDITOR, ref)).thenReturn(true);
+        when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EVALUATOR, ref)).thenReturn(true);
+        when(securityService.unlock(RubricsConstants.RBCS_PERMISSIONS_EVALUEE, ref)).thenReturn(false);
 
         when(sessionManager.getCurrentSessionUserId()).thenReturn(instructor);
         when(userDirectoryService.getCurrentUser()).thenReturn(instructorUser);

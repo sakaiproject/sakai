@@ -90,7 +90,6 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.transaction.annotation.Transactional;
@@ -125,6 +124,8 @@ public class PortalServiceImpl implements PortalService, Observer
 	private Map<String, Portal> portals = new ConcurrentHashMap<>();
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
 	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
+
+	public static final int DEFAULT_MAX_RECENT_SITES = 3;
 
 	public void init() {
 		try {
@@ -896,15 +897,31 @@ public class PortalServiceImpl implements PortalService, Observer
 	public void reorderPinnedSites(String userId, List<String> siteIds) {
 		if (StringUtils.isBlank(userId)) return;
 
-		pinnedSiteRepository.deleteByUserId(userId);
+		if(!serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
+			pinnedSiteRepository.deleteByUserId(userId);
 
-		for (int i = 0; i < siteIds.size(); i++) {
+			for (int i = 0; i < siteIds.size(); i++) {
 
-			PinnedSite pin = new PinnedSite();
-			pin.setUserId(userId);
-			pin.setSiteId(siteIds.get(i));
-			pin.setPosition(i);
-			pinnedSiteRepository.save(pin);
+				PinnedSite pin = new PinnedSite();
+				pin.setUserId(userId);
+				pin.setSiteId(siteIds.get(i));
+				pin.setPosition(i);
+				pinnedSiteRepository.save(pin);
+			}
+		} else {
+			List<String> reversedSiteIds = new ArrayList<>(siteIds);
+			Collections.reverse(reversedSiteIds);
+
+			pinnedSiteRepository.deleteByUserId(userId);
+
+			for (int i = 0; i < reversedSiteIds.size(); i++) {
+
+				PinnedSite pin = new PinnedSite();
+				pin.setUserId(userId);
+				pin.setSiteId(reversedSiteIds.get(i));
+				pin.setPosition(i);
+				pinnedSiteRepository.save(pin);
+			}
 		}
 	}
 
@@ -918,9 +935,15 @@ public class PortalServiceImpl implements PortalService, Observer
 	public List<String> getPinnedSites(String userId) {
 		if (StringUtils.isBlank(userId)) return Collections.emptyList();
 
-		return pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
+		List<String> pinned = pinnedSiteRepository
+				.findByUserIdAndHasBeenUnpinnedOrderByPosition(userId, false)
+				.stream()
 				.map(PinnedSite::getSiteId)
-				.collect(Collectors.toUnmodifiableList());
+				.collect(Collectors.toList());
+		if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
+			Collections.reverse(pinned);
+		}
+		return Collections.unmodifiableList(pinned);
 	}
 
 	@Override
@@ -959,11 +982,13 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
 
-		List<String> current = getRecentSites(userId);
+		List<String> current = new ArrayList<>(getRecentSites(userId));
 
-		if (current.size() == 3) {
-			// Oldest is last
-			String last = current.toArray(new String[] {})[current.size() - 1];
+		int maxRecentSites = serverConfigurationService.getInt("portal.max.recent.sites", DEFAULT_MAX_RECENT_SITES);
+		// Clean up excess sites if user has more than the limit
+		while (current.size() >= maxRecentSites && !current.isEmpty()) {
+			// Remove oldest entry (last in the list)
+			String last = current.remove(current.size() - 1);
 			recentSiteRepository.deleteByUserIdAndSiteId(userId, last);
 		}
 
@@ -1083,7 +1108,8 @@ public class PortalServiceImpl implements PortalService, Observer
 			// use getSiteVisit as it performs proper access checks
 			Site site = siteService.getSiteVisit(siteId);
 			if (site != null) {
-				access = site.getMember(userId).isActive() || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
+				Member member = site.getMember(userId);
+				access = (member != null && member.isActive()) || site.isAllowed(userId, SiteService.SECURE_UPDATE_SITE);
 			}
 		} catch (IdUnusedException | PermissionException e) {
 			log.debug("User [{}] doesn't have access to site [{}], {}", userId, siteId, e.toString());
@@ -1092,29 +1118,13 @@ public class PortalServiceImpl implements PortalService, Observer
 	}
 
 	private void removeFavoriteSiteData(String userId) {
-		PreferencesEdit edit = null;
-		try {
-			edit = preferencesService.edit(userId);
-		} catch (Exception e) {
-			log.warn("Could not get the preferences for user [{}], {}", userId, e.toString());
-		}
-
-		if (edit != null) {
-			try {
-				ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
-				log.debug("Clearing favorites data from preferences for user [{}]", userId);
-
-				props.removeProperty(FIRST_TIME_PROPERTY);
-				props.removeProperty(SEEN_SITES_PROPERTY);
-				props.removeProperty(FAVORITES_PROPERTY);
-			} catch (Exception e) {
-				log.warn("Could not remove favorites data for user [{}], {}", userId, e.toString());
-				preferencesService.cancel(edit);
-				edit = null; // set to null since it was cancelled, prevents commit in finally
-			} finally {
-				if (edit != null) preferencesService.commit(edit);
-			}
-		}
+		preferencesService.applyEditWithAutoCommit(userId, edit -> {
+			ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+			log.debug("Clearing favorites data from preferences for user [{}]", userId);
+			props.removeProperty(FIRST_TIME_PROPERTY);
+			props.removeProperty(SEEN_SITES_PROPERTY);
+			props.removeProperty(FAVORITES_PROPERTY);
+		});
 	}
 
 	@Override

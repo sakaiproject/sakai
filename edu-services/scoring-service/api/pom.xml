@@ -5,11 +5,12 @@
     <parent>
         <artifactId>scoring-service</artifactId>
         <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
-        <version>25-SNAPSHOT</version>
+        <version>26-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>Scoring Service API</name>
     <artifactId>scoring-service-api</artifactId>
     <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
 
@@ -33,6 +34,4 @@
             </resource>
         </resources>
     </build>
-
-
 </project>

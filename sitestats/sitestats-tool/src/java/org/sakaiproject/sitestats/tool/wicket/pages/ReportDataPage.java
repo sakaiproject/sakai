@@ -20,8 +20,6 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,7 +69,7 @@ import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
-import org.sakaiproject.sitestats.tool.wicket.components.ImageWithLink;
+import org.sakaiproject.sitestats.tool.wicket.components.ResourceLinkWithIcon;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
@@ -101,17 +99,6 @@ public class ReportDataPage extends BasePage {
 	private int							selectedWidth		= 0;
 	private int							selectedHeight		= 0;
 
-	// namespace for sakai icons see _icons.scss
-	public static final String ICON_SAKAI = "si-";
-
-	public ReportDataPage(final ReportDefModel reportDef) {
-		this(reportDef, null, null);
-	}
-
-	public ReportDataPage(final ReportDefModel reportDef, final PageParameters pageParameters) {
-		this(reportDef, pageParameters, null);
-	}
-
 	public ReportDataPage(final ReportDefModel reportDef, final PageParameters pageParameters, final WebPage returnPage) {
 		this.reportDefModel = reportDef;
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
@@ -123,7 +110,7 @@ public class ReportDataPage extends BasePage {
 			siteId = realSiteId;
 		}
 		if(returnPage == null) {
-			this.returnPage = new ReportsPage(pageParameters);			
+			this.returnPage = new ReportsPage(pageParameters);
 		}else{
 			this.returnPage = returnPage;
 		}
@@ -147,6 +134,9 @@ public class ReportDataPage extends BasePage {
 	
 	@SuppressWarnings("serial")
 	private void renderBody() {
+		// Set versioned to false to prevent StalePageException when using printable version
+		setVersioned(false);
+		
 		// reportAction
 		if(getReportDef().getTitle() != null && getReportDef().getTitle().trim().length() != 0) {
 			String titleStr = null;
@@ -177,17 +167,23 @@ public class ReportDataPage extends BasePage {
 		// print link/info
 		WebMarkupContainer toPrintVersion = new WebMarkupContainer("toPrintVersion");
 		toPrintVersion.setVisible(!inPrintVersion);
-		toPrintVersion.add(new Link("printLink") {
+		toPrintVersion.setVersioned(false);
+		Link<Void> printLink = new Link<Void>("printLink") {
 			@Override
 			public void onClick() {
 				PageParameters params = new PageParameters();
 				params.set("printVersion", "true");
 				params.set("siteId", siteId);
-				setResponsePage(new ReportDataPage(reportDefModel, params));
-			}			
-		});
+				setResponsePage(new ReportDataPage(reportDefModel, params, getWebPage()));
+			}
+		};
+		printLink.setVersioned(false);
+		toPrintVersion.add(printLink);
 		add(toPrintVersion);
-		add(new WebMarkupContainer("inPrintVersion").setVisible(inPrintVersion));
+		WebMarkupContainer inPrintContainer = new WebMarkupContainer("inPrintVersion");
+		inPrintContainer.setVisible(inPrintVersion);
+		inPrintContainer.setVersioned(false);
+		add(inPrintContainer);
 
 		// Report data
 		final ReportsDataProvider dataProvider = new ReportsDataProvider(getPrefsdata(), getReportDef());
@@ -206,6 +202,7 @@ public class ReportDataPage extends BasePage {
 			}		
 		};
 		reportChart.setOutputMarkupId(true);
+		reportChart.setVersioned(false);
 		add(reportChart);
 		if(ReportManager.HOW_PRESENTATION_CHART.equals(report.getReportDefinition().getReportParams().getHowPresentationMode())
 				|| ReportManager.HOW_PRESENTATION_BOTH.equals(report.getReportDefinition().getReportParams().getHowPresentationMode()) ) {
@@ -273,7 +270,7 @@ public class ReportDataPage extends BasePage {
 				setResponsePage(returnPage);
 				super.onSubmit();
 			}
-		}.setVisible(!inPrintVersion));
+		});
 		form.add(new Button("export") {
 			@Override
 			public void onSubmit() {
@@ -326,7 +323,7 @@ public class ReportDataPage extends BasePage {
 						lbl = (String) new ResourceModel("site_unknown").getObject();
 						href = null;
 					}
-					item.add(new ImageWithLink(componentId, null, href, lbl, "_parent"));
+					item.add(new ResourceLinkWithIcon(componentId, null, href, lbl, "_parent"));
 				}
 			});
 		}
@@ -384,7 +381,7 @@ public class ReportDataPage extends BasePage {
 						toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
 					}
 					Label toolLabel = new Label(componentId, " " + toolName);
-					String hclass = ICON_SAKAI + toolId.replace('.', '-');
+					String hclass = ReportsEditPage.ICON_SAKAI + toolId.replace('.', '-');
 					toolLabel.add(new AttributeModifier("class", new Model(hclass)));
 					toolLabel.add(new AttributeModifier("title", new Model(toolName)));
 					item.add(toolLabel);
@@ -406,7 +403,7 @@ public class ReportDataPage extends BasePage {
 					if(toolInfo != null) {
 						String toolId = toolInfo.getToolId();
 						String toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
-						String hclass = ICON_SAKAI + toolId.replace('.', '-');
+						String hclass = ReportsEditPage.ICON_SAKAI + toolId.replace('.', '-');
 						eventLabel.add(new AttributeModifier("class", new Model(hclass)));
 						eventLabel.add(new AttributeModifier("title", new Model(toolName)));
 					}
@@ -430,7 +427,7 @@ public class ReportDataPage extends BasePage {
 							lnkLabel = (String) new ResourceModel("overview_file_unavailable").getObject();
 						}					
 					}
-					resourceComp = new ImageWithLink(componentId, imgUrl, lnkUrl, lnkLabel, "_new");					
+					resourceComp = new ResourceLinkWithIcon(componentId, imgUrl, lnkUrl, lnkLabel, "_new");					
 					item.add(resourceComp);
 				}
 			});
@@ -464,7 +461,7 @@ public class ReportDataPage extends BasePage {
 				    if (lnkLabel == null) {
 					    lnkLabel = (String) new ResourceModel("resource_unknown").getObject();
 					}
-					Component resourceComp = new ImageWithLink(componentId, imgUrl, lnkUrl, lnkLabel, "_new");
+					Component resourceComp = new ResourceLinkWithIcon(componentId, imgUrl, lnkUrl, lnkLabel, "_new");
 					item.add(resourceComp);
 				}
 			});
@@ -611,9 +608,7 @@ public class ReportDataPage extends BasePage {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
 		response.setContentType("application/vnd.ms-excel");
-		fileName = fileName + ".xls";
-		// Filename has to be encoded because the siteId can contain non utf-8 chars.
-		response.setAttachmentHeader(this.encodeFileName(fileName));
+		response.setAttachmentHeader(fileName + ".xls");
 		response.setHeader("Cache-Control", "max-age=0");
 		response.setContentLength(hssfWorkbookBytes.length);
 		OutputStream out = null;
@@ -639,9 +634,7 @@ public class ReportDataPage extends BasePage {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
 		response.setContentType("text/comma-separated-values");
-		fileName = fileName + ".csv";
-		// Filename has to be encoded because the siteId can contain non utf-8 chars.
-		response.setAttachmentHeader(this.encodeFileName(fileName));
+		response.setAttachmentHeader(fileName + ".csv");
 		response.setHeader("Cache-Control", "max-age=0");
 		response.setContentLength(csvString.length());
 		OutputStream out = null;
@@ -667,9 +660,7 @@ public class ReportDataPage extends BasePage {
 		RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 		WebResponse response = (WebResponse) getResponse();
 		response.setContentType("application/pdf");
-		fileName = fileName + ".pdf";
-		// Filename has to be encoded because the siteId can contain non utf-8 chars.
-		response.setAttachmentHeader(this.encodeFileName(fileName));
+		response.setAttachmentHeader(fileName + ".pdf");
 		response.setHeader("Cache-Control", "max-age=0");
 		response.setContentLength(pdf.length);
 		OutputStream out = null;
@@ -760,14 +751,6 @@ public class ReportDataPage extends BasePage {
 	
 	public String getReportUserSelection() {
 		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportUserSelection(report);
-	}
-
-	private String encodeFileName(String fileName) {
-		try {
-			return URLEncoder.encode(fileName, StandardCharsets.UTF_8.displayName()); 
-		} catch (Exception ex) {
-			return fileName;
-		}
 	}
 
 }

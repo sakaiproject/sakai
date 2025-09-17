@@ -11,8 +11,10 @@
     #if (${sidebarCollapsed})
         #set ($sidebarCollapsedClass = "sidebar-collapsed")
         #set ($sidebarCollapseBtnTitle = $rloader.mainnav_btn_sidebar_expand)
+        #set ($portalNavSidebarIcon = "portal-nav-sidebar-icon-collapsed")
     #else
         #set ($sidebarCollapseBtnTitle = $rloader.mainnav_btn_sidebar_collapse)
+        #set ($portalNavSidebarIcon = "portal-nav-sidebar-icon")
     #end
 
 
@@ -42,8 +44,6 @@
             ## Header
             #parse("/vm/morpheus/snippets/header-snippet.vm")
 
-            #parse("/vm/morpheus/snippets/picture-changer-snippet.vm")
-
             #parse("/vm/morpheus/moresites.vm")
 
             ## Sites sidebar
@@ -57,6 +57,8 @@
 
             ## Notification sidebar
             #parse("/vm/morpheus/snippets/notifications-snippet.vm")
+
+            #parse("/vm/morpheus/snippets/calendar-snippet.vm")
 
             ## Search sidebar
             #parse("/vm/morpheus/snippets/search-snippet.vm")

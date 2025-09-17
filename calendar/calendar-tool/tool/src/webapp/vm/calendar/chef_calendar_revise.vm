@@ -1,4 +1,6 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_revise.vm,v 1.5 2005/06/14 20:13:33 suiyy.umich.edu Exp $
+#set( $H = '-' )
+#set( $T = 'T' )
 <script>includeLatestJQuery('chef_calendar_revise.vm');</script>
 #javascript("/library/js/lang-datepicker/lang-datepicker.js")
 <script type="text/javascript">

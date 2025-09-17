@@ -22,10 +22,12 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.sakaiproject.grading.api.GradingEventStatus;
@@ -54,8 +56,9 @@ import lombok.Setter;
 public class GradingEvent implements PersistableEntity<Long>, Comparable<Object>, Serializable {
 
     @Id
-    @GeneratedValue
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_grading_event_id_sequence")
+    @SequenceGenerator(name = "gb_grading_event_id_sequence", sequenceName = "GB_GRADING_EVENT_S")
     @EqualsAndHashCode.Include
     private Long id;
 
@@ -79,7 +82,7 @@ public class GradingEvent implements PersistableEntity<Long>, Comparable<Object>
     private Date dateGraded;
 
     @Column(name = "IS_EXCLUDED")
-    private GradingEventStatus status;
+    private GradingEventStatus status = GradingEventStatus.GRADE_NONE;
 
     public GradingEvent() {
         this.dateGraded = new Date();

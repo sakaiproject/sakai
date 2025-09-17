@@ -15,7 +15,6 @@ package org.sakaiproject.webapi.controllers;
 
 import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.webapi.beans.SearchRestBean;
 
@@ -39,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 public class SearchController extends AbstractSakaiApiController {
 
 	@Autowired private SearchService searchService;
-	@Autowired private SiteService siteService;
 
 	@GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SearchRestBean>> search(

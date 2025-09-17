@@ -33,6 +33,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -55,6 +56,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -151,8 +153,33 @@ public class SettingsCategoryPanel extends BasePanel {
 			this.model.getObject().getGradebookInformation().getCategories().add(stubCategoryDefinition());
 		}
 
+		final WebMarkupContainer settingsCategoriesAccordionButton = new WebMarkupContainer("settingsCategoriesAccordionButton");
 		final WebMarkupContainer settingsCategoriesPanel = new WebMarkupContainer("settingsCategoriesPanel");
+		
+		// Set up accordion behavior
+		setupAccordionBehavior(settingsCategoriesAccordionButton, settingsCategoriesPanel, this.expanded, 
+			new AccordionStateUpdater() {
+				@Override
+				public void updateState(boolean newState) {
+					SettingsCategoryPanel.this.expanded = newState;
+					
+					// When expanding the panel, reinitialize the drag functionality
+					if (newState) {
+						AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class).orElse(null);
+						if (target != null) {
+							target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");
+						}
+					}
+				}
+				
+				@Override
+				public boolean getState() {
+					return SettingsCategoryPanel.this.expanded;
+				}
+			});
+		
 		add(settingsCategoriesPanel);
+		add(settingsCategoriesAccordionButton);
 
 		// category types (note categoriesAndWeighting treated differently due to inter panel updates)
 		final RadioGroup<Integer> categoryType = new RadioGroup<>("categoryType",
@@ -383,6 +410,9 @@ public class SettingsCategoryPanel extends BasePanel {
 					}
 				});
 				item.add(name);
+
+				// Proper label for the drag handle (for screen readers)
+				item.add(new WebMarkupContainer("handle").add(new AttributeModifier("aria-label", new PropertyModel<>(category, "name"))));
 
 				// weight
 				final TextField<Double> weight = new TextField<Double>("weight", new PropertyModel<Double>(category, "weight")) {
@@ -630,7 +660,7 @@ public class SettingsCategoryPanel extends BasePanel {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onSubmit(final AjaxRequestTarget target) {
+					protected void onSubmit(final AjaxRequestTarget target) {
 
 						// remove this category from the model
 						final CategoryDefinition current = item.getModelObject();
@@ -639,7 +669,7 @@ public class SettingsCategoryPanel extends BasePanel {
 						int categoryIndex = 0;
 						for (final CategoryDefinition category : SettingsCategoryPanel.this.model.getObject().getGradebookInformation()
 								.getCategories()) {
-							category.setCategoryOrder(Integer.valueOf(categoryIndex));
+							category.setCategoryOrder(categoryIndex);
 							categoryIndex++;
 						}
 

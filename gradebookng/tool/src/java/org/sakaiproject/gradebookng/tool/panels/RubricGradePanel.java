@@ -33,6 +33,8 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -63,7 +65,7 @@ public class RubricGradePanel extends BasePanel {
         final GbUser student = businessService.getUser(studentUuid);
 
         // Set the JS rubricGradingPoints variable to the current grade, if set.
-        Map<Long, GbGradeInfo> grades = businessService.getGradesForStudent(studentUuid);
+        Map<Long, GbGradeInfo> grades = businessService.getGradesForStudent(currentGradebookUid, currentSiteId, studentUuid);
         String grade = grades.get(assignmentId).getGrade();
         if (grade == null) grade = "0";
         Label initPointsScript = new Label("initPointsScript", "<script>rubricGradingPoints = " + grade + ";</script>");
@@ -78,7 +80,7 @@ public class RubricGradePanel extends BasePanel {
         final WebMarkupContainer sakaiRubricViewer = new WebMarkupContainer("sakai-rubric-viewer"); // View only rubric component for externally maintained assignments
         sakaiRubricViewer.add(AttributeModifier.append("id", assignmentId));
         sakaiRubricViewer.add(AttributeModifier.append("evaluated-item-owner-id", studentUuid));
-        Assignment assignment = businessService.getAssignment(assignmentId);
+        Assignment assignment = businessService.getAssignment(currentGradebookUid, currentSiteId, assignmentId);
         sakaiRubricGrading.add(AttributeModifier.append("tool-id", assignment.getExternallyMaintained() ? AssignmentConstants.TOOL_ID : RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
         sakaiRubricGrading.setVisible(!assignment.getExternallyMaintained());
         sakaiRubricViewer.add(AttributeModifier.append("tool-id", assignment.getExternallyMaintained() ? AssignmentConstants.TOOL_ID : RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
@@ -100,6 +102,13 @@ public class RubricGradePanel extends BasePanel {
         }
         form.add(sakaiRubricGrading);
         form.add(sakaiRubricViewer);
+
+        GradebookInformation info
+            = businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
+
+        if (info.getGradeType() == GradingConstants.GRADE_TYPE_PERCENTAGE) {
+            sakaiRubricGrading.add(AttributeModifier.append("total-as-percentage", ""));
+        }
 
         final GbAjaxButton submit = new GbAjaxButton("submit") {
             @Override

@@ -40,7 +40,8 @@ public class ViewCourseGradeLogAction extends InjectableAction implements Serial
 
 		window.setStudentToReturnFocusTo(studentUuid);
 		window.setReturnFocusToCourseGrade();
-		window.setContent(new CourseGradeOverrideLogPanel(window.getContentId(), Model.of(studentUuid), window));
+		CourseGradeOverrideLogPanel cgolp = new CourseGradeOverrideLogPanel(window.getContentId(), Model.of(studentUuid), window);
+		window.setContent(cgolp);
 		window.showUnloadConfirmation(false);
 		window.show(target);
 

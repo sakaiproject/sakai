@@ -61,6 +61,7 @@ public interface GradingPersistenceManager {
     void deleteAssignment(GradebookAssignment assignment);
     Optional<GradebookAssignment> getAssignmentByNameAndGradebook(String name, String gradebookUid);
     List<GradebookAssignment> getAssignmentsForGradebook(Long gradebookId);
+    List<GradebookAssignment> getAssignmentsForGradebookAndCategoryId(Long gradebookId, Long categoryId);
     List<GradebookAssignment> getAssignmentsForCategory(Long categoryId);
     Optional<GradebookAssignment> getAssignmentByIdAndGradebook(Long id, String gradebookUid);
     Optional<GradebookAssignment> getAssignmentById(Long id);
@@ -70,6 +71,7 @@ public interface GradingPersistenceManager {
     Long countAssignmentsByNameAndGradebookUid(String name, String gradebookUid);
     Long countDuplicateAssignments(GradebookAssignment assignment);
     Optional<GradebookAssignment> getExternalAssignment(String gradebookUid, String externalId);
+    List<GradebookAssignment> getGradebookUidByExternalId(String externalId);
     GradebookAssignment saveGradebookAssignment(GradebookAssignment assignment);
 
     Optional<Comment> getInternalComment(String studentUid, String gradebookUid, Long assignmentId);
@@ -80,6 +82,7 @@ public interface GradingPersistenceManager {
 
     Optional<Category> getCategory(Long categoryId);
     List<Category> getCategoriesForGradebook(Long gradebookId);
+    List<Category> getCategoriesWithAssignmentsForGradebook(Long gradebookId);
     boolean isCategoryDefined(String name, Gradebook gradebook);
     boolean existsDuplicateCategory(String name, Gradebook gradebook, Long id);
     Category saveCategory(Category category);

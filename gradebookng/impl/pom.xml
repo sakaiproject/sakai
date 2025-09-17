@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.sakaiproject.gradebookng</groupId>
         <artifactId>gradebookng</artifactId>
-        <version>25-SNAPSHOT</version>
+        <version>26-SNAPSHOT</version>
     </parent>
 
     <packaging>sakai-component</packaging>
@@ -90,13 +90,19 @@
         <dependency>
             <groupId>org.sakaiproject.lti</groupId>
             <artifactId>lti-api</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.lti</groupId>
             <artifactId>lti-util</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

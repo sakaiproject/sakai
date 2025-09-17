@@ -12,6 +12,7 @@
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
         <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
         <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
+        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
         <property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
     </bean>
     

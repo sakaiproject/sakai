@@ -175,4 +175,14 @@
     border: none;
   }
 
+  .navIntraTool {
+    li span.current a {
+      background: unset;
+    }
+  }
+
+  .reqStarInline {
+    padding-inline: 0.25em;
+  }
+
 }

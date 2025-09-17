@@ -22,6 +22,7 @@
         <script>includeWebjarLibrary('bootstrap')</script>
         <script src="/library/js/sakai-reminder.js"></script>
         <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+        <script type="module" src="/vuecomponents/js/sakai.min.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <h:form id="msgForum">
             <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
@@ -65,7 +66,6 @@
             <%
             }
 
-            boolean hasAssociatedRubric = forumTool.hasAssociatedRubric();
             String entityId = forumTool.getRubricAssociationId();
 
             if (userId == null) userId = forumTool.getUserId();
@@ -95,20 +95,26 @@
             <script src="/library/js/spinner.js"></script>
 
             <script>
+                var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
+                
                 $(document).ready(function() {
-                  try {
-                    var sakaiReminder = new SakaiReminder();
-                    new Awesomplete($('.awesomplete')[0], {
-                      list: sakaiReminder.getAll()
-                    });
-                    $('#msgForum').submit(function (e) {
-                      $('textarea.awesomplete').each(function () {
-                        sakaiReminder.new($(this).val());
-                      });
-                    });
-                  } catch (err) {
-                      //Just ignore the exception, happens when a gradebook item is not selected.
-                  }
+                    if (isGradebookGroupEnabled) {
+                        window.syncGbSelectorInput("gb-selector", "msgForum:gb_selector");
+                    }
+
+                    try {
+                        var sakaiReminder = new SakaiReminder();
+                        new Awesomplete($('.awesomplete')[0], {
+                            list: sakaiReminder.getAll()
+                        });
+                        $('#msgForum').submit(function (e) {
+                            $('textarea.awesomplete').each(function () {
+                                sakaiReminder.new($(this).val());
+                            });
+                        });
+                    } catch (err) {
+                        //Just ignore the exception, happens when a gradebook item is not selected.
+                    }
                 });
             </script>
 
@@ -152,10 +158,19 @@
                 <h:outputText value="#{msgs.cdfm_required}" />
                 <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>
             </h:panelGroup>
-
+            <h:panelGroup layout="block" styleClass="row" rendered="#{ForumTool.gradebookGroupEnabled}">
+                <sakai-multi-gradebook
+                        id="gb-selector"
+                        app-name="sakai.forums"
+                        site-id='<h:outputText value="#{ForumTool.siteId}" />'
+                        user-id='<h:outputText value="#{ForumTool.selectedGradedUserId}" />'
+                        group-id='<h:outputText value="#{ForumTool.groupId}" />'
+                        selected-temp='<h:outputText value="#{ForumTool.selectedAssign}" />'
+                </sakai-multi-gradebook>
+                <h:inputHidden id="gb_selector" value="#{ForumTool.currentChange}" />
+            </h:panelGroup>
             <h:panelGrid id="grade-message-options" styleClass="jsfFormTable" columns="1" columnClasses="shorttext spinnerBesideContainer" border="0">
-                <% if (!hasAssociatedRubric) { %>
-                <h:panelGroup rendered="#{!hasAssociatedRubric}">
+                <h:panelGroup rendered="#{!hasAssociatedRubric && !ForumTool.gradebookGroupEnabled}">
                     <h:outputLabel for="assignment"  rendered="#{ForumTool.allowedToGradeItem}">
                         <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" style="padding-right:3px"/>
                         <h:outputText  value="#{msgs.cdfm_assignments}"/>
@@ -168,7 +183,6 @@
                         <f:param value="#{ForumTool.gbItemPointsPossible}"/>
                     </h:outputFormat>
                 </h:panelGroup>
-                <%}%>
                 <h:outputText value="" rendered="#{ForumTool.selGBItemRestricted && !ForumTool.noItemSelected}" />
                 <h:outputText value="#{msgs.cdfm_no_gb_perm}" rendered="#{ForumTool.selGBItemRestricted && !ForumTool.noItemSelected}" styleClass="alertMessage"/>
                 <h:panelGroup  rendered="#{!ForumTool.selGBItemRestricted}">
@@ -196,15 +210,15 @@
                 </h:panelGroup>
             </h:panelGrid>
 
-            <% if (hasAssociatedRubric) { %>
+            <h:panelGroup rendered="#{hasAssociatedRubric}">
                 <sakai-rubric-grading
                     tool-id="sakai.gradebookng"
                     site-id='<h:outputText value="#{ForumTool.siteId}" />'
                     entity-id='<%= entityId %>'
                     evaluated-item-id='<%= rbcsEvaluationId %>'
-                    evaluated-item-owner-id='<%= rbcsEvaluationOwnerId %>'
-                ></sakai-rubric-grading>
-            <%}%>
+                    evaluated-item-owner-id='<%= rbcsEvaluationOwnerId %>'>
+                </sakai-rubric-grading>
+            </h:panelGroup>
 
             <sakai:button_bar>
                 <% if(isDialogBox){ %>
@@ -219,7 +233,7 @@
                     <h:commandButton action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x"
                         onclick="MFR.cancelGrading();" />
                 <%}%>
-
+                <h:commandButton value="#{msgs.cdfm_send_info}" onclick="document.forms[0].submit();" accesskey="x" action="#{ForumTool.processGradeAssignSend}" />
             </sakai:button_bar>
 
             <% if(isDialogBox){ %>

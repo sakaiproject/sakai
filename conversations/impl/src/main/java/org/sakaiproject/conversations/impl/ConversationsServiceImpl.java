@@ -32,7 +32,13 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
+
+import org.sakaiproject.util.comparator.AlphaNumericComparator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -85,7 +91,6 @@ import org.sakaiproject.conversations.api.repository.TopicReactionTotalRepositor
 import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -97,6 +102,7 @@ import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradeDefinition;
 import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messaging.api.Message;
@@ -123,8 +129,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import org.hibernate.exception.ConstraintViolationException;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -132,10 +136,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import lombok.Setter;
 
+import javax.persistence.PersistenceException;
+
 @Slf4j
 @Setter
 @Transactional
-public class ConversationsServiceImpl implements ConversationsService, EntityProducer, EntityTransferrer, Observer {
+public class ConversationsServiceImpl implements ConversationsService, EntityTransferrer, Observer {
 
     private AuthzGroupService authzGroupService;
 
@@ -198,6 +204,8 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     private UserTimeService userTimeService;
 
     private ResourceLoader resourceLoader;
+
+    private LTIService ltiService;
 
     private Cache<String, List<ConversationsStat>> sortedStatsCache;
     private Cache<String, Map<String, Map<String, Object>>> postsCache;
@@ -432,7 +440,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
     @Transactional
     public TopicTransferBean saveTopic(final TopicTransferBean topicBean, boolean sendMessage) throws ConversationsPermissionsException {
 
-        String currentUserId = getCheckedCurrentUserId();
+        String currentUserId = StringUtils.isNotBlank(topicBean.creator) ? topicBean.creator : getCheckedCurrentUserId();
 
         String siteRef = siteService.siteReference(topicBean.siteId);
 
@@ -577,7 +585,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return decoratedBean;
     }
 
-    @Transactional
     private void syncGradingItem(boolean isNew, Long existingGradingItemId, ConversationsTopic topic, TopicTransferBean params) {
 
         // 1. New topic with createGradingItem true
@@ -597,7 +604,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         String topicRef = ConversationsReferenceReckoner.reckoner().topic(topic).reckon().getReference();
         if (params.graded) {
-            String topicUrl = getTopicPortalUrl(params.id).orElse("");
 
             if (isNew) {
                 if (params.createGradingItem) {
@@ -613,10 +619,12 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     log.warn("When grading a topic, either create grading item should be specified, or an existing item should have been selected");
                 }
             } else {
+                String topicUrl = getTopicPortalUrl(params.id).orElse("");
+
                 if (params.createGradingItem) {
                     if (existingGradingItemId != null && gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
                         gradingService.updateExternalAssessment(params.siteId, topicRef, topicUrl, null,
-                                     params.title, params.gradingPoints, null, false);
+                                     params.title, null, params.gradingPoints, null, false);
                     } else {
                         addGradingItem(topic, params, topicRef);
                     }
@@ -624,14 +632,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                     if (existingGradingItemId != null && existingGradingItemId != -1) {
                         if (existingGradingItemId != params.gradingItemId) {
                             if (gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
-                                gradingService.removeExternalAssignment(params.siteId, topicRef);
+                                gradingService.removeExternalAssignment(params.siteId, topicRef, null);
                             }
 
                             topic.setGradingItemId(params.gradingItemId);
                             topic = topicRepository.save(topic);
                         } else if (gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
                             gradingService.updateExternalAssessment(params.siteId, topicRef, topicUrl, null,
-                                     params.title, params.gradingPoints, null, false);
+                                     params.title, null, params.gradingPoints, null, false);
                         }
                     } else {
                         topic.setGradingItemId(params.gradingItemId);
@@ -641,7 +649,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             }
         } else {
             if (gradingService.isExternalAssignmentDefined(params.siteId, topicRef)) {
-                gradingService.removeExternalAssignment(params.siteId, topicRef);
+                gradingService.removeExternalAssignment(params.siteId, topicRef, null);
             }
             topic.setGradingItemId(null);
             topic = topicRepository.save(topic);
@@ -662,12 +670,11 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         if (params.gradingCategory != -1L) {
             assignment.setCategoryId(params.gradingCategory);
         }
-        Long gbId = gradingService.addAssignment(params.siteId, assignment);
+        Long gbId = gradingService.addAssignment(params.siteId, params.siteId, assignment);
         topic.setGradingItemId(gbId);
         topic = topicRepository.save(topic);
     }
 
-    @Transactional
     private void sendOrScheduleTopicMessages(String topicId, boolean isNew, boolean wasDraft) {
 
         ConversationsTopic topic = topicRepository.findById(topicId)
@@ -863,7 +870,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         String ref = ConversationsReferenceReckoner.reckoner().topic(topic).reckon().getReference();
         if (topic.getGradingItemId() != null && gradingService.isExternalAssignmentDefined(topic.getSiteId(), ref)) {
-            gradingService.removeExternalAssignment(topic.getSiteId(), ref);
+            gradingService.removeExternalAssignment(topic.getSiteId(), ref, null);
         }
 
         afterCommit(() -> {
@@ -1128,11 +1135,14 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 try {
                     Site site = siteService.getSite(decoratedBean.siteId);
 
-                    Map<String, Object> replacements = Map.of("siteTitle", site.getTitle(),
-                                                                "topicTitle", topic.getTitle(),
-                                                                "postUrl", decoratedBean.portalUrl,
-                                                                "creatorDisplayName", decoratedBean.creatorDisplayName,
-                                                                "bundle", new ResourceLoader("conversations_notifications"));
+                    // Use a mutable HashMap instead of Map.of() to avoid UnsupportedOperationException
+                    // The email template service tries to modify this map with putAll() operation
+                    Map<String, Object> replacements = new HashMap<>();
+                    replacements.put("siteTitle", site.getTitle());
+                    replacements.put("topicTitle", topic.getTitle());
+                    replacements.put("postUrl", decoratedBean.portalUrl);
+                    replacements.put("creatorDisplayName", decoratedBean.creatorDisplayName);
+                    replacements.put("bundle", new ResourceLoader("conversations_notifications"));
 
                     if (topic.getType() == TopicType.QUESTION) {
                         String topicCreator = topic.getMetadata().getCreator();
@@ -1238,7 +1248,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
                 Arrays.asList(new MessageMedium[] {MessageMedium.EMAIL}), replacements, NotificationService.NOTI_OPTIONAL);
     }
 
-    @Transactional
     private void updatePostHowActiveScore(ConversationsPost post) {
 
         int howActive = 0;
@@ -1363,15 +1372,18 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
             Map<String, GradeDefinition> posterGrades = Collections.emptyMap();
             Long gradingItemId = topic.getGradingItemId();
-            if (gradingItemId != null) {
+            String siteRef = siteService.siteReference(siteId);
+            // Check permissions before attempting to get grades to prevent GradingSecurityException
+            // Students who don't have the conversations.grade permission should skip this call
+            if (gradingItemId != null && securityService.unlock(Permissions.GRADE.label, siteRef)) {
                 try {
-                    posterGrades = gradingService.getGradesForStudentsForItem(siteId, gradingItemId, creatorIds)
+                    posterGrades = gradingService.getGradesForStudentsForItem(siteId, siteId, gradingItemId, creatorIds)
                         .stream().collect(Collectors.toMap(GradeDefinition::getStudentUid, gd -> gd));
                 } catch (GradingSecurityException se) {
                     log.warn("Failed to getGradesForStudentsForItem with exception: {}", se.toString());
                 }
             } else {
-                log.debug("Grading item ID is null for topic: {}", topic);
+                log.debug("Grading item ID is null or user lacks grade permission for topic: {}", topic);
             }
 
             Map<String, GradeDefinition> finalPosterGrades = posterGrades;
@@ -1442,21 +1454,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         }
 
         int pageSize = serverConfigurationService.getInt(ConversationsService.PROP_THREADS_PAGE_SIZE, 10);
-
-        // This method is only ever called on a topic click. So, if there are no posts we can just
-        // assume that the topic has been viewed in its entirety.
-        if (fullList.isEmpty()) {
-            TopicStatus topicStatus = topicStatusRepository.findByTopicIdAndUserId(topicId, currentUserId)
-                .orElseGet(() -> new TopicStatus(topic, currentUserId));
-            topicStatus.setViewed(true);
-            try {
-                topicStatusRepository.save(topicStatus);
-            } catch (ConstraintViolationException e) {
-                log.debug("Caught a constraint exception while saving topic status. This can happen " +
-                    "due to the way the client detects posts scrolling into view");
-            }
-        }
-
         if (fullList.size() < pageSize) {
             return fullList;
         } else if (requestedThreadId != null) {
@@ -1684,9 +1681,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         topicStatus.setViewed(numberOfUnreadPosts == 0L);
         try {
             topicStatusRepository.save(topicStatus);
-        } catch (ConstraintViolationException e) {
-            log.debug("Caught a constraint exception while saving topic status. This can happen " +
-                "due to the way the client detects posts scrolling into view");
+        } catch (PersistenceException pe) {
+            log.debug("Caught an exception while saving topic status. This can happen "
+                    + "due to the way the client detects posts scrolling into view", pe);
         }
 
         Map<String, Map<String, Object>> topicCache = postsCache.get(topicId);
@@ -1711,9 +1708,9 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
                 String ref = ConversationsReferenceReckoner.reckoner().post(post).reckon().getReference();
                 eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.POST_VIEWED.label, ref, post.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
-            } catch (ConstraintViolationException e) {
-                log.debug("Caught constraint exception while marking post viewed. This can happen " +
-                    "due to the way the client detects posts scrolling into view");
+            } catch (PersistenceException pe) {
+                log.debug("Caught constraint exception while marking post viewed. This can happen "
+                        + "due to the way the client detects posts scrolling into view", pe);
             }
         });
     }
@@ -1840,15 +1837,11 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         topicBean.canModerate = securityService.unlock(Permissions.MODERATE.label, siteRef);
 
         if (topic != null) {
-            topicBean.tags = topic.getTagIds().stream().map(tagId -> {
 
-                Optional<Tag> optTag = tagRepository.findById(tagId);
-                if (optTag.isPresent()) {
-                    return optTag.get();
-                } else {
-                    return null;
-                }
-            }).collect(Collectors.toList());
+            topicBean.tags = topic.getTagIds().stream()
+                    .map(id -> tagRepository.findById(id).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
             topicStatusRepository.findByTopicIdAndUserId(topic.getId(), currentUserId)
                 .ifPresent(s -> {
@@ -1893,7 +1886,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             topicBean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
             topicBean.canBookmark = settings.getAllowBookmarking();
             topicBean.canTag = securityService.unlock(Permissions.TOPIC_TAG.label, siteRef);
-            topicBean.canReact = !topicBean.isMine && settings.getAllowReactions();
+            topicBean.canReact = !topicBean.isMine && settings.getAllowReactions() && securityService.unlock(Permissions.POST_REACT.label, siteRef);
             topicBean.canUpvote = !topicBean.isMine && settings.getAllowUpvoting() && !topicBean.hidden && securityService.unlock(Permissions.POST_UPVOTE.label, siteRef);
             topicBean.canViewUpvotes = settings.getAllowUpvoting();
         } else {
@@ -1902,7 +1895,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
         if (topicBean.gradingItemId != null && topicBean.gradingItemId != -1) {
             try {
-                topicBean.gradingPoints = gradingService.getAssignment(topicBean.siteId, topicBean.gradingItemId).getPoints();
+                topicBean.gradingPoints = gradingService.getAssignment(topicBean.siteId, topicBean.siteId, topicBean.gradingItemId).getPoints();
             } catch (AssessmentNotFoundException anfe) {
                 log.warn("No grading assignment for id {}. Points have NOT been set for topic {}", topicBean.gradingItemId, topicBean.id);
             }
@@ -1915,7 +1908,6 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return topicBean;
     }
 
-    @Transactional(readOnly = true)
     private long getNumberOfPostsInTopic(ConversationsTopic topic, String currentUserId) {
 
         return postRepository.findByTopicId(topic.getId()).stream().filter(p -> {
@@ -2184,6 +2176,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return tags.stream().map(tagRepository::save).collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Tag> getTagsForSite(String siteId) throws ConversationsPermissionsException {
 
@@ -2195,9 +2188,13 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
             return Collections.<Tag>emptyList();
         }
 
-        return tagRepository.findBySiteId(siteId);
+        List<Tag> tags = tagRepository.findBySiteId(siteId);
+        // Sort tags alphabetically by label
+        tags.sort(Comparator.comparing(Tag::getLabel, new AlphaNumericComparator()));
+        return tags;
     }
 
+    @Override
     public void deleteTag(Long tagId) throws ConversationsPermissionsException {
 
         getCheckedCurrentUserId();
@@ -2213,7 +2210,10 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
             tagRepository.deleteById(tagId);
 
-            topicRepository.findByTags_Id(tagId).forEach(t -> t.getTagIds().remove(tagId));
+            // Update the topics that were using this tag
+            List<ConversationsTopic> topicsToUpdate = topicRepository.findByTags_Id(tagId);
+            topicsToUpdate.forEach(t -> t.getTagIds().remove(tagId));
+            topicRepository.saveAll(topicsToUpdate);
         } else {
             throw new IllegalArgumentException("No tag with id " + tagId);
         }
@@ -2624,7 +2624,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
 
                     newBean.id = fromBean.id;
                     newBean.title = fromBean.title;
-                    newBean.message = fromBean.message;
+                    newBean.message = ltiService.fixLtiLaunchUrls(fromBean.message, fromContext, toContext, traversalMap);
                     newBean.siteId = toContext;
                     newBean.draft = true;
                     newBean.type = fromBean.type;
@@ -2656,6 +2656,7 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return traversalMap;
     }
 
+    @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
 
         if (cleanup) {
@@ -2672,6 +2673,129 @@ public class ConversationsServiceImpl implements ConversationsService, EntityPro
         return transferCopyEntities(fromContext, toContext, ids, transferOptions);
     }
 
+    @Override
+    public boolean willArchiveMerge() {
+        return true;
+    }
+
+    @Override
+    public String getLabel() {
+        return "conversations";
+    }
+
+    @Override
+    public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath, List<Reference> attachments) {
+
+        StringBuilder results = new StringBuilder();
+        results.append("begin archiving ").append(getLabel()).append(" for site ").append(siteId).append(System.lineSeparator());
+
+        Element element = doc.createElement(getLabel());
+        stack.peek().appendChild(element);
+        stack.push(element);
+
+        Element topicsEl = doc.createElement("topics");
+        element.appendChild(topicsEl);
+
+        topicRepository.findBySiteId(siteId).stream().sorted((t1, t2) -> t1.getTitle().compareTo(t2.getTitle())).forEach(topic -> {
+
+            Element topicEl = doc.createElement("topic");
+            topicsEl.appendChild(topicEl);
+            topicEl.setAttribute("title", topic.getTitle());
+            topicEl.setAttribute("type", topic.getType().name());
+            topicEl.setAttribute("post-before-viewing", Boolean.toString(topic.getMustPostBeforeViewing()));
+            topicEl.setAttribute("anonymous", Boolean.toString(topic.getAnonymous()));
+            topicEl.setAttribute("allow-anonymous-posts", Boolean.toString(topic.getAllowAnonymousPosts()));
+            topicEl.setAttribute("pinned", Boolean.toString(topic.getPinned()));
+            topicEl.setAttribute("draft", Boolean.toString(topic.getDraft()));
+            topicEl.setAttribute("visibility", topic.getVisibility().name());
+            topicEl.setAttribute("creator", topic.getMetadata().getCreator());
+            topicEl.setAttribute("created", Long.toString(topic.getMetadata().getCreated().getEpochSecond()));
+            topicEl.setAttribute("graded", Boolean.toString(topic.getGraded()));
+
+            if (topic.getShowDate() != null) {
+              topicEl.setAttribute("show-date", Long.toString(topic.getShowDate().getEpochSecond()));
+            }
+            if (topic.getHideDate() != null) {
+              topicEl.setAttribute("hide-date", Long.toString(topic.getHideDate().getEpochSecond()));
+            }
+            if (topic.getLockDate() != null) {
+              topicEl.setAttribute("lock-date", Long.toString(topic.getLockDate().getEpochSecond()));
+            }
+            if (topic.getDueDate() != null) {
+              topicEl.setAttribute("due-date", Long.toString(topic.getDueDate().getEpochSecond()));
+            }
+
+            Element messageEl = doc.createElement("message");
+            messageEl.appendChild(doc.createCDATASection(topic.getMessage()));
+            topicEl.appendChild(messageEl);
+        });
+
+        results.append("completed archiving ").append(getLabel()).append(" for site ").append(siteId).append(System.lineSeparator());
+        return results.toString();
+    }
+
+    @Override
+    public String merge(String toSiteId, Element root, String archivePath, String fromSiteId, Map<String, String> attachmentNames, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+
+        StringBuilder results = new StringBuilder();
+        results.append("begin merging ").append(getLabel()).append(" for site ").append(toSiteId).append(System.lineSeparator());
+
+        if (!root.getTagName().equals(getLabel())) {
+            log.warn("Tried to merge a non <{}> xml document", getLabel());
+            return "Invalid xml document";
+        }
+
+        Set<String> currentTitles = topicRepository.findBySiteId(toSiteId)
+            .stream().map(ConversationsTopic::getTitle).collect(Collectors.toSet());
+
+        NodeList topicNodes = root.getElementsByTagName("topic");
+
+        Instant now = Instant.now();
+
+        for (int i = 0; i < topicNodes.getLength(); i++) {
+
+            Element topicEl = (Element) topicNodes.item(i);
+            String title = topicEl.getAttribute("title");
+
+            if (currentTitles.contains(title)) {
+                log.debug("Topic \"{}\" already exists in site {}. Skipping merge ...", title, toSiteId);
+                continue;
+            }
+
+            TopicTransferBean topicBean = new TopicTransferBean();
+            topicBean.siteId = toSiteId;
+            topicBean.title = title;
+            topicBean.type = topicEl.getAttribute("type");
+            topicBean.created = now;
+            topicBean.mustPostBeforeViewing = Boolean.parseBoolean(topicEl.getAttribute("post-before-viewing"));
+            topicBean.anonymous = Boolean.parseBoolean(topicEl.getAttribute("anonymous"));
+            topicBean.allowAnonymousPosts = Boolean.parseBoolean(topicEl.getAttribute("allow-anonymous-posts"));
+            topicBean.draft = true;
+            topicBean.pinned = Boolean.parseBoolean(topicEl.getAttribute("pinned"));
+            topicBean.visibility = topicEl.getAttribute("visibility");
+            topicBean.graded = Boolean.parseBoolean(topicEl.getAttribute("graded"));
+
+            topicBean.showDate = topicEl.hasAttribute("show-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("show-date"))) : null;
+            topicBean.hideDate = topicEl.hasAttribute("hide-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("hide-date"))) : null;
+            topicBean.lockDate = topicEl.hasAttribute("lock-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("lock-date"))) : null;
+            topicBean.dueDate = topicEl.hasAttribute("due-date") ? Instant.ofEpochSecond(Long.parseLong(topicEl.getAttribute("due-date"))) : null;
+
+            NodeList messageNodes = topicEl.getElementsByTagName("message");
+            if (messageNodes.getLength() == 1) {
+                topicBean.message = ((Element) messageNodes.item(0)).getFirstChild().getNodeValue();
+            }
+
+            try {
+                saveTopic(topicBean, false);
+            } catch (Exception e) {
+                log.warn("Failed to merge topic \"{}\": {}", topicBean.title, e.toString());
+            }
+        }
+
+        return "";
+    }
+
+    @Override
     public boolean parseEntityReference(String referenceString, Reference ref) {
 
         if (referenceString.startsWith(REFERENCE_ROOT)) {

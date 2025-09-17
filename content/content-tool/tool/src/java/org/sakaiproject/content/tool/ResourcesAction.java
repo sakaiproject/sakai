@@ -73,7 +73,6 @@ import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -828,7 +827,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/** vm files for each mode. */
 	private static final String TEMPLATE_DAV = "content/chef_resources_webdav";
-	
+
 	private static final String TEMPLATE_QUOTA = "resources/sakai_quota";
 
 	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
@@ -2931,7 +2930,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				// Get the collection members from the 'new' collection
 				List newMembers = collection.getMemberResources();
-				
+
 				Comparator comparator = userSelectedSort;
 				if(comparator == null)
 				{
@@ -4870,9 +4869,21 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		log.debug("{}.buildPermissionsPageContext()", this);
 
 		String reference = (String) state.getAttribute("folder_group_reference");
+		String overrideReference = null;
+		if (StringUtils.isNotBlank(reference)) {
+			// Skip getting containing collection for site root paths
+			// Site root paths look like /content/group/site-id/
+			if (!reference.matches("/content/group/[^/]+/$")) {
+				overrideReference = contentHostingService.getContainingCollectionId(reference);
+			}
+		}
+
 		String folderName = (String) state.getAttribute("folder_name");
 		if (StringUtils.isNoneBlank(reference, folderName)) {
 			context.put("reference", reference);
+			if (overrideReference != null && !reference.equals(overrideReference)) {
+				context.put("overrideReference", overrideReference);
+			}
 			context.put("folderName", folderName);
 			context.put("folderLabel", rb.getString("setpermis"));
 			state.removeAttribute("folder_group_reference");
@@ -4882,9 +4893,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("warning", rb.getString("permissions.warning"));
 		context.put("permissionsLabel", rb.getString("list.fPerm"));
 
-		String siteId = toolManager.getCurrentPlacement().getContext();
 		String toolId = toolManager.getCurrentPlacement().getId();
-		String startUrl = ServerConfigurationService.getPortalUrl() + "/site/" + siteId + "/tool/" + toolId + "?panel=Main";
+		String startUrl = ServerConfigurationService.getPortalUrl() + "/site/" + toolManager.getCurrentPlacement().getContext() + "/tool/" + toolId + "?panel=Main";
 		context.put("startPage", startUrl);
 
 		state.setAttribute (STATE_MODE, MODE_LIST);
@@ -6223,7 +6233,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						noti = NotificationService.NOTI_OPTIONAL;
 					}
 				}
-				
+
 				List<String> alerts = item.checkRequiredProperties(copyrightManager);
 
 				if(alerts.isEmpty())
@@ -6238,11 +6248,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						    iAction.finalizeAction(entityManager.newReference(contentHostingService.getReference(resource.getId())), pipe.getInitializationId());
 						}
 						toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
-		
+
 						// show folder if in hierarchy view
 						Set<String> expandedCollections = getExpandedCollections(state);
 						expandedCollections.add(collectionId);
-		
+
 						state.setAttribute(STATE_MODE, MODE_LIST);
 					}
 					catch(OverQuotaException e)
@@ -6490,8 +6500,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
 
-		ResourceType type = registry.getType(typeId); 
-		
+		ResourceType type = registry.getType(typeId);
+
 		Reference reference = entityManager.newReference(contentHostingService.getReference(selectedItemId));
 
 		ResourceToolAction action = type.getAction(actionId);
@@ -6985,32 +6995,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
 	}
 
-	//	private static void resetCurrentMode(SessionState state)
-//	{
-//		String mode = (String) state.getAttribute(STATE_MODE);
-//		if(isStackEmpty(state))
-//		{
-//			if(MODE_HELPER.equals(mode))
-//			{
-//				cleanupState(state);
-//				state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_DONE);
-//			}
-//			else
-//			{
-//				state.setAttribute(STATE_MODE, MODE_LIST);
-//				state.removeAttribute(STATE_RESOURCES_HELPER_MODE);
-//			}
-//			return;
-//		}
-//		Map current_stack_frame = peekAtStack(state);
-//		String helper_mode = (String) current_stack_frame.get(STATE_RESOURCES_HELPER_MODE);
-//		if(helper_mode != null)
-//		{
-//			state.setAttribute(STATE_RESOURCES_HELPER_MODE, helper_mode);
-//		}
-//
-//	}
-//
 	/**
 	* Expand all the collection resources and put in EXPANDED_COLLECTIONS attribute.
 	*/
@@ -7317,6 +7301,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		// should we save here?
 		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
+
+		String siteCollectionId = contentHostingService.getSiteCollection(toolManager.getCurrentPlacement().getContext());
+		try {
+			ContentCollection siteCollection = contentHostingService.getCollection(siteCollectionId);
+			String folderName = contentHostingService.getCollection(siteCollectionId).getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			state.setAttribute("folder_name", folderName);
+			state.setAttribute("folder_group_reference", siteCollection.getReference());
+		} catch (Exception e) {
+			log.error("Failed to set folder_name and folder_group_reference: {}", e.toString());
+		}
 
 		state.setAttribute (STATE_MODE, MODE_PERMISSIONS);
 	}	// doPermissions
@@ -10353,7 +10347,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// Use the site title for the zip name, remove spaces though.
 		String siteTitle = (String) state.getAttribute(STATE_SITE_TITLE);
 		siteTitle = siteTitle.replace(" ", "");
-		new ZipContentUtil().compressSelectedResources((String)state.getAttribute(STATE_SITE_ID), siteTitle, selectedFolderIds, selectedFiles, response);
+		new ZipContentUtil(contentHostingService, ServerConfigurationService.getInstance(), sessionManager).compressSelectedResources((String)state.getAttribute(STATE_SITE_ID), siteTitle, selectedFolderIds, selectedFiles, response);
 	}
 
 	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize, long zipMaxTotalSize, Set<String> zipSingleFileSizeExceeded, Set<String> zipIncludedFiles) throws ZipMaxTotalSizeException

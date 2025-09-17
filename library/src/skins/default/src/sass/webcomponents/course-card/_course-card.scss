@@ -1,3 +1,8 @@
+:root {
+  --sakai-course-card-gradient-start: rgba(0, 0, 0, 0.5);
+  --sakai-course-card-gradient-end: rgba(0, 0, 0, 0.5);
+}
+
 sakai-course-card {
   display: block;
   width: 100%;
@@ -5,13 +10,19 @@ sakai-course-card {
   a {
     text-decoration: none;
   }
+
   .info-block {
     height: 110px;
-    background: no-repeat;
+    background-repeat: no-repeat;
     background-color: var(--sakai-background-color-2);
     background-size: cover;
     background-position: center;
     color: var(--sakai-text-color-inverse, white);
+    font-weight: bold;
+    padding: 1rem;
+    border-top-left-radius: var(--bs-border-radius);
+    border-top-right-radius: var(--bs-border-radius);
+    border: solid 1px var(--sakai-border-color);
 
     a {
       color: var(--sakai-text-color-inverse, white);
@@ -41,9 +52,17 @@ sakai-course-card {
     border-color: var(--sakai-border-color);
     color: var(--sakai-text-color-1);
     background-color: var(--sakai-background-color-3);
+    display: flex;
+    align-items: center;
+    border-bottom-right-radius: var(--bs-border-radius);
+    border-bottom-left-radius: var(--bs-border-radius);
+    padding: 0.5rem;
+
     .portal-notifications-indicator {
       top: 2px;
       right: 2%;
+      padding: 0.25rem;
+      border-radius: 50%;
     }
   }
 }

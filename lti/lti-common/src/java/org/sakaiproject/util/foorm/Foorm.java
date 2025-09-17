@@ -49,8 +49,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.lti.api.LTISearchData;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.ResourceLoader;
-
+import org.tsugi.lti13.LTI13Util;
 import lombok.extern.slf4j.Slf4j;
+
+import org.tsugi.lti.LTIUtil;
 
 /**
  * 
@@ -97,70 +99,6 @@ public class Foorm {
 		return op;
 	}
 
-	// Returns -1 on failure
-	/**
-	 * 
-	 */
-	public static Long getLongKey(Object key) {
-		return getLong(key);
-	}
-
-	/**
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public static Long getLong(Object key) {
-		Long retval = getLongNull(key);
-		if (retval != null)
-			return retval;
-		return Long.valueOf(-1);
-	}
-
-	/**
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public static Long getLongNull(Object key) {
-		if (key == null)
-			return null;
-		if (key instanceof Number)
-			return Long.valueOf(((Number) key).longValue());
-		if (key instanceof String) {
-			if ( ((String)key).length() < 1 ) return Long.valueOf(-1);
-			try {
-				return Long.valueOf((String) key);
-			} catch (Exception e) {
-				return null;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * 
-	 * @param o
-	 * @return
-	 */
-	public static int getInt(Object o) {
-		if (o instanceof String) {
-			try {
-				return (Integer.valueOf((String) o)).intValue();
-			} catch (Exception e) {
-				return -1;
-			}
-		}
-		if (o instanceof Number)
-			return ((Number) o).intValue();
-		return -1;
-	}
-
-	public static String toNull(String str) {
-		return StringUtils.isNotEmpty(str) ? str : null;
-	}
-
-	// Abstract this away for testing purposes
 	/**
 	 * 
 	 */
@@ -397,7 +335,7 @@ public class Foorm {
 	 * @return
 	 */
 	public String formInputKey(Object value, String field) {
-		Long key = getLongNull(value);
+		Long key = LTIUtil.toLongNull(value);
 		if (key == null)
 			return "";
 		String val = key.toString();
@@ -443,8 +381,7 @@ public class Foorm {
 			value = "";
 		StringBuffer sb = new StringBuffer();
 		formInputStart(sb, field, "textarea", label, required, loader);
-		sb.append("<textarea  class=\"form-control\"");
-		// sb.append("<textarea style=\"border:1px solid #555;width:300px\" id=\"");
+		sb.append("<textarea  class=\"form-control\" id=\"");
 		sb.append(field);
 		sb.append("\" name=\"");
 		sb.append(field);
@@ -528,7 +465,7 @@ public class Foorm {
 			boolean required, Object loader) {
 		StringBuffer sb = new StringBuffer();
 		// formInputStart(sb, field, "checkbox", label, required, loader);
-		int val = getInt(value);
+		int val = LTIUtil.toInt(value);
 		String checked = "";
 		if (val == 1) checked = " checked=\"checked\"";
 		sb.append("<li><input type=\"checkbox\" name=\"");
@@ -945,7 +882,7 @@ public class Foorm {
 	 */
 	public String formOutputCheckbox(Long value, String field, String label, 
 			Object loader) {
-		int val = getInt(value);
+		int val = LTIUtil.toInt(value);
 		String str = getI18N(label, loader);
 		String off = getI18N("bl_off", "(Off)", loader);
 		if ( val != 1 ) str = off + " " + str;
@@ -1020,7 +957,7 @@ public class Foorm {
 		if ("date".equals(type))
 			return "";
 		if ("integer".equals(type))
-			return formOutputInteger(getLongNull(value), field, label, loader);
+			return formOutputInteger(LTIUtil.toLongNull(value), field, label, loader);
 		if ("text".equals(type))
 			return formOutputText((String) value, field, label, loader);
 		if ("url".equals(type))
@@ -1030,7 +967,7 @@ public class Foorm {
 		if ("textarea".equals(type))
 			return formOutputTextArea((String) value, field, label, loader);
 		if ("checkbox".equals(type)) {
-			return formOutputCheckbox(getLongNull(value), field, label, loader);
+			return formOutputCheckbox(LTIUtil.toLongNull(value), field, label, loader);
 		}
 		if ("header".equals(type)) {
 			return formOutputHeader(field, label, loader);
@@ -1042,7 +979,7 @@ public class Foorm {
 			String[] choiceList = choices.split(",");
 			if (choiceList.length < 1)
 				return "\n<!-- Foorm.formOutput() requires choices=on,off,part -->\n";
-			return formOutputRadio(getLongNull(value), field, label, choiceList, loader);
+			return formOutputRadio(LTIUtil.toLongNull(value), field, label, choiceList, loader);
 		}
 		return "\n<!-- Foorm.formOutput() unrecognized type " + type + " field=" + field
 			+ " -->\n";
@@ -1801,12 +1738,12 @@ public class Foorm {
 			// We always assume radio and checkbox may be allowed
 			else if ("radio".equals(type) || "checkbox".equals(type) ) {
 				// Field = Always Off (0), Always On (1), or Delegate(2)
-				int value = getInt(getField(controlRow, field));
+				int value = LTIUtil.toInt(getField(controlRow, field));
 				if ( value == 2 || ! isFieldSet(controlRow, field) ) ret.add(line);
 			// When there is an allow field in the control row, check it
 			} else if ( isFieldSet(controlRow, "allow" + field) && ! "false".equals(allowed) ) {
 				Object allowRow = getField(controlRow, "allow" + field);
-				int value = getInt(allowRow);
+				int value = LTIUtil.toInt(allowRow);
 				if ( value == 1 ) ret.add(line);
 			} else {
 				ret.add(line);
@@ -1840,14 +1777,14 @@ public class Foorm {
 			}
 
 			if ("radio".equals(type) || "checkbox".equals(type)) {
-				int value = getInt(getField(controlRow, field));
+				int value = LTIUtil.toInt(getField(controlRow, field));
 				if (value == 2 || !isFieldSet(controlRow, field)) {
 					// radio / checkbox is configuration
 					return true;
 				}
 			} else if (isFieldSet(controlRow, "allow" + field) && !"false".equals(allowed)) {
 				Object allowRow = getField(controlRow, "allow" + field);
-				int value = getInt(allowRow);
+				int value = LTIUtil.toInt(allowRow);
 
 				// "Allow external tool to store setting data" enters this block, but it's not configuration; so exclude LTI_SETTINGS
 				if (value == 1 && !LTIService.LTI_SETTINGS.equals(field)) {
@@ -2284,7 +2221,7 @@ public class Foorm {
 			String value = nl.item(0).getTextContent();
 			if ( StringUtils.isEmpty(value) ) continue;
 			if ("checkbox".equals(type) || "integer".equals(type) || "radio".equals(type) || "key".equals(type) ) {
-				Long longVal = getLong(value);
+				Long longVal = LTIUtil.toLong(value, -1L);
 				if ( longVal < 0 ) continue;
 				thing.put(field, longVal);
 			} else {

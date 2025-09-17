@@ -59,6 +59,7 @@ public class CSVReaderTest {
 
     @Test
     public void testExampleImport() throws ImportException {
+        Locale.setDefault(Locale.ENGLISH);
         Mockito.when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
         GenericImportRowHandler genericImportRowHandler = new GenericImportRowHandler(csvReader.getDefaultColumnMap(), resourceLoader);
         InputStream in = getClass().getResourceAsStream("/example_import_file.csv");
@@ -89,6 +90,7 @@ public class CSVReaderTest {
     @Test
     public void testActivityAliases() throws ImportException {
         // When importing you can use the import alias for the event type.
+        Locale.setDefault(Locale.ENGLISH);
         Mockito.when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
         GenericImportRowHandler genericImportRowHandler = new GenericImportRowHandler(csvReader.getDefaultColumnMap(), resourceLoader);
         InputStream in = new ByteArrayInputStream((
@@ -104,5 +106,4 @@ public class CSVReaderTest {
             Assert.assertEquals("Cancellation", row.get(GenericCalendarImporter.ITEM_TYPE_DEFAULT_COLUMN_HEADER));
         }
     }
-
 }

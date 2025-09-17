@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { SakaiDashboardWidget } from "./SakaiDashboardWidget.js";
-import "@sakai-ui/sakai-grades";
+import "@sakai-ui/sakai-grades/sakai-grades.js";
 
 export class SakaiGradesWidget extends SakaiDashboardWidget {
 

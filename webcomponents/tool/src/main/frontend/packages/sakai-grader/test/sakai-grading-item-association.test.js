@@ -1,5 +1,5 @@
 import "../sakai-grading-item-association.js";
-import { aTimeout, expect, fixture, fixtureCleanup, waitUntil } from "@open-wc/testing";
+import { aTimeout, elementUpdated, expect, fixture, fixtureCleanup, waitUntil } from "@open-wc/testing";
 import { html } from "lit";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
@@ -33,7 +33,7 @@ describe("sakai-grading-item-association tests", () => {
     await el.updateComplete;
 
     expect(el.renderRoot.getElementById("points")).to.exist;
-    expect(el.renderRoot.querySelector('input[type="radio"]')).to.exist.and.be.checked;
+    expect(el.renderRoot.querySelector('input[type="radio"]')?.checked).to.be.true;
 
     expect(el.renderRoot.getElementById("categories")).to.not.exist;
 
@@ -104,15 +104,26 @@ describe("sakai-grading-item-association tests", () => {
 
   it ("displays with pre selected grading item", async () => {
 
-    const el = await fixture(html`<sakai-grading-item-association .gradingItemId=${data.gradingItemDataWithCategories.items[0].id} use-grading gradable-ref="${data.gradableRef}" site-id="${data.siteId}" gradable-type="${data.gradableType}"></sakai-grading-item-association>`);
+    const el = await fixture(html`
+      <sakai-grading-item-association
+          .gradingItemId=${data.gradingItemDataWithCategories.items[0].id}
+          gradable-ref="${data.gradableRef}"
+          site-id="${data.siteId}"
+          gradable-type="${data.gradableType}"
+          use-grading>
+      </sakai-grading-item-association>
+    `);
 
     await waitUntil(() => el._i18n);
+    await waitUntil(() => el._gradingItems);
+
+    await elementUpdated(el);
 
     const gradeCheckbox = el.renderRoot.querySelector("input[type='checkbox']");
-    expect(gradeCheckbox).to.exist.and.be.checked;
+    expect(gradeCheckbox?.checked).to.be.true;
 
     const associateRadio = el.renderRoot.getElementById("associate");
-    expect(associateRadio).to.exist.and.be.checked;
+    expect(associateRadio?.checked).to.be.true;
 
     const itemSelect = el.renderRoot.getElementById("items");
     expect(itemSelect).to.exist;

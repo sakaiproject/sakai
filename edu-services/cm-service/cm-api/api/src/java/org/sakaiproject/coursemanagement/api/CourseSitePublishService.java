@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.coursemanagement.api;
 
+import java.util.List;
+
 
 /**
  * sakai service for publishing course sites a set number of days before a term begins.
@@ -31,9 +33,6 @@ package org.sakaiproject.coursemanagement.api;
  */
 public interface CourseSitePublishService {
 
-   // permissions
-   public final static String PERMISSION_COURSE_SITE_PUBLISH     = "course_site_publish_service.publish";
-
    // site property
    public final static String SITE_PROPERTY_COURSE_SITE_PUBLISHED = "course_site_publish_service.publish.set";
 
@@ -45,7 +44,7 @@ public interface CourseSitePublishService {
     * </br></br>
     * @param numDaysBeforeTermStarts   number of days before a term starts that course sites should be published.
     * </br></br>
-    * @return the number of course sites that were published.
+    * @return the list of course site IDs that were published.
     */
-   public int publishCourseSites(int numDaysBeforeTermStarts);
+   public List<String> publishCourseSites(int numDaysBeforeTermStarts);
 }

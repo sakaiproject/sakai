@@ -37,6 +37,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.tool.facade.Locator;
+import org.sakaiproject.sitestats.tool.wicket.pages.ReportsEditPage;
 
 
 /**
@@ -129,7 +130,7 @@ public class EventRegistryTree extends Panel {
 				// image, label, checkbox
 				String toolName = Locator.getFacade().getEventRegistryService().getToolName(ti.getToolId());
 				
-				listItem.add( new Label("toolIcon", "<span class=\"si-" + toolId.replace("_", "-") + "\"></span>").setEscapeModelStrings(false) );
+				listItem.add( new Label("toolIcon", "<span class=\"si " + ReportsEditPage.ICON_SAKAI + toolId.replace("_", "-") + "\"></span>").setEscapeModelStrings(false) );
 
 				listItem.add(new Label("label", new Model(toolName)));
 				CheckBox toolCheckBox = new CheckBox("checkbox", new PropertyModel(ti, "selected"));
@@ -149,7 +150,6 @@ public class EventRegistryTree extends Panel {
                 
 				listItem.add(new ExternalImage("navCollapse", StatsManager.SITESTATS_WEBAPP + "/images/line-last.gif"));
 				listItem.add(new ExternalImage("navExpand", StatsManager.SITESTATS_WEBAPP + "/images/nav-plus.gif").setVisible(false));
-				//listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png"));
 				Label imageIcon = new Label("toolIcon", new Model("") );
 				listItem.add(imageIcon);
 				String eventName = Locator.getFacade().getEventRegistryService().getEventName(ei.getEventId());
@@ -166,7 +166,6 @@ public class EventRegistryTree extends Panel {
 				listItem.setVisible(false);
 				listItem.add(new ExternalImage("navCollapse", StatsManager.SITESTATS_WEBAPP + "/images/line-last.gif"));
 				listItem.add(new ExternalImage("navExpand", StatsManager.SITESTATS_WEBAPP + "/images/nav-plus.gif").setVisible(false));
-				//listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png").setVisible(false));
 				Label imageIcon = new Label("toolIcon", new Model("") );
 				listItem.add(imageIcon);
 				listItem.add(new Label("label").setVisible(false));

@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.sakaiproject.sitemanage</groupId>
 		<artifactId>sakai-site-datemanager-base</artifactId>
-		<version>25-SNAPSHOT</version>
+		<version>26-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -16,12 +16,14 @@
 	<packaging>sakai-component</packaging>
 
 	<dependencies>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+		</dependency>
 		<!-- Project dependencies -->
 		<dependency>
 			<groupId>org.sakaiproject.datemanager.api</groupId>
 			<artifactId>sakai-site-datemanager-api</artifactId>
-			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<!-- Sakai dependencies -->
 		<dependency>
@@ -39,7 +41,6 @@
 		<dependency>
 			<groupId>org.sakaiproject.assignment</groupId>
 			<artifactId>sakai-assignment-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
         <dependency>
             <groupId>org.sakaiproject.grading</groupId>
@@ -48,12 +49,14 @@
 		<dependency>
 			<groupId>org.sakaiproject.samigo</groupId>
 			<artifactId>samigo-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.samigo</groupId>
 			<artifactId>samigo-services</artifactId>
-			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.edu-services.sections</groupId>
+			<artifactId>sections-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.samigo</groupId>
@@ -67,42 +70,97 @@
 		<dependency>
 			<groupId>org.sakaiproject.signup</groupId>
 			<artifactId>signup-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.calendar</groupId>
 			<artifactId>sakai-calendar-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.msgcntr</groupId>
 			<artifactId>messageforums-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.announcement</groupId>
 			<artifactId>sakai-announcement-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.message</groupId>
 			<artifactId>sakai-message-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.lessonbuilder</groupId>
 			<artifactId>lessonbuilder-api</artifactId>
-			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
 		</dependency>
 		<!-- Third dependencies -->
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
-			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+		</dependency>
 	</dependencies>
+	<build>
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>src/main/bundle</directory>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+			<testResource>
+				<directory>src/main/webapp</directory>
+			</testResource>
+		</testResources>
+		<plugins>
+			<plugin>
+				<groupId>org.sakaiproject.maven.plugins</groupId>
+				<artifactId>sakai</artifactId>
+				<configuration>
+					<warSourceDirectory>src/main/webapp</warSourceDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

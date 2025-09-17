@@ -1,7 +1,7 @@
-export const getUserId = () => window.top?.portal?.user?.id || "";
-export const getSiteId = () => window.top?.portal?.siteId || "";
-export const getUserLocale = () => (window.top?.portal?.locale || window.top?.sakai?.locale?.userLocale || "en-US").replace("_", "-");
-export const getOffsetFromServerMillis = () => window.top?.portal?.user.offsetFromServerMillis || 0;
-export const getTimezone = () => window.top?.portal?.user.timezone || "";
-export const getServiceName = () => window.top?.portal?.serviceName || "Sakai";
-export const setupSearch = options => window.top?.portal?.search?.setup(options);
+export const getUserId = () => globalThis.portal?.user?.id || "";
+export const getSiteId = () => globalThis.portal?.siteId || "";
+export const getUserLocale = () => (globalThis.portal?.locale || globalThis.sakai?.locale?.userLocale || "en-US").replace("_", "-");
+export const getOffsetFromServerMillis = () => globalThis.portal?.user.offsetFromServerMillis || 0;
+export const getTimezone = () => globalThis.portal?.user.timezone || "";
+export const getServiceName = () => globalThis.portal?.serviceName || "Sakai";
+export const setupSearch = options => globalThis.portal?.search?.setup(options);

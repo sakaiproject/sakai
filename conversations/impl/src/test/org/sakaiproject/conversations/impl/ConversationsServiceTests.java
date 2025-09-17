@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.conversations.impl;
 
-import org.junit.Assume;
+import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -61,6 +61,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Xml;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -81,15 +82,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import static org.mockito.Mockito.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -865,6 +871,9 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             // First page
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 0, null, null);
             assertEquals(2, posts.size());
+
+            // Default sort should be newest first
+            assertEquals(posts.iterator().next().id, postBean.id);
 
             // Second page
             posts = conversationsService.getPostsByTopicId(topicBean.siteId, topicBean.id, 1, null, null);
@@ -1944,7 +1953,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         Long gradingItemId = 276L;
 
-        when(gradingService.addAssignment(anyString(), any(Assignment.class))).thenReturn(gradingItemId);
+        when(gradingService.addAssignment(anyString(), anyString(), any(Assignment.class))).thenReturn(gradingItemId);
 
         // Now let's grade this topic by selecting the grading and create grading item checkboxes.
         // This should cause the creation of a brand new external grading item
@@ -1955,14 +1964,14 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         Assignment ass = mock(Assignment.class);
 
         when(ass.getPoints()).thenReturn(savedBean.gradingPoints);
-        when(gradingService.getAssignment(site1Id, gradingItemId)).thenReturn(ass);
+        when(gradingService.getAssignment(site1Id, site1Id, gradingItemId)).thenReturn(ass);
 
         savedBean = saveTopic(savedBean);
 
         assertEquals(gradingItemId, savedBean.gradingItemId);
-        verify(gradingService).addAssignment(anyString(), any(Assignment.class));
+        verify(gradingService).addAssignment(anyString(), anyString(), any(Assignment.class));
         verify(gradingService, never()).isExternalAssignmentDefined(anyString(), anyString());
-        verify(gradingService, never()).removeExternalAssignment(anyString(), anyString());
+        verify(gradingService, never()).removeExternalAssignment(anyString(), anyString(), anyString());
 
 
         when(gradingService.isExternalAssignmentDefined(site1Id, topicRef)).thenReturn(true);
@@ -1977,7 +1986,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
 
         savedBean = saveTopic(savedBean);
 
-        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), any(), anyDouble(), any(), anyBoolean());
         assertEquals(title2, savedBean.title);
 
         clearInvocations(gradingService);
@@ -1993,7 +2002,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         savedBean = saveTopic(savedBean);
 
         assertEquals(title1, savedBean.title);
-        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), any(), anyDouble(), any(), anyBoolean());
 
         Long internalGradingItemId = 231L;
 
@@ -2005,10 +2014,10 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         savedBean.gradingItemId = internalGradingItemId;
         savedBean.gradingPoints = 33D;
 
-        when(gradingService.getAssignment(site1Id, internalGradingItemId)).thenReturn(ass);
+        when(gradingService.getAssignment(site1Id, site1Id, internalGradingItemId)).thenReturn(ass);
 
         savedBean = saveTopic(savedBean);
-        verify(gradingService).removeExternalAssignment(site1Id, topicRef);
+        verify(gradingService).removeExternalAssignment(site1Id, topicRef, null);
         assertEquals(internalGradingItemId, savedBean.gradingItemId);
 
         // Now lets simulate the user picking another existing grading item, so switching from one
@@ -2019,7 +2028,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         savedBean.gradingItemId = internalGradingItemId2;
         savedBean.gradingPoints = 43D;
 
-        when(gradingService.getAssignment(site1Id, savedBean.gradingItemId)).thenReturn(ass);
+        when(gradingService.getAssignment(site1Id, site1Id, savedBean.gradingItemId)).thenReturn(ass);
 
         savedBean = saveTopic(savedBean);
         assertEquals(internalGradingItemId2, savedBean.gradingItemId);
@@ -2032,7 +2041,7 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         savedBean = saveTopic(savedBean);
 
         assertEquals("Hola, Mundo", savedBean.title);
-        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), anyDouble(), any(), anyBoolean());
+        verify(gradingService).updateExternalAssessment(anyString(), anyString(), anyString(), any(), anyString(), any(), anyDouble(), any(), anyBoolean());
 
         clearInvocations(gradingService);
 
@@ -2040,6 +2049,209 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
         savedBean = saveTopic(savedBean);
 
         assertNull(savedBean.gradingItemId);
+    }
+
+    @Test
+    public void archive() {
+
+        switchToInstructor(null);
+
+        Long gradingItemId = 123L;
+
+        Assignment ass = mock(Assignment.class);
+
+        when(gradingService.getAssignment(site1Id, site1Id, gradingItemId)).thenReturn(ass);
+
+        String title1 = "Topic 1";
+        TopicTransferBean topic1 = new TopicTransferBean();
+        topic1.aboutReference = site1Ref;
+        topic1.title = title1;
+        topic1.message = "<strong>Something about topic1</strong>";
+        topic1.siteId = site1Id;
+        topic1.showDate = Instant.now().plus(5, ChronoUnit.HOURS);
+        topic1.dueDate = Instant.now().plus(7, ChronoUnit.HOURS);
+        topic1.hideDate = Instant.now().plus(10, ChronoUnit.HOURS);
+        topic1.lockDate = Instant.now().plus(20, ChronoUnit.HOURS);
+        topic1.graded = true;
+        topic1.gradingItemId = gradingItemId;
+        topic1 = saveTopic(topic1);
+
+        String title2 = "Topic 2";
+        TopicTransferBean topic2 = new TopicTransferBean();
+        topic2.aboutReference = site1Ref;
+        topic2.title = title2;
+        topic2.siteId = site1Id;
+        topic2 = saveTopic(topic2);
+
+        String title3 = "Topic 3";
+        TopicTransferBean topic3 = new TopicTransferBean();
+        topic3.aboutReference = site1Ref;
+        topic3.title = title3;
+        topic3.siteId = site1Id;
+        topic3 = saveTopic(topic3);
+
+        String title4 = "Topic 4";
+        TopicTransferBean topic4 = new TopicTransferBean();
+        topic4.aboutReference = site1Ref;
+        topic4.title = title4;
+        topic4.siteId = site1Id;
+        topic4 = saveTopic(topic4);
+
+        TopicTransferBean[] topicBeans = new TopicTransferBean[] { topic1, topic2, topic3, topic4 };
+
+        Document doc = Xml.createDocument();
+        Stack<Element> stack = new Stack<>();
+
+        Element root = doc.createElement("archive");
+        doc.appendChild(root);
+        root.setAttribute("source", site1Id);
+        root.setAttribute("xmlns:sakai", ArchiveService.SAKAI_ARCHIVE_NS);
+        root.setAttribute("xmlns:CHEF", ArchiveService.SAKAI_ARCHIVE_NS.concat("CHEF"));
+        root.setAttribute("xmlns:DAV", ArchiveService.SAKAI_ARCHIVE_NS.concat("DAV"));
+        stack.push(root);
+
+        assertEquals(1, stack.size());
+
+        String results = conversationsService.archive(site1Id, doc, stack, "", null);
+
+        assertEquals(2, stack.size());
+
+        NodeList conversationsNode = root.getElementsByTagName(conversationsService.getLabel());
+        assertEquals(1, conversationsNode.getLength());
+
+        NodeList topicsNode = ((Element) conversationsNode.item(0)).getElementsByTagName("topics");
+        assertEquals(1, topicsNode.getLength());
+
+        NodeList topicNodes = ((Element) topicsNode.item(0)).getElementsByTagName("topic");
+        assertEquals(topicBeans.length, topicNodes.getLength());
+
+        for (int i = 0; i < topicNodes.getLength(); i++) {
+            Element topicEl = (Element) topicNodes.item(i);
+            assertEquals(topicBeans[i].title, topicEl.getAttribute("title"));
+            assertEquals(topicBeans[i].type, topicEl.getAttribute("type"));
+            assertEquals(topicBeans[i].anonymous, Boolean.parseBoolean(topicEl.getAttribute("anonymous")));
+            assertEquals(topicBeans[i].allowAnonymousPosts, Boolean.parseBoolean(topicEl.getAttribute("allow-anonymous-posts")));
+            assertEquals(topicBeans[i].pinned, Boolean.parseBoolean(topicEl.getAttribute("pinned")));
+            assertEquals(topicBeans[i].draft, Boolean.parseBoolean(topicEl.getAttribute("draft")));
+            assertEquals(topicBeans[i].visibility, topicEl.getAttribute("visibility"));
+            assertEquals(topicBeans[i].creator, topicEl.getAttribute("creator"));
+            assertEquals(topicBeans[i].created.getEpochSecond(), Long.parseLong(topicEl.getAttribute("created")));
+            if (i == 0) {
+                assertEquals(topicBeans[i].showDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("show-date")));
+                assertEquals(topicBeans[i].hideDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("hide-date")));
+                assertEquals(topicBeans[i].lockDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("lock-date")));
+                assertEquals(topicBeans[i].dueDate.getEpochSecond(), Long.parseLong(topicEl.getAttribute("due-date")));
+            }
+
+            if (i == 0) {
+              assertEquals(topicBeans[i].graded, Boolean.parseBoolean(topicEl.getAttribute("graded")));
+              assertFalse(topicEl.hasAttribute("grading-item-id"));
+            }
+
+            NodeList messageNodes = topicEl.getElementsByTagName("message");
+            assertEquals(1, messageNodes.getLength());
+
+            assertEquals(topicBeans[i].message, ((Element) messageNodes.item(0)).getFirstChild().getNodeValue());
+        }
+    }
+
+    @Test
+    public void merge() {
+
+        Document doc = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/conversations.xml"));
+
+        Element root = doc.getDocumentElement();
+
+        String fromSite = root.getAttribute("source");
+        String toSite = "my-new-site";
+
+        String toSiteRef = "/site/" + toSite;
+        switchToInstructor(toSiteRef);
+
+        when(siteService.siteReference(toSite)).thenReturn(toSiteRef);
+
+        Element conversationsElement = doc.createElement("not-conversations");
+
+        conversationsService.merge(toSite, conversationsElement, "", fromSite, null, null, null);
+
+        assertEquals("Invalid xml document", conversationsService.merge(toSite, conversationsElement, "", fromSite, null, null, null));
+
+        conversationsElement = (Element) root.getElementsByTagName(conversationsService.getLabel()).item(0);
+
+        conversationsService.merge(toSite, conversationsElement, "", fromSite, null, null, null);
+
+        NodeList topicNodes = ((Element) conversationsElement.getElementsByTagName("topics").item(0)).getElementsByTagName("topic");
+
+        List<ConversationsTopic> topics = topicRepository.findBySiteId(toSite);
+
+        assertEquals(topics.size(), topicNodes.getLength());
+
+        for (int i = 0; i < topicNodes.getLength(); i++) {
+
+            Element topicEl = (Element) topicNodes.item(i);
+
+            String title = topicEl.getAttribute("title");
+            Optional<ConversationsTopic> optTopic = topics.stream().filter(t -> t.getTitle().equals(title)).findAny();
+            assertTrue(optTopic.isPresent());
+
+            ConversationsTopic topic = optTopic.get();
+
+            assertEquals(topic.getType().name(), topicEl.getAttribute("type"));
+            assertEquals(topic.getPinned(), Boolean.parseBoolean(topicEl.getAttribute("pinned")));
+            assertEquals(topic.getAnonymous(), Boolean.parseBoolean(topicEl.getAttribute("anonymous")));
+            assertEquals(topic.getDraft(), true);
+            assertEquals(topic.getMustPostBeforeViewing(), Boolean.parseBoolean(topicEl.getAttribute("post-before-viewing")));
+
+            if (topicEl.hasAttribute("show-date")) {
+                assertEquals(topic.getShowDate().getEpochSecond(), Long.parseLong(topicEl.getAttribute("show-date")));
+            }
+
+            if (topicEl.hasAttribute("hide-date")) {
+                assertEquals(topic.getHideDate().getEpochSecond(), Long.parseLong(topicEl.getAttribute("hide-date")));
+            }
+
+            if (topicEl.hasAttribute("lock-date")) {
+                assertEquals(topic.getLockDate().getEpochSecond(), Long.parseLong(topicEl.getAttribute("lock-date")));
+            }
+
+            if (topicEl.hasAttribute("due-date")) {
+                assertEquals(topic.getDueDate().getEpochSecond(), Long.parseLong(topicEl.getAttribute("due-date")));
+            }
+
+            if (i == 0) {
+                assertNull(topic.getGradingItemId());
+                assertEquals(topic.getGraded(), Boolean.parseBoolean(topicEl.getAttribute("graded")));
+            }
+
+            NodeList messageNodes = topicEl.getElementsByTagName("message");
+            assertEquals(1, messageNodes.getLength());
+
+            assertEquals(topic.getMessage(), messageNodes.item(0).getFirstChild().getNodeValue());
+        }
+
+        Set<String> oldTitles = topics.stream().map(ConversationsTopic::getTitle).collect(Collectors.toSet());
+
+        // Now let's try and merge this set of rubrics. It has one with a different title, but the
+        // rest the same, so we should end up with only one rubric being added.
+        Document doc2 = Xml.readDocumentFromStream(this.getClass().getResourceAsStream("/archive/conversations2.xml"));
+
+        Element root2 = doc2.getDocumentElement();
+
+        conversationsElement = (Element) root2.getElementsByTagName(conversationsService.getLabel()).item(0);
+
+        conversationsService.merge(toSite, conversationsElement, "", fromSite, null, null, null);
+
+        String extraTitle = "Smurfs";
+
+        assertEquals(topics.size() + 1, topicRepository.findBySiteId(toSite).size());
+
+        Set<String> newTitles = topicRepository.findBySiteId(toSite)
+            .stream().map(ConversationsTopic::getTitle).collect(Collectors.toSet());
+
+        assertFalse(oldTitles.contains(extraTitle));
+        assertTrue(newTitles.contains(extraTitle));
+
+        topicRepository.findBySiteId(toSite).forEach(t -> assertEquals(t.getDraft(), true));
     }
 
     private TopicTransferBean saveTopic(TopicTransferBean topicBean) {

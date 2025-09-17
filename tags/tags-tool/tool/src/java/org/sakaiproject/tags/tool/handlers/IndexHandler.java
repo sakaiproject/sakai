@@ -66,15 +66,14 @@ public class IndexHandler extends BaseHandler {
         int pageNum = extractPageNum(request);
         int pageSize = extractPageSize(request);
 
-        context.put("pageSize",pageSize);
-        context.put("pageNum",pageNum);
-        context.put("totalPages", (int) Math.ceil((double) tagService.getTagCollections().getTotalTagCollections()/(double)pageSize));
-        context.put("countPerPageGroup",countPerPageGroup);
-        context.put("subpage", "index");
+        int totalTagCollections;
+        List<TagCollection> collections;
+        
         if (securityService.isSuperUser()) {
-            context.put("tagcollections", tagService.getTagCollections().getTagCollectionsPaginated(pageNum,pageSize));
+            totalTagCollections = tagService.getTagCollections().getTotalTagCollections();
+            collections = tagService.getTagCollections().getTagCollectionsPaginated(pageNum, pageSize);
         } else {
-            List<TagCollection> collections = new ArrayList<>();
+            collections = new ArrayList<>();
             String siteId = toolManager.getCurrentPlacement().getContext();
             // add site tag collection
             TagCollection siteCollection = tagService.getTagCollections().getForId(siteId).orElse(null);
@@ -86,8 +85,20 @@ public class IndexHandler extends BaseHandler {
             if (userCollection != null) {
                 collections.add(userCollection);
             }
-            context.put("tagcollections", collections);
+            totalTagCollections = collections.size();
         }
+        
+        int totalPages = totalTagCollections > 0 ? (int) Math.ceil((double) totalTagCollections / (double) pageSize) : 0;
+        
+        context.put("pageSize", pageSize);
+        context.put("pageNum", pageNum);
+        context.put("totalPages", totalPages);
+        context.put("countPerPageGroup", countPerPageGroup);
+        
+        context.put("showPagination", totalTagCollections > 0 && totalPages > 1);
+        
+        context.put("subpage", "index");
+        context.put("tagcollections", collections);
         context.put("tagserviceactive", tagService.getServiceActive());
         context.put("actualtagcollection", "");
         context.put("canCreate", securityService.isSuperUser());

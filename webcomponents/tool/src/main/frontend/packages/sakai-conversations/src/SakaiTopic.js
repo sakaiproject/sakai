@@ -29,7 +29,8 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
     super();
 
-    this.sort = SORT_OLDEST;
+    // Used by the intersection observer to track which posts we've already observed
+    this._observedPosts = new Set();
 
     const options = {
       root: null,
@@ -37,40 +38,17 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
       threshold: 1.0,
     };
 
-    this.observer = new IntersectionObserver((entries, observer) => {
+    this.observer = new IntersectionObserver(entries => {
 
-      const postIds = entries.filter(entry => entry.isIntersecting).map(entry => entry.target.dataset.postId);
+      const postIds = entries
+        .filter(entry => entry.isIntersecting)
+        .map(entry => entry.target.dataset.postId)
+        .filter(postId => !this._observedPosts.has(postId)); // Only process posts we haven't marked yet
 
-      if (postIds) {
-        const url = this.topic.links.find(l => l.rel === "markpostsviewed").href;
-        fetch(url, {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(postIds),
-        })
-        .then(r => {
-
-          if (r.ok) {
-            // Posts marked. Now unobserve them. We don't want to keep triggering this fetch
-            postIds.forEach(postId => {
-
-              observer.unobserve(entries.find(e => e.target.dataset.postId === postId).target);
-              findPost(this.topic, { postId }).viewed = true;
-              this.requestUpdate();
-            });
-            this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds, topicId: this.topic.id } }));
-          } else {
-            throw new Error("Network error while marking posts as viewed");
-          }
-        })
-        .catch(error => console.error(error));
-      }
-
+      postIds && this._markPostsViewed(postIds);
     }, options);
 
-
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set topic(value) {
@@ -111,7 +89,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     };
 
     if (!this.topic.posts && (!this.topic.mustPostBeforeViewing || this.topic.canPost)) {
-      this._getPosts(this.topic, 0, SORT_OLDEST, this.postId).then(posts => {
+      this._getPosts(this.topic, 0, null, this.postId).then(posts => {
 
         this.topic.posts = posts;
 
@@ -128,6 +106,55 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
   get topic() { return this._topic; }
 
+  _markPostsViewed(postIds) {
+
+    // Filter out postIds that have already been marked as viewed
+    const newPostIds = postIds.filter(id => !this._observedPosts.has(id));
+
+    // If there are no new posts to mark as viewed, return early
+    if (newPostIds.length === 0) {
+      return Promise.resolve();
+    }
+
+    // Add these posts to our tracked set before making the request
+    newPostIds.forEach(id => this._observedPosts.add(id));
+
+    const url = this.topic.links.find(l => l.rel === "markpostsviewed").href;
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newPostIds),
+    })
+    .then(r => {
+
+      if (r.ok) {
+        // Posts marked. Now unobserve them. We don't want to keep triggering this fetch
+        newPostIds.forEach(postId => {
+
+          const post = findPost(this.topic, { postId });
+          if (post) {
+            post.viewed = true;
+          }
+
+          // Only try to unobserve if we have entries
+          if (this.observer?.unobserve) {
+            const element = document.querySelector(`#post-${postId}`);
+            element && this.observer.unobserve(element);
+          }
+        });
+
+        this.dispatchEvent(new CustomEvent("posts-viewed", { detail: { postIds: newPostIds, topicId: this.topic.id } }));
+        this.requestUpdate();
+      } else {
+        throw new Error(`Network error while marking posts as viewed at url ${url}`);
+      }
+    })
+    .catch (error => {
+      console.error(error);
+      throw error;
+    });
+  }
+
   _savePostAsDraft() { this._postToTopic(true); }
 
   _publishPost() { this._postToTopic(false); }
@@ -135,11 +162,11 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
   _postToTopic(draft) {
 
     const postData = {
-      message: document.getElementById(`topic-${this.topic.id}-post-editor`).getContent(),
+      message: this.querySelector(".topic-reply-block sakai-editor").getContent(),
       topic: this.topic.id,
       siteId: this.topic.siteId,
-      privatePost: document.getElementById("conv-post-editor-private-checkbox").checked,
-      anonymous: this.topic.allowAnonymousPosts && document.getElementById("conv-post-editor-anonymous-checkbox").checked,
+      privatePost: this.querySelector("#conv-post-editor-private-checkbox").checked,
+      anonymous: this.topic.allowAnonymousPosts && this.querySelector("#conv-post-editor-anonymous-checkbox").checked,
       draft,
       replyable: true,
     };
@@ -147,7 +174,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     const url = this.topic.links.find(l => l.rel === "posts").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(postData),
     })
@@ -210,10 +236,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     if (!confirm(this._i18n.confirm_topic_delete)) return;
 
     const url = this.topic.links.find(l => l.rel === "delete").href;
-    fetch(url, {
-      method: "DELETE",
-      credentials: "include",
-    })
+    fetch(url, { method: "DELETE" })
     .then(r => {
 
       if (r.ok) {
@@ -230,7 +253,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     const url = this.topic.links.find(l => l.rel === "bookmark").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(!this.topic.bookmarked),
     })
@@ -251,7 +273,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     const url = this.topic.links.find(l => l.rel === "lock").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(!this.topic.locked),
     })
@@ -280,7 +301,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     const url = this.topic.links.find(l => l.rel === "hide").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(!this.topic.hidden),
     })
@@ -301,7 +321,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     const url = this.topic.links.find(l => l.rel === "pin").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(!this.topic.pinned),
     })
@@ -313,32 +332,6 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
       } else {
         throw new Error("Network error while pinning topic");
       }
-    })
-    .catch(error => console.error(error));
-  }
-
-  _postReactions() {
-
-    const url = this.topic.links.find(l => l.rel === "react").href;
-    fetch(url, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(this.myReactions),
-    })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-      throw new Error("Network error while posting topic.myReactions");
-
-    })
-    .then(reactionTotals => {
-
-      this.topic.myReactions = this.myReactions;
-      this.topic.reactionTotals = reactionTotals;
-      this.dispatchEvent(new CustomEvent("topic-updated", { detail: { topic: this.topic }, bubbles: true }));
     })
     .catch(error => console.error(error));
   }
@@ -432,18 +425,16 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
 
   _registerPosts(posts) {
 
-    if (posts) {
-      posts.forEach(p => {
+    posts?.forEach(p => {
 
-        if (!p.viewed) {
-          this.observer.observe(this.querySelector(`#post-${p.id}`));
-        }
+      if (!p.viewed && !this._observedPosts.has(p.id)) {
+        const postElement = this.querySelector(`#post-${p.id}`);
+        postElement && this.observer.observe(postElement);
+      }
 
-        if (p.posts) {
-          this._registerPosts(p.posts);
-        }
-      });
-    }
+      // Child posts? Recurse.
+      p.posts && this._registerPosts(p.posts);
+    });
   }
 
   _getMoreReplies() {
@@ -473,17 +464,18 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
     });
   }
 
-  _getPosts(topic, page = 0, sort = SORT_OLDEST, postId) {
+  _getPosts(topic, page = 0, sort, postId) {
 
-    const url = `${topic.links.find(l => l.rel === "posts").href}?page=${page}&sort=${sort}${
-       postId ? `&postId=${postId}` : ""}`;
+    const baseUrl = topic.links.find(l => l.rel === "posts").href;
+    const url = `${baseUrl}?page=${page}${sort ? `&sort=${sort}` : ""}${postId ? `&postId=${postId}` : ""}`;
 
-    return fetch(url, { credentials: "include" })
+    return fetch(url)
     .then(r => {
 
       if (r.ok) {
         return r.json();
       }
+
       throw new Error(`Network error while retrieving  posts from ${url}`);
     })
     .catch(error => console.error(error));
@@ -503,7 +495,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
           <span>${this.topic.type === QUESTION ? this._i18n.answer_this_question : this._i18n.reply_to}</span>
           <span>${this.topic.title}</span>
         </div>
-        <sakai-editor id="topic-${this.topic.id}-post-editor" set-focus></sakai-editor>
+        <sakai-editor set-focus></sakai-editor>
         <div class="conv-private-checkbox-block">
           <label>
             <input id="conv-post-editor-private-checkbox" type="checkbox">${this._i18n.private_topic_reply}
@@ -543,7 +535,12 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
       <div class="topic">
         ${this.topic.draft ? html`
         <div class="sak-banner-warn">${this._i18n.draft_warning}</div>
-        ` : nothing }
+          ${this.topic.graded && !this.topic.gradingItemId ? html`
+          <div class="sak-banner-error conv-graded-no-grading-item-id-warning">
+            ${this._i18n.graded_no_item_id}
+          </div>
+          ` : nothing}
+        ` : nothing}
         ${this.topic.hidden ? html`
         <div class="sak-banner-warn">${this._i18n.topic_hidden}</div>
         ` : nothing }
@@ -557,9 +554,9 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         <div class="sak-banner-warn">${this._i18n.topic_groups_only_tooltip}</div>
         ` : nothing }
         <div class="topic-tags">
-          ${this.topic.tags.map(tag => html`
+          ${this.topic.tags?.map(tag => tag ? html`
             <div class="tag">${tag.label}</div>
-          `)}
+          ` : nothing)}
         </div>
         <div class="author-and-tools">
           <div class="author-block">
@@ -567,21 +564,21 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
               <sakai-user-photo
                   class="largest-thumbnail"
                   user-id="${this.topic.anonymous && !this.canViewAnonymous ? "blank" : this.topic.creator}"
-                  profile-popup="on">
+                  profile-popup="${this.topic.anonymous && !this.canViewAnonymous ? "off" : "on"}">
               </sakai-user-photo>
             </div>
             <div>
               <div class="d-flex align-items-center flex-wrap">
-                <div class="fs-5 fw-bold text-nowrap">${this.topic.creatorDisplayName}</div>
+                <div class="conversations-topic__creator-name fs-5 fw-bold text-nowrap">${this.topic.anonymous && !this.canViewAnonymous ? this._i18n.anonymous : this.topic.creatorDisplayName}</div>
                 <div class="topic-question-asked">${this.topic.type === QUESTION ? this._i18n.asked : this._i18n.posted}</div>
-                <div class="ms-1 small text-nowrap">${this.topic.formattedCreatedDate}</div>
+                <div class="conversations-topic__created-date ms-1 small text-nowrap">${this.topic.formattedCreatedDate}</div>
               </div>
             </div>
           </div>
           <div class="topic-options-menu">
           ${this.topic.canModerate || this.topic.canEdit || this.topic.canDelete || this.topic.canViewStatistics ? html`
             <div class="dropdown">
-              <button class="btn btn-transparent"
+              <button class="btn btn-icon"
                   id="topic-options-toggle-${this.topic.id}"
                   type="button"
                   title="${this._i18n.topic_options_menu_tooltip}"
@@ -653,7 +650,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
           </div>
         </div>
         <div class="topic-title-and-status">
-          <div class="fs-1 me-1 fw-light">${this.topic.title}</div>
+          <div class="conversations-topic__title fs-1 me-1 fw-light">${this.topic.title}</div>
           ${this.topic.type === QUESTION ? html`
           <div class="topic-status-icon-and-text">
             <div class="topic-status-icon">
@@ -680,7 +677,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
         <div id="topic-duedate-block"><span>${this._i18n.duedate_label}</span><span>${this.topic.formattedDueDate}</span></div>
         ` : nothing }
         <div class="topic-message fs-5">${unsafeHTML(this.topic.message)}</div>
-        ${this.topic.draft ? "" : html`
+        ${this.topic.draft ? nothing : html`
         <div class="topic-message-bottom-bar mb-1">
           ${this.topic.canBookmark ? html`
           <div>
@@ -750,9 +747,9 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
             <div class="topic-posts-header">
               <div>${this.topic.type === QUESTION ? this._i18n.answers : this._i18n.responses}</div>
               <div>
-                <select @change=${this._postSortSelected}>
-                  <option value="${SORT_OLDEST}">${this._i18n.oldest}</option>
+                <select @change=${this._postSortSelected} aria-label="${this._i18n.sort_by_label}">
                   <option value="${SORT_NEWEST}">${this._i18n.most_recent}</option>
+                  <option value="${SORT_OLDEST}">${this._i18n.oldest}</option>
                   <option value="${SORT_ASC_CREATOR}">${this._i18n.ascending_by_author}</option>
                   <option value="${SORT_DESC_CREATOR}">${this._i18n.descending_by_author}</option>
                   <option value="${SORT_MOST_ACTIVE}">${this._i18n.most_active}</option>
@@ -773,8 +770,8 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
             ${this.topic.posts.map(p => html`
               ${p.canView ? html`
               <sakai-post
-                  post="${JSON.stringify(p)}"
-                  postType="${this.topic.type}"
+                  .post=${p}
+                  post-type="${this.topic.type}"
                   ?is-instructor=${this.isInstructor}
                   ?can-view-anonymous=${this.canViewAnonymous}
                   ?can-view-deleted=${this.canViewDeleted}

@@ -1,3 +1,4 @@
+export const i18nUrl = /getI18nProperties.*grader$/;
 export const i18n = `
 at=at
 attachment=Attachment
@@ -21,8 +22,7 @@ recorded_feedback_label=Record some feedback
 add_attachments_tooltip=Add some attachments to your grading
 grade_this=Grade this
 private_notes_tooltip=Add notes attached to this student submission, for yourself and other \
-instructors and click Done when you've finished. Students will NOT be able to see these. You still \
-need to save the grade
+instructors and click Done when you've finished. Students will NOT be able to see these.
 private_notes_label=Enter your private notes
 settings=Settings
 graded_status_label=Graded Status:
@@ -47,6 +47,7 @@ unsaved_comment_present=The comment on this submission is not saved
 notes_present=There are private notes on this submission
 unsaved_notes_present=The private notes on this submission is not saved
 unsaved_text_warning=Changes are not going to be saved. Click on 'Cancel' again to confirm.
+unsaved_changes_warning=You have unsaved changes. Do you want to continue without saving?
 profile_image='s profile image
 inline_feedback_instruction=Below is the submission from a student. You can insert comments in this \
 text by clicking 'Add Feedback' at the bottom of the submission - comments surrounded by double \
@@ -74,8 +75,6 @@ lti_grade_not_automatic=<b>Note:</b> When the LTI tool sends a grade to the serv
 destroy_rubric_panel_log=Failed to destroy rubric panel. Maybe it wasn't showing in the first place.
 submission_inline=Inline Submission
 assign_grade_overrides=Assign Grade Overrides
-feedback_instruction = Use the box below to enter additional summary comments about this \
-submission and click Done when you've finished. You still need to save the grade
 feedback_comment_label=Enter your feedback
 previous_submission_label=View the previous submission
 next_submission_label=View the next submission
@@ -140,4 +139,11 @@ gen.can=Cancel
 grades.lateness.late=Late
 gen.assign.spent=Time spent:
 select_category_label=Select a category
+`;
+
+export const filePickerI18nUrl = /getI18nProperties.*file-picker/;
+
+export const filePickerI18n = `
+remove=Remove
+to_be_added=To be added:
 `;

@@ -26,9 +26,11 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Lob;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -58,8 +60,9 @@ public class EmailTemplate implements java.io.Serializable, PersistableEntity<Lo
     private static final long serialVersionUID = -8697605573015358433L;
 
     @Id
-    @GeneratedValue
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "email_template_item_id_sequence")
+    @SequenceGenerator(name = "email_template_item_id_sequence", sequenceName = "EMAILTEMPLATE_ITEM_SEQ")
     private Long id;
 
     @Column(name = "LAST_MODIFIED", nullable = false)

@@ -103,4 +103,23 @@ public class SiteConstants {
 
 	// For returning to 'Manage Participants' after successful participant add
 	public static final String MANAGE_PARTICIPANTS_TEMPLATE_INDEX = "63";
+
+	// Sakai.properties keys
+	public static final String SAK_PROP_SITE_SETUP_IMPORT_FILE = "site.setup.import.file";
+	public static final boolean SAK_PROP_SITE_SETUP_IMPORT_FILE_DEFAULT = true;
+
+	public static final String SAK_PROP_DISPLAY_USER_AUDIT_LOG = "user_audit_log_display";
+	public static final boolean SAK_PROP_DISPLAY_USER_AUDIT_LOG_DEFAULT = true;
+
+	public static final String SAK_PROP_ALLOW_DUPLICATE_SITE = "site.setup.allowDuplicateSite";
+	public static final boolean SAK_PROP_ALLOW_DUPLICATE_SITE_DEFAULT = false;
+
+	public static final String SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER = "site.setup.allow.editRoster";
+	public static final boolean SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER_DEFAULT = true;
+
+	public static final String SAK_PROP_CM_IMPLEMENTED = "site-manage.courseManagementSystemImplemented";
+	public static final boolean SAK_PROP_CM_IMPLEMENTED_DEFAULT = true;
+
+	public static final String SAK_PROP_CLEAN_IMPORT_SITE = "clean.import.site";
+	public static final boolean SAK_PROP_CLEAN_IMPORT_SITE_DEFAULT = true;
 }

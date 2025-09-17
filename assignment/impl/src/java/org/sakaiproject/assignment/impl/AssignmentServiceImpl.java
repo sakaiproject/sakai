@@ -20,7 +20,8 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 import static org.sakaiproject.assignment.api.model.Assignment.Access.*;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,7 +47,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -91,6 +91,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.api.reminder.AssignmentDueReminderService;
 import org.sakaiproject.assignment.api.taggable.AssignmentActivityProducer;
@@ -105,7 +106,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -148,11 +148,11 @@ import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.util.foorm.Foorm;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
 import org.sakaiproject.rubrics.api.RubricsService;
+import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Group;
@@ -182,6 +182,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -198,7 +199,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
-
+import org.sakaiproject.util.MergeConfig;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -440,8 +441,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     @Transactional
-    public String merge(String siteId, Element root, String archivePath, String fromSiteId, String creatorId, Map<String, String> attachmentNames,
-        Map<Long, Map<String, Object>> ltiContentItems, Map<String, String> userIdTrans, Set<String> userListAllowImport) {
+    public String merge(String siteId, Element root, String archivePath, String fromSiteId, MergeConfig mcx) {
+
 
         final StringBuilder results = new StringBuilder();
         results.append("begin merging ").append(getLabel()).append(" context ").append(siteId).append(LINE_SEPARATOR);
@@ -458,7 +459,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         for (Element assignmentElement : assignmentElements) {
 
             try {
-                mergeAssignment(siteId, assignmentElement, results, creatorId, assignmentTitles);
+                mergeAssignment(siteId, assignmentElement, results, assignmentTitles, mcx);
                 assignmentsMerged++;
             } catch (Exception e) {
                 final String error = "could not merge assignment with id: " + assignmentElement.getFirstChild().getFirstChild().getNodeValue();
@@ -558,13 +559,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public Entity createAssignmentEntity(Assignment assignment) {
-        AssignmentEntity entity = assignmentEntityFactory.getObject();
-        entity.initEntity(assignment);
-        return entity;
-    }
-
-    @Override
     public String getEntityUrl(Reference reference) {
         return getEntity(reference).getUrl();
     }
@@ -643,6 +637,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             } else {
                 // determine the type of download to create using the reference that was requested
                 AssignmentReferenceReckoner.AssignmentReference refReckoner = AssignmentReferenceReckoner.reckoner().reference(ref.getReference()).reckon();
+
                 if (REFERENCE_ROOT.equals("/" + refReckoner.getType())) {
                     // don't process any references that are not of type assignment
                     switch (refReckoner.getSubtype()) {
@@ -993,7 +988,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         return submission.getSubmitters().stream().findAny().get().getTimeSpent();
     }
 
-    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, String creatorId, Set<String> assignmentTitles) throws PermissionException {
+    private Assignment mergeAssignment(final String siteId, final Element element, final StringBuilder results, Set<String> assignmentTitles, MergeConfig mcx) throws PermissionException {
 
         if (!allowAddAssignment(siteId)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(siteId).reckon().getReference());
@@ -1016,10 +1011,24 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             assignmentFromXml.setId(null);
             assignmentFromXml.setContext(siteId);
             assignmentFromXml.setContentId(null);
-            if ( StringUtils.isNotEmpty(creatorId) ) assignmentFromXml.setAuthor(creatorId);
+            if ( StringUtils.isNotEmpty(mcx.creatorId) ) assignmentFromXml.setAuthor(mcx.creatorId);
+
+            String newInstructions = ltiService.fixLtiLaunchUrls(assignmentFromXml.getInstructions(), siteId, mcx);
+            newInstructions = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, newInstructions);
+            assignmentFromXml.setInstructions(newInstructions);
 
             Long contentKey = ltiService.mergeContentFromImport(element, siteId);
             if ( contentKey != null ) assignmentFromXml.setContentId(contentKey.intValue());
+
+            // Import attachments
+            Set<String> oAttachments = assignmentFromXml.getAttachments();
+            assignmentFromXml.setAttachments(new HashSet<>());
+            for (String oAttachment : oAttachments) {
+                String fromResourcePath = mcx.attachmentNames.get(oAttachment);
+                String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
+                String nAttachId = transferAttachment(fromContext, siteId, fromResourcePath, mcx);
+                assignmentFromXml.getAttachments().add(nAttachId);
+            }
 
             if (serverConfigurationService.getBoolean(SAK_PROP_ASSIGNMENT_IMPORT_SUBMISSIONS, false)) {
                 Set<AssignmentSubmission> submissions = assignmentFromXml.getSubmissions();
@@ -1037,7 +1046,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             } else {
                 // here it is importing the assignment only
                 assignmentFromXml.setDraft(true);
-                assignmentFromXml.setAttachments(new HashSet<>());
                 assignmentFromXml.setGroups(new HashSet<>());
                 assignmentFromXml.setTypeOfAccess(SITE);
                 Map<String, String> properties = assignmentFromXml.getProperties().entrySet().stream()
@@ -1051,6 +1059,47 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             results.append(result).append(LINE_SEPARATOR);
             log.debug(result);
         }
+
+        // After we save the assignment, we can save the private note, model answer, and attachments
+        NodeList nodes = element.getElementsByTagName("PrivateNote");
+        for (int j=0; j<nodes.getLength(); ++j) {
+            Element nodeElement = (Element) nodes.item(j);
+            String text = nodeElement.getTextContent();
+            String shareWith = nodeElement.getAttribute("shareWith");
+            AssignmentNoteItem copy = assignmentSupplementItemService.newNoteItem();
+            copy.setAssignmentId(assignmentFromXml.getId());
+            copy.setNote(text);
+            copy.setShareWith(Integer.parseInt(shareWith));
+            copy.setCreatorId(mcx.creatorId);
+            assignmentSupplementItemService.saveNoteItem(copy);
+        }
+
+        nodes = element.getElementsByTagName("ModelAnswer");
+        for (int j=0; j<nodes.getLength(); ++j) {
+            Element nodeElement = (Element) nodes.item(j);
+            String text = nodeElement.getTextContent();
+            String showTo = nodeElement.getAttribute("showTo");
+            AssignmentModelAnswerItem copy = assignmentSupplementItemService.newModelAnswer();
+            copy.setAssignmentId(assignmentFromXml.getId());
+            copy.setText(text);
+            copy.setShowTo(Integer.parseInt(showTo));
+
+            // We have to save the model answer so it exists before it can have attachments; otherwise we get a Hibernate exception
+            assignmentSupplementItemService.saveModelAnswer(copy);
+
+            NodeList attachments = nodeElement.getElementsByTagName("attachment");
+            for (int k=0; k<attachments.getLength(); ++k) {
+                Element attachmentElement = (Element) attachments.item(k);
+                String attachmentId = attachmentElement.getTextContent();
+                AssignmentSupplementItemAttachment attachment = assignmentSupplementItemService.newAttachment();
+                String fromContext = null;  // No-Op, there is no fromContext when importing from a ZIP
+                String nAttachId = transferAttachment(fromContext, siteId, attachmentId, mcx);
+                attachment.setAssignmentSupplementItemWithAttachment(copy);
+                attachment.setAttachmentId(nAttachId);
+                assignmentSupplementItemService.saveAttachment(attachment);
+            }
+        }
+
         return assignmentFromXml;
     }
 
@@ -1146,6 +1195,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 existingAssignment.getProperties().entrySet().stream()
                         .filter(e -> !PROPERTIES_EXCLUDED_FROM_DUPLICATE_ASSIGNMENTS.contains(e.getKey()))
                         .forEach(e -> properties.put(e.getKey(), e.getValue()));
+                
+                // Always set duplicated assignments to use "Create new Gradebook item" option
+                properties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
 
                 assignmentRepository.newAssignment(assignment);
                 log.debug("Created duplicate assignment {} from {}", assignment.getId(), assignmentId);
@@ -1626,7 +1678,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     Priorities.HIGH);
         }
 
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
     }
 
     @Override
@@ -2236,6 +2287,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         boolean withFeedbackText = false;
         boolean withFeedbackComment = false;
         boolean withFeedbackAttachment = false;
+        boolean withRubrics = false;
         boolean withoutFolders = false;
         boolean includeNotSubmitted = false;
         String gradeFileFormat = "csv";
@@ -2275,6 +2327,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 } else if (token.contains("feedbackAttachments")) {
                     // feedback attachment
                     withFeedbackAttachment = true;
+                } else if (token.contains("rubrics")) {
+                    withRubrics = true;
                 } else if (token.contains("withoutFolders")) {
                     // feedback attachment
                     withoutFolders = true;
@@ -2342,6 +2396,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 withFeedbackText,
                                 withFeedbackComment,
                                 withFeedbackAttachment,
+                                withRubrics,
                                 gradeFileFormat,
                                 includeNotSubmitted);
 
@@ -2383,6 +2438,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 withFeedbackText,
                                 withFeedbackComment,
                                 withFeedbackAttachment,
+                                withRubrics,
                                 withoutFolders,
                                 gradeFileFormat,
                                 includeNotSubmitted,
@@ -2429,7 +2485,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         if (submission == null) return false; // false if submission is null
 
         // check that a submission has been submitted
-        if (submission.getSubmitted() || submission.getDateSubmitted() != null) {
+        if (submission.getDateSubmitted() != null) {
             // get the resubmit settings from submission object first
             String allowResubmitNumString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
             String allowResubmitCloseTimeString = submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
@@ -2500,19 +2556,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (submission != null) {
 
                 // If an Extension exists for the user, we switch out the assignment's overall
-                // close date for the extension deadline but only if the submission object has not been submitted.
-                // Additionally, we make sure that a Resubmission date is not set,
-                // so that this date-switching happens ONLY under Extension-related circumstances.
-                if (StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))
-                        && StringUtils.isBlank(submission.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME))) {
+                // close date for the extension deadline
+                if (!isBeforeAssignmentCloseDate && StringUtils.isNotBlank(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME))) {
                     Instant extensionCloseTime = Instant.ofEpochMilli(Long.parseLong(submission.getProperties().get(AssignmentConstants.ALLOW_EXTENSION_CLOSETIME)));
                     isBeforeAssignmentCloseDate = currentTime.isBefore(extensionCloseTime);
                 }
 
                 // before the assignment close date
-                // and if no date then a submission was never never submitted
-                // or if there is a submitted date and its a not submitted then it is considered a draft
-                if (isBeforeAssignmentCloseDate && (submission.getDateSubmitted() == null || !submission.getSubmitted())) return true;
+                // and if no date then a submission was never truly submitted by the student
+                if (isBeforeAssignmentCloseDate && submission.getDateSubmitted() == null) return true;
 
                 // returns true if resubmission is allowed
                 if (canSubmitResubmission(submission, currentTime)) return true;
@@ -3124,8 +3176,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission) {
-        Objects.requireNonNull(submission, "Submission cannot be null");
-        return submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
+        return Optional.ofNullable(submission)
+                .map(AssignmentSubmission::getSubmitters)
+                .flatMap(submitters -> submitters.stream()
+                        .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                        .findFirst()
+                        .or(() -> submitters.stream().findFirst())
+                );
     }
 
     @Override
@@ -3336,14 +3393,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
+    // for regular task deletion this has no effect as it has already been done on doDelete_assignment, it only works when it comes from import content + replace
     private void removeAssociatedGradebookItem(Assignment assignment) {
-
-        String context = assignment.getContext();
         String associatedGradebookAssignment = assignment.getProperties().get(AssignmentConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
         if (StringUtils.isNotBlank(associatedGradebookAssignment)) {
-            if (gradingService.isExternalAssignmentDefined(context, associatedGradebookAssignment)) {
-                gradingService.removeExternalAssignment(context, associatedGradebookAssignment);
-            }
+            gradingService.removeExternalAssignment(null, associatedGradebookAssignment, getToolId());
         }
     }
 
@@ -3440,7 +3494,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     // TODO zipSubmissions and zipGroupSubmissions should be combined
-    private void zipSubmissions(String assignmentReference, String assignmentTitle, Assignment.GradeType gradeType, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders, String gradeFileFormat, boolean includeNotSubmitted, String siteId) {
+    private void zipSubmissions(String assignmentReference, String assignmentTitle, Assignment.GradeType gradeType, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withRubrics, boolean withoutFolders, String gradeFileFormat, boolean includeNotSubmitted, String siteId) {
         ZipOutputStream out = null;
 
         boolean isAdditionalNotesEnabled = false;
@@ -3595,7 +3649,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                 // record submission timestamp
                                 if (!withoutFolders && s.getSubmitted() && s.getDateSubmitted() != null) {
-                                    final String zipEntryName = submittersName + "timestamp.txt";
+                                    final String zipEntryName = submittersName + resourceLoader.getString("zip.timestamp") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                                     final String textEntryString = s.getDateSubmitted().toString();
                                     createTextZipEntry(out, zipEntryName, textEntryString);
                                 }
@@ -3618,7 +3672,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     // include student submission feedback text
                                     if (withFeedbackText) {
                                         // create a feedbackText file into zip
-                                    	final String zipEntryName = submittersName + "feedbackText.html";
+                                    	final String zipEntryName = submittersName + resourceLoader.getString("zip.feedback_text") + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE;
                                         final String textEntryString = s.getFeedbackText();
                                         createTextZipEntry(out, zipEntryName, textEntryString);
                                     }
@@ -3646,7 +3700,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                 if (withFeedbackComment) {
                                     // the comments.txt file to show instructor's comments
-                                	final String zipEntryName = submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
+                                	final String zipEntryName = submittersName + resourceLoader.getString("zip.comments") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                                     final String textEntryString = formattedText.encodeUnicode(s.getFeedbackComment());
                                     createTextZipEntry(out, zipEntryName, textEntryString);
                                 }
@@ -3664,6 +3718,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                     // add all feedback attachment folder
                                     zipAttachments(out, submittersName, feedbackSubAttachmentFolder, s.getFeedbackAttachments());
+                                }
+
+                                String assignmentId = s.getAssignment().getId();
+
+                                Optional<AssociationTransferBean> optAssociation = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, siteId);
+
+                                if (withRubrics && optAssociation.isPresent()) {
+                                    byte[] pdf = rubricsService.createPdf(siteId, optAssociation.get().getRubricId(), AssignmentServiceConstants.ASSIGNMENT_TOOL_ID, assignmentId, s.getId());
+
+                                    final ZipEntry zipEntryPdf = new ZipEntry(submittersName + resourceLoader.getString("zip.rubrics") + AssignmentConstants.ZIP_PDF_FILE_TYPE);
+
+                                    out.putNextEntry(zipEntryPdf);
+                                    out.write(pdf);
                                     out.closeEntry();
                                 }
                             } // if
@@ -3756,7 +3823,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     // TODO zipSubmissions and zipGroupSubmissions should be combined
-    protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, String gradeFileFormat, boolean includeNotSubmitted) {
+    protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withRubrics, String gradeFileFormat, boolean includeNotSubmitted) {
         ZipOutputStream out = null;
         try {
             out = new ZipOutputStream(outputStream);
@@ -3837,7 +3904,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                             // record submission timestamp
                             if (s.getSubmitted() && s.getDateSubmitted() != null) {
-                            	createTextZipEntry(out, submittersName + "timestamp.txt", s.getDateSubmitted().toString());
+                            	createTextZipEntry(out, submittersName + resourceLoader.getString("zip.timestamp") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE, s.getDateSubmitted().toString());
                             }
 
                             // create the folder structure - named after the submitter's name
@@ -3852,7 +3919,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // include student submission feedback text
                                 if (withFeedbackText) {
                                     // create a feedbackText file into zip
-                                	createTextZipEntry(out, submittersName + "feedbackText.html", s.getFeedbackText());
+                                	createTextZipEntry(out, submittersName + resourceLoader.getString("zip.feedback_text") + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE, s.getFeedbackText());
                                 }
                             }
 
@@ -3869,7 +3936,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                             if (withFeedbackComment) {
                                 // the comments.txt file to show instructor's comments
-                            	final String zipEntryName = submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
+                                final String zipEntryName = submittersName + resourceLoader.getString("zip.comments") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                             	final String textEntryString = formattedText.encodeUnicode(s.getFeedbackComment());
                             	createTextZipEntry(out, zipEntryName, textEntryString);
                             }
@@ -3884,9 +3951,25 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 out.closeEntry();
                             }
 
+                            Assignment assignment = s.getAssignment();
+                            String assignmentId = assignment.getId();
+                            String siteId = assignment.getContext();
+
+                            Optional<AssociationTransferBean> optAssociation = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, assignmentId, siteId);
+
+                            if (withRubrics && optAssociation.isPresent()) {
+                                byte[] pdf = rubricsService.createPdf(siteId, optAssociation.get().getRubricId(), AssignmentServiceConstants.ASSIGNMENT_TOOL_ID, assignmentId, s.getId());
+
+                                final ZipEntry zipEntryPdf = new ZipEntry(submittersName + resourceLoader.getString("zip.rubrics") + AssignmentConstants.ZIP_PDF_FILE_TYPE);
+
+                                out.putNextEntry(zipEntryPdf);
+                                out.write(pdf);
+                                out.closeEntry();
+                            }
+
                             if (!submittersString.toString().trim().isEmpty()) {
                                 // the comments.txt file to show instructor's comments
-                            	final String zipEntryName = submittersName + "members" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
+                                final String zipEntryName = submittersName + resourceLoader.getString("zip.comments") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                             	final String textEntryString = formattedText.encodeUnicode(submittersString.toString());
                             	createTextZipEntry(out, zipEntryName, textEntryString);
                             }
@@ -4253,13 +4336,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setTitle(oAssignment.getTitle());
                     // replace all occurrence of old context with new context inside instruction text
                     if(StringUtils.isNotBlank(oAssignment.getInstructions())){
-                    	nAssignment.setInstructions(oAssignment.getInstructions().replaceAll(fromContext, toContext));
+                        String newInstructions = ltiService.fixLtiLaunchUrls(oAssignment.getInstructions(), fromContext, toContext, transversalMap);
+                    	nAssignment.setInstructions(newInstructions.replaceAll(fromContext, toContext));
                     }
                     nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
                     nAssignment.setTypeOfSubmission(oAssignment.getTypeOfSubmission());
 
                     // User supplied publish option takes precedence, then property, then source.
-                    if (transferOptions != null && transferOptions.contains(EntityTransferrer.PUBLISH_OPTION)) {
+                    if (oAssignment.getAllowPeerAssessment()) {
+                        // Always set peer assessment assignments to draft on import as they need setup
+                        nAssignment.setDraft(true);
+                    } else if (transferOptions != null && transferOptions.contains(EntityTransferrer.PUBLISH_OPTION)) {
                         nAssignment.setDraft(false);
                     } else if (serverConfigurationService.getBoolean("import.importAsDraft", true)) {
                         nAssignment.setDraft(true);
@@ -4336,7 +4423,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         Reference oReference = entityManager.newReference(oAttachment);
                         String oAttachmentId = oReference.getId();
                         // transfer attachment, replace the context string if necessary and add new attachment
-                        String nReference = transferAttachment(fromContext, toContext, oAttachmentId);
+                        String nReference = transferAttachment(fromContext, toContext, oAttachmentId, null);
                         nAssignment.getAttachments().add(nReference);
                     }
 
@@ -4402,88 +4489,116 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     }
 
                     // gradebook-integration link
-                    String associatedGradebookAssignment = nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                    String nAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference();
-                    if (StringUtils.isBlank(associatedGradebookAssignment)) {
-                        // if the association property is empty then set gradebook integration to not integrated
-                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
-                    } else {
-                        // see if the old assignment's associated gradebook item is an internal gradebook entry or externally defined
-                        boolean isExternalAssignmentDefined = gradingService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
-                        if (isExternalAssignmentDefined) {
-                            if (!nAssignment.getDraft()) {
-                                String gbUid = nAssignment.getContext();
-                                // This assignment has been published, make sure the associated gb item is available
-                                org.sakaiproject.grading.api.Assignment gbAssignment
-                                    = gradingService.getAssignmentByNameOrId(
-                                        nAssignment.getContext(), associatedGradebookAssignment);
+                    final String associatedGradebookAssignment = nProperties.get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                    // always clear the old assignments gradebook link
+                    nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                    final String assignmentAddToGradebookChoice = nProperties.get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+                    final String nAssignmentRef = AssignmentReferenceReckoner.reckoner().assignment(nAssignment).reckon().getReference();
 
-                                if (gbAssignment == null) {
-                                    // The associated gb item hasn't been created here yet.
-                                    gbAssignment = gradingService.getExternalAssignment(
-                                        oAssignment.getContext(), associatedGradebookAssignment);
+                    switch (assignmentAddToGradebookChoice) {
+                        case GRADEBOOK_INTEGRATION_ADD, GRADEBOOK_INTEGRATION_ASSOCIATE -> {
+                            org.sakaiproject.grading.api.Assignment originalGBAssignment = null;
+                            org.sakaiproject.grading.api.Assignment newGbAssignment = null;
 
-                                    Optional<Long> categoryId
-                                        = createCategoryForGbAssignmentIfNecessary(
-                                            gbAssignment, oAssignment.getContext(), nAssignment.getContext());
+                            boolean isOriginalAssignmentExternal = gradingService.isExternalAssignmentDefined(oAssignment.getContext(), associatedGradebookAssignment);
+                            if (!isOriginalAssignmentExternal) {
+                                // load the assignment for internal gb link
+                                try {
+                                    originalGBAssignment = gradingService.getAssignmentByNameOrId(
+                                            oAssignment.getContext(),
+                                            oAssignment.getContext(),
+                                            associatedGradebookAssignment);
+                                } catch (AssessmentNotFoundException anfe) {
+                                    // strange if couldn't load the original gb assignment
+                                    log.debug("Original assignment {} not found in gradebook for site {}", associatedGradebookAssignment, nAssignment.getContext(), anfe);
+                                }
 
-                                    gradingService.addExternalAssessment(nAssignment.getContext()
-                                            , nAssignmentRef, null, nAssignment.getTitle()
-                                            , nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor()
-                                            , Date.from(nAssignment.getDueDate()), this.getToolId()
-                                            , null, false, categoryId.isPresent() ? categoryId.get() : null);
-
-                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                if (originalGBAssignment != null) {
+                                    try {
+                                        // because the the association points to the original gb (ID) we can only look up by it's Name
+                                        newGbAssignment = gradingService.getAssignmentByNameOrId(
+                                                nAssignment.getContext(),
+                                                nAssignment.getContext(),
+                                                originalGBAssignment.getName());
+                                    } catch (AssessmentNotFoundException anfe) {
+                                        // couldn't load the new gb item so the user didn't import gradebook items
+                                        log.debug("Assignment {} not found in gradebook for site {}", originalGBAssignment.getName(), nAssignment.getContext(), anfe);
+                                    }
                                 }
                             } else {
-                                // if this is an external defined (came from assignment)
-                                // mark the link as "add to gradebook" for the new imported assignment, since the assignment is still of draft state
-                                // later when user posts the assignment, the corresponding assignment will be created in gradebook.
-                                nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                                nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+                                originalGBAssignment = gradingService.getExternalAssignment(oAssignment.getContext(), associatedGradebookAssignment);
                             }
-                        } else {
-                            // If this is an internal gradebook item then it should be associated with the assignment
-                            try {
-                                org.sakaiproject.grading.api.Assignment gbAssignment
-                                    = gradingService.getAssignmentByNameOrId(
-                                        nAssignment.getContext(), associatedGradebookAssignment);
 
-                                if (gbAssignment == null) {
-                                    if (!nAssignment.getDraft()) {
-                                        // The target gb item doesn't exist and we're in publish mode, so copy it over.
-                                        gbAssignment = gradingService.getAssignmentByNameOrId(
-                                                oAssignment.getContext(), associatedGradebookAssignment);
-                                        gbAssignment.setId(null);
-
-                                        Optional<Long> categoryId = createCategoryForGbAssignmentIfNecessary(
-                                            gbAssignment, oAssignment.getContext(), nAssignment.getContext());
-
-                                        if (categoryId.isPresent()) {
-                                            gbAssignment.setCategoryId(categoryId.get());
-                                        }
-
-                                        gradingService.addAssignment(nAssignment.getContext(), gbAssignment);
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, gbAssignment.getId().toString());
-                                    } else {
-                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
-                                        nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-                                    }
+                            if (nAssignment.getDraft()) {
+                                // assignment is in the draft state
+                                if (isOriginalAssignmentExternal) {
+                                    // if this is an external defined assignments will create when publishing
+                                    nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                                    nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
                                 } else {
-                                    if (!nAssignment.getDraft()) {
-                                        // migrate to gradebook assignment id (vs title)
+                                    if (newGbAssignment != null) {
+                                        if (StringUtils.isNotBlank(newGbAssignment.getId().toString())) {
+                                            nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbAssignment.getId().toString());
+                                        }
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
-                                        associatedGradebookAssignment = gbAssignment.getId().toString();
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associatedGradebookAssignment );
                                     } else {
-                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
                                         nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
                                     }
                                 }
-                            } catch (AssessmentNotFoundException anfe) {
-                                log.info("While importing assignment {} the associated gradebook item {} was missing, " +
-                                        "switching assignment linkage to added by assignments", nAssignmentId, associatedGradebookAssignment);
+                            } else {
+                                // not in draft state
+                                if (isOriginalAssignmentExternal) {
+                                    // external gradebook items are created by assignments and linked using the assignments reference
+                                    Long categoryId = null;
+                                    if (originalGBAssignment != null) {
+                                        categoryId = createCategoryForGbAssignmentIfNecessary(originalGBAssignment, oAssignment.getContext(), nAssignment.getContext())
+                                                .orElse(null);
+                                    }
+
+                                    gradingService.addExternalAssessment(
+                                            nAssignment.getContext(),
+                                            nAssignment.getContext(),
+                                            nAssignmentRef,
+                                            null,
+                                            nAssignment.getTitle(),
+                                            nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor(),
+                                            Date.from(nAssignment.getDueDate()),
+                                            this.getToolId(),
+                                            null,
+                                            false,
+                                            categoryId,
+                                            null);
+                                    if (StringUtils.isNotBlank(nAssignmentRef)) {
+                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                    }
+                                    nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+                                } else {
+                                    // internal gradebook items should have already been created and are linked using a Long or a title
+                                    if (newGbAssignment == null) {
+                                        // no existing gb item, only thing to do set assignment as draft and clear the link
+                                        nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                                        // change the integration to no so that they my choose
+                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+                                    } else {
+                                        // gb item found just link it
+                                        if (StringUtils.isNotBlank(newGbAssignment.getId().toString())) {
+                                            nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbAssignment.getId().toString());
+                                        }
+                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+                                    }
+                                }
                             }
+                        }
+                        case GRADEBOOK_INTEGRATION_NO -> {
+                            // disables gradebook integration
+                            nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+                            nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                        }
+                        default -> {
+                            // in a future jdk this can be combined with previous
+                            nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+                            nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                         }
                     }
 
@@ -4527,7 +4642,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         for (AssignmentSupplementItemAttachment oAttachment : oModelAnswerItemAttachments) {
                             AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
                             // New attachment creation
-                            String nAttachmentId = transferAttachment(fromContext, toContext, removeReferencePrefix(oAttachment.getAttachmentId()));
+                            String nAttachmentId = transferAttachment(fromContext, toContext, oAttachment.getAttachmentId(), null);
                             if (StringUtils.isNotEmpty(nAttachmentId)) {
                                 nAttachment.setAssignmentSupplementItemWithAttachment(nModelAnswerItem);
                                 nAttachment.setAttachmentId(nAttachmentId);
@@ -4554,19 +4669,19 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     AssignmentAllPurposeItem oAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(oAssignmentId);
                     if (oAllPurposeItem != null) {
                         AssignmentAllPurposeItem nAllPurposeItem = assignmentSupplementItemService.newAllPurposeItem();
-                        assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
                         nAllPurposeItem.setAssignmentId(nAssignment.getId());
                         nAllPurposeItem.setTitle(oAllPurposeItem.getTitle());
                         nAllPurposeItem.setText(oAllPurposeItem.getText());
                         nAllPurposeItem.setHide(oAllPurposeItem.getHide());
                         nAllPurposeItem.setReleaseDate(null);
                         nAllPurposeItem.setRetractDate(null);
+
                         Set<AssignmentSupplementItemAttachment> oAllPurposeItemAttachments = oAllPurposeItem.getAttachmentSet();
                         Set<AssignmentSupplementItemAttachment> nAllPurposeItemAttachments = new HashSet<>();
                         for (AssignmentSupplementItemAttachment oAttachment : oAllPurposeItemAttachments) {
                             AssignmentSupplementItemAttachment nAttachment = assignmentSupplementItemService.newAttachment();
                             // New attachment creation
-                            String nAttachId = transferAttachment(fromContext, toContext, removeReferencePrefix(oAttachment.getAttachmentId()));
+                            String nAttachId = transferAttachment(fromContext, toContext, oAttachment.getAttachmentId(), null);
                             if (StringUtils.isNotEmpty(nAttachId)) {
                                 nAttachment.setAssignmentSupplementItemWithAttachment(nAllPurposeItem);
                                 nAttachment.setAttachmentId(nAttachId);
@@ -4575,14 +4690,23 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             }
                         }
                         nAllPurposeItem.setAttachmentSet(nAllPurposeItemAttachments);
+                        
+                        // First save the AllPurposeItem to persist it before creating access entries
+                        assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+                        
+                        // Now clean up existing access entries
                         assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurposeItem);
+                        
+                        // Create and save new access entries
                         Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<>();
                         AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
                         access.setAccess(userDirectoryService.getCurrentUser().getId());
                         access.setAssignmentAllPurposeItem(nAllPurposeItem);
-                        assignmentSupplementItemService.saveAllPurposeItemAccess(access);
                         accessSet.add(access);
                         nAllPurposeItem.setAccessSet(accessSet);
+                        
+                        // Save both the access entry and the updated AllPurposeItem
+                        assignmentSupplementItemService.saveAllPurposeItemAccess(access);
                         assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
                     }
                 } catch (Exception e) {
@@ -4614,7 +4738,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             }
             transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, transferOptions));
         } catch (Exception e) {
-            log.info("End removing Assignmentt data {}", e.getMessage());
+            log.info("End removing Assignment data {}", e.getMessage());
         }
 
         return transversalMap;
@@ -4627,54 +4751,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             .map(ass -> Map.of("id", ass.getId(), "title", ass.getTitle())).collect(Collectors.toList());
     }
 
-    private String transferAttachment(String fromContext, String toContext, String oAttachmentId) {
-        String reference = "";
-        String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
+    private String transferAttachment(String fromContext, String toContext, String oAttachmentId, MergeConfig mcx) {
+        String toolTitle = toolManager.getTool("sakai.assignment.grades").getTitle();
         try {
-            ContentResource attachment = contentHostingService.getResource(nAttachmentId);
-            reference = attachment.getReference();
-        } catch (IdUnusedException iue) {
-            try {
-                ContentResource oAttachment = contentHostingService.getResource(oAttachmentId);
-                try (InputStream content = new ByteArrayInputStream(oAttachment.getContent())) {
-                    if (contentHostingService.isAttachmentResource(nAttachmentId)) {
-                        // add the new resource into attachment collection area
-                        ContentResource attachment = contentHostingService.addAttachmentResource(
-                                Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
-                                toContext,
-                                toolManager.getTool("sakai.assignment.grades").getTitle(),
-                                oAttachment.getContentType(),
-                                content,
-                                oAttachment.getProperties());
-                        reference = attachment.getReference();
-                    } else {
-                        // add the new resource into resource area
-                        ContentResource attachment = contentHostingService.addResource(
-                                Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
-                                toContext,
-                                1,
-                                oAttachment.getContentType(),
-                                content,
-                                oAttachment.getProperties(),
-                                Collections.emptyList(),
-                                false,
-                                null,
-                                null,
-                                NotificationService.NOTI_NONE);
-                        reference = attachment.getReference();
-                    }
-                } catch (Exception e) {
-                    // if the new resource cannot be added
-                    log.warn("Cannot add new attachment with id = {}, {}", nAttachmentId, e.getMessage());
-                }
-            } catch (Exception e) {
-                // if cannot find the original attachment, do nothing.
-                log.warn("Cannot get the original attachment with id = {}, {}", oAttachmentId, e.getMessage());
+            ContentResource attachment = contentHostingService.copyAttachment(oAttachmentId, toContext, toolTitle, mcx);
+            if ( attachment != null ) {
+                return attachment.getReference();
             }
-        } catch (Exception e) {
-            log.warn("Could not get the new attachment with id = {}, {}", nAttachmentId, e.getMessage());
+        } catch (IdUnusedException | TypeException | PermissionException e) {
+            log.error("Error copying attachment: {}", e.getMessage());
         }
-        return reference;
+        return null;
     }
 
     private LRS_Statement getStatementForAssignmentGraded(String reference, Assignment a, AssignmentSubmission s, User studentUser) {
@@ -5045,10 +5132,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 , String toGradebookId) {
 
         String categoryName = gbAssignment.getCategoryName();
-
         if (!StringUtils.isBlank(categoryName)) {
             List<CategoryDefinition> toCategoryDefinitions
-                = gradingService.getCategoryDefinitions(toGradebookId);
+                = gradingService.getCategoryDefinitions(toGradebookId, toGradebookId);
             if (toCategoryDefinitions == null) {
                 toCategoryDefinitions = new ArrayList<>();
             }
@@ -5056,7 +5142,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             if (!toCategoryDefinitions.stream().anyMatch(cd -> cd.getName().equals(categoryName))) {
                 // The category doesn't exist yet
                 CategoryDefinition fromCategoryDefinition
-                    = gradingService.getCategoryDefinitions(fromGradebookId)
+                    = gradingService.getCategoryDefinitions(fromGradebookId, fromGradebookId)
                         .stream()
                         .filter(cd -> cd.getName().equals(categoryName))
                             .findAny().get();
@@ -5069,19 +5155,18 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 toCategoryDefinition.setDropHighest(fromCategoryDefinition.getDropHighest());
                 toCategoryDefinition.setDropLowest(fromCategoryDefinition.getDropLowest());
                 toCategoryDefinition.setKeepHighest(fromCategoryDefinition.getKeepHighest());
-
-                GradebookInformation toGbInformation = gradingService.getGradebookInformation(toGradebookId);
-                GradebookInformation fromGbInformation = gradingService.getGradebookInformation(fromGradebookId);
+                GradebookInformation toGbInformation = gradingService.getGradebookInformation(toGradebookId, toGradebookId);
+                GradebookInformation fromGbInformation = gradingService.getGradebookInformation(fromGradebookId, fromGradebookId);
                 toGbInformation.setCategoryType(fromGbInformation.getCategoryType());
                 List<CategoryDefinition> categories = toGbInformation.getCategories();
                 categories.add(toCategoryDefinition);
-                gradingService.updateGradebookSettings(toGradebookId, toGbInformation);
+                gradingService.updateGradebookSettings(toGradebookId, toGradebookId, toGbInformation);
             }
 
             // A new category may have been added in the previous block. Pull them again, just to be sure. This will
             // ensure that any upstream caching is refreshed, too.
             Optional<CategoryDefinition> optional
-                = gradingService.getCategoryDefinitions(toGradebookId)
+                = gradingService.getCategoryDefinitions(toGradebookId, toGradebookId)
                     .stream()
                     .filter(cd -> cd.getName().equals(categoryName)).findAny();
             if (optional.isPresent()) {
@@ -5096,16 +5181,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public Optional<Assignment> getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException {
+    public List<Assignment> getAssignmentsForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException {
         if (StringUtils.isNoneBlank(context, linkId)) {
-            Optional<String> assignmentId = assignmentRepository.findAssignmentIdForGradebookLink(context, linkId);
-            if (assignmentId.isPresent()) {
-                return Optional.of(getAssignment(assignmentId.get()));
-            } else {
-                log.debug("No assignment id could be found for context {} and link {}", context, linkId);
-            }
+            return assignmentRepository.findAssignmentsForGradebookLink(context, linkId);
         }
-        return Optional.empty();
+        return null;
     }
 
     @Override

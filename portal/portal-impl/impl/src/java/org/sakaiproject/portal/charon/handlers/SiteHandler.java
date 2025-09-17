@@ -64,7 +64,6 @@ import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.URLUtils;
-import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -81,7 +80,6 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -157,7 +155,6 @@ public class SiteHandler extends WorksiteHandler
 	private final EventTrackingService eventTrackingService;
 	private final PresenceService presenceService;
 	private final PreferencesService preferencesService;
-	private final ProfileImageLogic profileImageLogic;
 	private final SecurityService securityService;
 	private final ServerConfigurationService serverConfigurationService;
 	private final SessionManager sessionManager;
@@ -173,7 +170,6 @@ public class SiteHandler extends WorksiteHandler
 		eventTrackingService = ComponentManager.get(EventTrackingService.class);
 		preferencesService = ComponentManager.get(PreferencesService.class);
 		presenceService = ComponentManager.get(PresenceService.class);
-		profileImageLogic = ComponentManager.get(ProfileImageLogic.class);
 		securityService = ComponentManager.get(SecurityService.class);
 		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 		sessionManager = ComponentManager.get(SessionManager.class);
@@ -490,7 +486,7 @@ public class SiteHandler extends WorksiteHandler
 
 				// Does the tool allow us to buffer?
 				allowBuffer = allowBufferContent(req, site, siteTool);
-				log.debug("allowBuffer="+allowBuffer+" url="+req.getRequestURL());
+                log.debug("allowBuffer={} url={}", allowBuffer, req.getRequestURL());
 
 				if ( allowBuffer ) {
 					TCP = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5);
@@ -527,23 +523,17 @@ public class SiteHandler extends WorksiteHandler
 
 			// We need to modify the user's properties. We need to lock the table.
 			if (!StringUtils.equals(currentExpanded, "true") || !StringUtils.equals(expandedSite, siteId)) {
-				PreferencesEdit prefs = null;
-				try {
-					prefs = preferencesService.edit(userId);
-					ResourcePropertiesEdit props = prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+				String finalSiteId = siteId;
+				preferencesService.applyEditWithAutoCommit(userId, edit -> {
+					ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 					props.addProperty(PortalConstants.PROP_CURRENT_EXPANDED, "true");
-					props.addProperty(PortalConstants.PROP_EXPANDED_SITE, siteId);
+					props.addProperty(PortalConstants.PROP_EXPANDED_SITE, finalSiteId);
 
 					boolean themeEnabled = serverConfigurationService.getBoolean(PortalConstants.PROP_PORTAL_THEMES, true);
 					if (!themeEnabled) {
-						prefs.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
+						edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.USER_SELECTED_UI_THEME_PREFS).addProperty("theme", "sakaiUserTheme-notSet");
 					}
-				} catch (Exception any) {
-					log.warn("Exception caught whilst setting expanded navigation or theme properties: {}", any.toString());
-					if (prefs != null) preferencesService.cancel(prefs);
-				} finally {
-					if (prefs != null) preferencesService.commit(prefs);
-				}
+				});
 			}
 		}
 
@@ -590,21 +580,17 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		rcontext.put("siteId", siteId);
-		boolean showShortDescription = Boolean.valueOf(serverConfigurationService.getBoolean("portal.title.shortdescription.show", false));
 
-		if (showShortDescription) {
-			rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
-		}
-		
 		if (siteService.isUserSite(siteId)){
-			rcontext.put("siteTitle", rb.getString("sit_mywor") );
+			rcontext.put("siteTitle", siteId.equals("~admin") ? rb.getString("sit_mywor_admin") : rb.getString("sit_mywor"));
 			rcontext.put("siteUrl", site.getUrl());
-			rcontext.put("siteTitleTruncated", rb.getString("sit_mywor") );
+			rcontext.put("siteTitleTruncated", siteId.equals("~admin") ? rb.getString("sit_mywor_admin") : rb.getString("sit_mywor"));
 			rcontext.put("isUserSite", true);
 		}else{
-			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle(site, false, true, providers));
+			rcontext.put("siteTitle", siteId.equals("!admin") ? rb.getString("sit_admin") : portal.getSiteHelper().getUserSpecificSiteTitle(site, false, true, providers));
 			rcontext.put("siteUrl", site.getUrl());
-			rcontext.put("siteTitleTruncated", Validator.escapeHtml(portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers)));
+			rcontext.put("siteParents", portal.getSiteHelper().getParentSites(site));
+			rcontext.put("siteTitleTruncated", siteId.equals("!admin") ? rb.getString("sit_admin") : Validator.escapeHtml(portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers)));
 			rcontext.put("isUserSite", false);
 		}
 		
@@ -773,7 +759,6 @@ public class SiteHandler extends WorksiteHandler
 				{
 					includeLogo(rcontext, req, session, siteId);
 					includeTabs(rcontext, req, session, siteId, toolId, getUrlFragment(), false);
-					rcontext.put("picEditorEnabled", profileImageLogic.isPicEditorEnabled());
 				}
 				else
 				{
@@ -869,33 +854,33 @@ public class SiteHandler extends WorksiteHandler
 			else if (allowroleswap)
 			{
 				Site activeSite = null;
-	            try
-	            {
-	            	activeSite = portal.getSiteHelper().getSiteVisit(siteId); // active site
-	            }
-            	catch(IdUnusedException ie)
-	            {
-            		log.error(ie.getMessage(), ie);
-            		throw new IllegalStateException("Site doesn't exist!");
-	            }
-	            catch(PermissionException pe)
-	            {
-	            	log.error(pe.getMessage(), pe);
-	            	throw new IllegalStateException("No permission to view site!");
-	            }
+				try
+				{
+					activeSite = portal.getSiteHelper().getSiteVisit(siteId); // active site
+				}
+				catch(IdUnusedException ie)
+				{
+					log.error(ie.getMessage(), ie);
+					throw new IllegalStateException("Site doesn't exist!");
+				}
+				catch(PermissionException pe)
+				{
+					log.error(pe.getMessage(), pe);
+					throw new IllegalStateException("No permission to view site!");
+				}
 				// this block of code will check to see if the student role exists in the site.
 				// It will be used to determine if we need to display any student view component
 				boolean roleInSite = false;
 				Set<Role> roles = activeSite.getRoles();
-				Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site
+				Role userRole = activeSite.getUserRole(session.getUserId()); // the user's role in the site; will be null for a DA user
 
 				String externalRoles = serverConfigurationService.getString("studentview.roles"); // get the roles that can be swapped to from sakai.properties
 				String[] svRoles = externalRoles.split(",");
-				List<String> svRolesFinal = new ArrayList<String>();
+				List<String> svRolesFinal = new ArrayList<>();
 
 				for (Role role : roles) {
-					for (int i = 0; i < svRoles.length; i++) {
-						if (svRoles[i].trim().equals(role.getId())) {
+					for (String svRole : svRoles) {
+						if (svRole.trim().equals(role.getId())) {
 							roleInSite = true;
 							svRolesFinal.add(role.getId());
 						}
@@ -910,32 +895,30 @@ public class SiteHandler extends WorksiteHandler
 
 					//if the userRole is null, this means they are more than likely a Delegated Access user.  Since the security check has already allowed
 					//the user to "swaproles" @allowroleswap, we know they have access to this site
-					if (roleswitchvalue == null) {
-						if (svRolesFinal.size() > 1) {
-							rcontext.put("roleswapdropdown", true);
-							switchRoleUrl = serverConfigurationService.getPortalUrl()
-									+ "/role-switch/"
-									+ siteId
-									+ "/tool/"
-									+ toolId
-									+ "/";
+					if (svRolesFinal.size() > 1) {
+						rcontext.put("roleswapdropdown", true);
+						switchRoleUrl = serverConfigurationService.getPortalUrl()
+								+ "/role-switch/"
+								+ siteId
+								+ "/tool/"
+								+ toolId
+								+ "/";
 
-							rcontext.put("panelString", "/?panel=Main");
-						} else {
-							rcontext.put("roleswapdropdown", false);
-							switchRoleUrl = serverConfigurationService.getPortalUrl()
-									+ "/role-switch/"
-									+ siteId
-									+ "/tool/"
-									+ toolId
-									+ "/"
-									+ svRolesFinal.get(0)
-									+ "/?panel=Main";
-							rcontext.put("roleUrlValue", svRolesFinal.get(0));
-						}
+						rcontext.put("panelString", "/?panel=Main");
+					} else {
+						rcontext.put("roleswapdropdown", false);
+						switchRoleUrl = serverConfigurationService.getPortalUrl()
+								+ "/role-switch/"
+								+ siteId
+								+ "/tool/"
+								+ toolId
+								+ "/"
+								+ svRolesFinal.get(0)
+								+ "/?panel=Main";
+						rcontext.put("roleUrlValue", svRolesFinal.get(0));
 					}
 					// We'll show the swap role snippet if the current user role is not in "studentview.roles"
-					roleswapcheck = !svRolesFinal.contains(userRole.getId());
+					roleswapcheck = userRole == null || !svRolesFinal.contains(userRole.getId());
 					rcontext.put("siteRoles", svRolesFinal);
 					rcontext.put("switchRoleUrl", switchRoleUrl);
 				}
@@ -944,7 +927,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("viewAsStudentLink", Boolean.valueOf(roleswapcheck)); // this will tell our UI if we want the link for swapping roles to display
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 			
-			int tabDisplayLabel = 1;
+			int tabDisplayLabel = PreferencesService.USE_SITE_TITLE;
 			boolean sidebarCollapsed = false;
 			boolean currentExpanded = false;
 			String expandedSite = siteId;
@@ -952,43 +935,15 @@ public class SiteHandler extends WorksiteHandler
 
 			if (loggedIn) 
 			{
+				tabDisplayLabel = preferencesService.getSiteTitleDisplayPreference();
+
 				Preferences prefs = preferencesService.getPreferences(session.getUserId());
 				ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
-				try 
-				{
-					tabDisplayLabel = (int) props.getLongProperty("tab:label");
-				} 
-				catch (Exception any) 
-				{
-					tabDisplayLabel = 1;
-				}
-
-				try {
-					sidebarCollapsed = props.getBooleanProperty(PortalConstants.PROP_SIDEBAR_COLLAPSED);
-				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
-					sidebarCollapsed = false;
-				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
-					log.warn("Exception caught whilst getting sidebarCollapsed: {}", any.toString());
-				}
-
-				try {
-					currentExpanded = props.getBooleanProperty(PortalConstants.PROP_CURRENT_EXPANDED);
-					expandedSite = props.getProperty(PortalConstants.PROP_EXPANDED_SITE);
-				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
-					currentExpanded = false;
-				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
-					log.warn("Exception caught whilst getting currentExpanded: {}", any.toString());
-				}
-
-
-				try {
-					toolMaximised = props.getBooleanProperty("toolMaximised");
-				} catch (org.sakaiproject.entity.api.EntityPropertyNotDefinedException any) {
-					toolMaximised = false;
-				} catch (org.sakaiproject.entity.api.EntityPropertyTypeException any) {
-					log.warn("Exception caught whilst getting toolMaximised: {}", any.toString());
-				}
+				sidebarCollapsed = props.getBooleanProperty(PortalConstants.PROP_SIDEBAR_COLLAPSED, false);
+				currentExpanded = props.getBooleanProperty(PortalConstants.PROP_CURRENT_EXPANDED, false);
+				expandedSite = props.getProperty(PortalConstants.PROP_EXPANDED_SITE);
+				toolMaximised = props.getBooleanProperty("toolMaximised", false);
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
@@ -1104,7 +1059,7 @@ public class SiteHandler extends WorksiteHandler
 		ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
 		boolean allowedUser = toolManager.allowTool(site, siteTool);
 		if ( ! allowedUser ) return false;
-
+		if (!portal.getSiteHelper().checkGradebookVisibility(siteTool, site)) return false;
 		return true;
 	}
 

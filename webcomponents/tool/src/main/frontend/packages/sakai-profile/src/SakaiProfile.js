@@ -1,6 +1,7 @@
 import { css, html, nothing } from "lit";
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
+import { getSiteId } from "@sakai-ui/sakai-portal-utils";
 
 /**
  * Renders a user's Sakai profile.
@@ -12,23 +13,26 @@ export class SakaiProfile extends SakaiShadowElement {
   static properties = {
 
     userId: { attribute: "user-id", type: String },
-    siteId: { attribute: "site-id", type: String },
-    tool: { type: String },
 
     _profile: { state: true },
+    _imageUrl: { state: true },
   };
 
-  constructor() {
+  connectedCallback() {
 
-    super();
+    super.connectedCallback();
 
-    this.loadTranslations("profile-wc").then(i18n => this._i18n = i18n);
+    this.loadTranslations("profile-wc");
+
+    const siteId = getSiteId();
+    this._imageUrl = `/api/users/${this.userId}/profile/image/${siteId ? `?siteId=${siteId}` : ""}`;
   }
 
   fetchProfileData() {
 
-    const url = `/api/users/${this.userId}/profile`;
-    fetch(url, { credentials: "include" })
+    const siteId = getSiteId();
+    const url = `/api/users/${this.userId}/profile${siteId ? `?siteId=${siteId}` : ""}`;
+    fetch(url)
       .then(r => {
 
         if (r.ok && r.status !== 204) return r.json();
@@ -48,7 +52,7 @@ export class SakaiProfile extends SakaiShadowElement {
   }
 
   shouldUpdate() {
-    return this._i18n;
+    return this._i18n && this._imageUrl;
   }
 
   render() {
@@ -58,28 +62,22 @@ export class SakaiProfile extends SakaiShadowElement {
     return html`
       <div class="container">
         <div class="header">
-          <div class="photo" style="background-image:url(/direct/profile/${this.userId}/image/thumb)">
-          </div>
+          <div class="photo" style="background-image:url(${this._imageUrl})"></div>
           <div>
             <div class="name">${this._profile.name}</div>
             ${this._profile.role ? html`
             <div class="role">${this._profile.role}</div>
-            ` : nothing}
+            ` : nothing }
             <div class="pronouns">${this._profile.pronouns}</div>
           </div>
         </div>
         <div class="body">
-          ${this._profile.pronunciation || this._profile.pronunciationRecordingUrl ? html`
-          <div class="label">${this._i18n.name_pronunciation}</div>
-          <div class="field pronunciation">
-            ${this._profile.pronunciation ? html`
-            <div>${this._profile.pronunciation}</div>
-            ` : nothing}
-            ${this._profile.hasPronunciationRecording ? html`
-            <sakai-pronunciation-player user-id="${this.userId}"></sakai-pronunciation-player>
-            ` : nothing}
-          </div>
-          ` : ""}
+          ${this._profile.hasPronunciationRecording ? html`
+            <div class="label">${this._i18n.name_pronunciation}</div>
+            <div class="field pronunciation">
+              <sakai-pronunciation-player user-id="${this.userId}"></sakai-pronunciation-player>
+            </div>
+          ` : nothing}
           ${this._profile.email ? html`
           <div class="label">${this._i18n.email}</div>
           <div class="field">${this._profile.email}</div>
@@ -126,6 +124,7 @@ export class SakaiProfile extends SakaiShadowElement {
         font-weight: var(--sakai-profile-name-weight, 700);
         font-size: var(--sakai-profile-name-size, 16px);
         margin-bottom: var(--sakai-profile-name-margin-bottom, 8px);
+        word-break: break-all;
       }
       .role, .pronouns {
         font-weight: var(--sakai-profile-header-weight, 400);

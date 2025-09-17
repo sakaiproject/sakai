@@ -25,10 +25,12 @@ import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -53,8 +55,9 @@ import lombok.ToString;
 public abstract class GradableObject implements Serializable {
 
     @Id
-    @GeneratedValue
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_gradable_object_id_sequence")
+    @SequenceGenerator(name = "gb_gradable_object_id_sequence", sequenceName = "GB_GRADABLE_OBJECT_S")
     @EqualsAndHashCode.Include
     @ToString.Include
     protected Long id;
@@ -127,9 +130,9 @@ public abstract class GradableObject implements Serializable {
             public int compare(final GradableObject one, final GradableObject two) {
                 if (one.getId() == null && two.getId() == null) {
                     return 0;
-                } else if (one.getName() == null) {
+                } else if (one.getId() == null) {
                     return 1;
-                } else if (two.getName() == null) {
+                } else if (two.getId() == null) {
                     return -1;
                 } else {
                     return one.getId().compareTo(two.getId());
@@ -170,7 +173,18 @@ public abstract class GradableObject implements Serializable {
                 } else if (two.getMean() == null) {
                     return -1;
                 } else {
-                    return one.getMean().compareTo(two.getMean());
+                    // Handle NaN values to ensure consistent comparator contract
+                    Double meanOne = one.getMean();
+                    Double meanTwo = two.getMean();
+                    if (meanOne.isNaN() && meanTwo.isNaN()) {
+                        return nameComparator.compare(one, two);
+                    } else if (meanOne.isNaN()) {
+                        return 1;
+                    } else if (meanTwo.isNaN()) {
+                        return -1;
+                    } else {
+                        return meanOne.compareTo(meanTwo);
+                    }
                 }
             }
 

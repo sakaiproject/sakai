@@ -1,19 +1,16 @@
 #if (${userIsLoggedIn})
 <aside class="offcanvas offcanvas-end" tabindex="-1" id="sakai-account-panel" aria-labelledby="sakai-account-panel-label">
   <div class="offcanvas-header">
-    <h2 class="offcanvas-title m-0" id="sakai-account-panel-label">${rloader.mainnav_btn_account}</h2>
+    <h2 class="offcanvas-title" id="sakai-account-panel-label">${rloader.mainnav_btn_account}</h2>
     <span>&nbsp;</span>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this account menu"></button>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="${rloader.sit_closepage}"></button>
   </div>
 
   <div class="offcanvas-body d-flex flex-column">
     <div class="text-center mb-3 pb-2">
       <div id="sakai-profile-image-block">
         #if (${profileImageUrl})
-          <button class="btn only-icon" data-bs-toggle="modal" data-bs-target="#profile-image-upload">
-            <img class="sakai-accountProfileImage rounded-circle" width="100" src="${profileImageUrl}" alt="Profile image">
-            <div id="sakai-profile-image-change">$rloader.sit_change</div>
-          </button>
+          <img class="sakai-accountProfileImage rounded-circle" width="100" src="${profileImageUrl}" alt="Profile image">
         #end
       </div>
       <h3 class="m-0">${loginUserDispName}</h3>
@@ -24,15 +21,21 @@
         #if (${prefsToolUrl})
         <li class="nav-item"><a href="${prefsToolUrl}" class="nav-link">${rloader.sit_preferences}</a></li>
         #end
-        #if (${profileToolUrl})
-        <li class="nav-item"><a href="${profileToolUrl}" class="nav-link">${rloader.sit_profile}</a></li>
-        #end
           #end
         #end
 
         #if (${tabsSites.tutorial})
           <li class="nav-item"><a id="tutorial-start-button" href="#" onclick="startTutorial({userInitiatedTutorial: true});" class="nav-link">${rloader.sit_tutorial}</a></li>
         #end
+
+        <li class="nav-item">
+          <a href="#"
+              data-user-id="${loginUserId}"
+              onclick="portal.displayProfile(event);"
+              class="nav-link">
+            ${rloader.sit_account_details}
+          </a>
+        </li>
 
         #if (${themeSwitcher})
         <li>
@@ -55,49 +58,6 @@
       </ul>
     </div>
 
-    <div class="accordion flex-grow-1 overflow-auto" id="sakai-accountPanelWidgets">
-      #if (${tasksEnabled})
-        <div class="accordion-item">
-          <div class="accordion-header" id="sakai-accountPanelWidgets-headingOne">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseOne" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseOne">
-              ${rloader.sit_mytasks}
-            </button>
-          </div>
-            <div  id="sakai-accountPanelWidgets-collapseOne" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingOne">
-              <div class="accordion-body p-2">
-                ## Tasks webcomponent
-                <sakai-tasks site-id="$!{siteId}" defer></sakai-tasks>
-              </div>
-            </div>
-        </div>
-      #end
-      <div class="accordion-item">
-        <div class="accordion-header" id="sakai-accountPanelWidgets-headingTwo">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseTwo" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseTwo">
-            ${rloader.sit_mycalendar}
-          </button>
-        </div>
-        <div id="sakai-accountPanelWidgets-collapseTwo" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingTwo">
-          <div class="accordion-body p-2">
-            ## Calendar webcomponent
-            <sakai-calendar user-id="${loginUserId}" defer></sakai-calendar>
-          </div>
-        </div>
-      </div>
-      <div class="accordion-item">
-        <div class="accordion-header" id="sakai-accountPanelWidgets-headingThree">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sakai-accountPanelWidgets-collapseThree" aria-expanded="false" aria-controls="sakai-accountPanelWidgets-collapseThree">
-            ${rloader.sit_mygrades}
-          </button>
-        </div>
-        <div id="sakai-accountPanelWidgets-collapseThree" class="accordion-collapse collapse" aria-labelledby="sakai-accountPanelWidgets-headingThree">
-          <div class="accordion-body p-2">
-            ## Grades webcomponent
-            <sakai-grades defer></sakai-grades>
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="text-center pt-3 mt-auto">
       <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="bi bi-box-arrow-right btn btn-primary w-100" data-warning="${logoutWarningMessage}">
         <span class="Mrphs-login-Message">${loginMessage}</span>
@@ -105,4 +65,18 @@
     </div>
   </div>
 </aside>
+
+<div class="modal fade" id="account-details-modal" tabindex="-1" aria-labelledby="account-details-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="account-details-modal-label">${rloader.sit_account_details}</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${rloader.sit_closepage}"></button>
+      </div>
+      <div class="modal-body">
+        <sakai-account user-id="${loginUserId}"></sakai-account>
+      </div>
+    </div>
+  </div>
+</div>
 #end

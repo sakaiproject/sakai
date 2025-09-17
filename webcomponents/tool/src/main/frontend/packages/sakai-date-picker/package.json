@@ -6,7 +6,8 @@
   "module": "index.js",
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "web-test-runner --coverage"
+    "test": "wtr --coverage",
+    "test:dev": "cd ../../ && npm run test:dev"
   },
   "files": [
     "*.js",

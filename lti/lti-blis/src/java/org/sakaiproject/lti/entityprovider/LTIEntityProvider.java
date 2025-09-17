@@ -31,7 +31,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomActi
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityParameters;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 
-import org.sakaiproject.util.foorm.FoormUtil;
+import org.tsugi.lti.LTIUtil;
 
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Site;
@@ -193,7 +193,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 	}
 
 	void adjustMap(Map<String, Object> thing, boolean inAdmin, String siteId, String kind) {
-		Long id = FoormUtil.getLongNull(thing.get(LTIService.LTI_ID));
+		Long id = LTIUtil.toLongNull(thing.get(LTIService.LTI_ID));
 		if ( id != null && id >= 0 ) {
 			thing.put("@id","/lti/"+kind+"/"+siteId+"/"+id);
 		}

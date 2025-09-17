@@ -27,8 +27,8 @@
 					<!-- Summary header -->
 					<fo:block font-size="9pt" border-color="#cccccc" border-width="0.75pt" border-style="dashed" >
 						<fo:table table-layout="fixed" width="100%" border-collapse="collapse">
-							<fo:table-column column-width="4cm" />
-							<fo:table-column column-width="14cm" />
+							<fo:table-column column-width="proportional-column-width(1)" />
+							<fo:table-column column-width="proportional-column-width(3.5)" />
 							<fo:table-body>
 								<xsl:apply-templates
 									select="summaryheader" />
@@ -51,21 +51,20 @@
 						<fo:block font-size="8pt" space-before="10mm">
 							<fo:table table-layout="fixed" width="100%" border-collapse="collapse" >
 								<xsl:if test="showSite = 'true'">
-	                                <fo:table-column column-width="auto" />
+	                                <fo:table-column column-width="proportional-column-width(2)" />
 	                            </xsl:if>
 	                            <xsl:if test="showUser = 'true'">
-								    <fo:table-column column-width="auto" />						
-									<fo:table-column column-width="auto" />
+								    <fo:table-column column-width="proportional-column-width(1.5)" />						
+									<fo:table-column column-width="proportional-column-width(2)" />
 								</xsl:if>
                                 <xsl:if test="showTool = 'true'">
-                                    <fo:table-column column-width="auto" />
+                                    <fo:table-column column-width="proportional-column-width(2)" />
                                 </xsl:if>
 								<xsl:if test="showEvent = 'true'">
-	                                <fo:table-column column-width="auto" />
+	                                <fo:table-column column-width="proportional-column-width(2)" />
 								</xsl:if>
 	                            <xsl:if test="showResource = 'true'">
-	                                <!-- <fo:table-column column-width="55mm" /> -->
-	                                <fo:table-column column-width="auto" />
+	                                <fo:table-column column-width="proportional-column-width(3)" />
 	                            </xsl:if>
 	                            <xsl:if test="showResourceAction = 'true'">
 	                                <fo:table-column column-width="12.5mm" />

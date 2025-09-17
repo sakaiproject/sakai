@@ -10,7 +10,8 @@ import {
   SITE_A_TO_Z,
   SITE_Z_TO_A,
   EARLIEST_FIRST,
-  LATEST_FIRST
+  LATEST_FIRST,
+  INSTRUCTOR_ORDER,
 } from "./sakai-announcements-constants.js";
 
 export class SakaiAnnouncements extends SakaiPageableElement {
@@ -20,24 +21,8 @@ export class SakaiAnnouncements extends SakaiPageableElement {
     super();
 
     this.showPager = true;
-    this.loadTranslations("announcements").then(r => this._i18n = r);
+    this.loadTranslations("announcements");
   }
-
-  set data(value) {
-
-    this._data = value;
-
-    this._data.forEach(a => a.visible = true);
-
-    if (!this.siteId) {
-      this._sites = this._data.reduce((acc, a) => {
-        if (!acc.some(t => t.siteId === a.siteId)) acc.push({ siteId: a.siteId, title: a.siteTitle });
-        return acc;
-      }, []);
-    }
-  }
-
-  get data() { return this._data; }
 
   async loadAllData() {
 
@@ -53,7 +38,12 @@ export class SakaiAnnouncements extends SakaiPageableElement {
         throw new Error(`Failed to get announcements from ${url}`);
 
       })
-      .then(data => this.data = data)
+      .then(data => {
+
+        this.data = data.announcements;
+        this.data.forEach(a => a.visible = true);
+        !this.siteId && (this._sites = data.sites);
+      })
       .catch (error => console.error(error));
   }
 
@@ -98,6 +88,14 @@ export class SakaiAnnouncements extends SakaiPageableElement {
           return 0;
         });
         break;
+      case INSTRUCTOR_ORDER:
+        this.data.sort((a1, a2) => {
+
+          if (a1.order < a2.order) return 1;
+          if (a1.order > a2.order) return -1;
+          return 0;
+        });
+        break;
       default:
         console.warn(`Invalid sort option: ${e.target.value}`);
     }
@@ -118,16 +116,20 @@ export class SakaiAnnouncements extends SakaiPageableElement {
         </div>
         ` : nothing }
         <div id="sorting">
-          <select aria-label="${this._i18n.announcement_sort_label}" @change=${this._sortChanged}>
-            <option value="${EARLIEST_FIRST}">${this._i18n.earliest_first}</option>
+          <select class="w-100 mb-3" aria-label="${this._i18n.announcement_sort_label}" @change=${this._sortChanged}>
             <option value="${LATEST_FIRST}">${this._i18n.latest_first}</option>
+            <option value="${EARLIEST_FIRST}">${this._i18n.earliest_first}</option>
             <option value="${TITLE_A_TO_Z}">${this._i18n.title_a_to_z}</option>
             <option value="${TITLE_Z_TO_A}">${this._i18n.title_z_to_a}</option>
+            ${!this.siteId || this.siteId === "home" ? html`
             <option value="${SITE_A_TO_Z}">${this._i18n.site_a_to_z}</option>
             <option value="${SITE_Z_TO_A}">${this._i18n.site_z_to_a}</option>
+            ` : nothing}
+            <option value="${INSTRUCTOR_ORDER}">${this._i18n.instructor_order}</option>
           </select>
         </div>
       </div>
+
       <div id="viewing">${this._i18n.viewing}</div>
       <div class="announcements ${!this.siteId || this.siteId === "home" ? "home" : "course"}">
         <div class="header">
@@ -188,15 +190,13 @@ export class SakaiAnnouncements extends SakaiPageableElement {
       }
 
       #site-filter {
-      margin-bottom: 12px;
+        margin-bottom: 0.25rem;
+      }
+      #site-filter sakai-site-picker::part(select) {
+        width: 100%;
       }
       #filter {
         flex: 1;
-      }
-      #filter-and-sort-block {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 6px;
       }
       #sorting {
         margin-left: auto;

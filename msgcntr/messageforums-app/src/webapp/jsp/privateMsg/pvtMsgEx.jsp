@@ -16,18 +16,39 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script src="/messageforums-tool/js/messages.js"></script>
-        <script>
-            $(document).ready(function() {
-                var menuLink = $('#messagesMainMenuLink');
-                var menuLinkSpan = menuLink.closest('span');
-                menuLinkSpan.addClass('current');
-                menuLinkSpan.html(menuLink.text());
-            });
+		<script>
+				$(document).ready(function() {
+						var menuLink = $('#messagesMainMenuLink');
+						var menuLinkSpan = menuLink.closest('span');
+						menuLinkSpan.addClass('current');
+						menuLinkSpan.html(menuLink.text());
 
-            <f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
-                initTagSelector("prefs_pvt_form");
-            </f:verbatim>
-        </script>
+						<f:verbatim rendered="#{PrivateMessagesTool.canUseTags}">
+							initTagSelector("prefs_pvt_form");
+						</f:verbatim>
+				});
+		</script>
+		<script>includeWebjarLibrary('datatables');</script>
+
+		<script>
+			$(document).ready(function() {
+				// Initialize DataTables for search results
+				$("#prefs_pvt_form\\:pvtmsgs").DataTable({
+					"paging": false,
+					"info": false,
+					"aaSorting": [[4, "desc"]] // Sort by date column (index 4) in descending order
+				});
+				
+				// Initialize DataTables for threaded view if it exists
+				if ($("#prefs_pvt_form\\:threaded_pvtmsgs").length > 0) {
+					$("#prefs_pvt_form\\:threaded_pvtmsgs").DataTable({
+						"paging": false,
+						"info": false,
+						"aaSorting": [[4, "desc"]] // Sort by date column (index 4) in descending order
+					});
+				}
+			});
+		</script>
 
 		<h:form id="prefs_pvt_form">
 			<%@ include file="/jsp/privateMsg/pvtMenu.jsp" %>
@@ -37,7 +58,7 @@
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 			<%@ include file="msgHeader.jsp"%>
 
-	  <h:dataTable styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"  id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.searchPvtMsgs}" var="rcvdItems" 
+	  <h:dataTable styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0"  id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.searchPvtMsgs}" var="rcvdItems" 
 		rendered="#{PrivateMessagesTool.selectView != 'threaded'}" columnClasses="#{PrivateMessagesTool.calculateColumnClass()}">
 		  <h:column>
 		    <f:facet name="header">
@@ -51,21 +72,17 @@
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-		        <h:graphicImage value="/images/attachment.gif"
-		                        title="#{msgs.sort_attachment}"
-		                        alt="#{msgs.sort_attachment}" />
+		        <h:outputText value="" styleClass="bi bi-paperclip" escape="false" />
+				<h:outputText value="#{msgs.sort_attachment}" styleClass="sr-only" />
 			</f:facet>
-			<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />
+			<h:outputText value="" styleClass="bi bi-paperclip" escape="false" rendered="#{rcvdItems.msg.hasAttachments}" />
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
-			<h:graphicImage value="/images/replied_menu.png"
-		                        title="#{msgs.pvt_msgs_replied}"
-		                        alt="#{msgs.pvt_msgs_replied}" />
+		        <h:outputText value="" styleClass="bi bi-reply-fill" escape="false" />
+				<h:outputText value="#{msgs.pvt_msgs_replied}" styleClass="sr-only" />
 			</f:facet>
-			<h:graphicImage value="/images/replied_flag.png" rendered="#{rcvdItems.replied}"
-								title="#{msgs.pvt_replied}"
-								alt="#{msgs.pvt_replied}" />
+			<h:outputText value="" styleClass="bi bi-reply-fill" escape="false" rendered="#{rcvdItems.replied}" />
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">

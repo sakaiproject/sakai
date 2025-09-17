@@ -81,7 +81,10 @@ import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 import org.sakaiproject.lti13.LineItemUtil;
 
+import org.tsugi.lti.LTIUtil;
+
 import org.apache.commons.codec.binary.Base64;
+import org.tsugi.util.Base64DoubleUrlEncodeSafe;
 
 @SuppressWarnings("deprecation")
 @Slf4j
@@ -317,8 +320,9 @@ public class LTISecurityServiceImpl implements EntityProducer {
 		String client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
 		String deployment_id = ServerConfigurationService.getString(SakaiLTIUtil.LTI13_DEPLOYMENT_ID, SakaiLTIUtil.LTI13_DEPLOYMENT_ID_DEFAULT);
 
-		byte[] bytesEncoded = Base64.encodeBase64(login_hint.getBytes());
-		String encoded_login_hint = new String(bytesEncoded);
+		// Use Base64DoubleUrlEncodeSafe to ensure proper URL-safe encoding
+		String encoded_login_hint = Base64DoubleUrlEncodeSafe.encode(login_hint);
+		
 		try {
 			URIBuilder redirect = new URIBuilder(oidc_endpoint.trim());
 			redirect.addParameter("iss", SakaiLTIUtil.getOurServerUrl());
@@ -388,7 +392,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 						if ( value == null ) continue;
 						propData.setProperty(key,value);
 					}
-					Long toolKey = SakaiLTIUtil.getLongKey(toolStr);
+					Long toolKey = LTIUtil.toLongKey(toolStr);
 					if (toolKey < 1 ) {
 						throw new EntityNotDefinedException("Could not load tool");
 					}
@@ -429,7 +433,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 					Map<String,Object> tool = null;
 
 					String contentStr = refId.substring(8);
-					Long contentKey = SakaiLTIUtil.getLongKey(contentStr);
+					Long contentKey = LTIUtil.toLongKey(contentStr);
 					if (contentKey < 1 ) {
 						throw new EntityNotDefinedException("Could not load content item");
 					}
@@ -440,7 +444,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 					}
 
 					// Check to see if we need launch protection
-					int protect = SakaiLTIUtil.getInt(content.get(LTIService.LTI_PROTECT));
+					int protect = LTIUtil.toInt(content.get(LTIService.LTI_PROTECT));
 					String launch_code_key = SakaiLTIUtil.getLaunchCodeKey(content);
 					Session session = sessionManager.getCurrentSession();
 
@@ -449,7 +453,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 					if ( protect < 0 ) {
 						String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
 						JSONObject content_json = org.tsugi.lti.LTIUtil.parseJSONObject(content_settings);
-						protect = SakaiLTIUtil.getInt(content_json.get(LTIService.LTI_PROTECT));
+						protect = LTIUtil.toInt(content_json.get(LTIService.LTI_PROTECT));
 					}
 
 					if ( protect > 0 && ! checkSiteUpdate(ref) ) {
@@ -467,7 +471,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 						throw new EntityNotDefinedException("Incorrect site");
 					}
 
-					Long toolKey = SakaiLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+					Long toolKey = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
 					if ( toolKey >= 0 ) tool = ltiService.getTool(toolKey, ref.getContext());
 
 					ltiService.filterContent(content, tool);
@@ -570,8 +574,8 @@ public class LTISecurityServiceImpl implements EntityProducer {
 						if ( placement != null )
 						{
 							// XSS Note: Only the Administrator can set overridesplash - so we allow HTML
-							String splash = SakaiLTIUtil.toNull(SakaiLTIUtil.getCorrectProperty(config,"overridesplash", placement));
-							String send_session = SakaiLTIUtil.toNull(SakaiLTIUtil.getCorrectProperty(config,"ext_sakai_encrypted_session", placement));
+							String splash = StringUtils.trimToNull(SakaiLTIUtil.getCorrectProperty(config,"overridesplash", placement));
+							String send_session = StringUtils.trimToNull(SakaiLTIUtil.getCorrectProperty(config,"ext_sakai_encrypted_session", placement));
 							if ( splash == null && send_session != null && send_session.equals("true") && ! securityService.isSuperUser() )
 							{
 								splash = rb.getString("session.warning", "<p><span style=\"color:red\">Warning:</span> This tool makes use of your logged in session.  This means that the tool can access your data in this system.  Only continue to this tool if you are willing to share your data with this tool.</p>");
@@ -579,14 +583,14 @@ public class LTISecurityServiceImpl implements EntityProducer {
 							if ( splash == null )
 							{
 								// This may be user-set so no HTML
-								splash = SakaiLTIUtil.toNull(SakaiLTIUtil.getCorrectProperty(config,"splash", placement));
+								splash = StringUtils.trimToNull(SakaiLTIUtil.getCorrectProperty(config,"splash", placement));
 								if ( splash != null ) splash = formattedText.escapeHtml(splash,false);
 							}
 
 							// XSS Note: Only the Administrator can set defaultsplash - so we allow HTML
 							if ( splash == null )
 							{
-								splash = SakaiLTIUtil.toNull(SakaiLTIUtil.getCorrectProperty(config,"defaultsplash", placement));
+								splash = StringUtils.trimToNull(SakaiLTIUtil.getCorrectProperty(config,"defaultsplash", placement));
 							}
 
 							if ( splash != null && splash.trim().length() > 1 )

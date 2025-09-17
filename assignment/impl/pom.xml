@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.assignment</groupId>
         <artifactId>assignment</artifactId>
-        <version>25-SNAPSHOT</version>
+        <version>26-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -227,7 +227,6 @@
         <dependency>
             <groupId>org.sakaiproject.lti</groupId>
             <artifactId>lti-common</artifactId>
-            <version>${sakai.version}</version>
         </dependency>
     </dependencies>
 

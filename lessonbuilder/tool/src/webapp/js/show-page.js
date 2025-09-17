@@ -39,6 +39,18 @@ $(window).load(function () {
     window.print();
   });
 
+  // Print all pages
+  const printAllButton = document.getElementById('print-all');
+
+  if (printAllButton) {
+    printAllButton.addEventListener('click', function() {
+      const url = printViewWithParameter(window.location.href);
+      const win = window.open(url, '_blank');
+      win.focus();
+      win.print();
+      return false;
+    });
+  }
 });
 
 function fixAddBefore(href) {
@@ -877,7 +889,8 @@ $(document).ready(function () {
         const categoryText = $(".peerReviewText" , $(this)).text();
         rubric.rows.push({"id":categoryId , "text":categoryText});
       });
-      rubric.title = row.find(".peer-eval-title").text();
+      const peerEvalTitle = row.find(".peer-eval-title").text();
+      rubric.title = peerEvalTitle && peerEvalTitle !== "null" ? peerEvalTitle : "";
       buildExistingRubrics(rubric);
 
       const forcedAnon = row.find(".forcedAnon").text();
@@ -1716,7 +1729,7 @@ $(document).ready(function () {
         } else {
           $("#page-releasedate2").prop('checked', true);
           $("#releaseDate2ISO8601").val(sbpgreleasedate);
-          $("#release_date2").val(moment(sbpgreleasedate).format('L LT'));
+          $("#release_date2").val(moment(sbpgreleasedate).format('YYYY-MM-DDTHH:mm'));
         }
 
         let pagenext = row.find(".page-next").text();
@@ -2759,7 +2772,7 @@ $(document).ready(function () {
     cursor: 'pointer',
     activation: 'click',
     closePosition: 'title',
-    closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+    closeText: '<span class="bi bi-x" aria-hidden="true"></span>'
   });
 
   function submitgrading(item) {
@@ -2904,6 +2917,11 @@ function xCloseAddMultimediaDialog() {
   $("#mm-error").text('');
   $("#mm-error-container").hide();
   accumulatedFileSize = 0; 
+
+  //close the modal
+  const addmmdialogEl = document.querySelector("#add-multimedia-dialog");
+  const modal = bootstrap.Modal.getInstance(addmmdialogEl);
+  modal && modal.hide();
 }
 
 function setCollapsedStatus(header, collapse) {
@@ -3103,13 +3121,32 @@ function checkEditItemForm() {
     $('#edit-item-error-container').show();
     return false;
   } else {
-    if ($("#page-releasedate2").prop('checked'))
-      $("#release_date2").val($("#releaseDate2ISO8601").val());
-    else
+    if ($("#page-releasedate2").prop('checked')) {
+      const releaseDate2ISO8601Value = $("#releaseDate2ISO8601").val();
+      const localFormatValue = convertISO8601ToLocal(releaseDate2ISO8601Value);
+      $("#release_date2").val(localFormatValue);
+      $("#sbReleaseDate").text(releaseDate2ISO8601Value);
+    }
+    else {
       $("#release_date2").val('');
+      $("#sbReleaseDate").text('');
+    }
     $('#edit-item-error-container').hide();
     return true;
   }
+}
+
+function convertISO8601ToLocal(iso8601String) {
+    if (!iso8601String) return '';
+
+    const date = new Date(iso8601String);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 function checkSubpageForm() {
@@ -3465,6 +3502,11 @@ function prepareQuestionDialog() {
       $('#question-error').text(msg("simplepage.gbname-expected"));
       $('#question-error-container').show();
       return false;
+  } else if ($("input[name='multi_gradebook-fossil']").length > 0 && $("input[name='multi_gradebook-fossil']").val().includes("true") &&
+    $("input[name='group-list-span-selection']:checked").length === 0) {
+      $('#question-error').text(msg("simplepage.multi_gradebook.no_group"));
+      $('#question-error-container').show();
+      return false;
   } else if ($("#question-text-area-evolved\\:\\:input").val() === '') {
       $('#question-error').text(msg("simplepage.missing-question-text"));
       $('#question-error-container').show();
@@ -3660,8 +3702,7 @@ function printViewWithParameter(url) {
 function fixupColAttrs() {
     $(".section").each(function (index) {
       var count = $(this).find(".column").size() + $(this).find(".double").size();
-      $(this).find(".column").removeClass('cols1 cols2 cols3 cols4 cols5 cols6 cols7 cols8 cols9 lastcol');
-      $(this).find(".column").last().addClass('lastcol');
+      $(this).find(".column").removeClass('cols1 cols2 cols3 cols4 cols5 cols6 cols7 cols8 cols9');
       $(this).find(".column").addClass('cols' + count);
   });
 };

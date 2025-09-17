@@ -4,11 +4,10 @@
   <parent>
     <artifactId>login</artifactId>
     <groupId>org.sakaiproject.login</groupId>
-    <version>25-SNAPSHOT</version>
+    <version>26-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>login-render-engine-impl</name>
-  <groupId>org.sakaiproject.login</groupId>
   <artifactId>login-render-engine-impl</artifactId>
   <packaging>war</packaging>
   <dependencies>

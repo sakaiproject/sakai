@@ -1,5 +1,6 @@
 import { SakaiShadowElement } from "@sakai-ui/sakai-element";
 import { css, html } from "lit";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 export class SakaiButton extends SakaiShadowElement {
 
@@ -27,6 +28,7 @@ export class SakaiButton extends SakaiShadowElement {
       <button
         class="${this.primary ? "primary" : ""} ${this.type ? this.type : ""}"
         @click=${this.clicked}
+        title="${ifDefined(this.title)}"
       >
         <slot>
         </slot>
@@ -41,10 +43,10 @@ export class SakaiButton extends SakaiShadowElement {
       border: 1px solid var(--button-border-color);
       border-radius: var(--sui-btn-border-radius);
       background: var(--button-background);
-      font-family: "Open Sans",sans-serif;
-      font-size: 1em;
-      font-weight: 400;
-      line-height: 18px;
+      font-family: var(--sui-btn-font-family);
+      font-size: var(--default-font-size);
+      font-weight: var(--sui-btn-font-weight);
+      line-height: var(--sui-btn-line-height);
       color: var(--button-text-color);
       text-decoration: none;
       text-transform: none;

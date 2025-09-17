@@ -11,7 +11,7 @@ Other attributes:
 bundle-key: Allows to set the bundle name (f.ex: "announcement" or "org.sakaiproject.api.app.messagecenter.bundle.Messages"). By default, it will take the tool attribute value.
 on-refresh: Allows to set the return page location. By default, it will refresh the current URL.
 group-reference: Allows to set reference to get permissions from. By default, "/site/${portal.siteId}". Order is important. This attribute must be set before the tool attribute.
-disabled-groups: Disables all other options apart form "Site" in the Site/Group selector. By default, false (groups are shown). Order is important. This attribute must be set before the tool attribute.
+disable-groups: Disables group permissions editing
 
 This component needs to be able to lookup a tool's translations, and this happens via the
 sakai-i18n.js module, loading the translations from a Sakai web service. The translations need

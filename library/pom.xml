@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>25-SNAPSHOT</version>
+		<version>26-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Sakai Library</name>
@@ -122,7 +122,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>momentjs</artifactId>
-			<version>2.29.1</version>
+			<version>2.29.4</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!-- Used by the Calendar full calendar UI -->
@@ -312,7 +312,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>pdf-js</artifactId>
-			<version>4.0.269</version>
+			<version>5.3.31</version>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>

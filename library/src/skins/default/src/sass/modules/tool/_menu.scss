@@ -1,115 +1,199 @@
 .navIntraTool{
 	margin: 0;
-	border-bottom: 1px solid var(--tool-border-color);
-	padding: 0 1em 0 0;
-	//max-width: calc(100% - 170px);
-	font-size: 0;
+	padding: 0;
 	&:after{
 		content: " ";
 		display: block;
 		width: 100%;
 	}
+}
+
+.navIntraTool{
+	font-size: 0;
+	margin-top: -4px;
 	li{
 		display: inline-block;
-		font-size: $default-font-size;
-		margin: 2px 0 0 $standard-space;
-
+		font-size: $tool-tab-text-size;
+		font-weight: $tool-tab-text-weight;
+		line-height: 18px;
+		margin: $standard-space $standard-space 0 0;
+		
+		// Define tab styles for both direct anchors and spans with anchors
+		span a, > a{
+			display: inline-block;
+			margin: 0;
+			padding: 7px 16px;
+			border: 1px solid var(--tool-tab-border-color);
+			border-radius: 4px;
+			background: var(--tool-tab-background-color);
+			color: var(--tool-tab-text-color);
+			text-decoration: none;
+			text-transform: none;
+			cursor: pointer;
+			-moz-appearance: none;
+			-webkit-appearance: none;
+			box-shadow: var(--button-shadow);
+			&:hover,
+			&:focus {
+				display: inline-block;
+				margin: 0;
+				padding: 7px 16px;
+				border: 1px solid var(--tool-tab-border-color);
+				border-radius: 4px;
+				background: var(--tool-tab-hover-background-color);
+				color: var(--tool-tab-text-color);
+				text-decoration: none;
+				text-transform: none;
+				cursor: pointer;
+				-moz-appearance: none;
+				-webkit-appearance: none;
+				box-shadow: var(--button-shadow);
+			}
+		}
+		
+		// Current state styles for spans and direct anchors
+		span.current, span a.current, > a.current {
+			display: inline-block;
+			margin: 0;
+			padding: 7px 16px;
+			border: 1px solid var(--tool-tab-border-color);
+			border-radius: 4px;
+			background: var(--tool-tab-active-background-color);
+			color: var(--tool-tab-active-text-color);
+			text-decoration: none;
+			text-transform: none;
+			cursor: pointer;
+			-moz-appearance: none;
+			-webkit-appearance: none;
+			box-shadow: var(--button-shadow);
+			&:hover,
+			&:focus{
+				display: inline-block;
+				margin: 0;
+				padding: 7px 16px;
+				border: 1px solid var(--tool-tab-border-color);
+				border-radius: 4px;
+				background: var(--tool-tab-hover-background-color);
+				color: var(--tool-tab-text-color);
+				text-decoration: none;
+				text-transform: none;
+				cursor: pointer;
+				-moz-appearance: none;
+				-webkit-appearance: none;
+				box-shadow: var(--button-shadow);
+			}
+		}
+		
+		// Specific styling for span.current > a
+		span.current a{
+			border: 0px none;
+			font-size: 1em;
+			margin: 0;
+			padding: 0;
+			top: 1px;
+		}
+		
 		span{
 			display: inline;
-			
-			a{
-				background: var(--tool-tab-background-color);
-				border-top: 1px solid var(--tool-tab-border-color);
-				border-left: 1px solid var(--tool-tab-border-color);
-				border-right: 1px solid var(--tool-tab-border-color);
-				color: var(--tool-tab-text-color);
-				font-size: $tool-tab-text-size;
-				font-weight: $tool-tab-text-weight;
-				display: block;
-				margin: 0;
-				padding: 0 0.6em;
-				line-height: $tool-tab-height;
-				height: $tool-tab-height;
-				text-decoration: none;
-				text-transform: $tool-tab-text-transform;
-				letter-spacing: $tool-tab-text-letter-spacing;
-				border-radius: 4px 4px 0 0;
-				&:hover, &:focus {
-					color: var(--tool-tab-hover-text-color);
-					background: var(--tool-tab-hover-background-color);
-					text-decoration: none;
-					position: relative;
-
-					&:before{
-						border-top: 4px solid var(--tool-tab-hover-highlight-color);
-						border-radius: 4px 4px 0 0;
-						content: "";
-						display: block;
-						position: absolute;
-						left: -1px;
-						right: -1px;
-						top: -1px;
-					}
-				}
-				
-				&:focus {
-					position: relative;		// so the outline doesn't get hidden by adjacent tabs
-					outline-offset: -#{$focus-outline-width};	// to match the width of the default link focus to fit in the tool's link container
-				}
-			}
-			&.current{
-				color: var(--tool-tab-active-text-color);
-				font-size: $tool-tab-active-text-size;
-				background-color: var(--tool-tab-active-background-color);
-				border-top: 1px solid var(--tool-tab-border-color);
-				border-left: 1px solid var(--tool-tab-border-color);
-				border-right: 1px solid var(--tool-tab-border-color);
-				border-radius: 4px 4px 0 0;
-				position: relative;
-				margin: 0;
-				padding: 0 0.6em;
-				line-height: $tool-tab-height;
-				display: block;
-				margin-bottom: -1px;
-
-				&:before {
-					border-top: 4px solid var(--tool-tab-active-highlight-color);
-					border-radius: 4px 4px 0 0;
-					content: "";
-					display: block;
-					position: absolute;
-					left: -1px;
-					right: -1px;
-					top: -1px;
-				}
-				&:after{
-					border-bottom: 1px solid var(--tool-tab-active-background-color);
-					content: '';
-					display: block;
-					position: absolute;
-					left: 0;
-					right: 0;
-					bottom: -1px;
-				}
-				a{
-				    border: 0px none;
-				    font-size: 1em;
-				    margin: 0;
-				    padding: 0;
-				    top: 1px;
-				}
-			}
 			&.inactive{
 				border-left: 0px none;
 			}
 		}
-		a{
+	}
+}
 
-			&.current{
+@media (min-width: 768px){
+	.dropdown-navIntraTool{
+		display: none;
+	}
+}
+
+@media (max-width: 767px){
+	.dropdown-navIntraTool{
+		display: inline-block;
+		margin: 0;
+		padding: 7px 16px;
+		border: 1px solid var(--button-border-color);
+		border-radius: 4px;
+		background: var(--button-background);
+		font-family: "Open Sans", sans-serif;
+		font-size: 1em;
+		font-weight: 400;
+		line-height: 18px;
+		color: var(--button-text-color);
+		text-decoration: none;
+		text-transform: none;
+		cursor: pointer;
+		-moz-appearance: none;
+		-webkit-appearance: none;
+		box-shadow: var(--button-shadow);
+		&::after{
+			display: none;
+		}
+		&::before{
+			display: inline-block;
+			margin-right: 0.255em;
+			vertical-align: -0.090em;
+			content: "\F44B";
+			font-family: 'bootstrap-icons';
+		}
+	}
+
+	.navIntraToolMobile{
+		opacity: 0;
+		max-height: 0;
+		overflow: hidden;
+		transition: opacity 0.1s ease, margin 0.1s ease, max-height 0.5s ease;
+		border: solid 1px var(--sakai-border-color);
+		border-radius: 4px;
+		margin-top: 10px;
+		margin-bottom: 0px;
+		&.dropdown-active{
+			opacity: 1;
+			max-height: 100vh;
+			overflow: auto;
+			margin-bottom: 40px;
+		}
+		li{
+			display: block;
+			font-size: $default-font-size;
+			margin: 0;
+			span{
+				a{
+					display: block;
+					padding: 10px 16px;
+					border: none;
+					border-radius: 0;
+					box-shadow: none;
+					&:hover,
+					&:focus {
+						display: block;
+						padding: 10px 16px;
+						border: none;
+						border-radius: 0;
+						box-shadow: none;
+					}
+				}
+				&.current{
+					display: block;
+					padding: 10px 16px;
+					border: none;
+					border-radius: 0;
+					box-shadow: none;
+					&:hover,
+					&:focus {
+						display: block;
+						padding: 10px 16px;
+						border: none;
+						border-radius: 0;
+						box-shadow: none;
+					}
+				}
 			}
 		}
-		.searchField{
 
+		li:not(:last-child){
+			border-bottom: solid 1px var(--sakai-border-color);
 		}
 	}
 }

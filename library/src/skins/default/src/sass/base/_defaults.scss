@@ -118,6 +118,14 @@ h4{
   font-size: #{$default-font-size + 2};
 }
 
+h5{
+  font-size: #{$default-font-size};
+}
+
+h6{
+  font-size: #{$default-font-size - 2};
+}
+
 h3.popover-header {
   margin-top: 0;
 }
@@ -178,7 +186,9 @@ input[type="checkbox"]{
   }
   &:disabled{
     cursor: not-allowed;
-    background-color: var(--sakai-background-color-3);
+    &:not(:checked) {
+      background-color: var(--sakai-background-color-3);
+    }
   }
 }
 input[type="radio"]{
@@ -282,22 +292,18 @@ button.icon-button {
   }
 }
 
-.Mrphs-pageColumns--single .Mrphs-container {
-    margin: 0 16px;
-}
-
 // Bootstrap-5 Accordion styles
 .accordion-header {
   margin: 0; 
 }
 
 .accordion-item {
-  background-color: var(--site-nav-bg);
+  background-color: var(--sakai-background-color-1);
   color: var(--sakai-text-color);
   border: 1px solid var(--tool-border-color);
   .accordion-button {
     color: var(--sakai-text-color-1);
-    background-color: var(--site-nav-bg);
+    background-color: var(--sakai-background-color-1);
     &::after {
       color: var(--sakai-text-color-1);
     }
@@ -316,4 +322,30 @@ button.icon-button {
 // Adding this to ensure all hidden classes are hidden.
 .hidden {
   display: none !important;
+}
+
+// Scrollbar
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--sakai-scrollbar-background-color);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--sakai-scrollbar-thumb-color);
+    border-radius: 30px;
+    border: solid 4px var(--sakai-scrollbar-background-color);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--sakai-scrollbar-thumb-hover-color);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: var(--sakai-scrollbar-background-color);
+  }
 }

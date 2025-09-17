@@ -5,7 +5,7 @@
     <parent>
         <artifactId>message</artifactId>
         <groupId>org.sakaiproject.message</groupId>
-        <version>25-SNAPSHOT</version>
+        <version>26-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -36,8 +36,21 @@
             <artifactId>scheduler-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
         </dependency>
     </dependencies>
 </project>

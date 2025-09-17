@@ -457,21 +457,26 @@ function setFocus(elements)
 	}
 }
 
-function showNotif(item, button,formName)
+function showNotif(item, button, formName)
 {
-	if (button !=="noBlock")
+	if (button !== "noBlock")
 	{
-		eval("document." + formName + "." + button + ".disabled=true");
+		// Replace eval with direct DOM access
+		const form = document.forms[formName];
+		if (form && form.elements[button]) {
+			form.elements[button].disabled = true;
+		}
 	}
-	if (item !=="noNotif")
+	if (item !== "noNotif")
 	{
 		// SAK-21041 simplified to use getElementById
 		document.showItem = document.getElementById(item);
-
-		document.showItem.style.visibility = "visible";
+		if (document.showItem) {
+			document.showItem.style.visibility = "visible";
+		}
 	}
 	
-	for (var i=0;i<document.getElementsByTagName("input").length; i++) 
+	for (var i=0; i<document.getElementsByTagName("input").length; i++) 
 	{
 		if (document.getElementsByTagName("input").item(i).className === "disableme")
 		{
@@ -676,7 +681,7 @@ function includeLatestJQuery(where) {
 }
 
 function includeWebjarLibrary(library, options = {}) {
-	let webjars = (window.portal && window.portal.pageWebjarsPath) ? window.portal.pageWebjarsPath : '/library/webjars/';
+	let webjars = (window.portal && window.portal.pageWebjarsPath) ? window.portal.pageWebjarsPath : '/library/webjars';
 	let ver = (window.portal && window.portal.portalCDNQuery) ? window.portal.portalCDNQuery : '';
 	let libraryVersion = '';
 	const jsReferences = [];
@@ -710,7 +715,7 @@ function includeWebjarLibrary(library, options = {}) {
 			cssReferences.push('/release/featherlight.min.css');
 			break;
 		case 'momentjs':
-			libraryVersion = "2.29.1";
+			libraryVersion = "2.29.4";
 			jsReferences.push('/min/moment-with-locales.min.js');
 			break;
 		case 'dropzone':
@@ -804,9 +809,9 @@ function includeWebjarLibrary(library, options = {}) {
 			break;
 		default:
 			if (library.endsWith(".js")) {
-				document.write('\x3Cscript src="' + webjars + library + ver + '">' + '\x3C/script>');
+				document.write('\x3Cscript src="' + webjars + '/' + library + ver + '">' + '\x3C/script>');
 			} else if (library.endsWith(".css")) {
-				document.write('\x3Clink rel="stylesheet" type="text/css" href="' + webjars + library + ver + '" />');
+				document.write('\x3Clink rel="stylesheet" type="text/css" href="' + webjars + '/' + library + ver + '" />');
 			}
 	}
 

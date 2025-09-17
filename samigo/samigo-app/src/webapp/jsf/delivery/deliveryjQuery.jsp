@@ -24,13 +24,15 @@
 
 <script>
 	var portal = portal || { locale: "<h:outputText value="#{delivery.localeString}"/>" };
+	portal.locale = portal.locale || "<h:outputText value="#{delivery.localeString}"/>";
 	var honorPledgeIsChecked = true;
 	var understandPledgeIsChecked = true;
 	var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";
 	var please_wait = "<h:outputText value="#{deliveryMessages.please_wait} "/>";
-	var beginButtonValue = "<h:outputText value='#{deliveryMessages.begin_assessment_}' />";
-	var continueButtonValue = "<h:outputText value='#{deliveryMessages.continue_assessment_}' />";
-	var selector = "input[value='" + beginButtonValue + "']";
+	var beginButtonIds = ["takeAssessmentForm:beginAssessment1", "takeAssessmentForm:beginAssessment2", "takeAssessmentForm:beginAssessment3"];
+	var continueButtonIds = ["takeAssessmentForm:continueAssessment1", "takeAssessmentForm:continueAssessment2"];
+	var allAssessmentButtonIds = beginButtonIds.concat(continueButtonIds);
+	var selector = null;
 
 	function enableDisableSubmitButton() {
 		var honourPledgeRequired = $('#takeAssessmentForm\\:honor_pledge').length > 0;
@@ -50,28 +52,35 @@
 			enable = true;
 		}
 
-		if (enable) {
-			$(selector).addClass('active');
-			$(selector).removeAttr('disabled');
-		} else {
-			$(selector).removeClass('active');
-			$(selector).attr('disabled','disabled');
-		}
+		allAssessmentButtonIds.forEach(function(buttonId) {
+			var $button = $('#' + buttonId.replace(/:/g, '\\:'));
+			if ($button.length > 0) {
+				if (enable) {
+					$button.addClass('active');
+					$button.removeAttr('disabled');
+				} else {
+					$button.removeClass('active');
+					$button.attr('disabled','disabled');
+				}
+			}
+		});
 	}
 
 	$(document).ready(function(){
 
 		var timerSave = false;
 
-		// If there's no "begin" button, we need to grab the "continue" button
-		if ($(selector).length <= 0) {
-			selector = "input[value='" + continueButtonValue + "']";
-		}
+		// Find which assessment buttons are present on the page
+		var availableButtons = [];
+		allAssessmentButtonIds.forEach(function(buttonId) {
+			var $button = $('#' + buttonId.replace(/:/g, '\\:'));
+			if ($button.length > 0) {
+				availableButtons.push(buttonId);
+			}
+		});
 	
 		//Turn off browser autocomplete on all forms
 		$("form").attr("autocomplete", "off");
-
-		var selector = $('#takeAssessmentForm\\:beginAssessment1');
 
 		// If instructor requires honor pledge, we check for it before allowing assessment to start
 		if($('#takeAssessmentForm\\:honor_pledge').length > 0) {
@@ -87,8 +96,7 @@
 
 		// Check honor code checkbox, understand (resubmit consequences) pledge checkbox, lock the UI to avoid user double-clicks
 		$("input.active[type='submit'][class!='noActionButton']").click(function() {
-			var beginButtonIds = ["takeAssessmentForm:beginAssessment1", "takeAssessmentForm:beginAssessment2", "takeAssessmentForm:beginAssessment3", "takeAssessmentForm:continueAssessment1", "takeAssessmentForm:continueAssessment2"];
-			if (beginButtonIds.includes($(this).attr('id'))) {
+			if (allAssessmentButtonIds.includes($(this).attr('id'))) {
 				var invalid = false;
 				if (!honorPledgeIsChecked) {
 					$('#takeAssessmentForm\\:honorPledgeRequired').show();
@@ -111,10 +119,15 @@
 			if (!timerSave) $.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		});
 
-		// If there's an honour or understand pledge present, disable the begin/continue button by default
+		// If there's an honour or understand pledge present, disable all assessment buttons by default
 		if($('#takeAssessmentForm\\:honor_pledge').length > 0 || $("#takeAssessmentForm\\:understand_pledge").length > 0) {
-			$(selector).removeClass('active');
-			$(selector).attr('disabled','disabled');
+			allAssessmentButtonIds.forEach(function(buttonId) {
+				var $button = $('#' + buttonId.replace(/:/g, '\\:'));
+				if ($button.length > 0) {
+					$button.removeClass('active');
+					$button.attr('disabled','disabled');
+				}
+			});
 		}
 
 		//Disable the back button

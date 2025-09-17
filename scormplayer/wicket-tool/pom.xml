@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>scorm-base</artifactId>
-        <version>25-SNAPSHOT</version>
+        <version>26-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -17,9 +17,7 @@
     <packaging>jar</packaging>
     <description>This project creates a jar containing the SCORM Wicket Toolset</description>
 
-    <properties>
-        <scorm.wicket.version>9.19.0</scorm.wicket.version>
-    </properties>
+
 
     <dependencies>
         <dependency>
@@ -31,29 +29,28 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-core</artifactId>
-            <version>${scorm.wicket.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-spring</artifactId>
-            <version>${scorm.wicket.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-extensions</artifactId>
-            <version>${scorm.wicket.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-ioc</artifactId>
-            <version>${scorm.wicket.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-util</artifactId>
-            <version>${scorm.wicket.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

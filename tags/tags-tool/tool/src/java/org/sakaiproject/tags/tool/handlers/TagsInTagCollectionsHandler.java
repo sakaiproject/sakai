@@ -55,13 +55,19 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
         int pageNum = extractPageNum(request);
         int pageSize = extractPageSize(request);
 
-        context.put("pageSize",pageSize);
-        context.put("pageNum",pageNum);
-        context.put("totalPages", (int) Math.ceil((double) tagService.getTags().getTotalTagsInCollection(uuid)/(double)pageSize));
-        context.put("countPerPageGroup",countPerPageGroup);
+        int totalTags = tagService.getTags().getTotalTagsInCollection(uuid);
+        
+        int totalPages = totalTags > 0 ? (int) Math.ceil((double) totalTags / (double) pageSize) : 0;
+        
+        context.put("pageSize", pageSize);
+        context.put("pageNum", pageNum);
+        context.put("totalPages", totalPages);
+        context.put("countPerPageGroup", countPerPageGroup);
+        
+        context.put("showPagination", totalTags > 0 && totalPages > 1);
 
         context.put("subpage", "tagsintagcollection");
-        context.put("tagsintagcollection", tagService.getTags().getTagsPaginatedInCollection(pageNum,pageSize,uuid));
+        context.put("tagsintagcollection", tagService.getTags().getTagsPaginatedInCollection(pageNum, pageSize, uuid));
         context.put("tagserviceactive", tagService.getServiceActive());
         String actualcollectionname="";
         Boolean isExternallyCreated=false;
@@ -91,10 +97,9 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
             addError("uuid", "uuid_missing");
             return "";
         } else {
-
-            if (bits[bits.length - 3].equals("manage")){
-                return bits[bits.length - 4];
-            }else {
+            if (bits.length >= 6 && bits[3].equals("manage")) {
+                return bits[2];
+            } else {
                 return bits[bits.length - 2];
             }
         }
@@ -103,28 +108,28 @@ public class TagsInTagCollectionsHandler extends BaseHandler {
     private int extractPageNum(HttpServletRequest request) {
         String[] bits = request.getPathInfo().split("/");
 
-        if (bits.length < 4) {
-            return 1;
-        } else {
-            try{
-                return Integer.parseInt(bits[bits.length - 2]);
-            }catch (Exception e) {
+        try {
+            if (bits.length >= 6 && bits[3].equals("manage")) {
+                return Integer.parseInt(bits[4]);
+            } else {
                 return 1;
             }
+        } catch (NumberFormatException e) {
+            return 1;
         }
     }
 
     private int extractPageSize(HttpServletRequest request) {
         String[] bits = request.getPathInfo().split("/");
 
-        if (bits.length < 4) {
-            return defaultPaginationSize;
-        } else {
-            try{
+        try {
+            if (bits.length >= 6 && bits[3].equals("manage")) {
+                return Integer.parseInt(bits[5]);
+            } else {
                 return Integer.parseInt(bits[bits.length - 1]);
-            }catch (Exception e) {
-                return defaultPaginationSize;
             }
+        } catch (NumberFormatException e) {
+            return defaultPaginationSize;
         }
     }
 

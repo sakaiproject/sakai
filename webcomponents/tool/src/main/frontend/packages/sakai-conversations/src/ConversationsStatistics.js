@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import "@sakai-ui/sakai-icon";
-import "@sakai-ui/sakai-pager";
+import "@sakai-ui/sakai-pager/sakai-pager.js";
 import { SORT_NAME, SORT_TOPICS_CREATED, SORT_TOPICS_VIEWED, SORT_TOPIC_REACTIONS,
   SORT_TOPIC_UPVOTES, SORT_POSTS_CREATED, SORT_POSTS_VIEWED, SORT_POST_REACTIONS,
   SORT_POST_UPVOTES, ALL_TIME, THIS_WEEK } from "./sakai-conversations-constants.js";
@@ -22,7 +22,7 @@ export class ConversationsStatistics extends SakaiElement {
     this._sortByNameAscending = true;
     this._count = 0;
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set statsUrl(value) {
@@ -58,7 +58,7 @@ export class ConversationsStatistics extends SakaiElement {
       if (r.ok) {
         return r.json();
       }
-      throw new Error(`Network error while getting statistics from ${this.siteUrl}`);
+      throw new Error(`Network error while getting statistics from ${this._statsUrl}`);
     })
     .then(data => {
 
@@ -66,7 +66,7 @@ export class ConversationsStatistics extends SakaiElement {
       this._stats = data.stats;
       this._currentPage = data.currentPage;
     })
-    .catch(error => console.error(error));
+    .catch (error => console.error(error));
   }
 
   set interval(value) {
@@ -151,15 +151,21 @@ export class ConversationsStatistics extends SakaiElement {
         <h1>${this._i18n.statistics}</h1>
         <div id="statistics-timeframe-block">
           <div>${this._i18n.timeframe}</div>
-          <input type="radio"
-              name="timeframe"
-              value="${THIS_WEEK}"
-              @click="${this._setThisWeek}"
-              checked>${this._i18n.this_week}
-          <input type="radio"
-              name="timeframe"
-              value="${ALL_TIME}"
-              @click="${this._setAllTime}">${this._i18n.all_time}
+          <label>
+            <input type="radio"
+                name="timeframe"
+                value="${THIS_WEEK}"
+                @click="${this._setThisWeek}"
+                checked>
+              ${this._i18n.this_week}
+          </label>
+          <label>
+            <input type="radio"
+                name="timeframe"
+                value="${ALL_TIME}"
+                @click="${this._setAllTime}">
+              ${this._i18n.all_time}
+          </label>
         </div>
       </div>
         <sakai-pager count="${this._count}" current="${this._currentPage}" @page-selected=${this._pageClicked}></sakai-pager>

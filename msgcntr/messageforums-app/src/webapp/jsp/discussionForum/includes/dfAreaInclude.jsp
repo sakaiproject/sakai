@@ -77,7 +77,8 @@ $(document).ready(function() {
 </f:verbatim>
 </f:subview>
 
-<h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}"  width="100%" var="forum" cellpadding="0" cellspacing="0" styleClass="specialLink" border="0">
+<div class="table-responsive">
+<h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}" width="100%" var="forum" styleClass="table table-striped table-hover specialLink">
     <h:column>
         <h:panelGroup layout="block" rendered="#{! forum.nonePermission}">
         <h:panelGrid columns="1" styleClass="forumHeader"  border="0">
@@ -86,9 +87,15 @@ $(document).ready(function() {
                 <h:outputText styleClass="highlight title draftForum" id="draft" value="#{msgs.cdfm_draft}" rendered="#{forum.forum.draft == 'true'}"/>
                 <h:outputText id="draft_space" value=" -  " rendered="#{forum.forum.draft == 'true'}" styleClass="title"/>
                 <%-- availability marker --%>
-                <h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.forum_restricted_message}" alt="#{msgs.forum_restricted_message}" rendered="#{forum.availability == 'false'}" style="margin-right:.5em"/>
+                <h:panelGroup rendered="#{forum.availability == 'false'}" style="margin-right:.5em">
+                    <span class="bi bi-calendar-x" aria-hidden="true"></span>
+                    <span class="sr-only"><h:outputText value="#{msgs.forum_restricted_message}" escape="false" /></span>
+                </h:panelGroup>
                 <%-- locked marker --%>
-                <h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{forum.locked == 'true'}" style="margin-right:.5em"/>
+                <h:panelGroup rendered="#{forum.locked == 'true'}" style="margin-right:.5em">
+                    <span class="bi bi-lock-fill" aria-hidden="true"></span>
+                    <span class="sr-only"><h:outputText value="#{msgs.cdfm_forum_locked}" escape="false" /></span>
+                </h:panelGroup>
                 <%-- Rubrics marker --%>
                 <h:panelGroup rendered="#{forum.hasRubric == 'true'}">
                     <sakai-rubric-student-preview-button
@@ -118,9 +125,12 @@ $(document).ready(function() {
 
                 <%-- link to display other options on this forum --%>
                 <h:panelGroup rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}">
-                    <a href="#" class="btn btn-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button type="button" 
+                            class="btn dropdown-toggle" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
                         <h:outputText value="#{msgs.cdfm__moremenulink}" />
-                    </a>
+                    </button>
                 </h:panelGroup>
 
                 <%-- list of options, revealed when link above is used, model new added options on existing ones--%>    
@@ -153,7 +163,7 @@ $(document).ready(function() {
                 <h:panelGroup>
                     <h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
                         <a href="#" id="showMessage" class="toggle show">
-                            <h:graphicImage url="/images/collapse.gif" alt=""/>
+                            <span class="bi bi-plus-square" aria-hidden="true"></span>
                             <h:outputText value=" #{msgs.cdfm_read_full_description}" />
                             <h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty forum.attachList}"/>
                             <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty forum.attachList}"/>
@@ -161,7 +171,7 @@ $(document).ready(function() {
                     </h:panelGroup>
                     <h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock display-none">
                         <a href="#" id="hideMessage" class="toggle show">
-                            <h:graphicImage url="/images/expand.gif" alt="" />
+                            <span class="bi bi-dash-square" aria-hidden="true"></span>
                             <h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
                             <h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty forum.attachList}" />
                             <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty forum.attachList}"/>
@@ -189,12 +199,14 @@ $(document).ready(function() {
                 <f:subview id="dates" rendered="#{ForumTool.showAvailabilityDates == 'true' && forum.availabilityRestricted == 'true'}">
                     <h:outputLink id="forum_extended_show2" value="javascript:void(0)" title="#{msgs.cdfm_read_dates}"  styleClass="show" style="#{'display:block'}"
                             onclick="toggleDates($(this).next('.hide'), $('div.toggle2:first', $(this).parents('table.forumHeader')), $(this));">
-                        <h:graphicImage url="/images/collapse.gif" /><h:outputText value="#{msgs.cdfm_read_dates}" />
+                        <span class="bi bi-plus-square" aria-hidden="true"></span>
+                        <h:outputText value="#{msgs.cdfm_read_dates}" />
                         
                     </h:outputLink>
                     <h:outputLink id="forum_extended_hide2" value="javascript:void(0)" title="#{msgs.cdfm_hide_dates}" styleClass="hide" style="#{'display:none'}"
                             onclick="toggleDates($(this).prev('.show'), $('div.toggle2:first', $(this).parents('table.forumHeader')), $(this));">
-                        <h:graphicImage url="/images/expand.gif"/> <h:outputText value="#{msgs.cdfm_hide_dates}" />
+                        <span class="bi bi-dash-square" aria-hidden="true"></span>
+                        <h:outputText value="#{msgs.cdfm_hide_dates}" />
                     </h:outputLink>
                     <f:subview id="showDate">
                         <f:verbatim><div class="toggle2" style="display:none;"></f:verbatim>
@@ -225,12 +237,25 @@ $(document).ready(function() {
                     <h:panelGrid columns="1" width="100%" styleClass="specialLink topicBloc" cellpadding="0" cellspacing="0">
                 <h:panelGroup>
                             
-                            <h:graphicImage url="/images/folder.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages == 0 }" styleClass="topicIcon" style="margin-right:.5em"/>
-                            <h:graphicImage url="/images/folder_unread.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages > 0 }" styleClass="topicIcon" style="margin-right:.5em"/>
+                            <%-- Show warning icon for topics in draft forums instead of regular folder icon --%>
+                            <h:panelGroup rendered="#{forum.forum.draft == 'true'}">
+                                <span class="bi bi-exclamation-triangle topicIcon" style="margin-right:.5em; color: var(--bs-warning);" aria-hidden="true"></span>
+                                <span class="sr-only"><h:outputText value="#{msgs.cdfm_forum_draft_topic_unavailable}" escape="false" /></span>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{forum.forum.draft != 'true'}">
+                                <h:outputText styleClass="bi bi-folder topicIcon" style="margin-right:.5em" rendered="#{topic.unreadNoMessages == 0}" escape="false" />
+                                <h:outputText styleClass="bi bi-folder-fill topicIcon" style="margin-right:.5em" rendered="#{topic.unreadNoMessages > 0}" escape="false" />
+                            </h:panelGroup>
                             <h:outputText styleClass="highlight title draftTopic" id="draft" value="#{msgs.cdfm_draft}" rendered="#{topic.topic.draft == 'true'}"/>
                             <h:outputText id="draft_space" value="  - " rendered="#{topic.topic.draft == 'true'}" styleClass="title"/>
-                            <h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{topic.availability == 'false'}" style="margin-right:.5em"/>
-                            <h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{forum.locked == 'true' || topic.locked == 'true'}" style="margin-right:.5em"/>
+                            <h:panelGroup rendered="#{topic.availability == 'false'}" style="margin-right:.5em">
+                                <span class="bi bi-calendar-x" aria-hidden="true"></span>
+                                <span class="sr-only"><h:outputText value="#{msgs.topic_restricted_message}" escape="false" /></span>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{forum.locked == 'true' || topic.locked == 'true'}" style="margin-right:.5em">
+                                <span class="bi bi-lock-fill" aria-hidden="true"></span>
+                                <span class="sr-only"><h:outputText value="#{msgs.cdfm_forum_locked}" escape="false" /></span>
+                            </h:panelGroup>
                             <%-- Rubrics marker --%>
                             <h:panelGroup rendered="#{topic.hasRubric == 'true'}">
                                 <sakai-rubric-student-preview-button
@@ -240,29 +265,36 @@ $(document).ready(function() {
                                     entity-id="<h:outputText value="#{topic.gradeAssign}" />">
                                 </sakai-rubric-student-preview-button>
                             </h:panelGroup>
-                            <h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" title=" #{topic.topic.title}" styleClass="title">
+                            <h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" title=" #{topic.topic.title}" styleClass="#{forum.forum.draft == 'true' ? 'title draft-forum-topic' : 'title'}">
                                 <f:param value="#{topic.topic.id}" name="topicId"/>
                                 <f:param value="#{forum.forum.id}" name="forumId"/>
                                 <h:outputText value="#{topic.topic.title}"/>
                             </h:commandLink>
+                            
+                            <%-- Indicator for topics in draft forums --%>
+                            <h:panelGroup rendered="#{forum.forum.draft == 'true'}" styleClass="draft-forum-topic text-muted">
+                                <span style="font-style: italic; font-size: 0.9em; margin-left: 0.5em;">
+                                    <h:outputText value="#{msgs.cdfm_forum_draft_topic_unavailable}" />
+                                </span>
+                            </h:panelGroup>
              
                <%-- // display  singular ('unread message') if unread message is  1 --%> 
                <h:outputText styleClass="childrenNew" id="topic_msg_count55" value="  #{topic.unreadNoMessages} #{msgs.cdfm_lowercase_unread_msg}" 
-                             rendered="#{topic.isRead && topic.unreadNoMessages >= 1}"/>   
+                             rendered="#{topic.isRead && topic.unreadNoMessages >= 1 && forum.forum.draft != 'true'}"/>   
                        
                <%-- // display  plural ('unread messages') with different style sheet if unread message is 0 --%>  
                <h:outputText styleClass="childrenNewZero" id="topic_msg_count57" value="   #{topic.unreadNoMessages} #{msgs.cdfm_lowercase_unread_msg}" 
-                             rendered="#{topic.isRead && topic.unreadNoMessages == 0}"/> 
+                             rendered="#{topic.isRead && topic.unreadNoMessages == 0 && forum.forum.draft != 'true'}"/> 
                
                <%-- // display singular ('message') if total message is 1--%>                   
                <h:outputText styleClass="textPanelFooter" id="topic_msg_count58" value="#{msgs.cdfm_of} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg}"
-                             rendered="#{topic.isRead && topic.totalNoMessages == 1}"/>
+                             rendered="#{topic.isRead && topic.totalNoMessages == 1 && forum.forum.draft != 'true'}"/>
                                      
                <%-- // display singular ('message') if total message is 0 or more than 1--%>                   
                <h:outputText styleClass="textPanelFooter" id="topic_msg_count59" value="#{msgs.cdfm_of} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs}"
-                             rendered="#{topic.isRead && (topic.totalNoMessages > 1 || topic.totalNoMessages == 0)}"/>
+                             rendered="#{topic.isRead && (topic.totalNoMessages > 1 || topic.totalNoMessages == 0) && forum.forum.draft != 'true'}"/>
                                 
-               <h:outputText id="topic_moderated" value=" #{msgs.cdfm_forum_moderated_flag}" styleClass="textPanelFooter" rendered="#{topic.moderated == 'true' && topic.isRead}" />
+               <h:outputText id="topic_moderated" value=" #{msgs.cdfm_forum_moderated_flag}" styleClass="textPanelFooter" rendered="#{topic.moderated == 'true' && topic.isRead && forum.forum.draft != 'true'}" />
 
                             <%--//desNote: links to act on this topic --%>
                             <h:outputText value=" "  styleClass="actionLinks"/>
@@ -275,9 +307,12 @@ $(document).ready(function() {
 
                             <%-- link to display other options on this topic --%>
                             <h:panelGroup rendered="#{forum.newTopic || ForumTool.instructor || topic.changeSettings}">
-                                <a href="#" class="btn btn-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button type="button" 
+                                        class="btn dropdown-toggle" 
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
                                     <h:outputText value="#{msgs.cdfm__moremenulink}" />
-                                </a>
+                                </button>
                             </h:panelGroup>   
 
                             <%-- list of options, revealed when link above is used, model new added options on existing ones--%>
@@ -306,13 +341,13 @@ $(document).ready(function() {
                             </ul>
 
                             <%--the topic details --%>
-                            <h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" styleClass="shortDescription" />
+                            <h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" styleClass="#{forum.forum.draft == 'true' ? 'shortDescription draft-forum-topic' : 'shortDescription'}" />
                             <f:subview id="longDescTopic" rendered="#{!empty topic.attachList || (topic.topic.extendedDescription != '' &&  topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>')}">
 
                             <h:panelGroup>
                                 <h:panelGroup layout="block" id="openLinkBlock" styleClass="toggleParent openLinkBlock">
                                     <a href="#" id="showMessage" class="toggle show">
-                                        <h:graphicImage url="/images/collapse.gif" alt=""/>
+                                        <span class="bi bi-plus-square" aria-hidden="true"></span>
                                         <h:outputText value=" #{msgs.cdfm_read_full_description}" />
                                         <h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}"/>
                                         <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -320,7 +355,7 @@ $(document).ready(function() {
                                 </h:panelGroup>
                                 <h:panelGroup layout="block" id="hideLinkBlock" styleClass="toggleParent hideLinkBlock display-none">
                                     <a href="#" id="hideMessage" class="toggle show">
-                                        <h:graphicImage url="/images/expand.gif" alt="" />
+                                        <span class="bi bi-dash-square" aria-hidden="true"></span>
                                         <h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
                                         <h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList}" />
                                         <h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -334,7 +369,7 @@ $(document).ready(function() {
                                 <%--//desNote:attach list --%>
                                 <h:dataTable  styleClass="attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" border="0">
                                     <h:column>
-                                        <h:graphicImage url="/images/attachment.gif" alt=""/>
+                                        <span class="bi bi-paperclip" aria-hidden="true"></span>
                                         <h:outputText value=" " />
                                             <h:outputLink value="#{eachAttach.url}" target="_blank">
                                                 <h:outputText value="#{eachAttach.attachment.attachmentName}" />
@@ -350,7 +385,7 @@ $(document).ready(function() {
                                 <%--//desNote:attach list --%>
                                 <h:dataTable  styleClass="attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">
                       <h:column>
-                                        <h:graphicImage url="/images/attachment.gif" alt=""/>
+                                        <span class="bi bi-paperclip" aria-hidden="true"></span>
 <%--                        <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
                             <h:outputText value="#{eachAttach.attachmentName}" />
                         </h:outputLink>--%>
@@ -374,11 +409,11 @@ $(document).ready(function() {
             <f:subview id="topic_dates" rendered="#{ForumTool.showAvailabilityDates == 'true' && topic.availabilityRestricted == 'true'}">
                 <h:outputLink id="forum_extended_show2" value="javascript:void(0)" title="#{msgs.cdfm_read_dates}"  styleClass="show" style="#{'display:block'}"
                         onclick="toggleDates($(this).next('.hide'), $('div.toggle2:first', $(this).parents('tr:first')), $(this));">
-                    <h:graphicImage url="/images/collapse.gif" /><h:outputText value="#{msgs.cdfm_read_dates}" />
+                    <span class="bi bi-plus-square" aria-hidden="true"></span> <h:outputText value="#{msgs.cdfm_read_dates}" />
                 </h:outputLink>
                 <h:outputLink id="forum_extended_hide2" value="javascript:void(0)" title="#{msgs.cdfm_hide_dates}" styleClass="hide" style="#{'display:none'}"
                         onclick="toggleDates($(this).prev('.show'), $('div.toggle2:first', $(this).parents('tr:first')), $(this));">
-                    <h:graphicImage url="/images/expand.gif"/> <h:outputText value="#{msgs.cdfm_hide_dates}" />
+                    <span class="bi bi-dash-square" aria-hidden="true"></span> <h:outputText value="#{msgs.cdfm_hide_dates}" />
                 </h:outputLink>
                 <f:subview id="showTopicDate">
                     <f:verbatim><div class="toggle2" style="display:none;"></f:verbatim>
@@ -398,3 +433,4 @@ $(document).ready(function() {
         </h:panelGroup>
       </h:column>
   </h:dataTable>
+</div>

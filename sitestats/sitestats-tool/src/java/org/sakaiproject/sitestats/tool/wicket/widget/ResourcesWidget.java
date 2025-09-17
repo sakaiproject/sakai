@@ -63,7 +63,6 @@ public class ResourcesWidget extends Panel {
 		super(id);
 		this.siteId = siteId;
 		setRenderBodyOnly(true);
-		setOutputMarkupId(true);
 		
 		// Single values (MiniStat)
 		List<WidgetMiniStat> widgetMiniStats = new ArrayList<WidgetMiniStat>();
@@ -97,9 +96,8 @@ public class ResourcesWidget extends Panel {
 		});
 
 		// Final Widget object		
-		String icon = StatsManager.SILK_ICONS_DIR + "folder_page.png";
 		String title = (String) new ResourceModel("overview_title_resources").getObject();
-		Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs, siteId);
+		Widget widget = new Widget("widget", "sakai-resources", title, widgetMiniStats, tabs, siteId);
 		add(widget);
 	}
 

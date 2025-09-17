@@ -3,7 +3,7 @@
         <div class="roster-picture-card">
             <sakai-user-photo user-id="{{userId}}"
                 label="{{tr 'profile_picture_alt'}} {{displayName}}"
-                site-id="{{siteId}}"
+                title="{{tr 'profile_picture_alt'}} {{displayName}}"
                 classes="roster-photo"
                 {{#if official}}
                 official
@@ -26,7 +26,7 @@
                 {{#if ../../viewProfile}}
                 <a href="javascript:;" class="profile" data-user-id="{{userId}}">
                 {{/if}}
-                <span>{{getName firstNameLastName}}</span>
+                <span>{{{getName ../firstNameLastName}}}</span>
                 {{#if nickname}}
                 <span title="{{nickname}}"> "{{nickname}}"</span>
                 {{/if}}

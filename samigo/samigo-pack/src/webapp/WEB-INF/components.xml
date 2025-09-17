@@ -380,7 +380,7 @@
 
   <bean id="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
       class="org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer"
-      init-method="init" destroy-method="destroy">
+      init-method="init">
     <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
     <property name="serverConfigService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
@@ -390,6 +390,7 @@
     <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
     <property name="qtiService" ref="QTIService"/>
     <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+    <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
   </bean>
 
 

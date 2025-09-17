@@ -22,6 +22,7 @@
 package org.sakaiproject.site.tool;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,17 +44,14 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
-import org.apache.fop.fonts.substitute.FontQualifier;
-import org.apache.fop.fonts.substitute.FontSubstitution;
-import org.apache.fop.fonts.substitute.FontSubstitutions;
+import org.apache.fop.fo.ValidationException;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
@@ -219,7 +217,7 @@ public class SiteInfoToolServlet extends HttpServlet
 		// get the participant xml document
 		generateParticipantXMLDocument(document, siteId);
 
-		generatePDF(document, outByteStream);
+		generatePDF(document, outByteStream, siteId);
 		res.setContentLength(outByteStream.size());
 		if (outByteStream.size() > 0)
 		{
@@ -365,33 +363,19 @@ public class SiteInfoToolServlet extends HttpServlet
 	 * @param doc
 	 *        DOM structure
 	 * @param streamOut
+	 * @param siteId
+	 *        Site ID for context information in error logging
 	 */
 	@SuppressWarnings("unchecked")
-	protected void generatePDF(Document doc, OutputStream streamOut)
+	protected void generatePDF(Document doc, OutputStream streamOut, String siteId)
 	{
 		String xslFileName = "participants-all-attrs.xsl";
-		String configFileName = "userconfig.xml";
-		DefaultConfigurationBuilder cfgBuilder = new DefaultConfigurationBuilder();
 		InputStream configInputStream = null;
 		try 
 		{
-			configInputStream = getClass().getClassLoader().getResourceAsStream(configFileName);
-			Configuration cfg = cfgBuilder.build(configInputStream);
-			
-			FopFactory fopFactory = FopFactory.newInstance();
-			fopFactory.setUserConfig(cfg);
-			fopFactory.setStrictValidation(false);
+			// Simplified FOP 2.10 initialization - no custom configuration
+			FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
 			FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
-			if (!StringUtils.isEmpty(ServerConfigurationService.getString("pdf.default.font"))) {
-			    // this allows font substitution to support i18n chars in PDFs - SAK-21909
-			    FontQualifier fromQualifier = new FontQualifier();
-			    fromQualifier.setFontFamily("DEFAULT_FONT");
-			    FontQualifier toQualifier = new FontQualifier();
-			    toQualifier.setFontFamily(ServerConfigurationService.getString("pdf.default.font", "Helvetica"));
-			    FontSubstitutions result = new FontSubstitutions();
-			    result.add(new FontSubstitution(fromQualifier, toQualifier));
-			    fopFactory.getFontManager().setFontSubstitutions(result);
-			}
 			Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, streamOut);
 			InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
 			Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
@@ -405,9 +389,24 @@ public class SiteInfoToolServlet extends HttpServlet
 			Source src = new DOMSource(doc);
 			transformer.transform(src, new SAXResult(fop.getDefaultHandler()));
 		}
+		catch (ValidationException e)
+		{
+			// Count participants for context
+			int participantCount = doc.getElementsByTagName("PARTICIPANT").getLength();
+			int roleCount = doc.getElementsByTagName("ROLE").getLength();
+			int sectionCount = doc.getElementsByTagName("SECTION").getLength();
+			
+			log.error("FOP ValidationException during PDF generation for siteId={} - XSL-FO validation failed. " +
+					"Site has {} participants, {} roles, {} sections. Error: {}", 
+					siteId, participantCount, roleCount, sectionCount, e.getMessage(), e);
+		}
+		catch (FOPException e)
+		{
+			log.error("FOP processing error during PDF generation for siteId={}: {}", siteId, e.getMessage(), e);
+		}
 		catch (Exception e)
 		{
-			log.warn("{}.generatePDF(): {}", this, e.toString());
+			log.error("Unexpected error during PDF generation for siteId={}: {}", siteId, e.getMessage(), e);
 		}
 		finally
 		{

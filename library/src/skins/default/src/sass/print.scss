@@ -22,6 +22,7 @@ a[href]:after {
 .pasystem-banner-alerts,
 header,
 footer,
+#Mrphs-footerApp,
 .jump-to-top,
 nav.sakai-pageNav,
 .actionToolBar,
@@ -32,6 +33,7 @@ sakai-picture-changer,
 #sakai-quickLinksPanel,
 aside.offcanvas,
 .portal-mobilebar,
+.noprint,
 #footer,
 .#{$namespace}siteHierarchy,
 .#{$namespace}container--extras,
@@ -41,7 +43,12 @@ aside.offcanvas,
 .#{$namespace}headerLogo,
 .#{$namespace}toolTitleNav__button_container,
 .#{$namespace}toolTitleNav__button_container *,
-##{$namespace}footerApp__chat{
+##{$namespace}footerApp__chat,
+#roleSwitch,
+.Mrphs-sakai-lessonbuildertool .itemcopylink,
+.Mrphs-sakai-lessonbuildertool .navIntraTool .bottomButtons,
+.current-role,
+.portal-header-breadcrumb {
 	display: none !important;
 }
 
@@ -137,12 +144,6 @@ div.portletBody {
     }
     .cols1 {
       width: calc(100% - 32px) !important;
-    }
-}
-
-.#{$namespace}sakai-syllabus {
-    .noprint {
-      display: none;
     }
 }
 

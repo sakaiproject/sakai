@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
 import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
@@ -37,7 +38,7 @@ import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
 import org.sakaiproject.rubrics.api.model.Rubric;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 
-public interface RubricsService {
+public interface RubricsService extends EntityProducer {
 
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "rubrics";
 

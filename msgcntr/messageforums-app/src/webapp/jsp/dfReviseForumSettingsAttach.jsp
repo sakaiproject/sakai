@@ -17,6 +17,7 @@
 	<script src="/messageforums-tool/js/messages.js"></script>
 	<script src="/messageforums-tool/js/permissions_header.js"></script>
 	<script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+	<script type="module" src="/vuecomponents/js/sakai.min.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<link href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	<%
@@ -32,7 +33,14 @@
   		}
 	</script> 
 	<script>
+		var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
+	
 	$(document).ready(function() {
+		var forumGradingExists = document.getElementById("revise:forum_grading") !== null;
+		if (isGradebookGroupEnabled && forumGradingExists) {
+			window.syncGbSelectorInput("gb-selector", "revise:group_view:forum_assignments");
+		}
+
 		const radioButtonRestrictedAvailability = document.getElementById('revise:availabilityRestricted:1');
 		if (radioButtonRestrictedAvailability.checked && $(".calWidget")[0].style['display'] === 'none') {
 			setDatesEnabled(radioButtonRestrictedAvailability);
@@ -44,21 +52,27 @@
 	}
 
 	function updateGradeAssignment(){
-		var elems = document.getElementsByTagName('sakai-rubric-association');
-		var forumAssignments = document.getElementById("revise:forum_assignments");
-		const createTaskGroup = document.getElementById("revise:createTaskGroup");
-		if (forumAssignments?.value && forumAssignments.value !== "Default_0") {
-			for (var i = 0; i<elems.length; i++) {
-                elems[i].setAttribute("entity-id", forumAssignments.value);
+	const forumAssignments = isGradebookGroupEnabled
+			? document.getElementById("revise:group_view:forum_assignments")
+			: document.getElementById("revise:non_group_view:forum_assignments");
+    if (forumAssignments?.value === undefined || forumAssignments.value === "Default_0") return;
+
+    const elems = document.getElementsByTagName('sakai-rubric-association');
+    const createTaskGroup = document.getElementById("revise:createTaskGroup");
+    const isTasksWidgetAvailable = !!document.querySelector("sakai-tasks");
+
+    if (isTasksWidgetAvailable) {
+			for (var i = 0; i < elems.length; i++) {
+				elems[i].setAttribute("entity-id", forumAssignments.value);
 				elems[i].style.display = 'inline';
 			}
 			createTaskGroup.style.display = 'inline';
-		} else {
-			for (var i = 0; i<elems.length; i++) {
+    } else {
+			for (var i = 0; i < elems.length; i++) {
 				elems[i].style.display = 'none';
 			}
 			createTaskGroup.style.display = 'none';
-		}
+    }
 	}
 
 	window.onload = function(){
@@ -76,11 +90,26 @@
 			   document.getElementById("revise:saveandadd").disabled = true;
 			}
 		});
+	};
+
+	function disableFieldsBeforeSubmit() {
+		if (isGradebookGroupEnabled) {
+			$('select[id^="revise\\:perm"]').each(function() {
+				let elementId = $(this).attr("id");
+				let rowIndex = elementId.split(":")[2];
+
+				const element = $("#revise\\:perm\\" + ":" + rowIndex + "\\:level");
+
+				if (element) {
+					element.prop("disabled", false);
+				}
+			});
+		}
 	}
 	</script>
 
   <!-- Y:\msgcntr\messageforums-app\src\webapp\jsp\dfReviseForumSettingsAttach.jsp -->
-    <h:form id="revise">
+    <h:form id="revise" onsubmit="disableFieldsBeforeSubmit()">
 		  <script>
             $(document).ready(function(){
 				// Improve accessibility in error messages.adding the error as title
@@ -286,13 +315,11 @@
                </h:panelGroup>
                <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? 'block' : 'none'}">
                    <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
-                   <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}" onchange="storeOpenDateISO(event)"/>
-                   <h:inputText id="openDateISO" styleClass="openDateISO hidden" value="#{ForumTool.selectedForum.openDateISO}"></h:inputText>
+                   <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}"/>
                </h:panelGroup>
                <h:panelGroup id="closeDateSpan" styleClass="indnt2 closeDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? 'block' : 'none'}">
                    <h:outputLabel value="#{msgs.closeDate}: " for="closeDate" />
-                   <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}" onchange="storeCloseDateISO(event)"/>
-                   <h:inputText id="closeDateISO" styleClass="closeDateISO hidden" value="#{ForumTool.selectedForum.closeDateISO}"></h:inputText>
+                   <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}"/>
                </h:panelGroup>
 				<h:panelGroup layout="block" styleClass="checkbox" style="display: #{ForumTool.doesSiteHaveCalendar ? '' : 'none'}">
 					<h:panelGroup id="sendOpenCloseDateToCalendarSpan"
@@ -311,16 +338,7 @@
 			</h:panelGroup>
 
 			<script>
-				function storeOpenDateISO(e) {
-					e.preventDefault();
-					document.getElementById("revise:openDateISO").value = document.getElementById("openDateISO8601").value;
-				}
-
-				function storeCloseDateISO(e) {
-					e.preventDefault();
-					document.getElementById("revise:closeDateISO").value = document.getElementById("closeDateISO8601").value;
-				}
-
+				// Initialize datepickers
 				localDatePicker({
 					input: '.openDate',
 					allowEmptyDate: true,
@@ -349,25 +367,46 @@
 				<h:outputLabel for="autoMarkThreadsRead"	value="#{msgs.cdfm_auto_mark_threads_read}" />
 			</p>
 
-	      <%--designNote: gradebook assignment - need to finesse this - make aware that functionality exists, but flag that there are no gb assignmetns to select --%>
+	      <%--designNote: gradebook assignment - need to finesse this - make aware that functionality exists, but flag that there are no gb assignments to select --%>
 				<%--designNote:  How is this a "permission" item? --%>  
 				<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h2>
 
-				<h:panelGroup layout="block" styleClass="row form-group" id="forum_grading">
+				<h:panelGroup layout="block" rendered="#{ForumTool.discussionGeneric}">
+					<h:outputText styleClass="sak-banner-info" value="#{msgs.group_sitegradebook_simple_forum}" />
+				</h:panelGroup>
+
+				<h:panelGroup layout="block" styleClass="row form-group" id="forum_grading" rendered="#{not ForumTool.discussionGeneric}">
 					<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}" styleClass="col-md-2 col-sm-2"></h:outputLabel>  
 					<h:panelGroup layout="block" styleClass="col-md-10 col-sm-10">
 						<h:panelGrid>
 							<h:panelGroup layout="block" styleClass="row">
-								<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
-									<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
-										<f:selectItems value="#{ForumTool.assignments}" />
-									</h:selectOneMenu>
-									<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
-									<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
-									<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
-								</h:panelGroup>
-							</h:panelGroup>
-							<h:panelGroup layout="block" styleClass="row"> 
+							    <f:subview id="non_group_view" rendered="#{!ForumTool.gradebookGroupEnabled}">
+									<h:panelGroup styleClass="gradeSelector itemAction actionItem">
+										<h:selectOneMenu id="forum_assignments" onchange="updateGradeAssignment()"
+														 value="#{ForumTool.selectedForum.gradeAssign}"
+														 disabled="#{not ForumTool.editMode}">
+											<f:selectItems value="#{ForumTool.assignments}" />
+										</h:selectOneMenu>
+										<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
+										<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
+										<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades">
+											<h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/>
+										</h:outputLink>
+									</h:panelGroup>
+							    </f:subview>
+							    <f:subview id="group_view" rendered="#{ForumTool.gradebookGroupEnabled}">
+									<sakai-multi-gradebook
+											id="gb-selector"
+											app-name="sakai.forums"
+											site-id='<h:outputText value="#{ForumTool.siteId}" />'
+											user-id='<h:outputText value="#{ForumTool.userId}" />'
+											group-id='<h:outputText value="#{ForumTool.groupId}" />'
+											selected-temp='<h:outputText value="#{ForumTool.selectedForum.gradeAssign}" />'>
+									</sakai-multi-gradebook>
+									<h:inputHidden id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" />
+							    </f:subview>
+					        </h:panelGroup>
+							<h:panelGroup layout="block" styleClass="row">
 								<h:panelGroup styleClass="displayMorePanel" style="display:none" ></h:panelGroup>
 								<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
 									<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
@@ -406,6 +445,7 @@
 						</h:panelGroup>
 					</h:panelGrid>
 				</h:panelGroup>
+
 				<h:panelGroup layout="block" styleClass="createOneForumPanel" id="createOneForumPanel">
 					<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 				</h:panelGroup>

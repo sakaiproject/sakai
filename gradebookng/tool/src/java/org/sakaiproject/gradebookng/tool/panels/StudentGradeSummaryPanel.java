@@ -79,19 +79,21 @@ public class StudentGradeSummaryPanel extends BasePanel {
 
 			@Override
 			public Panel getPanel(final String panelId) {
-				return new InstructorGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
+				InstructorGradeSummaryGradesPanel igsgp = new InstructorGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
+				return igsgp;
 			}
 		});
 
 		// Disable Student View for TAs as they most likely won't have the access
 		// to view the grade data for every student
-		if (businessService.isUserAbleToEditAssessments()) {
+		if (businessService.isUserAbleToEditAssessments(currentSiteId)) {
 			tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.studentviewtab"))) {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public Panel getPanel(final String panelId) {
-					return new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
+					StudentGradeSummaryGradesPanel sgsgp = new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
+					return sgsgp;
 				}
 			});
 		}

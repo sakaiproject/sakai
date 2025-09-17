@@ -32,10 +32,11 @@ public class ConversationsRestBean {
     public boolean canCreateTopic;
     public boolean canUpdatePermissions;
     public boolean canEditTags;
-    public boolean canViewSiteStatistics;
+    public boolean canViewStatistics;
     public boolean canPin;
     public boolean isInstructor;
     public boolean canViewAnonymous;
+    public boolean canGrade;
     public Settings settings;
     public boolean showGuidelines;
     public List<Tag> tags;

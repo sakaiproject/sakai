@@ -5,6 +5,7 @@
 
     <bean id="org.sakaiproject.assignment.tool.AssignmentToolUtils"
         class="org.sakaiproject.assignment.tool.AssignmentToolUtils">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
 		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
         <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>

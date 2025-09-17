@@ -21,6 +21,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     isPeerGroupGraded: { attribute: "is-peer-group-graded", type: Boolean },
     group: { type: Boolean },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
+    totalAsPercentage: { attribute: "total-as-percentage", type: Boolean },
 
     _evaluation: { state: true },
     _totalPoints: { state: true },
@@ -185,17 +186,18 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                   </sakai-rubric-grading-comment>
                   <div class="rubric-grading-points-value">
                     <strong id="points-display-${c.id}" class="points-display ${this.getOverriddenClass(c.pointoverride, c.selectedvalue)}">
-                      ${c.selectedvalue.toLocaleString(this.locale)}
+                      ${c.selectedvalue?.toLocaleString(this.locale) || 0}
                     </strong>
                   </div>
                   ${this.association.parameters.fineTunePoints ? html`
                     <input
                         title="${this.tr("point_override_details")}"
+                        aria-label="${this.tr("point_override_details")}"
                         data-criterion-id="${c.id}"
                         name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
                         class="fine-tune-points form-control hide-input-arrows"
                         @input=${this.fineTuneRating}
-                        .value="${c.pointoverride.toLocaleString(this.locale)}"
+                        .value="${c.pointoverride && typeof c.pointoverride === "number" ? c.pointoverride.toLocaleString(this.locale) : c.pointoverride}"
                     >
                   ` : nothing }
                   <input aria-labelledby="${this.tr("points")}" type="hidden" id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" .value="${c.selectedvalue}">
@@ -208,12 +210,15 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
           </div>
           <div class="rubric-totals">
             <input type="hidden"
-                aria-labelledby="${super.tr("total")}"
+                aria-labelledby="${this.tr("total")}"
                 id="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints"
                 name="rbcs-${this.evaluatedItemId}-${this.entityId}-totalpoints"
                 .value="${this._totalPoints.toString()}">
             <div class="total-points">
-              <span>${this._i18n.total}</span>: <strong id="sakai-rubrics-total-points">${this._totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 })}</strong>
+              <span>${this._i18n.total}</span>:
+              <strong id="sakai-rubrics-total-points">
+              ${this._totalPoints.toLocaleString(this.locale, { maximumFractionDigits: 2 })} ${this.totalAsPercentage ? this.tr("percent_sign") : ""}
+              </strong>
             </div>
           </div>
         </div>
@@ -237,8 +242,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   updateComment(e) {
 
-    console.debug("updateComment");
-
     this._criteria.forEach(c => {
 
       if (c.id === e.detail.criterionId) {
@@ -251,8 +254,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   release() {
 
-    console.debug("release");
-
     if (this._evaluation.criterionOutcomes.length) {
       // We only want to inform the enclosing tool about ratings changes
       // for an existing evaluation
@@ -261,15 +262,10 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   save() {
-
-    console.debug("save");
-
     this.dispatchRatingChanged(this._criteria, 1);
   }
 
   decorateCriteria() {
-
-    console.debug("decorateCriteria");
 
     this._evaluation.criterionOutcomes.forEach(ed => {
 
@@ -282,16 +278,21 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
             c.pointoverride = ed.points;
             const ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
             if (ratingItem) {
-              c.selectedvalue = ratingItem.points;
+              c.selectedvalue = this.calculateCriterionScore(c, ratingItem);
               ratingItem.selected = true;
             }
           } else {
             const ratingItem = c.ratings.filter(r => r.id == ed.selectedRatingId)[0];
             if (ratingItem) {
               ratingItem.selected = true;
+              // Apply weight if rubric is weighted
+              const points = this.calculateCriterionScore(c, ratingItem);
+              c.selectedvalue = points;
+              c.pointoverride = points;
+            } else {
+              c.pointoverride = ed.points;
+              c.selectedvalue = ed.points;
             }
-            c.pointoverride = ed.points;
-            c.selectedvalue = ed.points;
           }
 
           c.comments = ed.comments;
@@ -300,11 +301,11 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     });
 
     this.updateTotalPoints(false);
+
+    this.querySelectorAll("sakai-rubric-grading-comment").forEach(gc => gc.requestUpdate());
   }
 
   fineTuneRating(e) {
-
-    console.debug("fineTuneRating");
 
     const value = e.target.value;
 
@@ -336,8 +337,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   dispatchRatingChanged(criteria, status) {
-
-    console.debug("dispatchRatingChanged");
 
     const crit = criteria.map(c => {
 
@@ -371,7 +370,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     if (this._evaluation?.id) url += `/${this._evaluation.id}`;
     fetch(url, {
       body: JSON.stringify(evaluation),
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       method: this._evaluation?.id ? "PUT" : "POST",
     })
@@ -385,7 +383,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     })
     .then(data => {
 
-      this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true, composed: true }));
+      this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
       this._evaluation = data;
       return Promise.resolve(this._evaluation);
     })
@@ -393,8 +391,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   getOverriddenClass(ovrdvl, selected) {
-
-    console.debug("getOverriddenClass");
 
     if (!this.association.parameters.fineTunePoints) {
       return "";
@@ -408,7 +404,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   clear() {
 
-    this.evaluation = {};
+    this._evaluation = {};
     this._criteria.forEach(c => {
 
       c.ratings.forEach(r => r.selected = false);
@@ -417,6 +413,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       c.selectedvalue = 0;
       this.querySelectorAll("sakai-rubric-grading-comment").forEach(gc => gc.requestUpdate());
     });
+    this._totalPoints = 0;
     this.requestUpdate();
   }
 
@@ -428,8 +425,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   emptyCriterion(criterion) {
 
-    console.debug("emptyCriterion");
-
     criterion.selectedvalue = 0.0;
     criterion.selectedRatingId = 0;
     criterion.pointoverride = 0.0;
@@ -437,8 +432,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   toggleRating(e) {
-
-    console.debug("toggleRating");
 
     e.stopPropagation();
 
@@ -474,17 +467,12 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   commentShown(e) {
-
-    console.debug("commentShown");
-
     this.querySelectorAll(`sakai-rubric-grading-comment:not(#${e.target.id})`).forEach(c => c.hide());
   }
 
   updateTotalPoints(notify = true) {
 
-    console.debug("updateTotalPoints");
-
-    this._totalPoints = this._criteria.reduce((a, c) => {
+    const points = this._criteria.reduce((a, c) => {
 
       if (c.pointoverride) {
         return a + parseFloat(c.pointoverride);
@@ -494,6 +482,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       return a;
 
     }, 0);
+
+    this._totalPoints = this.totalAsPercentage ? (points / this._maxPoints) * 100 : points;
 
     // Make sure total points is not negative
     if (parseFloat(this._totalPoints) < 0) this._totalPoints = 0;
@@ -510,8 +500,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   }
 
   cancel() {
-
-    console.debug("cancel");
 
     if (this._evaluation.status !== "DRAFT") return;
 
@@ -539,8 +527,6 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   _getAssociation() {
 
-    console.debug("_getAssociation");
-
     if (!this.toolId || !this.entityId || !this.evaluatedItemId) {
       return;
     }
@@ -557,18 +543,18 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   _getRubric(rubricId) {
 
-    console.debug("_getRubric");
-
     this.apiGetRubric(rubricId)
       .then(rubric => {
 
+        this._rubric = rubric;
+        this._criteria = this._rubric.criteria;
+
         if (this.evaluatedItemId) {
+
           this.apiGetEvaluation()
             .then(evaluation => {
 
               this._evaluation = evaluation || { criterionOutcomes: [] };
-              this._rubric = rubric;
-              this._criteria = this._rubric.criteria;
               this._criteria.forEach(c => {
 
                 c.pointoverride = "";
@@ -587,11 +573,24 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
               }
             })
             .catch(error => console.error(error));
-        } else {
-          this._rubric = rubric;
-          this._criteria = this._rubric.criteria;
         }
+
+        this._maxPoints = this._criteria.reduce((total, criterion) => {
+          if (criterion.ratings.length === 0) return total;
+
+          const maxRatingPoints = Math.max(...criterion.ratings.map(r => {
+            return this.calculateCriterionScore(criterion, r);
+          }));
+
+          return total + maxRatingPoints;
+        }, 0);
       })
       .catch(error => console.error(error));
+  }
+
+  calculateCriterionScore(criterion, rating) {
+    return this._rubric.weighted && criterion.weight ?
+      rating.points * (criterion.weight / 100).toFixed(2) :
+      rating.points;
   }
 }

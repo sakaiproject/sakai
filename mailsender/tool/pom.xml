@@ -19,7 +19,7 @@
 	<parent>
 		<artifactId>mailsender</artifactId>
 		<groupId>org.sakaiproject.mailsender</groupId>
-		<version>25-SNAPSHOT</version><!-- ProjectVersion -->
+		<version>26-SNAPSHOT</version><!-- ProjectVersion -->
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<name>Sakai Mail Sender Tool</name>
@@ -118,10 +118,6 @@
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>jakarta.activation</groupId>
-			<artifactId>jakarta.activation-api</artifactId>
 		</dependency>
 	</dependencies>
 </project>

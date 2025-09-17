@@ -36,6 +36,7 @@
   #gradeTableWrapper .tabulator-editable.tabulator-editing {
     border: 2px solid #007bff !important;
     box-shadow: 0 0 5px rgba(157, 198, 243, 0.75);
+    background-color: var(--sakai-background-color-5) !important;
   }
   #gradeTableWrapper .tabulator-editing .gradebook-input .out-of {
     position: absolute;
@@ -131,15 +132,15 @@
     font-family: 'bootstrap-icons';
     content: '\F573';
     position: absolute;
-    right: 1px;
-    top: 5px;
+    right: 28px;
+    top: 10px;
   }
   #gradeTableWrapper .gb-title.gb-sorted-desc:after {
     font-family: 'bootstrap-icons';
     content: '\F571';
     position: absolute;
-    right: 1px;
-    top: 5px;
+    right: 28px;
+    top: 10px;
   }
   #gradeTableWrapper .gb-title .gb-category {
     font-style: italic;
@@ -205,10 +206,7 @@
     text-align: left;
     color: var(--sakai-text-color-dimmed);
   }
-  #gradeTableWrapper tbody td .gb-value {
-    line-height: 30px;
-  }
-  #gradeTableWrapper tbody td .gb-value.gb-overridden {
+  #gradeTableWrapper .gb-value.gb-overridden {
     font-weight: bold;
   }
   #gradeTableWrapper tbody td .btn-group {
@@ -235,13 +233,6 @@
     text-align: center;
     font-style: normal;
   }
-  .gb-flag-not-counted:before {
-    content: '\F1DF';
-    text-decoration-line: line-through;
-  }
-  .gb-flag-not-released:before {
-    content: '\F33F';
-  }
   .gb-flag-counted,
   .gb-flag-released {
     display: none;
@@ -252,12 +243,6 @@
     color:var(--sakai-color-gold--darker-5);
     background-color: var(--sakai-color-gold--lighter-5) !important;
   }
-  .gb-flag-equal-weight:before {
-    content: '\2696';
-  }
-  .gb-flag-extra-credit:before {
-    content: '\F4FC';
-  }
   #gradeTableWrapper .gb-notification.gb-flag-extra-credit:before {
     color:var(--sakai-color-gold--darker-1);
   }
@@ -266,12 +251,7 @@
     color: var(--sakai-text-color-dimmed);
   }
 
-  .gb-flag-excused::before {
-    content: '\F1DF';
-    text-decoration-line: line-through;
-  }
-
-   .gb-flag-external:before {
+  .gb-flag-external:before {
     content: '\F140';
   }
   .gb-flag-read-only:before {
@@ -339,7 +319,7 @@
   }
   #gradeTableWrapper .gb-read-only .gb-notification.gb-flag-equal-weight:after,
   #gradeTableWrapper .gb-read-only .gb-notification.gb-flag-extra-credit:after {
-    font-family: "boostrap-icons";
+    font-family: "bootstrap-icons";
     content: '\F3AA';
     color: var(--warnBanner-color);
     font-size: 10px;
@@ -545,68 +525,7 @@
       font-weight: bold;
       color: var(--sakai-text-color-2);
   }
-  /* **************************************************************** *
-   *                      Gradebook Grade comparison styles           *
-   * **************************************************************** */
-   
-  #studentGradesComparison-ModalContent .studentGradesComparison-Header {
-    margin: 0 0 15px 3px;
-  }
 
-  #studentGradesComparison-ModalContent .studentGradesComparison-Header span {
-    color: var(--sakai-primary-color-1);
-    font-weight: 600;
-  }
-
-  #studentGradesComparison-ModalContent .studentGradesComparison-TableContainer .table .comparing-current-user-row {
-    background-color: var(--sakai-active-color-1);
-  }
-
-  #studentGradesComparison-ModalContent .studentGradesComparison-TableContainer .table .comparing-current-user-row td {
-    font-weight: bold;
-    background: none;
-  }
-
-  #settingsGradeRelease .grade-comparison .grade-comparison-options input[disabled] {
-    background-color: var(--sakai-text-color-disabled);
-  }
-
-  #settingsGradeRelease .grade-comparison .grade-comparison-options > span, #settingsGradeRelease .grade-comparison .grade-comparison-options > label {
-    margin-right: 8px;
-  }
-
-  #settingsGradeRelease .checkbox {
-    margin-bottom: 12px;
-  }
-
-  #gradeSummaryTable .gb-summary-assignments-tbody .compare-grades-link {
-    float: right;
-    margin-right: 10px;
-  }
-
-  #gradeSummaryTable .gb-summary-assignments-tbody .gb-summary-grade-flags + .compare-grades-link {
-    margin-right: -6px !important;
-  }
-
-
-  #loading-grade-summary{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: #ffffffa8;
-    z-index: 5;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-content: center;
-    justify-content: center;
-  }
-
-  #loading-grade-summary img{
-    height: 20px;
-    width: 20px;
-    margin: auto;
-  }
   /* **************************************************************** *
    *                      Gradebook Grades styles                     *
    * **************************************************************** */
@@ -624,22 +543,12 @@
     padding-right: 20px !important;
   }
 
-  .gb-create-or-save + .gb-create-another {
-    margin-left: -8px;
-    border-radius: 0 3px 3px 0 !important;
-  }
-
-  .gb-create-another > .glyphicon {
-      margin-top: -2px;   /* to compensate for top positioning and sibling button alignment */
-  }
-
   /* Toolbar */
   #gradebookGradesToolbar {
     position: relative;
     background: var(--sakai-background-color-1);
     font-size: 0.9em;
     overflow: visible;
-    padding: 0 0.4em;
     width: 100%;
     margin: 0;
   }
@@ -1359,6 +1268,13 @@
   .dropdown-toggle::after {
     display: none;
   }
+  
+  // Masking the auto selected text in dropdowns in Firefox
+  .dropdown-menu.show {
+    a::-moz-selection {
+      background: none;
+    }
+  }
 }
 
 div.wicket-modal, .#{$namespace}sakai-gradebookng {
@@ -1442,7 +1358,7 @@ div.wicket-modal div.w_right {
 }
 div.wicket-modal a.w_close {
   color: var(--sakai-active-color-1);
-  transform: translateY(-15%);
+  transform: translateY(120%);
 }
 div.wicket-modal div.w_caption {
   cursor: move;
@@ -1458,8 +1374,6 @@ div.wicket-modal .w_blue div.w_content
 {
   background: var(--sakai-background-color-1);
   color: var(--sakai-text-color-1);
-  display: flex;
-  align-items: center;
 }
 
 div.wicket-modal {
@@ -1472,8 +1386,14 @@ div.wicket-mask-transparent, div.wicket-mask-dark {
   z-index: 998 !important;
 }
 
-.gb-input-div {
-  margin-left: 3px !important;
+/* Placing Grade Rubric modal */
+.gb-rubric-grading-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 1100px;
 }
 
 .gb-input {
@@ -1675,3 +1595,90 @@ max-height:100px;
 {
   text-decoration: line-through;
 }
+
+.gb-flag-not-counted:before, .gb-flag-excused:before {
+  font-family: 'bootstrap-icons';
+  content: '\F1DF';
+  text-decoration: line-through;
+}
+.gb-flag-not-released:before {
+  font-family: 'bootstrap-icons';
+  content: '\F33F';
+}
+.gb-flag-extra-credit:before {
+  font-family: 'bootstrap-icons';
+  content: '\F4FC';
+}
+.gb-flag-equal-weight:before {
+  font-family: 'bootstrap-icons';
+  content: '\2696';
+}
+
+// Fix for Tabulator bug where the range-active class sometimes remains on previously selected cells
+// when navigating through cells using the keyboard (I don't know why tabulator does this)
+.tabulator-range-active {
+  display: none;
+}
+
+/* **************************************************************** *
+ *                      Gradebook Grade comparison styles           *
+ * **************************************************************** */
+
+div.wicket-modal #studentGradesComparison-ModalContent .studentGradesComparison-Header {
+  margin: 0 0 15px 3px;
+}
+
+div.wicket-modal #studentGradesComparison-ModalContent .studentGradesComparison-Header span {
+  color: var(--sakai-primary-color-1);
+  font-weight: 600;
+}
+
+div.wicket-modal #studentGradesComparison-ModalContent .studentGradesComparison-TableContainer .table .comparing-current-user-row {
+  background-color: var(--sakai-active-color-1);
+}
+
+div.wicket-modal #studentGradesComparison-ModalContent .studentGradesComparison-TableContainer .table .comparing-current-user-row td {
+  font-weight: bold;
+  background: none;
+}
+
+#settingsGradeRelease .grade-comparison .grade-comparison-options input[disabled] {
+  background-color: var(--sakai-text-color-disabled);
+}
+
+#settingsGradeRelease .grade-comparison .grade-comparison-options > span, #settingsGradeRelease .grade-comparison .grade-comparison-options > label {
+  margin-right: 8px;
+}
+
+#settingsGradeRelease .checkbox {
+  margin-bottom: 12px;
+}
+
+#gradeSummaryTable .gb-summary-assignments-tbody .compare-grades-link {
+  float: right;
+  margin-right: 10px;
+}
+
+#gradeSummaryTable .gb-summary-assignments-tbody .gb-summary-grade-flags + .compare-grades-link {
+  margin-right: -6px !important;
+}
+
+#loading-grade-summary{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #ffffffa8;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
+#loading-grade-summary img{
+  height: 20px;
+  width: 20px;
+  margin: auto;
+}
+/* **************************************************************** */

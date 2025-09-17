@@ -2,9 +2,9 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-user-photo/sakai-user-photo.js";
-import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
+import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback, PUSH_PERMISSION_STATES } from "@sakai-ui/sakai-push-utils";
 import { getServiceName } from "@sakai-ui/sakai-portal-utils";
-import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO } from "./states.js";
+import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO, PWA_INSTALL_INFO } from "./states.js";
 import { markNotificationsViewed } from "./utils.js";
 
 export class SakaiNotifications extends SakaiElement {
@@ -19,17 +19,46 @@ export class SakaiNotifications extends SakaiElement {
     _state: { state: true },
     _highlightTestButton: { state: true },
     _browserInfoUrl: { state: true },
+    _pushEnabled: { state: true },
   };
 
   constructor() {
 
     super();
 
+    /*
+      Polyfill for Notification in unsupported environments.
+      The Notification object can be undefined when browsing inside an iOS or Android webview.
+      See: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API
+    */
+    if (typeof window.Notification === "undefined") {
+      window.Notification = function() {};
+      window.Notification.permission = "denied";
+      window.Notification.requestPermission = function(cb) {
+        if (cb) cb("denied");
+        return Promise.resolve("denied");
+      };
+    }
+
+    /*
+      Polyfill for navigator.setAppBadge in unsupported environments.
+      This API may be undefined in several environments
+      See: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/setAppBadge
+    */
+    if (typeof navigator.setAppBadge === "undefined") {
+      navigator.setAppBadge = function() {
+        return Promise.resolve();
+      };
+      navigator.clearAppBadge = function() {
+        return Promise.resolve();
+      };
+    }
+
     window.addEventListener("online", () => this._online = true );
 
     this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
-    this._i18nLoaded.then(r => this._i18n = r);
+    this._pushEnabled = false; // Default to false, will be set in _registerForNotifications
   }
 
   connectedCallback() {
@@ -84,6 +113,8 @@ export class SakaiNotifications extends SakaiElement {
 
     pushSetupComplete.then(() => {
 
+      this._pushEnabled = true;
+
       if (Notification.permission !== "granted") return;
 
       registerPushCallback("notifications", message => {
@@ -96,8 +127,12 @@ export class SakaiNotifications extends SakaiElement {
     })
     .catch(error => {
 
+      this._pushEnabled = false;
+
       if (error === NOT_PUSH_CAPABLE) {
         this._state = PUSH_SETUP_INFO;
+      } else if (error === PUSH_PERMISSION_STATES.PWA_REQUIRED) {
+        this._state = PWA_INSTALL_INFO;
       }
     });
   }
@@ -198,7 +233,7 @@ export class SakaiNotifications extends SakaiElement {
 
     const unviewed = this.notifications.filter(n => !n.viewed).length;
     this.dispatchEvent(new CustomEvent("notifications-loaded", { detail: { count: unviewed }, bubbles: true }));
-    navigator.setAppBadge && navigator.setAppBadge(unviewed);
+    navigator.setAppBadge(unviewed);
   }
 
   _clearNotification(e) {
@@ -320,15 +355,22 @@ export class SakaiNotifications extends SakaiElement {
 
     this._highlightTestButton = false;
 
+    console.debug("Sending test notification...");
+
     const url = "/api/users/me/notifications/test";
     fetch(url, { method: "POST" })
     .then(r => {
 
       if (!r.ok) {
+        console.error(`Test notification request failed with status ${r.status}: ${r.statusText}`);
         throw Error(`Network error while sending test notification at ${url}`);
       }
+
+      console.debug("Test notification request sent successfully");
     })
-    .catch(error => console.error(error));
+    .catch(error => {
+      console.error("Test notification error:", error);
+    });
   }
 
   shouldUpdate() {
@@ -413,7 +455,7 @@ export class SakaiNotifications extends SakaiElement {
 
     return html`
       ${this._state === PUSH_SETUP_INFO ? html`
-        <div class="sak-banner-warn justify-content-around">
+        <div class="sak-banner-warn sakai-notifications__banner-warn">
           <div class="fw-bold">${this._i18n.push_setup_failure_info}</div>
           <ol class="mt-2">
             <li>${this._i18n.push_setup_failure_info_1.replace("{0}", getServiceName())}</li>
@@ -425,12 +467,12 @@ export class SakaiNotifications extends SakaiElement {
       ` : nothing}
 
       ${this._state === PUSH_DENIED_INFO ? html`
-        <div class="sak-banner-error justify-content-around">
+        <div class="sak-banner-error sakai-notifications__banner-error">
           <div class="mb-3">${this._i18n.notifications_denied.replace("{0}", getServiceName())}</div>
           <div>${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
           ${this._browserInfoUrl ? html`
           <div class="mt-3">
-            <a href="${this._browserInfoUrl}" class="fw-bold" target="_blank">${this._i18n.browser_info_link_text}</a>
+            <a href="${this._browserInfoUrl}" class="sakai-notifications__title" target="_blank">${this._i18n.browser_info_link_text}</a>
           </div>
           ` : nothing}
         </div>
@@ -439,11 +481,20 @@ export class SakaiNotifications extends SakaiElement {
         </div>
       ` : nothing}
 
+      ${this._state === PWA_INSTALL_INFO ? html`
+        <div class="sak-banner-info sakai-notifications__banner-info mb-3">
+          <div>
+            <div class="fw-bold mb-2">${this._i18n.pwa_install_title}</div>
+            <div class="mb-1">${this._i18n.pwa_install_instructions}</div>
+          </div>
+        </div>
+      ` : nothing}
+
       ${this._state === PUSH_INTRO ? html`
-        <div class="sak-banner-info justify-content-around">
+        <div class="sak-banner-info sakai-notifications__banner-info">
           <div>
             <div class="mb-1">${this._i18n.notifications_not_allowed.replace("{0}", getServiceName())}</div>
-            <div class="fw-bold">${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
+            <div class="sakai-notifications__title">${this._i18n.notifications_not_allowed2.replace("{0}", getServiceName())}</div>
           </div>
         </div>
         <div class="text-center">
@@ -451,8 +502,8 @@ export class SakaiNotifications extends SakaiElement {
         </div>
       ` : nothing}
 
-      ${this._state === NOTIFICATIONS ? html`
-        ${Notification.permission !== "granted" && this._online ? html`
+      ${this._state === NOTIFICATIONS || this._state === PWA_INSTALL_INFO ? html`
+        ${Notification.permission !== "granted" && this._online && this._pushEnabled ? html`
           <div class="alert alert-warning">
             <span class="me-1">${this._i18n.push_not_enabled}</span>
             <button type="button"
@@ -477,7 +528,7 @@ export class SakaiNotifications extends SakaiElement {
         ` : nothing}
 
         <div class="d-flex justify-content-between my-2">
-          ${this._online && Notification.permission === "granted" ? html`
+          ${this._online && this._pushEnabled && Notification.permission === "granted" ? html`
             <div>
               <button class="btn ${this._highlightTestButton ? "btn-primary" : "btn-secondary"} btn-sm"
                   @click=${this._sendTestNotification}>

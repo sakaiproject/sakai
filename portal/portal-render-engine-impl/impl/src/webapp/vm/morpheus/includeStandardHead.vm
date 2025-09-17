@@ -5,13 +5,10 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+        <link rel="manifest" href="/manifest.json">
 
         <script>
             var portal = {
-                "bullhorns": {
-                    "enabled": $!{useBullhornAlerts},
-                    "alertCount": $!{bullhornAlertCount}
-                },
                 "i18n": {
                     "theme_switch_to_light": "$rloader.sit_theme_switch_to_light",
                     "theme_switch_to_dark": "$rloader.sit_theme_switch_to_dark",
@@ -20,8 +17,6 @@
                 "portalPath": "$!{portalPath}",
                 "loggedOutUrl": "$!{loggedOutUrl}",
                 "siteId": "$!{siteId}",
-                "siteTitle": "$!{siteTitle}",
-                "shortDescription" : "$!{shortDescription}",
                 "toolsCollapsed": #if ($toolsCollapsed) true #else false #end,
                 "locale": "$!{locale}" || "en-US",
                 "serverTimeMillis": "$!{serverTimeMillis}",
@@ -31,18 +26,12 @@
                     "userType": "$!{userType}",
                     "siteRole": "$!{userSiteRole}",
                     "impersonatorDisplayId": "$!{impersonatorDisplayId}",
-                    "iso8601Timestamp": "$!{userISO8601Timestamp}",
                     "timezone": "$!{userTimezone}",
                     "offsetFromServerMillis": "$!{userTimezoneOffsetMillis}"
                 },
                 "timeoutDialog" : {
                 "enabled": $!{timeoutDialogEnabled},
                 "seconds": $!{timeoutDialogWarningSeconds}
-                },
-                "toggle" : {
-                    "allowauto": false,
-                    "tools": false,
-                    "sitenav": false // This is not allowed in morpheus
                 },
                 "pageScriptPath" : "$!{pageScriptPath}",
                 "editor" : {
@@ -58,8 +47,6 @@
                     "format" : [#foreach( $format in $mathJaxFormat )"${format}",#end]
                 },
                 toolTitles : {#foreach ($entry in $toolTitles.entrySet())"$entry.key": "$entry.value",#end},
-                notifications: { pushEnabled: $!notificationsPushEnabled, debug: $!debugNotifications },
-                serviceName: "$serviceName",
             };
         </script>
 
@@ -67,7 +54,6 @@
 
         #parse("/vm/morpheus/snippets/title-snippet.vm")
 
-        ## TRINITY-43 Review before merging to master
         #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
 
         <link href="${pageWebjarsPath}jquery-ui/1.12.1/jquery-ui.min.css$!{portalCDNQuery}" rel="stylesheet" />
@@ -77,7 +63,7 @@
         <script src="/library/js/modernizr.js$!{portalCDNQuery}"></script>
         <script src="/library/js/BreakpointManager.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-lti-advantage.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}momentjs/2.29.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}momentjs/2.29.4/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}popper.js/2.9.3/umd/popper.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}bootstrap/5.2.0/js/bootstrap.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}dompurify/2.3.6/dist/purify.min.js$!{portalCDNQuery}"></script>
@@ -87,9 +73,6 @@
             moment.locale(window.portal.locale);
         </script>
         #parse("/vm/morpheus/snippets/portalScripts-snippet.vm")
-    #if ($useBullhornAlerts)
-        <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>
-    #end
 
         <!-- inlined tool header contribution -->
         ## if any of the tools requested an inline render, their header content gets aggregated here

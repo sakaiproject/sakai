@@ -1,27 +1,17 @@
 import { html } from "lit";
 import "../sakai-rubric-readonly.js";
 import "../sakai-rubrics-list.js";
+import "@sakai-ui/sakai-pager/sakai-pager.js";
 import { SakaiRubricsHelpers } from "./SakaiRubricsHelpers.js";
 import { SakaiRubricsList } from "./SakaiRubricsList.js";
 import { SharingChangeEvent } from "./SharingChangeEvent.js";
-
-const rubricName = "name";
-const rubricTitle = "title";
-const rubricCreator = "creator";
-const rubricModified = "modified";
 
 export class SakaiRubricsSharedList extends SakaiRubricsList {
 
   rubricIdToDelete = null;
   rubricTitleToDelete = null;
-  static properties = {
 
-    siteId: { attribute: "site-id", type: String },
-    enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
-    isSuperUser: { attribute: "is-super-user", type: Boolean },
-
-    _rubrics: { state: true },
-  };
+  static properties = { isSuperUser: { attribute: "is-super-user", type: Boolean } };
 
   constructor() {
 
@@ -29,30 +19,36 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
 
     this.updateRubricOptions = {
       method: "PATCH",
-      credentials: "include",
       headers: { "Content-Type": "application/json-patch+json" },
     };
-    this.getSharedRubrics();
-  }
-
-  shouldUpdate() {
-    return this._rubrics;
   }
 
   render() {
 
+    if (!this._rubrics) {
+      return html`
+        <div class="sak-banner-warn">${this._i18n.loading}</div>
+      `;
+    }
+
     return html`
       <div role="tablist">
-      ${this._rubrics.map(r => html`
+      ${this._paginatedRubrics?.map(r => html`
         <sakai-rubric-readonly .rubric=${r}
-        @copy-to-site=${this.copyToSite}
-        @delete-rubric=${this.showDeleteModal}
-        @revoke-shared-rubric=${this.sharingChange}
-        ?enablePdfExport=${this.enablePdfExport}
-        ?is-super-user=${this.isSuperUser}>
+            @copy-to-site=${this.copyToSite}
+            @delete-rubric=${this.showDeleteModal}
+            @revoke-shared-rubric=${this.sharingChange}
+            ?enable-pdf-export=${this.enablePdfExport}
+            ?is-super-user=${this.isSuperUser}>
         </sakai-rubric-readonly>
       `)}
       </div>
+      <sakai-pager
+        .current=${this._currentPage}
+        .count=${this._totalPages}
+        @page-selected=${this._onPageSelected}
+        ?hidden=${this._totalPages <= 1}>
+      </sakai-pager>
       <div class="modal fade" id="delete-modal" tabindex="-1" aria-labelledby="delete-modal-label" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -73,15 +69,10 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
     `;
   }
 
-  refresh() {
-
-    this.getSharedRubrics();
-  }
-
-  getSharedRubrics() {
+  getRubrics() {
 
     const url = "/api/rubrics/shared";
-    fetch(url, { credentials: "include" })
+    fetch(url)
     .then(r => {
 
       if (r.ok) {
@@ -89,7 +80,11 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       }
       throw new Error("Network error while getting shared rubrics");
     })
-    .then(rubrics => this._rubrics = rubrics)
+    .then(rubrics => {
+      this._rubrics = rubrics;
+      this._currentPage = 1;
+      this.repage();
+    })
     .catch (error => console.error(error));
   }
 
@@ -125,6 +120,13 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       }
 
       this._rubrics = this._rubrics.filter(rubric => rubric.id !== this.rubricIdToDelete);
+
+      this.repage();
+      if (this._currentPage > this._totalPages) {
+        this._currentPage = Math.max(1, this._totalPages);
+        this.repage();
+      }
+
       this.requestUpdate();
       bootstrap.Modal.getOrCreateInstance(this.querySelector(".modal")).hide();
       this.dispatchEvent(new CustomEvent("update-rubric-list"));
@@ -151,23 +153,5 @@ export class SakaiRubricsSharedList extends SakaiRubricsList {
       }
     })
     .catch (error => console.error(error));
-  }
-
-  sortRubrics(rubricType, ascending) {
-
-    switch (rubricType) {
-      case rubricName:
-        this._rubrics.sort((a, b) => ascending ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
-        break;
-      case rubricTitle:
-        this._rubrics.sort((a, b) => ascending ? a.siteTitle.localeCompare(b.siteTitle) : b.siteTitle.localeCompare(a.siteTitle));
-        break;
-      case rubricCreator:
-        this._rubrics.sort((a, b) => ascending ? a.creatorDisplayName.localeCompare(b.creatorDisplayName) : b.creatorDisplayName.localeCompare(a.creatorDisplayName));
-        break;
-      case rubricModified:
-        this._rubrics.sort((a, b) => ascending ? a.modified - b.modified : b.modified - a.modified);
-    }
-    this.requestUpdate("_rubrics");
   }
 }

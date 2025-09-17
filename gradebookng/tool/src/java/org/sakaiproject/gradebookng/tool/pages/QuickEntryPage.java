@@ -10,7 +10,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -21,10 +21,10 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.panels.BulkGradePanel;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.SortType;
@@ -40,22 +40,29 @@ public class QuickEntryPage extends BasePage {
     private GbGroup groupNow;
 
     @Getter
-    private ModalWindow bulkGrade;
+    private GbModalWindow bulkGrade;
     @Getter
-    private ModalWindow bulkComment;
+    private GbModalWindow bulkComment;
     private boolean noErrors = true;
+
+    private String gradebookUid;
+    private String siteId;
 
     public QuickEntryPage() {
         disableLink(this.quickEntryPageLink);
+		
+        gradebookUid = getCurrentGradebookUid();
+        siteId = getCurrentSiteId();
     }
 
     @Override
     public void onInitialize() {
         super.onInitialize();
 
-        Integer gradeType = this.businessService.getGradebookSettings().getGradeType();
+        Integer gradeType = this.businessService.getGradebookSettings(gradebookUid, siteId).getGradeType();
+
         SortType sortBy = SortType.SORT_BY_NAME;
-        final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
+        final List<Assignment> assignments = this.businessService.getGradebookAssignments(gradebookUid, siteId, sortBy);
         final DropDownChoice<Assignment> itempicker = new DropDownChoice<Assignment>("itempicker", new Model<Assignment>(),assignments, new ChoiceRenderer<Assignment>(){
             private static final long serialVersionUID = 1L;
             @Override
@@ -80,7 +87,7 @@ public class QuickEntryPage extends BasePage {
                 setResponsePage(QuickEntryPage.class, pageParameters);  // refresh this page with the selected item
             }
         });
-        final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+        final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(gradebookUid, siteId);
         final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupicker", new Model<GbGroup>(), groups, new ChoiceRenderer<GbGroup>() {
             private static final long serialVersionUID = 1L;
             @Override
@@ -89,7 +96,7 @@ public class QuickEntryPage extends BasePage {
             }
             @Override
             public String getIdValue(final GbGroup g, final int index) {
-                return g.getId();
+                return g.getId() != null ? g.getId() : "";
             }
         });
         groupFilter.add(new AjaxFormComponentUpdatingBehavior("change") {
@@ -122,7 +129,7 @@ public class QuickEntryPage extends BasePage {
                 Long itemId = dataNow.getItemIdNow();
                 for(QuickEntryRowModel row: allgrades){ //first loop vor validation only
                     try {
-                        double gradeValidator = Double.parseDouble(row.getGrade());
+                        double gradeValidator = FormatHelper.validateDouble(row.getGrade());
                         if(gradeValidator<0){
                             getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
                             row.setHasError(true);
@@ -140,8 +147,8 @@ public class QuickEntryPage extends BasePage {
                 }
                 if(noErrors){   //if still no errors, second loop to start saving things
                     for(QuickEntryRowModel row: allgrades){
-                        String oldGrade = businessService.getGradeForStudentForItem(row.getStudentid(),itemId).getGrade();
-                        GradeSaveResponse succeeded = businessService.saveGrade(itemId,row.getStudentid(),oldGrade,row.getGrade(),row.getComment());
+                        String oldGrade = businessService.getGradeForStudentForItem(gradebookUid, siteId, row.getStudentid(),itemId).getGrade();
+                        GradeSaveResponse succeeded = businessService.saveGrade(gradebookUid, siteId, itemId,row.getStudentid(),oldGrade,row.getGrade(),row.getComment());
                         if(succeeded == GradeSaveResponse.ERROR || succeeded == GradeSaveResponse.CONCURRENT_EDIT){
                             getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
                             row.setHasError(true);
@@ -151,7 +158,7 @@ public class QuickEntryPage extends BasePage {
                             row.setHasError(false);
                         }
                         if(row.commentChanged()){   //in case a changed comment is with an unchanged/blank grade
-                            boolean commentSucceeded = businessService.updateAssignmentGradeComment(itemId,row.getStudentid(),row.getComment());
+                            boolean commentSucceeded = businessService.updateAssignmentGradeComment(gradebookUid, siteId, itemId,row.getStudentid(),row.getComment());
                             if(!commentSucceeded){
                                 getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
                                 row.setHasError(true);
@@ -161,7 +168,7 @@ public class QuickEntryPage extends BasePage {
                                 row.setHasError(false);
                             }
                         }
-                        GradeSaveResponse succeededExcuse = businessService.saveExcuse(itemId,row.getStudentid(),row.isExcused());
+                        GradeSaveResponse succeededExcuse = businessService.saveExcuse(gradebookUid, siteId, itemId,row.getStudentid(),row.isExcused());
                         if(succeededExcuse == GradeSaveResponse.ERROR){
                             getSession().error(MessageFormat.format(getString("quickentry.error"),row.getName()));
                             row.setHasError(true);
@@ -203,17 +210,17 @@ public class QuickEntryPage extends BasePage {
                 }
             }
             form.add(new Label("itemtitle", assignmentNow.getName()));
-            String itemdetails = " - " + (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + assignmentNow.getPoints().toString();
+            String localePoints = FormatHelper.formatGradeForDisplay(assignmentNow.getPoints());
+            String itemdetails = " - " + (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradeType) ? getString("quickentry.percentages") : getString("quickentry.points")) + ": " + localePoints;
             if(assignmentNow.getExternallyMaintained()){
                 itemdetails = itemdetails + " - " + MessageFormat.format(getString("quickentry.externally"),assignmentNow.getExternalAppName());
             }
             form.add(new Label("itemdetails", itemdetails));
 
             // The getUsers call will both sort and remove orphaned/invalid users
-            final List<String> gradableUserIds = this.businessService.getGradeableUsers();
+            final List<String> gradableUserIds = this.businessService.getGradeableUsers(gradebookUid, siteId, null);
             final List<User> gradableUsers = this.businessService.getUsers(gradableUserIds);
-            Map<String, List<String>> groupContainer = this.businessService.getGroupMemberships();
-
+            Map<String, List<String>> groupContainer = this.businessService.getGroupMemberships(gradebookUid, siteId);
             List<QuickEntryRowModel> rows = new ArrayList<>();
 
             int totalstudents = 0;
@@ -222,12 +229,12 @@ public class QuickEntryPage extends BasePage {
                 final String uid = userNow.getId();
                 QuickEntryRowModel rowNow = new QuickEntryRowModel();
                 totalstudents++;
-                if(!params.get("groupNow").isNull() && !groupContainer.get("/site/" + this.businessService.getCurrentSiteId() + "/group/"+params.get("groupNow").toString()).contains(uid)){
+                if(!params.get("groupNow").isNull() && !groupContainer.get("/site/" + getCurrentSiteId() + "/group/"+params.get("groupNow").toString()).contains(uid)){
                     continue;
                 }
                 studentsnow++;
                 rowNow.setName(userNow.getLastName() + ", " + userNow.getFirstName() + " (" + userNow.getDisplayId() + ')');
-                String commentNow = this.businessService.getAssignmentGradeComment(this.assignmentNow.getId(),uid);
+                String commentNow = this.businessService.getAssignmentGradeComment(gradebookUid, this.assignmentNow.getId(),uid);
                 if(commentNow != null){
                     rowNow.setComment(commentNow);
                     rowNow.setOriginalComment(commentNow);
@@ -237,9 +244,10 @@ public class QuickEntryPage extends BasePage {
                     // this field, we need to set it to null
                     rowNow.setOriginalComment(null);
                 }
-                String gradeNow = this.businessService.getGradeForStudentForItem(uid,this.assignmentNow.getId()).getGrade();
-                rowNow.setGrade(StringUtils.defaultIfBlank(gradeNow, null));
-                rowNow.setExcused(!Objects.equals(this.businessService.getAssignmentExcuse(this.assignmentNow.getId(), uid), "0"));
+                String gradeNow = this.businessService.getGradeForStudentForItem(gradebookUid, siteId, uid, this.assignmentNow.getId()).getGrade();
+                String localeGrade = FormatHelper.formatGradeForDisplay(gradeNow);
+                rowNow.setGrade(StringUtils.defaultIfBlank(localeGrade, null));
+                rowNow.setExcused(!Objects.equals(this.businessService.getAssignmentExcuse(gradebookUid, this.assignmentNow.getId(),uid), "0"));
                 rowNow.setLocked(this.assignmentNow.getExternallyMaintained());
                 rowNow.setMaxGrade(this.assignmentNow.getPoints());
                 rowNow.setStudentid(uid);
@@ -321,7 +329,7 @@ public class QuickEntryPage extends BasePage {
             }
         }.setDefaultFormProcessing(false).setVisible(this.assignmentNow != null));
 
-        form.add(this.bulkGrade = new ModalWindow("bulkGradeModal"));
+        form.add(this.bulkGrade = new GbModalWindow("bulkGradeModal"));
         bulkGrade.setTitle(getString("quickentry.replacegradelabel"));
         bulkGrade.setInitialHeight(240);
 
@@ -329,6 +337,7 @@ public class QuickEntryPage extends BasePage {
             @Override
             public void onClick(AjaxRequestTarget target)
             {
+                bulkGrade.setComponentToReturnFocusTo(this);
                 bulkGrade.show(target);
             }
             @Override
@@ -336,7 +345,7 @@ public class QuickEntryPage extends BasePage {
                 return assignmentNow != null && !assignmentNow.getExternallyMaintained();
             }
         });
-        form.add(this.bulkComment = new ModalWindow("bulkCommentModal"));
+        form.add(this.bulkComment = new GbModalWindow("bulkCommentModal"));
         bulkComment.setTitle(getString("quickentry.comment.caption"));
         bulkComment.setInitialHeight(300);
 
@@ -344,6 +353,7 @@ public class QuickEntryPage extends BasePage {
             @Override
             public void onClick(AjaxRequestTarget target)
             {
+                bulkComment.setComponentToReturnFocusTo(this);
                 bulkComment.show(target);
             }
             @Override

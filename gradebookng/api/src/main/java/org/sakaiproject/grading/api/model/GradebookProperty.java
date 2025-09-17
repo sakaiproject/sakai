@@ -21,7 +21,9 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -37,8 +39,9 @@ import lombok.ToString;
 public class GradebookProperty implements PersistableEntity<Long>, Comparable<Object>, Serializable {
 
     @Id
-    @GeneratedValue
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "gb_property_id_sequence")
+    @SequenceGenerator(name = "gb_property_id_sequence", sequenceName = "GB_PROPERTY_S")
     @ToString.Include
     private Long id;
 

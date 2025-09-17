@@ -4,7 +4,7 @@
   <parent>
     <artifactId>search</artifactId>
     <groupId>org.sakaiproject.search</groupId>
-    <version>25-SNAPSHOT</version><!-- ProjectVersion -->
+    <version>26-SNAPSHOT</version><!-- ProjectVersion -->
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>search-impl</name>
@@ -120,7 +120,7 @@
     <dependency>
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
-      <version>3.0.1</version>
+      <version>3.0.5</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>

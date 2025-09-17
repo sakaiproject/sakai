@@ -2,9 +2,11 @@ import "@sakai-ui/sakai-date-picker/sakai-date-picker.js";
 import "@sakai-ui/sakai-user-photo/sakai-user-photo.js";
 import "imagesloaded";
 import "@sakai-ui/sakai-profile/sakai-profile.js";
+import "@sakai-ui/sakai-account/sakai-account.js";
 import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
 import "@sakai-ui/sakai-picture-changer/sakai-picture-changer.js";
 import "@sakai-ui/sakai-notifications/sakai-notifications.js";
+import "@sakai-ui/sakai-calendar/sakai-calendar.js";
 
 import imagesLoaded from "imagesloaded";
 globalThis.imagesLoaded = imagesLoaded;

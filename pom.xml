@@ -4,7 +4,7 @@
     <parent>
         <artifactId>master</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>25-SNAPSHOT</version>
+        <version>26-SNAPSHOT</version>
         <relativePath>master/pom.xml</relativePath>
     </parent>
 
@@ -249,5 +249,112 @@
                 <module>pack/pack-src</module>
             </modules>
         </profile>
+        <profile>
+            <id>api</id>
+            <modules>
+                <module>reset-pass/account-validator-api</module>
+                <module>common/archive-api</module>
+                <module>common/common-api</module>
+                <module>config/configuration/bundles</module>
+                <module>content/content-bundles</module>
+                <module>content/content-copyright/api</module>
+                <module>content/content-metadata/api</module>
+                <module>content-review/api</module>
+                <module>edu-services/cm-service/cm-api/api</module>
+                <module>edu-services/cm-service/cm-impl/hibernate-impl/hibernate</module>
+                <module>delegatedaccess/api</module>
+                <module>search/elasticsearch/api</module>
+                <module>entitybroker/api</module>
+                <module>external-calendaring-service/api</module>
+                <module>gradebookng/bundle</module>
+                <module>hierarchy/api</module>
+                <module>lessonbuilder/api</module>
+                <module>lessonbuilder/hbm</module>
+                <module>login/login-api/api</module>
+                <module>lti/lti-api</module>
+                <module>lti/tsugi-util</module>
+                <module>mailsender/api</module>
+                <module>meetings/api</module>
+                <module>msgcntr/messageforums-api</module>
+                <module>msgcntr/messageforums-hbm</module>
+                <module>microsoft-integration/api</module>
+                <module>oauth/api</module>
+                <module>oauth/dao-hbm</module>
+                <module>pasystem/pasystem-api/api</module>
+                <module>polls/api</module>
+                <module>profile2/api</module>
+                <module>rubrics/api</module>
+                <module>site/term-manager/api</module>
+                <module>announcement/announcement-api/api</module>
+                <module>assignment/api</module>
+                <module>calendar/calendar-api/api</module>
+                <module>calendar/calendar-bundles</module>
+                <module>calendar/calendar-hbm</module>
+                <module>card-game/api</module>
+                <module>chat/chat-api/api</module>
+                <module>citations/citations-api/api</module>
+                <module>commons/api</module>
+                <module>common/impl</module>
+                <module>help/help-component-shared</module>
+                <module>kernel/component-manager</module>
+                <module>conditions/api</module>
+                <module>conversations/api</module>
+                <module>dav/dav-common</module>
+                <module>dav/dav-server</module>
+                <module>cloud-storage/googledrive</module>
+                <module>gradebookng/api</module>
+                <module>help/help-api</module>
+                <module>help/help</module>
+                <module>kernel/api</module>
+                <module>kernel/kernel-storage-util</module>
+                <module>mailarchive/mailarchive-api/api</module>
+                <module>message/message-api/api</module>
+                <module>plus/api</module>
+                <module>podcasts/podcasts-api</module>
+                <module>portal/portal-api/api</module>
+                <module>portal/portal-render-api/api</module>
+                <module>portal/portal-util/util</module>
+                <module>postem/postem-api</module>
+                <module>postem/postem-hbm</module>
+                <module>presence/presence-api/api</module>
+                <module>common/privacy-api</module>
+                <module>common/privacy-hbm</module>
+                <module>roster2/bundle</module>
+                <module>rwiki/rwiki-api/api</module>
+                <module>rwiki/rwiki-model</module>
+                <module>site-manage/datemanager/api</module>
+                <module>site-manage/site-manage-api/api</module>
+                <module>site-manage/site-manage-hbm</module>
+                <module>syllabus/syllabus-api</module>
+                <module>taggable/taggable-api/api</module>
+                <module>taggable/taggable-hbm/hbm</module>
+                <module>usermembership/api</module>
+                <module>velocity/tool-api</module>
+                <module>web/web-api/api</module>
+                <module>samigo/samigo-api</module>
+                <module>samigo/samigo-hibernate</module>
+                <module>samigo/samigo-services</module>
+                <module>jobscheduler/scheduler-api</module>
+                <module>jobscheduler/scheduler-component-shared</module>
+                <module>jobscheduler/scheduler-events-model</module>
+                <module>jobscheduler/scheduler-test-component-shared</module>
+                <module>edu-services/scoring-service/api</module>
+                <module>scormplayer/scorm-api</module>
+                <module>search/search-api/api</module>
+                <module>search/search-model</module>
+                <module>edu-services/sections-service/sections-api</module>
+                <module>edu-services/sections-service/sections-impl/sakai/model</module>
+                <module>shortenedurl/api</module>
+                <module>signup/api</module>
+                <module>sitestats/sitestats-api</module>
+                <module>sitestats/sitestats-impl-hib</module>
+                <module>tags/tags-api/api</module>
+                <module>user/user-util</module>
+                <module>userauditservice/api</module>
+                <module>vuecomponents/bundle</module>
+                <module>webcomponents/bundle</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
+

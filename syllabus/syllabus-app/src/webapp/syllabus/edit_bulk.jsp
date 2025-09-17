@@ -17,20 +17,34 @@
 
 	<script>
 		jQuery(document).ready(function() {
+			// Set default dates if fields are empty
+			function getDefaultStartDate() {
+				const date = new Date();
+				date.setHours(10, 0, 0, 0);
+				return date;
+			}
+
+			function getDefaultEndDate() {
+				const date = new Date();
+				date.setHours(10, 0, 0, 0);
+				date.setDate(date.getDate() + 98); // 14 weeks * 7 days
+				return date;
+			}
+
 			localDatePicker({
 				input: '#syllabusEdit\\:dataStartDate',
-				useTime: 0,
-				parseFormat: 'YYYY-MM-DD',
+				useTime: 1,
+				parseFormat: 'YYYY-MM-DD HH:mm:ss',
 				allowEmptyDate: true,
-				val: '<h:outputText value="#{SyllabusTool.bulkEntry.startDate}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
+				val: '<h:outputText value="#{SyllabusTool.bulkEntry.startDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>' || getDefaultStartDate(),
 				ashidden: {iso8601: 'dataStartDateISO8601'}
 			});
 			localDatePicker({
 				input: '#syllabusEdit\\:dataEndDate',
-				useTime: 0,
-				parseFormat: 'YYYY-MM-DD',
+				useTime: 1,
+				parseFormat: 'YYYY-MM-DD HH:mm:ss',
 				allowEmptyDate: true,
-				val: '<h:outputText value="#{SyllabusTool.bulkEntry.endDate}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
+				val: '<h:outputText value="#{SyllabusTool.bulkEntry.endDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>' || getDefaultEndDate(),
 				ashidden: {iso8601: 'dataEndDateISO8601'}
 			});
 
@@ -40,24 +54,6 @@
 
 		});
 		$(function() {
-			$('.timeInput').timepicker({
-		    	hour: 8,
-		    	defaultValue: "08:00 <h:outputText value="#{msgs.am}"/>",
-		    	timeOnlyTitle: "<h:outputText value="#{msgs.choose_time}"/>",
-				timeFormat: "hh:mm tt",
-				currentText: "<h:outputText value="#{msgs.now}"/>",
-				closeText: "<h:outputText value="#{msgs.done}"/>",
-				amNames: ['<h:outputText value="#{msgs.am}"/>', '<h:outputText value="#{msgs.am2}"/>'],
-				pmNames: ['<h:outputText value="#{msgs.pm}"/>', '<h:outputText value="#{msgs.pm2}"/>'],
-				timeText: "<h:outputText value="#{msgs.time}"/>",
-				hourText: "<h:outputText value="#{msgs.hour}"/>",
-				minuteText: "<h:outputText value="#{msgs.minute}"/>",
-				beforeShow: function (textbox, instance) {
-					            instance.dpDiv.css({
-					                    marginLeft: textbox.offsetWidth + 'px'
-								});
-							}
-			});
 
 			$('input.active[type="submit"]').click(function(event) {
 					// Check if the input box is empty
@@ -77,8 +73,7 @@
 			function validateDateElements() {
 				const elementIds = [
 					'syllabusEdit\\:dataStartDate',
-					'syllabusEdit\\:dataEndDate',
-					'syllabusEdit\\:dataStartTime'
+					'syllabusEdit\\:dataEndDate'
 				];
 
 				for (let i = 0; i < elementIds.length; i++) {
@@ -283,24 +278,6 @@
 							<h:panelGroup layout="block" id="dataEndDate-feedback" styleClass="invalid-feedback">
 								<h:outputText value="#{msgs.end_date_required}" escape="false" />
 							</h:panelGroup>
-						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel for="dataStartTime">
-								<h:outputText value="*" styleClass="reqStar"/>
-								<h:outputText value="#{msgs.starttimetitle}"/>
-							</h:outputLabel>
-							<h:inputText styleClass="timeInput timeInputStart" value="#{SyllabusTool.bulkEntry.startTimeString}" id="dataStartTime"/>
-							<f:verbatim><span class="fa fa-calendar-times-o" onclick="$('.timeInputStart').focus();"></span></f:verbatim>
-							<h:panelGroup layout="block" id="dataStartTime-feedback" styleClass="invalid-feedback">
-								<h:outputText value="#{msgs.start_time_required}" escape="false" />
-							</h:panelGroup>
-						</h:panelGroup>
-						<h:panelGroup styleClass="shorttext">
-							<h:outputLabel for="dataEndTime">
-								<h:outputText value="#{msgs.endtimetitle}"/>
-							</h:outputLabel>
-							<h:inputText styleClass="timeInput timeInputEnd" value="#{SyllabusTool.bulkEntry.endTimeString}" id="dataEndTime"/>
-							<f:verbatim><span class="fa fa-calendar-times-o" onclick="$('.timeInputEnd').focus();"></span></f:verbatim>
 						</h:panelGroup>
 						<h:panelGroup styleClass="shorttext" rendered="#{SyllabusTool.calendarExistsForSite}">
 							<h:selectBooleanCheckbox id="linkCalendar" value="#{SyllabusTool.bulkEntry.linkCalendar}" />

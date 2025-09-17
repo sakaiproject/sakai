@@ -313,6 +313,7 @@ simplePageBean.addForumSummary,
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
     <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
+    <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
@@ -335,6 +336,7 @@ simplePageBean.addForumSummary,
     <property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
     <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    <property name="conditionService" ref="org.sakaiproject.condition.api.ConditionService"/>
 
     <property name="messageLocator" ref="messageLocator"/>
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />

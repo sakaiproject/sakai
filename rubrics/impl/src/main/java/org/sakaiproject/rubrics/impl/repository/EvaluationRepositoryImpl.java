@@ -87,7 +87,9 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
         Root<Evaluation> eval = query.from(Evaluation.class);
         query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
-                            cb.equal(eval.get("evaluatedItemOwnerId"), userId)));
+                            cb.equal(eval.get("evaluatedItemOwnerId"), userId),
+                            cb.notEqual(eval.get("evaluatedItemId"), userId),// SAK-50923 this is to prevent a self graded rubric from appearing as a regular rubric evaluation
+                            cb.notEqual(eval.get("evaluatedItemId"), eval.get("creatorId"))));// SAK-50963 this is to prevent a peer graded rubric from appearing as a regular rubric evaluation
 
         return session.createQuery(query).uniqueResultOptional();
     }
@@ -117,6 +119,7 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         return session.createQuery(delete).executeUpdate();
     }
 
+
     @Override
     public int deleteByOwnerId(String ownerId) {
 
@@ -130,5 +133,16 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         List<Evaluation> evaluations = session.createQuery(query).list();
         evaluations.forEach(session::delete);
         return evaluations.size();
+    }
+
+    public List<Evaluation> findByOwnerId(String ownerId) {
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> root = query.from(Evaluation.class);
+        query.where(cb.equal(root.get("ownerId"), ownerId));
+
+        return session.createQuery(query).list();
     }
 }

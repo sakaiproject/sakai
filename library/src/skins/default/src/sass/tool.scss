@@ -110,8 +110,10 @@ $input-border: var(--sakai-border-color);
 $page-header-border-color: color.adjust(#000, $lightness: 46.7%) !default; // #eee
 $jumbotron-heading-font-size: $h4-font-size;
 
+@import "webcomponents/account/account";
 @import "webcomponents/course-card/course-card";
 @import "webcomponents/permissions/permissions";
+@import "webcomponents/sakai-notifications/sakai-notifications";
 @import "webcomponents/user-photo/user-photo";
 
 @import "modules/more-sites/more-sites";
@@ -238,13 +240,10 @@ label {
   color: var(--sakai-text-color-2);
 }
 
-.form-control-required {
-    .form-control-label, .form-label {
-        &::after {
-            content: ' *';
-            color: var(--sakai-highlight-color);
-        }
-    }
+.required:after {
+  content: ' *';
+  color: var(--sakai-highlight-color);
+  font-weight: bold;
 }
 
 .reqStar, .reqStarInline {

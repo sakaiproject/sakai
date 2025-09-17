@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.sakaiproject.sitestats</groupId>
         <artifactId>sitestats</artifactId>
-        <version>25-SNAPSHOT</version><!-- sitestats.version -->
+        <version>26-SNAPSHOT</version><!-- sitestats.version -->
     </parent>
 
     <profiles>
@@ -189,6 +189,10 @@
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>xmlgraphics-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>

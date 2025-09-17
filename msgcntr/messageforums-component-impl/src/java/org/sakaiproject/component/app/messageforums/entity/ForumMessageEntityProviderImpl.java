@@ -72,7 +72,7 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
   private SiteService siteService;
   private UserDirectoryService userDirectoryService;
 
-private RequestStorage requestStorage;
+  private RequestStorage requestStorage;
   public void setRequestStorage(RequestStorage requestStorage) {
       this.requestStorage = requestStorage;
   }
@@ -215,9 +215,9 @@ private RequestStorage requestStorage;
 		}
 		StringBuffer sb = new StringBuffer();
 		sb.append(serverConfigurationService.getServerUrl());
-		sb.append("/direct/profile/");
+		sb.append("/api/users/");
 		sb.append(authorId);
-		sb.append("/image/thumb");
+		sb.append("/profile/image/thumb");
 		return sb.toString();
 	}
 

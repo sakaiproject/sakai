@@ -11,14 +11,14 @@ export class SakaiComment extends SakaiElement {
     comment: { type: Object },
     topicId: { attribute: "topic-id", type: String },
     siteId: { attribute: "site-id", type: String },
-    _editing: { attribute: false, type: Boolean },
+    _editing: { state: true },
   };
 
   constructor() {
 
     super();
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   _deleteComment() {
@@ -68,7 +68,7 @@ export class SakaiComment extends SakaiElement {
 
     return html`
       <div class="dropdown">
-        <button class="btn btn-transparent"
+        <button class="btn btn-icon"
             id="comment-options-${this.comment.id}"
             type="button"
             title="${this._i18n.comment_options_menu_tooltip}"
@@ -89,7 +89,7 @@ export class SakaiComment extends SakaiElement {
               ${this._i18n.edit}
             </button>
           </li>
-          ` : ""}
+          ` : nothing}
           ${this.comment.canDelete ? html`
           <li>
             <button class="dropdown-item"
@@ -148,8 +148,8 @@ export class SakaiComment extends SakaiElement {
             <div class="post-message">${unsafeHTML(this.comment.message)}</div>
             <div class="post-reactions-block">
               ${!this.comment.locked && (this.comment.canEdit || this.comment.canDelete) ? html `
-              ${this._renderOptionsMenu()}
-              ` : ""}
+                ${this._renderOptionsMenu()}
+              ` : nothing}
             </div>
             `}
           </div>

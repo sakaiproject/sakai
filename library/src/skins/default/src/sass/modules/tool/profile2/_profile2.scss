@@ -110,7 +110,7 @@
   .infoIcon {
     @extend .fa, .fa-info-circle;
   }
-  
+
   /* mainSection styles */
   .mainSection {
     padding-bottom: 10px;
@@ -229,7 +229,6 @@
   .preferencesContent .toolTip {
     padding-left: 8px;
     vertical-align: top;
-    
   }
 
   .formInputField {
@@ -281,10 +280,10 @@
   }
 
   /* style the indicator for form submits that use an IndicatingAjaxButton as the button */
-  span.wicket-ajax-indicator img { 
-    padding-left: 2px; 
-    display: inline; 
-    white-space: nowrap; 
+  span.wicket-ajax-indicator img {
+    padding-left: 2px;
+    display: inline;
+    white-space: nowrap;
     vertical-align: middle;
   }
 
@@ -349,6 +348,9 @@
 
   .navIntraTool {
     margin: -2px -14px 0 0;
+    li span.current a {
+        background: unset;
+    }
     @media #{$phone}{
       margin-top: 10px;
     }

@@ -1,5 +1,5 @@
-import { html } from "lit";
-import { ifDefined } from "lit-html/directives/if-defined.js";
+import { html, nothing } from "lit";
+import { styleMap } from "lit/directives/style-map.js";
 import { SakaiElement } from "@sakai-ui/sakai-element";
 import { pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
 import { markNotificationsViewed } from "@sakai-ui/sakai-notifications";
@@ -15,7 +15,7 @@ export class SakaiCourseCard extends SakaiElement {
 
     super();
 
-    this.loadTranslations("coursecard").then(r => this._i18n = r);
+    this.loadTranslations("coursecard");
   }
 
   connectedCallback() {
@@ -57,8 +57,13 @@ export class SakaiCourseCard extends SakaiElement {
   render() {
 
     return html`
-      <div class="info-block fw-bold rounded-top rounded-top-2 p-4"
-          style="background: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url(${ifDefined(this.courseData.image)})">
+      <div
+          class="info-block"
+          style=${styleMap({
+      backgroundImage: this.courseData.image
+        ? `linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end)), url(${this.courseData.image})`
+        : "linear-gradient(var(--sakai-course-card-gradient-start), var(--sakai-course-card-gradient-end))"
+    })}>
         <div>
           <a class="${!this.courseData.image ? "no-background" : ""}"
               href="${this.courseData.url}"
@@ -66,17 +71,24 @@ export class SakaiCourseCard extends SakaiElement {
             <div class="ms-2">${this.courseData.title}</div>
           </a>
         </div>
-        <a href="${this.courseData.url}" title="${this._i18n.visit} ${this.courseData.title}">
-          <div class="code-block">${this.courseData.code}</div>
-        </a>
+        ${this.courseData.shortDescription && this.courseData.shortDescription.trim() ? html`
+          <a href="${this.courseData.url}" title="${this._i18n.visit} ${this.courseData.title}">
+            <div
+              class="code-block description-block"
+              title="${this.courseData.shortDescription.trim()}"
+              style="display: -webkit-box; -webkit-line-clamp: var(--sakai-course-card-description-lines, 2); -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+              ${this.courseData.shortDescription.trim()}
+            </div>
+          </a>
+        ` : nothing}
       </div>
 
-      <div class="tool-alerts-block d-flex align-items-center rounded-bottom rounded-bottom-1 p-2">
+      <div class="tool-alerts-block">
         ${this.courseData.tools.filter(tool => tool.hasAlerts).map(tool => html`
           <div class="mx-2">
             <a href="${tool.url}" @click=${this._toolClicked} data-tool-id="${tool.id}" title="${tool.title}" style="position: relative;">
               <i class="si ${tool.iconClass}"></i>
-              <span class="portal-notifications-indicator p-1 rounded-circle"><span class="visually-hidden">sdfs</span></span>
+              <span class="portal-notifications-indicator"><span class="visually-hidden">${tool.title}</span></span>
             </a>
           </div>
         `)}

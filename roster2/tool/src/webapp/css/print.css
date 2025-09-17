@@ -1,6 +1,6 @@
 #skipNav, .Mrphs-mainHeader,.portal-header, .offcanvas, .offcanvas-body, #toolMenuWrap, #profile-image-upload, .sakai-pageNav, .portal-nav-sidebar, .portal-mobilebar, #footer, #selectSiteModal, .Mrphs-siteHierarchy,
 #roster_navbar, .sakai-table-toolBar, .roster-filter-totals, #roster-loading-image,
-#profileImageUpload, .Mrphs-container--toolTitleNav, .portal-footer {
+#profileImageUpload, .Mrphs-container--toolTitleNav, .portal-footer, #roleSwitch, .portal-header-breadcrumb, .current-role {
     display: none !important;
 }
 

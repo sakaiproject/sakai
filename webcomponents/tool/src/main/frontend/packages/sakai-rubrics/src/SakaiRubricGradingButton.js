@@ -14,13 +14,6 @@ export class SakaiRubricGradingButton extends RubricsElement {
     _hasEvaluation: { state: true },
   };
 
-  constructor() {
-
-    super();
-
-    this._hasEvaluation = false;
-  }
-
   attributeChangedCallback(name, oldVal, newVal) {
 
     super.attributeChangedCallback(name, oldVal, newVal);
@@ -46,7 +39,6 @@ export class SakaiRubricGradingButton extends RubricsElement {
   setHasEvaluation() {
 
     const url = `/api/sites/${this.siteId}/rubric-evaluations/tools/${this.toolId}/items/${this.entityId}/evaluations/${this.evaluatedItemId}`;
-    fetch(url, { credentials: "include" })
-    .then(r => this._hasEvaluation = r.status === 200);
+    fetch(url).then(r => this._hasEvaluation = r.status === 200);
   }
 }

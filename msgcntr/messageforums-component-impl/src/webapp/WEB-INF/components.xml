@@ -74,6 +74,7 @@
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     </bean>
         
@@ -193,7 +194,6 @@
                 <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
                 <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
                 <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-                <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
                 <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
                </bean>
         </property>
@@ -459,6 +459,7 @@
          <property name="target">
              <bean class="org.sakaiproject.component.app.messageforums.SynopticMsgcntrManagerImpl" init-method="init">
                  <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                 <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
                  <property name="pvtMessageManager" ref="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
                  <property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
                  <property name="typeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>

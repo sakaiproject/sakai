@@ -148,6 +148,9 @@
                             <li><a href="javascript:void(0);" class="gb-quick-entry dropdown-item"><wicket:message key="link.quickentry" /></a></li>
                         {/if}
                         <li><a href="javascript:void(0);" class="gb-view-statistics dropdown-item"><wicket:message key="assignment.option.viewgradestatistics" /></a></li>
+                        {if hasAssociatedRubric && !externallyMaintained}
+                        <li><a href="javascript:void(0);" class="b-move-left gb-rubric-export dropdown-item"><wicket:message key="export.zip.template.button" /></a></li>
+                        {/if}
                         {if settings.isUserAbleToEditAssessments}
                             <li><a href="javascript:void(0);" class="gb-move-left dropdown-item"><wicket:message key="assignment.option.moveleft" /></a></li>
                             <li><a href="javascript:void(0);" class="gb-move-right dropdown-item"><wicket:message key="assignment.option.moveright" /></a></li>
@@ -165,7 +168,7 @@
                         {/if}
                     </ul>
                     <div id="gb-messager-for-${assignmentId}" style="display: none;" wicket:message="title:label.submission-messager.title">
-                      <sakai-submission-messager assignment-id="${assignmentId}" title="${abbrevTitle}"></sakai-submission-messager>
+                      <sakai-submission-messager assignment-id="${assignmentId}" gradebook-id="${settings.gUid}" title="${abbrevTitle}"></sakai-submission-messager>
                     </div>
                 </div>
             </div>
@@ -369,6 +372,7 @@
                             </div>
                             <div>
                                 <a href="javascript:void(0);" class="gb-view-grade-summary" tabindex="-1">
+                                    <input type="hidden" value="${userId}" class="userIds">
                                     {if settings.isStudentOrderedByLastName}
                                         <div>
                                             <span class="gb-last-name">${lastName}</span>,
@@ -556,23 +560,23 @@
                         <h4><wicket:message key="gradetable.caption.summaryheader"/></h4>
                         <p><wicket:message key="gradetable.caption.summary"/></p>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <h4><wicket:message key="gradetable.caption.keyboardnavigationheader"/></h4>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h4 class="mb-2"><wicket:message key="gradetable.caption.keyboardnavigationheader"/></h4>
                             <wicket:message key="gradetable.caption.keyboardnavigation"/>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <h4><wicket:message key="gradetable.caption.keyboardshortcutsheader"/></h4>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h4 class="mb-2"><wicket:message key="gradetable.caption.keyboardshortcutsheader"/></h4>
                             <wicket:message key="gradetable.caption.keyboardshortcuts"/>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-5">
+                        <div class="col-md-6">
                             <wicket:message key="gradetable.caption.keyboardtablemodeshortcuts"/>
                         </div>
-                        <div class="col-sm-5">
+                        <div class="col-md-6">
                             <wicket:message key="gradetable.caption.keyboardeditingshortcuts"/>
                         </div>
                     </div>

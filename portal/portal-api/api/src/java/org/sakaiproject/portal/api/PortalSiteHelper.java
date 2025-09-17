@@ -31,6 +31,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.SiteView.View;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 
@@ -77,6 +78,8 @@ public interface PortalSiteHelper
 	 * @return
 	 */
 	SitePage lookupSitePage(String pageId, Site site);
+
+	List<Map<String, String>> getParentSites(Site s);
 
 	/**
 	 * Produce a page and/or a tool list by iterating through the pages in a site.
@@ -184,4 +187,6 @@ public interface PortalSiteHelper
 	 * @throws IdUnusedException If the siteId doesn't exist and there isn't an alias for this.
 	 */
 	Site getSite(String siteId) throws IdUnusedException;
+
+	boolean checkGradebookVisibility(ToolConfiguration tc, Site site);
 }

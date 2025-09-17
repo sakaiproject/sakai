@@ -62,7 +62,6 @@ public class ActivityWidget extends Panel {
 		super(id);
 		this.siteId = siteId;
 		setRenderBodyOnly(true);
-		setOutputMarkupId(true);
 
 		StatsAuthz statsAuthz = Locator.getFacade().getStatsAuthz();
 		boolean siteStatsAll = statsAuthz.isUserAbleToViewSiteStatsAll(siteId);
@@ -101,9 +100,8 @@ public class ActivityWidget extends Panel {
 		});
 
 		// Final Widget object		
-		String icon = StatsManager.SILK_ICONS_DIR + "chart_pie.png";
 		String title = (String) new ResourceModel("overview_title_activity").getObject();
-		Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs, siteId);
+		Widget widget = new Widget("widget", "sakai-poll", title, widgetMiniStats, tabs, siteId);
 		add(widget);
 	}
 

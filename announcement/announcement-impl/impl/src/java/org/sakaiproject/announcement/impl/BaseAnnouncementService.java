@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
@@ -66,8 +67,8 @@ import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.ContextObserver;
@@ -114,6 +115,7 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * <p>
@@ -132,7 +134,6 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	private DocumentBuilder docBuilder = null;
 	private Transformer docTransformer = null;
 	
-	@Setter private ContentHostingService contentHostingService;
 	@Setter private SiteEmailNotificationAnnc siteEmailNotificationAnnc;
 	@Setter private FunctionManager functionManager;
 	@Setter private AliasService aliasService;
@@ -148,18 +149,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 
 	/** Dependency: NotificationService. */
-	protected NotificationService m_notificationService = null;
-
-	/**
-	 * Dependency: NotificationService.
-	 * 
-	 * @param service
-	 *        The NotificationService.
-	 */
-	public void setNotificationService(NotificationService service)
-	{
-		m_notificationService = service;
-	}
+	@Setter protected NotificationService notificationService = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -175,7 +165,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			super.init();
 
 			// register a transient notification for announcements
-			NotificationEdit edit = m_notificationService.addTransientNotification();
+			NotificationEdit edit = notificationService.addTransientNotification();
 
 			// set functions
 			edit.setFunction(eventId(SECURE_ADD));
@@ -202,7 +192,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			functionManager.registerFunction(eventId(SECURE_READ_DRAFT), true);
 
 			// entity producer registration
-			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+			entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
 			// create DocumentBuilder for RSS Feed
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -213,7 +203,9 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			
 			TransformerFactory tFactory = TransformerFactory.newInstance();
 			docTransformer = tFactory.newTransformer();
-			
+
+			siteService.addSiteRemovalAdvisor(this);
+
 			log.info("init()");
 		}
 		catch (Throwable t)
@@ -222,6 +214,16 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		}
 
 	} // init
+
+	/**
+	 * Destroy
+	 */
+	public void destroy()
+	{
+		siteService.removeSiteRemovalAdvisor(this);
+		super.destroy();
+		log.info("destroy()");
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * StorageUser implementation
@@ -605,7 +607,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			// Translate context alias into site id (only for rss) if necessary
 			if (REF_TYPE_ANNOUNCEMENT_RSS.equals(subType) &&(context != null) && (context.length() > 0))
 			{
-				if (!m_siteService.siteExists(context))
+				if (!siteService.siteExists(context))
 				{
 					try
 					{
@@ -625,7 +627,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				}
 
 				// if context still isn't valid, then no valid alias or site was specified
-				if (!m_siteService.siteExists(context))
+				if (!siteService.siteExists(context))
 				{
 					log.warn(this+".parseEntityReference() no valid site or alias: {}", context);
 					return false;
@@ -652,7 +654,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		refString.append(Entity.SEPARATOR);
 		refString.append(context);
 		
-		return  m_entityManager.newReference( refString.toString() );
+		return  entityManager.newReference( refString.toString() );
 	}
 
 	/**
@@ -666,7 +668,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	     */
 		String channelRef = null;
 		try {
-			ToolConfiguration tool = m_siteService.getSite(context).getToolForCommonId(SAKAI_ANNOUNCEMENT_TOOL_ID);
+			ToolConfiguration tool = siteService.getSite(context).getToolForCommonId(SAKAI_ANNOUNCEMENT_TOOL_ID);
 			if (tool != null) {
 				channelRef = tool.getConfig().getProperty(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
 			}
@@ -694,7 +696,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
          alias = ((Alias)aliasList.get(0)).getId();
          
       StringBuilder rssUrlString = new StringBuilder();
-		rssUrlString.append( m_serverConfigurationService.getAccessUrl() );
+		rssUrlString.append( serverConfigurationService.getAccessUrl() );
 		rssUrlString.append(getAccessPoint(true));
 		rssUrlString.append(Entity.SEPARATOR);
 		rssUrlString.append(REF_TYPE_ANNOUNCEMENT_RSS);
@@ -799,7 +801,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	{
 		try
 		{
-			Site site = m_siteService.getSite(rssRef.getContext());
+			Site site = siteService.getSite(rssRef.getContext());
 			Document doc = docBuilder.newDocument();
 			
 			Element root = doc.createElement("rss");
@@ -822,8 +824,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			
 			// add link
 			el = doc.createElement("link");
-			StringBuilder siteUrl = new StringBuilder( m_serverConfigurationService.getServerUrl() );
-			siteUrl.append( m_serverConfigurationService.getString("portalPath") );
+			StringBuilder siteUrl = new StringBuilder( serverConfigurationService.getServerUrl() );
+			siteUrl.append( serverConfigurationService.getString("portalPath") );
 			siteUrl.append( site.getReference() );
 			el.appendChild(doc.createTextNode(siteUrl.toString())); 
 			channel.appendChild(el);
@@ -853,7 +855,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				AnnouncementMessage msg = (AnnouncementMessage)it.next();
 				if ( isMessageViewable(msg) )
 				{
-					Reference msgRef = m_entityManager.newReference( msg.getReference() );
+					Reference msgRef = entityManager.newReference( msg.getReference() );
 					Element item = generateItemElement( doc, msg, msgRef );
 					channel.appendChild(item);
 				}
@@ -892,20 +894,20 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 							+ "<title>"
 							+ rb.getString("announcement")
 							+ ": "
-							+ m_formattedText.escapeHtml(hdr.getSubject())
+							+ formattedText.escapeHtml(hdr.getSubject())
 							+ "</title>" + "</head>\n<body>");
 
 			out.println("<h1>" + rb.getString("announcement") + "</h1>");
 
 			// header
 			out.println("<table><tr><td><b>" + rb.getString("from_colon") + "</b></td><td>"
-					+ m_formattedText.escapeHtml(hdr.getFrom().getDisplayName()) + "</td></tr>");
-			out.println("<tr><td><b>" + rb.getString("date_colon") + "</b></td><td>" + m_formattedText.escapeHtml(hdr.getDate().toStringLocalFull())
+					+ formattedText.escapeHtml(hdr.getFrom().getDisplayName()) + "</td></tr>");
+			out.println("<tr><td><b>" + rb.getString("date_colon") + "</b></td><td>" + formattedText.escapeHtml(hdr.getDate().toStringLocalFull())
 					+ "</td></tr>");
-			out.println("<tr><td><b>" + rb.getString("subject_colon") + "</b></td><td>" + m_formattedText.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
+			out.println("<tr><td><b>" + rb.getString("subject_colon") + "</b></td><td>" + formattedText.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
 
 			// body
-			out.println("<p>" + m_formattedText.escapeHtmlFormattedText(msg.getBody()) + "</p>");
+			out.println("<p>" + formattedText.escapeHtmlFormattedText(msg.getBody()) + "</p>");
 
 			// attachments
 			List attachments = hdr.getAttachments();
@@ -915,8 +917,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
 				{
 					Reference attachment = (Reference) iAttachments.next();
-					out.println("<a href=\"" + m_formattedText.escapeHtml(attachment.getUrl()) + "\">"
-							+ m_formattedText.escapeHtml(attachment.getUrl()) + "</a><br />");
+					out.println("<a href=\"" + formattedText.escapeHtml(attachment.getUrl()) + "\">"
+							+ formattedText.escapeHtml(attachment.getUrl()) + "</a><br />");
 				}
 				out.println("</p>");
 			}
@@ -1025,28 +1027,28 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 *            if the user does not have read permission to the channel.
 	 * @exception NullPointerException
 	 */
-	public List<AnnouncementMessage> getMessages(String channelReference,Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException {
+	public List<AnnouncementMessage> getMessages(String channelReference, Filter filter, boolean ascending, boolean merged) throws IdUnusedException, PermissionException, NullPointerException {
 
 		List<AnnouncementMessage> messageList = new ArrayList<>();
 
-		filter = new PrivacyFilter(filter);  		// filter out drafts this user cannot see
+		filter = new PrivacyFilter(filter); // filter out drafts this user cannot see
 		Site site = null;
 		String initMergeList = null;
-	
+
 		try {
-			site = m_siteService.getSite(getAnnouncementChannel(channelReference).getContext());
+			site = siteService.getSite(getAnnouncementChannel(channelReference).getContext());
 
 			ToolConfiguration tc=site.getToolForCommonId(SAKAI_ANNOUNCEMENT_TOOL_ID);
 			if (tc!=null){
-				initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);	
+				initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);
 			}
-			
+
 			MergedList mergedAnnouncementList = new MergedList();
-			String[] channelArrayFromConfigParameterValue = null;	
-			
+			String[] channelArrayFromConfigParameterValue = null;
+
 			//get array of associated channels: similar logic as found in AnnouncementAction.getMessages() for viewing
 			channelArrayFromConfigParameterValue = mergedAnnouncementList.getChannelReferenceArrayFromDelimitedString(channelReference, initMergeList);
-			
+
 			//get messages for each channel
 			for(int i=0; i<channelArrayFromConfigParameterValue.length;i++)
 			{
@@ -1062,19 +1064,23 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					}
 				}
 			}
-			
+
 			//sort messages
 			Collections.sort(messageList);
 			if (!ascending)
 			{
 				Collections.reverse(messageList);
-			}			
+			}
 		}
 		catch (NullPointerException e) {
 			log.warn(e.getMessage());
 		}
-		return messageList;
 
+		String currentUserId = sessionManager.getCurrentSessionUserId();
+		RoleAccessFilter roleFilter = new RoleAccessFilter(currentUserId);
+		return messageList.stream()
+			.filter(roleFilter::accept)
+			.collect(Collectors.toList());
 	} // getMessages
 
 	private class AnnouncementChannelReferenceMaker implements MergedList.ChannelReferenceMaker {
@@ -1094,7 +1100,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		{
 			SecurityAdvisor advisor = getChannelAdvisor(channelReference);
 			try {
-				m_securityService.pushAdvisor(advisor);
+				securityService.pushAdvisor(advisor);
 				return getAnnouncementChannel(channelReference);
 			}
 			catch (IdUnusedException e)
@@ -1103,10 +1109,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			}
 			catch (PermissionException e)
 			{
-				log.warn("Permission denied for '{}' on '{}'", m_sessionManager.getCurrentSessionUserId(), channelReference);
+				log.warn("Permission denied for '{}' on '{}'", sessionManager.getCurrentSessionUserId(), channelReference);
 				return null;
 			} finally {
-				m_securityService.popAdvisor(advisor);
+				securityService.popAdvisor(advisor);
 			}
 		}
 	}
@@ -1167,10 +1173,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 			SecurityAdvisor advisor = getChannelAdvisor(ref);
 			try {
-				m_securityService.pushAdvisor(advisor);
+				securityService.pushAdvisor(advisor);
 				return (!hiddenSites.contains(ref) && allowGetChannel(ref));
 			} finally {
-				m_securityService.popAdvisor(advisor);
+				securityService.popAdvisor(advisor);
 			}
 
 		}
@@ -1226,7 +1232,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 */
 	private List<String> getExcludedSitesFromTabs() {
 
-	    Preferences prefs = preferencesService.getPreferences(m_sessionManager.getCurrentSessionUserId());
+	    Preferences prefs = preferencesService.getPreferences(sessionManager.getCurrentSessionUserId());
 	    ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 	    List<String> l = props.getPropertyList("exclude");
 	    return l;
@@ -1241,7 +1247,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 		ViewableFilter viewableFilter = new ViewableFilter(null, null, amount, this);
 		long now = Instant.now().toEpochMilli();
-		Time afterDate = m_timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
+		Time afterDate = timeService.newTime(now - (maxAgeInDays * 24 * 60 * 60 * 1000));
 		viewableFilter.setFilter(new MessageSelectionFilter(afterDate, null, false));
 		return viewableFilter;
 	}
@@ -1260,7 +1266,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		// TODO - MERGE FIX
 		String[] channelArrayFromConfigParameterValue = new String[0];
 
-		String currentUserId = m_sessionManager.getCurrentSessionUserId();
+		String currentUserId = sessionManager.getCurrentSessionUserId();
 
 		// Figure out the list of channel references that we'll be using.
 		// If we're on the workspace tab, we get everything.
@@ -1272,20 +1278,20 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 			// If siteId is null, we assume that this call is for the user's home site
 			if (siteId == null) {
-				siteId = m_siteService.getUserSiteId(currentUserId);
+				siteId = siteService.getUserSiteId(currentUserId);
 				channelReference = siteId;
 			}
 
 			Site site = null;
 			String initMergeList = null;
 			try {
-				site = m_siteService.getSite(siteId);
+				site = siteService.getSite(siteId);
 				ToolConfiguration tc = site.getToolForCommonId(SAKAI_ANNOUNCEMENT_TOOL_ID);
 				if (tc != null){
 					initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);
 				}
 
-				if (allUsersSites && !m_securityService.isSuperUser()) {
+				if (allUsersSites && !securityService.isSuperUser()) {
 					String[] channelArrayFromConfigParameterValueBefore = null;
 
 					channelArrayFromConfigParameterValueBefore
@@ -1304,7 +1310,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 									contextt = annChannell.getContext();
 								}
 								if (contextt != null) {
-									siteDD = m_siteService.getSite(contextt);
+									siteDD = siteService.getSite(contextt);
 								}
 								if ( siteDD != null && siteDD.isPublished()) {
 									channelIdStrArray.add(channeIDD);
@@ -1325,7 +1331,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 							new MergedListEntryProviderFixedListWrapper(new EntryProvider(false), channelReference, channelArrayFromConfigParameterValue, new AnnouncementReferenceToChannelConverter()),
 							StringUtil.trimToZero(currentUserId),
 							channelArrayFromConfigParameterValue,
-							m_securityService.isSuperUser(),
+							securityService.isSuperUser(),
 							siteId);
 				}
 				else
@@ -1338,7 +1344,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 							new MergedListEntryProviderFixedListWrapper(
 								new EntryProvider(), channelReference, channelArrayFromConfigParameterValue,
 								new AnnouncementReferenceToChannelConverter()),
-							StringUtil.trimToZero(currentUserId), channelArrayFromConfigParameterValue, m_securityService.isSuperUser(),
+							StringUtil.trimToZero(currentUserId), channelArrayFromConfigParameterValue, securityService.isSuperUser(),
 							siteId);
 				}
 
@@ -1346,7 +1352,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				// TODO Auto-generated catch block
 			}
 		} else {
-			if (allUsersSites && !m_securityService.isSuperUser()) {
+			if (allUsersSites && !securityService.isSuperUser()) {
 				channelArrayFromConfigParameterValue = mergedAnnouncementList
 						.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
 			} else {
@@ -1362,9 +1368,9 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					channelReference,
 					channelArrayFromConfigParameterValue,
 					new AnnouncementReferenceToChannelConverter() ),
-				StringUtils.trimToEmpty(m_sessionManager.getCurrentSessionUserId()),
+				StringUtils.trimToEmpty(sessionManager.getCurrentSessionUserId()),
 				channelArrayFromConfigParameterValue,
-				m_securityService.isSuperUser(),
+				securityService.isSuperUser(),
 				siteId);
 
 		Iterator channelsIt = mergedAnnouncementList.iterator();
@@ -1380,7 +1386,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 			SecurityAdvisor advisor = getChannelAdvisor(curEntry.getReference());
 			try {
-				m_securityService.pushAdvisor(advisor);
+				securityService.pushAdvisor(advisor);
 				AnnouncementChannel curChannel = (AnnouncementChannel) getChannel(curEntry.getReference());
 				if (curChannel != null) {
 					if (allowGetChannel(curChannel.getReference())) {
@@ -1397,27 +1403,14 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			} catch (PermissionException e) {
 				log.debug("{}.getMessages()", this, e);
 			} finally {
-				m_securityService.popAdvisor(advisor);
+				securityService.popAdvisor(advisor);
 			}
 		}
 
-		return messageList.stream().filter(message -> {
-
-			List<String> selectedRoles = message.getProperties().getPropertyList("selectedRoles");
-			boolean isOwner = currentUserId.equals(message.getAnnouncementHeader().getFrom().getId());
-			if (selectedRoles == null || isOwner || m_securityService.isSuperUser()) {
-				return true;
-			} else {
-				String messageSiteId = m_entityManager.newReference(message.getReference()).getContext();
-				try {
-					Site site = m_siteService.getSite(messageSiteId);
-					return selectedRoles.contains(site.getMember(currentUserId).getRole().getId());
-				} catch (IdUnusedException idue) {
-					log.error("No site for id {}", messageSiteId);
-					return false;
-				}
-			}
-		}).collect(Collectors.toList());
+		RoleAccessFilter roleFilter = new RoleAccessFilter(currentUserId);
+		return messageList.stream()
+			.filter(roleFilter::accept)
+			.collect(Collectors.toList());
 	}
 
 	/**
@@ -1431,11 +1424,11 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 */
 	public SecurityAdvisor getChannelAdvisor(String channelReference) {
 
-		if (m_serverConfigurationService.getBoolean("announcement.merge.visibility.strict", false)) {
+		if (serverConfigurationService.getBoolean("announcement.merge.visibility.strict", false)) {
 			return (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.PASS;
 		} else {
 			return (userId, function, reference) -> {
-				if (userId.equals(m_userDirectoryService.getCurrentUser().getId()) &&
+				if (userId.equals(userDirectoryService.getCurrentUser().getId()) &&
 						AnnouncementService.SECURE_ANNC_READ.equals(function) &&
 						channelReference.equals(reference)) {
 					return SecurityAdvisor.SecurityAdvice.ALLOWED;
@@ -1477,6 +1470,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 * {@inheritDoc}
 	 */
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> resourceIds, List<String> options) {
+
+		Map<String, String> transversalMap = new HashMap<>();
 
 		// get the channel associated with this site
 		String oChannelRef = channelReference(fromContext, SiteService.MAIN_CONTAINER);
@@ -1552,13 +1547,16 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 						// the "to" message
 						nMessage = (AnnouncementMessageEdit) nChannel.addMessage();
-						nMessage.setBody(oMessage.getBody());
+						String newBody = oMessage.getBody();
+						newBody = ltiService.fixLtiLaunchUrls(newBody, fromContext, toContext, transversalMap);
+						newBody = linkMigrationHelper.migrateOneLink(fromContext, toContext, newBody);
+						nMessage.setBody(newBody);
 						// message header
 						AnnouncementMessageHeaderEdit nMessageHeader = (AnnouncementMessageHeaderEdit) nMessage.getHeaderEdit();
 						nMessageHeader.setDate(oMessageHeader.getDate());
 						nMessageHeader.setMessage_order(oMessageHeader.getMessage_order());
 						// when importing, refer to property to determine draft status
-						if (!m_serverConfigurationService.getBoolean("import.importAsDraft", true))
+						if (!serverConfigurationService.getBoolean("import.importAsDraft", true))
 						{
 							nMessageHeader.setDraft(oMessageHeader.getDraft());
 						}
@@ -1571,7 +1569,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						nMessageHeader.setSubject(oMessageHeader.getSubject());
 						// attachment
 						List oAttachments = oMessageHeader.getAttachments();
-						List nAttachments = m_entityManager.newReferenceList();
+						List nAttachments = entityManager.newReferenceList();
 						for (int n = 0; n < oAttachments.size(); n++)
 						{
 							Reference oAttachmentRef = (Reference) oAttachments.get(n);
@@ -1583,7 +1581,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 								try
 								{
 									ContentResource attachment = contentHostingService.getResource(nAttachmentId);
-									nAttachments.add(m_entityManager.newReference(attachment.getReference()));
+									nAttachments.add(entityManager.newReference(attachment.getReference()));
 								}
 								catch (IdUnusedException e)
 								{
@@ -1599,12 +1597,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 														Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
 														//toolManager.getCurrentPlacement().getContext(), 
 														toContext,    //don't use toolManager.getCurrentPlacement()!
-														toolManager.getTool("sakai.announcements").getTitle(),
+														getToolTitle(),
 														oAttachment.getContentType(),
 														oAttachment.getContent(),
 														oAttachment.getProperties());
 												// add to attachment list
-												nAttachments.add(m_entityManager.newReference(attachment.getReference()));
+												nAttachments.add(entityManager.newReference(attachment.getReference()));
 											}
 											else
 											{
@@ -1619,7 +1617,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 														oAttachment.getProperties(), 
 														NotificationService.NOTI_NONE);
 												// add to attachment list
-												nAttachments.add(m_entityManager.newReference(attachment.getReference()));
+												nAttachments.add(entityManager.newReference(attachment.getReference()));
 											}
 										}
 										catch (Exception eeAny)
@@ -1669,8 +1667,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		{
 			log.warn(".importResources(): exception in handling {} : {}", serviceName(), any);
 		}
-		
-		return null;
+
+		return transversalMap;
 	}
 
 	@Override
@@ -1712,7 +1710,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			{
 				Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
 				
-				String channelId = m_serverConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
+				String channelId = serverConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
 
 				String toSiteId = toContext;
 
@@ -1723,7 +1721,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					{
 						AnnouncementChannel aChannel = getAnnouncementChannel(channelId);
 						//need to clear the cache to grab the newly saved messages
-						m_threadLocalManager.set(aChannel.getReference() + ".msgs", null);
+						threadLocalManager.set(aChannel.getReference() + ".msgs", null);
 						List mList = aChannel.getMessages(null, true);
 
 						for(Iterator iter = mList.iterator(); iter.hasNext();)
@@ -1760,6 +1758,53 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				log.debug("transferCopyEntities: End removing Announcement data");
 			}
 		}
+	}
+
+	/* We use the archive() and merge() methods from the BaseMessage class and override these methods to achieve the behavior we need. */
+
+	@Override
+	public boolean importAsDraft() {
+		return true; // Always import as a draft
+	}
+
+	@Override
+	public boolean approveMessageSender(String userId) {
+		return true; // Always approve the sender
+	}
+
+	/**
+	 * This method is used to check if a message can be merged - it is called with an element from the XML that represents the message
+	 *
+	 * 	<message body="T3BljAwIEFNIEVTVC4=" body-html="PHA+T3BjAwIEFNIEVTVC48L3A+">
+	 *		<header access="channel" date="20250217200655521" draft="true" from="" id="ad7bcb9a-f335-46a7-ad01-907778fb9df5" message_order="2"
+	 *		 subject="Assignment: Open Date for ''HW2''"/>
+	 *		<properties>
+	 *			<property enc="BASE64" list="list" name="noti_history" value="MjAyNSaXzA=" B64Decoded="2025-02-17T20:06:55.538289588Z_0"/>
+	 *			<property enc="BASE64" name="assignmentReference" value="L2Fzc2e8/5fab8f09-e029-4672-b478-43cfa3e17d64"/>
+	 *		</properties>
+	 *	</message>
+	 */
+	@Override
+	public boolean checkAllowMergeElement(Element element) {
+		NodeList propertyList = element.getElementsByTagName("property");
+		for (int i = 0; i < propertyList.getLength(); i++) {
+			Element propertyElement = (Element) propertyList.item(i);
+			String name = propertyElement.getAttribute("name");
+			if (name.equals("assignmentReference")) {
+				log.debug("Assignment announcement found, not merging");
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public String getToolTitle(String url) {
+		return getToolTitle();
+	}
+
+	public String getToolTitle() {
+		return toolManager.getTool(AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID).getTitle();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -1815,20 +1860,29 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 * @exception PermissionException
 		 *            If the user does not have any permissions to read the message.
 		 */
+		@Override
 		public AnnouncementMessage getAnnouncementMessage(String messageId) throws IdUnusedException, PermissionException
 		{
 			AnnouncementMessage msg = (AnnouncementMessage) getMessage(messageId);
 
-			// filter out drafts not by this user (unless this user is a super user or has access_draft ability)
-			if ((msg.getAnnouncementHeader()).getDraft() && (!m_securityService.isSuperUser())
-					&& (!msg.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
-					&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
-			{
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
+			// Apply the privacy filter to check draft permissions
+			PrivacyFilter filter = new PrivacyFilter(null);
+			if (!filter.accept(msg)) {
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
+			}
+
+			// Check group access permissions: empty list returned means no permission to view
+			if (filterGroupAccess(List.of(msg)).isEmpty()) {
+				throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_READ, msg.getReference());
+			}
+
+			String currentUserId = sessionManager.getCurrentSessionUserId();
+			RoleAccessFilter roleFilter = new RoleAccessFilter(currentUserId);
+			if (!roleFilter.accept(msg)) {
+				throw new PermissionException(currentUserId, SECURE_READ, msg.getReference());
 			}
 
 			return msg;
-
 		} // getAnnouncementMessage
 
 		/**
@@ -1948,7 +2002,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 *        The value of the current max
 		 */
 		private void setMessageUnreleasedMax(int currentMax) {
-			boolean releaseDateFirst = m_serverConfigurationService.getBoolean("sakai.announcement.release_date_first", true);
+			boolean releaseDateFirst = serverConfigurationService.getBoolean("sakai.announcement.release_date_first", true);
 			//Don't run this if the property is not set
 			if (releaseDateFirst == false) {
 				return;
@@ -2176,6 +2230,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 * 
 		 * @return The subject of the announcement.
 		 */
+		@Override
 		public String getSubject()
 		{
 			return ((m_subject == null) ? "" : m_subject);
@@ -2247,16 +2302,47 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 * 
 		 * @return true if the object is accepted by the filter, false if not.
 		 */
+		@Override
 		public boolean accept(Object o)
 		{
 			// first if o is a announcement message that's a draft from another user, reject it
 			if (o instanceof AnnouncementMessage)
 			{
 				AnnouncementMessage msg = (AnnouncementMessage) o;
+				String currentUserId = sessionManager.getCurrentSessionUserId();
 
-				if ((msg.getAnnouncementHeader()).getDraft() && (!m_securityService.isSuperUser())
-						&& (!msg.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
-						&& (!unlockCheck(SECURE_READ_DRAFT, msg.getReference())))
+				// Check draft visibility
+				if ((msg.getAnnouncementHeader()).getDraft())
+				{
+					// Allow if user is the creator of the message
+					if (msg.getHeader().getFrom().getId().equals(currentUserId)) {
+						return true;
+					}
+					
+					// Allow if user has READ_DRAFT permission (this also covers superusers)
+					if (unlockCheck(SECURE_READ_DRAFT, msg.getReference())) {
+						return true;
+					}
+					
+					// Allow if user has site.upd permission (instructor)
+					String siteId = entityManager.newReference(msg.getReference()).getContext();
+					String siteRef = siteService.siteReference(siteId);
+					if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef)) {
+						log.debug("PrivacyFilter: Allowing draft message {} to be viewed by instructor with site.upd in site {}", 
+							msg.getId(), siteId);
+						return true;
+					}
+					
+					log.debug("PrivacyFilter: Rejecting draft message {} for user {} in site {}", 
+						msg.getId(), currentUserId, siteId);
+					return false;
+				}
+
+				// Check release/retract date visibility
+				// If not super-user and not the message creator, check if viewable by dates
+				if (!securityService.isSuperUser()
+						&& !msg.getHeader().getFrom().getId().equals(currentUserId)
+						&& !isMessageViewable(msg))
 				{
 					return false;
 				}
@@ -2270,6 +2356,59 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		} // accept
 
 	} // PrivacyFilter
+
+	/**
+	 * Filter to control access to messages based on custom roles.
+	 * Only users whose role is included in the message's "selectedRoles" property,
+	 * the message owner, or superusers will be able to access the message.
+	 */
+	protected class RoleAccessFilter implements Filter {
+
+		private final String currentUserId;
+
+		/**
+		 * Constructs a RoleAccessFilter for the specified user.
+		 *
+		 * @param currentUserId the ID of the user whose access is being checked
+		 */
+		public RoleAccessFilter(String currentUserId) {
+			this.currentUserId = currentUserId;
+		}
+
+		/**
+		 * Determines if the given object (announcement message) is accessible to the current user.
+		 *
+		 * @param o the object to check (should be an AnnouncementMessage)
+		 * @return true if the user can access the message, false otherwise
+		 */
+		@Override
+		public boolean accept(Object o) {
+			if (o instanceof AnnouncementMessage) {
+				AnnouncementMessage msg = (AnnouncementMessage) o;
+				List<String> selectedRoles = msg.getProperties().getPropertyList("selectedRoles");
+				boolean isOwner = currentUserId.equals(msg.getAnnouncementHeader().getFrom().getId());
+				if (selectedRoles == null || isOwner || securityService.isSuperUser()) {
+					return true;
+				} else {
+					String messageSiteId = entityManager.newReference(msg.getReference()).getContext();
+					try {
+						Site msgSite = siteService.getSite(messageSiteId);
+						Member member = msgSite.getMember(currentUserId);
+						if (member == null) {
+							log.warn("User {} is not a member of site {}", currentUserId, messageSiteId);
+							return false;
+						}
+						String userRole = member.getRole().getId();
+						return selectedRoles.contains(userRole);
+					} catch (IdUnusedException idue) {
+						log.warn("No site found with id {}", messageSiteId);
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.entity.api.EntitySummary#summarizableToolIds()
@@ -2296,7 +2435,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		{
 			if(cleanup == true)
 			{
-				String channelId = m_serverConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
+				String channelId = serverConfigurationService.getString(ANNOUNCEMENT_CHANNEL_PROPERTY, null);
 				
 				String toSiteId = toContext;
 				
@@ -2332,7 +2471,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	} 
 
 	public void clearMessagesCache(String channelRef){
-		m_threadLocalManager.set(channelRef + ".msgs", null);
+		threadLocalManager.set(channelRef + ".msgs", null);
 	}
 
 	public Optional<String> getEntityUrl(Reference r, Entity.UrlType urlType) {
@@ -2343,10 +2482,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				String siteId = r.getContext();
 				Site site;
 				try {
-					site = m_siteService.getSite(siteId);
+					site = siteService.getSite(siteId);
 					ToolConfiguration tc = site.getToolForCommonId("sakai.announcements");
 					if (tc != null) {
-						return Optional.of(m_serverConfigurationService.getPortalUrl() + "/directtool/" + tc.getId()
+						return Optional.of(serverConfigurationService.getPortalUrl() + "/directtool/" + tc.getId()
 							+ "?itemReference=" + r.getReference() + "&sakai_action=doShowmetadata");
 					} else {
 						log.error("No announcements tool in site {}", siteId);

@@ -77,7 +77,6 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
-import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.user.api.User;
@@ -124,7 +123,6 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
     QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     HistogramScoresBean histobean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
     SubmissionStatusBean submissionbean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
-    EmailBean emailBean = (EmailBean) ContextUtil.lookupBean("email");
     
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
@@ -166,12 +164,8 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
 	sb.append(" ");
 	sb.append(agent.getLastName());
 	bean.setGraderName(sb.toString());
-	emailBean.setFromName(agent.getEmail());
-    // Set from email here. We need it to decide if the Email link should be displayed or not.
-    // (if from email is null, we don't display the Email link)
-    // as well.
+    // Set grader email info to be used to determine if mailto links should be shown
     bean.setGraderEmailInfo(agent.getEmail());
-    emailBean.setFromEmailAddress(agent.getEmail());
    
     // checking for permission first
     FacesContext context = FacesContext.getCurrentInstance();

@@ -1,6 +1,6 @@
 ## TODO: This file contains some placeholder text and content that needs to be revisited later
 ## to populate the contents and to internationalize. Work-in-progress.
-<ul id="sakai-system-indicators" class="nav flex-nowrap align-items-center">
+<ul id="sakai-system-indicators" class="nav flex-nowrap align-items-center me-3">
 #*
 For opening help sidebar
   <li class="d-none d-md-inline">
@@ -12,15 +12,6 @@ For opening help sidebar
     </a>
   </li>
 *#
-  #if (${currentRole} && $roleSwitchState == false)
-    <li class="d-none d-md-inline">
-      <div class="current-role">
-        <i class="fa fa-user" aria-hidden="true"></i>
-        <span class="portal-user-role">${rloader.sit_role} ${currentRole}</span>
-      </div>
-    </li>
-  #end
-
   #if ($pageColumn0Tools && !$pageColumn0Tools.isEmpty())
       #set ($helpLink = $pageColumn0Tools.get(0).toolHelpActionUrl)
   #elseif ($pageColumn1Tools && !$pageColumn1Tools.isEmpty())
@@ -34,7 +25,7 @@ For opening help sidebar
           target="_blank">
         <button class="btn icon-button" type="button"
 	    aria-label="${rloader.mainnav_help_tooltip}">
-          <i class="bi bi-question-circle"></i>
+          <span class="bi bi-question-circle" aria-hidden="true"></span>
         </button>
       </a>
     </li>
@@ -46,7 +37,7 @@ For opening help sidebar
         aria-label="$rloader.sit_allsites"
         aria-controls="select-site-sidebar"
         title="$rloader.sit_allsites">
-      <i class="si si-all-sites"></i>
+      <span class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></span>
     </button>
   </li>
 
@@ -58,7 +49,7 @@ For opening help sidebar
           aria-controls="sakai-search-panel"
           aria-label="$rloader.sit_search_for_content"
           title="$rloader.sit_search_for_content">
-        <i class="bi-search"></i>
+        <span class="bi bi-search" aria-hidden="true"></span>
       </button>
     </li>
   #end
@@ -72,10 +63,21 @@ For opening help sidebar
           aria-label="$rloader.sit_quick_links"
           aria-expanded="false"
           title="$rloader.sit_quick_links">
-        <i class="si si-link"></i>
+        <span class="bi bi-link-45deg" aria-hidden="true"></span>
       </button>
     </li>
   #end
+
+  <li class="d-none d-md-inline">
+    <button class="btn icon-button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#sakai-calendar-panel"
+        aria-controls="sakai-calendar-panel"
+        aria-label="$rloader.sit_calendar"
+        title="$rloader.sit_calendar">
+      <span class="si si-calendar" aria-hidden="true"></span>
+    </button>
+  </li>
 
   #if (${useBullhornAlerts})
     <li class="d-none d-md-inline">
@@ -85,7 +87,7 @@ For opening help sidebar
           aria-controls="sakai-notifications-panel"
           aria-label="$rloader.sit_notifications"
           title="$rloader.sit_notifications">
-        <i class="portal-notifications-icon bi-bell"></i>
+        <span class="portal-notifications-icon bi bi-bell" aria-hidden="true"></span>
         <span class="portal-notifications-indicator p-1 rounded-circle d-none">
           <span class="visually-hidden">$rloader.sit_new_notifications_label</span>
         </span>
@@ -93,13 +95,13 @@ For opening help sidebar
     </li>
   #end
     <li>
-      <button class="btn icon-button sak-sysInd-account"
+      <button class="btn icon-button sak-sysInd-account p-0 me-3 me-md-4 ms-3"
           type="button"
           data-bs-toggle="offcanvas"
           data-bs-target="#sakai-account-panel"
           aria-controls="sakai-account-panel"
           title="${rloader.mainnav_btn_account}">
-        <img class="sakai-accountProfileImage rounded-circle"
+        <img class="sakai-accountProfileImage rounded-circle p-0"
             src="${profileImageUrl}"
             alt="${rloader.sit_profile_image_alt}">
       </button>

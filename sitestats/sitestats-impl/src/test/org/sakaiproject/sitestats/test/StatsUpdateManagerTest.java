@@ -80,6 +80,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 @ContextConfiguration(classes = {SiteStatsTestConfiguration.class})
 @RunWith(SpringJUnit4ClassRunner.class)
 @Slf4j
@@ -134,9 +137,12 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		// and break the tests.
 		statsUpdateManager.setCollectThreadEnabled(false);
 
+		statsUpdateManager.setCollectEventsForSiteWithToolOnly(false);
+
 		((StatsManagerImpl) ((Advised) statsManager).getTargetSource().getTarget()).setShowAnonymousAccessEvents(true);
 		((StatsManagerImpl) ((Advised) statsManager).getTargetSource().getTarget()).setEnableSitePresences(true);
 		((ReportManagerImpl) ((Advised) reportManager).getTargetSource().getTarget()).setResourceLoader(resourceLoader);
+
 	}
 
 	// Basic tests: not much to test, work is on other methods...
@@ -395,6 +401,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		//		2 new resource    (site-a, user-a and user-b) 
 		//		2 new resource    (site-b, 2x user-a)
 		//		1 resource revise (site-b, user-b)
+		statsUpdateManager.setCollectEventsForSiteWithToolOnly(true);
+
 		Event e1 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/" + FakeData.SITE_A_ID + "/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		Event e2 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/" + FakeData.SITE_A_ID + "/resource_id", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
 		Event e3 = statsUpdateManager.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/" + FakeData.SITE_B_ID + "/resource_id", FakeData.SITE_B_ID, FakeData.USER_A_ID, "session-id-a");
@@ -535,11 +543,195 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	}
 
 	@Test
+	public void testSitePresence() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for one presences
+		//     0    20    40    60
+		//                    eval
+		// p1: b----------e
+		// p2:                       
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+
+		// Evaluate at 60 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence1End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testSitePresenceInterEvaluation() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for one presences
+		//     0    20    40    60
+		//        eval        eval
+		// p1: b----------e
+		// p2:                       
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+
+		// Evaluate at 20 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 60 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testSuccessiveSitePresences() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for successive presences
+		//     0    20    40    60    80    100   120    140
+		//                                              eval
+		// p1: b----------e
+		// p2:                        b-------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(120, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 140 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence1End, presence2Begin, presence2End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testSuccessiveSitePresencesInterEvaluationCaseA() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for successive presences
+		//     0    20    40    60    80    100   120    140
+		//                    eval         eval         eval
+		// p1: b----------e
+		// p2:                        b-------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(120, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 60 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence1End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+
+		// Evaluate at 100 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 140 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testSuccessiveSitePresencesInterEvaluationCaseB() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for successive presences
+		//     0    20    40    60    80    100   120    140
+		//        eval        eval                      eval
+		// p1: b----------e
+		// p2:                        b-------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(120, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 20 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 60 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+
+		// Evaluate at 140 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin, presence2End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
 	public void testOverlappingSitePresences() throws InterruptedException {
-		Instant base = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
-		//     0    20    40    60
+		//     0    20    40    60   80
+		//                         eval
 		// p1: b-----------e
 		// p2:       b-----------e
 		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
@@ -551,21 +743,20 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(60, ChronoUnit.SECONDS)),
 				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
 
-		// Evaluate
+		// Evaluate at 80 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence2Begin, presence1End, presence2End)));
-
 		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
 		assertEquals(1, results.size());
-
 		SitePresenceImpl result = results.get(0);
-
 		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(1, ChronoUnit.MINUTES).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
-	public void testOverlappingSitePresencesInterEvaluation() throws InterruptedException {
-		Instant base = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+	public void testOverlappingSitePresencesInterEvaluationCaseA() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
 		//     0    20    40    60    80   100   120   140
@@ -581,27 +772,528 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(120, ChronoUnit.SECONDS)),
 				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
 
-		SitePresenceImpl result;
+		// Evaluate at 20 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin)));
-		result = db.getResultsForClass(SitePresenceImpl.class).get(0);
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
+		// Evaluate at 60 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin)));
-		result = db.getResultsForClass(SitePresenceImpl.class).get(0);
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(2), result.getCurrentOpenSessions());
 
+		// Evaluate at 100 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
-		result = db.getResultsForClass(SitePresenceImpl.class).get(0);
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
 
+		// Evaluate at 140 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
-		result = db.getResultsForClass(SitePresenceImpl.class).get(0);
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testOverlappingSitePresencesInterEvaluationCaseB() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for overlapping presences
+		//     0    20    40    60    80   100   120   140
+		//        eval                    eval        eval
+		// p1: b-----------------------e
+		// p2:             b-----------------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(120, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 20 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 100 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin, presence1End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 140 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testOverlappingSitePresencesInterEvaluationCaseC() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for overlapping presences
+		//     0    20    40    60    80   100   120   140
+		//        eval        eval                    eval
+		// p1: b-----------------------e
+		// p2:             b-----------------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(120, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 20 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 60 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(2), result.getCurrentOpenSessions());
+
+		// Evaluate at 140 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End, presence2End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testCombinedOverlappingAndSuccessiveSitePresencesCaseA() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for overlapping and successive presences
+		//     0    20    40    60    80   100   120   140   160   180   200   220   240   260   280   300
+		//                                                                                            eval
+		// p1: b-----------------------e
+		// p2:            b------------------------e
+		// p3:                                                b------------e
+		// p4:                                                                        b------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(120, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence3Begin = statsUpdateManager.buildEvent(Date.from(base.plus(160, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_C_ID);
+		final Event presence3End = statsUpdateManager.buildEvent(Date.from(base.plus(200, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_C_ID);
+		final Event presence4Begin = statsUpdateManager.buildEvent(Date.from(base.plus(240, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_D_ID);
+		final Event presence4End = statsUpdateManager.buildEvent(Date.from(base.plus(280, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_D_ID);
+
+		// Evaluate at 300 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence2Begin, presence1End, presence2End, presence3Begin, presence3End, presence4Begin, presence4End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(200, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testCombinedOverlappingAndSuccessiveSitePresencesCaseAInterEvaluation() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for overlapping and successive presences
+		//     0    20    40    60    80   100   120   140   160   180   200   220   240   260   280   300
+		//        eval        eval        eval        eval        eval        eval        eval        eval
+		// p1: b-----------------------e
+		// p2:            b------------------------e
+		// p3:                                                b------------e
+		// p4:                                                                        b------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(120, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence3Begin = statsUpdateManager.buildEvent(Date.from(base.plus(160, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_C_ID);
+		final Event presence3End = statsUpdateManager.buildEvent(Date.from(base.plus(200, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_C_ID);
+		final Event presence4Begin = statsUpdateManager.buildEvent(Date.from(base.plus(240, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_D_ID);
+		final Event presence4End = statsUpdateManager.buildEvent(Date.from(base.plus(280, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_D_ID);
+
+		// Evaluate at 20 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 60 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(2), result.getCurrentOpenSessions());
+
+		// Evaluate at 100 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 140 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+
+		// Evaluate at 180 seconds 
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence3Begin)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(120, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 220 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence3End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(160, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+
+		// Evaluate at 160 seconds 
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence4Begin)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(160, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 300 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence4End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(200, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testCombinedOverlappingAndSuccessiveSitePresencesCaseB() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for overlapping and successive presences
+		//     0    20    40    60    80   100   120   140   160   180   200   220   240   260   280   300
+		//                                                                                            eval
+		// p1: b-----------e
+		// p2:                        b------------e
+		// p2:                                               b-------------------------e
+		// p3:                                                           b-------------------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(120, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence3Begin = statsUpdateManager.buildEvent(Date.from(base.plus(160, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_C_ID);
+		final Event presence3End = statsUpdateManager.buildEvent(Date.from(base.plus(240, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_C_ID);
+		final Event presence4Begin = statsUpdateManager.buildEvent(Date.from(base.plus(200, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_D_ID);
+		final Event presence4End = statsUpdateManager.buildEvent(Date.from(base.plus(280, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_D_ID);
+
+		// Evaluate at 300 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence2Begin, presence1End, presence2End, presence3Begin, presence3End, presence4Begin, presence4End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(200, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testCombinedOverlappingAndSuccessiveSitePresencesCaseBInterEvaluation() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for overlapping and successive presences
+		//     0    20    40    60    80   100   120   140   160   180   200   220   240   260   280   300
+		//        eval        eval        eval        eval        eval        eval        eval        eval
+		// p1: b-----------e
+		// p2:                        b------------e
+		// p2:                                               b-------------------------e
+		// p3:                                                           b-------------------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(120, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence3Begin = statsUpdateManager.buildEvent(Date.from(base.plus(160, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_C_ID);
+		final Event presence3End = statsUpdateManager.buildEvent(Date.from(base.plus(240, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_C_ID);
+		final Event presence4Begin = statsUpdateManager.buildEvent(Date.from(base.plus(200, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_D_ID);
+		final Event presence4End = statsUpdateManager.buildEvent(Date.from(base.plus(280, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_D_ID);
+
+		// Evaluate at 20 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 60 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+
+		// Evaluate at 100 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 140 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+
+		// Evaluate at 180 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence3Begin)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 220 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence4Begin)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(2), result.getCurrentOpenSessions());
+
+		// Evaluate at 260 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence3End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(160, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 300 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence4End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(200, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
 	}
 
 	@Test
 	public void testTrickyOverlappingSitePresences() throws InterruptedException {
-		Instant base = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for overlapping presences
+		//     0    20    40    60    80   100
+		//                                eval
+		// p1: b-----------------------e
+		// p2:       b-----e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(20, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 100 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence1End, presence2Begin, presence2End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testTrickyOverlappingSitePresencesInterEvaluationCaseA() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for overlapping presences
+		//     0    20    40    60    80   100
+		//        eval                    eval
+		// p1: b-----------------------e
+		// p2:            b------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(60, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 20 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 100 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2Begin, presence2End, presence1End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testTrickyOverlappingSitePresencesInterEvaluationCaseB() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for overlapping presences
+		//     0    20    40    60    80   100
+		//              eval              eval
+		// p1: b-----------------------e
+		// p2:       b----------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(80, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(20, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(60, ChronoUnit.SECONDS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 40 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence2Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(2), result.getCurrentOpenSessions());
+
+		// Evaluate at 100 seconds
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End, presence1End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testTrickyOverlappingSitePresencesInterEvaluationCaseC() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
 
 		// Create events for overlapping presences
 		//     0    20    40    60    80   100
@@ -617,12 +1309,277 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(40, ChronoUnit.SECONDS)),
 				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
 
+		// Evaluate at 60 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence2Begin, presence2End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
+		assertEquals(Duration.of(40, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(1), result.getCurrentOpenSessions());
+
+		// Evaluate at 100 seconds
 		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End)));
-
-		SitePresenceImpl result = db.getResultsForClass(SitePresenceImpl.class).get(0);
-
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		result = results.get(0);
+		assertEquals(FakeData.USER_A_ID, result.getUserId());
 		assertEquals(Duration.of(80, ChronoUnit.SECONDS).toMillis(), result.getDuration());
+		assertEquals(Integer.valueOf(0), result.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testSitePresenceTwoDays() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for one presences
+		//     0    24    48	72    
+		//                    eval
+		// p1: b----------e
+		// p2:                       
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(48, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+
+		// Evaluate at 72 hours
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence1End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(2, results.size());
+		SitePresenceImpl resultFirstDay = results.get(0);
+		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
+		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
+		SitePresenceImpl resultSecondDay = results.get(1);
+		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
+		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testSuccessiveSitePresencesTwoDays() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for one presences
+		//     0     6    12    18    24    30    36    42
+		//                                            eval
+		// p1: b-----------e
+		// p2:                  b------------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(12, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(18, ChronoUnit.HOURS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(36, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 42 hours
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence1End, presence2Begin, presence2End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(2, results.size());
+		SitePresenceImpl resultFirstDay = results.get(0);
+		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
+		assertEquals(Duration.of(18, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
+		SitePresenceImpl resultSecondDay = results.get(1);
+		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
+		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testSuccessiveSitePresencesTwoDaysInterEvaluation() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for one presences
+		//     0     6    12    18    24    30    36    42
+		//                    eval                    eval
+		// p1: b-----e
+		// p2:             b------------------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(6, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(12, ChronoUnit.HOURS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(36, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 18 hours
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence1End, presence2Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl resultFirstDay = results.get(0);
+		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
+		assertEquals(Duration.of(6, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
+		assertEquals(Integer.valueOf(1), resultFirstDay.getCurrentOpenSessions());
+
+		// Evaluate at 42 hours
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence2End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(2, results.size());
+		resultFirstDay = results.get(0);
+		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
+		assertEquals(Duration.of(18, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
+		SitePresenceImpl resultSecondDay = results.get(1);
+		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
+		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testOverlappingSitePresenceTwoDays() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for one presences
+		//     0     6    12    18    24    30    36    42
+		//                                            eval
+		// p1: b-----------------------------e
+		// p2:                  b------------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(30, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(18, ChronoUnit.HOURS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(36, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 42 hours
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence1End, presence2Begin, presence2End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(2, results.size());
+		SitePresenceImpl resultFirstDay = results.get(0);
+		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
+		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
+		SitePresenceImpl resultSecondDay = results.get(1);
+		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
+		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testOverlappingSitePresenceTwoDaysInterEvaluation() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for one presences
+		//     0     6    12    18    24    30    36    42    48
+		//                    eval                          eval
+		// p1: b-----------------------------------e
+		// p2:            b------------------------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(36, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(12, ChronoUnit.HOURS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(42, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 18 hours
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence2Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl resultFirstDay = results.get(0);
+		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
+		assertEquals(Integer.valueOf(2), resultFirstDay.getCurrentOpenSessions());
+
+		// Evaluate at 48 hours
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End, presence2End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(2, results.size());
+		resultFirstDay = results.get(0);
+		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
+		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
+		SitePresenceImpl resultSecondDay = results.get(1);
+		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
+		assertEquals(Duration.of(18, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testTrickyOverlappingSitePresenceTwoDays() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for one presences
+		//     0     6    12    18    24    30    36    42
+		//                                            eval
+		// p1: b-----------------------------------e
+		// p2:            b------------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(36, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(12, ChronoUnit.HOURS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(30, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 42 hours
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence1End, presence2Begin, presence2End)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(2, results.size());
+		SitePresenceImpl resultFirstDay = results.get(0);
+		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
+		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
+		SitePresenceImpl resultSecondDay = results.get(1);
+		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
+		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
+	}
+
+	@Test
+	public void testTrickyOverlappingSitePresenceTwoDaysInterEvaluation() throws InterruptedException {
+		LocalDateTime fixedDateTime = LocalDateTime.of(2025, 3, 20, 0, 0, 0, 0);
+		Instant base = fixedDateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+		// Create events for one presences
+		//     0     6    12    18    24    30    36    42
+		//                    eval                    eval
+		// p1: b-----------------------------------e
+		// p2:            b------------e
+		final Event presence1Begin = statsUpdateManager.buildEvent(Date.from(base),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence1End = statsUpdateManager.buildEvent(Date.from(base.plus(36, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_A_ID);
+		final Event presence2Begin = statsUpdateManager.buildEvent(Date.from(base.plus(12, ChronoUnit.HOURS)),
+				StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+		final Event presence2End = statsUpdateManager.buildEvent(Date.from(base.plus(24, ChronoUnit.HOURS)),
+				StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, FakeData.SESSION_B_ID);
+
+		// Evaluate at 18 hours
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1Begin, presence2Begin)));
+		List<SitePresenceImpl> results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(1, results.size());
+		SitePresenceImpl resultFirstDay = results.get(0);
+		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
+		assertEquals(Duration.of(0, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
+		assertEquals(Integer.valueOf(2), resultFirstDay.getCurrentOpenSessions());
+
+		// Evaluate at 42 hours
+		assertTrue(statsUpdateManager.collectEvents(List.of(presence1End, presence2End)));
+		results = db.getResultsForClass(SitePresenceImpl.class);
+		assertEquals(2, results.size());
+		resultFirstDay = results.get(0);
+		assertEquals(FakeData.USER_A_ID, resultFirstDay.getUserId());
+		assertEquals(Duration.of(24, ChronoUnit.HOURS).toMillis(), resultFirstDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultFirstDay.getCurrentOpenSessions());
+		SitePresenceImpl resultSecondDay = results.get(1);
+		assertEquals(FakeData.USER_A_ID, resultSecondDay.getUserId());
+		assertEquals(Duration.of(12, ChronoUnit.HOURS).toMillis(), resultSecondDay.getDuration());
+		assertEquals(Integer.valueOf(0), resultSecondDay.getCurrentOpenSessions());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -804,7 +1761,6 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 	@Test
 	public void testConfigIsCollectEventsForAnySite() {
 		// make sure events get processed for any sites
-		statsUpdateManager.setCollectEventsForSiteWithToolOnly(false);
 		assertFalse(statsUpdateManager.isCollectEventsForSiteWithToolOnly());
 		Event e1 = statsUpdateManager.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+PresenceService.PRESENCE_SUFFIX, null, FakeData.USER_A_ID, "session-id-a");
 		statsUpdateManager.collectEvent(e1);
@@ -856,6 +1812,8 @@ public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringCon
 		statsUpdateManager.collectEvents(Arrays.asList(e1, e2));
 		List<EventStatImpl> results1 = db.getResultsForClass(EventStatImpl.class);
 		assertEquals(2, results1.size());
+
+		statsUpdateManager.setCollectEventsForSiteWithToolOnly(true);
 
 		// none of these events will be picked up
 		((StatsManagerImpl) ((Advised) statsManager).getTargetSource().getTarget()).setEventContextSupported(false);

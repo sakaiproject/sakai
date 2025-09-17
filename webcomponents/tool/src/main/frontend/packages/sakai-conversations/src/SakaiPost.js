@@ -7,14 +7,14 @@ import "@sakai-ui/sakai-user-photo";
 import "@sakai-ui/sakai-editor/sakai-editor.js";
 import "../sakai-comment.js";
 import "../sakai-comment-editor.js";
-import "@sakai-ui/sakai-icon";
+import "@sakai-ui/sakai-icon/sakai-icon.js";
 
 export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
   static properties = {
 
     post: { type: Object },
-    postType: { type: String },
+    postType: { attribute: "post-type", type: String },
     isInstructor: { attribute: "is-instructor", type: Boolean },
     canViewAnonymous: { attribute: "can-view-anonymous", type: Boolean },
     canViewDeleted: { attribute: "can-view-deleted", type: Boolean },
@@ -23,6 +23,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     topicReference: { attribute: "topic-reference", type: String },
     gradingItemId: { attribute: "grading-item-id", type: String },
     maxGradePoints: { attribute: "max-grade-points", type: Number },
+    skipDeleteConfirm: { attribute: "skip-delete-confirm", type: Boolean },
 
     _showingComments: { state: true },
     _expanded: { state: true },
@@ -43,7 +44,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     this.commentsBeingEdited = new Map();
 
-    this.loadTranslations("conversations").then(r => this._i18n = r);
+    this.loadTranslations("conversations");
   }
 
   set post(value) {
@@ -59,6 +60,8 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     }
     const old = this._post;
     this._post = value;
+
+    this._gradePoints = value?.grade?.grade;
 
     this.requestUpdate("post", old);
   }
@@ -76,38 +79,11 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     this._expanded = flattened.filter(p => !p.viewed).length > 0;
   }
 
-  _postReactions() {
-
-    const url = this.post.links.find(l => l.rel === "react").href;
-    fetch(url, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(this.myReactions),
-    })
-    .then(r => {
-
-      if (r.ok) {
-        return r.json();
-      }
-      throw new Error("Network error while posting reactions");
-
-    })
-    .then(reactionTotals => {
-
-      this.post.myReactions = this.myReactions;
-      this.post.reactionTotals = reactionTotals;
-      this.dispatchEvent(new CustomEvent("post-updated", { detail: { post: this.post }, bubbles: true }));
-    })
-    .catch(error => console.error(error));
-  }
-
   _toggleLocked() {
 
     const url = this.post.links.find(l => l.rel === "lock").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(!this.post.locked),
     })
@@ -130,7 +106,6 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     const url = this.post.links.find(l => l.rel === "hide").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(!this.post.hidden),
     })
@@ -164,7 +139,6 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     const url = this.post.links.find(l => l.rel === "reply").href;
     fetch(url, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(reply),
     })
@@ -199,7 +173,6 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     const url = this.post.links.find(l => l.rel === "self").href;
     fetch(url, {
-      credentials: "include",
       method: "PUT",
       body: JSON.stringify(this.post),
       headers: { "Content-Type": "application/json" },
@@ -250,14 +223,13 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     if (!this.post.canDelete) return;
 
-    if (!confirm(this._i18n.confirm_post_delete)) {
+    if (!this.skipDeleteConfirm && !confirm(this._i18n.confirm_post_delete)) {
       return;
     }
 
     const url = this.post.links.find(l => l.rel === "delete").href;
     fetch(url, {
       method: "DELETE",
-      credentials: "include",
     })
     .then(r => {
 
@@ -285,7 +257,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
   _inputGradeComment(e) {
 
-    this._gradeComment = e.detail.content;
+    this._gradeComment = e.target.value;
     this._gradingInputsInvalid = !this._gradePoints && !this._gradeComment;
   }
 
@@ -315,15 +287,29 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
         });
 
         this._gradeSubmitted = true;
-        !this.post.grade && (this.post.grade = {});
+        this.post.grade ??= {};
         this.post.grade.grade = this._gradePoints;
+        this.dispatchEvent(new CustomEvent("post-updated", { detail: { post: this.post }, bubbles: true }));
         setTimeout(() => {
 
-          bootstrap.Dropdown.getInstance(this.querySelector(`#post-${this.post.id}-grade-dropdown-toggle`)).hide();
+          bootstrap.Dropdown.getInstance(this.querySelector(".dropdown-toggle")).hide();
           this._gradeSubmitted = false;
         }, 1000);
       }
     });
+  }
+
+  _cancelGrade(e) {
+
+    e.stopPropagation();
+
+    this._gradePoints = undefined;
+    this._gradeComment = undefined;
+    this.querySelector(".dropdown-menu input[type='text']").value = "";
+    this.querySelector("textarea").value = "";
+    this._gradeSubmitted = false;
+
+    bootstrap.Dropdown.getInstance(this.querySelector(".dropdown-toggle")).hide();
   }
 
   _commentDeleted(e) {
@@ -340,7 +326,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     return html`
 
-      <div class="d-flex align-items-center flex-wrap">
+      <div class="conv-author-details d-flex align-items-center flex-wrap">
         <div class="fs-6 fw-bold me-2">${this.post.creatorDisplayName}</div>
         ${this.post.isInstructor ? html`
         <div class="post-creator-instructor fw-bold text-uppercase me-2 p-1">${this._i18n.instructor}</div>
@@ -349,7 +335,6 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
         ${this.post.canGrade && this.gradingItemId ? html`
           <div class="dropdown ms-2">
             <button class="btn btn-secondary btn-sm dropdown-toggle"
-                id="post-${this.post.id}-grade-dropdown-toggle"
                 type="button"
                 data-bs-auto-close="false"
                 data-bs-toggle="dropdown"
@@ -372,18 +357,17 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                   <span>(${this._i18n.max_of} ${this.maxGradePoints})</span>
                 </div>
                 <div class="mt-2">
-                  <label>
+                  <label class="d-block">
                     <div>${this._i18n.grade_comment_label}</div>
-                    <div>
-                      <sakai-editor
-                          @changed=${this._inputGradeComment}
-                          .content=${this.post?.grade?.gradeComment}>
-                      </sakai-editor>
-                    </div>
+                    <textarea class="w-100"
+                        @change=${this._inputGradeComment}
+                        .value=${this.post?.grade?.gradeComment || ""}>
+                    </textarea>
                   </label>
                 </div>
                 <div class="mt-2">
                   <button type="button" class="btn btn-secondary btn-sm" @click=${this._submitGrade}>${this._i18n.submit_grade}</button>
+                  <button type="button" class="btn btn-secondary btn-sm" @click=${this._cancelGrade}>Cancel</button>
                 </div>
               </div>
             </div>
@@ -452,7 +436,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
       <div>
         ${this.post.canEdit || this.post.canDelete || this.post.canModerate ? html`
           <div class="dropdown">
-            <button class="btn btn-transparent"
+            <button class="btn btn-icon"
                 id="post-menu-${this.post.id}"
                 type="button"
                 data-bs-toggle="dropdown"
@@ -460,7 +444,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                 aria-label="${this._i18n.post_options_menu_tooltip}"
                 aria-haspopup="true"
                 aria-expanded="false">
-              <div><sakai-icon type="menu" size="small"></sakai-icon></div>
+              <sakai-icon type="menu" size="small"></sakai-icon>
             </button>
             <ul class="dropdown-menu conv-dropdown-menu" aria-labelledby="post-menu-${this.post.id}">
               ${this.post.canEdit ? html`
@@ -552,7 +536,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
     return html`
 
-      <div id="discussion-post-block-${this.post.id}" class="d-flex pt-2">
+      <div id="discussion-post-block-${this.post.id}" class="discussion-post-block d-flex pt-2">
 
         <div class="discussion-post-left-column">
           <div class="photo">
@@ -601,6 +585,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                 ${this.post.canReply ? html`
                 <div>
                   <a href="javascript:;"
+                      class="post-reply-button"
                       @click=${this._toggleReplying}
                       aria-label="${this._i18n.reply_tooltip}"
                       title="${this._i18n.reply_tooltip}">
@@ -612,6 +597,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
                 <div class="ms-auto text-nowrap">
                   <a href="javascript:;"
                       @click=${this._toggleExpanded}
+                      class="post-replies-toggle"
                       aria-label="${this._expanded ? this._i18n.hide_replies_tooltip : this._i18n.show_replies_tooltip}"
                       title="${this._expanded ? this._i18n.hide_replies_tooltip : this._i18n.show_replies_tooltip}">
                     <div class="post-replies-toggle-block">
@@ -655,7 +641,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
             ${this.post.posts && this._expanded ? html`
               ${this.post.posts.map(p => html`
                 <sakai-post
-                    post="${JSON.stringify(p)}"
+                    .post=${p}
                     postType="${this.postType}"
                     site-id="${this.siteId}"
                     ?is-instructor=${this.isInstructor}
@@ -678,8 +664,8 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
     return html`
       <div id="post-${this.post.id}"
           data-post-id="${this.post.id}"
-          class="post ${this.post.isInstructor ? "instructor" : nothing }
-          ${(!this.post.comments || !this.post.comments.length) && !this.post.canComment ? "post-without-comment-block" : nothing }">
+          class="post ${this.post.isInstructor ? "instructor" : "" }
+          ${(!this.post.comments || !this.post.comments.length) && !this.post.canComment ? "post-without-comment-block" : "" }">
 
         <div class="post-topbar align-items-center">
           <div class="photo">
@@ -691,7 +677,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
           </div>
           ${this._renderAuthorDetails()}
           ${this.post.late && (this.isInstructor || this.post.isMine) ? html`
-          <div class="discussion-post-late">late</div>
+          <div class="discussion-post-late">${this._i18n.late}</div>
           ` : nothing }
           ${this.post.isInstructor ? html`
           <div class="fw-bold small text-nowrap">${this._i18n.instructors_answer}</div>
@@ -739,7 +725,7 @@ export class SakaiPost extends reactionsAndUpvotingMixin(SakaiElement) {
 
       <div class="post-comments-block mt-2">
         ${this._showingComments && this.post.comments && this.post.numberOfComments > 0 ? html`
-        <div class="py-2 m-1 ms-2 mt-0">
+        <div class="post-comments-block-inner py-2 m-1 ms-2 mt-0">
         ${this.post.comments.map(c => html`
           <sakai-comment
               comment="${JSON.stringify(c)}"

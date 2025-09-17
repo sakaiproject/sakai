@@ -20,9 +20,9 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cardgame.api.CardGameService;
 import org.sakaiproject.cardgame.api.model.CardGameStatItem;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.profile2.logic.ProfileImageLogic;
-import org.sakaiproject.profile2.model.ProfileImage;
-import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.api.ProfileService;
+import org.sakaiproject.profile2.api.ProfileImage;
+import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
@@ -86,7 +86,7 @@ public class CardGameController extends AbstractSakaiApiController {
     private PrivacyManager privacyManager;
 
     @Autowired
-    private ProfileImageLogic profileImageLogic;
+    private ProfileService profileService;
 
     private int minAttempts;
     private double minHitRatio;
@@ -340,9 +340,9 @@ public class CardGameController extends AbstractSakaiApiController {
 
         ProfileImage profileImage;
         if (official) {
-            profileImage = profileImageLogic.getOfficialProfileImage(userId, siteId);
+            profileImage = profileService.getOfficialProfileImage(userId, siteId);
         } else {
-            profileImage = profileImageLogic.getProfileImage(userId, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
+            profileImage = profileService.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
         }
 
         return profileImage.isDefault() || profileImage.isInitials();

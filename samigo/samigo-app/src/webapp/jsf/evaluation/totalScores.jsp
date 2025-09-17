@@ -703,12 +703,14 @@ function showLoadingMessage() {
     <!-- ANSWERS SUMMARY FOR ONE SELECTION TYPE -->
     <h:column rendered="#{totalScores.isOneSelectionType}">
       <f:facet name="header">
-        <h:outputText value="#{evaluationMessages.answers_title}"/>
+        <h:outputText value="#{evaluationMessages.answers_title}" escape="false"/>
       </f:facet>
       <h:panelGroup rendered="#{description.attemptDate != null}">
-        <div><h:outputText value="#{evaluationMessages.correct_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][0]}"/></div>
-        <div><h:outputText value="#{evaluationMessages.incorrect_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][1]}"/></div>
-        <div><h:outputText value="#{evaluationMessages.empty_title}"/>: <h:outputText value="#{totalScores.results[description.assessmentGradingId][2]}"/></div>
+        <div>
+          <h:outputText value="#{totalScores.results[description.assessmentGradingId][0]}"/>&nbsp;/&nbsp;
+          <h:outputText value="#{totalScores.results[description.assessmentGradingId][1]}"/>&nbsp;/&nbsp;
+          <h:outputText value="#{totalScores.results[description.assessmentGradingId][2]}"/>
+        </div>
       </h:panelGroup>
     </h:column>
 
@@ -1005,7 +1007,10 @@ function showLoadingMessage() {
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
-   <h:commandButton value="#{commonMessages.cancel_action}" action="author"/>
+   <h:commandButton value="#{commonMessages.cancel_action}" action="author">
+      <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
+   </h:commandButton>
 
 </p>
 </div>

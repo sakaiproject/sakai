@@ -192,6 +192,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.LinkMigrationHelper;
+import org.sakaiproject.util.MergeConfig;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -567,13 +568,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 			rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 
-			m_useMimeMagic = serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
-			m_ignoreExtensions = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.extensions"))
-					.map(Arrays::asList)
-					.orElse(Collections.emptyList());
-			m_ignoreMimeTypes = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes"))
-					.map(Arrays::asList)
-					.orElse(Collections.emptyList());
+        m_useMimeMagic = serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
+        // Normalize ignore lists to lowercase and supply sensible defaults if unset
+        m_ignoreExtensions = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.extensions"))
+                    .map(Arrays::asList)
+                    .map(list -> list.stream().filter(StringUtils::isNotBlank)
+                            .map(s -> s.toLowerCase(Locale.ROOT).trim())
+                            .collect(Collectors.toList()))
+                    .orElseGet(() -> Arrays.asList("js", "html", "htm", "css", "txt"));
+        m_ignoreMimeTypes = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes"))
+                    .map(Arrays::asList)
+                    .map(list -> list.stream().filter(StringUtils::isNotBlank)
+                            .map(s -> s.toLowerCase(Locale.ROOT).trim())
+                            .collect(Collectors.toList()))
+                    .orElse(Collections.emptyList());
 
 			tikaDetector = new DefaultDetector(this.getClass().getClassLoader());
 
@@ -1271,8 +1279,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		// way in UI that we know to do it. However admins can definitely see it from resources
 		// so warn except for admins. This check will return true for site owners even though
 		// the warning is issued.
+		// SAK-50946 - log debug instead of warn so we can delet temporary attachments in SiteMerger
 		if (isAttachmentResource(id) && isCollection(id) && !securityService.isSuperUser())
-		    log.warn("availability check for attachment collection " + id);
+		    log.debug("availability check for attachment collection {} ", id);
 
 		GroupAwareEntity entity = null;
 		//boolean isCollection = id.endsWith(Entity.SEPARATOR);
@@ -3827,6 +3836,89 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 		commitCollection(edit);	
 	}
 
+	public ContentResource copyAttachment(String oAttachmentPath, String toContext, String toolTitle, MergeConfig mcx) 
+		throws IdUnusedException, TypeException, PermissionException
+	{
+		ContentResource oAttachment = null;
+
+		try {
+			oAttachment = this.getResource(oAttachmentPath);
+			log.debug("Loaded resource from path = {} {}", oAttachmentPath, oAttachment);
+		} catch (Exception e) {
+			log.debug("Cannot find the attachment with path = {}, checking map {}", oAttachmentPath, e.toString());
+		}
+
+		if (oAttachment == null && mcx != null && mcx.attachmentNames != null) {
+			String lookupAttachmentPath = mcx.attachmentNames.get(oAttachmentPath);
+			if (lookupAttachmentPath == null) {
+				if (oAttachmentPath.startsWith(REFERENCE_ROOT)) {
+					oAttachmentPath = oAttachmentPath.replaceFirst(REFERENCE_ROOT, "");
+				} else {
+					oAttachmentPath = REFERENCE_ROOT + oAttachmentPath;
+				}
+				lookupAttachmentPath = mcx.attachmentNames.get(oAttachmentPath);
+				if (lookupAttachmentPath == null) {
+					log.warn("Cannot find the attachment in map path = {}, map = {}", oAttachmentPath, mcx.attachmentNames);
+					return null;
+				}
+			}
+			log.debug("Found the attachment in map = {} -> {}", oAttachmentPath, lookupAttachmentPath);
+			try {
+				oAttachment = this.getResource(lookupAttachmentPath);
+				log.debug("Loaded resource from map path = {} {}", lookupAttachmentPath, oAttachment);
+				oAttachmentPath = lookupAttachmentPath;
+			} catch (Exception e) {
+				log.warn("Cannot find the attachment in map path = {}, {}", lookupAttachmentPath, e.toString());
+			}
+		}
+
+		if (oAttachment == null) {
+			log.warn("Could not find resource associated with attachment {} to copy to site {} toolTitle {}", oAttachmentPath, toContext, toolTitle);
+			return null;
+		}
+
+		ContentResource attachment = null;
+		try {
+			try (InputStream content = oAttachment.streamContent()) {
+				if (this.isAttachmentResource(oAttachmentPath)) {
+					// add the new resource into attachment collection area
+					log.debug("Copying attachment {} to site {} attachments toolTitle {}", oAttachmentPath, toContext, toolTitle);
+					attachment = this.addAttachmentResource(
+							Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+							toContext,
+							toolTitle,
+							oAttachment.getContentType(),
+							content,
+							oAttachment.getProperties());
+				} else {
+					// add the new resource into resource area
+					log.debug("Copying attachment {} to site {} content toolTitle {}", oAttachmentPath, toContext, toolTitle);
+					attachment = this.addResource(
+							Validator.escapeResourceName(oAttachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+							toContext,
+							1,
+							oAttachment.getContentType(),
+							content,
+							oAttachment.getProperties(),
+							Collections.emptyList(),
+							false,
+							null,
+							null,
+							NotificationService.NOTI_NONE);
+				}
+				log.debug("Copied attachment {} to site {} {}", oAttachmentPath, toContext, attachment.getReference());
+				return attachment;
+			} catch (Exception e) {
+				log.warn("Cannot add new attachment with id = {}, {}", oAttachmentPath, e.toString());
+				return null;
+			}
+		} catch (Exception e) {
+			// if cannot find the original attachment, do nothing.
+			log.warn("Cannot get the original attachment with id = {}, {}", oAttachmentPath, e.toString());
+		}
+		return null;
+	}
+
 	/**
 	 * check permissions for updateResource().
 	 * 
@@ -4253,6 +4345,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		// htripath -store the metadata information into a delete table
 		// assumed uuid is not null as checkExplicitLock(id) throws exception when null
+
+
+		//check if resource is of type CitationsList and clean up citation tables
+		if (removeContent && edit.getResourceType().equals(CITATIONS_RESOURCE_TYPE_ID)) {
+			try {
+				String data = new String(edit.getContent(), StandardCharsets.UTF_8);
+				log.debug("removing citation list [{}]", data);
+				eventTrackingService.post(eventTrackingService.newEvent(CITATIONS_HARD_DELETE_EVENT, data, true));
+			} catch (ServerOverloadException e) {
+				log.error("Could not get content from citations resource with id {}", edit.getId(), e);
+			}
+		}
+		
 
 		try {
 			String uuid = this.getUuid(id);
@@ -5530,16 +5635,23 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
             }
 
             // tika magic and name detection
-            if (m_useMimeMagic
-                    && !m_ignoreExtensions.contains(org.springframework.util.StringUtils.getFilenameExtension(edit.getId()))
-                    && !CollectionUtils.containsAny(m_ignoreMimeTypes, currentContentType, detectedByName)) {
-                try {
-                    // tika detect doesn't modify the original stream but stream must support reset
-                    InputStream stream = new BufferedInputStream(edit.streamContent());
-                    edit.setContent(stream);
-                    detectedByMagic = tikaDetector.detect(stream, metadata).toString();
-                } catch (Exception e) {
-                    log.warn("tika mimetype detection failed when trying to get the resource data: {}", e.toString());
+            if (m_useMimeMagic) {
+                String ext = org.springframework.util.StringUtils.getFilenameExtension(edit.getId());
+                ext = ext == null ? null : ext.toLowerCase(Locale.ROOT);
+                String currentTypeLc = StringUtils.defaultString(currentContentType).toLowerCase(Locale.ROOT);
+                String detectedByNameLc = StringUtils.defaultString(detectedByName).toLowerCase(Locale.ROOT);
+                boolean skipMagicByExt = ext != null && m_ignoreExtensions.contains(ext);
+                boolean skipMagicByMime = CollectionUtils.containsAny(m_ignoreMimeTypes, currentTypeLc, detectedByNameLc);
+
+                if (!skipMagicByExt && !skipMagicByMime) {
+                    try {
+                        // tika detect doesn't modify the original stream but stream must support reset
+                        InputStream stream = new BufferedInputStream(edit.streamContent());
+                        edit.setContent(stream);
+                        detectedByMagic = tikaDetector.detect(stream, metadata).toString();
+                    } catch (Exception e) {
+                        log.warn("tika mimetype detection failed when trying to get the resource data: {}", e.toString());
+                    }
                 }
             }
         }
@@ -6423,14 +6535,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					disposition = Web.buildContentDisposition(fileName, true);
 				}
 
-				// NOTE: Only set the encoding on the content we have to.
-				// Files uploaded by the user may have been created with different encodings, such as ISO-8859-1;
-				// rather than (sometimes wrongly) saying its UTF-8, let the browser auto-detect the encoding.
-				// If the content was created through the WYSIWYG editor, the encoding does need to be set (UTF-8).
+				// Set UTF-8 encoding for text-based files to fix display of non-ASCII characters
 				String encoding = resource.getProperties().getProperty(ResourceProperties.PROP_CONTENT_ENCODING);
 				if (encoding != null && encoding.length() > 0)
 				{
 					contentType = contentType + "; charset=" + encoding;
+				}
+				else if (contentType.startsWith("text/"))
+				{
+					contentType = contentType + "; charset=UTF-8";
 				}
 
 				// KNL-1316 let's see if the user already has a cached copy. Code copied and modified from Tomcat DefaultServlet.java
@@ -7214,16 +7327,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					String id = getSiteCollection(siteId) + relId;
 					element.setAttribute("id", id);
 
+					log.debug("Processing collection {}", id);
+
 					// collection: add if missing, else merge in
 					ContentCollection c = mergeCollection(element);
+					String result;
 					if (c == null)
 					{
-						results.append("collection: " + id + " already exists and was not replaced.\n");
+						result = "collection: " + id + " already exists and was not replaced.";
 					}
 					else
 					{
-						results.append("collection: " + id + " imported.\n");
+						result = "collection: " + id + " imported.";
 					}
+					log.debug(result);
+					results.append(result);
+					results.append("\n");
 				}
 
 				// for "resource" kids
@@ -7305,7 +7424,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 							String oldRef = getReference(id);
 
 							// take the name from after /attachment/whatever/
-							id = ATTACHMENTS_COLLECTION + idManager.createUuid()
+							id = ATTACHMENTS_COLLECTION + "TA-" + idManager.createUuid()
 							+ id.substring(id.indexOf('/', ATTACHMENTS_COLLECTION.length()));
 
 							// record the rename
@@ -7326,6 +7445,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 						element.setAttribute("id", id);
 
+						log.debug("Processing resource {}", id);
 						ContentResource r = null;
 
 						// if the body-location attribute points at another file for the body, get this
@@ -7348,14 +7468,18 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 							r = mergeResource(element);
 						}
 
+						String result;
 						if (r == null)
 						{
-							results.append("resource: " + id + " already exists and was not replaced.\n");
+							result = "resource: " + id + " already exists and was not replaced.";
 						}
 						else
 						{
-							results.append("resource: " + id + " imported.\n");
+							result = "resource: " + id + " imported.";
 						}
+						log.debug(result);
+						results.append(result);
+						results.append("\n");
 					}
 				}
 			}
@@ -7391,6 +7515,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					ContentResource oldSiteContentResource = getResource(oldReference);
 					byte[] thisResourceContentRaw = oldSiteContentResource.getContent();
 					rContent = new String(thisResourceContentRaw);
+					rContent = rContent.replace("%2520", "%20");
+					StringBuffer saveOldEntity = new StringBuffer(rContent);
 					for (String oldValue : traversalMap.keySet()) {
 						if (!oldValue.equals("/fromContext")){
 							String newValue = "";
@@ -7405,7 +7531,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					} catch (Exception e) {
 						log.debug ("Forums LinkMigrationHelper.editLinks failed: {}" + e.toString());
 					}					
-					StringBuffer saveOldEntity = new StringBuffer(rContent);
 					try {
 						if(!saveOldEntity.toString().equals(rContent)){
 							ContentResourceEdit edit = editResource(tId);
@@ -7689,7 +7814,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 
 		try {
 			ContentCollection collection = getCollection(getSiteCollection(siteId));
-			return !m_storage.getResources(collection).isEmpty();
+			List<ContentResourceEdit> resources = m_storage.getResources(collection);
+			if ( resources.size() > 0 ) return true;
+			List<ContentCollectionEdit> collections = m_storage.getCollections(collection);
+			if ( collections.size() > 0 ) return true;
+			return false;
 		} catch (Exception e) {
 			log.warn("Failed to get the entity map for site {}: {}", siteId, e.toString());
 		}
@@ -8334,21 +8463,32 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * @return a new ContentCollection object, or null if it was not created.
 	 */
 	protected ContentCollection mergeCollection(Element element) throws PermissionException, InconsistentException,
-	IdInvalidException
+	IdInvalidException, TypeException
 	{
 		// read the collection object
 		BaseCollectionEdit collectionFromXml = new BaseCollectionEdit(element);
 		String id = collectionFromXml.getId();
 
+		// Check if it exists - avoids unsupressable WARN in addCollection()
+		BaseCollectionEdit edit;
+		try {
+			edit = (BaseCollectionEdit) getCollection(id);
+			if ( edit != null ) return null;
+		}
+		catch (IdUnusedException e)
+		{
+			log.debug("Collection {} not present, about to add {}", id, e.toString());
+			edit = null;
+		}
+
 		// add it
-		BaseCollectionEdit edit = null;
 		try
 		{
 			edit = (BaseCollectionEdit) addCollection(id);
 		}
 		catch (IdUsedException e)
 		{
-			// ignore if it exists
+			log.debug("Collection {} could not be added {}", id, e.toString());
 			return null;
 		}
 
@@ -8399,7 +8539,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 */
 	@Deprecated
 	protected ContentResource mergeResource(Element element) throws PermissionException, InconsistentException, IdInvalidException,
-	OverQuotaException, ServerOverloadException
+	OverQuotaException, ServerOverloadException, TypeException
 	{
 		return mergeResource(element, (InputStream) null);
 
@@ -8423,14 +8563,25 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 	 * @return a new ContentResource object, or null if it was not created.
 	 */
 	protected ContentResource mergeResource(Element element, InputStream in) throws PermissionException, InconsistentException,
-	IdInvalidException, OverQuotaException, ServerOverloadException
+	IdInvalidException, OverQuotaException, ServerOverloadException, TypeException
 	{
 		// make the resource object
 		BaseResourceEdit resourceFromXml = new BaseResourceEdit(element);
 		String id = resourceFromXml.getId();
 
-		// get it added
+		// Check if it exists - avoids unsupressable WARN in addResource()
 		BaseResourceEdit edit = null;
+		try {
+			edit = (BaseResourceEdit) getResource(id);
+			if ( edit != null ) return null;
+		}
+		catch (IdUnusedException e)
+		{
+			log.debug("Resource {} not present, about to add {}", id, e.toString());
+			edit = null;
+		}
+
+		// get it added
 		try
 		{
 			edit = (BaseResourceEdit) addResource(id);
@@ -13421,8 +13572,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
      * @exception Exception Anything thrown by ZipContentUtil gets passed upwards.
      */
     public void expandZippedResource(String resourceId) throws Exception {
-        int maxZipExtractSize = ZipContentUtil.getMaxZipExtractFiles();
-        ZipContentUtil extractZipArchive = new ZipContentUtil();
+        ZipContentUtil extractZipArchive = new ZipContentUtil(this, serverConfigurationService, sessionManager);
+        int maxZipExtractSize = extractZipArchive.getMaxZipExtractFiles();
 
         // KNL-900 Total size of files should be checked before unzipping (KNL-273)
 		Map<String, Long> zipManifest = extractZipArchive.getZipManifest(resourceId);

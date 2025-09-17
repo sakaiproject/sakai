@@ -84,7 +84,7 @@
 
   <div rsf:id="portletBody" class="portletBody">
 
-<div class="row mt-1">
+<div class="row m-0">
   <div class="column col-12 m-0 p-0 border-0">
     <span rsf:id="tool-bar:" class="navIntraTool" role="application" aria-labelledby="tool-bar::toolbar-label">
       <h2 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="lb-offscreen"></h2>
@@ -144,6 +144,12 @@
         <a role="button" href="#" rsf:id="print-view" id="print-view" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
           <span rsf:id="msg=simplepage.print_view" class="Mrphs-itemTitle me-1 d-none d-xl-inline-block"></span>
           <span class="bi-printer" aria-hidden="true"></span>
+        </a>
+      </span>
+      <span class="contentButton" rsf:id="show-print-all">
+        <a role="button" href="#" rsf:id="print-all" id="print-all" class="btn btn-link my-1 Mrphs-toolTitleNav__link top-icon">
+          <span rsf:id="msg=simplepage.print_all" class="Mrphs-itemTitle me-1 d-none d-xl-inline-block"></span>
+          <span class="bi-printer-fill" aria-hidden="true"></span>
         </a>
       </span>
       <span class="contentButton">
@@ -219,8 +225,11 @@
         }
         if (breadcrumbs.size() > 0) {
           jQuery(".subpage-breadcrumb-div").append(jQuery(".breadcrumbs span").slice(1));
-          jQuery(".subpage-breadcrumb-div").prepend('<a id="lessonReset">' + jQuery(".Mrphs-hierarchy--toolName").text().trim() + '</a>');
-          jQuery("#lessonReset").attr("href", jQuery(".Mrphs-hierarchy--toolName")[0].href);
+          const toolNameElement = jQuery(".header-tool-title a").first();
+          if (toolNameElement.length > 0) {
+            jQuery(".subpage-breadcrumb-div").prepend('<a id="lessonReset">' + toolNameElement.text().trim() + '</a>');
+            jQuery("#lessonReset").attr("href", toolNameElement.attr("href"));
+          }
         } else {
           jQuery(".subpage-breadcrumb-div").css({
             "display": "none"
@@ -555,8 +564,6 @@
                       <p class="required mm-url-section">
                         <label id="addLink_label" rsf:id="msg=simplepage.addLink_label_add_or" for="mm-url">URL</label>
                         <input type="text" name="mm-url" rsf:id="mm-url" id="mm-url" class="edit-multimedia-input multimedia-url-box" />
-                        <label name="mm-url-name-label" id="mm-url-name-label" rsf:id="mm-url-name-label" for="mm-url-name" />
-                        <input type="text" class="multimedia-url-box" id="mm-url-name" rsf:id="mm-url-name" />
                       </p>
                     </div>
                   </div>
@@ -607,7 +614,7 @@
               <input class="bold" type="submit" id="mm-test" rsf:id="mm-test" />
               <input class="bold" type="submit" id="mm-add-item" rsf:id="mm-add-item" />
               <input type="button" class="bold mm-test-reset" rsf:id="mm-test-start-over" />
-              <input type="submit" rsf:id="mm-cancel" onclick="closeAddMultimediaDialog(); return false" />
+              <input type="submit" rsf:id="mm-cancel" onclick="xCloseAddMultimediaDialog(); return false;" />
               <input type="hidden" rsf:id="mm-item-id" id="mm-item-id" />
               <input type="hidden" rsf:id="mm-add-before" id="mm-add-before" />
               <input type="hidden" rsf:id="mm-is-mm" id="mm-is-mm" />
@@ -810,10 +817,10 @@
 
                   <div class="card mt-2">
                     <div class="card-header edit-header" id="visibility-header">
-                      <button type="button" class="collapsed accordionBtn" rsf:id="msg=simplepage.visibility" data-bs-toggle="collapse" data-bs-target="#visibilitybody">
+                      <button type="button" class="accordionBtn" rsf:id="msg=simplepage.visibility" data-bs-toggle="collapse" data-bs-target="#visibilitybody" aria-expanded="true">
                       </button>
                     </div>
-                    <div id="visibilitybody" class="collapse">
+                    <div id="visibilitybody" class="collapse show">
                       <div class="card-body">
                         <div class="pageItem">
                           <input type="checkbox" id="page-releasedate2" rsf:id="page-releasedate2" />
@@ -1343,6 +1350,8 @@
                   </div>
 
                   <div id="multipleChoiceDialogDiv">
+                    <input type='hidden' rsf:id="multi_gradebook" id="multi_gradebook" />
+
                     <fieldset>
                       <legend>
                         <h4 rsf:id="msg=simplepage.answers"></h4></legend>
@@ -2385,10 +2394,12 @@
       <!-- WARNING: javascript for add-break-section adds section, ul, li, and sectionedit markup, so if you change here, keep it in sync -->
       <div rsf:id="sectionWrapper:">
         <h3 rsf:id="sectionHeader" id="sectionHeader" class="sectionHeader">
-          <span aria-hidden="true" class="collapseIcon fa-caret-down"></span>
-          <span rsf:id="sectionHeaderText" class="sectionHeaderText"></span>
-          <span class="toggleCollapse" rsf:id="msg=simplepage.clickToCollapse"></span>
-        </h3>
+	  <a class="d-block text-decoration-none" tabindex="0" data-bs-toggle="collapse" href="#collapsibleContent" aria-expanded="true" aria-controls="collapsibleContent">
+            <span aria-hidden="true" class="collapseIcon fa-caret-down"></span>
+            <span rsf:id="sectionHeaderText" class="sectionHeaderText"></span>
+            <span class="toggleCollapse" rsf:id="msg=simplepage.clickToCollapse"></span>
+          </a>
+	</h3>
         <div rsf:id="section:" id="section" class="section">
           <div rsf:id="column:" class="column">
             <div class="editsection">
@@ -2797,36 +2808,31 @@
                     <div rsf:id="movie-link-div">
                       <a rsf:id="movie-link-link" href="#"></a>
                     </div>
+                    <!-- HTML5 video player with caption support -->
                     <video rsf:id="h5video" controls="controls" class="html5video playerwidth" style="display:none">
                       <source rsf:id="h5source" />
                       <track rsf:id="h5track" kind="captions" />
                     </video>
+                    
+                    <!-- HTML5 audio player -->
                     <audio rsf:id="h5audio" controls="controls" class="html5video playerwidth" style="display:none">
                       <source rsf:id="h5asource" />
                     </audio>
-                    <embed rsf:id="movieEmbed" autoplay="false" autostart="false" scale="aspect" showControls="true" class="playerwidth" />
+                    
+                    <!-- PDF.js viewer -->
                     <iframe rsf:id="pdfEmbed"></iframe>
+                    
+                    <!-- Object fallback (used for PowerPoint and other files) -->
                     <object rsf:id="movieObject" class="playerwidth">
                       <param name="src" rsf:id="movieURLInject" />
-                      <param name="FlashVars" rsf:id="flashvars" />
                       <param name="autoplay" value="false" />
                       <param name="autostart" value="false" />
                       <param name="scale" value="aspect" />
                       <param name="showControls" value="true" />
-                      <param rsf:id="wmode" name="wmode" value="opaque" />
                       <p rsf:id="noplugin-p" class="sak-banner-warn-inline mb-1"></p>
                       <br rsf:id="noplugin-br" />
                       <a href="#" rsf:id="noplugin" target="_blank"></a>
                       <embed rsf:id="mp4-embed" autoplay="false" autostart="false" scale="aspect" class="playerwidth" />
-                      <object rsf:id="mp4-object" class="playerwidth">
-                        <param name="src" rsf:id="mp4-inject" />
-                        <param name="autoplay" value="false" />
-                        <param name="autostart" value="false" />
-                        <param name="scale" value="aspect" />
-                        <p rsf:id="mp4-noplugin-p"></p>
-                        <br/>
-                        <a href="#" rsf:id="mp4-noplugin" target="_blank"></a>
-                      </object>
                     </object>
                     <div rsf:id="movie-td" role="toolbar" class="edit-col">
                       <div>
@@ -2959,7 +2965,7 @@
                   <div class="studentDiv" rsf:id="studentDiv">
                     <div rsf:id="item-group-titles7" class="item-group-titles"></div>
                     <div class="studentContentTable" rsf:id="studentContentTable" role="list">
-                      <img src="/library/image/silk/page_white_stack.png" class="item-image student-image" />
+                      <span class="bi bi-file-earmark-text item-image student-image" aria-hidden="true"></span>
                       <h3 class="studentContentTitle" rsf:id="studentContentTitle" id="studentContentTitle"></h3>
                       <div rsf:id="studentRow:" class="studentRow" role="listitem">
                         <span rsf:id="newPageImg" aria-hidden="true" class="fa-file-o fa-fw"></span>
@@ -3103,7 +3109,7 @@
                           </tbody>
                         </table>
                       </div>
-                      <button class="btn btn-link">
+                      <button class="btn btn-link" rsf:id="cancel-peereval-button">
                         <a rsf:id="cancel-peereval-link" class="cancel-peereval-link" onclick="return false;">
                           <span rsf:id="cancel-peereval-text"></span>
                         </a>
@@ -3134,7 +3140,7 @@
                     </div>
 
                     <div class="contentCol">
-                      <img src="/library/image/silk/text_list_bullets.png" class="item-image question-image" />
+                      <span class="bi bi-list-ul item-image question-image" aria-hidden="true"></span>
                       <span class="lb-offscreen" rsf:id="questionNote"></span>
                       <div class="questionText fs-4 fw-bold" rsf:id="questionText"></div>
                       <div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv">
@@ -3321,6 +3327,9 @@
         <p rsf:id="msg=simplepage.integer-expected" id="simplepage.integer-expected"></p>
         <p rsf:id="msg=simplepage.integer-too-big" id="simplepage.integer-too-big"></p>
         <p rsf:id="msg=simplepage.gbname-expected" id="simplepage.gbname-expected"></p>
+
+        <p rsf:id="msg=simplepage.multi_gradebook.no_group" id="simplepage.multi_gradebook.no_group"></p>
+
         <p rsf:id="msg=simplepage.width-height" id="simplepage.width-height"></p>
         <p rsf:id="msg=simplepage.nothing-over-100-percent" id="simplepage.nothing-over-100-percent"></p>
         <p rsf:id="msg=simplepage.missing-question-text" id="simplepage.missing-question-text"></p>

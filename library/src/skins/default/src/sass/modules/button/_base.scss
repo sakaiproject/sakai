@@ -9,8 +9,8 @@ html {
     --sui-btn-padding: #{$btn-padding-y} #{$btn-padding-x};
     --sui-btn-box-shadow: var(--button-shadow);
     --sui-btn-hover-box-shadow: var(--button-hover-shadow);
-    --sui-btn-font-family: #{$btn-font-family};
-    --sui-btn-font-size: #{$btn-font-size};
+    --sui-btn-font-family: var(--sakai-font-family);
+    --sui-btn-font-size: var(--default-font-size);
     --sui-btn-line-height: #{$btn-line-height};
     --sui-btn-font-weight: #{$btn-font-weight};
 }

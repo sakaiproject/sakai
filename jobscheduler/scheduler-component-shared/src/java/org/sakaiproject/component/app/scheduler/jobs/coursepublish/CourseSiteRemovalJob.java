@@ -15,6 +15,11 @@
  */
 package org.sakaiproject.component.app.scheduler.jobs.coursepublish;
 
+import java.util.List;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.quartz.JobExecutionContext;
@@ -23,48 +28,35 @@ import org.quartz.StatefulJob;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseSiteRemovalService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * quartz job to remove course sites after a specified period of time.
  */
+@Getter
+@Setter
+@NoArgsConstructor
 @Slf4j
 public class CourseSiteRemovalJob implements StatefulJob {
    // sakai.properties
    public final static String PROPERTY_COURSE_SITE_REMOVAL_ACTION                        = "course_site_removal_service.action";
-   public final static String PROPERTY_COURSE_SITE_REMOVAL_USER                          = "course_site_removal_service.user";
    public final static String PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS      = "course_site_removal_service.num_days_after_term_ends";
 
    // default values for the sakai.properties
-   public final static CourseSiteRemovalService.Action DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION                   = CourseSiteRemovalService.Action.unpublish;
-   public final static String DEFAULT_VALUE_COURSE_SITE_REMOVAL_SITE_TYPE                = "course";
-   public final static String DEFAULT_VALUE_COURSE_SITE_REMOVAL_USER                     = "admin";
+   public final static CourseSiteRemovalService.Action DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION = CourseSiteRemovalService.Action.unpublish;
    public final static int DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS = 14;
 
    // sakai services
-   private CourseSiteRemovalService   courseSiteRemovalService;
+   private CourseSiteRemovalService courseSiteRemovalService;
+   private EventTrackingService eventTrackingService;
    private ServerConfigurationService serverConfigurationService;
    private SessionManager sessionManager;
-   private UserDirectoryService userDirectoryService;
-
-   // data members
-   private User user;                    // sakai user who will be used when running this job
    private CourseSiteRemovalService.Action action;                  // action to be taken when a course site is found to be expired.
    private int numDaysAfterTermEnds;    // number of days after a term ends when course sites expire.
-
-
-
-
-   /**
-    * default constructor.
-    */
-   public CourseSiteRemovalJob() {
-      // no code necessary
-	}
 
    /**
     * called by the spring framework.
@@ -79,44 +71,19 @@ public class CourseSiteRemovalJob implements StatefulJob {
     * called by the spring framework after this class has been instantiated, this method reads in the following values from sakai.properties:
     * <ol>
     *    <li>course_site_removal_service.action                  </li>
-    *    <li>course_site_removal_service.user                    </li>
     *    <li>course_site_removal_service.num_days_after_term_ends</li>
     * </ol>
     */
    public void init() {
       log.debug("init()");
 
-      // get the number of days after a term ends after which course sites that have expired will be removed
-      try{
-         numDaysAfterTermEnds= serverConfigurationService.getInt(PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS, DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS);
-      } catch (NumberFormatException ex) {
-         log.error("The value specified for numDaysAfterTermEnds in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + " will be used instead.");
-         numDaysAfterTermEnds = DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS;
-      }
-      if (numDaysAfterTermEnds < 0) {
-         log.error("The value specified for numDaysAfterTermEnds in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + ", is not valid.  A default value of " + DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS + " will be used instead.");
-         numDaysAfterTermEnds = DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS;
-      }
-
-      // get the user which will be used to run the quartz job
-      String userId = serverConfigurationService.getString(PROPERTY_COURSE_SITE_REMOVAL_USER,DEFAULT_VALUE_COURSE_SITE_REMOVAL_USER);
-      try {
-         user = userDirectoryService.getUser(userId);
-      } catch (UserNotDefinedException ex) {
-         user = null;
-         log.error("The user with eid {} was not found.  The course site publish job has been aborted.", userId);
-      }
-
-
+      numDaysAfterTermEnds= serverConfigurationService.getInt(PROPERTY_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS, DEFAULT_VALUE_COURSE_SITE_REMOVAL_NUM_DAYS_AFTER_TERM_ENDS);
       // get the action to be taken when a course is found to be expired
       String actionString = serverConfigurationService.getString(PROPERTY_COURSE_SITE_REMOVAL_ACTION);
-      if (actionString == null || actionString.trim().length() == 0)
-      {
+      if (actionString == null || actionString.trim().isEmpty()) {
          log.warn("The property " + PROPERTY_COURSE_SITE_REMOVAL_ACTION + " was not specified in sakai.properties.  Using a default value of {}.", DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION);
          action = DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION;
-      }
-      else
-      {
+      } else {
          action = getAction(actionString);
          if (action == null) {
             log.error("The value specified for {} in sakai.properties, " + PROPERTY_COURSE_SITE_REMOVAL_ACTION + ", is not valid.  A default value of {} will be used instead.", actionString, DEFAULT_VALUE_COURSE_SITE_REMOVAL_ACTION);
@@ -129,25 +96,29 @@ public class CourseSiteRemovalJob implements StatefulJob {
     * implement the quartz job interface, which is called by the scheduler when a trigger associated with the job fires.
     * this quartz job removes course sites that are more than a specified number of terms old.
     */
+   @Override
    public void execute(JobExecutionContext context) throws JobExecutionException {
       synchronized (this) {
          log.info("execute()");
          String actionStr = CourseSiteRemovalService.Action.remove.equals(action) ? " course sites were removed." : " course sites were unpublished.";
 
-         if (user == null) {
-            log.error("The scheduled job to remove course sites can not be run with an invalid user.  No{}", actionStr);
-         } else {
             try {
                // switch the current user to the one specified to run the quartz job
                Session sakaiSesson = sessionManager.getCurrentSession();
-               sakaiSesson.setUserId(user.getId());
+               sakaiSesson.setUserId("admin");
 
-               int numSitesRemoved = courseSiteRemovalService.removeCourseSites(action, numDaysAfterTermEnds);
-               log.info("{}{}", numSitesRemoved, actionStr);
+               List<String> removedSiteIds = courseSiteRemovalService.removeCourseSites(action, numDaysAfterTermEnds);
+               log.info("removeCourseSites: {} {}", removedSiteIds.size(), actionStr);
+
+               String eventType = CourseSiteRemovalService.Action.remove.equals(action) ? 
+                  SiteService.SECURE_REMOVE_SITE : SiteService.EVENT_SITE_UNPUBLISH;
+
+               for (String siteId : removedSiteIds) {
+                  eventTrackingService.post(eventTrackingService.newEvent(eventType, "/site/" + siteId, siteId, true, NotificationService.NOTI_OPTIONAL));
+               }
             } catch (Exception ex) {
-               log.error(ex.getMessage(), ex);
+               log.error("Error while removing course sites: {}", ex.toString());
             }
-         }
       }
    }
 
@@ -165,88 +136,4 @@ public class CourseSiteRemovalJob implements StatefulJob {
       return action;
    }
 
-   /**
-    * returns the instance of the SiteRemovalService injected by the spring framework specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @return the instance of the SiteRemovalService injected by the spring framework specified in the components.xml file via IoC.
-    */
-   public CourseSiteRemovalService getCourseSiteRemovalService() {
-      return courseSiteRemovalService;
-   }
-
-   /**
-    * called by the spring framework to initialize the courseSiteRemovalService data member specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @param courseSiteRemovalService   the implementation of the SiteRemovalService interface provided by the spring framework.
-    */
-   public void setCourseSiteRemovalService(CourseSiteRemovalService courseSiteRemovalService) {
-      this.courseSiteRemovalService = courseSiteRemovalService;
-   }
-
-   /**
-    * returns the instance of the ServerConfigurationService injected by the spring framework specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @return the instance of the ServerConfigurationService injected by the spring framework specified in the components.xml file via IoC.
-    */
-   public ServerConfigurationService getServerConfigurationService() {
-      return serverConfigurationService;
-   }
-
-   /**
-    * called by the spring framework to initialize the serverConfigurationService data member specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @param serverConfigurationService   the implementation of the ServerConfigurationService interface provided by the spring framework.
-    */
-   public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-      this.serverConfigurationService = serverConfigurationService;
-   }
-
-   /**
-    * returns the instance of the SessionManager injected by the spring framework specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @return the instance of the SessionManager injected by the spring framework specified in the components.xml file via IoC.
-    */
-   public SessionManager getSessionManager() {
-      return sessionManager;
-   }
-
-   /**
-    * called by the spring framework to initialize the sessionManager data member specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @param sessionManager   the implementation of the SessionManager interface provided by the spring framework.
-    */
-   public void setSessionManager(SessionManager sessionManager) {
-      this.sessionManager = sessionManager;
-   }
-
-   /**
-    * @return the user which will be used to run the quartz job.
-    */
-   public User getUser() {
-      return user;
-   }
-
-   /**
-    * sets the user which will be used to run the quartz job.
-    */
-   public void setUser() {
-   }
-
-   /**
-    * returns the instance of the UserDirectoryService injected by the spring framework specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @return the instance of the UserDirectoryService injected by the spring framework specified in the components.xml file via IoC.
-    */
-   public UserDirectoryService getUserDirectoryService() {
-      return userDirectoryService;
-   }
-
-   /**
-    * called by the spring framework to initialize the userDirectoryService data member specified in the components.xml file via IoC.
-    * <br/><br/>
-    * @param userDirectoryService   the implementation of the UserDirectoryService interface provided by the spring framework.
-    */
-   public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-      this.userDirectoryService = userDirectoryService;
-   }
 }

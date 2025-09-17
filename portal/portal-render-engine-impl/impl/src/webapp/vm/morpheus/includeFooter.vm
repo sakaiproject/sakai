@@ -17,15 +17,27 @@
                       data-bs-content='#parse("/vm/morpheus/snippets/serverInfoPopover-snippet.vm")'
                       data-bs-template='${popoverTemplate}'
               >
-                  <i class="bi bi-info-circle"></i>
+                  <span class="bi bi-info-circle" aria-hidden="true"></span>
               </button>
           </li>
         </ul>
-        <div class="nav">
+        <div class="copyright-powered">
             <span>${bottomNavCopyright}</span>
+            <ul>
+                #foreach($item in $bottomNavPoweredBy)
+                    <li>
+                        <a href="$item.poweredByUrl" target="_blank">
+                            <img class="poweredby__image" src="$item.poweredByImage" alt="$item.poweredByAltText" />
+                        </a>
+                    </li>
+                #end
+            </ul>
         </div>
         <div id="tutorial" class="Mrphs-tutorial Mrphs-modal"></div>
     </footer>
+
+    #parse("/vm/morpheus/includeFooterExtras.vm")
+
 #else 
 
     <!-- dont compact -->

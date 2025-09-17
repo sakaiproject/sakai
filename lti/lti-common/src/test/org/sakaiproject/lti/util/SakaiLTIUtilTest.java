@@ -15,15 +15,16 @@
  */
 package org.sakaiproject.lti.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -176,60 +177,60 @@ public class SakaiLTIUtilTest {
 
 	@Test
 	public void testConvertLong() {
-		Long l = SakaiLTIUtil.getLongNull(new Long(2));
-		assertEquals(l, new Long(2));
-		l = SakaiLTIUtil.getLongNull(new Double(2.2));
-		assertEquals(l, new Long(2));
-		l = SakaiLTIUtil.getLongNull(null);
+		Long l = LTIUtil.toLongNull(Long.valueOf(2));
+		assertEquals(l, Long.valueOf(2));
+		l = LTIUtil.toLongNull(Double.valueOf(2.2));
+		assertEquals(l, Long.valueOf(2));
+		l = LTIUtil.toLongNull(null);
 		assertEquals(l, null);
-		l = SakaiLTIUtil.getLongNull("fred");
+		l = LTIUtil.toLongNull("fred");
 		assertEquals(l, null);
-		l = SakaiLTIUtil.getLongNull("null");
+		l = LTIUtil.toLongNull("null");
 		assertEquals(l, null);
-		l = SakaiLTIUtil.getLongNull("NULL");
+		l = LTIUtil.toLongNull("NULL");
 		assertEquals(l, null);
 		// This one is a little weird but it is how it was written - double is different
-		l = SakaiLTIUtil.getLongNull("");
-		assertEquals(l, new Long(-1));
-		l = SakaiLTIUtil.getLongNull("2");
-		assertEquals(l, new Long(2));
-		l = SakaiLTIUtil.getLongNull("2.5");
+		l = LTIUtil.toLongNull("");
 		assertEquals(l, null);
-		l = SakaiLTIUtil.getLongNull(new Float(3.1));
-		assertEquals(l, new Long(3));
+		l = LTIUtil.toLongNull("2");
+		assertEquals(l, Long.valueOf(2));
+		l = LTIUtil.toLongNull("2.5");
+		assertEquals(l, null);
+		l = LTIUtil.toLongNull(Float.valueOf(3.1f));
+		assertEquals(l, Long.valueOf(3));
 		// Casting truncates
-		l = SakaiLTIUtil.getLongNull(new Float(3.9));
-		assertEquals(l, new Long(3));
-		l = SakaiLTIUtil.getLongNull(new Integer(3));
-		assertEquals(l, new Long(3));
+		l = LTIUtil.toLongNull(Float.valueOf(3.9f));
+		assertEquals(l, Long.valueOf(3));
+		l = LTIUtil.toLongNull(Integer.valueOf(3));
+		assertEquals(l, Long.valueOf(3));
 	}
 
 	@Test
 	public void testConvertDouble() {
-		Double d = SakaiLTIUtil.getDoubleNull(new Double(2.0));
-		assertEquals(d, new Double(2.0));
-		d = SakaiLTIUtil.getDoubleNull(new Double(2.5));
-		assertEquals(d, new Double(2.5));
-		d = SakaiLTIUtil.getDoubleNull(null);
+		Double d = LTIUtil.toDoubleNull(Double.valueOf(2.0));
+		assertEquals(d, Double.valueOf(2.0));
+		d = LTIUtil.toDoubleNull(Double.valueOf(2.5));
+		assertEquals(d, Double.valueOf(2.5));
+		d = LTIUtil.toDoubleNull(null);
 		assertEquals(d, null);
-		d = SakaiLTIUtil.getDoubleNull("fred");
+		d = LTIUtil.toDoubleNull("fred");
 		assertEquals(d, null);
-		d = SakaiLTIUtil.getDoubleNull("null");
+		d = LTIUtil.toDoubleNull("null");
 		assertEquals(d, null);
-		d = SakaiLTIUtil.getDoubleNull("NULL");
+		d = LTIUtil.toDoubleNull("NULL");
 		assertEquals(d, null);
-		d = SakaiLTIUtil.getDoubleNull("");
+		d = LTIUtil.toDoubleNull("");
 		assertEquals(d, null);
-		d = SakaiLTIUtil.getDoubleNull("2.0");
-		assertEquals(d, new Double(2.0));
-		d = SakaiLTIUtil.getDoubleNull("2.5");
-		assertEquals(d, new Double(2.5));
-		d = SakaiLTIUtil.getDoubleNull("2");
-		assertEquals(d, new Double(2.0));
-		d = SakaiLTIUtil.getDoubleNull(new Long(3));
-		assertEquals(d, new Double(3.0));
-		d = SakaiLTIUtil.getDoubleNull(new Integer(3));
-		assertEquals(d, new Double(3.0));
+		d = LTIUtil.toDoubleNull("2.0");
+		assertEquals(d, Double.valueOf(2.0));
+		d = LTIUtil.toDoubleNull("2.5");
+		assertEquals(d, Double.valueOf(2.5));
+		d = LTIUtil.toDoubleNull("2");
+		assertEquals(d, Double.valueOf(2.0));
+		d = LTIUtil.toDoubleNull(Long.valueOf(3));
+		assertEquals(d, Double.valueOf(3.0));
+		d = LTIUtil.toDoubleNull(Integer.valueOf(3));
+		assertEquals(d, Double.valueOf(3.0));
 	}
 
 	@Test
@@ -529,8 +530,8 @@ public class SakaiLTIUtilTest {
 		Map<String, String> toolRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(toolOutboundMapStr);
 
 		Map<String, String> propRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(
-			"Dude:Dude,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Abides;" +
-			"Staff:Staff,Dude,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff;"
+			"Dude:Dude,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Abides;"
+			+ "Staff:Staff,Dude,http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff;"
 		);
 		Map<String, String> defaultRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(SakaiLTIUtil.LTI_OUTBOUND_ROLE_MAP_DEFAULT);
 
@@ -769,27 +770,27 @@ public class SakaiLTIUtilTest {
 		assertEquals(retval, false);
 
 		// Only content
-		content.put(LTIService.LTI_NEWPAGE, new Integer(0));
+		content.put(LTIService.LTI_NEWPAGE, 0L);
 		retval = SakaiLTIUtil.getNewpage(tool, content, true);
 		assertEquals(retval, false);
-		content.put(LTIService.LTI_NEWPAGE, new Integer(1));
+		content.put(LTIService.LTI_NEWPAGE, 1L);
 		retval = SakaiLTIUtil.getNewpage(tool, content, false);
 		assertEquals(retval, true);
 
 		// Tool wins
-		tool.put(LTIService.LTI_NEWPAGE, new Integer(LTIService.LTI_TOOL_NEWPAGE_OFF));
+		tool.put(LTIService.LTI_NEWPAGE, LTIService.LTI_TOOL_NEWPAGE_OFF);
 		retval = SakaiLTIUtil.getNewpage(tool, content, false);
 		assertEquals(retval, false);
 
-		tool.put(LTIService.LTI_NEWPAGE, new Integer(LTIService.LTI_TOOL_NEWPAGE_ON));
+		tool.put(LTIService.LTI_NEWPAGE, Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_ON));
 		retval = SakaiLTIUtil.getNewpage(tool, content, false);
 		assertEquals(retval, true);
 
 		// Let content win
-		tool.put(LTIService.LTI_NEWPAGE, new Integer(LTIService.LTI_TOOL_NEWPAGE_CONTENT));
+		tool.put(LTIService.LTI_NEWPAGE, Long.valueOf(LTIService.LTI_TOOL_NEWPAGE_CONTENT));
 		retval = SakaiLTIUtil.getNewpage(tool, content, false);
 		assertEquals(retval, true);
-		content.put(LTIService.LTI_NEWPAGE, new Integer(0));
+		content.put(LTIService.LTI_NEWPAGE, 0L);
 		retval = SakaiLTIUtil.getNewpage(tool, content, true);
 		assertEquals(retval, false);
 	}
@@ -805,12 +806,12 @@ public class SakaiLTIUtilTest {
 		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "1200px");
 
-		content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(42));
+		content.put(LTIService.LTI_FRAMEHEIGHT, Long.valueOf(42));
 		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "42px");
 
 		// Tool is empty
-		content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(42));
+		content.put(LTIService.LTI_FRAMEHEIGHT, Long.valueOf(42));
 		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "42px");
 
@@ -819,7 +820,7 @@ public class SakaiLTIUtilTest {
 		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "44px");
 
-		tool.put(LTIService.LTI_FRAMEHEIGHT, new Integer(100));
+		tool.put(LTIService.LTI_FRAMEHEIGHT, Long.valueOf(100));
 		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "44px");
 
@@ -839,8 +840,8 @@ public class SakaiLTIUtilTest {
 		content.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
 		content.put(LTIService.LTI_TITLE, "An LTI title");
 		content.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		content.put(LTIService.LTI_NEWPAGE, Long.valueOf(1));
-		content.put(LTIService.LTI_TOOL_ID, Long.valueOf(42)); // Should not come back
+		content.put(LTIService.LTI_NEWPAGE, 1L);
+		content.put(LTIService.LTI_TOOL_ID, 42L); // Should not come back
 
 		Element element = SakaiLTIUtil.archiveContent(doc, content, null);
 		root.appendChild(element);
@@ -866,7 +867,7 @@ public class SakaiLTIUtilTest {
 		tool.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
 		tool.put(LTIService.LTI_TITLE, "An LTI title");
 		tool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		tool.put(LTIService.LTI_NEWPAGE, Long.valueOf(1));
+		tool.put(LTIService.LTI_NEWPAGE, 1L);
 
 		tool.put(LTIService.LTI_SENDNAME, "please");  // Wil export (bad data) will not import
 		tool.put(LTIService.LTI_SECRET, "verysecure");  // Should not come back - Not archived
@@ -912,7 +913,7 @@ public class SakaiLTIUtilTest {
 		content.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
 		content.put(LTIService.LTI_TITLE, "An LTI title");
 		content.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		content.put(LTIService.LTI_NEWPAGE, Long.valueOf(1));
+		content.put(LTIService.LTI_NEWPAGE, 1L);
 
 		Map<String, Object> tool = new HashMap();
 		tool.put(LTIService.LTI_FRAMEHEIGHT, Long.valueOf(42));
@@ -920,7 +921,7 @@ public class SakaiLTIUtilTest {
 		tool.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
 		tool.put(LTIService.LTI_TITLE, "An LTI title");
 		tool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		tool.put(LTIService.LTI_NEWPAGE, Long.valueOf(1));
+		tool.put(LTIService.LTI_NEWPAGE, 1L);
 		tool.put(LTIService.LTI_CONSUMERKEY, "key12345");  // Should not come back - Not archived
 		tool.put(LTIService.LTI_SECRET, "sec12345");  // Should not come back - Not archived
 
@@ -952,7 +953,7 @@ public class SakaiLTIUtilTest {
 		tool.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
 		tool.put(LTIService.LTI_TITLE, "An LTI title");
 		tool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		tool.put(LTIService.LTI_NEWPAGE, Long.valueOf(1));
+		tool.put(LTIService.LTI_NEWPAGE, 1L);
 
 		test = SakaiLTIUtil.computeToolCheckSum(tool);
 		assertEquals(test, null);
@@ -987,6 +988,82 @@ public class SakaiLTIUtilTest {
 
 		Long contentKey = SakaiLTIUtil.getContentKeyFromLaunch(launchUrl);
 		assertEquals(contentKey, Long.valueOf(43));
+	}
+
+	@Test
+	public void testExtractLtiLaunchUrls() {
+		// Test various URL patterns
+		String html = "Here are some URLs:\n" +
+			"http://localhost:8080/access/lti/site/abc-123/content:1 \n" +
+			"https://localhost:8080/access/lti/site/def-456/content:2 \n" +
+			"http://localhost:8080/access/blti/site/ghi-789/content:3 \n" +
+			"https://localhost:8080/access/blti/site/jkl-012/content:4 \n" +
+			"This is not a valid URL: http://localhost:8080/access/other/site/mno-345/content:5";
+
+		List<String> urls = SakaiLTIUtil.extractLtiLaunchUrls(html);
+		assertEquals(4, urls.size());
+		assertEquals("http://localhost:8080/access/lti/site/abc-123/content:1", urls.get(0));
+		assertEquals("https://localhost:8080/access/lti/site/def-456/content:2", urls.get(1));
+		assertEquals("http://localhost:8080/access/blti/site/ghi-789/content:3", urls.get(2));
+		assertEquals("https://localhost:8080/access/blti/site/jkl-012/content:4", urls.get(3));
+
+		// Test with no matching URLs
+		String html2 = "No matching URLs here: http://example.com http://test.com/lti";
+		List<String> urls2 = SakaiLTIUtil.extractLtiLaunchUrls(html2);
+		assertEquals(0, urls2.size());
+
+		// Test with null input
+		List<String> urls3 = SakaiLTIUtil.extractLtiLaunchUrls(null);
+		assertEquals(0, urls3.size());
+
+		// Test with empty string
+		List<String> urls4 = SakaiLTIUtil.extractLtiLaunchUrls("");
+		assertEquals(0, urls4.size());
+
+		// Test URLs embedded in HTML
+		String html5 = "<p>Some text</p><p><a href=\"https://localhost:8080/access/blti/site/mno-345/content:6\">Link</a></p>" +
+			"<p><a href=\"http://localhost:8080/access/lti/site/pqr-678/content:7\">Another Link</a></p>";
+		List<String> urls5 = SakaiLTIUtil.extractLtiLaunchUrls(html5);
+		assertEquals(2, urls5.size());
+		assertEquals("https://localhost:8080/access/blti/site/mno-345/content:6", urls5.get(0));
+		assertEquals("http://localhost:8080/access/lti/site/pqr-678/content:7", urls5.get(1));
+	}
+
+	@Test
+	public void testGetContentKeyAndSiteId() {
+		// Test standard LTI URL
+		String html1 = "http://localhost:8080/access/lti/site/7d529bf7/content:1";
+		String[] result1 = SakaiLTIUtil.getContentKeyAndSiteId(html1);
+		assertNotNull(result1);
+		assertEquals("7d529bf7", result1[0]);
+		assertEquals("1", result1[1]);
+
+		// Test BLTI URL
+		String html2 = "https://localhost:8080/access/blti/site/abc123def/content:42";
+		String[] result2 = SakaiLTIUtil.getContentKeyAndSiteId(html2);
+		assertNotNull(result2);
+		assertEquals("abc123def", result2[0]);
+		assertEquals("42", result2[1]);
+
+		// Test URL embedded in HTML
+		String html3 = "<p><a href=\"https://localhost:8080/access/lti/site/xyz789/content:99\">Link</a></p>";
+		String[] result3 = SakaiLTIUtil.getContentKeyAndSiteId(html3);
+		assertNotNull(result3);
+		assertEquals("xyz789", result3[0]);
+		assertEquals("99", result3[1]);
+
+		// Test invalid URL
+		String html4 = "http://localhost:8080/access/other/site/invalid/content:1";
+		String[] result4 = SakaiLTIUtil.getContentKeyAndSiteId(html4);
+		assertNull(result4);
+
+		// Test null input
+		String[] result5 = SakaiLTIUtil.getContentKeyAndSiteId(null);
+		assertNull(result5);
+
+		// Test empty string
+		String[] result6 = SakaiLTIUtil.getContentKeyAndSiteId("");
+		assertNull(result6);
 	}
 }
 

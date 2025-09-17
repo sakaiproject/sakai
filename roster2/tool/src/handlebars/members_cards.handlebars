@@ -4,11 +4,8 @@
             <sakai-user-photo
                 user-id="{{userId}}"
                 label="{{tr 'profile_picture_alt'}} {{displayName}}"
-                site-id="{{siteId}}"
+                title="{{tr 'profile_picture_alt'}} {{displayName}}"
                 classes="roster-photo"
-                {{#if ../viewPicture}}
-                profile-popup="on"
-                {{/if}}
                 {{#if official}}
                 official
                 {{else}}
@@ -19,6 +16,7 @@
                 {{#if ../printMode}}
                 print
                 {{/if}}
+                profile-popup="on"
             >
             </sakai-user-photo>
         </div> <!-- /roster-picture-card -->
@@ -30,7 +28,7 @@
                 {{#if ../../viewProfile}}
                 <a href="javascript:;" class="profile" data-user-id="{{userId}}">
                 {{/if}}
-                {{getName firstNameLastName}}
+                {{{getName ../firstNameLastName}}}
                 {{#if ../../viewProfile}}
                 </a>
                 {{/if}}
@@ -46,11 +44,14 @@
             {{#if ../viewProfile}}
                 <div class="roster-card-label">{{tr 'facet_profile_link'}}</div>
                 <div class="roster-card-value">
-                    <a href="{{{profileLink}}}"
-                            title="{{tr 'profile_link_text'}} : {{tr 'profile_link_tooltip'}} {{displayName}}"
-                            aria-label="{{tr 'profile_link_tooltip'}} {{displayName}}">
-                        {{tr 'profile_link_text'}}
-                    </a>
+                    <button class="btn btn-sm"
+                        type="button"
+                        data-user-id="{{userId}}"
+                        onclick="portal.displayProfile(event);"
+                        title="{{tr 'profile_link_text'}} : {{tr 'profile_link_tooltip'}} {{displayName}}"
+                        aria-label="{{tr 'profile_link_tooltip'}} {{displayName}}">
+                      {{tr 'profile_link_text'}}
+                    </button>
                 </div>
             {{/if}}
 
@@ -67,8 +68,8 @@
             <div class="roster-card-label">{{tr 'facet_user_name_pronunciation'}}</div>
             <div class="roster-card-value namePronunciation">
                 <span class="namePronunciation">
-                {{#if pronunciation}}
-                    {{{pronunciation}}}
+                {{#if hasPronunciationRecording}}
+                    <sakai-pronunciation-player user-id="{{userId}}"></sakai-pronunciation-player>
                 {{else}}
                     {{#ifCond ../currentUserId userId}}
                         {{#if ../profileNamePronunciationLink}}

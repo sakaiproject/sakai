@@ -33,6 +33,7 @@ import org.hibernate.Criteria;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -374,5 +375,34 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 			log.warn("Unable to get group for realm, ID = " + realmID, ex);
 			return Collections.emptyList();
 		}
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public long getDetailedEventsCount(final TrackingParams trackingParams)
+	{
+		if (!statMan.isDisplayDetailedEvents() || !statsAuthz.canCurrentUserTrackInSite(trackingParams.siteId))
+		{
+			return 0;
+		}
+
+		HibernateCallback<Long> hcb = session ->
+		{
+			Optional<Criteria> critOpt = basicCriteriaForTrackingParams(session, trackingParams);
+			if (!critOpt.isPresent())
+			{
+				return 0L;
+			}
+			
+			Criteria crit = critOpt.get();
+			// Use the Hibernate rowCount projection to get the total count
+			crit.setProjection(Projections.rowCount());
+			
+			return (Long) crit.uniqueResult();
+		};
+
+		return (Long) getHibernateTemplate().execute(hcb);
 	}
 }

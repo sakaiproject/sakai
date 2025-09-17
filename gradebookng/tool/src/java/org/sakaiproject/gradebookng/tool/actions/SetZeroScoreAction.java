@@ -38,7 +38,8 @@ public class SetZeroScoreAction extends InjectableAction implements Serializable
 
 		window.setTitle(gradebookPage.getString("heading.zeroungradeditems"));
 		window.setReturnFocusToCourseGrade();
-		window.setContent(new ZeroUngradedItemsPanel(window.getContentId(), window));
+		ZeroUngradedItemsPanel zuip = new ZeroUngradedItemsPanel(window.getContentId(), window);
+		window.setContent(zuip);
 		window.showUnloadConfirmation(false);
 		window.show(target);
 

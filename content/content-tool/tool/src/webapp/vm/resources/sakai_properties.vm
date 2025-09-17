@@ -1,5 +1,6 @@
 <!-- sakai_properties.vm -->
-
+#set( $H = '-' )
+#set( $T = 'T' )
 <script>includeLatestJQuery('sakai_properties');</script>
 <script>
     includeWebjarLibrary('bootstrap-multiselect');
@@ -478,7 +479,7 @@ button.btn.btn-default.multiselect-clear-filter{
 					#end
 				#end
 				#if(!$model.isSiteCollection())
-					<p class="text-muted ms-4 mt-1">$model.getAccessInstruction()</p>
+					<p class="text-muted mt-4 mb-2 h5">$model.getAccessInstruction()</p>
 
 					<div class="form-group">
 						#set ($listDisplay="none")

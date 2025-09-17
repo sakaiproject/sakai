@@ -19,7 +19,11 @@ import java.util.List;
 
 import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 public class AjaxBootstrapTabbedPanel<T extends ITab> extends AjaxTabbedPanel<T> {
 
@@ -33,13 +37,21 @@ public class AjaxBootstrapTabbedPanel<T extends ITab> extends AjaxTabbedPanel<T>
 		super(id, tabs, model);
 	}
 
-	@Override
-	protected String getSelectedTabCssClass() {
-		return "active";
-	}
+
 
 	@Override
 	protected String getTabContainerCssClass() {
-		return "nav nav-tabs";
+		return "navIntraTool actionToolbar";
+	}
+	
+	@Override
+	protected WebMarkupContainer newLink(final String linkId, final int index) {
+		WebMarkupContainer link = super.newLink(linkId, index);
+		
+		if (index == getSelectedTab()) {
+			link.add(new AttributeAppender("class", Model.of("current"), " "));
+		}
+		
+		return link;
 	}
 }

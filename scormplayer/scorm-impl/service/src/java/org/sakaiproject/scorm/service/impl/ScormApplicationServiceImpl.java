@@ -1404,13 +1404,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				double rawScore = score.getAsDouble() * 100d;
 
 				// We don't care about the presence of an existing grade; push the new/updated one
-				gbService.updateExternalAssessmentScore(context, externalAssessmentID, learnerID, "" + rawScore);
+				gbService.updateExternalAssessmentScore(context, context, externalAssessmentID, learnerID, "" + rawScore);
 
 				// If there's an existing comment, we need to scan it for the presence of the "no grade recorded" message and remove it, but preserve any instructor added comments
 				if (existingComment.contains(moduleNoScoreRecorded))
 				{
 					String comment = existingComment.replaceAll(moduleNoScoreRecorded, "");
-					gbService.updateExternalAssessmentComment(context, externalAssessmentID, learnerID, comment);
+					gbService.updateExternalAssessmentComment(context, context, externalAssessmentID, learnerID, comment);
 				}
 			}
 			else // Module did not record a score...
@@ -1419,7 +1419,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				if (!existingComment.contains(moduleNoScoreRecorded))
 				{
 					String comment = moduleNoScoreRecorded + " " + existingComment;
-					gbService.updateExternalAssessmentComment(context, externalAssessmentID, learnerID, comment);
+					gbService.updateExternalAssessmentComment(context, context, externalAssessmentID, learnerID, comment);
 				}
 			}
 		}

@@ -59,8 +59,6 @@ public interface AssignmentService extends EntityProducer {
 
     Entity createAssignmentEntity(String assignmentId);
 
-    Entity createAssignmentEntity(Assignment assignment);
-
     /**
      * Check permissions for receiving assignment submission notification email
      *
@@ -745,8 +743,11 @@ public interface AssignmentService extends EntityProducer {
     public String getMaxPointGradeDisplay(int factor, int maxGradePoint);
 
     /**
-     * @param submission
-     * @return
+     * Finds the submitter for this submission. This will check the submittee field if there are multiple submitters
+     * in the case of groups submissions.
+     *
+     * @param submission to check
+     * @return an Optional that contains the submitter if one exists
      */
     public Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission);
 
@@ -823,14 +824,14 @@ public interface AssignmentService extends EntityProducer {
     public List<ContentResource> getAllAcceptableAttachments(AssignmentSubmission submission);
 
     /**
-     * Get an assignment that is linked with a gradebook item
+     * Get assignments that are linked with a gradebook item
      * @param context the context (site id)
      * @param linkId the link id of the gradebook item, usually the gradebook item name or id
-     * @return the matching assignment if found or empty if none
+     * @return the matching assignments if found or null if none
      * @throws IdUnusedException if the assignment doesn't exist
      * @throws PermissionException if the current user is not allowed to access the assignment
      */
-    Optional<Assignment> getAssignmentForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException;
+    List<Assignment> getAssignmentsForGradebookLink(String context, String linkId) throws IdUnusedException, PermissionException;
 
     /**
      * Returns a list of users that belong to multiple groups, if the user is considered a "student" in the group

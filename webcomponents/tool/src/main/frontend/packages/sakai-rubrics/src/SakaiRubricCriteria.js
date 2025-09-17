@@ -24,6 +24,7 @@ export class SakaiRubricCriteria extends RubricsElement {
     minPoints: { attribute: "min-points", type: String },
     isLocked: { attribute: "is-locked", type: Boolean },
     isDraft: { attribute: "is-draft", type: Boolean },
+    _savingWeights: { state: true },
   };
 
   _criteriaReordered(e) {
@@ -164,13 +165,10 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   emitWeightChanged(e) {
 
-    if (e.target.value == "") {
-      e.target.value = 0;
-    }
-    let value = e.target.value.replace(",", ".");
-    value = parseFloat(value);
-    if (isNaN(value)) {
-      value = 0;
+    let value = e.target.value;
+    if (value !== "") {
+      value = parseFloat(value.replace(",", "."));
+      if (Number.isNaN(value)) value = 0;
     }
     const id = parseInt(e.target.getAttribute("data-criterion-id"));
     if (isNaN(id)) {
@@ -276,10 +274,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
   cloneCriterion(e) {
 
-    e.preventDefault();
-    e.stopPropagation();
-
-    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.target.dataset.criterionId}/copy`;
+    const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.currentTarget.dataset.criterionId}/copy`;
     fetch(url, {
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -322,7 +317,15 @@ export class SakaiRubricCriteria extends RubricsElement {
   }
 
   saveWeights() {
-    this.dispatchEvent(new CustomEvent("save-weights"));
+
+    this._savingWeights = true;
+
+    const parentRubric = this.closest("sakai-rubric");
+    if (parentRubric) {
+      parentRubric.saveCriterionWeights().finally(() => this._savingWeights = false);
+    } else {
+      console.error("Parent rubric not found");
+    }
   }
 
   createCriterion(e, empty = false) {
@@ -421,7 +424,9 @@ export class SakaiRubricCriteria extends RubricsElement {
               </div>
               <div class="criterion-actions">
                 ${!this.isLocked ? html`
-                  <a tabindex="0" role="button" data-criterion-id="${c.id}" title="${this.tr("copy")} ${c.title}" aria-label="${this.tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @click="${this.cloneCriterion}" href="#"></a>
+                  <button type="button" data-criterion-id="${c.id}" title="${this.tr("copy")} ${c.title}" aria-label="${this.tr("copy")} ${c.title}" class="btn btn-sm clone" @click="${this.cloneCriterion}">
+                    <span class="fa fa-copy" aria-hidden="true"></span>
+                  </button>
                   <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" .criterion=${c} rubric-id="${this.rubricId}" @delete-item=${this.deleteCriterion}></sakai-item-delete>
                 ` : nothing }
               </div>
@@ -470,7 +475,7 @@ export class SakaiRubricCriteria extends RubricsElement {
                           class="form-control"
                           placeholder="0.0"
                           @input="${this.debounce(this.emitWeightChanged, 500)}"
-                          value="${c.weight.toLocaleString(this.locale)}"
+                          value="${c.weight === 0 ? "" : c.weight.toLocaleString(this.locale)}"
                           title="${!this.validWeight ? tr("total_weight_wrong") : ""}"
                         >
                         <span class="form-control-label"
@@ -546,7 +551,14 @@ export class SakaiRubricCriteria extends RubricsElement {
               </div>
               ${!this.isLocked ? html`
                 <div class="criterion-actions">
-                  <a tabindex="0" role="button" data-criterion-id="${c.id}" title="${this.tr("copy")} ${c.title}" aria-label="${this.tr("copy")} ${c.title}" class="linkStyle clone fa fa-copy" @keyup="${this.openEditWithKeyboard}" @click="${this.cloneCriterion}" href="#"></a>
+                  <button type="button" 
+                    data-criterion-id="${c.id}" 
+                    title="${this.tr("copy")} ${c.title}" 
+                    aria-label="${this.tr("copy")} ${c.title}" 
+                    class="btn clone fa fa-copy"
+                    @keyup="${this.openEditWithKeyboard}" 
+                    @click="${this.cloneCriterion}">
+                  </button>
                   <sakai-item-delete criterion-id="${c.id}" site-id="${this.siteId}" .criterion=${c} rubric-id="${this.rubricId}" @delete-item=${this.deleteCriterion}></sakai-item-delete>
                 </div>
               ` : nothing }
@@ -556,19 +568,29 @@ export class SakaiRubricCriteria extends RubricsElement {
         </div>
       </sakai-reorderer>
       ${!this.isLocked ? html`
-        <div class="action-butons">
+        <div class="action-buttons">
           ${this.weighted ? html`
-            <button class="btn-link save-weights" @click="${this.saveWeights}" ?disabled="${!this.validWeight && !this.isDraft}">
-              <span class="add fa fa-save"></span>
+            <div class="card mb-3 p-2 w-25">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">${this.tr("total_weight")}</span>
+                <span class="${!this.validWeight ? "text-danger" : ""}">${this.totalWeight}%</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">${this.tr("total_grade")}</span>
+                <span>${this.maxPoints}</span>
+              </div>
+            </div>
+            <button class="btn-link save-weights" @click="${this.saveWeights}" .disabled=${this._savingWeights || (!this.validWeight && !this.isDraft)}>
+              <span class="add fa fa-save" aria-hidden="true"></span>
               ${this._i18n.save_weights}
             </button>
           ` : nothing }
           <button class="btn-link add-criterion" @click="${this.createCriterion}">
-            <span class="add fa fa-plus"></span>
+            <span class="add fa fa-plus" aria-hidden="true"></span>
             ${this._i18n.add_criterion}
           </button>
           <button class="btn-link add-empty-criterion" @click="${event => this.createCriterion(event, true)}">
-            <span class="add fa fa-plus"></span>
+            <span class="add fa fa-plus" aria-hidden="true"></span>
             ${this._i18n.add_criterion_group}
           </button>
         </div>

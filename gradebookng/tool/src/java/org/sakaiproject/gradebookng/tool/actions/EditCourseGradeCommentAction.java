@@ -62,12 +62,4 @@ public class EditCourseGradeCommentAction extends InjectableAction implements Se
         return new EditCourseGradeCommentAction.EmptyOkResponse();
     }
 
-    public boolean hasCourseGradeComment(final String studentId, final Long courseGradeId, final Long gradebookId){
-        GradebookNgBusinessService businessService = new GradebookNgBusinessService();
-        String comment = businessService.getAssignmentGradeComment(gradebookId.toString(),courseGradeId.longValue(),studentId);
-        if(StringUtils.isBlank(comment)){
-            return false;
-        }
-        return true;
-    }
 }

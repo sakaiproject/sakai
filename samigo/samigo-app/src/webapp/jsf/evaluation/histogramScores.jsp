@@ -77,46 +77,50 @@ $Id$
         <h:panelGroup styleClass="b5 d-flex justify-content-between my-2" layout="block">
           <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
           <h:panelGroup styleClass="" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-            <h:outputText value="#{evaluationMessages.view} " />
+            <label>
+              <h:outputText value="#{evaluationMessages.view} " />
 
-            <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsL" required="true"
-              onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
-              <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
-              <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}" />
-              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-            </h:selectOneMenu>
+              <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsL" required="true"
+                onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
+                <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+                <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}" />
+                <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
+              </h:selectOneMenu>
 
-            <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsH" required="true"
-              onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
-              <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
-              <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}" />
-              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-            </h:selectOneMenu>
-            <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsA" required="true"
-              onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4'}">
-              <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
-              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
-            </h:selectOneMenu>
+              <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsH" required="true"
+                onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+                <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+                <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}" />
+                <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
+              </h:selectOneMenu>
+              <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsA" required="true"
+                onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4'}">
+                <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+                <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
+              </h:selectOneMenu>
+            </label>
           </h:panelGroup>
-          <div class="dropdown">
-            <button class="btn btn-link dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
-              <h:outputText value="#{evaluationMessages.export}" />
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu row">
-              <li>
-                <h:outputLink value="#{histogramScores.exportStatisticsPdf}" styleClass="d-block" title="#{evaluationMessages.export_as_pdf}" target="_blank">
-                  <h:outputText value="#{evaluationMessages.export_pdf}" />
-                </h:outputLink>
-              </li>
-              <li>
-                <h:outputLink value="#{histogramScores.exportStatisticsXlsx}" styleClass="d-block" title="#{evaluationMessages.export_as_xlsx}" target="_blank">
-                  <h:outputText value="#{evaluationMessages.export_xlsx}" />
-                </h:outputLink>
-              </li>
-            </ul>
-          </div>
+          <h:panelGroup rendered="#{authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
+            <div class="dropdown">
+              <button class="btn btn-link dropdown-toggle" name="Export Button" type="button" data-bs-toggle="dropdown">
+                <h:outputText value="#{evaluationMessages.export}" />
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu row">
+                <li>
+                  <h:outputLink value="#{histogramScores.exportStatisticsPdf}" styleClass="d-block" title="#{evaluationMessages.export_as_pdf}" target="_blank">
+                    <h:outputText value="#{evaluationMessages.export_pdf}" />
+                  </h:outputLink>
+                </li>
+                <li>
+                  <h:outputLink value="#{histogramScores.exportStatisticsXlsx}" styleClass="d-block" title="#{evaluationMessages.export_as_xlsx}" target="_blank">
+                    <h:outputText value="#{evaluationMessages.export_xlsx}" />
+                  </h:outputLink>
+                </li>
+              </ul>
+            </div>
           </h:panelGroup>
+        </h:panelGroup>
 
           <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
 
@@ -445,9 +449,8 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' }
-                        test\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\"
-                        aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">"
+                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } \"
+                        style=\"width: #{bar.columnHeight}%;\">"
                         escape="false" />
                         &nbsp;
                     </div>
@@ -481,9 +484,8 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } role=\"progressbar\"
-                        aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:
-                        #{bar.columnHeight}%;\">"
+                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } \"
+                        style=\"width:#{bar.columnHeight}%;\">"
                         escape="false">
                       </h:outputText>
                       &nbsp;
@@ -521,9 +523,8 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } role=\"progressbar\"
-                        aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:
-                        #{bar.columnHeight}%;\">"
+                      <h:outputText value="<div class=\" progress-bar #{ bar.isCorrect ? 'bg-success' : 'bg-danger' } \"
+                        style=\"width:#{bar.columnHeight}%;\">"
                         escape="false">
                       </h:outputText>
                       &nbsp;
@@ -560,9 +561,8 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar\" role=\"progressbar\"
-                        aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:
-                        #{bar.columnHeight}%;\">"
+                      <h:outputText value="<div class=\" progress-bar\"
+                        style=\"width:#{bar.columnHeight}%;\">"
                         escape="false">
                       </h:outputText>
                       &nbsp;
@@ -597,9 +597,8 @@ $Id$
                       <h:outputText value="#{bar.numStudentsText}" />
                     </span>
                     <div class="progress-stat">
-                      <h:outputText value="<div class=\" progress-bar\" role=\"progressbar\"
-                        aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:
-                        #{bar.columnHeight}%;\">"
+                      <h:outputText value="<div class=\" progress-bar\"
+                        style=\"width:#{bar.columnHeight}%;\">"
                         escape="false">
                       </h:outputText>
                       &nbsp;
@@ -646,8 +645,7 @@ $Id$
                         <h:outputText value="#{itemBar.numStudentsText}" />
                       </span>
                       <div class="progress-stat">
-                        <h:outputText value="<div class=\" progress-bar\" role=\"progressbar\"
-                          aria-valuenow=\"#{itemBar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\"
+                        <h:outputText value="<div class=\" progress-bar\"
                           style=\"width: #{itemBar.columnHeight}%;\">" escape="false" />
                           &nbsp;
                       </div>

@@ -21,10 +21,12 @@ import java.util.List;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A custom ModalWindow that adds behaviours specific to our tool
  */
+@Slf4j
 public class GbModalWindow extends ModalWindow {
 
 	private static final long serialVersionUID = 1L;
@@ -34,7 +36,7 @@ public class GbModalWindow extends ModalWindow {
 	private String studentUuidToReturnFocusTo;
 	private boolean returnFocusToCourseGrade = false;
 	private List<WindowClosedCallback> closeCallbacks;
-	private boolean positionAtTop = false;
+	private Component initialFocusComponent;
 
 	public GbModalWindow(final String id) {
 		super(id);
@@ -66,20 +68,73 @@ public class GbModalWindow extends ModalWindow {
 
 	@Override
 	protected CharSequence getShowJavaScript() {
-		StringBuilder extraJavascript = new StringBuilder();
-
-		// focus the first input field in the content pane
-		extraJavascript.append(String.format("setTimeout(function() {$('#%s :input:visible:first').focus();});",
-				getContent().getMarkupId()));
-
-		// position at the top of the page
-		if (this.positionAtTop) {
-			extraJavascript.append(
-					String.format("setTimeout(function() {GbGradeTable.positionModalAtTop($('#%s').closest('.wicket-modal'));});",
-							getContent().getMarkupId()));
+		if (getContent() == null) {
+			log.warn("ModalWindow content is null, cannot generate show JavaScript reliably.");
+			return super.getShowJavaScript();
 		}
+		getContent().setOutputMarkupId(true);
 
-		return super.getShowJavaScript().toString() + extraJavascript.toString();
+		StringBuilder js = new StringBuilder(super.getShowJavaScript().toString());
+
+		js.append(String.format("$('#%s').attr('tabindex', '-1');", getContent().getMarkupId()));
+
+		js.append("setTimeout(function() {");
+		if (this.initialFocusComponent != null && this.initialFocusComponent.getOutputMarkupId()) {
+			js.append(String.format("try { $('#%s').focus(); } catch(e) { console.error('Failed to focus initial component:', e); }",
+					this.initialFocusComponent.getMarkupId()));
+		} else {
+			js.append(String.format("try { $('#%s').focus(); } catch(e) { console.error('Failed to focus modal content:', e); }",
+					getContent().getMarkupId()));
+		}
+		js.append("}, 500);");
+
+		js.append("function GbModalWindow_trapFocus(event, modalContentId) {");
+		js.append("  if (!modalContentId || event.key !== 'Tab' && event.keyCode !== 9) return;");
+		js.append("  const modalContent = document.getElementById(modalContentId);");
+		js.append("  if (!modalContent) return;");
+		js.append("  const modalWindowEl = modalContent.closest('.wicket-modal');");
+		js.append("  if (!modalWindowEl) return;");
+
+		js.append("  const focusableElements = modalWindowEl.querySelectorAll(");
+		js.append("    'a[href]:not([disabled]), button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex=\"-1\"])'");
+		js.append("  );");
+		js.append("  if (focusableElements.length === 0) return;");
+		js.append("  const firstFocusableElement = focusableElements[0];");
+		js.append("  const lastFocusableElement = focusableElements[focusableElements.length - 1];");
+
+		js.append("  if (event.shiftKey) {");
+		js.append("    if (document.activeElement === firstFocusableElement) {");
+		js.append("      lastFocusableElement.focus();");
+		js.append("      event.preventDefault();");
+		js.append("    }");
+		js.append("  } else {");
+		js.append("    if (document.activeElement === lastFocusableElement) {");
+		js.append("      firstFocusableElement.focus();");
+		js.append("      event.preventDefault();");
+		js.append("    }");
+		js.append("  }");
+		js.append("}");
+
+		// Attach the event listener to the document, namespaced per modal instance
+		this.setOutputMarkupId(true); // Ensure modal window itself has an ID for namespacing
+		js.append(String.format(
+			"$(document).on('keydown.gbTrapFocus_%s', function(e) { " +
+			"  if (e.key !== 'Tab' && e.keyCode !== 9) return; " + // Early exit
+			"  const modalContent = document.getElementById('%s'); " +
+			"  if (!modalContent) { $(document).off('keydown.gbTrapFocus_%s'); return; } " + // Cleanup if content disappears
+			"  const modalWindow = $(modalContent).closest('.wicket-modal'); " +
+			"  if (!modalWindow || modalWindow.is(':hidden')) return; " + // Check if *this* modal is visible
+			"  if (modalContent.contains(document.activeElement)) { " + // Check if focus is currently inside
+			"    GbModalWindow_trapFocus(e, '%s'); " +
+			"  } " +
+			"});",
+			this.getMarkupId(),      // Namespace for document listener
+			getContent().getMarkupId(),
+			this.getMarkupId(),      // Namespace for cleanup inside listener
+			getContent().getMarkupId()
+		));
+
+		return js;
 	}
 
 	@Override
@@ -137,8 +192,18 @@ public class GbModalWindow extends ModalWindow {
 		setDefaultWindowClosedCallback();
 	}
 
-	public void setPositionAtTop(final boolean positionAtTop) {
-		this.positionAtTop = positionAtTop;
+	/**
+	 * Set the component to focus when the modal is first opened.
+	 * The component MUST have its output markup ID set via setOutputMarkupId(true).
+	 * If null or the component doesn't have an output markup id, the modal content panel will be focused.
+	 *
+	 * @param component The component to focus initially, or null to focus the content panel.
+	 */
+	public void setInitialFocusComponent(final Component component) {
+		this.initialFocusComponent = component;
+		if (this.initialFocusComponent != null) {
+			this.initialFocusComponent.setOutputMarkupId(true);
+		}
 	}
 
 	private void setDefaultWindowClosedCallback() {
@@ -147,39 +212,59 @@ public class GbModalWindow extends ModalWindow {
 
 			@Override
 			public void onClose(final AjaxRequestTarget target) {
-				// Disable all buttons with in the modal in case it takes a moment to close
 				target.appendJavaScript(
-						String.format("$('#%s :input').prop('disabled', true);",
+						String.format("try { $('#%s :input').prop('disabled', true); } catch(e) { console.error('Failed to disable inputs on close:', e); }",
 								GbModalWindow.this.getContent().getMarkupId()));
 
-				// Ensure the date picker is hidden
-				target.appendJavaScript("$('#ui-datepicker-div').hide();");
+				target.appendJavaScript("try { $('#ui-datepicker-div').hide(); } catch(e) { console.error('Failed to hide datepicker:', e); }");
 
-				// Ensure any mask is hidden
-				target.appendJavaScript("GradebookGradeSummaryUtils.clearBlur();");
+				// Check if GradebookGradeSummaryUtils and clearBlur exist before calling
+				target.appendJavaScript(
+					"if (typeof GradebookGradeSummaryUtils !== 'undefined' && GradebookGradeSummaryUtils.clearBlur) { " +
+					"  try { GradebookGradeSummaryUtils.clearBlur(); } catch(e) { console.error('Failed to clear blur:', e); } " +
+					"} else { console.debug('GradebookGradeSummaryUtils or clearBlur function not found.'); }"
+				);
 
-				// Return focus to defined component
+				// Remove the focus trap listener from the document using the correct namespace
+				target.appendJavaScript(String.format("try { $(document).off('keydown.gbTrapFocus_%s'); } catch(e) { console.error('Failed to remove focus trap listener:', e); }", GbModalWindow.this.getMarkupId()));
+
+				String focusScript = "setTimeout(function() { try { ";
+				boolean focusSet = false;
+
 				if (GbModalWindow.this.componentToReturnFocusTo != null) {
-					target.appendJavaScript(String.format("setTimeout(function() {$('#%s').focus();});",
-							GbModalWindow.this.componentToReturnFocusTo.getMarkupId()));
+					focusScript += String.format("$('#%s').focus();",
+							GbModalWindow.this.componentToReturnFocusTo.getMarkupId());
+					focusSet = true;
 				} else if (GbModalWindow.this.assignmentIdToReturnFocusTo != null &&
 						GbModalWindow.this.studentUuidToReturnFocusTo != null) {
-					target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell('%s', '%s');});",
+					focusScript += String.format("GbGradeTable.selectCell('%s', '%s');",
 							GbModalWindow.this.assignmentIdToReturnFocusTo,
-							GbModalWindow.this.studentUuidToReturnFocusTo));
+							GbModalWindow.this.studentUuidToReturnFocusTo);
+					focusSet = true;
 				} else if (GbModalWindow.this.assignmentIdToReturnFocusTo != null) {
-					target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell('%s', null);});",
-							GbModalWindow.this.assignmentIdToReturnFocusTo));
+					focusScript += String.format("GbGradeTable.selectCell('%s', null);",
+							GbModalWindow.this.assignmentIdToReturnFocusTo);
+					focusSet = true;
 				} else if (GbModalWindow.this.studentUuidToReturnFocusTo != null) {
 					if (GbModalWindow.this.returnFocusToCourseGrade) {
-						target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCourseGradeCell('%s');});",
-								GbModalWindow.this.studentUuidToReturnFocusTo));
+						focusScript += String.format("GbGradeTable.selectCourseGradeCell('%s');",
+								GbModalWindow.this.studentUuidToReturnFocusTo);
 					} else {
-						target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell(null, '%s');});",
-								GbModalWindow.this.studentUuidToReturnFocusTo));
+						focusScript += String.format("GbGradeTable.selectCell(null, '%s');",
+								GbModalWindow.this.studentUuidToReturnFocusTo);
 					}
+					focusSet = true;
 				} else if (GbModalWindow.this.returnFocusToCourseGrade) {
-					target.appendJavaScript("setTimeout(function() {GbGradeTable.selectCourseGradeCell();});");
+					focusScript += "GbGradeTable.selectCourseGradeCell();";
+					focusSet = true;
+				}
+
+				if (focusSet) {
+					focusScript += " } catch(e) { console.error('Error returning focus:', e); } }, 50);";
+					target.appendJavaScript(focusScript);
+				} else {
+					// Fallback focus if nothing specific is set? Maybe focus body or a known static element?
+					// For now, do nothing if no specific return focus is set.
 				}
 			}
 		});

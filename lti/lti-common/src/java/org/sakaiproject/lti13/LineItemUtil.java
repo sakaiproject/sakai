@@ -20,10 +20,12 @@ package org.sakaiproject.lti13;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,6 +43,7 @@ import static org.sakaiproject.lti.util.SakaiLTIUtil.getOurServerUrl;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.util.foorm.Foorm;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -48,10 +51,11 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.lti13.util.SakaiLineItem;
 
-import static org.tsugi.lti.LTIUtil.getObject;
-import static org.tsugi.lti.LTIUtil.parseIMS8601;
+import org.tsugi.lti.LTIUtil;
+import org.tsugi.lti13.LTI13Util;
 
 /**
  * Some Sakai Utility code for IMS LTI This is mostly code to support the
@@ -63,6 +67,7 @@ public class LineItemUtil {
 
 	public static final String GB_EXTERNAL_APP_NAME = "IMS-AGS";
 	public static final String ASSIGNMENTS_EXTERNAL_APP_NAME = "Assignments"; // Avoid circular references
+	public static final String ASSIGNMENT_REFERENCE_PREFIX = "/assignment/a";
 
 	public final static String ID_SEPARATOR = "|";
 	public final static String ID_SEPARATOR_REGEX = "\\|";
@@ -90,7 +95,7 @@ public class LineItemUtil {
 	 */
 	public static String constructExternalId(Map<String, Object> content, SakaiLineItem lineItem)
 	{
-		Long tool_id = SakaiLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		Long tool_id = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
 		return constructExternalId(tool_id, content, lineItem);
 	}
 
@@ -117,12 +122,15 @@ public class LineItemUtil {
 	// TODO: Remember to dream that someday this will be JSON :)
 	public static String constructExternalId(Long tool_id, Map<String, Object> content, SakaiLineItem lineItem)
 	{
+		Long content_id = (content == null) ? null : LTIUtil.toLongNull(content.get(LTIService.LTI_ID));
+		log.debug("content_id={}", content_id);
+		return constructExternalIdImpl(tool_id, content_id, lineItem);
+	}
+
+	private static String constructExternalIdImpl(Long tool_id, Long content_id, SakaiLineItem lineItem)
+	{
 		String retval = tool_id.toString();
-		if ( content == null ) {
-			retval += ID_SEPARATOR + "0" + ID_SEPARATOR;
-		} else {
-			retval += ID_SEPARATOR + content.get(LTIService.LTI_ID) + "|";
-		}
+		retval += ID_SEPARATOR + ((content_id == null) ? "0" : content_id.toString()) + ID_SEPARATOR;
 		if ( lineItem != null ) {
 			if ( lineItem.resourceId == null ) {
 				retval += ID_SEPARATOR;
@@ -135,7 +143,16 @@ public class LineItemUtil {
 				retval += URLEncode(lineItem.tag.replace("|", "")) + ID_SEPARATOR;
 			}
 		}
+		log.debug("retval={}", retval);
 		return retval;
+	}
+
+	private static Long deriveContentIdFromGradebookExternalId(String external_id) {
+		if (external_id == null) {
+			return null;
+		}
+		String[] parts = StringUtils.split(external_id, ID_SEPARATOR_REGEX);
+		return (parts == null || parts.length < 2) ? null : Long.valueOf(parts[1]);
 	}
 
 	public static Assignment createLineItem(Site site, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
@@ -145,7 +162,7 @@ public class LineItemUtil {
 
 	public static Assignment createLineItem(String context_id, Long tool_id, Map<String, Object> content, SakaiLineItem lineItem) {
 		// Look up the assignment so we can find the max points
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		if (lineItem.scoreMaximum == null) {
@@ -203,22 +220,22 @@ public class LineItemUtil {
 			gradebookColumn.setReleased(releaseToStudent); // default true
 			gradebookColumn.setCounted(includeInComputation); // default true
 			gradebookColumn.setUngraded(false);
-			Date endDateTime = parseIMS8601(lineItem.endDateTime);
+			Date endDateTime = LTIUtil.parseIMS8601(lineItem.endDateTime);
 			if ( endDateTime != null ) gradebookColumn.setDueDate(endDateTime);
 
 			if ( createNew ) {
-				gradebookColumnId = g.addAssignment(context_id, gradebookColumn);
+				gradebookColumnId = gradingService.addAssignment(context_id, context_id, gradebookColumn);
 				gradebookColumn.setId(gradebookColumnId);
 				log.info("Added assignment: {} with Id: {}", lineItem.label, gradebookColumnId);
 			} else {
-				g.updateAssignment(context_id, gradebookColumnId, gradebookColumn);
+				gradingService.updateAssignment(context_id, context_id, gradebookColumnId, gradebookColumn);
 				log.info("Updated assignment: {} with Id: {}", lineItem.label, gradebookColumnId);
 			}
 		} catch (ConflictingAssignmentNameException e) {
-			failure = "ConflictingAssignmentNameException while adding assignment " + e.getMessage();
+			failure = "ConflictingAssignmentNameException while adding assignment " + e.toString();
 			gradebookColumn = null; // Just to make sure
 		} catch (Exception e) {
-			failure = "Exception (may be because GradeBook has not yet been added to the Site) "+ e.getMessage();
+			failure = "Exception (may be because GradeBook has not yet been added to the Site) "+ e.toString();
 			gradebookColumn = null; // Just to make double sure
 		}  finally {
 			popAdvisor();
@@ -237,7 +254,7 @@ public class LineItemUtil {
 	}
 
 	public static Assignment updateLineItem(Site site, Long tool_id, Long column_id, SakaiLineItem lineItem) {
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		String context_id = site.getId();
@@ -266,7 +283,12 @@ public class LineItemUtil {
 			gradebookColumn.setPoints(Double.valueOf(lineItem.scoreMaximum));
 		}
 
-		String external_id = constructExternalId(tool_id, null, lineItem);
+		Long content_id = deriveContentIdFromGradebookExternalId(gradebookColumn.getExternalId());
+		String external_id = (content_id != null) ? constructExternalIdImpl(tool_id, content_id, lineItem) : constructExternalId(tool_id, null, lineItem);
+
+		log.debug("gb item id={}; gb item title={}; external_id={}; prior external_id={}; derived content id={}", gradebookColumn.getId(),
+			  gradebookColumn.getName(), external_id, gradebookColumn.getExternalId(), content_id);
+
 		gradebookColumn.setExternalId(external_id);
 		if ( lineItem.label != null ) {
 			gradebookColumn.setName(lineItem.label);
@@ -277,17 +299,52 @@ public class LineItemUtil {
 		gradebookColumn.setReleased(releaseToStudent); // default true
 		gradebookColumn.setCounted(includeInComputation); // default true
 		gradebookColumn.setUngraded(false);
-		Date dueDate = org.tsugi.lti.LTIUtil.parseIMS8601(lineItem.endDateTime);
+		Date dueDate = LTIUtil.parseIMS8601(lineItem.endDateTime);
 		if ( dueDate != null ) gradebookColumn.setDueDate(dueDate);
 
 		pushAdvisor();
 		try {
-			g.updateAssignment(context_id, column_id, gradebookColumn);
+			gradingService.updateAssignment(context_id, context_id, column_id, gradebookColumn);
 		} finally {
 			popAdvisor();
 		}
 
 		return gradebookColumn;
+	}
+
+	/**
+	 * Return a map of external_id values for LTI assignments in a site
+	 *
+	 * @param context_id
+	 *
+	 * The format of the external_id is:
+	 *
+	 *     tool_id|content_id|resourceLink|tag|
+	 *
+	 * This should be called with the appropriate security advisor in place
+	 *
+	 * @return A map of assignment references to their external_id values
+	 */
+	public static Map<String, String> getExternalIdsForToolAssignments(String context_id) {
+		Map<String, String> retval = new HashMap<>();
+		org.sakaiproject.assignment.api.AssignmentService assignmentService = ComponentManager.get(org.sakaiproject.assignment.api.AssignmentService.class);
+		LTIService ltiService = ComponentManager.get(LTIService.class);
+
+		try {
+			Collection<org.sakaiproject.assignment.api.model.Assignment> assignments = assignmentService.getAssignmentsForContext(context_id);
+			for (org.sakaiproject.assignment.api.model.Assignment a : assignments) {
+				String assignmentReference = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
+				Integer assignmentContentId = a.getContentId();
+				if ( assignmentContentId == null ) continue;
+				Map<String, Object> content = ltiService.getContent(assignmentContentId.longValue(), context_id);
+				if ( content == null ) continue;
+				retval.put(assignmentReference, constructExternalId(content, null));
+			}
+		} catch (Exception e) {
+			log.error("Unexpected Throwable", e.toString());
+			log.debug("Stacktrace", e);
+		}
+		return retval;
 	}
 
 	/**
@@ -297,20 +354,29 @@ public class LineItemUtil {
 	 * @return A list of Assignment objects (perhaps empty) or null on failure
 	 */
 	protected static List<Assignment> getColumnsForToolDAO(String context_id, Long tool_id) {
-		List retval = new ArrayList();
-		GradingService g = (GradingService) ComponentManager
+		List<Assignment> retval = new ArrayList<>();
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
+		Map<String, String> externalIds = null;
 
 		pushAdvisor();
 		try {
-			List<Assignment> gradebookColumns = g.getAssignments(context_id);
+			List<Assignment> gradebookColumns = gradingService.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
-				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
+				String external_id = gbColumn.getExternalId();
+				if ( isGradebookColumnLTI(gbColumn) ) {
+					// We are good to go
+				} else if ( isAssignmentColumn(external_id) ) {
+					if ( externalIds == null ) {
+						externalIds = getExternalIdsForToolAssignments(context_id);
+					}
+					external_id = externalIds.get(external_id);
+					if ( external_id == null ) continue;
+				}
 
 				// Parse the external_id
 				// tool_id|content_id|resourceLink|tag|
-				String external_id = gbColumn.getExternalId();
 				if ( external_id == null || external_id.length() < 1 ) continue;
 
 				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
@@ -319,7 +385,8 @@ public class LineItemUtil {
 				retval.add(gbColumn);
 			}
 		} catch (Throwable e) {
-			log.error("Unexpected Throwable", e.getMessage());
+			log.error("Unexpected Throwable", e.toString());
+			log.debug("Stacktrace:", e);
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -334,15 +401,16 @@ public class LineItemUtil {
 	 */
 	protected static List<Assignment> getColumnsForContextDAO(String context_id) {
 		List retval = new ArrayList();
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		pushAdvisor();
 		try {
-			List<Assignment> gradebookColumns = g.getAssignments(context_id);
+			List<Assignment> gradebookColumns = gradingService.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			return gradebookColumns;
 		} catch (Throwable e) {
-			log.error("Unexpected Throwable", e.getMessage());
+			log.error("Unexpected Throwable", e.toString());
+			log.debug("Stacktrace:", e);
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -376,13 +444,13 @@ public class LineItemUtil {
 	 */
 	protected static Assignment getColumnByLabelDAO(String context_id, Long tool_id, String column_label)
 	{
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 		Assignment retval = null;
 
 		pushAdvisor();
 		try {
-			List gradebookColumns = g.getAssignments(context_id);
+			List gradebookColumns = gradingService.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
 				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
@@ -393,7 +461,8 @@ public class LineItemUtil {
 				}
 			}
 		} catch (Throwable e) {
-			log.error("Unexpected Throwable", e.getMessage());
+			log.error("Unexpected Throwable", e.toString());
+			log.debug("Stacktrace:", e);
 			retval = null;
 		} finally {
 			popAdvisor();
@@ -413,13 +482,13 @@ public class LineItemUtil {
 		// Make sure it belongs to us
 		Assignment a = getColumnByKeyDAO(context_id, tool_id, column_id);
 		if ( a == null ) return false;
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		pushAdvisor();
 		try {
 			// Provides us no return value
-			g.removeAssignment(column_id);
+			gradingService.removeAssignment(column_id);
 		} finally {
 			popAdvisor();
 		}
@@ -437,6 +506,10 @@ public class LineItemUtil {
 		return false;
 	}
 
+	public static boolean isAssignmentColumn(String external_id) {
+		return external_id != null && external_id.startsWith(ASSIGNMENT_REFERENCE_PREFIX);
+	}
+
 	/**
 	 * Get the line items from the gradebook for a tool
 	 * @param site The site we are looking at
@@ -446,32 +519,48 @@ public class LineItemUtil {
 	 */
 	public static List<SakaiLineItem> getLineItemsForTool(String signed_placement, Site site, Long tool_id, SakaiLineItem filter) {
 
+		log.debug("signed_placement={}; site id={}; tool_id={}", signed_placement, site.getId(), tool_id);
+
 		String context_id = site.getId();
 		if ( tool_id == null ) {
 			throw new RuntimeException("tool_id is required");
 		}
-		GradingService g = (GradingService) ComponentManager
+		GradingService gradingService = (GradingService) ComponentManager
 				.get("org.sakaiproject.grading.api.GradingService");
 
 		List<SakaiLineItem> retval = new ArrayList<>();
+		Map<String, String> externalIds = null;
 
 		pushAdvisor();
 		try {
-			List gradebookColumns = g.getAssignments(context_id);
+
+			List gradebookColumns = gradingService.getAssignments(context_id, context_id, SortType.SORT_BY_NONE);
 			for (Iterator i = gradebookColumns.iterator(); i.hasNext();) {
 				Assignment gbColumn = (Assignment) i.next();
-				if ( ! isGradebookColumnLTI(gbColumn) ) continue;
+				String external_id = gbColumn.getExternalId();
+				log.debug("gbColumn: {} {}", gbColumn.getName(), external_id);
+				if ( isGradebookColumnLTI(gbColumn) ) {
+					// We are good to go
+				} else if ( StringUtils.isNotEmpty(external_id) && isAssignmentColumn(external_id) ) {
+					if ( externalIds == null ) {
+						externalIds = getExternalIdsForToolAssignments(context_id);
+					}
+					external_id = externalIds.get(external_id);
+					log.debug("derived assignment based on external_id: {} {}", external_id, externalIds);
+					if ( external_id == null ) continue;
+				}
 
 				// Parse the external_id
 				// tool_id|content_id|resourceLink|tag|assignmentRef (optional)
-				String external_id = gbColumn.getExternalId();
 				if ( external_id == null || external_id.length() < 1 ) continue;
+
+				log.debug("gb column id={}; title={}; external_id={}", gbColumn.getId(), gbColumn.getName(), external_id);
 
 				String[] parts = external_id.split(ID_SEPARATOR_REGEX);
 				if ( parts.length < 1 || ! parts[0].equals(tool_id.toString()) ) continue;
 
 				SakaiLineItem item = getLineItem(signed_placement, gbColumn);
-				if ( parts.length > 1 ) {
+				if ( parts.length > 1 && ! StringUtils.equals("0", parts[1]) ) {
 					item.resourceLinkId = "content:" + parts[1];
 				}
 
@@ -484,6 +573,7 @@ public class LineItemUtil {
 			}
 		} catch (Throwable e) {
 			log.error("Unexpected Throwable", e.getMessage());
+			log.debug("Stacktrace:", e);
 		} finally {
 			popAdvisor();
 		}
@@ -540,7 +630,8 @@ public class LineItemUtil {
 	 */
 	public static SakaiLineItem getDefaultLineItem(Site site, Map<String, Object> content) {
 		String signed_placement = SakaiLTIUtil.getSignedPlacement(content);
-		Long tool_id = SakaiLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		Long tool_id = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
+		log.debug("signed_placement={}; site id={}; tool_id={}", signed_placement, site.getId(), tool_id);
 		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, tool_id, null /* filter */);
 		String title = (String) content.get(LTIService.LTI_TITLE);
 		for (SakaiLineItem item : toolItems) {
@@ -568,8 +659,8 @@ public class LineItemUtil {
 		if ( response == null ) return null;
 
 		// Check if this a DeepLinkResponse
-		JSONObject lineItem = getObject(response, DeepLinkResponse.LINEITEM);
-		if ( lineItem == null ) lineItem = getObject(response, ContentItem.LINEITEM);
+		JSONObject lineItem = LTIUtil.getObject(response, DeepLinkResponse.LINEITEM);
+		if ( lineItem == null ) lineItem = LTIUtil.getObject(response, ContentItem.LINEITEM);
 
 		// Nothing to parse here...
 		if ( lineItem == null ) return null;

@@ -1272,7 +1272,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					}				
 					// Add .html for inline submissions				
 					if ("true".equals(resource.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))
-							&& org.springframework.util.StringUtils.getFilenameExtension(fileName).isEmpty()) {
+							&& StringUtils.isBlank(org.springframework.util.StringUtils.getFilenameExtension(fileName))) {
 						fileName += HTML_EXTENSION;
 					}
 					boolean updateLastError = true;

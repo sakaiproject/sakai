@@ -4,7 +4,7 @@
   <parent>
     <artifactId>textarea-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>25-SNAPSHOT</version>
+    <version>26-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-fck-connector</name>
@@ -57,7 +57,6 @@
     <dependency>
       <groupId>org.sakaiproject.msgcntr</groupId>
       <artifactId>messageforums-api</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.samigo</groupId>

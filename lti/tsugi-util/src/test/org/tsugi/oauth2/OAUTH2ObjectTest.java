@@ -33,7 +33,7 @@ public class OAUTH2ObjectTest {
 
 		AccessToken at = new AccessToken();
 		at.access_token = "42";
-		at.expires_in = new Long(3600);
+		at.expires_in = Long.valueOf(3600);
 		at.token_type = AccessToken.TOKEN_TYPE_BEARER;
 		at.scope = "yada scope";
 
@@ -80,7 +80,7 @@ public class OAUTH2ObjectTest {
 /*
 {
     "access_token" : "dkj4985kjaIAJDJ89kl8rkn5",
-    "token_type" : "bearer",
+    "token_type" : "Bearer",
     "expires_in" : 3600,
     "scope" : "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem https://purl.imsglobal.org/spec/lti-ags/scope/result/read"
 }

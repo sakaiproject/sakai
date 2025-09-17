@@ -30,9 +30,10 @@ import org.sakaiproject.conversations.api.model.Settings;
 import org.sakaiproject.conversations.api.model.Tag;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.GradingAuthz;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.webapi.beans.ConversationsRestBean;
@@ -57,15 +58,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -88,69 +84,61 @@ public class ConversationsController extends AbstractSakaiApiController {
 	private ServerConfigurationService serverConfigurationService;
 
 	@Autowired
-	private SiteService siteService;
-
-	@Autowired
 	private UserDirectoryService userDirectoryService;
 
+	@Autowired
+	private SearchService searchService;
+
 	@GetMapping(value = "/sites/{siteId}/conversations", produces = MediaType.APPLICATION_JSON_VALUE)
-    public EntityModel<ConversationsRestBean> getSiteConversations(@PathVariable String siteId) throws ConversationsPermissionsException {
+    public EntityModel<ConversationsRestBean> getSiteConversations(@PathVariable String siteId) throws ConversationsPermissionsException, IdUnusedException {
 
 		String currentUserId = checkSakaiSession().getUserId();
 
-        Site site;
-        try {
-            site = siteService.getSite(siteId);
-            String siteRef = siteService.siteReference(siteId);
-            ConversationsRestBean bean = new ConversationsRestBean();
-            bean.userId = currentUserId;
-            bean.siteId = siteId;
-            bean.canUpdatePermissions = securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef);
-            bean.isInstructor = securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
+        Site site = siteService.getSite(siteId);
+        String siteRef = siteService.siteReference(siteId);
+        ConversationsRestBean bean = new ConversationsRestBean();
+        bean.userId = currentUserId;
+        bean.siteId = siteId;
+        bean.canUpdatePermissions = securityService.unlock(SiteService.SECURE_UPDATE_SITE, siteRef);
+        bean.isInstructor = securityService.unlock(Permissions.ROLETYPE_INSTRUCTOR.label, siteRef);
 
-            if (bean.canUpdatePermissions || bean.isInstructor) {
-                bean.groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
-            } else {
-                bean.groups = site.getGroupsWithMember(currentUserId).stream().map(SimpleGroup::new).collect(Collectors.toList());
-            }
-
-            bean.topics = conversationsService.getTopicsForSite(siteId).stream()
-                .map(tb -> entityModelForTopicBean(tb)).collect(Collectors.toList());
-            Settings settings = conversationsService.getSettingsForSite(siteId);
-
-            if (!settings.getSiteLocked()
-                || securityService.unlock(Permissions.MODERATE.label, siteRef)) {
-                bean.canEditTags = securityService.unlock(Permissions.TAG_CREATE.label, siteRef);
-                bean.canCreateDiscussion = securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef);
-                bean.canCreateQuestion = securityService.unlock(Permissions.QUESTION_CREATE.label, siteRef);
-                bean.canCreateTopic = bean.canCreateDiscussion || bean.canCreateQuestion;
-            }
-            bean.canViewSiteStatistics = securityService.unlock(Permissions.VIEW_STATISTICS.label, siteRef);
-            bean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
-            bean.canViewAnonymous = securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef);
-            //bean.canViewHidden = securityService.unlock(Permissions.POST_VIEW_HIDDEN.label, siteRef);
-            bean.maxThreadDepth = serverConfigurationService.getInt(ConversationsService.PROP_MAX_THREAD_DEPTH, 5);
-            bean.settings = settings;
-
-            ConvStatus convStatus = conversationsService.getConvStatusForSiteAndUser(siteId, currentUserId);
-            bean.showGuidelines = settings.getRequireGuidelinesAgreement() && !convStatus.getGuidelinesAgreed();
-            bean.tags = conversationsService.getTagsForSite(siteId);
-
-            bean.disableDiscussions = serverConfigurationService.getBoolean(ConversationsService.PROP_DISABLE_DISCUSSIONS, false);
-
-            bean.blankTopic = conversationsService.getBlankTopic(siteId);
-
-            bean.searchEnabled = serverConfigurationService.getBoolean("search.enable", false);
-
-            List<Link> links = new ArrayList<>();
-            if (bean.canViewSiteStatistics) links.add(Link.of("/api/sites/" + siteId + "/conversations/stats", "stats"));
-            return EntityModel.of(bean, links);
-
-        } catch (Exception e) {
-            log.error("Failed to load data fully", e);
+        if (bean.canUpdatePermissions || bean.isInstructor) {
+            bean.groups = site.getGroups().stream().map(SimpleGroup::new).collect(Collectors.toList());
+        } else {
+            bean.groups = site.getGroupsWithMember(currentUserId).stream().map(SimpleGroup::new).collect(Collectors.toList());
         }
 
-        return null;
+        bean.topics = conversationsService.getTopicsForSite(siteId).stream()
+            .map(tb -> entityModelForTopicBean(tb)).collect(Collectors.toList());
+        Settings settings = conversationsService.getSettingsForSite(siteId);
+
+        if (!settings.getSiteLocked()
+            || securityService.unlock(Permissions.MODERATE.label, siteRef)) {
+            bean.canEditTags = securityService.unlock(Permissions.TAG_CREATE.label, siteRef);
+            bean.canCreateDiscussion = securityService.unlock(Permissions.DISCUSSION_CREATE.label, siteRef);
+            bean.canCreateQuestion = securityService.unlock(Permissions.QUESTION_CREATE.label, siteRef);
+            bean.canCreateTopic = bean.canCreateDiscussion || bean.canCreateQuestion;
+        }
+        bean.canViewStatistics = securityService.unlock(Permissions.VIEW_STATISTICS.label, siteRef);
+        bean.canPin = settings.getAllowPinning() && securityService.unlock(Permissions.TOPIC_PIN.label, siteRef);
+        bean.canViewAnonymous = securityService.unlock(Permissions.VIEW_ANONYMOUS.label, siteRef);
+        bean.canGrade = securityService.unlock(GradingAuthz.PERMISSION_GRADE_ALL, siteRef);
+        bean.maxThreadDepth = serverConfigurationService.getInt(ConversationsService.PROP_MAX_THREAD_DEPTH, 5);
+        bean.settings = settings;
+
+        ConvStatus convStatus = conversationsService.getConvStatusForSiteAndUser(siteId, currentUserId);
+        bean.showGuidelines = settings.getRequireGuidelinesAgreement() && !convStatus.getGuidelinesAgreed();
+        bean.tags = conversationsService.getTagsForSite(siteId);
+
+        bean.disableDiscussions = serverConfigurationService.getBoolean(ConversationsService.PROP_DISABLE_DISCUSSIONS, false);
+
+        bean.blankTopic = conversationsService.getBlankTopic(siteId);
+
+        bean.searchEnabled = searchService.isEnabledForSite(siteId);
+
+        List<Link> links = new ArrayList<>();
+        if (bean.canViewStatistics) links.add(Link.of("/api/sites/" + siteId + "/conversations/stats", "stats"));
+        return EntityModel.of(bean, links);
     }
 
 	@PostMapping(value = "/sites/{siteId}/conversations/stats", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -274,6 +262,8 @@ public class ConversationsController extends AbstractSakaiApiController {
         if (topicBean.canReact) links.add(Link.of(topicBean.url + "/reactions", "react"));
         if (topicBean.canModerate) links.add(Link.of(topicBean.url + "/locked", "lock"));
         if (topicBean.canModerate) links.add(Link.of(topicBean.url + "/hidden", "hide"));
+        if (topicBean.canUpvote) links.add(Link.of(topicBean.url + "/upvote", "upvote"));
+        if (topicBean.canUpvote) links.add(Link.of(topicBean.url + "/unupvote", "unupvote"));
         return EntityModel.of(topicBean, links);
     }
 
@@ -294,16 +284,9 @@ public class ConversationsController extends AbstractSakaiApiController {
             @RequestParam(required = false) PostSort sort,
             @RequestParam(required = false) String postId) throws ConversationsPermissionsException {
 
-		checkSakaiSession();
-
-        try {
-            return conversationsService.getPostsByTopicId(siteId, topicId, page, sort, postId).stream()
-                .map(pb -> entityModelForPostBean(pb)).collect(Collectors.toList());
-        } catch (Exception e) {
-            log.error("Exception while getting posts for topic {}: {}", topicId, e.toString());
-        }
-
-        return Collections.EMPTY_LIST;
+        checkSakaiSession();
+        return conversationsService.getPostsByTopicId(siteId, topicId, page, sort, postId).stream()
+            .map(pb -> entityModelForPostBean(pb)).collect(Collectors.toList());
     }
 
 	@PutMapping(value = "/sites/{siteId}/topics/{topicId}/posts/{postId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -374,6 +357,8 @@ public class ConversationsController extends AbstractSakaiApiController {
         if (postBean.canDelete) links.add(Link.of(postBean.url, "delete"));
         if (postBean.canDelete) links.add(Link.of(postBean.url + "/restore", "restore"));
         if (postBean.canReact) links.add(Link.of(postBean.url + "/reactions", "react"));
+        if (postBean.canReact) links.add(Link.of(postBean.url + "/upvote", "upvote"));
+        if (postBean.canReact) links.add(Link.of(postBean.url + "/unupvote", "unupvote"));
         if (postBean.canModerate) links.add(Link.of(postBean.url + "/locked", "lock"));
         if (postBean.canModerate) links.add(Link.of(postBean.url + "/hidden", "hide"));
         recursivelyAddEntityModelForDescendants(postBean);

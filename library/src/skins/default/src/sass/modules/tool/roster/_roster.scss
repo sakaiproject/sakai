@@ -91,9 +91,6 @@
     // end tool bar styles
 
     // common view styles
-    #roster-loading-image {
-        display: none;
-    }
 
     .roster-members-grid {
         max-width: 100%;
@@ -133,6 +130,7 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 grid-gap: 3px;
                 align-content: start;
+                align-items: center;
                 .roster-card-value {
                     word-wrap: break-word;
                     font-weight: bold;
@@ -223,6 +221,7 @@
     #roster-members-table {
         .roster-name-cell {
             max-width: 130px;
+            word-wrap: break-word;
         }
 
         .roster-mobile-label {
@@ -244,8 +243,23 @@
             display: none;
         }
 
-        .roster-picture-cell {
-            text-align: center;
+        th.roster-picture-cell {
+            width: 92px;
+        }
+
+        td.roster-picture-cell {
+            margin-right: 10px;
+            min-width: 76px;
+            max-width: 76px;
+            .roster-photo {
+                min-width: 76px;
+                max-width: 76px;
+                width: 76px;
+                height: 76px;
+                border: 1px solid #BBB;
+                border-radius: 0;
+                background-repeat: no-repeat;
+            }
         }
 
         .roster-hide-pictures {
@@ -254,7 +268,6 @@
 
     }
 
-    // S2U-42
     #card-game {
         .act > button {
             margin-bottom: $standard-space;

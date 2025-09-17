@@ -11,14 +11,14 @@ export class SakaiForums extends SakaiPageableElement {
     super();
 
     this.showPager = true;
-    this.loadTranslations("forums").then(r => this._i18n = r);
+    this.loadTranslations("forums");
   }
 
   async loadAllData() {
 
     this.messagesClass = !this.siteId ? "three-col" : "two-col";
 
-    const url = this.siteId ? `/api/sites/${this.siteId}/forums/summary` : `/api/users/${this.userId}/forums/summary`;
+    const url = this.siteId ? `/api/sites/${this.siteId}/forums/summary` : "/api/users/current/forums/summary";
     return fetch(url)
       .then(r => {
 
@@ -30,20 +30,10 @@ export class SakaiForums extends SakaiPageableElement {
       })
       .then(data => {
 
-        if (!this.siteId) {
-          this.sites = [];
-          const done = [];
-          data.forEach(f => {
+        !this.siteId && (this.sites = data.sites);
 
-            if (!done.includes(f.siteId)) {
-              this.sites.push({ siteId: f.siteId, title: f.siteTitle });
-              done.push(f.siteId);
-            }
-          });
-        }
-
-        this._allData = data;
-        this.data = data;
+        this._allData = data.forums;
+        this.data = data.forums;
 
       })
       .catch (error => console.error(error));
@@ -158,7 +148,7 @@ export class SakaiForums extends SakaiPageableElement {
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.messageUrl}">${m.messageCount}</a></div>
         <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.forumUrl}">${m.forumCount}</a></div>
         ${!this.siteId ? html`
-        <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.siteUrl}">${m.siteTitle}</a></div>
+        <div class="cell ${i % 2 === 0 ? "even" : "odd"}"><a href="${m.siteUrl}">${m.siteDescription || m.siteTitle}</a></div>
         ` : nothing}
       `)}
       </div>
@@ -181,7 +171,10 @@ export class SakaiForums extends SakaiPageableElement {
         color: var(--link-visited-color);
       }
       #site-filter {
-        margin-bottom: 12px;
+        margin-bottom: 0.25rem;
+      }
+      #site-filter sakai-site-picker::part(select) {
+        width: 100%;
       }
       .messages {
         display: grid;

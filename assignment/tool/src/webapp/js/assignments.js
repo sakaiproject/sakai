@@ -330,7 +330,7 @@ ASN.setupToggleAreas = function(toggler, togglee, openInit, speed){
     }
     else {
         $('.' + togglee).hide();
-        $('.Mrphs-sakai-assignment-grades .collapse').hide();
+        $('.Mrphs-sakai-assignment-grades .collapse').not('#peer-reviews .accordion-collapse').hide();
         ASN.resizeFrame();
     }
     $('.' + toggler).click(function(){
@@ -622,7 +622,7 @@ ASN.handleEnterKeyPress = function(ev)
 
 ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, param0, param1, param2, param3, clickedElement)
 {
-     var extraInfoArray = [];
+    var extraInfoArray = [];
     if (document.getElementById('studentSubmissionText') && document.getElementById('studentSubmissionText').checked)
     {
         extraInfoArray[extraInfoArray.length]="studentSubmissionText=true";
@@ -652,6 +652,10 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
     if (document.getElementById('feedbackAttachments') && document.getElementById('feedbackAttachments').checked)
     {
         extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";
+    }
+    if (document.getElementById('rubrics') && document.getElementById('rubrics').checked)
+    {
+        extraInfoArray[extraInfoArray.length]="rubrics=true";
     }
     if (document.getElementById('includeNotSubmitted') && document.getElementById('includeNotSubmitted').checked)
     {

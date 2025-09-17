@@ -140,6 +140,9 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     @Getter
     @Setter
     private String gradebookId;
+    @Getter
+    @Setter
+    private String gradebookUid;
 
     @Override
     public int compareTo(final Assignment o) {

@@ -19,14 +19,18 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.Getter;
@@ -38,12 +42,15 @@ import lombok.Setter;
     indexes = { @Index(name = "conv_topic_status_topic_user_idx", columnList = "TOPIC_ID, USER_ID") })
 @Getter
 @Setter
+@Slf4j
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
 public class TopicStatus implements PersistableEntity<Long> {
 
     @Id
-    @GeneratedValue
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "conv_topic_status_id_sequence")
+    @SequenceGenerator(name = "conv_topic_status_id_sequence", sequenceName = "CONV_TOPIC_STATUS_S")
     private Long id;
 
     @EqualsAndHashCode.Include
@@ -70,12 +77,9 @@ public class TopicStatus implements PersistableEntity<Long> {
     @Column(name = "UPVOTED")
     private Boolean upvoted = Boolean.FALSE;
 
-    public TopicStatus() {
-    }
-
     public TopicStatus(ConversationsTopic topic, String userId) {
-
         this.topic = topic;
         this.userId = userId;
+        log.debug("NEW TopicStatus, topic={}, userId={}", topic.getId(), userId);
     }
 }
