@@ -2,36 +2,18 @@
 
 This project hosts various web api endpoints for comsumption in client side tools such as curl, or
 scripting languages such as Python, Ruby, etc. The endpoints mount under /api and have been designed
-to be rest comliant and predicatable.
+to be RESTful and predictable.
 
-# Login:
+We're using [Spring REST docs](https://spring.io/projects/spring-restdocs) to generate a set of
+[asciidocs](https://asciidoc.org/) that can be used to document the api. Each time a full build with
+tests is made, the asciidocs are generated as part of the unit tests. If a unit test fails, no
+asciidocs will be generated. The layout of the final documentation html file is authored in
+src/main/asciidoc/webapi.adoc using include directives. This approach allows us to combine manually
+authored docs with auto generated snippets as an output of our test process.
 
-curl -c cookie.txt "localhost/api/login?username=joe&password=joe"
+Once you've run a successful build and deployed the webapi project, the docs will be available at
+http://localhost/api/docs/webapi.html
 
-you should see a uuid printed out. This is your Sakai session.
-
-# Get my announcements:
-
-curl -b cookie.txt "localhost/api/users/me/announcements"
-
-you should get a JSON document
-
-# Get my calendar events
-
-curl -b cookie.txt "localhost/api/users/me/calendar"
-
-you should get a JSON document
-
-# Swagger API docs
-
-If you build this project, you'll be able to access the Swagger API docs at:
-
-http://localhost:8080/api/swagger-ui.html
-
-or something like that, anyway.
-
-
-
-
-
+This documentation approach is a work in progress and we will be adding
+the rest endpoints one by one.
 
