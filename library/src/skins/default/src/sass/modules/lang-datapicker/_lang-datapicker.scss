@@ -1,0 +1,19 @@
+.date-input-clipboard-focus-icon,
+.date-input-clipboard-copied-icon,
+.date-input-paste-focus-icon {
+  position: absolute;
+  color: var(--sakai-text-color-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.75rem;
+  height: 0.75rem;
+  font-size: 0.75rem;
+  margin-inline-start: 0.4rem;
+  cursor: pointer;
+  border-radius: 0.125rem;
+}
+
+.date-input-paste-focus-icon {
+  margin-top: 0.85rem;
+}

@@ -234,6 +234,9 @@ const defaults = {
 	  // Add hasDatepicker class for backward compatibility with jquery-ui
 	  this.element.classList.add('hasDatepicker');
 	  this.element.style.minWidth = "200px";
+	  
+	  // Setup copy/paste functionality
+	  this.setupCopyPasteFunctionality();
 	}
     
     // Determine the initial date based on options and input value
@@ -375,6 +378,128 @@ const defaults = {
 	  console.debug("No Sakai server time available. Using local time without adjustment.");
 	  return new Date();
 	}
+
+  setupCopyPasteFunctionality() {
+    const input = this.element;
+
+    // Add focus listener to show copy/paste icons
+    input.addEventListener('focus', () => {
+      const isDisabled = input.disabled;
+      const isReadOnly = input.readOnly;
+      if (isDisabled) return;
+
+      // Remove previous icons
+      document.querySelectorAll('.date-input-clipboard-focus-icon, .date-input-paste-focus-icon').forEach(el => el.remove());
+
+      // Copy icon
+      const copyIcon = document.createElement('i');
+      copyIcon.className = 'bi bi-copy date-input-clipboard-focus-icon';
+      copyIcon.tabIndex = 0;
+      copyIcon.setAttribute('role', 'button');
+      const tCopy = "Copy to clipboard";
+      copyIcon.setAttribute('title', tCopy);
+      copyIcon.setAttribute('aria-label', tCopy);
+
+      // Paste icon
+      const pasteIcon = document.createElement('i');
+      pasteIcon.className = 'bi bi-clipboard date-input-paste-focus-icon';
+      pasteIcon.tabIndex = 0;
+      pasteIcon.setAttribute('role', 'button');
+      const tPaste = "Paste from clipboard";
+      pasteIcon.setAttribute('title', tPaste);
+      pasteIcon.setAttribute('aria-label', tPaste);
+
+      // Ensure positioned container for absolute icons
+      const parent = input.parentNode;
+      const parentComputed = window.getComputedStyle(parent);
+      const addedRelative = parentComputed.position === 'static';
+      if (addedRelative) parent.style.position = 'relative';
+
+      // Insert icons after the input
+      input.parentNode.insertBefore(copyIcon, input.nextSibling);
+      if (!isReadOnly) input.parentNode.insertBefore(pasteIcon, copyIcon.nextSibling);
+
+      // Copy logic
+      const doCopy = (e) => {
+        e.preventDefault();
+        const value = input.value;
+        if (value) {
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(value).catch(() => {});
+          }
+          document.querySelectorAll('.date-input-clipboard-focus-icon').forEach(el => el.remove());
+          document.querySelectorAll('.date-input-clipboard-copied-icon').forEach(el => el.remove());
+          const copiedIcon = document.createElement('i');
+          copiedIcon.className = 'bi bi-clipboard-check date-input-clipboard-copied-icon';
+          const tCopied = "Copied!";
+          copiedIcon.setAttribute('title', tCopied);
+          input.parentNode.insertBefore(copiedIcon, input.nextSibling);
+          setTimeout(() => {
+            copiedIcon.remove();
+            input.parentNode.insertBefore(copyIcon, input.nextSibling);
+          }, 1200);
+        }
+      };
+      copyIcon.addEventListener('pointerdown', doCopy, { passive: false });
+      copyIcon.addEventListener('click', doCopy);
+      copyIcon.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') doCopy(e);
+      });
+
+      // Paste logic: read from clipboard and set value if valid
+      const doPaste = (e) => {
+        e.preventDefault();
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.readText().then(text => {
+            if (text) {
+              let regex;
+              if (input.type === 'datetime-local') {
+                regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?$/;
+              } else if (input.type === 'date') {
+                regex = /^\d{4}-\d{2}-\d{2}$/;
+              }
+              if (regex && regex.test(text.trim())) {
+                const normalizedDate = DateHelper.normalize(text.trim());
+                if (normalizedDate) {
+                  input.value = DateHelper.formatForInput(normalizedDate, this.options.useTime);
+                  this.syncHiddenFields(normalizedDate);
+                  input.dispatchEvent(new Event('input', { bubbles: true }));
+                  input.dispatchEvent(new Event('change', { bubbles: true }));
+
+                  // Trigger callback if provided
+                  this.options.onDateTimeSelected?.call(this, normalizedDate.getTime());
+
+                  // Update duration if configured
+                  if (this.options.duration) this.updateDuration();
+                }
+              } else {
+                console.warn('Invalid format. Must be ISO.');
+              }
+            }
+          }).catch((err) => {
+            alert("Clipboard access is blocked by your browser settings.");
+            console.warn('Could not read from clipboard.', err);
+          });
+        } else {
+          alert("Clipboard access is blocked by your browser settings.");
+          console.warn('Clipboard access is not available in this browser.');
+        }
+      };
+      pasteIcon.addEventListener('pointerdown', doPaste, { passive: false });
+      pasteIcon.addEventListener('click', doPaste);
+      pasteIcon.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') doPaste(e);
+      });
+
+      // Remove the icons on blur
+      input.addEventListener('blur', function removeClipboardPasteIcons() {
+        (input.parentNode ?? document).querySelectorAll('.date-input-clipboard-focus-icon, .date-input-paste-focus-icon').forEach(el => el.remove());
+        if (parent && parent.style && parent.style.position === 'relative' && addedRelative) {
+          parent.style.position = '';
+        }
+      }, { once: true });
+    });
+  }
   }
   
   function localDatePicker(options) {
