@@ -301,3 +301,83 @@ if ( ! (self == top) ) {
     }
   });
 </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Focus on a datetime-local, date
+    document.addEventListener('focusin', function(e) {
+      const input = e.target;
+      if (input && input.matches && (input.matches('input[type="datetime-local"]') || input.matches('input[type="date"]'))) {
+
+        // Remove previous icons
+        document.querySelectorAll('.date-input-clipboard-focus-icon, .date-input-paste-focus-icon').forEach(el => el.remove());
+
+        // Copy icon
+        const copyIcon = document.createElement('i');
+        copyIcon.className = 'bi bi-copy date-input-clipboard-focus-icon';
+        copyIcon.tabIndex = 0;
+        copyIcon.setAttribute('role', 'button');
+        copyIcon.setAttribute('title', 'Copy');
+
+        // Paste icon
+        const pasteIcon = document.createElement('i');
+        pasteIcon.className = 'bi bi-clipboard date-input-paste-focus-icon';
+        pasteIcon.tabIndex = 0;
+        pasteIcon.setAttribute('role', 'button');
+        pasteIcon.setAttribute('title', 'Paste');
+
+        // Insert icons after the input
+        input.parentNode.insertBefore(copyIcon, input.nextSibling);
+        input.parentNode.insertBefore(pasteIcon, copyIcon.nextSibling);
+
+        // Copy logic
+        copyIcon.addEventListener('mousedown', function(e) {
+          const value = input.value;
+          if (value) {
+            if (navigator.clipboard && window.isSecureContext) {
+              navigator.clipboard.writeText(value).catch(() => {});
+            }
+            // Show feedback icon
+            document.querySelectorAll('.date-input-clipboard-copied-icon').forEach(el => el.remove());
+            const copiedIcon = document.createElement('i');
+            copiedIcon.className = 'bi bi-clipboard-check date-input-clipboard-copied-icon';
+            copiedIcon.setAttribute('title', 'Copied!');
+            input.parentNode.insertBefore(copiedIcon, input.nextSibling);
+            setTimeout(() => copiedIcon.remove(), 1200);
+          }
+        });
+
+        // Paste logic
+        pasteIcon.addEventListener('mousedown', function(e) {
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.readText().then(text => {
+              if (text) {
+                let regex;
+                if (input.type === 'datetime-local') {
+                  regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+                } else if (input.type === 'date') {
+                  regex = /^\d{4}-\d{2}-\d{2}$/;
+                }
+                if (regex && regex.test(text.trim())) {
+                  input.value = text.trim();
+                  input.dispatchEvent(new Event('change', { bubbles: true }));
+                } else {
+                    console.warn('Invalid format. Must be ISO.');
+                }
+              }
+            }).catch(() => {
+              console.warn('Could not read from clipboard.');
+            });
+          } else {
+            console.warn('Clipboard access is not available in this browser.');
+          }
+        });
+
+        // Remove the icons on blur
+        input.addEventListener('blur', function removeClipboardPasteIcons() {
+          document.querySelectorAll('.date-input-clipboard-focus-icon, .date-input-paste-focus-icon').forEach(el => el.remove());
+        });
+      }
+    });
+  });
+</script>

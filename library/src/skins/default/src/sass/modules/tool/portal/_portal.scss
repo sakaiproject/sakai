@@ -763,3 +763,31 @@
   color: var(--sakai-text-color-1);
   background-color: var(--sakai-background-color-2);
 }
+
+.date-input-clipboard-focus-icon,
+.date-input-clipboard-copied-icon {
+  position: absolute;
+  color: var(--sakai-text-color-2);
+  z-index: 10000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.75rem;
+  height: 0.75rem;
+  font-size: 0.75rem;
+  margin-left: 0.4rem;
+}
+
+.date-input-paste-focus-icon {
+  position: absolute;
+  color: var(--sakai-text-color-2);
+  z-index: 10000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.75rem;
+  height: 0.75rem;
+  font-size: 0.75rem;
+  margin-top: 0.85rem;
+  margin-left: 0.4rem;
+}
