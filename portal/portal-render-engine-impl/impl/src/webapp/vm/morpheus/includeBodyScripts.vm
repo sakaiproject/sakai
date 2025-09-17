@@ -289,13 +289,14 @@ if ( ! (self == top) ) {
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    const dropdownToggle = document.querySelector('.dropdown-toggle');
-    const navIntraTool = document.querySelector('.navIntraTool');
-    const dropdownNavIntraTool = document.querySelector('.dropdown-navIntraTool');
-
+    const dropdownNavIntraTool = document.querySelector('.dropdown-toggle.dropdown-navIntraTool');
     if (dropdownNavIntraTool) {
-      dropdownToggle.addEventListener('click', function () {
-        navIntraTool.classList.toggle('dropdown-active');
+      dropdownNavIntraTool.addEventListener('click', function (e) {
+        e.preventDefault();
+        const navIntraToolMobile = document.querySelector('ul.navIntraTool.navIntraToolMobile');
+        if (!navIntraToolMobile) return;
+        const expanded = navIntraToolMobile.classList.toggle('dropdown-active');
+        this.setAttribute('aria-expanded', `${expanded}`);
       });
     }
   });

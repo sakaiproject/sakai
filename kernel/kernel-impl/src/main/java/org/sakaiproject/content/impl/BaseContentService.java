@@ -568,13 +568,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 			rb = Resource.getResourceLoader(resourceClass, resourceBundle);
 
-			m_useMimeMagic = serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
-			m_ignoreExtensions = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.extensions"))
-					.map(Arrays::asList)
-					.orElse(Collections.emptyList());
-			m_ignoreMimeTypes = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes"))
-					.map(Arrays::asList)
-					.orElse(Collections.emptyList());
+        m_useMimeMagic = serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
+        // Normalize ignore lists to lowercase and supply sensible defaults if unset
+        m_ignoreExtensions = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.extensions"))
+                    .map(Arrays::asList)
+                    .map(list -> list.stream().filter(StringUtils::isNotBlank)
+                            .map(s -> s.toLowerCase(Locale.ROOT).trim())
+                            .collect(Collectors.toList()))
+                    .orElseGet(() -> Arrays.asList("js", "html", "htm", "css", "txt"));
+        m_ignoreMimeTypes = Optional.ofNullable(serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes"))
+                    .map(Arrays::asList)
+                    .map(list -> list.stream().filter(StringUtils::isNotBlank)
+                            .map(s -> s.toLowerCase(Locale.ROOT).trim())
+                            .collect(Collectors.toList()))
+                    .orElse(Collections.emptyList());
 
 			tikaDetector = new DefaultDetector(this.getClass().getClassLoader());
 
@@ -5628,16 +5635,23 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
             }
 
             // tika magic and name detection
-            if (m_useMimeMagic
-                    && !m_ignoreExtensions.contains(org.springframework.util.StringUtils.getFilenameExtension(edit.getId()))
-                    && !CollectionUtils.containsAny(m_ignoreMimeTypes, currentContentType, detectedByName)) {
-                try {
-                    // tika detect doesn't modify the original stream but stream must support reset
-                    InputStream stream = new BufferedInputStream(edit.streamContent());
-                    edit.setContent(stream);
-                    detectedByMagic = tikaDetector.detect(stream, metadata).toString();
-                } catch (Exception e) {
-                    log.warn("tika mimetype detection failed when trying to get the resource data: {}", e.toString());
+            if (m_useMimeMagic) {
+                String ext = org.springframework.util.StringUtils.getFilenameExtension(edit.getId());
+                ext = ext == null ? null : ext.toLowerCase(Locale.ROOT);
+                String currentTypeLc = StringUtils.defaultString(currentContentType).toLowerCase(Locale.ROOT);
+                String detectedByNameLc = StringUtils.defaultString(detectedByName).toLowerCase(Locale.ROOT);
+                boolean skipMagicByExt = ext != null && m_ignoreExtensions.contains(ext);
+                boolean skipMagicByMime = CollectionUtils.containsAny(m_ignoreMimeTypes, currentTypeLc, detectedByNameLc);
+
+                if (!skipMagicByExt && !skipMagicByMime) {
+                    try {
+                        // tika detect doesn't modify the original stream but stream must support reset
+                        InputStream stream = new BufferedInputStream(edit.streamContent());
+                        edit.setContent(stream);
+                        detectedByMagic = tikaDetector.detect(stream, metadata).toString();
+                    } catch (Exception e) {
+                        log.warn("tika mimetype detection failed when trying to get the resource data: {}", e.toString());
+                    }
                 }
             }
         }
@@ -6521,14 +6535,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 					disposition = Web.buildContentDisposition(fileName, true);
 				}
 
-				// NOTE: Only set the encoding on the content we have to.
-				// Files uploaded by the user may have been created with different encodings, such as ISO-8859-1;
-				// rather than (sometimes wrongly) saying its UTF-8, let the browser auto-detect the encoding.
-				// If the content was created through the WYSIWYG editor, the encoding does need to be set (UTF-8).
+				// Set UTF-8 encoding for text-based files to fix display of non-ASCII characters
 				String encoding = resource.getProperties().getProperty(ResourceProperties.PROP_CONTENT_ENCODING);
 				if (encoding != null && encoding.length() > 0)
 				{
 					contentType = contentType + "; charset=" + encoding;
+				}
+				else if (contentType.startsWith("text/"))
+				{
+					contentType = contentType + "; charset=UTF-8";
 				}
 
 				// KNL-1316 let's see if the user already has a cached copy. Code copied and modified from Tomcat DefaultServlet.java

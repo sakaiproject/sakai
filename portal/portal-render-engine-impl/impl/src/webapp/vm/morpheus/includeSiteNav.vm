@@ -194,6 +194,7 @@
         mutations.forEach((mutation) => {
             if (mutation.type === 'childList' && previousSiteTitle === null) {
                 const currentSiteElement = document.querySelector('.is-current-site');
+                if (!currentSiteElement) return;
                 const toolMenu = document.getElementById('toolMenu');
                 if (!toolMenu) return;
                 const listItems = Array.from(toolMenu.querySelectorAll('li.site-list-item'));

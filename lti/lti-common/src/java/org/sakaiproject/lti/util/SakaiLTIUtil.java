@@ -905,7 +905,7 @@ public class SakaiLTIUtil {
 			setProperty(props, LTIConstants.USER_ID, user.getId());
 
 			if (ServerConfigurationService.getBoolean(LTI_CONSUMER_USERIMAGE_ENABLED, true)) {
-				String imageUrl = getOurServerUrl() + "/direct/profile/" + user.getId() + "/image";
+				String imageUrl = getOurServerUrl() + "/api/users/" + user.getId() + "/profile/image";
 				setProperty(props, LTIConstants.USER_IMAGE, imageUrl);
 			}
 

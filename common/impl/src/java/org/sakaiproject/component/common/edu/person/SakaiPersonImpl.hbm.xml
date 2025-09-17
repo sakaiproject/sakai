@@ -114,31 +114,9 @@
           <subclass
             name="org.sakaiproject.component.common.edu.person.SakaiPersonImpl"
             discriminator-value="SP">
-            <property name="campus" column="CAMPUS" />
-            <property name="hidePrivateInfo" column="HIDE_PRIVATE_INFO" />
-            <property name="hidePublicInfo" column="HIDE_PUBLIC_INFO" />
+
             <property name="notes" column="NOTES" type="materialized_clob" length="75000" />
-            <property name="pictureUrl" column="PICTURE_URL" />
-            <property name="systemPicturePreferred" column="SYSTEM_PICTURE_PREFERRED" />
-            <property name="ferpaEnabled" column="ferpaEnabled" index="SAKAI_PERSON_ferpaEnabled_I" />
-            <property name="dateOfBirth" column="dateOfBirth" type="date" />
             <property name="locked" column="locked" type="boolean" />
-            
-            <property name="favouriteBooks" column="FAVOURITE_BOOKS" type="materialized_clob" length="75000" />
-            <property name="favouriteTvShows" column="FAVOURITE_TV_SHOWS" type="materialized_clob" length="75000" />
-            <property name="favouriteMovies" column="FAVOURITE_MOVIES" type="materialized_clob" length="75000" />
-            <property name="favouriteQuotes" column="FAVOURITE_QUOTES" type="materialized_clob" length="75000" />
-            
-            <property name="educationCourse" column="EDUCATION_COURSE" type="materialized_clob" length="75000" />
-            <property name="educationSubjects" column="EDUCATION_SUBJECTS" type="materialized_clob" length="75000" />
-            
-            <property name="normalizedMobile" column="NORMALIZEDMOBILE" />
-            
-            <property name="staffProfile" column="STAFF_PROFILE" type="materialized_clob" length="75000" />
-            <property name="universityProfileUrl" column="UNIVERSITY_PROFILE_URL" type="materialized_clob" length="75000" />
-            <property name="academicProfileUrl" column="ACADEMIC_PROFILE_URL" type="materialized_clob" length="75000" />
-            <property name="publications" column="PUBLICATIONS" type="materialized_clob" length="75000"  />
-            <property name="businessBiography" column="BUSINESS_BIOGRAPHY" type="materialized_clob" length="75000" />
             <property name="phoneticPronunciation" column="PHONETIC_PRONUNCIATION" length="255" />
             <property name="pronouns" column="PRONOUNS" length="255" />
             

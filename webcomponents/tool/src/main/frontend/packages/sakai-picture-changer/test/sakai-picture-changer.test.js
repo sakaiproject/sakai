@@ -9,7 +9,7 @@ describe("sakai-picture-changer tests", () => {
 
   fetchMock
     .get(data.i18nUrl, data.i18n, {overwriteRoutes: true})
-    .get(/\/direct\/profile-image\/details/, { status: "SUCCESS", url: "/packages/sakai-picture-changer/test/images/orville.jpeg" }, { overwriteRoutes: true })
+    .get(/\/api\/users\/me\/profile\/image\/details/, { status: "SUCCESS", url: "/packages/sakai-picture-changer/test/images/orville.jpeg" }, { overwriteRoutes: true })
     .get("*", 500, {overwriteRoutes: true});
 
   it ("renders correctly", async () => {

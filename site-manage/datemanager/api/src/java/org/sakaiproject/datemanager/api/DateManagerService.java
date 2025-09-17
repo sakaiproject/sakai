@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.datemanager.api;
 
+import java.io.Serializable;
+import java.io.InputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -24,14 +27,25 @@ import org.sakaiproject.site.api.Site;
 
 public interface DateManagerService {
 
-	public final String STATE_SITE_ID = "site.instance.id";
+	public static String STATE_SITE_ID = "site.instance.id";
+    /**
+     * ToolSession attribute key holding a List<ToolImportData> representing the
+     * current user's CSV import selection/state. Set during the import flow and
+     * cleared when leaving or after a successful confirmation.
+     */
+    public static String TOOLS_TO_IMPORT_SESSION_KEY = "datemanager.toolsToImport";
+    /**
+     * ToolSession attribute key holding the preview data structure used by the
+     * confirm page (List<List<Object>>). This enables a PRG flow.
+     */
+    public static String TOOLS_CSV_PREVIEW_SESSION_KEY = "datemanager.toolsCsvPreview";
 
 	// Global methods
 	public String getCurrentUserId();
 	public String getCurrentSiteId();
 	public Optional<Site> getCurrentSite();
 	public Locale getUserLocale();
-        public Locale getLocaleForCurrentSiteAndUser();
+	public Locale getLocaleForCurrentSiteAndUser();
 	public String getMessage(String messageId);
 	public boolean currentSiteContainsTool(String commonId);
 	public String getToolTitle(String commonId);
@@ -88,4 +102,40 @@ public interface DateManagerService {
 	public void updateTool(String toolId, DateManagerValidation dateManagerValidation);
 
 	public boolean isChanged(String toolId, String[] columns);
+
+	// CSV export/import methods
+	public byte[] exportCsvData(String siteId) throws Exception;
+	public List<List<Object>> importCsvData(InputStream csvInputStream, String siteId) throws Exception;
+	public static class ToolImportData implements Serializable {
+		private static final long serialVersionUID = 1L;
+		public String toolId;
+		public int index;
+		public String[] columns;
+	}
+	public List<ToolImportData> getToolsToImport();
+
+	/**
+	 * Replace the current user's session-backed tools-to-import list.
+	 * Passing null or an empty list clears the attribute.
+	 *
+	 * @param tools The list to set into the session or null/empty to clear.
+	 */
+	public void setToolsToImport(List<ToolImportData> tools);
+
+	/** Clear the current user's session-backed tools-to-import list. */
+	public void clearToolsToImport();
+
+	/**
+	 * Returns the current user's session-backed CSV preview structure for confirm page.
+	 */
+	public List<List<Object>> getToolsCsvPreview();
+
+	/**
+	 * Replace the current user's session-backed CSV preview list for the confirm page.
+	 * Passing null or an empty list clears the attribute.
+	 */
+	public void setToolsCsvPreview(List<List<Object>> preview);
+
+	/** Clear the current user's session-backed CSV preview list. */
+	public void clearToolsCsvPreview();
 }

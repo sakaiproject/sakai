@@ -87,11 +87,10 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
     @Override
     public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
         final GradebookPage page = (GradebookPage) target.getPage();
+	setCurrentGradebookAndSite(page.getCurrentGradebookUid(), page.getCurrentSiteId());
 
         target.addChildren(page, FeedbackPanel.class);
 
-        final String siteId = params.get("siteId").asText();
-        final String gradebookUid = params.get("gUid").asText();
         final String assignmentId = params.get("assignmentId").asText();
         final String studentUuid = params.get("studentId").asText();
         String excuse = params.get("excuseBit").asText();
@@ -105,7 +104,7 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
             hasExcuse = true;
         }
 
-        final GradeSaveResponse result = businessService.saveExcuse(gradebookUid, siteId, Long.valueOf(assignmentId),
+        final GradeSaveResponse result = businessService.saveExcuse(currentGradebookUid, currentSiteId, Long.valueOf(assignmentId),
                 studentUuid, hasExcuse);
 
         if (result.equals(GradeSaveResponse.NO_CHANGE)) {
@@ -116,10 +115,10 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
                 String.format("GbGradeTable.updateExcuse('%s', '%s', '%s');", assignmentId, studentUuid, excuse));
 
 
-        final CourseGradeTransferBean studentCourseGrade = businessService.getCourseGrade(gradebookUid, siteId, studentUuid);
+        final CourseGradeTransferBean studentCourseGrade = businessService.getCourseGrade(currentGradebookUid, currentSiteId, studentUuid);
 
         boolean isOverride = false;
-        String grade = getGrade(studentCourseGrade, page, gradebookUid, siteId);
+        String grade = getGrade(studentCourseGrade, page, currentGradebookUid, currentSiteId);
         String points = "0";
 
         if (studentCourseGrade != null) {
