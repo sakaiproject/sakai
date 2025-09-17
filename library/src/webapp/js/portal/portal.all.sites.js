@@ -286,15 +286,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const organizeTab = document.getElementById('allsites-organize-favourites-tab');
-  if (organizeTab) {
-    organizeTab.addEventListener("click", e => {
-      const refreshNotification = document.getElementById('allsites-refresh-notification');
-      if (refreshNotification) {
-        const computedStyle = window.getComputedStyle(refreshNotification);
-        const displayValue = computedStyle.getPropertyValue('display');
-        if (displayValue === 'block') {
-          location.reload();
-        }
+  const refreshNotification = document.getElementById("allsites-refresh-notification");
+
+  if (organizeTab && refreshNotification) {
+    organizeTab.addEventListener("click", () => {
+      if (refreshNotification.offsetParent !== null) {
+        // Element is visible
+        location.reload();
       }
     });
   }
