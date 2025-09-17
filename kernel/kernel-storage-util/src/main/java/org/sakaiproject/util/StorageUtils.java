@@ -141,9 +141,11 @@ public class StorageUtils {
 		try
 		{
 			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
-			InputStreamReader in = new InputStreamReader(new FileInputStream(name), StandardCharsets.ISO_8859_1);
-			InputSource inputSource = new InputSource(in);
-			doc = docBuilder.parse(inputSource);
+			try (InputStreamReader in = new InputStreamReader(new FileInputStream(name), StandardCharsets.ISO_8859_1))
+			{
+				InputSource inputSource = new InputSource(in);
+				doc = docBuilder.parse(inputSource);
+			}
 		}
 		catch (Exception any)
 		{
@@ -156,14 +158,16 @@ public class StorageUtils {
 		try
 		{
 			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
-			InputStreamReader in = new InputStreamReader(new FileInputStream(name), StandardCharsets.UTF_8);
-			InputSource inputSource = new InputSource(in);
-			doc = docBuilder.parse(inputSource);
+			try (InputStreamReader in = new InputStreamReader(new FileInputStream(name), StandardCharsets.UTF_8))
+			{
+				InputSource inputSource = new InputSource(in);
+				doc = docBuilder.parse(inputSource);
+			}
 		}
 		catch (Exception any)
 		{
-            log.warn("readDocument UTF8 read failed on file: {} with exception: {}", name, any.toString());
-        }
+			log.warn("readDocument UTF8 read failed on file: {} with exception: {}", name, any.toString());
+		}
 
 		return doc;
 	}
