@@ -67,18 +67,20 @@ public class StorageUtils {
 	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 
 	static {
+		dbFactory.setNamespaceAware(true);
 		try {
-			dbFactory.setNamespaceAware(true);
 			dbFactory.setXIncludeAware(false);
-			dbFactory.setExpandEntityReferences(false);
+		} catch (UnsupportedOperationException e) {
+			log.debug("DocumentBuilderFactory does not support XInclude control; skipping");
+		}
+		dbFactory.setExpandEntityReferences(false);
+		try {
 			dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 			dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 			dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
 			dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-			dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-			dbFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 		} catch (ParserConfigurationException | IllegalArgumentException e) {
-			log.warn("Failed to apply secure XML parser features; continuing with defaults", e);
+			log.warn("Failed to apply secure XML parser features; continuing with defaults: {}", e.toString());
 		}
 	}
 
@@ -309,14 +311,18 @@ public class StorageUtils {
 					SAXParserFactory f = SAXParserFactory.newInstance();
 					f.setNamespaceAware(false);
 					f.setValidating(false);
-					f.setXIncludeAware(false);
+					try {
+						f.setXIncludeAware(false);
+					} catch (UnsupportedOperationException e) {
+						log.debug("SAXParserFactory does not support XInclude control; skipping");
+					}
 					try {
 						f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 						f.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 						f.setFeature("http://xml.org/sax/features/external-general-entities", false);
 						f.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 						f.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-					} catch (Exception e) {
+					} catch (ParserConfigurationException | SAXNotRecognizedException | SAXNotSupportedException e) {
 						log.warn("Failed to apply secure SAX parser features; continuing with defaults", e);
 					}
 					parserFactory = f;
@@ -327,12 +333,6 @@ public class StorageUtils {
 		{
 			p = parserFactory.newSAXParser();
 			XMLReader reader = p.getXMLReader();
-			try {
-				reader.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-				reader.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
-				log.warn("Failed to restrict external entity access on SAX reader; continuing with defaults", e);
-			}
 			try {
 				reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
