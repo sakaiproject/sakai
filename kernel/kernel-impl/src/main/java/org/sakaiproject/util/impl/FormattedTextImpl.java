@@ -1126,8 +1126,13 @@ public class FormattedTextImpl implements FormattedText
                             buf.append(value.substring(0, i));
                         }
 
-                        buf.append((char) val);
-                        i = pos;
+                        if (Character.isValidCodePoint(val)) {
+                            buf.appendCodePoint(val);
+                            i = pos;
+                        } else {
+                            buf.append(value, i, pos + 1);
+                            i = pos;
+                        }
                     }
                     catch (Exception ignore)
                     {

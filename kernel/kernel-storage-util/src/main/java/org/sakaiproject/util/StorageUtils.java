@@ -45,8 +45,10 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 
@@ -157,14 +159,63 @@ public class StorageUtils {
 		try
 		{
 			DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
+			docBuilder.setErrorHandler(new LoggingSaxErrorHandler());
 			InputSource inputSource = new InputSource(new StringReader(in));
 			Document doc = docBuilder.parse(inputSource);
 			return doc;
 		}
+		catch (SAXParseException spe)
+		{
+			logParseFailure(in, spe);
+			return null;
+		}
 		catch (Exception any)
 		{
-			log.warn("readDocumentFromString: " + any.toString());
+			log.warn("readDocumentFromString: {}", any.toString());
 			return null;
+		}
+	}
+
+	private static void logParseFailure(String xml, SAXParseException exception)
+	{
+		String context = extractContext(xml, exception.getColumnNumber());
+		log.error("readDocumentFromString failed at line {}, column {}: {}{}", exception.getLineNumber(),
+				exception.getColumnNumber(), exception.getMessage(),
+				(context.isEmpty() ? "" : " Context: " + context));
+	}
+
+	private static String extractContext(String xml, int column)
+	{
+		if (xml == null || xml.isEmpty() || column <= 0)
+		{
+			return "";
+		}
+
+		int colIndex = Math.max(0, column - 1);
+		int start = Math.max(0, colIndex - 80);
+		int end = Math.min(xml.length(), colIndex + 80);
+		String snippet = xml.substring(start, end);
+		return snippet.replaceAll("\\s+", " ");
+	}
+
+	private static class LoggingSaxErrorHandler implements ErrorHandler
+	{
+		@Override
+		public void warning(SAXParseException exception) throws SAXException
+		{
+			log.warn("XML parse warning at line {}, column {}: {}", exception.getLineNumber(), exception.getColumnNumber(), exception.getMessage());
+		}
+
+		@Override
+		public void error(SAXParseException exception) throws SAXException
+		{
+			throw exception;
+		}
+
+		@Override
+		public void fatalError(SAXParseException exception) throws SAXException
+		{
+			throw exception;
 		}
 	}
 
