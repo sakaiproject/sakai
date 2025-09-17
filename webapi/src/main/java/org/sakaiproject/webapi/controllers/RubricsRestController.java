@@ -140,8 +140,10 @@ public class RubricsRestController extends AbstractSakaiApiController {
     ResponseEntity<RubricTransferBean> updateRubricAdhoc(@PathVariable String siteId, @RequestBody RubricTransferBean bean, @RequestParam(defaultValue = "false") Boolean pointsUpdated) throws Exception {
 
         log.debug("Get old criteria from database");
-        List<CriterionTransferBean> oldCriteria = rubricsService.getRubric(bean.getId()).orElse(null).getCriteria();
-        oldCriteria.stream().forEach(c -> log.debug(c.toString()));
+        List<CriterionTransferBean> oldCriteria = rubricsService.getRubric(bean.getId())
+                .map(RubricTransferBean::getCriteria)
+                .orElseGet(java.util.Collections::emptyList);
+        oldCriteria.forEach(c -> log.debug("Existing criterion: {}", c));
         // confirm rubric changes on database
         RubricTransferBean saved = rubricsService.saveRubric(bean);
         log.debug("Get new criteria after saving");
@@ -155,12 +157,12 @@ public class RubricsRestController extends AbstractSakaiApiController {
             List<CriterionTransferBean> toUpdate = new ArrayList<>(newCriteria);
             toUpdate.retainAll(oldCriteria);
 
-            log.debug("Criterions to update");
-            toUpdate.stream().forEach(c -> log.debug(c.toString()));
-            log.debug("Criterions to add");
-            toAdd.stream().forEach(c -> log.debug(c.toString()));
-            log.debug("Criterions to remove");
-            toRemove.stream().forEach(c -> log.debug(c.toString()));
+            log.debug("Criteria to update");
+            toUpdate.forEach(c -> log.debug("Criterion to update: {}", c));
+            log.debug("Criteria to add");
+            toAdd.forEach(c -> log.debug("Criterion to add: {}", c));
+            log.debug("Criteria to remove");
+            toRemove.forEach(c -> log.debug("Criterion to remove: {}", c));
 
             List<CriterionOutcomeTransferBean> toAddOutcome = new ArrayList<>();
             for (CriterionTransferBean c : toAdd) {
@@ -199,7 +201,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                             matchesPreviousScore = true;
                             log.debug("Previous score matches");
                         }
-                        log.debug("Evaluation before changes " + eval);
+                        log.debug("Evaluation before changes {}", eval);
                         for (CriterionOutcomeTransferBean c : eval.getCriterionOutcomes()) {
                             // update points and apply difference
                             if (updateMap.get(c.getCriterionId()) != null && c.getSelectedRatingId() != null) {
@@ -224,7 +226,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                         // after updating grade, modify list of criterion outcomes
                         eval.getCriterionOutcomes().removeIf(c -> removeIds.contains(c.getCriterionId()));
                         eval.getCriterionOutcomes().addAll(toAddOutcome);
-                        log.debug("Evaluation after changes " + eval);
+                        log.debug("Evaluation after changes {}", eval);
 
                         if (scoreDifference < 0) {
                             scoreDifference = 0.0;
@@ -429,6 +431,15 @@ public class RubricsRestController extends AbstractSakaiApiController {
         checkSakaiSession();
 
         return entityModelForCriterionBean(rubricsService.copyCriterion(rubricId, sourceId));
+    }
+
+    //@PreAuthorize("canCopy(#sourceId, 'Criterion')")
+    @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{sourceId}/copy", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<CriterionTransferBean>> copyCriterionPost(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long sourceId) {
+
+        checkSakaiSession();
+
+        return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.copyCriterion(rubricId, sourceId)));
     }
 
     @PatchMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}",
