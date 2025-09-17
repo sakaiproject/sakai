@@ -63,7 +63,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 @Slf4j
 public class StorageUtils {
-	private static SAXParserFactory parserFactory;
+	private static volatile SAXParserFactory parserFactory;
 	private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 
 	static {
@@ -303,20 +303,24 @@ public class StorageUtils {
 		InputSource ss = new InputSource(in);
 
 		SAXParser p = null;
-		if (parserFactory == null)
-		{
-			parserFactory = SAXParserFactory.newInstance();
-			parserFactory.setNamespaceAware(false);
-			parserFactory.setValidating(false);
-			parserFactory.setXIncludeAware(false);
-			try {
-				parserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-				parserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-				parserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-				parserFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-				parserFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-			} catch (Exception e) {
-				log.warn("Failed to apply secure SAX parser features; continuing with defaults", e);
+		if (parserFactory == null) {
+			synchronized (StorageUtils.class) {
+				if (parserFactory == null) {
+					SAXParserFactory f = SAXParserFactory.newInstance();
+					f.setNamespaceAware(false);
+					f.setValidating(false);
+					f.setXIncludeAware(false);
+					try {
+						f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+						f.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+						f.setFeature("http://xml.org/sax/features/external-general-entities", false);
+						f.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+						f.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+					} catch (Exception e) {
+						log.warn("Failed to apply secure SAX parser features; continuing with defaults", e);
+					}
+					parserFactory = f;
+				}
 			}
 		}
 		try
