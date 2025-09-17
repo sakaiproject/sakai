@@ -139,40 +139,53 @@ public class RubricsRestController extends AbstractSakaiApiController {
     @PostMapping(value = "/sites/{siteId}/rubrics/adhoc", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<RubricTransferBean> updateRubricAdhoc(@PathVariable String siteId, @RequestBody RubricTransferBean bean, @RequestParam(defaultValue = "false") Boolean pointsUpdated) throws Exception {
 
-        log.debug("Get old criteria from database");
+        log.debug("Loading existing criteria for rubric {}", bean.getId());
         List<CriterionTransferBean> oldCriteria = rubricsService.getRubric(bean.getId())
                 .map(RubricTransferBean::getCriteria)
                 .orElseGet(java.util.Collections::emptyList);
-        oldCriteria.forEach(c -> log.debug("Existing criterion: {}", c));
+        log.debug("Loaded {} existing criteria", oldCriteria.size());
         // confirm rubric changes on database
         RubricTransferBean saved = rubricsService.saveRubric(bean);
-        log.debug("Get new criteria after saving");
         List<CriterionTransferBean> newCriteria = saved.getCriteria();
-        newCriteria.stream().forEach(c -> log.debug(c.toString()));
+        log.debug("Rubric now has {} criteria after save", newCriteria.size());
         if (pointsUpdated) {
-            List<CriterionTransferBean> toAdd = new ArrayList<>(newCriteria);
-            toAdd.removeAll(oldCriteria);
-            List<CriterionTransferBean> toRemove = new ArrayList<>(oldCriteria);
-            toRemove.removeAll(newCriteria);
-            List<CriterionTransferBean> toUpdate = new ArrayList<>(newCriteria);
-            toUpdate.retainAll(oldCriteria);
+            Map<Long, CriterionTransferBean> oldCriteriaById = oldCriteria.stream()
+                    .filter(c -> c.getId() != null)
+                    .collect(Collectors.toMap(CriterionTransferBean::getId, c -> c, (existing, replacement) -> existing));
+            Map<Long, CriterionTransferBean> newCriteriaById = newCriteria.stream()
+                    .filter(c -> c.getId() != null)
+                    .collect(Collectors.toMap(CriterionTransferBean::getId, c -> c, (existing, replacement) -> replacement));
 
-            log.debug("Criteria to update");
-            toUpdate.forEach(c -> log.debug("Criterion to update: {}", c));
-            log.debug("Criteria to add");
-            toAdd.forEach(c -> log.debug("Criterion to add: {}", c));
-            log.debug("Criteria to remove");
-            toRemove.forEach(c -> log.debug("Criterion to remove: {}", c));
+            List<CriterionTransferBean> toAdd = newCriteria.stream()
+                    .filter(c -> c.getId() == null || !oldCriteriaById.containsKey(c.getId()))
+                    .collect(Collectors.toList());
+            List<CriterionTransferBean> toRemove = oldCriteria.stream()
+                    .filter(c -> c.getId() == null || !newCriteriaById.containsKey(c.getId()))
+                    .collect(Collectors.toList());
+            List<CriterionTransferBean> toUpdate = newCriteria.stream()
+                    .filter(c -> c.getId() != null && oldCriteriaById.containsKey(c.getId()))
+                    .collect(Collectors.toList());
+
+            log.debug("Criteria to update: {}", toUpdate.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
+            log.debug("Criteria to add: {}", toAdd.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
+            log.debug("Criteria to remove: {}", toRemove.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
 
             List<CriterionOutcomeTransferBean> toAddOutcome = new ArrayList<>();
             for (CriterionTransferBean c : toAdd) {
-                CriterionOutcomeTransferBean co = new CriterionOutcomeTransferBean();
-                co.setCriterionId(c.getId());
-                co.setPoints(Double.valueOf(0));
-                toAddOutcome.add(co);
+                if (c.getId() != null) {
+                    CriterionOutcomeTransferBean co = new CriterionOutcomeTransferBean();
+                    co.setCriterionId(c.getId());
+                    co.setPoints(Double.valueOf(0));
+                    toAddOutcome.add(co);
+                }
             }
-            Map<Long, CriterionTransferBean> updateMap = toUpdate.stream().collect(Collectors.toMap(CriterionTransferBean::getId, item -> item));
-            List<Long> removeIds = toRemove.stream().map(CriterionTransferBean::getId).collect(Collectors.toList());
+            Map<Long, CriterionTransferBean> updateMap = toUpdate.stream()
+                    .filter(c -> c.getId() != null)
+                    .collect(Collectors.toMap(CriterionTransferBean::getId, item -> item, (existing, replacement) -> replacement));
+            List<Long> removeIds = toRemove.stream()
+                    .map(CriterionTransferBean::getId)
+                    .filter(java.util.Objects::nonNull)
+                    .collect(Collectors.toList());
                 
             // get assessment, itemgradings and rubric evaluations
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
