@@ -510,7 +510,7 @@ public class ItemService
    * @return void
    */
   public void saveTagsInHashedQuestions(ItemFacade itemOrigin){
-    ItemService itemService = new ItemService();
+    ItemService itemService = this;
     Set<ItemTagIfc> itemTagIfcSet = itemOrigin.getItemTagSet();
     if (itemTagIfcSet == null) {
       itemTagIfcSet = Set.of();
@@ -520,14 +520,12 @@ public class ItemService
 
     while (itemsIterator.hasNext()){
       ItemFacade itemHashed = (ItemFacade)itemsIterator.next();
-      if (itemHashed.getItemId()!=itemOrigin.getItemId()) { //Not needed in the actual item
+      if (!java.util.Objects.equals(itemHashed.getItemId(), itemOrigin.getItemId())) { // Not needed in the actual item
 
         //Let's delete all in the origin
         //Let's use a copy to avoid the concurrentmodificationException
-        Set<ItemTagIfc> itemTagIfcSetOriginal =new HashSet<>();
-        if (itemHashed.getItemTagSet() != null) {
-          itemTagIfcSetOriginal.addAll(itemHashed.getItemTagSet());
-        }
+        Set<ItemTagIfc> itemTagIfcSetOriginal =
+            new HashSet<>(itemHashed.getItemTagSet() == null ? Set.of() : itemHashed.getItemTagSet());
         Iterator originIterator = itemTagIfcSetOriginal.iterator();
         while (originIterator.hasNext()) {
           ItemTagIfc tagToDelete = (ItemTagIfc) originIterator.next();
