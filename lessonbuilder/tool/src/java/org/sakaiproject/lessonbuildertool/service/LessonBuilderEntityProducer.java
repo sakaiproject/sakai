@@ -1862,10 +1862,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				if (StringUtils.isNotEmpty(pageAttribute)) {
 					item.setPrerequisite(Boolean.valueOf(pageAttribute));
 				}
-				if ( itemExists ) {
-					log.debug("saving vestigial item: {}", item.getId());
-					simplePageToolDao.quickSaveItem(item);
-				} else {
+
+				log.debug("saving vestigial item: {}", item.getId());
+				simplePageToolDao.quickSaveItem(item);
+				if (!itemExists) {
 					List<String>elist = new ArrayList<>();
 					boolean requiresEditPermission = true;
 					simplePageToolDao.update(item, elist, messageLocator.getMessage("simplepage.nowrite"), requiresEditPermission);
