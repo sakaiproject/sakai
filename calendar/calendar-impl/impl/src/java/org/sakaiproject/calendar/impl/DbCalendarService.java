@@ -21,7 +21,10 @@
 
 package org.sakaiproject.calendar.impl;
 
-import java.sql.Date;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +59,8 @@ public class DbCalendarService
 	protected boolean m_locksInDb = true;
 
 	protected static final String[] FIELDS = { "EVENT_START", "EVENT_END", "RANGE_START", "RANGE_END" };
+
+	private static final DateTimeFormatter RFC_1123_UTC = DateTimeFormatter.RFC_1123_DATE_TIME;
 
 	/*******************************************************************************
 	* Constructors, Dependencies and their setter methods
@@ -133,7 +138,7 @@ public class DbCalendarService
 
 			super.init();
 			
-			log.info("init(): tables: " + m_cTableName + " " + m_rTableName + " locks-in-db: " + m_locksInDb);
+			log.info("init(): tables: {} {} locks-in-db: {}", m_cTableName, m_rTableName, m_locksInDb);
 		}
 		catch (Throwable t)
 		{
@@ -234,10 +239,10 @@ public class DbCalendarService
 			long startDate = range.firstTime().getTime();
 			long endDate = range.lastTime().getTime();
 
-			// we dont have acurate timezone information at this point, so we will make certain that we are at the start of the GMT day
+			// we don't have accurate timezone information at this point, so we will make certain that we are at the start of the UTC day
 			long oneHour = 60L*60L*1000L;
 			long oneDay = 24L*oneHour;
-			// get to the start of the GMT day
+			// get to the start of the UTC day
 			startDate = startDate - (startDate%oneDay);
 			// get to the end of the GMT day
 			endDate = endDate + (oneDay-(endDate%oneDay));  
@@ -245,8 +250,10 @@ public class DbCalendarService
 			Integer startDateHours = (int)(startDate/oneHour);
 			Integer endDateHours = (int)(endDate/oneHour);
 			
-			log.debug("Selecting Range from {} to {}", (new Date(startDate)).toGMTString(), (new Date(endDate)).toGMTString());
-            
+			ZonedDateTime startUtc = Instant.ofEpochMilli(startDate).atZone(ZoneOffset.UTC);
+			ZonedDateTime endUtc = Instant.ofEpochMilli(endDate).atZone(ZoneOffset.UTC);
+			log.debug("Selecting Range from {} to {}", RFC_1123_UTC.format(startUtc), RFC_1123_UTC.format(endUtc));
+
 			List<Object> rangeValues = new ArrayList<>();
 			// Bind order matches (RANGE_START < ?) and (RANGE_END > ?)
 			rangeValues.add(endDateHours);
@@ -278,5 +285,3 @@ public class DbCalendarService
 
 	}   // DbStorage
 }	// DbCachedCalendarService
-
-
