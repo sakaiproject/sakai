@@ -139,16 +139,32 @@ public class RubricsRestController extends AbstractSakaiApiController {
     @PostMapping(value = "/sites/{siteId}/rubrics/adhoc", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<RubricTransferBean> updateRubricAdhoc(@PathVariable String siteId, @RequestBody RubricTransferBean bean, @RequestParam(defaultValue = "false") Boolean pointsUpdated) throws Exception {
 
-        log.debug("Loading existing criteria for rubric {}", bean.getId());
-        List<CriterionTransferBean> oldCriteria = rubricsService.getRubric(bean.getId())
+        if (bean == null) {
+            log.warn("updateRubricAdhoc called with null rubric bean");
+            return ResponseEntity.badRequest().build();
+        }
+
+        Long rubricId = bean.getId();
+        if (rubricId == null) {
+            log.warn("updateRubricAdhoc called without rubric id");
+            return ResponseEntity.badRequest().build();
+        }
+
+        log.debug("Loading existing criteria for rubric {}", rubricId);
+        List<CriterionTransferBean> oldCriteria = rubricsService.getRubric(rubricId)
                 .map(RubricTransferBean::getCriteria)
                 .orElseGet(java.util.Collections::emptyList);
         log.debug("Loaded {} existing criteria", oldCriteria.size());
         // confirm rubric changes on database
         RubricTransferBean saved = rubricsService.saveRubric(bean);
-        List<CriterionTransferBean> newCriteria = saved.getCriteria();
+        if (saved == null) {
+            log.error("Rubric save returned null for rubric {}", rubricId);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        List<CriterionTransferBean> newCriteria = java.util.Optional.ofNullable(saved.getCriteria())
+                .orElseGet(java.util.Collections::emptyList);
         log.debug("Rubric now has {} criteria after save", newCriteria.size());
-        if (pointsUpdated) {
+        if (Boolean.TRUE.equals(pointsUpdated)) {
             Map<Long, CriterionTransferBean> oldCriteriaById = oldCriteria.stream()
                     .filter(c -> c.getId() != null)
                     .collect(Collectors.toMap(CriterionTransferBean::getId, c -> c, (existing, replacement) -> existing));
@@ -166,18 +182,20 @@ public class RubricsRestController extends AbstractSakaiApiController {
                     .filter(c -> c.getId() != null && oldCriteriaById.containsKey(c.getId()))
                     .collect(Collectors.toList());
 
-            log.debug("Criteria to update: {}", toUpdate.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
-            log.debug("Criteria to add: {}", toAdd.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
-            log.debug("Criteria to remove: {}", toRemove.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
+            if (log.isDebugEnabled()) {
+                log.debug("Criteria to update: {}", toUpdate.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
+                log.debug("Criteria to add: {}", toAdd.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
+                log.debug("Criteria to remove: {}", toRemove.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
+            }
 
             List<CriterionOutcomeTransferBean> toAddOutcome = new ArrayList<>();
-            for (CriterionTransferBean c : toAdd) {
-                if (c.getId() != null) {
-                    CriterionOutcomeTransferBean co = new CriterionOutcomeTransferBean();
-                    co.setCriterionId(c.getId());
-                    co.setPoints(Double.valueOf(0));
-                    toAddOutcome.add(co);
-                }
+            java.util.Set<Long> addedIds = new java.util.HashSet<>(newCriteriaById.keySet());
+            addedIds.removeAll(oldCriteriaById.keySet());
+            for (Long id : addedIds) {
+                CriterionOutcomeTransferBean co = new CriterionOutcomeTransferBean();
+                co.setCriterionId(id);
+                co.setPoints(0.0d);
+                toAddOutcome.add(co);
             }
             Map<Long, CriterionTransferBean> updateMap = toUpdate.stream()
                     .filter(c -> c.getId() != null)
