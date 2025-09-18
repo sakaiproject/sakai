@@ -1,24 +1,24 @@
-# @sakai-ui/sakai-calendar
+# @sakai-ui/sakai-dialog-content
 
-The Sakai calendar component.
+The Sakai dialog content component.
 
 ## Description
 
-This component displays a calendar view for Sakai events and assignments, allowing users to see their schedule.
+This component provides a standardized dialog for Sakai, allowing for consistent modal interfaces.
 
 ## Installation
 
 ```bash
-npm install @sakai-ui/sakai-calendar
+npm install @sakai-ui/sakai-dialog-content
 ```
 
 ## Usage
 
 ```javascript
-import '@sakai-ui/sakai-calendar/sakai-calendar.js';
+import '@sakai-ui/sakai-dialog-content/sakai-dialog-content.js';
 
 // In your HTML
-<sakai-calendar></sakai-calendar>
+<sakai-dialog-content></sakai-dialog-content>
 ```
 
 ## Linting and formatting

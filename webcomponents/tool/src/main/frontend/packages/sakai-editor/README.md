@@ -1,19 +1,24 @@
-# sakai-editor
+# @sakai-ui/sakai-editor
 
-A editor component for Sakai
+The Sakai editor component.
+
+## Description
+
+This component provides a rich text editor for Sakai, allowing users to create formatted content.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-editor
+npm install @sakai-ui/sakai-editor
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-editor/sakai-editor.js';
 
-<sakai-editor tool="roster"></sakai-editor>
-
+// In your HTML
+<sakai-editor></sakai-editor>
 ```
 
 ## Linting and formatting
@@ -21,7 +26,7 @@ npm i @sakai-ui/sakai-editor
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -31,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0
