@@ -188,15 +188,17 @@
 				</div>
 				<div class="row d-flex">
 					<div class="col-xs-12 col-sm-2">
-						<h:outputText value="#{msgs.pvt_bcc}" />
-					</div>
-					<div class="col-xs-12 col-sm-10">
-						<h:panelGroup styleClass="form-control-label">
-							<h:selectBooleanCheckbox id="bcc_toggle" onclick="if(this.checked){fadeInBcc(true);}else{fadeOutBcc(true);}"/>
-							<h:outputLabel for="bcc_toggle">
-								<h:outputText value="#{msgs.pvt_addBcc}"/>
+						<h:panelGroup styleClass="shorttext form-control-label">
+							<h:outputLabel>
+								<h:outputText value="#{msgs.pvt_bcc}" />
 							</h:outputLabel>
 						</h:panelGroup>
+					</div>
+					<div class="col-xs-12 col-sm-10">
+						<h:selectBooleanCheckbox id="bcc_toggle" onclick="if(this.checked){fadeInBcc(true);}else{fadeOutBcc(true);}"/>
+						<h:outputLabel for="bcc_toggle">
+							<h:outputText value="#{msgs.pvt_addBcc}"/>
+						</h:outputLabel>
 						<h:panelGroup styleClass="shorttext bccLink"></h:panelGroup>
 						<h:panelGroup styleClass="shorttext bcc" style="display:none">
 							<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
@@ -261,6 +263,61 @@
 								<f:selectItem itemValue="pvt_priority_low" itemLabel="#{msgs.pvt_priority_low}"/>
 								<f:selectItem itemValue="pvt_priority_high" itemLabel="#{msgs.pvt_priority_high}"/>
 							</h:selectOneListbox>
+						</h:panelGroup>
+					</div>
+				</div>
+				<div class="row d-flex">
+					<div class="col-xs-12 col-sm-2">
+						<h:panelGroup styleClass="shorttext form-control-label">
+							<h:outputLabel>
+								<h:outputText styleClass="pvt_send_cc" value="#{msgs.pvt_scheduler_send}"/>
+							</h:outputLabel>
+						</h:panelGroup>
+					</div>
+					<div class="col-xs-12 col-sm-10">
+						<h:panelGroup>
+							<h:selectBooleanCheckbox value="#{PrivateMessagesTool.booleanSchedulerSend}" id="scheduler_send_email" onclick = "document.getElementById('pvtMsgReply:openDateSpan').classList.toggle('d-none')"></h:selectBooleanCheckbox>
+							<h:outputLabel for="scheduler_send_email">
+								<h:outputText value="#{msgs.pvt_scheduler_send_as_email}"/>
+							</h:outputLabel>
+						</h:panelGroup>
+						<h:panelGroup id="openDateSpan" styleClass="openDateSpan calWidget d-none" >
+							<div class="row">
+								<div class="col-xs-12">
+									<h:outputLabel value="#{msgs.pvt_scheduler_send_date} " for="openDate" />
+									<h:inputText id="openDate" styleClass="openDate" value="#{PrivateMessagesTool.schedulerSendDateString}" />
+								</div>
+							</div>
+						</h:panelGroup>
+					</div>
+				</div>
+
+				<script>
+					localDatePicker({
+						input:'.openDate',
+						allowEmptyDate:true,
+						ashidden: { iso8601: 'openDateISO8601' },
+						val: document.querySelector('.openDate').value,
+						useTime:1
+					});
+					if(document.getElementById('pvtMsgReply:scheduler_send_email').checked) {
+						document.getElementById('pvtMsgReply:openDateSpan').classList.remove('d-none');
+					}
+				</script>
+				<div class="row d-flex">
+					<div class="col-xs-12 col-sm-2">
+						<h:panelGroup styleClass="shorttext required form-control-label">
+							<h:outputLabel for="subject" >
+								<h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/>
+								<h:outputText value="#{msgs.pvt_subject}"  />
+							</h:outputLabel>
+						</h:panelGroup>
+					</div>
+					<div class="col-xs-12 col-sm-10">
+						<h:panelGroup styleClass="shorttext">
+							<h:inputText value="#{PrivateMessagesTool.replyToSubject}" id="subject" size="45" styleClass="form-control">
+								<f:validateLength maximum="255"/>
+							</h:inputText>
 						</h:panelGroup>
 					</div>
 				</div>
