@@ -446,7 +446,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return entityModelForCriterionBean(rubricsService.copyCriterion(rubricId, sourceId));
     }
 
-    //@PreAuthorize("canCopy(#sourceId, 'Criterion')")
     @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{sourceId}/copy", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<EntityModel<CriterionTransferBean>> copyCriterionPost(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long sourceId) {
 
