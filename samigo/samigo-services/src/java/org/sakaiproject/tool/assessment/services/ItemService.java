@@ -512,6 +512,9 @@ public class ItemService
   public void saveTagsInHashedQuestions(ItemFacade itemOrigin){
     ItemService itemService = new ItemService();
     Set<ItemTagIfc> itemTagIfcSet = itemOrigin.getItemTagSet();
+    if (itemTagIfcSet == null) {
+      itemTagIfcSet = Set.of();
+    }
     Map itemsToUpdate = itemService.getItemsByHash(itemOrigin.getHash());
     Iterator itemsIterator = itemsToUpdate.values().iterator();
 
@@ -522,7 +525,9 @@ public class ItemService
         //Let's delete all in the origin
         //Let's use a copy to avoid the concurrentmodificationException
         Set<ItemTagIfc> itemTagIfcSetOriginal =new HashSet<>();
-        itemTagIfcSetOriginal.addAll(itemHashed.getItemTagSet());
+        if (itemHashed.getItemTagSet() != null) {
+          itemTagIfcSetOriginal.addAll(itemHashed.getItemTagSet());
+        }
         Iterator originIterator = itemTagIfcSetOriginal.iterator();
         while (originIterator.hasNext()) {
           ItemTagIfc tagToDelete = (ItemTagIfc) originIterator.next();
