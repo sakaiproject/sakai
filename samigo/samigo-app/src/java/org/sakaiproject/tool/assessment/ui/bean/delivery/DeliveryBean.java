@@ -2544,6 +2544,7 @@ public class DeliveryBean implements Serializable {
             }
 
             if (item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE.longValue() ||
+                    item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CORRECT.longValue() ||
                     item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
                     item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE_SURVEY.longValue() ||
                     item.getItemData().getTypeId().longValue() == TypeIfc.MATRIX_CHOICES_SURVEY.longValue()) {
