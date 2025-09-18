@@ -60,7 +60,8 @@ public class DbCalendarService
 
 	protected static final String[] FIELDS = { "EVENT_START", "EVENT_END", "RANGE_START", "RANGE_END" };
 
-	private static final DateTimeFormatter RFC_1123_UTC = DateTimeFormatter.RFC_1123_DATE_TIME;
+	private static final DateTimeFormatter RFC_1123_UTC =
+		DateTimeFormatter.RFC_1123_DATE_TIME.withZone(ZoneOffset.UTC);
 
 	/*******************************************************************************
 	* Constructors, Dependencies and their setter methods
@@ -239,20 +240,24 @@ public class DbCalendarService
 			long startDate = range.firstTime().getTime();
 			long endDate = range.lastTime().getTime();
 
-			// we don't have accurate timezone information at this point, so we will make certain that we are at the start of the UTC day
-			long oneHour = 60L*60L*1000L;
-			long oneDay = 24L*oneHour;
-			// get to the start of the UTC day
-			startDate = startDate - (startDate%oneDay);
-			// get to the end of the GMT day
-			endDate = endDate + (oneDay-(endDate%oneDay));  
-			// this will work untill 9 Oct 246953 07:00:00
-			Integer startDateHours = (int)(startDate/oneHour);
-			Integer endDateHours = (int)(endDate/oneHour);
+			// We don't have accurate timezone information at this point; normalize to UTC day boundaries (end exclusive).
+			long oneHour = 60L * 60L * 1000L;
+			ZonedDateTime startDayUtc = Instant.ofEpochMilli(startDate)
+				.atZone(ZoneOffset.UTC).toLocalDate().atStartOfDay(ZoneOffset.UTC);
+			ZonedDateTime endDayUtcExclusive = Instant.ofEpochMilli(endDate)
+				.atZone(ZoneOffset.UTC).toLocalDate().plusDays(1).atStartOfDay(ZoneOffset.UTC);
+			startDate = startDayUtc.toInstant().toEpochMilli();
+			endDate = endDayUtcExclusive.toInstant().toEpochMilli();
+			// This will work until 9 Oct 246953 07:00:00
+			Integer startDateHours = (int) (startDate / oneHour);
+			Integer endDateHours = (int) (endDate / oneHour);
 			
 			ZonedDateTime startUtc = Instant.ofEpochMilli(startDate).atZone(ZoneOffset.UTC);
 			ZonedDateTime endUtc = Instant.ofEpochMilli(endDate).atZone(ZoneOffset.UTC);
-			log.debug("Selecting Range from {} to {}", RFC_1123_UTC.format(startUtc), RFC_1123_UTC.format(endUtc));
+			if (log.isDebugEnabled()) {
+				log.debug("Selecting Range from {} to {}",
+					RFC_1123_UTC.format(startUtc), RFC_1123_UTC.format(endUtc));
+			}
 
 			List<Object> rangeValues = new ArrayList<>();
 			// Bind order matches (RANGE_START < ?) and (RANGE_END > ?)
