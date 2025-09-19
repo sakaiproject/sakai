@@ -117,8 +117,6 @@
                     }
                 });
             </script>
-
-            <span class="close-button fa fa-times" onClick="SPNR.disableControlsAndSpin(this, null);closeDialogBoxIfExists();" aria-label="<h:outputText value="#{msgs.close_window}" />"></span>
             <h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>
             <h4>
                 <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
@@ -170,7 +168,7 @@
                 <h:inputHidden id="gb_selector" value="#{ForumTool.currentChange}" />
             </h:panelGroup>
             <h:panelGrid id="grade-message-options" styleClass="jsfFormTable" columns="1" columnClasses="shorttext spinnerBesideContainer" border="0">
-                <h:panelGroup rendered="#{!hasAssociatedRubric && !ForumTool.gradebookGroupEnabled}">
+                <h:panelGroup rendered="#{!ForumTool.hasAssociatedRubric && !ForumTool.gradebookGroupEnabled}">
                     <h:outputLabel for="assignment"  rendered="#{ForumTool.allowedToGradeItem}">
                         <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" style="padding-right:3px"/>
                         <h:outputText  value="#{msgs.cdfm_assignments}"/>
@@ -210,7 +208,7 @@
                 </h:panelGroup>
             </h:panelGrid>
 
-            <h:panelGroup rendered="#{hasAssociatedRubric}">
+            <h:panelGroup rendered="#{ForumTool.hasAssociatedRubric}">
                 <sakai-rubric-grading
                     tool-id="sakai.gradebookng"
                     site-id='<h:outputText value="#{ForumTool.siteId}" />'

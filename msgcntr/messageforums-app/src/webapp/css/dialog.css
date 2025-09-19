@@ -1,62 +1,32 @@
 /*
- * Styles for our confirmation dialogs using JQuery UI Dialog
+ * Bootstrap-based modal customisations for Message Forums dialogs.
  */
-.ui-dialog {
-  border: solid 1px var(--sakai-border-color);
+
+#dialogDiv .modal-content {
   background-color: var(--sakai-background-color-1);
-  padding: 10px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  position: fixed !important;
-  top: 10% !important;
-  left: 10% !important;
-  width: 80% !important;
-  height: 80% !important;
+  color: var(--sakai-text-color-1);
 }
 
-#dialogDiv{
-  height: 100% !important;
+#dialogDiv .modal-header {
+  border-bottom: 1px solid var(--sakai-border-color);
 }
 
-.ui-dialog-titlebar-close {
-  display: none;
+#dialogDiv .grade-modal-frame {
+  display: block;
+  width: 100%;
+  min-height: 60vh;
+  border: 0;
+  background-color: transparent;
 }
 
-.ui-dialog-titlebar {
-  display: none;
+@media (min-width: 992px) {
+  #dialogDiv .modal-dialog {
+    max-width: 70vw;
+  }
 }
 
-.ui-dialog-buttonpane {
-  display: none;
+@media (min-width: 1400px) {
+  #dialogDiv .modal-dialog {
+    max-width: 960px;
+  }
 }
-
-.ui-dialog-msg-list {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-  list-style-position: outside; 
-  list-style: none;
-}
-
-/* The default settings on jQuery UI Dialog 1.7 cause the overlay to appear
- * under the regular body content and cause major resizing issues when coupled
- * with our Sakai-RSF DOM Page Resizer. Copying these style settings from the
- * older version.
- */
-.ui-widget-overlay {
-  border-width: 0pt;
-  margin: 0pt;
-  padding: 0pt;
-  position: fixed;
-  top: 0pt;
-  left: 0pt;
-  max-height: 100%;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.closeDialogFrame {
-  float: right;
-  margin-bottom: 3px !important;
-}
-
