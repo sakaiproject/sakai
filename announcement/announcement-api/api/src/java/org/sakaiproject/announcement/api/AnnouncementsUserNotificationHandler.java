@@ -15,8 +15,6 @@
  */
 package org.sakaiproject.announcement.api;
 
-import static java.util.function.Predicate.not;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -185,10 +183,10 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                                         .map(User::getId)
                                         .filter(Objects::nonNull)
                                         .filter(u -> eventUserId == null || !eventUserId.equals(u))
-                                        .filter(not(securityService::isSuperUser))
+                                        .filter(u -> !securityService.isSuperUser(u))
                                         .map(u -> new UserNotificationData(eventUserId, u, eventContext, title, url, AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID));
 
-                                List<UserNotificationData> broadcastNotifications = broadcastStream.collect(Collectors.toList());
+                                List<UserNotificationData> broadcastNotifications = broadcastStream.toList();
                                 log.debug("Queued {} bullhorn notifications for system-wide announcement {}", broadcastNotifications.size(), eventResource);
                                 return Optional.of(broadcastNotifications);
                             }
@@ -204,7 +202,8 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                                 // otherwise this is a message for a group(s)
                                 for (String group : groups) {
                                     // get all the members of the group(s) with ability to read the announcement
-                                    usersToNotify.addAll(site.getGroup(group).getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
+                                    Optional.ofNullable(site.getGroup(group))
+                                            .ifPresent(g -> usersToNotify.addAll(g.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)));
                                 }
                             }
 
@@ -221,10 +220,10 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
 
                             // finally filter out the user who generated the event and superuser types
                             bhEvents = filteredUsersToNotify.stream()
-                                    .filter(not(eventUserId::equals))
-                                    .filter(not(securityService::isSuperUser))
+                                    .filter(u -> !Objects.equals(u, eventUserId))
+                                    .filter(u -> !securityService.isSuperUser(u))
                                     .map(u -> new UserNotificationData(eventUserId, u, eventContext, title, url, AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID))
-                                    .collect(Collectors.toList());
+                                    .toList();
                         }
                     }
                 } else { // all other events that had a null message come here
