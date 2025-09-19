@@ -89,6 +89,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -209,6 +210,16 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             } catch (Exception e) {
                 log.error("Error shutting down messaging thread pool: {}", e.toString());
             }
+        }
+    }
+
+    @Override
+    public void submitNotificationTask(Runnable task) {
+        Objects.requireNonNull(task, "task");
+        if (executor != null) {
+            executor.execute(task);
+        } else {
+            task.run();
         }
     }
 
@@ -349,23 +360,35 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 try {
                     UserNotificationHandler handler = notificationHandlers.get(event);
                     if (handler != null) {
-                        handler.handleEvent(e).ifPresent(notifications ->
-                                notifications.forEach(bd -> {
-                                    UserNotification un = doInsert(from,
-                                            bd.getTo(),
-                                            event,
-                                            ref,
-                                            bd.getTitle(),
-                                            bd.getSiteId(),
-                                            e.getEventTime(),
-                                            finalDeferred,
-                                            bd.getUrl(),
-                                            bd.getCommonToolId());
-                            if (!finalDeferred && this.pushEnabled) {
-                                un.setTool(bd.getCommonToolId());
-                                push(decorateNotification(un));
+                        final UserNotificationHandler handlerRef = handler;
+                        final String refCopy = ref;
+                        final String fromUser = from;
+                        final Date eventDate = e.getEventTime();
+                        final boolean pushEnabledLocal = this.pushEnabled;
+
+                        submitNotificationTask(() -> {
+                            try {
+                                handlerRef.handleEvent(e).ifPresent(notifications ->
+                                        notifications.forEach(bd -> {
+                                            UserNotification un = doInsert(fromUser,
+                                                    bd.getTo(),
+                                                    event,
+                                                    refCopy,
+                                                    bd.getTitle(),
+                                                    bd.getSiteId(),
+                                                    eventDate,
+                                                    finalDeferred,
+                                                    bd.getUrl(),
+                                                    bd.getCommonToolId());
+                                            if (!finalDeferred && pushEnabledLocal) {
+                                                un.setTool(bd.getCommonToolId());
+                                                push(decorateNotification(un));
+                                            }
+                                        }));
+                            } catch (Exception ex) {
+                                log.error("Caught exception whilst handling events", ex);
                             }
-                        }));
+                        });
                     } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
                         final String siteId = pathParts[2];
 

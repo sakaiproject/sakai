@@ -48,6 +48,7 @@ import org.sakaiproject.util.BaseDbFlatStorage;
 @Slf4j
 public abstract class DbUserService extends BaseUserDirectoryService
 {
+	private static final String SELECT_ALL_USER_IDS_SQL = "select USER_ID from SAKAI_USER_ID_MAP order by USER_ID";
 	/** Table name for users. */
 	protected String m_tableName = "SAKAI_USER";
 
@@ -249,6 +250,23 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			// let the db do range selection
 			List all = super.getAllResources(first, last);
 			return all;
+		}
+
+		@Override
+		public List<String> getAllUserIds()
+		{
+			List<String> ids = sqlService().dbRead(SELECT_ALL_USER_IDS_SQL, null, result -> {
+				try
+				{
+					return result.getString(1);
+				}
+				catch (SQLException e)
+				{
+					throw new RuntimeException("Failed to read user id from SAKAI_USER_ID_MAP", e);
+				}
+			});
+			ids.removeIf(Objects::isNull);
+			return ids;
 		}
 
 		public int count()

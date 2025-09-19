@@ -23,9 +23,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -81,6 +83,7 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
     private PlatformTransactionManager transactionManager;
 
    private static final String SELECTED_ROLES_PROPERTY = "selectedRoles";
+    private static final String SYSTEM_WIDE_ENABLED_PROPERTY = "portal.bullhorns.systemwide.enabled";
 
     @Override
     public List<String> getHandledEvents() {
@@ -171,24 +174,37 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
 
                             // In this case title = announcement subject
                             String title = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
+                            boolean systemWideMotd = SiteService.ADMIN_SITE_ID.equals(eventContext) && eventResource.contains("motd");
+                            if (systemWideMotd) {
+                                if (!serverConfigurationService.getBoolean(SYSTEM_WIDE_ENABLED_PROPERTY, true)) {
+                                    log.debug("System-wide bullhorn notifications disabled via {}", SYSTEM_WIDE_ENABLED_PROPERTY);
+                                    return Optional.of(Collections.emptyList());
+                                }
+
+                                Stream<UserNotificationData> broadcastStream = userDirectoryService.streamAllUsers(UserDirectoryService.DEFAULT_ALL_USERS_STREAM_BATCH_SIZE)
+                                        .map(User::getId)
+                                        .filter(Objects::nonNull)
+                                        .filter(u -> eventUserId == null || !eventUserId.equals(u))
+                                        .filter(not(securityService::isSuperUser))
+                                        .map(u -> new UserNotificationData(eventUserId, u, eventContext, title, url, AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID));
+
+                                List<UserNotificationData> broadcastNotifications = broadcastStream.collect(Collectors.toList());
+                                log.debug("Queued {} bullhorn notifications for system-wide announcement {}", broadcastNotifications.size(), eventResource);
+                                return Optional.of(broadcastNotifications);
+                            }
+
                             Set<String> usersToNotify = new HashSet<>();
 
-                            // if the event context is !admin or the event resource contains "motd"
-                            if (SiteService.ADMIN_SITE_ID.equals(eventContext) && eventResource.contains("motd")) {
-                                // TODO this could be a significant amount of users to process, may need to rethink how to handle this
-                                usersToNotify = userDirectoryService.getUsers().stream().map(User::getId).collect(Collectors.toSet());
+                            Collection<String> groups = message.getHeader().getGroups();
+                            if (groups.isEmpty()) {
+                                // if the message is not for a group then
+                                // get all the members of the site with ability to read the announcement
+                                usersToNotify = site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ);
                             } else {
-                                Collection<String> groups = message.getHeader().getGroups();
-                                if (groups.isEmpty()) {
-                                    // if the message is not for a group then
-                                    // get all the members of the site with ability to read the announcement
-                                    usersToNotify = site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ);
-                                } else {
-                                    // otherwise this is a message for a group(s)
-                                    for (String group : groups) {
-                                        // get all the members of the group(s) with ability to read the announcement
-                                        usersToNotify.addAll(site.getGroup(group).getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
-                                    }
+                                // otherwise this is a message for a group(s)
+                                for (String group : groups) {
+                                    // get all the members of the group(s) with ability to read the announcement
+                                    usersToNotify.addAll(site.getGroup(group).getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
                                 }
                             }
 

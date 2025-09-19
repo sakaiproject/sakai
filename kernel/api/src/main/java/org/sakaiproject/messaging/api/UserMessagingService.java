@@ -108,4 +108,14 @@ public interface UserMessagingService {
     public void subscribeToPush(String endpoint, String auth, String userKey, String browserFingerprint);
 
     public void sendTestNotification();
+
+    /**
+     * Submit notification work to be executed asynchronously. Implementations without an executor may execute inline.
+     *
+     * @param task runnable notification task
+     */
+    default void submitNotificationTask(Runnable task)
+    {
+        task.run();
+    }
 }
