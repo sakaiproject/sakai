@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003-2022 The Apereo Foundation
+ * Copyright (c) 2003-2025 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
