@@ -149,6 +149,10 @@ public class RubricsRestController extends AbstractSakaiApiController {
             log.warn("updateRubricAdhoc called without rubric id (siteId={})", siteId);
             return ResponseEntity.badRequest().build();
         }
+        if (bean.getTitle() == null) {
+            log.warn("updateRubricAdhoc called without rubric title (siteId={}, rubricId={})", siteId, rubricId);
+            return ResponseEntity.badRequest().build();
+        }
 
         log.debug("Loading existing criteria for rubric {}", rubricId);
         List<CriterionTransferBean> oldCriteria = rubricsService.getRubric(rubricId)
@@ -172,9 +176,6 @@ public class RubricsRestController extends AbstractSakaiApiController {
                     .filter(c -> c.getId() != null)
                     .collect(Collectors.toMap(CriterionTransferBean::getId, c -> c, (existing, replacement) -> replacement));
 
-            List<CriterionTransferBean> toAdd = newCriteria.stream()
-                    .filter(c -> c.getId() == null || !oldCriteriaById.containsKey(c.getId()))
-                    .collect(Collectors.toList());
             List<CriterionTransferBean> toRemove = oldCriteria.stream()
                     .filter(c -> c.getId() == null || !newCriteriaById.containsKey(c.getId()))
                     .filter(c -> c.getRatings() != null && !c.getRatings().isEmpty())
@@ -186,7 +187,10 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
             if (log.isDebugEnabled()) {
                 log.debug("Criteria to update: {}", toUpdate.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
-                log.debug("Criteria to add: {}", toAdd.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
+                log.debug("Criteria to add: {}", newCriteria.stream()
+                        .filter(c -> c.getId() == null || !oldCriteriaById.containsKey(c.getId()))
+                        .map(CriterionTransferBean::getId)
+                        .collect(Collectors.toList()));
                 log.debug("Criteria to remove: {}", toRemove.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
             }
 
@@ -210,7 +214,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
             // get assessment, itemgradings and rubric evaluations
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             GradingService gradingService = new GradingService();
-            String samigoData = bean.getTitle().replace("pub.", "");
+            String samigoData = StringUtils.removeStart(bean.getTitle(), "pub.");
             String[] samigoIds = samigoData.split("\\.");
             if (samigoIds.length != 2) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -235,6 +239,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
                             log.debug("Previous score matches");
                         }
                         log.debug("Evaluation before changes {}", eval);
+                        if (eval.getCriterionOutcomes() == null) {
+                            eval.setCriterionOutcomes(new ArrayList<>());
+                        }
                         for (CriterionOutcomeTransferBean c : eval.getCriterionOutcomes()) {
                             // update points and apply difference
                             if (updateMap.get(c.getCriterionId()) != null && c.getSelectedRatingId() != null) {
@@ -246,7 +253,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                                     scoreDifference -= oldPoints;
                                     scoreDifference += newPoints;
                                 }
-                            // substract points of removed criterions
+                            // subtract points of removed criteria
                             } else if (removeIds.contains(c.getCriterionId()) && c.getSelectedRatingId() != null) {
                                 scoreDifference -= c.getPoints();
                                 log.debug("Deleted criterion, subtracting {}", c.getPoints());
