@@ -561,7 +561,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
     private static boolean nearlyEqual(Double a, Double b) {
         if (a == null || b == null) {
-            return false;
+            return a == null && b == null;
         }
         return Math.abs(a - b) < 1e-6;
     }
