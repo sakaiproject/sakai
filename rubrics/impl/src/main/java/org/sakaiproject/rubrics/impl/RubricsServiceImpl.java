@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -387,7 +388,25 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         rubricRepository.findById(rubricId).ifPresent(rubric -> {
 
             Map<Long, Criterion> current = rubric.getCriteria().stream().collect(Collectors.toMap(Criterion::getId, c -> c));
-            List<Criterion> sorted = sortedCriterionIds.stream().map(current::get).collect(Collectors.toList());
+            Set<Long> requestedOrder = sortedCriterionIds.stream()
+                    .filter(current::containsKey)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
+            Set<Long> missingIds = sortedCriterionIds.stream()
+                    .filter(id -> !current.containsKey(id))
+                    .collect(Collectors.toSet());
+            if (!missingIds.isEmpty()) {
+                log.warn("sortRubricCriteria called with unknown criterion ids {} for rubric {}", missingIds, rubricId);
+            }
+
+            // Prevent nulls from being inserted into the ordered list
+            List<Criterion> sorted = requestedOrder.stream().map(current::get).collect(Collectors.toList());
+            // Preserve any criteria the client didn't mention so the order column stays contiguous
+            current.entrySet().stream()
+                    .filter(entry -> !requestedOrder.contains(entry.getKey()))
+                    .map(Map.Entry::getValue)
+                    .forEach(sorted::add);
+
             rubric.getCriteria().clear();
             rubric.getCriteria().addAll(sorted);
             rubricRepository.save(rubric);
@@ -398,7 +417,25 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         criterionRepository.findById(criterionId).ifPresent(criterion -> {
             Map<Long, Rating> current = criterion.getRatings().stream().collect(Collectors.toMap(Rating::getId, r -> r));
-            List<Rating> sorted = sortedRatingIds.stream().map(current::get).collect(Collectors.toList());
+            Set<Long> requestedOrder = sortedRatingIds.stream()
+                    .filter(current::containsKey)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
+            Set<Long> missingIds = sortedRatingIds.stream()
+                    .filter(id -> !current.containsKey(id))
+                    .collect(Collectors.toSet());
+            if (!missingIds.isEmpty()) {
+                log.warn("sortCriterionRatings called with unknown rating ids {} for criterion {}", missingIds, criterionId);
+            }
+
+            // Prevent nulls from being inserted into the ordered list
+            List<Rating> sorted = requestedOrder.stream().map(current::get).collect(Collectors.toList());
+            // Preserve any ratings the client didn't mention so the order column stays contiguous
+            current.entrySet().stream()
+                    .filter(entry -> !requestedOrder.contains(entry.getKey()))
+                    .map(Map.Entry::getValue)
+                    .forEach(sorted::add);
+
             criterion.getRatings().clear();
             criterion.getRatings().addAll(sorted);
             criterionRepository.save(criterion);
