@@ -222,16 +222,28 @@ public class RubricsRestController extends AbstractSakaiApiController {
             Map<Long, List<ItemGradingData>> itemScores = gradingService.getItemScores(Long.valueOf(samigoIds[0]), Long.valueOf(samigoIds[1]), EvaluationModelIfc.ALL_SCORE.toString(), false);
             PublishedAssessmentIfc publishedAssessment = publishedAssessmentService.getPublishedAssessment(samigoIds[0]);
             if (publishedAssessment == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
+            Map<Long, String> ownerIdByAssessment = new java.util.HashMap<>();
             for (Map.Entry<Long, List<ItemGradingData>> entry : itemScores.entrySet()) {
                 List<ItemGradingData> igds = entry.getValue();
                 log.debug("For published item {}", entry.getKey());
                 for (ItemGradingData igd : igds) {
+                    Long assessmentGradingId = igd.getAssessmentGradingId();
+                    String ownerId = ownerIdByAssessment.get(assessmentGradingId);
+                    if (!ownerIdByAssessment.containsKey(assessmentGradingId)) {
+                        org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData assessmentGrading = gradingService.load(String.valueOf(assessmentGradingId), false);
+                        ownerId = assessmentGrading != null ? assessmentGrading.getAgentId() : null;
+                        ownerIdByAssessment.put(assessmentGradingId, ownerId);
+                    }
+                    if (ownerId == null) {
+                        log.warn("Unable to resolve owner id for assessment grading {}", assessmentGradingId);
+                        continue;
+                    }
                     Double scoreDifference = igd.getAutoScore();
                     boolean matchesPreviousScore = false;
                     log.debug("Item grading {} - assessment grading {} - autoscore {}", igd.getItemGradingId(), igd.getAssessmentGradingId(), igd.getAutoScore());
-                    Optional<EvaluationTransferBean> optBean = rubricsService.getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId("sakai.samigo", "pub."+samigoData, igd.getAssessmentGradingId()+"."+entry.getKey(), gradingService.load(String.valueOf(igd.getAssessmentGradingId()), false).getAgentId(), siteId, false);
+                    Optional<EvaluationTransferBean> optBean = rubricsService.getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId("sakai.samigo", "pub."+samigoData, igd.getAssessmentGradingId()+"."+entry.getKey(), ownerId, siteId, false);
                     if (optBean.isPresent()) {
                         EvaluationTransferBean eval = optBean.get();
                         if (igd.getAutoScore() != null && eval.getOverallComment() != null && igd.getAutoScore().equals(Double.valueOf(eval.getOverallComment()))) {
@@ -247,7 +259,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                             if (updateMap.get(c.getCriterionId()) != null && c.getSelectedRatingId() != null) {
                                 Double newPoints = updateMap.get(c.getCriterionId()).getRatings().get(0).getPoints();
                                 Double oldPoints = c.getPoints();
-                                if (matchesPreviousScore && !newPoints.equals(oldPoints)) {
+                                if (matchesPreviousScore && !nearlyEqual(newPoints, oldPoints)) {
                                     c.setPoints(newPoints);
                                     log.debug("Updated criterion, subtracting old {} and adding new {}", oldPoints, newPoints);
                                     scoreDifference -= oldPoints;
@@ -275,7 +287,7 @@ public class RubricsRestController extends AbstractSakaiApiController {
                         eval.setOverallComment(String.valueOf(scoreDifference));
                         rubricsService.saveEvaluation(eval, siteId);
                         log.debug("Rubric evaluation successfully updated");
-                        if(!scoreDifference.equals(igd.getAutoScore())) {
+                        if (!nearlyEqual(scoreDifference, igd.getAutoScore())) {
                             igd.setAutoScore(scoreDifference);
                             gradingService.updateItemScore(igd, 1, publishedAssessment);// if second value is not 0 it will check gb association and update it if necessary    
                             log.debug("Samigo grading successfully updated");
@@ -545,6 +557,13 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return ResponseEntity.ok().headers(h -> h.setContentDisposition(contentDisposition))
                 .body(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
+    }
+
+    private static boolean nearlyEqual(Double a, Double b) {
+        if (a == null || b == null) {
+            return false;
+        }
+        return Math.abs(a - b) < 1e-6;
     }
 
     private EntityModel<RubricTransferBean> entityModelForRubricBean(RubricTransferBean rubricBean) {
