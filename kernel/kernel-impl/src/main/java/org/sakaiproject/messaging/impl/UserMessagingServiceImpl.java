@@ -93,6 +93,11 @@ import java.util.Set;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.sakaiproject.messaging.api.MessageMedium.DIGEST;
@@ -146,8 +151,28 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         if (asyncEnabled) {
             int threadPoolSize = serverConfigurationService.getInt("messaging.threadpool.size", DEFAULT_THREAD_POOL_SIZE);
             if (threadPoolSize > 0) {
-                executor = Executors.newFixedThreadPool(threadPoolSize);
-                log.info("Initialized messaging thread pool with {} threads", threadPoolSize);
+                int queueCapacity = Math.max(1, serverConfigurationService.getInt("messaging.threadpool.queue.size", threadPoolSize * 10));
+                ThreadFactory threadFactory = new ThreadFactory() {
+                    private final ThreadFactory delegate = Executors.defaultThreadFactory();
+                    private final AtomicInteger threadNumber = new AtomicInteger(1);
+
+                    @Override
+                    public Thread newThread(Runnable r) {
+                        Thread thread = delegate.newThread(r);
+                        thread.setName(String.format("sakai-messaging-%d", threadNumber.getAndIncrement()));
+                        return thread;
+                    }
+                };
+
+                executor = new ThreadPoolExecutor(
+                    threadPoolSize,
+                    threadPoolSize,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(queueCapacity),
+                    threadFactory,
+                    new ThreadPoolExecutor.CallerRunsPolicy());
+                log.info("Initialized messaging thread pool with {} threads and queue capacity {}", threadPoolSize, queueCapacity);
             } else {
                 log.info("Messaging thread pool disabled due to non-positive size; tasks will execute synchronously");
             }
@@ -226,11 +251,23 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     @Override
     public void submitNotificationTask(Runnable task) {
         Objects.requireNonNull(task, "task");
+        Runnable wrappedTask = wrapTask(task);
         if (executor != null) {
-            executor.execute(task);
+            executor.execute(wrappedTask);
         } else {
-            task.run();
+            wrappedTask.run();
         }
+    }
+
+    private Runnable wrapTask(Runnable task) {
+        return () -> {
+            try {
+                task.run();
+            } catch (RuntimeException e) {
+                log.error("Unhandled exception in messaging task", e);
+                throw e;
+            }
+        };
     }
 
     public void message(Set<User> users, Message message, List<MessageMedium> media, Map<String, Object> replacements, int priority) {
@@ -242,7 +279,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             replacements.put("iconClass", "si si-" + replacements.get("icon"));
         }
 
-        executor.execute(() -> {
+        submitNotificationTask(() -> {
 
             String tool = message.getTool();
             String type = message.getType();
@@ -391,9 +428,9 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                         final Date eventDate = e.getEventTime();
                         final boolean pushEnabledLocal = this.pushEnabled;
 
-                        submitNotificationTask(() -> {
-                            try {
-                                notifications.forEach(bd -> {
+                        submitNotificationTask(() ->
+                            notifications.forEach(bd -> {
+                                try {
                                     UserNotification un = doInsert(fromUser,
                                             bd.getTo(),
                                             event,
@@ -408,11 +445,11 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                                         un.setTool(bd.getCommonToolId());
                                         push(decorateNotification(un));
                                     }
-                                });
-                            } catch (Exception ex) {
-                                log.error("Caught exception whilst handling events", ex);
-                            }
-                        });
+                                } catch (Exception ex) {
+                                    log.error("Failed to process notification for recipient {} (event {}, ref {})", bd.getTo(), event, refCopy, ex);
+                                }
+                            })
+                        );
                     } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
                         final String siteId = pathParts[2];
 

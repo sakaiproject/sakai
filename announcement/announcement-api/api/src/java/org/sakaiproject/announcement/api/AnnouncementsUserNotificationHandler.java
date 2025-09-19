@@ -202,8 +202,9 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                                 // otherwise this is a message for a group(s)
                                 for (String group : groups) {
                                     // get all the members of the group(s) with ability to read the announcement
+                                    Set<String> finalUsersToNotify = usersToNotify;
                                     Optional.ofNullable(site.getGroup(group))
-                                            .ifPresent(g -> usersToNotify.addAll(g.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)));
+                                            .ifPresent(g -> finalUsersToNotify.addAll(g.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)));
                                 }
                             }
 
