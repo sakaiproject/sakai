@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "web-test-runner --coverage",
-    "test:dev": "cd ../../ && npm run test:dev"
+    "test": "wtr"
   },
   "files": [
     "*.js",
@@ -14,7 +13,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sakaiproject/sakai-ui.git"
+    "url": "git+https://github.com/sakaiproject/sakai",
+    "directory": "webcomponents/tool/src/main/frontend/packages/sakai-button"
   },
   "keywords": [
     "sakai",
@@ -22,9 +22,6 @@
   ],
   "author": "The Sakai Project <sakai.user.interface@gmail.com>",
   "license": "ECL-2.0",
-  "bugs": {
-    "url": "https://github.com/sakaiproject/sakai-ui/issues"
-  },
   "publishConfig": {
     "access": "public"
   },
@@ -32,5 +29,5 @@
     ".": "./index.js",
     "./sakai-button.js": "./sakai-button.js"
   },
-  "homepage": "https://github.com/sakaiproject/sakai-ui#readme"
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/sakai-button#readme"
 }

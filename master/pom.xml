@@ -47,7 +47,7 @@
     <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
-    <sakai.lombok.version>1.18.40</sakai.lombok.version>
+    <sakai.lombok.version>1.18.42</sakai.lombok.version>
     <sakai.lucene.version>9.11.1</sakai.lucene.version>
     <sakai.netty.version>4.1.112.Final</sakai.netty.version>
     <sakai.node.version>v22.14.0</sakai.node.version>
@@ -65,7 +65,7 @@
     <sakai.spring.security.version>5.7.14</sakai.spring.security.version>
     <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
-    <sakai.tika.version>3.2.2</sakai.tika.version>
+    <sakai.tika.version>3.2.3</sakai.tika.version>
     <sakai.tomcat.version>9.0.109</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
@@ -2358,7 +2358,7 @@
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>3.5.5</version>
+          <version>3.5.6</version>
           <scope>provided</scope>
       </dependency>
       <dependency>

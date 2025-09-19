@@ -12,8 +12,7 @@
     "bundle": "esbuild \"bundle-entry-points/*.js\" --sourcemap --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
     "analyze-bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
     "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\"",
-    "test": "playwright install chromium && wtr",
-    "test:dev": "playwright install chromium && lerna run test --concurrency 1 --stream --since master"
+    "test": "playwright install chromium && wtr"
   },
   "keywords": [],
   "author": "",

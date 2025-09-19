@@ -409,4 +409,73 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
         return;
     }
 
+    // Verify that an .html file containing XHTML markers is normalized to text/html when
+    // extension-based magic detection is ignored for common web text assets.
+    @Test
+    public void testMimeDetectionHtmlWithXhtmlMarkersNormalized() throws Exception {
+        // Ensure mime magic is enabled but ignored for html-like extensions
+        ServerConfigurationService serv = getService(ServerConfigurationService.class);
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.useMimeMagic","true",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.count","5",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.1","js",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.2","html",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.3","htm",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.4","css",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.5","txt",ServerConfigurationService.UNKNOWN));
+
+        ContentHostingService ch = getService(ContentHostingService.class);
+        SessionManager sm = getService(SessionManager.class);
+        Session session = sm.getCurrentSession();
+        session.setUserEid("admin");
+        session.setUserId("admin");
+
+        final String fileName = "xhtmlish.html"; // has XHTML doctype/namespace but .html extension
+        final String CHSfileName = "/" + fileName;
+
+        InputStream stream = this.getClass().getResourceAsStream("/test-documents/" + fileName);
+        Assert.assertNotNull(stream);
+
+        ResourcePropertiesEdit props = ch.newResourceProperties();
+        props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
+        ch.addResource(CHSfileName, "", stream, props, 0);
+
+        ContentResource cr = ch.getResource(CHSfileName);
+        Assert.assertEquals("text/html", cr.getContentType());
+        stream.close();
+    }
+
+    // Verify that a real .xhtml file retains application/xhtml+xml
+    @Test
+    public void testMimeDetectionXhtmlStaysXhtml() throws Exception {
+        // Enable mime magic and ignore only common web-text extensions; .xhtml is not ignored
+        ServerConfigurationService serv = getService(ServerConfigurationService.class);
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.useMimeMagic","true",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.count","5",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.1","js",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.2","html",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.3","htm",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.4","css",ServerConfigurationService.UNKNOWN));
+        serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.5","txt",ServerConfigurationService.UNKNOWN));
+
+        ContentHostingService ch = getService(ContentHostingService.class);
+        SessionManager sm = getService(SessionManager.class);
+        Session session = sm.getCurrentSession();
+        session.setUserEid("admin");
+        session.setUserId("admin");
+
+        final String fileName = "truexhtml.xhtml";
+        final String CHSfileName = "/" + fileName;
+
+        InputStream stream = this.getClass().getResourceAsStream("/test-documents/" + fileName);
+        Assert.assertNotNull(stream);
+
+        ResourcePropertiesEdit props = ch.newResourceProperties();
+        props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
+        ch.addResource(CHSfileName, "", stream, props, 0);
+
+        ContentResource cr = ch.getResource(CHSfileName);
+        Assert.assertEquals("application/xhtml+xml", cr.getContentType());
+        stream.close();
+    }
+
 }

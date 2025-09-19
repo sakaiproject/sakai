@@ -2484,6 +2484,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			    return null;
 		    }
 	    }
+	    rrepMsg.setExternalEmail(booleanEmailOut);
 	    rrepMsg.setScheduler(booleanSchedulerSend);
 
 	    Map<User, Boolean> recipients = getRecipients();
@@ -2876,6 +2877,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			    return;
 		    }
 	    }
+	    rrepMsg.setExternalEmail(booleanEmailOut);
 	    rrepMsg.setScheduler(booleanSchedulerSend);
 
 	    Map<User, Boolean> recipients = getRecipients();
@@ -3184,6 +3186,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	            return null;
 	        }
 		  }
+		    rrepMsg.setExternalEmail(booleanEmailOut);
 		    rrepMsg.setScheduler(booleanSchedulerSend);
 
 	        if(booleanSchedulerSend && !rrepMsg.getDraft()) {

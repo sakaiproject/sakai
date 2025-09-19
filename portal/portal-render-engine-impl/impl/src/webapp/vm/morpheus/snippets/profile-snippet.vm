@@ -3,7 +3,7 @@
   <div class="offcanvas-header">
     <h2 class="offcanvas-title" id="sakai-account-panel-label">${rloader.mainnav_btn_account}</h2>
     <span>&nbsp;</span>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close this account menu"></button>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="${rloader.sit_closepage}"></button>
   </div>
 
   <div class="offcanvas-body d-flex flex-column">
@@ -71,7 +71,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="account-details-modal-label">${rloader.sit_account_details}</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${rloader.sit_close_page}"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${rloader.sit_closepage}"></button>
       </div>
       <div class="modal-body">
         <sakai-account user-id="${loginUserId}"></sakai-account>
