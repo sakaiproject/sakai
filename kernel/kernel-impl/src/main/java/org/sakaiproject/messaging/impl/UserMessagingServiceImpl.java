@@ -43,6 +43,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.UserNotificationHandler;
 import org.sakaiproject.messaging.api.model.PushSubscription;
 import org.sakaiproject.messaging.api.model.UserNotification;
@@ -140,10 +141,19 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     public void init() {
-        // Initialize the executor with configurable thread pool size
-        int threadPoolSize = serverConfigurationService.getInt("messaging.threadpool.size", DEFAULT_THREAD_POOL_SIZE);
-        executor = Executors.newFixedThreadPool(threadPoolSize);
-        log.info("Initialized messaging thread pool with {} threads", threadPoolSize);
+        boolean asyncEnabled = serverConfigurationService.getBoolean("messaging.threadpool.enabled", true);
+
+        if (asyncEnabled) {
+            int threadPoolSize = serverConfigurationService.getInt("messaging.threadpool.size", DEFAULT_THREAD_POOL_SIZE);
+            if (threadPoolSize > 0) {
+                executor = Executors.newFixedThreadPool(threadPoolSize);
+                log.info("Initialized messaging thread pool with {} threads", threadPoolSize);
+            } else {
+                log.info("Messaging thread pool disabled due to non-positive size; tasks will execute synchronously");
+            }
+        } else {
+            log.info("Messaging thread pool disabled via configuration; tasks will execute synchronously");
+        }
 
         if(serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
             eventTrackingService.addLocalObserver(this);
@@ -360,7 +370,22 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 try {
                     UserNotificationHandler handler = notificationHandlers.get(event);
                     if (handler != null) {
-                        final UserNotificationHandler handlerRef = handler;
+                        final List<UserNotificationData> notifications;
+                        try {
+                            Optional<List<UserNotificationData>> maybeNotifications = handler.handleEvent(e);
+                            if (maybeNotifications.isEmpty()) {
+                                return;
+                            }
+                            notifications = maybeNotifications.orElse(Collections.emptyList());
+                        } catch (Exception ex) {
+                            log.error("Caught exception whilst handling events", ex);
+                            return;
+                        }
+
+                        if (notifications.isEmpty()) {
+                            return;
+                        }
+
                         final String refCopy = ref;
                         final String fromUser = from;
                         final Date eventDate = e.getEventTime();
@@ -368,23 +393,22 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
                         submitNotificationTask(() -> {
                             try {
-                                handlerRef.handleEvent(e).ifPresent(notifications ->
-                                        notifications.forEach(bd -> {
-                                            UserNotification un = doInsert(fromUser,
-                                                    bd.getTo(),
-                                                    event,
-                                                    refCopy,
-                                                    bd.getTitle(),
-                                                    bd.getSiteId(),
-                                                    eventDate,
-                                                    finalDeferred,
-                                                    bd.getUrl(),
-                                                    bd.getCommonToolId());
-                                            if (!finalDeferred && pushEnabledLocal) {
-                                                un.setTool(bd.getCommonToolId());
-                                                push(decorateNotification(un));
-                                            }
-                                        }));
+                                notifications.forEach(bd -> {
+                                    UserNotification un = doInsert(fromUser,
+                                            bd.getTo(),
+                                            event,
+                                            refCopy,
+                                            bd.getTitle(),
+                                            bd.getSiteId(),
+                                            eventDate,
+                                            finalDeferred,
+                                            bd.getUrl(),
+                                            bd.getCommonToolId());
+                                    if (!finalDeferred && pushEnabledLocal) {
+                                        un.setTool(bd.getCommonToolId());
+                                        push(decorateNotification(un));
+                                    }
+                                });
                             } catch (Exception ex) {
                                 log.error("Caught exception whilst handling events", ex);
                             }
