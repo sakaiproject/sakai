@@ -64,7 +64,14 @@ public class SubmissionNavBean extends SpringBeanAutowiringSupport implements Se
     }
 
 
-    public void populate(List<AgentResults> agentResultsList, String currentGradingId, boolean displaySubmissionDate) {
+    /**
+     * Populate the navigation bean with submission data
+     * @param agentResultsList list of agent results
+     * @param currentGradingId current grading ID
+     * @param displaySubmissionDate whether to display submission date
+     * @param isAnonymous whether anonymous grading is enabled
+     */
+    public void populate(List<AgentResults> agentResultsList, String currentGradingId, boolean displaySubmissionDate, boolean isAnonymous) {
 
         this.displaySubmissionDate = displaySubmissionDate;
         this.currentGradingId = currentGradingId;
@@ -95,15 +102,31 @@ public class SubmissionNavBean extends SpringBeanAutowiringSupport implements Se
 
         submissionsSelection = agentResultsMap.values().stream()
                 .map(agent -> {
-                    String displayName = agent.getLastName() + ", " + agent.getFirstName()
-                        + " (" + agent.getAgentDisplayId()  + ")";
-                    String optionLabel = displaySubmissionDate
+                    String displayName;
+                    if (isAnonymous) {
+                        // For anonymous grading, show only the numeric assessment grading ID
+                        displayName = agent.getAssessmentGradingId().toString();
+                    } else {
+                        // For non-anonymous grading, show student name and ID as before
+                        displayName = agent.getLastName() + ", " + agent.getFirstName()
+                            + " (" + agent.getAgentDisplayId()  + ")";
+                    }
+                    String optionLabel = displaySubmissionDate && !isAnonymous
                             ? displayName + " - " + userTimeService.dateTimeFormat(agent.getSubmittedDate().toInstant(),
                                     FormatStyle.MEDIUM, FormatStyle.SHORT)
                             : displayName;
                     return new SelectItem(agent.getAssessmentGradingId(), optionLabel);
                 })
                 .toArray(size -> new SelectItem[size]);
+    }
+
+    /**
+     * Backward compatibility method - defaults to non-anonymous grading
+     * @deprecated Use populate(List, String, boolean, boolean) instead
+     */
+    @Deprecated
+    public void populate(List<AgentResults> agentResultsList, String currentGradingId, boolean displaySubmissionDate) {
+        populate(agentResultsList, currentGradingId, displaySubmissionDate, false);
     }
 
 }
