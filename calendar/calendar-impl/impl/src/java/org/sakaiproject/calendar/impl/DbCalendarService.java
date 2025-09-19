@@ -21,7 +21,10 @@
 
 package org.sakaiproject.calendar.impl;
 
-import java.sql.Date;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +59,9 @@ public class DbCalendarService
 	protected boolean m_locksInDb = true;
 
 	protected static final String[] FIELDS = { "EVENT_START", "EVENT_END", "RANGE_START", "RANGE_END" };
+
+	private static final DateTimeFormatter RFC_1123_UTC =
+		DateTimeFormatter.RFC_1123_DATE_TIME.withZone(ZoneOffset.UTC);
 
 	/*******************************************************************************
 	* Constructors, Dependencies and their setter methods
@@ -133,7 +139,7 @@ public class DbCalendarService
 
 			super.init();
 			
-			log.info("init(): tables: " + m_cTableName + " " + m_rTableName + " locks-in-db: " + m_locksInDb);
+			log.info("init(): tables: {} {} locks-in-db: {}", m_cTableName, m_rTableName, m_locksInDb);
 		}
 		catch (Throwable t)
 		{
@@ -221,9 +227,10 @@ public class DbCalendarService
 
 		private String getRangeFilter() {
 
-			return "((RANGE_START > ? and RANGE_START < ? ) " +
-					"or (  RANGE_END > ? and RANGE_END < ? ) " +
-					"or ( RANGE_START < ? and RANGE_END > ? ))";
+			// Overlap test simplified: [start, end] overlaps (a, b) iff
+			// start < b AND end > a. Using strict inequalities preserves
+			// the original semantics from the OR expression.
+			return "(RANGE_START < ? and RANGE_END > ?)";
 		}
 
 		private List<Object> getRangeValues(TimeRange range) {
@@ -233,26 +240,29 @@ public class DbCalendarService
 			long startDate = range.firstTime().getTime();
 			long endDate = range.lastTime().getTime();
 
-			// we dont have acurate timezone information at this point, so we will make certain that we are at the start of the GMT day
-			long oneHour = 60L*60L*1000L;
-			long oneDay = 24L*oneHour;
-			// get to the start of the GMT day
-			startDate = startDate - (startDate%oneDay);
-			// get to the end of the GMT day
-			endDate = endDate + (oneDay-(endDate%oneDay));  
-			// this will work untill 9 Oct 246953 07:00:00
-			Integer startDateHours = (int)(startDate/oneHour);
-			Integer endDateHours = (int)(endDate/oneHour);
+			// We don't have accurate timezone information at this point; normalize to UTC day boundaries (end exclusive).
+			long oneHour = 60L * 60L * 1000L;
+			ZonedDateTime startDayUtc = Instant.ofEpochMilli(startDate)
+				.atZone(ZoneOffset.UTC).toLocalDate().atStartOfDay(ZoneOffset.UTC);
+			ZonedDateTime endDayUtcExclusive = Instant.ofEpochMilli(endDate)
+				.atZone(ZoneOffset.UTC).toLocalDate().plusDays(1).atStartOfDay(ZoneOffset.UTC);
+			startDate = startDayUtc.toInstant().toEpochMilli();
+			endDate = endDayUtcExclusive.toInstant().toEpochMilli();
+			// This will work until 9 Oct 246953 07:00:00
+			Integer startDateHours = (int) (startDate / oneHour);
+			Integer endDateHours = (int) (endDate / oneHour);
 			
-			log.debug("Selecting Range from {} to {}", (new Date(startDate)).toGMTString(), (new Date(endDate)).toGMTString());
-            
+			ZonedDateTime startUtc = Instant.ofEpochMilli(startDate).atZone(ZoneOffset.UTC);
+			ZonedDateTime endUtc = Instant.ofEpochMilli(endDate).atZone(ZoneOffset.UTC);
+			if (log.isDebugEnabled()) {
+				log.debug("Selecting Range from {} to {}",
+					RFC_1123_UTC.format(startUtc), RFC_1123_UTC.format(endUtc));
+			}
+
 			List<Object> rangeValues = new ArrayList<>();
-			rangeValues.add(startDateHours);
+			// Bind order matches (RANGE_START < ?) and (RANGE_END > ?)
 			rangeValues.add(endDateHours);
 			rangeValues.add(startDateHours);
-			rangeValues.add(endDateHours);
-			rangeValues.add(startDateHours);
-			rangeValues.add(endDateHours);
 			return rangeValues;
 		}
 
@@ -280,6 +290,3 @@ public class DbCalendarService
 
 	}   // DbStorage
 }	// DbCachedCalendarService
-
-
-
