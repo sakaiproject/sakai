@@ -17,6 +17,7 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script src="/messageforums-tool/js/dialog.js"></script>
+		<script>includeWebjarLibrary('bootstrap')</script>
         <script>
             $(document).ready(function(){
                 var menuLink = $('#forumsMainMenuLink');
@@ -61,9 +62,35 @@
 		// element into which the value gets insert and retrieved from
 		<span class="highlight"  id="maxthreaddepth" class="skip"><h:outputText value="#{msgs.cdfm_maxthreaddepth}" /></span>
 //--%>
-	    	<div id="dialogDiv" title="Grade Messages" style="display:none">
-	    		<iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
+	  	<f:verbatim>
+	    	<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" aria-hidden="true" aria-labelledby="dialogDivLabel">
+	    		<div class="modal-dialog modal-xl modal-dialog-centered">
+	    			<div class="modal-content">
+	    				<div class="modal-header">
+	    					<h5 class="modal-title" id="dialogDivLabel">
+		</f:verbatim>
+			<h:outputText value="#{msgs.cdfm_grade_msg}" />
+	  	<f:verbatim>
+	    					</h5>
+	    					<button type="button" class="btn-close" data-bs-dismiss="modal">
+	    						<span class="visually-hidden">
+		</f:verbatim>
+			<h:outputText value="#{msgs.close_window}" />
+	  	<f:verbatim>
+	    						</span>
+	    					</button>
+	    				</div>
+	    				<div class="modal-body">
+	    					<iframe id="dialogFrame" name="dialogFrame" class="grade-modal-frame" title="
+		</f:verbatim>
+			<h:outputText value="#{msgs.cdfm_grade_msg}" />
+	  	<f:verbatim>
+	    					"></iframe>
+	    				</div>
+	    			</div>
+	    		</div>
 	    	</div>
+		</f:verbatim>
 
 		<div class="row">
 			<div class="col-md-9 col-xs-12">
