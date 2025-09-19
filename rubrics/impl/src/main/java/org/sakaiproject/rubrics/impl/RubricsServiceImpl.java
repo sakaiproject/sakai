@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -413,10 +414,18 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         });
     }
 
+    @Override
     public void sortCriterionRatings(Long criterionId, List<Long> sortedRatingIds) {
 
         criterionRepository.findById(criterionId).ifPresent(criterion -> {
-            Map<Long, Rating> current = criterion.getRatings().stream().collect(Collectors.toMap(Rating::getId, r -> r));
+            if (sortedRatingIds == null || sortedRatingIds.isEmpty()) {
+                return;
+            }
+
+            List<Rating> originalRatings = new ArrayList<>(criterion.getRatings());
+            Map<Long, Rating> current = originalRatings.stream()
+                    .collect(Collectors.toMap(Rating::getId, r -> r, (first, second) -> first, LinkedHashMap::new));
+
             Set<Long> requestedOrder = sortedRatingIds.stream()
                     .filter(current::containsKey)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -429,11 +438,14 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             }
 
             // Prevent nulls from being inserted into the ordered list
-            List<Rating> sorted = requestedOrder.stream().map(current::get).collect(Collectors.toList());
-            // Preserve any ratings the client didn't mention so the order column stays contiguous
-            current.entrySet().stream()
-                    .filter(entry -> !requestedOrder.contains(entry.getKey()))
-                    .map(Map.Entry::getValue)
+            List<Rating> sorted = requestedOrder.stream()
+                    .map(current::get)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            // Preserve any ratings the client didn't mention by maintaining their original order
+            originalRatings.stream()
+                    .filter(rating -> !requestedOrder.contains(rating.getId()))
                     .forEach(sorted::add);
 
             criterion.getRatings().clear();
