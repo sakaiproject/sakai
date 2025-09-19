@@ -13,6 +13,7 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Setter
 abstract class AbstractSakaiApiController {
 
     @Autowired

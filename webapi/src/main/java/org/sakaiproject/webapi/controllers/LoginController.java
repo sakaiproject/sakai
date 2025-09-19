@@ -13,7 +13,10 @@
  ******************************************************************************/
 package org.sakaiproject.webapi.controllers;
 
+
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.event.api.UsageSessionService;
@@ -26,9 +29,11 @@ import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.webapi.beans.LoginRestBean;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
@@ -38,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.annotation.Resource;
 
 @Slf4j
+@Setter
 @RestController
 public class LoginController extends AbstractSakaiApiController {
 
@@ -53,8 +59,15 @@ public class LoginController extends AbstractSakaiApiController {
     @Resource
     private AuthenticationManager authenticationManager;
 
-	@GetMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password, HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+	@PostMapping("/login")
+    public ResponseEntity<String> login(LoginRestBean loginBean, HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+
+        String username = loginBean.getUsername();
+        String password = loginBean.getPassword();
+
+        if (StringUtils.isAnyBlank(username, password)) {
+            return ResponseEntity.badRequest().body("username and password are required");
+        }
 
         String cookieName = "JSESSIONID";
         boolean displayModJkWarning = true;
@@ -68,9 +81,9 @@ public class LoginController extends AbstractSakaiApiController {
 
         if (s == null) {
             log.warn("/api/login failed to establish session for username={} ip={}", username, ipAddress);
-            throw new RuntimeException("Unable to establish session");
+            return new ResponseEntity<>("Unable to establish session", HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
-            // We do not care too much on the off-chance that this fails - folks simply won't show up in presense
+            // We do not care too much on the off-chance that this fails - folks simply won't show up in presence
             // and events won't be trackable back to people / IP Addresses - but if it fails - there is nothing
             // we can do anyway.
 
@@ -112,7 +125,7 @@ public class LoginController extends AbstractSakaiApiController {
             }
 
             log.debug("/api/login username={} ip={} session={}", username, ipAddress, s.getId());
-            return s.getId();
+            return ResponseEntity.ok(s.getId());
         }
 	}
 }
