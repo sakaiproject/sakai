@@ -140,13 +140,13 @@ public class RubricsRestController extends AbstractSakaiApiController {
     ResponseEntity<RubricTransferBean> updateRubricAdhoc(@PathVariable String siteId, @RequestBody RubricTransferBean bean, @RequestParam(defaultValue = "false") Boolean pointsUpdated) throws Exception {
 
         if (bean == null) {
-            log.warn("updateRubricAdhoc called with null rubric bean");
+            log.warn("updateRubricAdhoc called with null rubric bean (siteId={})", siteId);
             return ResponseEntity.badRequest().build();
         }
 
         Long rubricId = bean.getId();
         if (rubricId == null) {
-            log.warn("updateRubricAdhoc called without rubric id");
+            log.warn("updateRubricAdhoc called without rubric id (siteId={})", siteId);
             return ResponseEntity.badRequest().build();
         }
 
@@ -177,9 +177,11 @@ public class RubricsRestController extends AbstractSakaiApiController {
                     .collect(Collectors.toList());
             List<CriterionTransferBean> toRemove = oldCriteria.stream()
                     .filter(c -> c.getId() == null || !newCriteriaById.containsKey(c.getId()))
+                    .filter(c -> c.getRatings() != null && !c.getRatings().isEmpty())
                     .collect(Collectors.toList());
             List<CriterionTransferBean> toUpdate = newCriteria.stream()
                     .filter(c -> c.getId() != null && oldCriteriaById.containsKey(c.getId()))
+                    .filter(c -> c.getRatings() != null && !c.getRatings().isEmpty())
                     .collect(Collectors.toList());
 
             if (log.isDebugEnabled()) {
