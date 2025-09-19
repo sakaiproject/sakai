@@ -384,16 +384,21 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         return new CriterionTransferBean(newCriterion);
     }
 
+    @Override
     public void sortRubricCriteria(Long rubricId, List<Long> sortedCriterionIds) {
 
         rubricRepository.findById(rubricId).ifPresent(rubric -> {
 
-            Map<Long, Criterion> current = rubric.getCriteria().stream().collect(Collectors.toMap(Criterion::getId, c -> c));
-            Set<Long> requestedOrder = sortedCriterionIds.stream()
+            Map<Long, Criterion> current = rubric.getCriteria().stream()
+                    .collect(Collectors.toMap(Criterion::getId, c -> c, (first, second) -> first, LinkedHashMap::new));
+
+            List<Long> requestedIds = sortedCriterionIds == null ? Collections.emptyList() : sortedCriterionIds;
+
+            Set<Long> requestedOrder = requestedIds.stream()
                     .filter(current::containsKey)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
-            Set<Long> missingIds = sortedCriterionIds.stream()
+            Set<Long> missingIds = requestedIds.stream()
                     .filter(id -> !current.containsKey(id))
                     .collect(Collectors.toSet());
             if (!missingIds.isEmpty()) {
@@ -419,6 +424,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         criterionRepository.findById(criterionId).ifPresent(criterion -> {
             if (sortedRatingIds == null || sortedRatingIds.isEmpty()) {
+                log.debug("sortCriterionRatings called with empty/none order for criterion {}", criterionId);
                 return;
             }
 
