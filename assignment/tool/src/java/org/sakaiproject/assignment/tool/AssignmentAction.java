@@ -9281,6 +9281,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 Map<String, String> rubricParams = getRubricConfigurationParameters(params, gradeType);
                 if (!rubricParams.isEmpty()) {
                     rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, a.getId(), rubricParams);
+
+                    // Sync with corresponding gradebook item rubric association if it exists
+                    syncRubricWithGradebook(a, rubricParams);
                 }
 
                 if (serverConfigurationService.getBoolean("tagservice.enable.integrations", true) && assignmentService.allowAddTags(siteId)) {                
@@ -17363,5 +17366,45 @@ public class AssignmentAction extends PagedResourceActionII {
             return assignmentService.intToTime(assigmentRateSpent);
         }
         return assignmentService.intToTime(assigmentRateSpent);
+    }
+
+    /**
+     * Synchronizes rubric association between assignment and gradebook tools when
+     * an assignment rubric association is updated.
+     *
+     * @param assignment the assignment whose rubric is being updated
+     * @param rubricParams the rubric parameters to sync
+     */
+    private void syncRubricWithGradebook(Assignment assignment, Map<String, String> rubricParams) {
+        try {
+            // Only sync if this assignment is associated with a gradebook item
+            String gradebookAssignment = assignment.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+
+            if (StringUtils.isNotBlank(gradebookAssignment)) {
+                // Get the gradebook UID for this site
+                String gradebookUid = toolManager.getCurrentPlacement().getContext();
+
+                // Find the corresponding gradebook assignment by external ID
+                List<String> gradebookUids = gradingService.getGradebookUidByExternalId(gradebookAssignment);
+                for (String gbUid : gradebookUids) {
+                    try {
+                        org.sakaiproject.grading.api.Assignment gbAssignment =
+                            gradingService.getAssignmentByNameOrId(gbUid, gbUid, gradebookAssignment);
+
+                        if (gbAssignment != null) {
+                            // Sync the rubric association with the gradebook tool
+                            rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG,
+                                String.valueOf(gbAssignment.getId()), rubricParams);
+                        }
+                    } catch (org.sakaiproject.grading.api.AssessmentNotFoundException e) {
+                        // Gradebook item not found - skip this one
+                        log.debug("Gradebook item not found for assignment {}: {}", assignment.getId(), e.getMessage());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Log warning but don't fail the assignment operation
+            log.warn("Failed to sync rubric association with gradebook tool for assignment {}: {}", assignment.getId(), e.getMessage());
+        }
     }
 }

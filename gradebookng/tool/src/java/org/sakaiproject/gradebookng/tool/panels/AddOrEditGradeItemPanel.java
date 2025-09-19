@@ -47,6 +47,11 @@ import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.rubrics.api.RubricsConstants;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.component.cover.ComponentManager;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The panel for the add and edit grade item window
@@ -54,6 +59,7 @@ import org.sakaiproject.rubrics.api.RubricsConstants;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class AddOrEditGradeItemPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
@@ -254,6 +260,9 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				Map<String, String> rubricParams = getRubricParameters("");
 				if (!rubricParams.isEmpty()) {
 					rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignmentId.toString(), rubricParams);
+
+					// Sync with corresponding assignment rubric association if it exists
+					syncRubricWithAssignment(assignmentId, rubricParams);
 				}
 			}
 			catch (final AssignmentHasIllegalPointsException e) {
@@ -310,6 +319,32 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 					target.addChildren(form, FeedbackPanel.class);
 				}
 			}
+		}
+	}
+
+	/**
+	 * Synchronizes rubric association between gradebook and assignment tools when
+	 * a gradebook item rubric association is updated.
+	 *
+	 * @param gradebookItemId the gradebook item ID
+	 * @param rubricParams the rubric parameters to sync
+	 */
+	private void syncRubricWithAssignment(Long gradebookItemId, Map<String, String> rubricParams) {
+		try {
+			// Get the gradebook assignment to check if it's externally maintained by assignment tool
+			Assignment gradebookAssignment = businessService.getAssignment(currentGradebookUid, currentSiteId, gradebookItemId);
+
+			// Only sync if this gradebook item is externally maintained by assignment tool
+			if (gradebookAssignment != null &&
+				AssignmentConstants.TOOL_ID.equals(gradebookAssignment.getExternalAppName()) &&
+				gradebookAssignment.getExternalId() != null) {
+
+				// Sync the rubric association with the assignment tool using the external assignment ID
+				rubricsService.saveRubricAssociation(AssignmentConstants.TOOL_ID, gradebookAssignment.getExternalId(), rubricParams);
+			}
+		} catch (Exception e) {
+			// Log warning but don't fail the gradebook operation
+			log.warn("Failed to sync rubric association with assignment tool for gradebook item {}: {}", gradebookItemId, e.getMessage());
 		}
 	}
 }
