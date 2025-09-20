@@ -120,12 +120,12 @@
 				}
 			}
 		</script>
-       		<script>includeLatestJQuery("msgcntr");</script>
+			<script>includeLatestJQuery("msgcntr");</script>
+			<script>includeWebjarLibrary('bootstrap')</script>
 			<script src="/messageforums-tool/js/dialog.js"></script>
 			<script src="/library/js/spinner.js"></script>
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
-			<script>includeWebjarLibrary('bootstrap')</script>
 		<script>
 			function initGbSelector(gbSelectorId, inputId) {
 				const input = document.getElementById(inputId);
