@@ -104,8 +104,7 @@
 			}			
 			
 			function dialogLinkClick(link){
-				var position =  $(link).position();
-				dialogutil.openDialog('dialogDiv', 'dialogFrame', position.top);
+				dialogutil.openDialog('dialogDiv', 'dialogFrame');
 			}
 			var warn = false;
 			window.onbeforeunload = function (evt) {
@@ -121,7 +120,8 @@
 				}
 			}
 		</script>
-       		<script>includeLatestJQuery("msgcntr");</script>
+			<script>includeLatestJQuery("msgcntr");</script>
+			<script>includeWebjarLibrary('bootstrap')</script>
 			<script src="/messageforums-tool/js/dialog.js"></script>
 			<script src="/library/js/spinner.js"></script>
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
@@ -204,10 +204,35 @@
 		</script>
         <%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 		
-		<div id="dialogDiv" title="Grade Messages" style="display:none">
-			<h:commandButton type="button" styleClass="closeDialogFrame" onclick="dialogutil.closeDialog($(this).parent().attr('id'), $('#dialogFrame').attr('id'));" value="#{msgs.close_window}"/>
-			<iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
+		<f:verbatim>
+		<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" aria-hidden="true" aria-labelledby="dialogDivLabel">
+			<div class="modal-dialog modal-xl modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="dialogDivLabel">
+		</f:verbatim>
+			<h:outputText value="#{msgs.cdfm_grade_msg}" />
+		<f:verbatim>
+						</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal">
+							<span class="visually-hidden">
+		</f:verbatim>
+			<h:outputText value="#{msgs.close_window}" />
+		<f:verbatim>
+							</span>
+						</button>
+					</div>
+						<div class="modal-body">
+						<iframe id="dialogFrame" name="dialogFrame" class="grade-modal-frame" title="
+		</f:verbatim>
+			<h:outputText value="#{msgs.cdfm_grade_msg}" />
+		<f:verbatim>
+						"></iframe>
+					</div>
+				</div>
+			</div>
 		</div>
+		</f:verbatim>
 		<f:verbatim>
 	  		<div class="success" id="gradesSavedDiv" class="success" style="display:none">
 	  	</f:verbatim>
