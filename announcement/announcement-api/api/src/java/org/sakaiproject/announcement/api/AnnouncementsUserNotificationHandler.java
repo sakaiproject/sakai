@@ -179,16 +179,19 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                                     return Optional.of(Collections.emptyList());
                                 }
 
-                                Stream<UserNotificationData> broadcastStream = userDirectoryService.streamAllUsers(UserDirectoryService.DEFAULT_ALL_USERS_STREAM_BATCH_SIZE)
-                                        .map(User::getId)
-                                        .filter(Objects::nonNull)
-                                        .filter(u -> eventUserId == null || !eventUserId.equals(u))
-                                        .filter(u -> !securityService.isSuperUser(u))
-                                        .map(u -> new UserNotificationData(eventUserId, u, eventContext, title, url, AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID));
-
-                                List<UserNotificationData> broadcastNotifications = broadcastStream.toList();
-                                log.debug("Queued {} bullhorn notifications for system-wide announcement {}", broadcastNotifications.size(), eventResource);
-                                return Optional.of(broadcastNotifications);
+                                try (Stream<User> userStream = userDirectoryService.streamAllUsers(
+                                        UserDirectoryService.DEFAULT_ALL_USERS_STREAM_BATCH_SIZE)) {
+                                    List<UserNotificationData> broadcastNotifications = userStream
+                                            .map(User::getId)
+                                            .filter(Objects::nonNull)
+                                            .filter(u -> !Objects.equals(u, eventUserId))
+                                            .filter(u -> !securityService.isSuperUser(u))
+                                            .map(u -> new UserNotificationData(eventUserId, u, eventContext, title, url,
+                                                    AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID))
+                                            .toList();
+                                    log.debug("Queued {} bullhorn notifications for system-wide announcement {}", broadcastNotifications.size(), eventResource);
+                                    return Optional.of(broadcastNotifications);
+                                }
                             }
 
                             Set<String> usersToNotify = new HashSet<>();
