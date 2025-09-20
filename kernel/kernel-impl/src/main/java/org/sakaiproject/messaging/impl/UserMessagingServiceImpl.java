@@ -65,6 +65,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -407,49 +408,61 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 try {
                     UserNotificationHandler handler = notificationHandlers.get(event);
                     if (handler != null) {
-                        final List<UserNotificationData> notifications;
                         try {
-                            Optional<List<UserNotificationData>> maybeNotifications = handler.handleEvent(e);
-                            if (maybeNotifications.isEmpty()) {
-                                return;
+                            Optional<List<UserNotificationData>> rawNotificationResult = handler.handleEvent(e);
+                            if (rawNotificationResult == null) {
+                                log.error("UserNotificationHandler {} returned null Optional for event {} (ref {})", handler.getClass().getName(), event, ref);
+                                rawNotificationResult = Optional.empty();
                             }
-                            notifications = maybeNotifications.orElse(Collections.emptyList());
-                        } catch (Exception ex) {
-                            log.error("Caught exception whilst handling events", ex);
-                            return;
+
+                            Optional<List<UserNotificationData>> safeNotificationResult = rawNotificationResult;
+
+                            safeNotificationResult
+                                .filter(list -> !list.isEmpty())
+                                .ifPresent(notificationList -> {
+                                    final List<UserNotificationData> notificationsCopy = List.copyOf(notificationList);
+                                    final String refCopy = ref;
+                                    final String fromUser = from;
+                                    final Date eventDate = e.getEventTime();
+                                    final boolean pushEnabledLocal = this.pushEnabled;
+
+                                    submitNotificationTask(() ->
+                                        notificationsCopy.forEach(bd -> {
+                                            try {
+                                                UserNotification un = doInsert(fromUser,
+                                                        bd.getTo(),
+                                                        event,
+                                                        refCopy,
+                                                        bd.getTitle(),
+                                                        bd.getSiteId(),
+                                                        eventDate,
+                                                        finalDeferred,
+                                                        bd.getUrl(),
+                                                        bd.getCommonToolId());
+                                                if (!finalDeferred && pushEnabledLocal) {
+                                                    un.setTool(bd.getCommonToolId());
+                                                    push(decorateNotification(un));
+                                                }
+                                            } catch (DataAccessException dae) {
+                                                log.error("Data access error while processing notification for recipient {} (event {}, ref {})", bd.getTo(), event, refCopy, dae);
+                                                throw dae;
+                                            } catch (RuntimeException runtimeEx) {
+                                                log.error("Unexpected runtime exception while processing notification for recipient {} (event {}, ref {})", bd.getTo(), event, refCopy, runtimeEx);
+                                                throw runtimeEx;
+                                            }
+                                        })
+                                    );
+                                });
+                        } catch (DataAccessException dae) {
+                            log.error("Data access error while handling event {} (ref {})", event, ref, dae);
+                            throw dae;
+                        } catch (IllegalStateException ise) {
+                            log.error("Push notification state error while handling event {} (ref {})", event, ref, ise);
+                            throw ise;
+                        } catch (RuntimeException unexpected) {
+                            log.error("Unexpected runtime exception while handling event {} (ref {})", event, ref, unexpected);
+                            throw unexpected;
                         }
-
-                        if (notifications.isEmpty()) {
-                            return;
-                        }
-
-                        final String refCopy = ref;
-                        final String fromUser = from;
-                        final Date eventDate = e.getEventTime();
-                        final boolean pushEnabledLocal = this.pushEnabled;
-
-                        submitNotificationTask(() ->
-                            notifications.forEach(bd -> {
-                                try {
-                                    UserNotification un = doInsert(fromUser,
-                                            bd.getTo(),
-                                            event,
-                                            refCopy,
-                                            bd.getTitle(),
-                                            bd.getSiteId(),
-                                            eventDate,
-                                            finalDeferred,
-                                            bd.getUrl(),
-                                            bd.getCommonToolId());
-                                    if (!finalDeferred && pushEnabledLocal) {
-                                        un.setTool(bd.getCommonToolId());
-                                        push(decorateNotification(un));
-                                    }
-                                } catch (Exception ex) {
-                                    log.error("Failed to process notification for recipient {} (event {}, ref {})", bd.getTo(), event, refCopy, ex);
-                                }
-                            })
-                        );
                     } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
                         final String siteId = pathParts[2];
 
@@ -459,8 +472,12 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                             }
                         });
                     }
-                } catch (Exception ex) {
-                    log.error("Caught exception whilst handling events", ex);
+                } catch (DataAccessException dae) {
+                    log.error("Data access error whilst handling event {} (ref {})", event, ref, dae);
+                    throw dae;
+                } catch (RuntimeException unexpected) {
+                    log.error("Unexpected runtime exception whilst handling event {} (ref {})", event, ref, unexpected);
+                    throw unexpected;
                 }
             }
         }
