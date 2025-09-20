@@ -36,6 +36,11 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import java.util.Spliterator;
+import java.util.Spliterators;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -1378,6 +1383,52 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		List<User> all = m_storage.getAll(first, last);
 		return all;
+	}
+
+	@Override
+	public Stream<User> streamAllUsers(int batchSize)
+	{
+		if (batchSize < 1)
+		{
+			throw new IllegalArgumentException("batchSize must be greater than zero");
+		}
+
+		List<String> allUserIds = m_storage.getAllUserIds();
+		if (allUserIds.isEmpty())
+		{
+			return Stream.empty();
+		}
+
+		Spliterator<User> spliterator = new Spliterators.AbstractSpliterator<User>(allUserIds.size(), Spliterator.ORDERED | Spliterator.NONNULL)
+		{
+			private int cursor = 0;
+			private Iterator<User> currentBatch = Collections.emptyIterator();
+
+			@Override
+			public boolean tryAdvance(Consumer<? super User> action)
+			{
+				while (true)
+				{
+					if (currentBatch.hasNext())
+					{
+						action.accept(currentBatch.next());
+						return true;
+					}
+
+					if (cursor >= allUserIds.size())
+					{
+						return false;
+					}
+
+					int endExclusive = Math.min(allUserIds.size(), cursor + batchSize);
+					List<String> batchIds = allUserIds.subList(cursor, endExclusive);
+					currentBatch = getUsers(new ArrayList<>(batchIds)).iterator();
+					cursor = endExclusive;
+				}
+			}
+		};
+
+		return StreamSupport.stream(spliterator, false);
 	}
 
 	/**
@@ -3070,6 +3121,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 * @return The count of all users.
 		 */
 		public int count();
+
+		/**
+		 * Fetch all user ids known to Sakai, including those mapped from external providers.
+		 *
+		 * @return ordered list of user ids
+		 */
+		public List<String> getAllUserIds();
 
 		/**
 		 * Search for users with id or email, first or last name matching criteria, in range.

@@ -43,6 +43,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.UserNotificationHandler;
 import org.sakaiproject.messaging.api.model.PushSubscription;
 import org.sakaiproject.messaging.api.model.UserNotification;
@@ -64,6 +65,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -89,8 +91,14 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.sakaiproject.messaging.api.MessageMedium.DIGEST;
@@ -139,10 +147,39 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     public void init() {
-        // Initialize the executor with configurable thread pool size
-        int threadPoolSize = serverConfigurationService.getInt("messaging.threadpool.size", DEFAULT_THREAD_POOL_SIZE);
-        executor = Executors.newFixedThreadPool(threadPoolSize);
-        log.info("Initialized messaging thread pool with {} threads", threadPoolSize);
+        boolean asyncEnabled = serverConfigurationService.getBoolean("messaging.threadpool.enabled", true);
+
+        if (asyncEnabled) {
+            int threadPoolSize = serverConfigurationService.getInt("messaging.threadpool.size", DEFAULT_THREAD_POOL_SIZE);
+            if (threadPoolSize > 0) {
+                int queueCapacity = Math.max(1, serverConfigurationService.getInt("messaging.threadpool.queue.size", threadPoolSize * 10));
+                ThreadFactory threadFactory = new ThreadFactory() {
+                    private final ThreadFactory delegate = Executors.defaultThreadFactory();
+                    private final AtomicInteger threadNumber = new AtomicInteger(1);
+
+                    @Override
+                    public Thread newThread(Runnable r) {
+                        Thread thread = delegate.newThread(r);
+                        thread.setName(String.format("sakai-messaging-%d", threadNumber.getAndIncrement()));
+                        return thread;
+                    }
+                };
+
+                executor = new ThreadPoolExecutor(
+                    threadPoolSize,
+                    threadPoolSize,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(queueCapacity),
+                    threadFactory,
+                    new ThreadPoolExecutor.CallerRunsPolicy());
+                log.info("Initialized messaging thread pool with {} threads and queue capacity {}", threadPoolSize, queueCapacity);
+            } else {
+                log.info("Messaging thread pool disabled due to non-positive size; tasks will execute synchronously");
+            }
+        } else {
+            log.info("Messaging thread pool disabled via configuration; tasks will execute synchronously");
+        }
 
         if(serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
             eventTrackingService.addLocalObserver(this);
@@ -212,6 +249,28 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         }
     }
 
+    @Override
+    public void submitNotificationTask(Runnable task) {
+        Objects.requireNonNull(task, "task");
+        Runnable wrappedTask = wrapTask(task);
+        if (executor != null) {
+            executor.execute(wrappedTask);
+        } else {
+            wrappedTask.run();
+        }
+    }
+
+    private Runnable wrapTask(Runnable task) {
+        return () -> {
+            try {
+                task.run();
+            } catch (RuntimeException e) {
+                log.error("Unhandled exception in messaging task", e);
+                throw e;
+            }
+        };
+    }
+
     public void message(Set<User> users, Message message, List<MessageMedium> media, Map<String, Object> replacements, int priority) {
 
         Placement placement = toolManager.getCurrentPlacement();
@@ -221,7 +280,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             replacements.put("iconClass", "si si-" + replacements.get("icon"));
         }
 
-        executor.execute(() -> {
+        submitNotificationTask(() -> {
 
             String tool = message.getTool();
             String type = message.getType();
@@ -349,23 +408,61 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 try {
                     UserNotificationHandler handler = notificationHandlers.get(event);
                     if (handler != null) {
-                        handler.handleEvent(e).ifPresent(notifications ->
-                                notifications.forEach(bd -> {
-                                    UserNotification un = doInsert(from,
-                                            bd.getTo(),
-                                            event,
-                                            ref,
-                                            bd.getTitle(),
-                                            bd.getSiteId(),
-                                            e.getEventTime(),
-                                            finalDeferred,
-                                            bd.getUrl(),
-                                            bd.getCommonToolId());
-                            if (!finalDeferred && this.pushEnabled) {
-                                un.setTool(bd.getCommonToolId());
-                                push(decorateNotification(un));
+                        try {
+                            Optional<List<UserNotificationData>> rawNotificationResult = handler.handleEvent(e);
+                            if (rawNotificationResult == null) {
+                                log.error("UserNotificationHandler {} returned null Optional for event {} (ref {})", handler.getClass().getName(), event, ref);
+                                rawNotificationResult = Optional.empty();
                             }
-                        }));
+
+                            Optional<List<UserNotificationData>> safeNotificationResult = rawNotificationResult;
+
+                            safeNotificationResult
+                                .filter(list -> !list.isEmpty())
+                                .ifPresent(notificationList -> {
+                                    final List<UserNotificationData> notificationsCopy = List.copyOf(notificationList);
+                                    final String refCopy = ref;
+                                    final String fromUser = from;
+                                    final Date eventDate = e.getEventTime();
+                                    final boolean pushEnabledLocal = this.pushEnabled;
+
+                                    submitNotificationTask(() ->
+                                        notificationsCopy.forEach(bd -> {
+                                            try {
+                                                UserNotification un = doInsert(fromUser,
+                                                        bd.getTo(),
+                                                        event,
+                                                        refCopy,
+                                                        bd.getTitle(),
+                                                        bd.getSiteId(),
+                                                        eventDate,
+                                                        finalDeferred,
+                                                        bd.getUrl(),
+                                                        bd.getCommonToolId());
+                                                if (!finalDeferred && pushEnabledLocal) {
+                                                    un.setTool(bd.getCommonToolId());
+                                                    push(decorateNotification(un));
+                                                }
+                                            } catch (DataAccessException dae) {
+                                                log.error("Data access error while processing notification for recipient {} (event {}, ref {})", bd.getTo(), event, refCopy, dae);
+                                                throw dae;
+                                            } catch (RuntimeException runtimeEx) {
+                                                log.error("Unexpected runtime exception while processing notification for recipient {} (event {}, ref {})", bd.getTo(), event, refCopy, runtimeEx);
+                                                throw runtimeEx;
+                                            }
+                                        })
+                                    );
+                                });
+                        } catch (DataAccessException dae) {
+                            log.error("Data access error while handling event {} (ref {})", event, ref, dae);
+                            throw dae;
+                        } catch (IllegalStateException ise) {
+                            log.error("Push notification state error while handling event {} (ref {})", event, ref, ise);
+                            throw ise;
+                        } catch (RuntimeException unexpected) {
+                            log.error("Unexpected runtime exception while handling event {} (ref {})", event, ref, unexpected);
+                            throw unexpected;
+                        }
                     } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
                         final String siteId = pathParts[2];
 
@@ -375,8 +472,12 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                             }
                         });
                     }
-                } catch (Exception ex) {
-                    log.error("Caught exception whilst handling events", ex);
+                } catch (DataAccessException dae) {
+                    log.error("Data access error whilst handling event {} (ref {})", event, ref, dae);
+                    throw dae;
+                } catch (RuntimeException unexpected) {
+                    log.error("Unexpected runtime exception whilst handling event {} (ref {})", event, ref, unexpected);
+                    throw unexpected;
                 }
             }
         }

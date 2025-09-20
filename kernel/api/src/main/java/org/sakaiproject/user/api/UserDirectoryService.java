@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * <p>
@@ -78,6 +79,9 @@ public interface UserDirectoryService extends EntityProducer
 	/** Cache keys for the id/eid mapping **/
 	static final String EIDCACHE = "eid:";
 	static final String IDCACHE = "id:";
+
+	/** Default batch size when streaming all users. */
+	int DEFAULT_ALL_USERS_STREAM_BATCH_SIZE = 1000;
 
 	// A user type used for simulating other user types
 	String ROLEVIEW_USER_TYPE = "roleview";
@@ -432,6 +436,25 @@ public interface UserDirectoryService extends EntityProducer
 	 * @return A list of user objects corresponding to the valid EIDs
 	 */
 	List<User> getUsersByEids(Collection<String> eids);
+
+	/**
+	 * Return a stream of all known users (internal and provider backed).
+	 *
+	 * @return ordered stream of users spanning {@code SAKAI_USER_ID_MAP}
+	 */
+	default Stream<User> streamAllUsers()
+	{
+		return streamAllUsers(DEFAULT_ALL_USERS_STREAM_BATCH_SIZE);
+	}
+
+	/**
+	 * Return a stream of all known users (internal and provider backed) paged in batches.
+	 *
+	 * @param batchSize number of user ids to resolve per batch; must be greater than zero
+	 * @return ordered stream of users spanning {@code SAKAI_USER_ID_MAP}
+	 * @throws IllegalArgumentException when {@code batchSize} is less than one
+	 */
+	Stream<User> streamAllUsers(int batchSize);
 	
 	/**
 	 * Add a new user to the directory, from a definition in XML. Must commitEdit() to make official, or cancelEdit() when done!

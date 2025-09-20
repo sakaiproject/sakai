@@ -29,10 +29,10 @@ import org.springframework.stereotype.Component;
 public class TestUserNotificationHandler implements UserNotificationHandler {
 
     public List<String> getHandledEvents() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     public Optional<List<UserNotificationData>> handleEvent(Event e) {
-        return null;
+        return Optional.empty();
     }
 }
