@@ -1299,6 +1299,11 @@ public class FormattedTextTest {
         expectedOutput = "Ampersand & Encoded";
         result = formattedText.convertFormattedTextToPlaintext(input);
         Assert.assertEquals(expectedOutput, result);
+
+        input = "An &#128578; emoji";
+        expectedOutput = "An 🙂 emoji";
+        result = formattedText.convertFormattedTextToPlaintext(input);
+        Assert.assertEquals(expectedOutput, result);
     }
 
     @Test
@@ -1386,6 +1391,16 @@ public class FormattedTextTest {
         // Mixed text
         result = formattedText.encodeUnicode("Hello © world, this is a test with © symbol");
         Assert.assertEquals("Hello &#169; world, this is a test with &#169; symbol", result);
+
+        // Emoji (supplementary plane) support
+        result = formattedText.encodeUnicode("Emoji 🙂");
+        Assert.assertEquals("Emoji &#128578;", result);
+
+        result = formattedText.encodeUnicode("🙂");
+        Assert.assertEquals("&#128578;", result);
+
+        result = formattedText.encodeUnicode("🙂🚀");
+        Assert.assertEquals("&#128578;&#128640;", result);
     }
 
     @Test
@@ -1409,6 +1424,10 @@ public class FormattedTextTest {
         // Text with numeric HTML entities
         result = formattedText.unEscapeHtml("Copyright: © Euro: €");
         Assert.assertEquals("Copyright: © Euro: €", result);
+
+        // Emoji numeric entity should decode to supplementary character
+        result = formattedText.unEscapeHtml("Emoji &#128578;");
+        Assert.assertEquals("Emoji 🙂", result);
     }
 
 }
