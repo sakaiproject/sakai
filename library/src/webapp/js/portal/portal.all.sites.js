@@ -284,4 +284,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     allsites.setup();
   });
+
+  const organizeTab = document.getElementById('allsites-organize-favourites-tab');
+  const refreshNotification = document.getElementById("allsites-refresh-notification");
+
+  if (organizeTab && refreshNotification) {
+    organizeTab.addEventListener("click", () => {
+      if (refreshNotification.offsetParent !== null) {
+        // Element is visible
+        location.reload();
+      }
+    });
+  }
+
 });
