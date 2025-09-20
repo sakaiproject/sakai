@@ -60,16 +60,13 @@ var dialogutil = dialogutil || {};
 
 	dialogutil.showDiv = function(divId) {
 		const $div = $("#" + divId);
-		$div.show();
-		$div.delay(5000, function() {
+		if ($div.length === 0) {
+			return;
+		}
+		$div.stop(true, true).show();
+		setTimeout(function() {
 			$div.fadeOut(1000);
-		});
-	};
-
-	$.fn.delay = function(time, func) {
-		return this.each(function() {
-			setTimeout(func, time);
-		});
+		}, 5000);
 	};
 
 	dialogutil.updateMainFrameHeight = function () {

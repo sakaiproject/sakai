@@ -104,8 +104,7 @@
 			}			
 			
 			function dialogLinkClick(link){
-				var position =  $(link).position();
-				dialogutil.openDialog('dialogDiv', 'dialogFrame', position.top);
+				dialogutil.openDialog('dialogDiv', 'dialogFrame');
 			}
 			var warn = false;
 			window.onbeforeunload = function (evt) {

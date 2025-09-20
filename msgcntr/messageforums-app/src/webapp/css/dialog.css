@@ -18,15 +18,3 @@
   border: 0;
   background-color: transparent;
 }
-
-@media (min-width: 992px) {
-  #dialogDiv .modal-dialog {
-    max-width: 70vw;
-  }
-}
-
-@media (min-width: 1400px) {
-  #dialogDiv .modal-dialog {
-    max-width: 960px;
-  }
-}
