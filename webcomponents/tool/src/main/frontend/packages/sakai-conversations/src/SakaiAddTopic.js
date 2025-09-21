@@ -127,8 +127,8 @@ export class SakaiAddTopic extends SakaiElement {
       lightTopic.createGradingItem = !!itemAssociation.createGradingItem;
       lightTopic.gradingCategory = itemAssociation.category ? Number(itemAssociation.category) : -1;
       lightTopic.gradingItemId = itemAssociation.gradingItemId ? Number(itemAssociation.gradingItemId) : -1;
-      const rawPoints = itemAssociation.points;
-      const hasPoints = rawPoints !== undefined && rawPoints !== null && rawPoints !== "";
+      const rawPoints = String(itemAssociation.points ?? "").trim();
+      const hasPoints = rawPoints.length > 0;
       const parsedPoints = hasPoints ? Number(rawPoints) : NaN;
 
       if (!hasPoints || !Number.isFinite(parsedPoints) || parsedPoints <= 0) {
@@ -257,6 +257,7 @@ export class SakaiAddTopic extends SakaiElement {
       this._dueDateInPast = false;
       this._showDateAfterDueDate = false;
       this._hideDateBeforeDueDate = false;
+      this._lockDateInvalid = false;
     }
     this._saveWip();
   }
@@ -276,6 +277,7 @@ export class SakaiAddTopic extends SakaiElement {
     } else {
       this.topic.lockDate = undefined;
       this.topic.lockDateMillis = undefined;
+      this._lockDateInvalid = false;
     }
 
     this._saveWip();
