@@ -256,16 +256,11 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     @Override
     public void submitNotificationTask(Runnable task) {
         Objects.requireNonNull(task, "task");
-        Runnable wrappedTask = wrapTask(task);
         if (executor != null && !executor.isShutdown()) {
-            executor.execute(wrappedTask);
+            executor.execute(task);
         } else {
-            wrappedTask.run();
+            task.run();
         }
-    }
-
-    private Runnable wrapTask(Runnable task) {
-        return task::run;
     }
 
     public void message(Set<User> users, Message message, List<MessageMedium> media, Map<String, Object> replacements, int priority) {
