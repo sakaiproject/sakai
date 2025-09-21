@@ -650,6 +650,16 @@ public class LineItemUtil {
 	}
 
 	/**
+	 * Gets the default lineItem for a content launch with content bean
+	 * @param site the site
+	 * @param content the content bean
+	 * @return the default line item
+	 */
+	public static SakaiLineItem getDefaultLineItem(Site site, org.sakaiproject.lti.beans.LtiContentBean content) {
+		return getDefaultLineItem(site, content.asMap());
+	}
+
+	/**
 	 * Pull a lineitem out of a Deep Link Response, construct a lineitem from a ContentItem response
 	 */
 	public static SakaiLineItem extractLineItem(String response_str) {
