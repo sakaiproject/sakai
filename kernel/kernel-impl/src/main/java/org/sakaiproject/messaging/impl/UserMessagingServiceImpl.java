@@ -265,14 +265,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     private Runnable wrapTask(Runnable task) {
-        return () -> {
-            try {
-                task.run();
-            } catch (RuntimeException e) {
-                log.error("Unhandled exception in messaging task", e);
-                throw e;
-            }
-        };
+        return task::run;
     }
 
     public void message(Set<User> users, Message message, List<MessageMedium> media, Map<String, Object> replacements, int priority) {
