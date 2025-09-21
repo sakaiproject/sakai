@@ -41,6 +41,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.messaging.api.model.UserNotification;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -145,14 +146,14 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                             eventDeleteQuery.where(
                                     queryBuilder.and(
                                             queryBuilder.or(
-                                                    queryBuilder.equal(eventQueryTable.get("event"), AnnouncementService.SECURE_ANNC_ADD),
-                                                    queryBuilder.equal(eventQueryTable.get("event"), AnnouncementService.EVENT_AVAILABLE_ANNC),
-                                                    queryBuilder.equal(eventQueryTable.get("event"), AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY))),
+                                                    queryBuilder.equal(eventDeleteQueryTable.get("event"), AnnouncementService.SECURE_ANNC_ADD),
+                                                    queryBuilder.equal(eventDeleteQueryTable.get("event"), AnnouncementService.EVENT_AVAILABLE_ANNC),
+                                                    queryBuilder.equal(eventDeleteQueryTable.get("event"), AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY))),
                                     queryBuilder.equal(eventDeleteQueryTable.get("ref"), eventResource));
                             session.createQuery(eventDeleteQuery).executeUpdate();
                         });
                     } catch (TransactionException te) {
-                        log.warn("Could not remove bullhorn alerts for announcement [{}], {}", eventResource, te.toString());
+                        log.warn("Could not remove bullhorn alerts for announcement [{}]", eventResource, te);
                     }
                 } else if (message != null) { // process all other events as long as the message isn't null
                     final String eventUserId = event.getUserId();
@@ -196,18 +197,20 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
 
                             Set<String> usersToNotify = new HashSet<>();
 
-                            Collection<String> groups = message.getHeader().getGroups();
+                            Collection<String> groups = Optional.ofNullable(message.getHeader().getGroups())
+                                    .orElse(Collections.emptyList());
                             if (groups.isEmpty()) {
                                 // if the message is not for a group then
                                 // get all the members of the site with ability to read the announcement
                                 usersToNotify = site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ);
                             } else {
                                 // otherwise this is a message for a group(s)
-                                for (String group : groups) {
+                                for (String groupId : groups) {
                                     // get all the members of the group(s) with ability to read the announcement
-                                    Set<String> finalUsersToNotify = usersToNotify;
-                                    Optional.ofNullable(site.getGroup(group))
-                                            .ifPresent(g -> finalUsersToNotify.addAll(g.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)));
+                                    Group group = site.getGroup(groupId);
+                                    if (group != null) {
+                                        usersToNotify.addAll(group.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
+                                    }
                                 }
                             }
 
@@ -234,7 +237,7 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                     log.debug("The event [{}] was not processed by this handler because message was null and should likely be investigated", event);
                 }
             } catch (Exception e) {
-                log.warn("Could not handle event [{}], {}", event, e.toString());
+                log.warn("Could not handle event [{}]", event, e);
             } finally {
                 // pop the security advisor
                 lock(sa);

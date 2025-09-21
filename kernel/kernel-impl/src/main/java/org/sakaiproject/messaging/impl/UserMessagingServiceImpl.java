@@ -161,6 +161,10 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                     public Thread newThread(Runnable r) {
                         Thread thread = delegate.newThread(r);
                         thread.setName(String.format("sakai-messaging-%d", threadNumber.getAndIncrement()));
+                        thread.setDaemon(true);
+                        thread.setUncaughtExceptionHandler((t, e) ->
+                                log.error("Uncaught exception in messaging thread {}", t.getName(), e)
+                        );
                         return thread;
                     }
                 };
@@ -253,7 +257,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     public void submitNotificationTask(Runnable task) {
         Objects.requireNonNull(task, "task");
         Runnable wrappedTask = wrapTask(task);
-        if (executor != null) {
+        if (executor != null && !executor.isShutdown()) {
             executor.execute(wrappedTask);
         } else {
             wrappedTask.run();
@@ -667,8 +671,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                     }
                 }
             } catch (Exception e) {
-                log.error("Failed to serialize notification for push: {}", e.toString());
-                log.debug("Stacktrace", e);
+                log.error("Failed to send push notification to endpoint {}: {}", pushEndpoint, e.getMessage(), e);
             }
         });
     }

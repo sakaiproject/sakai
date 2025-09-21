@@ -28,10 +28,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class TestUserNotificationHandler implements UserNotificationHandler {
 
+    @Override
     public List<String> getHandledEvents() {
         return Collections.emptyList();
     }
 
+    @Override
     public Optional<List<UserNotificationData>> handleEvent(Event e) {
         return Optional.empty();
     }
