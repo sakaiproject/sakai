@@ -477,10 +477,8 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                         });
                     }
                 } catch (DataAccessException dae) {
-                    log.error("Data access error whilst handling event {} (ref {})", event, ref, dae);
                     throw dae;
                 } catch (RuntimeException unexpected) {
-                    log.error("Unexpected runtime exception whilst handling event {} (ref {})", event, ref, unexpected);
                     throw unexpected;
                 }
             }
