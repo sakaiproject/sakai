@@ -77,7 +77,6 @@ export class SakaiAddTopic extends SakaiElement {
     this.topic.lockDateMillis = this.topic.lockDate ? this.topic.lockDate * 1000 : nowMillis;
     this.topic.hideDateMillis = this.topic.hideDate ? this.topic.hideDate * 1000 : nowMillis;
     this.topic.dueDateMillis = this.topic.dueDate ? this.topic.dueDate * 1000 : nowMillis;
-    this.topic.acceptUntilDateMillis = this.topic.acceptUntilDate ? this.topic.acceptUntilDate * 1000 : nowMillis;
 
     this.new = !value.id;
     this.requestUpdate();
@@ -128,13 +127,19 @@ export class SakaiAddTopic extends SakaiElement {
       lightTopic.createGradingItem = !!itemAssociation.createGradingItem;
       lightTopic.gradingCategory = itemAssociation.category ? Number(itemAssociation.category) : -1;
       lightTopic.gradingItemId = itemAssociation.gradingItemId ? Number(itemAssociation.gradingItemId) : -1;
-      lightTopic.gradingPoints = itemAssociation.points ? Number(itemAssociation.points) : -1;
+      const rawPoints = itemAssociation.points;
+      const hasPoints = rawPoints !== undefined && rawPoints !== null && rawPoints !== "";
+      const parsedPoints = hasPoints ? Number(rawPoints) : NaN;
 
-      if (lightTopic.createGradingItem && lightTopic.gradingPoints === -1) {
-        console.warn("No grading points specified");
+      if (!hasPoints || !Number.isFinite(parsedPoints) || parsedPoints <= 0) {
+        console.warn("Grading points must be a positive number");
         itemAssociation.focusPoints();
         return;
       }
+
+      lightTopic.gradingPoints = parsedPoints;
+    } else {
+      lightTopic.gradingPoints = undefined;
     }
 
     fetch(this.topic.url, {
@@ -235,13 +240,45 @@ export class SakaiAddTopic extends SakaiElement {
   _toggleShowDue(e) {
 
     this._showDue = e.target.checked;
-    this.topic.dueDate = this._showDue ? Date.now() / 1000 : undefined;
+    if (this._showDue) {
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      const fallbackSeconds = this.topic.dueDate || nowSeconds;
+      this.topic.dueDate = fallbackSeconds;
+      this.topic.dueDateMillis = fallbackSeconds * 1000;
+      this._dueDateInPast = fallbackSeconds * 1000 < Date.now();
+      this._validateShowDate();
+      this._validateHideDate();
+    } else {
+      this.topic.dueDate = undefined;
+      this.topic.dueDateMillis = undefined;
+      this._showAcceptUntil = false;
+      this.topic.lockDate = undefined;
+      this.topic.lockDateMillis = undefined;
+      this._dueDateInPast = false;
+      this._showDateAfterDueDate = false;
+      this._hideDateBeforeDueDate = false;
+    }
+    this._saveWip();
   }
 
   _toggleShowAcceptUntil(e) {
 
     this._showAcceptUntil = e.target.checked;
-    this.topic.acceptUntilDate = this._showAcceptUntil ? Date.now() : undefined;
+
+    if (this._showAcceptUntil) {
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      let fallbackSeconds = this.topic.lockDate;
+      if (!fallbackSeconds) {
+        fallbackSeconds = this.topic.dueDate ? Math.max(this.topic.dueDate, nowSeconds) : nowSeconds;
+      }
+      this.topic.lockDate = fallbackSeconds;
+      this.topic.lockDateMillis = fallbackSeconds * 1000;
+    } else {
+      this.topic.lockDate = undefined;
+      this.topic.lockDateMillis = undefined;
+    }
+
+    this._saveWip();
   }
 
   _setVisibility(e) {

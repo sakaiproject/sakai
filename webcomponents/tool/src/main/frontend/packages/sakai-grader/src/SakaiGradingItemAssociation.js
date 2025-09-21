@@ -10,6 +10,7 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
     gradingItemId: { state: true },
     useGrading: { attribute: "use-grading", type: Boolean },
     createGradingItem: { state: true },
+    pointsEditable: { state: true },
     _categories: { state: true },
     _gradingItems: { state: true },
     _useCategory: { state: true },
@@ -20,6 +21,7 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
     super.connectedCallback();
 
     this.createGradingItem = !this.gradingItemId;
+    this.pointsEditable = true;
 
     this._useCategory = false;
 
@@ -36,15 +38,26 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
 
         if (this.gradingItemId) {
           const gradingItem = this._gradingItems.find(gi => gi.id == this.gradingItemId);
-          this.renderRoot.getElementById("points").value = gradingItem.points;
-          if (gradingItem.externalId != this.gradableRef) {
-            this.renderRoot.getElementById("points").disabled = true;
-          } else {
-            this.renderRoot.getElementById("points").disabled = false;
-          }
+          this._applyPointsFromItem(gradingItem);
         }
       });
     });
+  }
+
+  _applyPointsFromItem(gradingItem) {
+
+    const pointsInput = this.renderRoot.getElementById("points");
+
+    if (!gradingItem || !pointsInput) {
+      return;
+    }
+
+    this.points = gradingItem.points;
+    pointsInput.value = gradingItem.points;
+
+    const editable = gradingItem.externalId == this.gradableRef;
+    this.pointsEditable = editable;
+    pointsInput.disabled = !editable;
   }
 
   _fetchItemData() {
@@ -75,6 +88,8 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
       pointsInput.disabled = false;
       pointsInput.value = "";
     }
+    this.points = undefined;
+    this.pointsEditable = true;
   }
 
   _showExistingItemBlock() {
@@ -85,7 +100,7 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
 
       this.gradingItemId = this.renderRoot.getElementById("items").value;
       const gradingItem = this._gradingItems.find(gi => gi.id == this.gradingItemId);
-      this.renderRoot.getElementById("points").value = gradingItem.points;
+      this._applyPointsFromItem(gradingItem);
     });
 
     this._useCategory = false;
@@ -95,13 +110,7 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
 
     this.gradingItemId = e.target.value;
     const gradingItem = this._gradingItems.find(gi => gi.id == e.target.value);
-    this.renderRoot.getElementById("points").value = gradingItem.points;
-    this.points = gradingItem.points;
-    if (gradingItem.externalId != this.gradableRef) {
-      this.renderRoot.getElementById("points").disabled = true;
-    } else {
-      this.renderRoot.getElementById("points").disabled = false;
-    }
+    this._applyPointsFromItem(gradingItem);
   }
 
   _setUseCategory(e) {
