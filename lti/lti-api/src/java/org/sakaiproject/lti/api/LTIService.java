@@ -377,6 +377,15 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole);
 
+    /**
+     * Get a tool as a POJO, bypassing security checks (DAO method).
+     * 
+     * @param key The tool key
+     * @param siteId The site ID
+     * @param isAdminRole Whether to bypass security checks
+     * @return LtiToolBean instance or null if not found
+     */
+    org.sakaiproject.lti.beans.LtiToolBean getToolDaoAsPojo(Long key, String siteId, boolean isAdminRole);
 
     Object updateTool(Long key, Properties newProps, String siteId);
 
@@ -660,4 +669,92 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @return The text with updated LTI launch URLs
      */
     String fixLtiLaunchUrls(String text, String toContext, MergeConfig mcx);
+
+    // POJO overload methods - return strongly typed objects instead of Map<String, Object>
+    
+    /**
+     * Get a single LTI tool as a POJO
+     * @param key The tool ID
+     * @param siteId The site ID
+     * @return LtiTool POJO or null if not found
+     */
+    org.sakaiproject.lti.beans.LtiToolBean getToolAsPojo(Long key, String siteId);
+
+    /**
+     * Get a list of LTI tools as POJOs
+     * @param search Search criteria
+     * @param order Sort order
+     * @param first First result index
+     * @param last Last result index
+     * @param siteId The site ID
+     * @return List of LtiTool POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiToolBean> getToolsAsPojos(String search, String order, int first, int last, String siteId);
+
+    /**
+     * Get a list of LTI tools as POJOs with stealthed option
+     * @param search Search criteria
+     * @param order Sort order
+     * @param first First result index
+     * @param last Last result index
+     * @param siteId The site ID
+     * @param includeStealthed Whether to include stealthed tools
+     * @return List of LtiTool POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiToolBean> getToolsAsPojos(String search, String order, int first, int last, String siteId, boolean includeStealthed);
+
+    /**
+     * Get a list of launchable LTI tools as POJOs
+     * @param siteId The site ID
+     * @return List of LtiTool POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiToolBean> getToolsLaunchAsPojos(String siteId);
+
+    /**
+     * Get a single LTI content item as a POJO
+     * @param key The content ID
+     * @param siteId The site ID
+     * @return LtiContent POJO or null if not found
+     */
+    org.sakaiproject.lti.beans.LtiContentBean getContentAsPojo(Long key, String siteId);
+
+    /**
+     * Get a list of LTI content items as POJOs
+     * @param search Search criteria
+     * @param order Sort order
+     * @param first First result index
+     * @param last Last result index
+     * @param siteId The site ID
+     * @return List of LtiContent POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiContentBean> getContentsAsPojos(String search, String order, int first, int last, String siteId);
+
+    /**
+     * Get a single LTI tool site as a POJO
+     * @param key The tool site ID
+     * @param siteId The site ID
+     * @return LtiToolSite POJO or null if not found
+     */
+    org.sakaiproject.lti.beans.LtiToolSiteBean getToolSiteAsPojo(Long key, String siteId);
+
+    /**
+     * Get a list of LTI tool sites as POJOs
+     * @param toolId The tool ID
+     * @param siteId The site ID
+     * @return List of LtiToolSite POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiToolSiteBean> getToolSitesByToolIdAsPojos(String toolId, String siteId);
+
+    /**
+     * Get a single LTI memberships job as a POJO
+     * @param siteId The site ID
+     * @return LtiMembershipsJob POJO or null if not found
+     */
+    org.sakaiproject.lti.beans.LtiMembershipsJobBean getMembershipsJobAsPojo(String siteId);
+
+    /**
+     * Get all LTI memberships jobs as POJOs
+     * @return List of LtiMembershipsJob POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiMembershipsJobBean> getMembershipsJobsAsPojos();
 }

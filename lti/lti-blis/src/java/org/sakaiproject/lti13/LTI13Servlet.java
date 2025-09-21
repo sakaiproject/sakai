@@ -482,7 +482,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+		org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 		if (content == null) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
@@ -494,14 +494,14 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Long toolKey = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
+		Long toolKey = LTIUtil.toLongKey(content.toolId);
 		if (toolKey < 0 ) {
-			log.error("Content / Tool invalid content={} tool={}", content.get(LTIService.LTI_ID), toolKey);
+			log.error("Content / Tool invalid content={} tool={}", content.id, toolKey);
 			LTI13Util.return400(response, "Content / Tool mismatch");
 			return;
 		}
 
-		Map<String, Object> tool = ltiService.getToolDao(toolKey, site.getId());
+		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsPojo(toolKey, site.getId(), true);
 		if (tool == null) {
 			log.error("Could not load tool={}", toolKey);
 			LTI13Util.return400(response, "Missing tool");
@@ -584,14 +584,14 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// TODO: A little moar checking on the session.
-		Map<String, Object> tool = ltiService.getToolDao(tool_key, null, true);
+		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsPojo(tool_key, null, true);
 		if (tool == null) {
 			LTI13Util.return400(response, "Could not load tool");
 			log.error("Could not load tool {}", tool_key);
 			return;
 		}
 
-		String json_out = (String) tool.get(LTIService.LTI13_AUTO_REGISTRATION);
+		String json_out = tool.lti13AutoRegistration;
 		if ( json_out == null || json_out.length() < 1 ) {
 			LTI13Util.return400(response, "Could not load tool configuration");
 			log.error("Could not load tool configuration {}", tool_key);
@@ -851,7 +851,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the tool
-		Map<String, Object> tool = ltiService.getToolDao(toolKey, null, true);
+		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsPojo(toolKey, null, true);
 		if (tool == null) {
 			LTI13Util.return400(response, "Could not load tool");
 			log.error("Could not load tool {}", tool_id);
@@ -861,7 +861,8 @@ public class LTI13Servlet extends HttpServlet {
 		// Get the correct public key.
 		Key publicKey = null;
 		try {
-			publicKey = SakaiLTIUtil.getPublicKey(tool, client_assertion);
+			Map<String, Object> toolMap = tool.asMap();
+			publicKey = SakaiLTIUtil.getPublicKey(toolMap, client_assertion);
 		} catch (Exception e) {
 			LTI13Util.return400(response, e.getMessage());
 			return;
@@ -877,9 +878,6 @@ public class LTI13Servlet extends HttpServlet {
 
 		scope = scope.toLowerCase();
 
-		int allowOutcomes = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
-		int allowRoster = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWROSTER));
-		int allowLineItems = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
 
 		SakaiAccessToken sat = new SakaiAccessToken();
 		sat.tool_id = toolKey;
@@ -891,7 +889,7 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Work through requested scopes
 		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY)) {
-			if (allowLineItems != 1) {
+			if (!Boolean.TRUE.equals(tool.allowlineitems)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM_READONLY);
 				log.error("Scope lineitem readonly not allowed {}", tool_id);
 				return;
@@ -901,7 +899,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		if (scope.contains(LTI13ConstantsUtil.SCOPE_LINEITEM)) {
-			if (allowLineItems != 1) {
+			if (!Boolean.TRUE.equals(tool.allowlineitems)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_LINEITEM);
 				log.error("Scope lineitem not allowed {}", tool_id);
 				return;
@@ -913,7 +911,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		if (scope.contains(LTI13ConstantsUtil.SCOPE_SCORE)) {
-			if (allowOutcomes != 1 || allowLineItems != 1) {
+			if (!Boolean.TRUE.equals(tool.allowoutcomes) || !Boolean.TRUE.equals(tool.allowlineitems)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_SCORE);
 				log.error("Scope score not allowed {}", tool_id);
 				return;
@@ -924,7 +922,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		if (scope.contains(LTI13ConstantsUtil.SCOPE_RESULT_READONLY)) {
-			if (allowOutcomes != 1 || allowLineItems != 1) {
+			if (!Boolean.TRUE.equals(tool.allowoutcomes) || !Boolean.TRUE.equals(tool.allowlineitems)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_RESULT_READONLY);
 				log.error("Scope result readonly not allowed {}", tool_id);
 				return;
@@ -935,7 +933,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		if (scope.contains(LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES)) {
-			if (allowRoster != 1) {
+			if (!Boolean.TRUE.equals(tool.allowroster)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_NAMES_AND_ROLES);
 				log.error("Scope names and roles not allowed {}", tool_id);
 				return;
@@ -946,7 +944,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		if (scope.contains(LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY)) {
-			if (allowRoster != 1) {
+			if (!Boolean.TRUE.equals(tool.allowroster)) {
 				LTI13Util.return400(response, "invalid_scope", LTI13ConstantsUtil.SCOPE_CONTEXTGROUP_READONLY);
 				log.error("Scope context group not allowed {}", tool_id);
 				return;
@@ -1032,8 +1030,8 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		Map<String, Object> tool = null;
-		Map<String, Object> content = null;
+		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		org.sakaiproject.lti.beans.LtiContentBean content = null;
 		String assignment_name = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
@@ -1048,19 +1046,19 @@ public class LTI13Servlet extends HttpServlet {
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");
-				log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+				log.error("Could not load site associated with content={}", content.id);
 				return;
 			}
 
 			tool = loadToolForContent(content, site, sat.tool_id, response);
 			if (tool == null) {
-				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.id);
 				return;
 			}
 
-			assignment_name = (String) content.get(LTIService.LTI_TITLE);
+			assignment_name = (String) content.title;
 			if (assignment_name == null || assignment_name.length() < 1) {
-				log.error("Could not determine assignment_name title {}", content.get(LTIService.LTI_ID));
+				log.error("Could not determine assignment_name title {}", content.id);
 				LTI13Util.return400(response, "Could not determine assignment_name");
 				return;
 			}
@@ -1080,7 +1078,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			tool = ltiService.getToolDao(sat.tool_id, site.getId());
+			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -1103,7 +1101,7 @@ public class LTI13Servlet extends HttpServlet {
 		// When lineitem_key is null we are the "default" lineitem associated with the content object
 		// if the content item is associated with an assignment, we talk to the assignment API,
 		// if the content item is not associated with an assignment, we talk to the gradebook API
-		Object retval = SakaiLTIUtil.handleGradebookLTI13(site, sat.tool_id, content, userId, lineitem_key, scoreObj);
+		Object retval = SakaiLTIUtil.handleGradebookLTI13(site, sat.tool_id, content.asMap(), userId, lineitem_key, scoreObj);
 		log.debug("handleGradebookLTI13 retval={}",retval);
 		if ( retval instanceof String ) {
 			LTI13Util.return400(response, (String) retval);
@@ -1190,7 +1188,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		Map<String, Object> tool = ltiService.getToolDao(tool_key, null, true);
+		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsPojo(tool_key, null, true);
 		if (tool == null) {
 			log.error("Could not load tool={}", tool_key);
 			LTI13Util.return400(response, "Missing tool");
@@ -1198,7 +1196,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Check if the one time use token matching
-		String tool_token = (String) tool.get(LTIService.LTI13_AUTO_TOKEN);
+		String tool_token = tool.lti13AutoToken;
 		if ( tool_token == null || tool_token.length() < 1 ||
 			! tool_token.equals(registration_token) ) {
 			log.error("Bad registration_token");
@@ -1214,7 +1212,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		String client_id = (String) tool.get(LTIService.LTI13_CLIENT_ID);
+		String client_id = tool.lti13ClientId;
 
 		jso.put("client_id", client_id);
 
@@ -1229,7 +1227,7 @@ public class LTI13Servlet extends HttpServlet {
 		String json_out = null;
 		try {
 			json_out = JacksonUtil.prettyPrint(jso);
-			tool.put(LTIService.LTI13_AUTO_REGISTRATION, json_out);
+			tool.lti13AutoRegistration = json_out;
 		} catch (com.fasterxml.jackson.core.JsonProcessingException e) {
 			log.error("Could not serialize JSON={}", e.getMessage());
 			LTI13Util.return400(response, "Could not serialize JSON");
@@ -1238,10 +1236,11 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Store the JSON
-		tool.put(LTIService.LTI13_AUTO_TOKEN, "Used");
-		tool.put(LTIService.LTI13_AUTO_STATE, new Integer(2));
+		Map<String, Object> toolMap = tool.asMap();
+		toolMap.put(LTIService.LTI13_AUTO_TOKEN, "Used");
+		toolMap.put(LTIService.LTI13_AUTO_STATE, Integer.valueOf(2));
 		String siteId = null;
-		Object retval = ltiService.updateToolDao(tool_key, tool, siteId);
+		Object retval = ltiService.updateToolDao(tool_key, toolMap, siteId);
 
 		if ( retval instanceof String) {
 			log.error("Could not update tool={} retval={}", tool_key, retval);
@@ -1325,11 +1324,11 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		Map<String, Object> tool = null;
+		org.sakaiproject.lti.beans.LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
@@ -1339,13 +1338,13 @@ public class LTI13Servlet extends HttpServlet {
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");
-				log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+				log.error("Could not load site associated with content={}", content.id);
 				return;
 			}
 
 			tool = loadToolForContent(content, site, sat.tool_id, response);
 			if (tool == null) {
-				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.id);
 				return;
 			}
 		} else { // SAK-47261 - It is just a site_id
@@ -1357,7 +1356,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			tool = ltiService.getToolDao(sat.tool_id, site.getId());
+			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -1372,12 +1371,10 @@ public class LTI13Servlet extends HttpServlet {
 		int paging = NumberUtils.toInt(pagingstr, -1);
 		if ( paging > 0 && ( limit < 0 || limit > paging ) ) limit = paging;
 
-		int releaseName = LTIUtil.toInt(tool.get(LTIService.LTI_SENDNAME));
-		int releaseEmail = LTIUtil.toInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 		// int allowOutcomes = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 
 		/* SAK-47261 - Scope NRPS to Context, not Resource Link
-		String assignment_name = (String) content.get(LTIService.LTI_TITLE);
+		String assignment_name = (String) content.title;
 		if (assignment_name == null || assignment_name.length() < 1) {
 			assignment_name = null;
 		}
@@ -1405,7 +1402,7 @@ public class LTI13Servlet extends HttpServlet {
 
 			List<User> users = UserDirectoryService.getUsers(userIds);
 
-			String roleMapProp = (String) tool.get(LTIService.LTI_ROLEMAP);
+			String roleMapProp = tool.rolemap;
 			Map<String, String> toolRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
 
 			// Hoist these out of the loop
@@ -1462,12 +1459,12 @@ public class LTI13Servlet extends HttpServlet {
 				jo.put("user_id", subject);   // TODO: Should be subject - LTI13 Quirk
 				jo.put("lis_person_sourcedid", user.getEid());
 
-				if (releaseName != 0) {
+				if (Boolean.TRUE.equals(tool.sendname)) {
 					jo.put("name", user.getDisplayName());
 					jo.put("given_name", user.getFirstName());
 					jo.put("family_name", user.getLastName());
 				}
-				if (releaseEmail != 0) {
+				if (Boolean.TRUE.equals(tool.sendemailaddr)) {
 					jo.put("email", user.getEmail());
 				}
 
@@ -1498,7 +1495,7 @@ public class LTI13Servlet extends HttpServlet {
 
 				/* SAK-47261 - Scope NRPS to Context, not Resource Link
 				if ( sat.hasScope(SakaiAccessToken.SCOPE_SCORE)  && assignment_name != null ) {
-					String placement_secret  = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+					String placement_secret  = (String) content.placementSecret;
 					String placement_id = getPlacementId(signed_placement);
 					String result_sourcedid = SakaiLTIUtil.getSourceDID(user, placement_id, placement_secret);
 					if ( result_sourcedid != null ) sakai_ext.put("lis_result_sourcedid",result_sourcedid);
@@ -1589,7 +1586,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		Map<String, Object> tool = null;
+		org.sakaiproject.lti.beans.LtiToolBean tool = null;
 
 		try {
 			site = SiteService.getSite(site_id);
@@ -1599,7 +1596,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		tool = ltiService.getToolDao(sat.tool_id, site.getId());
+		tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
 		if (tool == null) {
 			log.error("Could not load tool={}", sat.tool_id);
 			LTI13Util.return400(response, "Missing tool");
@@ -1791,7 +1788,7 @@ public class LTI13Servlet extends HttpServlet {
 		return parts.length == 3 ? parts[1] : null;
 	}
 
-	protected static Map<String, Object> loadContentCheckSignature(String signed_placement, HttpServletResponse response) {
+	protected static org.sakaiproject.lti.beans.LtiContentBean loadContentCheckSignature(String signed_placement, HttpServletResponse response) {
 
 		String[] parts = splitSignedPlacement(signed_placement, response);
 		if (parts == null) {
@@ -1813,14 +1810,14 @@ public class LTI13Servlet extends HttpServlet {
 
 		// Note that all of the above checking requires no database access :)
 		// Now we have a valid access token and valid JSON, proceed with validating the signed_placement
-		Map<String, Object> content = ltiService.getContentDao(contentKey);
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsPojo(contentKey, context_id);
 		if (content == null) {
 			log.error("Could not load Content Item {}", contentKey);
 			LTI13Util.return400(response, "Could not load Content Item");
 			return null;
 		}
 
-		String placementSecret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		String placementSecret = content.placementsecret;
 		if (placementSecret == null) {
 			log.error("Could not load placementsecret {}", contentKey);
 			LTI13Util.return400(response, "Could not load placementsecret");
@@ -1840,7 +1837,7 @@ public class LTI13Servlet extends HttpServlet {
 		return content;
 	}
 
-	protected Site loadSiteFromContent(Map<String, Object> content, String signed_placement, HttpServletResponse response) {
+	protected Site loadSiteFromContent(org.sakaiproject.lti.beans.LtiContentBean content, String signed_placement, HttpServletResponse response) {
 		String[] parts = splitSignedPlacement(signed_placement, response);
 		if (parts == null) {
 			return null;
@@ -1849,15 +1846,15 @@ public class LTI13Servlet extends HttpServlet {
 		String context_id = parts[1];
 
 		// Good signed_placement, lets load the site and tool
-		String siteId = (String) content.get(LTIService.LTI_SITE_ID);
+		String siteId = content.siteId;
 		if (siteId == null) {
-			log.error("Could not find site content={}", content.get(LTIService.LTI_ID));
+			log.error("Could not find site content={}", content.id);
 			LTI13Util.return400(response, "Could not find site for content");
 			return null;
 		}
 
 		if (!siteId.equals(context_id)) {
-			log.error("Found incorrect site for content={}", content.get(LTIService.LTI_ID));
+			log.error("Found incorrect site for content={}", content.id);
 			LTI13Util.return400(response, "Found incorrect site for content");
 			return null;
 		}
@@ -1891,7 +1888,7 @@ public class LTI13Servlet extends HttpServlet {
 
 	protected static boolean checkToolHasPlacements(Long toolKey, String siteId, HttpServletResponse response)
 	{
-		 List<Map<String, Object>> contents = ltiService.getContentsDao(null, null, 0, 2, siteId);
+		 List<org.sakaiproject.lti.beans.LtiContentBean> contents = ltiService.getContentsAsPojos(null, null, 0, 2, siteId);
 		if (contents.size() < 1) {
 			log.error("Tool id={} has no placements in site={}", toolKey, siteId);
 			LTI13Util.return400(response, "No placements for tool");
@@ -1900,15 +1897,15 @@ public class LTI13Servlet extends HttpServlet {
 		return true;
 	}
 
-	protected Map<String, Object> loadToolForContent(Map<String, Object> content, Site site, Long expected_tool_id, HttpServletResponse response) {
-		Long toolKey = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
+	protected org.sakaiproject.lti.beans.LtiToolBean loadToolForContent(org.sakaiproject.lti.beans.LtiContentBean content, Site site, Long expected_tool_id, HttpServletResponse response) {
+		Long toolKey = LTIUtil.toLongKey(content.toolId);
 		if (toolKey < 0 || !toolKey.equals(expected_tool_id)) {
-			log.error("Content / Tool invalid content={} tool={}", content.get(LTIService.LTI_ID), toolKey);
+			log.error("Content / Tool invalid content={} tool={}", content.id, toolKey);
 			LTI13Util.return400(response, "Content / Tool mismatch");
 			return null;
 		}
 
-		Map<String, Object> tool = ltiService.getToolDao(toolKey, site.getId());
+		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsPojo(toolKey, site.getId(), true);
 		if (tool == null) {
 			log.error("Could not load tool={}", toolKey);
 			LTI13Util.return400(response, "Missing tool");
@@ -2014,11 +2011,11 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		Map<String, Object> tool = null;
+		org.sakaiproject.lti.beans.LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
@@ -2028,13 +2025,13 @@ public class LTI13Servlet extends HttpServlet {
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");
-				log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+				log.error("Could not load site associated with content={}", content.id);
 				return;
 			}
 
 			tool = loadToolForContent(content, site, sat.tool_id, response);
 			if (tool == null) {
-				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.id);
 				return;
 			}
 		} else { // SAK-47261 - It is just a site_id
@@ -2046,7 +2043,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			tool = ltiService.getToolDao(sat.tool_id, site.getId());
+			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -2114,11 +2111,11 @@ public class LTI13Servlet extends HttpServlet {
 		if ( item == null ) return; // Error alredy handled
 
 		Site site = null;
-		Map<String, Object> tool = null;
+		org.sakaiproject.lti.beans.LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
@@ -2128,13 +2125,13 @@ public class LTI13Servlet extends HttpServlet {
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");
-				log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+				log.error("Could not load site associated with content={}", content.id);
 				return;
 			}
 
 			tool = loadToolForContent(content, site, sat.tool_id, response);
 			if (tool == null) {
-				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.id);
 				return;
 			}
 		} else { // SAK-47261 - It is just a site_id
@@ -2146,7 +2143,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			tool = ltiService.getToolDao(sat.tool_id, site.getId());
+			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -2202,8 +2199,8 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		Map<String, Object> tool = null;
-		Map<String, Object> content = null;
+		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		org.sakaiproject.lti.beans.LtiContentBean content = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
@@ -2217,13 +2214,13 @@ public class LTI13Servlet extends HttpServlet {
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");
-				log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+				log.error("Could not load site associated with content={}", content.id);
 				return;
 			}
 
 			tool = loadToolForContent(content, site, sat.tool_id, response);
 			if (tool == null) {
-				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.id);
 				return;
 			}
 		} else { // SAK-47261 - It is just a site_id
@@ -2235,7 +2232,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			tool = ltiService.getToolDao(sat.tool_id, site.getId());
+			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -2250,7 +2247,7 @@ public class LTI13Servlet extends HttpServlet {
 		if ( ! all ) {
 			if ( content != null ) {
 				response.setContentType(SakaiLineItem.CONTENT_TYPE);
-				SakaiLineItem item = LineItemUtil.getDefaultLineItem(site, content);
+				SakaiLineItem item = LineItemUtil.getDefaultLineItem(site, content.asMap());
 				log.debug("single line item = {}", JacksonUtil.prettyPrint(item));
 				PrintWriter out = response.getWriter();
 				out.print(JacksonUtil.prettyPrint(item));
@@ -2318,8 +2315,8 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		Map<String, Object> tool = null;
-		Map<String, Object> content = null;
+		org.sakaiproject.lti.beans.LtiToolBean tool = null;
+		org.sakaiproject.lti.beans.LtiContentBean content = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
@@ -2333,13 +2330,13 @@ public class LTI13Servlet extends HttpServlet {
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");
-				log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+				log.error("Could not load site associated with content={}", content.id);
 				return;
 			}
 
 			tool = loadToolForContent(content, site, sat.tool_id, response);
 			if (tool == null) {
-				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.id);
 				return;
 			}
 		} else { // SAK-47261 - It is just a site_id
@@ -2351,7 +2348,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			tool = ltiService.getToolDao(sat.tool_id, site.getId());
+			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -2368,7 +2365,7 @@ public class LTI13Servlet extends HttpServlet {
 		if ( lineitem_key != null ) {
 			a = LineItemUtil.getColumnByKeyDAO(context_id, sat.tool_id, lineitem_key);
 		} else if ( content != null ) {
-			String assignment_label = (String) content.get(LTIService.LTI_TITLE);
+			String assignment_label = (String) content.title;
 			a = LineItemUtil.getColumnByLabelDAO(context_id, sat.tool_id, assignment_label);
 		}
 
@@ -2490,7 +2487,7 @@ public class LTI13Servlet extends HttpServlet {
 
 				if ( actualGrade != null ) {
 					try {
-						Double dGrade = new Double(actualGrade);
+						Double dGrade = Double.valueOf(actualGrade);
 						result.resultScore = dGrade;
 					} catch(NumberFormatException e) {
 						log.error("Could not parse grade="+actualGrade);
@@ -2550,11 +2547,11 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		Site site = null;
-		Map<String, Object> tool = null;
+		org.sakaiproject.lti.beans.LtiToolBean tool = null;
 
 		// SAK-47261 - Legacy URL patterns with actual signed placement
 		if ( isSignedPlacement(signed_placement) ) {
-			Map<String, Object> content = loadContentCheckSignature(signed_placement, response);
+			org.sakaiproject.lti.beans.LtiContentBean content = loadContentCheckSignature(signed_placement, response);
 			if (content == null) {
 				LTI13Util.return400(response, "Could not load content from signed placement");
 				log.error("Could not load content from signed placement = {}", signed_placement);
@@ -2564,13 +2561,13 @@ public class LTI13Servlet extends HttpServlet {
 			site = loadSiteFromContent(content, signed_placement, response);
 			if (site == null) {
 				LTI13Util.return400(response, "Could not load site associated with content");
-				log.error("Could not load site associated with content={}", content.get(LTIService.LTI_ID));
+				log.error("Could not load site associated with content={}", content.id);
 				return;
 			}
 
 			tool = loadToolForContent(content, site, sat.tool_id, response);
 			if (tool == null) {
-				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.id);
 				return;
 			}
 		} else { // SAK-47261 - It is just a site_id
@@ -2582,7 +2579,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			tool = ltiService.getToolDao(sat.tool_id, site.getId());
+			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");

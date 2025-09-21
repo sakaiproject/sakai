@@ -1455,4 +1455,84 @@ public abstract class BaseLTIService implements LTIService {
 		return null;
 	}
 
+	// POJO overload method implementations - convert Map results to POJOs
+	
+	@Override
+	public org.sakaiproject.lti.beans.LtiToolBean getToolAsPojo(Long key, String siteId) {
+		Map<String, Object> toolMap = getTool(key, siteId);
+		return toolMap != null ? org.sakaiproject.lti.beans.LtiToolBean.of(toolMap) : null;
+	}
+
+	@Override
+	public org.sakaiproject.lti.beans.LtiToolBean getToolDaoAsPojo(Long key, String siteId, boolean isAdminRole) {
+		Map<String, Object> toolMap = getToolDao(key, siteId, isAdminRole);
+		return toolMap != null ? org.sakaiproject.lti.beans.LtiToolBean.of(toolMap) : null;
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolsAsPojos(String search, String order, int first, int last, String siteId) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId);
+		return toolMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiToolBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolsAsPojos(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed);
+		return toolMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiToolBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolsLaunchAsPojos(String siteId) {
+		List<Map<String, Object>> toolMaps = getToolsLaunch(siteId);
+		return toolMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiToolBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public org.sakaiproject.lti.beans.LtiContentBean getContentAsPojo(Long key, String siteId) {
+		Map<String, Object> contentMap = getContent(key, siteId);
+		return contentMap != null ? org.sakaiproject.lti.beans.LtiContentBean.of(contentMap) : null;
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiContentBean> getContentsAsPojos(String search, String order, int first, int last, String siteId) {
+		List<Map<String, Object>> contentMaps = getContents(search, order, first, last, siteId);
+		return contentMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiContentBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public org.sakaiproject.lti.beans.LtiToolSiteBean getToolSiteAsPojo(Long key, String siteId) {
+		Map<String, Object> toolSiteMap = getToolSiteById(key, siteId);
+		return toolSiteMap != null ? org.sakaiproject.lti.beans.LtiToolSiteBean.of(toolSiteMap) : null;
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolSiteBean> getToolSitesByToolIdAsPojos(String toolId, String siteId) {
+		List<Map<String, Object>> toolSiteMaps = getToolSitesByToolId(toolId, siteId);
+		return toolSiteMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiToolSiteBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public org.sakaiproject.lti.beans.LtiMembershipsJobBean getMembershipsJobAsPojo(String siteId) {
+		Map<String, Object> jobMap = getMembershipsJob(siteId);
+		return jobMap != null ? org.sakaiproject.lti.beans.LtiMembershipsJobBean.of(jobMap) : null;
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiMembershipsJobBean> getMembershipsJobsAsPojos() {
+		List<Map<String, Object>> jobMaps = getMembershipsJobs();
+		return jobMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiMembershipsJobBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
 }
