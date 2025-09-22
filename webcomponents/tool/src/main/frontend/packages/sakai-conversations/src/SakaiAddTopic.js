@@ -245,7 +245,7 @@ export class SakaiAddTopic extends SakaiElement {
     this._showDue = e.target.checked;
     if (this._showDue) {
       const nowSeconds = Math.floor(Date.now() / 1000);
-      const fallbackSeconds = this.topic.dueDate || nowSeconds;
+      const fallbackSeconds = this.topic.dueDate ?? nowSeconds;
       this.topic.dueDate = fallbackSeconds;
       this.topic.dueDateMillis = fallbackSeconds * 1000;
       this._dueDateInPast = fallbackSeconds < nowSeconds;
@@ -273,7 +273,7 @@ export class SakaiAddTopic extends SakaiElement {
     if (this._showAcceptUntil) {
       const nowSeconds = Math.floor(Date.now() / 1000);
       const fallbackSeconds = this.topic.lockDate
-        ?? (this.topic.dueDate ? Math.max(this.topic.dueDate, nowSeconds) : nowSeconds);
+        ?? (this.topic.dueDate != null ? Math.max(this.topic.dueDate, nowSeconds) : nowSeconds);
       this.topic.lockDate = fallbackSeconds;
       this.topic.lockDateMillis = fallbackSeconds * 1000;
       this._lockDateInvalid = this._computeLockDateInvalid();
@@ -711,7 +711,7 @@ export class SakaiAddTopic extends SakaiElement {
             gradable-type="Topic"
             .gradingItemId=${this.topic.gradingItemId}
             gradable-ref="${this.topic.reference}"
-            ?use-grading=${Number(this.topic.gradingItemId) > 0}>
+            .useGrading=${this.topic.graded ?? (Number(this.topic.gradingItemId) > 0)}>
         </sakai-grading-item-association>
         ` : nothing}
 
