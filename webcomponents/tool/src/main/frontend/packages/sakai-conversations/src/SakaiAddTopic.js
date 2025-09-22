@@ -109,7 +109,7 @@ export class SakaiAddTopic extends SakaiElement {
       return;
     }
 
-    if (this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate) {
+    if (this._computeLockDateInvalid()) {
       this._lockDateInvalid = true;
       this.updateComplete.then(() => {
         document.querySelector(".portal-main-container")?.scrollTo({ top: 0, behavior: "smooth" });
@@ -122,11 +122,12 @@ export class SakaiAddTopic extends SakaiElement {
     const lightTopic = { ...this.topic, posts: [] };
 
     const itemAssociation = this.querySelector("sakai-grading-item-association");
-    lightTopic.graded = itemAssociation?.useGrading;
-    if (itemAssociation?.useGrading) {
+    const useGrading = !!itemAssociation?.useGrading;
+    lightTopic.graded = useGrading;
+    if (useGrading) {
       lightTopic.createGradingItem = !!itemAssociation.createGradingItem;
-      lightTopic.gradingCategory = itemAssociation.category ? Number(itemAssociation.category) : -1;
-      lightTopic.gradingItemId = itemAssociation.gradingItemId ? Number(itemAssociation.gradingItemId) : -1;
+      lightTopic.gradingCategory = itemAssociation.category == null ? -1 : Number(itemAssociation.category);
+      lightTopic.gradingItemId = itemAssociation.gradingItemId == null ? -1 : Number(itemAssociation.gradingItemId);
       const points = Number(itemAssociation.points);
 
       if (!(Number.isFinite(points) && points > 0)) {
@@ -248,7 +249,7 @@ export class SakaiAddTopic extends SakaiElement {
       this.topic.dueDate = fallbackSeconds;
       this.topic.dueDateMillis = fallbackSeconds * 1000;
       this._dueDateInPast = fallbackSeconds < nowSeconds;
-      this._lockDateInvalid = !!(this.topic.lockDate && this.topic.lockDate < this.topic.dueDate);
+      this._lockDateInvalid = this._computeLockDateInvalid();
       this._validateShowDate();
       this._validateHideDate();
     } else {
@@ -275,7 +276,7 @@ export class SakaiAddTopic extends SakaiElement {
         ?? (this.topic.dueDate ? Math.max(this.topic.dueDate, nowSeconds) : nowSeconds);
       this.topic.lockDate = fallbackSeconds;
       this.topic.lockDateMillis = fallbackSeconds * 1000;
-      this._lockDateInvalid = !!(this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate);
+      this._lockDateInvalid = this._computeLockDateInvalid();
     } else {
       this.topic.lockDate = undefined;
       this.topic.lockDateMillis = undefined;
@@ -314,10 +315,23 @@ export class SakaiAddTopic extends SakaiElement {
                                     && this.topic.dueDate > this.topic.hideDate;
   }
 
+  _computeLockDateInvalid() {
+
+    const { dueDate, lockDate } = this.topic;
+
+    if (dueDate == null || lockDate == null || dueDate === "" || lockDate === "") {
+      return false;
+    }
+
+    const due = Number(dueDate);
+    const lock = Number(lockDate);
+    return Number.isFinite(due) && Number.isFinite(lock) && lock < due;
+  }
+
   _setLockDate(e) {
 
     this.topic.lockDate = e.detail.epochSeconds;
-    this._lockDateInvalid = !!(this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate);
+    this._lockDateInvalid = this._computeLockDateInvalid();
     this._saveWip();
   }
 
@@ -697,7 +711,7 @@ export class SakaiAddTopic extends SakaiElement {
             gradable-type="Topic"
             .gradingItemId=${this.topic.gradingItemId}
             gradable-ref="${this.topic.reference}"
-            ?use-grading=${this.topic.gradingItemId}>
+            ?use-grading=${Number(this.topic.gradingItemId) > 0}>
         </sakai-grading-item-association>
         ` : nothing}
 
