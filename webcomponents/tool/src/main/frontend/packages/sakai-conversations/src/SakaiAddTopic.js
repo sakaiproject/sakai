@@ -112,7 +112,7 @@ export class SakaiAddTopic extends SakaiElement {
     if (this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate) {
       this._lockDateInvalid = true;
       this.updateComplete.then(() => {
-        document.querySelector(".portal-main-container").scrollTo({ top: 0, behavior: "smooth" });
+        document.querySelector(".portal-main-container")?.scrollTo({ top: 0, behavior: "smooth" });
       });
       return;
     }
@@ -248,6 +248,7 @@ export class SakaiAddTopic extends SakaiElement {
       this.topic.dueDate = fallbackSeconds;
       this.topic.dueDateMillis = fallbackSeconds * 1000;
       this._dueDateInPast = fallbackSeconds < nowSeconds;
+      this._lockDateInvalid = !!(this.topic.lockDate && this.topic.lockDate < this.topic.dueDate);
       this._validateShowDate();
       this._validateHideDate();
     } else {
@@ -270,10 +271,8 @@ export class SakaiAddTopic extends SakaiElement {
 
     if (this._showAcceptUntil) {
       const nowSeconds = Math.floor(Date.now() / 1000);
-      let fallbackSeconds = this.topic.lockDate;
-      if (!fallbackSeconds) {
-        fallbackSeconds = this.topic.dueDate ? Math.max(this.topic.dueDate, nowSeconds) : nowSeconds;
-      }
+      const fallbackSeconds = this.topic.lockDate
+        ?? (this.topic.dueDate ? Math.max(this.topic.dueDate, nowSeconds) : nowSeconds);
       this.topic.lockDate = fallbackSeconds;
       this.topic.lockDateMillis = fallbackSeconds * 1000;
       this._lockDateInvalid = !!(this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate);
