@@ -36,6 +36,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -146,6 +148,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	
 	/** Component ID used to find the password policy provider */
 	protected String m_passwordPolicyProviderName = PasswordPolicyProvider.class.getName();
+
+	private static final String PROP_STREAM_ALL_USERS_BATCH_SIZE = "user.streamAllUsers.batchSize";
+	private static final String PROP_STREAM_ALL_USERS_MAX_CONCURRENT = "user.streamAllUsers.maxConcurrent";
+	private static final int DEFAULT_STREAM_ALL_USERS_BATCH_SIZE = 1000;
+	private static final int DEFAULT_STREAM_ALL_USERS_MAX_CONCURRENT = 1;
+
+	private int streamAllUsersDefaultBatchSize = DEFAULT_STREAM_ALL_USERS_BATCH_SIZE;
+	private StreamAllUsersOptions streamAllUsersDefaultOptions = StreamAllUsersOptions.builder().batchSize(DEFAULT_STREAM_ALL_USERS_BATCH_SIZE).build();
+	private Semaphore streamAllUsersSemaphore = new Semaphore(DEFAULT_STREAM_ALL_USERS_MAX_CONCURRENT, true);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -655,6 +666,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			{
 				m_pwdService = new PasswordService();
 			}
+
+			streamAllUsersDefaultBatchSize = Math.max(1, serverConfigurationService().getInt(PROP_STREAM_ALL_USERS_BATCH_SIZE, DEFAULT_STREAM_ALL_USERS_BATCH_SIZE));
+			int configuredMaxConcurrentStreams = Math.max(1, serverConfigurationService().getInt(PROP_STREAM_ALL_USERS_MAX_CONCURRENT, DEFAULT_STREAM_ALL_USERS_MAX_CONCURRENT));
+			streamAllUsersDefaultOptions = StreamAllUsersOptions.builder().batchSize(streamAllUsersDefaultBatchSize).build();
+			streamAllUsersSemaphore = new Semaphore(configuredMaxConcurrentStreams, true);
+			log.info("init(): streamAllUsers batchSize={} maxConcurrent={}", streamAllUsersDefaultBatchSize, configuredMaxConcurrentStreams);
 
 			m_passwordPolicyProviderName = serverConfigurationService().getString(PasswordPolicyProvider.SAK_PROP_PROVIDER_NAME, PasswordPolicyProvider.class.getName());
 			if (StringUtils.isEmpty(m_passwordPolicyProviderName)) {
@@ -1385,18 +1402,95 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		return all;
 	}
 
+	public static final class StreamAllUsersOptions
+	{
+		private final int batchSize;
+
+		private StreamAllUsersOptions(Builder builder)
+		{
+			this.batchSize = builder.batchSize;
+		}
+
+		public int getBatchSize()
+		{
+			return batchSize;
+		}
+
+		public static Builder builder()
+		{
+			return new Builder();
+		}
+
+		public static final class Builder
+		{
+			private int batchSize = DEFAULT_STREAM_ALL_USERS_BATCH_SIZE;
+
+			public Builder batchSize(int batchSize)
+			{
+				this.batchSize = batchSize;
+				return this;
+			}
+
+			public StreamAllUsersOptions build()
+			{
+				return new StreamAllUsersOptions(this);
+			}
+		}
+	}
+
 	@Override
 	public Stream<User> streamAllUsers(int batchSize)
+	{
+		StreamAllUsersOptions options = StreamAllUsersOptions.builder().batchSize(batchSize).build();
+		return streamAllUsers(options);
+	}
+
+	public Stream<User> streamAllUsers(StreamAllUsersOptions options)
+	{
+		StreamAllUsersOptions effectiveOptions = (options == null) ? streamAllUsersDefaultOptions : options;
+		return streamAllUsersInternal(effectiveOptions.getBatchSize());
+	}
+
+	private Stream<User> streamAllUsersInternal(int batchSize)
 	{
 		if (batchSize < 1)
 		{
 			throw new IllegalArgumentException("batchSize must be greater than zero");
 		}
 
-		List<String> allUserIds = m_storage.getAllUserIds();
+		try
+		{
+			streamAllUsersSemaphore.acquire();
+		}
+		catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+			throw new IllegalStateException("Interrupted while waiting to stream all users", e);
+		}
+
+		AtomicBoolean permitReleased = new AtomicBoolean(false);
+		Runnable releasePermit = () -> {
+			if (permitReleased.compareAndSet(false, true))
+			{
+				streamAllUsersSemaphore.release();
+			}
+		};
+
+		List<String> allUserIds;
+		try
+		{
+			allUserIds = m_storage.getAllUserIds();
+		}
+		catch (RuntimeException | Error e)
+		{
+			releasePermit.run();
+			throw e;
+		}
+
 		if (allUserIds.isEmpty())
 		{
-			return Stream.empty();
+			releasePermit.run();
+			return Stream.<User>empty().onClose(releasePermit);
 		}
 
 		Spliterator<User> spliterator = new Spliterators.AbstractSpliterator<User>(allUserIds.size(), Spliterator.ORDERED | Spliterator.NONNULL)
@@ -1417,18 +1511,36 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 					if (cursor >= allUserIds.size())
 					{
+						releasePermit.run();
 						return false;
 					}
 
 					int endExclusive = Math.min(allUserIds.size(), cursor + batchSize);
 					List<String> batchIds = allUserIds.subList(cursor, endExclusive);
-					currentBatch = getUsers(new ArrayList<>(batchIds)).iterator();
+					try
+					{
+						currentBatch = getUsers(new ArrayList<>(batchIds)).iterator();
+					}
+					catch (RuntimeException | Error e)
+					{
+						releasePermit.run();
+						throw e;
+					}
 					cursor = endExclusive;
+				}
+			}
+
+			@Override
+			public void forEachRemaining(Consumer<? super User> action)
+			{
+				while (tryAdvance(action))
+				{
+					// consume remaining users
 				}
 			}
 		};
 
-		return StreamSupport.stream(spliterator, false);
+		return StreamSupport.stream(spliterator, false).onClose(releasePermit);
 	}
 
 	/**
