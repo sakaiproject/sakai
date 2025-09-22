@@ -180,6 +180,7 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                                     return Optional.of(Collections.emptyList());
                                 }
 
+                                // try-with-resources ensures the stream closes and releases the concurrency permit
                                 try (Stream<User> userStream = userDirectoryService.streamAllUsers(
                                         UserDirectoryService.DEFAULT_ALL_USERS_STREAM_BATCH_SIZE)) {
                                     List<UserNotificationData> broadcastNotifications = userStream

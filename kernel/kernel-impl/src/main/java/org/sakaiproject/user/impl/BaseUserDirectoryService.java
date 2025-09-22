@@ -155,7 +155,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	private static final int DEFAULT_STREAM_ALL_USERS_MAX_CONCURRENT = 1;
 
 	private int streamAllUsersDefaultBatchSize = DEFAULT_STREAM_ALL_USERS_BATCH_SIZE;
-	private StreamAllUsersOptions streamAllUsersDefaultOptions = StreamAllUsersOptions.builder().batchSize(DEFAULT_STREAM_ALL_USERS_BATCH_SIZE).build();
+	private StreamAllUsersOptions.Value streamAllUsersDefaultOptions = StreamAllUsersOptions.builder().batchSize(DEFAULT_STREAM_ALL_USERS_BATCH_SIZE).build();
 	private Semaphore streamAllUsersSemaphore = new Semaphore(DEFAULT_STREAM_ALL_USERS_MAX_CONCURRENT, true);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -1404,17 +1404,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 	public static final class StreamAllUsersOptions
 	{
-		private final int batchSize;
-
-		private StreamAllUsersOptions(Builder builder)
-		{
-			this.batchSize = builder.batchSize;
-		}
-
-		public int getBatchSize()
-		{
-			return batchSize;
-		}
+		public record Value(int batchSize) { }
 
 		public static Builder builder()
 		{
@@ -1431,24 +1421,38 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				return this;
 			}
 
-			public StreamAllUsersOptions build()
+			public Value build()
 			{
-				return new StreamAllUsersOptions(this);
+				return new Value(batchSize);
 			}
 		}
 	}
 
+	/**
+	 * Stream all users in batches.
+	 * @param batchSize > 0
+	 * @return a sequential Stream of users
+	 * Note: Callers should either fully consume the stream or close it (try-with-resources)
+	 * to avoid holding the concurrency permit longer than necessary.
+	 */
 	@Override
 	public Stream<User> streamAllUsers(int batchSize)
 	{
-		StreamAllUsersOptions options = StreamAllUsersOptions.builder().batchSize(batchSize).build();
+		StreamAllUsersOptions.Value options = StreamAllUsersOptions.builder().batchSize(batchSize).build();
 		return streamAllUsers(options);
 	}
 
-	public Stream<User> streamAllUsers(StreamAllUsersOptions options)
+	/**
+	 * Stream all users using the provided options.
+	 * Note: Callers should either fully consume the stream or close it (try-with-resources)
+	 * to avoid holding the concurrency permit longer than necessary.
+	 * @param options stream configuration; null yields defaults
+	 * @return a sequential Stream of users
+	 */
+	public Stream<User> streamAllUsers(StreamAllUsersOptions.Value options)
 	{
-		StreamAllUsersOptions effectiveOptions = (options == null) ? streamAllUsersDefaultOptions : options;
-		return streamAllUsersInternal(effectiveOptions.getBatchSize());
+		StreamAllUsersOptions.Value effectiveOptions = (options == null) ? streamAllUsersDefaultOptions : options;
+		return streamAllUsersInternal(effectiveOptions.batchSize());
 	}
 
 	private Stream<User> streamAllUsersInternal(int batchSize)
@@ -3235,9 +3239,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public int count();
 
 		/**
-		 * Fetch all user ids known to Sakai, including those mapped from external providers.
+		 * Fetch all user IDs known to Sakai, including those mapped from external providers.
+		 * Implementations should:
+		 * - Return a non-null, deterministically ordered list (e.g., ID ascending).
+		 * - Be mindful of memory usage for large deployments (consider streaming/paging internally).
+		 * - Recommend callers use {@link UserDirectoryService#streamAllUsers(int)} for large datasets when possible.
 		 *
-		 * @return ordered list of user ids
+		 * @return non-null ordered list of user IDs
 		 */
 		public List<String> getAllUserIds();
 
