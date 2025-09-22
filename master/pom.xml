@@ -614,7 +614,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>${sakai.jackson.version}</version>
+        <version>2.20</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
