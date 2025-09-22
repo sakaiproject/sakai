@@ -112,7 +112,7 @@ export class SakaiAddTopic extends SakaiElement {
     if (this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate) {
       this._lockDateInvalid = true;
       this.updateComplete.then(() => {
-        document.querySelector(".portal-main-container").scrollTo({ top: 0, behaviour: "smooth" });
+        document.querySelector(".portal-main-container").scrollTo({ top: 0, behavior: "smooth" });
       });
       return;
     }
@@ -140,6 +140,10 @@ export class SakaiAddTopic extends SakaiElement {
       lightTopic.gradingPoints = parsedPoints;
     } else {
       lightTopic.gradingPoints = undefined;
+      // Clear any stale association when grading is off
+      lightTopic.createGradingItem = false;
+      lightTopic.gradingCategory = -1;
+      lightTopic.gradingItemId = -1;
     }
 
     fetch(this.topic.url, {
@@ -274,6 +278,7 @@ export class SakaiAddTopic extends SakaiElement {
       }
       this.topic.lockDate = fallbackSeconds;
       this.topic.lockDateMillis = fallbackSeconds * 1000;
+      this._lockDateInvalid = !!(this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate);
     } else {
       this.topic.lockDate = undefined;
       this.topic.lockDateMillis = undefined;
@@ -315,6 +320,7 @@ export class SakaiAddTopic extends SakaiElement {
   _setLockDate(e) {
 
     this.topic.lockDate = e.detail.epochSeconds;
+    this._lockDateInvalid = !!(this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate);
     this._saveWip();
   }
 

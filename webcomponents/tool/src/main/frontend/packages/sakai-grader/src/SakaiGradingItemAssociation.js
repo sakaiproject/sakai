@@ -59,12 +59,6 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
       this._pointsEditable = gradingItem.externalId === this.gradableRef;
     }
 
-    const pointsInput = this.renderRoot.getElementById("points");
-    if (pointsInput) {
-      const value = gradingItem?.points ?? "";
-      pointsInput.value = value;
-      pointsInput.disabled = gradingItem ? !this._pointsEditable : false;
-    }
   }
 
   _fetchItemData() {
