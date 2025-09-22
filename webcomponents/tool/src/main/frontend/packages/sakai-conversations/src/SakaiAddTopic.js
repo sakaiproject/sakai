@@ -127,17 +127,15 @@ export class SakaiAddTopic extends SakaiElement {
       lightTopic.createGradingItem = !!itemAssociation.createGradingItem;
       lightTopic.gradingCategory = itemAssociation.category ? Number(itemAssociation.category) : -1;
       lightTopic.gradingItemId = itemAssociation.gradingItemId ? Number(itemAssociation.gradingItemId) : -1;
-      const rawPoints = String(itemAssociation.points ?? "").trim();
-      const hasPoints = rawPoints.length > 0;
-      const parsedPoints = hasPoints ? Number(rawPoints) : NaN;
+      const points = Number(itemAssociation.points);
 
-      if (!hasPoints || !Number.isFinite(parsedPoints) || parsedPoints <= 0) {
+      if (!(Number.isFinite(points) && points > 0)) {
         console.warn("Grading points must be a positive number");
         itemAssociation.focusPoints();
         return;
       }
 
-      lightTopic.gradingPoints = parsedPoints;
+      lightTopic.gradingPoints = points;
     } else {
       lightTopic.gradingPoints = undefined;
       // Clear any stale association when grading is off
