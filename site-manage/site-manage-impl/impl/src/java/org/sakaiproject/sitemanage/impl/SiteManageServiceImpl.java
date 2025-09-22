@@ -408,6 +408,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 			//add the toolId lists into a set to remove dupes
 			Set<String> toolsToProcess = new HashSet<>(toolIds);
 			toolsToProcess.addAll(importTools.keySet());
+			toolsToProcess.addAll(toolItemMap.keySet());
 
 			//now compare what we have to what we need to add
 			final List<String> selectedTools = new ArrayList<>(toolsToProcess);
