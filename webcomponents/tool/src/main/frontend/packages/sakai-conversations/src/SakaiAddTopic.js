@@ -245,7 +245,7 @@ export class SakaiAddTopic extends SakaiElement {
       const fallbackSeconds = this.topic.dueDate || nowSeconds;
       this.topic.dueDate = fallbackSeconds;
       this.topic.dueDateMillis = fallbackSeconds * 1000;
-      this._dueDateInPast = fallbackSeconds * 1000 < Date.now();
+      this._dueDateInPast = fallbackSeconds < nowSeconds;
       this._validateShowDate();
       this._validateHideDate();
     } else {

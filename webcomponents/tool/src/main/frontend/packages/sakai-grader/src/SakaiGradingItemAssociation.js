@@ -10,8 +10,8 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
     gradingItemId: { state: true },
     useGrading: { attribute: "use-grading", type: Boolean },
     createGradingItem: { state: true },
-    pointsEditable: { state: true },
-    points: { state: true },
+    _pointsEditable: { state: true },
+    _points: { state: true },
     _categories: { state: true },
     _gradingItems: { state: true },
     _useCategory: { state: true },
@@ -22,7 +22,7 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
     super.connectedCallback();
 
     this.createGradingItem = !this.gradingItemId;
-    this.pointsEditable = true;
+    this._pointsEditable = true;
 
     this._useCategory = false;
 
@@ -45,21 +45,25 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
     });
   }
 
+  get points() {
+    return this._points;
+  }
+
   _applyPointsFromItem(gradingItem) {
 
     if (!gradingItem) {
-      this.points = undefined;
-      this.pointsEditable = true;
+      this._points = undefined;
+      this._pointsEditable = true;
     } else {
-      this.points = gradingItem.points;
-      this.pointsEditable = gradingItem.externalId === this.gradableRef;
+      this._points = gradingItem.points;
+      this._pointsEditable = gradingItem.externalId === this.gradableRef;
     }
 
     const pointsInput = this.renderRoot.getElementById("points");
     if (pointsInput) {
       const value = gradingItem?.points ?? "";
       pointsInput.value = value;
-      pointsInput.disabled = gradingItem ? !this.pointsEditable : false;
+      pointsInput.disabled = gradingItem ? !this._pointsEditable : false;
     }
   }
 
@@ -91,8 +95,8 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
       pointsInput.disabled = false;
       pointsInput.value = "";
     }
-    this.points = undefined;
-    this.pointsEditable = true;
+    this._points = undefined;
+    this._pointsEditable = true;
   }
 
   _showExistingItemBlock() {
@@ -129,7 +133,7 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
 
   _categorySelected(e) { this.category = e.target.value; }
 
-  _inputPoints(e) { this.points = e.target.value; }
+  _inputPoints(e) { this._points = e.target.value; }
 
   shouldUpdate() { return this._i18n && this._gradingItems; }
 
@@ -149,8 +153,8 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
             <input
                 id="points"
                 type="text"
-                .value=${this.points ?? ""}
-                ?disabled=${!this.pointsEditable}
+                .value=${this._points ?? ""}
+                ?disabled=${!this._pointsEditable}
                 @input=${this._inputPoints}>
           </label>
         </div>
