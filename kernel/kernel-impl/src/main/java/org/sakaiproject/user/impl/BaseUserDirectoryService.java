@@ -1490,6 +1490,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			releasePermit.run();
 			throw e;
 		}
+		allUserIds = (allUserIds == null) ? Collections.emptyList() : allUserIds;
 
 		if (allUserIds.isEmpty())
 		{
@@ -1509,7 +1510,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				{
 					if (currentBatch.hasNext())
 					{
-						action.accept(currentBatch.next());
+						try
+						{
+							action.accept(currentBatch.next());
+						}
+						catch (RuntimeException | Error e)
+						{
+							releasePermit.run();
+							throw e;
+						}
 						return true;
 					}
 
@@ -1523,7 +1532,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					List<String> batchIds = allUserIds.subList(cursor, endExclusive);
 					try
 					{
-						currentBatch = getUsers(new ArrayList<>(batchIds)).iterator();
+						currentBatch = iteratorOfUsers(getUsers(new ArrayList<>(batchIds)));
 					}
 					catch (RuntimeException | Error e)
 					{
@@ -1545,6 +1554,16 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		};
 
 		return StreamSupport.stream(spliterator, false).onClose(releasePermit);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Iterator<User> iteratorOfUsers(List<?> rawUsers)
+	{
+		if (rawUsers == null)
+		{
+			return Collections.<User>emptyIterator();
+		}
+		return ((List<User>) rawUsers).iterator();
 	}
 
 	/**
