@@ -114,14 +114,14 @@
 
 			</script>
 
-  	       	<script>includeLatestJQuery("msgcntr");</script>
+			<script>includeLatestJQuery("msgcntr");</script>
 			<script src="/messageforums-tool/js/sak-10625.js"></script>
 			<script src="/messageforums-tool/js/forum.js"></script>
 			<script src="/messageforums-tool/js/messages.js"></script>
-			<script src="/messageforums-tool/js/dialog.js"></script>
-  			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
-  			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
 			<script>includeWebjarLibrary('bootstrap')</script>
+			<script src="/messageforums-tool/js/dialog.js"></script>
+			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
+			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
 
 			<script>
 				$(document).ready(function() {

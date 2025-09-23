@@ -90,19 +90,17 @@
 					}
 				}
 			}
-			
 		</script>
-		
-  	    <script>includeLatestJQuery("msgcntr");</script>
+
+		<script>includeLatestJQuery("msgcntr");</script>
+		<script>includeWebjarLibrary('bootstrap')</script>
 		<script src="/messageforums-tool/js/dialog.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
-		<script>includeWebjarLibrary('bootstrap')</script>
-       	
-  	
-  		<script>
-  			$(document).ready(function() {
+
+		<script>
+			$(document).ready(function() {
 				var menuLink = $('#forumsStatisticsMenuLink');
 				var menuLinkSpan = menuLink.closest('span');
 				menuLinkSpan.addClass('current');

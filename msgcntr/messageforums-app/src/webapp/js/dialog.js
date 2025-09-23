@@ -1,4 +1,4 @@
-var dialogutil = dialogutil || {};
+window.dialogutil = window.dialogutil || {};
 
 (function($, dialogutil) {
 
@@ -27,6 +27,11 @@ var dialogutil = dialogutil || {};
 		const modal = ensureModal(divId);
 		if (!modal) {
 			return;
+		}
+
+		const modalEl = document.getElementById(divId);
+		if (modalEl && frameId && modalEl.dataset.dialogFrame !== frameId) {
+			modalEl.dataset.dialogFrame = frameId;
 		}
 
 		modal.show();
@@ -80,4 +85,4 @@ var dialogutil = dialogutil || {};
 		contextObject.document.body.setAttribute('onload', newOnLoad);
 	};
 
-})(jQuery, dialogutil);
+})(jQuery, window.dialogutil);

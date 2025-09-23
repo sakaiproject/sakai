@@ -17,11 +17,11 @@
 	<h:form id="msgForum" rendered="#{!ForumTool.selectedTopic.topic.draft || ForumTool.selectedTopic.topic.createdBy == ForumTool.userId}">
 
 		<!--jsp/discussionForum/message/dfViewThread.jsp-->
-       		<script>includeLatestJQuery("msgcntr");</script>
-  			<script src="/messageforums-tool/js/dialog.js"></script>
-  			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />	
-      		<script>includeWebjarLibrary('bootstrap')</script>
-       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script>includeLatestJQuery("msgcntr");</script>
+		<script>includeWebjarLibrary('bootstrap')</script>
+		<script src="/messageforums-tool/js/dialog.js"></script>
+		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
+		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script>
 			$(document).ready(function () {
