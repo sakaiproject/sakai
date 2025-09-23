@@ -2445,13 +2445,15 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 		// *** make sure the subject and body won't be empty
 		// read in the subject input from announcements-new.vm
-		final String subject = params.getString("subject");
+		final String subjectRaw = params.getString("subject");
+		final String subject = subjectRaw == null ? "" : subjectRaw;
+		final String normalizedSubject = formattedText.unEscapeHtml(subject);
 		boolean highlight = params.getBoolean("highlight"); 
 		// read in the body input
 		String body = params.getString("body");
 		body = processFormattedTextFromBrowser(sstate, body);
 
-		state.setTempSubject(subject);
+		state.setTempSubject(normalizedSubject);
 		state.setTempBody(body);
 		state.setTempHighlight(highlight);
 
