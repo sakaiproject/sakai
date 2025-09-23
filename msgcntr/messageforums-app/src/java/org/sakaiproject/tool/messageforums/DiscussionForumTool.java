@@ -9721,10 +9721,6 @@ public class DiscussionForumTool {
 		return (allowedToGradeItem && (getRubricAssociationId() != null));
 	}
 
-	public boolean isHasAssociatedRubric() {
-		return hasAssociatedRubric();
-	}
-
     public String getRubricAssociationId() {
         String gradeAssign = selectedTopic != null ? selectedTopic.getGradeAssign()
                 : selectedForum != null ? selectedForum.getGradeAssign()
