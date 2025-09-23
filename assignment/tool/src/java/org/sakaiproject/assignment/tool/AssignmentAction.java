@@ -12023,7 +12023,9 @@ public class AssignmentAction extends PagedResourceActionII {
         List refs = new ArrayList();
 
         String attachmentsFor = (String) state.getAttribute(ATTACHMENTS_FOR);
+        boolean wasProcessingAttachments = false;
         if (attachmentsFor != null && attachmentsFor.equals(attachmentsKind)) {
+            wasProcessingAttachments = true;
             ToolSession session = sessionManager.getCurrentToolSession();
             if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null &&
                     session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
@@ -12043,7 +12045,17 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         // this is to keep the proper node div open
-        context.put("attachments_for", attachmentsKind);
+        // Only set attachments_for if this is the type that was being processed for attachments
+        if (wasProcessingAttachments) {
+            // Map the attachment kind to the corresponding node name for JavaScript
+            String nodeName = attachmentsKind;
+            if (MODELANSWER_ATTACHMENTS.equals(attachmentsKind)) {
+                nodeName = "modelanswer";
+            } else if (ALLPURPOSE_ATTACHMENTS.equals(attachmentsKind)) {
+                nodeName = "allPurpose";
+            }
+            context.put("attachments_for", nodeName);
+        }
     }
 
     /**
