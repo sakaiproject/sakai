@@ -8507,10 +8507,6 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(MODELANSWER, Boolean.TRUE);
 
             if (validify && !"true".equalsIgnoreCase(modelAnswer_to_delete)) {
-                // show alert when there is no model answer input
-                if (modelAnswer_text == null) {
-                    addAlert(state, rb.getString("modelAnswer.alert.modelAnswer"));
-                }
                 // show alert when user didn't select show-to option
                 if ("0".equals(modelAnswer_showto)) {
                     addAlert(state, rb.getString("modelAnswer.alert.showto"));
@@ -8614,14 +8610,6 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(ALLPURPOSE, Boolean.TRUE);
 
             if (validify && !"true".equalsIgnoreCase(allPurpose_to_delete)) {
-                if (allPurposeTitle == null) {
-                    // missing title
-                    addAlert(state, rb.getString("allPurpose.alert.title"));
-                }
-                if (allPurposeText == null) {
-                    // missing text
-                    addAlert(state, rb.getString("allPurpose.alert.text"));
-                }
                 if (accessList == null || accessList.isEmpty()) {
                     // missing access choice
                     addAlert(state, rb.getString("allPurpose.alert.access"));
@@ -15455,10 +15443,6 @@ public class AssignmentAction extends PagedResourceActionII {
         ParameterParser params = data.getParameters();
 
         String text = StringUtils.trimToNull(params.get("modelanswer_text"));
-        if (text == null) {
-            // no text entered for model answer
-            addAlert(state, rb.getString("modelAnswer.show_to_student.alert.noText"));
-        }
 
         int showTo = params.getInt("modelanswer_showto");
         if (showTo == 0) {
