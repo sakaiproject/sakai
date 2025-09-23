@@ -8627,8 +8627,6 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(ALLPURPOSE, Boolean.TRUE);
 
             if (validify && !"true".equalsIgnoreCase(allPurpose_to_delete)) {
-                // All Purpose title and text are now optional - attachments can be used instead
-                // No validation required for title and text fields
                 if (accessList == null || accessList.isEmpty()) {
                     // missing access choice
                     addAlert(state, rb.getString("allPurpose.alert.access"));
