@@ -64,7 +64,13 @@ ASN.setupAssignNew = function(){
     // show the previously opened field
     $('.extraNode').hide();
     showNode = $('#attachments_for').val();
-    $('#' + showNode + '-node').fadeIn('slow');
+    if (showNode && showNode !== '') {
+        $('#' + showNode + '-node').fadeIn('slow');
+        // Scroll to the opened node to bring it into view
+        setTimeout(function() {
+            location.href = '#extraNodesTop';
+        }, 500); // Wait for fadeIn animation to complete
+    }
     $('.validationError').hide();
     
     if ($('#value_allPurpose').val() === 'true') {
