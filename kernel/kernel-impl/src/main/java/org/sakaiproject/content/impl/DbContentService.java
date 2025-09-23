@@ -265,7 +265,6 @@ public class DbContentService extends BaseContentService
      */
     public void init()
     {
-
         if (sqlService == null) {
             log.error("init(): no sqlService found");
             return;
@@ -311,6 +310,8 @@ public class DbContentService extends BaseContentService
             if (bodyPath != null && fileSystemHandler == null)
             {
                 throw new IllegalStateException("There is no FileSystemHandler set for the ContentService!");
+            } else {
+                log.info("Using FileSystemHandler: {}", fileSystemHandler);
             }
 
             log.info("init(): tables: {} {} {} {} locks-in-db: {} bodyPath: {} storage: {}",

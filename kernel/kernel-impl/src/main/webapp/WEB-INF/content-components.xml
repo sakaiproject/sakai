@@ -44,6 +44,7 @@
 
 		<property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
         <property name="resourceSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"/></property>
+        <property name="fileSystemHandler"><ref bean="org.sakaiproject.content.api.FileSystemHandler"/></property>
         <!--
         If you want to use the new serializers you have to let them migrate the data, set to true
         so that they can write the new format when they update an item.
