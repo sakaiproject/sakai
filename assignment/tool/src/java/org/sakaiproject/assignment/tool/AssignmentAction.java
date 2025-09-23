@@ -12067,8 +12067,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 nodeName = "allPurpose";
             }
             context.put("attachments_for", nodeName);
-        } else {
-            context.remove("attachments_for");
         }
     }
 
