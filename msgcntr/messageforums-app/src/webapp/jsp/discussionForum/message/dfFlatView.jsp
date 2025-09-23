@@ -63,7 +63,7 @@
 		<span class="highlight"  id="maxthreaddepth" class="skip"><h:outputText value="#{msgs.cdfm_maxthreaddepth}" /></span>
 //--%>
 	  	<f:verbatim>
-	    	<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" aria-hidden="true" aria-labelledby="dialogDivLabel">
+	    	<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="dialogDivLabel">
 	    		<div class="modal-dialog modal-xl modal-dialog-centered">
 	    			<div class="modal-content">
 	    				<div class="modal-header">

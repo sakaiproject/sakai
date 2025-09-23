@@ -32,7 +32,7 @@
 
 				setupMessageNav('messagePending');
 				setupMessageNav('messageNew');
-				if ($('div.hierItemBlock').size() >= 1){
+				if ($('div.hierItemBlock').length >= 1){
 					$('.itemNav').clone().addClass('specialLink').appendTo('form')
 					$("<br/><br/>").appendTo('form');
 				}
@@ -136,7 +136,7 @@
 		</h:panelGroup>
 
 	  	<f:verbatim>
-			<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" aria-hidden="true" aria-labelledby="dialogDivLabel">
+			<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="dialogDivLabel">
 	    		<div class="modal-dialog modal-xl modal-dialog-centered">
 	    			<div class="modal-content">
 	    				<div class="modal-header">

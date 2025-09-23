@@ -63,15 +63,58 @@ window.dialogutil = window.dialogutil || {};
 		}
 	};
 
+	const VISIBLE_DURATION_MS = 5000;
+	const FADE_DURATION_MS = 1000;
+
+	const clearTimer = function(div, key) {
+		const timerId = div.dataset[key];
+		if (timerId) {
+			clearTimeout(Number(timerId));
+			delete div.dataset[key];
+		}
+	};
+
+	const getDisplayValue = function(div) {
+		if (div.dataset.dialogutilDisplay) {
+			return div.dataset.dialogutilDisplay;
+		}
+		const computedDisplay = window.getComputedStyle(div).display;
+		const defaultDisplay = computedDisplay === 'none' ? 'block' : computedDisplay;
+		div.dataset.dialogutilDisplay = defaultDisplay;
+		return defaultDisplay;
+	};
+
+	const scheduleHide = function(div) {
+		const hideTimeout = window.setTimeout(function() {
+			div.style.transition = 'opacity ' + FADE_DURATION_MS + 'ms';
+			div.style.opacity = '0';
+			const fadeTimeout = window.setTimeout(function() {
+				div.style.display = 'none';
+				div.style.removeProperty('transition');
+				delete div.dataset.dialogutilFadeTimer;
+			}, FADE_DURATION_MS);
+			div.dataset.dialogutilFadeTimer = String(fadeTimeout);
+			delete div.dataset.dialogutilHideTimer;
+		}, VISIBLE_DURATION_MS);
+		div.dataset.dialogutilHideTimer = String(hideTimeout);
+	};
+
+	// Show the target element briefly before fading it out, without relying on jQuery animations.
 	dialogutil.showDiv = function(divId) {
-		const $div = $("#" + divId);
-		if ($div.length === 0) {
+		const div = document.getElementById(divId);
+		if (!div) {
 			return;
 		}
-		$div.stop(true, true).show();
-		setTimeout(function() {
-			$div.fadeOut(1000);
-		}, 5000);
+
+		clearTimer(div, 'dialogutilHideTimer');
+		clearTimer(div, 'dialogutilFadeTimer');
+		div.style.removeProperty('transition');
+		div.style.opacity = '1';
+		div.style.display = getDisplayValue(div);
+		// Force reflow so the fade transition restarts when scheduled.
+		void div.offsetWidth;
+
+		scheduleHide(div);
 	};
 
 	dialogutil.updateMainFrameHeight = function () {
