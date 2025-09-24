@@ -857,6 +857,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		boolean showMerge = !isMotd(channelId) && isOkToShowMergeButton(statusName);
 		boolean showPermissions = !isMotd(channelId) && isOkToShowPermissionsButton(statusName);
 		boolean showOptions = this.isOkToShowOptionsButton(statusName);
+		context.put("showOptionsButton", showOptions);
 
 		ActiveTab activeTab = ActiveTab.LIST;
 		if(statusName != null) switch(statusName) {
@@ -1110,6 +1111,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	{
 		// Add resource bundle to velocity context
 		context.put("tlang", rb);
+		context.put("showOptionsButton", Boolean.valueOf(isOkToShowOptionsButton(null)));
 
 		// retrieve the state from state object
 		AnnouncementActionState actionState = (AnnouncementActionState) getState(portlet, runData, AnnouncementActionState.class);
