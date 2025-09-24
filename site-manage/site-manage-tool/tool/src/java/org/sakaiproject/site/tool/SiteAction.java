@@ -16576,11 +16576,23 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Site site = (Site) state.getAttribute("site");
 		if (readPageForm(data, state))
 		{
+			SitePage page = (SitePage) state.getAttribute("overview");
+			if (page == null)
+			{
+				addAlert(state, rb.getString("manover.minwidget"));
+				return;
+			}
+
+			List<ToolConfiguration> tools = page.getTools();
+			if (CollectionUtils.isEmpty(tools))
+			{
+				addAlert(state, rb.getString("manover.minwidget"));
+				return;
+			}
+
 			try
 			{
-				SitePage page = (SitePage) state.getAttribute("overview");
 				SitePage savedPage = site.getPage(page.getId()); //old page, will update tool list.
-				List<ToolConfiguration> tools = page.getTools();
 
 				savedPage.setTools(tools);
 				savedPage.setLayout(page.getLayout());
@@ -16685,11 +16697,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Set<String> categories = new HashSet<>();
 		categories.add("widget");
 
-		Set<Tool> widgets = toolManager.findTools(categories, null);
+		Set<Tool> widgets = toolManager.findTools(categories, null, false);
 
 		List<Tool> features = new ArrayList<>(widgets);
 		features.sort(new ToolTitleComparator());
-		return features;
+		return Collections.unmodifiableList(features);
 	}
 
 	public void doAdd_widget(RunData data){
