@@ -20,10 +20,12 @@
 
 package org.sakaiproject.lti.beans;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -34,10 +36,12 @@ import org.sakaiproject.lti.api.LTIService;
  * Transfer object for LTI Memberships Jobs.
  * Based on the MEMBERSHIPS_JOBS_MODEL from LTIService.
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
+@ToString
 public class LtiMembershipsJobBean extends LTIBaseBean {
 
     public String siteId;

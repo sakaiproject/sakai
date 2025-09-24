@@ -182,4 +182,51 @@ public class LTIServicePojoMethodsTest {
         assertEquals("LTI13 auto token should match", "Used", toolAsMap.get("lti13_auto_token"));
         assertEquals("LTI13 auto state should match", Integer.valueOf(2), toolAsMap.get("lti13_auto_state"));
     }
+
+    @Test
+    public void testToStringExcludesSensitiveFields() {
+        // Test LtiToolBean - sensitive fields should be excluded from toString
+        LtiToolBean tool = new LtiToolBean();
+        tool.id = 123L;
+        tool.title = "Test Tool";
+        tool.secret = "super-secret-key";
+        tool.consumerkey = "consumer-key-123";
+        tool.lti13AutoToken = "auto-token-456";
+        tool.lti13LmsToken = "lms-token-789";
+        tool.lti13Settings = "sensitive-settings";
+        
+        String toolToString = tool.toString();
+        assertNotNull("Tool toString should not be null", toolToString);
+        assertFalse("Tool toString should not contain secret", toolToString.contains("super-secret-key"));
+        assertTrue("Tool toString should contain consumerkey (not excluded)", toolToString.contains("consumer-key-123"));
+        assertFalse("Tool toString should not contain lti13AutoToken", toolToString.contains("auto-token-456"));
+        assertTrue("Tool toString should contain lti13LmsToken (not excluded)", toolToString.contains("lms-token-789"));
+        assertTrue("Tool toString should contain lti13Settings (not excluded)", toolToString.contains("sensitive-settings"));
+        assertTrue("Tool toString should contain non-sensitive fields", toolToString.contains("Test Tool"));
+        
+        // Test LtiContentBean - sensitive fields should be excluded from toString
+        LtiContentBean content = new LtiContentBean();
+        content.id = 456L;
+        content.title = "Test Content";
+        content.placementsecret = "placement-secret-123";
+        content.oldplacementsecret = "old-placement-secret-456";
+        content.lti13Settings = "content-sensitive-settings";
+        
+        String contentToString = content.toString();
+        assertNotNull("Content toString should not be null", contentToString);
+        assertFalse("Content toString should not contain placementsecret", contentToString.contains("placement-secret-123"));
+        assertFalse("Content toString should not contain oldplacementsecret", contentToString.contains("old-placement-secret-456"));
+        assertTrue("Content toString should contain non-sensitive fields", contentToString.contains("Test Content"));
+        
+        // Test LtiMembershipsJobBean - no sensitive fields excluded from toString
+        LtiMembershipsJobBean job = new LtiMembershipsJobBean();
+        job.siteId = "test-site";
+        job.membershipsId = "memberships-123";
+        job.consumerkey = "job-consumer-key-789";
+        
+        String jobToString = job.toString();
+        assertNotNull("Job toString should not be null", jobToString);
+        assertTrue("Job toString should contain consumerkey (not excluded)", jobToString.contains("job-consumer-key-789"));
+        assertTrue("Job toString should contain non-sensitive fields", jobToString.contains("test-site"));
+    }
 }

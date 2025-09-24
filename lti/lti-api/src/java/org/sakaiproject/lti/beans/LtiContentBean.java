@@ -20,10 +20,12 @@
 
 package org.sakaiproject.lti.beans;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Date;
 import java.util.Map;
@@ -35,10 +37,12 @@ import org.sakaiproject.lti.api.LTIService;
  * Transfer object for LTI Content items.
  * Based on the CONTENT_MODEL from LTIService.
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
+@ToString(exclude = {"placementsecret", "oldplacementsecret", "lti13Settings"})
 public class LtiContentBean extends LTIBaseBean {
 
     public Long id;
