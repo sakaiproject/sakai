@@ -3898,7 +3898,7 @@ public class SiteAction extends PagedResourceActionII {
 			//this will be all widgets available to use on overview page.
 			List<Tool> widgets;
 			if(state.getAttribute("allWidgets") == null){
-				widgets = (List<Tool>) findWidgets();
+				widgets = findWidgets();
 			}else {
 				widgets = (List<Tool>) state.getAttribute("allWidgets");
 			}
@@ -16681,17 +16681,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		return true;
 	}
 
-	private List findWidgets() {
-		// get the helpers
-		Set categories = new HashSet();
+	private List<Tool> findWidgets() {
+		Set<String> categories = new HashSet<>();
 		categories.add("widget");
-		Set widgets = toolManager.findTools(categories, null);
 
-		// make a list for sorting
-		List features = new Vector();
-		features.addAll(widgets);
-		//Collections.sort(features);
-		Collections.sort(features, new ToolTitleComparator());
+		Set<Tool> widgets = toolManager.findTools(categories, null);
+
+		List<Tool> features = new ArrayList<>(widgets);
+		features.sort(new ToolTitleComparator());
 		return features;
 	}
 
@@ -16728,6 +16725,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		SitePage page = (SitePage) state.getAttribute("overview");
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
 		if ( tools == null ) return;
+
+		if (tools.size() <= 1) {
+			addAlert(state, rb.getString("manover.minwidget"));
+			return;
+		}
 
 		List<ToolConfiguration> removedTools = (List<ToolConfiguration>) state.getAttribute("removedTools");
 		if(removedTools == null){

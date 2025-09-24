@@ -45,28 +45,43 @@
                             <tr>
                                 <td headers="left-column-move-header" class="buttonCol">
                                     #if ($toolCount > 1)
-                                        <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.up")">
-                                            <span class="si si-up"></span>
-                                        </a>
+                                        <button type="button" class="btn btn-link btn-sm p-0" data-action-url='#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id)")' title="$tlang.getString("manover.up")">
+                                            <span class="si si-up" aria-hidden="true"></span>
+                                            <span class="visually-hidden">$tlang.getString("manover.up")</span>
+                                        </button>
                                     #end
                                     #if ($toolCount < $tools.size())
-                                        <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title ="$tlang.getString("manover.down")">
-                                            <span class="si si-down"></span>
-                                        </a>
+                                        <button type="button" class="btn btn-link btn-sm p-0" data-action-url='#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id)")' title="$tlang.getString("manover.down")">
+                                            <span class="si si-down" aria-hidden="true"></span>
+                                            <span class="visually-hidden">$tlang.getString("manover.down")</span>
+                                        </button>
                                     #end
                                 </td>
                                 <td headers="left-column-title-header">
                                     <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                 </td>
                                 <td headers="left-column-remove-header" class="removeCol">
-                                    <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
-                                        <span class="si si-close text-danger" aria-hidden="true"></span>
-                                    </a>
+                                    #if ($tools.size() > 1)
+                                        <button type="button" class="btn btn-link btn-sm p-0 text-danger" data-action-url='#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")' title="$tlang.getString("manover.remove.full")">
+                                            <span class="si si-close" aria-hidden="true"></span>
+                                            <span class="visually-hidden">$tlang.getString("manover.remove.full")</span>
+                                        </button>
+                                    #else
+                                        <button type="button" class="btn btn-link btn-sm p-0 text-muted" title="$tlang.getString("manover.minwidget")" disabled>
+                                            <span class="si si-close" aria-hidden="true"></span>
+                                            <span class="visually-hidden">$tlang.getString("manover.minwidget")</span>
+                                        </button>
+                                    #end
                                 </td>
                             </tr>
                         #end
                     </tbody>
                 </table>
+                #if ($tools.size() <= 1)
+                    <div class="alert alert-info py-2 mt-2" role="status">
+                        $tlang.getString("manover.minwidget")
+                    </div>
+                #end
             #else
                 <div class="instruction">
                     $tlang.getString("manover.notools")
@@ -95,26 +110,37 @@
                                         <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                     </td>
                                     <td headers="either-column-remove-header" class="removeCol">
-                                        <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
-                                            <span class="si si-close text-danger" aria-hidden="true"></span>
-                                        </a>
+                                        #if ($tools.size() > 1)
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-danger" data-action-url='#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")' title="$tlang.getString("manover.remove.full")">
+                                                <span class="si si-close" aria-hidden="true"></span>
+                                                <span class="visually-hidden">$tlang.getString("manover.remove.full")</span>
+                                            </button>
+                                        #else
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-muted" title="$tlang.getString("manover.minwidget")" disabled>
+                                                <span class="si si-close" aria-hidden="true"></span>
+                                                <span class="visually-hidden">$tlang.getString("manover.minwidget")</span>
+                                            </button>
+                                        #end
                                     </td>
                                     <td headers="either-column-move-header" class="buttonCol">
                                         #if ($leftToolCount > 1)
-                                            <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
-                                                <span class="si si-up"></span>
-                                            </a>
+                                            <button type="button" class="btn btn-link btn-sm p-0" data-action-url='#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id)")' title="$tlang.getString("manover.up")">
+                                                <span class="si si-up" aria-hidden="true"></span>
+                                                <span class="visually-hidden">$tlang.getString("manover.up")</span>
+                                            </button>
                                         #end
                                         #if ($leftToolCount < $leftTools.size())
-                                            <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title ="$tlang.getString("manover.down")">
-                                                <span class="si si-down"></span>
-                                           </a>
+                                            <button type="button" class="btn btn-link btn-sm p-0" data-action-url='#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id)")' title="$tlang.getString("manover.down")">
+                                                <span class="si si-down" aria-hidden="true"></span>
+                                                <span class="visually-hidden">$tlang.getString("manover.down")</span>
+                                           </button>
                                         #end
                                     </td>
                                     <td headers="either-column-move-header" class="buttonCol">
-                                        <a href="#toolLinkParam("$action" "doEdit_tool_right" "id=$formattedText.escapeUrl($tool.Id)")" title="$tlang.getString("manover.right")">
-                                            <span class="si si-right"></span>
-                                        </a>
+                                        <button type="button" class="btn btn-link btn-sm p-0" data-action-url='#toolLinkParam("$action" "doEdit_tool_right" "id=$formattedText.escapeUrl($tool.Id)")' title="$tlang.getString("manover.right")">
+                                            <span class="si si-right" aria-hidden="true"></span>
+                                            <span class="visually-hidden">$tlang.getString("manover.right")</span>
+                                        </button>
                                     </td>
                                 </tr>
                             #end
@@ -137,35 +163,53 @@
                                 #set ($rightToolCount=$rightToolCount + 1)
                                 <tr>
                                     <td headers="right-column-move-header" class="buttonCol">
-                                        <a href="#toolLinkParam("$action" "doEdit_tool_left" "id=$formattedText.escapeUrl($tool.Id)")" title="$tlang.getString("manover.left")">
-                                            <span class="si si-left"></span>
-                                        </a>
+                                        <button type="button" class="btn btn-link btn-sm p-0" data-action-url='#toolLinkParam("$action" "doEdit_tool_left" "id=$formattedText.escapeUrl($tool.Id)")' title="$tlang.getString("manover.left")">
+                                            <span class="si si-left" aria-hidden="true"></span>
+                                            <span class="visually-hidden">$tlang.getString("manover.left")</span>
+                                        </button>
                                     </td>
                                     <td headers="right-column-move-header" class="buttonCol">
                                         #if ($rightToolCount > 1)
-                                            <a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title="$tlang.getString("manover.up")">
-                                                <span class="si si-up"></span>
-                                            </a>
+                                            <button type="button" class="btn btn-link btn-sm p-0" data-action-url='#toolLinkParam("$action" "doEdit_tool_up" "id=$formattedText.escapeUrl($tool.Tool.Id)")' title="$tlang.getString("manover.up")">
+                                                <span class="si si-up" aria-hidden="true"></span>
+                                                <span class="visually-hidden">$tlang.getString("manover.up")</span>
+                                            </button>
                                         #end
                                         #if ($rightToolCount < $rightTools.size())
-                                            <a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id) ")" title ="$tlang.getString("manover.down")">
-                                                <span class="si si-down"></span>
-                                            </a>
+                                            <button type="button" class="btn btn-link btn-sm p-0" data-action-url='#toolLinkParam("$action" "doEdit_tool_down" "id=$formattedText.escapeUrl($tool.Tool.Id)")' title="$tlang.getString("manover.down")">
+                                                <span class="si si-down" aria-hidden="true"></span>
+                                                <span class="visually-hidden">$tlang.getString("manover.down")</span>
+                                            </button>
                                         #end
                                     </td>
                                     <td headers="right-column-title-header">
                                         <span class="titleSpan">$formattedText.escapeHtml($tool.Title)</span>
                                     </td>
                                     <td headers="right-column-remove-header" class="removeCol">
-                                        <a href="#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")" title="$tlang.getString("manover.remove.full")">
-                                            <span class="si si-close text-danger " aria-hidden="true"></span>
-                                        </a>
+                                        #if ($tools.size() > 1)
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-danger" data-action-url='#toolLinkParam("$action" "doRemove_widget" "id=$formattedText.escapeUrl($tool.Tool.Id)")' title="$tlang.getString("manover.remove.full")">
+                                                <span class="si si-close" aria-hidden="true"></span>
+                                                <span class="visually-hidden">$tlang.getString("manover.remove.full")</span>
+                                            </button>
+                                        #else
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-muted" title="$tlang.getString("manover.minwidget")" disabled>
+                                                <span class="si si-close" aria-hidden="true"></span>
+                                                <span class="visually-hidden">$tlang.getString("manover.minwidget")</span>
+                                            </button>
+                                        #end
                                     </td>
                                 </tr>
                             #end
                         </tbody>
                     </table>
                 </div>
+                #if ($tools.size() <= 1)
+                    <div class="col-12 mt-2">
+                        <div class="alert alert-info py-2" role="status">
+                            $tlang.getString("manover.minwidget")
+                        </div>
+                    </div>
+                #end
             #else
                 <div class="instruction">
                     $tlang.getString("manover.notools")
@@ -190,10 +234,11 @@
                         #set ($widgetCount = 0)
                         #foreach ($widget in $availWidgets)
                             #set ($widgetCount=$widgetCount + 1)
-                            <li class="list-group-item-action">
-                                <a href="#toolLinkParam("$action" "doAdd_widget" "id=$formattedText.escapeUrl($widget.Id)")" title="$tlang.getString("manover.add.full")">
+                            <li class="list-group-item list-group-item-action d-flex align-items-center">
+                                <button type="button" class="btn btn-link btn-sm p-0 me-2" data-action-url='#toolLinkParam("$action" "doAdd_widget" "id=$formattedText.escapeUrl($widget.Id)")' title="$tlang.getString("manover.add.full")">
                                     <span class="si si-add" aria-hidden="true"></span>
-                                </a>
+                                    <span class="visually-hidden">$tlang.getString("manover.add.full")</span>
+                                </button>
                                 <span class="widgetName">$formattedText.escapeHtml($widget.Title)</span>
                             </li>
                             #end
@@ -260,5 +305,19 @@
     $('input:radio[id="layout2"]').click(function() {
         $('#double-col').removeClass("d-none");
         $('#single-col').addClass("d-none");
+    });
+</script>
+
+<script>
+    document.addEventListener('click', function (event) {
+        const actionButton = event.target.closest('button[data-action-url]');
+        if (!actionButton) {
+            return;
+        }
+
+        const targetUrl = actionButton.getAttribute('data-action-url');
+        if (targetUrl) {
+            window.location.href = targetUrl;
+        }
     });
 </script>
