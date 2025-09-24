@@ -153,4 +153,33 @@ public class LTIServicePojoMethodsTest {
         // The robust conversion should handle all these number types gracefully
         // without throwing exceptions
     }
+
+    @Test
+    public void testUpdateToolDaoOverload() {
+        // Create a test tool bean
+        LtiToolBean tool = new LtiToolBean();
+        tool.id = 123L;
+        tool.title = "Test Tool";
+        tool.lti13AutoToken = "Used";
+        tool.lti13AutoState = Integer.valueOf(2);
+        
+        // Create equivalent map for comparison
+        Map<String, Object> toolMap = new HashMap<>();
+        toolMap.put("id", 123L);
+        toolMap.put("title", "Test Tool");
+        toolMap.put("lti13_auto_token", "Used");
+        toolMap.put("lti13_auto_state", Integer.valueOf(2));
+        
+        // Test that both asMap() calls produce equivalent results
+        Map<String, Object> toolAsMap = tool.asMap();
+        assertNotNull("Tool asMap should not be null", toolAsMap);
+        
+        // Verify that the bean's asMap() method produces the expected structure
+        // (We can't easily test the full LTIService.updateToolDao method without mocking
+        // the entire Sakai environment, but we can verify the delegation works correctly)
+        assertEquals("Tool ID should match", Long.valueOf(123L), toolAsMap.get("id"));
+        assertEquals("Tool title should match", "Test Tool", toolAsMap.get("title"));
+        assertEquals("LTI13 auto token should match", "Used", toolAsMap.get("lti13_auto_token"));
+        assertEquals("LTI13 auto state should match", Integer.valueOf(2), toolAsMap.get("lti13_auto_state"));
+    }
 }

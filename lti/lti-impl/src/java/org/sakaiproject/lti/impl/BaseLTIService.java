@@ -328,6 +328,11 @@ public abstract class BaseLTIService implements LTIService {
 		return updateToolDao(key, newProps, siteId, true, true);
 	}
 
+	@Override
+	public Object updateToolDao(Long key, org.sakaiproject.lti.beans.LtiToolBean tool, String siteId) {
+		return updateToolDao(key, tool.asMap(), siteId);
+	}
+
 	private Object updateTool(Long key, Object newProps, String siteId) {
 		return updateToolDao(key, newProps, siteId, isAdmin(siteId), isMaintain(siteId));
 	}

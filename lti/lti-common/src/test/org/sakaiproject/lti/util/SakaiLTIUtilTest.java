@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -1064,6 +1065,36 @@ public class SakaiLTIUtilTest {
 		// Test empty string
 		String[] result6 = SakaiLTIUtil.getContentKeyAndSiteId("");
 		assertNull(result6);
+	}
+
+	@Test
+	public void testGetPublicKeyOverload() {
+		// Create a test tool bean
+		org.sakaiproject.lti.beans.LtiToolBean tool = new org.sakaiproject.lti.beans.LtiToolBean();
+		tool.lti13ToolKeyset = "https://example.com/keyset";
+		
+		// Create equivalent map for comparison
+		Map<String, Object> toolMap = new HashMap<>();
+		toolMap.put(LTIService.LTI13_TOOL_KEYSET, "https://example.com/keyset");
+		
+		// Test that both methods would behave the same way
+		// (We can't actually test the full functionality without mocking the key retrieval,
+		// but we can test that the overloaded method delegates correctly by checking for the same exception)
+		String idToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJ0ZXN0Iiwic3ViIjoidGVzdCIsImF1ZCI6InRlc3QiLCJpYXQiOjE2MDAwMDAwMDAsImV4cCI6MTYwMDAwMzYwMH0.test";
+		
+		try {
+			SakaiLTIUtil.getPublicKey(tool, idToken);
+			fail("Expected RuntimeException for missing key");
+		} catch (RuntimeException e) {
+			// Expected - both should fail the same way
+		}
+		
+		try {
+			SakaiLTIUtil.getPublicKey(toolMap, idToken);
+			fail("Expected RuntimeException for missing key");
+		} catch (RuntimeException e) {
+			// Expected - both should fail the same way
+		}
 	}
 }
 

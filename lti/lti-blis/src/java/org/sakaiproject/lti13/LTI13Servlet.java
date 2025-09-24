@@ -861,8 +861,7 @@ public class LTI13Servlet extends HttpServlet {
 		// Get the correct public key.
 		Key publicKey = null;
 		try {
-			Map<String, Object> toolMap = tool.asMap();
-			publicKey = SakaiLTIUtil.getPublicKey(toolMap, client_assertion);
+			publicKey = SakaiLTIUtil.getPublicKey(tool, client_assertion);
 		} catch (Exception e) {
 			LTI13Util.return400(response, e.getMessage());
 			return;
@@ -1101,7 +1100,7 @@ public class LTI13Servlet extends HttpServlet {
 		// When lineitem_key is null we are the "default" lineitem associated with the content object
 		// if the content item is associated with an assignment, we talk to the assignment API,
 		// if the content item is not associated with an assignment, we talk to the gradebook API
-		Object retval = SakaiLTIUtil.handleGradebookLTI13(site, sat.tool_id, content.asMap(), userId, lineitem_key, scoreObj);
+		Object retval = SakaiLTIUtil.handleGradebookLTI13(site, sat.tool_id, content, userId, lineitem_key, scoreObj);
 		log.debug("handleGradebookLTI13 retval={}",retval);
 		if ( retval instanceof String ) {
 			LTI13Util.return400(response, (String) retval);
@@ -1236,11 +1235,10 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Store the JSON
-		Map<String, Object> toolMap = tool.asMap();
-		toolMap.put(LTIService.LTI13_AUTO_TOKEN, "Used");
-		toolMap.put(LTIService.LTI13_AUTO_STATE, Integer.valueOf(2));
+		tool.lti13AutoToken = "Used";
+		tool.lti13AutoState = Integer.valueOf(2);
 		String siteId = null;
-		Object retval = ltiService.updateToolDao(tool_key, toolMap, siteId);
+		Object retval = ltiService.updateToolDao(tool_key, tool, siteId);
 
 		if ( retval instanceof String) {
 			log.error("Could not update tool={} retval={}", tool_key, retval);
@@ -2247,7 +2245,7 @@ public class LTI13Servlet extends HttpServlet {
 		if ( ! all ) {
 			if ( content != null ) {
 				response.setContentType(SakaiLineItem.CONTENT_TYPE);
-				SakaiLineItem item = LineItemUtil.getDefaultLineItem(site, content.asMap());
+				SakaiLineItem item = LineItemUtil.getDefaultLineItem(site, content);
 				log.debug("single line item = {}", JacksonUtil.prettyPrint(item));
 				PrintWriter out = response.getWriter();
 				out.print(JacksonUtil.prettyPrint(item));

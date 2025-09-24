@@ -393,6 +393,15 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     Object updateToolDao(Long key, Map<String, Object> newProps, String siteId);
 
+    /**
+     * Update a tool with a tool bean
+     * @param key the tool key
+     * @param tool the tool bean
+     * @param siteId the site id
+     * @return the result
+     */
+    Object updateToolDao(Long key, org.sakaiproject.lti.beans.LtiToolBean tool, String siteId);
+
     Object updateToolDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
     // -- Tool Content

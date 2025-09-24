@@ -1437,6 +1437,16 @@ public class SakaiLTIUtil {
 		}
 
 		/**
+		 * getPublicKey - Get the appropriate public key for use for an incoming request
+		 * @param tool the tool bean
+		 * @param id_token the id token
+		 * @return the public key
+		 */
+		public static Key getPublicKey(org.sakaiproject.lti.beans.LtiToolBean tool, String id_token) {
+			return getPublicKey(tool.asMap(), id_token);
+		}
+
+		/**
 		 * Create a ContentItem from the current request (may throw runtime)
 		 */
 		public static DeepLinkResponse getDeepLinkFromToken(Map<String, Object> tool, String id_token) {
@@ -2783,6 +2793,20 @@ public class SakaiLTIUtil {
 			sess.invalidate(); // Make sure to leave no traces
 		}
 		return Boolean.FALSE;
+	}
+
+	/**
+	 * Handle gradebook LTI13 with content bean
+	 * @param site the site
+	 * @param tool_id the tool id
+	 * @param content the content bean
+	 * @param userId the user id
+	 * @param lineitem_key the line item key
+	 * @param scoreObj the score object
+	 * @return the result
+	 */
+	public static Object handleGradebookLTI13(Site site, Long tool_id, org.sakaiproject.lti.beans.LtiContentBean content, String userId, Long lineitem_key, Score scoreObj) {
+		return handleGradebookLTI13(site, tool_id, content.asMap(), userId, lineitem_key, scoreObj);
 	}
 
 	public static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, Map<String, Object> content) {
