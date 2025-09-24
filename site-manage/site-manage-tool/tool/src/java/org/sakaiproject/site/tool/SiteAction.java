@@ -16576,19 +16576,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Site site = (Site) state.getAttribute("site");
 		if (readPageForm(data, state))
 		{
-			SitePage page = (SitePage) state.getAttribute("overview");
-			if (page == null)
-			{
-				addAlert(state, rb.getString("manover.minwidget"));
-				return;
-			}
+		SitePage page = (SitePage) state.getAttribute("overview");
+		if (!validateMinWidget(page, state))
+		{
+			return;
+		}
 
-			List<ToolConfiguration> tools = page.getTools();
-			if (CollectionUtils.isEmpty(tools))
-			{
-				addAlert(state, rb.getString("manover.minwidget"));
-				return;
-			}
+		List<ToolConfiguration> tools = page.getTools();
 
 			try
 			{
@@ -16709,13 +16703,26 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		ParameterParser params = data.getParameters();
 
 		String id = params.getString("id");
+		if (StringUtils.isBlank(id)) {
+			return;
+		}
 		// make the tool so we have the id
 		SitePage page = (SitePage) state.getAttribute("overview");
+		if (page == null) {
+			return;
+		}
 		ToolConfiguration tool = page.addTool(id);
 		tool.setLayoutHints("0,0"); //assume top left, it will be sorted later-- val just cant be null
 
 		List<Tool> widgets = (List<Tool>) state.getAttribute("allWidgets");
+		if (widgets == null) {
+			widgets = findWidgets();
+			state.setAttribute("allWidgets", widgets);
+		}
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+		if (tools == null) {
+			tools = new ArrayList<>(page.getTools());
+		}
 
 		for(Tool widget: widgets){
 			if(widget.getId().equals(id)){
@@ -16738,8 +16745,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
 		if ( tools == null ) return;
 
-		if (tools.size() <= 1) {
-			addAlert(state, rb.getString("manover.minwidget"));
+		if (tools.size() <= 1 || !validateMinWidget(page, state)) {
 			return;
 		}
 
@@ -16759,7 +16765,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		state.setAttribute("tools", tools);
 	}
-	
+
+	private boolean validateMinWidget(SitePage page, SessionState state) {
+		if (page == null || CollectionUtils.isEmpty(page.getTools())) {
+			addAlert(state, rb.getString("manover.minwidget"));
+			return false;
+		}
+
+		return true;
+	}
+
 	private String getDateFormat(Date date) {
 		String f = userTimeService.shortPreciseLocalizedTimestamp(date.toInstant(), userTimeService.getLocalTimeZone(), comparator_locale);
 		return f;
