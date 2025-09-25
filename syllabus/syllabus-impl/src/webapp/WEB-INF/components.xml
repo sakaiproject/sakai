@@ -77,6 +77,18 @@
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
 	</bean>
 
+	<bean id="syllabusSearchAdapter"
+		class="org.sakaiproject.component.app.syllabus.SyllabusContentProducer"
+		init-method="init">
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="syllabusManager" ref="org.sakaiproject.api.app.syllabus.SyllabusManager"/>
+		<property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
+		<property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
 	<bean id="FixPublicSyllabusAttachmentsJob"
 		  class="org.sakaiproject.component.app.syllabus.FixPublicSyllabusAttachmentsJob">
  		<property name="syllabusManager">
