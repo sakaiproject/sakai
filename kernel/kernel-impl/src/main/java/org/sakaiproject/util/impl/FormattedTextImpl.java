@@ -491,8 +491,8 @@ public class FormattedTextImpl implements FormattedText
                     if (cr.getNumberOfErrors() > 0) {
                         // TODO currently no way to get internationalized versions of error messages
                         for (String errorMsg : cr.getErrorMessages()) {
-                            String i18nErrorMsg = new String(errorMsg.getBytes("ISO-8859-1"),"UTF8");
-                            formattedTextErrors.append(i18nErrorMsg + "<br/>");
+                            String i18nErrorMsg = new String(errorMsg.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+                            formattedTextErrors.append(i18nErrorMsg).append("<br/>");
                         }
                     }
                     val = cr.getCleanHTML();
@@ -542,12 +542,12 @@ public class FormattedTextImpl implements FormattedText
             // opportunity to work around the issue, rather than causing a tool stack trace
 
             log.error("Unexpected error processing text", e);
-            formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup") + "\n");
+            formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup")).append("\n");
             val = null;
         }
 
         // KNL-1075: re-do the way error messages are handled
-        if (formattedTextErrors.length() > 0) {
+        if (!formattedTextErrors.isEmpty()) {
             // allow one extra option to control logging in real time if desired
             logErrors = serverConfigurationService.getBoolean("content.cleaner.errors.logged", logErrors);
             if (showErrorToUser || showDetailedErrorToUser) {
