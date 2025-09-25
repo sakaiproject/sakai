@@ -37,6 +37,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.sequencer.ADLAuxiliaryResource;
 import org.adl.sequencer.ADLDuration;
 import org.adl.sequencer.ADLObjStatus;
@@ -56,10 +57,7 @@ import org.adl.sequencer.SeqNavRequests;
 import org.adl.sequencer.SeqRollupRuleset;
 import org.adl.sequencer.SeqRule;
 import org.adl.sequencer.SeqRuleset;
-import org.adl.util.debug.DebugIndicator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Reference sequencing implementation of the IMS Simple Sequencing
@@ -116,6 +114,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISequencer {
 	/**
 	 * Private class Required by various traversal methods to provide an 'out'
@@ -151,8 +150,6 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	private static final long serialVersionUID = 2693585400168148602L;
 
-	private static Log log = LogFactory.getLog(ADLSequencer.class);
-
 	/**
 	 * Enumeration of the traversal directions -- described in section SB.4 of
 	 * the IMS SS Specification. <br>
@@ -180,12 +177,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	private static final int FLOW_BACKWARD = 2;
 
-	/**
-	 * This controls display of log messages to the java console.
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * Enumeration of the possible termination requests -- described in section
 	 * TB of the IMS SS Specification. <br>
 	 * Exit <br>
@@ -342,10 +334,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 * @return A List of <code>ADLTOC</code> objects describing the current.
 	 */
 	/*private List getTOC(SeqActivity iStart) {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - getTOC");
-		}
+		log.debug("  :: ADLSequencer --> BEGIN - getTOC");
 
 		List toc = new ArrayList();
 		ADLTOC temp = null;
@@ -353,9 +342,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		// Make sure we have an activity tree
 		if (mSeqTree == null) {
-			if (_Debug) {
-				System.out.println("  ::-->  No Activity Tree");
-			}
+			log.debug("  ::-->  No Activity Tree");
 
 			done = true;
 		}
@@ -379,10 +366,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		}
 
 		if (!done) {
-			if (_Debug) {
-				System.out.println("  ::--> Building TOC from:  "
-						+ walk.getID());
-			}
+			log.debug("  ::--> Building TOC from:  {}", walk.getID());
 		}
 
 		SeqActivity cur = mSeqTree.getFirstCandidate();
@@ -424,9 +408,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				// If the rule evaluation did not return null, the activity
 				// must be hidden.
 				if (result != null) {
-					if (_Debug) {
-						System.out.println("  ::--> HIDDEN");
-					}
+					log.debug("  ::--> HIDDEN");
 
 					include = false;
 					collapse = true;
@@ -434,21 +416,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					// Check if this activity is prevented from activation
 					if (walk.getPreventActivation() && !walk.getIsActive()) {
 						if (cur != null) {
-							if (walk != cur && cur.getParent() != walk) {
-								if (_Debug) {
-									System.out.println("  ::--> PREVENTED !!");
-									System.out.println(" " + walk.getID()
-											+ " != " + cur.getParent().getID());
-								}
-
+							if (walk != cur && cur.getParent() != walk) {								log.debug("  ::--> PREVENTED !!");
+								log.debug(" {} != {}", walk.getID(), cur.getParent().getID());
 								include = false;
 							}
 						} else {
-							if (_Debug) {
-								System.out
-										.println("  ::--> PREVENTED -- no cur");
-							}
-
+							log.debug("  ::--> PREVENTED -- no cur");
 							include = false;
 						}
 					}
@@ -484,13 +457,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 				temp.mLeaf = !walk.hasChildren(false);
 				temp.mParent = parentTOC;
-
-				if (_Debug) {
-					System.out.println("  :: Added :: " + temp.mID + "  [[ "
-							+ temp.mDepth + " ]] (" + temp.mParent + ")   //  "
-							+ temp.mIsSelectable + "  [E] " + temp.mIsEnabled);
-				}
-
+					log.debug("  :: Added :: {}  [[ {} ]] ({})   //  {}  [E] {}",
+                        temp.mID, temp.mDepth, temp.mParent, temp.mIsSelectable, temp.mIsEnabled);
+                        
 				toc.add(temp);
 			} else {
 				temp = new ADLTOC();
@@ -510,13 +479,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				if (collapse) {
 					temp.mIsVisible = false;
 				}
-
-				if (_Debug) {
-					System.out.println("  :: Added not-included :: " + temp.mID
-							+ "  [[ " + temp.mDepth + " ]] (" + temp.mParent
-							+ ")   //  " + temp.mIsSelectable + "  [E] "
-							+ temp.mIsEnabled);
-				}
+				log.debug("  :: Added not-included :: {} [[ {} ]] ({})   //  {}  [E] {}",
+                    temp.mID, temp.mDepth, temp.mParent, temp.mIsSelectable, temp.mIsEnabled);
 
 				toc.add(temp);
 			}
@@ -573,10 +537,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> Completed first pass");
-		}
+		log.debug("  ::--> Completed first pass");
 
 		// After the TOC has been created, mark activites unselectable
 		// if the Prevent Activation prevents them being selected,
@@ -588,11 +549,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		for (int i = 0; i < toc.size(); i++) {
 			SeqActivity tempAct = (SeqActivity) flatTOC.get(i);
 			ADLTOC tempTOC = (ADLTOC) toc.get(i);
-
-			if (_Debug) {
-				System.out.println("  ::--> Evaluating --> " + tempAct.getID());
-				System.out.println("                   --> " + tempTOC.mTitle);
-			}
+			log.debug("  ::--> Evaluating --> {}", tempAct.getID());
+			log.debug("                   --> {}", tempTOC.mTitle);
 
 			int checkDepth = ((tempTOC.mDepth >= 0) ? tempTOC.mDepth
 					: (-tempTOC.mDepth));
@@ -625,18 +583,13 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				// If the rule evaluation did not return null, the activity
 				// must be hidden.
 				if (result != null) {
-					if (_Debug) {
-						System.out.println("  ::--> Hidden --> "
-								+ tempTOC.mDepth);
-					}
+					log.debug("  ::--> Hidden --> {}", tempTOC.mDepth);
 
 					// The depth we are looking for should be positive
 					hidden = -tempTOC.mDepth;
 					prevented = -1;
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Prevented ??" + prevented);
-					}
+					log.debug("  ::--> Prevented ??{}", prevented);
 
 					if (prevented != -1) {
 						// Check to see if we are done preventing activities
@@ -654,14 +607,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 								&& !tempAct.getIsActive()) {
 							if (cur != null) {
 								if (tempAct != cur
-										&& cur.getParent() != tempAct) {
-									if (_Debug) {
-										System.out
-												.println("  ::--> PREVENTED !!");
-										System.out.println(" "
-												+ tempAct.getID() + " != "
-												+ cur.getParent().getID());
-									}
+										&& cur.getParent() != tempAct) {									System.out
+											.println("  ::--> PREVENTED !!");
+									log.debug(" {} != {}", tempAct.getID(), cur.getParent().getID());
 
 									include = false;
 
@@ -678,10 +626,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> Completed post-1 pass");
-		}
+		log.debug("  ::--> Completed post-1 pass");
 
 		// After the TOC has been created, mark activites unselectable
 		// if the Choice Exit control prevents them being selected
@@ -709,11 +654,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		if (noExit != null) {
 			depth = -1;
-
-			if (_Debug) {
-				System.out.println("  ::--> Found NoExit Cluster -- "
-						+ noExit.getID());
-			}
+				log.debug("  ::--> Found NoExit Cluster -- {}", noExit.getID());
 
 			// Only descendents of this activity can be selected.
 			for (int i = 0; i < toc.size(); i++) {
@@ -758,10 +699,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		if (!root.getControlModeChoiceExit()) {
 			temp.mIsSelectable = false;
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> Completed second pass");
-		}
+		log.debug("  ::--> Completed second pass");
 
 		// Look for constrained activities relative to the current activity and
 		// mark activites unselectable if they are outside of the avaliable set
@@ -785,12 +723,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		// Evaluate constrained choice set
 		if (con != null) {
-
-			if (_Debug) {
-				System.out
-						.println("  ::-->  Constrained Choice Activity Found");
-				System.out.println("  ::-->  Stopped at --> " + con.getID());
-			}
+			log.debug("  ::-->  Constrained Choice Activity Found");
+			log.debug("  ::-->  Stopped at --> {}", con.getID());
 
 			int forwardAct = -1;
 			int backwardAct = -1;
@@ -802,11 +736,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			// Find the next activity relative to the constrained activity.
 			processFlow(FLOW_FORWARD, false, walkCon, true);
 
-			if (walkCon.at == null) {
-				if (_Debug) {
-					System.out.println("  ::--> Walked forward off the tree");
-				}
-
+			if (walkCon.at == null) {				
+			    log.debug("  ::--> Walked forward off the tree");
 				walkCon.at = con;
 			}
 
@@ -832,11 +763,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			walkCon.at = con;
 			processFlow(FLOW_BACKWARD, false, walkCon, true);
 
-			if (walkCon.at == null) {
-				if (_Debug) {
-					System.out.println("  ::--> Walked backward off the tree");
-				}
-
+			if (walkCon.at == null) {				
+			    log.debug("  ::--> Walked backward off the tree");
 				walkCon.at = con;
 			}
 
@@ -873,30 +801,20 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				if (idx != toc.size()) {
 					forwardAct = idx;
 				}
-			}
-
-			if (_Debug) {
-				System.out.println("  ::--> Constrained Range == [ "
-						+ backwardAct + " , " + forwardAct + " ]");
-			}
+			}			
+			log.debug("  ::--> Constrained Range == [ {} , {} ]", backwardAct, forwardAct);
 
 			// Disable activities outside of the avaliable range
 			for (int i = 0; i < toc.size(); i++) {
 				temp = (ADLTOC) toc.get(i);
 
 				if (i < backwardAct || i > forwardAct) {
-					temp.mIsSelectable = false;
-
-					if (_Debug) {
-						System.out.println("  ::--> Turn off -- " + temp.mID);
-					}
+					temp.mIsSelectable = false;					
+					log.debug("  ::--> Turn off -- {}", temp.mID);
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> Completed third pass");
-		}
+		log.debug("  ::--> Completed third pass");
 
 		// Walk the TOC looking for disabled activities...
 		if (toc != null) {
@@ -918,28 +836,17 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				if (!temp.mIsEnabled && depth == -1) {
 					// Remember where the disabled activity is
 					depth = (temp.mDepth > 0) ? temp.mDepth : -temp.mDepth;
-
-					if (_Debug) {
-						System.out.println("  ::--> [" + i + "]  "
-								+ "Found Disabled -->  " + temp.mID + "  <<"
-								+ temp.mDepth + ">>");
-					}
+					log.debug("  ::--> [{}]  Found Disabled -->  {}  <<{}>>",
+						i, temp.mID, temp.mDepth);
 				}
-
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> Completed fourth pass");
-		}
+		log.debug("  ::--> Completed fourth pass");
 
 		// If there is a current activity, check availablity of its siblings
 		// This pass corresponds to Case #2 of the Choice Sequencing Request
-		if (toc != null && curIdx != -1) {
-			if (_Debug) {
-				System.out
-						.println("  ::--> Checking Current Activity Siblings");
-			}
+		if (toc != null && curIdx != -1) {			System.out
+					.println("  ::--> Checking Current Activity Siblings");
 
 			int par = ((ADLTOC) toc.get(curIdx)).mParent;
 			int idx;
@@ -987,19 +894,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				idx++;
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> Completed fifth pass");
-		}
+		log.debug("  ::--> Completed fifth pass");
 
 		// Evaluate Stop Forward Traversal Rules -- this pass cooresponds to
 		// Case #3 and #5 of the Choice Sequencing Request Subprocess. In these
 		// cases, we need to check if the target activity is forward in the
 		// Activity Tree relative to the commen ancestor and cuurent activity
 		if (toc != null && curIdx != -1) {
-			if (_Debug) {
-				System.out.println("  ::--> Checking Stop Forward Traversal");
-			}
+			log.debug("  ::--> Checking Stop Forward Traversal");
 
 			int curParent = ((ADLTOC) toc.get(curIdx)).mParent;
 
@@ -1022,10 +924,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				// If the rule evaluation did not return null,
 				// then all of its descendents are blocked
 				if (result != null) {
-					if (_Debug) {
-						System.out.println("  ::--> BLOCKED SOURCE --> "
-								+ temp.mID + " [" + temp.mDepth + "]");
-					}
+					log.debug("  ::--> BLOCKED SOURCE --> {} [{}]", temp.mID, temp.mDepth);
 
 					// The depth of the blocked activity
 					int blocked = temp.mDepth;
@@ -1050,22 +949,16 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				temp = (ADLTOC) toc.get(idx);
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> Completed sixth pass");
-		}
+		log.debug("  ::--> Completed sixth pass");
 
 		// Boundary condition -- if there is a TOC make sure all "selectable"
 		// clusters actually flow into content
 		for (int i = 0; i < toc.size(); i++) {
 			temp = (ADLTOC) toc.get(i);
 
-			if (!temp.mLeaf) {
-				if (_Debug) {
-					System.out
-							.println("  ::--> Process 'Continue' request from "
-									+ temp.mID);
-				}
+			if (!temp.mLeaf) {				System.out
+						.println("  ::--> Process 'Continue' request from "
+								+ temp.mID);
 
 				SeqActivity from = getActivity(temp.mID);
 
@@ -1079,13 +972,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 							true, treeWalk, false);
 
 					if (!success) {
-						temp.mIsSelectable = false;
-
-						if (_Debug) {
-							System.out
-									.println("  :+: CONTINUE FAILED :+:  --> "
-											+ treeWalk.at.getID());
-						}
+						temp.mIsSelectable = false;						System.out
+								.println("  :+: CONTINUE FAILED :+:  --> "
+										+ treeWalk.at.getID());
 					}
 				} else {
 					// Cluster does not have flow == true
@@ -1093,10 +982,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> Completed seventh pass");
-		}
+		log.debug("  ::--> Completed seventh pass");
 
 		for (int i = toc.size() - 1; i >= 0; i--) {
 			temp = (ADLTOC) toc.get(i);
@@ -1147,14 +1033,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> Completed TOC walk up");
-		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - getTOC");
-		}
+		log.debug("  ::--> Completed TOC walk up");
+		log.debug("  :: ADLSequencer --> END   - getTOC");
 
 		return toc;
 	}*/
@@ -1190,9 +1070,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			}
 
 			// If we're not looking at the candidate or its parent, then we don't want to include
-			if (walk != cur && walk != cur.getParent()){
-				return false;
-			}
+            return walk == cur || walk == cur.getParent();
 		}
 
 		return true;
@@ -1210,12 +1088,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	private boolean checkActivity(SeqActivity iTarget) {
 
-		// This is an implementation of UP.5.
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "checkActivity");
-			System.out.println("  ::-->  Target: " + iTarget.getID());
-		}
+		// This is an implementation of UP.5.		
+        log.debug("  :: ADLSequencer --> BEGIN - checkActivity");
+		log.debug("  ::-->  Target: {}", iTarget.getID());
 
 		boolean disabled = false;
 		String result = null;
@@ -1237,13 +1112,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			// Evaluate other limit conditions associated with the activity.
 			disabled = evaluateLimitConditions(iTarget);
 		}
+        log.debug("""
+                  ::--> {}
+                  :: ADLSequencer --> END   - checkActivity
+                """, disabled);
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + disabled);
-			System.out.println("  :: ADLSequencer --> END   - " + "checkActivity");
-		}
-
-		return disabled;
+        return disabled;
 
 	}
 
@@ -1260,13 +1134,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	@Override
 	public void clearAttemptObjMeasure(String iID, String iObjID) {
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "clearAttemptObjMeasure");
-			System.out.println("  ::--> Target activity: " + iID);
-			System.out.println("  ::--> Objective:       " + iObjID);
-		}
+        log.debug("""
+                        :: ADLSequencer --> BEGIN - clearAttemptObjMeasure
+                        ::--> Target activity: {}
+                        ::--> Objective:       {}
+                      """,
+                iID, iObjID);
 
-		// Find the target activty
+        // Find the target activty
 		SeqActivity target = getActivity(iID);
 
 		// Make sure the activity exists
@@ -1286,24 +1161,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						validateRequests();
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> ERROR : Invalid target");
-					}
+                    log.debug("  ::--> ERROR : Invalid target");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : Target not active");
-				}
+                log.debug("  ::--> ERROR : Target not active");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Activity does not exist");
-			}
+            log.debug("  ::--> ERROR : Activity does not exist");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - " + "clearAttemptObjMeasure");
-		}
+        log.debug("  :: ADLSequencer --> END   - clearAttemptObjMeasure");
 	}
 
 	/**
@@ -1311,10 +1177,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	@Override
 	public void clearSeqState() {
-
-		if (_Debug) {
-			System.out.println("  ::--> Clear Session");
-		}
+        log.debug("  ::--> Clear Session");
 
 		SeqActivity temp = null;
 
@@ -1333,18 +1196,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	private void clearSuspendedActivity(SeqActivity iTarget) {
 
 		// This method implements the Clear Supsended Activity Subprocess (DB.2)
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "clearSuspendedActivity");
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - clearSuspendedActivity");
 
 		SeqActivity act = mSeqTree.getSuspendAll();
 
 		if (iTarget == null) {
-			if (_Debug) {
-				System.out.println("  ::--> Nothing to deliver");
-			}
-
+            log.debug("  ::--> Nothing to deliver");
 			act = null;
 		}
 
@@ -1375,24 +1232,17 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 					act = act.getParent();
 				}
-			} else {
-				if (_Debug) {
-					System.out.println("  ::--> Target is the Suspended Act");
-				}
+			} else {				
+                log.debug("  ::--> Target is the Suspended Act");
 			}
 
 			// Clear the suspended activity
 			SeqActivity temp = null;
 			mSeqTree.setSuspendAll(temp);
 		} else {
-			if (_Debug) {
-				System.out.println("  ::-->  Nothing to clear");
-			}
+            log.debug("  ::-->  Nothing to clear");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - " + "clearSuspendedActivity");
-		}
+        log.debug("  :: ADLSequencer --> END   - clearSuspendedActivity");
 	}
 
 	/**
@@ -1413,18 +1263,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		// This method implements the Content Delivery Environment Process
 		// (DB.2)
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "contentDelivery");
-			System.out.println("  ::-->  " + iTarget);
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - contentDelivery");
+		log.debug("  ::-->  {}", iTarget);
 
 		SeqActivity target = getActivity(iTarget);
 		boolean done = false;
 
 		if (target == null) {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Invalid target");
-			}
+            log.debug("  ::--> ERROR : Invalid target");
 
 			oLaunch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR;
 			oLaunch.mEndSession = mEndSession;
@@ -1436,9 +1282,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		if (cur != null && !done) {
 			if (cur.getIsActive()) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : " + "Current activity still active.");
-				}
+                log.debug("  ::--> ERROR : Current activity still active.");
 
 				oLaunch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR;
 				oLaunch.mEndSession = mEndSession;
@@ -1470,10 +1314,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				for (int i = begin.size() - 1; i >= 0; i--) {
 
 					walk = begin.get(i);
-
-					if (_Debug) {
-						System.out.println("  ::--> BEGIN >> " + walk.getID());
-					}
+                    log.debug("  ::--> BEGIN >> {}", walk.getID());
 
 					if (!walk.getIsActive()) {
 						if (walk.getIsTracked()) {
@@ -1491,9 +1332,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					}
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : Empty begin List");
-				}
+                log.debug("  ::--> ERROR : Empty begin List");
 			}
 
 			// Set the tree in the appropriate state
@@ -1546,10 +1385,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				oLaunch.mServices = services;
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> Content Delivery Valididation");
-		}
+        log.debug("  ::--> Content Delivery Valididation");
 
 		validateRequests();
 		oLaunch.mNavState = mSeqTree.getValidRequests();
@@ -1558,10 +1394,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		if (oLaunch.mSeqNonContent != null) {
 			oLaunch.mNavState.mContinueExit = false;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - " + "contentDelivery");
-		}
+        log.debug("  :: ADLSequencer --> END   - contentDelivery");
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -1596,14 +1429,13 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	private boolean doDeliveryRequest(String iTarget, boolean iTentative, ADLLaunch oLaunch) {
 		// This method implements DB.1. Also, if the delivery request is not
 		// tentative, it invokes the Content Delivery Environment Process.
+        log.debug("""
+                    :: ADLSequencer --> BEGIN - doDeliveryRequest
+                    ::-->         {}
+                    ::-->  REAL?  {}
+                  """, iTarget, iTentative ? "NO" : "YES");
 
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "doDeliveryRequest");
-			System.out.println("  ::-->         " + iTarget);
-			System.out.println("  ::-->  REAL?  " + ((iTentative) ? "NO" : "YES"));
-		}
-
-		boolean deliveryOK = true;
+        boolean deliveryOK = true;
 
 		// Make sure the identified activity exists in the tree.
 		SeqActivity act = getActivity(iTarget);
@@ -1613,10 +1445,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			// If there is no activity identified for delivery, there is nothing
 			// to delivery -- indentify non-Sequenced content
 			deliveryOK = false;
-
-			if (_Debug) {
-				System.out.println("  ::--> No Delivery Request");
-			}
+            log.debug("  ::--> No Delivery Request");
 
 			if (!iTentative) {
 				if (mExitCourse) {
@@ -1637,20 +1466,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			oLaunch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR;
 			oLaunch.mEndSession = mEndSession;
-
-			if (_Debug) {
-				System.out.println("  ::-->  Activity is not a leaf");
-			}
+            log.debug("  ::-->  Activity is not a leaf");
 		} else if (deliveryOK) {
 			boolean ok = true;
 
 			// Walk the path from the target activity to the root, checking each
 			// activity.
 			while (act != null && ok) {
-
-				if (_Debug) {
-					System.out.println("  ::-->  Validating --> " + act.getID());
-				}
+                log.debug("  ::-->  Validating --> {}", act.getID());
 
 				ok = !checkActivity(act);
 
@@ -1660,10 +1483,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			}
 
 			if (!ok) {
-
-				if (_Debug) {
-					System.out.println("  ::-->  Some activity did not validate");
-				}
+                log.debug("  ::-->  Some activity did not validate");
 
 				deliveryOK = false;
 
@@ -1686,11 +1506,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + deliveryOK);
-			System.out.println("  :: ADLSequencer --> END   - " + "doDeliveryRequest");
-		}
+        log.debug("  ::-->  {}", deliveryOK);
+		log.debug("  :: ADLSequencer --> END   - doDeliveryRequest");
 
 		return deliveryOK;
 	}
@@ -1706,10 +1523,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *         to the IMS Navigation Request Process.
 	 */
 	private boolean doIMSNavValidation(int iRequest) {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - doIMSNavValidation");
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - doIMSNavValidation");
 
 		boolean ok = true;
 
@@ -1736,9 +1550,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		case SeqNavRequests.NAV_START:
 
 			if (!newSession) {
-				if (_Debug) {
-					System.out.println("  ::--> 'Start' not valid");
-				}
+                log.debug("  ::--> 'Start' not valid");
 
 				process = false;
 			}
@@ -1757,10 +1569,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			// Request not valid
 			if (!ok) {
-				if (_Debug) {
-					System.out.println("  ::--> 'ResumeAll' not valid");
-				}
-
+                log.debug("  ::--> 'ResumeAll' not valid");
 				process = false;
 			}
 
@@ -1770,17 +1579,11 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			// Request not valid
 			if (newSession) {
-				if (_Debug) {
-					System.out.println("  ::--> 'Continue' not valid");
-				}
-
+                log.debug("  ::--> 'Continue' not valid");
 				process = false;
 			} else {
 				if (parent == null || !parent.getControlModeFlow()) {
-					if (_Debug) {
-						System.out.println("  ::--> 'Continue' not valid");
-					}
-
+                    log.debug("  ::--> 'Continue' not valid");
 					process = false;
 
 				}
@@ -1791,25 +1594,16 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		case SeqNavRequests.NAV_PREVIOUS:
 
 			if (newSession) {
-				if (_Debug) {
-					System.out.println("  ::--> 'Previous' not valid");
-				}
-
+                log.debug("  ::--> 'Previous' not valid");
 				process = false;
 			} else {
 				if (parent != null) {
 					if (!parent.getControlModeFlow() || parent.getControlForwardOnly()) {
-						if (_Debug) {
-							System.out.println("  ::--> 'Previous' not valid " + "-- Control Mode");
-						}
-
+                        log.debug("  ::--> 'Previous' not valid -- Control Mode");
 						process = false;
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> 'Previous' not valid " + "-- NULL Parent");
-					}
-
+                    log.debug("  ::--> 'Previous' not valid -- NULL Parent");
 					process = false;
 				}
 			}
@@ -1828,37 +1622,25 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			// Request is not valid
 			if (!ok) {
-				if (_Debug) {
-					System.out.println("  ::--> 'Abandon' not valid");
-				}
-
+                log.debug("  ::--> 'Abandon' not valid");
 				process = false;
 			}
-
 			break;
 
 		case SeqNavRequests.NAV_ABANDONALL:
 
 			if (newSession) {
-				if (_Debug) {
-					System.out.println("  ::--> 'AbandonAll' not valid");
-				}
-
+                log.debug("  ::--> 'AbandonAll' not valid");
 				process = false;
 			}
-
 			break;
 
 		case SeqNavRequests.NAV_SUSPENDALL:
 
 			if (newSession) {
-				if (_Debug) {
-					System.out.println("  ::--> 'Abandon' not valid");
-				}
-
+                log.debug("  ::--> 'Abandon' not valid");
 				process = false;
 			}
-
 			break;
 
 		case SeqNavRequests.NAV_EXIT:
@@ -1871,40 +1653,25 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			// Request not valid
 			if (!ok) {
-				if (_Debug) {
-					System.out.println("  ::--> 'Exit' not valid");
-				}
-
+                log.debug("  ::--> 'Exit' not valid");
 				process = false;
 			}
-
 			break;
 
 		case SeqNavRequests.NAV_EXITALL:
 
 			if (newSession) {
-				if (_Debug) {
-					System.out.println("  ::--> 'ExitAll' not valid");
-				}
-
+                log.debug("  ::--> 'ExitAll' not valid");
 				process = false;
 			}
-
 			break;
 
 		default:
-
-			if (_Debug) {
-				System.out.println("  ::--> Invalid navigation request: " + iRequest);
-			}
-
+            log.debug("  ::--> Invalid navigation request: {}", iRequest);
 			process = false;
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> " + process);
-			System.out.println("  :: ADLSequencer --> END   - doIMSNavValidation");
-		}
+        log.debug("  ::--> {}", process);
+		log.debug("  :: ADLSequencer --> END   - doIMSNavValidation");
 
 		return process;
 	}
@@ -1924,11 +1691,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		// This method implements the loop of RB.1.5. The other rollup process
 		// are encapsulated in the RollupRuleset object.
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - doOverallRollup");
-			System.out.println("  ::-->  Target: " + ioTarget.getID());
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - doOverallRollup");
+		log.debug("  ::-->  Target: {}", ioTarget.getID());
 
 		// Attempt to get Rollup Rule information from the activity node
 		ISeqRollupRuleset rollupRules = ioTarget.getRollupRules();
@@ -1938,30 +1702,26 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		}
 
 		// Apply the rollup processes to the activity
-		rollupRules.evaluate(ioTarget);
+		rollupRules.evaluate(ioTarget);		boolean objMeasureStatus = ioTarget.getObjMeasureStatus(false);
+		double objMeasure = ioTarget.getObjMeasure(false);
 
-		if (_Debug) {
-			boolean objMeasureStatus = ioTarget.getObjMeasureStatus(false);
-			double objMeasure = ioTarget.getObjMeasure(false);
+		boolean objStatus = ioTarget.getObjStatus(false);
+		boolean objSatisfied = ioTarget.getObjSatisfied(false);
 
-			boolean objStatus = ioTarget.getObjStatus(false);
-			boolean objSatisfied = ioTarget.getObjSatisfied(false);
+		boolean proStatus = ioTarget.getProgressStatus(false);
+		boolean proCompleted = ioTarget.getAttemptCompleted(false);
 
-			boolean proStatus = ioTarget.getProgressStatus(false);
-			boolean proCompleted = ioTarget.getAttemptCompleted(false);
+        log.debug("""
+                    ::--> RESULTS
+                    :: OBJ Measure ::   {} // {}
+                    :: OBJ Status  ::   {} // {}
+                    :: Progress    ::   {} // {}
+                  """,
+                objMeasureStatus, objMeasure, objStatus, objSatisfied, proStatus, proCompleted);
 
-			System.out.println("  ::--> RESULTS");
-			System.out.println("  :: OBJ Measure ::   " + objMeasureStatus + "  //  " + objMeasure);
-			System.out.println("  :: OBJ Status  ::   " + objStatus + "  //  " + objSatisfied);
-			System.out.println("  :: Progress    ::   " + proStatus + "  //  " + proCompleted);
-		}
-
-		// Remove this activity from the rollup set
+        // Remove this activity from the rollup set
 		ioRollupSet.remove(ioTarget.getID());
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - doOverallRollup");
-		}
+        log.debug("  :: ADLSequencer --> END   - doOverallRollup");
 	}
 
 	/**
@@ -1971,21 +1731,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *            Cluster to be prepared.
 	 */
 	private void doRandomize(SeqActivity ioCluster) {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - doRandomize");
-			System.out.println("  ::-->  Target: " + ioCluster.getID());
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - doRandomize");
+		log.debug("  ::-->  Target: {}", ioCluster.getID());
 
 		// Make sure this is a cluster
 		if (ioCluster.getChildren(true) != null) {
 
 			Random gen = new Random();
 			List<SeqActivity> all = ioCluster.getChildren(false);
-
-			if (_Debug) {
-				System.out.println("  ::--> Cluster has '" + all.size() + "' " + " children to randomize");
-			}
+            log.debug("  ::--> Cluster has '{}' children to randomize", all.size());
 
 			List<Integer> set = null;
 
@@ -2012,10 +1766,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						if (lookUp == -1) {
 							set.add(num);
 							reorder.add(all.get(num));
-
-							if (_Debug) {
-								System.out.println("  ::--> PLACED --> " + num);
-							}
+                            log.debug("  ::--> PLACED --> {}", num);
 
 							ok = true;
 						}
@@ -2026,19 +1777,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				ioCluster.setChildren(reorder, false);
 
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> Don't Reorder");
-				}
+                log.debug("  ::--> Don't Reorder");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> Not A Cluster");
-			}
+            log.debug("  ::--> Not A Cluster");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - doRandomize");
-		}
+        log.debug("  :: ADLSequencer --> END   - doRandomize");
 	}
 
 	/**
@@ -2048,11 +1792,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *            Cluster to be prepared.
 	 */
 	private void doSelection(SeqActivity ioCluster) {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - doSelection");
-			System.out.println("  ::-->  Target: " + ioCluster.getID());
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - doSelection");
+		log.debug("  ::-->  Target: {}", ioCluster.getID());
 
 		// Make sure this is a cluster
 		if (ioCluster.getChildren(true) != null) {
@@ -2061,10 +1802,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			int count = ioCluster.getSelectCount();
 			List<SeqActivity> all = ioCluster.getChildren(true);
-
-			if (_Debug) {
-				System.out.println("  ::--> Cluster has '" + all.size() + "' " + " children");
-			}
+            log.debug("  ::--> Cluster has '{}' children", all.size());
 
 			List<SeqActivity> children = null;
 			List<Integer> set = null;
@@ -2078,10 +1816,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			if (count > 0) {
 				// Check to see if the count exceeds the number of children
 				if (count < all.size()) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Selecting --> " + count);
-					}
+                    log.debug("  ::--> Selecting --> {}", count);
 
 					// Select count activities from the set of children
 					children = new ArrayList<>();
@@ -2099,10 +1834,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 							if (lookUp == -1) {
 								set.add(num);
 								ok = true;
-
-								if (_Debug) {
-									System.out.println("  ::--> ADDED --> " + num);
-								}
+                                log.debug("  ::--> ADDED --> {}", num);
 							}
 						}
 					}
@@ -2120,24 +1852,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					ioCluster.setChildren(children, false);
 
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> All Children Selected");
-					}
+                    log.debug("  ::--> All Children Selected");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> No Children Selected");
-				}
+                log.debug("  ::--> No Children Selected");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> Not A Cluster");
-			}
+            log.debug("  ::--> Not A Cluster");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - doSelection");
-		}
+        log.debug("  :: ADLSequencer --> END   - doSelection");
 	}
 
 	/**
@@ -2156,11 +1879,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	private String doSequencingRequest(String iRequest) {
 
 		// This method implements the Sequencing Request Process (SB.2.12)
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "doSequencingRequest");
-			System.out.println("  ::-->  " + iRequest);
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - doSequencingRequest");
+		log.debug("  ::-->  {}",  iRequest);
 
 		String delReq = null;
 
@@ -2172,10 +1892,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		if (iRequest.equals(ADLSequencer.SEQ_START)) {
 			// This block implements the Start Sequencing Request Process (SB.2.
-
-			if (_Debug) {
-				System.out.println("  ::--> Process 'Start' request.");
-			}
+            log.debug("  ::--> Process 'Start' request.");
 
 			// Make sure this request will begin a new session
 			if (from == null) {
@@ -2190,17 +1907,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					delReq = walk.at.getID();
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> Session already begun");
-				}
+                log.debug("  ::--> Session already begun");
 			}
 		} else if (iRequest.equals(ADLSequencer.SEQ_RESUMEALL)) {
 			// This block implements the Resume All Sequencing Request Process
 			// (SB.2.6)
-
-			if (_Debug) {
-				System.out.println("  ::--> Process 'Resume All' request.");
-			}
+            log.debug("  ::--> Process 'Resume All' request.");
 
 			// Make sure this request will begin a new session
 			if (from == null) {
@@ -2209,22 +1921,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				if (resume != null) {
 					delReq = resume.getID();
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> No suspended activity");
-					}
+                    log.debug("  ::--> No suspended activity");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> Session already begun");
-				}
+                log.debug("  ::--> Session already begun");
 			}
 		} else if (iRequest.equals(ADLSequencer.SEQ_CONTINUE)) {
 			// This block implements the Continue Sequencing Request Process
 			// (SB.2.7)
-
-			if (_Debug) {
-				System.out.println("  ::--> Process 'Continue' request.");
-			}
+            log.debug("  ::--> Process 'Continue' request.");
 
 			// Make sure the session has already started
 			if (from != null) {
@@ -2242,23 +1947,16 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						// Delivery request is where flow stopped.
 						delReq = walk.at.getID();
 					} else {
-						if (_Debug) {
-							System.out.println("  :+: CONTINUE FAILED :+:  --> " + walk.at.getID());
-						}
+                        log.debug("  :+: CONTINUE FAILED :+:  --> {}", walk.at.getID());
 					}
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> Session hasn't begun");
-				}
+                log.debug("  ::--> Session hasn't begun");
 			}
 		} else if (iRequest.equals(ADLSequencer.SEQ_EXIT)) {
 			// This block implements the Exit Sequencing Request Process
 			// (SB.2.11)
-
-			if (_Debug) {
-				System.out.println("  ::--> Process 'Exit' request.");
-			}
+            log.debug("  ::--> Process 'Exit' request.");
 
 			// Make sure the session has already started
 			if (from != null) {
@@ -2270,22 +1968,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						mEndSession = true;
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Activity is still active");
-					}
+                    log.debug("  ::--> Activity is still active");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> Session hasn't begun");
-				}
+                log.debug("  ::--> Session hasn't begun");
 			}
 		} else if (iRequest.equals(ADLSequencer.SEQ_PREVIOUS)) {
 			// This block implements the Previous Sequencing Request Process
 			// (SB.2.8)
-
-			if (_Debug) {
-				System.out.println("  ::--> Process 'Previous' request.");
-			}
+            log.debug("  ::--> Process 'Previous' request.");
 
 			// Make sure the session has already started
 			if (from != null) {
@@ -2304,17 +1995,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					}
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> Session hasn't begun");
-				}
+                log.debug("  ::--> Session hasn't begun");
 			}
 		} else if (iRequest.equals(ADLSequencer.SEQ_RETRY)) {
 			// This block implements the Retry Sequencing Request Process
 			// (SB.2.10)
-
-			if (_Debug) {
-				System.out.println("  ::--> Process 'Retry' request.");
-			}
+            log.debug("  ::--> Process 'Retry' request.");
 
 			// Make sure the session has already started
 			if (from != null) {
@@ -2338,22 +2024,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						delReq = from.getID();
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Activity is active or suspended");
-					}
+                    log.debug("  ::--> Activity is active or suspended");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> Session hasn't begun");
-				}
+                log.debug("  ::--> Session hasn't begun");
 			}
 		} else {
 			// This block implements the Choice Sequencing Request Process
 			// (SB.2)
-
-			if (_Debug) {
-				System.out.println("  ::--> Process 'Choice' request.");
-			}
+            log.debug("  ::--> Process 'Choice' request.");
 
 			// The sequencing request identifies the target activity
 			SeqActivity target = getActivity(iRequest);
@@ -2366,10 +2045,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				if (!target.getIsSelected()) {
 					// Exception SB.2.9-2
 					process = false;
-
-					if (_Debug) {
-						System.out.println("  ::--> Activity not in parent's " + "set of avaliable children");
-					}
+                    log.debug("  ::--> Activity not in parent's set of avaliable children");
 				}
 
 				if (process) {
@@ -2392,11 +2068,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						if (result != null) {
 							// Exception SB.2.9-3
 							walk = null;
-							process = false;
-
-							if (_Debug) {
-								System.out.println("  ::--> Activity hidden");
-							}
+							process = false;							
+                            log.debug("  ::--> Activity hidden");
 						} else {
 							walk = walk.getParent();
 						}
@@ -2408,11 +2081,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					if (parent != null) {
 						if (!parent.getControlModeChoice()) {
 							// Exception SB.2.9-4
-							process = false;
-
-							if (_Debug) {
-								System.out.println("  ::--> Invalid control mode");
-							}
+							process = false;							
+                            log.debug("  ::--> Invalid control mode");
 						}
 					}
 				}
@@ -2420,258 +2090,203 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				SeqActivity common = mSeqTree.getRoot();
 
 				if (process) {
-					if (from != null) {
-						common = findCommonAncestor(from, target);
+                    if (from != null) {
+                        common = findCommonAncestor(from, target);
 
-						if (common == null) {
-							process = false;
+                        if (common == null) {
+                            process = false;
+                            log.debug("  ::-->  ERROR : Invalid ancestor");
+                        }
+                    } else {
+                        // If the sequencing session has not begun, start at the
+                        // root
+                        from = common;
+                    }
+                    log.debug("""
+                                      :: CHOICE PROCESS ::
+                                      ::  F : {}
+                                      ::  T : {}
+                                      ::  C : {}
+                                    """,
+                            from != null ? from.getID() : "NULL",
+                            target.getID(),
+                            common != null ? common.getID() : "NULL");
+                }
 
-							if (_Debug) {
-								System.out.println("  ::-->  ERROR : Invalid ancestor");
-							}
-						}
-					} else {
-						// If the sequencing session has not begun, start at the
-						// root
-						from = common;
-					}
+                // Choice Case #1 -- The current activity was selected
+                if (from == target) {
+                    log.debug("  ::-->  Choice Case #1");
+                    // Nothing more to do...
+                } else if (from != null && from.getParent() == target.getParent()) {
+                    // Choice Case #2 -- The current activity and target are in
+                    // the
+                    // same cluster
+                    log.debug("  ::-->  Choice Case #2");
+                    int dir = ADLSequencer.FLOW_FORWARD;
+                    if (target.getActiveOrder() < from.getActiveOrder()) {
+                        dir = ADLSequencer.FLOW_BACKWARD;
+                    }
 
-					if (_Debug) {
-						System.out.println("  :: CHOICE PROCESS ::");
+                    SeqActivity walk = from;
 
-						if (from != null) {
-							System.out.println("  ::  F : " + from.getID());
-						} else {
-							System.out.println("  ::  F : NULL");
-						}
+                    // Make sure no control modes or rules prevent the
+                    // traversal
+                    while (walk != target && process) {
+                        process = evaluateChoiceTraversal(dir, walk);
 
-						if (target != null) {
-							System.out.println("  ::  T : " + target.getID());
-						}
+                        if (dir == ADLSequencer.FLOW_FORWARD) {
+                            walk = walk.getNextSibling(false);
+                        } else {
+                            walk = walk.getPrevSibling(false);
+                        }
+                    }
+                } else if (from == common) {
+                    // Choice Case #3 -- Path to the target is forward in the tree
+                    log.debug("  ::-->  Choice Case #3");
+                    SeqActivity walk = target.getParent();
 
-						if (common != null) {
-							System.out.println("  ::  C : " + common.getID());
-						} else {
-							System.out.println("  ::  C : NULL");
-						}
-					}
+                    while (walk != from && process) {
+                        process = evaluateChoiceTraversal(ADLSequencer.FLOW_FORWARD, walk);
 
-					// Choice Case #1 -- The current activity was selected
-					if (from == target) {
+                        // Test prevent Activation
+                        if (process) {
+                            if (!walk.getIsActive() && walk.getPreventActivation()) {
+                                // Exception 2.9-6
+                                process = false;
+                                continue;
+                            }
+                        }
 
-						if (_Debug) {
-							System.out.println("  ::-->  Choice Case #1");
-						}
+                        walk = walk.getParent();
+                    }
 
-						// Nothing more to do...
+                    // Evaluate at the common ancestor
+                    if (process) {
+                        process = evaluateChoiceTraversal(ADLSequencer.FLOW_FORWARD, walk);
+                    }
+                } else if (target == common) {
+                    // Choice Case #4 -- Path to target is backward in the tree
+                    log.debug("  ::-->  Choice Case #4");
 
-					} else if (from != null && from.getParent() == target.getParent()) {
-						// Choice Case #2 -- The current activity and target are in
-						// the
-						// same cluster
+                    // Don't need to test choiceExit on the current activity
+                    // because the navigation request validated.
+                    SeqActivity walk = from.getParent();
 
-						if (_Debug) {
-							System.out.println("  ::-->  Choice Case #2");
-						}
+                    while (walk != target && process) {
+                        // Need to make sure that none of the 'exiting'
+                        // activities
+                        // prevents us from reaching the common ancestor.
+                        process = walk.getControlModeChoiceExit();
 
-						int dir = ADLSequencer.FLOW_FORWARD;
+                        walk = walk.getParent();
+                    }
+                } else {
+                    // Choice Case #5 -- Target is a descendent of the ancestor
+                    log.debug("  ::-->  Choice Case #5");
 
-						if (target.getActiveOrder() < from.getActiveOrder()) {
-							dir = ADLSequencer.FLOW_BACKWARD;
-						}
+                    SeqActivity con = null;
+                    SeqActivity walk = from.getParent();
 
-						SeqActivity walk = from;
+                    // Walk up the tree to the common ancestor
+                    while (walk != common && process) {
+                        process = walk.getControlModeChoiceExit();
 
-						// Make sure no control modes or rules prevent the
-						// traversal
-						while (walk != target && process) {
-							process = evaluateChoiceTraversal(dir, walk);
+                        if (process && con == null) {
+                            if (walk.getConstrainChoice()) {
+                                con = walk;
+                            }
+                        }
 
-							if (dir == ADLSequencer.FLOW_FORWARD) {
-								walk = walk.getNextSibling(false);
-							} else {
-								walk = walk.getPrevSibling(false);
-							}
-						}
-					}
+                        walk = walk.getParent();
+                    }
 
-					// Choice Case #3 -- Path to the target is forward in the
-					// tree
-					else if (from == common) {
+                    // Evaluate constrained choice set
+                    if (process && con != null) {
+                        Walk walkCon = new Walk();
+                        walkCon.at = con;
 
-						if (_Debug) {
-							System.out.println("  ::-->  Choice Case #3");
-						}
+                        if (target.getCount() > con.getCount()) {
+                            processFlow(FLOW_FORWARD, false, walkCon, true);
+                        } else {
+                            processFlow(FLOW_BACKWARD, false, walkCon, true);
+                        }
 
-						SeqActivity walk = target.getParent();
+                        log.debug("  ::-->  Constrained Choice Eval");
+                        log.debug("  ::-->  Stopped at --> {}", walkCon.at.getID());
 
-						while (walk != from && process) {
-							process = evaluateChoiceTraversal(ADLSequencer.FLOW_FORWARD, walk);
+                        if (target.getParent() != walkCon.at && target != walkCon.at) {
+                            // Exception SB.2.9-8
+                            process = false;
+                        }
+                    }
 
-							// Test prevent Activation
-							if (process) {
-								if (!walk.getIsActive() && walk.getPreventActivation()) {
-									// Exception 2.9-6
-									process = false;
+                    // Walk down the tree to the target
+                    walk = target.getParent();
 
-									continue;
-								}
-							}
+                    while (walk != common && process) {
+                        process = evaluateChoiceTraversal(ADLSequencer.FLOW_FORWARD, walk);
 
-							walk = walk.getParent();
-						}
+                        // Test prevent Activation
+                        if (process) {
+                            if (!walk.getIsActive() && walk.getPreventActivation()) {
+                                // Exception 2.9-6
+                                process = false;
 
-						// Evaluate at the common ancestor
-						if (process) {
-							process = evaluateChoiceTraversal(ADLSequencer.FLOW_FORWARD, walk);
-						}
-					}
+                                continue;
+                            }
+                        }
 
-					// Choice Case #4 -- Path to target is backward in the tree
-					else if (target == common) {
+                        walk = walk.getParent();
+                    }
 
-						if (_Debug) {
-							System.out.println("  ::-->  Choice Case #4");
-						}
+                    // Evaluate the common ancestor
+                    if (process) {
+                        process = evaluateChoiceTraversal(ADLSequencer.FLOW_FORWARD, walk);
+                    }
+                }
 
-						// Don't need to test choiceExit on the current activity
-						// because the navigation request validated.
-						SeqActivity walk = from.getParent();
+                // Did we reach the target successfully?
+                if (process) {
+                    // Is the target a cluster
+                    if (target.getChildren(false) != null) {
+                        Walk walk = new Walk();
+                        walk.at = target;
 
-						while (walk != target && process) {
-							// Need to make sure that none of the 'exiting'
-							// activities
-							// prevents us from reaching the common ancestor.
-							process = walk.getControlModeChoiceExit();
+                        boolean success = processFlow(ADLSequencer.FLOW_FORWARD, true, walk, false);
 
-							walk = walk.getParent();
-						}
-					}
+                        if (success) {
+                            delReq = walk.at.getID();
+                        } else {
+                            log.debug("""
+                                        ::--> Failed to find leaf
+                                        ::--> Moving Current Activity
+                                        ::--> {}
+                                      """, common == null ? "NULL" : common.getID());
 
-					// Choice Case #5 -- Target is a descendent of the ancestor
-					else {
+                            if (mSeqTree.getCurrentActivity() != null && common != null) {
+                                terminateDescendentAttempts(common);
+                                endAttempt(common, false);
 
-						if (_Debug) {
-							System.out.println("  ::-->  Choice Case #5");
-						}
-
-						SeqActivity con = null;
-						SeqActivity walk = from.getParent();
-
-						// Walk up the tree to the common ancestor
-						while (walk != common && process) {
-							process = walk.getControlModeChoiceExit();
-
-							if (process && con == null) {
-								if (walk.getConstrainChoice()) {
-									con = walk;
-								}
-							}
-
-							walk = walk.getParent();
-						}
-
-						// Evaluate constrained choice set
-						if (process && con != null) {
-							Walk walkCon = new Walk();
-							walkCon.at = con;
-
-							if (target.getCount() > con.getCount()) {
-								processFlow(FLOW_FORWARD, false, walkCon, true);
-							} else {
-								processFlow(FLOW_BACKWARD, false, walkCon, true);
-							}
-
-							if (_Debug) {
-								System.out.println("  ::-->  Constrained Choice Eval");
-								System.out.println("  ::-->  Stopped at --> " + walkCon.at.getID());
-							}
-
-							if (target.getParent() != walkCon.at && target != walkCon.at) {
-								// Exception SB.2.9-8
-								process = false;
-							}
-						}
-
-						// Walk down the tree to the target
-						walk = target.getParent();
-
-						while (walk != common && process) {
-							process = evaluateChoiceTraversal(ADLSequencer.FLOW_FORWARD, walk);
-
-							// Test prevent Activation
-							if (process) {
-								if (!walk.getIsActive() && walk.getPreventActivation()) {
-									// Exception 2.9-6
-									process = false;
-
-									continue;
-								}
-							}
-
-							walk = walk.getParent();
-						}
-
-						// Evaluate the common ancestor
-						if (process) {
-							process = evaluateChoiceTraversal(ADLSequencer.FLOW_FORWARD, walk);
-						}
-					}
-
-					// Did we reach the target successfully?
-					if (process) {
-
-						// Is the target a cluster
-						if (target.getChildren(false) != null) {
-							Walk walk = new Walk();
-							walk.at = target;
-
-							boolean success = processFlow(ADLSequencer.FLOW_FORWARD, true, walk, false);
-
-							if (success) {
-								delReq = walk.at.getID();
-							} else {
-								if (_Debug) {
-									System.out.println("  ::--> Failed to find leaf");
-									System.out.println("  ::--> Moving Current Activity");
-
-									if (common == null) {
-										System.out.println("  ::--> NULL");
-									} else {
-										System.out.println("  ::--> " + common.getID());
-									}
-								}
-
-								if (mSeqTree.getCurrentActivity() != null && common != null) {
-									terminateDescendentAttempts(common);
-									endAttempt(common, false);
-
-									// Move the current activity
-									mSeqTree.setCurrentActivity(target);
-									mSeqTree.setFirstCandidate(target);
-								}
-							}
-						} else {
-							delReq = target.getID();
-						}
-					}
-				}
-			} else {
+                                // Move the current activity
+                                mSeqTree.setCurrentActivity(target);
+                                mSeqTree.setFirstCandidate(target);
+                            }
+                        }
+                    } else {
+                        delReq = target.getID();
+                    }
+                }
+            } else {
 				// Exception SB.2.9-1
-				if (_Debug) {
-					System.out.println("  ::-->  Target does not exist in the tree");
-				}
+                log.debug("  ::-->  Target does not exist in the tree");
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + delReq);
-			System.out.println("  ::-->  " + (mEndSession || mExitCourse));
-			System.out.println("  :: ADLSequencer --> END   - " + "doSequencingRequest");
-
-		}
-
-		return delReq;
+        log.debug("""
+                    ::-->  {}
+                    ::-->  {}
+                    :: ADLSequencer --> END   - doSequencingRequest
+                  """, delReq, mEndSession || mExitCourse);
+        return delReq;
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -2708,14 +2323,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		// determines what the first candidate for sequencing should is.
 		// If this is a 'real' termination request, the current activity is mov
 		// to the identified first candidate activity.
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "doTerminationRequest");
-			System.out.println("  ::--> Request:  " + iRequest);
-			System.out.println("  ::--> Real?     " + ((iTentative) ? "NO" : "YES"));
-		}
-
-		// The Termination Request Process may return a sequencing request
+            log.debug("""
+                      :: ADLSequencer --> BEGIN - doTerminationRequest
+                      ::--> Request:  {}
+                      ::--> Real?     {}
+                    """, iRequest, iTentative ? "NO" : "YES");
+        // The Termination Request Process may return a sequencing request
 		String seqReq = null;
 		mExitAll = false;
 
@@ -2723,13 +2336,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		if (iRequest == null) {
 
 			mValidTermination = false;
+            log.debug("""
+                        ::--> NULL request
+                        :: ADLSequencer --> END   - doTerminationRequest
+                      """);
 
-			if (_Debug) {
-				System.out.println("  ::--> NULL request");
-				System.out.println("  :: ADLSequencer --> END   - " + "doTerminationRequest");
-			}
-
-			return seqReq;
+            return seqReq;
 		}
 
 		// The Sequencing Request Process will always begin processing at the
@@ -2742,12 +2354,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		} else {
 
 			mValidTermination = false;
-
-			if (_Debug) {
-				System.out.println("  ::--> No current activity");
-				System.out.println("  :: ADLSequencer --> END   - " + "doTerminationRequest");
-			}
-
+            log.debug("""
+                        ::--> No current activity
+                        :: ADLSequencer --> END   - doTerminationRequest
+                      """);
 			return seqReq;
 		}
 
@@ -2777,10 +2387,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						// This block implements the Sequencing Post Condition
 						// Rule
 						// Subprocess (SB.2.2)
-
-						if (_Debug) {
-							System.out.println("  ::--> Evaluating 'POST' at -- " + process.getID());
-						}
+                        log.debug("  ::--> Evaluating 'POST' at -- {}", process.getID());
 
 						// Attempt to get rule information from the activity
 						ISeqRuleset postRules = process.getPostSeqRules();
@@ -2790,9 +2397,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 							result = postRules.evaluate(SeqRuleset.RULE_TYPE_POST, process, false);
 
 							if (result != null) {
-								if (_Debug) {
-									System.out.println("  ::--> " + result);
-								}
+                                log.debug("  ::--> {}", result);
 
 								// This set of ifs implement TB.2.2
 								if (result.equals(SeqRule.SEQ_ACTION_RETRY)) {
@@ -2823,9 +2428,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 									process = process.getParent();
 
 									if (process == null) {
-										if (_Debug) {
-											System.out.println("  ::--> ERROR :: " + " No parent to exit");
-										}
+                                        log.debug("  ::--> ERROR ::  No parent to exit");
 									} else {
 
 										mSeqTree.setFirstCandidate(process);
@@ -2847,9 +2450,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 									mExitCourse = true;
 								}
 							} else {
-								if (_Debug) {
-									System.out.println("  ::--> NULL Evaluation");
-								}
+                                log.debug("  ::--> NULL Evaluation");
 							}
 						} else if (process == mSeqTree.getRoot()) {
 							// Exited Root with no postcondition rules
@@ -2857,17 +2458,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 							mExitCourse = true;
 						}
 					} else {
-						if (_Debug) {
-							System.out.println("  --> Exited Course");
-							seqReq = ADLSequencer.SEQ_EXIT;
-						}
+                        log.debug("  --> Exited Course");
+						seqReq = ADLSequencer.SEQ_EXIT;
 					}
 				} while (exited);
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> INVALID :: " + "activity inactive");
-				}
-
+                log.debug("  ::--> INVALID :: activity inactive");
 				mValidTermination = false;
 			}
 		}
@@ -2876,9 +2472,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		if (iRequest.equals(ADLSequencer.TER_EXIT)) {
 			// Already handled
 		} else if (iRequest.equals(ADLSequencer.TER_EXITALL)) {
-			if (_Debug) {
-				System.out.println("  ::--> Processing EXIT ALL");
-			}
+            log.debug("  ::--> Processing EXIT ALL");
 
 			// Don't modify the activity tree if this is only a tentative exit
 			if (!iTentative) {
@@ -2956,10 +2550,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			// Don't modify the activty tree if this is only a tentativen exit
 			if (!iTentative) {
 				SeqActivity process = mSeqTree.getFirstCandidate();
-
-				if (_Debug) {
-					System.out.println("  --> CLEARING STATE ABANDON");
-				}
+                log.debug("  --> CLEARING STATE ABANDON");
 
 				// Ignore any status values reported by the content
 				process.setProgress(ADLTracking.TRACK_UNKNOWN);
@@ -2972,10 +2563,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			// Don't modify the activty tree if this is only a tentative exit
 			if (!iTentative) {
 				SeqActivity process = mSeqTree.getFirstCandidate();
-
-				if (_Debug) {
-					System.out.println("  --> CLEARING STATE ABANDONALL");
-				}
+                log.debug("  --> CLEARING STATE ABANDONALL");
 
 				// Ignore any status values reported by the content
 				process.setProgress(ADLTracking.TRACK_UNKNOWN);
@@ -2994,9 +2582,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				mSeqTree.setFirstCandidate(mSeqTree.getRoot());
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> INVALID :: " + "invalid request");
-			}
+            log.debug("  ::--> INVALID :: invalid request");
 
 			mValidTermination = false;
 		}
@@ -3007,16 +2593,13 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		}
 
 		String tmpID = mSeqTree.getFirstCandidate().getID();
-
-		if (_Debug) {
-			System.out.println("  ::--> SEQ REQ      :: " + seqReq);
-			System.out.println("  ::--> FIRST        :: " + tmpID);
-			System.out.println("  ::--> EXIT COURSE  :: " + mExitCourse);
-			System.out.println("  :: ADLSequencer --> END   - " + "doTerminationRequest");
-		}
-
+        log.debug("""
+                    ::--> SEQ REQ      :: {}
+                    ::--> FIRST        :: {}
+                    ::--> EXIT COURSE  :: {}
+                    :: ADLSequencer --> END   - doTerminationRequest
+                  """, seqReq, tmpID, mExitCourse);
 		return seqReq;
-
 	}
 
 	/**
@@ -3032,18 +2615,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	private void endAttempt(SeqActivity iTarget, boolean iTentative) {
 
 		// This is an implementation of the End Attempt Process (UP.4)
+        log.debug("  :: ADLSequencer --> BEGIN - endAttempt");
 
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - endAttempt");
+        if (iTarget != null) {
+            log.debug("  ::--> Target : {}", iTarget.getID());
+        } else {
+            log.debug("  ::--> ERROR : NULL Activity");
+        }
 
-			if (iTarget != null) {
-				System.out.println("  ::--> Target : " + iTarget.getID());
-			} else {
-				System.out.println("  ::--> ERROR : NULL Activity");
-			}
-
-			System.out.println("  ::--> REAL?    -- " + ((iTentative) ? "NO" : "YES"));
-		}
+        log.debug("  ::--> REAL?    -- {}", ((iTentative) ? "NO" : "YES"));
 
 		if (iTarget != null) {
 			List<SeqActivity> children = iTarget.getChildren(false);
@@ -3114,10 +2694,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				invokeRollup(iTarget, null);
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - endAttempt");
-		}
+        log.debug("  :: ADLSequencer --> END   - endAttempt");
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -3141,19 +2718,16 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	private boolean evaluateChoiceTraversal(int iDirection, SeqActivity iAt) {
 
 		// This method implements Choice Activity Traversal Subprocess SB.2.4
+        log.debug("  :: ADLSequencer --> BEGIN - evaluateChoiceTraversal");
+		log.debug("  ::-->  {}", iDirection);
 
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "evaluateChoiceTraversal");
-			System.out.println("  ::-->  " + iDirection);
+        if (iAt != null) {
+            log.debug("  ::-->  {}", iAt.getID());
+        } else {
+            log.debug("  ::-->  ERROR : NULL starting point");
+        }
 
-			if (iAt != null) {
-				System.out.println("  ::-->  " + iAt.getID());
-			} else {
-				System.out.println("  ::-->  ERROR : NULL starting point");
-			}
-		}
-
-		boolean success = true;
+        boolean success = true;
 
 		// Make sure we have somewhere to start from
 		if (iAt != null) {
@@ -3179,23 +2753,16 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					success = !parent.getControlForwardOnly();
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : Invalid direction");
-				}
-
+                log.debug("  ::--> ERROR : Invalid direction");
 				success = false;
 			}
 		} else {
 			success = false;
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + success);
-			System.out.println("  :: ADLSequencer --> END   - " + "evaluateChoiceTraversal");
-		}
+        log.debug("  ::-->  {}", success);
+		log.debug("  :: ADLSequencer --> END   - " + "evaluateChoiceTraversal");
 
 		return success;
-
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -3214,11 +2781,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *            Indicates if descendent activities should be terminated.
 	 */
 	private void evaluateExitRules(boolean iTentative) {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - evaluateExitRules");
-			System.out.println("  ::--> REAL? -- " + ((iTentative) ? "NO" : "YES"));
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - evaluateExitRules");
+		log.debug("  ::--> REAL? -- " + ((iTentative) ? "NO" : "YES"));
 
 		// Clear global state
 		mExitCourse = false;
@@ -3235,9 +2799,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			SeqActivity parent = start.getParent();
 
 			while (parent != null) {
-				if (_Debug) {
-					System.out.println("  ::--> Adding :: " + parent.getID());
-				}
+                log.debug("  ::--> Adding :: {}", parent.getID());
 
 				path.add(parent);
 
@@ -3249,10 +2811,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			while (path.size() > 0 && (exited == null)) {
 				parent = path.get(path.size() - 1);
 				path.remove(path.size() - 1);
-
-				if (_Debug) {
-					System.out.println("  ::--> Evaluating 'Exit' at -- " + parent.getID());
-				}
+                log.debug("  ::--> Evaluating 'Exit' at -- {}", parent.getID());
 
 				// Attempt to get rule information from the activity node
 				ISeqRuleset exitRules = parent.getExitSeqRules();
@@ -3270,13 +2829,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			if (exited != null) {
 				if (exitAt == mSeqTree.getRoot()) {
-					if (_Debug) {
-						System.out.println("  ::--> ROOT   <<< Exited");
-					}
+                    log.debug("  ::--> ROOT   <<< Exited");
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> " + exitAt.getID() + "  <<< Exited");
-					}
+                    log.debug("  ::--> {}  <<< Exited", exitAt.getID());
 				}
 
 				// If this was a 'real' evaluation, end the appropriate
@@ -3297,14 +2852,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				mSeqTree.setFirstCandidate(exitAt);
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : NULL Current Activity");
-			}
+            log.debug("  ::--> ERROR : NULL Current Activity");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - evaluateExitRules");
-		}
+        log.debug("  :: ADLSequencer --> END   - evaluateExitRules");
 	}
 
 	/**
@@ -3320,11 +2870,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	private boolean evaluateLimitConditions(SeqActivity iTarget) {
 
 		// This is an implementation of UP.1
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "evaluateLimitConditions");
-			System.out.println("  ::-->  Target: " + iTarget.getID());
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - evaluateLimitConditions");
+		log.debug("  ::-->  Target: {}", iTarget.getID());
 
 		// For 2, we only test max attempt limits
 		// Need to add all limit condition tests...
@@ -3337,11 +2884,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				disabled = iTarget.getNumAttempt() >= iTarget.getAttemptLimit();
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + disabled);
-			System.out.println("  :: ADLSequencer --> END   - " + "evaluateLimitConditions");
-		}
+        log.debug("  ::-->  {}", disabled);
+		log.debug("  :: ADLSequencer --> END   - evaluateLimitConditions");
 
 		return disabled;
 	}
@@ -3365,10 +2909,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *         or <code>null</code> if the process failed.
 	 */
 	private SeqActivity findCommonAncestor(SeqActivity iFrom, SeqActivity iTo) {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - findCommonAncestor");
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - findCommonAncestor");
 
 		SeqActivity ancestor = null;
 		boolean done = false;
@@ -3409,17 +2950,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				stepFrom = stepFrom.getParent();
 			}
 		}
-
-		if (_Debug) {
-			if (ancestor != null) {
-				System.out.println("  ::-->  " + ancestor.getID());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-
-			System.out.println("  :: ADLSequencer --> END   - findCommonAncestor");
-		}
-
+        log.debug("""
+                    ::-->  {}
+                    :: ADLSequencer --> END   - findCommonAncestor
+                  """, ancestor != null ? ancestor.getID() : "NULL");
 		return ancestor;
 	}
 
@@ -3434,28 +2968,22 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *         activity ID, or <code>null</code> if it does not exist.
 	 */
 	private SeqActivity getActivity(String iActivityID) {
+        log.debug("""
+                    :: ADLSequencer --> BEGIN - getActivity
+                    ::-->  {}
+                  """, iActivityID);
 
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - getActivity");
-			System.out.println("  ::-->  " + iActivityID);
-		}
+        SeqActivity thisActivity = null;
 
-		SeqActivity thisActivity = null;
-
+        // Get an activity node from the activity tree based on its ID
 		if (mSeqTree != null) {
-			// Get an activity node from the activity tree based on its ID
 			thisActivity = mSeqTree.getActivity(iActivityID);
-
-			if (_Debug) {
-				System.out.println("  ::-->  FOUND");
-				System.out.println("  :: ADLSequencer --> END   - getActivity");
-			}
+            log.debug("  ::-->  FOUND");
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : No Activity Tree");
-				System.out.println("  :: ADLSequencer --> END   - getActivity");
-			}
+            log.debug("  ::--> ERROR : No Activity Tree");
 		}
+        
+        log.debug("  :: ADLSequencer --> END   - getActivity");
 
 		return thisActivity;
 	}
@@ -3473,10 +3001,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	@Override
 	public ISeqActivityTree getActivityTree() {
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - getActivityTree");
-			System.out.println("  :: ADLSequencer --> END   - getActivityTree");
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - getActivityTree");
+		log.debug("  :: ADLSequencer --> END   - getActivityTree");
 
 		return mSeqTree;
 	}
@@ -3534,10 +3060,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		}
 
 		if (lastLeaf != null) {
-			if (_Debug) {
-				System.out.println("  ::--> Setting last leaf --> " + lastLeaf);
-			}
-
+            log.debug("  ::--> Setting last leaf --> {}", lastLeaf);
 			mSeqTree.setLastLeaf(lastLeaf);
 		}
 
@@ -3556,17 +3079,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			ADLTOC temp = (ADLTOC) oNewTOC.get(0);
 
 			if (!temp.mIsEnabled) {
-				if (_Debug) {
-					System.out.println("  ::--> Clearing single non-enabled "
-							+ " activity");
-				}
-
+				log.debug("  ::--> Clearing single non-enabled activity");
 				oNewTOC.remove(0);
 			} else if (!temp.mLeaf) {
-				if (_Debug) {
-					System.out.println("  ::--> Clearing root activity");
-				}
-
+				log.debug("  ::--> Clearing root activity");
 				oNewTOC.remove(0);
 			}
 		}*/
@@ -3593,10 +3109,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	@Override
 	public List<ADLObjStatus> getObjStatusSet(String iActivityID) {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - getObjStatusSet");
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - getObjStatusSet");
 
 		List<ADLObjStatus> objSet = null;
 		SeqActivity act = getActivity(iActivityID);
@@ -3606,20 +3119,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			// Ask the activity for its current set of objective status records
 			objSet = act.getObjStatusSet();
 		} else {
-			if (_Debug) {
-				System.out.println("  ::-->  Activity not found");
-			}
+            log.debug("  ::-->  Activity not found");
 		}
-
-		if (_Debug) {
-			if (objSet == null) {
-				System.out.println("  ::-->  NULL");
-			} else {
-				System.out.println("  ::-->  [ " + objSet.size() + " ]");
-			}
-
-			System.out.println("  :: ADLSequencer --> END   - getObjStatusSet");
-		}
+        if (objSet == null) {
+			log.debug("  ::-->  NULL");
+        } else {
+            log.debug("  ::-->  [ {} ]", objSet.size());
+        }
+        log.debug("  :: ADLSequencer --> END   - getObjStatusSet");
 
 		return objSet;
 	}
@@ -3676,9 +3183,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		}
 
 		if (!done) {
-			if (log.isDebugEnabled()) {
-				log.debug("  ::--> Building TOC from:  " + walk.getID());
-			}
+            log.debug("  ::--> Building TOC from:  {}", walk.getID());
 		}
 
 		SeqActivity cur = (mSeqTree != null ? mSeqTree.getFirstCandidate() : null);
@@ -3796,12 +3301,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			SeqActivity tempAct = flatTOC.get(i);
 			ActivityNode tempNode = nodes.get(i);
 
-			if (log.isDebugEnabled()) {
-				log.debug("  ::--> Evaluating --> " + tempAct.getID());
-				log.debug("                   --> " + tempAct.getTitle());
-			}
+            log.debug("""
+                        ::--> Evaluating --> {}
+                                         --> {}
+                      """, tempAct.getID(), tempAct.getTitle());
 
-			int tempDepth = tempNode.getDepth();
+            int tempDepth = tempNode.getDepth();
 
 			// Flipping the cardinality of the hidden depths, apparently -- JLR
 			int checkDepth = ((tempDepth >= 0) ? tempDepth : (-tempDepth));
@@ -3837,7 +3342,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					prevented = -1;
 				} else {
 					if (log.isDebugEnabled()) {
-						log.debug("  ::--> Prevented ??" + prevented);
+						log.debug("  ::--> Prevented ??{}", prevented);
 					}
 
 					if (prevented != -1) {
@@ -3857,7 +3362,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 								if (tempAct != cur && cur.getParent() != tempAct) {
 									if (log.isDebugEnabled()) {
 										log.debug("  ::--> PREVENTED !!");
-										log.debug(" " + tempAct.getID() + " != " + cur.getParent().getID());
+										log.debug(" {} != {}", tempAct.getID(), cur.getParent().getID());
 									}
 
 									// Not sure why we need to check this again -- JLR
@@ -3878,9 +3383,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			}
 		}
 
-		if (log.isDebugEnabled()) {
-			log.debug("  ::--> Completed post-1 pass");
-		}
+        log.debug("  ::--> Completed post-1 pass");
 
 		// After the TOC has been created, mark activites unselectable
 		// if the Choice Exit control prevents them being selected
@@ -3909,9 +3412,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		if (noExit != null) {
 			depth = -1;
 
-			if (log.isDebugEnabled()) {
-				log.debug("  ::--> Found NoExit Cluster -- " + noExit.getID());
-			}
+            log.debug("  ::--> Found NoExit Cluster -- {}", noExit.getID());
 
 			// Only descendents of this activity can be selected.
 			for (int i = 0; i < nodes.size(); i++) {
@@ -3982,10 +3483,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		// Evaluate constrained choice set
 		if (con != null) {
 
-			if (log.isDebugEnabled()) {
-				log.debug("  ::-->  Constrained Choice Activity Found");
-				log.debug("  ::-->  Stopped at --> " + con.getID());
-			}
+            log.debug("""
+                        ::-->  Constrained Choice Activity Found
+                        ::-->  Stopped at --> {}
+                      """, con.getID());
 
 			int forwardAct = -1;
 			int backwardAct = -1;
@@ -3998,10 +3499,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			processFlow(FLOW_FORWARD, false, walkCon, true);
 
 			if (walkCon.at == null) {
-				if (log.isDebugEnabled()) {
-					log.debug("  ::--> Walked forward off the tree");
-				}
-
+                log.debug("  ::--> Walked forward off the tree");
 				walkCon.at = con;
 			}
 
@@ -4066,9 +3564,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				}
 			}
 
-			if (log.isDebugEnabled()) {
-				log.debug("  ::--> Constrained Range == [ " + backwardAct + " , " + forwardAct + " ]");
-			}
+            log.debug("  ::--> Constrained Range == [ {} , {} ]", backwardAct, forwardAct);
 
 			// Disable activities outside of the avaliable range
 			for (int i = 0; i < nodes.size(); i++) {
@@ -4076,10 +3572,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 				if (i < backwardAct || i > forwardAct) {
 					tempNode.setSelectable(false);
-
-					if (log.isDebugEnabled()) {
-						log.debug("  ::--> Turn off -- " + tempNode.getActivity().getID());
-					}
+                    log.debug("  ::--> Turn off -- {}", tempNode.getActivity().getID());
 				}
 			}
 		}
@@ -4109,7 +3602,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					depth = (td > 0) ? td : -td;
 
 					if (log.isDebugEnabled()) {
-						log.debug("  ::--> [" + i + "]  " + "Found Disabled -->  " + tempNode.getActivity().getID() + "  <<" + tempNode.getDepth() + ">>");
+						log.debug("  ::--> [{}]  Found Disabled -->  {}  <<{}>>", i, tempNode.getActivity().getID(), tempNode.getDepth());
 					}
 				}
 
@@ -4195,7 +3688,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				// then all of its descendents are blocked
 				if (result != null) {
 					if (log.isDebugEnabled()) {
-						log.debug("  ::--> BLOCKED SOURCE --> " + tempNode.getActivity().getID() + " [" + tempNode.getDepth() + "]");
+						log.debug("  ::--> BLOCKED SOURCE --> {} [{}]", tempNode.getActivity().getID(), tempNode.getDepth());
 					}
 
 					// The depth of the blocked activity
@@ -4231,7 +3724,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			if (!tempNode.isLeaf()) {
 				if (log.isDebugEnabled()) {
-					log.debug("  ::--> Process 'Continue' request from " + tempNode.getActivity().getID());
+					log.debug("  ::--> Process 'Continue' request from {}", tempNode.getActivity().getID());
 				}
 
 				SeqActivity from = tempNode.getActivity();
@@ -4248,7 +3741,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						tempNode.setSelectable(false);
 
 						if (log.isDebugEnabled()) {
-							log.debug("  :+: CONTINUE FAILED :+:  --> " + treeWalk.at.getID());
+							log.debug("  :+: CONTINUE FAILED :+:  --> {}", treeWalk.at.getID());
 						}
 					}
 				} else {
@@ -4309,12 +3802,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			}
 		}
 
-		log.debug("  ::--> Completed TOC walk up");
-
-		log.debug("  :: ADLSequencer --> END   - getTOC");
+        log.debug("""
+                    ::--> Completed TOC walk up
+                    :: ADLSequencer --> END   - getTOC
+                  """);
 
 		ActivityNode rootNode = null;
-
 		for (int i = 0; i < nodes.size(); i++) {
 			ActivityNode node = nodes.get(i);
 
@@ -4344,12 +3837,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	@Override
 	public void getValidRequests(IValidRequests argValid) {
-		ADLValidRequests oValid = (ADLValidRequests) argValid;
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - getValidRequests");
-		}
-
+        log.debug("  :: ADLSequencer --> BEGIN - getValidRequests");
+		
 		ADLValidRequests valid = null;
+        ADLValidRequests oValid = (ADLValidRequests) argValid;
 
 		if (mSeqTree != null) {
 			valid = mSeqTree.getValidRequests();
@@ -4377,29 +3868,20 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				oValid.mChoice = new HashMap<>(valid.mChoice);
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Unable to validate requests");
-			}
+            log.debug("  ::--> ERROR : Unable to validate requests");
 
-			// Make sure nothing is valid
-			oValid.mContinue = false;
-			oValid.mContinueExit = false;
-			oValid.mPrevious = false;
-			oValid.mChoice = null;
-			// TODO: Remove this
-			//oValid.mTOC = null;
-			oValid.mTreeModel = null;
-		}
+            // Make sure nothing is valid
+            oValid.mContinue = false;
+            oValid.mContinueExit = false;
+            oValid.mPrevious = false;
+            oValid.mChoice = null;
+            // TODO: Remove this
+            //oValid.mTOC = null;
+            oValid.mTreeModel = null;
+        }
 
-		if (_Debug) {
-			if (oValid.mChoice == null) {
-				System.out.println("  ::--> [NULL]");
-			} else {
-				System.out.println("  ::--> [" + oValid.mChoice.size() + "]");
-			}
-
-			System.out.println("  :: ADLSequencer --> END   - getValidRequests");
-		}
+        log.debug("  ::--> [{}]", oValid.mChoice == null ? "NULL" : oValid.mChoice.size());
+        log.debug("  :: ADLSequencer --> END   - getValidRequests");
 	}
 
 	/**
@@ -4416,29 +3898,19 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *            invokation; or <code>null</code> if none.
 	 */
 	private void invokeRollup(SeqActivity ioTarget, List<String> iWriteObjIDs) {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - invokeRollup");
-			System.out.println("  ::-->  Start: " + ioTarget.getID());
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - invokeRollup");
+		log.debug("  ::-->  Start: {}", ioTarget.getID());
 
 		Hashtable<String, Integer> rollupSet = new Hashtable<>();
 
 		// Case #1 -- Rollup applies along the active path
 		if (ioTarget == mSeqTree.getCurrentActivity()) {
-
-			if (_Debug) {
-				System.out.println("  ::--> CASE #1 Rollup");
-			}
-
+            log.debug("  ::--> CASE #1 Rollup");
 			SeqActivity walk = ioTarget;
 
 			// Walk from the target to the root, apply rollup rules at each step
 			while (walk != null) {
-
-				if (_Debug) {
-					System.out.println("  ::--> Adding :: " + walk.getID());
-				}
+                log.debug("  ::--> Adding :: {}", walk.getID());
 
 				rollupSet.put(walk.getID(), walk.getDepth());
 
@@ -4447,10 +3919,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				if (writeObjIDs != null) {
 					for (int i = 0; i < writeObjIDs.size(); i++) {
 						String objID = writeObjIDs.get(i);
-
-						if (_Debug) {
-							System.out.println("  ::--> Rolling up Obj -- " + objID);
-						}
+                        log.debug("  ::--> Rolling up Obj -- {}", objID);
 
 						// Need to identify all activity's that 'read' this
 						// objective
@@ -4458,18 +3927,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						// to be
 						// included in the rollup set
 						List<String> acts = mSeqTree.getObjMap(objID);
-
-						if (_Debug) {
-							System.out.println("  ACTS == " + acts);
-						}
+                        log.debug("  ACTS == {}", acts);
 
 						if (acts != null) {
 							for (int j = 0; j < acts.size(); j++) {
 								SeqActivity act = getActivity(acts.get(j));
-
-								if (_Debug) {
-									System.out.println("  *+> " + j + " <+*  :: " + act.getID());
-								}
+                                log.debug("  *+> {} <+*  :: {}", j, act.getID());
 
 								// Only rollup at the parent of the affected
 								// activity
@@ -4478,10 +3941,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 								if (act != null) {
 									// Only add if the activity is selected
 									if (act.getIsSelected()) {
-										if (_Debug) {
-											System.out.println("  ::--> Adding :: " + act.getID());
-										}
-
+                                        log.debug("  ::--> Adding :: {}", act.getID());
 										rollupSet.put(act.getID(), act.getDepth());
 									}
 								}
@@ -4501,34 +3961,22 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		// Case #2 -- Rollup applies when the state of a global shared objective
 		// is written to...
 		if (iWriteObjIDs != null) {
-
-			if (_Debug) {
-				System.out.println("  ::--> CASE #2 Rollup");
-			}
+            log.debug("  ::--> CASE #2 Rollup");
 
 			for (int i = 0; i < iWriteObjIDs.size(); i++) {
 				String objID = iWriteObjIDs.get(i);
-
-				if (_Debug) {
-					System.out.println("  ::--> Rolling up Obj -- " + objID);
-				}
+                log.debug("  ::--> Rolling up Obj -- {}", objID);
 
 				// Need to identify all activity's that 'read' this objective
 				// into their primary objective -- those activities need to be
 				// included in the rollup set
 				List<String> acts = mSeqTree.getObjMap(objID);
-
-				if (_Debug) {
-					System.out.println("  ACTS == " + acts);
-				}
+                log.debug("  ACTS == {}", acts);
 
 				if (acts != null) {
 					for (int j = 0; j < acts.size(); j++) {
 						SeqActivity act = getActivity(acts.get(j));
-
-						if (_Debug) {
-							System.out.println("  *+> " + j + " <+*  :: " + act.getID());
-						}
+                        log.debug("  *+> {} <+*  :: {}", j, act.getID());
 
 						// Only rollup at the parent of the affected activity
 						act = act.getParent();
@@ -4536,10 +3984,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						if (act != null) {
 							// Only add if the activity is selected
 							if (act.getIsSelected()) {
-								if (_Debug) {
-									System.out.println("  ::--> Adding :: " + act.getID());
-								}
-
+                                log.debug("  ::--> Adding :: {}", act.getID());
 								rollupSet.put(act.getID(), act.getDepth());
 							}
 						}
@@ -4550,12 +3995,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		// Perform the deterministic rollup extension
 		while (!rollupSet.isEmpty()) {
-			if (_Debug) {
-				System.out.println("  ::--> Rollup Set Size == " + rollupSet.size());
+            log.debug("  ::--> Rollup Set Size == {}", rollupSet.size());
 
-				for (Entry<String, Integer> entry : rollupSet.entrySet()) {
-					System.out.println("  ::-->  " + entry.getKey() + "  //  " + entry.getValue());
-				}
+			for (Entry<String, Integer> entry : rollupSet.entrySet()) {
+				log.debug("  ::-->  {}  //  {}", entry.getKey(), entry.getValue());
 			}
 
 			// Find the deepest activity
@@ -4583,15 +4026,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					@SuppressWarnings("unused")
 					String completed = "unknown";
 					if (deepest.getObjStatus(false)) {
-						completed = (deepest.getObjSatisfied(false)) ? "satisfied" : "notSatisfied";
+						completed = deepest.getObjSatisfied(false) ? "satisfied" : "notSatisfied";
 					}
 
 					if (deepest.getObjMeasureStatus(false)) {
-						completed = (new Double(deepest.getObjMeasure(false))).toString();
+						completed = Double.valueOf(deepest.getObjMeasure(false)).toString();
 					}
 
 					if (deepest.getProgressStatus(false)) {
-						completed = (deepest.getAttemptCompleted(false)) ? "completed" : "incomplete";
+						completed = deepest.getAttemptCompleted(false) ? "completed" : "incomplete";
 					}
 
 					//ADLSeqUtilities.setCourseStatus(mSeqTree.getCourseID(),
@@ -4600,15 +4043,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				}
 
 			} else {
-				if (_Debug) {
-					System.out.println("  :: ERROR :: No activity found");
-				}
+                log.debug("  :: ERROR :: No activity found");
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - invokeRollup");
-		}
+        log.debug("  :: ADLSequencer --> END   - invokeRollup");
 	}
 
 	/**
@@ -4625,29 +4063,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 *         root, otherwise <code>false</code>.
 	 */
 	private boolean isDescendent(SeqActivity iRoot, SeqActivity iTarget) {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - isDescendent");
-
-			if (iRoot != null) {
-				System.out.println("  ::-->  Root --> " + iRoot.getID());
-			} else {
-				System.out.println("  ::-->  Root --> NULL");
-			}
-
-			if (iTarget != null) {
-				System.out.println("  ::-->  Target  --> " + iTarget.getID());
-			} else {
-				System.out.println("  ::-->  Target  --> NULL");
-			}
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - isDescendent");
+        log.debug("  ::-->  Root --> {}", iRoot == null ? "NULL" : iRoot.getID());
+        log.debug("  ::-->  Target  --> {}", iTarget == null ? "NULL" : iTarget.getID());
 
 		boolean found = false;
 
 		if (iRoot == null) {
-			if (_Debug) {
-				System.out.println("  ::-->  ERROR : NULL Root");
-			}
+            log.debug("  ::-->  ERROR : NULL Root");
 		} else if (iRoot == mSeqTree.getRoot()) {
 			// All activities are descendents of the root
 			found = true;
@@ -4660,11 +4083,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				iTarget = iTarget.getParent();
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + found);
-			System.out.println("  :: ADLSequencer --> END   - isDescendent");
-		}
+        log.debug("  ::-->  {}", found);
+		log.debug("  :: ADLSequencer --> END   - isDescendent");
 
 		return found;
 	}
@@ -4687,13 +4107,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		//
 		// It also applies the Overall Sequencing Process (OP) to the
 		// indicated navigation request.
+        log.debug("  :: ADLSequencer --> BEGIN - navigate");
+        log.debug("  ::--> {}", iRequest);
 
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - navigate");
-			System.out.println("  ::--> " + iRequest);
-		}
-
-		// This function attempts to translate the navigation request into the
+        // This function attempts to translate the navigation request into the
 		// corresponding termination and sequencing requests, and invoke the
 		// overall sequencing process.
 
@@ -4701,10 +4118,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		// Make sure an activity tree has been associated with this sequencer
 		if (mSeqTree == null) {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : No activity tree defined.");
-				System.out.println("  :: ADLSequencer --> END   - " + "navigate");
-			}
+            log.debug("  ::--> ERROR : No activity tree defined.");
+			log.debug("  :: ADLSequencer --> END   - navigate");
 
 			// No activity tree, therefore nothing to do
 			// -- inform the caller of the error.
@@ -4720,9 +4135,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		SeqActivity cur = mSeqTree.getCurrentActivity();
 
 		if (cur == null) {
-			if (_Debug) {
-				System.out.println("  ::--> No current Activity -- New Session");
-			}
+            log.debug("  ::--> No current Activity -- New Session");
 
 			prepareClusters();
 			newSession = true;
@@ -4735,13 +4148,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		ADLValidRequests valid = null;
 
 		if (newSession && iRequest == SeqNavRequests.NAV_NONE) {
-			if (_Debug) {
-				System.out.println("  ::--> Processing a TOC request");
-			}
+            log.debug("  ::--> Processing a TOC request");
 		} else if (newSession && (iRequest == SeqNavRequests.NAV_EXITALL || iRequest == SeqNavRequests.NAV_ABANDONALL)) {
-			if (_Debug) {
-				System.out.println("  ::--> Exiting a session that hasn't started");
-			}
+            log.debug("  ::--> Exiting a session that hasn't started");
 
 			launch.mSeqNonContent = ADLLaunch.LAUNCH_EXITSESSION;
 			launch.mEndSession = true;
@@ -4753,9 +4162,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 			// Can't validate requests -- Error
 			if (valid == null) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : " + "Cannot validate request");
-				}
+                log.debug("  ::--> ERROR : " + "Cannot validate request");
 
 				launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR;
 				launch.mEndSession = true;
@@ -4765,18 +4172,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			} else {
 				if (iRequest == SeqNavRequests.NAV_CONTINUE) {
 					if (!valid.mContinue) {
-						if (_Debug) {
-							System.out.println("  ::--> Continue not valid");
-						}
+                        log.debug("  ::--> Continue not valid");
 
 						process = false;
 						launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR_INVALIDNAVREQ;
 					}
 				} else {
 					if (!valid.mPrevious) {
-						if (_Debug) {
-							System.out.println("  ::--> Previous not valid");
-						}
+                        log.debug("  ::--> Previous not valid");
 
 						process = false;
 						launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR_INVALIDNAVREQ;
@@ -4815,10 +4218,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				if (mValidSequencing) {
 					doDeliveryRequest(delReq, false, launch);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Sequencing");
-					}
-
+                    log.debug("  ::--> Invalid Sequencing");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_SEQ_BLOCKED;
 				}
 
@@ -4831,10 +4231,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				if (mValidSequencing) {
 					doDeliveryRequest(delReq, false, launch);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Sequencing");
-					}
-
+                    log.debug("  ::--> Invalid Sequencing");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_SEQ_BLOCKED;
 				}
 
@@ -4855,20 +4252,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						delReq = doSequencingRequest(seqReq);
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Termination");
-					}
-
+                    log.debug("  ::--> Invalid Termination");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_NOTHING;
 				}
 
 				if (mValidSequencing) {
 					doDeliveryRequest(delReq, false, launch);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Sequencing");
-					}
-
+                    log.debug("  ::--> Invalid Sequencing");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_SEQ_BLOCKED;
 				}
 
@@ -4889,20 +4280,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						delReq = doSequencingRequest(seqReq);
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Termination");
-					}
-
+                    log.debug("  ::--> Invalid Termination");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_NOTHING;
 				}
 
 				if (mValidSequencing) {
 					doDeliveryRequest(delReq, false, launch);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Sequencing");
-					}
-
+                    log.debug("  ::--> Invalid Sequencing");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_SEQ_BLOCKED;
 				}
 
@@ -4917,37 +4302,26 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				// because post condition rules are not evaluated.
 				if (mValidTermination) {
 					if (seqReq != null) {
-						if (_Debug) {
-							System.out.println("  ::--> ERROR : " + "Postconditions Processed");
-						}
+                        log.debug("  ::--> ERROR : " + "Postconditions Processed");
 					}
 
 					delReq = doSequencingRequest(ADLSequencer.SEQ_EXIT);
 
 					// If the session hasn't ended, re-validate nav requests
 					if (!mEndSession && !mExitCourse) {
-						if (_Debug) {
-							System.out.println("  ::--> REVALIDATE");
-						}
-
+                        log.debug("  ::--> REVALIDATE");
 						validateRequests();
 					}
 
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Termination");
-					}
-
+                    log.debug("  ::--> Invalid Termination");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_NOTHING;
 				}
 
 				if (mValidSequencing) {
 					doDeliveryRequest(delReq, false, launch);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Sequencing");
-					}
-
+                    log.debug("  ::--> Invalid Sequencing");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_SEQ_BLOCKED;
 				}
 
@@ -4962,27 +4336,19 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				// because post condition rules are not evaluated.
 				if (mValidTermination) {
 					if (seqReq != null) {
-						if (_Debug) {
-							System.out.println("  ::--> ERROR : " + "Postconditions Processed");
-						}
+                        log.debug("  ::--> ERROR : " + "Postconditions Processed");
 					}
 
 					delReq = doSequencingRequest(ADLSequencer.SEQ_EXIT);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Termination");
-					}
-
+                    log.debug("  ::--> Invalid Termination");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_NOTHING;
 				}
 
 				if (mValidSequencing) {
 					doDeliveryRequest(delReq, false, launch);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Sequencing");
-					}
-
+                    log.debug("  ::--> Invalid Sequencing");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_SEQ_BLOCKED;
 				}
 
@@ -4997,28 +4363,20 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				// because post condition rules are not evaluated.
 				if (mValidTermination) {
 					if (seqReq != null) {
-						if (_Debug) {
-							System.out.println("  ::--> ERROR : " + "Postconditions Processed");
-						}
+                        log.debug("  ::--> ERROR : " + "Postconditions Processed");
 					}
 
 					delReq = doSequencingRequest(ADLSequencer.SEQ_EXIT);
 
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Termination");
-					}
-
+                    log.debug("  ::--> Invalid Termination");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_NOTHING;
 				}
 
 				if (mValidSequencing) {
 					doDeliveryRequest(delReq, false, launch);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Sequencing");
-					}
-
+                    log.debug("  ::--> Invalid Sequencing");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_SEQ_BLOCKED;
 				}
 
@@ -5038,27 +4396,18 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 					// If the session hasn't ended, re-validate nav requests
 					if (!mEndSession && !mExitCourse) {
-						if (_Debug) {
-							System.out.println("  ::--> REVALIDATE");
-						}
-
+                        log.debug("  ::--> REVALIDATE");
 						validateRequests();
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Termination");
-					}
-
+                    log.debug("  ::--> Invalid Termination");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_NOTHING;
 				}
 
 				if (mValidSequencing) {
 					doDeliveryRequest(delReq, false, launch);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Sequencing");
-					}
-
+                    log.debug("  ::--> Invalid Sequencing");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_SEQ_BLOCKED;
 				}
 
@@ -5073,27 +4422,19 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				// because post condition rules are not evaluated.
 				if (mValidTermination) {
 					if (seqReq != null) {
-						if (_Debug) {
-							System.out.println("  ::--> ERROR : " + "Postconditions Processed");
-						}
+                        log.debug("  ::--> ERROR : " + "Postconditions Processed");
 					}
 
 					delReq = doSequencingRequest(ADLSequencer.SEQ_EXIT);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Termination");
-					}
-
+                    log.debug("  ::--> Invalid Termination");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_NOTHING;
 				}
 
 				if (mValidSequencing) {
 					doDeliveryRequest(delReq, false, launch);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Sequencing");
-					}
-
+                    log.debug("  ::--> Invalid Sequencing");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_SEQ_BLOCKED;
 				}
 
@@ -5116,36 +4457,22 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				break;
 
 			default:
-
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : " + "Invalid navigation request: " + iRequest);
-				}
-
+                log.debug("  ::-->  ERROR : " + "Invalid navigation request: {}", iRequest);
 				launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR;
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> INVALID NAV REQUEST");
-			}
-
+            log.debug("  ::--> INVALID NAV REQUEST");
 			launch.mNavState = mSeqTree.getValidRequests();
 
 			// If navigation requests haven't been validated, try to validate
 			// now.
 			if (launch.mNavState == null) {
-				if (_Debug) {
-					System.out.println("  ::--> Not Validated Yet -- DO IT NOW");
-				}
-
+                log.debug("  ::--> Not Validated Yet -- DO IT NOW");
 				validateRequests();
 				launch.mNavState = mSeqTree.getValidRequests();
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - navigate");
-		}
-
+        log.debug("  :: ADLSequencer --> END   - navigate");
 		return launch;
 	}
 
@@ -5167,20 +4494,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		//
 		// It also applies the Overall Sequencing Process (OP) to the
 		// indicated navigation request.
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - navigate[choice]");
-			System.out.println("  :: [" + iTarget + "]");
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - navigate[choice]");
+		log.debug("  :: [{}]", iTarget);
 
 		ADLLaunch launch = new ADLLaunch();
 
 		// Make sure an activity tree has been associated with this sequencer
 		if (mSeqTree == null) {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : No activity tree defined.");
-				System.out.println("  :: ADLSequencer --> END   - " + "navigate[choice]");
-			}
+            log.debug("  ::--> ERROR : No activity tree defined.");
+			log.debug("  :: ADLSequencer --> END   - navigate[choice]");
 
 			// No activity tree, therefore nothing to do
 			// -- inform the caller of the error.
@@ -5220,36 +4542,21 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						//ADLTOC test = (ADLTOC) valid.mChoice.get(iTarget);
 
 						if (testNode == null) {
-							if (_Debug) {
-								System.out.println("  ::--> Target not available");
-							}
-
+                            log.debug("  ::--> Target not available");
 							launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR_INVALIDNAVREQ;
-
 							process = false;
 						} else if (!testNode.isSelectable()) {
-							if (_Debug) {
-								System.out.println("  ::--> Target not selectable");
-							}
-
+                            log.debug("  ::--> Target not selectable");
 							launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR_INVALIDNAVREQ;
-
 							process = false;
 						}
 					} else {
-						if (_Debug) {
-							System.out.println("  ::--> No 'choice' enabled");
-						}
-
+                        log.debug("  ::--> No 'choice' enabled");
 						launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR_INVALIDNAVREQ;
-
 						process = false;
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> ERROR : " + "Cannot validate request");
-					}
-
+                    log.debug("  ::--> ERROR : Cannot validate request");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR;
 					launch.mEndSession = true;
 
@@ -5285,42 +4592,26 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					// Issue the pending sequencing request
 					delReq = doSequencingRequest(seqReq);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Termination");
-					}
-
+                    log.debug("  ::--> Invalid Termination");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_NOTHING;
 				}
 
 				if (mValidSequencing) {
 					doDeliveryRequest(delReq, false, launch);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid Sequencing");
-					}
-
+                    log.debug("  ::--> Invalid Sequencing");
 					launch.mSeqNonContent = ADLLaunch.LAUNCH_SEQ_BLOCKED;
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> Bad Request");
-				}
-
+                log.debug("  ::--> Bad Request");
 				launch.mNavState = mSeqTree.getValidRequests();
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : The target activity is " + "not in the tree");
-			}
-
+            log.debug("  ::--> ERROR : The target activity is not in the tree");
 			launch.mSeqNonContent = ADLLaunch.LAUNCH_ERROR;
 			launch.mEndSession = true;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - " + "navigate[choice]");
-		}
-
+        log.debug("  :: ADLSequencer --> END   - navigate[choice]");
 		return launch;
 	}
 
@@ -5329,10 +4620,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 * selection and randomization processes where appropriate.
 	 */
 	private void prepareClusters() {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - prepareClusters");
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - prepareClusters");
 
 		SeqActivity walk = mSeqTree.getRoot();
 		List<SeqActivity> lookAt = new ArrayList<>();
@@ -5374,14 +4662,9 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				}
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ERROR :: NULL Activity Tree");
-			}
+            log.debug("  ERROR :: NULL Activity Tree");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - prepareClusters");
-		}
+        log.debug("  :: ADLSequencer --> END   - prepareClusters");
 	}
 
 	/**
@@ -5406,18 +4689,18 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	private boolean processFlow(int iDirection, boolean iEnter, Walk ioFrom, boolean iConChoice) {
 
 		// This method implements Flow Subprocess SB.2.3
+        log.debug("""
+                  :: ADLSequencer --> BEGIN - processFlow
+                  ::-->  {}
+                  ::-->  {}
+                  ::--> Con Choice?  {}
+                """,
+                iDirection, iConChoice, iConChoice ? "Yes" : "No");
 
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "processFlow");
-			System.out.println("  ::-->  " + iDirection);
-			System.out.println("  ::-->  " + iConChoice);
-			System.out.println("  ::--> Con Choice?  " + (iConChoice ? "Yes" : "No"));
-
-			if (ioFrom.at != null) {
-				System.out.println("  ::-->  " + ioFrom.at.getID());
-			} else {
-				System.out.println("  ::-->  ERROR : NULL starting point");
-			}
+        if (ioFrom.at != null) {
+            log.debug("  ::-->  {}", ioFrom.at.getID());
+        } else {
+            log.debug("  ::-->  ERROR : NULL starting point");
 		}
 
 		boolean success = true;
@@ -5434,17 +4717,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				success = walkActivity(iDirection, ADLSequencer.FLOW_NONE, ioFrom);
 			} else {
 				if (iConChoice) {
-
 					ioFrom.at = walk.at;
-
-					if (_Debug) {
-						System.out.println("  ::--> Constrained Choice test");
-					}
+                    log.debug("  ::--> Constrained Choice test");
 				} else {
-
-					if (_Debug) {
-						System.out.println("  ::--> No 'next' activity");
-					}
+                    log.debug("  ::--> No 'next' activity");
 				}
 
 				success = false;
@@ -5453,10 +4729,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			// Check to see if the sequencing session is ending due to
 			// walking off the activity tree
 			if (walk.at == null && walk.endSession) {
-
-				if (_Debug) {
-					System.out.println("  ::--> ENDING SESSION");
-				}
+                log.debug("  ::--> ENDING SESSION");
 
 				// End the attempt on the root of the activity tree
 				terminateDescendentAttempts(mSeqTree.getRoot());
@@ -5470,20 +4743,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			success = false;
 		}
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + success);
+        log.debug("""
+                    ::-->  {}
+                    ::-->  {}
+                    :: ADLSequencer --> END   - processFlow
+                  """,
+                success,
+                ioFrom.at != null ? ioFrom.at.getID() : "NULL");
 
-			if (ioFrom.at != null) {
-				System.out.println("  ::-->  " + ioFrom.at.getID());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-
-			System.out.println("  :: ADLSequencer --> END   - " + "processFlow");
-		}
-
-		return success;
-
+        return success;
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -5507,14 +4775,13 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	@Override
 	public void reportSuspension(String iID, boolean iSuspended) {
+        log.debug("""
+                    :: ADLSequencer --> BEGIN - reportSuspension
+                    ::--> Target activity: {}
+                    ::-->  {}
+                  """, iID, iSuspended);
 
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - reportSuspension");
-			System.out.println("  ::--> Target activity: " + iID);
-			System.out.println("  ::-->  " + iSuspended);
-		}
-
-		SeqActivity target = getActivity(iID);
+        SeqActivity target = getActivity(iID);
 
 		// Make sure the target activity is valid
 		if (target != null) {
@@ -5525,25 +4792,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					// Set the activity's suspended state
 					target.setIsSuspended(iSuspended);
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> ERROR : Invalid target");
-					}
+                    log.debug("  ::--> ERROR : Invalid target");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : Target not active");
-				}
+                log.debug("  ::--> ERROR : Target not active");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Activity does not exist");
-			}
+            log.debug("  ::--> ERROR : Activity does not exist");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - reportSuspension");
-		}
-
+        log.debug("  :: ADLSequencer --> END   - reportSuspension");
 	}
 
 	/**
@@ -5554,28 +4811,17 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	@Override
 	public void setActivityTree(ISeqActivityTree iTree) {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - setActivityTree");
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - setActivityTree");
 
 		// Make sure the activity tree exists.
 		if (iTree != null) {
 			// Set the activity tree to be acted upon
 			mSeqTree = (SeqActivityTree) iTree;
-
-			if (_Debug) {
-				System.out.println("  ::--> Activity tree set.");
-			}
+            log.debug("  ::--> Activity tree set.");
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NULL activity tree.");
-			}
+            log.debug("  ::--> NULL activity tree.");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - setActivityTree");
-		}
+        log.debug("  :: ADLSequencer --> END   - setActivityTree");
 	}
 
 	/**
@@ -5592,18 +4838,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	@Override
 	public void setAttemptDuration(String iID, IDuration argDur) {
 		ADLDuration iDur = (ADLDuration) argDur;
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "setAttemptDuration");
-			System.out.println("  ::--> " + iID);
 
-			if (iDur != null) {
-				System.out.println("  ::--> " + iDur.format(IDuration.FORMAT_SCHEMA));
-			} else {
-				System.out.println("  ::--> NULL");
-			}
-		}
+        log.debug("""
+                    :: ADLSequencer --> BEGIN - setAttemptDuration
+                    ::--> {}  
+                    ::--> {}
+                  """, iID, iDur != null ? iDur.format(IDuration.FORMAT_SCHEMA) : "NULL");
 
-		SeqActivity target = getActivity(iID);
+        SeqActivity target = getActivity(iID);
 
 		// Make sure the activity exists
 		if (target != null) {
@@ -5617,24 +4859,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					// Revalidate the navigation requests
 					validateRequests();
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> ERROR : Invalid target");
-					}
+                    log.debug("  ::--> ERROR : Invalid target");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : Target not active");
-				}
+                log.debug("  ::--> ERROR : Target not active");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Activity does not exist");
-			}
+            log.debug("  ::--> ERROR : Activity does not exist");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - " + "setAttemptDuration");
-		}
+        log.debug("  :: ADLSequencer --> END   - setAttemptDuration");
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -5659,14 +4892,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	@Override
 	public void setAttemptObjMeasure(String iID, String iObjID, double iMeasure) {
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "setAttemptObjMeasure");
-			System.out.println("  ::--> Target activity: " + iID);
-			System.out.println("  ::--> Objective:       " + iObjID);
-			System.out.println("  ::--> Measure:         " + iMeasure);
-		}
+        log.debug("""
+                    :: ADLSequencer --> BEGIN - setAttemptObjMeasure
+                    ::--> Target activity: {}
+                    ::--> Objective:       {}
+                    ::--> Measure:         {}
+                  """, iID, iObjID, iMeasure);
 
-		// Find the target activty
+        // Find the target activty
 		SeqActivity target = getActivity(iID);
 
 		// Make sure the activity exists
@@ -5690,24 +4923,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						validateRequests();
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> ERROR : Invalid target");
-					}
+                    log.debug("  ::--> ERROR : Invalid target");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : Target not active");
-				}
+                log.debug("  ::--> ERROR : Target not active");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Activity does not exist");
-			}
+            log.debug("  ::--> ERROR : Activity does not exist");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - " + "setAttemptObjMeasure");
-		}
+        log.debug("  :: ADLSequencer --> END   - setAttemptObjMeasure");
 	}
 
 	/**
@@ -5727,13 +4951,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	@Override
 	public void setAttemptObjSatisfied(String iID, String iObjID, String iStatus) {
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "setAttemptObjSatisfied");
-			System.out.println("  ::--> Target activity: " + iID);
-			System.out.println("  ::--> Objective:       " + iObjID);
-			System.out.println("  ::--> Status:          " + iStatus);
-		}
-
+        log.debug("""
+                    :: ADLSequencer --> BEGIN - setAttemptObjSatisfied
+                    ::--> Target activity: {}
+                    ::--> Objective:       {}
+                    ::--> Status:          {}
+                  """, iID, iObjID, iStatus);
 		// Find the activty whose status is being set
 		SeqActivity target = getActivity(iID);
 
@@ -5754,24 +4977,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						validateRequests();
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> ERROR : Invalid target");
-					}
+                    log.debug("  ::--> ERROR : Invalid target");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : Target not active");
-				}
+                log.debug("  ::--> ERROR : Target not active");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Activity does not exist");
-			}
+            log.debug("  ::--> ERROR : Activity does not exist");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - " + "setAttemptObjSatisfied");
-		}
+        log.debug("  :: ADLSequencer --> END   - setAttemptObjSatisfied");
 	}
 
 	/**
@@ -5788,13 +5002,13 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	@Override
 	public void setAttemptProgressStatus(String iID, String iProgress) {
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "setAttemptProgressStatus");
-			System.out.println("  ::--> Target activity:    " + iID);
-			System.out.println("  ::--> Completion status:  " + iProgress);
-		}
+        log.debug("""
+                    :: ADLSequencer --> BEGIN - setAttemptProgressStatus
+                    ::--> Target activity:    {}
+                    ::--> Completion status:  {}
+                  """, iID, iProgress);
 
-		SeqActivity target = getActivity(iID);
+        SeqActivity target = getActivity(iID);
 
 		// Make sure the activity exists
 		if (target != null) {
@@ -5815,24 +5029,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						validateRequests();
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> ERROR : Invalid target");
-					}
+                    log.debug("  ::--> ERROR : Invalid target");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : Target not active");
-				}
+                log.debug("  ::--> ERROR : Target not active");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Activity does not exist");
-			}
+            log.debug("  ::--> ERROR : Activity does not exist");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - " + "setAttemptProgressStatus");
-		}
+        log.debug("  :: ADLSequencer --> END   - setAttemptProgressStatus");
 	}
 
 	/**
@@ -5845,10 +5050,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 */
 	private void setRetry(boolean iRetry) {
 		mRetry = false; // iRetry;
-
-		if (_Debug) {
-			System.out.println("  ::--> RETRY == " + mRetry);
-		}
+        log.debug("  ::--> RETRY == {}", mRetry);
 	}
 
 	/**
@@ -5861,15 +5063,12 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		// This is an implementation of the Terminate Descendent Attempts
 		// Process (UP.3)
+        log.debug("  :: ADLSequencer --> BEGIN - terminateDescendentAttempts");
 
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "terminateDescendentAttempts");
-
-			if (iTarget != null) {
-				System.out.println("  ::-->  Target: " + iTarget.getID());
-			} else {
-				System.out.println("  ::--> ERROR : NULL Activity");
-			}
+		if (iTarget != null) {
+			log.debug("  ::-->  Target: {}", iTarget.getID());
+        } else {
+            log.debug("  ::--> ERROR : NULL Activity");
 		}
 
 		SeqActivity cur = mSeqTree.getFirstCandidate();
@@ -5883,15 +5082,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 				walk = walk.getParent();
 			}
-		} else {
-			if (_Debug) {
-				System.out.println("  ::--> No current activity");
-			}
+		} else {	
+            log.debug("  ::--> No current activity");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   -  " + "terminateDescendentAttempts");
-		}
+        log.debug("  :: ADLSequencer --> END   -  terminateDescendentAttempts");
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -5911,10 +5105,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	 * has been performed.
 	 */
 	private void validateRequests() {
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - validateRequests");
-		}
+        log.debug("  :: ADLSequencer --> BEGIN - validateRequests");
 
 		ADLValidRequests valid = mSeqTree.getValidRequests();
 
@@ -5968,19 +5159,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			}*/
 
 			if (cur.getParent() != null) {
-				if (_Debug) {
-					System.out.println("  ::--> Validate 'Continue'");
-				}
+                log.debug("  ::--> Validate 'Continue'");
 
 				// Always provide a Continue Button if the current activity
 				// is in a 'Flow' cluster
 				if (cur.getParent().getControlModeFlow()) {
 					valid.mContinue = true;
-				}
-
-				if (_Debug) {
-					System.out.println("  ::--> Validate 'Previous'");
-				}
+				}				
+                log.debug("  ::--> Validate 'Previous'");
 
 				test = doIMSNavValidation(SeqNavRequests.NAV_PREVIOUS);
 
@@ -5995,15 +5181,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				}
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> No current activity");
-			}
+            log.debug("  ::--> No current activity");
 
 			valid = new ADLValidRequests();
-
-			if (_Debug) {
-				System.out.println("  ::--> Validate 'Start' and 'Resume'");
-			}
+            log.debug("  ::--> Validate 'Start' and 'Resume'");
 
 			// Check to see if a resume All should be processed instead of a
 			// start
@@ -6022,9 +5203,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					boolean ok = true;
 
 					while (walk.at != null && ok) {
-						if (_Debug) {
-							System.out.println("  ::-->  Checking --> " + walk.at.getID());
-						}
+                        log.debug("  ::-->  Checking --> {}", walk.at.getID());
 
 						ok = !checkActivity(walk.at);
 
@@ -6036,24 +5215,11 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					}
 				}
 			}
-
-			if (_Debug) {
-				if (valid.mStart) {
-					System.out.println("  ::--> 'Start' Request is VALID");
-				} else {
-					System.out.println("  ::--> 'Start' Request is INVALID");
-				}
-
-				if (valid.mResume) {
-					System.out.println("  ::--> 'Resume All' Request is VALID");
-				} else {
-					System.out.println("  ::--> 'Resume All' Request is INVALID");
-				}
-			}
-
-			if (_Debug) {
-				System.out.println("  ::--> Validate 'Choice' requests");
-			}
+            log.debug("""
+                        ::--> 'Start' Request is {}
+                        ::--> 'Resume All' Request is {}
+                        ::--> Validate 'Choice' requests
+                      """, valid.mStart ? "VALID" : "INVALID", valid.mResume ? "VALID" : "INVALID");
 
 			// Test all 'Choice' requests
 			// TODO: Remove this
@@ -6089,21 +5255,15 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		if (valid != null) {
 			mSeqTree.setValidRequests(valid);
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> END   - validateRequests");
-		}
+        log.debug("  :: ADLSequencer --> END   - validateRequests");
 	}
 
 	/*private Hashtable getChoiceSet(List iOldTOC, List oNewTOC) {
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer  --> BEGIN - getChoiceSet");
-
-			if (iOldTOC != null) {
-				System.out.println("  ::--> " + iOldTOC.size());
-			} else {
-				System.out.println("  ::--> NULL");
-			}
+		log.debug("  :: ADLSequencer  --> BEGIN - getChoiceSet");
+		if (iOldTOC != null) {
+			log.debug("  ::--> {}", iOldTOC.size());
+		} else {
+			log.debug("  ::--> NULL");
 		}
 
 		Hashtable set = null;
@@ -6119,16 +5279,10 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				temp = (ADLTOC) iOldTOC.get(i);
 
 				if (temp.mDepth == -1) {
-					if (_Debug) {
-						System.out.println("  ::--> Remove :: " + temp.mID);
-					}
+				    log.debug("  ::--> Remove :: " + temp.mID);
 
 					if (temp.mIsSelectable) {
-
-						if (_Debug) {
-							System.out.println("  ::--> Invisible :: "
-									+ temp.mID);
-						}
+						log.debug("  ::--> Invisible :: {}",  temp.mID);
 
 						// Not in the TOC, but still a valid target
 						set.put(temp.mID, temp);
@@ -6147,10 +5301,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		}
 
 		if (lastLeaf != null) {
-			if (_Debug) {
-				System.out.println("  ::--> Setting last leaf --> " + lastLeaf);
-			}
-
+			log.debug("  ::--> Setting last leaf --> {}", lastLeaf);
 			mSeqTree.setLastLeaf(lastLeaf);
 		}
 
@@ -6167,43 +5318,29 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 			ADLTOC temp = (ADLTOC) oNewTOC.get(0);
 
 			if (!temp.mIsEnabled) {
-				if (_Debug) {
-					System.out.println("  ::--> Clearing single non-enabled "
-							+ " activity");
-				}
-
+				log.debug("  ::--> Clearing single non-enabled activity");
 				oNewTOC.remove(0);
 			} else if (!temp.mLeaf) {
-				if (_Debug) {
-					System.out.println("  ::--> Clearing root activity");
-				}
-
+				log.debug("  ::--> Clearing root activity");
 				oNewTOC.remove(0);
 			}
 		}
+		if (set != null) {
+			log.debug("  ::--> {}  //  {}", set.size(), oNewTOC.size());
 
-		if (_Debug) {
-			if (set != null) {
-				System.out.println("  ::--> " + set.size() + "  //  "
-						+ oNewTOC.size());
+			for (int i = 0; i < oNewTOC.size(); i++) {
+				ADLTOC temp = (ADLTOC) oNewTOC.get(i);
 
-				for (int i = 0; i < oNewTOC.size(); i++) {
-					ADLTOC temp = (ADLTOC) oNewTOC.get(i);
-
-					temp.dumpState();
-				}
+				temp.dumpState();
 			} else {
-				System.out.println("  ::--> NULL");
+				log.debug("  ::--> NULL");
 			}
 
-			System.out.println("  :: ADLSequencer  --> END   - getChoiceSet");
+			log.debug("  :: ADLSequencer  --> END   - getChoiceSet");
 		}
 
 		return set;
 	}
-	
-	
-	
 	
 	private MutableTreeNode addNode(Map<Integer, MutableTreeNode> nodeMap, SeqActivity activity) {
 		Integer i = Integer.valueOf(activity.getCount());
@@ -6247,8 +5384,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	}
 	
 	
-	private int addChildren(DefaultMutableTreeNode node, List copy){
-		SeqActivity activity = (SeqActivity)node.getUserObject();
+	private int addChildren(DefaultMutableTreeNode node, List copy) {
+	    SeqActivity activity = (SeqActivity)node.getUserObject();
 		
 		int count = activity.getCount();
 		int found = 0;
@@ -6326,10 +5463,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 
 		// Make sure we have an activity tree
 		if (mSeqTree == null) {
-			if (_Debug) {
-				System.out.println("  ::-->  No Activity Tree");
-			}
-
+			log.debug("  ::-->  No Activity Tree");
 			done = true;
 		}
 		
@@ -6372,41 +5506,32 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	private boolean walkActivity(int iDirection, int iPrevDirection, Walk ioFrom) {
 
 		// This method implements Flow Subprocess SB.2.3
+        log.debug("  :: ADLSequencer --> BEGIN - walkActivity");
+		log.debug("  Dir  ::-->  {}", (iDirection == ADLSequencer.FLOW_BACKWARD ? "Backward" : "Forward"));
+		if (iPrevDirection == ADLSequencer.FLOW_NONE) {
+            log.debug("  Prev ::-->  None");
+        } else {
+            log.debug("  Prev ::-->  {}", (iPrevDirection == ADLSequencer.FLOW_BACKWARD ? "Backward" : "Forward"));
+        }
 
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "walkActivity");
-			System.out.println("  Dir  ::-->  " + (iDirection == ADLSequencer.FLOW_BACKWARD ? "Backward" : "Forward"));
-			if (iPrevDirection == ADLSequencer.FLOW_NONE) {
-				System.out.println("  Prev ::-->  None");
-			} else {
-				System.out.println("  Prev ::-->  " + (iPrevDirection == ADLSequencer.FLOW_BACKWARD ? "Backward" : "Forward"));
-			}
+        if (ioFrom.at != null) {
+            log.debug("  ::-->  {}", ioFrom.at.getID());
+        } else {
+            log.debug("  ::--> ERROR : NULL starting point");
+        }
 
-			if (ioFrom.at != null) {
-				System.out.println("  ::-->  " + ioFrom.at.getID());
-			} else {
-				System.out.println("  ::--> ERROR : NULL starting point");
-			}
-		}
-
-		boolean deliver = true;
+        boolean deliver = true;
 
 		SeqActivity parent = ioFrom.at.getParent();
 
 		if (parent != null) {
 			// Confirm that 'flow' is enabled for the cluster
 			if (!parent.getControlModeFlow()) {
-				if (_Debug) {
-					System.out.println("  ::--> Control Mode violated");
-				}
-
+                log.debug("  ::--> Control Mode violated");
 				deliver = false;
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Cannot have null parent");
-			}
-
+            log.debug("  ::--> ERROR : Cannot have null parent");
 			deliver = false;
 		}
 
@@ -6428,17 +5553,14 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				if (walk.at == null) {
 					deliver = false;
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  RECURSION  <--::");
-					}
+                    log.debug("  ::-->  RECURSION  <--::");
 
 					ioFrom.at = walk.at;
 
 					// Test if we've switched directions...
 					if (iPrevDirection == ADLSequencer.FLOW_BACKWARD && walk.direction == ADLSequencer.FLOW_BACKWARD){
 						return walkActivity(ADLSequencer.FLOW_BACKWARD, ADLSequencer.FLOW_NONE, ioFrom);
-					} else
-					{
+					} else {
 						return walkActivity(iDirection, iPrevDirection, ioFrom);
 					}
 				}
@@ -6454,10 +5576,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 							ioFrom.at = walk.at;
 
 							if (iDirection == ADLSequencer.FLOW_BACKWARD && walk.direction == ADLSequencer.FLOW_FORWARD) {
-								if (_Debug) {
-									System.out.println("  ::--> REVERSING");
-								}
-
+                                log.debug("  ::--> REVERSING");
 								deliver = walkActivity(ADLSequencer.FLOW_FORWARD, ADLSequencer.FLOW_BACKWARD, ioFrom);
 							} else {
 								deliver = walkActivity(iDirection, ADLSequencer.FLOW_NONE, ioFrom);
@@ -6466,29 +5585,19 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 							deliver = false;
 						}
 					} else {
-						if (_Debug) {
-							System.out.println("  ::--> Found a leaf");
-						}
+                        log.debug("  ::--> Found a leaf");
 					}
 				} else {
 					deliver = false;
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + deliver);
-
-			if (ioFrom.at != null) {
-				System.out.println("  ::-->  " + ioFrom.at.getID());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-
-			System.out.println("  :: ADLSequencer --> END   - " + "walkActivity");
-		}
-
-		return deliver;
+        log.debug("""
+                    ::-->  {}
+                    ::-->  {}
+                    :: ADLSequencer --> END   - walkActivity
+                  """, deliver, ioFrom.at == null ? "NULL" : ioFrom.at.getID());
+        return deliver;
 	}
 
 	/**
@@ -6517,25 +5626,19 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 	private Walk walkTree(int iDirection, int iPrevDirection, boolean iEnter, SeqActivity iFrom, boolean iControl) {
 
 		// This method implements Flow Subprocess SB.2.1
-
-		if (_Debug) {
-			System.out.println("  :: ADLSequencer --> BEGIN - " + "walkTree");
-			System.out.println("  Dir  ::-->  " + (iDirection == ADLSequencer.FLOW_BACKWARD ? "Backward" : "Forward"));
-			if (iPrevDirection == ADLSequencer.FLOW_NONE) {
-				System.out.println("  Prev ::-->  None");
-			} else {
-				System.out.println("  Prev ::-->  " + (iPrevDirection == ADLSequencer.FLOW_BACKWARD ? "Backward" : "Forward"));
-			}
-
-			System.out.println("  ::-->  " + (iEnter ? "Enter" : "Don't Enter"));
-			System.out.println("  ::--> Control?  " + (iControl ? "Yes" : "No"));
-
-			if (iFrom != null) {
-				System.out.println("  ::-->  " + iFrom.getID());
-			} else {
-				System.out.println("  ::--> NULL");
-			}
-		}
+        log.debug("""
+                    :: ADLSequencer --> BEGIN - walkTree
+                    Dir  ::-->  {}
+                    Prev ::-->  {}
+                    ::-->  {}
+                    ::--> Control?  {}
+                    ::-->  {}
+                  """,
+                iDirection == ADLSequencer.FLOW_BACKWARD ? "Backward" : "Forward",
+                iPrevDirection == ADLSequencer.FLOW_NONE ? "None" : iPrevDirection == ADLSequencer.FLOW_BACKWARD ? "Backward" : "Forward",
+                iEnter ? "Enter" : "Don't Enter",
+                iControl ? "Yes" : "No",
+                iFrom == null ? "NULL" : iFrom.getID());
 
 		SeqActivity next = null;
 		SeqActivity parent = null;
@@ -6547,11 +5650,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 		boolean endSession = false;
 
 		if (iFrom == null) {
-
-			if (_Debug) {
-				System.out.println("  ::--> Walked off the Activity Tree");
-			}
-
+            log.debug("  ::--> Walked off the Activity Tree");
 			// The sequencing session is over
 			endSession = true;
 			done = true;
@@ -6571,10 +5670,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					iFrom = (parent.getChildren(false).get(0));
 
 					reversed = true;
-
-					if (_Debug) {
-						System.out.println("  ::  REVERSING DIRECTION ::   " + iFrom.getID());
-					}
+                    log.debug("  ::  REVERSING DIRECTION ::   {}", iFrom.getID());
 				}
 			}
 		}
@@ -6586,10 +5682,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				// session is over
 				done = true;
 				endSession = true;
-
-				if (_Debug) {
-					System.out.println("  ::-->  Last Leaf");
-				}
+                log.debug("  ::-->  Last Leaf");
 			}
 
 			if (!done) {
@@ -6602,10 +5695,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					// if ( iControl )
 					// {
 					//
-					// if ( _Debug )
-					// {
-					// System.out.println(" ::--> TESTING FORWARD BLOCK");
-					// }
+					// log.debug(" ::--> TESTING FORWARD BLOCK");
 					//
 					// // Attempt to get rule information from the activity node
 					// SeqRuleset stopTrav = iFrom.getPreSeqRules();
@@ -6625,9 +5715,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					next = iFrom.getNextSibling(false);
 
 					if (next == null) {
-						if (_Debug) {
-							System.out.println("  ::-->  FORWARD RECURSION  <--::");
-						}
+                        log.debug("  ::-->  FORWARD RECURSION  <--::");
 
 						Walk walk = walkTree(direction, ADLSequencer.FLOW_NONE, false, parent, iControl);
 
@@ -6637,10 +5725,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 				}
 				// else
 				// {
-				// if ( _Debug )
-				// {
-				// System.out.println(" ::--> BLOCKED <--::");
-				// }
+				// log.debug(" ::--> BLOCKED <--::");
 				//
 				// done = true;
 				// }
@@ -6662,12 +5747,8 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					if (iControl && !reversed) {
 
 						if (parent.getControlForwardOnly()) {
-							if (_Debug) {
-								System.out.println("  ::--> Forward Only " + "Control Mode " + "violation at -->  " + iFrom.getID());
-
-								System.out.println("  :: ADLSequencer --> END   - " + "walkTree");
-							}
-
+                            log.debug("  ::--> Forward Only Control Mode violation at -->  {}", iFrom.getID());
+							log.debug("  :: ADLSequencer --> END   - walkTree");
 							done = true;
 						}
 					}
@@ -6676,9 +5757,7 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 						next = iFrom.getPrevSibling(false);
 
 						if (next == null) {
-							if (_Debug) {
-								System.out.println("  ::-->  BACKWARD RECURSION  " + "<--::");
-							}
+                            log.debug("  ::-->  BACKWARD RECURSION  <--::");
 
 							Walk walk = walkTree(direction, ADLSequencer.FLOW_NONE, false, parent, iControl);
 
@@ -6704,37 +5783,27 @@ public class ADLSequencer implements SeqNavigation, SeqReportActivityStatus, ISe
 					}
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : Walked off the root");
-				}
+                log.debug("  ::--> ERROR : Walked off the root");
 			}
 		} else if (!done) {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Invalid direction");
-			}
+            log.debug("  ::--> ERROR : Invalid direction");
 		}
 
-		if (_Debug) {
-			if (next != null) {
-				System.out.println("  ::-->  " + next.getID());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
+        log.debug("""
+                    ::-->  {}
+                    ::-->  End Session?  {}
+                    ::--> MOVING ---> {}
+                    :: ADLSequencer --> END   - walkTree
+                  """,
+                next != null ? next.getID() : "NULL",
+                endSession ? "YES" : "NO",
+                direction == ADLSequencer.FLOW_FORWARD ? "Forward" : "Backward");
 
-			System.out.println("  ::-->  End Session?  " + ((endSession) ? "YES" : "NO"));
-
-			System.out.println("  ::--> MOVING ---> " + ((direction == ADLSequencer.FLOW_FORWARD) ? "Forward" : "Backward"));
-
-			System.out.println("  :: ADLSequencer --> END   - " + "walkTree");
-		}
-
-		Walk walk = new Walk();
+        Walk walk = new Walk();
 		walk.at = next;
 		walk.direction = direction;
-
 		walk.endSession = endSession;
-
 		return walk;
 	}
 
-} // end ADLSequencer
+}

@@ -27,7 +27,7 @@ package org.adl.sequencer;
 import java.io.Serializable;
 import java.util.List;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Encapsulation of a set of sequencing rules associated with an activity.
@@ -63,6 +63,7 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqRuleset implements Serializable, ISeqRuleset {
 	static final long serialVersionUID = 1L; //-1546682264123089317L;
 
@@ -124,12 +125,7 @@ public class SeqRuleset implements Serializable, ISeqRuleset {
 	 */
 	public static final int RULE_TYPE_FORWARDBLOCK = 7;
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * This is the set of sequencing rules defined for an activity
 	 */
 	private List<ISeqRule> mRules = null;
@@ -149,23 +145,15 @@ public class SeqRuleset implements Serializable, ISeqRuleset {
 	 * @param iRules      Set of preconstructed sequencing rules (<code>SeqRule
 	 *                    </code>).
 	 */
-	public SeqRuleset(List<ISeqRule> iRules) {
+	public SeqRuleset(List<ISeqRule> iRules) {		log.debug("  :: SeqRuleset  --> BEGIN - constructor");
 
-		if (_Debug) {
-			System.out.println("  :: SeqRuleset  --> BEGIN - constructor");
+		for (int i = 0; i < iRules.size(); i++) {
+			ISeqRule temp = iRules.get(i);
 
-			for (int i = 0; i < iRules.size(); i++) {
-				ISeqRule temp = iRules.get(i);
-
-				temp.dumpState();
-			}
+			temp.dumpState();
 		}
 
-		mRules = iRules;
-
-		if (_Debug) {
-			System.out.println("  :: SeqRuleset  --> END   - constructor");
-		}
+		mRules = iRules;		log.debug("  :: SeqRuleset  --> END   - constructor");
 	}
 
 	@Override
@@ -206,11 +194,8 @@ public class SeqRuleset implements Serializable, ISeqRuleset {
 	 * @see org.adl.sequencer.SeqRuleset
 	 */
 	@Override
-	public String evaluate(int iType, ISeqActivity iThisActivity, boolean iRetry) {
-		if (_Debug) {
-			System.out.println("  :: SeqRuleset   --> BEGIN - evaluate");
-			System.out.println("  ::-->  " + iType);
-		}
+	public String evaluate(int iType, ISeqActivity iThisActivity, boolean iRetry) {		log.debug("  :: SeqRuleset   --> BEGIN - evaluate");
+		log.debug("  ::-->  " + iType);
 
 		String action = null;
 
@@ -229,12 +214,8 @@ public class SeqRuleset implements Serializable, ISeqRuleset {
 					action = result;
 				}
 			}
-		}
-
-		if (_Debug) {
-			System.out.println("  ::--> " + action);
-			System.out.println("  :: SeqRuleset   --> END   - evaluate");
-		}
+		}		log.debug("  ::--> " + action);
+		log.debug("  :: SeqRuleset   --> END   - evaluate");
 
 		return action;
 	}

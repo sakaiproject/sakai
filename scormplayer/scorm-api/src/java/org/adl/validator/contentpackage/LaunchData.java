@@ -23,6 +23,8 @@
 *******************************************************************************/
 package org.adl.validator.contentpackage;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.Serializable;
 import java.util.logging.Logger;
 
@@ -34,7 +36,7 @@ import java.util.logging.Logger;
  *
  * @author ADL Technical Team
  */
-
+@Slf4j
 public class LaunchData implements ILaunchData {
 	private static final long serialVersionUID = 1L;
 
@@ -559,18 +561,18 @@ public class LaunchData implements ILaunchData {
 	 */
 	@Override
 	public void printToConsole() {
-		System.out.println("###############################################");
-		System.out.println("###   resourceIdentifier = '" + mResourceIdentifier + "'");
-		System.out.println("###  itemIdentifier = '" + mItemIdentifier + "'");
-		System.out.println("###  itemTitle = '" + mItemTitle + "'");
-		System.out.println("###  manifestXMLBase = '" + mManifestXMLBase + "'");
-		System.out.println("###  resourcesXMLBase = '" + mResourcesXMLBase + "'");
-		System.out.println("###  resourceXMLBase = '" + mResourceXMLBase + "'");
-		System.out.println("###  scormType = '" + mSCORMType + "'");
-		System.out.println("###  parameters = '" + mParameters + "'");
-		System.out.println("###  location = '" + mLocation + "'");
-		System.out.println("###  LaunchLine = '" + getLaunchLine() + "'");
-		System.out.println("###############################################");
+		log.info("###############################################");
+		log.info("###   resourceIdentifier = '" + mResourceIdentifier + "'");
+		log.info("###  itemIdentifier = '" + mItemIdentifier + "'");
+		log.info("###  itemTitle = '" + mItemTitle + "'");
+		log.info("###  manifestXMLBase = '" + mManifestXMLBase + "'");
+		log.info("###  resourcesXMLBase = '" + mResourcesXMLBase + "'");
+		log.info("###  resourceXMLBase = '" + mResourceXMLBase + "'");
+		log.info("###  scormType = '" + mSCORMType + "'");
+		log.info("###  parameters = '" + mParameters + "'");
+		log.info("###  location = '" + mLocation + "'");
+		log.info("###  LaunchLine = '" + getLaunchLine() + "'");
+		log.info("###############################################");
 	}
 
 	/**

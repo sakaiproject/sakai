@@ -26,17 +26,18 @@ package org.adl.validator.contentpackage;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.parsers.dom.ADLDOMParser;
 import org.adl.parsers.dom.DOMTreeUtility;
@@ -49,8 +50,6 @@ import org.adl.validator.IValidator;
 import org.adl.validator.RulesValidator;
 import org.adl.validator.sequence.SequenceValidator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -79,6 +78,7 @@ import org.w3c.dom.NodeList;
  * @author ADL Technical Team <br>
  * <br>
  */
+@Slf4j
 public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 	private static final long serialVersionUID = 1L;
@@ -89,14 +89,6 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 * turned off, allowing only wellformedness checks to occur.
 	 */
 	protected boolean mPerformFullValidation;
-
-	/**
-	 * Logger object used for debug logging.
-	 */
-	// private transient Logger mLogger =
-	// Logger.getLogger("org.adl.util.debug.validator");
-
-	private static Log mLogger = LogFactory.getLog(CPValidator.class);
 
 	/**
 	 * This attribute serves as the object that contains the information
@@ -273,11 +265,14 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 */
 	private String applyXMLBase(String iHrefValue) {
 
-		mLogger.debug("mXMLBase[0][1]: " + mXMLBase[0][1]);
-		mLogger.debug("mXMLBase[1][1]: " + mXMLBase[1][1]);
-		mLogger.debug("mXMLBase[2][1]: " + mXMLBase[2][1]);
-		mLogger.debug("href: " + iHrefValue);
-		return mXMLBase[0][1] + mXMLBase[1][1] + mXMLBase[2][1] + iHrefValue;
+        log.debug("""
+                        mXMLBase[0][1]: {}
+                        mXMLBase[1][1]: {}
+                        mXMLBase[2][1]: {}
+                        href: {}
+                      """,
+                mXMLBase[0][1], mXMLBase[1][1], mXMLBase[2][1], iHrefValue);
+        return mXMLBase[0][1] + mXMLBase[1][1] + mXMLBase[2][1] + iHrefValue;
 
 	}
 
@@ -289,7 +284,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *            The resources node <br>
 	 */
 	private void checkBucketAttributes(Node iBucketNode) {
-		mLogger.debug("CPValidator checkBucketAttributes");
+		log.debug("CPValidator checkBucketAttributes");
 
 		String msgText;
 		boolean foundValidChar = false;
@@ -325,7 +320,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				}
 				if (!foundValidChar) {
 					msgText = "Attribute \"" + currentAttrName + "\" must " + "contain valid characters, all whitespace found.";
-					mLogger.debug("SSP: " + msgText);
+					log.debug("SSP: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				}
 
@@ -343,7 +338,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *            The resources node <br>
 	 */
 	private void checkBucketUniqueness(Node iResourceNode) {
-		mLogger.debug("CPValidator checkBucketUniqueness");
+		log.debug("CPValidator checkBucketUniqueness");
 
 		String msgText;
 		List<String> idList = new ArrayList<>();
@@ -369,7 +364,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					if (idList.contains(bucketId)) {
 						// ERROR, duplicate ID exists in resource
 						msgText = "BucketID \"" + bucketId + "\" must be unqiue" + " for a <resource>.";
-						mLogger.debug("SSP: " + msgText);
+						log.debug("SSP: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 					} else {
@@ -413,13 +408,13 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				        + "need to be taken to correct this problem:";
 			}
 
-			mLogger.debug("WARNING: " + msgText);
+			log.debug("WARNING: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 
 			// we've displayed the warning, now list the files creating the
 			// warning
 			for (int i = 0; i < mFileList.size(); i++) {
-				mLogger.debug(mFileList.get(i));
+				log.debug(mFileList.get(i));
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.OTHER, mFileList.get(i)));
 			}
 
@@ -447,13 +442,13 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				        + "Appropriate action may need to be taken to correct " + "this problem:";
 			}
 
-			mLogger.debug("WARNING: " + msgText);
+			log.debug("WARNING: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 
 			// we've displayed the warning, now list the files creating the
 			// warning
 			for (int j = 0; j < mManifestResourceIdentifierList.size(); j++) {
-				mLogger.debug(mManifestResourceIdentifierList.get(j));
+				log.debug(mManifestResourceIdentifierList.get(j));
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.OTHER, mManifestResourceIdentifierList.get(j)));
 			}
 
@@ -470,8 +465,8 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 * @return boolean - result of the reference to sco check.
 	 */
 	private boolean checkForReferenceToSco(String idrefValue) {
-		mLogger.debug("CPValidator checkForReferenceToSco");
-		mLogger.debug("Input Identifierref: " + idrefValue);
+		log.debug("CPValidator checkForReferenceToSco");
+		log.debug("Input Identifierref: {}", idrefValue);
 
 		boolean result = true;
 		int len = mResourceNodes.size();
@@ -482,7 +477,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		for (int i = 0; i < len; i++) {
 			Node currentResource = mResourceNodes.get(i);
 			id = DOMTreeUtility.getAttributeValue(currentResource, "identifier");
-			mLogger.debug("Identifier of <resource> #" + i + " is: " + id);
+			log.debug("Identifier of <resource> #{} is: {}", i, id);
 
 			if (id.equals(idrefValue)) {
 				// we have a matching reference
@@ -490,14 +485,14 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 				type = DOMTreeUtility.getAttributeValue(currentResource, "scormType");
 
-				mLogger.debug("SCORM Type of <resource> #" + i + " is: " + type);
+				log.debug("SCORM Type of <resource> #{} is: {}", i, type);
 
 				if (!type.equalsIgnoreCase("sco")) {
 					result = false;
 
 					msgText = Messages.getString("CPValidator.452", idrefValue);
 
-					mLogger.debug("FAILED: " + msgText);
+					log.debug("FAILED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				}
 			}
@@ -522,16 +517,16 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 * @return boolean - true if the required files are present, false otherwise
 	 */
 	private boolean checkForRequiredFiles(String iDirectory, List<String> iDeclaredNamespaces) {
-		mLogger.debug("CPValidator checkForRequiredFiles()");
+		log.debug("CPValidator checkForRequiredFiles()");
 		boolean result = true;
 		ManifestHandler mdHandler = new ManifestHandler();
 		String schemaLocations = "";
 
-		mLogger.debug("XMLOTHER HR: ");
+		log.debug("XMLOTHER HR: ");
 
 		DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.XMLOTHER, "HR"));
 
-		mLogger.debug("INFO: Searching for Files Required For XML Parsing");
+		log.debug("INFO: Searching for Files Required For XML Parsing");
 		DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, Messages.getString("CPValidator.63")));
 
 		// All control files also are required to be at the root of the package.
@@ -593,8 +588,8 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 		DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.XMLOTHER, "HR"));
 
-		mLogger.debug("returning the following result " + result);
-		mLogger.debug("CPValidator checkForRequiredFiles()");
+		log.debug("returning the following result {}", result);
+		log.debug("CPValidator checkForRequiredFiles()");
 
 		// Set the ADLSCORMValidator protected attribute for summary log info
 		super.setIsRequiredFiles(result);
@@ -615,9 +610,9 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *         href, xml:base, and location DO NOT contain leading slashes.
 	 */
 	private boolean checkForSlashes(String iName, String iValue) {
-		mLogger.debug("CPValidator checkForSlashes()");
-		mLogger.debug("Name: " + iName);
-		mLogger.debug("Value: " + iValue);
+		log.debug("CPValidator checkForSlashes()");
+		log.debug("Name: {}", iName);
+		log.debug("Value: {}", iValue);
 
 		String msgText = "";
 		boolean result = true;
@@ -629,7 +624,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		if (iName.equals("xml:base")) {
 			if (tempChar != '/') {
 				msgText = Messages.getString("CPValidator.624", iName);
-				mLogger.debug("FAILED: " + msgText);
+				log.debug("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 				result &= false;
@@ -641,7 +636,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		// make sure the first character IS NOT a "\"
 		if (tempChar == File.separatorChar || tempChar == '/') {
 			msgText = Messages.getString("CPValidator.627", iName);
-			mLogger.debug("FAILED: " + msgText);
+			log.debug("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 			result = false;
@@ -661,8 +656,8 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *         passed, false otherwise.
 	 */
 	private boolean checkHref(String iURIString) {
-		mLogger.debug("CPValidator checkHref()");
-		mLogger.debug("iURISting is " + iURIString);
+		log.debug("CPValidator checkHref()");
+		log.debug("iURISting is {}", iURIString);
 
 		boolean result = true;
 		String msgText = "";
@@ -684,31 +679,31 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					// try to access the address
 					if (code == 200) {
 						msgText = Messages.getString("CPValidator.502", iURIString);
-						mLogger.debug("PASSED: " + msgText);
+						log.debug("PASSED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 					} else {
 						msgText = Messages.getString("CPValidator.505", iURIString);
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 						result = false;
 					}
 				} catch (MalformedURLException mfue) {
-					mLogger.debug("MalformedURLException thrown when creating " + "URL with \"" + iURIString + "\"");
+					log.debug("MalformedURLException thrown when creating URL with [{}]", iURIString);
 					msgText = Messages.getString("CPValidator.514", iURIString);
-					mLogger.debug("FAILED: " + msgText);
+					log.debug("FAILED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					result = false;
 				} catch (IOException ioe) {
-					mLogger.debug("IOException thrown when opening a connection " + "to \"" + iURIString + "\"");
+					log.debug("IOException thrown when opening a connection to [{}]", iURIString);
 					msgText = Messages.getString("CPValidator.520", iURIString);
-					mLogger.debug("FAILED: " + msgText);
+					log.debug("FAILED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					result = false;
 				}
 			} else if (iURIString.substring(0, 5).equals("file:")) {
 				// This is the local file system
 				msgText = Messages.getString("CPValidator.524", iURIString);
-				mLogger.debug("FAILED: " + msgText);
+				log.debug("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				result = false;
 			} else {
@@ -733,7 +728,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *         the href checks passed, false otherwise.
 	 */
 	private boolean checkItem(Node iOrgNode, ManifestMap iManifestInfo) {
-		mLogger.debug("CPValidator checkItem");
+		log.debug("CPValidator checkItem");
 
 		boolean result = true;
 
@@ -756,7 +751,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *         implies otherwise.
 	 */
 	private boolean checkItemChildMultiplicity(Node iNode, ManifestMap iManifestInfo) {
-		mLogger.debug("CPValidator checkItemChildMultiplicity");
+		log.debug("CPValidator checkItemChildMultiplicity");
 
 		String msgText = "";
 		boolean result = true;
@@ -803,7 +798,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			// title is mandatory
 			if (!titleFound) {
 				msgText = Messages.getString("CPValidator.287", "title");
-				mLogger.debug("FAILED: " + msgText);
+				log.debug("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 				result = false;
@@ -827,7 +822,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 */
 	private boolean checkItemIdentifierRef(Node iOrgNode) {
 
-		mLogger.debug("CPValidator checkItemIdentifierRef");
+		log.debug("CPValidator checkItemIdentifierRef");
 
 		String msgText = "";
 		NodeList orgChildren = iOrgNode.getChildNodes();
@@ -871,7 +866,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 								if (currentNodeName.equals("identifierref")) {
 									result = result && false;
 									msgText = Messages.getString("CPValidator.461");
-									mLogger.debug("FAILED: " + msgText);
+									log.debug("FAILED: {}", msgText);
 									DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 								}// end if (
@@ -895,7 +890,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 						// an identifierref attribute
 						result = result && false;
 						msgText = Messages.getString("CPValidator.464");
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					} else {
 						String identifierRefValue = identifierRef.getValue();
@@ -907,7 +902,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 							// empty string
 							result = result && false;
 							msgText = Messages.getString("CPValidator.467");
-							mLogger.debug("FAILED: " + msgText);
+							log.debug("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 						}
 					}
@@ -933,12 +928,12 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			// This is referencing the users home directory
 
 			msgText = Messages.getString("CPValidator.527", iURIString);
-			mLogger.debug("FAILED: " + msgText);
+			log.debug("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 			result = false;
 		} else {
 			String absolutePath = getBaseDirectory() + iURIString;
-			mLogger.debug("Absolute path is " + absolutePath);
+			log.debug("Absolute path is {}", absolutePath);
 
 			// strip off the query string and parameters
 			int queryIndex = absolutePath.indexOf('?');
@@ -975,19 +970,14 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			}
 
 			// decode any encrypted URL syntax
-			try {
-				absolutePath = URLDecoder.decode(absolutePath, "UTF-8");
-			} catch (UnsupportedEncodingException uee) {
-				mLogger.error("UnsupportedEncodingException thrown while " + "decoding the file path.");
-				uee.printStackTrace();
-			}
+            absolutePath = URLDecoder.decode(absolutePath, StandardCharsets.UTF_8);
 
-			// try to access the file
+            // try to access the file
 			try {
 				File fileToFind = new File(absolutePath);
 				if (fileToFind.isFile()) {
 					msgText = Messages.getString("CPValidator.534", iURIString);
-					mLogger.debug("PASSED: " + msgText);
+					log.debug("PASSED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 
 					// This file has been physically located, remove from the
@@ -1004,20 +994,20 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					mFileList.remove(tempStr);
 				} else {
 					msgText = Messages.getString("CPValidator.537", iURIString);
-					mLogger.debug("FAILED: " + msgText);
+					log.debug("FAILED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					result = false;
 				}
 			} catch (NullPointerException npe) {
-				mLogger.error("NullPointerException thrown when accessing " + absolutePath);
+				log.error("NullPointerException thrown when accessing {}", absolutePath);
 				msgText = Messages.getString("CPValidator.537", iURIString);
-				mLogger.debug("FAILED: " + msgText);
+				log.debug("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				result = false;
 			} catch (SecurityException se) {
-				mLogger.error("SecurityException thrown when accessing " + absolutePath);
+				log.error("SecurityException thrown when accessing {}", absolutePath);
 				msgText = Messages.getString("CPValidator.537", iURIString);
-				mLogger.debug("FAILED: " + msgText);
+				log.debug("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				result = false;
 			}
@@ -1046,7 +1036,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		} else {
 			String msgText = Messages.getString("CPValidator.107", iCurrentAttribute.getLocalName(), "organization");
 
-			mLogger.debug("FAILED: " + msgText);
+			log.debug("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 		}
@@ -1065,7 +1055,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *         false otherwise.
 	 */
 	private boolean checkResourceAttributes(Node iResourceNode, NamedNodeMap iAttrList) {
-		mLogger.debug("CPValidator checkResourceAttributes");
+		log.debug("CPValidator checkResourceAttributes");
 
 		int idMultiplicityUsed = -1;
 		int typeMultiplicityUsed = -1;
@@ -1080,7 +1070,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		idMultiplicityUsed = getMultiplicityUsed(iAttrList, "identifier");
 		if (idMultiplicityUsed < 1) {
 			msgText = Messages.getString("CPValidator.198", "identifier");
-			mLogger.debug("FAILED: " + msgText);
+			log.debug("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 			result = false;
@@ -1090,7 +1080,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 		if (typeMultiplicityUsed < 1) {
 			msgText = Messages.getString("CPValidator.198", "type");
-			mLogger.debug("FAILED: " + msgText);
+			log.debug("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 			result = false;
@@ -1099,7 +1089,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		scormMultiplicityUsed = getMultiplicityUsed(iAttrList, "scormType");
 		if (scormMultiplicityUsed < 1) {
 			msgText = Messages.getString("CPValidator.198", "scormType");
-			mLogger.debug("FAILED: " + msgText);
+			log.debug("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 			result = false;
@@ -1135,7 +1125,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 					if (hrefMultiplicityUsed < 1) {
 						msgText = Messages.getString("CPValidator.431");
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						result = false;
@@ -1148,7 +1138,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 					if (!typeValue.equals("webcontent")) {
 						msgText = Messages.getString("CPValidator.2");
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						result = false;
@@ -1172,7 +1162,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 */
 	private boolean checkResourceFileHref(Node iResourceNode) {
 		boolean result = true;
-		String msgText = "";
+		String msgText;
 
 		// retrive the href and apply xml:base
 		String resourceHref = DOMTreeUtility.getAttributeValue(iResourceNode, "href");
@@ -1199,7 +1189,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 			// resourceID used for logging error messages
 			String resourceID = DOMTreeUtility.getAttributeValue(iResourceNode, "identifier");
-			mLogger.debug("Checking for this resource now " + resourceID);
+			log.debug("Checking for this resource now {}", resourceID);
 
 			// apply XML Base to the href if it exists
 			resourceHref = mXMLBase[0][1] + mXMLBase[1][1] + resourceXMLBase + resourceHref;
@@ -1223,7 +1213,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 						result = false;
 
 						msgText = Messages.getString("CPValidator.628", resourceID);
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					}
 				} else {
@@ -1231,7 +1221,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					result = false;
 
 					msgText = Messages.getString("CPValidator.628", resourceID);
-					mLogger.debug("FAILED: " + msgText);
+					log.debug("FAILED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				}
 			}
@@ -1260,7 +1250,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		} else {
 			String msgText = Messages.getString("CPValidator.107", iCurrentAttribute.getLocalName(), "resource");
 
-			mLogger.debug("FAILED: " + msgText);
+			log.debug("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 		}
@@ -1275,7 +1265,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *            The resources node <br>
 	 */
 	private void checkSizeAttributes(Node iSizeNode) {
-		mLogger.debug("CPValidator checkSizeAttributes");
+		log.debug("CPValidator checkSizeAttributes");
 
 		String msgText;
 
@@ -1319,7 +1309,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 				if (!valid) {
 					msgText = "Size Attribute \"" + currentAttrName + "\" must " + "contain a valid even integer value.";
-					mLogger.debug("SSP: " + msgText);
+					log.debug("SSP: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				}
 
@@ -1347,7 +1337,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 */
 	private boolean checkSPMConformance(String iElementName, String iElementValue, int iSPMRule, boolean iAmAnAttribute) {
 		boolean result = true;
-		String msgText = "";
+		String msgText;
 
 		int elementValueLength = iElementValue.length();
 
@@ -1366,7 +1356,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					msgText = Messages.getString("CPValidator.555", iElementName, iSPMRule);
 				}
 
-				mLogger.debug("WARNING: " + msgText);
+				log.debug("WARNING: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 			} else if (elementValueLength < 1) {
 				if (iAmAnAttribute) {
@@ -1375,7 +1365,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					msgText = Messages.getString("CPValidator.561", iElementName);
 				}
 
-				mLogger.debug("FAILED: " + msgText);
+				log.debug("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 				result = false;
@@ -1390,7 +1380,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					msgText = Messages.getString("CPValidator.566", iElementName);
 				}
 
-				mLogger.debug("PASSED: " + msgText);
+				log.debug("PASSED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 			}
 		} else if (elementValueLength < 1) {
@@ -1399,7 +1389,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			} else {
 				msgText = Messages.getString("CPValidator.561", iElementName);
 			}
-			mLogger.debug("FAILED: " + msgText);
+			log.debug("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 			result = false;
@@ -1418,7 +1408,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				msgText = Messages.getString("CPValidator.566", iElementName);
 			}
 
-			mLogger.debug("PASSED: " + msgText);
+			log.debug("PASSED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 		}
 
@@ -1437,7 +1427,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *         wellformed and valid to the schema, false implies otherwise.
 	 */
 	private boolean checkValidityToSchema(String iManifestFileName) {
-		mLogger.debug("CPValidator checkValidityToSchema()");
+		log.debug("CPValidator checkValidityToSchema()");
 		boolean manifestResult = true;
 
 		// Send imsmanifest.xml for wellformedness and validation parse
@@ -1448,9 +1438,9 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		boolean isWellformed = super.getIsWellformed();
 		if (mPerformFullValidation) {
 			if (isValid) {
-				mLogger.debug("PASSED: " + "The manifest instance is valid to the controlling documents");
+				log.debug("PASSED: The manifest instance is valid to the controlling documents");
 			} else {
-				mLogger.debug("FAILED: " + "The manifest instance is not valid to the controlling documents");
+				log.debug("FAILED: The manifest instance is not valid to the controlling documents");
 			}
 
 			manifestResult = isWellformed && isValid;
@@ -1458,7 +1448,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			manifestResult = isWellformed;
 		}
 
-		mLogger.debug("CPValidator checkValidityToSchema()");
+		log.debug("CPValidator checkValidityToSchema()");
 
 		return manifestResult;
 	}
@@ -1485,7 +1475,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *         otherwise
 	 */
 	private boolean checkVocabulary(String iName, String iValue, List<String> iVocabValues, boolean iAmAnAttribute) {
-		mLogger.debug("CPValidator checkVocabulary()");
+		log.debug("CPValidator checkVocabulary()");
 
 		boolean result = false;
 		String msgText;
@@ -1501,7 +1491,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				if (iName.equals("schemaversion")) {
 					if (iVocabValues.get(i).equals("CAM 1.3")) {
 						msgText = Messages.getString("CPValidator.630", "CAM 1.3", "2004 3rd Edition");
-						mLogger.debug("WARNING: " + msgText);
+						log.debug("WARNING: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 					}
 				}
@@ -1515,7 +1505,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				msgText = Messages.getString("CPValidator.584", iValue, iName);
 			}
 
-			mLogger.debug("PASSED: " + msgText);
+			log.debug("PASSED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 		} else {
 			if (iAmAnAttribute) {
@@ -1524,10 +1514,10 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				msgText = Messages.getString("CPValidator.592", iValue, iName);
 			}
 
-			mLogger.debug("FAILED: " + msgText);
+			log.debug("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 		}
-		mLogger.debug("CPValidator checkVocabulary()");
+		log.debug("CPValidator checkVocabulary()");
 
 		return result;
 	}
@@ -1546,7 +1536,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 *         wellformed and valid to the schema, false implies otherwise.
 	 */
 	private boolean checkWellformedness(String iManifestFileName) {
-		mLogger.debug("CPValidator checkWellformedness()");
+		log.debug("CPValidator checkWellformedness()");
 		boolean wellnessResult = true;
 
 		// Send imsmanifest for wellformedness and validation parse
@@ -1557,7 +1547,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 		wellnessResult = isWellformed;
 
-		mLogger.debug("CPValidator checkWellformedness");
+		log.debug("CPValidator checkWellformedness");
 
 		return wellnessResult;
 	}
@@ -1584,10 +1574,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			return false;
 		}
 
-		mLogger.debug("CPValidator compareToRules");
-		mLogger.debug("Node: " + iTestSubjectNode.getLocalName());
-		mLogger.debug("Namespace: " + iTestSubjectNode.getNamespaceURI());
-		mLogger.debug("Path: " + iPath);
+		log.debug("CPValidator compareToRules\nNode: {}\nNamespace: {}\nPath: {}", iTestSubjectNode.getLocalName(), iTestSubjectNode.getNamespaceURI(), iPath);
 
 		boolean result = true;
 		String msgText = "";
@@ -1603,14 +1590,12 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			Node rootNode = ((Document) iTestSubjectNode).getDocumentElement();
 			String rootNodeName = rootNode.getLocalName();
 
-			mLogger.debug("DOCUMENT_NODE found");
-			mLogger.debug("Namespace: " + rootNode.getNamespaceURI());
-			mLogger.debug("Node Name: " + rootNodeName);
+			log.debug("DOCUMENT_NODE found\nNamespace: {}\nNode Name: {}", rootNode.getNamespaceURI(), rootNodeName);
 
-			mLogger.debug("INFO: Testing element <" + rootNodeName + "> for minimum conformance");
+			log.debug("INFO: Testing element <{}> for minimum conformance", rootNodeName);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, Messages.getString("CPValidator.131", rootNodeName)));
 
-			mLogger.debug("PASSED: Multiplicity for element <" + rootNodeName + "> has been verified");
+			log.debug("PASSED: Multiplicity for element <{}> has been verified", rootNodeName);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, Messages.getString("CPValidator.135", rootNodeName)));
 
 			result = compareToRules(rootNode, "") && result;
@@ -1635,30 +1620,29 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				}
 			}
 
-			String dataType = null;
-			int multiplicityUsed = -1;
-			int minRule = -1;
-			int maxRule = -1;
-			int spmRule = -1;
+			String dataType;
+			int multiplicityUsed;
+			int minRule;
+			int maxRule;
+			int spmRule;
 
-			mLogger.debug("Looping through attributes for the input " + "element <" + parentNodeName + ">");
+			log.debug("Looping through attributes for the input element <{}>", parentNodeName);
 
 			// Look for the attributes of this element
 			NamedNodeMap attrList = iTestSubjectNode.getAttributes();
 			int numAttr = attrList.getLength();
-			mLogger.debug("There are " + numAttr + " attributes of <" + parentNodeName + "> elememt to test");
+			log.debug("There are {} attributes of <{}> elememt to test", numAttr, parentNodeName);
 
-			Attr currentAttrNode = null;
-			String currentNodeName = "";
-			String attributeValue = "";
+			Attr currentAttrNode;
+			String currentNodeName;
+			String attributeValue;
 
 			// Loop throught attributes
 			for (int i = 0; i < numAttr; i++) {
 				currentAttrNode = (Attr) attrList.item(i);
 				currentNodeName = currentAttrNode.getLocalName();
 
-				mLogger.debug("Processing the [" + currentAttrNode.getNamespaceURI() + "] " + currentNodeName + " attribute of the <" + parentNodeName
-				        + "> element.");
+				log.debug("Processing the [{}] {} attribute of the <{}> element.", currentAttrNode.getNamespaceURI(), currentNodeName, parentNodeName);
 
 				// If the current attribute is persistState then additional
 				// checks may be necessary
@@ -1666,7 +1650,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					// we must fail. SCORM 3rd Edition Addendum has removed the
 					// persistState attribute from the adlcp namespaced schema
 					msgText = Messages.getString("CPValidator.274", currentNodeName);
-					mLogger.debug("FAILED: " + msgText);
+					log.debug("FAILED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 					result = false;
@@ -1696,7 +1680,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				// current
 				// attribute being processed has SCORM application profile
 				// requirements
-				mLogger.debug("Additional checks needed for attribute [" + currentNodeName + "].\r\n");
+				log.debug("Additional checks needed for attribute [{}]", currentNodeName);
 
 				// Retreive the data type rules
 				dataType = mRulesValidator.getRuleValue(parentNodeName, iPath, "datatype", currentNodeName);
@@ -1706,7 +1690,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				if (dataType.equalsIgnoreCase("xmlbase")) {
 					// This is a xml:base data type
 					msgText = Messages.getString("CPValidator.164", currentNodeName);
-					mLogger.debug("INFO: " + msgText);
+					log.debug("INFO: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 					multiplicityUsed = getMultiplicityUsed(attrList, currentNodeName);
@@ -1724,11 +1708,11 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					if ((minRule != -1) || (maxRule != -1)) {
 						if (multiplicityUsed >= minRule && multiplicityUsed <= maxRule) {
 							msgText = Messages.getString("CPValidator.169", currentNodeName);
-							mLogger.debug("PASSED: " + msgText);
+							log.debug("PASSED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 						} else {
 							msgText = Messages.getString("CPValidator.175", currentNodeName);
-							mLogger.debug("FAILED: " + msgText);
+							log.debug("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							result = false;
@@ -1751,13 +1735,13 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 					if (parentNodeName.equals("manifest")) {
 						mXMLBase[0][1] = attributeValue;
-						mLogger.debug(" XML:base found in manifest, value is " + attributeValue);
+						log.debug(" XML:base found in manifest, value is {}", attributeValue);
 					} else if (parentNodeName.equals("resources")) {
 						mXMLBase[1][1] = attributeValue;
-						mLogger.debug(" XML:base found in resources, value is " + attributeValue);
+						log.debug(" XML:base found in resources, value is {}", attributeValue);
 					} else if (parentNodeName.equals("resource")) {
 						mXMLBase[2][1] = attributeValue;
-						mLogger.debug(" XML:base found in resource, value is " + attributeValue);
+						log.debug(" XML:base found in resource, value is {}", attributeValue);
 					}
 				} // end if xml:base
 			} // end looping over set of attributes for the element
@@ -1765,13 +1749,12 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			// If we are processing an <imscp:manifest> element, then there
 			// are special cases application profile checks needed.
 			if (parentNodeName.equalsIgnoreCase("manifest")) {
-				mLogger.debug("Manifest node, additional check's being done.");
-				mLogger.debug("Determining how many times the " + "identifier attribute is present.");
+				log.debug("Manifest node, additional check's being done, determining how many times the identifier attribute is present.");
 
 				multiplicityUsed = getMultiplicityUsed(attrList, "identifier");
 
 				if (multiplicityUsed < 1) {
-					mLogger.debug("FAILED: Mandatory attribute \"identifier\"" + " could not be found");
+					log.debug("FAILED: Mandatory attribute \"identifier\" could not be found");
 					DetailedLogMessageCollection.getInstance().addMessage(
 					        new LogMessage(MessageType.FAILED, Messages.getString("CPValidator.198", "identifier")));
 
@@ -1784,7 +1767,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				multiplicityUsed = getMultiplicityUsed(attrList, "default");
 
 				if (multiplicityUsed < 1) {
-					mLogger.debug("ERROR: Mandatory attribute \"default\" " + "could not be found");
+					log.debug("ERROR: Mandatory attribute \"default\" could not be found");
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, Messages.getString("CPValidator.198", "default")));
 
 					result = false;
@@ -1792,7 +1775,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			} else if (parentNodeName.equalsIgnoreCase("organization") && (mRulesValidator.getApplicationProfile()).equals("contentaggregation")) {
 				multiplicityUsed = getMultiplicityUsed(attrList, "identifier");
 				if (multiplicityUsed < 1) {
-					mLogger.debug("FAILED: Mandatory attribute \"identifier\" " + "could not be found");
+					log.debug("FAILED: Mandatory attribute \"identifier\" could not be found");
 					DetailedLogMessageCollection.getInstance().addMessage(
 					        new LogMessage(MessageType.FAILED, Messages.getString("CPValidator.198", "identifier")));
 
@@ -1801,7 +1784,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			} else if (parentNodeName.equalsIgnoreCase("item") && (mRulesValidator.getApplicationProfile()).equals("contentaggregation")) {
 				multiplicityUsed = getMultiplicityUsed(attrList, "identifier");
 				if (multiplicityUsed < 1) {
-					mLogger.debug("FAILED: Mandatory attribute \"identifier\" " + "could not be found");
+					log.debug("FAILED: Mandatory attribute \"identifier\" could not be found");
 					DetailedLogMessageCollection.getInstance().addMessage(
 					        new LogMessage(MessageType.FAILED, Messages.getString("CPValidator.198", "identifier")));
 
@@ -1820,7 +1803,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					// we have a parameters but no identifierref - warning
 					msgText = Messages.getString("CPValidator.220");
 
-					mLogger.debug("WARNING: " + msgText);
+					log.debug("WARNING: {}", msgText);
 
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 
@@ -1867,7 +1850,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 								msgText = Messages.getString("CPValidator.226", currentItemChildName);
 
-								mLogger.debug("FAILED: " + msgText);
+								log.debug("FAILED: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							} else {
@@ -1907,7 +1890,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				if (dataType.equalsIgnoreCase("idref") || dataType.equalsIgnoreCase("id") || dataType.equalsIgnoreCase("vocabulary")
 				        || dataType.equalsIgnoreCase("text") || dataType.equalsIgnoreCase("uri")) {
 					msgText = Messages.getString("CPValidator.164", currentNodeName);
-					mLogger.debug("INFO: " + msgText);
+					log.debug("INFO: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 					multiplicityUsed = getMultiplicityUsed(attrList, currentNodeName);
@@ -1927,12 +1910,12 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					if ((minRule != -1) || (maxRule != -1)) {
 						if (multiplicityUsed >= minRule && multiplicityUsed <= maxRule) {
 							msgText = Messages.getString("CPValidator.169", currentNodeName);
-							mLogger.debug("PASSED: " + msgText);
+							log.debug("PASSED: {}", msgText);
 
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 						} else {
 							msgText = Messages.getString("CPValidator.175", currentNodeName);
-							mLogger.debug("FAILED: " + msgText);
+							log.debug("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							result = false;
@@ -1970,11 +1953,11 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 							}
 							if (foundDefaultIdentifier) {
 								msgText = Messages.getString("CPValidator.251", currentNodeName);
-								mLogger.debug("PASSED: " + msgText);
+								log.debug("PASSED: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 							} else {
 								msgText = Messages.getString("CPValidator.254", currentNodeName);
-								mLogger.debug("FAILED: " + msgText);
+								log.debug("FAILED: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 								result = false;
@@ -1993,7 +1976,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 						if (parentNodeName.equals("manifest")) {
 							mManifestID = currentAttrNode.getValue();
-							mLogger.debug("mManifestID is " + mManifestID);
+							log.debug("mManifestID is {}", mManifestID);
 						}
 
 						// imsssp id attributes here
@@ -2011,14 +1994,14 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 							// check if the file exists
 							// apply xml:base on href value before href checks
 							if (doesXMLBaseExist()) {
-								mLogger.debug("APPLYING XML BASE");
+								log.debug("APPLYING XML BASE");
 								myAttributeValue = applyXMLBase(myAttributeValue);
 							}
 
 							if (myAttributeValue.indexOf('\\') != -1) {
 								msgText = Messages.getString("CPValidator.265", myAttributeValue);
 
-								mLogger.debug("FAILED: " + msgText);
+								log.debug("FAILED: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 								result &= false;
@@ -2037,7 +2020,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 						// vocab values that exist within the test subject
 
 						msgText = "Testing attribute \"" + currentNodeName + "\" for valid vocabulary";
-						mLogger.debug("INFO: " + msgText);
+						log.debug("INFO: {}", msgText);
 
 						List<String> vocabAttribValues = mRulesValidator.getAttribVocabRuleValues(parentNodeName, iPath, currentNodeName);
 						// we are assuming that only 1 vocabulary value may
@@ -2095,7 +2078,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					multiplicityUsed = getMultiplicityUsed(iTestSubjectNode, "metadata");
 					if (multiplicityUsed < 1) {
 						msgText = Messages.getString("CPValidator.287", "metadata");
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						result = false;
@@ -2109,7 +2092,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 						if (multiplicityUsed < 1) {
 							msgText = Messages.getString("CPValidator.287", "schema");
-							mLogger.debug("FAILED: " + msgText);
+							log.debug("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							result = false;
@@ -2120,7 +2103,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 						if (multiplicityUsed < 1) {
 							msgText = Messages.getString("CPValidator.287", "schemaversion");
-							mLogger.debug("FAILED: " + msgText);
+							log.debug("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							result = false;
@@ -2130,7 +2113,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					multiplicityUsed = getMultiplicityUsed(iTestSubjectNode, "organizations");
 					if (multiplicityUsed < 1) {
 						msgText = Messages.getString("CPValidator.287", "organizations");
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						result = false;
@@ -2139,7 +2122,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					multiplicityUsed = getMultiplicityUsed(iTestSubjectNode, "resources");
 					if (multiplicityUsed < 1) {
 						msgText = Messages.getString("CPValidator.287", "resources");
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						result = false;
@@ -2150,7 +2133,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					if (multiplicityUsed < 1) {
 						msgText = Messages.getString("CPValidator.287", "organization");
 
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						result = false;
@@ -2164,14 +2147,14 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					multiplicityUsed = getMultiplicityUsed(iTestSubjectNode, "organization");
 					if (multiplicityUsed > 0) {
 						msgText = Messages.getString("CPValidator.311");
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						result = false;
 					} else {
 						msgText = Messages.getString("CPValidator.312");
 						// we have an empty <orgs> element, display a valid msg
-						mLogger.debug("PASSED: " + msgText);
+						log.debug("PASSED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 
 					}
@@ -2179,7 +2162,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					multiplicityUsed = getMultiplicityUsed(iTestSubjectNode, "title");
 					if (multiplicityUsed < 1) {
 						msgText = Messages.getString("CPValidator.287", "title");
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						result = false;
@@ -2188,7 +2171,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					multiplicityUsed = getMultiplicityUsed(iTestSubjectNode, "item");
 					if (multiplicityUsed < 1) {
 						msgText = Messages.getString("CPValidator.287", "item");
-						mLogger.debug("FAILED: " + msgText);
+						log.debug("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						result = false;
@@ -2206,7 +2189,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 					msgText = "Currentchild is " + currentChildName + " and path is " + path;
 
-					mLogger.debug(msgText);
+					log.debug(msgText);
 
 					if (currentChildName != null) {
 
@@ -2217,7 +2200,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 							msgText = Messages.getString("CPValidator.328", currentChildName, "item");
 
-							mLogger.debug("FAILED: " + msgText);
+							log.debug("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 						}
 
@@ -2228,7 +2211,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 							msgText = Messages.getString("CPValidator.328", currentChildName, "sequencing");
 
-							mLogger.debug("FAILED: " + msgText);
+							log.debug("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 						}
 
@@ -2242,7 +2225,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 							msgText = Messages.getString("CPValidator.328", currentChildName, "metadata");
 
-							mLogger.debug("WARNING: " + msgText);
+							log.debug("WARNING: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 						}
 
@@ -2252,7 +2235,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 							msgText = Messages.getString("CPValidator.345", currentChildName);
 
-							mLogger.debug("FAILED: " + msgText);
+							log.debug("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 						}
 
@@ -2265,7 +2248,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 							// resource
 							msgText = "<" + currentChildName + "> can only " + "exist as a child of a <resource>";
 
-							mLogger.debug("SSP: " + msgText);
+							log.debug("SSP: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						}
@@ -2277,7 +2260,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 							msgText = "<" + currentChildName + "> can only " + "exist as a child of a <bucket>";
 
-							mLogger.debug("SSP: " + msgText);
+							log.debug("SSP: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 						}
 
@@ -2291,7 +2274,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 								msgText = "The <" + currentChildName + "> shall" + " only exist in a resource that is " + " scormType = \"sco\".";
 
-								mLogger.debug("SSP: " + msgText);
+								log.debug("SSP: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 							}
 
@@ -2307,7 +2290,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 							if (currentChildName.equals("manifest") && path.equals("manifest")) {
 								msgText = Messages.getString("CPValidator.100");
-								mLogger.debug("WARNING: " + msgText);
+								log.debug("WARNING: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 
 								// Make cleansing call for excess baggage here
@@ -2323,7 +2306,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 							{
 								msgText = Messages.getString("CPValidator.131", currentChildName);
 
-								mLogger.debug("INFO: " + msgText);
+								log.debug("INFO: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 								multiplicityUsed = getMultiplicityUsed(iTestSubjectNode, currentChildName);
@@ -2339,11 +2322,11 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 								if ((minRule != -1) && (maxRule != -1)) {
 									if (multiplicityUsed >= minRule && multiplicityUsed <= maxRule) {
 										msgText = Messages.getString("CPValidator.135", currentChildName);
-										mLogger.debug("PASSED: " + msgText);
+										log.debug("PASSED: {}", msgText);
 										DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 									} else {
 										msgText = Messages.getString("CPValidator.364", currentChildName);
-										mLogger.debug("FAILED: " + msgText);
+										log.debug("FAILED: {}", msgText);
 										DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 										result = false;
@@ -2351,11 +2334,11 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 								} else if ((minRule != -1) && (maxRule == -1)) {
 									if (multiplicityUsed >= minRule) {
 										msgText = Messages.getString("CPValidator.135", currentChildName);
-										mLogger.debug("PASSED: " + msgText);
+										log.debug("PASSED: {}", msgText);
 										DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 									} else {
 										msgText = Messages.getString("CPValidator.364", currentChildName);
-										mLogger.debug("FAILED: " + msgText);
+										log.debug("FAILED: {}", msgText);
 										DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 										result = false;
@@ -2423,7 +2406,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 									// more than one vocabulary token may exist
 
 									msgText = Messages.getString("CPValidator.383", currentChildName);
-									mLogger.debug("INFO: " + msgText);
+									log.debug("INFO: {}", msgText);
 									DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 									// retrieve the value of this element
@@ -2487,7 +2470,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		}
 		}// end switch statement
 
-		mLogger.debug("CPValidator compareToRules()");
+		log.debug("CPValidator compareToRules()");
 		return result;
 	}
 
@@ -2651,12 +2634,12 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 						currentResult = currentFile.exists();
 
 						if (currentResult) {
-							mLogger.debug("PASSED: File \"" + toke + "\" found " + "at the root of the content package");
+							log.debug("PASSED: File \"{}\" found at the root of the content package", toke);
 							DetailedLogMessageCollection.getInstance().addMessage(
 							        new LogMessage(MessageType.PASSED, Messages.getString("CPValidator.81", toke)));
 						} else {
 							msgText = Messages.getString("CPValidator.83", toke);
-							mLogger.debug("FAILED: " + msgText);
+							log.debug("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							result = 0;
@@ -2710,7 +2693,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				// apply XMLBase to fileHRef add it to a list
 				fileHref = mXMLBase[0][1] + resourcesXMLBase + resourceXMLBase + fileHref;
 				fileHrefList.add(fileHref);
-				mLogger.debug("Added this to fileHrefList " + fileHref);
+				log.debug("Added this to fileHrefList {}", fileHref);
 			}
 		}
 
@@ -2722,7 +2705,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			// key
 			Node currentDependency;
 			int len = dependencyNodes.size();
-			mLogger.debug("number of dependency is " + len);
+			log.debug("number of dependency is {}", len);
 			for (int y = 0; y < len; y++) {
 				currentDependency = dependencyNodes.get(y);
 				String dependencyIDRef = DOMTreeUtility.getAttributeValue(currentDependency, "identifierref");
@@ -2742,7 +2725,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 						currentResourceID = DOMTreeUtility.getAttributeValue(current, "identifier");
 
-						mLogger.debug("Comparing resource id " + currentResourceID + " to this dependencyIDRef " + dependencyIDRef);
+						log.debug("Comparing resource id {} to this dependencyIDRef {}", currentResourceID, dependencyIDRef);
 
 						if (currentResourceID.equals(dependencyIDRef)) {
 							// first determine if we have a circular dependency
@@ -2842,8 +2825,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 */
 	@Override
 	public int getMultiplicityUsed(NamedNodeMap iAttributeMap, String iNodeName) {
-		mLogger.debug("CPValidator getMultiplicityUsed() - Attributes");
-		mLogger.debug("Input Node we are looking for: " + iNodeName);
+		log.debug("CPValidator getMultiplicityUsed() - Attributes\nInput Node we are looking for: {}", iNodeName);
 
 		int result = 0;
 		int length = iAttributeMap.getLength();
@@ -2859,7 +2841,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			} // end if current name equals node name
 		} // end looping over attributes
 
-		mLogger.debug("The " + iNodeName + ", appeared " + result + " times.");
+		log.debug("The {}, appeared {} times.", iNodeName, result);
 
 		return result;
 	}
@@ -2878,9 +2860,8 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 */
 	@Override
 	public int getMultiplicityUsed(Node iParentNode, String iNodeName) {
-		mLogger.debug("CPValidator getMultiplicityUsed() - Elements");
-		mLogger.debug("Input Parent Node: " + iParentNode.getLocalName());
-		mLogger.debug("Input Node we are looking for: " + iNodeName);
+		log.debug("CPValidator getMultiplicityUsed() - Elements\nInput Parent Node: {}\nInput Node we are looking for: {}",
+                iParentNode.getLocalName(), iNodeName);
 
 		// Need a list to find how many kids to cycle through
 		NodeList kids = iParentNode.getChildNodes();
@@ -2899,7 +2880,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			} // end of the node type is ELEMENT_NODE
 		} // end looping over children
 
-		mLogger.debug("The " + iNodeName + ", appeared " + count + " times.");
+		log.debug("The {}, appeared {} times.", iNodeName, count);
 
 		return count;
 	}
@@ -2913,8 +2894,6 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 * @return String - the directory that the file is located
 	 */
 	private String getPathOfFile(String iFileName) {
-		mLogger.debug("CPValidator getPathOfFile()");
-
 		String result = "";
 		String tmp = "";
 
@@ -2929,16 +2908,13 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			for (int i = 0; i < numTokens; i++) {
 				tmp = token.nextToken();
 
-				mLogger.debug("token = " + tmp);
+				log.debug("token = {}", tmp);
 
 				result = result + tmp;
 			}
 		} catch (NullPointerException npe) {
-			npe.printStackTrace();
+			log.warn("Invalid file name: {}, {}", iFileName, npe.toString());
 		}
-
-		mLogger.debug("CPValidator getPathOfFile()");
-
 		return result;
 	}
 
@@ -2955,17 +2931,17 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	 */
 	private String importContentPackage(String iPIF, String encoding) {
 		// get the extract dir
-		mLogger.debug("CPValidator importContentPackage()");
+		log.debug("CPValidator importContentPackage()");
 
 		String extractDir = mEnvironmentVariable + File.separator + "PackageImport" + File.separator;
 
-		mLogger.debug("extractDir = " + extractDir);
+		log.debug("extractDir = {}", extractDir);
 
 		// Unzip the content package into a local directory for processing
 		UnZipHandler uzh = new UnZipHandler(iPIF, extractDir, encoding);
 		uzh.extract();
 
-		mLogger.debug("CPValidator importContentPackage()");
+		log.debug("CPValidator importContentPackage()");
 		return extractDir;
 	}
 
@@ -2992,7 +2968,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		if (!resourceNodes.isEmpty()) {
 			Node currentResource;
 			int numChildren = resourceNodes.size();
-			mLogger.debug("Number of resource children are " + numChildren);
+			log.debug("Number of resource children are ", numChildren);
 
 			// loop through each resource and track all files per resource
 			// identifer
@@ -3002,7 +2978,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				// resourceID used for hash table key
 				String resourceID = DOMTreeUtility.getAttributeValue(currentResource, "identifier");
 
-				mLogger.debug("Calling findFiles on resource " + resourceID);
+				log.debug("Calling findFiles on resource ", resourceID);
 
 				// call our recursive function here
 				// pass in a resource node and expect back an arrayList of files
@@ -3013,7 +2989,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				if (!fileHrefList.isEmpty()) {
 					mResourceTable.put(resourceID, fileHrefList);
 				} else {
-					mLogger.debug("fileHrefList is empty");
+					log.debug("fileHrefList is empty");
 				}
 			}
 		}
@@ -3048,7 +3024,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	private void trackOrgIdentifiers(Node iParentNode) {
 		// recursively find the organization ids and add them to the List
 
-		mLogger.debug("CPValidator trackOrgIdentifiers()");
+		log.debug("CPValidator trackOrgIdentifiers()");
 		String msgText = "";
 
 		if (iParentNode != null) {
@@ -3082,7 +3058,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 							mOrganizationIdentifierList.add(orgIdentifier);
 							msgText = "Just added " + orgIdentifier + "to the org List";
-							mLogger.debug(msgText);
+							log.debug(msgText);
 						}
 					}
 				}
@@ -3105,7 +3081,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			}
 		}
 
-		mLogger.debug("CPValidator trackOrgIdentifiers()");
+		log.debug("CPValidator trackOrgIdentifiers()");
 	}
 
 	/**
@@ -3122,7 +3098,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 	private void trackResourceIdentifiers(Node iResourcesNode) {
 		// recursively find the resource ids and add them to the list
 
-		mLogger.debug("CPValidator trackResourceIdentifiers()");
+		log.debug("CPValidator trackResourceIdentifiers()");
 
 		List<Node> resourceNodes = new ArrayList<>();
 
@@ -3147,7 +3123,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			}
 		}// end if
 
-		mLogger.debug("CPValidator trackResourceIdentifiers()");
+		log.debug("CPValidator trackResourceIdentifiers()");
 	}
 
 	/**
@@ -3188,7 +3164,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 					String xmlBase = manifestXmlBase + resourcesXmlBase + resourceXmlBase;
 
 					iSubmanifestURIList.add(xmlBase + resourceHref);
-					mLogger.debug("Just added " + xmlBase + resourceHref + "to the sub List");
+					log.debug("Just added {}{} to the sub List", xmlBase, resourceHref);
 
 					// get children to add file href if it exists
 					List<Node> fileNodes = DOMTreeUtility.getNodes(currentResourceChild, "file");
@@ -3202,7 +3178,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 						iSubmanifestURIList.add(xmlBase + fileHref);
 
-						mLogger.debug("Just added " + xmlBase + fileHref + "to the sub List");
+						log.debug("Just added {}{} to the sub List", xmlBase, fileHref);
 					}
 				}
 			}
@@ -3257,18 +3233,17 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		String msgText;
 		String rootDirectory;
 
-		if (mLogger.isDebugEnabled()) {
-			mLogger.debug("CPValidator validate()");
-			mLogger.debug("      iXMLFileName coming in is " + iFileName);
-			mLogger.debug("      iApplicationProfileType coming in is " + iApplicationProfileType);
-			mLogger.debug("      iTestType coming in is " + iTestType);
-		}
-
+        log.debug("""
+                        CPValidator validate()
+                                 iXMLFileName coming in is {}
+                                 iApplicationProfileType coming in is {}
+                                 iTestType coming in is {}
+                        """,
+                iFileName, iApplicationProfileType, iTestType);
 		// If the CTS is testing a Package Interchange File, then import the
 		// content package (unzip and set up the CTS).
 		if (iTestType.equals("pif")) {
 			rootDirectory = importContentPackage(iFileName, encoding);
-
 			mBaseDirectory = mEnvironmentVariable + File.separator + "PackageImport" + File.separator;
 		} else {
 			rootDirectory = mBaseDirectory = getPathOfFile(iFileName);
@@ -3287,7 +3262,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			// defined
 			// by the pathname.
 			if (!manifestFile.exists()) {
-				mLogger.debug("FAILED: Required file \"imsmanifest.xml\" not " + "found at the root of the package");
+				log.debug("FAILED: Required file \"imsmanifest.xml\" not found at the root of the package");
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, Messages.getString("CPValidator.22")));
 
 				manifestFound = false;
@@ -3300,7 +3275,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 			// Retrieve imsmanifest for wellformedness and validation parse if
 			// high level checks passed
 			if (manifestFound) {
-				mLogger.debug("INFO: Testing the manifest for Well-formedness");
+				log.debug("INFO: Testing the manifest for Well-formedness");
 
 				validateResult = checkWellformedness(imsManifestFile) && validateResult;
 
@@ -3332,7 +3307,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 						// used. If so, warn to inform
 						if (!mSchemaLocExists) {
 							msgText = Messages.getString("CPValidator.1");
-							mLogger.debug("WARNING: " + msgText);
+							log.debug("WARNING: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 						}
 
@@ -3342,7 +3317,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 
 					if (validateResult && mPerformFullValidation) {
 						msgText = "Testing the manifest for Validity to the Controlling Documents";
-						mLogger.debug("INFO: " + msgText);
+						log.debug("INFO: {}", msgText);
 
 						// The imsmanifest.xml file is well-formed and all of
 						// the
@@ -3352,18 +3327,18 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 						// is valid according to the controlling schemas.
 						validateResult = checkValidityToSchema(imsManifestFile) && validateResult;
 
-						mLogger.debug("OTHER: " + msgText);
+						log.debug("OTHER: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.XMLOTHER, "HR"));
 
 						msgText = Messages.getString("CPValidator.28");
-						mLogger.debug("INFO: " + msgText);
+						log.debug("INFO: {}", msgText);
 
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 						// Prepare for manifest idref verification
 
 						msgText = Messages.getString("CPValidator.30");
-						mLogger.debug("INFO: " + msgText);
+						log.debug("INFO: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 						boolean populateResult = mManifestInfo.populateManifestMap(super.getDocument());
@@ -3373,14 +3348,14 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 							List<String> idrefs = mManifestInfo.checkAllIdReferences();
 
 							if (!idrefs.isEmpty()) {
-								mLogger.debug("invalid idrefs exist");
+								log.debug("invalid idrefs exist");
 								validateResult = false;
 
 								idrefResult = false;
 
 								super.setIsValidToApplicationProfile(super.getIsValidToApplicationProfile() && false);
 							} else {
-								mLogger.debug("INFO: ID/IDRef Validation checks passed");
+								log.debug("INFO: ID/IDRef Validation checks passed");
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, Messages.getString("CPValidator.34")));
 							}
 						}
@@ -3407,7 +3382,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 							// checking,
 							// system error
 							msgText = Messages.getString("CPValidator.36");
-							mLogger.debug("FAILED: " + msgText);
+							log.debug("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							validateResult = false;
@@ -3419,7 +3394,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				}
 			} // end if the manifest was found
 
-			mLogger.debug("CPValidator validate()");
+			log.debug("CPValidator validate()");
 
 			return validateResult;
 		} finally {
@@ -3429,4 +3404,4 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		}
 	}
 
-}// end class CPValidator
+}

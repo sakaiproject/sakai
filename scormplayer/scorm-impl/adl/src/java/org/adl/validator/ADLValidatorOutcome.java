@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.parsers.dom.DOMTreeUtility;
 import org.adl.validator.contentpackage.IManifestMap;
 import org.adl.validator.contentpackage.ManifestMap;
@@ -49,7 +50,7 @@ import org.w3c.dom.NodeList;
  *
  * @author ADL Technical Team
  */
-
+@Slf4j
 public class ADLValidatorOutcome implements IValidatorOutcome {
 
 	/**
@@ -772,16 +773,12 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 								try {
 									oldItem.appendChild(currentChild);
 								} catch (DOMException domExcep) {
-									domExcep.printStackTrace();
+									log.warn("could not append child", domExcep);
 								}
 							}
 
-							oldItemChildren = oldItem.getChildNodes();
-
-							identifierAttr = DOMTreeUtility.getAttribute(oldItem, "identifier");
-
+                            identifierAttr = DOMTreeUtility.getAttribute(oldItem, "identifier");
 							identifierAttr.setValue(organizationID);
-
 							DOMTreeUtility.removeAttribute(oldItem, "identifierref");
 						}
 					}
