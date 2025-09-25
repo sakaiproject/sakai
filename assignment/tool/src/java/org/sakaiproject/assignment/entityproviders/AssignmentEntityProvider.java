@@ -71,6 +71,7 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
@@ -406,27 +407,31 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityNotFoundException("No access to site: " + siteId, siteId);
         }
 
-        assignmentService.getAssignmentsForContext(siteId).stream()
-        .map(a->{
-            SimpleAssignment as = new SimpleAssignment(a);
-            if(as.getSubmissions() != null && !as.getSubmissions().isEmpty() && !canGrade(a)) {
-                for(SimpleSubmission ss : as.getSubmissions()) {
-                    ss.setPrivateNotes(null);
-                    if(!ss.getReturned()) {
-                        ss.setFeedbackText(null);
-                        ss.setGrade(null);
-                        ss.setFeedbackAttachments(null);
-                        ss.setFeedbackComment(null);
-                        for(SimpleSubmitter sser : ss.getSubmitters()) {
-                            sser.setGrade(null);
+        if (!isHiddenAssignmentTool(site)) {
+            assignmentService.getAssignmentsForContext(siteId).stream()
+            .map(a->{
+                SimpleAssignment as = new SimpleAssignment(a);
+                if(as.getSubmissions() != null && !as.getSubmissions().isEmpty() && !canGrade(a)) {
+                    for(SimpleSubmission ss : as.getSubmissions()) {
+                        ss.setPrivateNotes(null);
+                        if(!ss.getReturned()) {
+                            ss.setFeedbackText(null);
+                            ss.setGrade(null);
+                            ss.setFeedbackAttachments(null);
+                            ss.setFeedbackComment(null);
+                            for(SimpleSubmitter sser : ss.getSubmitters()) {
+                                sser.setGrade(null);
+                            }
                         }
                     }
-                }
-           }
-           return as;
-        })
-        .filter(a->a!=null)
-        .forEach(rv::add);
+               }
+               return as;
+            })
+            .filter(a->a!=null)
+            .forEach(rv::add);
+        } else {
+            throw new EntityException("You don't have permissions read assignments", "", HttpServletResponse.SC_FORBIDDEN);
+        }
 
         return rv;
     }
@@ -444,10 +449,17 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         List<Site> sites = siteService.getSites(SiteService.SelectionType.ACCESS, null, null, null, SiteService.SortType.TITLE_ASC, null);
         // no need to check user can access this site, as the get sites only returned accessible sites
 
+        // check that the user can access all task tools on all sites, they may be hidden
+        // in this case returned 403 Forbidden
+        if (isHiddenAssignmentInAllSites(sites)) {
+            throw new EntityException("You don't have permissions read assignments", "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
         // get all assignments from each site
         for (Site site : sites) {
             String siteId = site.getId();
-            assignmentService.getAssignmentsForContext(siteId).stream().map(SimpleAssignment::new).forEach(rv::add);
+            // check user can access the tool, it might be hidden
+            if (!isHiddenAssignmentTool(site)) { assignmentService.getAssignmentsForContext(siteId).stream().map(SimpleAssignment::new).forEach(rv::add); }
         }
 
         return rv;
@@ -493,78 +505,95 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("You need to supply the assignmentId and ref", "", HttpServletResponse.SC_NOT_FOUND);
         }
 
-        AssignmentSubmission submission;
+        Site site = null;
         try {
-            submission = assignmentService.getSubmission(assignmentId, user);
-        } catch (PermissionException pe) {
-            log.warn("You can't modify this sumbitter");
-            throw new EntityException("You can't modify this sumbitter", "", HttpServletResponse.SC_UNAUTHORIZED);
+            Assignment assignment = assignmentService.getAssignment(assignmentId);
+            String siteId = assignment.getContext();
+            site = siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            log.warn("No site/assignment found: {}", e.toString());
+            throw new EntityException("No site/assignment found", "", HttpServletResponse.SC_NOT_FOUND);
+        } catch (PermissionException e) {
+            log.warn("You can't modify this assignment: {}" , e.toString());
+            throw new EntityException("You don't have permissions " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
         }
 
-        if (submission == null) {
-            String submitterId = user.getId();
-
+        if (site!=null && !isHiddenAssignmentTool(site)) {
+        AssignmentSubmission submission;
             try {
-                submission = assignmentService.addSubmission(assignmentId, submitterId);
-                if (submission != null) {
-                    submission.setSubmitted(true);
-                    submission.setUserSubmission(false);
-                    submission.setDateModified(Instant.now());
-                    submission.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findAny().ifPresent(sb -> sb.setSubmittee(false));
-                    assignmentService.updateSubmission(submission);
-                }
-            } catch (PermissionException e) {
-                log.warn("Could not add submission for assignment/submitter: {}/{}, {}", assignmentId, submitterId, e.toString());
+                submission = assignmentService.getSubmission(assignmentId, user);
+            } catch (PermissionException pe) {
+                log.warn("You can't modify this sumbitter");
                 throw new EntityException("You can't modify this sumbitter", "", HttpServletResponse.SC_UNAUTHORIZED);
             }
-        }
 
-        String duration = (String) params.get("tsDuration");
+            if (submission == null) {
+                String submitterId = user.getId();
 
-        if (!assignmentService.isValidTimeSheetTime(duration)) {
-            log.warn("Wrong time format. Must match XXh YYm");
-            throw new EntityException("Wrong time format. Must be XXHXXM","",HttpServletResponse.SC_BAD_REQUEST);
-        }
+                try {
+                    submission = assignmentService.addSubmission(assignmentId, submitterId);
+                    if (submission != null) {
+                        submission.setSubmitted(true);
+                        submission.setUserSubmission(false);
+                        submission.setDateModified(Instant.now());
+                        submission.getSubmitters().stream().filter(sb -> sb.getSubmitter().equals(submitterId)).findAny().ifPresent(sb -> sb.setSubmittee(false));
+                        assignmentService.updateSubmission(submission);
+                    }
+                } catch (PermissionException e) {
+                    log.warn("Could not add submission for assignment/submitter: {}/{}, {}", assignmentId, submitterId, e.toString());
+                    throw new EntityException("You can't modify this sumbitter", "", HttpServletResponse.SC_UNAUTHORIZED);
+                }
+            }
 
-        String comment = (String) params.get("tsComment");
-        StringBuilder alertMsg = new StringBuilder();
-        comment = formattedText.processFormattedText(comment, alertMsg);
-        if (StringUtils.isBlank(comment) || alertMsg.length() > 0) {
-            log.warn("Comment field format is not valid");
-            throw new EntityException("Comment field format is not valid", "", HttpServletResponse.SC_BAD_REQUEST);
-        }
+            String duration = (String) params.get("tsDuration");
 
-        Instant startTime;
-        try {
-            int month = Integer.parseInt((String) params.get("new_ts_record_month"));
-            int day = Integer.parseInt((String) params.get("new_ts_record_day"));
-            int year = Integer.parseInt((String) params.get("new_ts_record_year"));
-            int hour = Integer.parseInt((String) params.get("new_ts_record_hour"));
-            int min = Integer.parseInt((String) params.get("new_ts_record_minute"));
+            if (!assignmentService.isValidTimeSheetTime(duration)) {
+                log.warn("Wrong time format. Must match XXh YYm");
+                throw new EntityException("Wrong time format. Must be XXHXXM","",HttpServletResponse.SC_BAD_REQUEST);
+            }
 
-            startTime = LocalDateTime.of(year, month, day, hour, min, 0).atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
-        } catch (NumberFormatException nfe) {
-            startTime = Instant.now();
-        }
+            String comment = (String) params.get("tsComment");
+            StringBuilder alertMsg = new StringBuilder();
+            comment = formattedText.processFormattedText(comment, alertMsg);
+            if (StringUtils.isBlank(comment) || alertMsg.length() > 0) {
+                log.warn("Comment field format is not valid");
+                throw new EntityException("Comment field format is not valid", "", HttpServletResponse.SC_BAD_REQUEST);
+            }
 
-        AssignmentSubmissionSubmitter submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(user.getId())).findAny().orElse(null);
+            Instant startTime;
+            try {
+                int month = Integer.parseInt((String) params.get("new_ts_record_month"));
+                int day = Integer.parseInt((String) params.get("new_ts_record_day"));
+                int year = Integer.parseInt((String) params.get("new_ts_record_year"));
+                int hour = Integer.parseInt((String) params.get("new_ts_record_hour"));
+                int min = Integer.parseInt((String) params.get("new_ts_record_minute"));
 
-        if (submissionSubmitter == null) {
-            log.warn("You submitter does not exist");
-            throw new EntityException("You submitter does not exist", "", HttpServletResponse.SC_NOT_FOUND);
-        }
+                startTime = LocalDateTime.of(year, month, day, hour, min, 0).atZone(userTimeService.getLocalTimeZone().toZoneId()).toInstant();
+            } catch (NumberFormatException nfe) {
+                startTime = Instant.now();
+            }
 
-        TimeSheetEntry timeSheet = new TimeSheetEntry();
-        timeSheet.setComment(comment);
-        timeSheet.setStartTime(startTime);
-        timeSheet.setDuration(duration);
-        timeSheet.setUserId(userId);
+            AssignmentSubmissionSubmitter submissionSubmitter = submission.getSubmitters().stream().filter(s -> s.getSubmitter().equals(user.getId())).findAny().orElse(null);
 
-        try {
-            assignmentService.saveTimeSheetEntry(submissionSubmitter, timeSheet);
-        } catch (PermissionException e) {
-            log.warn("You can't modify this sumbitter");
-            throw new EntityException("You can't modify this sumbitter", "", HttpServletResponse.SC_UNAUTHORIZED);
+            if (submissionSubmitter == null) {
+                log.warn("You submitter does not exist");
+                throw new EntityException("You submitter does not exist", "", HttpServletResponse.SC_NOT_FOUND);
+            }
+
+            TimeSheetEntry timeSheet = new TimeSheetEntry();
+            timeSheet.setComment(comment);
+            timeSheet.setStartTime(startTime);
+            timeSheet.setDuration(duration);
+            timeSheet.setUserId(userId);
+
+            try {
+                assignmentService.saveTimeSheetEntry(submissionSubmitter, timeSheet);
+            } catch (PermissionException e) {
+                log.warn("You can't modify this sumbitter");
+                throw new EntityException("You can't modify this sumbitter", "", HttpServletResponse.SC_UNAUTHORIZED);
+            }
+        } else {
+            throw new EntityException("You don't have permissions view assignments", "", HttpServletResponse.SC_FORBIDDEN);
         }
         return HttpServletResponse.SC_OK;
     }
@@ -647,18 +676,35 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("Cannot execute custom action (getTimeSheet): Illegal arguments: Must include context and assignmentId in the path (/assignment.json): e.g. /assignment/getTimeSheet/{assignmentId} (rethrown)", assignmentId, HttpServletResponse.SC_BAD_REQUEST);
         }
 
-        AssignmentSubmission as;
+        Site site = null;
         try {
-            as = assignmentService.getSubmission(assignmentId, u);
-        } catch (PermissionException e1) {
-            log.warn("You can't modify this sumbitter");
-            throw new EntityException("You don't have permissions read submission " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
+            Assignment assignment = assignmentService.getAssignment(assignmentId);
+            String siteId = assignment.getContext();
+            site = siteService.getSite(siteId);
+        } catch (IdUnusedException e) {
+            log.warn("No site/assignment found: {}", e.toString());
+            throw new EntityException("No site/assignment found", "", HttpServletResponse.SC_NOT_FOUND);
+        } catch (PermissionException e) {
+            log.warn("You can't view this assignment: {}" , e.toString());
+            throw new EntityException("You don't have permissions " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
         }
-        if(as == null) {
-            throw new EntityException("There are not worklog records for this assignment ", assignmentId, HttpServletResponse.SC_BAD_REQUEST); 
+
+        if (site!=null && !isHiddenAssignmentTool(site)) {
+            AssignmentSubmission as;
+            try {
+                as = assignmentService.getSubmission(assignmentId, u);
+            } catch (PermissionException e1) {
+                log.warn("You can't modify this sumbitter");
+                throw new EntityException("You don't have permissions read submission " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
+            }
+            if(as == null) {
+                throw new EntityException("There are not worklog records for this assignment ", assignmentId, HttpServletResponse.SC_BAD_REQUEST); 
+            }
+            AssignmentSubmissionSubmitter submitter = as.getSubmitters().stream().findAny().orElseThrow(() -> new EntityException("There are not worklog records for this assignment ", assignmentId, HttpServletResponse.SC_BAD_REQUEST));
+            assignData.put("timeSpent", submitter.getSubmittee() ? submitter.getTimeSpent() : assignmentService.getTotalTimeSheet(submitter));
+        } else {
+            throw new EntityException("You don't have permissions view assignments", "", HttpServletResponse.SC_FORBIDDEN);
         }
-        AssignmentSubmissionSubmitter submitter = as.getSubmitters().stream().findAny().orElseThrow(() -> new EntityException("There are not worklog records for this assignment ", assignmentId, HttpServletResponse.SC_BAD_REQUEST));
-        assignData.put("timeSpent", submitter.getSubmittee() ? submitter.getTimeSpent() : assignmentService.getTotalTimeSheet(submitter));
 
         return assignData;
     }
@@ -1668,6 +1714,35 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         return assignmentService.allowGradeSubmission(reference);
+    }
+
+    protected boolean isHiddenAssignmentInAllSites(List<Site> sites) {
+        //we count the number of sites with assignment tool and the number of assignment tool hidden
+        int numberAssignmentTool=0;
+        int numberAssignmentToolHidden=0;
+        String tid = "";
+        for (Site site : sites) {
+            for (SitePage page : (List<SitePage>)site.getPages()) {
+                for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
+                    tid = tool.getToolId();
+                    if ("sakai.assignment.grades".equals(tid)) { numberAssignmentTool++; }
+                    if ("sakai.assignment.grades".equals(tid) && toolManager.isHidden(tool)) { numberAssignmentToolHidden++; }
+                }
+            }
+        }
+        return (numberAssignmentTool==numberAssignmentToolHidden);
+    }
+
+    protected boolean isHiddenAssignmentTool(Site site) {
+        String tid = "";
+        boolean hiddenToolAssignment = false;
+        for (SitePage page : (List<SitePage>)site.getPages()) {
+            for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
+                tid = tool.getToolId();
+                if ("sakai.assignment.grades".equals(tid) && toolManager.isHidden(tool)) { hiddenToolAssignment = true; }
+            }
+        }
+        return hiddenToolAssignment;
     }
 
     @Getter
