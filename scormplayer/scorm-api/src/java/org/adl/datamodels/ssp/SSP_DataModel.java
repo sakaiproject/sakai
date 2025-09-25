@@ -27,6 +27,7 @@ package org.adl.datamodels.ssp;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.datamodels.DMElement;
 import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMProcessingInfo;
@@ -45,13 +46,10 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class SSP_DataModel extends AbstractSSPDataModel implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
-	private static Log log = LogFactory.getLog(SSP_DataModel.class);
+    private static final long serialVersionUID = 1L;
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 
@@ -135,7 +133,7 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 
 		/*if( _Debug )
 		{
-		   System.out.println("SSP_DataModel::getValue() -- entering");
+		   log.debug("SSP_DataModel::getValue() -- entering");
 		}
 
 		// Assume no processing errors
@@ -489,8 +487,8 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 
 		if( _Debug )
 		{
-		   System.out.println("SSP_DataModel::getValue() -- returning: " + result);
-		   System.out.println("SSP_DataModel::getValue() -- exiting");
+		   log.debug("SSP_DataModel::getValue() -- returning: " + result);
+		   log.debug("SSP_DataModel::getValue() -- exiting");
 		}
 
 		return result;*/
@@ -526,7 +524,7 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 
 		/*if( _Debug )
 		{
-		   System.out.println("SSP_DataModel::setValue -- entering");
+		   log.debug("SSP_DataModel::setValue -- entering");
 		}
 
 		// Assume no processing errors
@@ -928,8 +926,8 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 
 		if( _Debug )
 		{
-		   System.out.println("SSP_DataModel::setValue() -- result: " + result);
-		   System.out.println("SSP_DataModel::setValue() -- exiting");
+		   log.debug("SSP_DataModel::setValue() -- result: " + result);
+		   log.debug("SSP_DataModel::setValue() -- exiting");
 		}
 
 		return result;*/
@@ -1000,7 +998,7 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 	{
 	   if( _Debug )
 	   {
-	      System.out.println("SSP_DataModel::processDelimiters() -- entering");
+	      log.debug("SSP_DataModel::processDelimiters() -- entering");
 	   }
 
 	   int error = DMErrorCodes.NO_ERROR;
@@ -1030,7 +1028,7 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 
 	         if( _Debug )
 	         {
-	            System.out.println("SSP_DataModel::processDelimiters() -- " + "delimiter name = " + delName);
+	            log.debug("SSP_DataModel::processDelimiters() -- " + "delimiter name = " + delName);
 	         }
 
 	         // Make sure there are no duplicates
@@ -1217,8 +1215,8 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 
 	   if( _Debug )
 	   {
-	      System.out.println("SSP_DataModel::processDelimiters() -- error: " + error);
-	      System.out.println("SSP_DataModel::processDelimiters() -- entering");
+	      log.debug("SSP_DataModel::processDelimiters() -- error: " + error);
+	      log.debug("SSP_DataModel::processDelimiters() -- entering");
 	   }
 
 	   return error;
@@ -1243,7 +1241,7 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 	{
 	   if( _Debug )
 	   {
-	      System.out.println("SSP_DataModel::processSetDelimiters() -- " + "entering");
+	      log.debug("SSP_DataModel::processSetDelimiters() -- " + "entering");
 	   }
 
 	   int error = DMErrorCodes.NO_ERROR;
@@ -1368,8 +1366,8 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 
 	   if( _Debug )
 	   {
-	      System.out.println("SSP_DataModel::processSetDelimiters() -- error: " + error);
-	      System.out.println("SSP_DataModel::processSetDelimiters() -- exiting");
+	      log.debug("SSP_DataModel::processSetDelimiters() -- error: " + error);
+	      log.debug("SSP_DataModel::processSetDelimiters() -- exiting");
 	   }
 
 	   return error;
@@ -1384,29 +1382,29 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 	{
 	   SSP_ServletRequest request = iRequest;
 
-	   System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	   System.out.println("      Request to be sent to server           ");
-	   System.out.println("                                             ");
-	   System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	   System.out.println("mBucketID = " + request.mBucketID);
-	   System.out.println("mStudentID = " + request.mStudentID);
-	   System.out.println("mCourseID = " + request.mCourseID);
-	   System.out.println("mSCOID = " + request.mSCOID);
-	   System.out.println("mAttemptID = " + request.mAttemptID);
-	   System.out.println("mOperationType = " + request.mOperationType);
-	   System.out.println("mMinimumSize = " + request.mMinimumSize);
-	   System.out.println("mRequestedSize = " + request.mRequestedSize);
-	   System.out.println("mReducible = " + request.mReducible);
-	   System.out.println("mBucketType = " + request.mBucketType);
-	   System.out.println("mPersistence = " + request.mPersistence);
-	   System.out.println("mOffset = " + request.mOffset);
-	   System.out.println("mSize = " + request.mSize);
-	   System.out.println("mValue = " + request.mValue);
-	   System.out.println("mManagedBucketIndex = " + request.mManagedBucketIndex);
-	   System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	   System.out.println("              End of request                 ");
-	   System.out.println("                                             ");
-	   System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	   log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	   log.debug("      Request to be sent to server           ");
+	   log.debug("                                             ");
+	   log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	   log.debug("mBucketID = " + request.mBucketID);
+	   log.debug("mStudentID = " + request.mStudentID);
+	   log.debug("mCourseID = " + request.mCourseID);
+	   log.debug("mSCOID = " + request.mSCOID);
+	   log.debug("mAttemptID = " + request.mAttemptID);
+	   log.debug("mOperationType = " + request.mOperationType);
+	   log.debug("mMinimumSize = " + request.mMinimumSize);
+	   log.debug("mRequestedSize = " + request.mRequestedSize);
+	   log.debug("mReducible = " + request.mReducible);
+	   log.debug("mBucketType = " + request.mBucketType);
+	   log.debug("mPersistence = " + request.mPersistence);
+	   log.debug("mOffset = " + request.mOffset);
+	   log.debug("mSize = " + request.mSize);
+	   log.debug("mValue = " + request.mValue);
+	   log.debug("mManagedBucketIndex = " + request.mManagedBucketIndex);
+	   log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	   log.debug("              End of request                 ");
+	   log.debug("                                             ");
+	   log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	}*/
 
 	/**
@@ -1422,20 +1420,20 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 	   StatusInfo si = response.mStatusInfo;
 	   BucketState bs = response.mBucketState;
 
-	   System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	   System.out.println("       Response sent from server             ");
-	   System.out.println("                                             ");
-	   System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	   System.out.println("mBucketID = " + response.mBucketID);
-	   System.out.println("mStudentID = " + response.mStudentID);
-	   System.out.println("mCourseID = " + response.mCourseID);
-	   System.out.println("mAttemptID = " + response.mAttemptID);
-	   System.out.println("mReturnValue = " + response.mReturnValue);
-	   System.out.println("Managed Bucket success status = " + mb.getSuccessStatus());
-	   System.out.println("Status Info Error Code = " + si.mErrorCode.toString());
+	   log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	   log.debug("       Response sent from server             ");
+	   log.debug("                                             ");
+	   log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	   log.debug("mBucketID = " + response.mBucketID);
+	   log.debug("mStudentID = " + response.mStudentID);
+	   log.debug("mCourseID = " + response.mCourseID);
+	   log.debug("mAttemptID = " + response.mAttemptID);
+	   log.debug("mReturnValue = " + response.mReturnValue);
+	   log.debug("Managed Bucket success status = " + mb.getSuccessStatus());
+	   log.debug("Status Info Error Code = " + si.mErrorCode.toString());
 	   if( si.mErrorDescription != null )
 	   {
-	      System.out.println("Status Info Error Description = " + si.mErrorDescription);
+	      log.debug("Status Info Error Description = " + si.mErrorDescription);
 	   }
 
 	   if( bs != null )
@@ -1443,14 +1441,14 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 	      String bucType = bs.mBucketType;
 	      String totSpace = ( bs.mTotalSpace ).toString();
 	      String used = ( bs.mUsed ).toString();
-	      System.out.println("Bucket State bucket type = " + bucType);
-	      System.out.println("Bucket State total space = " + totSpace);
-	      System.out.println("Bucket State used = " + used);
+	      log.debug("Bucket State bucket type = " + bucType);
+	      log.debug("Bucket State total space = " + totSpace);
+	      log.debug("Bucket State used = " + used);
 	   }
-	   System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	   System.out.println("             End of response                 ");
-	   System.out.println("                                             ");
-	   System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	   log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	   log.debug("             End of response                 ");
+	   log.debug("                                             ");
+	   log.debug("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
 	}*/
 } // end SSP_DATAMODEL

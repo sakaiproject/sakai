@@ -25,6 +25,7 @@ package org.adl.logging;
 
 import java.util.LinkedList;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.util.LogMessage;
 
 /**
@@ -33,6 +34,7 @@ import org.adl.util.LogMessage;
  *   
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLMessageCollection {
 	/**
 	 * LinkedList used to hold the messages bound for the Summary Log
@@ -111,9 +113,9 @@ public class ADLMessageCollection {
 					wait();
 				}
 			} catch (InterruptedException ie) {
-				System.out.println("Exception in " + "SummaryLogMessageCollection.hasMessages():" + ie);
+				log.debug("Exception in " + "SummaryLogMessageCollection.hasMessages():" + ie);
 			}
-		}// end if
+		}
 
 		return mMessages.size() > 0;
 	}

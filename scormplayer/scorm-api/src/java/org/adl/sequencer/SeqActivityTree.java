@@ -24,14 +24,15 @@
 
 package org.adl.sequencer;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation of an activity tree.<br><br>
@@ -63,17 +64,15 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqActivityTree implements Serializable, ISeqActivityTree {
-	static final long serialVersionUID = 1L; //1802091880012820747L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 
-	private long id;
+	@Getter
+    private long id;
 
-	/**
-	    * This controls display of log messages to the java console
-	    */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * This the representation of the activity tree
 	 */
 	private SeqActivity mRoot = null;
@@ -176,23 +175,17 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 *                   tree's root <code>SeqActivity</code>
 	 */
 	public SeqActivityTree(String iCourseID, String iLearnerID, String iScopeID, SeqActivity iRoot) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - constructor");
-			System.out.println("  ::--> Course ID     : " + iCourseID);
-			System.out.println("  ::--> Student ID    : " + iLearnerID);
-			System.out.println("  ::--> Scope ID      : " + iScopeID);
-		}
-
+        log.debug("""
+                    :: SeqActivityTree  --> BEGIN - constructor
+                    ::--> Course ID     : {}
+                    ::--> Student ID    : {}
+                    ::--> Scope ID      : {}
+                  """, iCourseID, iLearnerID, iScopeID);
 		mCourseID = iCourseID;
 		mLearnerID = iLearnerID;
 		mScopeID = iScopeID;
-
 		mRoot = iRoot;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - constructor");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - constructor");
 	}
 
 	/**
@@ -202,19 +195,13 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 *              map.
 	 */
 	private void addChildActivitiestoMap(SeqActivity iNode) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "addChildActivitiestoMap");
-		}
+        log.debug("  :: SeqActivityTree  --> BEGIN - addChildActivitiestoMap");
 
 		// Make sure the node is not empty
 		if (iNode != null) {
 			List<SeqActivity> children = iNode.getChildren(true);
 			int i = 0;
-
-			if (_Debug) {
-				System.out.println("  ::--> Adding node : " + iNode.getID());
-			}
+            log.debug("  ::--> Adding node : {}", iNode.getID());
 
 			// Add the current activity to the activity map
 			mActivityMap.put(iNode.getID(), iNode);
@@ -226,10 +213,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "addChildActivitiestoMap");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - addChildActivitiestoMap");
 	}
 
 	/**
@@ -237,10 +221,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * (<code>SeqActivity</code>).
 	 */
 	private void buildActivityMap() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "buildActivityMap");
-		}
+        log.debug("  :: SeqActivityTree  --> BEGIN - buildActivityMap");
 
 		// Create or clear the activity map
 		if (mActivityMap != null) {
@@ -255,10 +236,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 		if (mRoot != null) {
 			addChildActivitiestoMap(mRoot);
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "buildActivityMap");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - buildActivityMap");
 
 	}
 
@@ -268,16 +246,9 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public void clearSessionState() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "clearSessionState");
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - clearSessionState");
 		mActivityMap = null;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "clearSessionState");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - clearSessionState");
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -292,56 +263,44 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public void dumpState() {
-		if (_Debug) {
-			System.out.println("  :: SeqActivtyTree   --> BEGIN - dumpState");
+        log.debug("""
+                    :: SeqActivtyTree   --> BEGIN - dumpState
+                    ::--> Course ID:       {}
+                    ::--> Student ID:      {}
+                    ::--> Scope ID  :      {}
+                    ::--> Last Leaf:       {}
+                  """, mCourseID, mLearnerID, mScopeID, mLastLeaf);
 
-			System.out.println("  ::--> Course ID:       " + mCourseID);
-			System.out.println("  ::--> Student ID:      " + mLearnerID);
-			System.out.println("  ::--> Scope ID  :      " + mScopeID);
-			System.out.println("  ::--> Last Leaf:       " + mLastLeaf);
-
-			if (mObjSet == null) {
-				System.out.println("  ::--> Global Obj Set:       NULL");
-			} else {
-				System.out.println("  ::--> Global Obj Set:       [" + mObjSet.size() + "]");
-
-				for (int i = 0; i < mObjSet.size(); i++) {
-					System.out.println("\t" + mObjSet.get(i));
-				}
-			}
-
-			if (mSuspendAll == null) {
-				System.out.println("  ::--> SuspendAll:           NULL");
-			} else {
-				System.out.println("  ::--> SuspendAll:           " + mSuspendAll.getID());
-			}
-
-			if (mCurActivity == null) {
-				System.out.println("  ::--> Current Activity:     NULL");
-			} else {
-				System.out.println("  ::--> Current Activity:     " + mCurActivity.getID());
-			}
-
-			if (mFirstCandidate == null) {
-				System.out.println("  ::--> First Candidate:      NULL");
-			} else {
-				System.out.println("  ::--> First Candidate:      " + mFirstCandidate.getID());
-			}
+		if (mObjSet == null) {
+			log.debug("  ::--> Global Obj Set:       NULL");
+        } else {
+            log.debug("""
+                        ::--> Global Obj Set:       [{}]
+                      \t{}
+                        ::--> SuspendAll:           {}
+                        ::--> Current Activity:     {}
+                        ::--> First Candidate:      {}
+                      """, 
+                    mObjSet.size(),
+                    String.join("\n\t", mObjSet),
+                    mSuspendAll != null ? mSuspendAll.getID() : "NULL",
+                    mCurActivity != null ? mCurActivity.getID() : "NULL",
+                    mFirstCandidate != null ? mFirstCandidate.getID() : "NULL");
 			/*
 			         if ( mValidReq == null )
 			         {
-			            System.out.println("  ::--> Valid Requests:       NULL");
+			            log.debug("  ::--> Valid Requests:       NULL");
 			         }
 			         else
 			         {
-			            System.out.println("  ::--> Valid Reqeusts ::");
+			            log.debug("  ::--> Valid Reqeusts ::");
 			            mValidReq.dumpState();
 			         }
 			*/
 			if (mRoot == null) {
-				System.out.println("  ::--> Root:                 NULL");
+				log.debug("  ::--> Root:                 NULL");
 			} else {
-				System.out.println("  ::--> Activity Tree ::");
+				log.debug("  ::--> Activity Tree ::");
 
 				// Walk the activity tree, reporting state for each activity
 				SeqActivity walk = mRoot;
@@ -385,9 +344,8 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 					}
 				}
 			}
-
-			System.out.println("  :: SeqActivityTree   --> END   - dumpState");
 		}
+        log.debug("  :: SeqActivityTree   --> END   - dumpState");
 	}
 
 	@Override
@@ -402,11 +360,8 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 			return false;
 		}
 		SeqActivityTree other = (SeqActivityTree) obj;
-		if (id != other.id){
-			return false;
-		}
-		return true;
-	}
+        return id == other.id;
+    }
 
 	/**
 	 * Retrieves the activity (<code>SeqActivity</code>) associated with the
@@ -448,13 +403,9 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public String getCourseID() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - getCourseID");
-			System.out.println("  ::--> Student ID    : " + mCourseID);
-			System.out.println("  :: SeqActivityTree  --> END   - getCourseID");
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - getCourseID");
+		log.debug("  ::--> Student ID    : {}", mCourseID);
+		log.debug("  :: SeqActivityTree  --> END   - getCourseID");
 		return mCourseID;
 	}
 
@@ -466,22 +417,9 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 *         current activity or <code>null</code> if none exists.
 	 */
 	public SeqActivity getCurrentActivity() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "getCurrentActivity");
-		}
-
-		if (_Debug) {
-
-			if (mCurActivity != null) {
-				System.out.println("  ::-->  " + mCurActivity.getID());
-			} else {
-				System.out.println("  ::-->  NULL current activity");
-			}
-
-			System.out.println("  :: SeqActivityTree  --> END   - " + "getCurrentActivity");
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - getCurrentActivity");
+        log.debug("  ::-->  {}", mCurActivity != null ? mCurActivity.getID() : "NULL current activity");
+        log.debug("  :: SeqActivityTree  --> END   - getCurrentActivity");
 		return mCurActivity;
 	}
 
@@ -493,33 +431,23 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 *         should be processed from.
 	 */
 	public SeqActivity getFirstCandidate() {
+        log.debug("  :: SeqActivityTree  --> BEGIN - getFirstCandidate");
+        if (mFirstCandidate != null) {
+			log.debug("  ::-->  {}", mFirstCandidate.getID());
+        } else if (mCurActivity != null) {
+            log.debug("  ::--> [Cur] {}", mCurActivity.getID());
+        } else {
+            log.debug("  ::-->  NULL first candidate");
+        }
 
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "getFirstCandidate");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - getFirstCandidate");
 
-		if (_Debug) {
-
-			if (mFirstCandidate != null) {
-				System.out.println("  ::-->  " + mFirstCandidate.getID());
-			} else if (mCurActivity != null) {
-				System.out.println("  ::--> [Cur] " + mCurActivity.getID());
-			} else {
-				System.out.println("  ::-->  NULL first candidate");
-			}
-
-			System.out.println("  :: SeqActivityTree  --> END   - " + "getFirstCandidate");
-		}
-
-		// If the first candidiate is null, then return the current 
-		// activity
+		// If the first candidiate is null, then return the current activity
 		if (mFirstCandidate == null){
 			return mCurActivity;
 		}
-
 		// else return the first candidate activity
 		return mFirstCandidate;
-
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -536,10 +464,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public List<String> getGlobalObjectives() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "getGlobalObjectives");
-		}
+        log.debug("  :: SeqActivityTree  --> BEGIN - getGlobalObjectives");
 
 		// If we haven't scanned the current tree for global objective IDs, do 
 		// it now.
@@ -547,15 +472,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 			scanObjectives();
 		}
 
-		if (_Debug) {
-			if (mObjSet == null) {
-				System.out.println("  ::-->  NULL");
-			} else {
-				System.out.println("  ::--> [" + mObjSet.size() + "]");
-			}
-
-			System.out.println("  :: SeqActivityTree  --> END   - " + "getGlobalObjectives");
-		}
+        log.debug("  ::--> {}", mObjSet != null ? mObjSet.size() : "NULL");
 
 		// Do not return an empty set
 		if (mObjSet != null) {
@@ -564,27 +481,20 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 			}
 		}
 
+        log.debug("  :: SeqActivityTree  --> END   - getGlobalObjectives");
 		return mObjSet;
 	}
 
-	public long getId() {
-		return id;
-	}
-
-	/**
+    /**
 	 * Retrieves the ID associated with the last leaf activity in the tree.
 	 * 
 	 * @return The ID (<code>String</code>) associated with the last leaf in the
 	 *         last leaf activity.
 	 */
 	public String getLastLeaf() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - getLastLeaf");
-			System.out.println("  ::-->  " + mLastLeaf);
-			System.out.println("  :: SeqActivityTree  --> END   - GetLastLeaf");
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - getLastLeaf");
+		log.debug("  ::-->  {}", mLastLeaf);
+		log.debug("  :: SeqActivityTree  --> END   - GetLastLeaf");
 		return mLastLeaf;
 	}
 
@@ -596,13 +506,9 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public String getLearnerID() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - getLearnerID");
-			System.out.println("  ::--> Learner ID    : " + mLearnerID);
-			System.out.println("  :: SeqActivityTree  --> END   - getLearnerID");
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - getLearnerID");
+		log.debug("  ::--> Learner ID    : {}", mLearnerID);
+		log.debug("  :: SeqActivityTree  --> END   - getLearnerID");
 		return mLearnerID;
 	}
 
@@ -617,10 +523,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public List<String> getObjMap(String iObjID) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "getObjMap");
-		}
+        log.debug("  :: SeqActivityTree  --> BEGIN - getObjMap");
 
 		List<String> actSet = null;
 
@@ -640,17 +543,9 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 		if (mObjMap != null) {
 			actSet = mObjMap.get(iObjID);
 		}
+        log.debug("  ::--> [{}]", actSet != null ? actSet.size() : "NULL");
 
-		if (_Debug) {
-			if (actSet == null) {
-				System.out.println("  ::-->  NULL");
-			} else {
-				System.out.println("  ::--> [" + actSet.size() + "]");
-			}
-
-			System.out.println("  :: SeqActivityTree  --> END   - " + "getObjMap");
-		}
-
+        log.debug("  :: SeqActivityTree  --> END   - getObjMap");
 		return actSet;
 	}
 
@@ -662,19 +557,9 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 *         or <code>null</code> if none has been assigned.
 	 */
 	public SeqActivity getRoot() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - getRoot");
-
-			if (mRoot != null) {
-				System.out.println("  ::-->  " + mRoot.getID());
-			} else {
-				System.out.println("  ::-->  NULL Root");
-			}
-
-			System.out.println("  :: SeqActivityTree  --> END   - getRoot");
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - getRoot");
+        log.debug("  ::-->  {}", mRoot != null ? mRoot.getID() : "NULL Root");
+        log.debug("  :: SeqActivityTree  --> END   - getRoot");
 		return mRoot;
 	}
 
@@ -688,13 +573,9 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public String getScopeID() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "getScopeID");
-			System.out.println("  ::--> " + mScopeID);
-			System.out.println("  :: SeqActivityTree  --> END   - " + "getScopeID");
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - getScopeID");
+		log.debug("  ::--> {}", mScopeID);
+		log.debug("  :: SeqActivityTree  --> END   - getScopeID");
 		return mScopeID;
 	}
 
@@ -707,19 +588,9 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public SeqActivity getSuspendAll() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "getSuspendAll");
-
-			if (mSuspendAll != null) {
-				System.out.println("  ::-->  " + mSuspendAll.getID());
-			} else {
-				System.out.println("  ::-->  NULL suspend all activity.");
-			}
-
-			System.out.println("  :: SeqActivityTree  --> END   - " + "getSuspendAll");
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - getSuspendAll");
+        log.debug("  ::-->  {}", mSuspendAll != null ? mSuspendAll.getID() : "NULL suspend all activity.");
+        log.debug("  :: SeqActivityTree  --> END   - getSuspendAll");
 		return mSuspendAll;
 	}
 
@@ -732,16 +603,11 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 *         if the sequencing session hasn't begun.
 	 */
 	public ADLValidRequests getValidRequests() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "getValidRequests");
-
-			if (mValidReq == null) {
-				System.out.println("  ::-->  NULL Set");
-			}
-
-			System.out.println("  :: SeqActivityTree  --> END   - " + "getValidRequests");
+        log.debug("  :: SeqActivityTree  --> BEGIN - getValidRequests");
+		if (mValidReq == null) {
+			log.debug("  ::-->  NULL Set");
 		}
+        log.debug("  :: SeqActivityTree  --> END   - getValidRequests");
 
 		return mValidReq;
 	}
@@ -759,10 +625,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * that reference specific global objectives.
 	 */
 	private void scanObjectives() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "scanObjectives");
-		}
+        log.debug("  :: SeqActivityTree  --> BEGIN - scanObjectives");
 
 		// Walk the activity tree, recording all mapped global objectives
 		SeqActivity walk = mRoot;
@@ -781,49 +644,47 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 
 			if (objs != null) {
 
-				for (int i = 0; i < objs.size(); i++) {
-					SeqObjective obj = objs.get(i);
+                for (SeqObjective obj : objs) {
+                    if (obj.mMaps != null) {
+                        for (int j = 0; j < obj.mMaps.size(); j++) {
+                            SeqObjectiveMap map = obj.mMaps.get(j);
+                            String target = map.mGlobalObjID;
 
-					if (obj.mMaps != null) {
-						for (int j = 0; j < obj.mMaps.size(); j++) {
-							SeqObjectiveMap map = obj.mMaps.get(j);
-							String target = map.mGlobalObjID;
+                            // Make sure we haven't already added this objective
+                            if (mObjSet == null) {
+                                mObjSet = new ArrayList<>();
+                                mObjSet.add(target);
+                            } else {
+                                boolean found = false;
 
-							// Make sure we haven't already added this objective
-							if (mObjSet == null) {
-								mObjSet = new ArrayList<>();
-								mObjSet.add(target);
-							} else {
-								boolean found = false;
+                                for (int k = 0; k < mObjSet.size() && !found; k++) {
+                                    String id = mObjSet.get(k);
+                                    found = id.equals(target);
+                                }
 
-								for (int k = 0; k < mObjSet.size() && !found; k++) {
-									String id = mObjSet.get(k);
-									found = id.equals(target);
-								}
+                                if (!found) {
+                                    mObjSet.add(target);
+                                }
+                            }
 
-								if (!found) {
-									mObjSet.add(target);
-								}
-							}
+                            // If this is a 'read' objective add it to our obj map
+                            if (map.mReadStatus || map.mReadMeasure) {
+                                if (mObjMap == null) {
+                                    mObjMap = new Hashtable<>();
+                                }
 
-							// If this is a 'read' objective add it to our obj map
-							if (map.mReadStatus || map.mReadMeasure) {
-								if (mObjMap == null) {
-									mObjMap = new Hashtable<>();
-								}
+                                List<String> actList = mObjMap.get(target);
 
-								List<String> actList = mObjMap.get(target);
+                                if (actList == null) {
+                                    actList = new ArrayList<>();
+                                }
 
-								if (actList == null) {
-									actList = new ArrayList<>();
-								}
-
-								actList.add(walk.getID());
-								mObjMap.put(target, actList);
-							}
-						}
-					}
-				}
+                                actList.add(walk.getID());
+                                mObjMap.put(target, actList);
+                            }
+                        }
+                    }
+                }
 			}
 
 			// Walk the current level of the tree
@@ -844,10 +705,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 		}
 
 		mObjScan = true;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "scanObjectives");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - scanObjectives");
 	}
 
 	@Override
@@ -862,17 +720,10 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public void setCourseID(String iCourseID) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - setCourseID");
-			System.out.println("  ::--> Course ID     : " + iCourseID);
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - setCourseID");
+		log.debug("  ::--> Course ID     : {}", iCourseID);
 		mCourseID = iCourseID;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - setCourseID");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setCourseID");
 	}
 
 	/**
@@ -884,31 +735,17 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public void setCurrentActivity(ISeqActivity iCurrent) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "setCurrentActivity");
-
-			if (iCurrent != null) {
-				System.out.println("  ::-->  " + iCurrent.getID());
-			} else {
-				System.out.println("  ::-->  NULL current activity.");
-			}
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - setCurrentActivity");
+        log.debug("  ::-->  {}", iCurrent != null ? iCurrent.getID() : "NULL current activity.");
 		mCurActivity = (SeqActivity) iCurrent;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "setCurrentActivity");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setCurrentActivity");
 	}
 
 	/**
 	 * Set the count of all activities in the activity tree.
 	 */
 	public void setDepths() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "setDepths");
-		}
+        log.debug("  :: SeqActivityTree  --> BEGIN - setDepths");
 
 		if (mRoot != null) {
 			// Walk the activity tree, setting depths
@@ -949,10 +786,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "setDepths");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setDepths");
 	}
 
 	/**
@@ -964,21 +798,10 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public void setFirstCandidate(ISeqActivity iFirst) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "setFirstCandidate");
-
-			if (iFirst != null) {
-				System.out.println("  ::-->  " + iFirst.getID());
-			} else {
-				System.out.println("  ::-->  NULL current activity.");
-			}
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - setFirstCandidate");
+        log.debug("  ::-->  {}", iFirst != null ? iFirst.getID() : "NULL current activity.");
 		mFirstCandidate = (SeqActivity) iFirst;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "setFirstCandidate");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setFirstCandidate");
 	}
 
 	/**
@@ -987,18 +810,10 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * @param iLastLeaf The ID of the last activity in the tree
 	 */
 	public void setLastLeaf(String iLastLeaf) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - setLastLeaf");
-
-			System.out.println("  ::-->  " + iLastLeaf);
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - setLastLeaf");
+		log.debug("  ::-->  {}", iLastLeaf);
 		mLastLeaf = iLastLeaf;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - setLastLeaf");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setLastLeaf");
 	}
 
 	/**
@@ -1008,11 +823,8 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public void setLearnerID(String iLearnerID) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - setLearnerID");
-			System.out.println("  ::--> Learner ID    : " + iLearnerID);
-		}
+        log.debug("  :: SeqActivityTree  --> BEGIN - setLearnerID");
+		log.debug("  ::--> Learner ID    : {}", iLearnerID);
 
 		mLearnerID = iLearnerID;
 
@@ -1021,19 +833,12 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 		buildActivityMap();
 
 		if (!(mActivityMap == null || iLearnerID == null)) {
-
-			Iterator<SeqActivity> it = mActivityMap.values().iterator();
-
-			while (it.hasNext()) {
-				SeqActivity act = it.next();
-
-				act.setLearnerID(iLearnerID);
-			}
+            for (SeqActivity act : mActivityMap.values()) {
+                act.setLearnerID(iLearnerID);
+            }
 		}
 
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - setLearnerID");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setLearnerID");
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -1048,22 +853,10 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * @param iRoot The root of the activity tree.
 	 */
 	public void setRoot(SeqActivity iRoot) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - setRoot");
-
-			if (iRoot != null) {
-				System.out.println("  ::-->  " + iRoot.getID());
-			} else {
-				System.out.println("  ::-->  NULL root.");
-			}
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - setRoot");
+        log.debug("  ::-->  {}", iRoot != null ? iRoot.getID() : "NULL root.");
 		mRoot = iRoot;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - setRoot");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setRoot");
 	}
 
 	/**
@@ -1075,35 +868,23 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 */
 	@Override
 	public void setScopeID(String iScopeID) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "setScopeID");
-			System.out.println("  ::-->  " + iScopeID);
-		}
+        log.debug("  :: SeqActivityTree  --> BEGIN - setScopeID");
+		log.debug("  ::-->  {}", iScopeID);
 
 		mScopeID = iScopeID;
 
 		if (mScopeID != null) {
-
 			// Associate each activity in the activity tree with this scope
 			// This is required to access certain objectives
 			buildActivityMap();
 
 			if (mActivityMap != null) {
-
-				Iterator<SeqActivity> it = mActivityMap.values().iterator();
-
-				while (it.hasNext()) {
-					SeqActivity act = it.next();
-
-					act.setScopeID(mScopeID);
-				}
+                for (SeqActivity act : mActivityMap.values()) {
+                    act.setScopeID(mScopeID);
+                }
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "setScopeID");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setScopeID");
 	}
 
 	/**
@@ -1117,32 +898,17 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 *              attempted by the student, prior to a 'SuspendAll' sequencing 
 	 */
 	public void setSuspendAll(SeqActivity iSuspendTarget) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "setSuspendAll");
-
-			if (iSuspendTarget != null) {
-				System.out.println("  ::-->  " + iSuspendTarget.getID());
-			} else {
-				System.out.println("  ::-->  NULL suspend target.");
-			}
-		}
-
+        log.debug("  :: SeqActivityTree  --> BEGIN - setSuspendAll");
+        log.debug("  ::-->  {}", iSuspendTarget != null ? iSuspendTarget.getID() : "NULL suspend target.");
 		mSuspendAll = iSuspendTarget;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "setSuspendAll");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setSuspendAll");
 	}
 
 	/**
 	 * Set the count of all activities in the activity tree.
 	 */
 	public void setTreeCount() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "setTreeCount");
-		}
+        log.debug("  :: SeqActivityTree  --> BEGIN - setTreeCount");
 
 		if (mRoot != null) {
 			// Walk the activity tree, setting count
@@ -1173,10 +939,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "setTreeCount");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setTreeCount");
 	}
 
 	/**
@@ -1187,20 +950,14 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	 * ADLValidRequests</code>).
 	 */
 	public void setValidRequests(ADLValidRequests iValidRequests) {
+        log.debug("  :: SeqActivityTree  --> BEGIN - setValidRequests");
 
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> BEGIN - " + "setValidRequests");
-
-			if (iValidRequests == null) {
-				System.out.println("  ::-->  NULL set");
-			}
+		if (iValidRequests == null) {
+			log.debug("  ::-->  NULL set");
 		}
 
 		mValidReq = iValidRequests;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivityTree  --> END   - " + "setValidRequests");
-		}
+        log.debug("  :: SeqActivityTree  --> END   - setValidRequests");
 	}
 
 	/*public void addTreeModelListener(TreeModelListener l) {
