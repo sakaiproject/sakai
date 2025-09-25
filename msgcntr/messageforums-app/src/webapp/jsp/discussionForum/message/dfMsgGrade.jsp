@@ -59,7 +59,6 @@
             <script>
                 parent.dialogutil.replaceBodyOnLoad("myLoaded();", this);
                 function myLoaded() {
-                    resetHeight();
                     //don't want to update the parent's height cause that'll jack up the sizing we've already done.
                  }
             </script>

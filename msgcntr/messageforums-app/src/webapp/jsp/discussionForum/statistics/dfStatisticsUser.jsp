@@ -114,30 +114,23 @@
 
 		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 
-		<f:verbatim>
-	<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="dialogDivLabel">
+		<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="dialogDivLabel">
 			<div class="modal-dialog modal-xl modal-dialog-centered">
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title" id="dialogDivLabel">
-		</f:verbatim>
-			<h:outputText value="#{msgs.cdfm_grade_msg}" />
-		<f:verbatim>
+							<h:outputText value="#{msgs.cdfm_grade_msg}" />
 						</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal">
 							<span class="visually-hidden">
-		</f:verbatim>
-			<h:outputText value="#{msgs.close_window}" />
-		<f:verbatim>
+								<h:outputText value="#{msgs.close_window}" />
 							</span>
 						</button>
 					</div>
 					<div class="modal-body">
-						<iframe id="dialogFrame" name="dialogFrame" class="grade-modal-frame" title="
-		</f:verbatim>
-			<h:outputText value="#{msgs.cdfm_grade_msg}" />
-		<f:verbatim>
-						"></iframe>
+						<f:verbatim>
+							<iframe id="dialogFrame" name="dialogFrame" class="grade-modal-frame" title="</f:verbatim><h:outputText value="#{msgs.cdfm_grade_msg}" /><f:verbatim>"></iframe>
+						</f:verbatim>
 					</div>
 				</div>
 			</div>
