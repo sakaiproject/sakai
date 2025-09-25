@@ -545,7 +545,7 @@ public class FormattedTextImpl implements FormattedText
         }
 
         // KNL-1075: re-do the way error messages are handled
-        if (!formattedTextErrors.isEmpty()) {
+        if (formattedTextErrors.length() > 0) {
             // allow one extra option to control logging in real time if desired
             logErrors = serverConfigurationService.getBoolean("content.cleaner.errors.logged", logErrors);
             if (showErrorToUser || showDetailedErrorToUser) {
