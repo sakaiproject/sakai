@@ -540,7 +540,7 @@ public class FormattedTextImpl implements FormattedText
             // opportunity to work around the issue, rather than causing a tool stack trace
 
             log.error("Unexpected error processing text", e);
-            formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup")).append("\n");
+            formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup")).append("<br/>");
             val = null;
         }
 

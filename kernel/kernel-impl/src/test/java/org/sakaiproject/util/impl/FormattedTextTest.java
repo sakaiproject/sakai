@@ -1446,7 +1446,7 @@ public class FormattedTextTest {
         Assert.assertFalse("Script tag should be removed", result.contains("<script>"));
 
         // If there are errors, check their encoding
-        if (!errors.isEmpty()) {
+        if (errors.length() > 0) {
             String errorString = errors.toString();
             System.out.println("AntiSamy errors: " + errorString);
 
@@ -1464,7 +1464,7 @@ public class FormattedTextTest {
         errors = new StringBuilder();
         result = formattedText.processFormattedText(internationalInput, errors);
 
-        if (!errors.isEmpty()) {
+        if (errors.length() > 0) {
             String errorString = errors.toString();
             System.out.println("International character errors: " + errorString);
 
