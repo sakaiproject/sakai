@@ -33,6 +33,7 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -80,6 +81,9 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 
 	@Setter
 	private SecurityService securityService;
+
+	@Setter
+	private AnonymousManager anonymousManager;
 
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
@@ -512,21 +516,34 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		}
 		//For given 'topicIds' fetch recently updated threads
 		for(Message fm : (List<Message>) forumManager.getRecentDiscussionForumThreadsByTopicIds(topicIds, numberOfMessages)) {
-			//message has user_Id set in the 'modifiedBy' field, setting it to 'displayId' for display purpose
-			try {
-				String createdByDisplayName =  userDirectoryService.getUser(fm.getCreatedBy()).getDisplayName();
-				fm.setCreatedBy(createdByDisplayName);
-			} catch (UserNotDefinedException e) {
-				log.debug("User not defined for id '{}'.", fm.getCreatedBy());
-			}
-			try {
-				String modifiedByDisplayName =  userDirectoryService.getUser(fm.getModifiedBy()).getDisplayName();
-				fm.setModifiedBy(modifiedByDisplayName);
-			} catch (UserNotDefinedException e) {
-				log.debug("User not defined for id '{}'.", fm.getModifiedBy());
-			}
-			SparseMessage sm = new SparseMessage(fm,/* readStatus =*/ false,/* addAttachments =*/ true, developerHelperService.getServerURL());
 			Topic topic = fm.getTopic();
+			DiscussionForum discussionForum = null;
+			if (topic != null && topic.getBaseForum() instanceof DiscussionForum) {
+				discussionForum = (DiscussionForum) topic.getBaseForum();
+			}
+			String createdById = fm.getCreatedBy();
+			boolean skipMessage = false;
+			DiscussionTopic discussionTopic = null;
+			if (topic instanceof DiscussionTopic) {
+				discussionTopic = (DiscussionTopic) topic;
+				if (Boolean.TRUE.equals(discussionTopic.getModerated()) && !Boolean.TRUE.equals(fm.getApproved())) {
+					boolean canModerate = discussionForum != null && uiPermissionsManager.isModeratePostings(discussionTopic, discussionForum, userId, siteId);
+					boolean isAuthor = createdById != null && createdById.equals(userId);
+					if (!canModerate && !isAuthor) {
+						skipMessage = true;
+					}
+				}
+			}
+			if (skipMessage) {
+				continue;
+			}
+			// Resolve author labels respecting anonymous topics
+			String createdByDisplay = resolveAuthorLabel(createdById, discussionTopic, siteId);
+			fm.setCreatedBy(createdByDisplay);
+			String modifiedById = fm.getModifiedBy();
+			String modifiedByDisplay = resolveAuthorLabel(modifiedById, discussionTopic, siteId);
+			fm.setModifiedBy(modifiedByDisplay);
+			SparseMessage sm = new SparseMessage(fm,/* readStatus =*/ false,/* addAttachments =*/ true, developerHelperService.getServerURL());
 			//setting forumId for the sparse message
 			if(topic != null && topic.getBaseForum() != null) {
 				sm.setForumId(topic.getBaseForum().getId());
@@ -534,5 +551,36 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 			messages.add(sm);
 		}
 		return messages;
+	}
+
+	private String resolveAuthorLabel(String userId, DiscussionTopic topic, String siteId) {
+		if (userId == null) {
+			return "";
+		}
+
+		boolean showRealName = true;
+		if (anonymousManager != null && anonymousManager.isAnonymousEnabled() && topic != null && Boolean.TRUE.equals(topic.getPostAnonymous())) {
+			boolean revealIdsToRoles = Boolean.TRUE.equals(topic.getRevealIDsToRoles());
+			boolean canIdentify = revealIdsToRoles && uiPermissionsManager != null && uiPermissionsManager.isIdentifyAnonAuthors(topic);
+			if (!canIdentify) {
+				showRealName = false;
+				if (siteId != null && !siteId.isEmpty()) {
+					String anonId = anonymousManager.getOrCreateAnonId(siteId, userId);
+					if (anonId != null) {
+						return anonId;
+					}
+				}
+			}
+		}
+
+		if (showRealName) {
+			try {
+				return userDirectoryService.getUser(userId).getDisplayName();
+			} catch (UserNotDefinedException e) {
+				log.debug("User not defined for id '{}'.", userId);
+			}
+		}
+
+		return userId;
 	}
 }
