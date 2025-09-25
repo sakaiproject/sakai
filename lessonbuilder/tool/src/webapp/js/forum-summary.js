@@ -60,7 +60,7 @@ function outputForums(messagesArray, toolHref, forumSummaryDiv) {
 	if (messagesArray.length === 0) {
 		fragments.push(`<p>${msg("simplepage.forum-summary-no-message")}</p>`);
 	} else {
-		const sortedMessages = messagesArray.slice().sort((a, b) => b.lastModified - a.lastModified);
+		const sortedMessages = messagesArray.slice().sort((a, b) => Number(b.lastModified || 0) - Number(a.lastModified || 0));
 		fragments.push('<ul class="forumSummaryList list-group list-group-flush">');
 		for (const message of sortedMessages) {
 			const dateTime = message.lastModifiedDisplay || '';

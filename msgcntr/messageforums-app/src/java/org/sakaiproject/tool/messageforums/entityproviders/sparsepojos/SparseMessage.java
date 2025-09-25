@@ -131,6 +131,7 @@ public class SparseMessage{
 		this.title = that.getTitle();
 		this.body = that.getBody();
 		this.lastModified = that.getLastModified();
+		this.lastModifiedDisplay = that.getLastModifiedDisplay();
 		this.authoredBy = that.getAuthoredBy();
 		this.authorId = that.getAuthorId();
 		this.isDraft = that.isDraft();

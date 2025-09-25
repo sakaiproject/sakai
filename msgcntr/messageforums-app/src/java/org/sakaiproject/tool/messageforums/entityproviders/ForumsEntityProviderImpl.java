@@ -549,13 +549,13 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 			if (skipMessage) {
 				continue;
 			}
-			// Resolve author labels respecting anonymous topics
+			// Resolve author labels respecting anonymous topics without mutating the entity
 			String createdByDisplay = resolveAuthorLabel(createdById, discussionTopic, siteId);
-			fm.setCreatedBy(createdByDisplay);
 			String modifiedById = fm.getModifiedBy();
 			String modifiedByDisplay = resolveAuthorLabel(modifiedById, discussionTopic, siteId);
-			fm.setModifiedBy(modifiedByDisplay);
 			SparseMessage sm = new SparseMessage(fm,/* readStatus =*/ false,/* addAttachments =*/ true, developerHelperService.getServerURL());
+			sm.setCreatedBy(createdByDisplay);
+			sm.setModifiedBy(modifiedByDisplay);
 			sm.setLastModifiedDisplay(formatLastModified(fm.getModified()));
 			//setting forumId for the sparse message
 			if(topic != null && topic.getBaseForum() != null) {
@@ -579,7 +579,7 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 			return false;
 		}
 
-		boolean hasOverride = uiPermissionsManager.isModeratePostings(topic, forum, userId, siteId);
+		boolean hasOverride = forum != null && uiPermissionsManager.isModeratePostings(topic, forum, userId, siteId);
 		if (hasOverride || messageManager == null) {
 			return false;
 		}
