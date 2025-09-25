@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -491,8 +490,7 @@ public class FormattedTextImpl implements FormattedText
                     if (cr.getNumberOfErrors() > 0) {
                         // TODO currently no way to get internationalized versions of error messages
                         for (String errorMsg : cr.getErrorMessages()) {
-                            String i18nErrorMsg = new String(errorMsg.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-                            formattedTextErrors.append(i18nErrorMsg).append("<br/>");
+                            formattedTextErrors.append(errorMsg).append("<br/>");
                         }
                     }
                     val = cr.getCleanHTML();
