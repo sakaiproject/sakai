@@ -146,11 +146,7 @@
 					<h5 class="modal-title" id="dialogDivLabel">
 						<h:outputText value="#{msgs.cdfm_grade_msg}" />
 					</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal">
-						<span class="visually-hidden">
-							<h:outputText value="#{msgs.close_window}" />
-						</span>
-					</button>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<h:outputText value='#{msgs.close_window}' />"></button>
 				</div>
 				<div class="modal-body">
 					<f:verbatim>
