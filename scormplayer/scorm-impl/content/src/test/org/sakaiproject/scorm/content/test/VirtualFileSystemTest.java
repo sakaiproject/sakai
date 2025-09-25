@@ -21,13 +21,16 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.scorm.content.impl.VirtualFileSystem;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class VirtualFileSystemTest extends TestCase
 {
 	private void printChildren(List<String> list)
 	{
 		for (String name : list)
 		{
-			System.out.println("NAME: " + name);
+			log.info("NAME: {}", name);
 		}
 	}
 
@@ -40,13 +43,13 @@ public class VirtualFileSystemTest extends TestCase
 		fs.addPath("this/is/another/file");
 		fs.addPath("this/is/a/word");
 
-		System.out.println("this/" + fs.getCount("this/"));
+		log.info("this/{}", fs.getCount("this/"));
 		printChildren(fs.getChildren("/this/"));
 
-		System.out.println("this/is/" + fs.getCount("this/is/"));
+		log.info("this/is/{}", fs.getCount("this/is/"));
 		printChildren(fs.getChildren("/this/is"));
 
-		System.out.println("this/is/a/" + fs.getCount("this/is/a/"));
+		log.info("this/is/a/{}", fs.getCount("this/is/a/"));
 		printChildren(fs.getChildren("/this/is/a"));
 	}
 }

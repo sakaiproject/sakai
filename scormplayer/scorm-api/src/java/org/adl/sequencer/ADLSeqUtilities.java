@@ -27,15 +27,12 @@ package org.adl.sequencer;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-
-import org.adl.util.debug.DebugIndicator;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <strong>Filename:</strong> ADLSeqUtilities.java<br><br>
@@ -57,12 +54,8 @@ import org.w3c.dom.NodeList;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLSeqUtilities {
-
-	/**
-	* This controls display of log messages to the java console
-	*/
-	private static boolean _Debug = DebugIndicator.ON;
 
 	/**
 	 * Initializes one activity (<code>SeqActivity</code>) that will be added to
@@ -78,33 +71,27 @@ public class ADLSeqUtilities {
 	 */
 	private static SeqActivity buildActivityNode(Node iNode, Node iColl) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "buildActivityNode");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - buildActivityNode");
 
 		SeqActivity act = new SeqActivity();
 
 		boolean error = false;
 
-		String tempVal = null;
+		String tempVal;
 
 		// Set the activity's ID -- this is a required attribute
 		act.setID(ADLSeqUtilities.getAttribute(iNode, "identifier"));
 
 		// Get the activity's resource ID -- if it exsits
 		tempVal = ADLSeqUtilities.getAttribute(iNode, "identifierref");
-		if (tempVal != null) {
-			if (!isEmpty(tempVal)) {
-				act.setResourceID(tempVal);
-			}
+		if (StringUtils.isNotBlank(tempVal)) {
+			act.setResourceID(tempVal);
 		}
 
 		// Check if the activity is visible
 		tempVal = ADLSeqUtilities.getAttribute(iNode, "isvisible");
-		if (tempVal != null) {
-			if (!isEmpty(tempVal)) {
-				act.setIsVisible((Boolean.valueOf(tempVal)));
-			}
+		if (StringUtils.isNotBlank(tempVal)) {
+			act.setIsVisible(Boolean.parseBoolean(tempVal));
 		}
 
 		// Get the children elements of this activity 
@@ -118,36 +105,27 @@ public class ADLSeqUtilities {
 			if (curNode.getNodeType() == Node.ELEMENT_NODE) {
 				if (curNode.getLocalName().equals("item")) {
 
-					if (_Debug) {
-						System.out.println("  ::--> Found an <item> element");
-					}
+                    log.debug("  ::--> Found an <item> element");
 
 					// Initialize the nested activity
 					SeqActivity nestedAct = ADLSeqUtilities.buildActivityNode(curNode, iColl);
 
 					// Make sure this activity was created successfully
 					if (nestedAct != null) {
-						if (_Debug) {
-							System.out.println("  ::--> Adding child");
-						}
+                        log.debug("  ::--> Adding child");
 
 						act.addChild(nestedAct);
-
 					} else {
 						error = true;
 					}
 				} else if (curNode.getLocalName().equals("title")) {
 
-					if (_Debug) {
-						System.out.println("  ::--> Found the <title> element");
-					}
+                    log.debug("  ::--> Found the <title> element");
 
 					act.setTitle(ADLSeqUtilities.getElementText(curNode, null));
 				} else if (curNode.getLocalName().equals("sequencing")) {
 
-					if (_Debug) {
-						System.out.println("  ::--> Found the <sequencing> element");
-					}
+                    log.debug("  ::--> Found the <sequencing> element");
 
 					Node seqInfo = curNode;
 
@@ -159,9 +137,7 @@ public class ADLSeqUtilities {
 						// Get the referenced Global sequencing information
 						String search = ".//*[local-name()='sequencing' and @ID='" + tempVal + "']";
 
-						if (_Debug) {
-							System.out.println("  ::--> Looking for sequencing by ID --> " + tempVal + " (search=" + search + ")");
-						}
+						log.debug("  ::--> Looking for sequencing by ID --> {} (search={})", tempVal, search);
 
 						Node seqGlobal = findSequencingById(iColl, tempVal);
 						if (seqGlobal == null && iColl != null && iColl.getParentNode() != null) {
@@ -174,25 +150,18 @@ public class ADLSeqUtilities {
 							try {
 								Node root = curNode.getOwnerDocument() != null ? curNode.getOwnerDocument().getDocumentElement() : null;
 								if (root != null) {
-									if (_Debug) {
-										System.out.println("  ::--> Searching from document root for sequencing ID '" + tempVal + "'");
-									}
+ 									log.debug("  ::--> Searching from document root for sequencing ID '{}'", tempVal);
 									seqGlobal = findSequencingById(root, tempVal);
 								}
 							} catch (Exception ignore) {
-								// ignore
+								log.debug("  ::--> IGNORE: Unable to find sequencing ID '{}' from document root", tempVal);
 							}
 						}
 
 						if (seqGlobal != null) {
-							if (_Debug) {
-								System.out.println("  ::--> FOUND");
-							}
+ 							log.debug("  ::--> FOUND");
 						} else {
-							if (_Debug) {
-								System.out.println("  ::--> ERROR: Not Found");
-							}
-
+                            log.debug("  ::--> ERROR: Not Found");
 							seqInfo = null;
 							error = true;
 						}
@@ -210,29 +179,25 @@ public class ADLSeqUtilities {
 
 								// Check to see if this is an element node.
 								if (curChild.getNodeType() == Node.ELEMENT_NODE) {
-									if (_Debug) {
-										System.out.println("  ::--> Local definition");
-										System.out.println("  ::-->   " + j);
-										System.out.println("  ::-->  <" + curChild.getLocalName() + ">");
-									}
+                                    log.debug("  ::--> Local definition");
+                                    log.debug("  ::-->   {}", j);
+                                    log.debug("  ::-->  <{}>", curChild.getLocalName());
 
-									// Add this to the global sequencing info (clone/import to ensure same ownerDocument)
+                                    // Add this to the global sequencing info (clone/import to ensure same ownerDocument)
 									try {
 										Node nodeToAppend = curChild.cloneNode(true);
 										if (seqInfo.getOwnerDocument() != nodeToAppend.getOwnerDocument()) {
 											nodeToAppend = seqInfo.getOwnerDocument().importNode(nodeToAppend, true);
 										}
 										seqInfo.appendChild(nodeToAppend);
-									} catch (org.w3c.dom.DOMException e) {
-										if (_Debug) {
-											System.out.println("  ::--> ERROR: ");
-											e.printStackTrace();
-										}
+                                    } catch (org.w3c.dom.DOMException e) {
+                                        log.debug("  ::--> ERROR: ");
+                                        log.warn("could not append sequencing info", e);
 
-										error = true;
-										seqInfo = null;
-									}
-								}
+                                        error = true;
+                                        seqInfo = null;
+                                    }
+                                }
 							}
 						}
 					}
@@ -248,11 +213,8 @@ public class ADLSeqUtilities {
 
 						// Extract the sequencing information for this activity
 						error = !ADLSeqUtilities.extractSeqInfo(seqInfo, act);
-
-						if (_Debug) {
-							System.out.println("  ::--> Extracted Sequencing Info");
-						}
-					}
+                        log.debug("  ::--> Extracted Sequencing Info");
+                    }
 				}
 			}
 		}
@@ -268,12 +230,10 @@ public class ADLSeqUtilities {
 			act = null;
 		}
 
-		if (_Debug) {
-			System.out.println("  ::--> error == " + error);
-			System.out.println("  :: ADLSeqUtilities  --> END   - " + "buildActivityNode");
-		}
+        log.debug("  ::--> error == {}", error);
+        log.debug("  :: ADLSeqUtilities  --> END   - buildActivityNode");
 
-		return act;
+        return act;
 	}
 
 	/**
@@ -303,9 +263,7 @@ public class ADLSeqUtilities {
 	 */
 	public static SeqActivityTree buildActivityTree(Node iOrg, Node iColl) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "buildActivityTree");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - buildActivityTree");
 
 		SeqActivityTree tree = new SeqActivityTree();
 
@@ -322,11 +280,8 @@ public class ADLSeqUtilities {
 			tree = null;
 		}
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> END   - " + "buildActivityTree");
-		}
-
-		return tree;
+        log.debug("  :: ADLSeqUtilities  --> END   - buildActivityTree");
+        return tree;
 	}
 
 	/**
@@ -341,11 +296,8 @@ public class ADLSeqUtilities {
 	 */
 	public static void clearGlobalObjs(String iLearnerID, String iScopeID, List<String> iObjList) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "clearGlobalObjs");
-		}
-
-		System.out.println("NOT IMPLEMENTED: ADLSeqUtilities:clearGlobalObjs");
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - " + "clearGlobalObjs");
+		log.debug("NOT IMPLEMENTED: ADLSeqUtilities:clearGlobalObjs");
 
 		// Get a connection to the global objective DB
 		/*Connection conn = LMSDBHandler.getConnection();
@@ -374,13 +326,7 @@ public class ADLSeqUtilities {
 
 		               String objID = (String)iObjList.elementAt(i);
 
-		               if ( _Debug )
-		               {
-		                  System.out.println("  ::--> Attempting to clear " +
-		                                     "record for --> " + iLearnerID +
-		                                     " [" + iScopeID + "]" +
-		                                     " // " + objID);
-		               }
+		               log.debug("  ::--> Attempting to clear record for --> {} [{}] // {}", iLearnerID, iScopeID, objID);
 
 		               // Insert values into the prepared statement and execute 
 		               // the query.
@@ -409,43 +355,27 @@ public class ADLSeqUtilities {
 		         }
 		         catch ( Exception e )
 		         {
-		            if ( _Debug )
-		            {
-		               System.out.println("  ::-->  ERROR: DB Failure");
-		               e.printStackTrace();
-		            }
+		            log.warn("  ::-->  ERROR: DB Failure", e);
 		         }
 		      }
 		      else
 		      {
-		         if ( _Debug )
-		         {
-		            System.out.println("  ::--> ERROR: NULL objectives list");
-		         }
+		         log.debug("  ::--> ERROR: NULL objectives list");
 		      }
 		   }
 		   else
 		   {
-		      if ( _Debug )
-		      {
-		         System.out.println("  ::--> ERROR: NULL learnerID");
-		      }
+		      log.debug("  ::--> ERROR: NULL learnerID");
 		   }
 		}
 		else
 		{
-		   if ( _Debug )
-		   {
-		      System.out.println("  ::--> ERROR: NULL connection");
-		   }
+		   log.debug("  ::--> ERROR: NULL connection");
 		}
 
 
-		if ( _Debug )
-		{
-		   System.out.println("  :: ADLSeqUtilities  --> END   - " +
-		                      "clearGlobalObjs");
-		}*/
+		log.debug("  :: ADLSeqUtilities  --> END   - clearGlobalObjs");
+		*/
 	}
 
 	/**
@@ -457,13 +387,13 @@ public class ADLSeqUtilities {
 	 * @param iLearnerID The ID identifing the student.
 	 */
 	public static void createCourseStatus(String iCourseID, String iLearnerID) {
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "createCourseStatus");
-			System.out.println("  ::-->  " + iCourseID);
-			System.out.println("  ::-->  " + iLearnerID);
-		}
-
-		System.out.println("NOT IMPLEMENTED - ADLSeqUtilies:createCourseStatus");
+        log.debug("""
+                  :: ADLSeqUtilities  --> BEGIN - createCourseStatus
+                  ::-->  {}
+                  ::-->  {}
+                """, 
+                iCourseID, iLearnerID);
+        log.debug("NOT IMPLEMENTED - ADLSeqUtilies:createCourseStatus");
 
 		// Get a connection to the global objective DB
 		/*Connection conn = LMSDBHandler.getConnection();
@@ -500,12 +430,7 @@ public class ADLSeqUtilities {
 		            if ( !objRS.next() )
 		            {
 
-		               if ( _Debug )
-		               {
-		                  System.out.println("  ::--> Creating course status " +
-		                                     "--> " + iCourseID +
-		                                     "--> " + iLearnerID);
-		               }
+		               log.debug("  ::--> Creating course status --> {} --> {}", iCourseID, iLearnerID);
 
 		               // Create the SQL string, 
 		               //   convert it to a prepared statement
@@ -543,42 +468,26 @@ public class ADLSeqUtilities {
 		         }
 		         catch ( Exception e )
 		         {
-		            if ( _Debug )
-		            {
-		               System.out.println("  ::-->  ERROR: DB Failure");
-		               e.printStackTrace();
-		            }
+		            log.warn("  ::-->  ERROR: DB Failure", e);
 		         }
 		      }
 		      else
 		      {
-		         if ( _Debug )
-		         {
-		            System.out.println("  ::--> ERROR: NULL Course ID");
-		         }
+		         log.debug("  ::--> ERROR: NULL Course ID");
 		      }
 		   }
 		   else
 		   {
-		      if ( _Debug )
-		      {
-		         System.out.println("  ::--> ERROR: NULL Student ID");
-		      }
+		      log.debug("  ::--> ERROR: NULL Student ID");
 		   }
 		}
 		else
 		{
-		   if ( _Debug )
-		   {
-		      System.out.println("  ::--> ERROR: NULL connection");
-		   }
+		   log.debug("  ::--> ERROR: NULL connection");
 		}
 
-		if ( _Debug )
-		{
-		   System.out.println("  :: ADLSeqUtilities  --> END   - " +
-		                      "createCourseStatus");
-		}*/
+		log.debug("  :: ADLSeqUtilities  --> END   - createCourseStatus");
+		*/
 	}
 
 	/**
@@ -592,13 +501,13 @@ public class ADLSeqUtilities {
 	 * @param iObjList    A list of global objective IDs.
 	 */
 	public static void createGlobalObjs(String iLearnerID, String iScopeID, List<String> iObjList) {
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "createGlobalObjs");
-			System.out.println("  ::-->  " + iLearnerID);
-			System.out.println("  ::-->  " + iScopeID);
-		}
-
-		System.out.println("NOT IMPLEMENTED: ADLSeqUtilities:createGlobalObjs");
+        log.debug("""
+                          :: ADLSeqUtilities  --> BEGIN - createGlobalObjs
+                          ::-->  {}
+                          ::-->  {}
+                        """,
+                iLearnerID, iScopeID);
+        log.debug("NOT IMPLEMENTED: ADLSeqUtilities:createGlobalObjs");
 
 		// Get a connection to the global objective DB
 		/*Connection conn = LMSDBHandler.getConnection();
@@ -626,13 +535,7 @@ public class ADLSeqUtilities {
 
 		               String objID = (String)iObjList.elementAt(i);
 
-		               if ( _Debug )
-		               {
-		                  System.out.println("  ::--> Checking for objective " +
-		                                     "--> " + iLearnerID +
-		                                     " [" + iScopeID + "]" +
-		                                     " // " + objID);
-		               }
+		               log.debug("  ::--> Checking for objective --> {} [{}] // {}", iLearnerID, iScopeID, objID);
 
 		               synchronized(stmtCheckRecord)
 		               {
@@ -657,15 +560,9 @@ public class ADLSeqUtilities {
 		               if ( !objRS.next() )
 		               {
 
-		                  if ( _Debug )
-		                  {
-		                     System.out.println("  ::--> Creating objective " +
-		                                        "--> " + iLearnerID +
-		                                        " [" + iScopeID + "]" +
-		                                        " // " + objID);
-		                  }
+     		              log.debug("  ::--> Creating objective --> {} [{}] // {}", iLearnerID, iScopeID, objID);
 
-		                  // Create the SQL string, 
+		                  // Create the SQL string,
 		                  //   convert it to a prepared statement
 		                  String sqlCreateRecord = "INSERT INTO Objectives " +
 		                                           "(objID, learnerID, " + 
@@ -709,42 +606,26 @@ public class ADLSeqUtilities {
 		         }
 		         catch ( Exception e )
 		         {
-		            if ( _Debug )
-		            {
-		               System.out.println("  ::-->  ERROR: DB Failure");
-		               e.printStackTrace();
-		            }
+		            log.warn("  ::-->  ERROR: DB Failure", e);
 		         }
 		      }
 		      else
 		      {
-		         if ( _Debug )
-		         {
-		            System.out.println("  ::--> ERROR: NULL Objective List");
-		         }
+		         log.debug("  ::--> ERROR: NULL Objective List");
 		      }
 		   }
 		   else
 		   {
-		      if ( _Debug )
-		      {
-		         System.out.println("  ::--> ERROR: NULL StudentID");
-		      }
+		      log.debug("  ::--> ERROR: NULL StudentID");
 		   }
 		}
 		else
 		{
-		   if ( _Debug )
-		   {
-		      System.out.println("  ::--> ERROR: NULL connection");
-		   }
+		   log.debug("  ::--> ERROR: NULL connection");
 		}
 
-		if ( _Debug )
-		{
-		   System.out.println("  :: ADLSeqUtilities  --> END   - " +
-		                      "createGlobalObjs");
-		}*/
+		log.debug("  :: ADLSeqUtilities  --> END   - createGlobalObjs");
+		*/
 	}
 
 	/**
@@ -757,11 +638,8 @@ public class ADLSeqUtilities {
 	 */
 	public static void deleteCourseStatus(String iCourseID, String iLearnerID) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "deleteCourseStatus");
-		}
-
-		System.out.println("NOT IMPLEMENTED - ADLSeqUtilies:deleteCourseStatus");
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - deleteCourseStatus");
+		log.debug("NOT IMPLEMENTED - ADLSeqUtilies:deleteCourseStatus");
 
 		// Get a connection to the global objective DB
 		/*Connection conn = LMSDBHandler.getConnection();
@@ -798,42 +676,26 @@ public class ADLSeqUtilities {
 		         }
 		         catch ( Exception e )
 		         {
-		            if ( _Debug )
-		            {
-		               System.out.println("  ::-->  ERROR: DB Failure");
-		               e.printStackTrace();
-		            }
+		            log.warn("  ::-->  ERROR: DB Failure", e);
 		         }
 		      }
 		      else
 		      {
-		         if ( _Debug )
-		         {
-		            System.out.println("  ::--> ERROR: NULL course ID");
-		         }
+		         log.debug("  ::--> ERROR: NULL course ID");
 		      }
 		   }
 		   else
 		   {
-		      if ( _Debug )
-		      {
-		         System.out.println("  ::--> ERROR: NULL student ID");
-		      }
+		      log.debug("  ::--> ERROR: NULL student ID");
 		   }
 		}
 		else
 		{
-		   if ( _Debug )
-		   {
-		      System.out.println("  ::--> ERROR: NULL connection");
-		   }
+		   log.debug("  ::--> ERROR: NULL connection");
 		}
 
-		if ( _Debug )
-		{
-		   System.out.println("  :: ADLSeqUtilities  --> END   - " +
-		                      "deleteCourseStatus");
-		}*/
+		log.debug("  :: ADLSeqUtilities  --> END   - deleteCourseStatus");
+		*/
 	}
 
 	/**
@@ -847,11 +709,9 @@ public class ADLSeqUtilities {
 	 */
 	public static void deleteGlobalObjs(String iLearnerID, String iScopeID, List<String> iObjList) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "deleteGlobalObjs");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - " + "deleteGlobalObjs");
 
-		System.out.println("NOT IMPLEMENTED - ADLSeqUtilies:deleteGlobalObjs");
+		log.debug("NOT IMPLEMENTED - ADLSeqUtilies:deleteGlobalObjs");
 
 		// Get a connection to the global objective DB
 		/*Connection conn = LMSDBHandler.getConnection();
@@ -879,13 +739,8 @@ public class ADLSeqUtilities {
 
 		               String objID = (String)iObjList.elementAt(i);
 
-		               if ( _Debug )
-		               {
-		                  System.out.println("  ::--> Attempting to delete " +
-		                                     "record for --> " + iLearnerID +
-		                                     " [" + iScopeID + "]" +
-		                                     " // " + objID);
-		               }
+
+		               log.debug("  ::--> Attempting to delete record for --> {} [{}] // {}", iLearnerID, iScopeID, objID);
 
 		               // Insert values into the prepared statement and 
 		               // execute the query.
@@ -912,42 +767,26 @@ public class ADLSeqUtilities {
 		         }
 		         catch ( Exception e )
 		         {
-		            if ( _Debug )
-		            {
-		               System.out.println("  ::-->  ERROR: DB Failure");
-		               e.printStackTrace();
-		            }
+		            log.debug("  ::-->  ERROR: DB Failure", e);
 		         }
 		      }
 		      else
 		      {
-		         if ( _Debug )
-		         {
-		            System.out.println("  ::--> ERROR: NULL objective list");
-		         }
+		         log.debug("  ::--> ERROR: NULL objective list");
 		      }
 		   }
 		   else
 		   {
-		      if ( _Debug )
-		      {
-		         System.out.println("  ::--> ERROR: NULL StudentID");
-		      }
+		      log.debug("  ::--> ERROR: NULL StudentID");
 		   }
 		}
 		else
 		{
-		   if ( _Debug )
-		   {
-		      System.out.println("  ::--> ERROR: NULL connection");
-		   }
+		   log.debug("  ::--> ERROR: NULL connection");
 		}
 
-		if ( _Debug )
-		{
-		   System.out.println("  :: ADLSeqUtilities  --> END   - " +
-		                      "deleteGlobalObjs");
-		}*/
+		   log.debug("  :: ADLSeqUtilities  --> END   - deleteGlobalObjs");
+		*/
 	}
 
 	/**
@@ -957,28 +796,24 @@ public class ADLSeqUtilities {
 	 * @param iTOC   A List of <code>ADLTOC</code> objects describing the TOC.
 	 */
 	public static void dumpTOC(List<ADLTOC> iTOC) {
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - dumpTOC");
+        if (log.isDebugEnabled()) {
+            log.debug("  :: ADLSeqUtilities  --> BEGIN - dumpTOC");
 
-			if (iTOC != null) {
+            if (iTOC != null) {
+                log.debug("  ::-->  {}", iTOC.size());
 
-				System.out.println("  ::-->  " + iTOC.size());
+                ADLTOC temp;
+                for (ADLTOC adltoc : iTOC) {
+                    temp = adltoc;
+                    temp.dumpState();
+                }
+            } else {
+                log.debug("  ::--> NULL");
+            }
 
-				ADLTOC temp = null;
-
-				for (int i = 0; i < iTOC.size(); i++) {
-					temp = iTOC.get(i);
-
-					temp.dumpState();
-				}
-			} else {
-				System.out.println("  ::--> NULL");
-			}
-
-			System.out.println("  :: ADLSeqUtilities  --> END   - dumpTOC");
-
-		}
-	}
+            log.debug("  :: ADLSeqUtilities  --> END   - dumpTOC");
+        }
+    }
 
 	/**
 	 * Extracts the contents of the IMS SS <code>&lt;sequencing&gt;</code> 
@@ -993,12 +828,10 @@ public class ADLSeqUtilities {
 	 *         successfully, otherwise <code>false</code>.
 	 */
 	private static boolean extractSeqInfo(Node iNode, SeqActivity ioAct) {
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "extractSeqInfo");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - " + "extractSeqInfo");
 
 		boolean ok = true;
-		String tempVal = null;
+		String tempVal;
 
 		// Get the children elements of <sequencing>
 		NodeList children = iNode.getChildNodes();
@@ -1011,297 +844,209 @@ public class ADLSeqUtilities {
 			if (curNode.getNodeType() == Node.ELEMENT_NODE) {
 				if (curNode.getLocalName().equals("controlMode")) {
 
-					if (_Debug) {
-						System.out.println("  ::--> Found the <controlMode> element");
-					}
+                    log.debug("  ::--> Found the <controlMode> element");
 
 					// Look for 'choice'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "choice");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setControlModeChoice((Boolean.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setControlModeChoice(Boolean.parseBoolean(tempVal));
 					}
 
 					// Look for 'choiceExit'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "choiceExit");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setControlModeChoiceExit((Boolean.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setControlModeChoiceExit(Boolean.parseBoolean(tempVal));
 					}
 
 					// Look for 'flow'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "flow");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setControlModeFlow((Boolean.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setControlModeFlow(Boolean.parseBoolean(tempVal));
 					}
 
 					// Look for 'forwardOnly'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "forwardOnly");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setControlForwardOnly((Boolean.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setControlForwardOnly(Boolean.parseBoolean(tempVal));
 					}
 
 					// Look for 'useCurrentAttemptObjectiveInfo'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "useCurrentAttemptObjectiveInfo");
-
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setUseCurObjective((Boolean.valueOf(tempVal)));
-						}
+					
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setUseCurObjective(Boolean.parseBoolean(tempVal));
 					}
 
 					// Look for 'useCurrentAttemptProgressInfo'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "useCurrentAttemptProgressInfo");
-
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setUseCurProgress((Boolean.valueOf(tempVal)));
-						}
+					
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setUseCurProgress(Boolean.parseBoolean(tempVal));
 					}
 				} else if (curNode.getLocalName().equals("sequencingRules")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Found the <sequencingRules> " + "element");
-					}
+                    log.debug("  ::--> Found the <sequencingRules> element");
 
 					ok = ADLSeqUtilities.getSequencingRules(curNode, ioAct);
 				} else if (curNode.getLocalName().equals("limitConditions")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Found the <limitConditions> " + "element");
-					}
+                    log.debug("  ::--> Found the <limitConditions> " + "element");
 
 					// Look for 'attemptLimit'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "attemptLimit");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setAttemptLimit(Long.valueOf(tempVal));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setAttemptLimit(Long.valueOf(tempVal));
 					}
 
 					// Look for 'attemptAbsoluteDurationLimit'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "attemptAbsoluteDurationLimit");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setAttemptAbDur(tempVal);
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setAttemptAbDur(tempVal);
 					}
 
 					// Look for 'attemptExperiencedDurationLimit'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "attemptExperiencedDurationLimit");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setAttemptExDur(tempVal);
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setAttemptExDur(tempVal);
 					}
 
 					// Look for 'activityAbsoluteDurationLimit'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "activityAbsoluteDurationLimit");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setActivityAbDur(tempVal);
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setActivityAbDur(tempVal);
 					}
 
 					// Look for 'activityExperiencedDurationLimit'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "activityExperiencedDurationLimit");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setActivityExDur(tempVal);
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setActivityExDur(tempVal);
 					}
 
 					// Look for 'beginTimeLimit'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "beginTimeLimit");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setBeginTimeLimit(tempVal);
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setBeginTimeLimit(tempVal);
 					}
 
 					// Look for 'endTimeLimit'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "endTimeLimit");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setEndTimeLimit(tempVal);
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setEndTimeLimit(tempVal);
 					}
 				} else if (curNode.getLocalName().equals("auxiliaryResources")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Found the <auxiliaryResourcees> " + "element");
-					}
+                    log.debug("  ::--> Found the <auxiliaryResourcees> element");
 
 					ok = ADLSeqUtilities.getAuxResources(curNode, ioAct);
 				} else if (curNode.getLocalName().equals("rollupRules")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Found the <rollupRules> " + "element");
-					}
+                    log.debug("  ::--> Found the <rollupRules> element");
 
 					ok = ADLSeqUtilities.getRollupRules(curNode, ioAct);
-
 				} else if (curNode.getLocalName().equals("objectives")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Found the <objectives> " + "element");
-					}
+                    log.debug("  ::--> Found the <objectives> element");
 
 					ok = ADLSeqUtilities.getObjectives(curNode, ioAct);
-
 				} else if (curNode.getLocalName().equals("randomizationControls")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Found the " + "<randomizationControls> element");
-					}
+                    log.debug("  ::--> Found the <randomizationControls> element");
 
 					// Look for 'randomizationTiming'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "randomizationTiming");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setRandomTiming(tempVal);
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setRandomTiming(tempVal);
 					}
 
 					// Look for 'selectCount'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "selectCount");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setSelectCount((Integer.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setSelectCount(Integer.parseInt(tempVal));
 					}
 
 					// Look for 'reorderChildren'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "reorderChildren");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setReorderChildren((Boolean.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setReorderChildren(Boolean.parseBoolean(tempVal));
 					}
 
 					// Look for 'selectionTiming'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "selectionTiming");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setSelectionTiming(tempVal);
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setSelectionTiming(tempVal);
 					}
 				} else if (curNode.getLocalName().equals("deliveryControls")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Found the <deliveryControls> " + "element");
-					}
+                    log.debug("  ::--> Found the <deliveryControls> element");
 
 					// Look for 'tracked'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "tracked");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setIsTracked((Boolean.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setIsTracked(Boolean.parseBoolean(tempVal));
 					}
 
 					// Look for 'completionSetByContent'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "completionSetByContent");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setSetCompletion((Boolean.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setSetCompletion(Boolean.parseBoolean(tempVal));
 					}
 
 					// Look for 'objectiveSetByContent'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "objectiveSetByContent");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setSetObjective((Boolean.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setSetObjective(Boolean.parseBoolean(tempVal));
 					}
 				} else if (curNode.getLocalName().equals("constrainedChoiceConsiderations")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Found the " + "<constrainedChoiceConsiderations> " + "element");
-					}
+                    log.debug("  ::--> Found the " + "<constrainedChoiceConsiderations> element");
 
 					// Look for 'preventActivation'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "preventActivation");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setPreventActivation((Boolean.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setPreventActivation(Boolean.parseBoolean(tempVal));
 					}
 
 					// Look for 'constrainChoice'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "constrainChoice");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setConstrainChoice((Boolean.valueOf(tempVal)));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setConstrainChoice(Boolean.parseBoolean(tempVal));
 					}
 				} else if (curNode.getLocalName().equals("rollupConsiderations")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Found the " + "<rollupConsiderations> " + "element");
-					}
+                    log.debug("  ::--> Found the " + "<rollupConsiderations> element");
 
 					// Look for 'requiredForSatisfied'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "requiredForSatisfied");
-
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setRequiredForSatisfied(tempVal);
-						}
+					
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setRequiredForSatisfied(tempVal);
 					}
 
 					// Look for 'requiredForNotSatisfied'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "requiredForNotSatisfied");
-
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setRequiredForNotSatisfied(tempVal);
-						}
+					
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setRequiredForNotSatisfied(tempVal);
 					}
 
 					// Look for 'requiredForCompleted'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "requiredForCompleted");
-
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setRequiredForCompleted(tempVal);
-						}
+					
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setRequiredForCompleted(tempVal);
 					}
 
 					// Look for 'requiredForIncomplete'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "requiredForIncomplete");
-
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setRequiredForIncomplete(tempVal);
-						}
+					
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setRequiredForIncomplete(tempVal);
 					}
 
 					// Look for 'measureSatisfactionIfActive'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "measureSatisfactionIfActive");
-
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							ioAct.setSatisfactionIfActive((Boolean.valueOf(tempVal)));
-						}
+					
+					if (StringUtils.isNotBlank(tempVal)) {
+						ioAct.setSatisfactionIfActive(Boolean.parseBoolean(tempVal));
 					}
 				}
 			}
 		}
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + ok);
-			System.out.println("  :: ADLSeqUtilities  --> END   - " + "extractSeqInfo");
-		}
-
-		return ok;
+        log.debug("  ::-->  {}", ok);
+        log.debug("  :: ADLSeqUtilities  --> END   - extractSeqInfo");
+        return ok;
 	}
 
 	/**
@@ -1315,11 +1060,9 @@ public class ADLSeqUtilities {
 	 */
 	private static SeqConditionSet extractSeqRuleConditions(Node iNode) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "extractSeqRuleConditions");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - extractSeqRuleConditions");
 
-		String tempVal = null;
+		String tempVal;
 		SeqConditionSet condSet = new SeqConditionSet();
 
 		List<SeqCondition> conditions = new ArrayList<>();
@@ -1327,7 +1070,7 @@ public class ADLSeqUtilities {
 		// Look for 'conditionCombination'
 		tempVal = ADLSeqUtilities.getAttribute(iNode, "conditionCombination");
 		if (tempVal != null) {
-			if (!isEmpty(tempVal)) {
+			if (StringUtils.isNotBlank(tempVal)) {
 				condSet.mCombination = tempVal;
 			}
 		} else {
@@ -1345,45 +1088,32 @@ public class ADLSeqUtilities {
 			if (curCond.getNodeType() == Node.ELEMENT_NODE) {
 
 				if (curCond.getLocalName().equals("ruleCondition")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Found a <Condition> " + "element");
-					}
+                    log.debug("  ::--> Found a <Condition> element");
 
 					SeqCondition cond = new SeqCondition();
 
 					// Look for 'condition'
 					tempVal = ADLSeqUtilities.getAttribute(curCond, "condition");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							cond.mCondition = tempVal;
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						cond.mCondition = tempVal;
 					}
 
 					// Look for 'referencedObjective'
 					tempVal = ADLSeqUtilities.getAttribute(curCond, "referencedObjective");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							cond.mObjID = tempVal;
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						cond.mObjID = tempVal;
 					}
 
 					// Look for 'measureThreshold'
 					tempVal = ADLSeqUtilities.getAttribute(curCond, "measureThreshold");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							cond.mThreshold = (new Double(tempVal));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						cond.mThreshold = Double.parseDouble(tempVal);
 					}
 
 					// Look for 'operator'
 					tempVal = ADLSeqUtilities.getAttribute(curCond, "operator");
 					if (tempVal != null) {
-						if (tempVal.equals("not")) {
-							cond.mNot = true;
-						} else {
-							cond.mNot = false;
-						}
+                        cond.mNot = tempVal.equals("not");
 					}
 
 					conditions.add(cond);
@@ -1391,17 +1121,14 @@ public class ADLSeqUtilities {
 			}
 		}
 
-		if (conditions.size() > 0) {
+		if (!conditions.isEmpty()) {
 			// Add the conditions to the condition set 
 			condSet.mConditions = conditions;
 		} else {
 			condSet = null;
 		}
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> END   - " + "extractSeqRuleConditions");
-		}
-
+        log.debug("  :: ADLSeqUtilities  --> END   - extractSeqRuleConditions");
 		return condSet;
 	}
 
@@ -1417,12 +1144,10 @@ public class ADLSeqUtilities {
 	 */
 	private static String getAttribute(Node iNode, String iAttribute) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - getAttribute");
-			System.out.println("  ::-->  " + iAttribute);
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - getAttribute");
+        log.debug("  ::-->  {}", iAttribute);
 
-		String value = null;
+        String value = null;
 
 		// Extract the node's attribute list and check if the requested
 		// attribute is contained in it.
@@ -1436,22 +1161,16 @@ public class ADLSeqUtilities {
 				// Extract the attributes value
 				value = attr.getNodeValue();
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  The attribute \"" + iAttribute + "\" does not exist.");
-				}
+                log.debug("  ::-->  The attribute [{}] does not exist.", iAttribute);
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::-->  This node has no attributes.");
-			}
+            log.debug("  ::-->  This node has no attributes.");
 		}
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + value);
-			System.out.println("  :: ADLSeqUtilities  --> END - getAttribute");
-		}
+        log.debug("  ::-->  {}", value);
+        log.debug("  :: ADLSeqUtilities  --> END - getAttribute");
 
-		return value;
+        return value;
 	}
 
 	/**
@@ -1468,12 +1187,10 @@ public class ADLSeqUtilities {
 	 */
 	private static boolean getAuxResources(Node iNode, SeqActivity ioAct) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "getAuxResources");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - getAuxResources");
 
 		boolean ok = true;
-		String tempVal = null;
+		String tempVal;
 
 		// List of auxiliary resources
 		List<ADLAuxiliaryResource> auxRes = new ArrayList<>();
@@ -1488,9 +1205,7 @@ public class ADLSeqUtilities {
 			if (curNode.getNodeType() == Node.ELEMENT_NODE) {
 				if (curNode.getLocalName().equals("auxiliaryResource")) {
 					// Build a new data mapping rule
-					if (_Debug) {
-						System.out.println("  ::--> Found a <auxiliaryResource> " + "element");
-					}
+                    log.debug("  ::--> Found a <auxiliaryResource> element");
 
 					ADLAuxiliaryResource res = new ADLAuxiliaryResource();
 
@@ -1514,11 +1229,7 @@ public class ADLSeqUtilities {
 
 		// Add the set of auxiliary resources to the activity
 		ioAct.setAuxResources(auxRes);
-
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> END   - " + "getAuxResources");
-		}
-
+        log.debug("  :: ADLSeqUtilities  --> END   - getAuxResources");
 		return ok;
 	}
 
@@ -1541,14 +1252,14 @@ public class ADLSeqUtilities {
 	 */
 	private static String getElementText(Node iNode, String iElement) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "getElementText");
-			System.out.println("  ::-->  " + iElement);
-		}
+        log.debug("""
+                :: ADLSeqUtilities  --> BEGIN - getElementText
+                ::-->  {}
+              """, iElement);
 
-		StringBuilder value = new StringBuilder();
+        StringBuilder value = new StringBuilder();
 		Node curNode = null;
-		NodeList children = null;
+		NodeList children;
 
 		if (iElement != null && iNode != null) {
 			children = iNode.getChildNodes();
@@ -1559,16 +1270,14 @@ public class ADLSeqUtilities {
 
 				// Check to see if this is an element node.
 				if (curNode.getNodeType() == Node.ELEMENT_NODE) {
-					if (_Debug) {
-						System.out.println("  ::-->   " + i);
-						System.out.println("  ::-->  <" + curNode.getLocalName() + ">");
-					}
+                    log.debug("""
+                                    ::-->   {}
+                                    ::-->  <{}>
+                                  """,
+                            i, curNode.getLocalName());
 
-					if (curNode.getLocalName().equals(iElement)) {
-						if (_Debug) {
-							System.out.println("  ::--> Found <" + iElement + ">");
-						}
-
+                    if (curNode.getLocalName().equals(iElement)) {
+                        log.debug("  ::--> Found <{}>", iElement);
 						break;
 					}
 				}
@@ -1591,9 +1300,7 @@ public class ADLSeqUtilities {
 		}
 
 		if (curNode != null) {
-			if (_Debug) {
-				System.out.println("  ::--> Looking at children");
-			}
+            log.debug("  ::--> Looking at children");
 
 			// Extract the element's text value.
 			children = curNode.getChildNodes();
@@ -1614,12 +1321,12 @@ public class ADLSeqUtilities {
 			}
 		}
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + value);
-			System.out.println("  :: ADLSeqUtilities  --> END   - " + "getElementText");
-		}
-
-		return value.toString();
+        log.debug("""
+                          ::-->  {}
+                          :: ADLSeqUtilities  --> END   - getElementText");
+                        """,
+                value);
+        return value.toString();
 	}
 
 	/**
@@ -1637,13 +1344,10 @@ public class ADLSeqUtilities {
 	 */
 	public static String getGlobalObjMeasure(String iObjID, String iLearnerID, String iScopeID) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "getGlobalObjMeasure");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - getGlobalObjMeasure");
+		log.debug("NOT IMPLEMENTED - ADLSeqUtilies:getGlobalObjMeasure");
 
 		String measure = null;
-
-		System.out.println("NOT IMPLEMENTED - ADLSeqUtilies:getGlobalObjMeasure");
 
 		// Get a connection to the global objective DB
 		/*Connection conn = LMSDBHandler.getConnection();
@@ -1692,10 +1396,7 @@ public class ADLSeqUtilities {
 		            }
 		            else
 		            {
-		               if ( _Debug )
-		               {
-		                  System.out.println("  ::--> No resultset");
-		               }
+		               log.debug("  ::--> No resultset");
 		            }
 
 		            // Close result set
@@ -1706,43 +1407,27 @@ public class ADLSeqUtilities {
 		         }
 		         catch ( Exception e )
 		         {
-		            if ( _Debug )
-		            {
-		               System.out.println("  ::-->  ERROR : DB Failure");
-		               e.printStackTrace();
-		            }
+		            log.debug("  ::-->  ERROR : DB Failure", e);
 		         }
 		      }
 		      else
 		      {
-		         if ( _Debug )
-		         {
-		            System.out.println("  ::--> ERROR : NULL student ID");
-		         }
+		         log.debug("  ::--> ERROR : NULL student ID");
 		      }
 		   }
 		   else
 		   {
-		      if ( _Debug )
-		      {
-		         System.out.println("  ::--> ERROR : NULL objective ID");
-		      }
+		      log.debug("  ::--> ERROR : NULL objective ID");
 		   }
 		}
 		else
 		{
-		   if ( _Debug )
-		   {
-		      System.out.println("  ::--> ERROR : NULL connection");
-		   }
+		   log.debug("  ::--> ERROR : NULL connection");
 		}
 
-		if ( _Debug )
-		{
-		   System.out.println("  ::-->  " + measure);
-		   System.out.println("  :: ADLSeqUtilities  --> END   - " +
-		                      "getGlobalObjMeasure");
-		}*/
+		log.debug("  ::-->  " + measure);
+		log.debug("  :: ADLSeqUtilities  --> END   - getGlobalObjMeasure");
+		*/
 
 		return measure;
 	}
@@ -1762,16 +1447,17 @@ public class ADLSeqUtilities {
 	 */
 	public static String getGlobalObjSatisfied(String iObjID, String iLearnerID, String iScopeID) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "getGlobalObjSatisfied");
-			System.out.println("  ::--> " + iObjID);
-			System.out.println("  ::--> " + iLearnerID);
-			System.out.println("  ::--> " + iScopeID);
-		}
+        log.debug("""
+                        :: ADLSeqUtilities  --> BEGIN - getGlobalObjSatisfied
+                        ::--> {}
+                        ::--> {}
+                        ::--> {}
+                        NOT IMPLEMENTED - ADLSeqUtilies:getGlobalObjSatisfied
+                      """,
+                iObjID, iLearnerID, iScopeID);
 
-		String satisfiedStatus = null;
+        String satisfiedStatus = null;
 
-		System.out.println("NOT IMPLEMENTED - ADLSeqUtilies:getGlobalObjSatisfied");
 
 		// Get a connection to the global objective DB
 		/*Connection conn = LMSDBHandler.getConnection();
@@ -1823,11 +1509,7 @@ public class ADLSeqUtilities {
 		            }
 		            else
 		            {
-		               if ( _Debug )
-		               {
-		                  System.out.println("  ::--> No result set");
-		               }
-
+		               log.debug("  ::--> No result set");
 		               satisfiedStatus = null;
 		            }
 
@@ -1839,43 +1521,27 @@ public class ADLSeqUtilities {
 		         }
 		         catch ( Exception e )
 		         {
-		            if ( _Debug )
-		            {
-		               System.out.println("  ::-->  ERROR : DB Failure");
-		               e.printStackTrace();
-		            }
+		            log.debug("  ::-->  ERROR : DB Failure", e);
 		         }
 		      }
 		      else
 		      {
-		         if ( _Debug )
-		         {
-		            System.out.println("  ::--> ERROR : NULL comp ID");
-		         }
+		         log.debug("  ::--> ERROR : NULL comp ID");
 		      }
 		   }
 		   else
 		   {
-		      if ( _Debug )
-		      {
-		         System.out.println("  ::--> ERROR : NULL learnerID");
-		      }
+		      log.debug("  ::--> ERROR : NULL learnerID");
 		   }
 		}
 		else
 		{
-		   if ( _Debug )
-		   {
-		      System.out.println("  ::--> ERROR : NULL connection");
-		   }
+		   log.debug("  ::--> ERROR : NULL connection");
 		}
 
-		if ( _Debug )
-		{
-		   System.out.println("  ::-->  " + satisfiedStatus);
-		   System.out.println("  :: ADLSeqUtilities  --> END   - " +
-		                      "getGlobalObjSatisfied");
-		}*/
+		log.debug("  ::-->  {}", satisfiedStatus);
+		log.debug("  :: ADLSeqUtilities  --> END   - getGlobalObjSatisfied");
+		*/
 
 		return satisfiedStatus;
 	}
@@ -1891,11 +1557,9 @@ public class ADLSeqUtilities {
 	 */
 	private static List<SeqObjectiveMap> getObjectiveMaps(Node iNode) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "getObjectiveMaps");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - getObjectiveMaps");
 
-		String tempVal = null;
+		String tempVal;
 		List<SeqObjectiveMap> maps = new ArrayList<>();
 
 		// Get the children elements of this objective
@@ -1908,50 +1572,38 @@ public class ADLSeqUtilities {
 			// Check to see if this is an element node.
 			if (curNode.getNodeType() == Node.ELEMENT_NODE) {
 				if (curNode.getLocalName().equals("mapInfo")) {
-					if (_Debug) {
-						System.out.println("  ::--> Found a <mapInfo> " + "element");
-					}
+                    log.debug("  ::--> Found a <mapInfo> element");
 
 					SeqObjectiveMap map = new SeqObjectiveMap();
 
 					// Look for 'targetObjectiveID'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "targetObjectiveID");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							map.mGlobalObjID = tempVal;
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+                        map.mGlobalObjID = tempVal;
 					}
 
 					// Look for 'readSatisfiedStatus'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "readSatisfiedStatus");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							map.mReadStatus = (Boolean.valueOf(tempVal));
-						}
+                    if (StringUtils.isNotBlank(tempVal)) {
+                        map.mReadStatus = Boolean.parseBoolean(tempVal);
 					}
 
 					// Look for 'readNormalizedMeasure'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "readNormalizedMeasure");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							map.mReadMeasure = (Boolean.valueOf(tempVal));
-						}
+                    if (StringUtils.isNotBlank(tempVal)) {
+                        map.mReadMeasure = Boolean.parseBoolean(tempVal);
 					}
 
 					// Look for 'writeSatisfiedStatus'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "writeSatisfiedStatus");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							map.mWriteStatus = (Boolean.valueOf(tempVal));
-						}
+                    if (StringUtils.isNotBlank(tempVal)) {
+                        map.mWriteStatus = Boolean.parseBoolean(tempVal);
 					}
 
 					// Look for 'writeNormalizedMeasure'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "writeNormalizedMeasure");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							map.mWriteMeasure = (Boolean.valueOf(tempVal));
-						}
+                    if (StringUtils.isNotBlank(tempVal)) {
+                        map.mWriteMeasure = Boolean.parseBoolean(tempVal);
 					}
 
 					maps.add(map);
@@ -1964,10 +1616,7 @@ public class ADLSeqUtilities {
 			maps = null;
 		}
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> END   - " + "getObjectiveMaps");
-		}
-
+        log.debug("  :: ADLSeqUtilities  --> END   - getObjectiveMaps");
 		return maps;
 	}
 
@@ -1985,9 +1634,7 @@ public class ADLSeqUtilities {
 	 */
 	private static boolean getObjectives(Node iNode, SeqActivity ioAct) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "getObjectives");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - getObjectives");
 
 		boolean ok = true;
 		String tempVal = null;
@@ -2003,9 +1650,7 @@ public class ADLSeqUtilities {
 			// Check to see if this is an element node.
 			if (curNode.getNodeType() == Node.ELEMENT_NODE) {
 				if (curNode.getLocalName().equals("primaryObjective")) {
-					if (_Debug) {
-						System.out.println("  ::--> Found a <primaryObjective> " + "element");
-					}
+                    log.debug("  ::--> Found a <primaryObjective> element");
 
 					SeqObjective obj = new SeqObjective();
 
@@ -2013,26 +1658,20 @@ public class ADLSeqUtilities {
 
 					// Look for 'objectiveID'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "objectiveID");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							obj.mObjID = tempVal;
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						obj.mObjID = tempVal;
 					}
 
 					// Look for 'satisfiedByMeasure'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "satisfiedByMeasure");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							obj.mSatisfiedByMeasure = (Boolean.valueOf(tempVal));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						obj.mSatisfiedByMeasure = Boolean.parseBoolean(tempVal);
 					}
 
 					// Look for 'minNormalizedMeasure'
 					tempVal = getElementText(curNode, "minNormalizedMeasure");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							obj.mMinMeasure = (new Double(tempVal));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+                        obj.mMinMeasure = Double.parseDouble(tempVal);
 					}
 
 					List<SeqObjectiveMap> maps = getObjectiveMaps(curNode);
@@ -2044,34 +1683,26 @@ public class ADLSeqUtilities {
 					obj.mContributesToRollup = true;
 					objectives.add(obj);
 				} else if (curNode.getLocalName().equals("objective")) {
-					if (_Debug) {
-						System.out.println("  ::--> Found a <objective> " + "element");
-					}
+                    log.debug("  ::--> Found a <objective> element");
 
 					SeqObjective obj = new SeqObjective();
 
 					// Look for 'objectiveID'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "objectiveID");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							obj.mObjID = tempVal;
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+						obj.mObjID = tempVal;
 					}
 
 					// Look for 'satisfiedByMeasure'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "satisfiedByMeasure");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							obj.mSatisfiedByMeasure = (Boolean.valueOf(tempVal));
-						}
+                    if (StringUtils.isNotBlank(tempVal)) {
+                        obj.mSatisfiedByMeasure = Boolean.parseBoolean(tempVal);
 					}
 
 					// Look for 'minNormalizedMeasure'
 					tempVal = getElementText(curNode, "minNormalizedMeasure");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							obj.mMinMeasure = (new Double(tempVal));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+                        obj.mMinMeasure = Double.parseDouble(tempVal);
 					}
 
 					List<SeqObjectiveMap> maps = getObjectiveMaps(curNode);
@@ -2088,10 +1719,7 @@ public class ADLSeqUtilities {
 		// Set the Activity's objectives
 		ioAct.setObjectives(objectives);
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> END   - " + "getObjectives");
-		}
-
+        log.debug("  :: ADLSeqUtilities  --> END   - getObjectives");
 		return ok;
 	}
 
@@ -2109,38 +1737,27 @@ public class ADLSeqUtilities {
 	 */
 	private static boolean getRollupRules(Node iNode, SeqActivity ioAct) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "getRollupRules");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - getRollupRules");
 
 		boolean ok = true;
 		String tempVal = null;
 		List<SeqRollupRule> rollupRules = new ArrayList<>();
 
 		// Look for 'rollupObjectiveSatisfied'
-		tempVal = ADLSeqUtilities.getAttribute(iNode, "rollupObjectiveSatisfied");
-		if (tempVal != null) {
-			if (!isEmpty(tempVal)) {
-				ioAct.setIsObjRolledUp((Boolean.valueOf(tempVal)));
-			}
+        tempVal = ADLSeqUtilities.getAttribute(iNode, "rollupObjectiveSatisfied");
+        if (StringUtils.isNotBlank(tempVal)) {
+            ioAct.setIsObjRolledUp(Boolean.parseBoolean(tempVal)); 
 		}
-
 		// Look for 'objectiveMeasureWeight'
 		tempVal = ADLSeqUtilities.getAttribute(iNode, "objectiveMeasureWeight");
-		if (tempVal != null) {
-			if (!isEmpty(tempVal)) {
-				ioAct.setObjMeasureWeight((new Double(tempVal)));
-			}
-		}
-
+        if (StringUtils.isNotBlank(tempVal)) {
+            ioAct.setObjMeasureWeight(Double.parseDouble(tempVal));
+        }
 		// Look for 'rollupProgressCompletion'
 		tempVal = ADLSeqUtilities.getAttribute(iNode, "rollupProgressCompletion");
-		if (tempVal != null) {
-			if (!isEmpty(tempVal)) {
-				ioAct.setIsProgressRolledUp((Boolean.valueOf(tempVal)));
-			}
-		}
-
+        if (StringUtils.isNotBlank(tempVal)) {
+            ioAct.setIsProgressRolledUp(Boolean.parseBoolean(tempVal));
+        }
 		// Get the children elements of <rollupRules>
 		NodeList children = iNode.getChildNodes();
 
@@ -2152,34 +1769,26 @@ public class ADLSeqUtilities {
 			if (curNode.getNodeType() == Node.ELEMENT_NODE) {
 				if (curNode.getLocalName().equals("rollupRule")) {
 					// Extract all of the rollup Rules
-					if (_Debug) {
-						System.out.println("  ::--> Found a <rollupRule> " + "element");
-					}
+                    log.debug("  ::--> Found a <rollupRule> element");
 
 					SeqRollupRule rule = new SeqRollupRule();
 
 					// Look for 'childActivitySet'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "childActivitySet");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							rule.mChildActivitySet = tempVal;
-						}
-					}
+                    if (StringUtils.isNotBlank(tempVal)) {
+                        rule.mChildActivitySet = tempVal;
+                    }
 
 					// Look for 'minimumCount'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "minimumCount");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							rule.mMinCount = (Long.valueOf(tempVal));
-						}
+                    if (StringUtils.isNotBlank(tempVal)) {
+                        rule.mMinCount = Long.parseLong(tempVal);
 					}
 
 					// Look for 'minimumPercent'
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "minimumPercent");
-					if (tempVal != null) {
-						if (!isEmpty(tempVal)) {
-							rule.mMinPercent = (new Double(tempVal));
-						}
+					if (StringUtils.isNotBlank(tempVal)) {
+                        rule.mMinPercent = Double.parseDouble(tempVal);
 					}
 
 					rule.mConditions = new SeqConditionSet(true);
@@ -2196,17 +1805,13 @@ public class ADLSeqUtilities {
 						if (curRule.getNodeType() == Node.ELEMENT_NODE) {
 							if (curRule.getLocalName().equals("rollupConditions")) {
 
-								if (_Debug) {
-									System.out.println("  ::--> Found a " + "<rollupConditions> " + "element");
-								}
+                                log.debug("  ::--> Found a <rollupConditions> element");
 
 								// Look for 'conditionCombination'
 								tempVal = ADLSeqUtilities.getAttribute(curRule, "conditionCombination");
 
-								if (tempVal != null) {
-									if (!isEmpty(tempVal)) {
-										rule.mConditions.mCombination = tempVal;
-									}
+                                if (StringUtils.isNotBlank(tempVal)) {
+                                    rule.mConditions.mCombination = tempVal;
 								} else {
 									// Enforce Default
 									rule.mConditions.mCombination = SeqConditionSet.COMBINATION_ANY;
@@ -2221,28 +1826,20 @@ public class ADLSeqUtilities {
 									if (con.getNodeType() == Node.ELEMENT_NODE) {
 										if (con.getLocalName().equals("rollupCondition")) {
 
-											if (_Debug) {
-												System.out.println("  ::--> Found a " + "<rollupCondition> " + "element");
-											}
+                                            log.debug("  ::--> Found a <rollupCondition> element");
 
 											SeqCondition cond = new SeqCondition();
 
 											// Look for 'condition'
 											tempVal = ADLSeqUtilities.getAttribute(con, "condition");
-											if (tempVal != null) {
-												if (!isEmpty(tempVal)) {
-													cond.mCondition = tempVal;
-												}
+                                            if (StringUtils.isNotBlank(tempVal)) {
+                                                cond.mCondition = tempVal;
 											}
 
 											// Look for 'operator'
 											tempVal = ADLSeqUtilities.getAttribute(con, "operator");
 											if (tempVal != null) {
-												if (tempVal.equals("not")) {
-													cond.mNot = true;
-												} else {
-													cond.mNot = false;
-												}
+                                                cond.mNot = tempVal.equals("not");
 											}
 
 											conditions.add(cond);
@@ -2251,15 +1848,11 @@ public class ADLSeqUtilities {
 								}
 							} else if (curRule.getLocalName().equals("rollupAction")) {
 
-								if (_Debug) {
-									System.out.println("  ::--> Found a " + "<rollupAction> " + "element");
-								}
+                                log.debug("  ::--> Found a <rollupAction> element");
 								// Look for 'action'
 								tempVal = ADLSeqUtilities.getAttribute(curRule, "action");
-								if (tempVal != null) {
-									if (!isEmpty(tempVal)) {
-										rule.setRollupAction(tempVal);
-									}
+                                if (StringUtils.isNotBlank(tempVal)) {
+                                    rule.setRollupAction(tempVal);
 								}
 							}
 						}
@@ -2281,10 +1874,7 @@ public class ADLSeqUtilities {
 			ioAct.setRollupRules(rules);
 		}
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> END   - " + "getRollupRules");
-		}
-
+        log.debug("  :: ADLSeqUtilities  --> END   - getRollupRules");
 		return ok;
 	}
 
@@ -2302,9 +1892,7 @@ public class ADLSeqUtilities {
 	 */
 	private static boolean getSequencingRules(Node iNode, SeqActivity ioAct) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "getSequencingRules");
-		}
+        log.debug("  :: ADLSeqUtilities  --> BEGIN - getSequencingRules");
 
 		boolean ok = true;
 		String tempVal = null;
@@ -2324,9 +1912,7 @@ public class ADLSeqUtilities {
 			if (curNode.getNodeType() == Node.ELEMENT_NODE) {
 				if (curNode.getLocalName().equals("preConditionRule")) {
 					// Extract all of the precondition rules
-					if (_Debug) {
-						System.out.println("  ::--> Found a <preConditionRule> " + "element");
-					}
+                    log.debug("  ::--> Found a <preConditionRule> element");
 
 					SeqRule rule = new SeqRule();
 
@@ -2340,26 +1926,19 @@ public class ADLSeqUtilities {
 						if (curRule.getNodeType() == Node.ELEMENT_NODE) {
 							if (curRule.getLocalName().equals("ruleConditions")) {
 
-								if (_Debug) {
-									System.out.println("  ::--> Found a " + "<ruleConditions> element");
-								}
+                                log.debug("  ::--> Found a <ruleConditions> element");
 
 								// Extract the condition set
 								rule.mConditions = extractSeqRuleConditions(curRule);
 
 							} else if (curRule.getLocalName().equals("ruleAction")) {
-
-								if (_Debug) {
-									System.out.println("  ::--> Found a <ruleAction> " + "element");
-								}
+                                log.debug("  ::--> Found a <ruleAction> element");
 
 								// Look for 'action'
 								tempVal = ADLSeqUtilities.getAttribute(curRule, "action");
 
-								if (tempVal != null) {
-									if (!isEmpty(tempVal)) {
-										rule.mAction = tempVal;
-									}
+								if (StringUtils.isNotBlank(tempVal)) {
+									rule.mAction = tempVal;
 								}
 							}
 						}
@@ -2368,15 +1947,11 @@ public class ADLSeqUtilities {
 					if (rule.mConditions != null && rule.mAction != null) {
 						preRules.add(rule);
 					} else {
-						if (_Debug) {
-							System.out.println("  ::--> ERROR : Invaild Pre SeqRule");
-						}
+                        log.debug("  ::--> ERROR : Invaild Pre SeqRule");
 					}
 				} else if (curNode.getLocalName().equals("exitConditionRule")) {
 					// Extract all of the exit action rules
-					if (_Debug) {
-						System.out.println("  ::--> Found a " + "<exitConditionRule> element");
-					}
+                    log.debug("  ::--> Found a <exitConditionRule> element");
 
 					SeqRule rule = new SeqRule();
 
@@ -2389,19 +1964,13 @@ public class ADLSeqUtilities {
 						// Check to see if this is an element node.
 						if (curRule.getNodeType() == Node.ELEMENT_NODE) {
 							if (curRule.getLocalName().equals("ruleConditions")) {
-
-								if (_Debug) {
-									System.out.println("  ::--> Found a " + "<ruleConditions> element");
-								}
+                                log.debug("  ::--> Found a <ruleConditions> element");
 
 								// Extract the condition set
 								rule.mConditions = extractSeqRuleConditions(curRule);
 
 							} else if (curRule.getLocalName().equals("ruleAction")) {
-
-								if (_Debug) {
-									System.out.println("  ::--> Found a <ruleAction> " + "element");
-								}
+                                log.debug("  ::--> Found a <ruleAction> element");
 
 								// Look for 'action'
 								tempVal = ADLSeqUtilities.getAttribute(curRule, "action");
@@ -2416,15 +1985,11 @@ public class ADLSeqUtilities {
 					if (rule.mConditions != null && rule.mAction != null) {
 						exitRules.add(rule);
 					} else {
-						if (_Debug) {
-							System.out.println("  ::--> ERROR : Invaild Exit SeqRule");
-						}
+                        log.debug("  ::--> ERROR : Invaild Exit SeqRule");
 					}
 				} else if (curNode.getLocalName().equals("postConditionRule")) {
 					// Extract all of the post condition action rules
-					if (_Debug) {
-						System.out.println("  ::--> Found a " + "<postConditionRule> element");
-					}
+                    log.debug("  ::--> Found a <postConditionRule> element");
 
 					SeqRule rule = new SeqRule();
 
@@ -2437,19 +2002,13 @@ public class ADLSeqUtilities {
 						// Check to see if this is an element node.
 						if (curRule.getNodeType() == Node.ELEMENT_NODE) {
 							if (curRule.getLocalName().equals("ruleConditions")) {
-
-								if (_Debug) {
-									System.out.println("  ::--> Found a " + "<ruleConditions> element");
-								}
+                                log.debug("  ::--> Found a <ruleConditions> element");
 
 								// Extract the condition set
 								rule.mConditions = extractSeqRuleConditions(curRule);
 
 							} else if (curRule.getLocalName().equals("ruleAction")) {
-
-								if (_Debug) {
-									System.out.println("  ::--> Found a <ruleAction> " + "element");
-								}
+                                log.debug("  ::--> Found a <ruleAction> element");
 
 								// Look for 'action'
 								tempVal = ADLSeqUtilities.getAttribute(curRule, "action");
@@ -2464,51 +2023,34 @@ public class ADLSeqUtilities {
 					if (rule.mConditions != null && rule.mAction != null) {
 						postRules.add(rule);
 					} else {
-						if (_Debug) {
-							System.out.println("  ::--> ERROR : Invaild Post SeqRule");
-						}
+                        log.debug("  ::--> ERROR : Invaild Post SeqRule");
 					}
 				}
 			}
 		}
 
-		if (preRules.size() > 0) {
+		if (!preRules.isEmpty()) {
 			ISeqRuleset rules = new SeqRuleset(preRules);
 
 			ioAct.setPreSeqRules(rules);
 		}
 
-		if (exitRules.size() > 0) {
+		if (!exitRules.isEmpty()) {
 			ISeqRuleset rules = new SeqRuleset(exitRules);
 
 			ioAct.setExitSeqRules(rules);
 		}
 
-		if (postRules.size() > 0) {
+		if (!postRules.isEmpty()) {
 			ISeqRuleset rules = new SeqRuleset(postRules);
 
 			ioAct.setPostSeqRules(rules);
 		}
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> END   - " + "getSequencingRules");
-		}
-
+        log.debug("  :: ADLSeqUtilities  --> END   - getSequencingRules");
 		return ok;
 	}
 
-	/**
-	 * Determines if the value is empty
-	 * 
-	 * @param iValue The value from a DOM node
-	 * 
-	 * @return <code>true</code> the value is empty or consists entirely of 
-	 *         white space
-	 */
-	private static boolean isEmpty(String iValue) {
-
-		return (StringUtils.isBlank(iValue));
-	}
 
 	/**
 	 * Sets the status associated with a given activity tree's root and a given
@@ -2529,30 +2071,29 @@ public class ADLSeqUtilities {
 	 */
 	public static boolean setCourseStatus(String iCourseID, String iLearnerID, String iSatisfied, String iMeasure, String iCompleted) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "setCourseStatus");
-
-			System.out.println("  ::--> " + iCourseID);
-			System.out.println("  ::--> " + iLearnerID);
-			System.out.println("  ::--> " + iSatisfied);
-			System.out.println("  ::--> " + iMeasure);
-			System.out.println("  ::--> " + iCompleted);
-		}
-
-		boolean success = true;
+        log.debug("""
+                          :: ADLSeqUtilities  --> BEGIN - setCourseStatus
+                          ::-->  {}
+                          ::-->  {}
+                          ::-->  {}
+                          ::-->  {}
+                          ::-->  {}
+                        """,
+                iCourseID, iLearnerID, iSatisfied, iMeasure, iCompleted);
+        boolean success = true;
 
 		// Validate vocabulary
 		if (!(iSatisfied.equals("unknown") || iSatisfied.equals("satisfied") || iSatisfied.equals("notSatisfied"))) {
 
 			success = false;
 
-			if (_Debug) {
-				System.out.println("  ::--> Invalid value: " + iSatisfied);
-				System.out.println("  ::-->  " + success);
-				System.out.println("  :: ADLSeqUtilities  --> END   - " + "setCourseStatus");
-			}
-
-			return success;
+            log.debug("""
+                              ::-->  Invalid value: {}
+                              ::-->  {}
+                              :: ADLSeqUtilities  --> END   - setCourseStatus
+                            """,
+                    iSatisfied, success);
+            return success;
 		}
 
 		// Validate vocabulary
@@ -2560,13 +2101,14 @@ public class ADLSeqUtilities {
 
 			success = false;
 
-			if (_Debug) {
-				System.out.println("  ::--> Invalid value: " + iCompleted);
-				System.out.println("  ::-->  " + success);
-				System.out.println("  :: ADLSeqUtilities  --> END   - " + "setCourseStatus");
-			}
+            log.debug("""
+                              ::-->  Invalid value: {}
+                              ::-->  {}
+                              :: ADLSeqUtilities  --> END   - setCourseStatus
+                            """,
+                    iCompleted, success);
 
-			return success;
+            return success;
 		}
 
 		// Validate measure range
@@ -2582,16 +2124,16 @@ public class ADLSeqUtilities {
 
 		if (!success) {
 
-			if (_Debug) {
-				System.out.println("  ::--> Invalid value: " + iMeasure);
-				System.out.println("  ::-->  " + success);
-				System.out.println("  :: ADLSeqUtilities  --> END   - " + "setCourseStatus");
-			}
-
+            log.debug("""
+                              ::-->  Invalid value: {}
+                              ::-->  {}
+                              :: ADLSeqUtilities  --> END   - setCourseStatus
+                            """,
+                    iMeasure, success);
 			return success;
 		}
 
-		System.out.println("NOT IMPLEMENTED - ADLSeqUtilies:setCourseStatus");
+		log.debug("NOT IMPLEMENTED - ADLSeqUtilies:setCourseStatus");
 
 		// Get a connection to the global objective DB
 		/*Connection conn = LMSDBHandler.getConnection();
@@ -2636,53 +2178,31 @@ public class ADLSeqUtilities {
 		         }
 		         catch ( Exception e )
 		         {
-		            if ( _Debug )
-		            {
-		               System.out.println("  ::--> ERROR: DB Failure");
-		               System.out.println(e.getMessage());
-
-		               e.printStackTrace();
-		            }
-
+		            log.warn("  ::--> ERROR: DB Failure", e);
 		            success = false;
 		         }
 		      }
 		      else
 		      {
-		         if ( _Debug )
-		         {
-		            System.out.println("  ::--> ERROR: NULL course ID");
-		         }
-
+		         log.debug("  ::--> ERROR: NULL course ID");
 		         success = false;
 		      }
 		   }
 		   else
 		   {
-		      if ( _Debug )
-		      {
-		         System.out.println("  ::--> ERROR: NULL learner ID");
-		      }
-
+		      log.debug("  ::--> ERROR: NULL learner ID");
 		      success = false;
 		   }
 		}
 		else
 		{
-		   if ( _Debug )
-		   {
-		      System.out.println("  ::--> ERROR: NULL connection");
-		   }
-
+		   log.debug("  ::--> ERROR: NULL connection");
 		   success = false;
 		}
 
-		if ( _Debug )
-		{
-		   System.out.println("  ::--> " + success);
-		   System.out.println("  :: ADLSeqUtilities  --> END   - " +
-		                      "setCourseStatus");
-		}*/
+		log.debug("  ::--> " + success);
+		log.debug("  :: ADLSeqUtilities  --> END   - setCourseStatus");
+		*/
 
 		return success;
 	}
@@ -2703,36 +2223,30 @@ public class ADLSeqUtilities {
 	 */
 	public static boolean setGlobalObjMeasure(String iObjID, String iLearnerID, String iScopeID, String iMeasure) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "setGlobalObjMeasure");
-
-			System.out.println("  ::--> " + iObjID);
-			System.out.println("  ::--> " + iLearnerID);
-			System.out.println("  ::--> " + iScopeID);
-			System.out.println("  ::--> " + iMeasure);
-		}
-
+        log.debug("""
+                        :: ADLSeqUtilities  --> BEGIN - setGlobalObjMeasure
+                        ::--> {}
+                        ::--> {}
+                        ::--> {}
+                        ::--> {}
+                        """,
+                iObjID, iLearnerID, iScopeID, iMeasure);
 		boolean goodMeasure = true;
 		boolean success = true;
 
 		// Validate score
 		if (!iMeasure.equals("unknown")) {
 			try {
-				Double tempMeasure = new Double(iMeasure);
-				double range = tempMeasure;
+                double range = Double.parseDouble(iMeasure);
 
 				if (range < -1.0 || range > 1.0) {
-					if (_Debug) {
-						System.out.println("  ::--> Invalid range:  " + iMeasure);
-					}
+                    log.debug("  ::--> Invalid range:  {}", iMeasure);
 
 					// The measure is out of range -- ignore
 					goodMeasure = false;
 				}
 			} catch (NumberFormatException e) {
-				if (_Debug) {
-					System.out.println("  ::--> Invalid value:  " + iMeasure);
-				}
+                log.debug("  ::--> Invalid value:  {}", iMeasure);
 
 				// Invalid format or 'Unknown'
 				goodMeasure = false;
@@ -2741,16 +2255,15 @@ public class ADLSeqUtilities {
 			if (!goodMeasure) {
 				success = false;
 
-				if (_Debug) {
-					System.out.println("  ::--> " + success);
-					System.out.println("  :: ADLSeqUtilities  --> END   - " + "getGlobalObjMeasure");
-				}
-
-				return success;
+                log.debug("""
+                          ::--> {}
+                          :: ADLSeqUtilities  --> END   - getGlobalObjMeasure
+                        """, success);
+                return success;
 			}
 		}
 
-		System.out.println("NOT IMPLEMENTED - ADLSeqUtilies:setGlobalObjMeasure");
+		log.debug("NOT IMPLEMENTED - ADLSeqUtilies:setGlobalObjMeasure");
 
 		// Get a connection to the global objective DB
 		/*Connection conn = LMSDBHandler.getConnection();
@@ -2798,51 +2311,32 @@ public class ADLSeqUtilities {
 		         }
 		         catch ( Exception e )
 		         {
-		            if ( _Debug )
-		            {
-		               System.out.println("  ::-->  ERROR: DB Failure");
-		               e.printStackTrace();
-		            }
-
+		            log.debug("  ::-->  ERROR: DB Failure", e);
 		            success = false;
 		         }
 		      }
 		      else
 		      {
-		         if ( _Debug )
-		         {
-		            System.out.println("  ::--> ERROR: NULL learnerID");
-		         }
-
+		            log.debug("  ::--> ERROR: NULL learnerID");
 		         success = false;
 		      }
 		   }
 		   else
 		   {
-		      if ( _Debug )
-		      {
-		         System.out.println("  ::--> ERROR: NULL obj ID");
-		      }
-
+		         log.debug("  ::--> ERROR: NULL obj ID");
 		      success = false;
 		   }
 		}
 		else
 		{
-		   if ( _Debug )
-		   {
-		      System.out.println("  ::--> ERROR: NULL connection");
-		   }
+		      log.debug("  ::--> ERROR: NULL connection");
 
 		   success = false;
 		}
 
-		if ( _Debug )
-		{
-		   System.out.println("  ::--> " + success);
-		   System.out.println("  :: ADLSeqUtilities  --> END   - " +
-		                      "getGlobalObjMeasure");
-		}*/
+		   log.debug("  ::--> " + success);
+		   log.debug("  :: ADLSeqUtilities  --> END   - getGlobalObjMeasure");
+		*/
 
 		return success;
 	}
@@ -2863,128 +2357,31 @@ public class ADLSeqUtilities {
 	 */
 	public static boolean setGlobalObjSatisfied(String iObjID, String iLearnerID, String iScopeID, String iSatisfied) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqUtilities  --> BEGIN - " + "setGlobalObjSatisfied");
-
-			System.out.println("  ::--> " + iObjID);
-			System.out.println("  ::--> " + iLearnerID);
-			System.out.println("  ::--> " + iScopeID);
-			System.out.println("  ::--> " + iSatisfied);
-		}
-
-		boolean success = true;
+        log.debug("""
+                          :: ADLSeqUtilities  --> BEGIN - setGlobalObjSatisfied
+                          ::--> {}
+                          ::--> {}
+                          ::--> {}
+                          ::--> {}
+                        """,
+                iObjID, iLearnerID, iScopeID, iSatisfied);
+        boolean success = true;
 
 		// Validate vocabulary
 		if (!(iSatisfied.equals("unknown") || iSatisfied.equals("satisfied") || iSatisfied.equals("notSatisfied"))) {
 
 			success = false;
 
-			if (_Debug) {
-				System.out.println("  ::--> Invalid value: " + iSatisfied);
-				System.out.println("  ::-->  " + success);
-				System.out.println("  :: ADLSeqUtilities  --> END   - " + "setSharedCompMastery");
-			}
-
-			return success;
+            log.debug("""
+                              ::--> Invalid value: {}
+                              ::-->  {}
+                              :: ADLSeqUtilities  --> END   - setGlobalObjSatisfied
+                            """,
+                    iSatisfied, success);
+            return success;
 		}
 
-		System.out.println("NOT IMPLEMENTED - ADLSeqUtilies:setGlobalObjSatisfied");
-
-		// Get a connection to the global objective DB
-		/*Connection conn = LMSDBHandler.getConnection();
-
-		if ( conn != null )
-		{
-		   if ( iLearnerID != null )
-		   {
-		      if ( iObjID != null )
-		      {
-		         try
-		         {
-
-		            PreparedStatement stmtUpdateSatisfied = null;
-
-		            // Create the SQL string
-		            String sqlUpdateSatisfied = "UPDATE Objectives SET " +
-		                                        "satisfied = ? " +
-		                                        "WHERE objID = ? AND " +
-		                                        "learnerID = ? AND scopeID = ?";
-
-		            stmtUpdateSatisfied =
-		            conn.prepareStatement(sqlUpdateSatisfied);
-
-		            // Execute the query
-		            synchronized(stmtUpdateSatisfied)
-		            {
-		               stmtUpdateSatisfied.setString(1, iSatisfied);
-		               stmtUpdateSatisfied.setString(2, iObjID);
-		               stmtUpdateSatisfied.setString(3, iLearnerID);
-
-		               if ( iScopeID == null )
-		               {
-		                  stmtUpdateSatisfied.setString(4, "");
-		               }
-		               else
-		               {
-		                  stmtUpdateSatisfied.setString(4, iScopeID);
-		               }
-
-		               stmtUpdateSatisfied.executeUpdate();
-		            }
-
-		            // Close the prepared statement
-		            stmtUpdateSatisfied.close();
-		         }
-		         catch ( Exception e )
-		         {
-		            if ( _Debug )
-		            {
-		               System.out.println("  ::--> ERROR: DB Failure");
-		               System.out.println(e.getMessage());
-
-		               e.printStackTrace();
-		            }
-
-		            success = false;
-		         }
-		      }
-		      else
-		      {
-		         if ( _Debug )
-		         {
-		            System.out.println("  ::--> ERROR: NULL objective ID");
-		         }
-
-		         success = false;
-		      }
-		   }
-		   else
-		   {
-		      if ( _Debug )
-		      {
-		         System.out.println("  ::--> ERROR: NULL learnerID");
-		      }
-
-		      success = false;
-		   }
-		}
-		else
-		{
-		   if ( _Debug )
-		   {
-		      System.out.println("  ::--> ERROR: NULL connection");
-		   }
-
-		   success = false;
-		}
-
-		if ( _Debug )
-		{
-		   System.out.println("  ::--> " + success);
-		   System.out.println("  :: ADLSeqUtilities  --> END   - " +
-		                      "setGlobalObjSatisfied");
-		}*/
-
+		log.warn("NOT IMPLEMENTED - ADLSeqUtilies:setGlobalObjSatisfied");
 		return success;
 	}
 

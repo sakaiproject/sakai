@@ -27,7 +27,7 @@ package org.adl.sequencer;
 import java.io.Serializable;
 import java.util.List;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Encapsulation mastery status tracking and behavior.<br><br>
@@ -61,17 +61,13 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqObjective implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private long id;
 
-	/**
-	    * This controls display of log messages to the java console
-	    */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * Identifier of this objective.
 	 */
 	public String mObjID = "_primary_";
@@ -123,27 +119,23 @@ public class SeqObjective implements Serializable {
 	 * This method provides the state this <code>ADLObjective</code> object for
 	 * diagnostic purposes.<br>
 	 */
-	public void dumpState() {
+	public void dumpState() {		log.debug("  :: ADLObjective  --> BEGIN - dumpState");
 
-		if (_Debug) {
-			System.out.println("  :: ADLObjective  --> BEGIN - dumpState");
+		log.debug("  ::--> ID:                 " + mObjID);
+		log.debug("  ::--> Satisfy by Measure: " + mSatisfiedByMeasure);
+		log.debug("  ::--> Active Measure:     " + mActiveMeasure);
+		log.debug("  ::--> Min Measure:        " + mMinMeasure);
+		log.debug("  ::--> Contrib to Rollup:  " + mContributesToRollup);
+		log.debug("  ::--> ------------------- <--::");
 
-			System.out.println("  ::--> ID:                 " + mObjID);
-			System.out.println("  ::--> Satisfy by Measure: " + mSatisfiedByMeasure);
-			System.out.println("  ::--> Active Measure:     " + mActiveMeasure);
-			System.out.println("  ::--> Min Measure:        " + mMinMeasure);
-			System.out.println("  ::--> Contrib to Rollup:  " + mContributesToRollup);
-			System.out.println("  ::--> ------------------- <--::");
+		if (mMaps != null) {
+			for (int i = 0; i < mMaps.size(); i++) {
+				SeqObjectiveMap map = mMaps.get(i);
 
-			if (mMaps != null) {
-				for (int i = 0; i < mMaps.size(); i++) {
-					SeqObjectiveMap map = mMaps.get(i);
-
-					map.dumpState();
-				}
+				map.dumpState();
 			}
 
-			System.out.println("  :: ADLObjective --> END   - dumpState");
+			log.debug("  :: ADLObjective --> END   - dumpState");
 		}
 	}
 

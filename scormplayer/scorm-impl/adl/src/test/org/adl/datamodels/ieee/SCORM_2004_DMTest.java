@@ -2,6 +2,7 @@ package org.adl.datamodels.ieee;
 
 import junit.framework.TestCase;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMFactory;
 import org.adl.datamodels.DMProcessingInfo;
@@ -10,6 +11,7 @@ import org.adl.datamodels.DataModel;
 
 import static org.sakaiproject.scorm.api.ScormConstants.CMI_COMMENTS_FROM_LEARNER;
 
+@Slf4j
 public class SCORM_2004_DMTest extends TestCase {
 	DataModel dm;
 	IValidatorFactory validatorFactory;
@@ -46,7 +48,7 @@ public class SCORM_2004_DMTest extends TestCase {
 			assertTrue(getElementValue(CMI_COMMENTS_FROM_LEARNER + "._children").contains("comment"));
 			assertTrue(getElementValue(CMI_COMMENTS_FROM_LEARNER + "._children").contains("location"));
 			assertTrue(getElementValue(CMI_COMMENTS_FROM_LEARNER + "._children").contains("timestamp"));
-			System.out.println(dm.toString());
+			log.info(dm.toString());
 		}
 		{
 			DMRequest request = new DMRequest(CMI_COMMENTS_FROM_LEARNER + ".2.comment");

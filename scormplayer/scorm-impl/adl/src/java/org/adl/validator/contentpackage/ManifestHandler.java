@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.parsers.dom.DOMTreeUtility;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -45,6 +46,7 @@ import org.w3c.dom.NodeList;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class ManifestHandler implements Serializable {
 	/**
 	  * 
@@ -491,8 +493,7 @@ public class ManifestHandler implements Serializable {
 			try {
 				mLaunchDataList.set(i, currentLaunchData);
 			} catch (ArrayIndexOutOfBoundsException aioobe) {
-				System.out.println("ArrayIndexOutOfBoundsException caught on " + "List currentLaunchData.  Attempted index " + "access is " + i
-				        + "size of List is " + mLaunchDataList.size());
+				log.warn("List currentLaunchData. Attempted index access is {} size of List is {}, {}", i, mLaunchDataList.size(), aioobe.toString());
 			}
 		}
 

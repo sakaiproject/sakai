@@ -25,8 +25,8 @@ package org.adl.sequencer.impl;
 
 import java.io.Serializable;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.sequencer.IDuration;
-import org.adl.util.debug.DebugIndicator;
 
 /**
  * <strong>Filename:</strong> ADLDuration.java<br><br>
@@ -37,6 +37,7 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLDuration implements Serializable, IDuration {
 
 	/**
@@ -44,12 +45,7 @@ public class ADLDuration implements Serializable, IDuration {
 	  */
 	private static final long serialVersionUID = 1L;
 
-	/**
-	    * This controls display of log messages to the java console
-	    */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * The duration being tracked in milliseconds
 	 */
 	public long mDuration = 0;
@@ -78,67 +74,59 @@ public class ADLDuration implements Serializable, IDuration {
 		String min = null;
 		String sec = null;
 
-		switch (iFormat) {
+        switch (iFormat) {
 
-		case FORMAT_SECONDS: {
-			double secs = 0.0;
+            case FORMAT_SECONDS: {
+                double secs = 0.0;
 
-			try {
-				secs = (new Double(iValue));
-			} catch (Exception e) {
-				if (_Debug) {
-					System.out.print("  Invalid Format ::  " + iFormat + " // " + iValue);
-				}
-			}
+                try {
+                    secs = Double.parseDouble(iValue);
+                } catch (Exception e) {
+                    log.warn("  Invalid Format ::  {} // {}", iFormat, iValue);
+                }
 
-			mDuration = (long) (secs * 1000.0);
+                mDuration = (long) (secs * 1000.0);
+                break;
+            }
+            case FORMAT_SCHEMA: {
+                int locStart = iValue.indexOf('T');
+                int loc = 0;
 
-			break;
+                if (locStart != -1) {
+                    locStart++;
 
-		}
-		case FORMAT_SCHEMA: {
-			int locStart = iValue.indexOf('T');
-			int loc = 0;
+                    loc = iValue.indexOf('H', locStart);
 
-			if (locStart != -1) {
-				locStart++;
+                    if (loc != -1) {
+                        hours = iValue.substring(locStart, loc);
+                        mDuration = Long.parseLong(hours) * 3600;
 
-				loc = iValue.indexOf('H', locStart);
+                        locStart = loc + 1;
+                    }
 
-				if (loc != -1) {
-					hours = iValue.substring(locStart, loc);
-					mDuration = (Long.valueOf(hours)) * 3600;
+                    loc = iValue.indexOf('M', locStart);
+                    if (loc != -1) {
+                        min = iValue.substring(locStart, loc);
+                        mDuration += Long.parseLong(min) * 60;
 
-					locStart = loc + 1;
-				}
+                        locStart = loc + 1;
+                    }
 
-				loc = iValue.indexOf('M', locStart);
-				if (loc != -1) {
-					min = iValue.substring(locStart, loc);
-					mDuration += (Long.valueOf(min)) * 60;
-
-					locStart = loc + 1;
-				}
-
-				loc = iValue.indexOf('S', locStart);
-				if (loc != -1) {
-					sec = iValue.substring(locStart, loc);
-					mDuration += (Long.valueOf(sec));
-				}
-			} else {
-				if (_Debug) {
-					System.out.println(" ERROR : Invalid format  --> " + iValue);
-				}
-			}
-
-			break;
-
-		}
-		default: {
-			// Do nothing
-		}
-		}
-	}
+                    loc = iValue.indexOf('S', locStart);
+                    if (loc != -1) {
+                        sec = iValue.substring(locStart, loc);
+                        mDuration += Long.parseLong(sec);
+                    }
+                } else {
+                    log.warn(" ERROR : Invalid format  --> {}", iValue);
+                }
+                break;
+            }
+            default: {
+                // Do nothing
+            }
+        }
+    }
 
 	/**
 	 * This method adds the duration value passed in (<code>iDur</code>) to the
@@ -203,64 +191,58 @@ public class ADLDuration implements Serializable, IDuration {
 
 		long temp = 0;
 
-		switch (iFormat) {
+        switch (iFormat) {
 
-		case FORMAT_SECONDS: {
-			double sec = mDuration / 1000.0;
+            case FORMAT_SECONDS: {
+                double sec = mDuration / 1000.0;
+                out = Double.valueOf(sec).toString();
+                break;
+            }
+            case FORMAT_SCHEMA: {
+                out = "";
 
-			out = (new Double(sec)).toString();
+                countHours = 0;
+                countMin = 0;
+                countSec = 0;
 
-			break;
+                temp = mDuration / 1000;
 
-		}
-		case FORMAT_SCHEMA: {
-			out = "";
+                if (temp >= 1000) {
+                    if (temp >= 3600) {
+                        countHours = temp / 3600;
+                        temp %= 3600;
+                    }
 
-			countHours = 0;
-			countMin = 0;
-			countSec = 0;
+                    if (temp > 60) {
+                        countMin = temp / 60;
+                        temp %= 60;
+                    }
 
-			temp = mDuration / 1000;
+                    countSec = temp;
+                }
 
-			if (temp >= 1000) {
-				if (temp >= 3600) {
-					countHours = temp / 3600;
-					temp %= 3600;
-				}
+                out = "PT";
 
-				if (temp > 60) {
-					countMin = temp / 60;
-					temp %= 60;
-				}
+                if (countHours > 0) {
+                    out += Long.toString(countHours, 10);
+                    out += "H";
+                }
 
-				countSec = temp;
-			}
+                if (countMin > 0) {
+                    out += Long.toString(countMin, 10);
+                    out += "M";
+                }
 
-			out = "PT";
-
-			if (countHours > 0) {
-				out += Long.toString(countHours, 10);
-				out += "H";
-			}
-
-			if (countMin > 0) {
-				out += Long.toString(countMin, 10);
-				out += "M";
-			}
-
-			if (countSec > 0) {
-				out += Long.toString(countSec, 10);
-				out += "S";
-			}
-
-			break;
-
-		}
-		default: {
-			// Do nothing
-		}
-		}
-
-		return out;
+                if (countSec > 0) {
+                    out += Long.toString(countSec, 10);
+                    out += "S";
+                }
+                break;
+            }
+            default: {
+                // Do nothing
+            }
+        }
+        return out;
 	}
 } // end ADLDuration
