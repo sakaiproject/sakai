@@ -40,6 +40,9 @@ public class SparseMessage{
 	
 	@Getter
 	private Long lastModified;
+
+	@Getter @Setter
+	private String lastModifiedDisplay;
 	
 	@Getter @Setter
 	private List<SparseAttachment> attachments = new ArrayList<SparseAttachment>();

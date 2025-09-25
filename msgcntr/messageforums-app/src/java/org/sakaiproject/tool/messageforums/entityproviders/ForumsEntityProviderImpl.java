@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.tool.messageforums.entityproviders;
 
+import java.time.format.FormatStyle;
 import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +31,7 @@ import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -37,6 +39,7 @@ import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -84,6 +87,12 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 
 	@Setter
 	private AnonymousManager anonymousManager;
+
+	@Setter
+	private UserTimeService userTimeService;
+
+	@Setter
+	private MessageForumsMessageManager messageManager;
 
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
@@ -533,6 +542,9 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 						skipMessage = true;
 					}
 				}
+				if (!skipMessage && mustPostBeforeViewing(discussionTopic, discussionForum, userId, siteId)) {
+					skipMessage = true;
+				}
 			}
 			if (skipMessage) {
 				continue;
@@ -544,6 +556,7 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 			String modifiedByDisplay = resolveAuthorLabel(modifiedById, discussionTopic, siteId);
 			fm.setModifiedBy(modifiedByDisplay);
 			SparseMessage sm = new SparseMessage(fm,/* readStatus =*/ false,/* addAttachments =*/ true, developerHelperService.getServerURL());
+			sm.setLastModifiedDisplay(formatLastModified(fm.getModified()));
 			//setting forumId for the sparse message
 			if(topic != null && topic.getBaseForum() != null) {
 				sm.setForumId(topic.getBaseForum().getId());
@@ -551,6 +564,28 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 			messages.add(sm);
 		}
 		return messages;
+	}
+
+    private String formatLastModified(Date modifiedDate) {
+		if (modifiedDate == null || userTimeService == null) {
+			return "";
+		}
+
+		return userTimeService.dateTimeFormat(modifiedDate.toInstant(), FormatStyle.MEDIUM, FormatStyle.SHORT);
+	}
+
+	private boolean mustPostBeforeViewing(DiscussionTopic topic, DiscussionForum forum, String userId, String siteId) {
+		if (topic == null || !Boolean.TRUE.equals(topic.getPostFirst()) || userId == null) {
+			return false;
+		}
+
+		boolean hasOverride = uiPermissionsManager.isModeratePostings(topic, forum, userId, siteId);
+		if (hasOverride || messageManager == null) {
+			return false;
+		}
+
+		int authoredCount = messageManager.findAuhtoredMessageCountByTopicIdByUserId(topic.getId(), userId);
+		return authoredCount == 0;
 	}
 
 	private String resolveAuthorLabel(String userId, DiscussionTopic topic, String siteId) {
@@ -561,7 +596,16 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		boolean showRealName = true;
 		if (anonymousManager != null && anonymousManager.isAnonymousEnabled() && topic != null && Boolean.TRUE.equals(topic.getPostAnonymous())) {
 			boolean revealIdsToRoles = Boolean.TRUE.equals(topic.getRevealIDsToRoles());
-			boolean canIdentify = revealIdsToRoles && uiPermissionsManager != null && uiPermissionsManager.isIdentifyAnonAuthors(topic);
+			boolean canIdentify = false;
+			if (revealIdsToRoles && uiPermissionsManager != null) {
+				try {
+					if (toolManager != null && toolManager.getCurrentPlacement() != null) {
+						canIdentify = uiPermissionsManager.isIdentifyAnonAuthors(topic);
+					}
+				} catch (RuntimeException e) {
+					log.debug("Unable to evaluate identify-anon permission in Lessons context", e);
+				}
+			}
 			if (!canIdentify) {
 				showRealName = false;
 				if (siteId != null && !siteId.isEmpty()) {

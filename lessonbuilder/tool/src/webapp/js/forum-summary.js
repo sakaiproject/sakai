@@ -52,27 +52,23 @@ function showForums(forumsUrl, toolHref, itemsToShow, forumSummaryDiv  ){
 		});
 	}
 }
-function outputForums(messagesArray, toolHref, forumSummaryDiv){
-	var title = msg("simplepage.forum-header-title");
-	var text_for_forums = '<div class="forumSummaryHeaderDiv"><h3 class="forumSummaryHeader"><span aria-hidden="true" class="fa-item-text icon-sakai--sakai-forums"></span><a href="'+toolHref+'" class="forumSummaryLink" title ="'+title+'">'+title+'</a></h3></div>';
-	if(messagesArray.length == 0){
-		text_for_forums += '<p>'+msg("simplepage.forum-summary-no-message")+'</p>';
-	}
-	else{
-		messagesArray.sort(function(a, b) {
-			return b.lastModified - a.lastModified; //inverse sort by lastModified
-		});
-		text_for_forums+='<ul class="forumSummaryList">';
-		for (i=0; i < messagesArray.length; i++){
-			var date = new Date(messagesArray[i].lastModified * 1000);//get back date from unix timestamp;
-			var hour = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
-			var min = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
-			//using javascript's toLocaleDateString() to include user's locale and local time zone
-			var date_time = hour + ":" + min + " " + date.toLocaleDateString();
-			var href = toolHref + "&messageId=" + messagesArray[i].messageId + "&topicId=" +messagesArray[i].topicId + "&forumId=" + messagesArray[i].forumId;
-			text_for_forums+='<li class="itemDiv forumSummaryItem"><div><a href="'+href+'">'+messagesArray[i].entityTitle+'</a> '+msg("simplepage.created-by")+' '+messagesArray[i].author+'</div><div class="forumSummaryDate">'+date_time+'</div></li>';
+function outputForums(messagesArray, toolHref, forumSummaryDiv) {
+	const title = msg("simplepage.forum-header-title");
+	const fragments = [];
+	fragments.push(`<div class="forumSummaryHeaderDiv"><h3 class="forumSummaryHeader"><span aria-hidden="true" class="fa-item-text icon-sakai--sakai-forums"></span><a href="${toolHref}" class="forumSummaryLink" title="${title}">${title}</a></h3></div>`);
+
+	if (messagesArray.length === 0) {
+		fragments.push(`<p>${msg("simplepage.forum-summary-no-message")}</p>`);
+	} else {
+		const sortedMessages = messagesArray.slice().sort((a, b) => b.lastModified - a.lastModified);
+		fragments.push('<ul class="forumSummaryList list-group list-group-flush">');
+		for (const message of sortedMessages) {
+			const dateTime = message.lastModifiedDisplay || '';
+			const href = `${toolHref}&messageId=${message.messageId}&topicId=${message.topicId}&forumId=${message.forumId}`;
+			fragments.push(`<li class="itemDiv forumSummaryItem list-group-item d-block mb-2"><div><a class="fw-semibold" href="${href}">${message.entityTitle}</a> <span class="text-muted">${msg("simplepage.created-by")} ${message.author}</span></div><div class="forumSummaryDate text-muted small">${dateTime}</div></li>`);
 		}
-		text_for_forums+='</ul>';
+		fragments.push('</ul>');
 	}
-	forumSummaryDiv.html(text_for_forums);
+
+	forumSummaryDiv.html(fragments.join('\n'));
 }
