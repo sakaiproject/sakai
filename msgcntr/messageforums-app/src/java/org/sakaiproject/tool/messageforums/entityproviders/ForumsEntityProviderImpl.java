@@ -556,7 +556,8 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 			SparseMessage sm = new SparseMessage(fm,/* readStatus =*/ false,/* addAttachments =*/ true, developerHelperService.getServerURL());
 			sm.setCreatedBy(createdByDisplay);
 			sm.setModifiedBy(modifiedByDisplay);
-			sm.setLastModifiedDisplay(formatLastModified(fm.getModified()));
+			Date last = fm.getModified() != null ? fm.getModified() : fm.getCreated();
+			sm.setLastModifiedDisplay(formatLastModified(last));
 			//setting forumId for the sparse message
 			if(topic != null && topic.getBaseForum() != null) {
 				sm.setForumId(topic.getBaseForum().getId());
