@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -49,8 +48,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.util.StorageUtils;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -63,7 +60,6 @@ import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.FileSystemHandler;
 import org.sakaiproject.content.api.Lock;
 import org.sakaiproject.content.api.LockManager;
-import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -102,7 +98,6 @@ import static org.sakaiproject.content.util.IdUtil.isolateContainingId;
 @Slf4j
 public class DbContentService extends BaseContentService
 {
-    private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
 
     /** Table name for collections. */
     @Setter
@@ -150,9 +145,6 @@ public class DbContentService extends BaseContentService
      */
     protected static final String[] RESOURCE_FIELDS_CONTEXT = {"IN_COLLECTION", "CONTEXT", "FILE_SIZE", "RESOURCE_TYPE_ID", "RESOURCE_SHA256"};
 
-    private static final String[] BASE_COLLECTION_IDS = new String[]{
-        "/","/attachment/","/group-user/","/group/","/private/","/public/","/user/"   
-    };
 
     /** Table name for resources delete. */
     @Setter
@@ -283,13 +275,6 @@ public class DbContentService extends BaseContentService
 
                 // add the delete table
                 sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_delete");
-            }
-
-            if ( migrateData ) {
-                log.info("Migration of data to the Binary format will be performed by this node ");
-            } else {
-                log.info("Migration of data to the Binary format will NOT be performed by this node ");
-
             }
 
             // If CHH resolvers are turned off in sakai.properties, unset the resolver property.
@@ -453,8 +438,6 @@ public class DbContentService extends BaseContentService
             log.debug("TEMPORARY LOG MESSAGE WITH STACK TRACE: TEST FAILED: {}", e.toString());
         }
     }
-
-    public boolean migrateData = true;
 
     /**
      *
@@ -757,267 +740,20 @@ public class DbContentService extends BaseContentService
                 this.resolver.setCollectionUser(collectionUser);
             }
 
-            Connection connection = null;
-            Statement statement = null;
-            ResultSet rs = null;
-            PreparedStatement updateStatement = null;
-            PreparedStatement selectStatement = null;
-            boolean binaryCollection = false;
-            boolean xmlCollection = true;
-            boolean binaryResource = false;
-            boolean xmlResource = true;
-            boolean binaryDelete = false;
-            boolean xmlDelete = true;
-            try {
-                connection = sqlService.borrowConnection();
-                statement = connection.createStatement();
-                try {
-                    statement.execute("select BINARY_ENTITY from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' " );
-                    binaryCollection = true;
-                } catch ( Exception ex ) {
-                    binaryCollection = false;
-                }
-                try {
-                    statement.execute("select XML from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' ");
-                    xmlCollection = true;
-                } catch ( Exception ex ) {
-                    xmlCollection = false;
-                }
+            m_collectionStore = new BaseDbBinarySingleStorage(collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
+                    collectionUser, sqlService);
+            m_collectionStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
 
-                try {
-                    statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );
-                    binaryResource = true;
-                } catch ( Exception ex ) {
-                    binaryResource = false;
-                }
-                try {
-                    statement.execute("select XML from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' ");
-                    xmlResource = true;
-                } catch ( Exception ex ) {
-                    xmlResource = false;
-                }
-                try {
-                    statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' " );
-                    binaryDelete = true;
-                } catch ( Exception ex ) {
-                    binaryDelete = false;
-                }
-                try {
-                    statement.execute("select XML from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' ");
-                    xmlDelete= true;
-                } catch ( Exception ex ) {
-                    xmlDelete = false;
-                }
+            m_resourceStore = new BaseDbBinarySingleStorage(resourceTableName, "RESOURCE_ID",
+                    (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
+                    m_locksInDb, "resource", resourceUser, sqlService);
+            m_resourceStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
 
-                if ( migrateData && binaryCollection && xmlCollection ) {
-                    // migrate the base XML entities
-                    Type1BlobCollectionConversionHandler t1ch = new Type1BlobCollectionConversionHandler();
-
-                    selectStatement = connection.prepareStatement("select XML from CONTENT_COLLECTION where BINARY_ENTITY IS NULL AND COLLECTION_ID = ? ");
-                    updateStatement = connection.prepareStatement("update CONTENT_COLLECTION set XML = NULL, BINARY_ENTITY = ?  where COLLECTION_ID = ? ");
-                    for ( String collectionid : BASE_COLLECTION_IDS ) {
-                        selectStatement.clearParameters();
-                        selectStatement.setString(1, collectionid);
-                        rs = selectStatement.executeQuery();
-                        if ( rs.next() ) {
-                            String xml = rs.getString(1);
-                            boolean bnull = rs.wasNull();
-                            rs.close();
-                            if ( !bnull && xml != null  ) {
-                                updateStatement.clearParameters();
-                                if ( t1ch.convertSource(collectionid, xml, updateStatement) ) {
-                                    updateStatement.executeUpdate();
-                                } else {
-                                    log.info("XML Pase failed "+collectionid);												
-                                }
-                            }
-                        } else {
-                            rs.close();
-                        }
-                    }
-                    connection.commit();
-
-                }
-
-                if ( !migrateData && binaryCollection ) {
-                    rs = statement.executeQuery("select count(*) from CONTENT_COLLECTION where BINARY_ENTITY IS NOT NULL ");
-                    int n = 0;
-                    if ( rs.next() ) {
-                        n = rs.getInt(1);
-                    }
-                    if ( n != 0 ) {
-                        log.error(FATAL, "There are migrated content collection entries in the \n" +
-                                "BINARY_ENTITY column  of CONTENT_COLLECTION you must ensure that this \n" +
-                                "data is not required and set all entries to null before starting \n" +
-                                "up with migrate data disabled. Failure to do this could loose \n" +
-                                "updates since this database was upgraded \n");
-                        log.error(FATAL, "STOP ============================================");
-                        /*we need to close these here otherwise the system exit will lead them to being left open
-                         * While this may be harmful is bad practice and prevents us identifying real issues
-                         */
-                        cleanup(connection, statement, rs, selectStatement, updateStatement);
-                        System.exit(-10);
-                    }
-                }
-                if ( !migrateData && binaryResource ) {
-                    rs = statement.executeQuery("select count(*) from CONTENT_RESOURCE where BINARY_ENTITY IS NOT NULL ");
-                    int n = 0;
-                    if ( rs.next() ) {
-                        n = rs.getInt(1);
-                    }
-                    if ( n != 0 ) {
-                        log.error(FATAL, "There are migrated content collection entries in the \n" +
-                                "BINARY_ENTITY column  of CONTENT_RESOURCE you must ensure that this \n" +
-                                "data is not required and set all entries to null before starting \n" +
-                                "up with migrate data disabled. Failure to do this could loose \n" +
-                                "updates since this database was upgraded \n");
-                        log.error(FATAL, "STOP ============================================");
-                        /*we need to close these here otherwise the system exit will lead them to being left open
-                         * While this may be harmful is bad practice and prevents us identifying real issues
-                         */
-                        cleanup(connection, statement, rs, selectStatement, updateStatement);
-                        System.exit(-10);
-                    }
-                }
-                if ( !migrateData && binaryResource ) {
-                    rs = statement.executeQuery("select count(*) from CONTENT_RESOURCE_DELETE where BINARY_ENTITY IS NOT NULL ");
-                    int n = 0;
-                    if ( rs.next() ) {
-                        n = rs.getInt(1);
-                    }
-                    if ( n != 0 ) {
-                        log.error(FATAL, "There are migrated content collection entries in the \n" +
-                                "BINARY_ENTITY column  of CONTENT_RESOURCE_DELETE you must ensure that this \n" +
-                                "data is not required and set all entries to null before starting \n" +
-                                "up with migrate data disabled. Failure to do this could loose \n" +
-                                "updates since this database was upgraded \n");
-                        log.error(FATAL, "STOP ============================================");
-                        /*we need to close these here otherwise the system exit will lead them to being left open
-                         * While this may be harmful is bad practice and prevents us identifying real issues
-                         */
-                        cleanup(connection, statement, rs, selectStatement, updateStatement);
-                        throw new KernelConfigurationError("There are migrated content collection entries in the \n" +
-                        		"BINARY_ENTITY column  of CONTENT_RESOURCE_DELETE you must ensure that this \n" +
-                        		"data is not required and set all entries to null before starting \n" +
-                        		"up with migrate data disabled. Failure to do this could loose \n" +
-                        "updates since this database was upgraded");
-                    }
-                }
-
-            } catch (SQLException e) {
-                log.error("Unable to get database statement: {}", e.getMessage(), e);
-            } finally {
-                cleanup(connection, statement, rs, selectStatement, updateStatement);
-            }
-
-            if (migrateData && binaryCollection && xmlCollection) {
-                // build the collection store - a single level store
-                m_collectionStore = new BaseDbDualSingleStorage(collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
-                        collectionUser, sqlService);
-                m_collectionStorageFields = BaseDbDualSingleStorage.STORAGE_FIELDS;
-
-            } else if ( migrateData && binaryCollection) {
-                // build the collection store - a single level store
-                m_collectionStore = new BaseDbBinarySingleStorage(collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
-                        collectionUser, sqlService);
-                m_collectionStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
-
-            } else {
-                // build the collection store - a single level store
-                m_collectionStore = new BaseDbSingleStorage(collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
-                        collectionUser, sqlService);
-                m_collectionStorageFields = BaseDbSingleStorage.STORAGE_FIELDS;
-
-            }
-
-            if (  migrateData && binaryResource && xmlResource) {
-                // build the resources store - a single level store
-                m_resourceStore = new BaseDbDualSingleStorage(resourceTableName, "RESOURCE_ID", 
-                        (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, sqlService);
-                m_resourceStorageFields = BaseDbDualSingleStorage.STORAGE_FIELDS;
-
-            } else if ( migrateData && binaryResource) {
-                // build the resources store - a single level store
-                m_resourceStore = new BaseDbBinarySingleStorage(resourceTableName, "RESOURCE_ID", 
-                        (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, sqlService);
-                m_resourceStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
-
-            } else {
-                // build the resources store - a single level store
-                m_resourceStore = new BaseDbSingleStorage(resourceTableName, "RESOURCE_ID", 
-                        (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, sqlService);
-                m_resourceStorageFields = BaseDbSingleStorage.STORAGE_FIELDS;
-
-            }
-
-            if ( migrateData && xmlDelete && binaryDelete ) {
-                // htripath-build the resource for store of deleted record-single
-                // level store
-                m_resourceDeleteStore = new BaseDbDualSingleStorage(resourceDeleteTableName, "RESOURCE_ID", 
-                        (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, sqlService, m_resourceStore); // support for SAK-12874
-
-            } else if ( migrateData && binaryDelete) {
-                // htripath-build the resource for store of deleted record-single
-                // level store
-                m_resourceDeleteStore = new BaseDbBinarySingleStorage(resourceDeleteTableName, "RESOURCE_ID", 
-                        (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, sqlService, m_resourceStore); // support for SAK-12874
-
-            } else {
-                // htripath-build the resource for store of deleted record-single
-                // level store
-                m_resourceDeleteStore = new BaseDbSingleStorage(resourceDeleteTableName, "RESOURCE_ID", 
-                        (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
-                        m_locksInDb, "resource", resourceUser, sqlService, m_resourceStore); // support for SAK-12874
-
-            }
+            m_resourceDeleteStore = new BaseDbBinarySingleStorage(resourceDeleteTableName, "RESOURCE_ID",
+                    (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
+                    m_locksInDb, "resource", resourceUser, sqlService, m_resourceStore); // support for SAK-12874
 
         } // DbStorage
-
-        /**
-         * Cleanup the resultset, statements, and connection in the finally block or as needed
-         * @param connection
-         * @param statement
-         * @param rs
-         * @param selectStatement
-         * @param updateStatement
-         */
-        private void cleanup(Connection connection, Statement statement, ResultSet rs,
-                PreparedStatement selectStatement, PreparedStatement updateStatement) {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-            } catch (SQLException ex) {
-                log.error("Failed to close resultset: {}", ex.getMessage(), ex);
-            }
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-            } catch (SQLException ex) {
-                log.error("Failed to close statement: {}", ex.getMessage(), ex);
-            }
-            try {
-                if (selectStatement != null) {
-                    selectStatement.close();
-                }
-            } catch (SQLException ex) {
-                log.error("Failed to close selectStatement: " + ex, ex);
-            }
-            try {
-                if (updateStatement != null) {
-                    updateStatement.close();
-                }
-            } catch (SQLException ex) {
-                log.error("Failed to close updateStatement: " + ex, ex);
-            }
-            sqlService.returnConnection(connection);
-        }
 
         /**
          * Open and be ready to read / write.
@@ -3141,15 +2877,6 @@ public class DbContentService extends BaseContentService
 
         sqlService.dbRead(sql, fields, sqlReader);
         return sizes;
-    }
-
-    /**
-     * @param migrateData the migrateData to set
-     */
-    public void setMigrateData(boolean migrateData)
-    {
-        this.migrateData = migrateData;
-
     }
 
     /**
