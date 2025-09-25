@@ -1730,7 +1730,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                 }
             }
         }
-        return (numberAssignmentTool==numberAssignmentToolHidden);
+        return (numberAssignmentTool > 0 && numberAssignmentTool == numberAssignmentToolHidden);
     }
 
     protected boolean isHiddenAssignmentTool(Site site) {
