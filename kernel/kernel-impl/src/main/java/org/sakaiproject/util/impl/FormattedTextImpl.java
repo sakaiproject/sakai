@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -491,8 +490,7 @@ public class FormattedTextImpl implements FormattedText
                     if (cr.getNumberOfErrors() > 0) {
                         // TODO currently no way to get internationalized versions of error messages
                         for (String errorMsg : cr.getErrorMessages()) {
-                            String i18nErrorMsg = new String(errorMsg.getBytes("ISO-8859-1"),"UTF8");
-                            formattedTextErrors.append(i18nErrorMsg + "<br/>");
+                            formattedTextErrors.append(errorMsg).append("<br/>");
                         }
                     }
                     val = cr.getCleanHTML();
@@ -542,7 +540,7 @@ public class FormattedTextImpl implements FormattedText
             // opportunity to work around the issue, rather than causing a tool stack trace
 
             log.error("Unexpected error processing text", e);
-            formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup") + "\n");
+            formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup")).append("<br/>");
             val = null;
         }
 
