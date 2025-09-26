@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -129,7 +130,7 @@ public class ADLSeqUtilities {
 
 					Node seqInfo = curNode;
 
-					// Check to see if the sequencing information is referenced in 
+					// Check to see if the sequencing information is referenced in
 					// the <sequencingCollection>
 					tempVal = ADLSeqUtilities.getAttribute(curNode, "IDRef");
 					if (tempVal != null) {
@@ -179,23 +180,31 @@ public class ADLSeqUtilities {
 
 								// Check to see if this is an element node.
 								if (curChild.getNodeType() == Node.ELEMENT_NODE) {
-                                    log.debug("  ::--> Local definition");
-                                    log.debug("  ::-->   {}", j);
-                                    log.debug("  ::-->  <{}>", curChild.getLocalName());
+                                    log.debug("""
+                                                ::--> Local definition
+                                                ::-->   {}
+                                                ::-->  <{}>
+                                              """, j, curChild.getLocalName());
 
                                     // Add this to the global sequencing info (clone/import to ensure same ownerDocument)
-									try {
-										Node nodeToAppend = curChild.cloneNode(true);
-										if (seqInfo.getOwnerDocument() != nodeToAppend.getOwnerDocument()) {
-											nodeToAppend = seqInfo.getOwnerDocument().importNode(nodeToAppend, true);
-										}
-										seqInfo.appendChild(nodeToAppend);
+                                    try {
+                                        if (seqInfo == null) {
+                                            // Previous failure; stop processing further local sequencing children to avoid NPE
+                                            error = true;
+                                            break;
+                                        }
+                                        Node nodeToAppend = curChild.cloneNode(true);
+                                        if (seqInfo.getOwnerDocument() != nodeToAppend.getOwnerDocument()) {
+                                            nodeToAppend = seqInfo.getOwnerDocument().importNode(nodeToAppend, true);
+                                        }
+                                        seqInfo.appendChild(nodeToAppend);
                                     } catch (org.w3c.dom.DOMException e) {
                                         log.debug("  ::--> ERROR: ");
                                         log.warn("could not append sequencing info", e);
 
                                         error = true;
                                         seqInfo = null;
+                                        break;
                                     }
                                 }
 							}
