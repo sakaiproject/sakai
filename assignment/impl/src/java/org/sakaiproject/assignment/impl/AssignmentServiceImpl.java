@@ -157,6 +157,7 @@ import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
@@ -5369,4 +5370,36 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public FormattedText getFormattedText() {
         return formattedText;
     }
+
+    @Override
+    public boolean isHiddenAssignmentToolInAllSites(List<Site> sites) {
+        //we count the number of sites with assignment tool and the number of assignment tool hidden
+        int numberAssignmentTool=0;
+        int numberAssignmentToolHidden=0;
+        String tid = "";
+        for (Site site : sites) {
+            for (SitePage page : (List<SitePage>)site.getPages()) {
+                for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
+                    tid = tool.getToolId();
+                    if ("sakai.assignment.grades".equals(tid)) { numberAssignmentTool++; }
+                    if ("sakai.assignment.grades".equals(tid) && toolManager.isHidden(tool)) { numberAssignmentToolHidden++; }
+                }
+            }
+        }
+        return (numberAssignmentTool > 0 && numberAssignmentTool == numberAssignmentToolHidden);
+    }
+
+    @Override
+    public boolean isHiddenAssignmentTool(Site site) {
+        String tid = "";
+        boolean hiddenToolAssignment = false;
+        for (SitePage page : (List<SitePage>)site.getPages()) {
+            for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
+                tid = tool.getToolId();
+                if ("sakai.assignment.grades".equals(tid) && toolManager.isHidden(tool)) { hiddenToolAssignment = true; }
+            }
+        }
+        return hiddenToolAssignment;
+    }
+
 }

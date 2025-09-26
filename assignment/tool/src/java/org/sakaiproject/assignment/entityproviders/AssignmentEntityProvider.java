@@ -71,13 +71,11 @@ import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.timesheet.api.TimeSheetEntry;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.lti.api.LTIService;
@@ -105,7 +103,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
     private SecurityService securityService;
     private SessionManager sessionManager;
     private SiteService siteService;
-    private ToolManager toolManager;
     private AssignmentSupplementItemService assignmentSupplementItemService;
     private GradingService gradingService;
     private ServerConfigurationService serverConfigurationService;
@@ -407,7 +404,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityNotFoundException("No access to site: " + siteId, siteId);
         }
 
-        if (!isHiddenAssignmentTool(site)) {
+        if (!assignmentService.isHiddenAssignmentTool(site)) {
             assignmentService.getAssignmentsForContext(siteId).stream()
             .map(a->{
                 SimpleAssignment as = new SimpleAssignment(a);
@@ -451,7 +448,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         // check that the user can access all task tools on all sites, they may be hidden
         // in this case returned 403 Forbidden
-        if (isHiddenAssignmentInAllSites(sites)) {
+        if (assignmentService.isHiddenAssignmentToolInAllSites(sites)) {
             throw new EntityException("You don't have permissions read assignments", "", HttpServletResponse.SC_FORBIDDEN);
         }
 
@@ -459,7 +456,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         for (Site site : sites) {
             String siteId = site.getId();
             // check user can access the tool, it might be hidden
-            if (!isHiddenAssignmentTool(site)) { assignmentService.getAssignmentsForContext(siteId).stream().map(SimpleAssignment::new).forEach(rv::add); }
+            if (!assignmentService.isHiddenAssignmentTool(site)) { assignmentService.getAssignmentsForContext(siteId).stream().map(SimpleAssignment::new).forEach(rv::add); }
         }
 
         return rv;
@@ -518,7 +515,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("You don't have permissions " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
         }
 
-        if (site!=null && !isHiddenAssignmentTool(site)) {
+        if (site!=null && !assignmentService.isHiddenAssignmentTool(site)) {
         AssignmentSubmission submission;
             try {
                 submission = assignmentService.getSubmission(assignmentId, user);
@@ -689,7 +686,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("You don't have permissions " + assignmentId, "", HttpServletResponse.SC_FORBIDDEN);
         }
 
-        if (site!=null && !isHiddenAssignmentTool(site)) {
+        if (site!=null && !assignmentService.isHiddenAssignmentTool(site)) {
             AssignmentSubmission as;
             try {
                 as = assignmentService.getSubmission(assignmentId, u);
@@ -1714,35 +1711,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         return assignmentService.allowGradeSubmission(reference);
-    }
-
-    protected boolean isHiddenAssignmentInAllSites(List<Site> sites) {
-        //we count the number of sites with assignment tool and the number of assignment tool hidden
-        int numberAssignmentTool=0;
-        int numberAssignmentToolHidden=0;
-        String tid = "";
-        for (Site site : sites) {
-            for (SitePage page : (List<SitePage>)site.getPages()) {
-                for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
-                    tid = tool.getToolId();
-                    if ("sakai.assignment.grades".equals(tid)) { numberAssignmentTool++; }
-                    if ("sakai.assignment.grades".equals(tid) && toolManager.isHidden(tool)) { numberAssignmentToolHidden++; }
-                }
-            }
-        }
-        return (numberAssignmentTool > 0 && numberAssignmentTool == numberAssignmentToolHidden);
-    }
-
-    protected boolean isHiddenAssignmentTool(Site site) {
-        String tid = "";
-        boolean hiddenToolAssignment = false;
-        for (SitePage page : (List<SitePage>)site.getPages()) {
-            for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
-                tid = tool.getToolId();
-                if ("sakai.assignment.grades".equals(tid) && toolManager.isHidden(tool)) { hiddenToolAssignment = true; }
-            }
-        }
-        return hiddenToolAssignment;
     }
 
     @Getter
