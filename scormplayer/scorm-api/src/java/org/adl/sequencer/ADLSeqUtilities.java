@@ -2390,7 +2390,7 @@ public class ADLSeqUtilities {
             return success;
 		}
 
-		log.warn("NOT IMPLEMENTED - ADLSeqUtilies:setGlobalObjSatisfied");
+		log.debug("NOT IMPLEMENTED - ADLSeqUtilies:setGlobalObjSatisfied");
 		return success;
 	}
 

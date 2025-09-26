@@ -777,18 +777,40 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 								}
 							}
 
-                            identifierAttr = DOMTreeUtility.getAttribute(oldItem, "identifier");
-							identifierAttr.setValue(organizationID);
-							DOMTreeUtility.removeAttribute(oldItem, "identifierref");
-						}
+                            try {
+                                identifierAttr = DOMTreeUtility.getAttribute(oldItem, "identifier");
+                                if (identifierAttr != null) {
+                                    identifierAttr.setValue(organizationID);
+                                } else {
+                                    // Create the attribute if it doesn't exist
+                                    Document ownerDoc = oldItem.getOwnerDocument();
+                                    if (ownerDoc != null) {
+                                        Attr newAttr = ownerDoc.createAttribute("identifier");
+                                        newAttr.setValue(organizationID);
+                                        oldItem.getAttributes().setNamedItem(newAttr);
+                                    }
+                                }
+                            } catch (DOMException domExcep) {
+                                log.warn("could not set identifier attribute", domExcep);
+                            }
+                            // Remove identifierref
+                            try {
+                                Attr idrefAttr = DOMTreeUtility.getAttribute(oldItem, "identifierref");
+                                if (idrefAttr != null) {
+                                    DOMTreeUtility.removeAttribute(oldItem, "identifierref");
+                                }
+                            } catch (DOMException domExcep) {
+                                log.warn("could not remove identifierref attribute", domExcep);
+                            }
+                        }
 					}
 				}
 			}
 		}
-		for (int mmCount = 0; mmCount < manifestMaps.size(); mmCount++) {
-			currentManifestMap = (ManifestMap) manifestMaps.get(mmCount);
-			processManifestMap(currentManifestMap, iManifestNode);
-		}
+        for (IManifestMap manifestMap : manifestMaps) {
+            currentManifestMap = (ManifestMap) manifestMap;
+            processManifestMap(currentManifestMap, iManifestNode);
+        }
 		mLogger.exiting("ADLValidatorOutcome", "processManifestMap()");
 	}
 
