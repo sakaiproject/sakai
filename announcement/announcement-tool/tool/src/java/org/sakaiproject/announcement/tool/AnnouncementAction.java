@@ -839,7 +839,8 @@ public class AnnouncementAction extends PagedResourceActionII
 		//Check for MOTD, if yes then is not ok to show permissions button
 		boolean showMerge = !isMotd(channelId) && isOkToShowMergeButton(statusName);
 		boolean showPermissions = !isMotd(channelId) && isOkToShowPermissionsButton(statusName);
-		boolean showOptions = this.isOkToShowOptionsButton(statusName);
+		boolean showOptions = isOkToShowOptionsButton();
+		context.put("showOptionsButton", showOptions);
 
 		ActiveTab activeTab = ActiveTab.LIST;
 		if(statusName != null) switch(statusName) {
@@ -1082,6 +1083,8 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	public String buildOptionsPanelContext(VelocityPortlet portlet, Context context, RunData runData, SessionState state)
 	{
+		context.put("showOptionsButton", isOkToShowOptionsButton());
+
 		// retrieve the state from state object
 		AnnouncementActionState actionState = (AnnouncementActionState) getState(portlet, runData, AnnouncementActionState.class);
 		context.put(CONTEXT_VAR_DISPLAY_OPTIONS, actionState.getDisplayOptions());
@@ -1136,7 +1139,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	/**
 	 * Returns true if it is ok to show the options button in the toolbar.
 	 */
-	private boolean isOkToShowOptionsButton(String statusName)
+	private boolean isOkToShowOptionsButton()
 	{
 		return SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()) && !isOnWorkspaceTab();
 	}
