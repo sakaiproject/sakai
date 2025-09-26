@@ -1,4 +1,4 @@
-import { css, LitElement } from "lit";
+import { LitElement } from "lit";
 import { loadProperties, tr } from "@sakai-ui/sakai-i18n";
 import { getDocumentStyleSheets } from "./global-styles.js";
 
