@@ -39,7 +39,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbFlatStorage;
-import org.sakaiproject.util.BaseDbSingleStorage;
+import org.sakaiproject.util.BaseDbXmlEntityStorage;
 import org.sakaiproject.util.SingleStorageUser;
 import org.sakaiproject.util.StorageUtils;
 import org.sakaiproject.util.StringUtil;
@@ -581,7 +581,7 @@ public abstract class DbAliasService extends BaseAliasService
 	/**
 	 * This is how to access the old chef_alias table (CTools through 2.0.7)
 	 */
-	protected class DbStorageOld extends BaseDbSingleStorage implements Storage
+	protected class DbStorageOld extends BaseDbXmlEntityStorage implements Storage
 	{
 		/**
 		 * Construct.

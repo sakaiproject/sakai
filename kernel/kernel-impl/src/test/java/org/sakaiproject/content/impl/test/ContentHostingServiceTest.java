@@ -328,40 +328,57 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		SqlService m_sqlService = getService(SqlService.class);
 
 		// Make sure that the structure of the CONTENT_ tables passes the "modern schema" test
+		Connection connection = null;
+		Statement statement = null;
 		try {
-			Connection connection = m_sqlService.borrowConnection();
-			Statement statement = connection.createStatement();
+			connection = m_sqlService.borrowConnection();
+			statement = connection.createStatement();
 
-           try {
-                statement.execute("select BINARY_ENTITY from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' " );
-            } catch ( Exception ex ) {
-                Assert.fail();
-            }
-            try {
-                statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );
-            } catch ( Exception ex ) {
-                Assert.fail();
-            }
-            try {
-                statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' " );
-            } catch ( Exception ex ) {
-                Assert.fail();
-            }
-           try {
-                statement.execute("select RESOURCE_SHA256 from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );
-            } catch ( Exception ex ) {
-                Assert.fail();
-            }
+			try {
+				statement.execute("select BINARY_ENTITY from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' ");
+			} catch ( Exception ex ) {
+				Assert.fail();
+			}
+			try {
+				statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' ");
+			} catch ( Exception ex ) {
+				Assert.fail();
+			}
+			try {
+				statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' ");
+			} catch ( Exception ex ) {
+				Assert.fail();
+			}
+			try {
+				statement.execute("select RESOURCE_SHA256 from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' ");
+			} catch ( Exception ex ) {
+				Assert.fail();
+			}
 
-            // Yes, these are a bit less than exciting, post autoDDL - but what they heck -
-            // they should not fail and be correct
-            checkCount("select count(*) from CONTENT_COLLECTION where BINARY_ENTITY IS NULL ", 0);
-            checkCount("select count(*) from CONTENT_RESOURCE where BINARY_ENTITY IS NULL ", 0);
-            checkCount("select count(*) from CONTENT_RESOURCE_DELETE where BINARY_ENTITY IS NULL ", 0);
+			// Yes, these are a bit less than exciting, post autoDDL - but what they heck -
+			// they should not fail and be correct
+			checkCount("select count(*) from CONTENT_COLLECTION where BINARY_ENTITY IS NULL ", 0);
+			checkCount("select count(*) from CONTENT_RESOURCE where BINARY_ENTITY IS NULL ", 0);
+			checkCount("select count(*) from CONTENT_RESOURCE_DELETE where BINARY_ENTITY IS NULL ", 0);
 
-        } catch ( Exception ex ) {
-            Assert.fail();
-        }
+		} catch ( Exception ex ) {
+			Assert.fail();
+		} finally {
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch ( Exception closeEx ) {
+					log.warn("Failed to close statement", closeEx);
+				}
+			}
+			if (connection != null) {
+				try {
+					m_sqlService.returnConnection(connection);
+				} catch ( Exception returnEx ) {
+					log.warn("Failed to return SQL connection", returnEx);
+				}
+			}
+		}
     }
 
 	protected void checkCount(String sql, int expected) throws Exception

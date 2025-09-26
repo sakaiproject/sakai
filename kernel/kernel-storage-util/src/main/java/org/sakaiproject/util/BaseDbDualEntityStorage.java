@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/util/BaseDbSingleStorage.java $
- * $Id: BaseDbSingleStorage.java 82134 2010-09-07 21:52:06Z aaronz@vt.edu $
+ * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/util/BaseDbDualEntityStorage.java $
+ * $Id: BaseDbDualEntityStorage.java 82133 2010-09-07 21:45:01Z aaronz@vt.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 Sakai Foundation
@@ -24,47 +24,57 @@ package org.sakaiproject.util;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.Vector;
 
 import lombok.extern.slf4j.Slf4j;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.serialize.EntityParseException;
+import org.sakaiproject.entity.api.serialize.EntityReader;
+import org.sakaiproject.entity.api.serialize.EntityReaderHandler;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.time.cover.TimeService;
 
 /**
- * Single Storage provides persisting of just resources(no properties, no container).
  * <p>
- * BaseDbSingleStorage is a class that stores Resources (of some type) in a database, <br />
- * provides locked access, and generally implements a services "storage" class. The <br />
- * service's storage class can extend this to provide covers to turn Resource and <br />
+ * BaseDbDualEntityStorage is a class that stores Resources (of some type) in a
+ * database, <br />
+ * provides locked access, and generally implements a services "storage" class.
+ * The resources are encoded into two fields.
+ * Optionally a second storage can be provided which is where the items are loaded
+ * from when a putDeleteResource is called.
+ * The <br />
+ * service's storage class can extend this to provide covers to turn Resource
+ * and <br />
  * Edit into something more type specific to the service.
  * </p>
  * <p>
- * Note: the methods here are all "id" based, with the following assumptions: <br /> - just the Resource Id field is enough to distinguish one
- * Resource from another <br /> - a resource's reference is based on no more than the resource id <br /> - a resource's id cannot change.
+ * Note: the methods here are all "id" based, with the following assumptions:
+ * <br /> - just the Resource Id field is enough to distinguish one Resource
+ * from another <br /> - a resource's reference is based on no more than the
+ * resource id <br /> - a resource's id cannot change.
  * </p>
  * <p>
- * In order to handle Unicode characters properly, the SQL statements executed by this class <br />
- * should not embed Unicode characters into the SQL statement text; rather, Unicode values <br />
- * should be inserted as fields in a PreparedStatement. Databases handle Unicode better in fields.
+ * In order to handle Unicode characters properly, the SQL statements executed
+ * by this class <br />
+ * should not embed Unicode characters into the SQL statement text; rather,
+ * Unicode values <br />
+ * should be inserted as fields in a PreparedStatement. Databases handle Unicode
+ * better in fields.
  * </p>
  */
 @Slf4j
-public class BaseDbSingleStorage implements DbSingleStorage 
+public class BaseDbDualEntityStorage  implements DbSingleStorage
 {
-	public static final String STORAGE_FIELDS = "XML";
+	public static final String STORAGE_FIELDS = "XML, BINARY_ENTITY";
 
 	/** Table name for resource records. */
 	protected String m_resourceTableName = null;
@@ -72,7 +82,10 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	/** The field in the resource table that holds the resource id. */
 	protected String m_resourceTableIdField = null;
 
-	/** The additional field names in the resource table that go between the two ids and the xml */
+	/**
+	 * The additional field names in the resource table that go between the two
+	 * ids and the xml
+	 */
 	protected String[] m_resourceTableOtherFields = null;
 
 	/** The xml tag name for the element holding each actual resource entry. */
@@ -81,15 +94,18 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	/** If true, we do our locks in the remote database. */
 	protected boolean m_locksAreInDb = false;
 
-	/** If true, we do our locks in the remove database using a separate locking table. */
+	/**
+	 * If true, we do our locks in the remove database using a separate locking
+	 * table.
+	 */
 	protected boolean m_locksAreInTable = true;
 
 	/** The StorageUser to callback for new Resource and Edit objects. */
 	protected SingleStorageUser m_user = null;
 
 	/**
-	 * Locks, keyed by reference, holding Connections (or, if locks are done locally, holding an Edit).
-	 * Obviously this doesn't enable locking in a clustered environment.
+	 * Locks, keyed by reference, holding Connections (or, if locks are done
+	 * locally, holding an Edit).
 	 */
 	protected Hashtable m_locks = null;
 
@@ -100,35 +116,47 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	protected SqlService m_sql = null;
 
 	/** contains a map of the database dependent handlers. */
-	protected static Map<String, SingleStorageSql> databaseBeans;
+	protected static Map<String, MultiSingleStorageSql> databaseBeans;
 
 	/** The db handler we are using. */
-	protected SingleStorageSql singleStorageSql;
+	protected MultiSingleStorageSql singleStorageSql;
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#setDatabaseBeans(java.util.Map)
-	 */
+	private long ttotal = 0;
+
+	private int ntime = 0;
+
+	private int rntime = 0;
+
+	private long rttotal = 0;
+
+	private long rmtotal = 0;
+
+	private long mtotal = 0;
+
 	public void setDatabaseBeans(Map databaseBeans)
 	{
 		this.databaseBeans = databaseBeans;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#setSingleStorageSql(java.lang.String)
+	/**
+	 * sets which bean containing database dependent code should be used
+	 * depending on the database vendor.
 	 */
 	public void setSingleStorageSql(String vendor)
 	{
-		this.singleStorageSql = (databaseBeans.containsKey(vendor) ? databaseBeans.get(vendor) : databaseBeans.get("default"));
+		this.singleStorageSql = (databaseBeans.containsKey(vendor) ? databaseBeans
+				.get(vendor) : databaseBeans.get("default"));
 	}
 
-	// since spring is not used and this class is instatiated directly, we need to "inject" these values ourselves
+	// since spring is not used and this class is instatiated directly, we need
+	// to "inject" these values ourselves
 	static
 	{
-		databaseBeans = new Hashtable<String, SingleStorageSql>();
-		databaseBeans.put("default", new SingleStorageSqlDefault());
-		databaseBeans.put("hsql", new SingleStorageSqlHSql());
-		databaseBeans.put("mysql", new SingleStorageSqlMySql());
-		databaseBeans.put("oracle", new SingleStorageSqlOracle());
+		databaseBeans = new Hashtable<String, MultiSingleStorageSql>();
+		databaseBeans.put("default", new MultiSingleStorageSqlDefault(STORAGE_FIELDS));
+		databaseBeans.put("hsql", new MultiSingleStorageSqlHSql(STORAGE_FIELDS));
+		databaseBeans.put("mysql", new MultiSingleStorageSqlMySql(STORAGE_FIELDS));
+		databaseBeans.put("oracle", new MultiSingleStorageSqlOracle(STORAGE_FIELDS));
 	}
 
 	/**
@@ -139,23 +167,28 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	 * @param resourceTableIdField
 	 *        The field in the resource table that holds the id.
 	 * @param resourceTableOtherFields
-	 *        The other fields in the resource table (between the two id and the xml fields).
+	 *        The other fields in the resource table (between the two id and the
+	 *        xml fields).
 	 * @param locksInDb
-	 *        If true, we do our locks in the remote database, otherwise we do them here.
+	 *        If true, we do our locks in the remote database, otherwise we do
+	 *        them here.
 	 * @param resourceEntryName
-	 *        The xml tag name for the element holding each actual resource entry.
+	 *        The xml tag name for the element holding each actual resource
+	 *        entry.
 	 * @param user
-	 *        The StorageUser class to call back for creation of Resource and Edit objects.
+	 *        The StorageUser class to call back for creation of Resource and
+	 *        Edit objects. This must implement EntityReader interface as well.
 	 * @param sqlService
 	 *        The SqlService.
 	 */
-	public BaseDbSingleStorage(String resourceTableName, String resourceTableIdField, String[] resourceTableOtherFields, boolean locksInDb,
-			String resourceEntryName, SingleStorageUser user, SqlService sqlService)
+	public BaseDbDualEntityStorage(String resourceTableName, String resourceTableIdField,
+	        String[] resourceTableOtherFields, boolean locksInDb,
+	        String resourceEntryName, SingleStorageUser user, SqlService sqlService)
 	{
 	    this(resourceTableName, resourceTableIdField, resourceTableOtherFields, locksInDb, resourceEntryName, user, sqlService, null);
 	}
 
-	// support for SAK-12874
+    // support for SAK-12874
 	protected DbSingleStorage m_storage = null;
 
     /**
@@ -166,19 +199,24 @@ public class BaseDbSingleStorage implements DbSingleStorage
      * @param resourceTableIdField
      *        The field in the resource table that holds the id.
      * @param resourceTableOtherFields
-     *        The other fields in the resource table (between the two id and the xml fields).
+     *        The other fields in the resource table (between the two id and the
+     *        xml fields).
      * @param locksInDb
-     *        If true, we do our locks in the remote database, otherwise we do them here.
+     *        If true, we do our locks in the remote database, otherwise we do
+     *        them here.
      * @param resourceEntryName
-     *        The xml tag name for the element holding each actual resource entry.
+     *        The xml tag name for the element holding each actual resource
+     *        entry.
      * @param user
-     *        The StorageUser class to call back for creation of Resource and Edit objects.
+     *        The StorageUser class to call back for creation of Resource and
+     *        Edit objects.
      * @param sqlService
      *        The SqlService.
      * @param storage
-     *        The storage for the normal resource (only used by delete storage)
+     *        The storage for the normal resource (only used by delete storage), this is how we load the original resource.
      */
-	public BaseDbSingleStorage(String resourceTableName, String resourceTableIdField, String[] resourceTableOtherFields, boolean locksInDb,
+    public BaseDbDualEntityStorage(String resourceTableName, String resourceTableIdField,
+	        String[] resourceTableOtherFields, boolean locksInDb,
 	        String resourceEntryName, SingleStorageUser user, SqlService sqlService,
 	        DbSingleStorage storage)
 	{
@@ -191,17 +229,17 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	    m_sql = sqlService;
 
 	    // support for SAK-12874
-        m_storage = storage;
-        if (m_storage == null && m_resourceTableName != null && m_resourceTableName.toUpperCase().contains("DELETE")) {
-            // warn if the delete storage does not have the main storage set
-            log.warn("resource storage is not set, delete table resource file paths will be invalid");
-        }
+	    m_storage = storage;
+	    if (m_storage == null && m_resourceTableName != null && m_resourceTableName.toUpperCase().contains("DELETE")) {
+	        // warn if the delete storage does not have the main storage set
+	        log.warn("resource storage is not set, delete table resource file paths will be invalid");
+	    }
 
 	    setSingleStorageSql(m_sql.getVendor());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#open()
+	/**
+	 * Open and be ready to read / write.
 	 */
 	public void open()
 	{
@@ -209,8 +247,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		m_locks = new Hashtable();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#close()
+	/**
+	 * Close.
 	 */
 	public void close()
 	{
@@ -230,57 +268,66 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	 *        An string containing the xml which describes the resource.
 	 * @return The Resource object created from the xml.
 	 */
-	protected Entity readResource(String xml)
+	protected Entity readResource(String xml, byte[] blob)
 	{
+		Runtime r = Runtime.getRuntime();
+		long ms = r.freeMemory();
+		long start = System.currentTimeMillis();
+		String type = "";
 		try
 		{
-			if (m_user instanceof SAXEntityReader)
-			{
-				SAXEntityReader sm_user = (SAXEntityReader) m_user;
-				DefaultEntityHandler deh = sm_user.getDefaultHandler(sm_user
-						.getServices());
-				StorageUtils.processString(xml, deh);
-				return deh.getEntity();
-			}
-			else
-			{
-				// read the xml
-				Document doc = StorageUtils.readDocumentFromString(xml);
-				if (doc == null)
-				{
-					log.warn("readResource(): failed to parse resource XML");
-					return null;
-				}
-
-				// verify the root element
-				Element root = doc.getDocumentElement();
-				if (!root.getTagName().equals(m_resourceEntryTagName))
-				{
-					log.warn("readResource(): not = " + m_resourceEntryTagName + " : "
-							+ root.getTagName());
-					return null;
-				}
-
-				// re-create a resource
-				Entity entry = m_user.newResource(null, root);
-
-				return entry;
-			}
+			type = "direct";
+			EntityReader de_user = (EntityReader) m_user;
+			EntityReaderHandler de_handler = de_user.getHandler();
+			return de_handler.parse(null, xml, blob);
 		}
 		catch (Exception e)
 		{
-			log.debug("readResource(): ", e);
+			log.warn("readResource(): " + e.getMessage());
+			log.warn("readResource(): ", e);
 			return null;
+		}
+		finally
+		{
+			long t = System.currentTimeMillis() - start;
+			long me = r.freeMemory();
+			long md = ms - me;
+			if (md >= 0)
+			{
+				rmtotal += md;
+			}
+			else
+			{
+				if (rntime != 0)
+				{
+					rmtotal += (rmtotal / rntime);
+				}
+			}
+			rttotal += t;
+			rntime++;
+			if (rntime % 100 == 0)
+			{
+				double a = (1.0 * rttotal) / (1.0 * rntime);
+				double m = (1.0 * rmtotal) / (1.0 * rntime);
+				log.debug("Average " + type + " Parse now " + (a) + "ms " + m
+						+ " bytes");
+			}
+
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#checkResource(java.lang.String)
+	/**
+	 * Check if a Resource by this id exists.
+	 * 
+	 * @param id
+	 *        The id.
+	 * @return true if a Resource by this id exists, false if not.
 	 */
 	public boolean checkResource(String id)
 	{
 		// just see if the record exists
-		String sql = singleStorageSql.getResourceIdSql(m_resourceTableIdField, m_resourceTableName);
+		String sql = singleStorageSql.getResourceIdSql(m_resourceTableIdField,
+				m_resourceTableName);
 
 		Object fields[] = new Object[1];
 		fields[0] = caseId(id);
@@ -289,31 +336,34 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return (!ids.isEmpty());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#getResource(java.lang.String)
+	/**
+	 * Get the Resource with this id, or null if not found.
+	 * 
+	 * @param id
+	 *        The id.
+	 * @return The Resource with this id, or null if not found.
 	 */
 	public Entity getResource(String id)
 	{
 		Entity entry = null;
 
 		// get the user from the db
-		String sql = singleStorageSql.getXmlSql(m_resourceTableIdField, m_resourceTableName);
-
+		List xml = null;
+		String sql = singleStorageSql.getXmlSql(m_resourceTableIdField,
+				m_resourceTableName);
 		Object fields[] = new Object[1];
 		fields[0] = caseId(id);
-		List xml = m_sql.dbRead(sql, fields, null);
+		xml = loadResources(sql, fields);
+
 		if (!xml.isEmpty())
 		{
 			// create the Resource from the db xml
-			entry = readResource((String) xml.get(0));
+			entry = (Entity) xml.get(0);
 		}
 
 		return entry;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#isEmpty()
-	 */
 	public boolean isEmpty()
 	{
 		// count
@@ -321,25 +371,22 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return (count == 0);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#getAllResources()
-	 */
 	public List getAllResources()
 	{
 		List all = new Vector();
 
 		// read all users from the db
+		List xml = null;
 		String sql = singleStorageSql.getXmlSql(m_resourceTableName);
+		xml = loadResources(sql, null);
 		// %%% + "order by " + m_resourceTableOrderField + " asc";
-
-		List xml = m_sql.dbRead(sql);
 
 		// process all result xml into user objects
 		if (!xml.isEmpty())
 		{
 			for (int i = 0; i < xml.size(); i++)
 			{
-				Entity entry = readResource((String) xml.get(i));
+				Entity entry = (Entity) xml.get(i);
 				if (entry != null) all.add(entry);
 			}
 		}
@@ -347,14 +394,14 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return all;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#getAllResources(int, int)
-	 */
 	public List getAllResources(int first, int last)
 	{
-		String sql = singleStorageSql.getXmlSql(m_resourceTableIdField, m_resourceTableName, first, last);
 		Object[] fields = singleStorageSql.getXmlFields(first, last);
-		List xml = m_sql.dbRead(sql, fields, null);
+		List xml = null;
+		String sql = singleStorageSql.getXmlSql(m_resourceTableIdField,
+				m_resourceTableName, first, last);
+		xml = loadResources(sql, fields);
+
 		List rv = new Vector();
 
 		// process all result xml into user objects
@@ -362,7 +409,7 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		{
 			for (int i = 0; i < xml.size(); i++)
 			{
-				Entity entry = readResource((String) xml.get(i));
+				Entity entry = (Entity) xml.get(i);
 				if (entry != null) rv.add(entry);
 			}
 		}
@@ -370,12 +417,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return rv;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#countAllResources()
-	 */
 	public int countAllResources()
 	{
-
 		// read all count
 		String sql = singleStorageSql.getNumRowsSql(m_resourceTableName);
 
@@ -400,9 +443,6 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return ((Integer) results.get(0)).intValue();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#countSelectedResourcesWhere(java.lang.String)
-	 */
 	public int countSelectedResourcesWhere(String sqlWhere)
 	{
 		// read all where count
@@ -428,8 +468,14 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return ((Integer) results.get(0)).intValue();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#getAllResourcesWhere(java.lang.String, java.lang.String)
+	/**
+	 * Get all Resources where the given field matches the given value.
+	 * 
+	 * @param field
+	 *        The db field name for the selection.
+	 * @param value
+	 *        The value to select.
+	 * @return The list of all Resources that meet the criteria.
 	 */
 	public List getAllResourcesWhere(String field, String value)
 	{
@@ -438,7 +484,25 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		Object[] fields = new Object[1];
 		fields[0] = value;
 		// %%% + "order by " + m_resourceTableOrderField + " asc";
+		return loadResources(sql, fields);
+	}
 
+	/**
+	 * Get all Resources where the given field matches the given value.
+	 * 
+	 * @param field
+	 *        The db field name for the selection.
+	 * @param value
+	 *        The value to select.
+	 * @return The list of all Resources that meet the criteria.
+	 */
+	public List getAllResourcesWhere(String selectBy, String selectByValue, String orderBy, int first, int pageSize)
+	{
+		// read all users from the db
+		String sql = singleStorageSql.getXmlWhereLimitSql(selectBy, orderBy, m_resourceTableName, first, pageSize);
+		Object[] fields = new Object[1];
+		fields[0] = selectByValue;
+		// %%% + "order by " + m_resourceTableOrderField + " asc";
 		return loadResources(sql, fields);
 	}
 
@@ -451,9 +515,7 @@ public class BaseDbSingleStorage implements DbSingleStorage
 				try
 				{
 					// create the Resource from the db xml
-					String xml = result.getString(1);
-					Entity entry = readResource(xml);
-					return entry;
+					return readResource(result.getString(1), result.getBytes(2));
 				}
 				catch (SQLException ignore)
 				{
@@ -464,31 +526,6 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return all;
 	}
 
-	/**
-	 * Get a limited number of Resources a given field matches a given value, returned in ascending order 
-	 * by another field.  The limit on the number of rows is specified by values for the first item to be 
-	 * retrieved (indexed from 0) and the maxCount.
-	 * @param selectBy The name of a field to be used in selecting resources.
-	 * @param selectByValue The value to select.
-	 * @param orderBy The name of a field to be used in ordering the resources.
-	 * @param tableName The table on which the query is to operate
-	 * @param first A non-negative integer indicating the first record to return
-	 * @param maxCount A positive integer indicating the maximum number of rows to return
-	 * @return The list of all Resources that meet the criteria.
-	 */
-	public List getAllResourcesWhere(String selectBy, String selectByValue, String orderBy, int first, int maxCount)
-	{
-		// read all users from the db
-		String sql = singleStorageSql.getXmlWhereLimitSql(selectBy, orderBy, m_resourceTableName, first, maxCount);
-		Object[] fields = new Object[1];
-		fields[0] = selectByValue;
-		// %%% + "order by " + m_resourceTableOrderField + " asc";
-		return loadResources(sql, fields);
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#getAllResourcesWhereLike(java.lang.String, java.lang.String)
-	 */
 	public List getAllResourcesWhereLike(String field, String value)
 	{
 		String sql = singleStorageSql.getXmlLikeSql(field, m_resourceTableName);
@@ -499,15 +536,19 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return loadResources(sql, fields);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#getSelectedResources(org.sakaiproject.javax.Filter)
+	/**
+	 * Get selected Resources, filtered by a test on the id field
+	 * 
+	 * @param filter
+	 *        A filter to select what gets returned.
+	 * @return The list of selected Resources.
 	 */
 	public List getSelectedResources(final Filter filter)
 	{
 		List all = new Vector();
-
 		// read all users from the db
-		String sql = singleStorageSql.getXmlAndFieldSql(m_resourceTableIdField, m_resourceTableName);
+		String sql = singleStorageSql.getXmlAndFieldSql(m_resourceTableIdField,
+				m_resourceTableName);
 		// %%% + "order by " + m_resourceTableOrderField + " asc";
 
 		List xml = m_sql.dbRead(sql, null, new SqlReader()
@@ -521,10 +562,11 @@ public class BaseDbSingleStorage implements DbSingleStorage
 
 					// read the xml
 					String xml = result.getString(2);
+					byte[] blob = result.getBytes(3);
 
 					if (!filter.accept(caseId(id))) return null;
 
-					return xml;
+					return readResource(xml, blob);
 				}
 				catch (SQLException ignore)
 				{
@@ -532,13 +574,12 @@ public class BaseDbSingleStorage implements DbSingleStorage
 				}
 			}
 		});
-
 		// process all result xml into user objects
 		if (!xml.isEmpty())
 		{
 			for (int i = 0; i < xml.size(); i++)
 			{
-				Entity entry = readResource((String) xml.get(i));
+				Entity entry = (Entity) xml.get(i);
 				if (entry != null) all.add(entry);
 			}
 		}
@@ -546,8 +587,12 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return all;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#getSelectedResourcesWhere(java.lang.String)
+	/**
+	 * Get selected Resources, using a supplied where clause
+	 * 
+	 * @param sqlWhere
+	 *        The SQL where clause.
+	 * @return The list of selected Resources.
 	 */
 	public List getSelectedResourcesWhere(String sqlWhere)
 	{
@@ -555,16 +600,13 @@ public class BaseDbSingleStorage implements DbSingleStorage
 
 		// read all users from the db
 		String sql = singleStorageSql.getXmlWhereSql(m_resourceTableName, sqlWhere);
-		// %%% + "order by " + m_resourceTableOrderField + " asc";
-
-		List xml = m_sql.dbRead(sql);
-
+		List xml = loadResources(sql, null);
 		// process all result xml into user objects
 		if (!xml.isEmpty())
 		{
 			for (int i = 0; i < xml.size(); i++)
 			{
-				Entity entry = readResource((String) xml.get(i));
+				Entity entry = (Entity) xml.get(i);
 				if (entry != null) all.add(entry);
 			}
 		}
@@ -572,8 +614,15 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return all;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#putResource(java.lang.String, java.lang.Object[])
+	/**
+	 * Add a new Resource with this id.
+	 * 
+	 * @param id
+	 *        The id.
+	 * @param others
+	 *        Other fields for the newResource call
+	 * @return The locked Resource object with this id, or null if the id is in
+	 *         use.
 	 */
 	public Edit putResource(String id, Object[] others)
 	{
@@ -581,19 +630,34 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		Entity entry = m_user.newResource(null, id, others);
 
 		// form the XML and SQL for the insert
-		Document doc = StorageUtils.createDocument();
-		entry.toXml(doc, new Stack());
-		String xml = StorageUtils.writeDocumentToString(doc);
-		String statement = // singleStorageSql.
-		"insert into " + m_resourceTableName + insertFields(m_resourceTableIdField, m_resourceTableOtherFields, "XML") + " values ( ?, "
-				+ valuesParams(m_resourceTableOtherFields) + " ? )";
+		Object blob = getBlob(entry);
+		String statement = null;
+		if (blob instanceof byte[])
+		{
+			statement = // singleStorageSql.
+			"insert into "
+					+ m_resourceTableName
+					+ insertFields(m_resourceTableIdField, m_resourceTableOtherFields,
+							"BINARY_ENTITY, XML") + " values ( ?, "
+					+ valuesParams(m_resourceTableOtherFields) + " ? , NULL )";
+		}
+		else
+		{
+			statement = // singleStorageSql.
+			"insert into "
+					+ m_resourceTableName
+					+ insertFields(m_resourceTableIdField, m_resourceTableOtherFields,
+							"XML, BINARY_ENTITY ") + " values ( ?, "
+					+ valuesParams(m_resourceTableOtherFields) + " ?, NULL )";
+
+		}
 
 		Object[] flds = m_user.storageFields(entry);
 		if (flds == null) flds = new Object[0];
 		Object[] fields = new Object[flds.length + 2];
 		System.arraycopy(flds, 0, fields, 1, flds.length);
 		fields[0] = caseId(entry.getId());
-		fields[fields.length - 1] = xml;
+		fields[fields.length - 1] = blob;
 
 		// process the insert
 		boolean ok = m_sql.dbWrite(statement, fields);
@@ -612,30 +676,45 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return edit;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#putDeleteResource(java.lang.String, java.lang.String, java.lang.String, java.lang.Object[])
+	/**
+	 * store the record in content_resource_delete table along with
+	 * resource_uuid and date
 	 */
 	public Edit putDeleteResource(String id, String uuid, String userId, Object[] others)
 	{
-        // support for SAK-12874
-        Entity entry = null;
-        if (m_storage != null) {
-            // use the object being deleted
-            entry = m_storage.getResource(id);
-        }
-        if (entry == null) {
-            // failsafe to the old method
-            entry = m_user.newResource(null, id, others);
-        }
-		//Entity entry = m_user.newResource(null, id, others);
+	    // support for SAK-12874
+		Entity entry = null;
+		if (m_storage != null) {
+		    // use the object being deleted
+		    entry = m_storage.getResource(id);
+		}
+		if (entry == null) {
+		    // failsafe to the old method
+		    entry = m_user.newResource(null, id, others);
+		}
 
 		// form the XML and SQL for the insert
-		Document doc = StorageUtils.createDocument();
-		entry.toXml(doc, new Stack());
-		String xml = StorageUtils.writeDocumentToString(doc);
-		String statement = "insert into " + m_resourceTableName
-				+ insertDeleteFields(m_resourceTableIdField, m_resourceTableOtherFields, "RESOURCE_UUID", "DELETE_DATE", "DELETE_USERID", "XML")
-				+ " values ( ?, " + valuesParams(m_resourceTableOtherFields) + " ? ,? ,? ,?)";
+		Object blob = getBlob(entry);
+		String statement = null;
+		if (blob instanceof byte[])
+		{
+			statement = "insert into "
+					+ m_resourceTableName
+					+ insertDeleteFields(m_resourceTableIdField,
+							m_resourceTableOtherFields, "RESOURCE_UUID", "DELETE_DATE",
+							"DELETE_USERID", "BINARY_ENTITY, XML") + " values ( ?, "
+					+ valuesParams(m_resourceTableOtherFields) + " ? ,? ,? ,?, NULL)";
+
+		}
+		else
+		{
+			statement = "insert into "
+					+ m_resourceTableName
+					+ insertDeleteFields(m_resourceTableIdField,
+							m_resourceTableOtherFields, "RESOURCE_UUID", "DELETE_DATE",
+							"DELETE_USERID", "XML, BINARY_ENTITY") + " values ( ?, "
+					+ valuesParams(m_resourceTableOtherFields) + " ? ,? ,? ,?, NULL)";
+		}
 
 		Object[] flds = m_user.storageFields(entry);
 		if (flds == null) flds = new Object[0];
@@ -649,7 +728,7 @@ public class BaseDbSingleStorage implements DbSingleStorage
 
 		// userId added here
 		fields[fields.length - 2] = userId;
-		fields[fields.length - 1] = xml;
+		fields[fields.length - 1] = blob;
 
 		// process the insert
 		boolean ok = m_sql.dbWrite(statement, fields);
@@ -669,7 +748,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	}
 
 	/** Construct the SQL statement */
-	protected String insertDeleteFields(String before, String[] fields, String uuid, String date, String userId, String after)
+	protected String insertDeleteFields(String before, String[] fields, String uuid,
+			String date, String userId, String after)
 	{
 		StringBuilder buf = new StringBuilder();
 		buf.append(" (");
@@ -694,23 +774,31 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return buf.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#commitDeleteResource(org.sakaiproject.entity.api.Edit, java.lang.String)
-	 */
+	/** update XML attribute on properties and remove locks */
 	public void commitDeleteResource(Edit edit, String uuid)
 	{
 		// form the SQL statement and the var w/ the XML
-		Document doc = StorageUtils.createDocument();
-		edit.toXml(doc, new Stack());
-		String xml = StorageUtils.writeDocumentToString(doc);
+		Object blob = getBlob(edit);
+		String statement = null;
+		if (blob instanceof byte[])
+		{
+			statement = "update " + m_resourceTableName + " set "
+					+ updateSet(m_resourceTableOtherFields)
+					+ " BINARY_ENTITY = ?, XML = NULL where ( RESOURCE_UUID = ? )";
+
+		}
+		else
+		{
+			statement = "update " + m_resourceTableName + " set "
+					+ updateSet(m_resourceTableOtherFields)
+					+ " XML = ?, BINARY_ENTITY = NULL where ( RESOURCE_UUID = ? )";
+		}
 		Object[] flds = m_user.storageFields(edit);
 		if (flds == null) flds = new Object[0];
 		Object[] fields = new Object[flds.length + 2];
 		System.arraycopy(flds, 0, fields, 0, flds.length);
-		fields[fields.length - 2] = xml;
+		fields[fields.length - 2] = blob;
 		fields[fields.length - 1] = uuid;// caseId(edit.getId());
-
-		String statement = "update " + m_resourceTableName + " set " + updateSet(m_resourceTableOtherFields) + " XML = ? where ( RESOURCE_UUID = ? )";
 
 		if (m_locksAreInDb)
 		{
@@ -742,7 +830,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				log.warn("commit: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+				log.warn("commit: missing lock for table: " + lockFields[0] + " key: "
+						+ lockFields[1]);
 			}
 		}
 		else
@@ -755,8 +844,14 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#editResource(java.lang.String)
+	/**
+	 * Get a lock on the Resource with this id, or null if a lock cannot be
+	 * gotten.
+	 * 
+	 * @param id
+	 *        The user id.
+	 * @return The locked Resource with this id, or null if this records cannot
+	 *         be locked.
 	 */
 	public Edit editResource(String id)
 	{
@@ -766,17 +861,68 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		{
 			if ("oracle".equals(m_sql.getVendor()))
 			{
-				// read the record and get a lock on it (non blocking)
-				String statement = "select XML from " + m_resourceTableName + " where ( " + m_resourceTableIdField + " = '"
-						+ StorageUtils.escapeSql(caseId(id)) + "' )" + " for update nowait";
-				StringBuilder result = new StringBuilder();
-				Connection lock = m_sql.dbReadLock(statement, result);
+				final List<Entity> l = new ArrayList<Entity>();
+				Connection lock = null;
+				if (m_user instanceof EntityReaderHandler)
+				{
+					// read the record and get a lock on it (non blocking)
+					String statement = "select XML from " + m_resourceTableName
+							+ " where ( " + m_resourceTableIdField + " = '"
+							+ StorageUtils.escapeSql(caseId(id)) + "' )"
+							+ " for update nowait";
+					lock = m_sql.dbReadLock(statement, new SqlReader()
+					{
+
+						public Object readSqlResultRecord(ResultSet result)
+						{
+							try
+							{
+								l.add(readResource(result.getString(1), result
+										.getBytes(2)));
+							}
+							catch (SQLException e)
+							{
+								log.warn("Failed to retrieve record ", e);
+							}
+							return null;
+						}
+
+					});
+				}
+				else
+				{
+					// read the record and get a lock on it (non blocking)
+					String statement = "select BENTRY, XML from " + m_resourceTableName
+							+ " where ( " + m_resourceTableIdField + " = '"
+							+ StorageUtils.escapeSql(caseId(id)) + "' )"
+							+ " for update nowait";
+					lock = m_sql.dbReadLock(statement, new SqlReader()
+					{
+
+						public Object readSqlResultRecord(ResultSet result)
+						{
+
+							try
+							{
+								l.add(readResource(result.getString(1), result
+										.getBytes(2)));
+							}
+							catch (SQLException e)
+							{
+								log.warn("Failed to retrieve record ", e);
+							}
+							return null;
+						}
+
+					});
+
+				}
 
 				// for missing or already locked...
-				if ((lock == null) || (result.length() == 0)) return null;
+				if ((lock == null) || (l.size() == 0)) return null;
 
 				// make first a Resource, then an Edit
-				Entity entry = readResource(result.toString());
+				Entity entry = l.get(0);
 				edit = m_user.newResourceEdit(null, entry);
 
 				// store the lock for this object
@@ -784,7 +930,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 			}
 			else
 			{
-				throw new UnsupportedOperationException("Record locking only available when configured with Oracle database");
+				throw new UnsupportedOperationException(
+						"Record locking only available when configured with Oracle database");
 			}
 		}
 
@@ -802,7 +949,7 @@ public class BaseDbSingleStorage implements DbSingleStorage
 			String sessionId = UsageSessionService.getSessionId();
 			if (sessionId == null)
 			{
-				sessionId = ""; // TODO - "" gets converted to a null and will never be able to be cleaned up -AZ (SAK-11841)
+				sessionId = "";
 			}
 
 			// collect the fields
@@ -830,7 +977,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 			Entity entry = getResource(id);
 			if (entry == null) return null;
 
-			// we only sync this getting - someone may release a lock out of sync
+			// we only sync this getting - someone may release a lock out of
+			// sync
 			synchronized (m_locks)
 			{
 				// if already locked
@@ -847,25 +995,39 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		return edit;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#commitResource(org.sakaiproject.entity.api.Edit)
+	/**
+	 * Commit the changes and release the lock.
+	 * 
+	 * @param user
+	 *        The Edit to commit.
 	 */
 	public void commitResource(Edit edit)
 	{
 		// form the SQL statement and the var w/ the XML
-		Document doc = StorageUtils.createDocument();
-		edit.toXml(doc, new Stack());
-		String xml = StorageUtils.writeDocumentToString(doc);
+		Object blob = getBlob(edit);
+		String statement = null;
+		if (blob instanceof byte[])
+		{
+			statement = "update " + m_resourceTableName + " set "
+					+ updateSet(m_resourceTableOtherFields) + " BINARY_ENTITY = ?, XML = NULL where ( "
+					+ m_resourceTableIdField + " = ? )";
+
+		}
+		else
+		{
+			statement = "update " + m_resourceTableName + " set "
+					+ updateSet(m_resourceTableOtherFields) + " XML = ?, BINARY_ENTITY = NULL where ( "
+					+ m_resourceTableIdField + " = ? )";
+		}
 		Object[] flds = m_user.storageFields(edit);
 		if (flds == null) flds = new Object[0];
 		Object[] fields = new Object[flds.length + 2];
 		System.arraycopy(flds, 0, fields, 0, flds.length);
-		fields[fields.length - 2] = xml;
+		fields[fields.length - 2] = blob;
 		fields[fields.length - 1] = caseId(edit.getId());
 
-		String statement = "update " + m_resourceTableName + " set " + updateSet(m_resourceTableOtherFields) + " XML = ? where ( "
-				+ m_resourceTableIdField + " = ? )";
-		// singleStorageSql.getUpdateXml(m_resourceTableIdField, m_resourceTableOtherFields, m_resourceTableName);
+		// singleStorageSql.getUpdateXml(m_resourceTableIdField,
+		// m_resourceTableOtherFields, m_resourceTableName);
 
 		if (m_locksAreInDb)
 		{
@@ -899,7 +1061,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				log.warn("commit: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+				log.warn("commit: missing lock for table: " + lockFields[0] + " key: "
+						+ lockFields[1]);
 			}
 		}
 
@@ -913,8 +1076,11 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#cancelResource(org.sakaiproject.entity.api.Edit)
+	/**
+	 * Cancel the changes and release the lock.
+	 * 
+	 * @param user
+	 *        The Edit to cancel.
 	 */
 	public void cancelResource(Edit edit)
 	{
@@ -947,7 +1113,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				log.warn("cancel: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+				log.warn("cancel: missing lock for table: " + lockFields[0] + " key: "
+						+ lockFields[1]);
 			}
 		}
 
@@ -958,13 +1125,17 @@ public class BaseDbSingleStorage implements DbSingleStorage
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.util.DbSingleStorage#removeResource(org.sakaiproject.entity.api.Edit)
+	/**
+	 * Remove this (locked) Resource.
+	 * 
+	 * @param user
+	 *        The Edit to remove.
 	 */
 	public void removeResource(Edit edit)
 	{
 		// form the SQL delete statement
-		String statement = singleStorageSql.getDeleteSql(m_resourceTableIdField, m_resourceTableName);
+		String statement = singleStorageSql.getDeleteSql(m_resourceTableIdField,
+				m_resourceTableName);
 
 		Object fields[] = new Object[1];
 		fields[0] = caseId(edit.getId());
@@ -979,7 +1150,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 				return;
 			}
 
-			// process the delete statement, commit, and release the lock's connection
+			// process the delete statement, commit, and release the lock's
+			// connection
 			m_sql.dbUpdateCommit(statement, fields, null, lock);
 
 			// release the lock
@@ -1001,7 +1173,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 			boolean ok = m_sql.dbWrite(statement, lockFields);
 			if (!ok)
 			{
-				log.warn("remove: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+				log.warn("remove: missing lock for table: " + lockFields[0] + " key: "
+						+ lockFields[1]);
 			}
 		}
 		else
@@ -1015,11 +1188,13 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	}
 
 	/**
-	 * Form a string of n question marks with commas, for sql value statements, one for each item in the values array, or an empty string if null.
+	 * Form a string of n question marks with commas, for sql value statements,
+	 * one for each item in the values array, or an empty string if null.
 	 * 
 	 * @param values
 	 *        The values to be inserted into the sql statement.
-	 * @return A sql statement fragment for the values part of an insert, one for each value in the array.
+	 * @return A sql statement fragment for the values part of an insert, one
+	 *         for each value in the array.
 	 */
 	protected String valuesParams(String[] fields)
 	{
@@ -1033,11 +1208,13 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	}
 
 	/**
-	 * Form a string of n name=?, for sql update set statements, one for each item in the values array, or an empty string if null.
+	 * Form a string of n name=?, for sql update set statements, one for each
+	 * item in the values array, or an empty string if null.
 	 * 
 	 * @param values
 	 *        The values to be inserted into the sql statement.
-	 * @return A sql statement fragment for the values part of an insert, one for each value in the array.
+	 * @return A sql statement fragment for the values part of an insert, one
+	 *         for each value in the array.
 	 */
 	protected String updateSet(String[] fields)
 	{
@@ -1051,7 +1228,8 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	}
 
 	/**
-	 * Form a string of (field, field, field), for sql insert statements, one for each item in the fields array, plus one before, and one after.
+	 * Form a string of (field, field, field), for sql insert statements, one
+	 * for each item in the fields array, plus one before, and one after.
 	 * 
 	 * @param before
 	 *        The first field name.
@@ -1113,8 +1291,10 @@ public class BaseDbSingleStorage implements DbSingleStorage
 	}
 
 	/**
-	 * Return a record ID to use internally in the database. This is needed for databases (MySQL) that have limits on key lengths. The hash code
-	 * ensures that the record ID will be unique, even if the DB only considers a prefix of a very long record ID.
+	 * Return a record ID to use internally in the database. This is needed for
+	 * databases (MySQL) that have limits on key lengths. The hash code ensures
+	 * that the record ID will be unique, even if the DB only considers a prefix
+	 * of a very long record ID.
 	 * 
 	 * @param recordId
 	 * @return The record ID to use internally in the database
@@ -1132,4 +1312,59 @@ public class BaseDbSingleStorage implements DbSingleStorage
 			return recordId;
 		}
 	}
+
+	/**
+	 * @param entry
+	 * @return
+	 */
+	private Object getBlob(Entity entry)
+	{
+		Runtime r = Runtime.getRuntime();
+		long ms = r.freeMemory();
+		long start = System.currentTimeMillis();
+		try
+		{
+			EntityReader er_user = (EntityReader) m_user;
+			try
+			{
+
+				EntityReaderHandler erHandler = er_user.getHandler();
+				return erHandler.serialize(entry);
+
+			}
+			catch (EntityParseException ep)
+			{
+				log.warn("Unable to Serialize Entity, falling back to XML "
+						+ entry.getId(), ep);
+			}
+			return null;
+		}
+		finally
+		{
+			long t = System.currentTimeMillis() - start;
+			long me = r.freeMemory();
+			long md = ms - me;
+			if (md >= 0)
+			{
+				mtotal += md;
+			}
+			else
+			{
+				if (ntime != 0)
+				{
+					mtotal += (mtotal / ntime);
+				}
+			}
+			ttotal += t;
+			ntime++;
+			if (ntime % 100 == 0)
+			{
+				double a = (1.0 * ttotal) / (1.0 * ntime);
+				double m = (1.0 * mtotal) / (1.0 * ntime);
+				log.debug("Average Serialization now " + (a) + "ms " + m + " bytes");
+			}
+
+		}
+	}
+
 }

@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
-import org.sakaiproject.util.BaseDbSingleStorage;
+import org.sakaiproject.util.BaseDbXmlEntityStorage;
 import org.sakaiproject.util.SingleStorageUser;
 
 /**
@@ -141,7 +141,7 @@ public abstract class DbNotificationService extends BaseNotificationService
 	 * Storage implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	protected class DbStorage extends BaseDbSingleStorage implements Storage
+	protected class DbStorage extends BaseDbXmlEntityStorage implements Storage
 	{
 		/**
 		 * Construct.

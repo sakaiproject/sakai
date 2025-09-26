@@ -2528,11 +2528,14 @@ public class DbContentService extends BaseContentService
             {
                 public Object readSqlResultRecord(ResultSet result)
                 {
+                    String resourceId = null;
                     String id = null;
                     BaseResourceEdit edit = null;
 
                     try
                     {
+                        resourceId = result.getString(1);
+                        log.debug("convertToFile(): processing resource {}", resourceId);
                         byte[] blob = result.getBytes(2);
                         if (blob != null && blob.length > 0)
                         {
@@ -2547,20 +2550,20 @@ public class DbContentService extends BaseContentService
                     }
                     catch(EntityParseException e)
                     {
-                        log.warn("convertToFile(): EntityParseException unable to parse entity");
+                        log.warn("convertToFile(): EntityParseException unable to parse entity for resource {}", resourceId);
                         edit = null;
                     }
 
                     if(edit == null)
                     {
-                        log.warn("convertToFile(): missing binary payload for resource");
+                        log.warn("convertToFile(): missing binary payload for resource {}", resourceId);
                         return null;
                     }
 
                     // zero length?
                     if (edit.getContentLength() == 0)
                     {
-                        log.warn("convertToFile(): zero length body ");
+                        log.warn("convertToFile(): zero length body for resource {}", resourceId);
 
                     }
 

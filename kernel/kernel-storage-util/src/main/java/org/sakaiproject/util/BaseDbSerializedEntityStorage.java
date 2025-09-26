@@ -45,7 +45,7 @@ import org.sakaiproject.time.cover.TimeService;
 
 /**
  * <p>
- * BaseDbSingleStorage is a class that stores Resources (of some type) in a
+ * BaseDbSerializedEntityStorage is a class that stores Resources (of some type) in a
  * database, <br />
  * provides locked access, and generally implements a services "storage" class.
  * The <br />
