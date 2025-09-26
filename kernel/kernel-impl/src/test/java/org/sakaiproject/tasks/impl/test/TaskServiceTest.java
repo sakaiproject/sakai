@@ -20,6 +20,8 @@ package org.sakaiproject.tasks.impl.test;
 
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -236,5 +238,27 @@ public class TaskServiceTest extends AbstractTransactionalJUnit4SpringContextTes
         when(sessionManager.getCurrentSessionUserId()).thenReturn(instructor);
         when(securityService.unlock(TaskPermissions.CREATE_TASK, "/site/" + siteId)).thenReturn(true);
         when(securityService.unlock(TaskPermissions.CREATE_TASK, "/site/~" + instructor)).thenReturn(true);
+    }
+
+    @Test
+    public void testSiteTasksExcludeFutureStarts() {
+
+        String reference = "/a/future";
+        Task task = createTask(reference);
+
+        Instant now = Instant.now();
+        task.setStarts(now.plus(2, ChronoUnit.DAYS));
+        taskService.saveTask(task);
+
+        switchToStudent();
+
+        List<UserTaskAdapterBean> tasks = taskService.getAllTasksForCurrentUserOnSite(task.getSiteId());
+        assertTrue("Future tasks should be hidden from site dashboards", tasks.isEmpty());
+
+        task.setStarts(now.minus(1, ChronoUnit.HOURS));
+        taskService.saveTask(task);
+
+        tasks = taskService.getAllTasksForCurrentUserOnSite(task.getSiteId());
+        assertTrue("Tasks that have started should be visible on site dashboards", tasks.size() == 1);
     }
 }
