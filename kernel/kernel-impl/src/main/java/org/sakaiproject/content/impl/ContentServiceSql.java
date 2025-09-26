@@ -82,9 +82,9 @@ public interface ContentServiceSql
 	String getResourceId3Sql(String table);
 
 	/**
-	 * returns the sql statement which retrieves the resource id and xml fields from the content_resource table.
+	 * returns the sql statement which retrieves the resource id and serialized binary payload from the content_resource table.
 	 */
-	String getResourceIdXmlSql();
+	String getResourceIdBinarySql();
 
 	/**
 	 * returns the sql statement which retrieves all id's and file paths where the file path is not null.
@@ -154,9 +154,9 @@ public interface ContentServiceSql
 	 */
 	String getDropBoxRootQuotaQuerySql();
 	/**
-	 * returns the sql statement which retrieves the RESOURCE_ID and XML values for all entries in the specified table where file-size is null.
+	 * returns the sql statement which retrieves the RESOURCE_ID and binary payload for all entries in the specified table where file-size is null.
 	 */
-	String getAccessResourceIdAndXmlSql(String table);
+	String getAccessResourceIdAndBinarySql(String table);
 
 	/**
 	 * A statement to create a UTF test table based on the name
@@ -175,7 +175,7 @@ public interface ContentServiceSql
 	String getDropTemporaryUTF8TestTable(String tempTableName);
 
 	/**
-	 * returns the sql statement which retrieves the BINARY_ENTITY and XML values for all entries in the CONTENT_RESOURCE table, 
+	 * returns the sql statement which retrieves the BINARY_ENTITY values for all entries in the CONTENT_RESOURCE table,
 	 * selecting by the RESOURCE_TYPE_ID with first and last record indexes, and returned in ascending order by RESOURCE_ID.
 	 */
 	String getSelectByResourceTypeQuerySql();

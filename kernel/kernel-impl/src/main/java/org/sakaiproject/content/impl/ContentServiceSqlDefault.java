@@ -106,8 +106,8 @@ public class ContentServiceSqlDefault implements ContentServiceSql {
     /**
      * returns the sql statement which retrieves the resource id and xml fields from the content_resource table.
      */
-    public String getResourceIdXmlSql() {
-        return "select RESOURCE_ID, XML, BINARY_ENTITY from CONTENT_RESOURCE where FILE_PATH IS NULL";
+    public String getResourceIdBinarySql() {
+        return "select RESOURCE_ID, BINARY_ENTITY from CONTENT_RESOURCE where FILE_PATH IS NULL";
     }
 
     public String getResourceIdAndFilePath() {
@@ -139,7 +139,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql {
      * returns the sql statement which updates the file path and xml fields in the content_resource table for a given resource id.
      */
     public String getUpdateContentResource3Sql() {
-        return "update CONTENT_RESOURCE set FILE_PATH = ?, XML = NULL, BINARY_ENTITY = ?, CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ?, RESOURCE_SHA256 = ? where RESOURCE_ID = ?";
+        return "update CONTENT_RESOURCE set FILE_PATH = ?, BINARY_ENTITY = ?, CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ?, RESOURCE_SHA256 = ? where RESOURCE_ID = ?";
     }
 
     /**
@@ -195,10 +195,10 @@ public class ContentServiceSqlDefault implements ContentServiceSql {
     }
 
     /**
-     * returns the sql statement which retrieves the RESOURCE_ID and XML values for all entries in the CONTENT_RESOURCE table where file-size is null.
+     * returns the sql statement which retrieves the RESOURCE_ID and serialized binary values for all entries in the CONTENT_RESOURCE table where file-size is null.
      */
-    public String getAccessResourceIdAndXmlSql(String table) {
-        return "select RESOURCE_ID, RESOURCE_UUID, XML from " + table + " where FILE_SIZE is NULL";
+    public String getAccessResourceIdAndBinarySql(String table) {
+        return "select RESOURCE_ID, RESOURCE_UUID, BINARY_ENTITY from " + table + " where FILE_SIZE is NULL";
     }
 
     /*
@@ -220,11 +220,11 @@ public class ContentServiceSqlDefault implements ContentServiceSql {
     }
 
     /**
-     * returns the sql statement which retrieves the BINARY_ENTITY and XML values for all entries in the CONTENT_RESOURCE table,
+     * returns the sql statement which retrieves the BINARY_ENTITY values for all entries in the CONTENT_RESOURCE table,
      * selecting by the RESOURCE_TYPE_ID with first and last record indexes, and returned in ascending order by RESOURCE_ID.
      */
     public String getSelectByResourceTypeQuerySql() {
-        return "select BINARY_ENTITY, XML from CONTENT_RESOURCE where RESOURCE_TYPE_ID = ? ORDER BY RESOURCE_ID LIMIT ?, ? ";
+        return "select BINARY_ENTITY from CONTENT_RESOURCE where RESOURCE_TYPE_ID = ? ORDER BY RESOURCE_ID LIMIT ?, ? ";
     }
 
     /**

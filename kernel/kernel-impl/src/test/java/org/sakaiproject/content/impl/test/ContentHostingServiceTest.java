@@ -322,15 +322,15 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		}
     }
 
-    @Test
-    public void testSqlSanity() {
-        ContentHostingService ch = getService(ContentHostingService.class);
-        SqlService m_sqlService = getService(SqlService.class);
+	@Test
+	public void testSqlSanity() {
+		ContentHostingService ch = getService(ContentHostingService.class);
+		SqlService m_sqlService = getService(SqlService.class);
 
-        // Make sure that the structure of the CONTENT_ tables passes the "modern schema" test
-        try {
-            Connection connection = m_sqlService.borrowConnection();
-            Statement statement = connection.createStatement();
+		// Make sure that the structure of the CONTENT_ tables passes the "modern schema" test
+		try {
+			Connection connection = m_sqlService.borrowConnection();
+			Statement statement = connection.createStatement();
 
            try {
                 statement.execute("select BINARY_ENTITY from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' " );
@@ -338,28 +338,12 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
                 Assert.fail();
             }
             try {
-                statement.execute("select XML from CONTENT_COLLECTION where COLLECTION_ID = 'does-not-exist' ");
-            } catch ( Exception ex ) {
-                Assert.fail();
-            }
-
-            try {
                 statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' " );
             } catch ( Exception ex ) {
                 Assert.fail();
             }
             try {
-                statement.execute("select XML from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' ");
-            } catch ( Exception ex ) {
-                Assert.fail();
-            }
-            try {
                 statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' " );
-            } catch ( Exception ex ) {
-                Assert.fail();
-            }
-            try {
-                statement.execute("select XML from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' ");
             } catch ( Exception ex ) {
                 Assert.fail();
             }
@@ -375,15 +359,13 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
             checkCount("select count(*) from CONTENT_RESOURCE where BINARY_ENTITY IS NULL ", 0);
             checkCount("select count(*) from CONTENT_RESOURCE_DELETE where BINARY_ENTITY IS NULL ", 0);
 
-            checkCount("select count(*) from CONTENT_COLLECTION where XML IS NOT NULL ", 0);
-
         } catch ( Exception ex ) {
             Assert.fail();
         }
     }
 
-    protected void checkCount(String sql, int expected) throws Exception
-    {
+	protected void checkCount(String sql, int expected) throws Exception
+	{
 
         SqlService m_sqlService = getService(SqlService.class);
         List list = m_sqlService.dbRead(sql, null, null);
@@ -405,9 +387,9 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
                 Assert.fail("Bad integer: " + val + " from: "+sql);
             }
         }
-        Assert.fail("Empty list for: "+sql);
-        return;
-    }
+		Assert.fail("Empty list for: "+sql);
+		return;
+	}
 
     // Verify that an .html file containing XHTML markers is normalized to text/html when
     // extension-based magic detection is ignored for common web text assets.

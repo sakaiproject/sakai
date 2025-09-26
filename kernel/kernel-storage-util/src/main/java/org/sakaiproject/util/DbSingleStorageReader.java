@@ -50,9 +50,9 @@ public class DbSingleStorageReader implements SqlReader
 	{
 		try
 		{
-			if (storage instanceof BaseDbBinarySingleStorage)
+			if (storage instanceof BaseDbSerializedEntityStorage)
 			{
-				return ((BaseDbBinarySingleStorage) storage).readResource(result
+				return ((BaseDbSerializedEntityStorage) storage).readResource(result
 						.getBytes(1));
 			}
 			else if (storage instanceof BaseDbDualSingleStorage)

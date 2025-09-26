@@ -49,8 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.util.StorageUtils;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
@@ -74,7 +72,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.BaseDbBinarySingleStorage;
+import org.sakaiproject.util.BaseDbSerializedEntityStorage;
 import org.sakaiproject.util.DbSingleStorage;
 import org.sakaiproject.util.EntityReaderAdapter;
 import org.sakaiproject.util.SingleStorageUser;
@@ -737,16 +735,16 @@ public class DbContentService extends BaseContentService
                 this.resolver.setCollectionUser(collectionUser);
             }
 
-            m_collectionStore = new BaseDbBinarySingleStorage(collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
+            m_collectionStore = new BaseDbSerializedEntityStorage(collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
                     collectionUser, sqlService);
-            m_collectionStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
+            m_collectionStorageFields = BaseDbSerializedEntityStorage.STORAGE_FIELDS;
 
-            m_resourceStore = new BaseDbBinarySingleStorage(resourceTableName, "RESOURCE_ID",
+            m_resourceStore = new BaseDbSerializedEntityStorage(resourceTableName, "RESOURCE_ID",
                     (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
                     m_locksInDb, "resource", resourceUser, sqlService);
-            m_resourceStorageFields = BaseDbBinarySingleStorage.STORAGE_FIELDS;
+            m_resourceStorageFields = BaseDbSerializedEntityStorage.STORAGE_FIELDS;
 
-            m_resourceDeleteStore = new BaseDbBinarySingleStorage(resourceDeleteTableName, "RESOURCE_ID",
+            m_resourceDeleteStore = new BaseDbSerializedEntityStorage(resourceDeleteTableName, "RESOURCE_ID",
                     (bodyInFile ? RESOURCE_FIELDS_FILE_CONTEXT : RESOURCE_FIELDS_CONTEXT ),
                     m_locksInDb, "resource", resourceUser, sqlService, m_resourceStore); // support for SAK-12874
 
@@ -2385,14 +2383,13 @@ public class DbContentService extends BaseContentService
             public Object readSqlResultRecord(ResultSet result) 
             {
                 BaseResourceEdit edit = null;
-                Object clob = null;
                 try
                 {
-                    clob = result.getObject(1);
-                    if(clob != null && clob instanceof byte[])
+                    byte[] blob = result.getBytes(1);
+                    if (blob != null && blob.length > 0)
                     {
                         edit = new BaseResourceEdit();
-                        resourceSerializer.parse(edit, (byte[]) clob);
+                        resourceSerializer.parse(edit, blob);
                     }
                 }
                 catch(SQLException e)
@@ -2406,37 +2403,7 @@ public class DbContentService extends BaseContentService
                 }
                 if(edit == null)
                 {
-                    try
-                    {
-                        String xml = result.getString(2);
-                        if (xml == null)
-                        {
-                            log.warn("EntityReader: null xml : " );
-                            return null;
-                        }
-
-                        // read the xml
-                        Document doc = Xml.readDocumentFromString(xml);
-                        if (doc == null)
-                        {
-                            log.warn("EntityReader: null xml doc : " );
-                            return null;
-                        }
-
-                        // verify the root element
-                        Element root = doc.getDocumentElement();
-                        if (!root.getTagName().equals("resource"))
-                        {
-                            log.warn("EntityReader: XML root element not resource: " + root.getTagName());
-                            return null;
-                        }
-                        edit = new BaseResourceEdit(root);
-
-                    }
-                    catch(SQLException e)
-                    {
-                        log.debug("SqlException problem with results");
-                    }
+                    return null;
                 }
                 return edit;
             }
@@ -2556,7 +2523,7 @@ public class DbContentService extends BaseContentService
             final Counter count = new Counter();
 
             // read content_resource records that have null file path
-            String sql = contentServiceSql.getResourceIdXmlSql();
+            String sql = contentServiceSql.getResourceIdBinarySql();
             sqlService.dbRead(sql, null, new SqlReader()
             {
                 public Object readSqlResultRecord(ResultSet result)
@@ -2566,16 +2533,15 @@ public class DbContentService extends BaseContentService
 
                     try
                     {
-                        Object clob = result.getObject(3);
-                        if(clob != null && clob instanceof byte[])
+                        byte[] blob = result.getBytes(2);
+                        if (blob != null && blob.length > 0)
                         {
                             edit = new BaseResourceEdit();
-                            resourceSerializer.parse(edit, (byte[]) clob);
+                            resourceSerializer.parse(edit, blob);
                         }
                     }
                     catch(SQLException e)
                     {
-                        // ignore?
                         log.debug("convertToFile(): SqlException unable to read entity");
                         edit = null;
                     }
@@ -2584,43 +2550,10 @@ public class DbContentService extends BaseContentService
                         log.warn("convertToFile(): EntityParseException unable to parse entity");
                         edit = null;
                     }
-                    if(edit == null)
-                    {
-                        try
-                        {
-                            String xml = result.getString(2);
-                            if (xml == null)
-                            {
-                                log.warn("convertToFile(): null xml : " );
-                                return null;
-                            }
-
-                            // read the xml
-                            Document doc = Xml.readDocumentFromString(xml);
-                            if (doc == null)
-                            {
-                                log.warn("convertToFile(): null xml doc : " );
-                                return null;
-                            }
-
-                            // verify the root element
-                            Element root = doc.getDocumentElement();
-                            if (!root.getTagName().equals("resource"))
-                            {
-                                log.warn("convertToFile(): XML root element not resource: " + root.getTagName());
-                                return null;
-                            }
-                            edit = new BaseResourceEdit(root);
-
-                        }
-                        catch(SQLException e)
-                        {
-                            log.debug("convertToFile(): SqlException problem with results");
-                        }
-                    }
 
                     if(edit == null)
                     {
+                        log.warn("convertToFile(): missing binary payload for resource");
                         return null;
                     }
 

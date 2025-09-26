@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/util/BaseDbBinarySingleStorage.java $
- * $Id: BaseDbBinarySingleStorage.java 82134 2010-09-07 21:52:06Z aaronz@vt.edu $
+ * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/util/BaseDbSerializedEntityStorage.java $
+ * $Id: BaseDbSerializedEntityStorage.java 82134 2010-09-07 21:52:06Z aaronz@vt.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 Sakai Foundation
@@ -69,7 +69,7 @@ import org.sakaiproject.time.cover.TimeService;
  * </p>
  */
 @Slf4j
-public class BaseDbBinarySingleStorage implements DbSingleStorage
+public class BaseDbSerializedEntityStorage implements DbSingleStorage
 {
 	public static final String STORAGE_FIELDS = "BINARY_ENTITY";
 
@@ -178,7 +178,7 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 	 * @param sqlService
 	 *        The SqlService.
 	 */
-	public BaseDbBinarySingleStorage(String resourceTableName, String resourceTableIdField,
+	public BaseDbSerializedEntityStorage(String resourceTableName, String resourceTableIdField,
 			String[] resourceTableOtherFields, boolean locksInDb,
 			String resourceEntryName, SingleStorageUser user, SqlService sqlService)
 	{
@@ -213,7 +213,7 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
      * @param storage
      *        The storage for the normal resource (only used by delete storage)
      */
-    public BaseDbBinarySingleStorage(String resourceTableName, String resourceTableIdField,
+    public BaseDbSerializedEntityStorage(String resourceTableName, String resourceTableIdField,
 	        String[] resourceTableOtherFields, boolean locksInDb,
 	        String resourceEntryName, SingleStorageUser user, SqlService sqlService,
 	        DbSingleStorage storage)
@@ -605,28 +605,18 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 		// create one with just the id, and perhaps some other fields as well
 		Entity entry = m_user.newResource(null, id, others);
 
-		// form the XML and SQL for the insert
+		// form the binary payload and SQL for the insert
 		Object blob = getBlob(entry);
-		String statement = null;
-		if (blob instanceof byte[])
+		if (!(blob instanceof byte[]))
 		{
-			statement = // singleStorageSql.
-			"insert into "
-					+ m_resourceTableName
-					+ insertFields(m_resourceTableIdField, m_resourceTableOtherFields,
-							"BINARY_ENTITY") + " values ( ?, "
-					+ valuesParams(m_resourceTableOtherFields) + " ? )";
+			log.error("putResource(): unable to serialize resource {} to binary", id);
+			return null;
 		}
-		else
-		{
-			statement = // singleStorageSql.
-			"insert into "
-					+ m_resourceTableName
-					+ insertFields(m_resourceTableIdField, m_resourceTableOtherFields,
-							"XML") + " values ( ?, "
-					+ valuesParams(m_resourceTableOtherFields) + " ? )";
-
-		}
+		String statement = "insert into "
+				+ m_resourceTableName
+				+ insertFields(m_resourceTableIdField, m_resourceTableOtherFields,
+						"BINARY_ENTITY") + " values ( ?, "
+				+ valuesParams(m_resourceTableOtherFields) + " ? )";
 
 		Object[] flds = m_user.storageFields(entry);
 		if (flds == null) flds = new Object[0];
@@ -670,28 +660,19 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
         }
 		//Entity entry = m_user.newResource(null, id, others);
 
-		// form the XML and SQL for the insert
+		// form the binary payload and SQL for the insert
 		Object blob = getBlob(entry);
-		String statement = null;
-		if (blob instanceof byte[])
+		if (!(blob instanceof byte[]))
 		{
-			statement = "insert into "
-					+ m_resourceTableName
-					+ insertDeleteFields(m_resourceTableIdField,
-							m_resourceTableOtherFields, "RESOURCE_UUID", "DELETE_DATE",
-							"DELETE_USERID", "BINARY_ENTITY") + " values ( ?, "
-					+ valuesParams(m_resourceTableOtherFields) + " ? ,? ,? ,?)";
-
+			log.error("putDeleteResource(): unable to serialize resource {} to binary", id);
+			return null;
 		}
-		else
-		{
-			statement = "insert into "
-					+ m_resourceTableName
-					+ insertDeleteFields(m_resourceTableIdField,
-							m_resourceTableOtherFields, "RESOURCE_UUID", "DELETE_DATE",
-							"DELETE_USERID", "XML") + " values ( ?, "
-					+ valuesParams(m_resourceTableOtherFields) + " ? ,? ,? ,?)";
-		}
+		String statement = "insert into "
+				+ m_resourceTableName
+				+ insertDeleteFields(m_resourceTableIdField,
+						m_resourceTableOtherFields, "RESOURCE_UUID", "DELETE_DATE",
+						"DELETE_USERID", "BINARY_ENTITY") + " values ( ?, "
+				+ valuesParams(m_resourceTableOtherFields) + " ? ,? ,? ,?)";
 
 		Object[] flds = m_user.storageFields(entry);
 		if (flds == null) flds = new Object[0];
@@ -751,25 +732,19 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 		return buf.toString();
 	}
 
-	/** update XML attribute on properties and remove locks */
+	/** update binary attribute on properties and remove locks */
 	public void commitDeleteResource(Edit edit, String uuid)
 	{
-		// form the SQL statement and the var w/ the XML
+		// form the SQL statement with the binary payload
 		Object blob = getBlob(edit);
-		String statement = null;
-		if (blob instanceof byte[])
+		if (!(blob instanceof byte[]))
 		{
-			statement = "update " + m_resourceTableName + " set "
-					+ updateSet(m_resourceTableOtherFields)
-					+ " BINARY_ENTITY = ? where ( RESOURCE_UUID = ? )";
-
+			log.error("commitDeleteResource(): unable to serialize resource {} to binary", edit.getId());
+			return;
 		}
-		else
-		{
-			statement = "update " + m_resourceTableName + " set "
-					+ updateSet(m_resourceTableOtherFields)
-					+ " XML = ? where ( RESOURCE_UUID = ? )";
-		}
+		String statement = "update " + m_resourceTableName + " set "
+				+ updateSet(m_resourceTableOtherFields)
+				+ " BINARY_ENTITY = ? where ( RESOURCE_UUID = ? )";
 		Object[] flds = m_user.storageFields(edit);
 		if (flds == null) flds = new Object[0];
 		Object[] fields = new Object[flds.length + 2];
@@ -843,7 +818,7 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 				if (m_user instanceof EntityReaderHandler)
 				{
 					// read the record and get a lock on it (non blocking)
-					String statement = "select XML from " + m_resourceTableName
+					String statement = "select BINARY_ENTITY from " + m_resourceTableName
 							+ " where ( " + m_resourceTableIdField + " = '"
 							+ StorageUtils.escapeSql(caseId(id)) + "' )"
 							+ " for update nowait";
@@ -869,7 +844,7 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 				else
 				{
 					// read the record and get a lock on it (non blocking)
-					String statement = "select BENTRY, XML from " + m_resourceTableName
+					String statement = "select BINARY_ENTITY from " + m_resourceTableName
 							+ " where ( " + m_resourceTableIdField + " = '"
 							+ StorageUtils.escapeSql(caseId(id)) + "' )"
 							+ " for update nowait";
@@ -980,22 +955,16 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 	 */
 	public void commitResource(Edit edit)
 	{
-		// form the SQL statement and the var w/ the XML
+		// form the SQL statement with the binary payload
 		Object blob = getBlob(edit);
-		String statement = null;
-		if (blob instanceof byte[])
+		if (!(blob instanceof byte[]))
 		{
-			statement = "update " + m_resourceTableName + " set "
-					+ updateSet(m_resourceTableOtherFields) + " BINARY_ENTITY = ? where ( "
-					+ m_resourceTableIdField + " = ? )";
-
+			log.error("commitResource(): unable to serialize resource {} to binary", edit.getId());
+			return;
 		}
-		else
-		{
-			statement = "update " + m_resourceTableName + " set "
-					+ updateSet(m_resourceTableOtherFields) + " XML = ? where ( "
-					+ m_resourceTableIdField + " = ? )";
-		}
+		String statement = "update " + m_resourceTableName + " set "
+				+ updateSet(m_resourceTableOtherFields) + " BINARY_ENTITY = ? where ( "
+				+ m_resourceTableIdField + " = ? )";
 		Object[] flds = m_user.storageFields(edit);
 		if (flds == null) flds = new Object[0];
 		Object[] fields = new Object[flds.length + 2];
@@ -1311,8 +1280,7 @@ public class BaseDbBinarySingleStorage implements DbSingleStorage
 			}
 			catch (EntityParseException ep)
 			{
-				log.warn("Unable to Serialize Entity, falling back to XML "
-						+ entry.getId(), ep);
+				log.error("Unable to serialize entity {}", entry.getId(), ep);
 			}
 			return null;
 		}
