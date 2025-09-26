@@ -94,6 +94,10 @@ public class EntityReaderAdapter implements EntityReaderHandler
 				{
 					// read the xml using DOM.
 					Document doc = StorageUtils.readDocumentFromString(xml);
+					if (doc == null)
+					{
+						throw new EntityParseException("Failed to parse container XML; DOM parser returned null document");
+					}
 
 					// verify the root element
 					Element root = doc.getDocumentElement();
@@ -115,6 +119,10 @@ public class EntityReaderAdapter implements EntityReaderHandler
 						entry = storageUser.newResource(null, root);
 					}
 					return entry;
+				}
+				catch (EntityParseException ex)
+				{
+					throw ex;
 				}
 				catch (Exception ex)
 				{
@@ -161,6 +169,10 @@ public class EntityReaderAdapter implements EntityReaderHandler
 				{
 					// read the xml
 					Document doc = StorageUtils.readDocumentFromString(xml);
+					if (doc == null)
+					{
+						throw new EntityParseException("Failed to parse resource XML; DOM parser returned null document");
+					}
 
 					// verify the root element
 					Element root = doc.getDocumentElement();
@@ -175,6 +187,10 @@ public class EntityReaderAdapter implements EntityReaderHandler
 					Entity entry = storageUser.newResource(container, root);
 
 					return entry;
+				}
+				catch (EntityParseException ex)
+				{
+					throw ex;
 				}
 				catch (Exception ex)
 				{

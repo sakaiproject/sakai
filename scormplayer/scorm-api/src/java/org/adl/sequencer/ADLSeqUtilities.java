@@ -157,25 +157,30 @@ public class ADLSeqUtilities {
 					if (tempVal != null) {
 						// Combine local and global sequencing information
 						// Get the referenced Global sequencing information
-						String search = "imsss:sequencing[@ID='" + tempVal + "']";
+						String search = ".//*[local-name()='sequencing' and @ID='" + tempVal + "']";
 
 						if (_Debug) {
-							System.out.println("  ::--> Looking for XPATH --> " + search);
+							System.out.println("  ::--> Looking for sequencing by ID --> " + tempVal + " (search=" + search + ")");
 						}
 
-						// Use the referenced set of sequencing information
-						Node seqGlobal = null;
+						Node seqGlobal = findSequencingById(iColl, tempVal);
+						if (seqGlobal == null && iColl != null && iColl.getParentNode() != null) {
+							// In some manifests, iColl might be the <manifest> or a sibling; search upward once more as a fallback
+							seqGlobal = findSequencingById(iColl.getParentNode(), tempVal);
+						}
 
-						XPathFactory pathFactory = XPathFactory.newInstance();
-						XPath path = pathFactory.newXPath();
-
-						try {
-							seqGlobal = (Node) path.evaluate(search, iColl, XPathConstants.NODE);
-							//XPathAPI.selectSingleNode(iColl, search);
-						} catch (Exception e) {
-							if (_Debug) {
-								System.out.println("  ::--> ERROR : In transform");
-								e.printStackTrace();
+						if (seqGlobal == null) {
+							// search from the document root to cover cases where iColl is not the sequencing collection
+							try {
+								Node root = curNode.getOwnerDocument() != null ? curNode.getOwnerDocument().getDocumentElement() : null;
+								if (root != null) {
+									if (_Debug) {
+										System.out.println("  ::--> Searching from document root for sequencing ID '" + tempVal + "'");
+									}
+									seqGlobal = findSequencingById(root, tempVal);
+								}
+							} catch (Exception ignore) {
+								// ignore
 							}
 						}
 
@@ -211,9 +216,13 @@ public class ADLSeqUtilities {
 										System.out.println("  ::-->  <" + curChild.getLocalName() + ">");
 									}
 
-									// Add this to the global sequencing info
+									// Add this to the global sequencing info (clone/import to ensure same ownerDocument)
 									try {
-										seqInfo.appendChild(curChild);
+										Node nodeToAppend = curChild.cloneNode(true);
+										if (seqInfo.getOwnerDocument() != nodeToAppend.getOwnerDocument()) {
+											nodeToAppend = seqInfo.getOwnerDocument().importNode(nodeToAppend, true);
+										}
+										seqInfo.appendChild(nodeToAppend);
 									} catch (org.w3c.dom.DOMException e) {
 										if (_Debug) {
 											System.out.println("  ::--> ERROR: ");
@@ -2901,7 +2910,7 @@ public class ADLSeqUtilities {
 		                                        "WHERE objID = ? AND " +
 		                                        "learnerID = ? AND scopeID = ?";
 
-		            stmtUpdateSatisfied = 
+		            stmtUpdateSatisfied =
 		            conn.prepareStatement(sqlUpdateSatisfied);
 
 		            // Execute the query
@@ -2979,4 +2988,34 @@ public class ADLSeqUtilities {
 		return success;
 	}
 
-} // end ADLSeqUtilities
+	/**
+	 * Finds the first <sequencing> element (any namespace) under the given root
+	 * whose ID attribute matches the provided id.
+	 * This avoids XPath to prevent Transformer/DTM issues in some XML parsers.
+	 */
+	private static Node findSequencingById(Node root, String id) {
+		if (root == null || id == null) {
+			return null;
+		}
+
+		if (root.getNodeType() == Node.ELEMENT_NODE) {
+			String local = root.getLocalName();
+			if ("sequencing".equals(local)) {
+				String attr = ADLSeqUtilities.getAttribute(root, "ID");
+				if (id.equals(attr)) {
+					return root;
+				}
+			}
+		}
+
+		NodeList list = root.getChildNodes();
+		for (int i = 0; i < list.getLength(); i++) {
+			Node found = findSequencingById(list.item(i), id);
+			if (found != null) {
+				return found;
+			}
+		}
+		return null;
+	}
+
+}

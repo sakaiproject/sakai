@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "web-test-runner --coverage",
-    "test:dev": "cd ../../ && npm run test:dev"
-  }
+    "test": "wtr"
+  },
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/sakai-portal-utils#readme"
 }

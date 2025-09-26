@@ -4,11 +4,11 @@
   "description": "",
   "license": "ECL-2.0",
   "author": "The Sakai Project <sakai.user.interface@gmail.com>",
-  "homepage": "https://github.com/sakaiproject/sakai-ui/",
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/sakai-jump-to-top#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sakaiproject/sakai-ui",
-    "directory": "packages/sakai-jump-to-top"
+    "url": "git+https://github.com/sakaiproject/sakai",
+    "directory": "webcomponents/tool/src/main/frontend/packages/sakai-jump-to-top"
   },
   "main": "sakai-jump-to-top.js",
   "files": [
@@ -16,8 +16,7 @@
   ],
   "scripts": {
     "lint:fix": "eslint sakai-jump-to-top.js --fix",
-    "test": "web-test-runner --coverage",
-    "test:dev": "cd ../../ && npm run test:dev"
+    "test": "wtr"
   },
   "keywords": [
     "Sakai"

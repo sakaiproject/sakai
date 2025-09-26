@@ -1,17 +1,24 @@
-# sakai-view-preferences
+# @sakai-ui/sakai-view-preferences
+
+The Sakai view preferences component.
+
+## Description
+
+This component allows users to set their view preferences for Sakai.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-view-preferences
+npm install @sakai-ui/sakai-view-preferences
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-view-preferences/sakai-view-preferences.js';
 
+// In your HTML
 <sakai-view-preferences></sakai-view-preferences>
-
 ```
 
 ## Linting and formatting
@@ -19,7 +26,7 @@ npm i @sakai-ui/sakai-view-preferences
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -29,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0
