@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/util/DbSingleStorageReader.java $
- * $Id: DbSingleStorageReader.java 51317 2008-08-24 04:38:02Z csev@umich.edu $
+ * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/util/DbEntityRowReader.java $
+ * $Id: DbEntityRowReader.java 51317 2008-08-24 04:38:02Z csev@umich.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 Sakai Foundation
@@ -31,11 +31,11 @@ import org.sakaiproject.db.api.SqlReader;
  * @author ieb
  */
 @Slf4j
-public class DbSingleStorageReader implements SqlReader
+public class DbEntityRowReader implements SqlReader
 {
 	private DbSingleStorage storage;
 
-	public DbSingleStorageReader(DbSingleStorage storage)
+	public DbEntityRowReader(DbSingleStorage storage)
 	{
 		this.storage = storage;
 
@@ -50,19 +50,19 @@ public class DbSingleStorageReader implements SqlReader
 	{
 		try
 		{
-			if (storage instanceof BaseDbBinarySingleStorage)
+			if (storage instanceof BaseDbSerializedEntityStorage)
 			{
-				return ((BaseDbBinarySingleStorage) storage).readResource(result
+				return ((BaseDbSerializedEntityStorage) storage).readResource(result
 						.getBytes(1));
 			}
-			else if (storage instanceof BaseDbDualSingleStorage)
+			else if (storage instanceof BaseDbDualEntityStorage)
 			{
-				return ((BaseDbDualSingleStorage) storage).readResource(result
+				return ((BaseDbDualEntityStorage) storage).readResource(result
 						.getString(1), result.getBytes(2));
 			}
 			else
 			{
-				return ((BaseDbSingleStorage) storage).readResource(result.getString(1));
+				return ((BaseDbXmlEntityStorage) storage).readResource(result.getString(1));
 			}
 		}
 		catch (Exception ex)

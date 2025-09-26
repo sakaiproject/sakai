@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.email.api.Digest;
 import org.sakaiproject.email.api.DigestEdit;
-import org.sakaiproject.util.BaseDbSingleStorage;
+import org.sakaiproject.util.BaseDbXmlEntityStorage;
 import org.sakaiproject.util.SingleStorageUser;
 
 /**
@@ -147,7 +147,7 @@ public class DbDigestService extends BaseDigestService
 	/**
 	 * Covers for the BaseXmlFileStorage, providing Digest and DigestEdit parameters
 	 */
-	protected class DbStorage extends BaseDbSingleStorage implements Storage
+	protected class DbStorage extends BaseDbXmlEntityStorage implements Storage
 	{
 		/**
 		 * Construct.

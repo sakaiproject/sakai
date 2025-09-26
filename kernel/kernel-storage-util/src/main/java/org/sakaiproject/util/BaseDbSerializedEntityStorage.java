@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/util/BaseDbDualSingleStorage.java $
- * $Id: BaseDbDualSingleStorage.java 82133 2010-09-07 21:45:01Z aaronz@vt.edu $
+ * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/util/BaseDbSerializedEntityStorage.java $
+ * $Id: BaseDbSerializedEntityStorage.java 82134 2010-09-07 21:52:06Z aaronz@vt.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 Sakai Foundation
@@ -45,12 +45,9 @@ import org.sakaiproject.time.cover.TimeService;
 
 /**
  * <p>
- * BaseDbDualSingleStorage is a class that stores Resources (of some type) in a
+ * BaseDbSerializedEntityStorage is a class that stores Resources (of some type) in a
  * database, <br />
  * provides locked access, and generally implements a services "storage" class.
- * The resources are encoded into two fields.
- * Optionally a second storage can be provided which is where the items are loaded
- * from when a putDeleteResource is called.
  * The <br />
  * service's storage class can extend this to provide covers to turn Resource
  * and <br />
@@ -72,9 +69,9 @@ import org.sakaiproject.time.cover.TimeService;
  * </p>
  */
 @Slf4j
-public class BaseDbDualSingleStorage  implements DbSingleStorage
+public class BaseDbSerializedEntityStorage implements DbSingleStorage
 {
-	public static final String STORAGE_FIELDS = "XML, BINARY_ENTITY";
+	public static final String STORAGE_FIELDS = "BINARY_ENTITY";
 
 	/** Table name for resource records. */
 	protected String m_resourceTableName = null;
@@ -177,19 +174,20 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 	 *        entry.
 	 * @param user
 	 *        The StorageUser class to call back for creation of Resource and
-	 *        Edit objects. This must implement EntityReader interface as well.
+	 *        Edit objects. This also needs to implement EntityReader.
 	 * @param sqlService
 	 *        The SqlService.
 	 */
-	public BaseDbDualSingleStorage(String resourceTableName, String resourceTableIdField,
+	public BaseDbSerializedEntityStorage(String resourceTableName, String resourceTableIdField,
 			String[] resourceTableOtherFields, boolean locksInDb,
 			String resourceEntryName, SingleStorageUser user, SqlService sqlService)
 	{
 	    this(resourceTableName, resourceTableIdField, resourceTableOtherFields, locksInDb, resourceEntryName, user, sqlService, null);
 	}
 
+
     // support for SAK-12874
-	protected DbSingleStorage m_storage = null;
+    protected DbSingleStorage m_storage = null;
 
     /**
      * Construct.
@@ -209,13 +207,13 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
      *        entry.
      * @param user
      *        The StorageUser class to call back for creation of Resource and
-     *        Edit objects.
+     *        Edit objects. This also needs to implement EntityReader.
      * @param sqlService
      *        The SqlService.
      * @param storage
-     *        The storage for the normal resource (only used by delete storage), this is how we load the original resource.
+     *        The storage for the normal resource (only used by delete storage)
      */
-	public BaseDbDualSingleStorage(String resourceTableName, String resourceTableIdField,
+    public BaseDbSerializedEntityStorage(String resourceTableName, String resourceTableIdField,
 	        String[] resourceTableOtherFields, boolean locksInDb,
 	        String resourceEntryName, SingleStorageUser user, SqlService sqlService,
 	        DbSingleStorage storage)
@@ -268,7 +266,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 	 *        An string containing the xml which describes the resource.
 	 * @return The Resource object created from the xml.
 	 */
-	protected Entity readResource(String xml, byte[] blob)
+	protected Entity readResource(byte[] blob)
 	{
 		Runtime r = Runtime.getRuntime();
 		long ms = r.freeMemory();
@@ -279,7 +277,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			type = "direct";
 			EntityReader de_user = (EntityReader) m_user;
 			EntityReaderHandler de_handler = de_user.getHandler();
-			return de_handler.parse(null, xml, blob);
+			return de_handler.parse(null,null, blob);
 		}
 		catch (Exception e)
 		{
@@ -487,25 +485,6 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 		return loadResources(sql, fields);
 	}
 
-	/**
-	 * Get all Resources where the given field matches the given value.
-	 * 
-	 * @param field
-	 *        The db field name for the selection.
-	 * @param value
-	 *        The value to select.
-	 * @return The list of all Resources that meet the criteria.
-	 */
-	public List getAllResourcesWhere(String selectBy, String selectByValue, String orderBy, int first, int pageSize)
-	{
-		// read all users from the db
-		String sql = singleStorageSql.getXmlWhereLimitSql(selectBy, orderBy, m_resourceTableName, first, pageSize);
-		Object[] fields = new Object[1];
-		fields[0] = selectByValue;
-		// %%% + "order by " + m_resourceTableOrderField + " asc";
-		return loadResources(sql, fields);
-	}
-
 	protected List loadResources(String sql, Object[] fields)
 	{
 		List all = m_sql.dbRead(sql, fields, new SqlReader()
@@ -515,7 +494,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 				try
 				{
 					// create the Resource from the db xml
-					return readResource(result.getString(1), result.getBytes(2));
+					return readResource(result.getBytes(1));
 				}
 				catch (SQLException ignore)
 				{
@@ -559,14 +538,11 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 				{
 					// read the id m_resourceTableIdField
 					String id = result.getString(1);
-
-					// read the xml
-					String xml = result.getString(2);
-					byte[] blob = result.getBytes(3);
+					byte[] blob = result.getBytes(2);
 
 					if (!filter.accept(caseId(id))) return null;
 
-					return readResource(xml, blob);
+					return readResource(blob);
 				}
 				catch (SQLException ignore)
 				{
@@ -629,28 +605,18 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 		// create one with just the id, and perhaps some other fields as well
 		Entity entry = m_user.newResource(null, id, others);
 
-		// form the XML and SQL for the insert
+		// form the binary payload and SQL for the insert
 		Object blob = getBlob(entry);
-		String statement = null;
-		if (blob instanceof byte[])
+		if (!(blob instanceof byte[]))
 		{
-			statement = // singleStorageSql.
-			"insert into "
-					+ m_resourceTableName
-					+ insertFields(m_resourceTableIdField, m_resourceTableOtherFields,
-							"BINARY_ENTITY, XML") + " values ( ?, "
-					+ valuesParams(m_resourceTableOtherFields) + " ? , NULL )";
+			log.error("putResource(): unable to serialize resource {} to binary", id);
+			return null;
 		}
-		else
-		{
-			statement = // singleStorageSql.
-			"insert into "
-					+ m_resourceTableName
-					+ insertFields(m_resourceTableIdField, m_resourceTableOtherFields,
-							"XML, BINARY_ENTITY ") + " values ( ?, "
-					+ valuesParams(m_resourceTableOtherFields) + " ?, NULL )";
-
-		}
+		String statement = "insert into "
+				+ m_resourceTableName
+				+ insertFields(m_resourceTableIdField, m_resourceTableOtherFields,
+						"BINARY_ENTITY") + " values ( ?, "
+				+ valuesParams(m_resourceTableOtherFields) + " ? )";
 
 		Object[] flds = m_user.storageFields(entry);
 		if (flds == null) flds = new Object[0];
@@ -682,39 +648,31 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 	 */
 	public Edit putDeleteResource(String id, String uuid, String userId, Object[] others)
 	{
-	    // support for SAK-12874
-		Entity entry = null;
-		if (m_storage != null) {
-		    // use the object being deleted
-		    entry = m_storage.getResource(id);
-		}
-		if (entry == null) {
-		    // failsafe to the old method
-		    entry = m_user.newResource(null, id, others);
-		}
+        // support for SAK-12874
+        Entity entry = null;
+        if (m_storage != null) {
+            // use the object being deleted
+            entry = m_storage.getResource(id);
+        }
+        if (entry == null) {
+            // failsafe to the old method
+            entry = m_user.newResource(null, id, others);
+        }
+		//Entity entry = m_user.newResource(null, id, others);
 
-		// form the XML and SQL for the insert
+		// form the binary payload and SQL for the insert
 		Object blob = getBlob(entry);
-		String statement = null;
-		if (blob instanceof byte[])
+		if (!(blob instanceof byte[]))
 		{
-			statement = "insert into "
-					+ m_resourceTableName
-					+ insertDeleteFields(m_resourceTableIdField,
-							m_resourceTableOtherFields, "RESOURCE_UUID", "DELETE_DATE",
-							"DELETE_USERID", "BINARY_ENTITY, XML") + " values ( ?, "
-					+ valuesParams(m_resourceTableOtherFields) + " ? ,? ,? ,?, NULL)";
-
+			log.error("putDeleteResource(): unable to serialize resource {} to binary", id);
+			return null;
 		}
-		else
-		{
-			statement = "insert into "
-					+ m_resourceTableName
-					+ insertDeleteFields(m_resourceTableIdField,
-							m_resourceTableOtherFields, "RESOURCE_UUID", "DELETE_DATE",
-							"DELETE_USERID", "XML, BINARY_ENTITY") + " values ( ?, "
-					+ valuesParams(m_resourceTableOtherFields) + " ? ,? ,? ,?, NULL)";
-		}
+		String statement = "insert into "
+				+ m_resourceTableName
+				+ insertDeleteFields(m_resourceTableIdField,
+						m_resourceTableOtherFields, "RESOURCE_UUID", "DELETE_DATE",
+						"DELETE_USERID", "BINARY_ENTITY") + " values ( ?, "
+				+ valuesParams(m_resourceTableOtherFields) + " ? ,? ,? ,?)";
 
 		Object[] flds = m_user.storageFields(entry);
 		if (flds == null) flds = new Object[0];
@@ -774,25 +732,19 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 		return buf.toString();
 	}
 
-	/** update XML attribute on properties and remove locks */
+	/** update binary attribute on properties and remove locks */
 	public void commitDeleteResource(Edit edit, String uuid)
 	{
-		// form the SQL statement and the var w/ the XML
+		// form the SQL statement with the binary payload
 		Object blob = getBlob(edit);
-		String statement = null;
-		if (blob instanceof byte[])
+		if (!(blob instanceof byte[]))
 		{
-			statement = "update " + m_resourceTableName + " set "
-					+ updateSet(m_resourceTableOtherFields)
-					+ " BINARY_ENTITY = ?, XML = NULL where ( RESOURCE_UUID = ? )";
-
+			log.error("commitDeleteResource(): unable to serialize resource {} to binary", edit.getId());
+			return;
 		}
-		else
-		{
-			statement = "update " + m_resourceTableName + " set "
-					+ updateSet(m_resourceTableOtherFields)
-					+ " XML = ?, BINARY_ENTITY = NULL where ( RESOURCE_UUID = ? )";
-		}
+		String statement = "update " + m_resourceTableName + " set "
+				+ updateSet(m_resourceTableOtherFields)
+				+ " BINARY_ENTITY = ? where ( RESOURCE_UUID = ? )";
 		Object[] flds = m_user.storageFields(edit);
 		if (flds == null) flds = new Object[0];
 		Object[] fields = new Object[flds.length + 2];
@@ -866,7 +818,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 				if (m_user instanceof EntityReaderHandler)
 				{
 					// read the record and get a lock on it (non blocking)
-					String statement = "select XML from " + m_resourceTableName
+					String statement = "select BINARY_ENTITY from " + m_resourceTableName
 							+ " where ( " + m_resourceTableIdField + " = '"
 							+ StorageUtils.escapeSql(caseId(id)) + "' )"
 							+ " for update nowait";
@@ -877,8 +829,8 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 						{
 							try
 							{
-								l.add(readResource(result.getString(1), result
-										.getBytes(2)));
+								l.add(readResource(result
+										.getBytes(1)));
 							}
 							catch (SQLException e)
 							{
@@ -892,7 +844,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 				else
 				{
 					// read the record and get a lock on it (non blocking)
-					String statement = "select BENTRY, XML from " + m_resourceTableName
+					String statement = "select BINARY_ENTITY from " + m_resourceTableName
 							+ " where ( " + m_resourceTableIdField + " = '"
 							+ StorageUtils.escapeSql(caseId(id)) + "' )"
 							+ " for update nowait";
@@ -904,8 +856,8 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 
 							try
 							{
-								l.add(readResource(result.getString(1), result
-										.getBytes(2)));
+								l.add(readResource(result
+										.getBytes(1)));
 							}
 							catch (SQLException e)
 							{
@@ -1003,22 +955,16 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 	 */
 	public void commitResource(Edit edit)
 	{
-		// form the SQL statement and the var w/ the XML
+		// form the SQL statement with the binary payload
 		Object blob = getBlob(edit);
-		String statement = null;
-		if (blob instanceof byte[])
+		if (!(blob instanceof byte[]))
 		{
-			statement = "update " + m_resourceTableName + " set "
-					+ updateSet(m_resourceTableOtherFields) + " BINARY_ENTITY = ?, XML = NULL where ( "
-					+ m_resourceTableIdField + " = ? )";
-
+			log.error("commitResource(): unable to serialize resource {} to binary", edit.getId());
+			return;
 		}
-		else
-		{
-			statement = "update " + m_resourceTableName + " set "
-					+ updateSet(m_resourceTableOtherFields) + " XML = ?, BINARY_ENTITY = NULL where ( "
-					+ m_resourceTableIdField + " = ? )";
-		}
+		String statement = "update " + m_resourceTableName + " set "
+				+ updateSet(m_resourceTableOtherFields) + " BINARY_ENTITY = ? where ( "
+				+ m_resourceTableIdField + " = ? )";
 		Object[] flds = m_user.storageFields(edit);
 		if (flds == null) flds = new Object[0];
 		Object[] fields = new Object[flds.length + 2];
@@ -1334,8 +1280,7 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			}
 			catch (EntityParseException ep)
 			{
-				log.warn("Unable to Serialize Entity, falling back to XML "
-						+ entry.getId(), ep);
+				log.error("Unable to serialize entity {}", entry.getId(), ep);
 			}
 			return null;
 		}
@@ -1365,6 +1310,29 @@ public class BaseDbDualSingleStorage  implements DbSingleStorage
 			}
 
 		}
+	}
+
+	
+	/**
+	 * Get a limited number of Resources a given field matches a given value, returned in ascending order 
+	 * by another field.  The limit on the number of rows is specified by values for the first item to be 
+	 * retrieved (indexed from 0) and the maxCount.
+	 * @param selectBy The name of a field to be used in selecting resources.
+	 * @param selectByValue The value to select.
+	 * @param orderBy The name of a field to be used in ordering the resources.
+	 * @param tableName The table on which the query is to operate
+	 * @param first A non-negative integer indicating the first record to return
+	 * @param maxCount A positive integer indicating the maximum number of rows to return
+	 * @return The list of all Resources that meet the criteria.
+	 */
+	public List getAllResourcesWhere(String selectBy, String selectByValue, String orderBy, int first, int maxCount)
+	{
+		// read all users from the db
+		String sql = singleStorageSql.getXmlWhereLimitSql(selectBy, orderBy, m_resourceTableName, first, maxCount);
+		Object[] fields = new Object[1];
+		fields[0] = selectByValue;
+		// %%% + "order by " + m_resourceTableOrderField + " asc";
+		return loadResources(sql, fields);
 	}
 
 }

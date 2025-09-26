@@ -44,14 +44,6 @@
 
 		<property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
         <property name="resourceSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"/></property>
-        <!--
-        If you want to use the new serializers you have to let them migrate the data, set to true
-        so that they can write the new format when they update an item.
-        
-        -->
-        <property name="migrateData"><value>true</value></property>
-
-
         <property name="collectionTableName">       <value>CONTENT_COLLECTION</value>           </property>
         <property name="resourceTableName">         <value>CONTENT_RESOURCE</value>             </property>
         <property name="resourceBodyTableName">     <value>CONTENT_RESOURCE_BODY_BINARY</value> </property>

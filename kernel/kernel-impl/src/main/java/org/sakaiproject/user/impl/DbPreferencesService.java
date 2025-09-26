@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
-import org.sakaiproject.util.BaseDbSingleStorage;
+import org.sakaiproject.util.BaseDbXmlEntityStorage;
 import org.sakaiproject.util.SingleStorageUser;
 
 /**
@@ -140,7 +140,7 @@ public abstract class DbPreferencesService extends BasePreferencesService
 	/**
 	 * Covers for the BaseXmlFileStorage, providing Preferences and PreferencesEdit parameters
 	 */
-	protected class DbStorage extends BaseDbSingleStorage implements Storage
+	protected class DbStorage extends BaseDbXmlEntityStorage implements Storage
 	{
 		/**
 		 * Construct.
