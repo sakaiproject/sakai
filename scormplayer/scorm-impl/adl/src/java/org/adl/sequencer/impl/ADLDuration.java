@@ -92,6 +92,8 @@ public class ADLDuration implements Serializable, IDuration {
                 int locStart = iValue.indexOf('T');
                 int loc = 0;
 
+                long totalSeconds = 0;
+
                 if (locStart != -1) {
                     locStart++;
 
@@ -99,7 +101,7 @@ public class ADLDuration implements Serializable, IDuration {
 
                     if (loc != -1) {
                         hours = iValue.substring(locStart, loc);
-                        mDuration = Long.parseLong(hours) * 3600;
+                        totalSeconds = Long.parseLong(hours) * 3600;
 
                         locStart = loc + 1;
                     }
@@ -107,7 +109,7 @@ public class ADLDuration implements Serializable, IDuration {
                     loc = iValue.indexOf('M', locStart);
                     if (loc != -1) {
                         min = iValue.substring(locStart, loc);
-                        mDuration += Long.parseLong(min) * 60;
+                        totalSeconds += Long.parseLong(min) * 60;
 
                         locStart = loc + 1;
                     }
@@ -115,8 +117,11 @@ public class ADLDuration implements Serializable, IDuration {
                     loc = iValue.indexOf('S', locStart);
                     if (loc != -1) {
                         sec = iValue.substring(locStart, loc);
-                        mDuration += Long.parseLong(sec);
+                        totalSeconds += Long.parseLong(sec);
                     }
+
+                    // store internally as milliseconds
+                    mDuration = totalSeconds * 1000;
                 } else {
                     log.warn(" ERROR : Invalid format  --> {}", iValue);
                 }
@@ -207,19 +212,18 @@ public class ADLDuration implements Serializable, IDuration {
 
                 temp = mDuration / 1000;
 
-                if (temp >= 1000) {
-                    if (temp >= 3600) {
-                        countHours = temp / 3600;
-                        temp %= 3600;
-                    }
-
-                    if (temp > 60) {
-                        countMin = temp / 60;
-                        temp %= 60;
-                    }
-
-                    countSec = temp;
+                // Compute hours, minutes, seconds for any non-negative duration
+                if (temp >= 3600) {
+                    countHours = temp / 3600;
+                    temp %= 3600;
                 }
+
+                if (temp >= 60) {
+                    countMin = temp / 60;
+                    temp %= 60;
+                }
+
+                countSec = temp;
 
                 out = "PT";
 
@@ -236,6 +240,11 @@ public class ADLDuration implements Serializable, IDuration {
                 if (countSec > 0) {
                     out += Long.toString(countSec, 10);
                     out += "S";
+                }
+
+                // If all components are zero, represent as PT0S per schema convention
+                if (countHours == 0 && countMin == 0 && countSec == 0) {
+                    out += "0S";
                 }
                 break;
             }
