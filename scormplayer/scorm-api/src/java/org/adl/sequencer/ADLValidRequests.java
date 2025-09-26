@@ -210,7 +210,7 @@ public class ADLValidRequests implements Serializable, IValidRequests {
         log.debug("""
                     :: ADLValidRequests   --> BEGIN - dumpState
                     ::--> Start         : {}
-                    ::--> Start         : {}
+                    ::--> Resume        : {}
                     ::--> Continue      : {}
                     ::--> Continue Exit : {}
                     ::--> Previous      : {}
