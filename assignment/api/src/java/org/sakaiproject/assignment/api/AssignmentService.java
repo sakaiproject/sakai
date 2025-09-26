@@ -897,4 +897,9 @@ public interface AssignmentService extends EntityProducer {
      * Returns true if the submission contains instructor feedback, whether as comment text (inline) or attachments.
      */
     public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission);
+
+    public boolean isHiddenAssignmentToolInAllSites(List<Site> sites);
+
+    public boolean isHiddenAssignmentTool(Site site);
+
 }

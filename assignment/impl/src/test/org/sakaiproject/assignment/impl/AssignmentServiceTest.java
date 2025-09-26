@@ -49,6 +49,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
@@ -86,6 +87,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
@@ -93,6 +95,8 @@ import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tasks.api.UserTaskAdapterBean;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -138,6 +142,11 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private UserDirectoryService userDirectoryService;
 
     private ResourceLoader resourceLoader;
+
+    private List<Site> sites;
+    private Site site1, site2;
+    private Properties properties1, properties2;
+    @Autowired private ToolManager toolManager;
 
     @Before
     public void setUp() {
@@ -1813,4 +1822,103 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         return br.lines().collect(Collectors.joining("\n"));
     }
+
+    private void setUpHiddenAssignmentMethods() {
+        // Create sites
+        sites = new ArrayList<Site>();
+        //Site1
+        site1 = mock(Site.class);
+        when(site1.getId()).thenReturn("Site1");
+        when(site1.getType()).thenReturn("course");
+
+        SitePage sitePage1 = mock(SitePage.class);
+        when(site1.getPages()).thenReturn(List.of(sitePage1));
+
+        ToolConfiguration tool1 = mock(ToolConfiguration.class);
+        when(tool1.getToolId()).thenReturn("sakai.assignment.grades");
+        properties1 = mock(Properties.class);
+
+        when(tool1.getConfig()).thenReturn(properties1);
+        when(sitePage1.getTools()).thenReturn(List.of(tool1));
+
+        sites.add(site1);
+        //Site2
+        site2 = mock(Site.class);
+        when(site2.getId()).thenReturn("Site2");
+        when(site2.getType()).thenReturn("course");
+
+        SitePage sitePage2 = mock(SitePage.class);
+        when(site2.getPages()).thenReturn(List.of(sitePage2));
+
+        ToolConfiguration tool2 = mock(ToolConfiguration.class);
+        when(tool2.getToolId()).thenReturn("sakai.assignment.grades");
+        properties2 = mock(Properties.class);
+
+        when(tool2.getConfig()).thenReturn(properties2);
+        when(sitePage2.getTools()).thenReturn(List.of(tool2));
+
+        sites.add(site2);
+    }
+
+    @Test
+    public void isHiddenAssignmentToolInAllSitesTest() throws Exception{
+        setUpHiddenAssignmentMethods();
+        when(properties1.getProperty(ToolManager.PORTAL_VISIBLE)).thenReturn("false");
+        when(properties2.getProperty(ToolManager.PORTAL_VISIBLE)).thenReturn("false");
+
+        Assert.assertTrue(!sites.isEmpty());
+        for (Site site : sites) {
+            Assert.assertTrue(!site.getId().isBlank());
+            Assert.assertEquals("false", site.getPages().get(0).getTools().get(0).getConfig().getProperty(ToolManager.PORTAL_VISIBLE));
+            boolean visible = Boolean.parseBoolean(site.getPages().get(0).getTools().get(0).getConfig().getProperty(ToolManager.PORTAL_VISIBLE));
+            //isHidden return true if visible is false
+            when(toolManager.isHidden(site.getPages().get(0).getTools().get(0))).thenReturn(!visible);
+        }
+
+        Assert.assertTrue(assignmentService.isHiddenAssignmentToolInAllSites(sites));
+    }
+
+    @Test
+    public void notIsHiddenAssignmentToolInAllSitesTest() throws Exception{
+        setUpHiddenAssignmentMethods();
+        when(properties1.getProperty(ToolManager.PORTAL_VISIBLE)).thenReturn("true");
+        when(properties2.getProperty(ToolManager.PORTAL_VISIBLE)).thenReturn("false");
+
+        Assert.assertTrue(!sites.isEmpty());
+        for (Site site : sites) {
+            Assert.assertTrue(!site.getId().isBlank());
+            boolean visible = Boolean.parseBoolean(site.getPages().get(0).getTools().get(0).getConfig().getProperty(ToolManager.PORTAL_VISIBLE));
+            //isHidden return true if visible is false
+            when(toolManager.isHidden(site.getPages().get(0).getTools().get(0))).thenReturn(!visible);
+        }
+
+        Assert.assertTrue(!assignmentService.isHiddenAssignmentToolInAllSites(sites));
+    }
+
+    @Test
+    public void isHiddenAssignmentToolTest() throws Exception{
+        setUpHiddenAssignmentMethods();
+        when(properties1.getProperty(ToolManager.PORTAL_VISIBLE)).thenReturn("false");
+
+        Assert.assertTrue(!site1.getId().isBlank());
+        boolean visible = Boolean.parseBoolean(site1.getPages().get(0).getTools().get(0).getConfig().getProperty(ToolManager.PORTAL_VISIBLE));
+        //isHidden return true if visible is false
+        when(toolManager.isHidden(site1.getPages().get(0).getTools().get(0))).thenReturn(!visible);
+
+        Assert.assertTrue(assignmentService.isHiddenAssignmentTool(site1));
+    }
+
+    @Test
+    public void notIsHiddenAssignmentToolTest() throws Exception{
+        setUpHiddenAssignmentMethods();
+        when(properties2.getProperty(ToolManager.PORTAL_VISIBLE)).thenReturn("true");
+
+        Assert.assertTrue(!site2.getId().isBlank());
+        boolean visible = Boolean.parseBoolean(site2.getPages().get(0).getTools().get(0).getConfig().getProperty(ToolManager.PORTAL_VISIBLE));
+        //isHidden return true if visible is false
+        when(toolManager.isHidden(site2.getPages().get(0).getTools().get(0))).thenReturn(!visible);
+
+        Assert.assertTrue(!assignmentService.isHiddenAssignmentTool(site2));
+    }
+
 }

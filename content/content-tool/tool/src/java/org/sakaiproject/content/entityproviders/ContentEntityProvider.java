@@ -82,6 +82,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
@@ -208,8 +209,20 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 			throw new IllegalArgumentException("siteId a must be set in order to get the resources for a site, via the URL /content/site/siteId");
 		}
 
-		// return the ListItem list for the site
-		return getSiteListItems(siteId);
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			log.warn(this + " getContentCollectionForSite: Cannot find site with id=" + siteId);
+			throw new EntityException("No site found", "", HttpServletResponse.SC_NOT_FOUND);
+		}
+
+		if (site!=null && !isHiddenContentTool(site)) {
+		    // return the ListItem list for the site
+		    return getSiteListItems(siteId);
+		} else {
+			throw new EntityException("You don't have permissions read resources", "", HttpServletResponse.SC_FORBIDDEN);
+		}
 	}
 
 	@EntityCustomAction(action="resources", viewKey=EntityView.VIEW_LIST)
@@ -716,7 +729,19 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		
 		return urlString;
 	}
-	
+
+	protected boolean isHiddenContentTool(Site site) {
+		String tid = "";
+		boolean hiddenContentAssignment = false;
+		for (SitePage page : (List<SitePage>)site.getPages()) {
+			for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
+				tid = tool.getToolId();
+				if ("sakai.resources".equals(tid) && toolManager.isHidden(tool)) { hiddenContentAssignment = true; }
+			}
+		}
+		return hiddenContentAssignment;
+	}
+
 	/**
 	 * set various attributes of ContentItem object
 	 * @param entity
