@@ -389,7 +389,7 @@ const defaults = {
       if (isDisabled) return;
 
       // Remove previous icons
-      document.querySelectorAll('.date-input-clipboard-focus-icon, .date-input-paste-focus-icon').forEach(el => el.remove());
+      input.parentNode.querySelectorAll('.date-input-clipboard-focus-icon, .date-input-paste-focus-icon').forEach(el => el.remove());
 
       // Copy icon
       const copyIcon = document.createElement('i');
