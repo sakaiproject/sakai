@@ -56,6 +56,7 @@
 - **ES6+**: Prefer ES6+ features (arrow functions, template literals, destructuring, etc.)
 - **Modular Code**: Write modular, reusable JavaScript components
 - **Avoid Global Scope**: Minimize use of global variables and functions
+- **Lit Component Encapsulation**: When adding reactive state to Lit-based web components, prefix internal-only properties with an underscore (e.g., `_points`) and expose explicit getters if external access is needed.
 
 ## Code Style Guidelines
 - **Commit Messages**: `<issue key> <component> <brief description>` (e.g., `SAK-12345 Assignments add option x`)

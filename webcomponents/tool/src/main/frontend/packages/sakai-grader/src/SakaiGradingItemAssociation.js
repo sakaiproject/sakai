@@ -10,6 +10,8 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
     gradingItemId: { state: true },
     useGrading: { attribute: "use-grading", type: Boolean },
     createGradingItem: { state: true },
+    _pointsEditable: { state: true },
+    _points: { state: true },
     _categories: { state: true },
     _gradingItems: { state: true },
     _useCategory: { state: true },
@@ -20,6 +22,7 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
     super.connectedCallback();
 
     this.createGradingItem = !this.gradingItemId;
+    this._pointsEditable = true;
 
     this._useCategory = false;
 
@@ -36,15 +39,26 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
 
         if (this.gradingItemId) {
           const gradingItem = this._gradingItems.find(gi => gi.id == this.gradingItemId);
-          this.renderRoot.getElementById("points").value = gradingItem.points;
-          if (gradingItem.externalId != this.gradableRef) {
-            this.renderRoot.getElementById("points").disabled = true;
-          } else {
-            this.renderRoot.getElementById("points").disabled = false;
-          }
+          this._applyPointsFromItem(gradingItem);
         }
       });
     });
+  }
+
+  get points() {
+    return this._points;
+  }
+
+  _applyPointsFromItem(gradingItem) {
+
+    if (!gradingItem) {
+      this._points = undefined;
+      this._pointsEditable = true;
+    } else {
+      this._points = gradingItem.points;
+      this._pointsEditable = gradingItem.externalId === this.gradableRef;
+    }
+
   }
 
   _fetchItemData() {
@@ -75,6 +89,8 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
       pointsInput.disabled = false;
       pointsInput.value = "";
     }
+    this._points = undefined;
+    this._pointsEditable = true;
   }
 
   _showExistingItemBlock() {
@@ -85,7 +101,7 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
 
       this.gradingItemId = this.renderRoot.getElementById("items").value;
       const gradingItem = this._gradingItems.find(gi => gi.id == this.gradingItemId);
-      this.renderRoot.getElementById("points").value = gradingItem.points;
+      this._applyPointsFromItem(gradingItem);
     });
 
     this._useCategory = false;
@@ -95,13 +111,7 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
 
     this.gradingItemId = e.target.value;
     const gradingItem = this._gradingItems.find(gi => gi.id == e.target.value);
-    this.renderRoot.getElementById("points").value = gradingItem.points;
-    this.points = gradingItem.points;
-    if (gradingItem.externalId != this.gradableRef) {
-      this.renderRoot.getElementById("points").disabled = true;
-    } else {
-      this.renderRoot.getElementById("points").disabled = false;
-    }
+    this._applyPointsFromItem(gradingItem);
   }
 
   _setUseCategory(e) {
@@ -117,7 +127,7 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
 
   _categorySelected(e) { this.category = e.target.value; }
 
-  _inputPoints(e) { this.points = e.target.value; }
+  _inputPoints(e) { this._points = e.target.value; }
 
   shouldUpdate() { return this._i18n && this._gradingItems; }
 
@@ -134,7 +144,12 @@ export class SakaiGradingItemAssociation extends SakaiShadowElement {
         <div class="ms-4">
           <label>
             <span>${this._i18n.points}</span>
-            <input id="points" type="text" @input=${this._inputPoints}>
+            <input
+                id="points"
+                type="text"
+                .value=${this._points ?? ""}
+                ?disabled=${!this._pointsEditable}
+                @input=${this._inputPoints}>
           </label>
         </div>
         <div class="ms-4 mt-3">
