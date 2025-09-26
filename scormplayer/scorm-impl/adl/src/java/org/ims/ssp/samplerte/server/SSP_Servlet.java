@@ -375,7 +375,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
             log.debug("Minimum size was used");
 		} else {
 			errorCode = SSP_DMErrorCodes.NO_ERROR;
-            log.debug("Bucket was not created - could not allocate " + "requested space and could not reduce.");
+            log.debug("Bucket was not created - could not allocate requested space and could not reduce.");
 		}
 
 		if (created) {
@@ -538,9 +538,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
                             data = bucketAllocation.getValue().getBytes(Bucket.CHARSET);
                         } catch (UnsupportedEncodingException uee) {
                             data = bucketAllocation.getValue().getBytes();
-
-                            log.debug("UnsupportedEncodingException: " + Bucket.CHARSET + " is not a " + "supported encoding.  The default "
-                                    + "encoding is being used");
+                            log.debug("UnsupportedEncodingException: {} is not a supported encoding.  The default encoding is being used", Bucket.CHARSET);
                         }
 
                         if (bucketAllocation.getOffset() == null) {
@@ -758,9 +756,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
 						oData = reqData.getBytes(Bucket.CHARSET);
 					} catch (UnsupportedEncodingException uee) {
 						oData = reqData.getBytes();
-
-						log.debug("UnsupportedEncodingException: " + Bucket.CHARSET + " is not a " + "supported encoding.  The default "
-						        + "encoding is being used");
+                        log.debug("UnsupportedEncodingException: {} is not a supported encoding.  The default encoding is being used", Bucket.CHARSET);
 					}
 
 					try {

@@ -222,14 +222,15 @@ public class SeqCondition implements Serializable {
 	 * This method provides the state this <code>SeqCondition</code> object for
 	 * diagnostic purposes.
 	 */
-	public void dumpState() {		log.debug("  :: SeqCondition  --> BEGIN - dumpState");
-
-		log.debug("  ::--> Condition :  " + mCondition);
-		log.debug("  ::--> Not?      :  " + mNot);
-		log.debug("  ::--> Obj ID    :  " + mObjID);
-		log.debug("  ::--> Threshold :  " + mThreshold);
-
-		log.debug("  :: SeqCondition  --> END   - dumpState");
+	public void dumpState() {
+        log.debug("""
+                    :: SeqCondition  --> BEGIN - dumpState
+                    ::--> Condition :  {}
+                    ::--> Not?      :  {}
+                    ::--> Obj ID    :  {}
+                    ::--> Threshold :  {}
+                    :: SeqCondition  --> END   - dumpState
+                  """, mCondition, mNot, mObjID, mThreshold);
 	}
 
 	@Override

@@ -26,7 +26,6 @@ package org.adl.validator.contentpackage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
-import java.util.logging.Logger;
 
 /**
  * <strong>Filename: </strong><br>LaunchData.java<br><br>
@@ -71,11 +70,6 @@ public class LaunchData implements ILaunchData {
 	 * The variable representing the hideLMSUI value of "suspendAll".
 	 */
 	public boolean mSuspendAll;
-
-	/**
-	 * Logger object used for debug logging.
-	 */
-	private transient Logger mLogger = Logger.getLogger("org.adl.util.debug.validator");
 
 	/**
 	 * The identifier attribute of the <code>&lt;organization&gt;</code> 
@@ -537,42 +531,27 @@ public class LaunchData implements ILaunchData {
 
 	/**
 	 * Displays a string representation of the data structure for the SCO
-	 * Integration to the Java logger. 
+	 * Integration to the log. 
 	 */
 	@Override
 	public void print() {
-		mLogger.fine("##################################################");
-		mLogger.fine("####   resourceIdentifier = '" + mResourceIdentifier + "'");
-		mLogger.fine("####   itemIdentifier = '" + mItemIdentifier + "'");
-		mLogger.fine("####   itemTitle = '" + mItemTitle + "'");
-		mLogger.fine("####   manifestXMLBase = '" + mManifestXMLBase + "'");
-		mLogger.fine("####   resourcesXMLBase = '" + mResourcesXMLBase + "'");
-		mLogger.fine("####   resourceXMLBase = '" + mResourceXMLBase + "'");
-		mLogger.fine("####   scormType = '" + mSCORMType + "'");
-		mLogger.fine("####   parameters = '" + mParameters + "'");
-		mLogger.fine("####   location = '" + mLocation + "'");
-		mLogger.fine("####   LaunchLine = '" + getLaunchLine() + "'");
-		mLogger.fine("##################################################");
-	}
-
-	/**
-	 * Displays a string representation of the data structure for Integration to
-	 * the Java Console.
-	 */
-	@Override
-	public void printToConsole() {
-		log.info("###############################################");
-		log.info("###   resourceIdentifier = '" + mResourceIdentifier + "'");
-		log.info("###  itemIdentifier = '" + mItemIdentifier + "'");
-		log.info("###  itemTitle = '" + mItemTitle + "'");
-		log.info("###  manifestXMLBase = '" + mManifestXMLBase + "'");
-		log.info("###  resourcesXMLBase = '" + mResourcesXMLBase + "'");
-		log.info("###  resourceXMLBase = '" + mResourceXMLBase + "'");
-		log.info("###  scormType = '" + mSCORMType + "'");
-		log.info("###  parameters = '" + mParameters + "'");
-		log.info("###  location = '" + mLocation + "'");
-		log.info("###  LaunchLine = '" + getLaunchLine() + "'");
-		log.info("###############################################");
+        log.info("""
+                   ###############################################
+                   ###  resourceIdentifier = '{}'
+                   ###  itemIdentifier = '{}'
+                   ###  itemTitle = '{}'
+                   ###  manifestXMLBase = '{}'
+                   ###  resourcesXMLBase = '{}'
+                   ###  resourceXMLBase = '{}'
+                   ###  scormType = '{}'
+                   ###  parameters = '{}'
+                   ###  location = '{}'
+                   ###  LaunchLine = '{}'
+                   ###############################################
+                 """,
+                mResourceIdentifier, mItemIdentifier, mItemTitle,
+                mManifestXMLBase, mResourcesXMLBase, mResourceXMLBase,
+                mSCORMType, mParameters, mLocation, getLaunchLine());
 	}
 
 	/**
