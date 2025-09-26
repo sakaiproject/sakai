@@ -66,6 +66,12 @@ export class SakaiShadowElement extends LitElement {
       select[multiple], select[size]:not([size='1']) {
         background-image: none;
       }
+      .form-select,
+      select:not([multiple]):not([size]) {
+        background-image: var(--select-background-image-url) !important;
+        background-repeat: no-repeat;
+        appearance: none;
+      }
     `
   ];
 }
