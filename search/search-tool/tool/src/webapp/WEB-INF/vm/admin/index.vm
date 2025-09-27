@@ -80,7 +80,11 @@ function submitCommand(button, command) {
     setTimeout(() => {
         const form = button.closest('form') || document.querySelector('form');
         if (form) {
-            form.innerHTML += '<input type="hidden" name="command" value="' + command + '">';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'command';
+            input.value = command;
+            form.appendChild(input);
             form.submit();
         }
     }, 100);
