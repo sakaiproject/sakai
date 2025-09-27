@@ -2654,7 +2654,7 @@ public class SakaiLTIUtil {
 	}
 
 	/**
-	 * Handle gradebook LTI13 with content bean
+	 * Handle gradebook LTI13 with content Map
 	 * @param site the site
 	 * @param tool_id the tool id
 	 * @param content the content Map (can be null)
@@ -2689,8 +2689,8 @@ public class SakaiLTIUtil {
 		// Check if this is as assignment placement and handle it if it is
 		if ( lineitem_key == null ) {
 			if (content == null ) {
-				log.error("handleGradeBookLTI13 requires either content to be not null or have a line_item key");
-				return "handleGradeBookLTI13 requires either content to be not null or have a line_item key";
+				log.error("handleGradebookLTI13 requires either content to be not null or have a lineitem_key");
+				return "handleGradebookLTI13 requires either content to be not null or have a lineitem_key";
 			}
 			pushAdvisor(); // Add security advisor to allow access to assignments
 			try {
@@ -3521,13 +3521,18 @@ public class SakaiLTIUtil {
 	 */
 	public static org.sakaiproject.lti.beans.LtiToolBean findBestToolMatchPojo(String launchUrl, String toolCheckSum, List<org.sakaiproject.lti.beans.LtiToolBean> tools)
 	{
-	// Convert POJOs to maps for the existing logic
-	List<Map<String,Object>> toolMaps = new ArrayList<>();
-	for (org.sakaiproject.lti.beans.LtiToolBean tool : tools) {
-		if (tool != null) {
-			toolMaps.add(tool.asMap());
+		// Guard against null tools parameter
+		if (tools == null) {
+			return null;
 		}
-	}
+		
+		// Convert POJOs to maps for the existing logic
+		List<Map<String,Object>> toolMaps = new ArrayList<>();
+		for (org.sakaiproject.lti.beans.LtiToolBean tool : tools) {
+			if (tool != null) {
+				toolMaps.add(tool.asMap());
+			}
+		}
 
 		Map<String,Object> result = findBestToolMatch(launchUrl, toolCheckSum, toolMaps);
 		return result != null ? org.sakaiproject.lti.beans.LtiToolBean.of(result) : null;

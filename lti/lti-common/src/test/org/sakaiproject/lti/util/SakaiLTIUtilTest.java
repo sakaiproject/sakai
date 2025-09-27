@@ -1308,6 +1308,25 @@ public class SakaiLTIUtilTest {
 		assertTrue("POJO code should contain content ID", pojoCode.contains(":123:"));
 		assertTrue("Map code should contain content ID", mapCode.contains(":123:"));
 	}
+
+	@Test
+	public void testFindBestToolMatchPojoNullHandling() {
+		// Test null tools parameter
+		org.sakaiproject.lti.beans.LtiToolBean result = SakaiLTIUtil.findBestToolMatchPojo("http://example.com/launch", "checksum", null);
+		assertNull("findBestToolMatchPojo should return null when tools is null", result);
+		
+		// Test empty tools list
+		List<org.sakaiproject.lti.beans.LtiToolBean> emptyTools = new ArrayList<>();
+		result = SakaiLTIUtil.findBestToolMatchPojo("http://example.com/launch", "checksum", emptyTools);
+		assertNull("findBestToolMatchPojo should return null when tools list is empty", result);
+		
+		// Test tools list with null entries
+		List<org.sakaiproject.lti.beans.LtiToolBean> toolsWithNulls = new ArrayList<>();
+		toolsWithNulls.add(null);
+		toolsWithNulls.add(null);
+		result = SakaiLTIUtil.findBestToolMatchPojo("http://example.com/launch", "checksum", toolsWithNulls);
+		assertNull("findBestToolMatchPojo should return null when all tools are null", result);
+	}
 }
 
 
