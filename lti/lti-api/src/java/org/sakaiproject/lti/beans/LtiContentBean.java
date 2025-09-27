@@ -45,35 +45,38 @@ import org.sakaiproject.lti.api.LTIService;
 @ToString(exclude = {"placementsecret", "oldplacementsecret"})
 public class LtiContentBean extends LTIBaseBean {
 
-    public Long id;
-    public Long toolId;
-    public String siteId;
-    public String title;
-    public String description;
-    public Integer frameheight;
-    public Boolean newpage;
-    public Boolean protect;
-    public Boolean debug;
-    public String custom;
-    public String launch;
-    public String xmlimport;
-    public String settings;
-    public String contentitem;
-    public String placement;
-    public String placementsecret;
-    public String oldplacementsecret;
-    public Long lti13;
-    public String lti13Settings;
-    public Date createdAt;
-    public Date updatedAt;
+    // Core fields from CONTENT_MODEL
+    public Long id;                    // CONTENT_MODEL: "id:key:archive=true"
+    public Long toolId;                // CONTENT_MODEL: "tool_id:integer:hidden=true"
+    public String siteId;              // CONTENT_MODEL: "SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin"
+    public String title;               // CONTENT_MODEL: "title:text:label=bl_title:required=true:maxlength=1024:archive=true"
+    public String description;         // CONTENT_MODEL: "description:textarea:label=bl_description:maxlength=4096:archive=true"
+    public Integer frameheight;        // CONTENT_MODEL: "frameheight:integer:label=bl_frameheight:archive=true"
+    public Boolean newpage;            // CONTENT_MODEL: "newpage:checkbox:label=bl_newpage:archive=true"
+    public Boolean protect;            // CONTENT_MODEL: "protect:checkbox:label=bl_protect:role=admin"
+    public Boolean debug;              // CONTENT_MODEL: "debug:checkbox:label=bl_debug"
+    // LTI fields from CONTENT_MODEL
+    public String custom;              // CONTENT_MODEL: "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384:archive=true"
+    public String launch;              // CONTENT_MODEL: "launch:url:label=bl_launch:hidden=true:maxlength=1024:archive=true"
+    public String xmlimport;           // CONTENT_MODEL: "xmlimport:text:hidden=true:maxlength=1M"
+    public String settings;            // CONTENT_MODEL: "settings:text:hidden=true:maxlength=1M"
+    public String contentitem;         // CONTENT_MODEL: "contentitem:text:label=bl_contentitem:rows=5:cols=25:maxlength=1M:hidden=true:archive=true"
+    public String placement;           // CONTENT_MODEL: "placement:text:hidden=true:maxlength=256"
+    public String placementsecret;     // CONTENT_MODEL: "placementsecret:text:hidden=true:maxlength=512"
+    public String oldplacementsecret;  // CONTENT_MODEL: "oldplacementsecret:text:hidden=true:maxlength=512"
+    public Long lti13;                 // CONTENT_MODEL: "lti13:radio:hide=insert:label=bl_lti13:choices=inherit,off,on:role=admin"
+    public String lti13Settings;       // CONTENT_MODEL: "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin"
+    // Timestamps from CONTENT_MODEL
+    public Date createdAt;             // CONTENT_MODEL: "created_at:autodate"
+    public Date updatedAt;             // CONTENT_MODEL: "updated_at:autodate"
 
-    // Extra fields that can be populated from joins
-    public String siteTitle;
-    public String siteContactName;
-    public String siteContactEmail;
-    public String attribution;
-    public String url;
-    public String searchUrl;
+    // Extra fields that can be populated from joins (CONTENT_EXTRA_FIELDS)
+    public String siteTitle;           // CONTENT_EXTRA_FIELDS: "SITE_TITLE:text:table=SAKAI_SITE:realname=TITLE"
+    public String siteContactName;     // CONTENT_EXTRA_FIELDS: "SITE_CONTACT_NAME:text:table=ssp1:realname=VALUE"
+    public String siteContactEmail;    // CONTENT_EXTRA_FIELDS: "SITE_CONTACT_EMAIL:text:table=ssp2:realname=VALUE"
+    public String attribution;         // CONTENT_EXTRA_FIELDS: "ATTRIBUTION:text:table=ssp3:realname=VALUE"
+    public String url;                 // CONTENT_EXTRA_FIELDS: "URL:text:table=ssp4:realname=VALUE"
+    public String searchUrl;           // CONTENT_EXTRA_FIELDS: "searchURL:text:table=ssp5:realname=VALUE"
 
     /**
      * Creates an LtiContentBean instance from a Map<String, Object>.

@@ -44,11 +44,12 @@ import org.sakaiproject.lti.api.LTIService;
 @ToString
 public class LtiMembershipsJobBean extends LTIBaseBean {
 
-    public String siteId;
-    public String membershipsId;
-    public String membershipsUrl;
-    public String consumerkey;
-    public String ltiVersion;
+    // Fields from MEMBERSHIPS_JOBS_MODEL
+    public String siteId;              // MEMBERSHIPS_JOBS_MODEL: "SITE_ID:text:maxlength=99:required=true"
+    public String membershipsId;       // MEMBERSHIPS_JOBS_MODEL: "memberships_id:text:maxlength=256:required=true"
+    public String membershipsUrl;      // MEMBERSHIPS_JOBS_MODEL: "memberships_url:text:maxlength=4000:required=true"
+    public String consumerkey;         // MEMBERSHIPS_JOBS_MODEL: "consumerkey:text:label=bl_consumerkey:maxlength=1024"
+    public String ltiVersion;          // MEMBERSHIPS_JOBS_MODEL: "lti_version:text:maxlength=32:required=true"
 
     /**
      * Creates an LtiMembershipsJobBean instance from a Map<String, Object>.
