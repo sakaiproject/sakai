@@ -1,4 +1,5 @@
 #header(false ${adminModel.title})
+<script src="/library/js/spinner.js$!{portalCdnQuery}"></script>
 <div class="portletBody">    		
     <ul class="navIntraTool actionToolBar">
         <!-- Home Link -->
@@ -26,7 +27,7 @@
                             <div class="btn-toolbar" role="toolbar">
                                 #foreach( $option in ${adminModel.defaultOptions} )
                                     #if ($option.name != "${rlb.searchadmin_cmd_refreshsiteind}")
-                                        <button class="btn btn-primary" onclick="window.location='${option.url}'" ${option.attributes}>${option.name}</button>
+                                        <button class="btn btn-primary" onclick="SPNR.disableControlsAndSpin(this, null); setTimeout(() => location='${option.url}', 100);" ${option.attributes}>${option.name}</button>
                                     #end
                                 #end
                             </div>
@@ -54,7 +55,7 @@
                                         <div class="input-group-btn">
                                             #foreach( $option in ${adminModel.indexSpecificOptions} )
                                                 #if ($option.name != "${rlb.searchadmin_cmd_refreshind}")
-                                                    <button class="btn btn-primary" type="submit" name="command" value="${option.url}">${option.name}</button>
+                                                    <button class="btn btn-primary" type="button" onclick="submitCommand(this, '${option.url}')">${option.name}</button>
                                                 #end
                                             #end
                                         </div>
@@ -72,4 +73,22 @@
         </div>
     </div>
 </div>
+
+<script>
+function submitCommand(button, command) {
+    SPNR.disableControlsAndSpin(button, null);
+    setTimeout(() => {
+        const form = button.closest('form') || document.querySelector('form');
+        if (form) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'command';
+            input.value = command;
+            form.appendChild(input);
+            form.submit();
+        }
+    }, 100);
+}
+</script>
+
 #footer()
