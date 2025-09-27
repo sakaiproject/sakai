@@ -53,7 +53,7 @@ public class LtiToolBean extends LTIBaseBean {
     public String visible;
     public Long deploymentId;
     public String launch;
-    public String newpage;
+    public Integer newpage;
     public Integer frameheight;
     public String faIcon;
     
@@ -80,7 +80,7 @@ public class LtiToolBean extends LTIBaseBean {
     public Boolean allowlineitems;
     public Boolean allowroster;
     
-    public String debug;
+    public Integer debug;
     public String siteinfoconfig;
     public String splash;
     public String custom;
@@ -135,7 +135,7 @@ public class LtiToolBean extends LTIBaseBean {
         tool.setVisible(getStringValue(map, LTIService.LTI_VISIBLE));
         tool.setDeploymentId(getLongValue(map, "deployment_id"));
         tool.setLaunch(getStringValue(map, LTIService.LTI_LAUNCH));
-        tool.setNewpage(getStringValue(map, "newpage"));
+        tool.setNewpage(getThreeStateValue(map, "newpage", "newpage"));
         tool.setFrameheight(getIntegerValue(map, LTIService.LTI_FRAMEHEIGHT));
         tool.setFaIcon(getStringValue(map, LTIService.LTI_FA_ICON));
         
@@ -163,7 +163,7 @@ public class LtiToolBean extends LTIBaseBean {
         tool.setAllowroster(getBooleanValue(map, LTIService.LTI_ALLOWROSTER));
         
         // Configuration
-        tool.setDebug(getStringValue(map, LTIService.LTI_DEBUG));
+        tool.setDebug(getThreeStateValue(map, LTIService.LTI_DEBUG, "debug"));
         tool.setSiteinfoconfig(getStringValue(map, "siteinfoconfig"));
         tool.setSplash(getStringValue(map, LTIService.LTI_SPLASH));
         tool.setCustom(getStringValue(map, LTIService.LTI_CUSTOM));
@@ -217,35 +217,35 @@ public class LtiToolBean extends LTIBaseBean {
         putIfNotNull(map, LTIService.LTI_VISIBLE, visible);
         putIfNotNull(map, "deployment_id", deploymentId);
         putIfNotNull(map, LTIService.LTI_LAUNCH, launch);
-        putIfNotNull(map, "newpage", newpage);
+        putThreeStateIfNotNull(map, "newpage", newpage, "newpage");
         putIfNotNull(map, LTIService.LTI_FRAMEHEIGHT, frameheight);
         putIfNotNull(map, LTIService.LTI_FA_ICON, faIcon);
         
         // Message Types
-        putIfNotNull(map, "pl_launch", plLaunch);
-        putIfNotNull(map, "pl_linkselection", plLinkselection);
-        putIfNotNull(map, "pl_contextlaunch", plContextlaunch);
+        putBooleanAsInteger(map, "pl_launch", plLaunch);
+        putBooleanAsInteger(map, "pl_linkselection", plLinkselection);
+        putBooleanAsInteger(map, "pl_contextlaunch", plContextlaunch);
         
         // Placements
-        putIfNotNull(map, "pl_lessonsselection", plLessonsselection);
-        putIfNotNull(map, "pl_contenteditor", plContenteditor);
-        putIfNotNull(map, "pl_assessmentselection", plAssessmentselection);
-        putIfNotNull(map, "pl_coursenav", plCoursenav);
-        putIfNotNull(map, "pl_importitem", plImportitem);
-        putIfNotNull(map, "pl_fileitem", plFileitem);
+        putBooleanAsInteger(map, "pl_lessonsselection", plLessonsselection);
+        putBooleanAsInteger(map, "pl_contenteditor", plContenteditor);
+        putBooleanAsInteger(map, "pl_assessmentselection", plAssessmentselection);
+        putBooleanAsInteger(map, "pl_coursenav", plCoursenav);
+        putBooleanAsInteger(map, "pl_importitem", plImportitem);
+        putBooleanAsInteger(map, "pl_fileitem", plFileitem);
         
         // Privacy
-        putIfNotNull(map, LTIService.LTI_SENDNAME, sendname);
-        putIfNotNull(map, LTIService.LTI_SENDEMAILADDR, sendemailaddr);
-        putIfNotNull(map, "pl_privacy", plPrivacy);
+        putBooleanAsInteger(map, LTIService.LTI_SENDNAME, sendname);
+        putBooleanAsInteger(map, LTIService.LTI_SENDEMAILADDR, sendemailaddr);
+        putBooleanAsInteger(map, "pl_privacy", plPrivacy);
         
         // Services
-        putIfNotNull(map, LTIService.LTI_ALLOWOUTCOMES, allowoutcomes);
-        putIfNotNull(map, LTIService.LTI_ALLOWLINEITEMS, allowlineitems);
-        putIfNotNull(map, LTIService.LTI_ALLOWROSTER, allowroster);
+        putBooleanAsInteger(map, LTIService.LTI_ALLOWOUTCOMES, allowoutcomes);
+        putBooleanAsInteger(map, LTIService.LTI_ALLOWLINEITEMS, allowlineitems);
+        putBooleanAsInteger(map, LTIService.LTI_ALLOWROSTER, allowroster);
         
         // Configuration
-        putIfNotNull(map, LTIService.LTI_DEBUG, debug);
+        putThreeStateIfNotNull(map, LTIService.LTI_DEBUG, debug, "debug");
         putIfNotNull(map, "siteinfoconfig", siteinfoconfig);
         putIfNotNull(map, LTIService.LTI_SPLASH, splash);
         putIfNotNull(map, LTIService.LTI_CUSTOM, custom);

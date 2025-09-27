@@ -24,11 +24,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Base class providing common type conversion utilities for LTI POJOs.
  * These methods handle the robust conversion of Object types from database results
  * to strongly-typed POJO fields, similar to the LTIUtil conversion methods.
- * 
+ *
  * Implementation assistance provided by Claude AI for comprehensive type conversion
  * and robust database number handling across SQLite, Oracle, and MySQL systems.
  */
@@ -36,7 +39,7 @@ public abstract class LTIBaseBean {
 
     /**
      * Safely converts a map value to a String.
-     * 
+     *
      * @param map The map containing the value
      * @param key The key to look up
      * @return The string value, or null if not found or null
@@ -53,7 +56,7 @@ public abstract class LTIBaseBean {
      * - All Number types (Integer, Long, Double, Float, Short, Byte, BigDecimal, etc.)
      * - Decimal truncation (like LTIUtil)
      * - Invalid strings return null
-     * 
+     *
      * @param map The map containing the value
      * @param key The key to look up
      * @return The Long value, or null if not found, null, or invalid
@@ -63,7 +66,7 @@ public abstract class LTIBaseBean {
         if (value == null) {
             return null;
         }
-        
+
         // Handle String types (including database string representations)
         if (value instanceof String) {
             String str = (String) value;
@@ -81,12 +84,12 @@ public abstract class LTIBaseBean {
                 return null;
             }
         }
-        
+
         // Handle all Number types (Integer, Long, Double, Float, Short, Byte, BigDecimal, etc.)
         if (value instanceof Number) {
             return Long.valueOf(((Number) value).longValue());
         }
-        
+
         // Fallback: try toString() conversion
         try {
             String str = value.toString();
@@ -106,7 +109,7 @@ public abstract class LTIBaseBean {
      * - All Number types (Integer, Long, Double, Float, Short, Byte, BigDecimal, etc.)
      * - Decimal truncation (like LTIUtil)
      * - Invalid strings return null
-     * 
+     *
      * @param map The map containing the value
      * @param key The key to look up
      * @return The Integer value, or null if not found, null, or invalid
@@ -116,7 +119,7 @@ public abstract class LTIBaseBean {
         if (value == null) {
             return null;
         }
-        
+
         // Handle String types (including database string representations)
         if (value instanceof String) {
             String str = (String) value;
@@ -134,12 +137,12 @@ public abstract class LTIBaseBean {
                 return null;
             }
         }
-        
+
         // Handle all Number types (Integer, Long, Double, Float, Short, Byte, BigDecimal, etc.)
         if (value instanceof Number) {
             return Integer.valueOf(((Number) value).intValue());
         }
-        
+
         // Fallback: try toString() conversion
         try {
             String str = value.toString();
@@ -154,7 +157,7 @@ public abstract class LTIBaseBean {
 
     /**
      * Safely converts a map value to a Boolean, handling common boolean representations.
-     * 
+     *
      * @param map The map containing the value
      * @param key The key to look up
      * @return The Boolean value, or null if not found or null
@@ -174,7 +177,7 @@ public abstract class LTIBaseBean {
 
     /**
      * Safely converts a map value to a Date, handling various timestamp representations.
-     * 
+     *
      * @param map The map containing the value
      * @param key The key to look up
      * @return The Date value, or null if not found or null
@@ -203,8 +206,88 @@ public abstract class LTIBaseBean {
     }
 
     /**
+     * Safely converts a map value to a three-state Integer (0=off, 1=on, 2=content, null=off).
+     * Validates that the value is in the valid set and logs warnings for invalid values.
+     *
+     * @param map The map containing the value
+     * @param key The key to look up
+     * @param fieldName The name of the field for logging purposes (e.g., "newpage", "debug")
+     * @return The Integer value (0, 1, 2, or null), with null treated as 0
+     */
+    protected static Integer getThreeStateValue(Map<String, Object> map, String key, String fieldName) {
+        Object value = map.get(key);
+        if (value == null) {
+            return null; // null is valid and represents "off" (0)
+        }
+
+        Integer intValue = null;
+
+        // Convert to Integer using existing logic
+        if (value instanceof String) {
+            String str = (String) value;
+            if (str.length() == 0) {
+                return null;
+            }
+            try {
+                if (str.contains(".")) {
+                    intValue = Integer.valueOf((int) Double.parseDouble(str));
+                } else {
+                    intValue = Integer.valueOf(str);
+                }
+            } catch (NumberFormatException e) {
+                // Invalid string - will be caught by validation below
+            }
+        } else if (value instanceof Number) {
+            intValue = Integer.valueOf(((Number) value).intValue());
+        } else {
+            try {
+                String str = value.toString();
+                if (str.contains(".")) {
+                    intValue = Integer.valueOf((int) Double.parseDouble(str));
+                } else {
+                    intValue = Integer.parseInt(str);
+                }
+            } catch (NumberFormatException e) {
+                // Invalid conversion - will be caught by validation below
+            }
+        }
+
+        // Validate the three-state value
+        if (intValue != null && (intValue < 0 || intValue > 2)) {
+            Logger logger = LoggerFactory.getLogger(LTIBaseBean.class);
+            logger.warn("Invalid three-state value for {}: {} (expected 0, 1, 2, or null). Treating as null (off).",
+                       fieldName, value);
+            return null;
+        }
+
+        return intValue;
+    }
+
+    /**
+     * Helper method to safely put a three-state value in a map with validation.
+     * Validates that the value is in the valid set (0, 1, 2, or null) and logs warnings for invalid values.
+     *
+     * @param map The map to put the value in
+     * @param key The key
+     * @param value The three-state Integer value (0, 1, 2, or null)
+     * @param fieldName The name of the field for logging purposes (e.g., "newpage", "debug")
+     */
+    protected static void putThreeStateIfNotNull(Map<String, Object> map, String key, Integer value, String fieldName) {
+        if (value != null) {
+            // Validate the three-state value
+            if (value < 0 || value > 2) {
+                Logger logger = LoggerFactory.getLogger(LTIBaseBean.class);
+                logger.warn("Invalid three-state value for {}: {} (expected 0, 1, 2, or null). Treating as null (off).",
+                           fieldName, value);
+                return; // Don't put invalid values in the map
+            }
+            map.put(key, value);
+        }
+    }
+
+    /**
      * Helper method to safely put a value in a map only if it's not null.
-     * 
+     *
      * @param map The map to put the value in
      * @param key The key
      * @param value The value (only added if not null)
@@ -212,6 +295,20 @@ public abstract class LTIBaseBean {
     protected static void putIfNotNull(Map<String, Object> map, String key, Object value) {
         if (value != null) {
             map.put(key, value);
+        }
+    }
+
+    /**
+     * Helper method to safely put a Boolean value in a map as an Integer.
+     * Converts Boolean values to Integer: true → 1, false → 0, null → null
+     *
+     * @param map The map to put the value in
+     * @param key The key
+     * @param value The Boolean value to convert and add (only added if not null)
+     */
+    protected static void putBooleanAsInteger(Map<String, Object> map, String key, Boolean value) {
+        if (value != null) {
+            map.put(key, value ? Integer.valueOf(1) : Integer.valueOf(0));
         }
     }
 }

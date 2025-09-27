@@ -590,6 +590,12 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public org.sakaiproject.lti.beans.LtiToolBean getToolBean(Long key, String siteId) {
+		Map<String, Object> toolMap = getTool(key, siteId);
+		return toolMap != null ? org.sakaiproject.lti.beans.LtiToolBean.of(toolMap) : null;
+	}
+
+	@Override
 	public Map<String, Object> getToolDao(Long key, String siteId)
 	{
 		return getToolDao(key, siteId, true);
@@ -601,13 +607,43 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId);
+		List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
+	}
+
+	@Override
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
 		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed);
 	}
 
 	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed);
+		List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
+	}
+
+	@Override
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
 		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed, includeLaunchable);
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed, includeLaunchable);
+		List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
 	}
 
 
@@ -641,6 +677,16 @@ public abstract class BaseLTIService implements LTIService {
 	@Override
     public List<Map<String, Object>> getToolsImportItem(String siteId) {
 		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1", LTIService.LTI_TITLE, 0 ,0, siteId, false, true);
+	}
+
+	@Override
+    public List<org.sakaiproject.lti.beans.LtiToolBean> getToolsImportItemBeans(String siteId) {
+		List<Map<String, Object>> toolMaps = getToolsImportItem(siteId);
+		List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
 	}
 
 	@Override
@@ -728,6 +774,12 @@ public abstract class BaseLTIService implements LTIService {
 		return getContentDao(key, siteId, isAdmin(siteId));
 	}
 
+	@Override
+	public org.sakaiproject.lti.beans.LtiContentBean getContentBean(Long key, String siteId) {
+		Map<String, Object> contentMap = getContent(key, siteId);
+		return contentMap != null ? org.sakaiproject.lti.beans.LtiContentBean.of(contentMap) : null;
+	}
+
 	// This is with absolutely no site checking...
 	@Override
 	public Map<String, Object> getContentDao(Long key) {
@@ -743,6 +795,17 @@ public abstract class BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getContents(String search, String order, int first, int last, String siteId)
 	{
 		return getContentsDao(search, order, first, last, siteId, isAdmin(siteId));
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiContentBean> getContentBeans(String search, String order, int first, int last, String siteId)
+	{
+		List<Map<String, Object>> contentMaps = getContents(search, order, first, last, siteId);
+		List<org.sakaiproject.lti.beans.LtiContentBean> contentBeans = new ArrayList<>();
+		for (Map<String, Object> contentMap : contentMaps) {
+			contentBeans.add(org.sakaiproject.lti.beans.LtiContentBean.of(contentMap));
+		}
+		return contentBeans;
 	}
 
 	@Override
@@ -1538,6 +1601,31 @@ public abstract class BaseLTIService implements LTIService {
 		return jobMaps.stream()
 				.map(org.sakaiproject.lti.beans.LtiMembershipsJobBean::of)
 				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public Object insertTool(org.sakaiproject.lti.beans.LtiToolBean toolBean, String siteId) {
+		return insertTool(toolBean.asMap(), siteId);
+	}
+
+	@Override
+	public Object insertContent(org.sakaiproject.lti.beans.LtiContentBean contentBean, String siteId) {
+		return insertContent(contentBean.asMap(), siteId);
+	}
+
+	@Override
+	public Object updateTool(Long key, org.sakaiproject.lti.beans.LtiToolBean toolBean, String siteId) {
+		return updateTool(key, toolBean.asMap(), siteId);
+	}
+
+	@Override
+	public Object updateContent(Long key, org.sakaiproject.lti.beans.LtiContentBean contentBean, String siteId) {
+		return updateContent(key, contentBean.asMap(), siteId);
+	}
+
+	@Override
+	public String getContentLaunch(org.sakaiproject.lti.beans.LtiContentBean contentBean) {
+		return getContentLaunch(contentBean.asMap());
 	}
 
 }

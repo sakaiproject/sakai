@@ -53,7 +53,7 @@ public class LtiToolBeanTest {
         testMap.put("visible", "visible");
         testMap.put("deployment_id", 789L);
         testMap.put("launch", "https://example.com/tool/launch");
-        testMap.put("newpage", "on");
+        testMap.put("newpage", 1); // LTI_TOOL_NEWPAGE_ON
         testMap.put("frameheight", 800);
         testMap.put("fa_icon", "fa-tool");
         
@@ -81,7 +81,7 @@ public class LtiToolBeanTest {
         testMap.put("allowroster", true);
         
         // Configuration
-        testMap.put("debug", "on");
+        testMap.put("debug", 1); // LTI_TOOL_DEBUG_ON
         testMap.put("siteinfoconfig", "config");
         testMap.put("splash", "Welcome to the tool!");
         testMap.put("custom", "custom1=value1\ncustom2=value2");
@@ -145,7 +145,7 @@ public class LtiToolBeanTest {
         assertEquals("visible", tool.getVisible());
         assertEquals(Long.valueOf(789L), tool.getDeploymentId());
         assertEquals("https://example.com/tool/launch", tool.getLaunch());
-        assertEquals("on", tool.getNewpage());
+        assertEquals(Integer.valueOf(1), tool.getNewpage()); // LTI_TOOL_NEWPAGE_ON
         assertEquals(Integer.valueOf(800), tool.getFrameheight());
         assertEquals("fa-tool", tool.getFaIcon());
         
@@ -173,7 +173,7 @@ public class LtiToolBeanTest {
         assertTrue(tool.getAllowroster());
         
         // Configuration
-        assertEquals("on", tool.getDebug());
+        assertEquals(Integer.valueOf(1), tool.getDebug()); // LTI_TOOL_DEBUG_ON
         assertEquals("config", tool.getSiteinfoconfig());
         assertEquals("Welcome to the tool!", tool.getSplash());
         assertEquals("custom1=value1\ncustom2=value2", tool.getCustom());
@@ -221,7 +221,7 @@ public class LtiToolBeanTest {
         tool.setVisible("stealth");
         tool.setDeploymentId(101112L);
         tool.setLaunch("https://test.com/launch");
-        tool.setNewpage("off");
+        tool.setNewpage(0); // LTI_TOOL_NEWPAGE_OFF
         tool.setFrameheight(1000);
         tool.setFaIcon("fa-test");
         
@@ -244,7 +244,7 @@ public class LtiToolBeanTest {
         tool.setAllowlineitems(true);
         tool.setAllowroster(false);
         
-        tool.setDebug("off");
+        tool.setDebug(0); // LTI_TOOL_DEBUG_OFF
         tool.setSiteinfoconfig("bypass");
         tool.setSplash("Test splash");
         tool.setCustom("custom4=value4");
@@ -287,35 +287,35 @@ public class LtiToolBeanTest {
         assertEquals("stealth", result.get("visible"));
         assertEquals(101112L, result.get("deployment_id"));
         assertEquals("https://test.com/launch", result.get("launch"));
-        assertEquals("off", result.get("newpage"));
+        assertEquals(Integer.valueOf(0), result.get("newpage")); // LTI_TOOL_NEWPAGE_OFF
         assertEquals(1000, result.get("frameheight"));
         assertEquals("fa-test", result.get("fa_icon"));
         
         // Message Types
-        assertEquals(false, result.get("pl_launch"));
-        assertEquals(true, result.get("pl_linkselection"));
-        assertEquals(false, result.get("pl_contextlaunch"));
+        assertEquals(Integer.valueOf(0), result.get("pl_launch"));
+        assertEquals(Integer.valueOf(1), result.get("pl_linkselection"));
+        assertEquals(Integer.valueOf(0), result.get("pl_contextlaunch"));
         
         // Placements
-        assertEquals(true, result.get("pl_lessonsselection"));
-        assertEquals(false, result.get("pl_contenteditor"));
-        assertEquals(false, result.get("pl_assessmentselection"));
-        assertEquals(true, result.get("pl_coursenav"));
-        assertEquals(false, result.get("pl_importitem"));
-        assertEquals(true, result.get("pl_fileitem"));
+        assertEquals(Integer.valueOf(1), result.get("pl_lessonsselection"));
+        assertEquals(Integer.valueOf(0), result.get("pl_contenteditor"));
+        assertEquals(Integer.valueOf(0), result.get("pl_assessmentselection"));
+        assertEquals(Integer.valueOf(1), result.get("pl_coursenav"));
+        assertEquals(Integer.valueOf(0), result.get("pl_importitem"));
+        assertEquals(Integer.valueOf(1), result.get("pl_fileitem"));
         
         // Privacy
-        assertEquals(false, result.get("sendname"));
-        assertEquals(true, result.get("sendemailaddr"));
-        assertEquals(false, result.get("pl_privacy"));
+        assertEquals(Integer.valueOf(0), result.get("sendname"));
+        assertEquals(Integer.valueOf(1), result.get("sendemailaddr"));
+        assertEquals(Integer.valueOf(0), result.get("pl_privacy"));
         
         // Services
-        assertEquals(false, result.get("allowoutcomes"));
-        assertEquals(true, result.get("allowlineitems"));
-        assertEquals(false, result.get("allowroster"));
+        assertEquals(Integer.valueOf(0), result.get("allowoutcomes"));
+        assertEquals(Integer.valueOf(1), result.get("allowlineitems"));
+        assertEquals(Integer.valueOf(0), result.get("allowroster"));
         
         // Configuration
-        assertEquals("off", result.get("debug"));
+        assertEquals(Integer.valueOf(0), result.get("debug")); // LTI_TOOL_DEBUG_OFF
         assertEquals("bypass", result.get("siteinfoconfig"));
         assertEquals("Test splash", result.get("splash"));
         assertEquals("custom4=value4", result.get("custom"));
@@ -360,13 +360,28 @@ public class LtiToolBeanTest {
         Map<String, Object> convertedMap = originalTool.asMap();
         assertNotNull(convertedMap);
         
-        // Verify all original values are preserved
+        // Verify all original values are preserved (with Boolean-to-Integer conversion)
         for (Map.Entry<String, Object> entry : testMap.entrySet()) {
             String key = entry.getKey();
             Object originalValue = entry.getValue();
             Object convertedValue = convertedMap.get(key);
             
-            assertEquals("Round-trip conversion failed for key: " + key, originalValue, convertedValue);
+            // Handle Boolean-to-Integer conversion for Boolean fields
+            if (key.equals("pl_launch") || key.equals("pl_linkselection") || key.equals("pl_contextlaunch") ||
+                key.equals("pl_lessonsselection") || key.equals("pl_contenteditor") || key.equals("pl_assessmentselection") ||
+                key.equals("pl_coursenav") || key.equals("pl_importitem") || key.equals("pl_fileitem") ||
+                key.equals("sendname") || key.equals("sendemailaddr") || key.equals("pl_privacy") ||
+                key.equals("allowoutcomes") || key.equals("allowlineitems") || key.equals("allowroster")) {
+                if (originalValue instanceof Boolean) {
+                    Boolean boolValue = (Boolean) originalValue;
+                    Integer expectedValue = boolValue ? 1 : 0;
+                    assertEquals("Round-trip conversion failed for Boolean key: " + key, expectedValue, convertedValue);
+                } else {
+                    assertEquals("Round-trip conversion failed for key: " + key, originalValue, convertedValue);
+                }
+            } else {
+                assertEquals("Round-trip conversion failed for key: " + key, originalValue, convertedValue);
+            }
         }
         
         // Verify no extra fields were added

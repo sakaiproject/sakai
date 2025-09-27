@@ -42,7 +42,7 @@ import org.sakaiproject.lti.api.LTIService;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
-@ToString(exclude = {"placementsecret", "oldplacementsecret", "lti13Settings"})
+@ToString(exclude = {"placementsecret", "oldplacementsecret"})
 public class LtiContentBean extends LTIBaseBean {
 
     public Long id;
@@ -143,9 +143,9 @@ public class LtiContentBean extends LTIBaseBean {
         putIfNotNull(map, LTIService.LTI_TITLE, title);
         putIfNotNull(map, LTIService.LTI_DESCRIPTION, description);
         putIfNotNull(map, LTIService.LTI_FRAMEHEIGHT, frameheight);
-        putIfNotNull(map, LTIService.LTI_NEWPAGE, newpage);
-        putIfNotNull(map, LTIService.LTI_PROTECT, protect);
-        putIfNotNull(map, LTIService.LTI_DEBUG, debug);
+        putBooleanAsInteger(map, LTIService.LTI_NEWPAGE, newpage);
+        putBooleanAsInteger(map, LTIService.LTI_PROTECT, protect);
+        putBooleanAsInteger(map, LTIService.LTI_DEBUG, debug);
         
         // LTI fields
         putIfNotNull(map, LTIService.LTI_CUSTOM, custom);

@@ -188,9 +188,9 @@ public class LtiContentBeanTest {
         assertEquals("Test ToMap Title", result.get("title"));
         assertEquals("Test toMap description", result.get("description"));
         assertEquals(800, result.get("frameheight"));
-        assertEquals(false, result.get("newpage"));
-        assertEquals(true, result.get("protect"));
-        assertEquals(false, result.get("debug"));
+        assertEquals(Integer.valueOf(0), result.get("newpage"));
+        assertEquals(Integer.valueOf(1), result.get("protect"));
+        assertEquals(Integer.valueOf(0), result.get("debug"));
         
         // LTI fields
         assertEquals("custom3=value3", result.get("custom"));
@@ -229,13 +229,24 @@ public class LtiContentBeanTest {
         Map<String, Object> convertedMap = originalContent.asMap();
         assertNotNull(convertedMap);
         
-        // Verify all original values are preserved
+        // Verify all original values are preserved (with Boolean-to-Integer conversion)
         for (Map.Entry<String, Object> entry : testMap.entrySet()) {
             String key = entry.getKey();
             Object originalValue = entry.getValue();
             Object convertedValue = convertedMap.get(key);
             
-            assertEquals("Round-trip conversion failed for key: " + key, originalValue, convertedValue);
+            // Handle Boolean-to-Integer conversion for Boolean fields
+            if (key.equals("newpage") || key.equals("protect") || key.equals("debug")) {
+                if (originalValue instanceof Boolean) {
+                    Boolean boolValue = (Boolean) originalValue;
+                    Integer expectedValue = boolValue ? 1 : 0;
+                    assertEquals("Round-trip conversion failed for Boolean key: " + key, expectedValue, convertedValue);
+                } else {
+                    assertEquals("Round-trip conversion failed for key: " + key, originalValue, convertedValue);
+                }
+            } else {
+                assertEquals("Round-trip conversion failed for key: " + key, originalValue, convertedValue);
+            }
         }
         
         // Verify no extra fields were added

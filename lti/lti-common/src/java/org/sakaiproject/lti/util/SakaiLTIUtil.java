@@ -642,7 +642,7 @@ public class SakaiLTIUtil {
 
 	public static String getFallBackRole(String context) {
 		if (SecurityService.isSuperUser()) {
-			return LTI13ConstantsUtil.ROLE_INSTRUCTOR + "," 
+			return LTI13ConstantsUtil.ROLE_INSTRUCTOR + ","
 				+ LTI13ConstantsUtil.ROLE_CONTEXT_ADMIN + ","
 				+ LTI13ConstantsUtil.ROLE_SYSTEM_ADMIN;
 		} else if (SiteService.allowUpdateSite(context)) {
@@ -3271,7 +3271,12 @@ public class SakaiLTIUtil {
 	/**
 	 * getLaunchCodeKey - Return the launch code key for a content item
 	 */
+	public static String getLaunchCodeKey(org.sakaiproject.lti.beans.LtiContentBean content) {
+		return getLaunchCodeKey(content != null ? content.asMap() : null);
+	}
+
 	public static String getLaunchCodeKey(Map<String, Object> content) {
+		if (content == null) return SESSION_LAUNCH_CODE + "0";
 		int id = LTIUtil.toInt(content.get(LTIService.LTI_ID));
 		return SESSION_LAUNCH_CODE + id;
 	}
@@ -3279,7 +3284,14 @@ public class SakaiLTIUtil {
 	/**
 	 * getLaunchCode - Return the launch code for a content item
 	 */
+	public static String getLaunchCode(org.sakaiproject.lti.beans.LtiContentBean content) {
+		return getLaunchCode(content != null ? content.asMap() : null);
+	}
+
 	public static String getLaunchCode(Map<String, Object> content) {
+		if (content == null) {
+			return LTI13Util.timeStampSign("0", null);
+		}
 		/*
 		long now = (new java.util.Date()).getTime();
 		int id = LTIUtil.toInt(content.get(LTIService.LTI_ID));
@@ -3486,6 +3498,21 @@ public class SakaiLTIUtil {
 		return retval;
 	}
 
+	/**
+	 * POJO overload for findBestToolMatch
+	 */
+	public static org.sakaiproject.lti.beans.LtiToolBean findBestToolMatchPojo(String launchUrl, String toolCheckSum, List<org.sakaiproject.lti.beans.LtiToolBean> tools)
+	{
+		// Convert POJOs to maps for the existing logic
+		List<Map<String,Object>> toolMaps = new ArrayList<>();
+		for (org.sakaiproject.lti.beans.LtiToolBean tool : tools) {
+			toolMaps.add(tool.asMap());
+		}
+
+		Map<String,Object> result = findBestToolMatch(launchUrl, toolCheckSum, toolMaps);
+		return result != null ? org.sakaiproject.lti.beans.LtiToolBean.of(result) : null;
+	}
+
 	public static String getStringNull(Object value) {
 		return LTI13Util.getStringNull(value);
 	}
@@ -3652,14 +3679,20 @@ public class SakaiLTIUtil {
 	/**
 	 * Get the correct frameheight for a content / combination based on inheritance rules
 	 */
+	public static String getFrameHeight(org.sakaiproject.lti.beans.LtiToolBean tool, org.sakaiproject.lti.beans.LtiContentBean content, String defaultValue) {
+		return getFrameHeight(tool != null ? tool.asMap() : null, content != null ? content.asMap() : null, defaultValue);
+	}
+
 	public static String getFrameHeight(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
 		String height = defaultValue;
 
+		// Check tool first (default behavior)
 		if ( tool != null ) {
 			Long toolFrameHeight = LTIUtil.toLong(tool.get(LTIService.LTI_FRAMEHEIGHT), -1L);
-			if ( toolFrameHeight > 1 )  height = toolFrameHeight + "px";
+			if ( toolFrameHeight > 0 )  height = toolFrameHeight + "px";
 		}
 
+		// Check content second (content overrides tool if not null)
 		if (content != null) {
 			Long contentFrameHeight = LTIUtil.toLong(content.get(LTIService.LTI_FRAMEHEIGHT));
 			if ( contentFrameHeight > 0 ) height = contentFrameHeight + "px";
@@ -3671,14 +3704,27 @@ public class SakaiLTIUtil {
 	/**
 	 * Get the new page setting for a content / combination based on inheritance rules
 	 */
+	public static boolean getNewpage(org.sakaiproject.lti.beans.LtiToolBean tool, org.sakaiproject.lti.beans.LtiContentBean content, boolean defaultValue) {
+		return getNewpage(tool != null ? tool.asMap() : null, content != null ? content.asMap() : null, defaultValue);
+	}
+
 	public static boolean getNewpage(Map<String, Object> tool, Map<String, Object> content, boolean defaultValue) {
 		boolean newpage = defaultValue;
 
+		// Check content first (lower priority)
 		if (content != null ) {
-			Long contentNewpage = LTIUtil.toLongNull(content.get(LTIService.LTI_NEWPAGE));
-			if ( contentNewpage != null ) newpage = (contentNewpage != 0);
+			Object contentNewpageObj = content.get(LTIService.LTI_NEWPAGE);
+			if ( contentNewpageObj != null ) {
+				if (contentNewpageObj instanceof Boolean) {
+					newpage = (Boolean) contentNewpageObj;
+				} else {
+					Long contentNewpage = LTIUtil.toLongNull(contentNewpageObj);
+					if ( contentNewpage != null ) newpage = (contentNewpage != 0);
+				}
+			}
 		}
 
+		// Check tool second (higher priority - overrides content)
 		if ( tool != null ) {
 			Long toolNewpage = LTIUtil.toLongNull(tool.get(LTIService.LTI_NEWPAGE));
 
@@ -3689,6 +3735,43 @@ public class SakaiLTIUtil {
 			}
 		}
 		return newpage;
+	}
+
+	/**
+	 * Get the debug setting for a content / tool combination based on inheritance rules
+	 */
+	public static boolean getDebug(org.sakaiproject.lti.beans.LtiToolBean tool, org.sakaiproject.lti.beans.LtiContentBean content, boolean defaultValue) {
+		return getDebug(tool != null ? tool.asMap() : null, content != null ? content.asMap() : null, defaultValue);
+	}
+
+	public static boolean getDebug(Map<String, Object> tool, Map<String, Object> content, boolean defaultValue) {
+		boolean debug = defaultValue;
+
+		// Check content first (lower priority)
+		if (content != null ) {
+			Object contentDebugObj = content.get(LTIService.LTI_DEBUG);
+			if ( contentDebugObj != null ) {
+				if (contentDebugObj instanceof Boolean) {
+					debug = (Boolean) contentDebugObj;
+				} else {
+					Long contentDebug = LTIUtil.toLongNull(contentDebugObj);
+					if ( contentDebug != null ) debug = (contentDebug != 0);
+				}
+			}
+		}
+
+		// Check tool second (higher priority - overrides content)
+		if ( tool != null ) {
+			Long toolDebug = LTIUtil.toLongNull(tool.get(LTIService.LTI_DEBUG));
+
+			if ( toolDebug != null ) {
+				// Leave this alone for LTIService.LTI_TOOL_DEBUG_CONTENT
+				if ( toolDebug == LTIService.LTI_TOOL_DEBUG_OFF ) debug = false;
+				if ( toolDebug == LTIService.LTI_TOOL_DEBUG_ON ) debug = true;
+				// toolDebug == 2 (CONTENT) - leave content value as-is
+			}
+		}
+		return debug;
 	}
 
 	/**
