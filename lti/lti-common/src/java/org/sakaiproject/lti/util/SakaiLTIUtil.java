@@ -2692,12 +2692,10 @@ public class SakaiLTIUtil {
 				log.error("handleGradeBookLTI13 requires either content to be not null or have a line_item key");
 				return "handleGradeBookLTI13 requires either content to be not null or have a line_item key";
 			}
-System.out.println("lineitem_key="+lineitem_key);
 			pushAdvisor(); // Add security advisor to allow access to assignments
 			try {
 				org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content);
 				if ( assignment != null ) {
-System.out.println("handleAssignment="+assignment);
 					retval = handleAssignment(assignment, userId, scoreObj);
 					return retval;
 				}
@@ -2705,7 +2703,6 @@ System.out.println("handleAssignment="+assignment);
 				popAdvisor(); // Remove security advisor
 			}
 			title = (String) content.get(LTIService.LTI_TITLE);
-System.out.println("title="+title);
 			if (title == null || title.length() < 1) {
 				log.error("Could not determine content title {}", content.get(LTIService.LTI_ID));
 				return "Could not determine content title key="+content.get(LTIService.LTI_ID);
@@ -2826,7 +2823,6 @@ System.out.println("title="+title);
 	 * @return the result
 	 */
 	public static Object handleGradebookLTI13(Site site, Long tool_id, org.sakaiproject.lti.beans.LtiContentBean content, String userId, Long lineitem_key, Score scoreObj) {
-System.out.println("handleGradebookLTI13 bean version");
 		log.debug("siteid: {} tool_id: {} content: {} lineitem_key: {} userId: {} scoreObj: {}", site.getId(), tool_id, (content == null ? "null" : content.id), lineitem_key, userId, scoreObj);
 		return handleGradebookLTI13(site, tool_id, (content == null ? null : content.asMap()), userId, lineitem_key, scoreObj);
 	}
