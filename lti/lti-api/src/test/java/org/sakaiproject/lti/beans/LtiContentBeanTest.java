@@ -66,7 +66,7 @@ public class LtiContentBeanTest {
         testMap.put("oldplacementsecret", "oldsecret123");
         
         // LTI 1.3 fields
-        testMap.put("lti13", 1L);
+        testMap.put("lti13", 1);
         testMap.put("lti13_settings", "{\"lti13\":\"settings\"}");
         
         // Timestamps
@@ -124,7 +124,7 @@ public class LtiContentBeanTest {
         assertEquals("oldsecret123", content.getOldplacementsecret());
         
         // LTI 1.3 fields
-        assertEquals(Long.valueOf(1L), content.getLti13());
+        assertEquals(Integer.valueOf(1), content.getLti13());
         assertEquals("{\"lti13\":\"settings\"}", content.getLti13Settings());
         
         // Timestamps
@@ -164,7 +164,7 @@ public class LtiContentBeanTest {
         content.setPlacementsecret("secret456");
         content.setOldplacementsecret("oldsecret456");
         
-        content.setLti13(2L);
+        content.setLti13(2);
         content.setLti13Settings("{\"lti13\":\"settings2\"}");
         
         content.setCreatedAt(testDate);
@@ -203,7 +203,7 @@ public class LtiContentBeanTest {
         assertEquals("oldsecret456", result.get("oldplacementsecret"));
         
         // LTI 1.3 fields
-        assertEquals(2L, result.get("lti13"));
+        assertEquals(Integer.valueOf(2), result.get("lti13"));
         assertEquals("{\"lti13\":\"settings2\"}", result.get("lti13_settings"));
         
         // Timestamps
@@ -337,7 +337,7 @@ public class LtiContentBeanTest {
         assertEquals("Double should convert to Long", Long.valueOf(123L), content.getId());
         assertEquals("Float should convert to Long", Long.valueOf(456L), content.getToolId());
         assertEquals("Short should convert to Integer", Integer.valueOf(800), content.getFrameheight());
-        assertEquals("Byte should convert to Long", Long.valueOf(1L), content.getLti13());
+        assertEquals("Byte should convert to Integer", Integer.valueOf(1), content.getLti13());
         assertEquals("Date should remain Date", testDate, content.getCreatedAt());
     }
 
@@ -358,7 +358,7 @@ public class LtiContentBeanTest {
         assertEquals("String '123' should convert to Long", Long.valueOf(123L), content.getId());
         assertEquals("String '-456' should convert to Long", Long.valueOf(-456L), content.getToolId());
         assertEquals("String '0' should convert to Integer", Integer.valueOf(0), content.getFrameheight());
-        assertEquals("String '1' should convert to Long", Long.valueOf(1L), content.getLti13());
+        assertEquals("String '1' should convert to Integer", Integer.valueOf(1), content.getLti13());
     }
 
     @Test
@@ -378,7 +378,7 @@ public class LtiContentBeanTest {
         assertEquals("String '123.0' should truncate to 123", Long.valueOf(123L), content.getId());
         assertEquals("String '456.7' should truncate to 456", Long.valueOf(456L), content.getToolId());
         assertEquals("String '800.99' should truncate to 800", Integer.valueOf(800), content.getFrameheight());
-        assertEquals("String '1.5' should truncate to 1", Long.valueOf(1L), content.getLti13());
+        assertEquals("String '1.5' should truncate to 1", Integer.valueOf(1), content.getLti13());
     }
 
     @Test

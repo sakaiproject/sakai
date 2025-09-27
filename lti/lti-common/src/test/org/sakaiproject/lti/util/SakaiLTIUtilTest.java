@@ -1296,10 +1296,17 @@ public class SakaiLTIUtilTest {
 		String mapKey = SakaiLTIUtil.getLaunchCodeKey(contentMap);
 		assertEquals("POJO and Map getLaunchCodeKey should produce same result", pojoKey, mapKey);
 
-		// Test getLaunchCode delegation
+		// Test getLaunchCode delegation - both should produce valid codes
 		String pojoCode = SakaiLTIUtil.getLaunchCode(contentBean);
 		String mapCode = SakaiLTIUtil.getLaunchCode(contentMap);
-		assertEquals("POJO and Map getLaunchCode should produce same result", pojoCode, mapCode);
+		
+		// Both codes should be valid (time-dependent, so they won't be identical)
+		assertTrue("POJO getLaunchCode should produce valid code", SakaiLTIUtil.checkLaunchCode(contentBean.asMap(), pojoCode));
+		assertTrue("Map getLaunchCode should produce valid code", SakaiLTIUtil.checkLaunchCode(contentMap, mapCode));
+		
+		// Both codes should contain the content ID
+		assertTrue("POJO code should contain content ID", pojoCode.contains(":123:"));
+		assertTrue("Map code should contain content ID", mapCode.contains(":123:"));
 	}
 }
 

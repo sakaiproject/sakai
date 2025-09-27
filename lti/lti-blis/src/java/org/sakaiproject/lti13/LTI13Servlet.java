@@ -1088,6 +1088,8 @@ public class LTI13Servlet extends HttpServlet {
 
 		}
 
+		log.debug("tool={} content={} userId={}", tool, content, userId);
+
 		userId = SakaiLTIUtil.parseSubject(userId);
 		if (!checkUserInSite(site, userId)) {
 			log.warn("User {} not found in siteId={}", userId, site.getId());
@@ -1100,6 +1102,7 @@ public class LTI13Servlet extends HttpServlet {
 		// When lineitem_key is null we are the "default" lineitem associated with the content object
 		// if the content item is associated with an assignment, we talk to the assignment API,
 		// if the content item is not associated with an assignment, we talk to the gradebook API
+log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+content);
 		Object retval = SakaiLTIUtil.handleGradebookLTI13(site, sat.tool_id, content, userId, lineitem_key, scoreObj);
 		log.debug("handleGradebookLTI13 retval={}",retval);
 		if ( retval instanceof String ) {

@@ -64,7 +64,8 @@ public class LtiContentBean extends LTIBaseBean {
     public String placement;           // CONTENT_MODEL: "placement:text:hidden=true:maxlength=256"
     public String placementsecret;     // CONTENT_MODEL: "placementsecret:text:hidden=true:maxlength=512"
     public String oldplacementsecret;  // CONTENT_MODEL: "oldplacementsecret:text:hidden=true:maxlength=512"
-    public Long lti13;                 // CONTENT_MODEL: "lti13:radio:hide=insert:label=bl_lti13:choices=inherit,off,on:role=admin"
+    // TODO: Delete this field from content - the tool setting for this is all that matters
+    public Integer lti13;              // CONTENT_MODEL: "lti13:radio:hide=insert:label=bl_lti13:choices=inherit,off,on:role=admin"
     public String lti13Settings;       // CONTENT_MODEL: "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin"
     // Timestamps from CONTENT_MODEL
     public Date createdAt;             // CONTENT_MODEL: "created_at:autodate"
@@ -113,7 +114,7 @@ public class LtiContentBean extends LTIBaseBean {
         content.setOldplacementsecret(getStringValue(map, LTIService.LTI_OLDPLACEMENTSECRET));
         
         // LTI 1.3 fields
-        content.setLti13(getLongValue(map, LTIService.LTI13));
+        content.setLti13(getIntegerValue(map, LTIService.LTI13));
         content.setLti13Settings(getStringValue(map, "lti13_settings"));
         
         // Timestamps

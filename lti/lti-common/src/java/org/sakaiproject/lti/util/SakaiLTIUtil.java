@@ -1442,9 +1442,9 @@ public class SakaiLTIUtil {
 		 * @param id_token the id token
 		 * @return the public key
 		 */
-		public static Key getPublicKey(org.sakaiproject.lti.beans.LtiToolBean tool, String id_token) {
-			return getPublicKey(tool.asMap(), id_token);
-		}
+	public static Key getPublicKey(org.sakaiproject.lti.beans.LtiToolBean tool, String id_token) {
+		return getPublicKey(tool != null ? tool.asMap() : null, id_token);
+	}
 
 		/**
 		 * Create a ContentItem from the current request (may throw runtime)
@@ -2653,18 +2653,31 @@ public class SakaiLTIUtil {
 		return retval;
 	}
 
-	// When lineitem_key is null we are the "default" lineitem associated with the content object
-	// if the content item is associated with an assignment, we talk to the assignment API,
-	// if the content item is not associated with an assignment, we talk to the gradebook API
-	// If the scoreGiven is null, we are clearing out the grade value
-	// Note that scoreObj.userId is subject, not userId
+	/**
+	 * Handle gradebook LTI13 with content bean
+	 * @param site the site
+	 * @param tool_id the tool id
+	 * @param content the content Map (can be null)
+	 * @param userId the user id
+	 * @param lineitem_key the line item key
+	 * @param scoreObj the score object
+	 * @return the result
+
+	 * When lineitem_key is null we are the "default" lineitem associated with the content object.
+	 * if the content item is associated with an assignment, we talk to the assignment API,
+	 * if the content item is not associated with an assignment, we talk to the gradebook API
+     * content can be null if the lineitem_key is defined.
+	 * If the scoreGiven is null, we are clearing out the grade value.
+	 * Note that scoreObj.userId is subject, not userId (naming inconsistency in IMS specs but we have to follow here).
+	 */
 	public static Object handleGradebookLTI13(Site site,  Long tool_id, Map<String, Object> content, String userId,
 			Long lineitem_key, Score scoreObj) {
 
 		Object retval;
 		String title;
 
-		log.debug("siteid: {} tool_id: {} lineitem_key: {} userId: {} scoreObj: {}", site.getId(), tool_id, lineitem_key, userId, scoreObj);
+		log.debug("siteid: {} tool_id: {} content: {} lineitem_key: {} userId: {} scoreObj: {}", 
+			site.getId(), tool_id, (content == null ? "null" : content.get(LTIService.LTI_ID)), lineitem_key, userId, scoreObj);
 
 		// An empty / null score given means to delete the score
 		SakaiLineItem lineItem = new SakaiLineItem();
@@ -2675,10 +2688,16 @@ public class SakaiLTIUtil {
 		// Are we in the default lineitem for the content object?
 		// Check if this is as assignment placement and handle it if it is
 		if ( lineitem_key == null ) {
+			if (content == null ) {
+				log.error("handleGradeBookLTI13 requires either content to be not null or have a line_item key");
+				return "handleGradeBookLTI13 requires either content to be not null or have a line_item key";
+			}
+System.out.println("lineitem_key="+lineitem_key);
 			pushAdvisor(); // Add security advisor to allow access to assignments
 			try {
 				org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content);
 				if ( assignment != null ) {
+System.out.println("handleAssignment="+assignment);
 					retval = handleAssignment(assignment, userId, scoreObj);
 					return retval;
 				}
@@ -2686,6 +2705,7 @@ public class SakaiLTIUtil {
 				popAdvisor(); // Remove security advisor
 			}
 			title = (String) content.get(LTIService.LTI_TITLE);
+System.out.println("title="+title);
 			if (title == null || title.length() < 1) {
 				log.error("Could not determine content title {}", content.get(LTIService.LTI_ID));
 				return "Could not determine content title key="+content.get(LTIService.LTI_ID);
@@ -2799,14 +2819,16 @@ public class SakaiLTIUtil {
 	 * Handle gradebook LTI13 with content bean
 	 * @param site the site
 	 * @param tool_id the tool id
-	 * @param content the content bean
+	 * @param content the content bean (can be null)
 	 * @param userId the user id
 	 * @param lineitem_key the line item key
 	 * @param scoreObj the score object
 	 * @return the result
 	 */
 	public static Object handleGradebookLTI13(Site site, Long tool_id, org.sakaiproject.lti.beans.LtiContentBean content, String userId, Long lineitem_key, Score scoreObj) {
-		return handleGradebookLTI13(site, tool_id, content.asMap(), userId, lineitem_key, scoreObj);
+System.out.println("handleGradebookLTI13 bean version");
+		log.debug("siteid: {} tool_id: {} content: {} lineitem_key: {} userId: {} scoreObj: {}", site.getId(), tool_id, (content == null ? "null" : content.id), lineitem_key, userId, scoreObj);
+		return handleGradebookLTI13(site, tool_id, (content == null ? null : content.asMap()), userId, lineitem_key, scoreObj);
 	}
 
 	public static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, Map<String, Object> content) {
@@ -3503,11 +3525,13 @@ public class SakaiLTIUtil {
 	 */
 	public static org.sakaiproject.lti.beans.LtiToolBean findBestToolMatchPojo(String launchUrl, String toolCheckSum, List<org.sakaiproject.lti.beans.LtiToolBean> tools)
 	{
-		// Convert POJOs to maps for the existing logic
-		List<Map<String,Object>> toolMaps = new ArrayList<>();
-		for (org.sakaiproject.lti.beans.LtiToolBean tool : tools) {
+	// Convert POJOs to maps for the existing logic
+	List<Map<String,Object>> toolMaps = new ArrayList<>();
+	for (org.sakaiproject.lti.beans.LtiToolBean tool : tools) {
+		if (tool != null) {
 			toolMaps.add(tool.asMap());
 		}
+	}
 
 		Map<String,Object> result = findBestToolMatch(launchUrl, toolCheckSum, toolMaps);
 		return result != null ? org.sakaiproject.lti.beans.LtiToolBean.of(result) : null;

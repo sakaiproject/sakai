@@ -97,7 +97,7 @@ public class LTIServicePojoMethodsTest {
         contentMap.put("newpage", true);
         contentMap.put("protect", false);
         contentMap.put("debug", true);
-        contentMap.put("lti13", 789L);
+        contentMap.put("lti13", 789);
 
         // Convert to POJO
         LtiContentBean content = LtiContentBean.of(contentMap);
@@ -113,7 +113,7 @@ public class LTIServicePojoMethodsTest {
         assertTrue("Newpage should be true", content.newpage);
         assertFalse("Protect should be false", content.protect);
         assertTrue("Debug should be true", content.debug);
-        assertEquals("LTI13 should match", Long.valueOf(789L), content.lti13);
+        assertEquals("LTI13 should match", Integer.valueOf(789), content.lti13);
 
         // Convert back to map
         Map<String, Object> resultMap = content.asMap();
@@ -129,7 +129,7 @@ public class LTIServicePojoMethodsTest {
         assertEquals("Newpage should be true in round-trip", Integer.valueOf(1), resultMap.get("newpage"));
         assertEquals("Protect should be false in round-trip", Integer.valueOf(0), resultMap.get("protect"));
         assertEquals("Debug should be true in round-trip", Integer.valueOf(1), resultMap.get("debug"));
-        assertEquals("LTI13 should match in round-trip", Long.valueOf(789L), resultMap.get("lti13"));
+        assertEquals("LTI13 should match in round-trip", Integer.valueOf(789), resultMap.get("lti13"));
     }
 
     @Test
