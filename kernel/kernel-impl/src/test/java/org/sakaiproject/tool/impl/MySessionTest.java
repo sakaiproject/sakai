@@ -645,6 +645,14 @@ public class MySessionTest extends BaseSessionComponentTest {
 			testExitBarrier.await();
 		} catch ( InterruptedException e ) {
 		} catch ( BrokenBarrierException e ) {}
+		
+		// Give threads time to complete and avoid race conditions
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// Ignore interruption during test
+		}
+		
 		assertEquals(Collections.synchronizedSet(new HashSet<Throwable>()), failures);
 		for ( ListeningAttribValue attribValue : attribValues ) {
 			assertEquals(1, attribValue.httpSessionValueUnboundInvokedWith.size());

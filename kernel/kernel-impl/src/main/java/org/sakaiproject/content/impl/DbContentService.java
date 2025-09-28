@@ -3029,6 +3029,10 @@ public class DbContentService extends BaseContentService
      */
     public void setMigrateData(boolean migrateData)
     {
+        if ( ! migrateData ) {
+            log.error("Setting MigrateData to false is no longer allowed. See SAK-51949");
+            return;
+        }
         this.migrateData = migrateData;
 
     }
