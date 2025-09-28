@@ -177,6 +177,11 @@ CREATE INDEX CONTENT_RESOURCE_CI ON CONTENT_RESOURCE
 	CONTEXT
 );
 
+CREATE INDEX CONTENT_RESOURCE_RTI ON CONTENT_RESOURCE
+(
+	RESOURCE_TYPE_ID
+);
+
 -----------------------------------------------------------------------------
 -- CONTENT_RESOURCE_BODY_BINARY
 -----------------------------------------------------------------------------
