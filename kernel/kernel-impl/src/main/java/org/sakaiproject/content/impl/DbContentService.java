@@ -80,7 +80,6 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseDbBinarySingleStorage;
-import org.sakaiproject.util.BaseDbDualSingleStorage;
 import org.sakaiproject.util.BaseDbSingleStorage;
 import org.sakaiproject.util.DbSingleStorage;
 import org.sakaiproject.util.EntityReaderAdapter;
