@@ -656,7 +656,7 @@ public class LineItemUtil {
 	 * @return the default line item
 	 */
 	public static SakaiLineItem getDefaultLineItem(Site site, org.sakaiproject.lti.beans.LtiContentBean content) {
-		return getDefaultLineItem(site, content.asMap());
+		return getDefaultLineItem(site, content != null ? content.asMap() : null);
 	}
 
 	/**

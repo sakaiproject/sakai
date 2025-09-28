@@ -330,7 +330,7 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
 	public Object updateToolDao(Long key, org.sakaiproject.lti.beans.LtiToolBean tool, String siteId) {
-		return updateToolDao(key, tool.asMap(), siteId);
+		return updateToolDao(key, tool != null ? tool.asMap() : null, siteId);
 	}
 
 	private Object updateTool(Long key, Object newProps, String siteId) {
@@ -1605,27 +1605,27 @@ public abstract class BaseLTIService implements LTIService {
 
 	@Override
 	public Object insertTool(org.sakaiproject.lti.beans.LtiToolBean toolBean, String siteId) {
-		return insertTool(toolBean.asMap(), siteId);
+		return insertTool(toolBean != null ? toolBean.asMap() : null, siteId);
 	}
 
 	@Override
 	public Object insertContent(org.sakaiproject.lti.beans.LtiContentBean contentBean, String siteId) {
-		return insertContent(contentBean.asMap(), siteId);
+		return insertContent(contentBean != null ? contentBean.asMap() : null, siteId);
 	}
 
 	@Override
 	public Object updateTool(Long key, org.sakaiproject.lti.beans.LtiToolBean toolBean, String siteId) {
-		return updateTool(key, toolBean.asMap(), siteId);
+		return updateTool(key, toolBean != null ? toolBean.asMap() : null, siteId);
 	}
 
 	@Override
 	public Object updateContent(Long key, org.sakaiproject.lti.beans.LtiContentBean contentBean, String siteId) {
-		return updateContent(key, contentBean.asMap(), siteId);
+		return updateContent(key, contentBean != null ? contentBean.asMap() : null, siteId);
 	}
 
 	@Override
 	public String getContentLaunch(org.sakaiproject.lti.beans.LtiContentBean contentBean) {
-		return getContentLaunch(contentBean.asMap());
+		return getContentLaunch(contentBean != null ? contentBean.asMap() : null);
 	}
 
 }
