@@ -43,8 +43,6 @@ public class LTIContentArchiveBean {
         "launch",
         "custom",
         "settings",
-        "lti13",
-        "lti13_settings",
         "newpage",
         "frameheight");
 
