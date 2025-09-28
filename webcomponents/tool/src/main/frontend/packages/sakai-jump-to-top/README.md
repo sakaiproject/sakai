@@ -1,11 +1,24 @@
-# sakai-jump-to-top
+# @sakai-ui/sakai-jump-to-top
 
-A module which adds a scroll triggered jumptotop button
+The Sakai jump-to-top component.
+
+## Description
+
+This component provides a button that allows users to quickly scroll to the top of the page. It adds a scroll triggered jump-to-top button.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-jump-to-top
+npm install @sakai-ui/sakai-jump-to-top
+```
+
+## Usage
+
+```javascript
+import '@sakai-ui/sakai-jump-to-top/sakai-jump-to-top.js';
+
+// In your HTML
+<sakai-jump-to-top></sakai-jump-to-top>
 ```
 
 ## Linting and formatting
@@ -13,13 +26,7 @@ npm i @sakai-ui/sakai-jump-to-top
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
-```
-
-To automatically fix linting and formatting errors, run
-
-```bash
-npm run format
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -29,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

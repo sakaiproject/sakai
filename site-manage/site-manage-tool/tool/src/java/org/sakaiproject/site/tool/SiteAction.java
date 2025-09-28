@@ -3898,7 +3898,7 @@ public class SiteAction extends PagedResourceActionII {
 			//this will be all widgets available to use on overview page.
 			List<Tool> widgets;
 			if(state.getAttribute("allWidgets") == null){
-				widgets = (List<Tool>) findWidgets();
+				widgets = findWidgets();
 			}else {
 				widgets = (List<Tool>) state.getAttribute("allWidgets");
 			}
@@ -16576,11 +16576,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Site site = (Site) state.getAttribute("site");
 		if (readPageForm(data, state))
 		{
+		SitePage page = (SitePage) state.getAttribute("overview");
+		if (!validateMinWidget(page, state))
+		{
+			return;
+		}
+
+		List<ToolConfiguration> tools = page.getTools();
+
 			try
 			{
-				SitePage page = (SitePage) state.getAttribute("overview");
 				SitePage savedPage = site.getPage(page.getId()); //old page, will update tool list.
-				List<ToolConfiguration> tools = page.getTools();
 
 				savedPage.setTools(tools);
 				savedPage.setLayout(page.getLayout());
@@ -16681,18 +16687,15 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		return true;
 	}
 
-	private List findWidgets() {
-		// get the helpers
-		Set categories = new HashSet();
+	private List<Tool> findWidgets() {
+		Set<String> categories = new HashSet<>();
 		categories.add("widget");
-		Set widgets = toolManager.findTools(categories, null);
 
-		// make a list for sorting
-		List features = new Vector();
-		features.addAll(widgets);
-		//Collections.sort(features);
-		Collections.sort(features, new ToolTitleComparator());
-		return features;
+		Set<Tool> widgets = toolManager.findTools(categories, null, false);
+
+		List<Tool> features = new ArrayList<>(widgets);
+		features.sort(new ToolTitleComparator());
+		return Collections.unmodifiableList(features);
 	}
 
 	public void doAdd_widget(RunData data){
@@ -16700,13 +16703,26 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		ParameterParser params = data.getParameters();
 
 		String id = params.getString("id");
+		if (StringUtils.isBlank(id)) {
+			return;
+		}
 		// make the tool so we have the id
 		SitePage page = (SitePage) state.getAttribute("overview");
+		if (page == null) {
+			return;
+		}
 		ToolConfiguration tool = page.addTool(id);
 		tool.setLayoutHints("0,0"); //assume top left, it will be sorted later-- val just cant be null
 
 		List<Tool> widgets = (List<Tool>) state.getAttribute("allWidgets");
+		if (widgets == null) {
+			widgets = findWidgets();
+			state.setAttribute("allWidgets", widgets);
+		}
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+		if (tools == null) {
+			tools = new ArrayList<>(page.getTools());
+		}
 
 		for(Tool widget: widgets){
 			if(widget.getId().equals(id)){
@@ -16729,6 +16745,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
 		if ( tools == null ) return;
 
+		if (tools.size() <= 1 || !validateMinWidget(page, state)) {
+			return;
+		}
+
 		List<ToolConfiguration> removedTools = (List<ToolConfiguration>) state.getAttribute("removedTools");
 		if(removedTools == null){
 			removedTools = new ArrayList<>();
@@ -16745,7 +16765,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		state.setAttribute("tools", tools);
 	}
-	
+
+	private boolean validateMinWidget(SitePage page, SessionState state) {
+		if (page == null || CollectionUtils.isEmpty(page.getTools())) {
+			addAlert(state, rb.getString("manover.minwidget"));
+			return false;
+		}
+
+		return true;
+	}
+
 	private String getDateFormat(Date date) {
 		String f = userTimeService.shortPreciseLocalizedTimestamp(date.toInstant(), userTimeService.getLocalTimeZone(), comparator_locale);
 		return f;

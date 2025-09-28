@@ -2207,7 +2207,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			super(msg, el);
 
 			// extract the subject
-			m_subject = el.getAttribute("subject");
+			String encodedSubject = el.getAttribute("subject");
+			m_subject = StringUtils.isEmpty(encodedSubject)
+					? encodedSubject
+					: formattedText.decodeNumericCharacterReferences(encodedSubject);
 
 		} // BaseAnnouncementMessageHeaderEdit
 
@@ -2268,7 +2271,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			Element header = super.toXml(doc, stack);
 
 			// add draft, subject
-			header.setAttribute("subject", getSubject());
+			String encodedSubject = formattedText.encodeUnicode(getSubject());
+			header.setAttribute("subject", encodedSubject);
 			header.setAttribute("draft", new Boolean(getDraft()).toString());
 
 			return header;
