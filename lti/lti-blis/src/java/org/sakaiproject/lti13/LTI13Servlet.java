@@ -1095,7 +1095,10 @@ public class LTI13Servlet extends HttpServlet {
 
 		}
 
-		log.debug("tool={} content={} userId={}", tool, content, userId);
+		log.debug("tool={} content={} userId={}",
+			tool != null ? tool.getId() : null,
+			content != null ? content.getId() : null,
+			userId);
 
 		userId = SakaiLTIUtil.parseSubject(userId);
 		if (!checkUserInSite(site, userId)) {
