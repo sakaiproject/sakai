@@ -22,10 +22,7 @@
 package org.sakaiproject.calendar.impl;
 
 import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -46,55 +43,42 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Content producer for calendar search functionality
- * 
- * @author Generated for calendar search support
- */
 @Slf4j
+@Setter
 public class CalendarContentProducer implements EntityContentProducer {
 
-	@Setter @Getter
-	private SearchService searchService = null;
-	
-	@Setter @Getter
-	private SearchIndexBuilder searchIndexBuilder = null;
-	
-	@Setter @Getter
-	private EntityManager entityManager = null;
-	
-	@Setter @Getter
-	private CalendarService calendarService = null;
-	
-	@Setter @Getter
-	private List<String> addEvents = new ArrayList<>();
-	
-	@Setter @Getter
-	private List<String> removeEvents = new ArrayList<>();
-	
-	@Setter
-	private SiteService siteService;
-	
-	@Setter
+	private CalendarService calendarService;
+	private EntityManager entityManager;
+	private SearchIndexBuilder searchIndexBuilder;
+	private SearchService searchService;
 	private ServerConfigurationService serverConfigurationService;
+	private SiteService siteService;
 
-	protected void init() throws Exception {
-		
-		if (serverConfigurationService != null && serverConfigurationService.getBoolean("search.enable", false)) {
-			for (Iterator<String> i = addEvents.iterator(); i.hasNext();) {
-				getSearchService().registerFunction((String) i.next());
-			}
-			for (Iterator<String> i = removeEvents.iterator(); i.hasNext();) {
-				getSearchService().registerFunction((String) i.next());
-			}
-			getSearchIndexBuilder().registerEntityContentProducer(this);
+	private List<String> addingEvents = new ArrayList<>();
+	private List<String> removingEvents = new ArrayList<>();
+
+	public void init() {
+		if (serverConfigurationService.getBoolean("search.enable", false)) {
+			addingEvents.add("calendar.event.add");
+			addingEvents.add("calendar.event.modify");
+			removingEvents.add("calendar.event.remove");
+			addingEvents.forEach(e -> searchService.registerFunction(e));
+			removingEvents.forEach(e -> searchService.registerFunction(e));
+			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 	}
 
+
+	public boolean isContentFromReader(String reference) {
+		return false;
+	}
+
+	public Reader getContentReader(String reference) {
+		return null;
+	}
 
 	private Reference getReference(String reference) {
 		try {
@@ -112,233 +96,6 @@ public class CalendarContentProducer implements EntityContentProducer {
 		}
 	}
 
-	@Override
-	public boolean canRead(String reference) {
-		Reference ref = getReference(reference);
-		if (ref == null) return false;
-		
-		CalendarEvent event = getCalendarEvent(ref);
-		if (event == null) return false;
-		
-		String siteId = event.getSiteId();
-		try {
-			// Check if user can access the site - this is how calendar tool checks access
-			siteService.getSiteVisit(siteId);
-			return true;
-		} catch (Exception e) {
-			// User cannot access the site
-			return false;
-		}
-	}
-
-	@Override
-	public Integer getAction(Event event) {
-		String evt = event.getEvent();
-		if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-		
-		for (Iterator<String> i = addEvents.iterator(); i.hasNext();) {
-			String match = (String) i.next();
-			if (evt.equals(match)) {
-				return SearchBuilderItem.ACTION_ADD;
-			}
-		}
-		for (Iterator<String> i = removeEvents.iterator(); i.hasNext();) {
-			String match = (String) i.next();
-			if (evt.equals(match)) {
-				return SearchBuilderItem.ACTION_DELETE;
-			}
-		}
-		return SearchBuilderItem.ACTION_UNKNOWN;
-	}
-
-	@Override
-	public String getContainer(String reference) {
-		try {
-			return getReference(reference).getContainer();
-		} catch (Exception ex) {
-			return "";
-		}
-	}
-
-	@Override
-	public String getContent(String reference) {
-		Reference ref = getReference(reference);
-		if (ref == null) return "";
-		
-		CalendarEvent event = getCalendarEvent(ref);
-		if (event == null) return "";
-		
-		StringBuilder sb = new StringBuilder();
-		
-		// Add the display name
-		String displayName = event.getDisplayName();
-		if (displayName != null) {
-			SearchUtils.appendCleanString(displayName, sb);
-			sb.append("\n");
-		}
-		
-		// Add the description
-		String description = event.getDescription();
-		if (description != null) {
-			SearchUtils.appendCleanString(description, sb);
-			sb.append("\n");
-		}
-		
-		// Add the location
-		String location = event.getLocation();
-		if (location != null) {
-			SearchUtils.appendCleanString(location, sb);
-			sb.append("\n");
-		}
-		
-		// Add the type
-		String type = event.getType();
-		if (type != null) {
-			SearchUtils.appendCleanString(type, sb);
-		}
-		
-		log.debug("Indexed calendar event content for reference: {}", ref.getReference());
-		return sb.toString();
-	}
-
-	@Override
-	public Reader getContentReader(String reference) {
-		return new StringReader(getContent(reference));
-	}
-
-	@Override
-	public String getId(String ref) {
-		try {
-			Reference reference = getReference(ref);
-			if (reference != null) {
-				return reference.getId();
-			}
-		} catch (Exception e) {
-			log.debug("Error getting id for reference: {}", ref, e);
-		}
-		return "";
-	}
-
-	public List<String> getSiteContent(String context) {
-		List<String> rv = new ArrayList<>();
-		
-		try {
-			// Get the calendar for this site
-			String calendarReference = calendarService.calendarReference(context, SiteService.MAIN_CONTAINER);
-			Calendar calendar = calendarService.getCalendar(calendarReference);
-			
-			if (calendar != null && calendar.allowGetEvents()) {
-				// Get all events from the calendar
-				List<CalendarEvent> events = calendar.getEvents(null, null);
-				for (CalendarEvent event : events) {
-					rv.add(event.getReference());
-				}
-			}
-		} catch (Exception e) {
-			log.warn("Error getting site content for context: {}", context, e);
-		}
-		
-		return rv;
-	}
-
-	@Override
-	public Iterator<String> getSiteContentIterator(String context) {
-		return getSiteContent(context).iterator();
-	}
-
-	@Override
-	public String getSiteId(String reference) {
-		Reference ref = getReference(reference);
-		if (ref == null) return null;
-		
-		CalendarEvent event = getCalendarEvent(ref);
-		if (event == null) return null;
-		
-		return event.getSiteId();
-	}
-
-	@Override
-	public String getSubType(String ref) {
-		return "";
-	}
-
-	@Override
-	public String getTitle(String reference) {
-		Reference ref = getReference(reference);
-		if (ref == null) return "";
-		
-		CalendarEvent event = getCalendarEvent(ref);
-		if (event == null) return "";
-		
-		String displayName = event.getDisplayName();
-		return displayName != null ? displayName : "";
-	}
-
-	@Override
-	public String getTool() {
-		return "calendar";
-	}
-
-	@Override
-	public String getType(String ref) {
-		return "calendar";
-	}
-
-	@Override
-	public String getUrl(String reference) {
-		Reference ref = getReference(reference);
-		if (ref == null) return "";
-		
-		CalendarEvent event = getCalendarEvent(ref);
-		if (event == null) return "";
-		
-		String siteId = event.getSiteId();
-		// Use directtool URL for better linking to specific events
-		try {
-			// Find the calendar tool in the site
-			Site site = siteService.getSite(siteId);
-			ToolConfiguration toolConfig = site.getToolForCommonId("sakai.schedule");
-			if (toolConfig != null) {
-				return "/portal/directtool/" + toolConfig.getId() + 
-					   "?eventReference=" + reference + 
-					   "&panel=Main&sakai_action=doDescription&sakai.state.reset=true";
-			}
-		} catch (Exception e) {
-			log.debug("Error getting tool configuration for site: {}", siteId, e);
-		}
-			return "";
-	}
-
-	@Override
-	public boolean isContentFromReader(String reference) {
-		return false;
-	}
-
-	@Override
-	public boolean isForIndex(String reference) {
-		Reference ref = getReference(reference);
-		if (ref == null) return false;
-		
-		CalendarEvent event = getCalendarEvent(ref);
-		if (event == null) return false;
-		
-		// Only index events that are accessible (this will be checked again in canRead)
-		return true;
-	}
-
-	@Override
-	public boolean matches(String reference) {
-		return reference.startsWith(CalendarService.REFERENCE_ROOT);
-	}
-
-	@Override
-	public boolean matches(Event event) {
-		return matches(event.getResource());
-	}
-
-	/**
-	 * Helper method to get CalendarEvent from a reference
-	 */
 	private CalendarEvent getCalendarEvent(Reference ref) {
 		try {
 			EntityProducer ep = getProducer(ref);
@@ -351,4 +108,152 @@ public class CalendarContentProducer implements EntityContentProducer {
 		}
 		return null;
 	}
+
+	public String getContent(String reference) {
+		Reference ref = getReference(reference);
+		if (ref == null) return "";
+
+		CalendarEvent event = getCalendarEvent(ref);
+		if (event == null) return "";
+
+		StringBuilder sb = new StringBuilder();
+		SearchUtils.appendCleanString(event.getDisplayName(), sb);
+		sb.append(" ");
+		SearchUtils.appendCleanString(event.getDescription(), sb);
+		sb.append(" ");
+		SearchUtils.appendCleanString(event.getLocation(), sb);
+		sb.append(" ");
+		SearchUtils.appendCleanString(event.getType(), sb);
+		return sb.toString();
+	}
+
+	public String getTitle(String reference) {
+		Reference ref = getReference(reference);
+		if (ref == null) return "";
+
+		CalendarEvent event = getCalendarEvent(ref);
+		return (event != null) ? event.getDisplayName() : "";
+	}
+
+	public String getUrl(String reference) {
+		Reference ref = getReference(reference);
+		if (ref == null) return "";
+
+		CalendarEvent event = getCalendarEvent(ref);
+		if (event == null) return "";
+
+		String siteId = event.getSiteId();
+		try {
+			Site site = siteService.getSite(siteId);
+			ToolConfiguration toolConfig = site.getToolForCommonId("sakai.schedule");
+			if (toolConfig != null) {
+				return serverConfigurationService.getPortalUrl()
+						+ "/directtool/"
+						+ toolConfig.getId()
+						+ "?eventReference="
+						+ reference
+						+ "&panel=Main&sakai_action=doDescription&sakai.state.reset=true";
+			}
+		} catch (Exception e) {
+			log.error("Failed to get deep link for context {} and event {}. Returning empty string.", siteId, reference, e);
+		}
+		return "";
+	}
+
+	public boolean matches(String reference) {
+		return reference.startsWith(CalendarService.REFERENCE_ROOT);
+	}
+
+	public Integer getAction(Event event) {
+		String evt = event.getEvent();
+		if (addingEvents.contains(evt)) return SearchBuilderItem.ACTION_ADD;
+		if (removingEvents.contains(evt)) return SearchBuilderItem.ACTION_DELETE;
+		return SearchBuilderItem.ACTION_UNKNOWN;
+	}
+
+	public boolean matches(Event event) {
+		String evt = event.getEvent();
+		return addingEvents.contains(evt) || removingEvents.contains(evt);
+	}
+
+	public String getTool() {
+		return "calendar";
+	}
+
+	public String getSiteId(String reference) {
+		Reference ref = getReference(reference);
+		if (ref == null) return null;
+
+		CalendarEvent event = getCalendarEvent(ref);
+		return (event != null) ? event.getSiteId() : null;
+	}
+
+	public Iterator<String> getSiteContentIterator(String context) {
+		List<String> rv = new ArrayList<>();
+		try {
+			String calendarReference = calendarService.calendarReference(context, SiteService.MAIN_CONTAINER);
+			Calendar calendar = calendarService.getCalendar(calendarReference);
+
+			if (calendar != null && calendar.allowGetEvents()) {
+				List<CalendarEvent> events = calendar.getEvents(null, null);
+				for (CalendarEvent event : events) {
+					rv.add(event.getReference());
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Error getting site content for context: {}", context, e);
+		}
+		return rv.iterator();
+	}
+
+	public boolean isForIndex(String reference) {
+		return reference.startsWith(CalendarService.REFERENCE_ROOT);
+	}
+
+	public boolean canRead(String reference) {
+		if (!isForIndex(reference)) {
+			return false;
+		}
+
+		Reference ref = getReference(reference);
+		if (ref == null) return false;
+
+		CalendarEvent event = getCalendarEvent(ref);
+		if (event == null) return false;
+
+		String siteId = event.getSiteId();
+		try {
+			siteService.getSiteVisit(siteId);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	public Map<String, ?> getCustomProperties(String reference) {
+		return null;
+	}
+
+	public String getCustomRDF(String reference) {
+		return null;
+	}
+
+	public String getId(String reference) {
+		Reference ref = getReference(reference);
+		return (ref != null) ? ref.getId() : null;
+	}
+
+	public String getType(String reference) {
+		return "calendar";
+	}
+
+	public String getSubType(String reference) {
+		return null;
+	}
+
+	public String getContainer(String reference) {
+		Reference ref = getReference(reference);
+		return (ref != null) ? ref.getContainer() : null;
+	}
+
 } 

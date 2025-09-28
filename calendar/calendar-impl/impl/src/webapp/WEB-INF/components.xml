@@ -92,37 +92,12 @@
 	<bean id="calendarSearchAdapter"
 		class="org.sakaiproject.calendar.impl.CalendarContentProducer"
 		init-method="init">
-		<property name="addEvents">
-			<list>
-				<value>calendar.new</value>
-				<value>calendar.revise</value>
-				<value>calendar.revise.event.title</value>
-				<value>calendar.revise.event.time</value>
-				<value>calendar.revise.event.type</value>
-				<value>calendar.revise.event.access</value>
-				<value>calendar.revise.event.frequency</value>
-			</list>
-		</property>
-		<property name="removeEvents">
-			<list>
-				<value>calendar.delete</value>
-				<value>calendar.delete.event</value>
-			</list>
-		</property>
-		<property name="entityManager">
-			<ref bean="org.sakaiproject.entity.api.EntityManager"/>
-		</property>
-		<property name="calendarService">
-			<ref bean="org.sakaiproject.calendar.api.CalendarService"/>
-		</property>
-		<property name="searchService">
-			<ref bean="org.sakaiproject.search.api.SearchService" />
-		</property>
-		<property name="searchIndexBuilder">
-			<ref bean="org.sakaiproject.search.api.SearchIndexBuilder" />
-		</property>
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+		<property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 	</bean>
 	
 	<import resource="hibernate-hbms.xml"/>
