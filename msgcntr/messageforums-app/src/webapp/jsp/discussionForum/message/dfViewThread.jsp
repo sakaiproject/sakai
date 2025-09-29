@@ -17,10 +17,11 @@
 	<h:form id="msgForum" rendered="#{!ForumTool.selectedTopic.topic.draft || ForumTool.selectedTopic.topic.createdBy == ForumTool.userId}">
 
 		<!--jsp/discussionForum/message/dfViewThread.jsp-->
-       		<script>includeLatestJQuery("msgcntr");</script>
-  			<script src="/messageforums-tool/js/dialog.js"></script>
-  			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />	
-       		<script src="/messageforums-tool/js/sak-10625.js"></script>
+		<script>includeLatestJQuery("msgcntr");</script>
+		<script>includeWebjarLibrary('bootstrap')</script>
+		<script src="/messageforums-tool/js/dialog.js"></script>
+		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
+		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script>
 			$(document).ready(function () {
@@ -31,7 +32,7 @@
 
 				setupMessageNav('messagePending');
 				setupMessageNav('messageNew');
-				if ($('div.hierItemBlock').size() >= 1){
+				if ($('div.hierItemBlock').length >= 1){
 					$('.itemNav').clone().addClass('specialLink').appendTo('form')
 					$("<br/><br/>").appendTo('form');
 				}
@@ -73,34 +74,36 @@
 
 			<h:panelGrid columns="2" width="100%" styleClass="specialLink">
 			    <h:panelGroup>
-					<f:verbatim><div class="specialLink"><h3></f:verbatim>
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
-			      		rendered="#{ForumTool.messagesandForums}" />
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussions}" title=" #{msgs.cdfm_discussions}"
-			      		rendered="#{ForumTool.forumsTool}" />
-      			  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-					  <h:commandLink action="#{ForumTool.processActionDisplayForum}" title=" #{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
-						  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-						  <h:outputText value="#{ForumTool.selectedForum.forum.title}"/>
-					  </h:commandLink>
-					  <h:outputText value="#{ForumTool.selectedForum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"/>
-				  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-				  	  <h:commandLink action="#{ForumTool.processActionDisplayTopic}" title="#{ForumTool.selectedTopic.topic.title}">
-					  	  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-					  	  <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-					  	  <h:outputText value="#{ForumTool.selectedTopic.topic.title}"/>
-				  	  </h:commandLink>
-				  <h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-				  	<h:panelGroup rendered="#{ForumTool.selectedTopic.availability == 'false'}">
-				  		<span class="bi bi-calendar-x" aria-hidden="true" style="margin-right:.5em"></span>
-				  		<h:outputText styleClass="sr-only" value="#{msgs.topic_restricted_message}" />
-				  	</h:panelGroup>
-				  	<h:panelGroup rendered="#{ForumTool.selectedTopic.locked =='true'}">
-				  		<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.5em"></span>
-				  		<h:outputText styleClass="sr-only" value="#{msgs.cdfm_forum_locked}" />
-				  	</h:panelGroup>
-				  	  <h:outputText value="#{ForumTool.selectedThreadHead.message.title}" />
-					  <f:verbatim></h3></div></f:verbatim>
+				<div class="specialLink">
+					<h3>
+						<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
+							rendered="#{ForumTool.messagesandForums}" />
+						<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussions}" title=" #{msgs.cdfm_discussions}"
+							rendered="#{ForumTool.forumsTool}" />
+						<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+						<h:commandLink action="#{ForumTool.processActionDisplayForum}" title=" #{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
+							<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+							<h:outputText value="#{ForumTool.selectedForum.forum.title}"/>
+						</h:commandLink>
+						<h:outputText value="#{ForumTool.selectedForum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"/>
+						<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+						<h:commandLink action="#{ForumTool.processActionDisplayTopic}" title="#{ForumTool.selectedTopic.topic.title}">
+							<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+							<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+							<h:outputText value="#{ForumTool.selectedTopic.topic.title}"/>
+						</h:commandLink>
+						<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+						<h:panelGroup rendered="#{ForumTool.selectedTopic.availability == 'false'}">
+							<span class="bi bi-calendar-x" aria-hidden="true" style="margin-right:.5em"></span>
+							<h:outputText styleClass="sr-only" value="#{msgs.topic_restricted_message}" />
+						</h:panelGroup>
+						<h:panelGroup rendered="#{ForumTool.selectedTopic.locked =='true'}">
+							<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.5em"></span>
+							<h:outputText styleClass="sr-only" value="#{msgs.cdfm_forum_locked}" />
+						</h:panelGroup>
+						<h:outputText value="#{ForumTool.selectedThreadHead.message.title}" />
+					</h3>
+				</div>
 
 				 </h:panelGroup>
 
@@ -126,26 +129,40 @@
 
 		<h:panelGroup rendered="#{!ForumTool.threadMoved}">
 			<h:commandLink styleClass="button" value="#{msgs.cdfm_reply_thread}" id="replyThread" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}"
-				action="#{ForumTool.processDfMsgReplyThread}" immediate="true"/>&nbsp;
-			<h:commandLink styleClass="button" value=" #{msgs.cdfm_mark_all_as_read}" id="markAllRead" action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"/>&nbsp;
+				action="#{ForumTool.processDfMsgReplyThread}" immediate="true"/>
+			<h:outputText value="&#160;" escape="false" />
+			<h:commandLink styleClass="button" value=" #{msgs.cdfm_mark_all_as_read}" id="markAllRead" action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"/>
+			<h:outputText value="&#160;" escape="false" />
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrlThread}');">
 				<span class="bi bi-printer-fill" aria-hidden="true"></span>
 				<h:outputText value="#{msgs.print_friendly}" styleClass="sr-only" />
 			</h:outputLink>
 		</h:panelGroup>
 
-	  	<f:verbatim>
-			<div id="dialogDiv" title="Grade Messages" style="display:none">
-	    		<iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
-	    	</div>
-		</f:verbatim>
+	<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="dialogDivLabel">
+		<div class="modal-dialog modal-xl modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="dialogDivLabel">
+						<h:outputText value="#{msgs.cdfm_grade_msg}" />
+					</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<h:outputText value='#{msgs.close_window}' />"></button>
+				</div>
+				<div class="modal-body">
+					<f:verbatim>
+						<iframe id="dialogFrame" name="dialogFrame" class="grade-modal-frame" title="</f:verbatim><h:outputText value="#{msgs.cdfm_grade_msg}" /><f:verbatim>"></iframe>
+					</f:verbatim>
+				</div>
+			</div>
+		</div>
+	</div>
 		
 				 <%@ include file="dfViewSearchBarThread.jsp"%>
 		
 		<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>
         <%-- a moved message --%>
         <h:panelGroup rendered="#{ForumTool.threadMoved}" >
-          <f:verbatim><span></f:verbatim>
+          <span>
             <h:outputText styleClass="threadMovedMsg" value="<b>#{ForumTool.selectedThreadHead.message.title}</b> " escape="false"/>
             <h:outputText styleClass="threadMovedMsg" value="#{msgs.hasBeen} " />
             <h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" styleClass="threadMovedMsg">
@@ -154,7 +171,7 @@
                                                     <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
                                             </h:commandLink>
             <h:outputText styleClass="threadMovedMsg"  value=" #{msgs.anotherTopic}" />
-          <f:verbatim></span></f:verbatim>
+          </span>
         </h:panelGroup>
 		<div id="messNavHolder" style="clear:both;"></div>
 		<%--rjlowe: Expanded View to show the message bodies, but not threaded --%>
