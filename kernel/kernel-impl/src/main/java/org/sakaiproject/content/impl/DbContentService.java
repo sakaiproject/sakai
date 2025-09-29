@@ -283,13 +283,6 @@ public class DbContentService extends BaseContentService
                 sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_delete");
             }
 
-            if ( migrateData ) {
-                log.info("Migration of data to the Binary format will be performed by this node ");
-            } else {
-                log.info("Migration of data to the Binary format will NOT be performed by this node ");
-
-            }
-
             // If CHH resolvers are turned off in sakai.properties, unset the resolver property.
             // This MUST happen before super.init() calls newStorage()
             // (since that's when obj refs to the contentHostingHandlerResovler are passed around).
@@ -451,8 +444,6 @@ public class DbContentService extends BaseContentService
             log.debug("TEMPORARY LOG MESSAGE WITH STACK TRACE: TEST FAILED: {}", e.toString());
         }
     }
-
-    public boolean migrateData = true;
 
     /**
      *
@@ -3022,19 +3013,6 @@ public class DbContentService extends BaseContentService
 
         sqlService.dbRead(sql, fields, sqlReader);
         return sizes;
-    }
-
-    /**
-     * @param migrateData the migrateData to set
-     */
-    public void setMigrateData(boolean migrateData)
-    {
-        if ( ! migrateData ) {
-            log.error("Setting MigrateData to false is no longer allowed. See SAK-51949");
-            return;
-        }
-        this.migrateData = migrateData;
-
     }
 
     /**
