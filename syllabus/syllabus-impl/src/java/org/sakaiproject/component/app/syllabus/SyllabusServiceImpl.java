@@ -1028,6 +1028,11 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 			.map(d -> Map.of("id", d.getSyllabusId().toString(), "title", d.getTitle())).collect(Collectors.toList());
 	}
 
+	@Override
+	public String getToolPermissionsPrefix() {
+		return SyllabusService.SECURE_PERMISSION_PREFIX;
+	}
+
 	@Transactional
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options)
 	{

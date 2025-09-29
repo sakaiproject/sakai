@@ -163,6 +163,11 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
 			.map(ass -> Map.of("id", ass.getAssessmentId().toString(), "title", ass.getTitle())).collect(Collectors.toList());
 	}
 
+    @Override
+    public String getToolPermissionsPrefix() {
+        return SamigoConstants.AUTHZ_PERMISSION_PREFIX;
+    }
+
 	@Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
 		AssessmentService service = new AssessmentService();

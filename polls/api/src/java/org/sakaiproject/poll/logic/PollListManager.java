@@ -39,6 +39,7 @@ public interface PollListManager extends EntityProducer {
 
 //  the permissions
 
+    public static final String PERMISSION_PREFIX = "poll";
     public static final String PERMISSION_VOTE = "poll.vote";
     public static final String PERMISSION_ADD = "poll.add";
     public static final String PERMISSION_DELETE_OWN = "poll.deleteOwn";

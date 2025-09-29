@@ -50,6 +50,7 @@ public interface RubricsConstants {
     public static final String RBCS_PERMISSIONS_EDITOR = "rubrics.editor";
     public static final String RBCS_PERMISSIONS_EVALUEE = "rubrics.evaluee";
     public static final String RBCS_PERMISSIONS_MANAGER_VIEW = "rubrics.manager.view";
+    public static final String RBCS_PERMISSIONS_PREFIX = "rubrics";
 
     public static final String RBCS_EXPORT_PDF = "rubrics.export.pdf";
 

@@ -113,6 +113,8 @@ public interface CalendarService
 	/** Security lock for viewing who the event is for. */
 	public static final String AUTH_VIEW_AUDIENCE = "calendar.view.audience";
 
+	public static final String AUTH_PERMISSION_PREFIX = "calendar";
+
 	/** The Reference type for a calendar. */
 	public static final String REF_TYPE_CALENDAR = "calendar";
 

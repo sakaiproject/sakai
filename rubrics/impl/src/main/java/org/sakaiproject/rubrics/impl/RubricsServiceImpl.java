@@ -1574,6 +1574,11 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     }
 
     @Override
+    public String getToolPermissionsPrefix() {
+        return RubricsConstants.RBCS_PERMISSIONS_PREFIX;
+    }
+
+    @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 
         Map<String, String> traversalMap = new HashMap<>();
