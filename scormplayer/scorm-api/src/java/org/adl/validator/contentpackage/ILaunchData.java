@@ -208,7 +208,15 @@ public interface ILaunchData extends Serializable {
 	 */
 	public void print();
 
-	/**
+    /**
+     * @deprecated use {@link #print()} instead
+     */
+    @Deprecated
+    default void printToConsole() {
+        print();
+    }
+
+    /**
 	 * Assigns the given value to the mAbandon attribute.
 	 *
 	 * @param iAbandon The abandon value to be assigned.
