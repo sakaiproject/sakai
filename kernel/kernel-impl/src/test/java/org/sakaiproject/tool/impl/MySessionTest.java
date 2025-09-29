@@ -646,11 +646,14 @@ public class MySessionTest extends BaseSessionComponentTest {
 		} catch ( InterruptedException e ) {
 		} catch ( BrokenBarrierException e ) {}
 		
-		// Give threads time to complete and avoid race conditions
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// Ignore interruption during test
+		// Wait for all worker threads to complete deterministically
+		for (Worker worker : workers) {
+			try {
+				worker.join();
+			} catch (InterruptedException e) {
+				// Re-throw as RuntimeException to fail the test immediately on interruption
+				throw new RuntimeException("Test interrupted while waiting for worker thread completion", e);
+			}
 		}
 		
 		assertEquals(Collections.synchronizedSet(new HashSet<Throwable>()), failures);
