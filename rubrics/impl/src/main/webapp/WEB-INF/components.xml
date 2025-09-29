@@ -81,4 +81,14 @@
         </property>
     </bean>
 
+    <bean id="rubricSearchAdapter"
+        class="org.sakaiproject.rubrics.impl.RubricContentProducer"
+        init-method="init">
+        <property name="rubricsService" ref="org.sakaiproject.rubrics.api.RubricsService"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+        <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    </bean>
+
 </beans>

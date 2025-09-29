@@ -28,7 +28,8 @@ export class SakaiSearch extends SakaiElement {
       "lessons": "si si-sakai-lessonbuildertool",
       "commons": "si si-sakai-commons",
       "content": "si si-sakai-resources",
-      "wiki": "si si-sakai-rwiki"
+      "wiki": "si si-sakai-rwiki",
+      "rubrics": "si si-sakai-rubrics"
     };
 
     this.loadTranslations("search").then(t => {
@@ -43,7 +44,8 @@ export class SakaiSearch extends SakaiElement {
         "lessons": this._i18n.toolname_lesson,
         "commons": this._i18n.toolname_commons,
         "content": this._i18n.toolname_resources,
-        "wiki": this._i18n.toolname_wiki
+        "wiki": this._i18n.toolname_wiki,
+        "rubrics": this._i18n.toolname_rubrics
       };
     });
   }

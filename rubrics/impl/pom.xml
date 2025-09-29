@@ -137,6 +137,10 @@
             <artifactId>archive-api</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

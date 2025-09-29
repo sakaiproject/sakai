@@ -262,6 +262,11 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         rubric.setModified(now);
 
         Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+
+        // Post event for search indexing
+        eventTrackingService.post(eventTrackingService.newEvent("rubric.create",
+            RubricsService.REFERENCE_ROOT + "/rubric/" + savedRubric.getId(), true));
+
         return decorateRubricBean(new RubricTransferBean(savedRubric));
     }
 
@@ -326,6 +331,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         // SAK-42944 removing the soft-deleted associations
         rubric.getAssociations().forEach(ass -> evaluationRepository.deleteByToolItemRubricAssociation_Id(ass.getId()));
+
+        // Post event for search indexing before deletion
+        eventTrackingService.post(eventTrackingService.newEvent("rubric.delete",
+            RubricsService.REFERENCE_ROOT + "/rubric/" + rubricId, true));
 
         rubricRepository.delete(rubric);
         return true;
@@ -563,7 +572,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             return new RatingTransferBean(criterion.getRatings().get(position));
         });
 
-        rubricRepository.save(updateRubricMaxPoints(rubric));
+        Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
 
         return bean;
     }
@@ -663,7 +672,14 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
         rubric.setMaxPoints(bean.getMaxPoints());
         rubric.setAdhoc(bean.getAdhoc());
 
-        return new RubricTransferBean(rubricRepository.save(updateRubricMaxPoints(rubric)));
+        Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
+
+        // Post event for search indexing
+        String eventType = bean.getId() == null ? "rubric.create" : "rubric.update";
+        eventTrackingService.post(eventTrackingService.newEvent(eventType,
+            RubricsService.REFERENCE_ROOT + "/rubric/" + savedRubric.getId(), true));
+
+        return new RubricTransferBean(savedRubric);
     }
 
     public CriterionTransferBean updateCriterion(CriterionTransferBean bean, String siteId) {
@@ -709,7 +725,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         rubric.getCriteria().removeIf(c -> c.getId().equals(criterionId));
 
-        rubricRepository.save(updateRubricMaxPoints(rubric));
+        Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(rubric));
     }
 
     public RatingTransferBean updateRating(RatingTransferBean bean, String siteId) {
@@ -730,7 +746,7 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             Rating updatedRating = ratingRepository.save(rating);
 
             // since the rating points may have changed a rubric update may be needed
-            rubricRepository.save(updateRubricMaxPoints(updatedRating.getCriterion().getRubric()));
+            Rubric savedRubric = rubricRepository.save(updateRubricMaxPoints(updatedRating.getCriterion().getRubric()));
 
             return new RatingTransferBean(updatedRating);
         }
