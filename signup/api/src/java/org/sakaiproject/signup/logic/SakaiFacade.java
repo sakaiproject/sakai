@@ -65,6 +65,8 @@ public interface SakaiFacade {
 
 	public final static String NO_LOCATION = "noLocationAvailable";
 
+	public static final String SIGNUP_PERMISSION_PREFIX = "signup";
+
 	public static final String SIGNUP_VIEW = "signup.view";
 
 	public static final String SIGNUP_VIEW_ALL = "signup.view.all";
