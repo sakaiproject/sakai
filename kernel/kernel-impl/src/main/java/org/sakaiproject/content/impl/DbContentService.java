@@ -780,7 +780,7 @@ public class DbContentService extends BaseContentService
                             if ( t1ch.convertSource(collectionid, xml, updateStatement) ) {
                                 updateStatement.executeUpdate();
                             } else {
-                                log.info("XML Parse failed "+collectionid);
+                                log.info("XML Parse failed for collection id {}", collectionid);
                             }
                         }
                     } else {
