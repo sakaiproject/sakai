@@ -19,7 +19,7 @@
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
     <sakai.commons-io.version>2.20.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
-    <sakai.commons.lang3.version>3.18.0</sakai.commons.lang3.version>
+    <sakai.commons.lang3.version>3.19.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.6.0</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.14.0</sakai.commons-text.version>
@@ -35,7 +35,7 @@
     <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
     <sakai.httpcore.version>4.4.16</sakai.httpcore.version>
     <sakai.httpmime.version>4.5.14</sakai.httpmime.version>
-    <sakai.httpclient5.version>5.5</sakai.httpclient5.version>
+    <sakai.httpclient5.version>5.5.1</sakai.httpclient5.version>
     <sakai.httpcore5.version>5.3.6</sakai.httpcore5.version>
     <sakai.ignite.version>2.17.0</sakai.ignite.version>
     <sakai.ignite.spring.ext.version>2.0.0</sakai.ignite.spring.ext.version>
@@ -118,6 +118,8 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+  
+  <inceptionYear>2003</inceptionYear>
 
   <developers>
     <developer>

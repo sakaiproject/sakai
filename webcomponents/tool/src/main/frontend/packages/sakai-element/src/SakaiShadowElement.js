@@ -1,4 +1,4 @@
-import { css, LitElement } from "lit";
+import { LitElement } from "lit";
 import { loadProperties, tr } from "@sakai-ui/sakai-i18n";
 import { getDocumentStyleSheets } from "./global-styles.js";
 
@@ -61,11 +61,6 @@ export class SakaiShadowElement extends LitElement {
   }
 
   static styles = [
-    ...getDocumentStyleSheets(),
-    css`
-      select[multiple], select[size]:not([size='1']) {
-        background-image: none;
-      }
-    `
+    ...getDocumentStyleSheets()
   ];
 }

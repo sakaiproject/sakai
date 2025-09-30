@@ -1,101 +1,131 @@
-var dialogutil = dialogutil || {};
+window.dialogutil = window.dialogutil || {};
 
-(function(jQuery, dialogutil) {
+(function($, dialogutil) {
 
-	dialogutil.openDialog = function(divId, frameId, yPos) {
-		var vHeight = 300;
-		
-		
-
-		$('body').css('padding-bottom','300px')
-		$("#" + divId).dialog({
-			resizable: false,
-			autoOpen:false,
-			draggable:false,
-			modal: true,
-			width: 600,
-			height: vHeight,
-			close: function(event, ui) {
-				dialogutil.closeDialog(divId, frameId);
-			},
-			open: function() {
-				$("#" + divId).delay(500, function(){dialogutil.turnOnPortalOverlay();});
-				dialogutil.updateMainFrameHeight(window.name, frameId, vHeight);
-				
-			}
-		});
-
-		$("#" + divId).dialog( "option", "position", ['center', yPos - vHeight/2]);
-		$("#" + divId).dialog("open");
+	const ensureModal = function(divId) {
+		const modalEl = document.getElementById(divId);
+		if (!modalEl) {
+			return null;
+		}
+		const modal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: 'static', focus: true });
+		if (!modalEl.dataset.dialogUtilInit) {
+			modalEl.addEventListener('hidden.bs.modal', function() {
+				const frameId = modalEl.dataset.dialogFrame;
+				if (frameId) {
+					const iframe = document.getElementById(frameId);
+					if (iframe) {
+						iframe.removeAttribute('src');
+					}
+				}
+			});
+			modalEl.dataset.dialogUtilInit = 'true';
+		}
+		return modal;
 	};
 
-	/**
-	 * Turns on the 2.x portals background overlay
-	 */
+	dialogutil.openDialog = function(divId, frameId) {
+		const modal = ensureModal(divId);
+		if (!modal) {
+			return;
+		}
+
+		const modalEl = document.getElementById(divId);
+		if (modalEl && frameId && modalEl.dataset.dialogFrame !== frameId) {
+			modalEl.dataset.dialogFrame = frameId;
+		}
+
+		modal.show();
+	};
+
 	dialogutil.turnOnPortalOverlay = function() {
-		$("body", parent.document).append('<div id="portalMask" style="position:fixed;width:100%;height:100%;"></div>');
-		$(".ui-dialog").css("z-index", "9001").css("position", "relative").css("background", "#fff");
+		// Bootstrap handles the modal overlay; no additional work required.
 	};
 
-	/**
-	 * Turns off the 2.x portal background overlay
-	 */
 	dialogutil.turnOffPortalOverlay = function() {
-		$("#portalMask", parent.document).trigger("unload").unbind().remove();
+		// Legacy hook retained for backward compatibility.
 	};
 
 	dialogutil.closeDialog = function(divId, frameId) {
-		$("#" + divId).dialog('close');
-		dialogutil.turnOffPortalOverlay();
-	};
+		const modalEl = document.getElementById(divId);
+		if (!modalEl) {
+			return;
+		}
+		const modal = bootstrap.Modal.getInstance(modalEl);
+		if (modal) {
+			modal.hide();
+		}
 
-	dialogutil.showDiv = function(divId) {
-		$("#" + divId).show();
-		$("#" + divId).delay(5000, function(){$("#" + divId).fadeOut(1000)});
-	};
-
-	$.fn.delay = function(time, func) {
-		return this.each(function(){
-			setTimeout(func,time);
-		});
-	};
-	
-	dialogutil.updateMainFrameHeight = function (theParentFrame, frameId, vHeight) {
-		var frame = parent.document.getElementById(theParentFrame);
-		if (frame)
-		{
-			var objToResize = (frame.style) ? frame.style : frame;
-			
-			// reset the scroll
-	//		parent.window.scrollTo(0,0);
-
-			// Mozilla way to detect height
-			var localHeight = document.body.offsetHeight;
-
-			// Internet Explorer way to detect height
-			if (document.body.scrollHeight)
-			{
-				localHeight = document.body.scrollHeight;
-			}
-
-			var jqFrame = $("#" + frameId);
-			
-			var innerIframe = document.getElementById(jqFrame[0].id);
-			var innerObjToResize = (innerIframe.style) ? innerIframe.style : innerIframe;
-
-			innerObjToResize.height = vHeight + "px";
-			
-			localHeight += vHeight;
-			if (frame)
-			{
-				objToResize.height = localHeight + "px";
+		if (frameId) {
+			const iframe = document.getElementById(frameId);
+			if (iframe) {
+				iframe.removeAttribute('src');
 			}
 		}
-	}
+	};
+
+	const VISIBLE_DURATION_MS = 5000;
+	const FADE_DURATION_MS = 1000;
+
+	const clearTimer = function(div, key) {
+		const timerId = div.dataset[key];
+		if (timerId) {
+			clearTimeout(Number(timerId));
+			delete div.dataset[key];
+		}
+	};
+
+	const getDisplayValue = function(div) {
+		if (div.dataset.dialogutilDisplay) {
+			return div.dataset.dialogutilDisplay;
+		}
+		const computedDisplay = window.getComputedStyle(div).display;
+		const defaultDisplay = computedDisplay === 'none' ? 'block' : computedDisplay;
+		div.dataset.dialogutilDisplay = defaultDisplay;
+		return defaultDisplay;
+	};
+
+	const scheduleHide = function(div) {
+		const hideTimeout = window.setTimeout(function() {
+			div.style.transition = 'opacity ' + FADE_DURATION_MS + 'ms';
+			div.style.opacity = '0';
+			const fadeTimeout = window.setTimeout(function() {
+				div.style.display = 'none';
+				div.style.removeProperty('transition');
+				delete div.dataset.dialogutilFadeTimer;
+			}, FADE_DURATION_MS);
+			div.dataset.dialogutilFadeTimer = String(fadeTimeout);
+			delete div.dataset.dialogutilHideTimer;
+		}, VISIBLE_DURATION_MS);
+		div.dataset.dialogutilHideTimer = String(hideTimeout);
+	};
+
+	// Show the target element briefly before fading it out, without relying on jQuery animations.
+	dialogutil.showDiv = function(divId) {
+		const div = document.getElementById(divId);
+		if (!div) {
+			return;
+		}
+
+		clearTimer(div, 'dialogutilHideTimer');
+		clearTimer(div, 'dialogutilFadeTimer');
+		div.style.removeProperty('transition');
+		div.style.opacity = '1';
+		div.style.display = getDisplayValue(div);
+		// Force reflow so the fade transition restarts when scheduled.
+		void div.offsetWidth;
+
+		scheduleHide(div);
+	};
+
+	dialogutil.updateMainFrameHeight = function () {
+		// Height management is handled by CSS in the Bootstrap modal implementation.
+	};
 
 	dialogutil.replaceBodyOnLoad = function (newOnLoad, contextObject) {
-		$("body", contextObject.document).prop("onload", newOnLoad);
-	}
+		if (!contextObject || !contextObject.document) {
+			return;
+		}
+		contextObject.document.body.setAttribute('onload', newOnLoad);
+	};
 
-
-})(jQuery, dialogutil);
+})(jQuery, window.dialogutil);

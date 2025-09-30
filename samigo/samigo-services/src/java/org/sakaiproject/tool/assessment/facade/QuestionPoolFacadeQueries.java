@@ -413,7 +413,9 @@ public class QuestionPoolFacadeQueries
       QuestionPoolData qpp = (QuestionPoolData) getHibernateTemplate().load(
           QuestionPoolData.class, poolId);
       // setAccessType
-      setPoolAccessType(qpp, agent);
+      if (StringUtils.isNotBlank(agent)) {
+        setPoolAccessType(qpp, agent);
+      }
       // QuestionPoolItemData's identifier is a compsite identifier made up of
       // poolId and itemId <-- is regarded as "legacy DB" in Hibernate language.
       // We need to construct the properties for such as object ourselves.
