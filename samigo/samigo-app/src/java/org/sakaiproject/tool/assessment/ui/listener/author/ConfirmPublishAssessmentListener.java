@@ -510,7 +510,21 @@ public class ConfirmPublishAssessmentListener
     String releaseTo = assessment.getAssessmentAccessControl().getReleaseTo();
     if (releaseTo != null) {
       // generate an alias to the pub assessment
-      String alias = AgentFacade.getAgentString() + (new Date()).getTime();
+      String alias;
+      // verify uniqueness and regenerate if necessary
+      PublishedAssessmentService publishedService = new PublishedAssessmentService();
+      int attempts = 0;
+      do {
+        if (attempts < 3) {
+          alias = AgentFacade.getAgentString() + (new Date()).getTime();
+        } else {
+          // generate a random value
+          long randomTimestamp = 1000000000000L + (long)(Math.random() * 8999999999999L);
+          alias = AgentFacade.getAgentString() + randomTimestamp;
+        }
+        attempts++;
+      } while (publishedService.aliasExists(alias));
+
       assessmentSettings.setAlias(alias);
 
       String server = ( (javax.servlet.http.HttpServletRequest) extContext.

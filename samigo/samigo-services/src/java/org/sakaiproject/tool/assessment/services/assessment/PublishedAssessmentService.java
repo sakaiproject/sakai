@@ -363,6 +363,12 @@ public class PublishedAssessmentService extends AssessmentService{
         getPublishedAssessmentIdByAlias(alias);
   }
 
+  public boolean aliasExists(final String alias) {
+    return PersistenceService.getInstance().
+        getPublishedAssessmentFacadeQueries().
+        aliasExists(alias);
+  }
+
   public void saveOrUpdateMetaData(PublishedMetaData meta) {
    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
         saveOrUpdateMetaData(meta);

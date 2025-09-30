@@ -1603,6 +1603,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
         return null;
     }
 
+	/**
+	 * Fast check to verify if an ALIAS already exists in the database.
+	 * This method only returns true/false without loading the full assessment object.
+	 * Use this for ALIAS uniqueness validation during generation.
+	 *
+	 * @param alias The ALIAS to check
+	 * @return true if ALIAS exists, false otherwise
+	 */
+	public boolean aliasExists(final String alias) {
+		final HibernateCallback<List<Long>> hcb = session -> session
+				.createQuery("select count(m.id) from PublishedMetaData m where m.label = :label and m.entry = :entry")
+				.setParameter("label", "ALIAS")
+				.setParameter("entry", alias)
+				.list();
+		List<Long> list = getHibernateTemplate().execute(hcb);
+		return list.get(0) > 0;
+	}
+
 	public void saveOrUpdateMetaData(PublishedMetaData meta) {
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {

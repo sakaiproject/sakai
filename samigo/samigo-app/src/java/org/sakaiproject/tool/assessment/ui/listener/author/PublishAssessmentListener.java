@@ -22,9 +22,12 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -41,20 +44,20 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -62,33 +65,31 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
-import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
-import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PreDeliveryPhase;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
@@ -99,10 +100,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.web.client.HttpClientErrorException;
 
-
-import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
-import java.util.ListIterator;
-import java.time.Instant;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Title: Samigo</p>2
@@ -205,6 +203,26 @@ public class PublishAssessmentListener
                     if (((AssessmentFacade) assessment).isSelected()) {
                         assessmentList.remove(assessmentFacade);
                         assessmentSettings.setAssessment(assessmentFacade);
+
+                        // Generate unique ALIAS for each assessment in bulk publish to avoid null ALIAS
+                        // This mimics the behavior of ConfirmPublishAssessmentListener
+                        // Verify uniqueness and regenerate if necessary
+                        String bulkAlias;
+                        PublishedAssessmentService tempService = new PublishedAssessmentService();
+                        int attempts = 0;
+                        do {
+                            if (attempts < 3) {
+                              bulkAlias = AgentFacade.getAgentString() + (new Date()).getTime();
+                            } else {
+                              // Generate a random value
+                              long randomTimestamp = 1000000000000L + (long)(Math.random() * 8999999999999L);
+                              bulkAlias = AgentFacade.getAgentString() + randomTimestamp;
+                            }
+                            attempts++;
+                        } while (tempService.aliasExists(bulkAlias));
+
+                        assessmentSettings.setAlias(bulkAlias);
+
                         publishOne(author, assessmentFacade, assessmentSettings, assessmentService, authorization, repeatedPublish);
                     }
                 }
@@ -257,7 +275,8 @@ public class PublishAssessmentListener
     boolean sendEmailNotification = false;
 
     try {
-      assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
+      String alias = assessmentSettings.getAlias();
+      assessment.addAssessmentMetaData(AssessmentMetaDataIfc.ALIAS, alias);
       pub = publishedAssessmentService.publishAssessment(assessment);
 
       //Lock the groups for deletion if the assessment is released to groups, students can lose submissions if the group is deleted.
@@ -434,11 +453,10 @@ public class PublishAssessmentListener
     }
 
     // Add ALIAS if it doesn't exist
-    if ("".equals(assessment.getAssessmentMetaDataByLabel("ALIAS"))) {
+    if (StringUtils.isBlank(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS))) {
       // generate an alias to the pub assessment
       String alias = assessmentSettings.getAlias();
-      PublishedMetaData meta = new PublishedMetaData(pub.getData(),
-          AssessmentMetaDataIfc.ALIAS, alias);
+      PublishedMetaData meta = new PublishedMetaData(pub.getData(), AssessmentMetaDataIfc.ALIAS, alias);
       publishedAssessmentService.saveOrUpdateMetaData(meta);
     }  
 

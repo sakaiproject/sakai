@@ -21,10 +21,10 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collection;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
@@ -41,6 +41,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
@@ -48,7 +49,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 
 public interface PublishedAssessmentFacadeQueriesAPI
 {
@@ -231,6 +231,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public PublishedAssessmentFacade getPublishedAssessmentIdByMetaLabel(
       String label, String entry);
+
+  public boolean aliasExists(final String alias);
 
   public void saveOrUpdateMetaData(PublishedMetaData meta);
 
