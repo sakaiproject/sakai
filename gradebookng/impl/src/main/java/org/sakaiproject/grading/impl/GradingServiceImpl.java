@@ -2717,7 +2717,6 @@ public class GradingServiceImpl implements GradingService {
      *
      * @param doubleAsString
      * @return a locale-aware Double value representation of the given String
-     * @throws ParseException
      */
     public Double convertStringToDouble(final String doubleAsString) {
 
@@ -2727,7 +2726,7 @@ public class GradingServiceImpl implements GradingService {
 
         Double scoreAsDouble = NumberUtil.parseLocaleDouble(doubleAsString, resourceLoader.getLocale());
         if (scoreAsDouble == null) {
-            log.error("Failed to convert {}: Unable to parse using locale {}", doubleAsString, resourceLoader.getLocale());
+            log.warn("Failed to convert {}: Unable to parse using locale {}", doubleAsString, resourceLoader.getLocale());
         }
         return scoreAsDouble;
     }

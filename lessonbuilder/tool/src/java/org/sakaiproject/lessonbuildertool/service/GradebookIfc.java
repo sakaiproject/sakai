@@ -116,15 +116,16 @@ public class GradebookIfc {
 
 	public boolean updateExternalAssessmentScores(final String gradebookUid, final String siteId, final String externalId, final Map<String, String> studentUidsToScores) {
 		try {
-			Map<String, String> normalizedScores = null;
-			if (studentUidsToScores != null) {
-				normalizedScores = new HashMap<>();
-				for (Map.Entry<String, String> entry : studentUidsToScores.entrySet()) {
-					String value = entry.getValue();
-					normalizedScores.put(entry.getKey(), value == null ? null : NumberUtil.normalizeLocaleDouble(value));
-				}
-			}
-			gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, normalizedScores);
+		if (studentUidsToScores == null || studentUidsToScores.isEmpty()) {
+			gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, java.util.Collections.emptyMap());
+			return true;
+		}
+		Map<String, String> normalizedScores = new HashMap<>(studentUidsToScores.size());
+		for (Map.Entry<String, String> entry : studentUidsToScores.entrySet()) {
+			String value = entry.getValue();
+			normalizedScores.put(entry.getKey(), value == null ? null : NumberUtil.normalizeLocaleDouble(value));
+		}
+		gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, normalizedScores);
 		} catch (Exception e) {
 			return false;
 		}

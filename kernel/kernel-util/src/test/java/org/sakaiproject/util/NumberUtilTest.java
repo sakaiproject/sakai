@@ -25,6 +25,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -69,7 +70,7 @@ public class NumberUtilTest {
         Assert.assertFalse(NumberUtil.isValidLocaleDouble("1.2345678E7"));
 
         // Group 2 : dot on decimal separator, comma on group separator.
-        final Locale dotGroupLocale = new Locale("en", "EN");
+        final Locale dotGroupLocale = Locale.US;
         setResourceLoaderLocale(dotGroupLocale);
 
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("1,234.00"));
@@ -174,5 +175,10 @@ public class NumberUtilTest {
         public Locale getLocale() {
             return locale;
         }
+    }
+
+    @After
+    public void resetLocale() {
+        NumberUtil.setResourceLoader(new ResourceLoader());
     }
 }

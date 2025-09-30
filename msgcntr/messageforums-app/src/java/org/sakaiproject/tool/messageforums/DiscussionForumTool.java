@@ -6283,28 +6283,30 @@ public class DiscussionForumTool {
 	  }
   }
  
+	/**
+	 * Returns {@code true} when the supplied value parses to a non-negative, finite number for the current locale.
+	 */
 	public boolean isNumber(String validateString) 
 	{
 			Double parsed = NumberUtil.parseLocaleDouble(validateString, rb.getLocale());
 
 			if (parsed == null) {
-					return false;
+						return false;
 			}
 
-			return parsed >= 0;
+				return parsed >= 0 && !parsed.isNaN() && !parsed.isInfinite();
 	}	 
 
 	 public boolean isFewerDigit(String validateString)
 	 {
-		 		 NumberFormat numberFormat = DecimalFormat.getInstance(rb.getLocale());
-		 		 DecimalFormatSymbols dfs = ((DecimalFormat)numberFormat).getDecimalFormatSymbols();
-		 		 if(validateString.lastIndexOf(dfs.getDecimalSeparator()) >= 0)
-		 		 {
-		 			 String subString = validateString.substring(validateString.lastIndexOf(dfs.getDecimalSeparator()));
-							 return subString.length() <= 3;
-		 		 }
-		 
-		 		 return true;
+		 final String s = validateString == null ? "" : validateString.trim();
+		 final DecimalFormatSymbols dfs = ((DecimalFormat) DecimalFormat.getInstance(rb.getLocale())).getDecimalFormatSymbols();
+		 final int sep = s.lastIndexOf(dfs.getDecimalSeparator());
+		 if (sep >= 0) {
+			 final int fractionalDigits = s.length() - sep - 1;
+			 return fractionalDigits <= 2;
+		 }
+		 return true;
 	 }
 	
 	 private boolean validateGradeInput()
