@@ -24,6 +24,7 @@ package org.sakaiproject.util;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Locale;
 
 import lombok.Setter;
@@ -56,5 +57,87 @@ public class NumberUtil {
                         .append("\\d{3})+|\\d+")
                         .toString();
         return origin.matches(doublePattern);
+    }
+
+    /**
+     * Returns the provided number string formatted for the supplied locale. Supports both dot and comma decimal
+     * separators regardless of the locale passed.
+     *
+     * @param origin the number to normalise
+     * @param locale the locale to format the number for
+     * @return the number formatted using the locale's separators, or the original string when parsing fails
+     */
+    public static String normalizeLocaleDouble(final String origin, final Locale locale) {
+        if (origin == null) {
+            return null;
+        }
+
+        final String trimmed = origin.trim();
+        if (trimmed.isEmpty()) {
+            return origin;
+        }
+
+        final Double numericValue = parseLocaleDouble(trimmed, locale);
+        if (numericValue == null) {
+            return origin;
+        }
+
+        final NumberFormat format = NumberFormat.getInstance(locale);
+        format.setGroupingUsed(false);
+        format.setMinimumFractionDigits(0);
+        // Allow enough precision to avoid losing decimals without introducing scientific notation
+        format.setMaximumFractionDigits(15);
+        return format.format(numericValue);
+    }
+
+    /**
+     * Returns the provided number string formatted for the current user's locale.
+     *
+     * @param origin the number to normalise
+     * @return the number formatted using the current locale's separators
+     */
+    public static String normalizeLocaleDouble(final String origin) {
+        return normalizeLocaleDouble(origin, resourceLoader.getLocale());
+    }
+
+    /**
+     * Parses a number string using either standard dot decimal notation or the separators for the provided locale.
+     *
+     * @param origin the number to parse
+     * @param locale the locale whose separators should be considered
+     * @return the parsed double, or {@code null} when parsing fails
+     */
+    public static Double parseLocaleDouble(final String origin, final Locale locale) {
+        if (origin == null) {
+            return null;
+        }
+
+        final String trimmed = origin.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return Double.valueOf(trimmed);
+        } catch (NumberFormatException nfe) {
+            try {
+                final NumberFormat parseFormat = NumberFormat.getInstance(locale);
+                parseFormat.setGroupingUsed(true);
+                return parseFormat.parse(trimmed).doubleValue();
+            } catch (ParseException pe) {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Parses a number string using either standard dot decimal notation or the separators for the current user's
+     * locale.
+     *
+     * @param origin the number to parse
+     * @return the parsed double, or {@code null} when parsing fails
+     */
+    public static Double parseLocaleDouble(final String origin) {
+        return parseLocaleDouble(origin, resourceLoader.getLocale());
     }
 }

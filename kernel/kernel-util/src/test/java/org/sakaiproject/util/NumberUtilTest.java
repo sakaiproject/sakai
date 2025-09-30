@@ -21,15 +21,12 @@
 
 package org.sakaiproject.util;
 
-import static org.mockito.Mockito.when;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,11 +44,9 @@ public class NumberUtilTest {
          * comma, dot, both (Canada but are en-CA, fr-CA so it belongs to dot and comma), Arabic format
          *
          */
-        ResourceLoader rl = Mockito.mock(ResourceLoader.class);
-        NumberUtil.setResourceLoader(rl);
         // Group 1 : comma on decimal separator, dot on group separator.
         final Locale commaGroupLocale = new Locale("es", "ES");
-        when(rl.getLocale()).thenReturn(commaGroupLocale);
+        setResourceLoaderLocale(commaGroupLocale);
 
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("1.234,00"));
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("3,00"));
@@ -75,7 +70,7 @@ public class NumberUtilTest {
 
         // Group 2 : dot on decimal separator, comma on group separator.
         final Locale dotGroupLocale = new Locale("en", "EN");
-        when(rl.getLocale()).thenReturn(dotGroupLocale);
+        setResourceLoaderLocale(dotGroupLocale);
 
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("1,234.00"));
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("3.00"));
@@ -99,7 +94,7 @@ public class NumberUtilTest {
 
         // Group 3 : arabic
         final Locale arabicLocale = new Locale("ar", "DZ");
-        when(rl.getLocale()).thenReturn(arabicLocale);
+        setResourceLoaderLocale(arabicLocale);
 
         // Arabic separators are special unicode chars so we get it from locale NumberFormat configuration.
         final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(arabicLocale);
@@ -124,5 +119,60 @@ public class NumberUtilTest {
 
         // Just tests function call
         Assert.assertTrue(NumberUtil.isValidLocaleDouble("123"));
+    }
+
+    @Test
+    public void testNormalizeLocaleDoubleWithLocale() {
+        Locale spain = new Locale("es", "ES");
+
+        Assert.assertEquals("4.25", NumberUtil.normalizeLocaleDouble("4.25", Locale.US));
+        Assert.assertEquals("4,25", NumberUtil.normalizeLocaleDouble("4.25", spain));
+        Assert.assertEquals("4,25", NumberUtil.normalizeLocaleDouble("4,25", spain));
+        Assert.assertEquals("4", NumberUtil.normalizeLocaleDouble("4", spain));
+        Assert.assertEquals("1234,56", NumberUtil.normalizeLocaleDouble("1.234,56", spain));
+        Assert.assertEquals("1234567,89", NumberUtil.normalizeLocaleDouble("1.234.567,89", spain));
+        Assert.assertEquals(" ", NumberUtil.normalizeLocaleDouble(" ", Locale.FRANCE));
+        Assert.assertEquals("abc", NumberUtil.normalizeLocaleDouble("abc", Locale.FRANCE));
+        Assert.assertNull(NumberUtil.normalizeLocaleDouble(null, Locale.FRANCE));
+    }
+
+    @Test
+    public void testParseLocaleDoubleWithLocale() {
+        Locale spain = new Locale("es", "ES");
+
+        Assert.assertEquals(4.25d, NumberUtil.parseLocaleDouble("4.25", Locale.US), 0.0001);
+        Assert.assertEquals(4.25d, NumberUtil.parseLocaleDouble("4,25", spain), 0.0001);
+        Assert.assertEquals(1234.56d, NumberUtil.parseLocaleDouble("1.234,56", spain), 0.0001);
+        Assert.assertEquals(1234567.89d, NumberUtil.parseLocaleDouble("1.234.567,89", spain), 0.0001);
+        Assert.assertNull(NumberUtil.parseLocaleDouble("abc", spain));
+        Assert.assertNull(NumberUtil.parseLocaleDouble(" ", spain));
+        Assert.assertNull(NumberUtil.parseLocaleDouble(null, spain));
+    }
+
+    @Test
+    public void testNormalizeLocaleDoubleDefaultLocale() {
+        Locale spain = new Locale("es", "ES");
+        setResourceLoaderLocale(spain);
+
+        Assert.assertEquals("4,25", NumberUtil.normalizeLocaleDouble("4.25"));
+        Assert.assertEquals("4", NumberUtil.normalizeLocaleDouble("4"));
+        Assert.assertEquals("1234,56", NumberUtil.normalizeLocaleDouble("1.234,56"));
+    }
+
+    private static void setResourceLoaderLocale(Locale locale) {
+        NumberUtil.setResourceLoader(new FixedLocaleResourceLoader(locale));
+    }
+
+    private static class FixedLocaleResourceLoader extends ResourceLoader {
+        private final Locale locale;
+
+        FixedLocaleResourceLoader(Locale locale) {
+            this.locale = locale;
+        }
+
+        @Override
+        public Locale getLocale() {
+            return locale;
+        }
     }
 }
