@@ -114,19 +114,14 @@ public class GradebookIfc {
 		return true;
 	}
 
-	public boolean updateExternalAssessmentScores(final String gradebookUid, final String siteId, final String externalId, final Map studentUidsToScores) {
+	public boolean updateExternalAssessmentScores(final String gradebookUid, final String siteId, final String externalId, final Map<String, String> studentUidsToScores) {
 		try {
 			Map<String, String> normalizedScores = null;
 			if (studentUidsToScores != null) {
 				normalizedScores = new HashMap<>();
-				for (Object entryObject : studentUidsToScores.entrySet()) {
-					Map.Entry<?, ?> entry = (Map.Entry<?, ?>) entryObject;
-					Object key = entry.getKey();
-					if (!(key instanceof String)) {
-						continue;
-					}
-					Object value = entry.getValue();
-					normalizedScores.put((String) key, value == null ? null : NumberUtil.normalizeLocaleDouble(String.valueOf(value)));
+				for (Map.Entry<String, String> entry : studentUidsToScores.entrySet()) {
+					String value = entry.getValue();
+					normalizedScores.put(entry.getKey(), value == null ? null : NumberUtil.normalizeLocaleDouble(value));
 				}
 			}
 			gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, normalizedScores);
