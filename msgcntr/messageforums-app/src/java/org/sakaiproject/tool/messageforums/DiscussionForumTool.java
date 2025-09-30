@@ -6283,38 +6283,36 @@ public class DiscussionForumTool {
 	  }
   }
  
-  public boolean isNumber(String validateString) 
-  {
-      Locale locale = new ResourceLoader().getLocale();
-      Double parsed = NumberUtil.parseLocaleDouble(validateString, locale);
+	public boolean isNumber(String validateString) 
+	{
+			Double parsed = NumberUtil.parseLocaleDouble(validateString, rb.getLocale());
 
-      if (parsed == null) {
-          return false;
-      }
+			if (parsed == null) {
+					return false;
+			}
 
-      return parsed >= 0;
-  }   
-  
-   public boolean isFewerDigit(String validateString)
-   {
-	   	   NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
-	   	   DecimalFormatSymbols dfs = ((DecimalFormat)numberFormat).getDecimalFormatSymbols();
-	   	   if(validateString.lastIndexOf(dfs.getDecimalSeparator()) >= 0)
-	   	   {
-	   		   String subString = validateString.substring(validateString.lastIndexOf(dfs.getDecimalSeparator()));
-	   		   if(subString != null && subString.length() > 3)
-	   			   return false;
-	   	   }
-     
-     return true;
-   }
-  
-   private boolean validateGradeInput()
-   {
-       GradingService gradingService = getGradingService();
-       if (gradingService == null) {
-           return false;
-       }
+			return parsed >= 0;
+	}	 
+
+	 public boolean isFewerDigit(String validateString)
+	 {
+		 		 NumberFormat numberFormat = DecimalFormat.getInstance(rb.getLocale());
+		 		 DecimalFormatSymbols dfs = ((DecimalFormat)numberFormat).getDecimalFormatSymbols();
+		 		 if(validateString.lastIndexOf(dfs.getDecimalSeparator()) >= 0)
+		 		 {
+		 			 String subString = validateString.substring(validateString.lastIndexOf(dfs.getDecimalSeparator()));
+							 return subString.length() <= 3;
+		 		 }
+		 
+		 		 return true;
+	 }
+	
+	 private boolean validateGradeInput()
+	 {
+			 GradingService gradingService = getGradingService();
+			 if (gradingService == null) {
+					 return false;
+			 }
 
        String gradebookUid = getSiteId();
        boolean gradeValid = gradingService.isGradeValid(gradebookUid, gradePoint);
