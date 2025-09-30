@@ -452,8 +452,6 @@ public class PrivateMessagesTool {
 
   @Getter
   private boolean showProfileInfoMsg = false;
-  @Getter
-  private boolean showProfileLink = false;
 
   private final DraftRecipientsDelegate drDelegate;
   
@@ -470,7 +468,6 @@ public class PrivateMessagesTool {
   public PrivateMessagesTool()
   {    
 	  showProfileInfoMsg = ServerConfigurationService.getBoolean("msgcntr.messages.showProfileInfo", true);
-	  showProfileLink = showProfileInfoMsg && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
 	  drDelegate = new DraftRecipientsDelegate();
 	  PrivateMessageSchedulerService = ComponentManager.get(PrivateMessageSchedulerService.class);
   }
@@ -2487,6 +2484,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			    return null;
 		    }
 	    }
+	    rrepMsg.setExternalEmail(booleanEmailOut);
 	    rrepMsg.setScheduler(booleanSchedulerSend);
 
 	    Map<User, Boolean> recipients = getRecipients();
@@ -2879,6 +2877,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			    return;
 		    }
 	    }
+	    rrepMsg.setExternalEmail(booleanEmailOut);
 	    rrepMsg.setScheduler(booleanSchedulerSend);
 
 	    Map<User, Boolean> recipients = getRecipients();
@@ -3187,6 +3186,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	            return null;
 	        }
 		  }
+		    rrepMsg.setExternalEmail(booleanEmailOut);
 		    rrepMsg.setScheduler(booleanSchedulerSend);
 
 	        if(booleanSchedulerSend && !rrepMsg.getDraft()) {

@@ -1,19 +1,24 @@
-# sakai-course-list
+# @sakai-ui/sakai-course-list
 
-A course list component for Sakai
+The Sakai course list component.
+
+## Description
+
+This component displays a list of courses for the current user. It uses the sakai-course-card component to render each course.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-course-list
+npm install @sakai-ui/sakai-course-list
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-course-list/sakai-course-list.js';
 
+// In your HTML
 <sakai-course-list></sakai-course-list>
-
 ```
 
 ## Linting and formatting
@@ -21,7 +26,7 @@ npm i @sakai-ui/sakai-course-list
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -31,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

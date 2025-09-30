@@ -56,7 +56,8 @@ public class SubmissionNavListener implements ValueChangeListener  {
 
         List<AgentResults> agents = new ArrayList<>(totalScoresBean.getAllAgents());
         boolean displaySubmissionDate = StringUtils.equals(TotalScoresBean.ALL_SUBMISSIONS, totalScoresBean.getAllSubmissions());
-        submissionNavBean.populate(agents, gradingId, displaySubmissionDate);
+        boolean isAnonymous = Boolean.parseBoolean(totalScoresBean.getAnonymous());
+        submissionNavBean.populate(agents, gradingId, displaySubmissionDate, isAnonymous);
 
         deliveryBean.setNextAssessmentGradingId(Long.valueOf(gradingId));
 

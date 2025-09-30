@@ -1,17 +1,24 @@
-# sakai-announcements
+# @sakai-ui/sakai-announcements
+
+The Sakai announcements component.
+
+## Description
+
+This component displays announcements for a Sakai site, allowing users to view important notifications.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-announcements
+npm install @sakai-ui/sakai-announcements
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-announcements/sakai-announcements.js';
 
+// In your HTML
 <sakai-announcements></sakai-announcements>
-
 ```
 
 ## Linting and formatting
@@ -19,8 +26,8 @@ npm i @sakai-ui/sakai-announcements
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
-
+npm run lint:fix
+```
 
 ## Testing with Web Test Runner
 
@@ -29,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

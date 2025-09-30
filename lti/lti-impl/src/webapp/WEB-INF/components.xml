@@ -47,7 +47,7 @@
 
         <bean id="org.sakaiproject.lti.api.UserPictureSetter"
                 class="org.sakaiproject.lti.impl.UserPictureSetterImpl">
-            <property name="profileImageLogic"><ref bean="org.sakaiproject.profile2.logic.ProfileImageLogic"/></property>
+            <property name="profileService"><ref bean="org.sakaiproject.profile2.api.ProfileService"/></property>
         </bean>
 
         <bean id="org.sakaiproject.lti.api.LTIRoleMapper"

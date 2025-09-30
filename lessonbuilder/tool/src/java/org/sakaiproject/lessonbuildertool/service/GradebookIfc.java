@@ -24,6 +24,7 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,6 +36,7 @@ import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
+import org.sakaiproject.util.NumberUtil;
 
 /**
  * Interface to Gradebook
@@ -105,16 +107,25 @@ public class GradebookIfc {
 	public boolean updateExternalAssessmentScore(final String gradebookUid, final String siteId, final String externalId,
 						 final String studentUid, final String points) {
 		try {
-			gradingService.updateExternalAssessmentScore(gradebookUid, siteId, externalId, studentUid, points);
+			gradingService.updateExternalAssessmentScore(gradebookUid, siteId, externalId, studentUid, NumberUtil.normalizeLocaleDouble(points));
 		} catch (Exception e) {
 			return false;
 		}
 		return true;
 	}
 
-	public boolean updateExternalAssessmentScores(final String gradebookUid, final String siteId, final String externalId, final Map studentUidsToScores) {
+	public boolean updateExternalAssessmentScores(final String gradebookUid, final String siteId, final String externalId, final Map<String, String> studentUidsToScores) {
 		try {
-			gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, studentUidsToScores);
+		if (studentUidsToScores == null || studentUidsToScores.isEmpty()) {
+			gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, java.util.Collections.emptyMap());
+			return true;
+		}
+		Map<String, String> normalizedScores = new HashMap<>(studentUidsToScores.size());
+		for (Map.Entry<String, String> entry : studentUidsToScores.entrySet()) {
+			String value = entry.getValue();
+			normalizedScores.put(entry.getKey(), NumberUtil.normalizeLocaleDouble(value));
+		}
+		gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, normalizedScores);
 		} catch (Exception e) {
 			return false;
 		}
@@ -130,4 +141,5 @@ public class GradebookIfc {
 				.map(Gradebook::getUid)
 				.collect(Collectors.toList());
 	}
+
 }

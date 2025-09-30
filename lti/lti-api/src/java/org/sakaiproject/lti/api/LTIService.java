@@ -84,10 +84,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "placement:text:hidden=true:maxlength=256",
             "placementsecret:text:hidden=true:maxlength=512",
             "oldplacementsecret:text:hidden=true:maxlength=512",
-            // LTI 1.3 support
-            // 0=inherit, 1=LTI 1.1, 2=LTI 1.3
-            "lti13:radio:hide=insert:label=bl_lti13:choices=inherit,off,on:role=admin",
-            "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
+            // LTI 1.3 support removed from content model
             "created_at:autodate",
             "updated_at:autodate"};
     String[] CONTENT_EXTRA_FIELDS = {
@@ -164,8 +161,6 @@ public interface LTIService extends LTISubstitutionsFilter {
             "consumerkey:text:label=bl_consumerkey:maxlength=1024",
 
             "secret:text:label=bl_secret:maxlength=1024",
-
-            "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
 
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "lti13_auto_token:text:hidden=true:maxlength=1024",

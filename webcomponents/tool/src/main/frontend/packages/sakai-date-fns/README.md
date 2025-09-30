@@ -1,21 +1,23 @@
-# sakai-date-fns
+# @sakai-ui/sakai-date-fns
 
-A set of utility functions for handling translations in Sakai. It converts
-java properties file formats into js objects.
+A collection of functions for date handling in Sakai.
+
+## Description
+
+This package provides utility functions for working with dates in Sakai, built on top of date-fns.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-date-fns
+npm install @sakai-ui/sakai-date-fns
 ```
 
 ## Usage
 
-```html
+```javascript
 import { sakaiFormatDistance } from "@sakai-ui/sakai-date-fns";
 
 const humanizedTimespan = sakaiFormatDistance(new Date(toMillis), new Date());
-
 ```
 
 ## Linting and formatting
@@ -23,13 +25,7 @@ const humanizedTimespan = sakaiFormatDistance(new Date(toMillis), new Date());
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
-```
-
-To automatically fix linting and formatting errors, run
-
-```bash
-npm run format
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -40,8 +36,6 @@ To execute a single test run:
 npm run test
 ```
 
-To run the tests in interactive watch mode run:
+## License
 
-```bash
-npm run test:watch
-```
+ECL-2.0

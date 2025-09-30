@@ -1,0 +1,45 @@
+= Sakai REST API
+
+**__Before you can use any of the apis, you need to login__**
+
+=== Login API
+
+Logging in with the login API will return the session id to you if successful. It will also set a
+session cookie containing that session id, and that cookie can be supplied in all subsequent
+requests to any Sakai api calls. So, if you were making a sequence of api calls, you would typically
+call login with curl, storing the cookie in a jar file, then you would just use that jar file for
+the remainder of the api calls.
+
+The login HTTP request:
+include::{snippets}/login/http-request.adoc[]
+
+Make the login request with curl (you will need to add your cookie jar file to this cUrl command with the -c option):
+include::{snippets}/login/curl-request.adoc[]
+
+The login HTTP response:
+include::{snippets}/login/http-response.adoc[]
+
+Now get your calendar (you will need to add your cookie jar file to this cUrl command with the -b option):
+include::{snippets}/get-user-calendar/curl-request.adoc[]
+
+=== Calendar API
+
+__See the login api about session cookies__
+
+The user calendar HTTP request:
+include::{snippets}/get-user-calendar/http-request.adoc[]
+
+Request your calendar with curl:
+include::{snippets}/get-user-calendar/curl-request.adoc[]
+
+The user calendar JSON response:
+include::{snippets}/get-user-calendar/response-body.adoc[]
+
+The site1 calendar HTTP request:
+include::{snippets}/get-site-calendar/http-request.adoc[]
+
+Request site1's calendar with curl:
+include::{snippets}/get-site-calendar/curl-request.adoc[]
+
+The site1 calendar JSON response:
+include::{snippets}/get-site-calendar/response-body.adoc[]

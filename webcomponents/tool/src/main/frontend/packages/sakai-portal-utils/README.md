@@ -1,16 +1,20 @@
-# sakai-portal-utils
+# @sakai-ui/sakai-portal-utils
 
-A set of utility functions for accessing Sakai's portal js object
+Functions for accessing Sakai portal variables.
+
+## Description
+
+This package provides utility functions for interacting with the Sakai portal, including accessing portal variables and properties.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-portal-utils
+npm install @sakai-ui/sakai-portal-utils
 ```
 
 ## Usage
 
-```html
+```javascript
 import { getUserId } from "@sakai-ui/sakai-portal-utils";
 
 const userId = getUserId();
@@ -21,7 +25,7 @@ const userId = getUserId();
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -31,3 +35,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

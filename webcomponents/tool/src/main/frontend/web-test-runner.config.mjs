@@ -5,7 +5,7 @@ export default {
   files: './packages/**/test/**/*.test.js',
   nodeResolve: true,
   middleware: [
-    proxy('/direct/profile/adrian/image/thumb', {
+    proxy('/api/users/adrian/profile/image/thumb', {
       target: '/test-static-assets/images/topov.jpg',
     }),
   ],

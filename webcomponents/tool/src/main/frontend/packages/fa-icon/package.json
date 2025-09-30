@@ -7,8 +7,7 @@
     "access": "public"
   },
   "scripts": {
-    "lint:fix": "eslint src --fix",
-    "test:dev": "cd ../../ && npm run test:dev"
+    "lint:fix": "eslint src --fix"
   },
   "files": [
     "*.js",
@@ -16,15 +15,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sakaiproject/sakai-ui.git"
+    "url": "git+https://github.com/sakaiproject/sakai",
+    "directory": "webcomponents/tool/src/main/frontend/packages/fa-icon"
   },
   "keywords": [
     "fontawesome"
   ],
   "author": "The Sakai Project <sakai.user.interface@gmail.com>",
   "license": "ECL-2.0",
-  "bugs": {
-    "url": "https://github.com/sakaiproject/sakai-ui/issues"
-  },
-  "homepage": "https://github.com/sakaiproject/sakai-ui#readme"
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/fa-icon#readme"
 }

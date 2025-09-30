@@ -297,7 +297,12 @@ public class BaseDbDoubleStorage
 			} else {
 				// read the xml
 				Document doc = StorageUtils.readDocumentFromString(xml);
-	
+				if (doc == null)
+				{
+					log.warn("readContainer(): failed to parse container XML");
+					return null;
+				}
+
 				// verify the root element
 				Element root = doc.getDocumentElement();
 				if (!root.getTagName().equals(m_containerEntryTagName))

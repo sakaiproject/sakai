@@ -90,18 +90,17 @@
 					}
 				}
 			}
-			
 		</script>
-		
-  	    <script>includeLatestJQuery("msgcntr");</script>
+
+		<script>includeLatestJQuery("msgcntr");</script>
+		<script>includeWebjarLibrary('bootstrap')</script>
 		<script src="/messageforums-tool/js/dialog.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
-       	
-  	
-  		<script>
-  			$(document).ready(function() {
+
+		<script>
+			$(document).ready(function() {
 				var menuLink = $('#forumsStatisticsMenuLink');
 				var menuLinkSpan = menuLink.closest('span');
 				menuLinkSpan.addClass('current');
@@ -109,17 +108,30 @@
 			});
 			
 			function dialogLinkClick(link){
-				var position =  $(link).position();
-				dialogutil.openDialog('dialogDiv', 'dialogFrame', position.top);
+				dialogutil.openDialog('dialogDiv', 'dialogFrame');
 			}
 		</script>
 
 		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 
-		<div id="dialogDiv" title="Grade Messages" style="display:none">
-			<h:commandButton type="button" styleClass="closeDialogFrame" onclick="dialogutil.closeDialog($(this).parent().attr('id'), $('#dialogFrame').attr('id'));" value="#{msgs.close_window}"/>
-			<iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
+		<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="dialogDivLabel">
+			<div class="modal-dialog modal-xl modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="dialogDivLabel">
+							<h:outputText value="#{msgs.cdfm_grade_msg}" />
+						</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<h:outputText value='#{msgs.close_window}' />"></button>
+					</div>
+					<div class="modal-body">
+						<f:verbatim>
+							<iframe id="dialogFrame" name="dialogFrame" class="grade-modal-frame" title="</f:verbatim><h:outputText value="#{msgs.cdfm_grade_msg}" /><f:verbatim>"></iframe>
+						</f:verbatim>
+					</div>
+				</div>
+			</div>
 		</div>
+		</f:verbatim>
 
   		<h:panelGrid columns="2" width="100%" styleClass="navPanel  specialLink" rendered="#{ForumTool.instructor}">
           <h:panelGroup>

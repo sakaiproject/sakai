@@ -32,6 +32,8 @@ import java.util.Vector;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.content.impl.BaseContentService.BaseResourceEdit;
 import org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.EntitySerializer;
@@ -40,6 +42,8 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.ByteStorageConversion;
 import org.sakaiproject.util.serialize.Type1BaseResourcePropertiesSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <pre>
@@ -87,6 +91,8 @@ import org.sakaiproject.util.serialize.Type1BaseResourcePropertiesSerializer;
  */
 public class Type1BaseContentResourceSerializer implements EntitySerializer
 {
+	private static final Logger log = LoggerFactory.getLogger(Type1BaseContentResourceSerializer.class);
+	
 	public static final String BLOB_ID = "CHSBRE";
 	
 	private static final byte[] BYTE_BLOB_ID = new byte[] { 'C', 'H', 'S', 'B', 'R', 'E' };
@@ -389,6 +395,18 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 						case BLOCK4:
 							baseResourcePropertiesSerializer.parse(sc
 									.getSerializableProperties(), ds);
+							// Extract contentSha256 from properties and set it on the resource
+							if (sc instanceof BaseResourceEdit) {
+								BaseResourceEdit bre = (BaseResourceEdit) sc;
+								ResourceProperties props = bre.getProperties();
+								if (props != null) {
+									String contentSha256 = props.getProperty(ResourceProperties.PROP_CONTENT_SHA256);
+									if (contentSha256 != null && !contentSha256.isEmpty()) {
+										bre.setContentSha256(contentSha256);
+										log.debug("Set contentSha256 from properties: {}", contentSha256);
+									}
+								}
+							}
 							break;
 						case BLOCK5:
 							contentType = ds.readUTF();
@@ -440,6 +458,21 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 			sc.setSerializableContentLength(contentLength);
 			sc.setSerializableFilePath(filePath);
 			sc.setSerializableBody(body);
+			
+			// Final fallback: ensure contentSha256 is set from properties if not already set
+			if (sc instanceof BaseResourceEdit) {
+				BaseResourceEdit bre = (BaseResourceEdit) sc;
+				if (bre.getContentSha256() == null || bre.getContentSha256().isEmpty()) {
+					ResourceProperties props = bre.getProperties();
+					if (props != null) {
+						String contentSha256 = props.getProperty(ResourceProperties.PROP_CONTENT_SHA256);
+						if (contentSha256 != null && !contentSha256.isEmpty()) {
+							bre.setContentSha256(contentSha256);
+							log.debug("Fallback - Set contentSha256 from properties: {} for resource: {}", contentSha256, bre.getId());
+						}
+					}
+				}
+			}
 
 		}
 		catch (EntityParseException epe)

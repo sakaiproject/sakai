@@ -1,28 +1,24 @@
-# sakai-site-picker
+# @sakai-ui/sakai-site-picker
 
-A component that renders a list of Sakai sites and allows you to select one
+Sakai site picker component.
+
+## Description
+
+This component provides a picker for selecting sites in Sakai. It renders a list of Sakai sites and allows you to select one.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-site-picker
+npm install @sakai-ui/sakai-site-picker
 ```
 
 ## Usage
 
-```html
-import { SakaiElement } from '@sakai-ui/sakai-element';
-import '@sakai-ui/sakai-site-picker';
+```javascript
+import '@sakai-ui/sakai-site-picker/sakai-site-picker.js';
 
-class MyElement extends SakaiElement {
-
-  render() {
-
-    return html`
-      <sakai-site-picker sites='["site1", "site2"]'></sakai-site-picker>
-    `;
-  }
-}
+// In your HTML
+<sakai-site-picker></sakai-site-picker>
 ```
 
 ## Linting and formatting
@@ -30,7 +26,7 @@ class MyElement extends SakaiElement {
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -40,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

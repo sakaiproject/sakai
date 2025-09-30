@@ -1299,6 +1299,11 @@ public class FormattedTextTest {
         expectedOutput = "Ampersand & Encoded";
         result = formattedText.convertFormattedTextToPlaintext(input);
         Assert.assertEquals(expectedOutput, result);
+
+        input = "An &#128578; emoji";
+        expectedOutput = "An 🙂 emoji";
+        result = formattedText.convertFormattedTextToPlaintext(input);
+        Assert.assertEquals(expectedOutput, result);
     }
 
     @Test
@@ -1386,6 +1391,16 @@ public class FormattedTextTest {
         // Mixed text
         result = formattedText.encodeUnicode("Hello © world, this is a test with © symbol");
         Assert.assertEquals("Hello &#169; world, this is a test with &#169; symbol", result);
+
+        // Emoji (supplementary plane) support
+        result = formattedText.encodeUnicode("Emoji 🙂");
+        Assert.assertEquals("Emoji &#128578;", result);
+
+        result = formattedText.encodeUnicode("🙂");
+        Assert.assertEquals("&#128578;", result);
+
+        result = formattedText.encodeUnicode("🙂🚀");
+        Assert.assertEquals("&#128578;&#128640;", result);
     }
 
     @Test
@@ -1409,6 +1424,141 @@ public class FormattedTextTest {
         // Text with numeric HTML entities
         result = formattedText.unEscapeHtml("Copyright: © Euro: €");
         Assert.assertEquals("Copyright: © Euro: €", result);
+
+        // Emoji numeric entity should decode to supplementary character
+        result = formattedText.unEscapeHtml("Emoji &#128578;");
+        Assert.assertEquals("Emoji 🙂", result);
+    }
+
+    @Test
+    public void testAntiSamyErrorMessageEncoding() {
+        // This test verifies whether the charset conversion in AntiSamy error handling is necessary
+        // It tests with malicious input that should trigger AntiSamy validation errors
+
+        // Test with content that will trigger AntiSamy errors containing non-ASCII characters
+        String maliciousInput = "<script>alert('Tëst with unicode: © ñ');</script>";
+
+        // Process with FormattedText which uses AntiSamy internally
+        StringBuilder errors = new StringBuilder();
+        String result = formattedText.processFormattedText(maliciousInput, errors);
+
+        // The result should be cleaned (script tag removed)
+        Assert.assertFalse("Script tag should be removed", result.contains("<script>"));
+
+        // If there are errors, check their encoding
+        if (errors.length() > 0) {
+            String errorString = errors.toString();
+            System.out.println("AntiSamy errors: " + errorString);
+
+            // Test: can we find Unicode characters in the error messages?
+            // If the charset conversion is working correctly, we should see properly encoded text
+            // If not needed, the text should still be readable
+
+            // Basic check: error message should not contain corrupted encoding patterns
+            Assert.assertFalse("Error should not contain corrupted encoding",
+                errorString.contains("Ã") || errorString.contains("â€"));
+        }
+
+        // Test with HTML containing international characters that might trigger policy violations
+        String internationalInput = "<span style=\"color: red; font-family: 'Tëst Fönt'\">Tëst with ñøñ-ASCII: © ® € £</span>";
+        errors = new StringBuilder();
+        result = formattedText.processFormattedText(internationalInput, errors);
+
+        if (errors.length() > 0) {
+            String errorString = errors.toString();
+            System.out.println("International character errors: " + errorString);
+
+            // Verify error messages are readable and not double-encoded
+            Assert.assertFalse("Error should not contain double-encoded UTF-8",
+                errorString.contains("Ãª") || errorString.contains("Ã©"));
+        }
+    }
+
+    @Test
+    public void testAntiSamyCharsetRegressionDetection() {
+        // CRITICAL TEST: Verifies that AntiSamy error messages are properly UTF-8 encoded
+        // and that the old charset conversion workaround remains unnecessary.
+        // This test will FAIL if AntiSamy ever regresses to returning improperly encoded messages.
+
+        String testInput = "<script>alert('Test with é, ñ, ©');</script>";
+        boolean foundErrors = false;
+
+        // Manually test what AntiSamy returns directly (without FormattedText processing)
+        try {
+            // Get the AntiSamy instance from FormattedText
+            java.lang.reflect.Field antiSamyField = FormattedTextImpl.class.getDeclaredField("antiSamyHigh");
+            antiSamyField.setAccessible(true);
+            org.owasp.validator.html.AntiSamy antiSamy = (org.owasp.validator.html.AntiSamy) antiSamyField.get(formattedText);
+
+            org.owasp.validator.html.CleanResults results = antiSamy.scan(testInput);
+
+            System.out.println("\n=== AntiSamy Error Message Encoding Validation ===");
+
+            for (String errorMsg : results.getErrorMessages()) {
+                foundErrors = true;
+                System.out.println("Validating error: " + errorMsg);
+
+                // ASSERTION 1: Error message should not be null or empty
+                Assert.assertNotNull("AntiSamy error message should not be null", errorMsg);
+                Assert.assertFalse("AntiSamy error message should not be empty", errorMsg.trim().isEmpty());
+
+                // ASSERTION 2: Error message should be readable ASCII/UTF-8
+                // (AntiSamy error messages are typically in English)
+                boolean isReadableText = errorMsg.matches("[\\p{Print}\\p{Space}]*");
+                Assert.assertTrue("Error message should contain readable text: " + errorMsg, isReadableText);
+
+                // ASSERTION 3: The old charset conversion should be a no-op
+                String converted = new String(errorMsg.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1), java.nio.charset.StandardCharsets.UTF_8);
+                Assert.assertEquals(
+                    "CHARSET CONVERSION REGRESSION: AntiSamy error message changed after ISO-8859-1 to UTF-8 conversion. " +
+                    "This indicates AntiSamy may have regressed to returning improperly encoded messages. " +
+                    "Original: '" + errorMsg + "', Converted: '" + converted + "'",
+                    errorMsg, converted
+                );
+
+                // ASSERTION 4: Should not contain encoding corruption patterns
+                Assert.assertFalse("Error message contains UTF-8 corruption pattern (Ã): " + errorMsg,
+                    errorMsg.contains("Ã"));
+                Assert.assertFalse("Error message contains UTF-8 corruption pattern (â€): " + errorMsg,
+                    errorMsg.contains("â€"));
+                Assert.assertFalse("Error message contains UTF-8 corruption pattern (Ãª): " + errorMsg,
+                    errorMsg.contains("Ãª"));
+                Assert.assertFalse("Error message contains UTF-8 corruption pattern (Ã©): " + errorMsg,
+                    errorMsg.contains("Ã©"));
+
+                // ASSERTION 5: Byte arrays should be identical for properly encoded text
+                byte[] originalBytes = errorMsg.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                byte[] isoBytes = errorMsg.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1);
+
+                // For pure ASCII text (which AntiSamy error messages should be),
+                // UTF-8 and ISO-8859-1 encodings should be identical
+                boolean isPureAscii = true;
+                for (char c : errorMsg.toCharArray()) {
+                    if (c > 127) {
+                        isPureAscii = false;
+                        break;
+                    }
+                }
+
+                if (isPureAscii) {
+                    Assert.assertArrayEquals(
+                        "For ASCII text, UTF-8 and ISO-8859-1 byte arrays should be identical. " +
+                        "This suggests AntiSamy error messages remain pure ASCII as expected.",
+                        originalBytes, isoBytes
+                    );
+                }
+
+                System.out.println("  ✓ Error message properly encoded");
+            }
+
+            // ASSERTION 6: We should have found at least one error for our malicious input
+            Assert.assertTrue("Expected AntiSamy to report errors for script tag input", foundErrors);
+
+            System.out.println("=== VALIDATION PASSED: AntiSamy charset conversion remains unnecessary ===");
+
+        } catch (Exception e) {
+            Assert.fail("Could not access AntiSamy internals for validation: " + e.getMessage());
+        }
     }
 
 }

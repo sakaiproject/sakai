@@ -15,13 +15,11 @@
  */
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.time.Instant;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -34,29 +32,19 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
-import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
 import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -67,39 +55,35 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
-import org.sakaiproject.time.api.Time;
-import java.util.ListIterator;
-import java.time.Instant;
-import org.sakaiproject.component.cover.ComponentManager;
 
 @Slf4j
 public class RepublishAssessmentListener implements ActionListener {
 
-	private static final GradebookServiceHelper gbsHelper =
-	    IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-	private static final boolean integrated =
-	    IntegrationContextFactory.getInstance().isIntegrated();
-	
-	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
-	private TaskService taskService = ComponentManager.get(TaskService.class);;
-	private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-	private final SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
-	private EventTrackingService eventTrackingService;
-	public RepublishAssessmentListener() {
-		eventTrackingService = ComponentManager.get(EventTrackingService.class);
-	}
+		private final CalendarServiceHelper calendarService;
+		private final TaskService taskService;
+	    private static final ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+	    private final SamigoAvailableNotificationService samigoAvailableNotificationService;
+	    private final EventTrackingService eventTrackingService;
+
+    public RepublishAssessmentListener() {
+        // Prefer fetching services in the constructor to avoid initialization in a static-like context
+        this.calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+        this.taskService = ComponentManager.get(TaskService.class);
+        this.samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
+        this.eventTrackingService = ComponentManager.get(EventTrackingService.class);
+    }
+
+	@Override
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
 				.lookupBean("assessmentBean");
 		boolean hasGradingData = assessmentBean.getHasGradingData();
 
 		String publishedAssessmentId = assessmentBean.getAssessmentId();
-		log.debug("publishedAssessmentId = " + publishedAssessmentId);
+        log.debug("publishedAssessmentId = {}", publishedAssessmentId);
 		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 		
 		// Go to database to get the newly updated data. The data inside beans might not be up to date.
@@ -116,12 +100,12 @@ public class RepublishAssessmentListener implements ActionListener {
 		if (author.getIsRepublishAndRegrade() && hasGradingData) {
 			publishedAssessmentService.regradePublishedAssessment(assessment, publishedAssessmentSettings.getupdateMostCurrentSubmission());
 		}
-		postUserNotification(assessment, publishedAssessmentSettings);
-		eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
-		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
-		publishedAssessmentService.saveAssessment(assessment);
-		publishedAssessmentService.updateGradebook((PublishedAssessmentData) assessment.getData());
-		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
+        // Determine notification preference and emit availability events accordingly
+        PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
+        boolean sendNotification = publishRepublishNotification.isSendNotification();
+        emitAvailabilityEvents(assessment, publishedAssessmentSettings, sendNotification);
+        // Keep gradebook update position unchanged
+        publishedAssessmentService.updateGradebook((PublishedAssessmentData) assessment.getData());
 
 		PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
 		String subject = publishRepublishNotification.getNotificationSubject();
@@ -167,50 +151,80 @@ public class RepublishAssessmentListener implements ActionListener {
 			task.setDue((assessment.getDueDate() == null ? null : assessment.getDueDate().toInstant()));
 			SelectItem[] usersMap = publishedAssessmentSettings.getUsersInSite();
 			Set<String> users = new HashSet<>();
-			for(SelectItem item : usersMap) {
-                            String userId = (String)item.getValue(); 
-                            if (StringUtils.isNotBlank(userId)) {
-				users.add(userId);
-                            }
+			if (usersMap != null) {
+				for (SelectItem item : usersMap) {
+					String userId = (String) item.getValue();
+					if (StringUtils.isNotBlank(userId)) {
+						users.add(userId);
+					}
+				}
 			}
 			taskService.createTask(task, users, Priorities.HIGH);
 		}
-		// Update scheduled assessment available notification
-		samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(publishedAssessmentId);
+		// Update scheduled assessment available notification according to instructor choice
+		// Always clear any existing scheduled notifications to avoid duplicates or stale schedules,
+		// then schedule new ones only if opted in.
+		samigoAvailableNotificationService.removeScheduledAssessmentNotification(publishedAssessmentId);
+		if (publishRepublishNotification.isSendNotification()) {
+			samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(publishedAssessmentId);
+		}
 		author.setOutcome("author");
 	}
 
-	private void postUserNotification(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings) {
+    // Posts immediate events and schedules future availability events as needed.
+    // When sendNotification is false, events are created with NOTI_NONE to avoid user notifications.
+    private void emitAvailabilityEvents(PublishedAssessmentFacade assessment, PublishedAssessmentSettingsBean publishedAssessmentSettings, boolean sendNotification) {
 
-		List<ExtendedTime> extendedTimes = publishedAssessmentSettings.getExtendedTimes();
-		Instant instant = assessment.getStartDate().toInstant();
-		if (instant.isBefore(Instant.now())) {
-			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
-			if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
-				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
-				while (it.hasNext()) {
-					ExtendedTime exTime = (ExtendedTime) it.next();
-					Instant startInstant = exTime.getStartDate().toInstant();
-					if (startInstant.isAfter(Instant.now())) {
-						eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
-					}
-				}
-			}
-		} else {
-			eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), instant);
-			if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
-				ListIterator<ExtendedTime> it = extendedTimes.listIterator();
-				while (it.hasNext()) {
-					ExtendedTime exTime = (ExtendedTime) it.next();
-					Instant startInstant = exTime.getStartDate().toInstant();
-					if (startInstant.isBefore(Instant.now())) {
-						eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true));
-					} else if (startInstant.isAfter(Instant.now()) && !instant.equals(startInstant)) {
-						eventTrackingService.delay(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AVAILABLE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(), true), startInstant);
-					}
-				}
-			}
-		}
-	}
+        List<ExtendedTime> extendedTimes = publishedAssessmentSettings.getExtendedTimes();
+        Instant now = Instant.now();
+        Instant baseStart = (assessment.getStartDate() != null) ? assessment.getStartDate().toInstant() : now;
+        int notiMask = sendNotification ? NotificationService.NOTI_OPTIONAL : NotificationService.NOTI_NONE;
+        if (baseStart.isBefore(now)) {
+            eventTrackingService.post(eventTrackingService.newEvent(
+                SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE,
+                "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),
+                true,
+                notiMask));
+            if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
+                for (ExtendedTime exTime : extendedTimes) {
+                    Instant startInstant = (exTime.getStartDate() != null) ? exTime.getStartDate().toInstant() : null;
+                    if (startInstant != null && startInstant.isAfter(now)) {
+                        eventTrackingService.delay(eventTrackingService.newEvent(
+                            SamigoConstants.EVENT_ASSESSMENT_AVAILABLE,
+                            "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),
+                            true,
+                            notiMask), startInstant);
+                    }
+                }
+            }
+        } else {
+            eventTrackingService.delay(eventTrackingService.newEvent(
+                SamigoConstants.EVENT_ASSESSMENT_AVAILABLE,
+                "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),
+                true,
+                notiMask), baseStart);
+            if (publishedAssessmentSettings.getExtendedTimesSize() != 0) {
+                for (ExtendedTime exTime : extendedTimes) {
+                    Instant startInstant = (exTime.getStartDate() != null) ? exTime.getStartDate().toInstant() : null;
+                    if (startInstant == null) {
+                        continue;
+                    }
+                    if (startInstant.isBefore(now)) {
+                        eventTrackingService.post(eventTrackingService.newEvent(
+                            SamigoConstants.EVENT_ASSESSMENT_UPDATE_AVAILABLE,
+                            "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),
+                            true,
+                            notiMask));
+                    } else if (startInstant.isAfter(now) && !baseStart.equals(startInstant)) {
+                        eventTrackingService.delay(eventTrackingService.newEvent(
+                            SamigoConstants.EVENT_ASSESSMENT_AVAILABLE,
+                            "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + assessment.getPublishedAssessmentId(),
+                            true,
+                            notiMask), startInstant);
+                    }
+                }
+            }
+        }
+    }
 
 }
