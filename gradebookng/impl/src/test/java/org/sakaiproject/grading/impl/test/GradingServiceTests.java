@@ -340,6 +340,67 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void updateExternalAssessmentScoreParsesLocaleValues() {
+
+        Gradebook gradebook = createGradebook();
+        String externalId = "locale-score";
+        String externalUrl = "http://locale.test";
+
+        switchToInstructor();
+
+        gradingService.addExternalAssessment(gradebook.getUid(), gradebook.getUid(), externalId, externalUrl,
+                "Locale External", 10.0D, null, "test", null, false, null, null);
+
+        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        assertNotNull(assignment);
+
+        ResourceLoader originalLoader = resourceLoader;
+        ResourceLoader spanishLoader = mock(ResourceLoader.class);
+        when(spanishLoader.getLocale()).thenReturn(new Locale("es", "ES"));
+        ((GradingServiceImpl) AopTestUtils.getTargetObject(gradingService)).setResourceLoader(spanishLoader);
+
+        try {
+            gradingService.updateExternalAssessmentScore(gradebook.getUid(), siteId, externalId, user1, "4,5");
+        } finally {
+            ((GradingServiceImpl) AopTestUtils.getTargetObject(gradingService)).setResourceLoader(originalLoader);
+        }
+
+        assertEquals("4.5", gradingService.getAssignmentScoreString(gradebook.getUid(), siteId, assignment.getId(), user1));
+    }
+
+    @Test
+    public void updateExternalAssessmentScoresStringParsesLocaleValues() {
+
+        Gradebook gradebook = createGradebook();
+        String externalId = "locale-scores";
+        String externalUrl = "http://locale.test/multi";
+
+        switchToInstructor();
+
+        gradingService.addExternalAssessment(gradebook.getUid(), gradebook.getUid(), externalId, externalUrl,
+                "Locale External Many", 10.0D, null, "test", null, false, null, null);
+
+        Assignment assignment = gradingService.getExternalAssignment(gradebook.getUid(), externalId);
+        assertNotNull(assignment);
+
+        Map<String, String> scores = new HashMap<>();
+        scores.put(user1, "7,25");
+
+        ResourceLoader originalLoader = resourceLoader;
+        ResourceLoader spanishLoader = mock(ResourceLoader.class);
+        when(spanishLoader.getLocale()).thenReturn(new Locale("es", "ES"));
+        ((GradingServiceImpl) AopTestUtils.getTargetObject(gradingService)).setResourceLoader(spanishLoader);
+
+        try {
+            gradingService.updateExternalAssessmentScoresString(gradebook.getUid(), siteId, externalId, scores);
+        } finally {
+            ((GradingServiceImpl) AopTestUtils.getTargetObject(gradingService)).setResourceLoader(originalLoader);
+        }
+
+        assertEquals("7.25", gradingService.getAssignmentScoreString(gradebook.getUid(), siteId, assignment.getId(), user1));
+    }
+
+    @Test
     public void updateAssignment() {
 
         Gradebook gradebook = createGradebook();
