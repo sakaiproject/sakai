@@ -6289,12 +6289,7 @@ public class DiscussionForumTool {
 	public boolean isNumber(String validateString) 
 	{
 			Double parsed = NumberUtil.parseLocaleDouble(validateString, rb.getLocale());
-
-			if (parsed == null) {
-						return false;
-			}
-
-				return parsed >= 0 && !parsed.isNaN() && !parsed.isInfinite();
+			return parsed != null && parsed >= 0 && Double.isFinite(parsed);
 	}	 
      public boolean isFewerDigit(String validateString)
      {
