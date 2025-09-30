@@ -6296,18 +6296,23 @@ public class DiscussionForumTool {
 
 				return parsed >= 0 && !parsed.isNaN() && !parsed.isInfinite();
 	}	 
-
-	 public boolean isFewerDigit(String validateString)
-	 {
-		 final String s = validateString == null ? "" : validateString.trim();
-		 final DecimalFormatSymbols dfs = ((DecimalFormat) DecimalFormat.getInstance(rb.getLocale())).getDecimalFormatSymbols();
-		 final int sep = s.lastIndexOf(dfs.getDecimalSeparator());
-		 if (sep >= 0) {
-			 final int fractionalDigits = s.length() - sep - 1;
-			 return fractionalDigits <= 2;
-		 }
-		 return true;
-	 }
+     public boolean isFewerDigit(String validateString)
+     {
+         if (validateString == null) {
+             return true;
+         }
+         // Normalize first so separators are consistent with the locale; if parsing fails, defer to other validators
+         final String normalized = NumberUtil.normalizeLocaleDouble(validateString, rb.getLocale());
+         final DecimalFormatSymbols dfs = ((DecimalFormat) DecimalFormat.getInstance(rb.getLocale()))
+                 .getDecimalFormatSymbols();
+         int idx = normalized.lastIndexOf(dfs.getDecimalSeparator());
+         // Also handle dot-decimal input when the locale uses a comma
+         if (idx < 0 && dfs.getDecimalSeparator() != '.') {
+             idx = normalized.lastIndexOf('.');
+         }
+         // true if no decimal point or at most two digits after it
+         return idx < 0 || (normalized.length() - idx - 1) <= 2;
+     }
 	
 	 private boolean validateGradeInput()
 	 {
