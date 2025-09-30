@@ -460,7 +460,7 @@ public class LTI13Servlet extends HttpServlet {
 
 				out.println(((JSONObject) js).toJSONString());
 			} catch (Exception e) {
-				log.error("Error in proxy request: {}", e.getMessage(), e);
+				log.error("Error in proxy request", e);
 				LTI13Util.return400(response, "Proxy request failed");
 				return;
 			}
