@@ -2724,9 +2724,10 @@ public class GradingServiceImpl implements GradingService {
             return null;
         }
 
-        Double scoreAsDouble = NumberUtil.parseLocaleDouble(doubleAsString, resourceLoader.getLocale());
-        if (scoreAsDouble == null) {
-            log.warn("Failed to convert {}: Unable to parse using locale {}", doubleAsString, resourceLoader.getLocale());
+        final Double scoreAsDouble = NumberUtil.parseLocaleDouble(doubleAsString, resourceLoader.getLocale());
+        if (scoreAsDouble == null || !Double.isFinite(scoreAsDouble)) {
+            log.warn("Failed to convert score for locale {}: '{}'", resourceLoader.getLocale(), doubleAsString);
+            return null;
         }
         return scoreAsDouble;
     }
