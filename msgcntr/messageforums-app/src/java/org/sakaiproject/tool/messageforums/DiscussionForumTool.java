@@ -160,6 +160,7 @@ import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.SiteGroupBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
@@ -6284,20 +6285,14 @@ public class DiscussionForumTool {
  
   public boolean isNumber(String validateString) 
   {
-      NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
+      Locale locale = new ResourceLoader().getLocale();
+      Double parsed = NumberUtil.parseLocaleDouble(validateString, locale);
 
-      try  
-      {
-          double d = numberFormat.parse(validateString).doubleValue();
-          if(d >= 0)
-              return true;
-          else
-              return false;
-      }
-      catch (ParseException e) 
-      {
+      if (parsed == null) {
           return false;
       }
+
+      return parsed >= 0;
   }   
   
    public boolean isFewerDigit(String validateString)

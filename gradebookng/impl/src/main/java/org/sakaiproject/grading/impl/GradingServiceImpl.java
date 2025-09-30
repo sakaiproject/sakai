@@ -117,6 +117,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.grading.api.GradingAuthz;
+import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.lang.Nullable;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
@@ -2724,15 +2725,11 @@ public class GradingServiceImpl implements GradingService {
             return null;
         }
 
-        Double scoreAsDouble = null;
-        try {
-            NumberFormat numberFormat = NumberFormat.getInstance(resourceLoader.getLocale());
-            Number numericScore = numberFormat.parse(doubleAsString.trim());
-            return numericScore.doubleValue();
-        } catch (final ParseException e) {
-            log.error("Failed to convert {}: {}", doubleAsString, e.toString());
-            return null;
+        Double scoreAsDouble = NumberUtil.parseLocaleDouble(doubleAsString, resourceLoader.getLocale());
+        if (scoreAsDouble == null) {
+            log.error("Failed to convert {}: Unable to parse using locale {}", doubleAsString, resourceLoader.getLocale());
         }
+        return scoreAsDouble;
     }
 
     /**
