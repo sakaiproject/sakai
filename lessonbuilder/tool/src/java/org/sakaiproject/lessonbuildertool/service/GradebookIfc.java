@@ -123,7 +123,7 @@ public class GradebookIfc {
 		Map<String, String> normalizedScores = new HashMap<>(studentUidsToScores.size());
 		for (Map.Entry<String, String> entry : studentUidsToScores.entrySet()) {
 			String value = entry.getValue();
-			normalizedScores.put(entry.getKey(), value == null ? null : NumberUtil.normalizeLocaleDouble(value));
+			normalizedScores.put(entry.getKey(), NumberUtil.normalizeLocaleDouble(value));
 		}
 		gradingService.updateExternalAssessmentScoresString(gradebookUid, siteId, externalId, normalizedScores);
 		} catch (Exception e) {
