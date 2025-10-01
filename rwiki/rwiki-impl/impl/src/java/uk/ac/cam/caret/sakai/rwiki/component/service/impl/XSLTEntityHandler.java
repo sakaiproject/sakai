@@ -40,11 +40,8 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.TransformerHandler;
-
-import org.apache.xml.serializer.OutputPropertiesFactory;
-import org.apache.xml.serializer.Serializer;
+import javax.xml.transform.stream.StreamResult;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -841,47 +838,10 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 * @see uk.co.tfd.sakai.xmlserver.api.OutputContentHandler#getOutputHandler(java.io.Writer)
 	 */
 
-	public ContentHandler getOutputHandler(Writer out) throws IOException
-	{
-		throw new RuntimeException("Method Not In Use ");
-		/*
-		if (!isAvailable()) return null;
-		try
-		{
-			XSLTTransform xsltTransform = (XSLTTransform) transformerHolder.get();
-			if (xsltTransform == null)
-			{
-				xsltTransform = new XSLTTransform();
-				xsltTransform.setXslt(new InputSource(this.getClass()
-						.getResourceAsStream(xslt)));
-				transformerHolder.set(xsltTransform);
-			}
-			SAXResult sr = new SAXResult();
-			TransformerHandler th = xsltTransform.getContentHandler();
-			Properties p = OutputPropertiesFactory.getDefaultMethodProperties("xml");
-			p.putAll(outputProperties);
-			
-			Serializer s = SerializerFactory.getSerializer(p);
-			s.setWriter(out);
-			sr.setHandler(s.asContentHandler());
-			th.setResult(sr);
-			return th;
-		}
-		catch (Exception ex)
-		{
-			throw new RuntimeException("Failed to create Content Handler", ex); //$NON-NLS-1$
-			/*
-			 * String stackTrace = null; try { StringWriter exw = new
-			 * StringWriter(); PrintWriter pw = new PrintWriter(exw);
-			 * log.error(ex.getMessage(), ex); stackTrace = exw.toString(); } catch
-			 * (Exception ex2) { stackTrace =
-			 * MessageFormat.format(defaultStackTrace, new Object[] {
-			 * ex.getMessage() }); } out.write(MessageFormat.format(errorFormat,
-			 * new Object[] { ex.getMessage(), stackTrace }));
-			 * /
-		}
-	    */
-	}
+        public ContentHandler getOutputHandler(Writer out) throws IOException
+        {
+                throw new RuntimeException("Method Not In Use ");
+        }
 
 	public ContentHandler getOutputHandler(OutputStream out) throws IOException
 	{
@@ -891,35 +851,38 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		{
 			XSLTTransform xsltTransform = new XSLTTransform();
 			xsltTransform.setXslt(new InputSource(this.getClass().getResourceAsStream(xslt)));
-			SAXResult sr = new SAXResult();
-			
-			TransformerHandler th = xsltTransform.getContentHandler();
-			
-			Transformer transformer = th.getTransformer();
-			if (transformParameters != null) {
-				for (Map.Entry<String, String> entry: transformParameters.entrySet()) {
-					transformer.setParameter(entry.getKey(), entry.getValue());
-				}
-			}
+                        TransformerHandler th = xsltTransform.getContentHandler();
 
-			Properties p = OutputPropertiesFactory.getDefaultMethodProperties("xml");
-			p.putAll(outputProperties);
-			
-			/*
-			S_KEY_CONTENT_HANDLER:{http://xml.apache.org/xalan}content-handler
-				S_KEY_ENTITIES:{http://xml.apache.org/xalan}entities
-				S_KEY_INDENT_AMOUNT:{http://xml.apache.org/xalan}indent-amount
-				S_OMIT_META_TAG:{http://xml.apache.org/xalan}omit-meta-tag
-				S_USE_URL_ESCAPING:{http://xml.apache.org/xalan}use-url-escaping
-			*/
-			Serializer s = xsltTransform.getSerializer(p);
+                        Transformer transformer = th.getTransformer();
+                        if (transformParameters != null) {
+                                for (Map.Entry<String, String> entry: transformParameters.entrySet()) {
+                                        transformer.setParameter(entry.getKey(), entry.getValue());
+                                }
+                        }
 
-			s.setOutputStream(out);
-			sr.setHandler(s.asContentHandler());
-			th.setResult(sr);
-			return th;
-		}
-		catch (Exception ex)
+                        Properties outputProps = transformer.getOutputProperties();
+                        if (outputProps == null) {
+                                outputProps = new Properties();
+                        }
+
+                        if (outputProperties != null) {
+                                for (Map.Entry<?, ?> entry : outputProperties.entrySet()) {
+                                        Object key = entry.getKey();
+                                        Object value = entry.getValue();
+                                        if (key != null && value != null) {
+                                                outputProps.setProperty(key.toString(), value.toString());
+                                        }
+                                }
+                        }
+
+                        for (String name : outputProps.stringPropertyNames()) {
+                                transformer.setOutputProperty(name, outputProps.getProperty(name));
+                        }
+
+                        th.setResult(new StreamResult(out));
+                        return th;
+                }
+                catch (Exception ex)
 		{
 			throw new RuntimeException("Failed to create Content Handler", ex); //$NON-NLS-1$
 			/*

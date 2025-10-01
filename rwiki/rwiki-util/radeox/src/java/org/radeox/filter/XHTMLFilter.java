@@ -25,7 +25,6 @@ package org.radeox.filter;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.xml.serializer.ToXMLStream;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.filter.context.FilterContext;
 import org.xml.sax.Attributes;
@@ -38,6 +37,11 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -114,13 +118,17 @@ public class XHTMLFilter implements Filter, CacheFilter {
 
             deblockFilter.setBlockElements(blockElements);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ToXMLStream xmlStream = new ToXMLStream();
-            xmlStream.setOutputStream(outputStream);
-            xmlStream.setIndent(false);
-            xmlStream.setEncoding("UTF-8");
-            xmlStream.setIndentAmount(4);
+            SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+            TransformerHandler transformerHandler = transformerFactory.newTransformerHandler();
+            Transformer transformer = transformerHandler.getTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name());
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.INDENT, "no");
+
             deblockFilter.setContentHandler(emptyFilter);
-            emptyFilter.setContentHandler(xmlStream.asContentHandler());
+            transformerHandler.setResult(new StreamResult(outputStream));
+            emptyFilter.setContentHandler(transformerHandler);
 
             SAXParser parser = saxParserFactory.newSAXParser();
 
