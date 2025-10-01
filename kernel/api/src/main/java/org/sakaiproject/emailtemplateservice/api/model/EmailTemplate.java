@@ -34,8 +34,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Element;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -46,7 +47,7 @@ import lombok.Setter;
  * EmailTemplate is an email template, though it could actually be used for anything,
  * identified by a unique key and set to be locale specific if desired
  */
-@Root
+@JacksonXmlRootElement(localName = "emailTemplate")
 @Entity
 @Table(name = "EMAIL_TEMPLATE_ITEM",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"TEMPLATE_KEY", "TEMPLATE_LOCALE"})},
@@ -59,49 +60,53 @@ public class EmailTemplate implements java.io.Serializable, PersistableEntity<Lo
     public static final String DEFAULT_LOCALE = "default";
     private static final long serialVersionUID = -8697605573015358433L;
 
+    @JsonIgnore
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "email_template_item_id_sequence")
     @SequenceGenerator(name = "email_template_item_id_sequence", sequenceName = "EMAILTEMPLATE_ITEM_SEQ")
     private Long id;
 
+    @JsonIgnore
     @Column(name = "LAST_MODIFIED", nullable = false)
     private Date lastModified;
 
-    @Element
+    @JacksonXmlProperty(localName = "key")
     @Column(name = "TEMPLATE_KEY", nullable = false, length = 255)
     private String key;
 
-    @Element(required = false)
+    @JacksonXmlProperty(localName = "locale")
     @Column(name = "TEMPLATE_LOCALE", length = 255)
     private String locale;
 
-    @Element
+    @JacksonXmlProperty(localName = "owner")
     @Column(name = "OWNER", nullable = false, length = 255)
     private String owner;
 
-    @Element
+    @JacksonXmlProperty(localName = "subject")
     @Lob
     @Column(name = "SUBJECT", nullable = false, length = 100000000)
     private String subject;
 
-    @Element
+    @JacksonXmlProperty(localName = "message")
     @Lob
     @Column(name = "MESSAGE", nullable = false, length = 100000000)
     private String message;
 
-    @Element(required = false)
+    @JacksonXmlProperty(localName = "htmlMessage")
     @Lob
     @Column(name = "HTMLMESSAGE", length = 100000000)
     private String htmlMessage;
 
-    @Element
+    @JacksonXmlProperty(localName = "version")
     @Column(name = "VERSION")
     private Integer version;
 
+    @JsonIgnore
     @Column(name = "emailfrom", length = 255)
     private String from;
 
+    @JsonIgnore
     @Column(length = 255, unique = false)
     private String defaultType;
 

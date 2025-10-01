@@ -21,15 +21,10 @@
 
 package org.sakaiproject.emailtemplateservice.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,7 +48,6 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-import org.simpleframework.xml.core.Persister;
 //import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 
@@ -80,6 +74,13 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 import lombok.Setter;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+
 @Slf4j
 @Setter
 public class EmailTemplateServiceImpl implements EmailTemplateService {
@@ -96,6 +97,16 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     private SessionManager sessionManager;
     private SecurityService securityService;
     private UserDirectoryService userDirectoryService;
+
+    private final XmlMapper xmlMapper;
+
+    public EmailTemplateServiceImpl() {
+        xmlMapper = new XmlMapper();
+        xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        xmlMapper.configure(FromXmlParser.Feature.EMPTY_ELEMENT_AS_NULL, true);
+        xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
+    }
 
     public EmailTemplate getEmailTemplateById(Long id) {
 
@@ -420,7 +431,6 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
         final String ADMIN = "admin";
 
-        Persister persister = new Persister();
         for (String templatePath : templatePaths) {
 
             log.debug("Processing template: {}", templatePath);
@@ -431,8 +441,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                     log.warn("Could not load resource from '{}'. Skipping ...", templatePath);
                     continue;
                 }
-                template = persister.read(EmailTemplate.class, in);
-            } catch (Exception e) {
+                template = xmlMapper.readValue(in, EmailTemplate.class);
+            } catch (IOException e) {
                 log.warn("Error processing template: '{}', {}:{}. Skipping ...", templatePath, e.getClass(), e.getMessage());
                 continue;
             }
@@ -485,38 +495,14 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     public String exportTemplateAsXml(String key, Locale locale) {
  
         EmailTemplate template = getEmailTemplate(key, locale);
-        Persister persister = new Persister();
-        File file = null;
-        String ret = null;
         try {
-            file = File.createTempFile("emailtemplate", "xml");
-            persister.write(template, file);
-            //read the data
-            ret = readFile(file.getAbsolutePath());
-        } catch (Exception e) {
-            log.warn( "Error creating or writing to file", e );
-        }
-        finally {
-            if (file != null) {
-                if (!file.delete()) {
-                    log.warn("error deleting tmp file");
-                }
-            }
-        }
- 
-        return ret;
-    }
-
-    private static String readFile(String path) throws IOException {
-
-        try (FileInputStream stream = new FileInputStream(new File(path))) {
-            FileChannel fc = stream.getChannel();
-            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-            /* Instead of using default, pass in a decoder. */
-            return Charset.defaultCharset().decode(bb).toString();
+            return xmlMapper.writeValueAsString(template);
+        } catch (JsonProcessingException e) {
+            log.warn("Error serializing template '{}' to XML", key, e);
+            return null;
         }
     }
- 
+
     /**
      * Delete all templates in the Database
      * Only used in unit tests so not in API
