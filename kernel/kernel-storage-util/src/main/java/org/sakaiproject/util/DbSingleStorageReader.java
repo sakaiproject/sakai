@@ -55,11 +55,6 @@ public class DbSingleStorageReader implements SqlReader
 				return ((BaseDbBinarySingleStorage) storage).readResource(result
 						.getBytes(1));
 			}
-			else if (storage instanceof BaseDbDualSingleStorage)
-			{
-				return ((BaseDbDualSingleStorage) storage).readResource(result
-						.getString(1), result.getBytes(2));
-			}
 			else
 			{
 				return ((BaseDbSingleStorage) storage).readResource(result.getString(1));
