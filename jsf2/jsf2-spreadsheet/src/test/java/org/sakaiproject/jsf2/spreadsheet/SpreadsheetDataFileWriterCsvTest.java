@@ -16,12 +16,12 @@
 package org.sakaiproject.jsf2.spreadsheet;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -38,48 +38,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
-
 @RunWith(MockitoJUnitRunner.class)
 public class SpreadsheetDataFileWriterCsvTest {
 
-    @Mock
-    private ServerConfigurationService serverConfigurationService;
+    private MockedStatic<ComponentManager> componentManagerMock;
+    @Mock private ServerConfigurationService serverConfigurationService;
 
     @Before
     public void setup() {
+        componentManagerMock = Mockito.mockStatic(ComponentManager.class);
+        componentManagerMock.when(() -> ComponentManager.get(ServerConfigurationService.class)).thenReturn(serverConfigurationService);
+
         FacesContext facesContext = ContextMocker.mockFacesContext();
         ExternalContext externalContextMock = Mockito.mock(ExternalContext.class);
 
         Mockito.when(facesContext.getExternalContext()).thenReturn(externalContextMock);
         Mockito.when(externalContextMock.getRequest()).thenReturn(new MockHttpServletRequest());
-
-        ComponentManager.testingMode = true;
-        ComponentManager.shutdown();
-        resetServerConfigurationServiceCover();
-        ComponentManager.loadComponent(ServerConfigurationService.class, serverConfigurationService);
-        Mockito.when(serverConfigurationService.getString(anyString(), anyString())).thenReturn(",");
     }
 
-    @After
-    public void tearDown() {
-        ComponentManager.shutdown();
-        ComponentManager.testingMode = false;
-        resetServerConfigurationServiceCover();
-    }
-
-    private void resetServerConfigurationServiceCover() {
-        try {
-            java.lang.reflect.Field instance = org.sakaiproject.component.cover.ServerConfigurationService.class.getDeclaredField("m_instance");
-            instance.setAccessible(true);
-            instance.set(null, null);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Unable to reset ServerConfigurationService cover", e);
-        }
-    }
 
     @Test
     public void testDownload() throws IOException {
+        Mockito.when(serverConfigurationService.getString("csv.separator", ",")).thenReturn(",");
         SpreadsheetDataFileWriterCsv sdfw = new SpreadsheetDataFileWriterCsv();
         List<List<Object>> data = new ArrayList<>();
         data.add(Arrays.asList("asdf", "qwerty", "foobar", null));

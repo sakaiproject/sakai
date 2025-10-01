@@ -88,8 +88,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
+            <artifactId>mockito-inline</artifactId>
         </dependency>
 	</dependencies>
 	<build>

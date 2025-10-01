@@ -209,7 +209,6 @@ public class BaseExternalCalendarSubscriptionTest {
         {
             Reference ref = mock(Reference.class);
             when(entityManager.newReference(subscription)).thenReturn(ref);
-            when(ref.getContext()).thenReturn("other");
             when(ref.getId()).thenReturn(BaseExternalSubscriptionDetails.getIdFromSubscriptionUrl(urlTest));
         }
 
@@ -252,7 +251,6 @@ public class BaseExternalCalendarSubscriptionTest {
         {
             Reference ref = mock(Reference.class);
             when(entityManager.newReference(subscription)).thenReturn(ref);
-            when(ref.getContext()).thenReturn("other");
             when(ref.getId()).thenReturn(BaseExternalSubscriptionDetails.getIdFromSubscriptionUrl(urlTest));
         }
 
