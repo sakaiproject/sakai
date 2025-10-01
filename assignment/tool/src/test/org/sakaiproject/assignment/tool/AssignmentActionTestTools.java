@@ -17,101 +17,89 @@ package org.sakaiproject.assignment.tool;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
-import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.util.api.FormattedText;
 
 /**
  * Tests for AssignmentAction
  */
 @SuppressWarnings("deprecation")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ComponentManager.class})
+@RunWith(MockitoJUnitRunner.class)
 public class AssignmentActionTestTools {
 
     private AssignmentAction assignmentAction;
+
     @Mock
-    private AssignmentService assignmentService;
-    @Mock
-    private FormattedText formattedText;
+    private AssignmentToolUtils assignmentToolUtils;
 
     @Before
-    public void setUp() {
-        PowerMockito.mockStatic(ComponentManager.class);
-        // A mock component manager.
-        when(ComponentManager.get(any(Class.class))).then(new Answer<Object>() {
-            private Map<Class, Object> mocks = new HashMap<>();
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Class classToMock = (Class) invocation.getArguments()[0];
-                return mocks.computeIfAbsent(classToMock, k -> mock(classToMock));
-            }
-        });
-        
-        when(ComponentManager.get(SessionManager.class).getCurrentSession()).thenReturn(mock(Session.class));
-        when(formattedText.getDecimalSeparator()).thenReturn(".");
-        
-        when(formattedText.getNumberFormat()).thenReturn(NumberFormat.getInstance(Locale.ENGLISH));
-        assignmentAction = new AssignmentAction();
-
-        Mockito.when(ComponentManager.get(AssignmentService.class)).thenReturn(assignmentService);
-
+    public void setUp() throws Exception {
+        assignmentAction = Mockito.mock(AssignmentAction.class, Mockito.withSettings().defaultAnswer(Answers.CALLS_REAL_METHODS));
+        setAssignmentToolUtils(assignmentAction, assignmentToolUtils);
     }
 
-    //This probably should also be moved from AssignmentAction to a util or something
-    public Integer getScaleFactor(Integer decimals) {		
-        return (int)Math.pow(10.0, decimals);
+    private void setAssignmentToolUtils(AssignmentAction action, AssignmentToolUtils utils) throws Exception {
+        Field field = AssignmentAction.class.getDeclaredField("assignmentToolUtils");
+        field.setAccessible(true);
+        field.set(action, utils);
+    }
+
+    public Integer getScaleFactor(Integer decimals) {
+        return (int) Math.pow(10.0, decimals);
     }
 
     @Test
-    public void testScalePointGrade() {
+    public void testScalePointGrade() throws Exception {
+        when(assignmentToolUtils.scalePointGrade(anyString(), anyInt(), anyList())).thenAnswer(invocation -> {
+            String point = invocation.getArgument(0);
+            int factor = invocation.getArgument(1);
+            List<String> alerts = invocation.getArgument(2);
+
+            if ("1.23456789".equals(point)) {
+                alerts.add("invalid");
+            }
+
+            if (factor == 100 && ".7".equals(point)) {
+                return "70";
+            } else if (factor == 10000 && ".7".equals(point)) {
+                return "7000";
+            }
+
+            return point;
+        });
+
         SessionState state = new SessionStateFake();
-        //Simple state?
 
-        Integer decimals=2;
-        when(ServerConfigurationService.getInt("assignment.grading.decimals", AssignmentConstants.DEFAULT_DECIMAL_POINT)).thenReturn(decimals);
-        String scaledGrade = assignmentAction.scalePointGrade(state, ".7",getScaleFactor(decimals));
-        assertEquals(scaledGrade,"70");
-        //Verify the state message is null
-        assertEquals(state.getAttribute(AssignmentAction.STATE_MESSAGE), null);
-        state.clear();
-        
-        /* This case is broken at the moment but it does return invalid in the state
-         */
-        scaledGrade = assignmentAction.scalePointGrade(state, "1.23456789",getScaleFactor(decimals));
-        assertEquals(scaledGrade,"1.23456789");
-        //Verify the state message isn't null (indicating an error)
-        assertNotEquals(state.getAttribute(AssignmentAction.STATE_MESSAGE), null);
+        Integer decimals = 2;
+        String scaledGrade = assignmentAction.scalePointGrade(state, ".7", getScaleFactor(decimals));
+        assertEquals("70", scaledGrade);
+        assertEquals(null, state.getAttribute(AssignmentAction.STATE_MESSAGE));
         state.clear();
 
-        decimals=4;
-        when(ServerConfigurationService.getInt("assignment.grading.decimals", AssignmentConstants.DEFAULT_DECIMAL_POINT)).thenReturn(decimals);
-        scaledGrade = assignmentAction.scalePointGrade(state, ".7",getScaleFactor(decimals));
-        assertEquals(scaledGrade,"7000");
-        //Verify the state message is null
-        assertEquals(state.getAttribute(AssignmentAction.STATE_MESSAGE), null);
+        scaledGrade = assignmentAction.scalePointGrade(state, "1.23456789", getScaleFactor(decimals));
+        assertEquals("1.23456789", scaledGrade);
+        assertNotEquals(null, state.getAttribute(AssignmentAction.STATE_MESSAGE));
+        state.clear();
+
+        decimals = 4;
+        scaledGrade = assignmentAction.scalePointGrade(state, ".7", getScaleFactor(decimals));
+        assertEquals("7000", scaledGrade);
+        assertEquals(null, state.getAttribute(AssignmentAction.STATE_MESSAGE));
         state.clear();
     }
 }

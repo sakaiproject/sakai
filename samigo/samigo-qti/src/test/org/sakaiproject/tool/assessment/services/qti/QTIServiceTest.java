@@ -17,13 +17,10 @@ package org.sakaiproject.tool.assessment.services.qti;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -31,16 +28,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
@@ -49,24 +38,7 @@ import org.sakaiproject.tool.assessment.qti.helper.ExtractionHelper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.w3c.dom.Document;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ComponentManager.class})
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
 public class QTIServiceTest {
-
-	@Before
-	public void setUp() {
-        PowerMockito.mockStatic(ComponentManager.class);
-        // A mock component manager.
-        when(ComponentManager.get(any(Class.class))).then(new Answer<Object>() {
-            private Map<Class, Object> mocks = new HashMap<>();
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Class classToMock = (Class) invocation.getArguments()[0];
-                return mocks.computeIfAbsent(classToMock, k -> mock(classToMock));
-            }
-        });
-	}
 
 	@Ignore("jdk 11 module illegal access")
 	@Test

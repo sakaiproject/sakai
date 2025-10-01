@@ -15,18 +15,17 @@
  */
 package org.sakaiproject.util;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.ClosingException;
+import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -38,9 +37,7 @@ import java.security.Principal;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.*")
-@PrepareForTest(ComponentManager.class)
+@RunWith(MockitoJUnitRunner.class)
 public class RequestFilterTest {
 
     @Mock
@@ -61,16 +58,27 @@ public class RequestFilterTest {
     @Mock
     private Session session;
 
+    @Mock
+    private RebuildBreakdownService rebuildBreakdownService;
+
     private RequestFilter filter;
 
     @Before
     public void setUp() {
         System.setProperty(RequestFilter.SAKAI_SERVERID, "server1");
-        PowerMockito.mockStatic(ComponentManager.class);
-        when(ComponentManager.get(SessionManager.class)).thenReturn(sessionManager);
-        when(ComponentManager.get(ThreadLocalManager.class)).thenReturn(threadLocalManager);
-        when(ComponentManager.get(ServerConfigurationService.class)).thenReturn(serverConfigurationService);
+        ComponentManager.testingMode = true;
+        ComponentManager.shutdown();
+        ComponentManager.loadComponent(SessionManager.class, sessionManager);
+        ComponentManager.loadComponent(ThreadLocalManager.class, threadLocalManager);
+        ComponentManager.loadComponent(ServerConfigurationService.class, serverConfigurationService);
+        ComponentManager.loadComponent(RebuildBreakdownService.class, rebuildBreakdownService);
         filter = new RequestFilter();
+    }
+
+    @After
+    public void tearDown() {
+        ComponentManager.shutdown();
+        ComponentManager.testingMode = false;
     }
 
     @Test

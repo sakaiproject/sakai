@@ -35,8 +35,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -45,18 +43,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarImporterService;
 import org.sakaiproject.calendar.api.ExternalSubscriptionDetails;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
@@ -77,9 +69,7 @@ import net.sf.ehcache.CacheManager;
  * EntityManager shouldn't have to be Mocked as it's simple enough to have a real instance
  * but this we aren't there yet.
  */
-@PrepareForTest(ComponentManager.class)
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*"})
+@RunWith(MockitoJUnitRunner.class)
 public class BaseExternalCalendarSubscriptionTest {
 
 
@@ -109,16 +99,6 @@ public class BaseExternalCalendarSubscriptionTest {
 
     @Before
     public void setUp() throws ImportException {
-        PowerMockito.mockStatic(ComponentManager.class);
-        // A mock component manager.
-        when(ComponentManager.get(any(Class.class))).then(new Answer<Object>() {
-            private Map<Class, Object> mocks = new HashMap<>();
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Class classToMock = (Class) invocation.getArguments()[0];
-                return mocks.computeIfAbsent(classToMock, k -> mock(classToMock));
-            }
-        });
         service = new BaseExternalCalendarSubscriptionService();
         service.setSecurityService(securityService);
         service.setEntityManager(entityManager);
