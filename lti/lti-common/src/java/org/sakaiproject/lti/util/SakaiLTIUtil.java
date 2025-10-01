@@ -2562,7 +2562,7 @@ public class SakaiLTIUtil {
                 try {
                     assignment = getAssignment(site, content);
                 } catch (Exception e) {
-                    log.error("Error getting assignment in handleGradebook: {}", e.getMessage(), e);
+                    log.error("Error getting assignment in handleGradebook", e);
                     return "Error retrieving assignment: " + e.getMessage();
                 }
         } else {
@@ -2580,7 +2580,7 @@ public class SakaiLTIUtil {
 				retval = handleAssignment(assignment, user_id, scoreObj);
 				return retval;
 			} catch (Exception e) {
-				log.error("Error in handleAssignment: {}", e.getMessage(), e);
+				log.error("Error in handleAssignment", e);
 				return "Error processing assignment: " + e.getMessage();
 			}
 		}
@@ -2683,12 +2683,12 @@ public class SakaiLTIUtil {
 						retval = handleAssignment(assignment, userId, scoreObj);
 						return retval;
 					} catch (Exception e) {
-						log.error("Error in handleAssignment: {}", e.getMessage(), e);
+						log.error("Error in handleAssignment", e);
 						return "Error processing assignment: " + e.getMessage();
 					}
 				}
 			} catch (Exception e) {
-				log.error("Error in assignment processing: {}", e.getMessage(), e);
+				log.error("Error in assignment processing", e);
 				return "Error processing assignment: " + e.getMessage();
 			} finally {
 				popAdvisor(); // Remove security advisor
@@ -2719,7 +2719,7 @@ public class SakaiLTIUtil {
 						log.debug("assignmentReference.id {}", assignmentReference.getId());
 						assignment = assignmentService.getAssignment(assignmentReference.getId());
 					} catch (Exception e) {
-						log.error("Error getting assignment: {}", e.getMessage(), e);
+						log.error("Error getting assignment", e);
 						return "Error retrieving assignment: " + e.getMessage();
 					}
 
@@ -2729,7 +2729,7 @@ public class SakaiLTIUtil {
 							retval = handleAssignment(assignment, userId, scoreObj);
 							return retval;
 						} catch (Exception e) {
-							log.error("Error in handleAssignment: {}", e.getMessage(), e);
+							log.error("Error in handleAssignment", e);
 							return "Error processing assignment: " + e.getMessage();
 						}
 					}
@@ -2826,8 +2826,8 @@ public class SakaiLTIUtil {
 			}
 			return null;
 		} catch (Exception e) {
-			log.error("Error getting assignment: {}", e.getMessage(), e);
-			throw new RuntimeException("Failed to retrieve assignment", e);
+			log.error("Error getting assignment", e);
+			return null;
 		} finally {
 			popAdvisor();
 		}

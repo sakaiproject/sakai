@@ -465,7 +465,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 		} catch (Exception e) {
-			log.error("Error in proxy request: {}", e.getMessage(), e);
+			log.error("Error in proxy request", e);
 			LTI13Util.return400(response, "Proxy request failed");
 			return;
 		}
@@ -557,7 +557,7 @@ public class LTI13Servlet extends HttpServlet {
 			os.close();
 
 		} catch (Exception e) {
-			log.error("Error in post verify request: {}", e.getMessage(), e);
+			log.error("Error in post verify request", e);
 			LTI13Util.return400(response, "Post verify request failed");
 			return;
 		}
@@ -609,7 +609,7 @@ public class LTI13Servlet extends HttpServlet {
 			PrintWriter out = response.getWriter();
 			out.print(json_out);
 		} catch (Exception e) {
-			log.error("Error in get registration request: {}", e.getMessage(), e);
+			log.error("Error in get registration request", e);
 			LTI13Util.return400(response, "Get registration request failed");
 			return;
 		}
@@ -664,7 +664,7 @@ public class LTI13Servlet extends HttpServlet {
 			PrintWriter out = response.getWriter();
 			out.print(JacksonUtil.prettyPrint(context_obj));
 		} catch (Exception e) {
-			log.error("Error in sakai config request: {}", e.getMessage(), e);
+			log.error("Error in sakai config request", e);
 			LTI13Util.return400(response, "Sakai config request failed");
 			return;
 		}
@@ -761,7 +761,7 @@ public class LTI13Servlet extends HttpServlet {
 			PrintWriter out = response.getWriter();
 			out.print(JacksonUtil.prettyPrint(pc));
 		} catch (Exception e) {
-			log.error("Error in platform configuration request: {}", e.getMessage(), e);
+			log.error("Error in platform configuration request", e);
 			LTI13Util.return400(response, "Platform configuration request failed");
 			return;
 		}
@@ -786,7 +786,7 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			out = response.getWriter();
 		} catch (Exception e) {
-			log.error("Error getting response writer for key set request: {}", e.getMessage(), e);
+			log.error("Error getting response writer for key set request", e);
 			LTI13Util.return400(response, "Key set request failed");
 			return;
 		}
@@ -794,7 +794,7 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			out.println(keySetJSON);
 		} catch (Exception e) {
-			log.error("Error writing key set response: {}", e.getMessage(), e);
+			log.error("Error writing key set response", e);
 			LTI13Util.return400(response, "Key set response failed");
 			return;
 		}
@@ -869,7 +869,7 @@ public class LTI13Servlet extends HttpServlet {
 		try {
 			publicKey = SakaiLTIUtil.getPublicKey(tool, client_assertion);
 		} catch (Exception e) {
-			log.error("Error getting public key: {}", e.getMessage(), e);
+			log.error("Error getting public key", e);
 			LTI13Util.return400(response, "Public key retrieval failed");
 			return;
 		}
@@ -978,7 +978,7 @@ public class LTI13Servlet extends HttpServlet {
 			out.println(atsp);
 			log.debug("Returning Token\n{}", atsp);
 		} catch (IOException e) {
-			log.error("Error in token post request: {}", e.getMessage(), e);
+			log.error("Error in token post request", e);
 			LTI13Util.return400(response, "Token post request failed");
 			return;
 		}
@@ -1263,7 +1263,7 @@ public class LTI13Servlet extends HttpServlet {
 			out.println(json_out);
 			log.debug("Returning ToolConfiguration\n{}", json_out);
 		} catch (IOException e) {
-			log.error("Error in registration endpoint post request: {}", e.getMessage(), e);
+			log.error("Error in registration endpoint post request", e);
 			LTI13Util.return400(response, "Registration endpoint post request failed");
 			return;
 		}
