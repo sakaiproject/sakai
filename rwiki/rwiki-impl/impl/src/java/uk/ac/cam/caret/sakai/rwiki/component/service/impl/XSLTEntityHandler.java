@@ -840,7 +840,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
         public ContentHandler getOutputHandler(Writer out) throws IOException
         {
-                throw new RuntimeException("Method Not In Use ");
+                throw new UnsupportedOperationException("Writer-based output is no longer supported. Use OutputStream-based output instead.");
         }
 
 	public ContentHandler getOutputHandler(OutputStream out) throws IOException
@@ -883,8 +883,9 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
                         return th;
                 }
                 catch (Exception ex)
-		{
-			throw new RuntimeException("Failed to create Content Handler", ex); //$NON-NLS-1$
+                {
+                        log.debug("Failed to create Content Handler for XSLT transformation", ex);
+                        throw new RuntimeException("Failed to create Content Handler", ex); //$NON-NLS-1$
 			/*
 			 * String stackTrace = null; try { StringWriter exw = new
 			 * StringWriter(); PrintWriter pw = new PrintWriter(exw);

@@ -145,7 +145,7 @@ public class XHTMLFilter implements Filter, CacheFilter {
             }
             log.debug("Output is {}", finalOutput);
         } catch (Exception e) {
-            log.error("Failed to XHTML check {}\n Input======\n{}\n=======", e, input);
+            log.error("Failed to XHTML check. Input======\n{}\n=======", input, e);
             return input;
         }
 
