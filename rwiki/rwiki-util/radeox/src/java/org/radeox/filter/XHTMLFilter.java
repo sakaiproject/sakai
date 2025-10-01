@@ -137,7 +137,7 @@ public class XHTMLFilter implements Filter, CacheFilter {
             xmlReader.setContentHandler(deblockFilter);
             xmlReader.parse(new InputSource(new StringReader("<sr>" + input + "</sr>")));
 
-            String output = outputStream.toString(StandardCharsets.UTF_8);
+            String output = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
             int startBlock = output.indexOf("<sr>");
             int endBlock = output.indexOf("</sr>");
             if (startBlock >= 0 && endBlock >= 0) {
