@@ -865,13 +865,13 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
                                 outputProps = new Properties();
                         }
 
-                        if (outputProperties != null) {
-                                for (Map.Entry<?, ?> entry : outputProperties.entrySet()) {
-                                        Object key = entry.getKey();
-                                        Object value = entry.getValue();
-                                        if (key != null && value != null) {
-                                                outputProps.setProperty(key.toString(), value.toString());
-                                        }
+				if (outputProperties != null) {
+					for (Map.Entry<?, ?> entry : ((Map<?, ?>) outputProperties).entrySet()) {
+						Object key = entry.getKey();
+						Object value = entry.getValue();
+						if (key != null && value != null) {
+							outputProps.setProperty(key.toString(), value.toString());
+						}
                                 }
                         }
 
