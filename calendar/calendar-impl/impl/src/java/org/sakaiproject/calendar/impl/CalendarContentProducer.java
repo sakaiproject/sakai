@@ -21,7 +21,6 @@
 
 package org.sakaiproject.calendar.impl;
 
-import java.io.Reader;
 import java.util.*;
 
 import org.sakaiproject.calendar.api.Calendar;
@@ -69,15 +68,6 @@ public class CalendarContentProducer implements EntityContentProducer {
 			removingEvents.forEach(e -> searchService.registerFunction(e));
 			searchIndexBuilder.registerEntityContentProducer(this);
 		}
-	}
-
-
-	public boolean isContentFromReader(String reference) {
-		return false;
-	}
-
-	public Reader getContentReader(String reference) {
-		return null;
 	}
 
 	private Reference getReference(String reference) {
@@ -206,12 +196,8 @@ public class CalendarContentProducer implements EntityContentProducer {
 		return rv.iterator();
 	}
 
-	public boolean isForIndex(String reference) {
-		return reference.startsWith(CalendarService.REFERENCE_ROOT);
-	}
-
 	public boolean canRead(String reference) {
-		if (!isForIndex(reference)) {
+		if (!reference.startsWith(CalendarService.REFERENCE_ROOT)) {
 			return false;
 		}
 
@@ -230,14 +216,6 @@ public class CalendarContentProducer implements EntityContentProducer {
 		}
 	}
 
-	public Map<String, ?> getCustomProperties(String reference) {
-		return null;
-	}
-
-	public String getCustomRDF(String reference) {
-		return null;
-	}
-
 	public String getId(String reference) {
 		Reference ref = getReference(reference);
 		return (ref != null) ? ref.getId() : null;
@@ -245,10 +223,6 @@ public class CalendarContentProducer implements EntityContentProducer {
 
 	public String getType(String reference) {
 		return "calendar";
-	}
-
-	public String getSubType(String reference) {
-		return null;
 	}
 
 	public String getContainer(String reference) {
