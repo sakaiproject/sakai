@@ -14,10 +14,11 @@
 	<p id="gradebook-warning" class="sak-banner-info d-none">
 		$tlang.getString("import.gradebook")
 	</p>
-	<p class="instruction">
+	<p class="sak-banner-info">
 	$tlang.getString("sitinfimp.choose")
 	</p>
 	<form name="importSitesForm" action="#toolForm("$action")" method="post">
+		<input type="hidden" id="import-type" name="import-type" value="replace">
 		<div class="table">
 			<table class ="table table-bordered table-hover table-striped align-middle" summary="$tlang.getString("import.choose.list.summary")">
 				<tr>
@@ -104,12 +105,12 @@
 										#if ($importOptions.get(${toolId}).isPresent())
 										<a id="${toolId}-${site.Id}-options-link"
 												href="javascript:;"
-												class="siteimport-options-link fw-bold ms-1 d-none"
+												class="siteimport-options-link fw-bold ms-1"
 												data-options-id="${toolId}-${site.Id}-options"
 												title="$tlang.getString('import.options.title')">
 											<span title="$tlang.getString('import.options.help')">$tlang.getString('import.options.title').toLowerCase()</span>
 										</a>
-										<div id="${toolId}-${site.Id}-options" class="siteimport-options mt-3 ps-4 d-none">
+										<div id="${toolId}-${site.Id}-options" class="siteimport-options mt-3 ps-4">
 											#foreach ($option in $importOptions.get(${toolId}).get())
 											#set ($optionPropKey = "import.options." + ${option})
 											#set ($optionPropHelpKey = $optionPropKey + ".help")
@@ -122,7 +123,7 @@
 														value="true"/>
 													$tlang.getString(${optionPropKey})
 												</label>
-												<span class="import-option-help si si-question-circle" data-bs-toggle="popover" data-bs-content="$tlang.getString(${optionPropHelpKey})"/>
+												<span class="import-option-help si si-sakai-help" data-bs-toggle="popover" data-bs-content="$tlang.getString(${optionPropHelpKey})"/>
 											</div>
 											#end
 										</div>

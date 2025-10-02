@@ -4274,7 +4274,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Optional<List<String>> getTransferOptions() {
-        return Optional.of(Arrays.asList(new String[] { EntityTransferrer.PUBLISH_OPTION }));
+        return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION, EntityTransferrer.PUBLISH_OPTION }));
     }
 
     @Override
@@ -4749,6 +4749,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         return getAssignmentsForContext(fromContext).stream()
             .map(ass -> Map.of("id", ass.getId(), "title", ass.getTitle())).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getToolPermissionsPrefix() {
+        return AssignmentServiceConstants.SECURE_PERMISSION_PREFIX;
     }
 
     private String transferAttachment(String fromContext, String toContext, String oAttachmentId, MergeConfig mcx) {

@@ -35,9 +35,11 @@
 package org.sakaiproject.signup.tool.entityproviders;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import org.w3c.dom.Document;
@@ -252,8 +254,18 @@ public class SignupEntityProducer implements MeetingTypes, EntityProducer, Entit
 	}
 
 	@Override
+	public String getToolPermissionsPrefix() {
+		return SakaiFacade.SIGNUP_PERMISSION_PREFIX;
+	}
+
+	@Override
 	public String[] myToolIds() {
 		 return new String[] {"sakai.signup"};
+	}
+
+	@Override
+	public Optional<List<String>> getTransferOptions() {
+		return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
 	}
 
 	@Override
