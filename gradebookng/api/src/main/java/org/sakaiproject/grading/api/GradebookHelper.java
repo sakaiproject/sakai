@@ -47,13 +47,17 @@ public class GradebookHelper {
      * @return validated name
      */
 
-    public static String validateAssignmentNameAndPoints(final org.sakaiproject.grading.api.Assignment assignmentDefinition)
+    public static String validateAssignmentNameAndPoints(Assignment assignmentDefinition, boolean skipPointsValidation)
         throws InvalidGradeItemNameException, AssignmentHasIllegalPointsException, ConflictingAssignmentNameException {
-        // Ensure that points is > zero.
-        final Double points = assignmentDefinition.getPoints();
-        if ((points == null) || (points <= 0)) {
-            throw new AssignmentHasIllegalPointsException("Points must be > 0");
+
+        if (!skipPointsValidation) {
+            // Ensure that points is > zero.
+            final Double points = assignmentDefinition.getPoints();
+            if ((points == null) || (points <= 0)) {
+                throw new AssignmentHasIllegalPointsException("Points must be > 0");
+            }
         }
+
         return validateGradeItemName(assignmentDefinition.getName());
     }
 }
