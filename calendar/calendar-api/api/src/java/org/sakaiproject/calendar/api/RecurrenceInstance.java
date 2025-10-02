@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.calendar.impl;
+package org.sakaiproject.calendar.api;
 
 import org.sakaiproject.time.api.TimeRange;
 
