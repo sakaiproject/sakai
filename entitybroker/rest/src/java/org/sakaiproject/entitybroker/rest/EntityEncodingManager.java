@@ -32,6 +32,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +56,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.Separators;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -123,7 +130,16 @@ public class EntityEncodingManager {
             .disableFailOnEmptyBeans()
             .build();
     private static final ObjectWriter JSON_WRITER = JSON_MAPPER.writer();
-    private static final ObjectWriter JSON_PRETTY_WRITER = JSON_MAPPER.writerWithDefaultPrettyPrinter();
+    private static final ObjectWriter JSON_PRETTY_WRITER;
+
+    static {
+        // Configure pretty printer to match old reflectutils format: "key": "value" (space only after colon)
+        DefaultPrettyPrinter printer = new DefaultPrettyPrinter();
+        printer.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+        // Remove space before colon, keep space after colon
+        printer = printer.withSeparators(Separators.createDefaultInstance().withObjectFieldValueSpacing(Separators.Spacing.AFTER));
+        JSON_PRETTY_WRITER = JSON_MAPPER.writer(printer);
+    }
     private static final XmlMapper XML_MAPPER = MapperFactory.xmlBuilder()
             .registerJavaTimeModule()
             .disableDateTimestamps()
@@ -1015,7 +1031,7 @@ public class EntityEncodingManager {
             wrapper.put(name, envelope);
             envelope = wrapper;
         }
-        return JSON_WRITER.writeValueAsString(envelope);
+        return JSON_PRETTY_WRITER.writeValueAsString(envelope);
     }
 
     private String encodeXml(Object data, String name, Map<String, Object> properties) throws JsonProcessingException {
@@ -1039,18 +1055,177 @@ public class EntityEncodingManager {
     }
 
     private Map<String, Object> ensureDecodedMap(Object value) {
-        if (value instanceof Map) {
-            Map<?, ?> source = (Map<?, ?>) value;
-            Map<String, Object> target = new LinkedHashMap<String, Object>(source.size());
+        Map<String, Object> normalized;
+        if (value instanceof Map<?, ?> source) {
+            normalized = new LinkedHashMap<>(source.size());
             for (Entry<?, ?> entry : source.entrySet()) {
                 String key = entry.getKey() == null ? null : String.valueOf(entry.getKey());
-                target.put(key, entry.getValue());
+                normalized.put(key, entry.getValue());
             }
-            return target;
+        } else {
+            normalized = new LinkedHashMap<>(1);
+            normalized.put(DATA_KEY, value);
         }
-        Map<String, Object> map = new LinkedHashMap<String, Object>();
-        map.put(DATA_KEY, value);
-        return map;
+        Map<String, Object> simplified = new LinkedHashMap<>(normalized.size());
+        for (Entry<String, Object> entry : normalized.entrySet()) {
+            simplified.put(entry.getKey(), simplifyDecodedValue(entry.getValue()));
+        }
+        Object converted = convertTypedMap(new LinkedHashMap<>(simplified));
+        if (converted instanceof Map<?, ?> mapResult) {
+            Map<String, Object> result = new LinkedHashMap<>();
+            for (Entry<?, ?> entry : mapResult.entrySet()) {
+                String key = entry.getKey() == null ? null : String.valueOf(entry.getKey());
+                result.put(key, entry.getValue());
+            }
+            return result;
+        }
+        Map<String, Object> wrapper = new LinkedHashMap<>(1);
+        wrapper.put(DATA_KEY, converted);
+        return wrapper;
+    }
+
+    private Object simplifyDecodedValue(Object value) {
+        if (value instanceof Map<?, ?> rawMap) {
+            Map<String, Object> normalized = new LinkedHashMap<>(rawMap.size());
+            for (Entry<?, ?> entry : rawMap.entrySet()) {
+                String key = entry.getKey() == null ? null : String.valueOf(entry.getKey());
+                normalized.put(key, simplifyDecodedValue(entry.getValue()));
+            }
+            return convertTypedMap(normalized);
+        }
+        if (value instanceof Collection<?> collection) {
+            List<Object> list = new ArrayList<>(collection.size());
+            for (Object element : collection) {
+                list.add(simplifyDecodedValue(element));
+            }
+            return list;
+        }
+        return value;
+    }
+
+    private Object convertTypedMap(Map<String, Object> map) {
+        String type = map.get("type") instanceof String ? (String) map.get("type") : null;
+        if (type == null) {
+            map.remove("");
+            return map;
+        }
+        Map<String, Object> working = new LinkedHashMap<>(map);
+        working.remove("type");
+        Object classObj = working.remove("class");
+        String className = classObj instanceof String ? (String) classObj : null;
+        working.remove("size");
+        working.remove("length");
+        working.remove("component");
+        Object text = working.remove("");
+        switch (type) {
+            case "number":
+                return convertNumber(text, className);
+            case "boolean":
+                return text == null ? null : Boolean.valueOf(text.toString());
+            case "string":
+                return text == null ? null : text.toString();
+            case "date":
+                Object dateAttr = working.remove("date");
+                return convertDate(text, dateAttr);
+            case "array":
+                return convertArrayValue(working);
+            case "map":
+                return removeMetadataKeys(working);
+            default:
+                return removeMetadataKeys(working);
+        }
+    }
+
+    private Object convertNumber(Object text, String className) {
+        if (text == null) {
+            return null;
+        }
+        String value = text.toString();
+        try {
+            if (className != null) {
+                switch (className) {
+                    case "java.lang.Integer":
+                    case "int":
+                        return Integer.valueOf(value);
+                    case "java.lang.Long":
+                    case "long":
+                        return Long.valueOf(value);
+                    case "java.lang.Float":
+                    case "float":
+                        return Float.valueOf(value);
+                    case "java.lang.Double":
+                    case "double":
+                        return Double.valueOf(value);
+                    case "java.lang.Short":
+                    case "short":
+                        return Short.valueOf(value);
+                    case "java.math.BigDecimal":
+                        return new BigDecimal(value);
+                    case "java.math.BigInteger":
+                        return new BigInteger(value);
+                    default:
+                        break;
+                }
+            }
+            if (value.contains(".")) {
+                return Double.valueOf(value);
+            }
+            long longValue = Long.parseLong(value);
+            if (longValue <= Integer.MAX_VALUE && longValue >= Integer.MIN_VALUE) {
+                return (int) longValue;
+            }
+            return longValue;
+        } catch (NumberFormatException e) {
+            try {
+                return new BigDecimal(value);
+            } catch (NumberFormatException ex) {
+                return value;
+            }
+        }
+    }
+
+    private Object convertDate(Object text, Object isoValue) {
+        if (text != null) {
+            String value = text.toString();
+            try {
+                return new Date(Long.parseLong(value));
+            } catch (NumberFormatException e) {
+                // fall through to ISO parsing
+            }
+        }
+        if (isoValue instanceof String iso && !iso.isEmpty()) {
+            try {
+                return Date.from(OffsetDateTime.parse(iso).toInstant());
+            } catch (DateTimeParseException e) {
+                // ignore and fall through
+            }
+        }
+        return isoValue != null ? isoValue : text;
+    }
+
+    private Object convertArrayValue(Map<String, Object> working) {
+        List<Object> list = new ArrayList<>();
+        for (Entry<String, Object> entry : working.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof Collection<?>) {
+                list.addAll((Collection<?>) value);
+            } else if (value != null) {
+                list.add(value);
+            }
+        }
+        return list;
+    }
+
+    private Map<String, Object> removeMetadataKeys(Map<String, Object> map) {
+        Map<String, Object> cleaned = new LinkedHashMap<>();
+        for (Entry<String, Object> entry : map.entrySet()) {
+            String key = entry.getKey();
+            if (key == null || key.isEmpty()) {
+                continue;
+            }
+            cleaned.put(key, entry.getValue());
+        }
+        return cleaned;
     }
 
     private String stripJsonp(String data) {

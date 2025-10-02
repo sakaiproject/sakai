@@ -173,7 +173,7 @@ public class EntityBrokerServletTest {
             assertTrue(content.contains("4-one"));
             assertTrue(content.contains("\"id\": \"4-one\""));
             assertTrue(content.contains("\"entityReference\":"));
-            assertTrue(content.contains("\\/myPrefix4\\/4-one"));
+            assertTrue(content.contains("/myPrefix4/4-one"));
             assertFalse(content.contains("4-two"));
             assertFalse(content.contains("4-three"));
         } catch (Exception e) {
@@ -215,7 +215,7 @@ public class EntityBrokerServletTest {
             assertTrue(content.contains("4-one"));
             assertTrue(content.contains("\"id\": \"4-one\""));
             assertTrue(content.contains("\"entityReference\":"));
-            assertTrue(content.contains("\\/myPrefix4\\/4-one"));
+            assertTrue(content.contains("/myPrefix4/4-one"));
             assertTrue(content.contains("4-two"));
             assertTrue(content.contains("4-three"));
         } catch (Exception e) {
@@ -352,16 +352,16 @@ public class EntityBrokerServletTest {
             String content = this.response.getContent();
             assertNotNull(content);
             assertTrue(content.contains("ref0"));
-            assertTrue(content.contains("\"status\":"));
+            assertTrue(content.contains("\"status\": "));
             assertTrue(content.contains("200"));
-            assertTrue(content.contains("\"headers\":"));
-            assertTrue(content.contains("\"reference\":"));
-            assertTrue(content.contains("\"data\":"));
+            assertTrue(content.contains("\"headers\": "));
+            assertTrue(content.contains("\"reference\": "));
+            assertTrue(content.contains("\"data\": "));
             assertTrue(content.contains("myPrefix4"));
             assertTrue(content.contains("4-one"));
             assertTrue(content.contains("\"id\": \"4-one\""));
-            assertTrue(content.contains("\"entityReference\":"));
-            assertTrue(content.contains("\\/myPrefix4\\/4-one"));
+            assertTrue(content.contains("\"entityReference\": "));
+            assertTrue(content.contains("/myPrefix4/4-one"));
             assertTrue(content.contains(TestData.PREFIX4));
         } catch (Exception e) {
             fail("Could not get content: " + e.getMessage());
@@ -515,7 +515,7 @@ public class EntityBrokerServletTest {
             assertTrue(content.contains("4-two"));
             assertTrue(content.contains("\"id\": \"4-two\""));
             assertTrue(content.contains("\"entityReference\":"));
-            assertTrue(content.contains("\\/myPrefix4\\/4-two"));
+            assertTrue(content.contains("/myPrefix4/4-two"));
             assertTrue(content.contains(TestData.PREFIX6));
             assertTrue(content.contains("6-two"));
             assertTrue(content.contains("\"id\": \"6-two\""));
@@ -584,7 +584,7 @@ public class EntityBrokerServletTest {
             assertTrue(content.contains("4-three"));
             assertTrue(content.contains("\"id\": \"4-two\""));
             assertTrue(content.contains("\"entityReference\":"));
-            assertTrue(content.contains("\\/myPrefix4\\/4-two"));
+            assertTrue(content.contains("/myPrefix4/4-two"));
             assertTrue(content.contains(TestData.PREFIX6));
             assertTrue(content.contains("6-two"));
             assertTrue(content.contains("\"id\": \"6-two\""));
@@ -617,7 +617,7 @@ public class EntityBrokerServletTest {
             assertTrue(content.contains("4-three"));
             assertTrue(content.contains("\"id\": \"4-two\""));
             assertTrue(content.contains("\"entityReference\":"));
-            assertTrue(content.contains("\\/myPrefix4\\/4-two"));
+            assertTrue(content.contains("/myPrefix4/4-two"));
             assertTrue(content.contains(TestData.PREFIX6));
             assertTrue(content.contains("6-two"));
             assertTrue(content.contains("\"id\": \"6-two\""));
@@ -696,7 +696,7 @@ public class EntityBrokerServletTest {
 //            assertTrue(content.contains("4-three"));
 //            assertTrue(content.contains("\"id\": \"4-two\""));
 //            assertTrue(content.contains("\"entityReference\":"));
-//            assertTrue(content.contains("\\/myPrefix4\\/4-two"));
+//            assertTrue(content.contains("/myPrefix4/4-two"));
 //            assertTrue(content.contains(TestData.PREFIX6));
 //            assertTrue(content.contains("6-two"));
 //            assertTrue(content.contains("\"id\": \"6-two\""));

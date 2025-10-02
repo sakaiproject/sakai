@@ -850,6 +850,9 @@ public class EntityBatchHandler {
      */
     public static class ResponseError extends ResponseBase {
         public String error;
+        public ResponseError() {
+            // No-arg constructor required for serialization
+        }
         public ResponseError(String reference, String entityURL, String errorMessage) {
             this.reference = reference;
             this.entityURL = entityURL;
@@ -879,6 +882,9 @@ public class EntityBatchHandler {
          * The raw content from the request
          */
         public String content;
+        public ResponseResult() {
+            // No-arg constructor required for serialization
+        }
         public ResponseResult(String reference, String entityURL, int status, Map<String, String[]> headers) {
             this.reference = reference;
             this.entityURL = entityURL;
