@@ -10,6 +10,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ public final class DeveloperBeanUtils {
     private DeveloperBeanUtils() {
     }
 
+    private static final int DEFAULT_CLONE_DEPTH = 4;
+
     public static <T> T cloneBean(T bean, int maxDepth, String[] propertiesToSkip) {
         if (bean == null) {
             return null;
@@ -40,37 +43,16 @@ public final class DeveloperBeanUtils {
         @SuppressWarnings("unchecked")
         Class<T> type = (Class<T>) bean.getClass();
         T copy = instantiate(type);
-        copyBean(bean, copy, maxDepth, propertiesToSkip, false);
+        IdentityHashMap<Object, Boolean> visited = new IdentityHashMap<>();
+        Set<String> skips = toSkipSet(propertiesToSkip);
+        copyBeanInternal(bean, copy, maxDepth, skips, false, visited);
         return copy;
     }
 
     public static void copyBean(Object source, Object target, int maxDepth, String[] fieldNamesToSkip, boolean ignoreNulls) {
-        if (source == null || target == null) {
-            return;
-        }
+        IdentityHashMap<Object, Boolean> visited = new IdentityHashMap<>();
         Set<String> skips = toSkipSet(fieldNamesToSkip);
-        BeanWrapper sourceWrapper = new BeanWrapperImpl(source);
-        BeanWrapper targetWrapper = new BeanWrapperImpl(target);
-        int allowedDepth = normalizeDepth(maxDepth);
-        for (PropertyDescriptor descriptor : sourceWrapper.getPropertyDescriptors()) {
-            String name = descriptor.getName();
-            if ("class".equals(name) || skips.contains(name)) {
-                continue;
-            }
-            if (!sourceWrapper.isReadableProperty(name) || !targetWrapper.isWritableProperty(name)) {
-                continue;
-            }
-            Object value = sourceWrapper.getPropertyValue(name);
-            if (value == null && ignoreNulls) {
-                continue;
-            }
-            Object converted = convertValue(value, descriptor.getPropertyType(), allowedDepth - 1);
-            try {
-                targetWrapper.setPropertyValue(name, converted);
-            } catch (BeansException e) {
-                log.debug("Failed to copy property {} from {} to {}", name, source.getClass(), target.getClass(), e);
-            }
-        }
+        copyBeanInternal(source, target, maxDepth, skips, ignoreNulls, visited);
     }
 
     public static List<String> populate(Object bean, Map<String, ?> properties) {
@@ -80,13 +62,14 @@ public final class DeveloperBeanUtils {
         BeanWrapper wrapper = new BeanWrapperImpl(bean);
         List<String> applied = new ArrayList<>();
         int allowedDepth = normalizeDepth(0) - 1;
+        IdentityHashMap<Object, Boolean> visited = new IdentityHashMap<>();
         for (Map.Entry<String, ?> entry : properties.entrySet()) {
             String propertyName = entry.getKey();
             if (propertyName == null || !wrapper.isWritableProperty(propertyName)) {
                 continue;
             }
             Class<?> targetType = wrapper.getPropertyType(propertyName);
-            Object converted = convertValue(entry.getValue(), targetType, allowedDepth);
+            Object converted = convertValue(entry.getValue(), targetType, allowedDepth, visited);
             try {
                 wrapper.setPropertyValue(propertyName, converted);
                 applied.add(propertyName);
@@ -101,12 +84,13 @@ public final class DeveloperBeanUtils {
         if (type == null) {
             throw new IllegalArgumentException("Target type must be provided");
         }
-        Object converted = convertValue(value, type, normalizeDepth(0) - 1);
+        IdentityHashMap<Object, Boolean> visited = new IdentityHashMap<>();
+        Object converted = convertValue(value, type, normalizeDepth(0) - 1, visited);
         return type.cast(converted);
     }
 
     private static int normalizeDepth(int maxDepth) {
-        return maxDepth <= 0 ? Integer.MAX_VALUE : maxDepth;
+        return maxDepth <= 0 ? DEFAULT_CLONE_DEPTH : maxDepth;
     }
 
     private static Set<String> toSkipSet(String[] names) {
@@ -126,16 +110,16 @@ public final class DeveloperBeanUtils {
         }
     }
 
-    private static Object convertValue(Object value, Class<?> targetType, int depthRemaining) {
+    private static Object convertValue(Object value, Class<?> targetType, int depthRemaining, IdentityHashMap<Object, Boolean> visited) {
         if (value == null || targetType == null) {
             return value;
         }
         if (targetType.isInstance(value)) {
-            return cloneNestedIfNeeded(value, depthRemaining);
+            return cloneNestedIfNeeded(value, depthRemaining, visited);
         }
         if (value instanceof String[] stringArray) {
             if (targetType.isArray()) {
-                return convertArray(stringArray, targetType.getComponentType());
+                return convertArray(stringArray, targetType.getComponentType(), depthRemaining, visited);
             }
             value = stringArray.length == 0 ? null : (stringArray.length == 1 ? stringArray[0] : String.join(",", stringArray));
             if (value == null) {
@@ -151,28 +135,32 @@ public final class DeveloperBeanUtils {
         BeanWrapperImpl converter = new BeanWrapperImpl();
         try {
             Object converted = converter.convertIfNecessary(value, targetType);
-            return cloneNestedIfNeeded(converted, depthRemaining);
+            return cloneNestedIfNeeded(converted, depthRemaining, visited);
         } catch (BeansException e) {
             log.debug("Conversion of value {} to type {} failed", value, targetType, e);
             return null;
         }
     }
 
-    private static Object cloneNestedIfNeeded(Object value, int depthRemaining) {
-        if (value == null || depthRemaining <= 0) {
+    private static Object cloneNestedIfNeeded(Object value, int depthRemaining, IdentityHashMap<Object, Boolean> visited) {
+        if (value == null || depthRemaining <= 0 || isSimpleValue(value.getClass())) {
             return value;
         }
+        if (visited.containsKey(value)) {
+            return value;
+        }
+        visited.put(value, Boolean.TRUE);
         if (value instanceof Collection<?> collection) {
             Collection<Object> copy = instantiateCollection(collection);
             for (Object element : collection) {
-                copy.add(cloneNestedIfNeeded(element, depthRemaining - 1));
+                copy.add(cloneNestedIfNeeded(element, depthRemaining - 1, visited));
             }
             return copy;
         }
         if (value instanceof Map<?, ?> map) {
             Map<Object, Object> copy = new LinkedHashMap<>();
             for (Map.Entry<?, ?> entry : map.entrySet()) {
-                copy.put(entry.getKey(), cloneNestedIfNeeded(entry.getValue(), depthRemaining - 1));
+                copy.put(entry.getKey(), cloneNestedIfNeeded(entry.getValue(), depthRemaining - 1, visited));
             }
             return copy;
         }
@@ -180,15 +168,12 @@ public final class DeveloperBeanUtils {
             int length = Array.getLength(value);
             Object copy = Array.newInstance(value.getClass().getComponentType(), length);
             for (int i = 0; i < length; i++) {
-                Array.set(copy, i, cloneNestedIfNeeded(Array.get(value, i), depthRemaining - 1));
+                Array.set(copy, i, cloneNestedIfNeeded(Array.get(value, i), depthRemaining - 1, visited));
             }
             return copy;
         }
-        if (isSimpleValue(value.getClass())) {
-            return value;
-        }
         Object nested = instantiate(value.getClass());
-        copyBean(value, nested, depthRemaining, null, false);
+        copyBeanInternal(value, nested, depthRemaining, Collections.emptySet(), false, visited);
         return nested;
     }
 
@@ -196,12 +181,45 @@ public final class DeveloperBeanUtils {
         return BeanUtils.isSimpleValueType(type) || Enum.class.isAssignableFrom(type);
     }
 
-    private static Object convertArray(String[] source, Class<?> componentType) {
+    private static Object convertArray(String[] source, Class<?> componentType, int depthRemaining, IdentityHashMap<Object, Boolean> visited) {
         Object array = Array.newInstance(componentType, source.length);
         for (int i = 0; i < source.length; i++) {
-            Array.set(array, i, convertValue(source[i], componentType, 0));
+            Array.set(array, i, convertValue(source[i], componentType, depthRemaining, visited));
         }
         return array;
+    }
+
+    private static void copyBeanInternal(Object source, Object target, int maxDepth, Set<String> skips, boolean ignoreNulls,
+            IdentityHashMap<Object, Boolean> visited) {
+        if (source == null || target == null) {
+            return;
+        }
+        if (visited.containsKey(source)) {
+            return;
+        }
+        visited.put(source, Boolean.TRUE);
+        BeanWrapper sourceWrapper = new BeanWrapperImpl(source);
+        BeanWrapper targetWrapper = new BeanWrapperImpl(target);
+        int allowedDepth = normalizeDepth(maxDepth);
+        for (PropertyDescriptor descriptor : sourceWrapper.getPropertyDescriptors()) {
+            String name = descriptor.getName();
+            if ("class".equals(name) || skips.contains(name)) {
+                continue;
+            }
+            if (!sourceWrapper.isReadableProperty(name) || !targetWrapper.isWritableProperty(name)) {
+                continue;
+            }
+            Object value = sourceWrapper.getPropertyValue(name);
+            if (value == null && ignoreNulls) {
+                continue;
+            }
+            Object converted = convertValue(value, descriptor.getPropertyType(), allowedDepth - 1, visited);
+            try {
+                targetWrapper.setPropertyValue(name, converted);
+            } catch (BeansException e) {
+                log.debug("Failed to copy property {} from {} to {}", name, source.getClass(), target.getClass(), e);
+            }
+        }
     }
 
     private static Collection<Object> instantiateCollection(Collection<?> template) {

@@ -206,8 +206,7 @@ public class EntityUser implements User {
         this.props = props;
     }
 
-    // extra User junk below here
-    // TODO set these so they are ignored by Jackson
+    // extra User junk below here (ignored via @JsonIgnoreProperties)
 
     public boolean checkPassword(String arg0) {
         if (user != null) {

@@ -27,6 +27,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -821,10 +822,14 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     private Object invokeMethod(Object bean, Method method) {
         try {
             if (!method.canAccess(bean)) {
-                method.setAccessible(true);
+                try {
+                    method.setAccessible(true);
+                } catch (SecurityException | InaccessibleObjectException e) {
+                    return null;
+                }
             }
             return method.invoke(bean);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException | InaccessibleObjectException | SecurityException e) {
             return null;
         }
     }
@@ -832,10 +837,14 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     private Object getFieldValue(Object bean, Field field) {
         try {
             if (!field.canAccess(bean)) {
-                field.setAccessible(true);
+                try {
+                    field.setAccessible(true);
+                } catch (SecurityException | InaccessibleObjectException e) {
+                    return null;
+                }
             }
             return field.get(bean);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | InaccessibleObjectException | SecurityException e) {
             return null;
         }
     }
