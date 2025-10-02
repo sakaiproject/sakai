@@ -16,6 +16,7 @@
 package org.sakaiproject.jsf2.spreadsheet;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +57,11 @@ public class SpreadsheetDataFileWriterCsvTest {
         Mockito.when(externalContextMock.getRequest()).thenReturn(new MockHttpServletRequest());
     }
 
+    public void teardown() {
+        if (componentManagerMock != null) {
+            componentManagerMock.close();
+        }
+    }
 
     @Test
     public void testDownload() throws IOException {
