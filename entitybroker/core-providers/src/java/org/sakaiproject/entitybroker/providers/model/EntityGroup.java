@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
-import org.azeckoski.reflectutils.annotations.ReflectTransient;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.Member;
@@ -51,7 +51,7 @@ import org.w3c.dom.Element;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
-@ReflectIgnoreClassFields({"createdBy","modifiedBy","containingSite","members","properties","propertiesEdit","roles"})
+@JsonIgnoreProperties(value = {"createdBy", "modifiedBy", "containingSite", "members", "properties", "propertiesEdit", "roles"})
 public class EntityGroup implements Group {
 
     private static final long serialVersionUID = 7526472295622776147L;
@@ -356,7 +356,7 @@ public class EntityGroup implements Group {
         throw new UnsupportedOperationException();
     }
 
-    @ReflectTransient
+    @JsonIgnore
     public Element toXml(Document arg0, Stack arg1) {
         if (group != null) {
             return group.toXml(arg0, arg1);

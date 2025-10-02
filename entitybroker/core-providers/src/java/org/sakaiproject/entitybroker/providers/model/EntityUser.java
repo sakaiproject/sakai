@@ -21,7 +21,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
-import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
@@ -42,7 +43,7 @@ import org.w3c.dom.Element;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
-@ReflectIgnoreClassFields({"createdBy","modifiedBy","properties"})
+@JsonIgnoreProperties(value = {"createdBy", "modifiedBy", "properties"})
 public class EntityUser implements User {
 
     @EntityId
@@ -206,7 +207,7 @@ public class EntityUser implements User {
     }
 
     // extra User junk below here
-    // TODO set these so they are ignored by reflection
+    // TODO set these so they are ignored by Jackson
 
     public boolean checkPassword(String arg0) {
         if (user != null) {
@@ -300,6 +301,7 @@ public class EntityUser implements User {
         throw new UnsupportedOperationException();
     }
 
+    @JsonIgnore
     public Element toXml(Document arg0, Stack arg1) {
         if (user != null) {
             return user.toXml(arg0, arg1);

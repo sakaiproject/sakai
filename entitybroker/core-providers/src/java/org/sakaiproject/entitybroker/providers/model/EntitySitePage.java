@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
@@ -39,7 +39,7 @@ import org.w3c.dom.Element;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-@ReflectIgnoreClassFields({"createdBy","modifiedBy","containingSite", "properties", "propertiesEdit","tools"})
+@JsonIgnoreProperties(value = {"createdBy", "modifiedBy", "containingSite", "properties", "propertiesEdit", "tools"})
 public class EntitySitePage implements SitePage {
 
     private static final long serialVersionUID = 7526472295622776147L;
