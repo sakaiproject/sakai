@@ -57,6 +57,7 @@ public class SpreadsheetDataFileWriterCsvTest {
         Mockito.when(externalContextMock.getRequest()).thenReturn(new MockHttpServletRequest());
     }
 
+    @After
     public void teardown() {
         if (componentManagerMock != null) {
             componentManagerMock.close();
