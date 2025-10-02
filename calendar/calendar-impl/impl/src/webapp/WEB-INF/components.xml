@@ -88,6 +88,18 @@
 			</props>
 		</property>
 	</bean>
+	
+	<bean id="calendarSearchAdapter"
+		class="org.sakaiproject.calendar.impl.CalendarContentProducer"
+		init-method="init">
+		<property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+		<property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+	</bean>
+	
 	<import resource="hibernate-hbms.xml"/>
 
 </beans>
