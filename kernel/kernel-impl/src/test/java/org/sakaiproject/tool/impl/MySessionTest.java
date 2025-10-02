@@ -644,6 +644,17 @@ public class MySessionTest extends BaseSessionComponentTest {
 			testExitBarrier.await();
 		} catch ( InterruptedException e ) {
 		} catch ( BrokenBarrierException e ) {}
+		
+		// Wait for all worker threads to complete deterministically
+		for (Worker worker : workers) {
+			try {
+				worker.join();
+			} catch (InterruptedException e) {
+				// Re-throw as RuntimeException to fail the test immediately on interruption
+				throw new RuntimeException("Test interrupted while waiting for worker thread completion", e);
+			}
+		}
+		
 		assertEquals(Collections.synchronizedSet(new HashSet<Throwable>()), failures);
 		for ( ListeningAttribValue attribValue : attribValues ) {
 			assertEquals(1, attribValue.httpSessionValueUnboundInvokedWith.size());

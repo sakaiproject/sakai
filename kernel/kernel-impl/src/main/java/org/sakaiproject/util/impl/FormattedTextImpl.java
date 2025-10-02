@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -491,8 +490,7 @@ public class FormattedTextImpl implements FormattedText
                     if (cr.getNumberOfErrors() > 0) {
                         // TODO currently no way to get internationalized versions of error messages
                         for (String errorMsg : cr.getErrorMessages()) {
-                            String i18nErrorMsg = new String(errorMsg.getBytes("ISO-8859-1"),"UTF8");
-                            formattedTextErrors.append(i18nErrorMsg + "<br/>");
+                            formattedTextErrors.append(errorMsg).append("<br/>");
                         }
                     }
                     val = cr.getCleanHTML();
@@ -542,7 +540,7 @@ public class FormattedTextImpl implements FormattedText
             // opportunity to work around the issue, rather than causing a tool stack trace
 
             log.error("Unexpected error processing text", e);
-            formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup") + "\n");
+            formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup")).append("<br/>");
             val = null;
         }
 
@@ -734,12 +732,12 @@ public class FormattedTextImpl implements FormattedText
             // just return the given string without changing it.
             StringBuilder buf = (LAZY_CONSTRUCTION) ? null : new StringBuilder();
             final int len = value.length();
-            for (int i = 0; i < len; i++)
+            for (int i = 0; i < len; )
             {
-                char c = value.charAt(i);
-                if (c < 128)
+                final int codePoint = value.codePointAt(i);
+                if (codePoint < 128)
                 {
-                    if (buf != null) buf.append(c);
+                    if (buf != null) buf.append((char) codePoint);
                 }
                 else
                 {
@@ -747,9 +745,11 @@ public class FormattedTextImpl implements FormattedText
                     // HTML numeric character entity reference like "&#15672;"
                     if (buf == null) buf = new StringBuilder(value.substring(0, i));
                     buf.append("&#");
-                    buf.append(Integer.toString((int) c));
+                    buf.append(codePoint);
                     buf.append(";");
                 }
+
+                i += Character.charCount(codePoint);
             } // for
 
             return (buf == null) ? value : buf.toString();
@@ -1124,8 +1124,13 @@ public class FormattedTextImpl implements FormattedText
                             buf.append(value.substring(0, i));
                         }
 
-                        buf.append((char) val);
-                        i = pos;
+                        if (Character.isValidCodePoint(val)) {
+                            buf.appendCodePoint(val);
+                            i = pos;
+                        } else {
+                            buf.append(value, i, pos + 1);
+                            i = pos;
+                        }
                     }
                     catch (Exception ignore)
                     {
