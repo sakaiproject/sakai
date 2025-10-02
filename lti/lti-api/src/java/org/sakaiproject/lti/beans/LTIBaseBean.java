@@ -24,8 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Base class providing common type conversion utilities for LTI POJOs.
@@ -35,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * Implementation assistance provided by Claude AI for comprehensive type conversion
  * and robust database number handling across SQLite, Oracle, and MySQL systems.
  */
+@Slf4j
 public abstract class LTIBaseBean {
 
     /**
@@ -254,9 +254,8 @@ public abstract class LTIBaseBean {
 
         // Validate the three-state value
         if (intValue != null && (intValue < 0 || intValue > 2)) {
-            Logger logger = LoggerFactory.getLogger(LTIBaseBean.class);
-            logger.warn("Invalid three-state value for {}: {} (expected 0, 1, 2, or null). Treating as null (off).",
-                       fieldName, value);
+            log.warn("Invalid three-state value for {}: {} (expected 0, 1, 2, or null). Treating as null (off).",
+                     fieldName, value);
             return null;
         }
 
@@ -276,9 +275,8 @@ public abstract class LTIBaseBean {
         if (value != null) {
             // Validate the three-state value
             if (value < 0 || value > 2) {
-                Logger logger = LoggerFactory.getLogger(LTIBaseBean.class);
-                logger.warn("Invalid three-state value for {}: {} (expected 0, 1, 2, or null). Treating as null (off).",
-                           fieldName, value);
+                log.warn("Invalid three-state value for {}: {} (expected 0, 1, 2, or null). Treating as null (off).",
+                         fieldName, value);
                 return; // Don't put invalid values in the map
             }
             map.put(key, value);
