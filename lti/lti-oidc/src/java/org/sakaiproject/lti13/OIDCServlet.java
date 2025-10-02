@@ -191,9 +191,10 @@ public class OIDCServlet extends HttpServlet {
 				out.println("</a></p>");
 				out.println("<script>setTimeout(function(){ document.getElementById('linker').style.display = 'inline'}, 1000);</script>");
 			} catch (IOException e) {
-				log.error(e.getMessage(), e);
+				log.error("Error in fancyRedirect", e);
+				LTI13Util.return400(response, "Redirect failed");
+				return;
 			}
-			return;
 		}
 
 		try {
