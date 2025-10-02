@@ -80,6 +80,7 @@ import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
+import org.springframework.util.ReflectionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -1206,35 +1207,19 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         if (type == null || methodName == null) {
             return null;
         }
-        for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
-            try {
-                Method method = current.getDeclaredMethod(methodName);
-                if (method.getParameterCount() == 0) {
-                    return method;
-                }
-            } catch (NoSuchMethodException e) {
-                // continue searching up the hierarchy
-            }
-        }
-        return null;
+        Method method = ReflectionUtils.findMethod(type, methodName);
+        return method != null && method.getParameterCount() == 0 ? method : null;
     }
 
     private static Object readFieldValue(Field field, Object target) {
         if (field == null || target == null) {
             return null;
         }
-        boolean accessible = field.canAccess(target);
         try {
-            if (!accessible) {
-                field.setAccessible(true);
-            }
-            return field.get(target);
-        } catch (IllegalAccessException e) {
+            ReflectionUtils.makeAccessible(field);
+            return ReflectionUtils.getField(field, target);
+        } catch (IllegalStateException e) {
             return null;
-        } finally {
-            if (!accessible) {
-                field.setAccessible(false);
-            }
         }
     }
 
@@ -1242,18 +1227,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         if (method == null || target == null) {
             return null;
         }
-        boolean accessible = method.canAccess(target);
         try {
-            if (!accessible) {
-                method.setAccessible(true);
-            }
-            return method.invoke(target);
-        } catch (ReflectiveOperationException e) {
+            ReflectionUtils.makeAccessible(method);
+            return ReflectionUtils.invokeMethod(method, target);
+        } catch (IllegalStateException e) {
             return null;
-        } finally {
-            if (!accessible) {
-                method.setAccessible(false);
-            }
         }
     }
 

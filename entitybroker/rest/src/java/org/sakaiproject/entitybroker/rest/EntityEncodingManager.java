@@ -83,6 +83,8 @@ import org.sakaiproject.serialization.MapperFactory;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.BeansException;
+import org.springframework.util.ReflectionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -1210,17 +1212,13 @@ public class EntityEncodingManager {
     }
 
     private void setFieldValue(Object target, String fieldName, Object value) {
-        Field field = findField(target.getClass(), fieldName);
+        Field field = ReflectionUtils.findField(target.getClass(), fieldName);
         if (field == null) {
             return;
         }
-        try {
-            field.setAccessible(true);
-            Object converted = convertValue(value, field.getType());
-            field.set(target, converted);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Unable to set field " + fieldName + " on " + target.getClass(), e);
-        }
+        ReflectionUtils.makeAccessible(field);
+        Object converted = convertValue(value, field.getType());
+        ReflectionUtils.setField(field, target, converted);
     }
 
     private Object convertValue(Object value, Class<?> targetType) {
@@ -1251,7 +1249,7 @@ public class EntityEncodingManager {
                 if (writeMethod != null) {
                     metadata.writableTypes.put(name, propertyType);
                 }
-                Field field = findField(type, name);
+                Field field = ReflectionUtils.findField(type, name);
                 if (field != null && Modifier.isPublic(field.getModifiers())) {
                     metadata.readableTypes.putIfAbsent(name, field.getType());
                     metadata.writableTypes.putIfAbsent(name, field.getType());
@@ -1263,10 +1261,10 @@ public class EntityEncodingManager {
         } catch (IntrospectionException e) {
             throw new IllegalStateException("Failed to introspect " + type, e);
         }
-        for (Field field : getAllFields(type)) {
+        ReflectionUtils.doWithFields(type, field -> {
             String name = field.getName();
             if ("class".equals(name)) {
-                continue;
+                return;
             }
             if (Modifier.isPublic(field.getModifiers())) {
                 metadata.readableTypes.putIfAbsent(name, field.getType());
@@ -1275,7 +1273,7 @@ public class EntityEncodingManager {
             if (field.isAnnotationPresent(EntityFieldRequired.class)) {
                 metadata.requiredProperties.add(name);
             }
-        }
+        }, field -> !Modifier.isStatic(field.getModifiers()));
         return metadata;
     }
 
@@ -1294,21 +1292,17 @@ public class EntityEncodingManager {
                 values.put(name, wrapper.getPropertyValue(name));
             }
         }
-        for (Field field : getAllFields(entity.getClass())) {
+        ReflectionUtils.doWithFields(entity.getClass(), field -> {
             if (!Modifier.isPublic(field.getModifiers())) {
-                continue;
+                return;
             }
             String name = field.getName();
-            if (values.containsKey(name)) {
-                continue;
+            if (values.containsKey(name) || "class".equals(name)) {
+                return;
             }
-            try {
-                field.setAccessible(true);
-                values.put(name, field.get(entity));
-            } catch (IllegalAccessException e) {
-                throw new IllegalStateException("Unable to read field " + name + " on " + entity.getClass(), e);
-            }
-        }
+            ReflectionUtils.makeAccessible(field);
+            values.put(name, ReflectionUtils.getField(field, entity));
+        }, field -> !Modifier.isStatic(field.getModifiers()));
         return values;
     }
 
@@ -1333,28 +1327,6 @@ public class EntityEncodingManager {
             return false;
         }
         return true;
-    }
-
-    private Field findField(Class<?> type, String name) {
-        Class<?> current = type;
-        while (current != null && !Object.class.equals(current)) {
-            try {
-                return current.getDeclaredField(name);
-            } catch (NoSuchFieldException e) {
-                current = current.getSuperclass();
-            }
-        }
-        return null;
-    }
-
-    private List<Field> getAllFields(Class<?> type) {
-        List<Field> fields = new ArrayList<Field>();
-        Class<?> current = type;
-        while (current != null && !Object.class.equals(current)) {
-            fields.addAll(Arrays.asList(current.getDeclaredFields()));
-            current = current.getSuperclass();
-        }
-        return fields;
     }
 
     private boolean isRequired(Field field, Method readMethod, Method writeMethod) {

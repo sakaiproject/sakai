@@ -22,7 +22,6 @@ package org.sakaiproject.entitybroker.util;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
@@ -38,6 +37,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
+import org.springframework.util.ReflectionUtils;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.util.model.EntityContent;
@@ -538,35 +538,20 @@ public class EntityDataUtils {
         if (type == null || methodName == null) {
             return null;
         }
-        for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
-            try {
-                Method method = current.getDeclaredMethod(methodName);
-                if (method.getParameterCount() == 0) {
-                    return method;
-                }
-            } catch (NoSuchMethodException e) {
-                // continue searching up the hierarchy
-            }
-        }
-        return null;
+        Method method = ReflectionUtils.findMethod(type, methodName);
+        return method != null && method.getParameterCount() == 0 ? method : null;
     }
 
     private static Object readFieldValue(Field field, Object target) {
         if (field == null || target == null) {
             return null;
         }
-        boolean accessible = field.canAccess(target);
         try {
-            if (!accessible) {
-                field.setAccessible(true);
-            }
-            return field.get(target);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Unable to access field '" + field.getName() + "' on " + target.getClass(), e);
-        } finally {
-            if (!accessible) {
-                field.setAccessible(false);
-            }
+            ReflectionUtils.makeAccessible(field);
+            return ReflectionUtils.getField(field, target);
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException("Unable to access field '" + field.getName() + "' on " + target.getClass(),
+                    e.getCause() != null ? e.getCause() : e);
         }
     }
 
@@ -574,20 +559,13 @@ public class EntityDataUtils {
         if (method == null || target == null) {
             return null;
         }
-        boolean accessible = method.canAccess(target);
         try {
-            if (!accessible) {
-                method.setAccessible(true);
-            }
-            return method.invoke(target);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Unable to access method '" + method.getName() + "' on " + target.getClass(), e);
-        } catch (InvocationTargetException e) {
-            throw new IllegalStateException("Invocation of method '" + method.getName() + "' on " + target.getClass() + "' failed", e.getTargetException());
-        } finally {
-            if (!accessible) {
-                method.setAccessible(false);
-            }
+            ReflectionUtils.makeAccessible(method);
+            return ReflectionUtils.invokeMethod(method, target);
+        } catch (IllegalStateException e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            throw new IllegalStateException("Invocation of method '" + method.getName() + "' on " + target.getClass()
+                    + "' failed", cause);
         }
     }
 
@@ -616,4 +594,3 @@ public class EntityDataUtils {
     }
 
 }
-

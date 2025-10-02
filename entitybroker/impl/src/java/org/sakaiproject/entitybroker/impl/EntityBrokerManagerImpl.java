@@ -27,7 +27,6 @@ import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -70,6 +69,7 @@ import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
+import org.springframework.util.ReflectionUtils;
 
 
 /**
@@ -820,31 +820,25 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     }
 
     private Object invokeMethod(Object bean, Method method) {
+        if (bean == null || method == null) {
+            return null;
+        }
         try {
-            if (!method.canAccess(bean)) {
-                try {
-                    method.setAccessible(true);
-                } catch (SecurityException | InaccessibleObjectException e) {
-                    return null;
-                }
-            }
-            return method.invoke(bean);
-        } catch (IllegalAccessException | InvocationTargetException | InaccessibleObjectException | SecurityException e) {
+            ReflectionUtils.makeAccessible(method);
+            return ReflectionUtils.invokeMethod(method, bean);
+        } catch (IllegalStateException e) {
             return null;
         }
     }
 
     private Object getFieldValue(Object bean, Field field) {
+        if (bean == null || field == null) {
+            return null;
+        }
         try {
-            if (!field.canAccess(bean)) {
-                try {
-                    field.setAccessible(true);
-                } catch (SecurityException | InaccessibleObjectException e) {
-                    return null;
-                }
-            }
-            return field.get(bean);
-        } catch (IllegalAccessException | InaccessibleObjectException | SecurityException e) {
+            ReflectionUtils.makeAccessible(field);
+            return ReflectionUtils.getField(field, bean);
+        } catch (IllegalStateException e) {
             return null;
         }
     }
