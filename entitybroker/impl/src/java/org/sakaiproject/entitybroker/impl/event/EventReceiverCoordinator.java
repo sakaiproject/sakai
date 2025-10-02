@@ -20,12 +20,14 @@
 
 package org.sakaiproject.entitybroker.impl.event;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.WeakHashMap;
 
-import org.azeckoski.reflectutils.refmap.ReferenceMap;
-import org.azeckoski.reflectutils.refmap.ReferenceType;
 import org.sakaiproject.entitybroker.event.EventReceiver;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -44,7 +46,7 @@ import org.springframework.context.ApplicationContextAware;
  */
 public class EventReceiverCoordinator implements ApplicationContextAware {
 
-    private Map<ClassLoader, EventReceiver> receivers = new ReferenceMap<ClassLoader, EventReceiver>(ReferenceType.WEAK, ReferenceType.STRONG);
+    private final Map<ClassLoader, EventReceiver> receivers = Collections.synchronizedMap(new WeakHashMap<ClassLoader, EventReceiver>());
 
     EventTrackingService eventTrackingService;
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
@@ -82,7 +84,11 @@ public class EventReceiverCoordinator implements ApplicationContextAware {
      * @param event the event from the system
      */
     protected void handleEvent(Event event) {
-        for (EventReceiver receiver : receivers.values()) {
+        List<EventReceiver> currentReceivers;
+        synchronized (receivers) {
+            currentReceivers = new ArrayList<EventReceiver>(receivers.values());
+        }
+        for (EventReceiver receiver : currentReceivers) {
             if (match(receiver, event)) {
                 receiver.receiveEvent(event.getEvent(), event.getResource());
             }
