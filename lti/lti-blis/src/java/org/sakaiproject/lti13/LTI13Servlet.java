@@ -613,7 +613,6 @@ public class LTI13Servlet extends HttpServlet {
 			LTI13Util.return400(response, "Get registration request failed");
 			return;
 		}
-
 	}
 
 	// Provide LTI Advantage Sakai parameters through JSON
@@ -2580,6 +2579,7 @@ public class LTI13Servlet extends HttpServlet {
 			tool = loadToolForContent(content, site, sat.tool_id, response);
 			if (tool == null) {
 				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+				LTI13Util.return400(response, "Could not load tool associated with content");
 				return;
 			}
 		} else { // SAK-47261 - It is just a site_id

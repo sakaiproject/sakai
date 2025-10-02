@@ -2872,8 +2872,8 @@ public class SakaiLTIUtil {
 		try {
 			user = UserDirectoryService.getUser(userId);
 		} catch (org.sakaiproject.user.api.UserNotDefinedException e) {
-			log.error("Could not look up user {}: {}", userId, e.getMessage(), e);
-			throw new RuntimeException("Could not look up user " + userId, e);
+			log.error("Could not look up user {}: {}", userId, e);
+			return "Could not look up user " + userId;
 		}
 
 		pushAdvisor();
