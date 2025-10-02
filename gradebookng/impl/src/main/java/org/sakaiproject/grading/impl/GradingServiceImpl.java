@@ -5786,7 +5786,7 @@ public class GradingServiceImpl implements GradingService {
                     boolean isCategoryInGradebook = false;
 
                     for (String groupId : groupList) {
-                        List<CategoryDefinition> categoryDefinitionList = getCategoryDefinitions(groupId, groupId);
+                        List<CategoryDefinition> categoryDefinitionList = getCategoryDefinitions(groupId, siteId);
 
                         boolean foundCategory = categoryDefinitionList.stream()
                             .anyMatch(category -> category.getId().equals(Long.parseLong(categoryId)));
