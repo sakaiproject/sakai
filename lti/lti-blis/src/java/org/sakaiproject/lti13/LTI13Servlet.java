@@ -2579,7 +2579,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 
 			tool = loadToolForContent(content, site, sat.tool_id, response);
 			if (tool == null) {
-				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.get(LTIService.LTI_ID));
+				log.error("Could not load tool={} associated with content={}", sat.tool_id, content.id);
 				LTI13Util.return400(response, "Could not load tool associated with content");
 				return;
 			}
