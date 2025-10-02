@@ -337,6 +337,9 @@ public class SimplePageBean {
 	private long youtubeId;
 
 	private boolean hidePage;
+	private boolean hidePageFromNavigation;
+	private String visibilityChoice = "visible";
+	private String visibilityChoice2 = "visible";
 	private Date releaseDate;
 	private boolean hasReleaseDate;
 	private boolean nodownloads;
@@ -958,8 +961,76 @@ public class SimplePageBean {
 		this.buttonColor = buttonColor;
 	}
 
+	public boolean getHidePage() {
+		SimplePage currentPage = getCurrentPage();
+		if (currentPage != null) {
+			return currentPage.isHidden();
+		}
+		return hidePage;
+	}
+
 	public void setHidePage(boolean hide) {
 		hidePage = hide;
+	}
+
+	public boolean getHidePageFromNavigation() {
+		SimplePage currentPage = getCurrentPage();
+		if (currentPage != null) {
+			return currentPage.isHiddenFromNavigation();
+		}
+		return hidePageFromNavigation;
+	}
+
+	public void setHidePageFromNavigation(boolean hidePageFromNavigation) {
+		this.hidePageFromNavigation = hidePageFromNavigation;
+	}
+
+	public String getVisibilityChoice() {
+		SimplePage currentPage = getCurrentPage();
+		if (currentPage != null) {
+			if (currentPage.isHidden()) {
+				return "hide";
+			} else if (currentPage.isHiddenFromNavigation()) {
+				return "hideFromNav";
+			}
+		}
+		return "visible";
+	}
+
+	public void setVisibilityChoice(String visibilityChoice) {
+		if (visibilityChoice == null) {
+			visibilityChoice = "visible";
+		}
+
+		this.visibilityChoice = visibilityChoice;
+
+		this.hidePage = "hide".equals(visibilityChoice);
+		this.hidePageFromNavigation = "hideFromNav".equals(visibilityChoice);
+	}
+
+	public String getVisibilityChoice2() {
+		SimplePage currentPage = getCurrentPage();
+		if (currentPage != null) {
+			if (currentPage.isHidden()) {
+				return "hide";
+			} else if (currentPage.isHiddenFromNavigation()) {
+				return "hideFromNav";
+			}
+		}
+		return "visible";
+	}
+
+	public void setVisibilityChoice2(String visibilityChoice2) {
+		// Handle null values gracefully
+		if (visibilityChoice2 == null) {
+			visibilityChoice2 = "visible";
+		}
+		
+		this.visibilityChoice2 = visibilityChoice2;
+		
+		// Update the boolean flags based on the radio selection
+		this.hidePage = "hide".equals(visibilityChoice2);
+		this.hidePageFromNavigation = "hideFromNav".equals(visibilityChoice2);
 	}
 
     // argument is in ISO8601 format, which has -04:00 time zone.
@@ -3313,6 +3384,7 @@ public class SimplePageBean {
 					else
 						page.setReleaseDate(null);
 					page.setHidden(hidePage);
+					page.setHiddenFromNavigation(hidePageFromNavigation);
 					update(page);
 				}
 			} else {
@@ -4619,6 +4691,7 @@ public class SimplePageBean {
 				}
 				page.setTitle(pageTitle);
 				page.setHidden(hidePage);
+				page.setHiddenFromNavigation(hidePageFromNavigation);
 				if (hasReleaseDate)
 					page.setReleaseDate(releaseDate);
 				else
@@ -4641,13 +4714,14 @@ public class SimplePageBean {
 		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
 			page.setHidden(hidePage);
+			page.setHiddenFromNavigation(hidePageFromNavigation);
 			if (hasReleaseDate)
 			    page.setReleaseDate(releaseDate);
 			else
 			    page.setReleaseDate(null);
 			update(page, !isOwner);
 		}
-		
+
 		if(pageTitle != null) {
 			if(pageItem.getType() == SimplePageItem.STUDENT_CONTENT) {
 				SimpleStudentPage student = simplePageToolDao.findStudentPageByPageId(page.getPageId());
