@@ -1,19 +1,24 @@
-# sakai-course-card
+# @sakai-ui/sakai-course-card
 
-A course card component for Sakai
+The Sakai course card component.
+
+## Description
+
+This component displays a card for a course in Sakai, showing relevant information and actions.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-course-card
+npm install @sakai-ui/sakai-course-card
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-course-card/sakai-course-card.js';
 
+// In your HTML
 <sakai-course-card></sakai-course-card>
-
 ```
 
 ## Linting and formatting
@@ -21,13 +26,7 @@ npm i @sakai-ui/sakai-course-card
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
-```
-
-To automatically fix linting and formatting errors, run
-
-```bash
-npm run format
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -38,8 +37,6 @@ To execute a single test run:
 npm run test
 ```
 
-To run the tests in interactive watch mode run:
+## License
 
-```bash
-npm run test:watch
-```
+ECL-2.0

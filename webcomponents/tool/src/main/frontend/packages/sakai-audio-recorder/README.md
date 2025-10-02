@@ -1,17 +1,24 @@
-# sakai-audio-recorder
+# @sakai-ui/sakai-audio-recorder
+
+The Sakai audio recorder component.
+
+## Description
+
+This component provides audio recording functionality for Sakai, allowing users to record and save audio files.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-audio-recorder
+npm install @sakai-ui/sakai-audio-recorder
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-audio-recorder/sakai-audio-recorder.js';
 
+// In your HTML
 <sakai-audio-recorder></sakai-audio-recorder>
-
 ```
 
 ## Linting and formatting
@@ -19,8 +26,8 @@ npm i @sakai-ui/sakai-audio-recorder
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
-
+npm run lint:fix
+```
 
 ## Testing with Web Test Runner
 
@@ -29,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

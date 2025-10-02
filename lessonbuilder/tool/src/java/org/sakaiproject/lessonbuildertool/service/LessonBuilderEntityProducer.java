@@ -1862,10 +1862,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				if (StringUtils.isNotEmpty(pageAttribute)) {
 					item.setPrerequisite(Boolean.valueOf(pageAttribute));
 				}
-				if ( itemExists ) {
-					log.debug("saving vestigial item: {}", item.getId());
-					simplePageToolDao.quickSaveItem(item);
-				} else {
+
+				log.debug("saving vestigial item: {}", item.getId());
+				simplePageToolDao.quickSaveItem(item);
+				if (!itemExists) {
 					List<String>elist = new ArrayList<>();
 					boolean requiresEditPermission = true;
 					simplePageToolDao.update(item, elist, messageLocator.getMessage("simplepage.nowrite"), requiresEditPermission);
@@ -1984,9 +1984,23 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	@Override
 	public List<Map<String, String>> getEntityMap(String fromContext) {
-
-		return simplePageToolDao.getSitePages(fromContext).stream()
-			.map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle())).collect(Collectors.toList());
+		try {
+			Set<String> navigationToolIds = siteService.getSite(fromContext).getOrderedPages()
+				.stream().map(SitePage::getId).collect(Collectors.toSet());
+			
+			List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
+			if (sitePages == null || sitePages.isEmpty()) {
+				return Collections.emptyList();
+			}
+			
+			return sitePages.stream()
+				.filter(page -> navigationToolIds.contains(page.getToolId()))
+				.map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle()))
+				.collect(Collectors.toList());
+		} catch (IdUnusedException e) {
+			log.warn("Could not find site {}: {}", fromContext, e);
+			return Collections.emptyList();
+		}
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
