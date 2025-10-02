@@ -20,8 +20,15 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,9 +37,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.azeckoski.reflectutils.ConstructorUtils;
-import org.azeckoski.reflectutils.ReflectUtils;
-import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -685,12 +689,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
             String fullURL = makeFullURL( partialURL );
             entityData.setEntityURL( fullURL );
             // check what we are dealing with
-            boolean isPOJO = false;
-            if (entityData.getData() != null) {
-                if ( ConstructorUtils.isClassBean(entityData.getData().getClass()) ) {
-                    isPOJO = true;
-                }
-            }
+            boolean isPOJO = isBeanCandidate(entityData.getData());
             // attempt to set display title if not set
             if (! entityData.isDisplayTitleSet()) {
                 boolean titleNotSet = true;
@@ -704,18 +703,140 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
                 }
                 // check the object itself next
                 if (isPOJO && titleNotSet) {
-                    try {
-                        String title = ReflectUtils.getInstance().getFieldValueAsString(entityData.getData(), "title", EntityTitle.class);
-                        if (title != null) {
-                            entityData.setDisplayTitle(title);
-                            titleNotSet = false;
-                        }
-                    } catch (FieldnameNotFoundException e) {
-                        // could not find any fields with the title, nothing to do but continue
+                    String title = extractDisplayTitle(entityData.getData());
+                    if (title != null) {
+                        entityData.setDisplayTitle(title);
+                        titleNotSet = false;
                     }
                 }
             }
             // done with this entity data
+        }
+    }
+
+    private boolean isBeanCandidate(Object value) {
+        if (value == null) {
+            return false;
+        }
+        Class<?> type = value.getClass();
+        if (type.isPrimitive() || type.isArray() || type.isEnum()) {
+            return false;
+        }
+        if (CharSequence.class.isAssignableFrom(type) || Number.class.isAssignableFrom(type)
+                || Boolean.class.equals(type) || Character.class.equals(type)) {
+            return false;
+        }
+        if (java.util.Date.class.isAssignableFrom(type) || java.time.temporal.Temporal.class.isAssignableFrom(type)) {
+            return false;
+        }
+        if (Map.class.isAssignableFrom(type) || java.util.Collection.class.isAssignableFrom(type)) {
+            return false;
+        }
+        return true;
+    }
+
+    private String extractDisplayTitle(Object bean) {
+        if (bean == null) {
+            return null;
+        }
+        String annotated = findAnnotatedValue(bean, EntityTitle.class);
+        if (annotated != null) {
+            return annotated;
+        }
+        return findNamedValue(bean, "title");
+    }
+
+    private String findAnnotatedValue(Object bean, Class<? extends Annotation> annotationType) {
+        for (Method method : getAllMethods(bean.getClass())) {
+            if (method.getParameterTypes().length == 0 && method.isAnnotationPresent(annotationType)) {
+                Object value = invokeMethod(bean, method);
+                if (value != null) {
+                    return value.toString();
+                }
+            }
+        }
+        for (Field field : getAllFields(bean.getClass())) {
+            if (field.isAnnotationPresent(annotationType)) {
+                Object value = getFieldValue(bean, field);
+                if (value != null) {
+                    return value.toString();
+                }
+            }
+        }
+        return null;
+    }
+
+    private String findNamedValue(Object bean, String propertyName) {
+        try {
+            BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
+            for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
+                if (propertyName.equals(descriptor.getName())) {
+                    Method readMethod = descriptor.getReadMethod();
+                    if (readMethod != null) {
+                        Object value = invokeMethod(bean, readMethod);
+                        if (value != null) {
+                            return value.toString();
+                        }
+                    }
+                }
+            }
+        } catch (IntrospectionException e) {
+            // ignore and fall back to field lookup
+        }
+        for (Field field : getAllFields(bean.getClass())) {
+            if (propertyName.equals(field.getName())) {
+                Object value = getFieldValue(bean, field);
+                if (value != null) {
+                    return value.toString();
+                }
+            }
+        }
+        return null;
+    }
+
+    private List<Method> getAllMethods(Class<?> type) {
+        List<Method> methods = new ArrayList<Method>();
+        Class<?> current = type;
+        while (current != null && !Object.class.equals(current)) {
+            for (Method method : current.getDeclaredMethods()) {
+                methods.add(method);
+            }
+            current = current.getSuperclass();
+        }
+        return methods;
+    }
+
+    private List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<Field>();
+        Class<?> current = type;
+        while (current != null && !Object.class.equals(current)) {
+            for (Field field : current.getDeclaredFields()) {
+                fields.add(field);
+            }
+            current = current.getSuperclass();
+        }
+        return fields;
+    }
+
+    private Object invokeMethod(Object bean, Method method) {
+        try {
+            if (!method.canAccess(bean)) {
+                method.setAccessible(true);
+            }
+            return method.invoke(bean);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            return null;
+        }
+    }
+
+    private Object getFieldValue(Object bean, Field field) {
+        try {
+            if (!field.canAccess(bean)) {
+                field.setAccessible(true);
+            }
+            return field.get(bean);
+        } catch (IllegalAccessException e) {
+            return null;
         }
     }
 
