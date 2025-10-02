@@ -531,7 +531,12 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
         if (name != null && !name.isEmpty()) {
             payload.put(name, data);
         } else if (data instanceof Map<?, ?> map) {
-            payload.putAll(map);
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                Object key = entry.getKey();
+                if (key != null) {
+                    payload.put(key.toString(), entry.getValue());
+                }
+            }
         } else {
             payload.put("value", data);
         }

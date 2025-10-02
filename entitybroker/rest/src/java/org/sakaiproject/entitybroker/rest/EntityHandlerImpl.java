@@ -77,7 +77,6 @@ import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
-import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
@@ -828,15 +827,15 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         }
         String URL = ev.toString();
         // get the right method to use
-        Method method = Method.GET;
+        HttpRESTUtils.Method method = HttpRESTUtils.Method.GET;
         if (EntityView.VIEW_DELETE.equals(ev.getViewKey())) {
-            method = Method.DELETE;
+            method = HttpRESTUtils.Method.DELETE;
         } else if (EntityView.VIEW_EDIT.equals(ev.getViewKey())) {
-            method = Method.PUT;
+            method = HttpRESTUtils.Method.PUT;
         } else if (EntityView.VIEW_NEW.equals(ev.getViewKey())) {
-            method = Method.POST;
+            method = HttpRESTUtils.Method.POST;
         } else {
-            method = Method.GET;
+            method = HttpRESTUtils.Method.GET;
         }
         // handle entity if one was included
         Object data = null;
@@ -1051,7 +1050,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
      * @param ed (optional) some entity data if available
      */
     protected void setLastModifiedHeaders(HttpServletResponse res, EntityData ed, long lastModifiedTime) {
-        long lastModified = System.currentTimeMillis();
+        long lastModified = lastModifiedTime;
         if (ed != null) {
             // try to get from props first
             boolean found = false;
@@ -1074,8 +1073,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                     }
                 }
             }
-        } else {
-            lastModified = lastModifiedTime;
         }
         // ETag or Last-Modified
         res.setDateHeader(ActionReturn.Header.LAST_MODIFIED.toString(), lastModified);
@@ -1108,8 +1105,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         }
         return lastModified;
     }
-
-}
 
     private static boolean contains(String[] values, String target) {
         if (values == null || values.length == 0 || target == null) {

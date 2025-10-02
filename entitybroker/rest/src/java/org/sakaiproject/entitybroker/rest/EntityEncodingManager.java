@@ -110,6 +110,8 @@ public class EntityEncodingManager {
 
     public static final String JSON_CALLBACK_PARAM = "jsonCallback";
     public static final String JSON_DEFAULT_CALLBACK = "jsonEntityFeed";
+    private static final java.util.regex.Pattern JSONP_CALLBACK_PATTERN =
+            java.util.regex.Pattern.compile("^[a-zA-Z_$][0-9A-Za-z_$]*(?:\\.[a-zA-Z_$][0-9A-Za-z_$]*)*$");
 
     private static final ObjectMapper JSON_MAPPER = MapperFactory.jsonBuilder()
             .ignoreUnknownProperties()
@@ -1068,13 +1070,17 @@ public class EntityEncodingManager {
      * @return The string version of the param or the default callback name
      */
     protected String sanitizeJsonCallback(Object param) {
-        //We might want to sanitize down to something that looks like a valid function call
-        //This shouldn't be necessary, though, since it will just either work or not
-        if (param == null || !(param instanceof String))
+        if (!(param instanceof String)) {
             return JSON_DEFAULT_CALLBACK;
-        else
-            // CVE-2014-4671 -- Mitigate 'Rosetta Flash' exploit by ensuring Flash embedded in callback will break
-            return "/**/" + param.toString();
+        }
+        String s = ((String) param).trim();
+        if (s.length() == 0 || s.length() > 100) {
+            return JSON_DEFAULT_CALLBACK;
+        }
+        if (!JSONP_CALLBACK_PATTERN.matcher(s).matches()) {
+            return JSON_DEFAULT_CALLBACK;
+        }
+        return "/**/" + s;
     }
 
     /**

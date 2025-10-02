@@ -153,8 +153,8 @@ public class EntityProviderMethodStoreImpl implements EntityProviderMethodStore 
             sb.append(ca.getValue().toString());
             cas.put(ca.getKey(), action.copy()); // make a copy to avoid holding objects from another ClassLoader
         }
-        entityActions.put(prefix, actions);
-        log.info("Registered "+actions.size()+" custom actions for entity prefix ("+prefix+"): " + sb.toString());
+        entityActions.put(prefix, cas);
+        log.info("Registered {} custom actions for entity prefix ({}): {}", cas.size(), prefix, sb);
     }
 
     /* (non-Javadoc)
