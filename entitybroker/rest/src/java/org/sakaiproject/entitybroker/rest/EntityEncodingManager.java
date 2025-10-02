@@ -20,28 +20,36 @@
 
 package org.sakaiproject.entitybroker.rest;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.azeckoski.reflectutils.ClassFields;
-import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
-import org.azeckoski.reflectutils.ConstructorUtils;
-import org.azeckoski.reflectutils.ReflectUtils;
-import org.azeckoski.reflectutils.StringUtils;
-import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 import org.azeckoski.reflectutils.transcoders.HTMLTranscoder;
 import org.azeckoski.reflectutils.transcoders.JSONTranscoder;
 import org.azeckoski.reflectutils.transcoders.Transcoder;
@@ -68,6 +76,9 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
+
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -163,7 +174,7 @@ public class EntityEncodingManager {
         if (outputable != null) {
             String[] outputFormats = outputable.getHandledOutputFormats();
             // check if the output formats are allowed
-            if (outputFormats == null || ReflectUtils.contains(outputFormats, format) ) {
+            if (outputFormats == null || contains(outputFormats, format) ) {
                 boolean handled = false;
 
                 // if the user wants to serialize their objects specially then allow them to translate them
@@ -251,7 +262,7 @@ public class EntityEncodingManager {
         Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
         if (inputable != null) {
             String[] inputFormats = inputable.getHandledInputFormats();
-            if (inputFormats == null || ReflectUtils.contains(inputFormats, format) ) {
+            if (inputFormats == null || contains(inputFormats, format) ) {
                 boolean handled = false;
                 /* try to use the provider translator if one available,
                  * if it decided not to handle it or none is available then control passes to internal
@@ -349,7 +360,7 @@ public class EntityEncodingManager {
                         if (params != null && params.size() > 0) {
                             entity = current;
                             try {
-                                ReflectUtils.getInstance().populateFromParams(entity, params);
+                                populateBeanFromParams(entity, params);
                             } catch (RuntimeException e) {
                                 throw new EntityEncodingException("Unable to populate bean for ref ("+ref+") from request: " + e.getMessage(), ref+"", e);
                             }
@@ -366,7 +377,7 @@ public class EntityEncodingManager {
                         throw new EntityException("No input for input translation (input cannot be null) for reference: " + ref, 
                                 ref.toString(), HttpServletResponse.SC_BAD_REQUEST);
                     } else {
-                        String data = StringUtils.makeStringFromInputStream(input);
+                        String data = readInputStream(input);
                         Map<String, Object> decoded = null;
                         try {
                             decoded = decodeData(data, format);
@@ -384,7 +395,7 @@ public class EntityEncodingManager {
                             }
                         }
                         try {
-                            ReflectUtils.getInstance().populate(entity, decoded);
+                            populateBeanFromMap(entity, decoded);
                         } catch (RuntimeException e) {
                             throw new EntityEncodingException("Unable to populate bean for ref ("+ref+") from data: " + decoded + ":" + e.getMessage(), ref+"", e);
                         }
@@ -421,7 +432,7 @@ public class EntityEncodingManager {
         if (format == null) { format = Outputable.HTML; }
 
         // check the format to see if we can handle it
-        if (! ReflectUtils.contains(HANDLED_OUTPUT_FORMATS, format)) {
+        if (! contains(HANDLED_OUTPUT_FORMATS, format)) {
             throw new FormatUnsupportedException("Internal output formatter cannot handle format ("+format+") for ref ("+ref+")", ref+"", format);
         }
 
@@ -682,11 +693,11 @@ public class EntityEncodingManager {
                     sb.append("  <form name='"+formName+"-edit' action='"+formAction+"' style='margin:0px;' method='post'>\n");
                     sb.append("    <table border='1'>\n");
                     // get all the read and write fields from this object
-                    ClassFields<?> cf = ReflectUtils.getInstance().analyzeClass(entityClass);
-                    Map<String, Object> fieldValues = ReflectUtils.getInstance().getObjectValues(entity);
-                    Map<String, Class<?>> readTypes = cf.getFieldTypes(FieldsFilter.SERIALIZABLE);
-                    Map<String, Class<?>> writeTypes = cf.getFieldTypes(FieldsFilter.WRITEABLE);
-                    HashSet<String> requiredFieldNames = new HashSet<String>(cf.getFieldNamesWithAnnotation(EntityFieldRequired.class));
+                    PropertyMetadata propertyMetadata = analyzeProperties(entityClass);
+                    Map<String, Object> fieldValues = getObjectValues(entity);
+                    Map<String, Class<?>> readTypes = propertyMetadata.getReadableTypes();
+                    Map<String, Class<?>> writeTypes = propertyMetadata.getWritableTypes();
+                    Set<String> requiredFieldNames = propertyMetadata.getRequiredProperties();
                     // make sure no one tries to write the id field when not creating entities
                     String idFieldName = EntityDataUtils.getEntityIdField(entityClass);
                     if (idFieldName != null && ! EntityView.VIEW_NEW.equals(viewKey)) {
@@ -731,7 +742,7 @@ public class EntityEncodingManager {
                             Object value = fieldValues.get(fieldName);
                             String sVal = "";
                             if (value != null) {
-                                sVal = ReflectUtils.getInstance().convert(value, String.class);
+                                sVal = convertToString(value);
                             }
                             sb.append("<input type='text' name=\""+fieldName+"\" value=\""+StringEscapeUtils.escapeHtml4(sVal)+"\" />");
                         } else if (write) {
@@ -740,7 +751,7 @@ public class EntityEncodingManager {
                             Object value = fieldValues.get(fieldName);
                             String sVal = "";
                             if (value != null) {
-                                sVal = ReflectUtils.getInstance().convert(value, String.class);
+                                sVal = convertToString(value);
                             }
                             sb.append(StringEscapeUtils.escapeHtml4(sVal));
                         }
@@ -758,14 +769,14 @@ public class EntityEncodingManager {
         } else {
             // encode the entity itself
             Object toEncode = entityData; // default to encoding the entity data object
-            Map<String, Object> entityProps = new ArrayOrderedMap<String, Object>();
+            Map<String, Object> entityProps = new LinkedHashMap<String, Object>();
             if (entityData != null && entityData.getData() != null) {
                 if (entityData.isDataOnly()) {
                     toEncode = entityData.getData();
                     // no meta data except properties if there are any
                     entityProps.putAll( entityData.getEntityProperties() );
                 } else {
-                    if (ConstructorUtils.isClassBean(entityData.getData().getClass())) {
+                    if (isBeanClass(entityData.getData().getClass())) {
                         // encode the bean directly if it is one
                         toEncode = entityData.getData();
                         // add in the extra props
@@ -898,11 +909,11 @@ public class EntityEncodingManager {
     }
 
     /**
-     * Decode a string of a specified format into a java map <br/> 
-     * Returned map can be fed into the {@link ReflectUtils#populate(Object, Map)} if you want to convert it
-     * into a known object type <br/> 
+     * Decode a string of a specified format into a java map <br/>
+     * Returned map can be fed into the {@link #populateBeanFromMap(Object, Map)} if you want to convert it
+     * into a known object type <br/>
      * Types are likely to require conversion as guesses are made about the right formats,
-     * use of the {@link ReflectUtils#convert(Object, Class)} method is recommended
+     * use of the {@code convertValue(Object, Class)} helper method is recommended
      * 
      * @param data encoded data
      * @param format the format of the encoded data (from {@link Formats})
@@ -914,7 +925,7 @@ public class EntityEncodingManager {
         if (format == null) {
             format = Formats.XML;
         }
-        Map<String, Object> decoded = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> decoded = new LinkedHashMap<String, Object>();
         if (data != null && ! "".equals(data)) {
             Object decode = null;
             Transcoder transcoder = getTranscoder(format);
@@ -931,6 +942,288 @@ public class EntityEncodingManager {
             }
         }
         return decoded;
+    }
+
+    private boolean contains(String[] array, String value) {
+        if (array == null) {
+            return false;
+        }
+        return Arrays.asList(array).contains(value);
+    }
+
+    private String readInputStream(InputStream input) {
+        try {
+            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to read input stream", e);
+        }
+    }
+
+    private void populateBeanFromParams(Object entity, Map<String, String[]> params) {
+        if (entity == null || params == null) {
+            return;
+        }
+        BeanWrapperImpl wrapper = new BeanWrapperImpl(entity);
+        for (Entry<String, String[]> entry : params.entrySet()) {
+            String propertyName = entry.getKey();
+            String[] values = entry.getValue();
+            Object value = null;
+            if (values != null) {
+                value = values.length == 1 ? values[0] : values;
+            }
+            applyValue(wrapper, entity, propertyName, value);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void populateBeanFromMap(Object entity, Map<String, Object> values) {
+        if (entity == null || values == null) {
+            return;
+        }
+        BeanWrapperImpl wrapper = new BeanWrapperImpl(entity);
+        for (Entry<String, Object> entry : values.entrySet()) {
+            String propertyName = entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                Class<?> propertyType = null;
+                try {
+                    PropertyDescriptor descriptor = wrapper.getPropertyDescriptor(propertyName);
+                    propertyType = descriptor.getPropertyType();
+                } catch (RuntimeException e) {
+                    propertyType = null;
+                }
+                if (propertyType != null && !Map.class.isAssignableFrom(propertyType)) {
+                    Object nested = null;
+                    if (wrapper.isReadableProperty(propertyName)) {
+                        nested = wrapper.getPropertyValue(propertyName);
+                    }
+                    if (nested == null) {
+                        nested = instantiateBean(propertyType);
+                        if (nested != null && wrapper.isWritableProperty(propertyName)) {
+                            wrapper.setPropertyValue(propertyName, nested);
+                        }
+                    }
+                    if (nested != null) {
+                        populateBeanFromMap(nested, (Map<String, Object>) value);
+                        continue;
+                    }
+                }
+            }
+            applyValue(wrapper, entity, propertyName, value);
+        }
+    }
+
+    private void applyValue(BeanWrapper wrapper, Object target, String propertyName, Object value) {
+        if (wrapper.isWritableProperty(propertyName)) {
+            try {
+                wrapper.setPropertyValue(propertyName, value);
+                return;
+            } catch (RuntimeException e) {
+                throw e;
+            }
+        }
+        setFieldValue(target, propertyName, value);
+    }
+
+    private void setFieldValue(Object target, String fieldName, Object value) {
+        Field field = findField(target.getClass(), fieldName);
+        if (field == null) {
+            return;
+        }
+        try {
+            field.setAccessible(true);
+            Object converted = convertValue(value, field.getType());
+            field.set(target, converted);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Unable to set field " + fieldName + " on " + target.getClass(), e);
+        }
+    }
+
+    private Object convertValue(Object value, Class<?> targetType) {
+        if (targetType == null || value == null) {
+            return value;
+        }
+        BeanWrapperImpl converter = new BeanWrapperImpl();
+        return converter.convertIfNecessary(value, targetType);
+    }
+
+    private PropertyMetadata analyzeProperties(Class<?> type) {
+        PropertyMetadata metadata = new PropertyMetadata();
+        if (type == null) {
+            return metadata;
+        }
+        try {
+            for (PropertyDescriptor descriptor : Introspector.getBeanInfo(type).getPropertyDescriptors()) {
+                String name = descriptor.getName();
+                if ("class".equals(name)) {
+                    continue;
+                }
+                Class<?> propertyType = descriptor.getPropertyType();
+                Method readMethod = descriptor.getReadMethod();
+                Method writeMethod = descriptor.getWriteMethod();
+                if (readMethod != null) {
+                    metadata.readableTypes.put(name, propertyType);
+                }
+                if (writeMethod != null) {
+                    metadata.writableTypes.put(name, propertyType);
+                }
+                Field field = findField(type, name);
+                if (field != null && Modifier.isPublic(field.getModifiers())) {
+                    metadata.readableTypes.putIfAbsent(name, field.getType());
+                    metadata.writableTypes.putIfAbsent(name, field.getType());
+                }
+                if (isRequired(field, readMethod, writeMethod)) {
+                    metadata.requiredProperties.add(name);
+                }
+            }
+        } catch (IntrospectionException e) {
+            throw new IllegalStateException("Failed to introspect " + type, e);
+        }
+        for (Field field : getAllFields(type)) {
+            String name = field.getName();
+            if ("class".equals(name)) {
+                continue;
+            }
+            if (Modifier.isPublic(field.getModifiers())) {
+                metadata.readableTypes.putIfAbsent(name, field.getType());
+                metadata.writableTypes.putIfAbsent(name, field.getType());
+            }
+            if (field.isAnnotationPresent(EntityFieldRequired.class)) {
+                metadata.requiredProperties.add(name);
+            }
+        }
+        return metadata;
+    }
+
+    private Map<String, Object> getObjectValues(Object entity) {
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
+        if (entity == null) {
+            return values;
+        }
+        BeanWrapperImpl wrapper = new BeanWrapperImpl(entity);
+        for (PropertyDescriptor descriptor : wrapper.getPropertyDescriptors()) {
+            String name = descriptor.getName();
+            if ("class".equals(name)) {
+                continue;
+            }
+            if (wrapper.isReadableProperty(name)) {
+                values.put(name, wrapper.getPropertyValue(name));
+            }
+        }
+        for (Field field : getAllFields(entity.getClass())) {
+            if (!Modifier.isPublic(field.getModifiers())) {
+                continue;
+            }
+            String name = field.getName();
+            if (values.containsKey(name)) {
+                continue;
+            }
+            try {
+                field.setAccessible(true);
+                values.put(name, field.get(entity));
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException("Unable to read field " + name + " on " + entity.getClass(), e);
+            }
+        }
+        return values;
+    }
+
+    private boolean isBeanClass(Class<?> type) {
+        if (type == null) {
+            return false;
+        }
+        if (type.isPrimitive() || type.isArray()) {
+            return false;
+        }
+        if (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)) {
+            return false;
+        }
+        if (Number.class.isAssignableFrom(type) || CharSequence.class.isAssignableFrom(type)
+                || Date.class.isAssignableFrom(type) || Boolean.class.isAssignableFrom(type)
+                || Enum.class.isAssignableFrom(type)) {
+            return false;
+        }
+        try {
+            type.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private Field findField(Class<?> type, String name) {
+        Class<?> current = type;
+        while (current != null && !Object.class.equals(current)) {
+            try {
+                return current.getDeclaredField(name);
+            } catch (NoSuchFieldException e) {
+                current = current.getSuperclass();
+            }
+        }
+        return null;
+    }
+
+    private List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<Field>();
+        Class<?> current = type;
+        while (current != null && !Object.class.equals(current)) {
+            fields.addAll(Arrays.asList(current.getDeclaredFields()));
+            current = current.getSuperclass();
+        }
+        return fields;
+    }
+
+    private boolean isRequired(Field field, Method readMethod, Method writeMethod) {
+        if (field != null && field.isAnnotationPresent(EntityFieldRequired.class)) {
+            return true;
+        }
+        if (readMethod != null && readMethod.isAnnotationPresent(EntityFieldRequired.class)) {
+            return true;
+        }
+        if (writeMethod != null && writeMethod.isAnnotationPresent(EntityFieldRequired.class)) {
+            return true;
+        }
+        return false;
+    }
+
+    private String convertToString(Object value) {
+        if (value == null) {
+            return "";
+        }
+        Object converted = convertValue(value, String.class);
+        return Objects.toString(converted, "");
+    }
+
+    private Object instantiateBean(Class<?> type) {
+        if (type == null) {
+            return null;
+        }
+        if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
+            return null;
+        }
+        try {
+            return type.getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
+    }
+
+    private static final class PropertyMetadata {
+        private final Map<String, Class<?>> readableTypes = new LinkedHashMap<String, Class<?>>();
+        private final Map<String, Class<?>> writableTypes = new LinkedHashMap<String, Class<?>>();
+        private final Set<String> requiredProperties = new HashSet<String>();
+
+        Map<String, Class<?>> getReadableTypes() {
+            return readableTypes;
+        }
+
+        Map<String, Class<?>> getWritableTypes() {
+            return writableTypes;
+        }
+
+        Set<String> getRequiredProperties() {
+            return requiredProperties;
+        }
     }
 
     /**
