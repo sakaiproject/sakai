@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +45,6 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.rest.EntityEncodingManager;
 import org.sakaiproject.entitybroker.rest.EntityHandlerImpl;
-import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 
 /**
  * Testing the central logic of the entity handler
@@ -107,7 +107,7 @@ public class EntityEncodingManagerTest extends TestCase {
         assertTrue(encoded.contains("something1"));
 
         // test encoding random stuff
-        Map<String, Object> map = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("A", "aaron");
         map.put("B", "becky");
         map.put("C", "minerva");
@@ -148,12 +148,12 @@ public class EntityEncodingManagerTest extends TestCase {
         EntityData ed = null;
 
         // test encoding weird stuff
-        Map<String, Object> map = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("A1", "aaron one");
         map.put("C&3", "minerva three");
         map.put("B 2", "becky two");
         ed = new EntityData(map);
-        /* fixed in 0.9.15 reflectutils
+        /* legacy behavior handled via earlier XML encoder updates
         try {
             entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
             fail("Could not encode spaces");
@@ -365,7 +365,7 @@ public class EntityEncodingManagerTest extends TestCase {
         assertNotNull(encoded);
         assertEquals("", encoded);
 
-        Map<String, Object> m = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> m = new LinkedHashMap<String, Object>();
         m.put("id", 123);
         m.put("thing", "AZ");
         encoded = entityEncodingManager.encodeData(m, Formats.JSON, null, null);
@@ -373,7 +373,7 @@ public class EntityEncodingManagerTest extends TestCase {
         assertTrue(encoded.contains("123"));
         assertTrue(encoded.contains("AZ"));
 
-        Map<String, Object> m2 = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> m2 = new LinkedHashMap<String, Object>();
         m2.put("name", "aaron");
         m2.put("date", new Date());
         m2.put("num", 456);
@@ -420,7 +420,7 @@ public class EntityEncodingManagerTest extends TestCase {
         assertNotNull(encoded);
         assertEquals("", encoded);
 
-        Map<String, Object> m = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> m = new LinkedHashMap<String, Object>();
         m.put("id", 123);
         m.put("thing", "AZ");
         encoded = entityEncodingManager.encodeData(m, Formats.XML, null, null);
@@ -428,7 +428,7 @@ public class EntityEncodingManagerTest extends TestCase {
         assertTrue(encoded.contains("123"));
         assertTrue(encoded.contains("AZ"));
 
-        Map<String, Object> m2 = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> m2 = new LinkedHashMap<String, Object>();
         m2.put("name", "aaron");
         m2.put("date", new Date());
         m2.put("num", 456);

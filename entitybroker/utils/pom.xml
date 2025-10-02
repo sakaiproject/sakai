@@ -49,11 +49,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
-        <!-- required for bean cloning and reflection -->
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>reflectutils</artifactId>
-        </dependency>
         <!-- required for sending http requests -->
         <dependency>
             <groupId>commons-httpclient</groupId>
