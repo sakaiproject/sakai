@@ -32,6 +32,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,11 +51,12 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
 import org.apache.commons.text.StringEscapeUtils;
-import org.azeckoski.reflectutils.transcoders.HTMLTranscoder;
-import org.azeckoski.reflectutils.transcoders.JSONTranscoder;
-import org.azeckoski.reflectutils.transcoders.Transcoder;
-import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -76,6 +79,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
+import org.sakaiproject.serialization.MapperFactory;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -106,6 +110,28 @@ public class EntityEncodingManager {
 
     public static final String JSON_CALLBACK_PARAM = "jsonCallback";
     public static final String JSON_DEFAULT_CALLBACK = "jsonEntityFeed";
+
+    private static final ObjectMapper JSON_MAPPER = MapperFactory.jsonBuilder()
+            .ignoreUnknownProperties()
+            .excludeNulls()
+            .registerJavaTimeModule()
+            .disableDateTimestamps()
+            .disableFailOnEmptyBeans()
+            .build();
+    private static final ObjectWriter JSON_WRITER = JSON_MAPPER.writer();
+    private static final ObjectWriter JSON_PRETTY_WRITER = JSON_MAPPER.writerWithDefaultPrettyPrinter();
+    private static final XmlMapper XML_MAPPER = MapperFactory.xmlBuilder()
+            .registerJavaTimeModule()
+            .disableDateTimestamps()
+            .ignoreUnknownProperties()
+            .excludeNulls()
+            .enableOutputCDataAsText()
+            .disableNamespaceAware()
+            .enableRepairingNamespaces()
+            .enableOutputXML11()
+            .disableFailOnEmptyBeans()
+            .build();
+    private static final ObjectWriter XML_WRITER = XML_MAPPER.writer();
 
     protected static final String XML_HEADER_PREFIX = "<?";
     protected static final String XML_HEADER_SUFFIX = "?>";
@@ -813,46 +839,7 @@ public class EntityEncodingManager {
         return contextUrl + BATCH_PREFIX + contextUrl + view.getEntityURL(viewKey, null);
     }
 
-    protected static final String DATA_KEY = Transcoder.DATA_KEY;
-
-    private Map<String, Transcoder> transcoders;
-    public void setTranscoders(Map<String, Transcoder> transcoders) {
-        this.transcoders = transcoders;
-    }
-    /**
-     * Override the transcoder used for a specific format
-     * @param transcoder a transcoder implementation
-     */
-    public void setTranscoder(Transcoder transcoder) {
-        if (transcoder == null) {
-            throw new IllegalArgumentException("transcoder cannot be null");
-        }
-        if (transcoders == null) {
-            getTranscoder(Formats.XML);
-        }
-        String format = transcoder.getHandledFormat();
-        if (format != null && transcoder != null) {
-            transcoders.put(format, transcoder);
-        }
-    }
-    public Transcoder getTranscoder(String format) {
-        if (transcoders == null) {
-            transcoders = new HashMap<String, Transcoder>();
-            JSONTranscoder jt = new JSONTranscoder(true, true, false);
-			jt.setMaxLevel(entityBrokerManager.getMaxJSONLevel());
-            transcoders.put(jt.getHandledFormat(), jt);
-            transcoders.put(Formats.JSONP, jt);
-            XMLTranscoder xt = new XMLTranscoder(true, true, false, false);
-            transcoders.put(xt.getHandledFormat(), xt);
-            HTMLTranscoder ht = new HTMLTranscoder();
-            transcoders.put(ht.getHandledFormat(), ht);
-        }
-        Transcoder transcoder = transcoders.get(format);
-        if (transcoder == null) {
-            throw new IllegalArgumentException("Failed to find a transcoder for format, none exists, cannot encode or decode data for format: " + format);
-        }
-        return transcoder;
-    }
+    private static final String DATA_KEY = "data";
 
     /**
      * Encode data into a given format, can handle any java object,
@@ -869,30 +856,212 @@ public class EntityEncodingManager {
         if (format == null) {
             format = Formats.XML;
         }
-        String encoded = "";
-        if (data != null) {
-            int maxDepth = 0;
-            if (name != null) {
-                DepthLimitable provider = (DepthLimitable) entityProviderManager.getProviderByPrefixAndCapability(name, DepthLimitable.class);
-                if (provider != null) {
-                    maxDepth = provider.getMaxDepth();
-                }
-            }
-            Transcoder transcoder = getTranscoder(format);
-            try {
-                if (maxDepth == 0) {
-                    encoded = transcoder.encode(data, name, properties);
-                } else {
-                    encoded = transcoder.encode(data, name, properties, maxDepth);
-                }
-            } catch (RuntimeException e) {
-                // convert failure to UOE
-                throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);
-            }
+        if (data == null) {
+            return "";
         }
-        return encoded;
+        Map<String, Object> safeProperties = properties == null ? Collections.<String, Object>emptyMap()
+                : new LinkedHashMap<String, Object>(properties);
+        int depthLimit = determineDepthLimit(format, name);
+        Object prepared = prepareForSerialization(data, depthLimit);
+        try {
+            if (Formats.JSON.equals(format) || Formats.JSONP.equals(format)) {
+                return encodeJson(prepared, name, safeProperties);
+            } else if (Formats.XML.equals(format)) {
+                return encodeXml(prepared, name, safeProperties);
+            } else if (Formats.HTML.equals(format)) {
+                return encodeHtml(prepared, safeProperties);
+            }
+        } catch (JsonProcessingException e) {
+            throw new UnsupportedOperationException("Failure encoding data (" + data + ") of type (" + data.getClass()
+                    + "): " + e.getOriginalMessage(), e);
+        }
+        throw new UnsupportedOperationException("Unsupported format (" + format + ") for encoding data of type "
+                + data.getClass());
     }
     
+    private int determineDepthLimit(String format, String name) {
+        int providerDepth = 0;
+        if (name != null) {
+            DepthLimitable provider = (DepthLimitable) entityProviderManager
+                    .getProviderByPrefixAndCapability(name, DepthLimitable.class);
+            if (provider != null) {
+                providerDepth = provider.getMaxDepth();
+            }
+        }
+        int jsonLimit = 0;
+        if (Formats.JSON.equals(format) || Formats.JSONP.equals(format)) {
+            if (entityBrokerManager != null) {
+                jsonLimit = entityBrokerManager.getMaxJSONLevel();
+            }
+        }
+        if (providerDepth <= 0) {
+            return jsonLimit;
+        }
+        if (jsonLimit <= 0) {
+            return providerDepth;
+        }
+        return Math.min(providerDepth, jsonLimit);
+    }
+
+    private Object prepareForSerialization(Object value, int depthLimit) {
+        int maxDepth = depthLimit <= 0 ? -1 : depthLimit;
+        return convertValueForSerialization(value, 0, maxDepth, new IdentityHashMap<Object, Boolean>());
+    }
+
+    private Object convertValueForSerialization(Object value, int currentDepth, int maxDepth,
+            Map<Object, Boolean> visited) {
+        if (value == null) {
+            return null;
+        }
+        if (isSimpleValue(value)) {
+            return value;
+        }
+        if (maxDepth > -1 && currentDepth >= maxDepth) {
+            return summarizeValue(value);
+        }
+        if (visited.containsKey(value)) {
+            return null;
+        }
+        visited.put(value, Boolean.TRUE);
+        try {
+            if (value instanceof Map) {
+                Map<?, ?> map = (Map<?, ?>) value;
+                Map<String, Object> converted = new LinkedHashMap<String, Object>(map.size());
+                for (Entry<?, ?> entry : map.entrySet()) {
+                    String key = entry.getKey() == null ? null : String.valueOf(entry.getKey());
+                    converted.put(key, convertValueForSerialization(entry.getValue(), currentDepth + 1, maxDepth, visited));
+                }
+                return converted;
+            } else if (value instanceof Collection) {
+                Collection<?> collection = (Collection<?>) value;
+                List<Object> converted = new ArrayList<Object>(collection.size());
+                for (Object element : collection) {
+                    converted.add(convertValueForSerialization(element, currentDepth + 1, maxDepth, visited));
+                }
+                return converted;
+            } else if (value.getClass().isArray()) {
+                int length = java.lang.reflect.Array.getLength(value);
+                List<Object> converted = new ArrayList<Object>(length);
+                for (int i = 0; i < length; i++) {
+                    Object element = java.lang.reflect.Array.get(value, i);
+                    converted.add(convertValueForSerialization(element, currentDepth + 1, maxDepth, visited));
+                }
+                return converted;
+            } else if (isBeanClass(value.getClass())) {
+                Map<String, Object> beanValues = getObjectValues(value);
+                Map<String, Object> converted = new LinkedHashMap<String, Object>(beanValues.size());
+                for (Entry<String, Object> entry : beanValues.entrySet()) {
+                    converted.put(entry.getKey(),
+                            convertValueForSerialization(entry.getValue(), currentDepth + 1, maxDepth, visited));
+                }
+                return converted;
+            } else {
+                return summarizeValue(value);
+            }
+        } finally {
+            visited.remove(value);
+        }
+    }
+
+    private boolean isSimpleValue(Object value) {
+        if (value == null) {
+            return true;
+        }
+        Class<?> type = value.getClass();
+        if (type.isPrimitive() || CharSequence.class.isAssignableFrom(type) || Number.class.isAssignableFrom(type)
+                || Boolean.class.isAssignableFrom(type) || Character.class.isAssignableFrom(type)
+                || Date.class.isAssignableFrom(type) || Temporal.class.isAssignableFrom(type)
+                || Enum.class.isAssignableFrom(type)) {
+            return true;
+        }
+        return false;
+    }
+
+    private Object summarizeValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (isSimpleValue(value)) {
+            return value;
+        }
+        return Objects.toString(value, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object mergeProperties(Object data, Map<String, Object> properties) {
+        if (properties == null || properties.isEmpty()) {
+            return data;
+        }
+        if (data instanceof Map) {
+            Map<String, Object> merged = new LinkedHashMap<String, Object>((Map<String, Object>) data);
+            for (Entry<String, Object> entry : properties.entrySet()) {
+                merged.putIfAbsent(entry.getKey(), entry.getValue());
+            }
+            return merged;
+        }
+        LinkedHashMap<String, Object> merged = new LinkedHashMap<String, Object>(properties);
+        merged.put(DATA_KEY, data);
+        return merged;
+    }
+
+    private String encodeJson(Object data, String name, Map<String, Object> properties) throws JsonProcessingException {
+        Object envelope = mergeProperties(data, properties);
+        if (name != null && !name.isEmpty()) {
+            LinkedHashMap<String, Object> wrapper = new LinkedHashMap<String, Object>();
+            wrapper.put(name, envelope);
+            envelope = wrapper;
+        }
+        return JSON_WRITER.writeValueAsString(envelope);
+    }
+
+    private String encodeXml(Object data, String name, Map<String, Object> properties) throws JsonProcessingException {
+        Object envelope = mergeProperties(data, properties);
+        ObjectWriter writer = XML_WRITER;
+        if (name != null && !name.isEmpty()) {
+            writer = writer.withRootName(name);
+        }
+        return writer.writeValueAsString(envelope);
+    }
+
+    private String encodeHtml(Object data, Map<String, Object> properties) throws JsonProcessingException {
+        Object envelope = mergeProperties(data, properties);
+        String rendered;
+        if (isSimpleValue(envelope)) {
+            rendered = Objects.toString(envelope, "");
+        } else {
+            rendered = JSON_PRETTY_WRITER.writeValueAsString(envelope);
+        }
+        return "<pre>" + StringEscapeUtils.escapeHtml4(rendered) + "</pre>";
+    }
+
+    private Map<String, Object> ensureDecodedMap(Object value) {
+        if (value instanceof Map) {
+            Map<?, ?> source = (Map<?, ?>) value;
+            Map<String, Object> target = new LinkedHashMap<String, Object>(source.size());
+            for (Entry<?, ?> entry : source.entrySet()) {
+                String key = entry.getKey() == null ? null : String.valueOf(entry.getKey());
+                target.put(key, entry.getValue());
+            }
+            return target;
+        }
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
+        map.put(DATA_KEY, value);
+        return map;
+    }
+
+    private String stripJsonp(String data) {
+        String sanitized = data;
+        if (sanitized.startsWith("/**/")) {
+            sanitized = sanitized.substring(4);
+        }
+        int start = sanitized.indexOf('(');
+        int end = sanitized.lastIndexOf(')');
+        if (start >= 0 && end > start) {
+            return sanitized.substring(start + 1, end);
+        }
+        return sanitized;
+    }
+
     /**
      * Clean the JSONP callback parameter to make sure it is sensible
      * @param param The parameter for the callback, should be a String
@@ -900,7 +1069,7 @@ public class EntityEncodingManager {
      */
     protected String sanitizeJsonCallback(Object param) {
         //We might want to sanitize down to something that looks like a valid function call
-        //This shouldn't be necessary, though, since it will just either work or not 
+        //This shouldn't be necessary, though, since it will just either work or not
         if (param == null || !(param instanceof String))
             return JSON_DEFAULT_CALLBACK;
         else
@@ -926,21 +1095,30 @@ public class EntityEncodingManager {
             format = Formats.XML;
         }
         Map<String, Object> decoded = new LinkedHashMap<String, Object>();
-        if (data != null && ! "".equals(data)) {
-            Object decode = null;
-            Transcoder transcoder = getTranscoder(format);
-            try {
-                decode = transcoder.decode(data);
-                if (decode instanceof Map) {
-                    decoded = (Map<String, Object>) decode;
-                } else {
-                    decoded.put(DATA_KEY, decode);
-                }
-            } catch (RuntimeException e) {
-                // convert failure to UOE
-                throw new UnsupportedOperationException("Failure decoding data ("+data+") for format ("+format+"): " + e.getMessage(), e);
-            }
+        if (data == null || "".equals(data)) {
+            return decoded;
         }
+        String trimmed = data.trim();
+        try {
+            if (Formats.JSONP.equals(format)) {
+                trimmed = stripJsonp(trimmed);
+                format = Formats.JSON;
+            }
+            if (Formats.JSON.equals(format)) {
+                Object value = JSON_MAPPER.readValue(trimmed, Object.class);
+                return ensureDecodedMap(value);
+            } else if (Formats.XML.equals(format)) {
+                Object value = XML_MAPPER.readValue(trimmed, Object.class);
+                return ensureDecodedMap(value);
+            } else if (Formats.HTML.equals(format)) {
+                decoded.put(DATA_KEY, trimmed);
+                return decoded;
+            }
+        } catch (IOException e) {
+            throw new UnsupportedOperationException("Failure decoding data (" + data + ") for format (" + format + "): "
+                    + e.getMessage(), e);
+        }
+        decoded.put(DATA_KEY, trimmed);
         return decoded;
     }
 

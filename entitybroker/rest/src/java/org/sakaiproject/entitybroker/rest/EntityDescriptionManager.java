@@ -20,20 +20,28 @@
 
 package org.sakaiproject.entitybroker.rest;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.azeckoski.reflectutils.ArrayUtils;
-import org.azeckoski.reflectutils.ClassFields;
-import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
-import org.azeckoski.reflectutils.ConstructorUtils;
-import org.azeckoski.reflectutils.ReflectUtils;
+import java.util.Objects;
+import java.util.Set;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -465,14 +473,15 @@ public class EntityDescriptionManager {
                     Class<?> entityType = entity.getClass();
                     sb.append("      <entityClass>\n");
                     sb.append("        <class>"+ entityType.getName() +"</class>\n");
-                    if (ConstructorUtils.isClassSimple(entityType)) {
+                    if (isSimpleType(entityType)) {
                         sb.append("        <type>simple</type>\n");
-                    } else if (ConstructorUtils.isClassCollection(entityType)) {
+                    } else if (isCollectionType(entityType)) {
                         sb.append("        <type>collection</type>\n");
-                    } else if (ConstructorUtils.isClassArray(entityType)) {
+                    } else if (isArrayType(entityType)) {
                         sb.append("        <type>array</type>\n");
-                        sb.append("        <componentType>"+ArrayUtils.type((Object[])entity).getName()+"</componentType>\n");
-                    } else if (ConstructorUtils.isClassMap(entityType)) {
+                        Class<?> componentType = getArrayComponentType(entityType);
+                        sb.append("        <componentType>"+(componentType != null ? componentType.getName() : Object.class.getName())+"</componentType>\n");
+                    } else if (isMapType(entityType)) {
                         sb.append("        <type>map</type>\n");
                         // get the types of the map keys if possible
                         Map m = (Map) entity;
@@ -485,9 +494,10 @@ public class EntityDescriptionManager {
                         sb.append("        <type>bean</type>\n");
                         sb.append("        <fields>\n");
                         // get all the read and write fields from this object
-                        Map<String, Class<?>> readTypes = ReflectUtils.getInstance().getFieldTypes(entity.getClass(), FieldsFilter.SERIALIZABLE);
-                        Map<String, Class<?>> writeTypes = ReflectUtils.getInstance().getFieldTypes(entity.getClass(), FieldsFilter.WRITEABLE);
-                        Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
+                        PropertyIntrospection propertyData = analyzeProperties(entity.getClass());
+                        Map<String, Class<?>> readTypes = propertyData.getReadableTypes();
+                        Map<String, Class<?>> writeTypes = propertyData.getWritableTypes();
+                        Map<String, Class<?>> entityTypes = new LinkedHashMap<String, Class<?>>(readTypes);
                         entityTypes.putAll(writeTypes);
                         ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                         Collections.sort(keys);
@@ -717,14 +727,15 @@ public class EntityDescriptionManager {
                     Class<?> entityType = entity.getClass();
                     sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entityType.getName() +"</h4>\n");
                     sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
-                    if (ConstructorUtils.isClassSimple(entityType)) {
+                    if (isSimpleType(entityType)) {
                         sb.append( makeResolveType("simple", null, locale));
-                    } else if (ConstructorUtils.isClassCollection(entityType)) {
+                    } else if (isCollectionType(entityType)) {
                         sb.append( makeResolveType("collection", null, locale));
-                    } else if (ConstructorUtils.isClassArray(entityType)) {
-                        String cType = "Component Class: " + ArrayUtils.type((Object[])entity).getName();
+                    } else if (isArrayType(entityType)) {
+                        Class<?> componentType = getArrayComponentType(entityType);
+                        String cType = "Component Class: " + (componentType != null ? componentType.getName() : Object.class.getName());
                         sb.append( makeResolveType("array", cType, locale));
-                    } else if (ConstructorUtils.isClassMap(entityType)) {
+                    } else if (isMapType(entityType)) {
                         // get the types of the map keys if possible
                         String mapTypes = null;
                         Map m = (Map) entity;
@@ -748,11 +759,11 @@ public class EntityDescriptionManager {
                         sb.append("          </thead>\n");
                         sb.append("          <tbody>\n");
                         // get all the read and write fields from this object
-                        ClassFields<?> cf = ReflectUtils.getInstance().analyzeClass(entity.getClass());
-                        Map<String, Class<?>> readTypes = cf.getFieldTypes(FieldsFilter.SERIALIZABLE);
-                        Map<String, Class<?>> writeTypes = cf.getFieldTypes(FieldsFilter.WRITEABLE);
-                        HashSet<String> requiredFieldNames = new HashSet<String>(cf.getFieldNamesWithAnnotation(EntityFieldRequired.class));
-                        Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
+                        PropertyIntrospection propertyData = analyzeProperties(entity.getClass());
+                        Map<String, Class<?>> readTypes = propertyData.getReadableTypes();
+                        Map<String, Class<?>> writeTypes = propertyData.getWritableTypes();
+                        HashSet<String> requiredFieldNames = new HashSet<String>(propertyData.getRequiredProperties());
+                        Map<String, Class<?>> entityTypes = new LinkedHashMap<String, Class<?>>(readTypes);
                         entityTypes.putAll(writeTypes);
                         ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                         Collections.sort(keys);
@@ -984,48 +995,67 @@ public class EntityDescriptionManager {
      * @return all the format extensions handled by this, null if none handled, empty if all
      */
     protected String[] getFormats(String prefix, boolean output) {
-        String[] formats = null;
+        boolean hasFormats = false;
+        boolean allFormats = false;
+        LinkedHashSet<String> collected = new LinkedHashSet<String>();
         try {
             if (output) {
-                formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class).getHandledOutputFormats();
-            } else {
-                formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class).getHandledInputFormats();
-                if (formats != null) {
-                    // strip out the FORM element if it was included
-                    if (ArrayUtils.contains(formats, Formats.FORM)) {
-                        ArrayList<String> l = new ArrayList<String>();
-                        for (String format : formats) {
-                            if (! Formats.FORM.equals(format)) {
-                                l.add(format);
-                            }
+                Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
+                if (outputable != null) {
+                    String[] providerFormats = outputable.getHandledOutputFormats();
+                    if (providerFormats != null) {
+                        hasFormats = true;
+                        if (providerFormats.length == 0) {
+                            allFormats = true;
+                        } else {
+                            collected.addAll(Arrays.asList(providerFormats));
                         }
-                        formats = l.toArray(new String[l.size()]);
                     }
                 }
-            }
-        } catch (NullPointerException e) {
-            formats = null;
-        }
-        EntityViewAccessProvider evap = entityViewAccessProviderManager.getProvider(prefix);
-        if (evap != null) {
-            if (AccessFormats.class.isAssignableFrom(evap.getClass())) {
-                String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
-                if (accessFormats != null) {
-                    if (accessFormats.length > 0) {
-                        if (formats == null) {
-                            formats = accessFormats;
+            } else {
+                Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
+                if (inputable != null) {
+                    String[] providerFormats = inputable.getHandledInputFormats();
+                    if (providerFormats != null) {
+                        hasFormats = true;
+                        if (providerFormats.length == 0) {
+                            allFormats = true;
                         } else {
-                            for (int i = 0; i < accessFormats.length; i++) {
-                                if (! ReflectUtils.contains(formats, accessFormats[i])) {
-                                    ReflectUtils.appendArray(formats, accessFormats[i]);
+                            for (String format : providerFormats) {
+                                if (!Objects.equals(format, Formats.FORM)) {
+                                    collected.add(format);
                                 }
                             }
                         }
                     }
                 }
             }
+        } catch (NullPointerException e) {
+            // ignore, maintain previous behaviour of returning null
         }
-        return formats;
+        EntityViewAccessProvider evap = entityViewAccessProviderManager.getProvider(prefix);
+        if (evap != null && AccessFormats.class.isAssignableFrom(evap.getClass())) {
+            String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
+            if (accessFormats != null) {
+                hasFormats = true;
+                if (accessFormats.length == 0) {
+                    allFormats = true;
+                } else {
+                    for (String format : accessFormats) {
+                        if (format != null) {
+                            collected.add(format);
+                        }
+                    }
+                }
+            }
+        }
+        if (!hasFormats) {
+            return null;
+        }
+        if (allFormats) {
+            return new String[0];
+        }
+        return collected.toArray(new String[collected.size()]);
     }
 
     protected String makeFormatsUrlHtml(String url, String[] formats) {
@@ -1061,7 +1091,7 @@ public class EntityDescriptionManager {
     protected String makeFormUrlHtml(String url, String[] formats) {
         String form = "";
         if (formats != null) {
-            if (ArrayUtils.contains(formats, Formats.FORM)) {
+            if (containsFormat(formats, Formats.FORM)) {
                 form = makeFormatUrlHtml(url, Formats.FORM);
             }
         }
@@ -1117,6 +1147,155 @@ public class EntityDescriptionManager {
             value = null;
         }
         return value;
+    }
+
+    private boolean containsFormat(String[] formats, String format) {
+        if (formats == null || format == null) {
+            return false;
+        }
+        for (String candidate : formats) {
+            if (format.equals(candidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isSimpleType(Class<?> type) {
+        if (type == null) {
+            return true;
+        }
+        if (type.isPrimitive() || Number.class.isAssignableFrom(type) || CharSequence.class.isAssignableFrom(type)
+                || Boolean.class.isAssignableFrom(type) || Character.class.isAssignableFrom(type)
+                || Date.class.isAssignableFrom(type) || Temporal.class.isAssignableFrom(type)
+                || Enum.class.isAssignableFrom(type)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isCollectionType(Class<?> type) {
+        return type != null && Collection.class.isAssignableFrom(type);
+    }
+
+    private boolean isArrayType(Class<?> type) {
+        return type != null && type.isArray();
+    }
+
+    private boolean isMapType(Class<?> type) {
+        return type != null && Map.class.isAssignableFrom(type);
+    }
+
+    private Class<?> getArrayComponentType(Class<?> type) {
+        if (type == null || !type.isArray()) {
+            return null;
+        }
+        Class<?> component = type.getComponentType();
+        while (component != null && component.isArray()) {
+            component = component.getComponentType();
+        }
+        return component;
+    }
+
+    private PropertyIntrospection analyzeProperties(Class<?> type) {
+        PropertyIntrospection introspection = new PropertyIntrospection();
+        if (type == null) {
+            return introspection;
+        }
+        try {
+            for (PropertyDescriptor descriptor : Introspector.getBeanInfo(type).getPropertyDescriptors()) {
+                String name = descriptor.getName();
+                if ("class".equals(name)) {
+                    continue;
+                }
+                Class<?> propertyType = descriptor.getPropertyType();
+                Method readMethod = descriptor.getReadMethod();
+                Method writeMethod = descriptor.getWriteMethod();
+                if (readMethod != null) {
+                    introspection.readableTypes.put(name, propertyType);
+                }
+                if (writeMethod != null) {
+                    introspection.writableTypes.put(name, propertyType);
+                }
+                Field field = findField(type, name);
+                if (field != null && Modifier.isPublic(field.getModifiers())) {
+                    introspection.readableTypes.putIfAbsent(name, field.getType());
+                    introspection.writableTypes.putIfAbsent(name, field.getType());
+                }
+                if (isRequired(field, readMethod, writeMethod)) {
+                    introspection.requiredProperties.add(name);
+                }
+            }
+        } catch (IntrospectionException e) {
+            throw new IllegalStateException("Failed to introspect " + type, e);
+        }
+        for (Field field : getAllFields(type)) {
+            String name = field.getName();
+            if ("class".equals(name)) {
+                continue;
+            }
+            if (Modifier.isPublic(field.getModifiers())) {
+                introspection.readableTypes.putIfAbsent(name, field.getType());
+                introspection.writableTypes.putIfAbsent(name, field.getType());
+            }
+            if (field.isAnnotationPresent(EntityFieldRequired.class)) {
+                introspection.requiredProperties.add(name);
+            }
+        }
+        return introspection;
+    }
+
+    private Field findField(Class<?> type, String name) {
+        Class<?> current = type;
+        while (current != null && !Object.class.equals(current)) {
+            try {
+                return current.getDeclaredField(name);
+            } catch (NoSuchFieldException e) {
+                current = current.getSuperclass();
+            }
+        }
+        return null;
+    }
+
+    private List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<Field>();
+        Class<?> current = type;
+        while (current != null && !Object.class.equals(current)) {
+            fields.addAll(Arrays.asList(current.getDeclaredFields()));
+            current = current.getSuperclass();
+        }
+        return fields;
+    }
+
+    private boolean isRequired(Field field, Method readMethod, Method writeMethod) {
+        if (field != null && field.isAnnotationPresent(EntityFieldRequired.class)) {
+            return true;
+        }
+        if (readMethod != null && readMethod.isAnnotationPresent(EntityFieldRequired.class)) {
+            return true;
+        }
+        if (writeMethod != null && writeMethod.isAnnotationPresent(EntityFieldRequired.class)) {
+            return true;
+        }
+        return false;
+    }
+
+    private static final class PropertyIntrospection {
+        private final Map<String, Class<?>> readableTypes = new LinkedHashMap<String, Class<?>>();
+        private final Map<String, Class<?>> writableTypes = new LinkedHashMap<String, Class<?>>();
+        private final Set<String> requiredProperties = new LinkedHashSet<String>();
+
+        Map<String, Class<?>> getReadableTypes() {
+            return readableTypes;
+        }
+
+        Map<String, Class<?>> getWritableTypes() {
+            return writableTypes;
+        }
+
+        Set<String> getRequiredProperties() {
+            return requiredProperties;
+        }
     }
 
 }
