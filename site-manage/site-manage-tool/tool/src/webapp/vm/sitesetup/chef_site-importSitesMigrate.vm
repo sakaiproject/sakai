@@ -40,13 +40,15 @@
 					#if ($importSupportedTools.contains($toolId))
 						<tr>
 							<td>
-								<button type="button"
-										class="btn btn-icon tool-items-button"
-										data-tool-id="$toolId">
-									<i class="bi bi-caret-right-fill"></i>
-								</button>
-							</td>
-							<td>
+								#set($toolHasSelectableContent = false)
+								#foreach ($site in $importSites.keys())
+									 #set ($toolsWithSelectableContent = $!siteToolsWithSelectableContent.get($site.getId()))
+									 #if ($toolsWithSelectableContent && $toolsWithSelectableContent.contains($toolId))
+									     #set($toolHasSelectableContent = true)
+									     #break
+									 #end
+								#end
+
 								#set($toolTitle = "")
 
 								#foreach($t in $toolRegistrationList)
@@ -61,6 +63,21 @@
 										#set($toolTitle = $toolId)
 								#end
 
+								#if ($toolHasSelectableContent)
+								#set ($btnCollapse = $tlang.getFormattedMessage('import.collapse.tool', $toolTitle))
+								#set ($btnExpand = $tlang.getFormattedMessage('import.expand.tool', $toolTitle))
+								<button type="button"
+									class="btn btn-icon tool-items-button"
+									title="$btnExpand"
+									aria-label="$btnExpand"
+									data-expand-state="$btnExpand"
+									data-collapse-state="$btnCollapse"
+									data-tool-id="$toolId">
+									<i class="bi bi-caret-right-fill"></i>
+								</button>
+								#end
+							</td>
+							<td>
 								<h5>$toolTitle
 
 									#if ($addMissingTools)
@@ -91,7 +108,9 @@
 									#if ($toolFound)
 									<input type="checkbox" id="toolSite-${toolId}-${site.Id}"
 											class="siteimport-tool-checkbox" name="$toolId" value="$site.Id"
+											#if (!$toolHasSelectableContent)
 											aria-label="$tlang.getFormattedMessage('import.all', $toolTitle, $formattedText.escapeHtml($site.getTitle()))"
+											#end
 											data-site-id="$site.Id"
 											data-tool-id="$toolId"
 											title="$tlang.getFormattedMessage('import.all', $toolTitle, $formattedText.escapeHtml($site.getTitle()))"
@@ -101,6 +120,9 @@
 											#if ($!selectedSites.contains($site.Id))
 											checked="checked"
 											#end />
+											#if ($toolHasSelectableContent)
+											    <label for="toolSite-${toolId}-${site.Id}" class="d-inline">$tlang.getFormattedMessage('import.all', $toolTitle, $formattedText.escapeHtml($site.getTitle()))</label>
+											#end
 										#if ($importOptions.get(${toolId}).isPresent())
 										<a id="${toolId}-${site.Id}-options-link"
 												href="javascript:;"
@@ -150,23 +172,7 @@
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
-	<script>
-	document.addEventListener("DOMContentLoaded", function() {
-	function updateGradebookWarning() {
-		var gradebookToolSelected = Array.from(document.querySelectorAll('.siteimport-tool-checkbox')).some(function(checkbox) {
-			return checkbox.dataset.toolId.includes('sakai.gradebook') && checkbox.checked;
-		});
-		var gradebookWarning = document.getElementById('gradebook-warning');
-			if (gradebookToolSelected && $isGradebookGroupEnabled) {
-				gradebookWarning.classList.remove('d-none');
-			} else {
-				gradebookWarning.classList.add('d-none');
-			}
-	}
-		updateGradebookWarning();
-		document.querySelectorAll('.siteimport-tool-checkbox').forEach(function(checkbox) {
-			checkbox.addEventListener('change', updateGradebookWarning);
-		});
-	});
-	</script>
+	#if ($isGradebookGroupEnabled)
+	<script src="/sakai-site-manage-tool/js/site-import.js$!{portalCdnQuery}"></script>
+	#end
 </div>

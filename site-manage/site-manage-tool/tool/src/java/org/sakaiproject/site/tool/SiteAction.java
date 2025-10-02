@@ -3154,7 +3154,11 @@ public class SiteAction extends PagedResourceActionII {
 			//build a map of sites and tools in those sites that have content
 			Map<String,Set<String>> siteToolsWithContent = this.getSiteImportToolsWithContent(importSites, selectedTools);
 			context.put("siteToolsWithContent", siteToolsWithContent);
-			
+
+			//build a map of sites and tools in those sites that have selectable entities
+			Map<String,Set<String>> siteToolsWithSelectableContent = this.getSiteImportToolsWithSelectableContent(importSites, selectedTools);
+			context.put("siteToolsWithSelectableContent", siteToolsWithSelectableContent);
+
 			// set the flag for the UI
 			context.put("addMissingTools", addMissingTools);
 			context.put("isGradebookGroupEnabled", gradingService.isGradebookGroupEnabled(site.getId()));
@@ -3275,7 +3279,11 @@ public class SiteAction extends PagedResourceActionII {
 			//build a map of sites and tools in those sites that have content
 			Map<String,Set<String>> siteToolsWithContent = this.getSiteImportToolsWithContent(importSites, selectedTools);
 			context.put("siteToolsWithContent", siteToolsWithContent);
-						
+
+			//build a map of sites and tools in those sites that have selectable entities
+			Map<String,Set<String>> siteToolsWithSelectableContent = this.getSiteImportToolsWithSelectableContent(importSites, selectedTools);
+			context.put("siteToolsWithSelectableContent", siteToolsWithSelectableContent);
+
 			// set the flag for the UI
 			context.put("addMissingTools", addMissingTools);
 			context.put("isGradebookGroupEnabled", gradingService.isGradebookGroupEnabled(site.getId()));
@@ -16244,6 +16252,45 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Helper to check if a tool in a site has selectable entities, displayed as checkboxes in the Import from Site process.
+	 */
+	private Map<String, Set<String>> getSiteImportToolsWithSelectableContent(List<Site> sites, List<String> toolIds) {
+		Map<String, Set<String>> siteToolsWithSelectableContent = new HashMap<>();
+		for(Site site: sites) {
+			Set<String> toolsWithSelectableContent = new HashSet<>();
+			for(String toolId: toolIds) {
+				if (toolHasSelectableContent(toolId, site.getId())) {
+					toolsWithSelectableContent.add(toolId);
+				}
+			}
+
+			log.debug("Site: {}, has the following tools with selectable content: {}", site.getId(), toolsWithSelectableContent);
+
+			siteToolsWithSelectableContent.put(site.getId(), toolsWithSelectableContent);
+		}
+		return siteToolsWithSelectableContent;
+	}
+
+	private boolean toolHasSelectableContent(String toolId, String siteId) {
+
+		// The granular copying of content does not work with Gradebook, so return false.
+		if (StringUtils.equals(GRADEBOOKNG_TOOL_ID, toolId)) {
+			return false;
+		}
+
+		for (EntityProducer ep : entityManager.getEntityProducers()) {
+			if (ep instanceof EntityTransferrer) {
+				EntityTransferrer et = (EntityTransferrer) ep;
+				if (ArrayUtils.contains(et.myToolIds(), toolId)) {
+					List<Map<String, String>> em = et.getEntityMap(siteId);
+					return em != null && !em.isEmpty();
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
