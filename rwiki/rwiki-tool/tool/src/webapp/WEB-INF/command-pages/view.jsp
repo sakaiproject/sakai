@@ -45,8 +45,6 @@
     <head>
       <title><c:out value="${rlb.jsp_view}" />: <c:out value="${renderBean.localisedPageName}"/></title>
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
-	<link rel="alternate" title="Sakai Wiki RSS" 
- 			href="${viewBean.rssAccessUrl}" type="application/rss+xml" />
     </head>
     <jsp:element name="body">
       <jsp:attribute name="onload">setMainFrameHeightNoScroll('<jsp:expression>request.getAttribute("sakai.tool.placement.id")</jsp:expression>');setFocus(focus_path); callAllLoaders();</jsp:attribute>

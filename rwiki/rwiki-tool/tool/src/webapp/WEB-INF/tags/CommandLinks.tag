@@ -12,17 +12,6 @@
 <jsp:directive.attribute name="viewBean" type="uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean"/>
 <jsp:directive.attribute name="resourceLoaderBean" type="uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean" />
 <span class="rwiki_pageLinks"><jsp:scriptlet>
-if (usePrinterLink != null && usePrinterLink.booleanValue()) {
-</jsp:scriptlet>
-<jsp:element name="a">
-    <jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getRssAccessUrl())</jsp:expression></jsp:attribute>
-	<jsp:attribute name="target">rssfeed</jsp:attribute>
-	<jsp:attribute name="id">rssLink</jsp:attribute>
-	<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_rss_feed_changes")</jsp:expression></jsp:attribute> 
-	<jsp:body>&#160;</jsp:body>
-</jsp:element>
-<jsp:scriptlet>
-}
 if ( viewLinkName == null || viewLinkName.length() == 0 ) {
 	viewLinkName = resourceLoaderBean.getString("jsp_view");
 }
