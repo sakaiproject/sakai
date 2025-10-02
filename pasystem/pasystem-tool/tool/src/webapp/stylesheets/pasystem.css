@@ -75,38 +75,40 @@
   -o-transition: background-color 0.2s, color 0.2s;
   transition: background-color 0.2s, color 0.2s;
 
-  background-color: #f7e084;
-  color: #000 !important;
+  background-color: var(--bs-warning, #f7e084);
+  color: var(--sakai-brand--darker-7) !important;
   text-align: center;
-  padding: 6px 8px;
+  padding: 10px 9px;
   border-radius: 3px;
   text-decoration: none;
+  line-height: 0;
 }
 .pasystem-banner-alert-toggle-list-item {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 13px;
-  border: 1px solid #E0E0E0;
-  z-index: 1000;
+  background-color: var(--bs-warning, #f7e084);
+  border: 2px solid var(--sakai-brand--darker-7);
+  border-radius: 36px;
+  color: var(--sakai-brand--darker-7);
+  cursor: pointer;
   display: inline-block;
-
-  -webkit-transition: background-color 0.2s, color 0.2s;
-  -moz-transition: background-color 0.2s, color 0.2s;
-  -ms-transition: background-color 0.2s, color 0.2s;
-  -o-transition: background-color 0.2s, color 0.2s;
-  transition: background-color 0.2s, color 0.2s;
-
-  background-color: #f7e084;
-  color: #000 !important;
+  height: 36px;
+  left: auto;
+  line-height: 1;
+  overflow: hidden;
+  padding: 6px 0;
+  position: absolute;
+  right: 0;
   text-align: center;
-  padding: 6px 8px;
-  border-radius: 3px;
   text-decoration: none;
+  top: 43px !important;
+  transform: translateX(-50%);
+  transition: top 0.3s ease;
+  width: 36px;
+  z-index: 1000;
 }
 .pasystem-banner-alert-toggle:before {
   font-family: 'pasystem-icons';
   content: '\f071';
+  padding: 0 16px 0 0;
 }
 .pasystem-banner-alert-toggle:hover {
   -webkit-transition: background-color 0.2s, color 0.2s;
