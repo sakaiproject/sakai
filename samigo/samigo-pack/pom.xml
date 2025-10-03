@@ -38,11 +38,6 @@
 			<artifactId>samlite-impl</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>xmlbeans</groupId>
-			<artifactId>jsr173</artifactId>
-			<version>1.0_api</version>
-		</dependency>
-		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>samigo-impl</artifactId>
 		</dependency>

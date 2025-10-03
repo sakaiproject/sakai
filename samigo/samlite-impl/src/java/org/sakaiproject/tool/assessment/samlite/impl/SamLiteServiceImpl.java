@@ -423,7 +423,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 	
 	public QuestestinteropDocument createQTIDocument(QuestionGroup questionGroup) {
 		// Create a new instance of the document object
-		QuestestinteropDocument doc = QuestestinteropDocument.Factory.newInstance();
+		QuestestinteropDocument doc = (QuestestinteropDocument) QuestestinteropDocument.Factory.newInstance();
 		// Add a Questestinterop object
 		doc.addNewQuestestinterop();
 		// Add an assessment object

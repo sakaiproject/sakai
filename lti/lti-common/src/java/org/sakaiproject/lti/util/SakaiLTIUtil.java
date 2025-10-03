@@ -2559,7 +2559,12 @@ public class SakaiLTIUtil {
         if (contentKey > 0) {
                 Map<String, Object> content = new TreeMap<String, Object> ();
                 content.put(LTIService.LTI_ID, contentKey);
-                assignment = getAssignment(site, content);
+                try {
+                    assignment = getAssignment(site, content);
+                } catch (Exception e) {
+                    log.error("Error getting assignment in handleGradebook", e);
+                    return "Error retrieving assignment: " + e.getMessage();
+                }
         } else {
                 assignment = null;
 		}
@@ -2571,8 +2576,13 @@ public class SakaiLTIUtil {
 			scoreObj.scoreGiven = scoreGiven;
 			scoreObj.scoreMaximum = 1.0;
 			scoreObj.comment = comment;
-			retval = handleAssignment(assignment, user_id, scoreObj);
-			return retval;
+			try {
+				retval = handleAssignment(assignment, user_id, scoreObj);
+				return retval;
+			} catch (Exception e) {
+				log.error("Error in handleAssignment", e);
+				return "Error processing assignment: " + e.getMessage();
+			}
 		}
 
 		// Now read, set, or delete the non-assignment grade...
@@ -2669,9 +2679,17 @@ public class SakaiLTIUtil {
 			try {
 				org.sakaiproject.assignment.api.model.Assignment assignment = getAssignment(site, content);
 				if ( assignment != null ) {
-					retval = handleAssignment(assignment, userId, scoreObj);
-					return retval;
+					try {
+						retval = handleAssignment(assignment, userId, scoreObj);
+						return retval;
+					} catch (Exception e) {
+						log.error("Error in handleAssignment", e);
+						return "Error processing assignment: " + e.getMessage();
+					}
 				}
+			} catch (Exception e) {
+				log.error("Error in assignment processing", e);
+				return "Error processing assignment: " + e.getMessage();
 			} finally {
 				popAdvisor(); // Remove security advisor
 			}
@@ -2701,15 +2719,19 @@ public class SakaiLTIUtil {
 						log.debug("assignmentReference.id {}", assignmentReference.getId());
 						assignment = assignmentService.getAssignment(assignmentReference.getId());
 					} catch (Exception e) {
-						assignment = null;
-						log.error("Unexpected error getting assignment: {}", e.toString());
-						log.debug("Stacktrace:", e);
+						log.error("Error getting assignment", e);
+						return "Error retrieving assignment: " + e.getMessage();
 					}
 
 					if ( assignment != null ) {
 						log.debug("Gradebook column is owned by assignment: {}", assignment.getId());
-						retval = handleAssignment(assignment, userId, scoreObj);
-						return retval;
+						try {
+							retval = handleAssignment(assignment, userId, scoreObj);
+							return retval;
+						} catch (Exception e) {
+							log.error("Error in handleAssignment", e);
+							return "Error processing assignment: " + e.getMessage();
+						}
 					}
 				} finally {
 					popAdvisor(); // Remove security advisor
@@ -2804,12 +2826,11 @@ public class SakaiLTIUtil {
 			}
 			return null;
 		} catch (Exception e) {
-			log.error("Unexpected error getting assignment: {}", e.toString());
-			log.debug("Stacktrace:", e);
+			log.error("Error getting assignment", e);
+			return null;
 		} finally {
 			popAdvisor();
 		}
-		return null;
 	}
 
 	public static Object handleAssignment(org.sakaiproject.assignment.api.model.Assignment a, String userId, Score scoreObj) {
@@ -2851,8 +2872,8 @@ public class SakaiLTIUtil {
 		try {
 			user = UserDirectoryService.getUser(userId);
 		} catch (org.sakaiproject.user.api.UserNotDefinedException e) {
-			log.debug("Could not look up user {} {}", userId, e.toString());
-			return "Could not look up user "+userId;
+			log.error("Could not look up user {}: {}", userId, e);
+			return "Could not look up user " + userId;
 		}
 
 		pushAdvisor();
