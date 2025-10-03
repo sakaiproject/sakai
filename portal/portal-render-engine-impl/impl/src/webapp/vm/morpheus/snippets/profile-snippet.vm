@@ -74,7 +74,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${rloader.sit_closepage}"></button>
       </div>
       <div class="modal-body">
-        <sakai-account user-id="${loginUserId}"></sakai-account>
+        <sakai-account></sakai-account>
       </div>
     </div>
   </div>
