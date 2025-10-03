@@ -397,15 +397,16 @@ public class EntityEncodingManagerTest extends TestCase {
         String json = "{\"id\":123,\"thing\":\"AZ\"}";
         decoded = entityEncodingManager.decodeData(json, Formats.JSON);
         assertNotNull(decoded);
-        //assertEquals(123, decoded.get("id"));
-        //assertEquals("AZ", decoded.get("thing"));
+        // Jackson returns Integer for small numbers
+        assertEquals(123, ((Number) decoded.get("id")).intValue());
+        assertEquals("AZ", decoded.get("thing"));
 
         json = "{\"id\":123,\"thing\":\"AZ\",\"map\":{\"name\":\"aaron\",\"date\":1221493247004,\"num\":456,\"array\":[\"A\",\"B\",\"C\"]}}";
         decoded = entityEncodingManager.decodeData(json, Formats.JSON);
         assertNotNull(decoded);
-        //assertEquals(3, decoded.size());
-        //assertEquals(123, decoded.get("id"));
-        //assertEquals("AZ", decoded.get("thing"));
+        assertEquals(3, decoded.size());
+        assertEquals(123, ((Number) decoded.get("id")).intValue());
+        assertEquals("AZ", decoded.get("thing"));
         Map<String, Object> m2d = (Map<String, Object>) decoded.get("map");
 
     }
