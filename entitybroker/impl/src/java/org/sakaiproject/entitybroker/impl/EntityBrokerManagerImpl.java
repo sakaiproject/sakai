@@ -690,7 +690,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
             String fullURL = makeFullURL( partialURL );
             entityData.setEntityURL( fullURL );
             // check what we are dealing with
-            boolean isPOJO = isBeanCandidate(entityData.getData());
+            boolean isBeanCandidate = isBeanCandidate(entityData.getData());
             // attempt to set display title if not set
             if (! entityData.isDisplayTitleSet()) {
                 boolean titleNotSet = true;
@@ -703,7 +703,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
                     }
                 }
                 // check the object itself next
-                if (isPOJO && titleNotSet) {
+                if (isBeanCandidate && titleNotSet) {
                     String title = extractDisplayTitle(entityData.getData());
                     if (title != null) {
                         entityData.setDisplayTitle(title);
@@ -731,6 +731,16 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
             return false;
         }
         if (Map.class.isAssignableFrom(type) || java.util.Collection.class.isAssignableFrom(type)) {
+            return false;
+        }
+        // Additional non-bean leaf types: avoid reflection on these
+        if (Class.class.equals(type) || java.util.UUID.class.equals(type)
+                || java.util.Locale.class.equals(type) || java.util.Currency.class.equals(type)) {
+            return false;
+        }
+        String packageName = (type.getPackage() != null ? type.getPackage().getName() : "");
+        if (packageName.startsWith("java.io.") || packageName.startsWith("java.nio.file.")
+                || packageName.startsWith("java.net.")) {
             return false;
         }
         return true;
