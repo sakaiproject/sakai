@@ -80,9 +80,42 @@ export class SakaiNotifications extends SakaiElement {
     this._i18nLoaded.then(() => this._loadInitialNotifications());
   }
 
+  _invalidateCache() {
+    const CACHE_KEY = "sakai-notifications-cache";
+    try {
+      localStorage.removeItem(CACHE_KEY);
+      console.debug("Notifications cache invalidated");
+    } catch (e) {
+      console.warn("Failed to invalidate notifications cache:", e);
+    }
+  }
+
   _loadInitialNotifications(register = true) {
 
     console.debug("_loadInitialNotifications");
+
+    // Check cache first (2 minute TTL)
+    const CACHE_KEY = "sakai-notifications-cache";
+    const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { notifications, timestamp } = JSON.parse(cached);
+        const age = Date.now() - timestamp;
+
+        if (age < CACHE_TTL) {
+          console.debug("Using cached notifications (age:", Math.round(age / 1000), "seconds)");
+          this.notifications = notifications;
+          this._filterIntoToolNotifications();
+          this._fireLoadedEvent();
+          register && this._registerForNotifications();
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to read notifications cache:", e);
+    }
 
     fetch(this.url, {
       credentials: "include",
@@ -100,6 +133,17 @@ export class SakaiNotifications extends SakaiElement {
     .then(notifications => {
 
       this.notifications = notifications;
+
+      // Cache the notifications
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          notifications,
+          timestamp: Date.now()
+        }));
+      } catch (e) {
+        console.warn("Failed to cache notifications:", e);
+      }
+
       this._filterIntoToolNotifications();
       this._fireLoadedEvent();
       register && this._registerForNotifications();
@@ -247,6 +291,7 @@ export class SakaiNotifications extends SakaiElement {
         if (r.ok) {
           const index = this.notifications.findIndex(a => a.id == notificationId);
           this.notifications.splice(index, 1);
+          this._invalidateCache();
           this._fireLoadedEvent();
           this._filterIntoToolNotifications(false);
         } else {
@@ -264,6 +309,7 @@ export class SakaiNotifications extends SakaiElement {
 
         if (r.ok) {
           this.notifications = [];
+          this._invalidateCache();
           this._fireLoadedEvent();
           this._filterIntoToolNotifications();
           this.dispatchEvent(new CustomEvent("notifications-cleared", { bubbles: true }));
@@ -287,6 +333,7 @@ export class SakaiNotifications extends SakaiElement {
 
         if (r.ok) {
           this.notifications?.forEach(a => a.viewed = true);
+          this._invalidateCache();
           this.requestUpdate();
           this._fireLoadedEvent();
         } else {
