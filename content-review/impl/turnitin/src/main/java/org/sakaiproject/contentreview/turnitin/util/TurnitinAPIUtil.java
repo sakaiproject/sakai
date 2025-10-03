@@ -261,19 +261,16 @@ public class TurnitinAPIUtil {
                         String secretKey, int timeout, Proxy proxy, boolean isMultipart) throws TransientSubmissionException, SubmissionException {
                 InputStream inputStream = callTurnitinReturnInputStream(apiURL, parameters, secretKey, timeout, proxy, isMultipart);
 
-                BufferedReader in;
-		in = new BufferedReader(new InputStreamReader(inputStream));
 		Document document = null;
-		try {   
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder  parser = documentBuilderFactory.newDocumentBuilder();
+			DocumentBuilder parser = documentBuilderFactory.newDocumentBuilder();
 			document = parser.parse(new org.xml.sax.InputSource(in));
-		}
-		catch (ParserConfigurationException pce){
+		} catch (ParserConfigurationException pce) {
 			log.error("parser configuration error: " + pce.getMessage());
-			throw new TransientSubmissionException ("Parser configuration error", pce);
+			throw new TransientSubmissionException("Parser configuration error", pce);
 		} catch (Exception t) {
-			throw new TransientSubmissionException ("Cannot parse Turnitin response. Assuming call was unsuccessful", t);
+			throw new TransientSubmissionException("Cannot parse Turnitin response. Assuming call was unsuccessful", t);
 		}
 		
 		if (log.isDebugEnabled()) {

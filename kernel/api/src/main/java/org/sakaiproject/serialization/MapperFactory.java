@@ -255,6 +255,10 @@ public final class MapperFactory {
          */
         public XmlMapperBuilder() {
             xmlMapper = new XmlMapper(WstxInputFactory.newInstance(), WstxOutputFactory.newInstance());
+            // XXE hardening: disable DTDs and external entities up front
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(javax.xml.stream.XMLInputFactory.SUPPORT_DTD, false);
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(javax.xml.stream.XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+            xmlMapper.getFactory().rebuild().build();
         }
 
         /**
@@ -366,6 +370,9 @@ public final class MapperFactory {
          */
         public XmlMapperBuilder setMaxAttributeSize(int maxAttributeSize) {
             xmlMapper.getFactory().getXMLInputFactory().setProperty(WstxInputProperties.P_MAX_ATTRIBUTE_SIZE, maxAttributeSize);
+            // Ensure XXE defenses remain in effect prior to rebuild
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
             xmlMapper.getFactory().rebuild().build();
             return this;
         }
@@ -380,6 +387,9 @@ public final class MapperFactory {
          */
         public XmlMapperBuilder disableNamespaceAware() {
             xmlMapper.getFactory().getXMLInputFactory().setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
+            // Ensure XXE defenses remain in effect prior to rebuild
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
             xmlMapper.getFactory().rebuild().build();
             return this;
         }

@@ -145,7 +145,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
     protected final Map<String, EntityProviderListener<?>> listenerMap = new ConcurrentHashMap<String, EntityProviderListener<?>>();
 
-    // Concurrent maps provide thread safety while allowing listeners and providers to be released for GC when removed
+    // Concurrent maps provide thread safety; entries remain strongly referenced until explicitly removed
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.managers.EntityProviderManager#getProviderByPrefix(java.lang.String)

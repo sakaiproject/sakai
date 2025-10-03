@@ -828,7 +828,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         }
         String URL = ev.toString();
         // get the right method to use
-        HttpRESTUtils.Method method = HttpRESTUtils.Method.GET;
+        HttpRESTUtils.Method method;
         if (EntityView.VIEW_DELETE.equals(ev.getViewKey())) {
             method = HttpRESTUtils.Method.DELETE;
         } else if (EntityView.VIEW_EDIT.equals(ev.getViewKey())) {
