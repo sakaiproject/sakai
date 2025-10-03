@@ -2965,6 +2965,27 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>3.1.2</version>
+        <executions>
+          <execution>
+            <id>sakai-no-var-check</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <!-- Point to the no-var rule at the repo root for all modules -->
+              <configLocation>${maven.multiModuleProjectDirectory}/master/checkstyle/no-var.xml</configLocation>
+              <includeTestSourceDirectory>true</includeTestSourceDirectory>
+              <failOnViolation>true</failOnViolation>
+              <violationSeverity>error</violationSeverity>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
