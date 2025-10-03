@@ -124,6 +124,7 @@ public class EntityEncodingManager {
 
     private static final ObjectMapper JSON_MAPPER = MapperFactory.jsonBuilder()
             .ignoreUnknownProperties()
+            .registerJdk8Module()
             .registerJavaTimeModule()
             .disableDateTimestamps()
             .disableFailOnEmptyBeans()
@@ -474,6 +475,11 @@ public class EntityEncodingManager {
      */
     public void internalOutputFormatter(EntityReference ref, String format, List<EntityData> entities, Map<String, Object> params, OutputStream output, EntityView view) {
         if (format == null) { format = Outputable.HTML; }
+        String originalFormat = format;
+        format = format.trim();
+        if (!format.equals(originalFormat)) {
+            log.debug("Trimmed format '{}' -> '{}' for ref {}", originalFormat, format, ref);
+        }
 
         // check the format to see if we can handle it
         if (! contains(HANDLED_OUTPUT_FORMATS, format)) {
@@ -607,6 +613,11 @@ public class EntityEncodingManager {
     public String encodeEntity(String prefix, String format, EntityData entityData, EntityView view) {
         if (prefix == null || format == null) {
             throw new IllegalArgumentException("prefix and format must not be null");
+        }
+        String originalFormat = format;
+        format = format.trim();
+        if (!format.equals(originalFormat)) {
+            log.debug("Trimmed encodeEntity format '{}' -> '{}' for prefix {}", originalFormat, format, prefix);
         }
         if (entityData == null && ! Formats.FORM.equals(format)) {
             throw new IllegalArgumentException("entityData to encode must not be null for prefix ("+prefix+") and format ("+format+")");
@@ -840,15 +851,31 @@ public class EntityEncodingManager {
                 }
             }
             // do the encoding
+            String encodingName = prefix;
+            if ((beanEncodedDirectly || dataOnly) && (Formats.JSON.equals(format) || Formats.JSONP.equals(format))) {
+                encodingName = null;
+            }
             try {
-                String encodingName = prefix;
-                if ((beanEncodedDirectly || dataOnly) && (Formats.JSON.equals(format) || Formats.JSONP.equals(format))) {
-                    encodingName = null;
-                }
                 encoded = encodeData(toEncode, format, encodingName, entityProps);
-            } catch (IllegalArgumentException e) {
-                // no transcoder so just toString this and dump it out
-                encoded = prefix + " : " + entityData;
+            } catch (RuntimeException e) {
+                log.warn("encodeEntity fallback for prefix={} format={} dataOnly={} beanEncodedDirectly={} entityClass={}",
+                        prefix, format, dataOnly, beanEncodedDirectly, toEncode != null ? toEncode.getClass() : null, e);
+                if (Formats.JSON.equals(format) || Formats.JSONP.equals(format)) {
+                    try {
+                        Object envelope = mergeProperties(toEncode, entityProps);
+                        if (encodingName != null && !encodingName.isEmpty()) {
+                            LinkedHashMap<String, Object> wrapper = new LinkedHashMap<String, Object>();
+                            wrapper.put(encodingName, envelope);
+                            envelope = wrapper;
+                        }
+                        encoded = JSON_PRETTY_WRITER.writeValueAsString(envelope);
+                    } catch (JsonProcessingException jpe) {
+                        throw new EntityEncodingException("Failure encoding data (" + toEncode + ") of type ("
+                                + toEncode.getClass() + ")", prefix, jpe);
+                    }
+                } else {
+                    throw e;
+                }
             }
         }
         return encoded;
@@ -983,13 +1010,18 @@ public class EntityEncodingManager {
                 }
                 return converted;
             } else if (isBeanClass(value.getClass())) {
-                Map<String, Object> beanValues = getObjectValues(value);
-                Map<String, Object> converted = new LinkedHashMap<String, Object>(beanValues.size());
-                for (Entry<String, Object> entry : beanValues.entrySet()) {
-                    converted.put(entry.getKey(),
-                            convertValueForSerialization(entry.getValue(), currentDepth + 1, maxDepth, visited));
+                try {
+                    Map<String, Object> beanValues = getObjectValues(value);
+                    Map<String, Object> converted = new LinkedHashMap<String, Object>(beanValues.size());
+                    for (Entry<String, Object> entry : beanValues.entrySet()) {
+                        converted.put(entry.getKey(),
+                                convertValueForSerialization(entry.getValue(), currentDepth + 1, maxDepth, visited));
+                    }
+                    return converted;
+                } catch (RuntimeException ex) {
+                    log.debug("Bean conversion failed for {}, deferring to serializer: {}", value.getClass(), ex.toString());
+                    return value; // let Jackson handle it directly
                 }
-                return converted;
             } else {
                 return summarizeValue(value);
             }

@@ -407,6 +407,7 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
 
     private static final ObjectMapper JSON_MAPPER = MapperFactory.jsonBuilder()
             .ignoreUnknownProperties()
+            .registerJdk8Module()
             .excludeNulls()
             .registerJavaTimeModule()
             .disableDateTimestamps()

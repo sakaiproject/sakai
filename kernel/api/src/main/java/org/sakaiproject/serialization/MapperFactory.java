@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import javax.xml.stream.XMLInputFactory;
 
@@ -50,6 +51,7 @@ public final class MapperFactory {
      */
     public static ObjectMapper createDefaultJsonMapper() {
         return jsonBuilder()
+                .registerJdk8Module()
                 .registerJavaTimeModule()
                 .ignoreUnknownProperties()
                 .excludeNulls()
@@ -158,6 +160,16 @@ public final class MapperFactory {
          */
         public JsonMapperBuilder registerJavaTimeModule() {
             mapper.registerModule(new JavaTimeModule());
+            return this;
+        }
+
+        /**
+         * Registers Jdk8Module for handling Optional and other JDK8 types.
+         *
+         * @return this builder for chaining
+         */
+        public JsonMapperBuilder registerJdk8Module() {
+            mapper.registerModule(new Jdk8Module());
             return this;
         }
 
