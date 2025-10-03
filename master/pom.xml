@@ -16,7 +16,6 @@
   <properties>
     <sakai.version>26-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
-    <sakai.checkstyle.version>10.17.0</sakai.checkstyle.version>
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
     <sakai.commons-io.version>2.20.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
@@ -2690,13 +2689,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
           <version>3.1.2</version>
-          <dependencies>
-            <dependency>
-              <groupId>com.puppycrawl.tools</groupId>
-              <artifactId>checkstyle</artifactId>
-              <version>${sakai.checkstyle.version}</version>
-            </dependency>
-          </dependencies>
           <configuration>
             <configLocation>google_checks.xml</configLocation>
             <linkXRef>false</linkXRef>
@@ -2971,34 +2963,6 @@
             ${random-source}
           </argLine>
         </configuration>
-      </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.1.2</version>
-          <dependencies>
-            <dependency>
-              <groupId>com.puppycrawl.tools</groupId>
-              <artifactId>checkstyle</artifactId>
-              <version>${sakai.checkstyle.version}</version>
-            </dependency>
-          </dependencies>
-          <executions>
-            <execution>
-              <id>sakai-no-var-check</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <configuration>
-              <!-- Point to the no-var rule at the repo root for all modules -->
-              <configLocation>${maven.multiModuleProjectDirectory}/master/checkstyle/no-var.xml</configLocation>
-              <includeTestSourceDirectory>true</includeTestSourceDirectory>
-              <failOnViolation>true</failOnViolation>
-              <violationSeverity>error</violationSeverity>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <inherited>true</inherited>
