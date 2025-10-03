@@ -177,17 +177,12 @@ public class TurnitinAPIUtil {
 		return md5;
 	}
 
-	public static Map callTurnitinReturnMap(String apiURL, Map<String,Object> parameters,
+	public static Map<String, Object>  callTurnitinReturnMap(String apiURL, Map<String,Object> parameters,
 			String secretKey, int timeout, Proxy proxy) throws TransientSubmissionException, SubmissionException {
 		Document document = callTurnitinReturnDocument(apiURL, parameters, secretKey, timeout, proxy, false);
 		Map<String, Object> togo = flattenResponse(document);
 		log.debug("Turnitin Result Payload: {}", togo);
 		return togo;
-	}
-
-	public static Document callTurnitinReturnDocument(String apiURL, Map<String,Object> parameters, 
-			String secretKey, int timeout, Proxy proxy) throws TransientSubmissionException, SubmissionException {
-		return callTurnitinReturnDocument(apiURL, parameters, secretKey, timeout, proxy, false);
 	}
 	
 	public static String buildTurnitinURL(String apiURL, Map<String,Object> parameters, String secretKey) {
