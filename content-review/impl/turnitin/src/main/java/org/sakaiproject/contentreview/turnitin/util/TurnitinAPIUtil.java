@@ -177,20 +177,13 @@ public class TurnitinAPIUtil {
 		return md5;
 	}
 
-        public static Map callTurnitinReturnMap(String apiURL, Map<String,Object> parameters,
-                        String secretKey, int timeout, Proxy proxy) throws TransientSubmissionException, SubmissionException
-        {
-                try {
-                        Document document = callTurnitinReturnDocument(apiURL, parameters, secretKey, timeout, proxy, false);
-                        Map<String, Object> togo = flattenResponse(document);
-                        log.debug("Turnitin Result Payload: " + togo);
-                        return togo;
-                } catch (TransientSubmissionException | SubmissionException e) {
-                        throw e;
-                } catch (Exception t) {
-                        throw new TransientSubmissionException ("Cannot parse Turnitin response. Assuming call was unsuccessful", t);
-                }
-        }
+	public static Map callTurnitinReturnMap(String apiURL, Map<String,Object> parameters,
+			String secretKey, int timeout, Proxy proxy) throws TransientSubmissionException, SubmissionException {
+		Document document = callTurnitinReturnDocument(apiURL, parameters, secretKey, timeout, proxy, false);
+		Map<String, Object> togo = flattenResponse(document);
+		log.debug("Turnitin Result Payload: {}", togo);
+		return togo;
+	}
 
 	public static Document callTurnitinReturnDocument(String apiURL, Map<String,Object> parameters, 
 			String secretKey, int timeout, Proxy proxy) throws TransientSubmissionException, SubmissionException {
@@ -273,75 +266,73 @@ public class TurnitinAPIUtil {
 			throw new TransientSubmissionException("Cannot parse Turnitin response. Assuming call was unsuccessful", t);
 		}
 		
-		if (log.isDebugEnabled()) {
-			log.debug(" Result from call: " + Xml.writeDocumentToString(document));
+			log.debug("Result from call: {}", Xml.writeDocumentToString(document));
+
+			return document;
 		}
 
-                return document;
-        }
+		private static Map<String, Object> flattenResponse(Document document) {
+				Map<String, Object> response = new LinkedHashMap<>();
+				if (document == null) {
+						return response;
+				}
+				Element root = document.getDocumentElement();
+				if (root == null) {
+						return response;
+				}
+				NodeList children = root.getChildNodes();
+				for (int i = 0; i < children.getLength(); i++) {
+						Node node = children.item(i);
+						if (node.getNodeType() != Node.ELEMENT_NODE) {
+								continue;
+						}
+						Element element = (Element) node;
+						mergeValue(response, element.getNodeName(), extractValue(element));
+				}
+				return response;
+		}
 
-        private static Map<String, Object> flattenResponse(Document document) {
-                Map<String, Object> response = new LinkedHashMap<>();
-                if (document == null) {
-                        return response;
-                }
-                Element root = document.getDocumentElement();
-                if (root == null) {
-                        return response;
-                }
-                NodeList children = root.getChildNodes();
-                for (int i = 0; i < children.getLength(); i++) {
-                        Node node = children.item(i);
-                        if (node.getNodeType() != Node.ELEMENT_NODE) {
-                                continue;
-                        }
-                        Element element = (Element) node;
-                        mergeValue(response, element.getNodeName(), extractValue(element));
-                }
-                return response;
-        }
+		private static Object extractValue(Element element) {
+				NodeList childNodes = element.getChildNodes();
+				List<Element> elementChildren = new ArrayList<>();
+				for (int i = 0; i < childNodes.getLength(); i++) {
+						Node node = childNodes.item(i);
+						if (node.getNodeType() == Node.ELEMENT_NODE) {
+								elementChildren.add((Element) node);
+						}
+				}
+				if (elementChildren.isEmpty()) {
+						String text = element.getTextContent();
+						return text == null ? "" : text.trim();
+				}
+				Map<String, Object> nested = new LinkedHashMap<>();
+				for (Element child : elementChildren) {
+						mergeValue(nested, child.getNodeName(), extractValue(child));
+				}
+				return nested;
+		}
 
-        private static Object extractValue(Element element) {
-                NodeList childNodes = element.getChildNodes();
-                List<Element> elementChildren = new ArrayList<>();
-                for (int i = 0; i < childNodes.getLength(); i++) {
-                        Node node = childNodes.item(i);
-                        if (node.getNodeType() == Node.ELEMENT_NODE) {
-                                elementChildren.add((Element) node);
-                        }
-                }
-                if (elementChildren.isEmpty()) {
-                        String text = element.getTextContent();
-                        return text == null ? "" : text.trim();
-                }
-                Map<String, Object> nested = new LinkedHashMap<>();
-                for (Element child : elementChildren) {
-                        mergeValue(nested, child.getNodeName(), extractValue(child));
-                }
-                return nested;
-        }
+		private static void mergeValue(Map<String, Object> target, String key, Object value) {
+				if (target.containsKey(key)) {
+						Object existing = target.get(key);
+						if (existing instanceof List) {
+								@SuppressWarnings("unchecked")
+								List<Object> list = (List<Object>) existing;
+								list.add(value);
+						} else {
+								List<Object> list = new ArrayList<>();
+								list.add(existing);
+								list.add(value);
+								target.put(key, list);
+						}
+				} else {
+						target.put(key, value);
+				}
+		}
 
-        private static void mergeValue(Map<String, Object> target, String key, Object value) {
-                if (target.containsKey(key)) {
-                        Object existing = target.get(key);
-                        if (existing instanceof List) {
-                                @SuppressWarnings("unchecked")
-                                List<Object> list = (List<Object>) existing;
-                                list.add(value);
-                        } else {
-                                List<Object> list = new ArrayList<>();
-                                list.add(existing);
-                                list.add(value);
-                                target.put(key, list);
-                        }
-                } else {
-                        target.put(key, value);
-                }
-        }
-
-        public static InputStream callTurnitinReturnInputStream(String apiURL, Map<String,Object> parameters,
-                        String secretKey, int timeout, Proxy proxy, boolean isMultipart) throws TransientSubmissionException, SubmissionException {
-                InputStream togo = null;
+		public static InputStream callTurnitinReturnInputStream(String apiURL, Map<String,Object> parameters,
+						String secretKey, int timeout, Proxy proxy, boolean isMultipart) throws TransientSubmissionException, SubmissionException {
+				InputStream togo = null;
 		
 		StringBuilder apiDebugSB = new StringBuilder();
 
