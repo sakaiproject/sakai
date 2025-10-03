@@ -534,4 +534,46 @@ public class EntityEncodingManagerTest extends TestCase {
 
     }
 
+    /**
+     * Test that EntityData objects are properly serialized in JSON:
+     * - No extra name wrapper (EntityData already has entity metadata)
+     * - Transient fields are excluded (dataOnly, displayTitleSet, entityRef, populated)
+     * - Matches the format expected by clients like Commons userPerms endpoint
+     */
+    public void testEntityDataJSONEncoding() {
+        // Create an EntityData object similar to what Commons userPerms endpoint returns
+        List<String> permissions = new ArrayList<String>();
+        permissions.add("commons.comment.create");
+        permissions.add("commons.comment.delete.any");
+        permissions.add("commons.post.create");
+        permissions.add("site.upd");
+
+        EntityData entityData = new EntityData("/commons", "userPerms");
+        entityData.setData(permissions);
+
+        // Encode with a name parameter (like "commons")
+        String encoded = entityEncodingManager.encodeData(entityData, Formats.JSON, "commons", null);
+
+        assertNotNull(encoded);
+
+        // Should NOT have the "commons" wrapper since EntityData already has entity metadata
+        assertFalse("Should not have 'commons' wrapper for EntityData", encoded.startsWith("{\"commons\":") || encoded.startsWith("{\n  \"commons\":"));
+
+        // Should contain the actual data
+        assertTrue("Should contain permission data", encoded.contains("commons.comment.create"));
+        assertTrue("Should contain permission data", encoded.contains("site.upd"));
+
+        // Should contain EntityData fields
+        assertTrue("Should contain displayTitle", encoded.contains("\"displayTitle\":"));
+        assertTrue("Should contain entityReference", encoded.contains("\"entityReference\":"));
+        assertTrue("Should contain entityURL", encoded.contains("\"entityURL\":"));
+        assertTrue("Should contain data array", encoded.contains("\"data\":"));
+
+        // Should NOT contain transient fields
+        assertFalse("Should not contain dataOnly field", encoded.contains("\"dataOnly\":"));
+        assertFalse("Should not contain displayTitleSet field", encoded.contains("\"displayTitleSet\":"));
+        assertFalse("Should not contain entityRef field", encoded.contains("\"entityRef\":"));
+        assertFalse("Should not contain populated field", encoded.contains("\"populated\":"));
+    }
+
 }

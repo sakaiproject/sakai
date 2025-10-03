@@ -124,7 +124,6 @@ public class EntityEncodingManager {
 
     private static final ObjectMapper JSON_MAPPER = MapperFactory.jsonBuilder()
             .ignoreUnknownProperties()
-            .excludeNulls()
             .registerJavaTimeModule()
             .disableDateTimestamps()
             .disableFailOnEmptyBeans()
@@ -144,7 +143,6 @@ public class EntityEncodingManager {
             .registerJavaTimeModule()
             .disableDateTimestamps()
             .ignoreUnknownProperties()
-            .excludeNulls()
             .enableOutputCDataAsText()
             .disableNamespaceAware()
             .enableRepairingNamespaces()
@@ -881,11 +879,13 @@ public class EntityEncodingManager {
         }
         Map<String, Object> safeProperties = properties == null ? Collections.<String, Object>emptyMap()
                 : new LinkedHashMap<String, Object>(properties);
+        // Check if data is EntityData before serialization (it will be converted to Map during prepareForSerialization)
+        boolean isEntityData = data instanceof org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
         int depthLimit = determineDepthLimit(format, name);
         Object prepared = prepareForSerialization(data, depthLimit);
         try {
             if (Formats.JSON.equals(format) || Formats.JSONP.equals(format)) {
-                return encodeJson(prepared, name, safeProperties);
+                return encodeJson(prepared, name, safeProperties, isEntityData);
             } else if (Formats.XML.equals(format)) {
                 return encodeXml(prepared, name, safeProperties);
             } else if (Formats.HTML.equals(format)) {
@@ -935,6 +935,14 @@ public class EntityEncodingManager {
         }
         if (isSimpleValue(value)) {
             return value;
+        }
+        // Special handling for EntityData - if dataOnly=true, unwrap and return just the data
+        if (value instanceof org.sakaiproject.entitybroker.entityprovider.extension.EntityData) {
+            org.sakaiproject.entitybroker.entityprovider.extension.EntityData entityData =
+                (org.sakaiproject.entitybroker.entityprovider.extension.EntityData) value;
+            if (entityData.isDataOnly()) {
+                return convertValueForSerialization(entityData.getData(), currentDepth, maxDepth, visited);
+            }
         }
         if (maxDepth > -1 && currentDepth >= maxDepth) {
             return summarizeValue(value);
@@ -1024,9 +1032,10 @@ public class EntityEncodingManager {
         return merged;
     }
 
-    private String encodeJson(Object data, String name, Map<String, Object> properties) throws JsonProcessingException {
+    private String encodeJson(Object data, String name, Map<String, Object> properties, boolean isEntityData) throws JsonProcessingException {
         Object envelope = mergeProperties(data, properties);
-        if (name != null && !name.isEmpty()) {
+        // Don't add name wrapper if data is EntityData (it already has entity metadata)
+        if (name != null && !name.isEmpty() && !isEntityData) {
             LinkedHashMap<String, Object> wrapper = new LinkedHashMap<String, Object>();
             wrapper.put(name, envelope);
             envelope = wrapper;
@@ -1457,10 +1466,22 @@ public class EntityEncodingManager {
         if (entity == null) {
             return values;
         }
+        // Build a set of transient field names to exclude
+        Set<String> transientFields = new HashSet<>();
+        ReflectionUtils.doWithFields(entity.getClass(), field -> {
+            if (Modifier.isTransient(field.getModifiers())) {
+                transientFields.add(field.getName());
+            }
+        });
+
         BeanWrapperImpl wrapper = new BeanWrapperImpl(entity);
         for (PropertyDescriptor descriptor : wrapper.getPropertyDescriptors()) {
             String name = descriptor.getName();
             if ("class".equals(name)) {
+                continue;
+            }
+            // Skip properties that have transient backing fields
+            if (transientFields.contains(name)) {
                 continue;
             }
             if (wrapper.isReadableProperty(name)) {
@@ -1471,13 +1492,17 @@ public class EntityEncodingManager {
             if (!Modifier.isPublic(field.getModifiers())) {
                 return;
             }
+            // Skip transient fields
+            if (Modifier.isTransient(field.getModifiers())) {
+                return;
+            }
             String name = field.getName();
             if (values.containsKey(name) || "class".equals(name)) {
                 return;
             }
             ReflectionUtils.makeAccessible(field);
             values.put(name, ReflectionUtils.getField(field, entity));
-        }, field -> !Modifier.isStatic(field.getModifiers()));
+        }, field -> !Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers()));
         return values;
     }
 
