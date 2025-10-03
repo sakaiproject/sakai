@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.parsers.dom.DOMTreeUtility;
 import org.adl.validator.contentpackage.IManifestMap;
 import org.adl.validator.contentpackage.ManifestMap;
@@ -49,7 +50,7 @@ import org.w3c.dom.NodeList;
  *
  * @author ADL Technical Team
  */
-
+@Slf4j
 public class ADLValidatorOutcome implements IValidatorOutcome {
 
 	/**
@@ -772,26 +773,44 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 								try {
 									oldItem.appendChild(currentChild);
 								} catch (DOMException domExcep) {
-									domExcep.printStackTrace();
+									log.warn("could not append child", domExcep);
 								}
 							}
 
-							oldItemChildren = oldItem.getChildNodes();
-
-							identifierAttr = DOMTreeUtility.getAttribute(oldItem, "identifier");
-
-							identifierAttr.setValue(organizationID);
-
-							DOMTreeUtility.removeAttribute(oldItem, "identifierref");
-						}
+                            try {
+                                identifierAttr = DOMTreeUtility.getAttribute(oldItem, "identifier");
+                                if (identifierAttr != null) {
+                                    identifierAttr.setValue(organizationID);
+                                } else {
+                                    // Create the attribute if it doesn't exist
+                                    Document ownerDoc = oldItem.getOwnerDocument();
+                                    if (ownerDoc != null) {
+                                        Attr newAttr = ownerDoc.createAttribute("identifier");
+                                        newAttr.setValue(organizationID);
+                                        oldItem.getAttributes().setNamedItem(newAttr);
+                                    }
+                                }
+                            } catch (DOMException domExcep) {
+                                log.warn("could not set identifier attribute", domExcep);
+                            }
+                            // Remove identifierref
+                            try {
+                                Attr idrefAttr = DOMTreeUtility.getAttribute(oldItem, "identifierref");
+                                if (idrefAttr != null) {
+                                    DOMTreeUtility.removeAttribute(oldItem, "identifierref");
+                                }
+                            } catch (DOMException domExcep) {
+                                log.warn("could not remove identifierref attribute", domExcep);
+                            }
+                        }
 					}
 				}
 			}
 		}
-		for (int mmCount = 0; mmCount < manifestMaps.size(); mmCount++) {
-			currentManifestMap = (ManifestMap) manifestMaps.get(mmCount);
-			processManifestMap(currentManifestMap, iManifestNode);
-		}
+        for (IManifestMap manifestMap : manifestMaps) {
+            currentManifestMap = (ManifestMap) manifestMap;
+            processManifestMap(currentManifestMap, iManifestNode);
+        }
 		mLogger.exiting("ADLValidatorOutcome", "processManifestMap()");
 	}
 

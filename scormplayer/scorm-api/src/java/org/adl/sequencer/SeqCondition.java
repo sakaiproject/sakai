@@ -26,7 +26,7 @@ package org.adl.sequencer;
 
 import java.io.Serializable;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <strong>Filename:</strong> SeqCondition.java<br><br>
@@ -55,6 +55,7 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqCondition implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -190,12 +191,7 @@ public class SeqCondition implements Serializable {
 	 */
 	public static String NEVER = "never";
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * The condition to be evaluated
 	 */
 	public String mCondition = null;
@@ -227,16 +223,14 @@ public class SeqCondition implements Serializable {
 	 * diagnostic purposes.
 	 */
 	public void dumpState() {
-		if (_Debug) {
-			System.out.println("  :: SeqCondition  --> BEGIN - dumpState");
-
-			System.out.println("  ::--> Condition :  " + mCondition);
-			System.out.println("  ::--> Not?      :  " + mNot);
-			System.out.println("  ::--> Obj ID    :  " + mObjID);
-			System.out.println("  ::--> Threshold :  " + mThreshold);
-
-			System.out.println("  :: SeqCondition  --> END   - dumpState");
-		}
+        log.debug("""
+                    :: SeqCondition  --> BEGIN - dumpState
+                    ::--> Condition :  {}
+                    ::--> Not?      :  {}
+                    ::--> Obj ID    :  {}
+                    ::--> Threshold :  {}
+                    :: SeqCondition  --> END   - dumpState
+                  """, mCondition, mNot, mObjID, mThreshold);
 	}
 
 	@Override

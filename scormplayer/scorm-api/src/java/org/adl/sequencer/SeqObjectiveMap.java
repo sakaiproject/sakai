@@ -26,7 +26,7 @@ package org.adl.sequencer;
 
 import java.io.Serializable;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <strong>Filename:</strong> SeqObjectiveMap.java<br><br>
@@ -53,17 +53,13 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqObjectiveMap implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private long id;
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * The target global objective.
 	 */
 	public String mGlobalObjID = null;
@@ -92,18 +88,15 @@ public class SeqObjectiveMap implements Serializable {
 	 * This method provides the state this <code>SeqObjectiveMap</code> object 
 	 * for diagnostic purposes.
 	 */
-	public void dumpState() {
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveMap   --> BEGIN - dumpState");
+	public void dumpState() {		log.debug("  :: SeqObjectiveMap   --> BEGIN - dumpState");
 
-			System.out.println("  ::--> Global ID:       " + mGlobalObjID);
-			System.out.println("  ::--> Read Status?:    " + mReadStatus);
-			System.out.println("  ::--> Read Measure?:   " + mReadMeasure);
-			System.out.println("  ::--> Write Status?:   " + mWriteStatus);
-			System.out.println("  ::--> Write Measure?:  " + mWriteMeasure);
+		log.debug("  ::--> Global ID:       " + mGlobalObjID);
+		log.debug("  ::--> Read Status?:    " + mReadStatus);
+		log.debug("  ::--> Read Measure?:   " + mReadMeasure);
+		log.debug("  ::--> Write Status?:   " + mWriteStatus);
+		log.debug("  ::--> Write Measure?:  " + mWriteMeasure);
 
-			System.out.println("  :: SeqObjectiveMap   --> END   - dumpState");
-		}
+		log.debug("  :: SeqObjectiveMap   --> END   - dumpState");
 	}
 
 	@Override

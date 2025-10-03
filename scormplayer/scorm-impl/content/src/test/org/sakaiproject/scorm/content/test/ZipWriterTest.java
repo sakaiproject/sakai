@@ -24,6 +24,9 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.scorm.content.impl.ZipWriter;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ZipWriterTest extends TestCase
 {
 	public void testOne() throws Exception
@@ -60,25 +63,25 @@ public class ZipWriterTest extends TestCase
 				catch (UnsupportedOperationException wtf)
 				{
 					msg.append( "the add method is not supported by this list\n" ).append(wtf.getMessage());
-					System.out.println("the add method is not supported by this list\n");
+					log.info("the add method is not supported by this list");
 					testFailure = true;
 				}
 				catch (ClassCastException wtf)
 				{
 					msg.append("the class of the specified element prevents it from being added to this list\n");
-					System.out.println("the class of the specified element prevents it from being added to this list\n" + wtf.getMessage());
+					log.info("the class of the specified element prevents it from being added to this list: {}", wtf.getMessage());
 					testFailure = true;
 				}
 				catch (NullPointerException npe)
 				{
 					msg.append("the specified element is null and this list does not support null elements\n");
-					System.out.println("the specified element is null and this list does not support null elements\n" + npe.getMessage());
+					log.info("the specified element is null and this list does not support null elements: {}", npe.getMessage());
 					testFailure = true;
 				}
 				catch (IllegalArgumentException wtf)
 				{
 					msg.append("some aspect of this element prevents it from being added to this list\n");
-					System.out.println("some aspect of this element prevents it from being added to this list\n" + wtf.getMessage());
+					log.info("some aspect of this element prevents it from being added to this list: {}", wtf.getMessage());
 					testFailure = true;
 				}
 
@@ -89,13 +92,13 @@ public class ZipWriterTest extends TestCase
 				catch (IOException io)
 				{
 					msg.append("IO Error\n");
-					System.out.println("IO Error\n" + io.getMessage());
+					log.info("IO Error: {}", io.getMessage());
 					testFailure = true;
 				} 
 				catch (Exception e)
 				{
 					msg.append("General Exception during processing\n");
-					System.out.println("General Exception during processing\n" + e.getMessage());
+					log.info("General Exception during processing: {}", e.getMessage());
 					testFailure = true;
 				}
 
@@ -106,7 +109,7 @@ public class ZipWriterTest extends TestCase
 			}
 			else
 			{
-				System.out.println("file not found: " + testFileName + "\n");
+				log.info("file not found: {}", testFileName);
 				testFailure = true;
 			}
 		}
@@ -114,7 +117,7 @@ public class ZipWriterTest extends TestCase
 		{
 			///could not find test zip file
 			msg.append( "file not found: " ).append( testFileName ).append("\n");
-			System.out.println("file not found: " + testFileName + "\n");
+			log.info("file not found: {}", testFileName);
 			testFailure = true;
 		}
 
