@@ -813,9 +813,11 @@ public class EntityEncodingManager {
         } else {
             // encode the entity itself
             Object toEncode = entityData; // default to encoding the entity data object
+            boolean dataOnly = entityData != null && entityData.isDataOnly();
+            boolean beanEncodedDirectly = false;
             Map<String, Object> entityProps = new LinkedHashMap<String, Object>();
             if (entityData != null && entityData.getData() != null) {
-                if (entityData.isDataOnly()) {
+                if (dataOnly) {
                     toEncode = entityData.getData();
                     // no meta data except properties if there are any
                     entityProps.putAll( entityData.getEntityProperties() );
@@ -823,6 +825,7 @@ public class EntityEncodingManager {
                     if (isBeanClass(entityData.getData().getClass())) {
                         // encode the bean directly if it is one
                         toEncode = entityData.getData();
+                        beanEncodedDirectly = true;
                         // add in the extra props
                         entityProps.put(ENTITY_REFERENCE, entityData.getEntityReference());
                         entityProps.put(ENTITY_URL, entityData.getEntityURL());
@@ -838,7 +841,11 @@ public class EntityEncodingManager {
             }
             // do the encoding
             try {
-                encoded = encodeData(toEncode, format, prefix, entityProps);
+                String encodingName = prefix;
+                if ((beanEncodedDirectly || dataOnly) && (Formats.JSON.equals(format) || Formats.JSONP.equals(format))) {
+                    encodingName = null;
+                }
+                encoded = encodeData(toEncode, format, encodingName, entityProps);
             } catch (IllegalArgumentException e) {
                 // no transcoder so just toString this and dump it out
                 encoded = prefix + " : " + entityData;
@@ -1523,10 +1530,30 @@ public class EntityEncodingManager {
         }
         try {
             type.getDeclaredConstructor();
+            return true;
         } catch (NoSuchMethodException e) {
-            return false;
+            // Fall through and try to detect readable properties or fields
         }
-        return true;
+        try {
+            for (PropertyDescriptor descriptor : Introspector.getBeanInfo(type).getPropertyDescriptors()) {
+                if ("class".equals(descriptor.getName())) {
+                    continue;
+                }
+                Method readMethod = descriptor.getReadMethod();
+                if (readMethod != null && !Modifier.isStatic(readMethod.getModifiers())) {
+                    return true;
+                }
+            }
+        } catch (IntrospectionException ex) {
+            log.debug("Failed to introspect {} while determining bean eligibility", type, ex);
+        }
+        for (Field field : type.getDeclaredFields()) {
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+            return true;
+        }
+        return false;
     }
 
     private boolean isRequired(Field field, Method readMethod, Method writeMethod) {

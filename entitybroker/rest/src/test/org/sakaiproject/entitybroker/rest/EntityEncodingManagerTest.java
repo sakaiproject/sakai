@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -33,6 +34,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -45,6 +49,7 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.rest.EntityEncodingManager;
 import org.sakaiproject.entitybroker.rest.EntityHandlerImpl;
+import org.sakaiproject.serialization.MapperFactory;
 
 /**
  * Testing the central logic of the entity handler
@@ -137,6 +142,44 @@ public class EntityEncodingManagerTest extends TestCase {
         assertTrue(encoded.contains("A"));
         assertTrue(encoded.contains("B"));
 
+    }
+
+    public void testEncodeEntityJsonWithoutRootWrapper() {
+        EntityData ed = new EntityData(new EntityReference(TestData.REF4), "Aaron Title", TestData.entity4);
+        String encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.JSON, ed, null);
+
+        assertNotNull(encoded);
+        String trimmed = encoded.trim();
+        assertTrue(trimmed.startsWith("{"));
+        try {
+            ObjectMapper mapper = MapperFactory.jsonBuilder().build();
+            Map<String, Object> parsed = mapper.readValue(encoded, new TypeReference<Map<String, Object>>() { });
+            assertEquals("something0", parsed.get("stuff"));
+        } catch (Exception e) {
+            fail("Failed to parse JSON: " + e.getMessage() + " | payload=" + encoded);
+        }
+        if (trimmed.startsWith("{\"" + TestData.PREFIX4 + "\":")) {
+            fail("JSON output should not wrap bean data under the prefix root: " + encoded);
+        }
+    }
+
+    public void testEncodeDataOnlyJsonWithoutRootWrapper() {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("foo", "bar");
+        payload.put("number", 10);
+        payload.put("nested", Collections.singletonMap("inner", "value"));
+
+        EntityData dataOnly = new EntityData(payload);
+        String encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.JSON, dataOnly, null);
+
+        assertNotNull(encoded);
+        String trimmed = encoded.trim();
+        if (trimmed.startsWith("{\"" + TestData.PREFIX4 + "\":")) {
+            fail("JSON output should not wrap data-only payload under the prefix root: " + encoded);
+        }
+        String normalized = encoded.replace(" ", "");
+        assertTrue("Should contain foo property", normalized.contains("\"foo\":\"bar\""));
+        assertTrue("Should contain nested property", normalized.contains("\"inner\":\"value\""));
     }
 
     /**
