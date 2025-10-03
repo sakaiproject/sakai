@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -43,6 +43,7 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.portal.api.PortalService;
@@ -57,6 +58,9 @@ import org.sakaiproject.webapi.controllers.CalendarController;
 
 import static org.mockito.Mockito.*;
 
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { WebApiTestConfiguration.class })
 public class CalendarControllerTests extends BaseControllerTests {
@@ -66,36 +70,44 @@ public class CalendarControllerTests extends BaseControllerTests {
     @Rule
     public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
 
-    @Autowired
+    @Mock
     private ContentHostingService contentHostingService;
 
-    @Autowired
+    @Mock
     private CalendarService calendarService;
 
-    @Autowired
+    @Mock
+    private EntityManager entityManager;
+
+    @Mock
     private PortalService portalService;
 
-    @Autowired
+    @Mock
     private SessionManager sessionManager;
 
-    @Autowired
+    @Mock
     private SiteService siteService;
 
-    @Autowired
+    @Mock
     private UserDirectoryService userDirectoryService;
+
+    private AutoCloseable mocks;
 
     @Before
 	public void setup() {
 
+        mocks = MockitoAnnotations.openMocks(this);
+
         reset(calendarService);
 
-        CalendarController controller = new CalendarController();
+        var controller = new CalendarController();
 
         controller.setUserDirectoryService(userDirectoryService);
         controller.setCalendarService(calendarService);
         controller.setPortalService(portalService);
+        controller.setEntityManager(entityManager);
 
-        Session session = mock(Session.class);
+        var session = mock(Session.class);
         when(session.getUserId()).thenReturn("user1");
         when(sessionManager.getCurrentSession()).thenReturn(session);
         controller.setSessionManager(sessionManager);
@@ -108,6 +120,14 @@ public class CalendarControllerTests extends BaseControllerTests {
             .build();
 	}
 
+    @After
+    public void tearDown() throws Exception {
+
+        if (mocks != null) {
+            mocks.close();
+        }
+    }
+
     @Test
     public void testGetUsersCurrentCalendar() throws Exception {
 
@@ -116,19 +136,19 @@ public class CalendarControllerTests extends BaseControllerTests {
         when(calendarService.calendarReference("site1", "main")).thenReturn("calendar1");
         when(calendarService.calendarReference("site2", "main")).thenReturn("calendar2");
 
-        CalendarEvent event1 = createEvent("site1", "Site 1", "Event 1", "Canapes and cocktails", 1000L, 40000L);
-        CalendarEvent event2 = createEvent("site2", "Site 2", "Event 2", "Fruit punch", 3000L, 70000L);
+        var event1 = createEvent("site1", "Site 1", "Event 1", "Canapes and cocktails", 1000L, 40000L);
+        var event2 = createEvent("site2", "Site 2", "Event 2", "Fruit punch", 3000L, 70000L);
         when(event2.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID)).thenReturn("assignment1");
 
-        Site site1 = mock(Site.class);
+        var site1 = mock(Site.class);
         when(site1.getTitle()).thenReturn("Site 1");
         when(siteService.getOptionalSite("site1")).thenReturn(Optional.of(site1));
 
-        Site site2 = mock(Site.class);
+        var site2 = mock(Site.class);
         when(site2.getTitle()).thenReturn("Site 2");
         when(siteService.getOptionalSite("site2")).thenReturn(Optional.of(site2));
 
-        CalendarEventVector calendarEventVector = new CalendarEventVector(List.of(event1, event2).iterator());
+        var calendarEventVector = new CalendarEventVector(List.of(event1, event2).iterator());
         when(calendarService.getEvents(any(), any(), anyBoolean())).thenReturn(calendarEventVector);
 
         mockMvc.perform(get("/users/current/calendar"))
@@ -156,26 +176,26 @@ public class CalendarControllerTests extends BaseControllerTests {
     @Test
     public void testGetSiteCalendar() throws Exception {
 
-        String siteId = "site1";
+        var siteId = "site1";
 
-        CalendarEvent event = createEvent(siteId, "Site 1", "Event 1", "Canapes and cocktails", 1000L, 40000L);
+        var event = createEvent(siteId, "Site 1", "Event 1", "Canapes and cocktails", 1000L, 40000L);
 
         when(event.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID)).thenReturn("assignment1");
 
         when(calendarService.calendarReference(siteId, "main")).thenReturn("calendar1");
 
-        CalendarEventVector calendarEventVector = new CalendarEventVector(List.of(event).iterator());
+        var calendarEventVector = new CalendarEventVector(List.of(event).iterator());
         when(calendarService.getEvents(any(), any(), anyBoolean())).thenReturn(calendarEventVector);
-        Reference attachment1 = mock(Reference.class);
+        var attachment1 = mock(Reference.class);
         when(attachment1.getId()).thenReturn("attachment1-ref-id");
         when(event.getAttachments()).thenReturn(List.of(attachment1));
 
-        ContentResource attachment1Resource = mock(ContentResource.class);
+        var attachment1Resource = mock(ContentResource.class);
         when(attachment1Resource.getId()).thenReturn("attachment1-id");
         when(attachment1Resource.getContentType()).thenReturn("text/plain");
         when(attachment1Resource.getContentLength()).thenReturn(100L);
         when(attachment1Resource.getUrl()).thenReturn("attachment1-url");
-        ResourceProperties props = mock(ResourceProperties.class);
+        var props = mock(ResourceProperties.class);
         when(props.get(ResourceProperties.PROP_DISPLAY_NAME)).thenReturn("data");
         when(attachment1Resource.getProperties()).thenReturn(props);
 
@@ -202,13 +222,13 @@ public class CalendarControllerTests extends BaseControllerTests {
 
     private CalendarEvent createEvent(String siteId, String siteTitle, String title, String description, long start, long duration) {
 
-        Time time1 = mock(Time.class);
+        var time1 = mock(Time.class);
         when(time1.getTime()).thenReturn(start);
-        TimeRange timeRange1 = mock(TimeRange.class);
+        var timeRange1 = mock(TimeRange.class);
         when(timeRange1.firstTime()).thenReturn(time1);
         when(timeRange1.duration()).thenReturn(duration);
 
-        CalendarEvent event = mock(CalendarEvent.class);
+        var event = mock(CalendarEvent.class);
         when(event.getId()).thenReturn(UUID.randomUUID().toString());
         when(event.getCreator()).thenReturn(UUID.randomUUID().toString());
         when(event.getDisplayName()).thenReturn(title);
@@ -218,11 +238,11 @@ public class CalendarControllerTests extends BaseControllerTests {
         when(event.getRange()).thenReturn(timeRange1);
         when(event.getType()).thenReturn("mock-event");
 
-        RecurrenceRule recurrenceRule = mock(RecurrenceRule.class);
+        var recurrenceRule = mock(RecurrenceRule.class);
         when(recurrenceRule.getCount()).thenReturn(5);
         when(recurrenceRule.getInterval()).thenReturn(17);
         when(recurrenceRule.getFrequency()).thenReturn("DAILY");
-        Time until = mock(Time.class);
+        var until = mock(Time.class);
         when(until.getTime()).thenReturn(8000L);
         when(recurrenceRule.getUntil()).thenReturn(until);
         when(event.getRecurrenceRule()).thenReturn(recurrenceRule);
