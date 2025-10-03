@@ -74,7 +74,7 @@ public final class XmlUtil
   private static Pattern[] M_goodCloseTagsPatterns;
   private static final Pattern M_htmlPattern = Pattern.compile("(<([a-z]\\w*)\\b[^>]*>)|(</\\s*[a-z]\\w*(\\s.*>|>))|(<([a-z]\\w*)\\b[^>]*/>)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-  private static final FormattedText formattedText = (FormattedText)ComponentManager.get(FormattedText.class);
+  private static final FormattedText formattedText = ComponentManager.get(FormattedText.class);
 
   /**
    * Create document object

@@ -110,6 +110,7 @@ public class SiteAddParticipantHandler {
     // the user selected
     public List<UserRoleEntry> userRoleEntries = new ArrayList<>();
     @Setter public ValidationLogic validationLogic;
+    private SiteTypeUtil siteTypeUtil;
 
 	public boolean canAddParticipant() {
 		if (site == null) init();
@@ -155,6 +156,8 @@ public class SiteAddParticipantHandler {
      * Initialize helper by getting the current site
      */
     public void init() {
+        siteTypeUtil = new SiteTypeUtil(siteService, serverConfigurationService);
+
         if (site == null) {
 			siteId = Optional.ofNullable(sessionManager.getCurrentToolSession().getAttribute(HELPER_ID + ".siteId"))
 					.map(Object::toString)
@@ -177,7 +180,7 @@ public class SiteAddParticipantHandler {
 	}
 
     public boolean isCourseSite() {
-    	return site != null && SiteTypeUtil.isCourseSite(site.getType());
+    	return site != null && siteTypeUtil.isCourseSite(site.getType());
     }
 
 	public String getServerConfigurationString(String param) {

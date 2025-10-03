@@ -38,9 +38,7 @@ public abstract class ContextMocker extends FacesContext {
     public static FacesContext mockFacesContext() {
         FacesContext context = Mockito.mock(FacesContext.class);
         setCurrentInstance(context);
-        Mockito.doAnswer(RELEASE)
-                .when(context)
-                .release();
+        Mockito.lenient().doAnswer(RELEASE).when(context).release();
         return context;
     }
 }

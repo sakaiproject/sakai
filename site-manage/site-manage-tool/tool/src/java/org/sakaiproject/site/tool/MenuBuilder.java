@@ -241,7 +241,8 @@ public class MenuBuilder
         if( allowUpdateSiteMembership && !isMyWorkspace )
         {
             boolean allowEditRosterEnabled = ServerConfigurationService.getBoolean( SiteConstants.SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER, SiteConstants.SAK_PROP_SITE_SETUP_ALLOW_EDIT_ROSTER_DEFAULT );
-            if( allowEditRosterEnabled && siteType != null && SiteTypeUtil.isCourseSite( siteType ) )
+            SiteTypeUtil siteTypeUtil = new SiteTypeUtil(SS, ServerConfigurationService.getInstance());
+            if( allowEditRosterEnabled && siteType != null && siteTypeUtil.isCourseSite( siteType ) )
             {
                 // 'Edit Class Roster(s)'
                 menu.add( buildMenuEntry( rl.getString( "java.editc" ), "doMenu_siteInfo_editClass", activeTab.equals( SiteInfoActiveTab.EDIT_CLASS_ROSTERS ) ) );
