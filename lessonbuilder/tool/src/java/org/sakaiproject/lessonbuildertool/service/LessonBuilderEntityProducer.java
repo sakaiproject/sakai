@@ -1683,8 +1683,18 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 				// Carry over the custom CSS sheet if present. These are of the form
 				// "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
-				String cssSheet = pageElement.getAttribute("csssheet");
-				if (StringUtils.isNotEmpty(cssSheet)) page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
+                String cssSheet = pageElement.getAttribute("csssheet");
+                if (StringUtils.isNotEmpty(cssSheet)) {
+                    String newCss = cssSheet.replace("/group/" + fromSiteId + "/", "/group/" + siteId + "/");
+                    if (newCss.equals(cssSheet)) {
+                        // Fallback for IDs stored with the "/content" prefix
+                        newCss = cssSheet.replace("/content/group/" + fromSiteId + "/", "/content/group/" + siteId + "/");
+                        if (newCss.startsWith("/content")) {
+                            newCss = newCss.substring("/content".length());
+                        }
+                    }
+                    page.setCssSheet(newCss);
+                }
 
 				// Save or update the page
 				if ( reused ) {
@@ -2124,11 +2134,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	// map has entities for all objects. Look for all entities that look like /ref/lessonbuilder.
 	// this is mapping from LB item id to underlying object in old site.
 	// find the object in the new site and fix up the item id
-	public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+    public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
 
-		migrateEmbeddedLinks(toContext, transversalMap);
-		// update lessonbuilder_ref property of groups and kill bogus groups
-		Map<String,String> mapGroups = new HashMap<String,String>();
+        migrateEmbeddedLinks(toContext, transversalMap);
+        // update lessonbuilder_ref property of groups and kill bogus groups
+        Map<String,String> mapGroups = new HashMap<String,String>();
 		for (Map.Entry<String,String> entry: transversalMap.entrySet()) {
 			String entityid = entry.getKey();
 			String objectid = entry.getValue();
@@ -2176,9 +2186,47 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			}
 		}
 
-		simplePageToolDao.setNeedsGroupFixup(toContext, 1);
+        simplePageToolDao.setNeedsGroupFixup(toContext, 1);
 
-	}
+        // Also remap any per-page custom CSS selections using the transversalMap produced by
+        // the overall site copy. When Resources renames files (e.g., to avoid collisions), the
+        // CSS file path saved on the page can point to the old ID and the UI will fall back to
+        // default CSS. If we find a mapping for the CSS resource, update the page to the new ID.
+        try {
+            if (transversalMap != null && !transversalMap.isEmpty()) {
+                List<SimplePage> pages = simplePageToolDao.getSitePages(toContext);
+                if (pages != null && !pages.isEmpty()) {
+                    for (SimplePage page : pages) {
+                        String css = page.getCssSheet();
+                        if (css == null || css.isEmpty()) continue;
+
+                        // Keys in transversalMap commonly use "/content/..." IDs. Our stored ID uses
+                        // ContentHostingService resource IDs (e.g., "/group/..."), so check both forms.
+                        String keyGroup = css; // e.g., /group/SITEID/LB-CSS/custom.css
+                        String keyContent = css.startsWith("/content") ? css : "/content" + css; // /content/group/...
+
+                        String mapped = transversalMap.get(keyGroup);
+                        if (mapped == null) mapped = transversalMap.get(keyContent);
+                        if (mapped != null && !mapped.isEmpty()) {
+                            // Ensure we store a CHS resource ID (strip leading "/content" if present)
+                            String newId = mapped.startsWith("/content") ? mapped.substring("/content".length()) : mapped;
+
+                            if (!newId.equals(css)) {
+                                page.setCssSheet(newId);
+                                simplePageToolDao.quickUpdate(page);
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Remapped Lessons CSS for page {} from {} to {}", page.getPageId(), css, newId);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Problem remapping Lessons CSS selections during site copy: {}", e.toString());
+        }
+
+    }
 
 	private void migrateEmbeddedLinks(String toContext, Map<String, String> transversalMap){
 		Set entrySet = (Set) transversalMap.entrySet();
