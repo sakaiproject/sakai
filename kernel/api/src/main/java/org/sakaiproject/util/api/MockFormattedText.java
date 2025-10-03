@@ -37,27 +37,22 @@ import org.w3c.dom.Element;
 public class MockFormattedText implements FormattedText {
     private static final String WARNING = "Using MOCK FormattedText: all values just pass through and are not processed: FOR TESTING ONLY (if this is live there is a big problem)";
 
-    @Override
-    public boolean containsSecurityViolations(String content, Level level) {
-        return false;
-    }
-
-    public String processFormattedText(String strFromBrowser, StringBuffer errorMessages) {
+    public String processFormattedText(String strFromBrowser, StringBuffer messages) {
         log.warn(WARNING);
         return strFromBrowser;
     }
 
-    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages) {
+    public String processFormattedText(String strFromBrowser, StringBuilder messages) {
         log.warn(WARNING);
         return strFromBrowser;
     }
 
-    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, Level level) {
+    public String processFormattedText(String strFromBrowser, StringBuilder messages, Level level) {
         log.warn(WARNING);
         return strFromBrowser;
     }
 
-    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, boolean useLegacySakaiCleaner) {
+    public String processFormattedText(String strFromBrowser, StringBuilder messages, boolean useLegacySakaiCleaner) {
         log.warn(WARNING);
         return strFromBrowser;
     }
@@ -67,14 +62,14 @@ public class MockFormattedText implements FormattedText {
         return strFromBrowser;
     }
 
-    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
-            boolean replaceWhitespaceTags) {
+    public String processFormattedText(String strFromBrowser, StringBuilder messages, boolean checkForEvilTags,
+                                       boolean replaceWhitespaceTags) {
         log.warn(WARNING);
         return strFromBrowser;
     }
 
-    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, Level level, boolean checkForEvilTags,
-            boolean replaceWhitespaceTags, boolean useLegacySakaiCleaner) {
+    public String processFormattedText(String strFromBrowser, StringBuilder messages, Level level, boolean checkForEvilTags,
+                                       boolean replaceWhitespaceTags, boolean useLegacySakaiCleaner) {
         log.warn(WARNING);
         return strFromBrowser;
     }

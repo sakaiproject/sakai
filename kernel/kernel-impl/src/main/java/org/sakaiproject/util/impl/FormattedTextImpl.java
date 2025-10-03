@@ -95,17 +95,15 @@ public class FormattedTextImpl implements FormattedText
      */
     private AntiSamy antiSamyLow = null;
 
-    /* KNL-1075 - content.cleaner.errors.handling = none|logged|return|notify|display
+    /* KNL-1075 - content.cleaner.errors.handling = none|logged|notify|display
      * - none - errors are completely ignored and not even stored at all
      * - logged - errors are output in the logs only
-     * - return - errors are returned to the tool (legacy behavior)
      * - notify - user notified about errors using a non-blocking JS popup
      * - display - errors are displayed to the user using the new and fancy JS popup
      */
     private String errorsHandling = "notify"; // set this to the default
     private boolean showErrorToUser = false;
     private boolean showDetailedErrorToUser = false;
-    private boolean returnErrorToTool = false;
     private boolean logErrors = false;
     @Setter boolean cleanUTF8 = false;
     private String restrictReplacement = null;
@@ -128,10 +126,9 @@ public class FormattedTextImpl implements FormattedText
             //Filter content output to limited unicode characters KNL-1431
             restrictReplacement = serverConfigurationService.getString("content.cleaner.filter.utf8.replacement",restrictReplacement);
 
-            /* KNL-1075 - content.cleaner.errors.handling = none|logged|return|notify|display
+            /* KNL-1075 - content.cleaner.errors.handling = none|logged|notify|display
              * - none - errors are completely ignored and not even stored at all
              * - logged - errors are output in the logs only
-             * - return - errors are returned to the tool (legacy behavior)
              * - notify - user notified about errors using a non-blocking JS popup
              * - display - errors are displayed to the user using the new and fancy JS popup
              */
@@ -139,8 +136,6 @@ public class FormattedTextImpl implements FormattedText
             // NONE is the case when the string is not matched as well
             if ("logged".equalsIgnoreCase(errorsHandling)) {
                 logErrors = true;
-            } else if ("return".equalsIgnoreCase(errorsHandling)) {
-                returnErrorToTool = true;
             } else if ("notify".equalsIgnoreCase(errorsHandling)) {
                 showErrorToUser = true;
             } else if ("display".equalsIgnoreCase(errorsHandling)) {
@@ -153,11 +148,8 @@ public class FormattedTextImpl implements FormattedText
             }
             // allow one extra option to control logging if desired
             logErrors = serverConfigurationService.getBoolean("content.cleaner.errors.logged", logErrors);
-            log.info("FormattedText error handling: "+errorsHandling+
-                    "; log errors=" + logErrors + 
-                    "; return to tool=" + returnErrorToTool + 
-                    "; notify user=" + showErrorToUser + 
-                    "; details to user=" + showDetailedErrorToUser);
+            log.info("FormattedText error handling: {}; log errors={}; notify user={}; details to user={}",
+                    errorsHandling, logErrors, showErrorToUser, showDetailedErrorToUser);
 
             referrerPolicy = serverConfigurationService.getString(SAK_PROP_REFERRER_POLICY, SAKAI_REFERRER_POLICY_DEFAULT);
         }
@@ -392,41 +384,41 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuffer)
      */
-    public String processFormattedText(final String strFromBrowser, StringBuffer errorMessages) {
-        StringBuilder sb = new StringBuilder(errorMessages.toString());
+    public String processFormattedText(final String strFromBrowser, StringBuffer messages) {
+        StringBuilder sb = new StringBuilder(messages.toString());
         String fixed = processFormattedText(strFromBrowser, sb);
-        errorMessages.setLength(0);
-        errorMessages.append(sb.toString());
+        messages.setLength(0);
+        messages.append(sb.toString());
         return fixed;
     }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder)
      */
-    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages)
+    public String processFormattedText(final String strFromBrowser, StringBuilder messages)
     {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
-        return processFormattedText(strFromBrowser, errorMessages, null, checkForEvilTags, replaceWhitespaceTags, false);
+        return processFormattedText(strFromBrowser, messages, null, checkForEvilTags, replaceWhitespaceTags, false);
     }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.util.api.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder, org.sakaiproject.util.api.FormattedText.Level)
      */
-    public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, Level level) {
+    public String processFormattedText(String strFromBrowser, StringBuilder messages, Level level) {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
-        return processFormattedText(strFromBrowser, errorMessages, level, checkForEvilTags, replaceWhitespaceTags, false);
+        return processFormattedText(strFromBrowser, messages, level, checkForEvilTags, replaceWhitespaceTags, false);
     }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder, boolean)
      */
     public String processFormattedText(final String strFromBrowser,
-            StringBuilder errorMessages, boolean useLegacySakaiCleaner) {
+                                       StringBuilder messages, boolean useLegacySakaiCleaner) {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
-        return processFormattedText(strFromBrowser, errorMessages, null, checkForEvilTags,
+        return processFormattedText(strFromBrowser, messages, null, checkForEvilTags,
                 replaceWhitespaceTags, useLegacySakaiCleaner);
     }
 
@@ -441,17 +433,14 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder, boolean, boolean)
      */
-    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
-            boolean replaceWhitespaceTags)
+    public String processFormattedText(final String strFromBrowser, StringBuilder messages, boolean checkForEvilTags,
+                                       boolean replaceWhitespaceTags)
     {
-        return processFormattedText(strFromBrowser, errorMessages, null, checkForEvilTags, replaceWhitespaceTags, false);
+        return processFormattedText(strFromBrowser, messages, null, checkForEvilTags, replaceWhitespaceTags, false);
     }
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.util.api.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder, org.sakaiproject.util.api.FormattedText.Level, boolean, boolean, boolean)
-     */
-    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, Level level,
-            boolean checkForEvilTags, boolean replaceWhitespaceTags, boolean doNotUseLegacySakaiCleaner) {
+    public String processFormattedText(final String strFromBrowser, StringBuilder messages, Level level,
+                                       boolean checkForEvilTags, boolean replaceWhitespaceTags, boolean doNotUseLegacySakaiCleaner) {
 
         // KNL-1075: bypass the old error system and present our formatted text errors using growl notification
         StringBuilder formattedTextErrors = new StringBuilder();
@@ -545,7 +534,7 @@ public class FormattedTextImpl implements FormattedText
         }
 
         // KNL-1075: re-do the way error messages are handled
-        if (formattedTextErrors.length() > 0) {
+        if (!formattedTextErrors.isEmpty()) {
             // allow one extra option to control logging in real time if desired
             logErrors = serverConfigurationService.getBoolean("content.cleaner.errors.logged", logErrors);
             if (showErrorToUser || showDetailedErrorToUser) {
@@ -573,9 +562,9 @@ public class FormattedTextImpl implements FormattedText
                         +"\n  -- resulting output:\n"+val
                         );
             }
-            // KNL-1075 - Allows passing kernel tests and preserving legacy behavior
-            if (returnErrorToTool) {
-                errorMessages.append(formattedTextErrors);
+            // caller decides if they want the messages
+            if (messages != null && !formattedTextErrors.isEmpty()) {
+                messages.append(formattedTextErrors);
             }
         }
 
@@ -1449,23 +1438,6 @@ public class FormattedTextImpl implements FormattedText
         return makeShortText(text, cutMethod, maxLength, separator);
     }
 
-    @Override
-    public boolean containsSecurityViolations(String content, Level level) {
-        if (content == null || content.isEmpty()) return false;
-
-        Level scanLevel = (level != null) ? level : Level.HIGH;
-        AntiSamy scanner = scanLevel == Level.LOW ? antiSamyLow : antiSamyHigh;
-        try {
-            CleanResults results = scanner.scan(content);
-            boolean hasViolations = results.getNumberOfErrors() > 0;
-            log.debug("AntiSamy found {} violations in content: {}", results.getNumberOfErrors(), StringUtils.truncate(content, 128));
-            return hasViolations;
-        } catch (Exception e) {
-            log.warn("Could not scan content {}, {}", StringUtils.truncate(content, 128), e.toString());
-        }
-        return false;
-    }
-
     /**
      * TESTING ONLY
      * SAK-23567 Gets an array with 2 int values {left,right}
@@ -1491,7 +1463,7 @@ public class FormattedTextImpl implements FormattedText
 
     /**
      * TESTING ONLY
-     * use {@link #makeShortenedText(String)} instead
+     * use {@link #makeShortenedText(String text, Integer maxLength, String separator, String cutMethod)} instead
      *
      * SAK-23567 Gets the resumed version of the title
      *

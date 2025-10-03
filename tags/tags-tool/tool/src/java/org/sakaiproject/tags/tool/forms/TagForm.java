@@ -190,11 +190,15 @@ public class TagForm extends BaseForm {
         }
 
         // XSS validation checks
-        if (formattedText.containsSecurityViolations(tagLabel, null)) {
+        StringBuilder tagMessages = new StringBuilder();
+        formattedText.processFormattedText(tagLabel, tagMessages);
+        if (!tagMessages.isEmpty()) {
             errors.addError("tagLabel", "contains_xss");
         }
 
-        if (formattedText.containsSecurityViolations(description, null)) {
+        StringBuilder descriptionMessages = new StringBuilder();
+        formattedText.processFormattedText(description, descriptionMessages);
+        if (!descriptionMessages.isEmpty()) {
             errors.addError("description", "contains_xss");
         }
 
