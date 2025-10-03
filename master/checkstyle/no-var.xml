@@ -11,10 +11,11 @@
   <property name="severity" value="error"/>
 
   <module name="TreeWalker">
-    <module name="IllegalToken">
-      <!-- Forbid the `var` token used for local variable type inference (Java 10+) -->
-      <property name="tokens" value="LITERAL_VAR"/>
-      <message key="illegal.token" value="Do not use 'var' (local variable type inference); declare explicit types."/>
+    <module name="RegexpSinglelineJava">
+      <!-- Forbid the `var` keyword used for local variable type inference (Java 10+) -->
+      <property name="format" value="\\bvar\\b"/>
+      <property name="ignoreComments" value="true"/>
+      <message key="regexp.singleline.java" value="Do not use 'var' (local variable type inference); declare explicit types."/>
     </module>
   </module>
 </module>
