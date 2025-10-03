@@ -381,41 +381,29 @@ public class FormattedTextImpl implements FormattedText
     private Pattern M_patternHrefRel = Pattern.compile("\\srel\\s*=\\s*(\".*?\"|'.*?')",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.utils.impl.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuffer)
-     */
     public String processFormattedText(final String strFromBrowser, StringBuffer messages) {
-        StringBuilder sb = new StringBuilder(messages.toString());
+        StringBuilder sb = new StringBuilder();
         String fixed = processFormattedText(strFromBrowser, sb);
-        messages.setLength(0);
-        messages.append(sb.toString());
+        if (messages != null) {
+            messages.setLength(0);
+            messages.append(sb);
+        }
         return fixed;
     }
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.utils.impl.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder)
-     */
-    public String processFormattedText(final String strFromBrowser, StringBuilder messages)
-    {
+    public String processFormattedText(final String strFromBrowser, StringBuilder messages) {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
         return processFormattedText(strFromBrowser, messages, null, checkForEvilTags, replaceWhitespaceTags, false);
     }
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.util.api.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder, org.sakaiproject.util.api.FormattedText.Level)
-     */
     public String processFormattedText(String strFromBrowser, StringBuilder messages, Level level) {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
         return processFormattedText(strFromBrowser, messages, level, checkForEvilTags, replaceWhitespaceTags, false);
     }
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.utils.impl.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder, boolean)
-     */
-    public String processFormattedText(final String strFromBrowser,
-                                       StringBuilder messages, boolean useLegacySakaiCleaner) {
+    public String processFormattedText(final String strFromBrowser, StringBuilder messages, boolean useLegacySakaiCleaner) {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
         return processFormattedText(strFromBrowser, messages, null, checkForEvilTags,

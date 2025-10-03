@@ -95,7 +95,7 @@ public class TagsHandler extends CrudHandler {
                 // Don't let the portal buffering hijack our response.
                 // Include enough content to count as having returned a
                 // body.
-                response.getWriter().write(tag.get().getTagLabel());
+                response.getWriter().write(formattedText.escapeHtml(tag.get().getTagLabel()));
             }else{
 
                 response.getWriter().write("     ");
