@@ -14,7 +14,7 @@
     <module name="IllegalToken">
       <!-- Forbid the `var` token used for local variable type inference (Java 10+) -->
       <property name="tokens" value="LITERAL_VAR"/>
-      <property name="message" value="Do not use 'var' (local variable type inference); declare explicit types."/>
+      <message key="illegal.token" value="Do not use 'var' (local variable type inference); declare explicit types."/>
     </module>
   </module>
 </module>
