@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -17,11 +18,8 @@ import org.sakaiproject.poll.model.Vote;
 @Slf4j
 public class PollDaoHibernateImpl implements PollDao {
 
+    @Setter
     private SessionFactory sessionFactory;
-
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
 
     private Session currentSession() {
         return sessionFactory.getCurrentSession();
@@ -92,7 +90,6 @@ public class PollDaoHibernateImpl implements PollDao {
         }
     }
 
-    // Polls
     @Override
     public List<Poll> findAllPolls() {
         return currentSession().createQuery("from Poll p", Poll.class).list();
@@ -130,7 +127,6 @@ public class PollDaoHibernateImpl implements PollDao {
         q.setParameterList("siteIds", siteIds);
         q.setParameter("now", now);
         return q.list();
-    }
     }
 
     @Override
