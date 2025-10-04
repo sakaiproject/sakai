@@ -57,10 +57,6 @@
             <groupId>org.sakaiproject.genericdao</groupId>
             <artifactId>generic-dao</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>reflectutils</artifactId>
-        </dependency>
         <!-- testing -->
         <dependency>
             <groupId>org.mortbay.jetty</groupId>

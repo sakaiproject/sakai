@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.entitybroker.providers;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,9 +24,6 @@ import java.util.Map;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
-import org.azeckoski.reflectutils.FieldUtils;
-import org.azeckoski.reflectutils.ReflectUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -54,6 +52,7 @@ import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Entity Provider for users
@@ -385,8 +384,8 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             String config = developerHelperService.getConfigurationSetting("separateIdEid@org.sakaiproject.user.api.UserDirectoryService", (String)null);
             if (config != null) {
                 try {
-                    usesSeparateIdEid = ReflectUtils.getInstance().convert(config, Boolean.class);
-                } catch (UnsupportedOperationException e) {
+                    usesSeparateIdEid = parseBoolean(config);
+                } catch (IllegalArgumentException e) {
                     // oh well
                     usesSeparateIdEid = null;
                 }
@@ -394,7 +393,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             if (usesSeparateIdEid == null) {
                 // could not get the stupid setting so attempt to check the service itself
                 try {
-                    usesSeparateIdEid = FieldUtils.getInstance().getFieldValue(userDirectoryService, "m_separateIdEid", Boolean.class);
+                    usesSeparateIdEid = readBooleanField(userDirectoryService, "m_separateIdEid");
                 } catch (RuntimeException e) {
                     // no luck here
                     usesSeparateIdEid = null;
@@ -403,6 +402,43 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             if (usesSeparateIdEid == null) usesSeparateIdEid = Boolean.FALSE;
         }
         return ! usesSeparateIdEid.booleanValue();
+    }
+
+    private Boolean readBooleanField(Object target, String fieldName) {
+        Field field = ReflectionUtils.findField(target.getClass(), fieldName);
+        if (field == null) {
+            return null;
+        }
+        ReflectionUtils.makeAccessible(field);
+        try {
+            Object value = ReflectionUtils.getField(field, target);
+            if (value instanceof Boolean) {
+                return (Boolean) value;
+            }
+            if (value instanceof String) {
+                return parseBoolean((String) value);
+            }
+            return (value != null) ? Boolean.valueOf(value.toString()) : null;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private Boolean parseBoolean(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = value.trim();
+        if (normalized.isEmpty()) {
+            return null;
+        }
+        if ("true".equalsIgnoreCase(normalized)) {
+            return Boolean.TRUE;
+        }
+        if ("false".equalsIgnoreCase(normalized)) {
+            return Boolean.FALSE;
+        }
+        throw new IllegalArgumentException("Value is not a boolean: " + value);
     }
 
     /**
