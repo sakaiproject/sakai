@@ -24,7 +24,7 @@ package org.sakaiproject.poll.logic.test;
 import java.util.Date;
 import java.util.UUID;
 
-import org.sakaiproject.genericdao.api.GenericDao;
+import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 
@@ -94,10 +94,9 @@ public class TestDataPreload {
 	/**
 	 * Preload a bunch of test data into the database
 	 * 
-	 * @param dao
-	 *            a generic dao
-	 */
-	public void preloadTestData(GenericDao dao) {
+     * @param dao a poll dao
+     */
+    public void preloadTestData(PollDao dao) {
 		
 		Poll poll1 = new Poll();
 		poll1.setCreationDate(new Date());

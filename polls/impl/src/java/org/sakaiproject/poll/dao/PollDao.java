@@ -21,16 +21,40 @@
 
 package org.sakaiproject.poll.dao;
 
-import org.sakaiproject.genericdao.api.GeneralGenericDao;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
+import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.model.Vote;
 
-public interface PollDao extends GeneralGenericDao {
-	
-	/**
-	 * Get the number of distinct voters on a poll
-	 * @param poll
-	 * @return
-	 */
-	 public int getDisctinctVotersForPoll(Poll poll);
+public interface PollDao {
 
+    // Persistence
+    void save(Object entity);
+    void delete(Object entity);
+    void deleteSet(Collection<?> entities);
+
+    // Polls
+    List<Poll> findAllPolls();
+    List<Poll> findPollsBySite(String siteId, boolean creationDateAsc);
+    List<Poll> findPollsForSites(String[] siteIds, boolean creationDateAsc);
+    List<Poll> findOpenPollsForSites(String[] siteIds, Date now, boolean creationDateAsc);
+    Poll findPollById(Long pollId);
+    Poll findPollByUuid(String uuid);
+
+    // Options
+    List<Option> findOptionsByPollId(Long pollId);
+    Option findOptionById(Long optionId);
+
+    // Votes
+    List<Vote> findVotesByPollId(Long pollId);
+    List<Vote> findVotesByPollIdAndOption(Long pollId, Long optionId);
+    List<Vote> findVotesByUserAndPollIds(String userId, Long[] pollIds);
+    List<Vote> findVotesByUserAndPollId(String userId, Long pollId);
+    Vote findVoteById(Long voteId);
+
+    // Aggregates
+    int getDisctinctVotersForPoll(Poll poll);
 }

@@ -14,30 +14,8 @@
         </constructor-arg>
     </bean>
     
-	<!-- create a DAO bean, use the hibernate implementation -->
-  <!-- create a DAO bean, use the hibernate implementation -->
-   <bean id="org.sakaiproject.poll.dao.impl.PollDaoTarget" class="org.sakaiproject.poll.dao.impl.PollDoaImpl" init-method="init">
-      <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-      <property name="persistentClasses">
-         <list>
-            <value>org.sakaiproject.poll.model.Poll</value>
-            <value>org.sakaiproject.poll.model.Option</value>
-            <value>org.sakaiproject.poll.model.Vote</value>
-         </list>
-      </property>
-   </bean>
-
-   <!-- This wraps our DAO so that the transactions are managed -->
-   <bean id="org.sakaiproject.poll.dao.PollDao" class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">
-      <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-      <property name="target" ref="org.sakaiproject.poll.dao.impl.PollDaoTarget" />
-      <property name="transactionAttributes">
-         <props>
-            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
-            <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
-            <prop key="count*">PROPAGATION_REQUIRED,readOnly</prop>
-            <prop key="*">PROPAGATION_REQUIRED</prop>
-         </props>
-      </property>
-   </bean>
+    <!-- DAO bean (no proxy). Transactions are declared at the service layer via @Transactional. -->
+    <bean id="org.sakaiproject.poll.dao.PollDao" class="org.sakaiproject.poll.dao.impl.PollDaoHibernateImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
 </beans>

@@ -29,9 +29,8 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
+import org.springframework.transaction.annotation.Transactional;
 
-import org.sakaiproject.genericdao.api.search.Restriction;
-import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
@@ -42,114 +41,99 @@ import org.sakaiproject.poll.model.Vote;
 
 @Slf4j
 @Setter
+@Transactional(readOnly = true)
 public class PollVoteManagerImpl implements PollVoteManager {
 
 	private ExternalLogic externalLogic;    
 	private PollDao dao;
 	private PollListManager pollListManager;
 
-	public void saveVoteList(List<Vote> votes) {
-		Long pollId = null;
-		for (int i =0; i < votes.size(); i ++) {
-			Vote vote = (Vote)votes.get(i);
-			pollId = vote.getPollId();
-			saveVote(vote);
+    @Transactional
+    public void saveVoteList(List<Vote> votes) {
+        Long pollId = null;
+        for (int i =0; i < votes.size(); i ++) {
+            Vote vote = (Vote)votes.get(i);
+            pollId = vote.getPollId();
+            saveVote(vote);
             externalLogic.registerStatement(pollListManager.getPollById(pollId).getText(), vote);
-		}
-	}
+        }
+    }
 
+	@Transactional
 	public boolean saveVote(Vote vote)  {
 		dao.save(vote);
 		log.debug(" Vote  " + vote.getId() + " successfuly saved");
 		return true;
 	}
 
-	public List<Vote> getAllVotesForPoll(Poll poll) {
-		Search search = new Search();
-		search.addRestriction(new Restriction("pollId",poll.getPollId()));
-		List<Vote> votes = dao.findBySearch(Vote.class, search); 
-		return votes;
-	}
+    public List<Vote> getAllVotesForPoll(Poll poll) {
+        return dao.findVotesByPollId(poll.getPollId()); 
+    }
 
-	public List<Vote> getAllVotesForOption(Option option) {
+    public List<Vote> getAllVotesForOption(Option option) {
+        return dao.findVotesByPollIdAndOption(option.getPollId(), option.getOptionId());
+    }
 
-		Search search = new Search();
-		search.addRestriction(new Restriction("pollId",option.getPollId()));
-		search.addRestriction(new Restriction("pollOption", option.getOptionId()));
-		List<Vote> votes = dao.findBySearch(Vote.class, search);
-
-		return votes;
-	}
-
-	public Map<Long, List<Vote>> getVotesForUser(String userId, Long[] pollIds) {
-		if (userId == null) {
-			throw new IllegalArgumentException("userId cannot be null");
-		}
-		Search search = new Search();
-		search.addRestriction(new Restriction("userId",userId));
-
-		if (pollIds != null) {
-			if (pollIds.length > 0) {
-				search.addRestriction(new Restriction("pollId",pollIds) );
-			} else {
-				// no polls to search so EXIT here
-				return new HashMap<Long, List<Vote>>();
-			}
-		}
-		Map<Long, List<Vote>> map = new HashMap<Long, List<Vote>>();
-		if (pollIds != null && pollIds.length > 0) {
-			List<Vote> votes = dao.findBySearch(Vote.class, search);
-			// put the list of votes into a map
-			for (Vote vote : votes) {
-				Long pollId = vote.getPollId();
-				if (! map.containsKey(pollId)) {
-					map.put(pollId, new ArrayList<Vote>() );
-				}
-				map.get(pollId).add(vote);
-			}
-		}
-		return map;
-	}
+    public Map<Long, List<Vote>> getVotesForUser(String userId, Long[] pollIds) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId cannot be null");
+        }
+        if (pollIds != null) {
+            if (pollIds.length > 0) {
+                // ok
+            } else {
+                // no polls to search so EXIT here
+                return new HashMap<Long, List<Vote>>();
+            }
+        }
+        Map<Long, List<Vote>> map = new HashMap<Long, List<Vote>>();
+        if (pollIds != null && pollIds.length > 0) {
+            List<Vote> votes = dao.findVotesByUserAndPollIds(userId, pollIds);
+            // put the list of votes into a map
+            for (Vote vote : votes) {
+                Long pollId = vote.getPollId();
+                if (! map.containsKey(pollId)) {
+                    map.put(pollId, new ArrayList<Vote>() );
+                }
+                map.get(pollId).add(vote);
+            }
+        }
+        return map;
+    }
 
 	public int getDisctinctVotersForPoll(Poll poll) {
 		return dao.getDisctinctVotersForPoll(poll);
 	}
 
-	public boolean userHasVoted(Long pollid, String userID) {
-		Search search = new Search();
-		search.addRestriction(new Restriction("userId",userID));
-		search.addRestriction(new Restriction("pollId",pollid));
-		List<Vote> votes = dao.findBySearch(Vote.class, search);		
-		if (votes.size() > 0)
-			return true;
-		else
-			return false;
-	}
+    public boolean userHasVoted(Long pollid, String userID) {
+        List<Vote> votes = dao.findVotesByUserAndPollId(userID, pollid);
+        if (votes.size() > 0)
+            return true;
+        else
+            return false;
+    }
 
 	public boolean userHasVoted(Long pollId) {
 
 		return userHasVoted(pollId, externalLogic.getCurrentUserId());
 	}
 
-	public Vote getVoteById(Long voteId) {
-		if (voteId == null) {
-			throw new IllegalArgumentException("voteId cannot be null when getting vote");
-		}
-		Search search = new Search(new Restriction("id", voteId));
-		Vote vote = (Vote) dao.findOneBySearch(Vote.class, search);
-		return vote;
-	}
+    public Vote getVoteById(Long voteId) {
+        if (voteId == null) {
+            throw new IllegalArgumentException("voteId cannot be null when getting vote");
+        }
+        return dao.findVoteById(voteId);
+    }
 
-	public boolean isUserAllowedVote(String userId, Long pollId, boolean ignoreVoted) {
-		boolean allowed = false;
-		//pollId
-		Search search = new Search(new Restriction("pollId", pollId));
-		Poll poll =  dao.findOneBySearch(Poll.class, search);
-		if (poll == null) {
-			throw new IllegalArgumentException("Invalid poll id ("+pollId+") when checking user can vote");
-		}
-		if (externalLogic.isUserAdmin(userId)) {
-			allowed = true;
+    public boolean isUserAllowedVote(String userId, Long pollId, boolean ignoreVoted) {
+        boolean allowed = false;
+        //pollId
+        Poll poll = dao.findPollById(pollId);
+        if (poll == null) {
+            throw new IllegalArgumentException("Invalid poll id ("+pollId+") when checking user can vote");
+        }
+        if (externalLogic.isUserAdmin(userId)) {
+            allowed = true;
 		} else {
 			String siteRef = "/site/" + poll.getSiteId();
 			if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, siteRef, "/user/" +userId)) {
@@ -223,10 +207,12 @@ public class PollVoteManagerImpl implements PollVoteManager {
 		return false;
 	}
 
+	@Transactional
 	public void deleteVote(Vote vote) {
 		dao.delete(vote);
 	}
 
+    @Transactional
     public void deleteAll(List<Vote> votes) {
         for (Vote vote : votes) {
             deleteVote(vote);
