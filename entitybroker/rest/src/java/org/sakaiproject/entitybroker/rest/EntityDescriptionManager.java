@@ -1211,14 +1211,14 @@ public class EntityDescriptionManager {
                 Class<?> propertyType = descriptor.getPropertyType();
                 Method readMethod = descriptor.getReadMethod();
                 Method writeMethod = descriptor.getWriteMethod();
-                if (readMethod != null) {
+                if (readMethod != null && !Modifier.isStatic(readMethod.getModifiers())) {
                     introspection.readableTypes.put(name, propertyType);
                 }
-                if (writeMethod != null) {
+                if (writeMethod != null && !Modifier.isStatic(writeMethod.getModifiers())) {
                     introspection.writableTypes.put(name, propertyType);
                 }
                 Field field = findField(type, name);
-                if (field != null && Modifier.isPublic(field.getModifiers())) {
+                if (field != null && !Modifier.isStatic(field.getModifiers()) && Modifier.isPublic(field.getModifiers())) {
                     introspection.readableTypes.putIfAbsent(name, field.getType());
                     introspection.writableTypes.putIfAbsent(name, field.getType());
                 }
@@ -1234,11 +1234,11 @@ public class EntityDescriptionManager {
             if ("class".equals(name)) {
                 continue;
             }
-            if (Modifier.isPublic(field.getModifiers())) {
+            if (!Modifier.isStatic(field.getModifiers()) && Modifier.isPublic(field.getModifiers())) {
                 introspection.readableTypes.putIfAbsent(name, field.getType());
                 introspection.writableTypes.putIfAbsent(name, field.getType());
             }
-            if (field.isAnnotationPresent(EntityFieldRequired.class)) {
+            if (!Modifier.isStatic(field.getModifiers()) && field.isAnnotationPresent(EntityFieldRequired.class)) {
                 introspection.requiredProperties.add(name);
             }
         }
@@ -1268,13 +1268,13 @@ public class EntityDescriptionManager {
     }
 
     private boolean isRequired(Field field, Method readMethod, Method writeMethod) {
-        if (field != null && field.isAnnotationPresent(EntityFieldRequired.class)) {
+        if (field != null && !Modifier.isStatic(field.getModifiers()) && field.isAnnotationPresent(EntityFieldRequired.class)) {
             return true;
         }
-        if (readMethod != null && readMethod.isAnnotationPresent(EntityFieldRequired.class)) {
+        if (readMethod != null && !Modifier.isStatic(readMethod.getModifiers()) && readMethod.isAnnotationPresent(EntityFieldRequired.class)) {
             return true;
         }
-        if (writeMethod != null && writeMethod.isAnnotationPresent(EntityFieldRequired.class)) {
+        if (writeMethod != null && !Modifier.isStatic(writeMethod.getModifiers()) && writeMethod.isAnnotationPresent(EntityFieldRequired.class)) {
             return true;
         }
         return false;

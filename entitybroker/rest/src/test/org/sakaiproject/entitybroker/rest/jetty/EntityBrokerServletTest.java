@@ -352,15 +352,15 @@ public class EntityBrokerServletTest {
             String content = this.response.getContent();
             assertNotNull(content);
             assertTrue(content.contains("ref0"));
-            assertTrue(content.contains("\"status\": "));
+            assertTrue(content.contains("\"status\":"));
             assertTrue(content.contains("200"));
-            assertTrue(content.contains("\"headers\": "));
-            assertTrue(content.contains("\"reference\": "));
-            assertTrue(content.contains("\"data\": "));
+            assertTrue(content.contains("\"headers\":"));
+            assertTrue(content.contains("\"reference\":"));
+            assertTrue(content.contains("\"data\":"));
             assertTrue(content.contains("myPrefix4"));
             assertTrue(content.contains("4-one"));
             assertTrue(content.contains("\"id\": \"4-one\""));
-            assertTrue(content.contains("\"entityReference\": "));
+            assertTrue(content.contains("\"entityReference\":"));
             assertTrue(content.contains("/myPrefix4/4-one"));
             assertTrue(content.contains(TestData.PREFIX4));
         } catch (Exception e) {

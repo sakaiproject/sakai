@@ -519,6 +519,13 @@ public class EntityDataUtils {
                 }
             }
         }
+        // Also search implemented interfaces (and their parents) to match historical behavior
+        for (Class<?> iface : type.getInterfaces()) {
+            Method method = findMethodWithAnnotation(iface, annotationType);
+            if (method != null) {
+                return method;
+            }
+        }
         return null;
     }
 

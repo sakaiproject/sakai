@@ -892,7 +892,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
             return true;
         }
         for (Class<?> simpleType : SIMPLE_ASSIGNABLE_TYPES) {
-            if (simpleType.isAssignableFrom(clazz)) {
+            if (simpleType.isAssignableFrom(clazz) && Serializable.class.isAssignableFrom(clazz)) {
                 return true;
             }
         }

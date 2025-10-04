@@ -49,7 +49,8 @@ public class AccessProviderManagerImpl<T> {
       if (current != null) {
          T existing = current.get();
          if (existing == null || existing == provider) {
-            prefixMap.remove(prefix);
+            // Atomically remove only if mapping is unchanged to avoid racing with re-registration
+            prefixMap.remove(prefix, current);
          }
       }
    }

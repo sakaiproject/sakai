@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1218,7 +1219,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         try {
             ReflectionUtils.makeAccessible(field);
             return ReflectionUtils.getField(field, target);
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | SecurityException | InaccessibleObjectException e) {
             return null;
         }
     }
@@ -1230,7 +1231,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         try {
             ReflectionUtils.makeAccessible(method);
             return ReflectionUtils.invokeMethod(method, target);
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | SecurityException | InaccessibleObjectException e) {
             return null;
         }
     }
