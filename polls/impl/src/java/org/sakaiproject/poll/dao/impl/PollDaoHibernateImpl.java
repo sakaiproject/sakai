@@ -122,11 +122,15 @@ public class PollDaoHibernateImpl implements PollDao {
         if (siteIds == null || siteIds.length == 0) return List.of();
         String order = creationDateAsc ? "asc" : "desc";
         Query<Poll> q = currentSession().createQuery(
-            "from Poll p where p.siteId in (:siteIds) and p.voteOpen < :now and p.voteClose > :now order by p.creationDate " + order,
+            "from Poll p where p.siteId in (:siteIds) " +
+            "and (p.voteOpen is null or p.voteOpen <= :now) " +
+            "and (p.voteClose is null or p.voteClose >= :now) " +
+            "order by p.creationDate " + order,
             Poll.class);
         q.setParameterList("siteIds", siteIds);
         q.setParameter("now", now);
         return q.list();
+    }
     }
 
     @Override
