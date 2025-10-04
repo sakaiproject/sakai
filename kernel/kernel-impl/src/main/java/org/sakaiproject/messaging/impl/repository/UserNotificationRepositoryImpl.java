@@ -52,8 +52,9 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
     @Transactional(readOnly = true)
     public boolean existsByToUser(String userId) {
 
-        Session session = sessionFactory.getCurrentSession();
+        if (StringUtils.isBlank(userId)) return false;
 
+        Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<UserNotification> un = query.from(UserNotification.class);
