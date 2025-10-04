@@ -806,15 +806,26 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     }
 
     private List<Method> getAllMethods(Class<?> type) {
-        List<Method> methods = new ArrayList<Method>();
-        Class<?> current = type;
-        while (current != null && !Object.class.equals(current)) {
-            for (Method method : current.getDeclaredMethods()) {
+        List<Method> methods = new ArrayList<>();
+        collectMethods(type, methods, new java.util.HashSet<>());
+        return methods;
+    }
+
+    private void collectMethods(Class<?> type, List<Method> methods, java.util.Set<Class<?>> visited) {
+        if (type == null || Object.class.equals(type) || !visited.add(type)) {
+            return;
+        }
+        try {
+            for (Method method : type.getDeclaredMethods()) {
                 methods.add(method);
             }
-            current = current.getSuperclass();
+        } catch (SecurityException | java.lang.reflect.InaccessibleObjectException ignore) {
+            // best-effort: keep traversing
         }
-        return methods;
+        collectMethods(type.getSuperclass(), methods, visited);
+        for (Class<?> iface : type.getInterfaces()) {
+            collectMethods(iface, methods, visited);
+        }
     }
 
     private List<Field> getAllFields(Class<?> type) {

@@ -22,6 +22,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
+import org.springframework.util.ClassUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -84,9 +85,18 @@ public final class DeveloperBeanUtils {
         if (type == null) {
             throw new IllegalArgumentException("Target type must be provided");
         }
+        Class<?> boxed = ClassUtils.resolvePrimitiveIfNecessary(type);
         IdentityHashMap<Object, Boolean> visited = new IdentityHashMap<>();
-        Object converted = convertValue(value, type, normalizeDepth(0) - 1, visited);
-        return type.cast(converted);
+        Object converted = convertValue(value, boxed, normalizeDepth(0) - 1, visited);
+        if (converted == null) {
+            return null;
+        }
+        if (!boxed.isInstance(converted)) {
+            throw new IllegalArgumentException("Converted value is not of requested type: " + boxed + " → " + converted.getClass());
+        }
+        @SuppressWarnings("unchecked")
+        T result = (T) converted;
+        return result;
     }
 
     private static int normalizeDepth(int maxDepth) {
@@ -213,7 +223,9 @@ public final class DeveloperBeanUtils {
             if (value == null && ignoreNulls) {
                 continue;
             }
-            Object converted = convertValue(value, descriptor.getPropertyType(), allowedDepth - 1, visited);
+            Class<?> targetType = targetWrapper.getPropertyType(name);
+            Class<?> conversionType = targetType != null ? targetType : descriptor.getPropertyType();
+            Object converted = convertValue(value, conversionType, allowedDepth - 1, visited);
             try {
                 targetWrapper.setPropertyValue(name, converted);
             } catch (BeansException e) {
