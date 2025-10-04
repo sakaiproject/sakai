@@ -60,7 +60,7 @@ It also includes a proof‑of‑concept (POC) refactor in the Polls tool that re
 3. Once all modules are migrated, mark `genericdao` as deprecated and remove from the build.
 
 ## Notes for JDK 17/21
-- Use `var` locally where clear; prefer records for immutable DTOs (not entities).
+- Prefer records for immutable DTOs (not entities).
 - Keep entity classes as POJOs while still using existing HBMs; consider JPA annotations in a later phase.
 
 ## Checklist
