@@ -14,7 +14,7 @@ package org.sakaiproject.hierarchy.impl.test.data;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.sakaiproject.genericdao.api.GenericDao;
+import org.sakaiproject.hierarchy.dao.HierarchyDao;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission;
 import org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode;
@@ -27,8 +27,8 @@ import org.sakaiproject.hierarchy.model.HierarchyNode;
  */
 public class TestDataPreload {
 
-   public GenericDao dao;
-   public void setDao(GenericDao dao) {
+   public HierarchyDao dao;
+   public void setDao(HierarchyDao dao) {
       this.dao = dao;
    }
 
@@ -146,7 +146,7 @@ public class TestDataPreload {
     * Preload a bunch of test data into the database
     * @param dao a generic dao
     */
-   public void preloadTestData(GenericDao dao) {
+   public void preloadTestData(HierarchyDao dao) {
       dao.save(pNode1);
       dao.save(pNode2);
       dao.save(pNode3);

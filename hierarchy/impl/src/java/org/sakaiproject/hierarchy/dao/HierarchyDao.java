@@ -34,18 +34,45 @@
 
 package org.sakaiproject.hierarchy.dao;
 
-import org.sakaiproject.genericdao.api.GeneralGenericDao;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
+import org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission;
+import org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode;
 
 /**
- * DAO for access to the database for entity broker internal writes
- * 
- * @author Aaron Zeckoski (aaronz@vt.edu)
+ * DAO for hierarchy entities using standard Hibernate APIs.
  */
-public interface HierarchyDao extends GeneralGenericDao {
+public interface HierarchyDao {
 
-    /**
-     * This will apply migration type fixes to the database as needed
-     */
-    public void fixupDatabase();
+    // Maintenance (was used for legacy data cleanup; no longer invoked at runtime)
 
+    // Persistence helpers
+    void save(Object entity);
+    void saveSet(Collection<?> entities);
+    void delete(Object entity);
+    void deleteSet(Collection<?> entities);
+    void deleteMixedSet(Set<?>[] entitySets);
+    void saveMixedSet(Set<?>[] entitySets);
+    <T> T findById(Class<T> type, Long id);
+
+    // Node meta data
+    long countNodeMetaByHierarchyId(String hierarchyId);
+    List<HierarchyNodeMetaData> findNodeMetaByHierarchyId(String hierarchyId);
+    HierarchyNodeMetaData findRootNodeMetaByHierarchy(String hierarchyId);
+    HierarchyNodeMetaData findNodeMetaByNodeId(Long nodeId);
+    List<HierarchyNodeMetaData> findNodeMetaByNodeIds(List<Long> nodeIds);
+    List<HierarchyNodeMetaData> findNodeMetaByHierarchyAndPermTokenOrdered(String hierarchyId, String permToken);
+
+    // Nodes
+    List<HierarchyPersistentNode> findNodesByIds(List<Long> nodeIds);
+
+    // Permissions
+    HierarchyNodePermission findNodePerm(String userId, String nodeId, String permission);
+    List<HierarchyNodePermission> findNodePerms(String userId, String permission);
+    List<HierarchyNodePermission> findNodePerms(String userId, String permission, List<String> nodeIds);
+    List<HierarchyNodePermission> findNodePermsByNodeIds(List<String> nodeIds);
+    List<HierarchyNodePermission> findNodePermsByUserIds(List<String> userIds);
 }
