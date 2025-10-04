@@ -339,45 +339,34 @@ public class PollToolBean {
 			multipartMap.clear();
 		}
 
-		boolean fileError = false;
-		if (file != null) {
-			log.debug("File uploaded successfully with contentType {}, size {} and name {}", file.getContentType(), file.getSize(), file.getOriginalFilename());
-			try{
-				switch(file.getContentType()){
-					case "application/octet-stream":
-					case "text/plain":
-					case "text/csv":
-					case "application/vnd.ms-excel":
-					case "application/msexcel":
-					case "application/x-msexcel":
-					case "application/x-ms-excel":
-					case "application/x-excel":
-					case "application/x-dos_ms_excel":
-					case "application/xls":
-					case "application/x-xls":
-					case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-						List<String> optionsList = OptionsFileConverterUtil.convertInputStreamToOptionList(file.getInputStream());
-						for(String optionString : optionsList){
-							Option newOption = new Option();
-							newOption.setPollId(pollId);
-							newOption.setText(PollUtils.cleanupHtmlPtags(optionString));
-							newOption.setOptionOrder(manager.getOptionsForPoll(pollId).size());
-							manager.saveOption(newOption);
-							log.debug("Option with id {} successfully saved.", newOption.getId());
-						}
-						break;
-					default:
-						log.warn("File mimetype not accepted {}.", file.getContentType());
-						throw new IOException();
-				}
-			} catch(Exception ex) {
-				log.warn("Error converting the input file into options.", ex);
-				fileError = true;
-			}
-		} else {
-			log.warn("The uploaded file object is null.");
-			fileError = true;
-		}
+        boolean fileError = false;
+        if (file != null) {
+            log.debug("File uploaded: type={}, size={}, name={}", file.getContentType(), file.getSize(), file.getOriginalFilename());
+            try {
+                // Detect by content, not HTTP mimetype; converter handles CSV (text), XLS, and XLSX via POI.
+                List<String> optionsList = OptionsFileConverterUtil.convertInputStreamToOptionList(file.getInputStream());
+                if (optionsList == null || optionsList.isEmpty()) {
+                    log.warn("No options found in uploaded file");
+                    fileError = true;
+                } else {
+                    int order = manager.getOptionsForPoll(pollId).size();
+                    for (String optionString : optionsList) {
+                        Option newOption = new Option();
+                        newOption.setPollId(pollId);
+                        newOption.setText(PollUtils.cleanupHtmlPtags(optionString));
+                        newOption.setOptionOrder(order++);
+                        manager.saveOption(newOption);
+                        log.debug("Option with id {} successfully saved.", newOption.getId());
+                    }
+                }
+            } catch (Exception ex) {
+                log.warn("Error converting the input file into options.", ex);
+                fileError = true;
+            }
+        } else {
+            log.warn("The uploaded file object is null.");
+            fileError = true;
+        }
 
 		if (fileError) {
 			log.debug("There was a problem processing the file.");

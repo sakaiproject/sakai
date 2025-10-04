@@ -51,9 +51,9 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 
 	private TestDataPreload tdp = new TestDataPreload();
 
-	@Autowired
-	@Qualifier("org.sakaiproject.poll.dao.impl.PollDaoTarget")
-	private PollDao dao;
+    @Autowired
+    @Qualifier("org.sakaiproject.poll.dao.PollDao")
+    private PollDao dao;
 	private PollListManagerImpl pollListManager;
 	private PollVoteManagerImpl pollVoteManager;
 	private ExternalLogicStubb externalLogicStubb;

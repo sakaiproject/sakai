@@ -43,6 +43,7 @@ import lombok.Data;
 import lombok.Setter;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -53,9 +54,6 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.genericdao.api.search.Order;
-import org.sakaiproject.genericdao.api.search.Restriction;
-import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.poll.dao.PollDao;
@@ -72,6 +70,7 @@ import org.sakaiproject.util.MergeConfig;
 
 @Slf4j
 @Data
+@Transactional(readOnly = true)
 public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "poll";
@@ -117,20 +116,16 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 allowedSites.retainAll(requestedSiteIds);
             }
             String[] siteIdsToSearch = allowedSites.toArray(new String[0]);
-            Search search = new Search();
             if (siteIdsToSearch.length > 0) {
-                search.addRestriction(new Restriction("siteId", siteIdsToSearch));
-            }
-            if (PollListManager.PERMISSION_VOTE.equals(permissionConstant)) {
-                // limit to polls which are open
-                Date now = new Date();
-                search.addRestriction(new Restriction("voteOpen", now, Restriction.LESS));
-                search.addRestriction(new Restriction("voteClose", now, Restriction.GREATER));
+                if (PollListManager.PERMISSION_VOTE.equals(permissionConstant)) {
+                    // open polls only, ascending by creationDate
+                    polls = dao.findOpenPollsForSites(siteIdsToSearch, new Date(), true);
+                } else {
+                    polls = dao.findPollsForSites(siteIdsToSearch, true);
+                }
             } else {
-                // show all polls
+                polls = new ArrayList<>();
             }
-            search.addOrder(new Order("creationDate"));
-            polls = dao.findBySearch(Poll.class, search);
         }
         if (polls == null) {
             polls = new ArrayList<Poll>();
@@ -138,6 +133,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return polls;
     }
 
+    @Transactional
     public boolean savePoll(Poll t) throws SecurityException, IllegalArgumentException {
         boolean newPoll = false;
         
@@ -177,6 +173,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return true;
     }
 
+    @Transactional
     public boolean deletePoll(Poll t) throws SecurityException, IllegalArgumentException {
         if (t == null) {
             throw new IllegalArgumentException("Poll can't be null");
@@ -235,20 +232,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     public List<Poll> findAllPolls() {
 
-        Search search = new Search();
-
-        List<Poll> polls = dao.findBySearch(Poll.class, search);
-        return polls;
+        return dao.findAllPolls();
     }
 
     public List<Poll> findAllPolls(String siteId) {
         
-        Search search = new Search();
-        search.addOrder(new Order("creationDate", false));
-        search.addRestriction(new Restriction("siteId", siteId));
-        
-        List<Poll> polls = dao.findBySearch(Poll.class, search);
-        return polls;
+        return dao.findPollsBySite(siteId, false);
     }
 
     public Poll getPollById(Long pollId) throws SecurityException {
@@ -258,9 +247,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     public Poll getPollById(Long pollId, boolean includeOptions) throws SecurityException {
  
-        Search search = new Search();
-        search.addRestriction(new Restriction("pollId", pollId));
-        Poll poll = dao.findOneBySearch(Poll.class, search);
+        Poll poll = dao.findPollById(pollId);
         if (poll != null) {
             if (includeOptions) {
                 List<Option> optionList = getOptionsForPoll(poll);
@@ -295,11 +282,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         if (poll == null) {
             throw new IllegalArgumentException("Cannot get options for a poll ("+pollId+") that does not exist");
         }
-        Search search = new Search();
-        search.addRestriction(new Restriction("pollId", pollId));
-        search.addOrder(new Order("optionOrder"));
-        List<Option> optionList = dao.findBySearch(Option.class, search);
-        return optionList;
+        return dao.findOptionsByPollId(pollId);
     }
 
     public List<Option> getVisibleOptionsForPoll(Long pollId) {
@@ -317,16 +300,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public Poll getPollWithVotes(Long pollId) {
-        Search search = new Search();
-        search.addRestriction(new Restriction("pollId", pollId));
-        return dao.findOneBySearch(Poll.class, search);
+        return dao.findPollById(pollId);
 
     }
 
     public Option getOptionById(Long optionId) {
-        Search search = new Search();
-        search.addRestriction(new Restriction("optionId", optionId));
-        Option option = dao.findOneBySearch(Option.class, search);
+        Option option = dao.findOptionById(optionId);
         // if the id is null set it
         if (option != null && option.getUuid() == null) {
             option.setUuid( UUID.randomUUID().toString() );
@@ -335,6 +314,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return option;
     }
 
+    @Transactional
     public void deleteOption(Option option) {
         try {
             dao.delete(option);
@@ -345,6 +325,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         log.debug("Option id {} deleted", option.getId());
     }
 
+    @Transactional
     public void deleteOption(Option option, boolean soft) {
         if (!soft) {
             deleteOption(option);
@@ -361,6 +342,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
     }
 
+    @Transactional
     public boolean saveOption(Option t) {
         if (t.getUuid() == null 
                 || t.getUuid().trim().length() == 0) {
@@ -663,9 +645,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     public Poll getPoll(String ref) {
         // we need to get the options here
         
-        Search search = new Search();
-        search.addRestriction(new Restriction("id", ref));
-        Poll poll = dao.findOneBySearch(Poll.class, search);
+        Poll poll = dao.findPollByUuid(ref);
         // if the id is null set it
         if (poll.getId() == null) {
             poll.setId(idManager.createUuid());
@@ -685,11 +665,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
         if (poll.getDisplayResult().equals("afterVoting")) {
 
-            Search search = new Search();
-            search.addRestriction(new Restriction("pollId", poll.getPollId()));
-            search.addRestriction(new Restriction("userId", userId));
-
-            List<Vote> votes = dao.findBySearch(Vote.class, search);
+            List<Vote> votes = dao.findVotesByUserAndPollId(userId, poll.getPollId());
             log.debug("got {} votes for this poll", votes.size());
             if (votes.size() > 0) {
                 return true;

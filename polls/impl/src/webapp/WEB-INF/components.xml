@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 	<!-- Bring in the HBM related beans beans -->
 	<import resource="hibernate-hbms.xml" />
@@ -9,6 +11,9 @@
 	<!-- Bring in the hibernate related beans -->
 	<!-- This is in the implementation so it can be used by tests but then loaded from the classpath here. -->
 	<import resource="classpath:org/sakaiproject/poll/spring-hibernate.xml" />
+
+	<!-- Enable @Transactional driven proxies for our services -->
+	<tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
 	<!-- create a logic bean, give it the dao from above and some sakai services -->
 		<bean id="org.sakaiproject.poll.logic.PollListManager"
