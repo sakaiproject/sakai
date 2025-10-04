@@ -58,7 +58,10 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<UserNotification> un = query.from(UserNotification.class);
         query.select(cb.count(un))
-             .where(cb.and(cb.equal(un.get("toUser"), userId), cb.equal(un.get("deferred"), false)));
+             .where(cb.and(
+                 cb.equal(un.get("toUser"), userId),
+                 cb.equal(un.get("deferred"), false),
+                 cb.equal(un.get("viewed"), false)));
         Long count = session.createQuery(query).uniqueResult();
         return count != null && count > 0L;
     }

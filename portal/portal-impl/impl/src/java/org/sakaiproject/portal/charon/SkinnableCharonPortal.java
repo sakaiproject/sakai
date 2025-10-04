@@ -1518,11 +1518,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal {
             rcontext.put("useBullhornAlerts", useBullhornAlerts);
 
             boolean hasNotifications = false;
-            if (useBullhornAlerts && session.getUserId() != null) {
+            if (useBullhornAlerts && thisUser != null) {
                 try {
                     hasNotifications = userMessagingService.hasNotifications();
                 } catch (Exception e) {
-                    log.debug("Unable to determine notification state for user {}", session.getUserId(), e);
+                    log.debug("Unable to determine notification state for user {}", thisUser, e);
                 }
             }
             rcontext.put("hasNotifications", hasNotifications);
