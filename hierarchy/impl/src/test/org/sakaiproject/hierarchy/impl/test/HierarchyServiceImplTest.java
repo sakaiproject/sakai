@@ -24,7 +24,7 @@ import java.util.Set;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.genericdao.api.search.Search;
+// genericdao removed; tests now call DAO methods directly where needed
 import org.sakaiproject.hierarchy.dao.HierarchyDao;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
 import org.sakaiproject.hierarchy.impl.HierarchyServiceImpl;
@@ -158,8 +158,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringC
     @Test
     public void testDestroyHierarchy() {
         hierarchyService.destroyHierarchy(TestDataPreload.HIERARCHYB);
-        long count = dao.countBySearch(HierarchyNodeMetaData.class, 
-                new Search("hierarchyId", TestDataPreload.HIERARCHYB) );
+        long count = dao.countNodeMetaByHierarchyId(TestDataPreload.HIERARCHYB);
         assertEquals(0, count);
 
         // test removing a non-existent hierarchy fails
