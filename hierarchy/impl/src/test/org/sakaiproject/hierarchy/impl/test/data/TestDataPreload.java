@@ -20,6 +20,7 @@ import org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission;
 import org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode;
 import org.sakaiproject.hierarchy.impl.utils.HierarchyImplUtils;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Contains test data for preloading and test constants
@@ -27,13 +28,18 @@ import org.sakaiproject.hierarchy.model.HierarchyNode;
  */
 public class TestDataPreload {
 
-   public HierarchyDao dao;
-   public void setDao(HierarchyDao dao) {
-      this.dao = dao;
-   }
+   private HierarchyDao dao;
+   public void setDao(HierarchyDao d) { this.dao = d; }
+
+   private TransactionTemplate transactionTemplate;
+   public void setTransactionTemplate(TransactionTemplate tt) { this.transactionTemplate = tt; }
 
    public void init() {
-      preloadTestData(dao);
+      if (transactionTemplate != null) {
+         transactionTemplate.execute(status -> { preloadTestData(); return null; });
+      } else {
+         preloadTestData();
+      }
    }
 
    /**
@@ -146,7 +152,7 @@ public class TestDataPreload {
     * Preload a bunch of test data into the database
     * @param dao a generic dao
     */
-   public void preloadTestData(HierarchyDao dao) {
+   public void preloadTestData() {
       dao.save(pNode1);
       dao.save(pNode2);
       dao.save(pNode3);

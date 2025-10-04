@@ -865,7 +865,8 @@ public class HierarchyServiceImpl implements HierarchyService {
                 if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
                     arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
                 }
-                List<HierarchyNodePermission> nodePerms = dao.findNodePermsByNodeIds(nodeIdsList.subList(i, i + arraySize));
+                // Filter by permission token for the specified nodes
+                List<HierarchyNodePermission> nodePerms = dao.findNodePerms(null, hierarchyPermission, nodeIdsList.subList(i, i + arraySize));
                 for (HierarchyNodePermission nodePerm : nodePerms) {
                     userIds.add( nodePerm.getUserId() );
                 }
