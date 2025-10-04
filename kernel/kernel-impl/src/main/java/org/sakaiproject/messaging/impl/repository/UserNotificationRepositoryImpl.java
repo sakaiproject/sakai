@@ -61,7 +61,7 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
              .where(cb.and(
                  cb.equal(un.get("toUser"), userId),
                  cb.equal(un.get("deferred"), false),
-                 cb.equal(un.get("viewed"), false)));
+                 cb.or(cb.equal(un.get("viewed"), false), cb.isNull(un.get("viewed")))));
         Long count = session.createQuery(query).uniqueResult();
         return count != null && count > 0L;
     }

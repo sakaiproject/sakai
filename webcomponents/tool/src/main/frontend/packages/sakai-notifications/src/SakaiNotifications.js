@@ -79,6 +79,9 @@ export class SakaiNotifications extends SakaiElement {
     } else if (this.safariInfoUrl && navigator.userAgent.includes("Edg")) {
       this._browserInfoUrl = this.edgeInfoUrl;
     }
+
+    // Load initial notifications on connect
+    this._i18nLoaded.then(() => this._loadInitialNotifications());
   }
 
   loadNotifications({ force = false } = {}) {
