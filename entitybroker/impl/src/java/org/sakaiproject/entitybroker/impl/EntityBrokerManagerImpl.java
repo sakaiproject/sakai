@@ -847,7 +847,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
         try {
             ReflectionUtils.makeAccessible(method);
             return ReflectionUtils.invokeMethod(method, bean);
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | SecurityException | java.lang.reflect.InaccessibleObjectException e) {
             return null;
         }
     }
@@ -859,7 +859,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
         try {
             ReflectionUtils.makeAccessible(field);
             return ReflectionUtils.getField(field, bean);
-        } catch (IllegalStateException e) {
+        } catch (IllegalStateException | SecurityException | java.lang.reflect.InaccessibleObjectException e) {
             return null;
         }
     }
