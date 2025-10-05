@@ -40,11 +40,12 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
@@ -81,89 +82,103 @@ public class SignupMeetingDaoImpl implements SignupMeetingDao {
 	/**
 	 * {@inheritDoc}
 	 */
-    @SuppressWarnings("unchecked")
     public List<SignupMeeting> getAllSignupMeetings(String siteId) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-                .addOrder(Order.asc("startTime"))
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .createCriteria("signupSites")
-                .add(Restrictions.eq("siteId", siteId));
-        return (List<SignupMeeting>) criteria.getExecutableCriteria(currentSession()).list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root).distinct(true)
+          .where(cb.equal(sites.get("siteId"), siteId))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
     }
 
 	/**
 	 * {@inheritDoc}
 	 */
-    @SuppressWarnings("unchecked")
     public List<SignupMeeting> getSignupMeetings(String siteId, Date searchEndDate) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-                .add(Restrictions.le("startTime", searchEndDate))
-                .addOrder(Order.asc("startTime"))
-                .createCriteria("signupSites")
-                .add(Restrictions.eq("siteId", siteId));
-
-        return (List<SignupMeeting>) criteria.getExecutableCriteria(currentSession()).list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.lessThanOrEqualTo(root.<Date>get("startTime"), searchEndDate),
+                  cb.equal(sites.get("siteId"), siteId)
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
     }
 
 	/**
 	 * {@inheritDoc}
 	 */
-    @SuppressWarnings("unchecked")
     public List<SignupMeeting> getSignupMeetings(String siteId, Date startDate, Date endDate) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .add(Restrictions.ge("endTime", startDate))
-                .add(Restrictions.lt("startTime", endDate))
-                .addOrder(Order.asc("startTime"))
-                .createCriteria("signupSites")
-                .add(Restrictions.eq("siteId", siteId));
-
-        return (List<SignupMeeting>) criteria.getExecutableCriteria(currentSession()).list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.greaterThanOrEqualTo(root.<Date>get("endTime"), startDate),
+                  cb.lessThan(root.<Date>get("startTime"), endDate),
+                  cb.equal(sites.get("siteId"), siteId)
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
     }
 	
-    @SuppressWarnings("unchecked")
     public List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate, Date endDate) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .add(Restrictions.ge("endTime", startDate))
-                .add(Restrictions.lt("startTime", endDate))
-                .addOrder(Order.asc("startTime"))
-                .createCriteria("signupSites")
-                .add(Restrictions.eq("siteId", siteId));
-
-        return (List<SignupMeeting>) criteria.getExecutableCriteria(currentSession()).list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.greaterThanOrEqualTo(root.<Date>get("endTime"), startDate),
+                  cb.lessThan(root.<Date>get("startTime"), endDate),
+                  cb.equal(sites.get("siteId"), siteId)
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
     }
 	
 	/**
 	 * {@inheritDoc}
 	 */
-    @SuppressWarnings("unchecked")
     public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .add(Restrictions.ge("endTime", startDate))
-                .add(Restrictions.lt("startTime", endDate))
-                .addOrder(Order.asc("startTime"))
-                .createCriteria("signupSites")
-                .add(Restrictions.in("siteId", siteIds));
-
-        return (List<SignupMeeting>) criteria.getExecutableCriteria(currentSession()).list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        Expression<String> siteIdPath = sites.get("siteId");
+        Predicate inSites = siteIdPath.in(siteIds);
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.greaterThanOrEqualTo(root.<Date>get("endTime"), startDate),
+                  cb.lessThan(root.<Date>get("startTime"), endDate),
+                  inSites
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
     }
 
 	/**
 	 * {@inheritDoc}
 	 */
-    @SuppressWarnings("unchecked")
     public List<SignupMeeting> getRecurringSignupMeetings(String siteId, Long recurrenceId, Date currentTime) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .add(Restrictions.eq("recurrenceId", recurrenceId))
-                .add(Restrictions.gt("endTime", currentTime))
-                .addOrder(Order.asc("startTime"))
-                .createCriteria("signupSites")
-                .add(Restrictions.eq("siteId", siteId));
-
-        return (List<SignupMeeting>) criteria.getExecutableCriteria(currentSession()).list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.equal(root.get("recurrenceId"), recurrenceId),
+                  cb.greaterThan(root.<Date>get("endTime"), currentTime),
+                  cb.equal(sites.get("siteId"), siteId)
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
     }
 
 	/**
@@ -196,12 +211,7 @@ public class SignupMeetingDaoImpl implements SignupMeetingDao {
 	 * {@inheritDoc}
 	 */
     public SignupMeeting loadSignupMeeting(Long meetingId) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .add(Restrictions.eq("id", meetingId));
-        List<SignupMeeting> ls = (List<SignupMeeting>) criteria.getExecutableCriteria(currentSession()).list();
-        if (ls == null || ls.isEmpty()) return null;
-        return ls.get(0);
+        return currentSession().get(SignupMeeting.class, meetingId);
     }
 
 	/**
@@ -242,14 +252,8 @@ public class SignupMeetingDaoImpl implements SignupMeetingDao {
         }
     }
 	
-    @SuppressWarnings("unchecked")
     private SignupTimeslot loadSignupTimeslot(Long timeslotId) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupTimeslot.class)
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .add(Restrictions.eq("id", timeslotId));
-        List<SignupTimeslot> ls = (List<SignupTimeslot>) criteria.getExecutableCriteria(currentSession()).list();
-        if (ls == null || ls.isEmpty()) return null;
-        return ls.get(0);
+        return currentSession().get(SignupTimeslot.class, timeslotId);
     }
 
 	/**
@@ -284,63 +288,60 @@ public class SignupMeetingDaoImpl implements SignupMeetingDao {
 	 * {@inheritDoc}
 	 */
     public int getAutoReminderTotalEventCounts(Date startDate, Date endDate) {
-        Number size = (Number) currentSession().createCriteria(SignupMeeting.class)
-                .add(Restrictions.eq("autoReminder", true))
-                .add(Restrictions.between("startTime", startDate, endDate))
-                .setProjection(Projections.rowCount())
-                .uniqueResult();
-        return size == null ? 0 : size.intValue();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        cq.select(cb.count(root))
+          .where(cb.and(
+                  cb.isTrue(root.get("autoReminder")),
+                  cb.between(root.<Date>get("startTime"), startDate, endDate)
+          ));
+        Long count = currentSession().createQuery(cq).getSingleResult();
+        return count == null ? 0 : count.intValue();
     }
 	
 	/**
 	 * {@inheritDoc}
 	 */
-    @SuppressWarnings("unchecked")
     public List<SignupMeeting> getAutoReminderSignupMeetings(Date startDate, Date endDate) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .add(Restrictions.eq("autoReminder", true))
-                // .add(Restrictions.between("startTime", startDate, endDate))
-                .add(Restrictions.le("startTime", endDate))
-                .add(Restrictions.ge("endTime", startDate))
-                .addOrder(Order.asc("startTime"));
-
-        return (List<SignupMeeting>) criteria.getExecutableCriteria(currentSession()).list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.isTrue(root.get("autoReminder")),
+                  cb.lessThanOrEqualTo(root.<Date>get("startTime"), endDate),
+                  cb.greaterThanOrEqualTo(root.<Date>get("endTime"), startDate)
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
     }
 
 	@Override
     public List<String> getAllCategories(String siteId) throws DataAccessException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-                .setProjection(Projections.distinct(Projections.projectionList()
-                        .add(Projections.property("category"), "category")))
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .addOrder(Order.asc("category"))
-                .createCriteria("signupSites")
-                .add(Restrictions.eq("siteId", siteId));
-
-        List<String> categories = (List<String>) criteria.getExecutableCriteria(currentSession()).list();
-        if (categories != null && !categories.isEmpty()) {
-            return categories;
-        }
-        return null;
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<String> cq = cb.createQuery(String.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root.get("category")).distinct(true)
+          .where(cb.equal(sites.get("siteId"), siteId))
+          .orderBy(cb.asc(root.get("category")));
+        List<String> results = currentSession().createQuery(cq).getResultList();
+        return (results != null && !results.isEmpty()) ? results : null;
     }
 
 	@Override
     public List<String> getAllLocations(String siteId) throws DataAccessException {
-        DetachedCriteria criteria = DetachedCriteria.forClass(SignupMeeting.class)
-                .setProjection(Projections.distinct(Projections.projectionList()
-                        .add(Projections.property("location"), "location")))
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .addOrder(Order.asc("location"))
-                .createCriteria("signupSites")
-                .add(Restrictions.eq("siteId", siteId));
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<String> cq = cb.createQuery(String.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root.get("location")).distinct(true)
+          .where(cb.equal(sites.get("siteId"), siteId))
+          .orderBy(cb.asc(root.get("location")));
 
-        List<String> locations = (List<String>) criteria.getExecutableCriteria(currentSession()).list();
-
-        if (locations != null && !locations.isEmpty()) {
-            return locations;
-        }
-        return null;
+        List<String> results = currentSession().createQuery(cq).getResultList();
+        return (results != null && !results.isEmpty()) ? results : null;
     }
 
 }
