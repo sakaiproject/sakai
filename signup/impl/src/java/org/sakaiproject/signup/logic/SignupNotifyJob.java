@@ -45,6 +45,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import org.sakaiproject.email.api.EmailService;
+import org.springframework.transaction.annotation.Transactional;
 import org.sakaiproject.signup.dao.SignupMeetingDao;
 import org.sakaiproject.signup.logic.messages.AutoReminderEmail;
 import org.sakaiproject.signup.logic.messages.OrganizerPreAssignEmail;
@@ -99,7 +100,8 @@ public class SignupNotifyJob implements Job {
 		this.emailService = emailService;
 	}
 
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+    @Transactional(readOnly = true)
+    public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		log.warn("Starting Signup Auto Reminder Notification job");
 
 		List<SignupMeeting> signupMeetings = null;

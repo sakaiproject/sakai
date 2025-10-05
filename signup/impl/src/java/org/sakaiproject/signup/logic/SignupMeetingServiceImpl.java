@@ -51,6 +51,7 @@ import java.util.StringTokenizer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -88,6 +89,7 @@ import org.sakaiproject.util.ResourceLoader;
  * </p>
  */
 @Slf4j
+@Transactional(readOnly = true)
 public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
 
 	@Getter @Setter
@@ -411,7 +413,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public Long saveMeeting(SignupMeeting signupMeeting, String userId) throws PermissionException {
+    @Transactional
+    public Long saveMeeting(SignupMeeting signupMeeting, String userId) throws PermissionException {
 		if (isAllowedToCreate(userId, signupMeeting)) {
 			return signupMeetingDao.saveMeeting(signupMeeting);
 		}
@@ -421,7 +424,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public void saveMeetings(List<SignupMeeting> signupMeetings, String userId) throws PermissionException {
+    @Transactional
+    public void saveMeetings(List<SignupMeeting> signupMeetings, String userId) throws PermissionException {
 		if (signupMeetings ==null || signupMeetings.isEmpty())
 			return;
 		
@@ -514,7 +518,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateSignupMeeting(SignupMeeting meeting, boolean isOrganizer) throws Exception {
+    @Transactional
+    public void updateSignupMeeting(SignupMeeting meeting, boolean isOrganizer) throws Exception {
 		Permission permission = meeting.getPermission();
 
 		/*
@@ -545,7 +550,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateSignupMeetings(List<SignupMeeting> meetings, boolean isOrganizer) throws Exception {
+    @Transactional
+    public void updateSignupMeetings(List<SignupMeeting> meetings, boolean isOrganizer) throws Exception {
 		
 		if (meetings == null || meetings.isEmpty()) {
 			return;
@@ -583,8 +589,9 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots,
-			boolean isOrganizer) throws Exception {
+    @Transactional
+    public void updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots,
+                    boolean isOrganizer) throws Exception {
 		
 		if (meetings == null || meetings.isEmpty()) {
 			return;
@@ -652,7 +659,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void modifyCalendar(SignupMeeting meeting) throws Exception {
+    @Transactional
+    public void modifyCalendar(SignupMeeting meeting) throws Exception {
 		List<SignupSite> signupSites = meeting.getSignupSites();
 		boolean saveMeeting = false;
 		List<SignupTimeslot> calendarBlocks = scanDivideCalendarBlocks(meeting);
@@ -1116,7 +1124,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	/**
 	 * {@inheritDoc}
 	 */
-	public void removeMeetings(List<SignupMeeting> meetings) throws Exception {
+    @Transactional
+    public void removeMeetings(List<SignupMeeting> meetings) throws Exception {
 		signupMeetingDao.removeMeetings(meetings);
 		Set<Long> sent = new HashSet<Long>();
 				

@@ -37,7 +37,6 @@ package org.sakaiproject.signup.dao;
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.genericdao.api.GeneralGenericDao;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.springframework.dao.DataAccessException;
@@ -52,7 +51,7 @@ import org.springframework.dao.DataAccessException;
  * 
  * </p>
  */
-public interface SignupMeetingDao extends GeneralGenericDao {
+public interface SignupMeetingDao {
 
 	/**
 	 * This returns a list of SignupMeeting for the site
