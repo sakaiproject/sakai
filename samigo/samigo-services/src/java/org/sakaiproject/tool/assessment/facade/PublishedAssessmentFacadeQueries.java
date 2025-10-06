@@ -736,11 +736,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
                 (AssessmentData) assessment.getData());
 
         // Generate a new globally-unique ALIAS for the published assessment
-        if (publishedAssessment.getAssessmentMetaDataSet() == null) {
-            publishedAssessment.setAssessmentMetaDataSet(new java.util.HashSet<>());
+        // Ensure metadata set exists and remove any existing ALIAS entries to avoid duplicates
+        @SuppressWarnings("unchecked")
+        Set<PublishedMetaData> metaDataSet = (Set<PublishedMetaData>) publishedAssessment.getAssessmentMetaDataSet();
+        if (metaDataSet == null) {
+            metaDataSet = new HashSet<>();
+            publishedAssessment.setAssessmentMetaDataSet(metaDataSet);
+        } else {
+            metaDataSet.removeIf(pmd -> AssessmentMetaDataIfc.ALIAS.equals(pmd.getLabel()));
         }
-        publishedAssessment.getAssessmentMetaDataSet().add(
-                new PublishedMetaData(publishedAssessment, AssessmentMetaDataIfc.ALIAS, java.util.UUID.randomUUID().toString()));
+        metaDataSet.add(new PublishedMetaData(publishedAssessment, AssessmentMetaDataIfc.ALIAS, UUID.randomUUID().toString()));
 
 		try {
 			saveOrUpdate(publishedAssessment);
