@@ -33,6 +33,9 @@ import org.sakaiproject.tags.api.Errors;
 import org.sakaiproject.tags.api.MissingUuidException;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.tool.handlers.CrudHandler;
+import org.sakaiproject.util.api.FormattedText;
+
+import java.util.Optional;
 
 /**
  * Maps to and from the tag HTML form and a tag data object.
@@ -165,14 +168,45 @@ public class TagForm extends BaseForm {
                 externalHierarchyCode, externalType, data, collectionName);
     }
 
-    public Errors validate(CrudHandler.CrudMode mode) {
+    public Errors validate(FormattedText formattedText, CrudHandler.CrudMode mode) {
         Errors errors = new Errors();
 
+        // Validate required fields
+        if (tagLabel == null || tagLabel.trim().isEmpty()) {
+            errors.addError("tagLabel", "tag_label_required");
+        }
+
+        // Validate field lengths
+        if (tagLabel != null && tagLabel.length() > 255) {
+            errors.addError("tagLabel", "tag_label_too_long");
+        }
+
+        if (description != null && description.length() > 1000) {
+            errors.addError("description", "description_too_long");
+        }
+
+        if (externalId != null && externalId.length() > 255) {
+            errors.addError("externalId", "external_id_too_long");
+        }
+
+        // XSS validation checks
+        StringBuilder tagMessages = new StringBuilder();
+        formattedText.processFormattedText(tagLabel, tagMessages);
+        if (tagMessages.length() > 0) {
+            errors.addError("tagLabel", "contains_xss");
+        }
+
+        StringBuilder descriptionMessages = new StringBuilder();
+        formattedText.processFormattedText(description, descriptionMessages);
+        if (descriptionMessages.length() > 0) {
+            errors.addError("description", "contains_xss");
+        }
+
+        // Merge with model-level validation errors
         Errors modelErrors = toTag().validate();
 
         return errors.merge(modelErrors);
     }
-
 
     public Tag toTag() {
         return new Tag(uuid, tagCollectionId, tagLabel, description, createdBy,

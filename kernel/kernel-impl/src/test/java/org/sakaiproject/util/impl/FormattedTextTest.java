@@ -95,7 +95,7 @@ public class FormattedTextTest {
         };
 
         // add in the config so we can test it
-        basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.errors.handling", "return", "FormattedTextTest"));
+        basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.errors.handling", "none", "FormattedTextTest"));
         basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.referrer-policy", "noopener", "FormattedTextTest"));
         serverConfigurationService = basicConfigurationService;
 
