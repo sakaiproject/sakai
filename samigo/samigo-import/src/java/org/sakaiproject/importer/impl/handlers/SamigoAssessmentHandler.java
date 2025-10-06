@@ -144,16 +144,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			data.setSectionSet(sectionSet);
 			assessment.setData(data);
 			assessment.setSectionSet(sectionSet);
-            // Ensure a globally unique alias on legacy-imported assessments
-            String currentAlias = assessment.getAssessmentMetaDataByLabel(
-                    org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc.ALIAS);
-            if (currentAlias == null || currentAlias.trim().isEmpty()) {
-                assessment.updateAssessmentMetaData(
-                        org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc.ALIAS,
-                        java.util.UUID.randomUUID().toString());
-            }
-
-            as.saveAssessment(assessment);
+			as.saveAssessment(assessment);
 		} catch (Exception e) {
 			log.warn("Error creating assessment: {}", e.toString());
 		} catch (AssessmentException e) {

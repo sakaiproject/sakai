@@ -735,33 +735,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
         PublishedAssessmentData publishedAssessment = preparePublishedAssessment(
                 (AssessmentData) assessment.getData());
 
-        // Ensure ALIAS metadata exists on the published assessment before persisting
-        // This centralizes alias handling so downstream hooks (e.g., Secure Delivery SEB)
-        // can reliably read the alias immediately after publish.
-        String alias = org.apache.commons.lang3.StringUtils.trimToNull(
-                publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS));
-        if (alias == null) {
-            // Try to reuse alias from the most recent previously published version
-            Long prevPublishedId = getPublishedAssessmentId(assessment.getAssessmentId());
-            if (prevPublishedId != null && prevPublishedId.longValue() > 0L) {
-                PublishedAssessmentData previous = loadPublishedAssessment(prevPublishedId);
-                String prevAlias = org.apache.commons.lang3.StringUtils.trimToNull(
-                        previous.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS));
-                if (prevAlias != null) {
-                    alias = prevAlias;
-                }
-            }
-            // If still missing, generate a new UUID alias
-            if (alias == null) {
-                alias = java.util.UUID.randomUUID().toString();
-            }
-            // Attach alias to published metadata set
-            if (publishedAssessment.getAssessmentMetaDataSet() == null) {
-                publishedAssessment.setAssessmentMetaDataSet(new java.util.HashSet<>());
-            }
-            publishedAssessment.getAssessmentMetaDataSet().add(
-                    new PublishedMetaData(publishedAssessment, AssessmentMetaDataIfc.ALIAS, alias));
-        }
+        // ALIAS is generated once at draft creation time.
 
         try {
             saveOrUpdate(publishedAssessment);

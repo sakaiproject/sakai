@@ -308,11 +308,7 @@ public class SaveAssessmentSettings
     Map <String, String> h = assessmentSettings.getValueMap();
     updateMetaWithValueMap(assessment, h);
 
-    // Persist alias provided in settings onto the draft assessment metadata
-    // so that user-entered aliases are retained and copied on publish.
-    if (StringUtils.isNotBlank(assessmentSettings.getAlias())) {
-        assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.ALIAS, assessmentSettings.getAlias());
-    }
+    // Alias is generated centrally at creation time; ignore any UI-provided alias
 
     org.sakaiproject.grading.api.GradingService gradingService =
 			(org.sakaiproject.grading.api.GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");

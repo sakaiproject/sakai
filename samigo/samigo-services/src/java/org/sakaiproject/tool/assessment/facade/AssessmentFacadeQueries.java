@@ -497,7 +497,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		} catch (CloneNotSupportedException ex) {
 			log.error(ex.getMessage(), ex);
 		}
-		return assessment;
+			// Centralized ALIAS assignment for newly created assessments
+			ensureAlias(assessment);
+			return assessment;
 	}
 
 	/**
@@ -1961,9 +1963,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		// attachmentSet
 		Set newAssessmentAttachmentSet = prepareAssessmentAttachmentSet(
 				newAssessment, a.getAssessmentAttachmentSet(), protocol, toContext);
-		newAssessment.setAssessmentAttachmentSet(newAssessmentAttachmentSet);
+			newAssessment.setAssessmentAttachmentSet(newAssessmentAttachmentSet);
 
-		return newAssessment;
+			// Centralized ALIAS assignment for copied assessments
+			ensureAlias(newAssessment);
+			return newAssessment;
 	}
 
 	public AssessmentData prepareAssessment(AssessmentData a, String protocol) {
@@ -2031,15 +2035,25 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
         Set<AssessmentMetaData> result = new HashSet<>();
         if (metaDataSet != null) {
             for (AssessmentMetaData m : metaDataSet) {
-                // Do not carry over ALIAS when copying; new copy must have a unique alias
+                // Do not carry over ALIAS when copying; new copy will get alias in one central place
                 if (!AssessmentMetaDataIfc.ALIAS.equals(m.getLabel())) {
                     result.add(new AssessmentMetaData(p, m.getLabel(), m.getEntry()));
                 }
             }
         }
-        // Always assign a fresh globally-unique alias to the new assessment copy
-        result.add(new AssessmentMetaData(p, AssessmentMetaDataIfc.ALIAS, java.util.UUID.randomUUID().toString()));
         return result;
+    }
+
+    private void ensureAlias(AssessmentData assessment) {
+        // Remove any existing ALIAS metadata (shouldn't exist on new/template-based assessments)
+        Set<AssessmentMetaData> set = assessment.getAssessmentMetaDataSet();
+        if (set == null) {
+            set = new HashSet<>();
+            assessment.setAssessmentMetaDataSet(set);
+        }
+        set.removeIf(m -> AssessmentMetaDataIfc.ALIAS.equals(m.getLabel()));
+        // Generate exactly once for new assessments
+        set.add(new AssessmentMetaData(assessment, AssessmentMetaDataIfc.ALIAS, java.util.UUID.randomUUID().toString()));
     }
 
 	public Set prepareSecuredIPSet(AssessmentData p, Set ipSet) {
