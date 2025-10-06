@@ -122,23 +122,4 @@ public class LegacyShaUtil {
 		}
 		return base;
 	}
-
-	public static void main(String[] args) {
-		final String sample1 = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'Áª£¢°¤¦¥»¼Ð­ÇÔÒ¹¿ö¬ ¨«Ï¶Ä©úÆûÂÉ¾Ö³²µ÷ÃÅ½";
-		final String sample2 = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'Áª£¢°¤¦¥»¼Ð­ÇÔÒ¹¿ö¬ ¨«Ï¶Ä©úÆûÂÉ¾Ö³²µ÷ÃÅ½";
-		final String sample3 = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'Áª£¢°¤¦¥»¼Ð­ÇÔÒ¹¿ö¬ ¨«Ï¶Ä©úÆûÂÉ¾Ö³²µ÷ÃÅÅ";
-		final String sample1Hash = sha1Hash(sample1);
-		final String sample2Hash = sha1Hash(sample2);
-		final String sample3Hash = sha1Hash(sample3);
-		log.debug(sample1Hash);
-		log.debug(sample2Hash);
-		log.debug(sample3Hash);
-		assert (sample1Hash.equals(sample2Hash));
-		log.debug("{}=(sample1Hash.equals(sample2Hash))", sample1Hash.equals(sample2Hash));
-		assert (!sample3Hash.equals(sample1Hash));
-		log.debug("{}=(!sample3Hash.equals(sample1Hash))", !sample3Hash.equals(sample1Hash));
-		assert (null == byteToHex(null));
-		final boolean testNull = (null == byteToHex(null));
-		log.debug("{}=(null == byteToHex(null))", testNull);
-	}
 }

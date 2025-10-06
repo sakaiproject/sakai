@@ -107,4 +107,25 @@ public class LegacyShaUtilTest {
 		assertFalse(abc_hash.equals(php_sha1_of_abc));
 	}
 
+	@Test
+	public void testMainMethodLogic() {
+		// This test covers the logic that was previously in the main() method
+		final String sample1 = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'Áª£¢°¤¦¥»¼Ð­ÇÔÒ¹¿ö¬ ¨«Ï¶Ä©úÆûÂÉ¾Ö³²µ÷ÃÅ½";
+		final String sample2 = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'Áª£¢°¤¦¥»¼Ð­ÇÔÒ¹¿ö¬ ¨«Ï¶Ä©úÆûÂÉ¾Ö³²µ÷ÃÅ½";
+		final String sample3 = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'Áª£¢°¤¦¥»¼Ð­ÇÔÒ¹¿ö¬ ¨«Ï¶Ä©úÆûÂÉ¾Ö³²µ÷ÃÅÅ";
+
+		final String sample1Hash = LegacyShaUtil.sha1Hash(sample1);
+		final String sample2Hash = LegacyShaUtil.sha1Hash(sample2);
+		final String sample3Hash = LegacyShaUtil.sha1Hash(sample3);
+
+		// Test that identical strings produce identical hashes
+		assertEquals("Identical strings should produce identical hashes", sample1Hash, sample2Hash);
+
+		// Test that different strings produce different hashes
+		assertNotEquals("Different strings should produce different hashes", sample3Hash, sample1Hash);
+
+		// Test that byteToHex handles null correctly
+		assertNull("byteToHex should return null for null input", LegacyShaUtil.byteToHex(null));
+	}
+
 }
