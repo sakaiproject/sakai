@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -758,9 +759,9 @@ public class SakaiLTIUtilTest {
 		Map<String, Object> content = new HashMap();
 
 		// Run default tests
-		boolean retval = SakaiLTIUtil.getNewpage(null, null, true);
+		boolean retval = SakaiLTIUtil.getNewpage((Map<String, Object>) null, (Map<String, Object>) null, true);
 		assertEquals(retval, true);
-		retval = SakaiLTIUtil.getNewpage(null, null, false);
+		retval = SakaiLTIUtil.getNewpage((Map<String, Object>) null, (Map<String, Object>) null, false);
 		assertEquals(retval, false);
 
 		// No data means default comes through
@@ -799,7 +800,7 @@ public class SakaiLTIUtilTest {
 	public void testGetFrameHeight() {
 		Map<String, Object> tool = new HashMap();
 		Map<String, Object> content = new HashMap();
-		String retval = SakaiLTIUtil.getFrameHeight(null, null, "1200px");
+		String retval = SakaiLTIUtil.getFrameHeight((Map<String, Object>) null, (Map<String, Object>) null, "1200px");
 		assertEquals(retval, "1200px");
 
 		// Both are empty
@@ -824,7 +825,7 @@ public class SakaiLTIUtilTest {
 		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "44px");
 
-		// Content takes precedence 
+		// Content takes precedence over tool
 		retval = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
 		assertEquals(retval, "44px");
 	}
@@ -1064,6 +1065,267 @@ public class SakaiLTIUtilTest {
 		// Test empty string
 		String[] result6 = SakaiLTIUtil.getContentKeyAndSiteId("");
 		assertNull(result6);
+	}
+
+	@Test
+	public void testGetPublicKeyOverload() {
+		// Test that the POJO overload delegates to the map-based method
+		// We'll test with a null keyset to avoid making real HTTP requests
+
+		// Create a test tool bean with null keyset
+		org.sakaiproject.lti.beans.LtiToolBean tool = new org.sakaiproject.lti.beans.LtiToolBean();
+		tool.lti13ToolKeyset = null; // This should cause a RuntimeException
+
+		// Create equivalent map for comparison
+		Map<String, Object> toolMap = new HashMap<>();
+		toolMap.put(LTIService.LTI13_TOOL_KEYSET, null);
+
+		// Test that both methods fail with the same exception for null keyset
+		String idToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3Qta2lkIn0.eyJpc3MiOiJ0ZXN0Iiwic3ViIjoidGVzdCIsImF1ZCI6InRlc3QiLCJpYXQiOjE2MDAwMDAwMDAsImV4cCI6MTYwMDAwMzYwMH0.test";
+
+		Exception pojoException = null;
+		Exception mapException = null;
+
+		try {
+			SakaiLTIUtil.getPublicKey(tool, idToken);
+			fail("Expected RuntimeException for null keyset");
+		} catch (Exception e) {
+			pojoException = e;
+		}
+
+		try {
+			SakaiLTIUtil.getPublicKey(toolMap, idToken);
+			fail("Expected RuntimeException for null keyset");
+		} catch (Exception e) {
+			mapException = e;
+		}
+
+		// Both should fail with the same type of exception
+		assertNotNull("POJO method should throw exception", pojoException);
+		assertNotNull("Map method should throw exception", mapException);
+		assertEquals("Both methods should throw the same type of exception",
+					mapException.getClass(), pojoException.getClass());
+	}
+
+	@Test
+	public void testGetNewpageOverload() {
+		// Test the POJO overload of getNewpage method
+		org.sakaiproject.lti.beans.LtiToolBean tool = new org.sakaiproject.lti.beans.LtiToolBean();
+		tool.newpage = 1; // LTI_TOOL_NEWPAGE_ON
+
+		org.sakaiproject.lti.beans.LtiContentBean content = new org.sakaiproject.lti.beans.LtiContentBean();
+		content.newpage = false; // Boolean for content
+
+		// Test with tool setting (should override default)
+		boolean result = SakaiLTIUtil.getNewpage(tool, content, false);
+		assertTrue("Tool newpage=1 should override content newpage=0", result);
+
+		// Test with content setting (should override default)
+		tool.newpage = null;
+		result = SakaiLTIUtil.getNewpage(tool, content, true);
+		assertFalse("Content newpage=0 should override default true", result);
+
+		// Test with default value when both are null
+		tool.newpage = null;
+		content.newpage = null;
+		result = SakaiLTIUtil.getNewpage(tool, content, true);
+		assertTrue("Default should be used when both are null", result);
+
+		// Test with tool=2 (content) - should allow content to take precedence
+		tool.newpage = 2; // LTI_TOOL_NEWPAGE_CONTENT
+		content.newpage = true;
+		result = SakaiLTIUtil.getNewpage(tool, content, false);
+		assertTrue("Tool newpage=2 should allow content newpage=true to take precedence", result);
+
+		// Test with tool=2 (content) and content=false
+		tool.newpage = 2; // LTI_TOOL_NEWPAGE_CONTENT
+		content.newpage = false;
+		result = SakaiLTIUtil.getNewpage(tool, content, true);
+		assertFalse("Tool newpage=2 should allow content newpage=false to take precedence", result);
+
+		// Test with null parameters
+		result = SakaiLTIUtil.getNewpage((org.sakaiproject.lti.beans.LtiToolBean) null, (org.sakaiproject.lti.beans.LtiContentBean) null, false);
+		assertFalse("Default should be used when both parameters are null", result);
+	}
+
+	@Test
+	public void testGetDebugOverload() {
+		// Test the POJO overload of getDebug method
+		org.sakaiproject.lti.beans.LtiToolBean tool = new org.sakaiproject.lti.beans.LtiToolBean();
+		tool.debug = 1; // LTI_TOOL_DEBUG_ON
+
+		org.sakaiproject.lti.beans.LtiContentBean content = new org.sakaiproject.lti.beans.LtiContentBean();
+		content.debug = false; // Boolean for content
+
+		// Test with tool setting (should override default)
+		boolean result = SakaiLTIUtil.getDebug(tool, content, false);
+		assertTrue("Tool debug=1 should override content debug=false", result);
+
+		// Test with content setting (should override default)
+		tool.debug = null;
+		result = SakaiLTIUtil.getDebug(tool, content, true);
+		assertFalse("Content debug=false should override default true", result);
+
+		// Test with default value when both are null
+		tool.debug = null;
+		content.debug = null;
+		result = SakaiLTIUtil.getDebug(tool, content, true);
+		assertTrue("Default should be used when both are null", result);
+
+		// Test with tool=2 (content) - should allow content to take precedence
+		tool.debug = 2; // LTI_TOOL_DEBUG_CONTENT
+		content.debug = true;
+		result = SakaiLTIUtil.getDebug(tool, content, false);
+		assertTrue("Tool debug=2 should allow content debug=true to take precedence", result);
+
+		// Test with tool=2 (content) and content=false
+		tool.debug = 2; // LTI_TOOL_DEBUG_CONTENT
+		content.debug = false;
+		result = SakaiLTIUtil.getDebug(tool, content, true);
+		assertFalse("Tool debug=2 should allow content debug=false to take precedence", result);
+
+		// Test with null parameters
+		result = SakaiLTIUtil.getDebug((org.sakaiproject.lti.beans.LtiToolBean) null, (org.sakaiproject.lti.beans.LtiContentBean) null, false);
+		assertFalse("Default should be used when both parameters are null", result);
+	}
+
+	@Test
+	public void testGetFrameHeightOverload() {
+		// Test the POJO overload of getFrameHeight method
+		org.sakaiproject.lti.beans.LtiToolBean tool = new org.sakaiproject.lti.beans.LtiToolBean();
+		tool.frameheight = 800;
+
+		org.sakaiproject.lti.beans.LtiContentBean content = new org.sakaiproject.lti.beans.LtiContentBean();
+		content.frameheight = 600;
+
+		// Test with both tool and content (content should override tool)
+		String result = SakaiLTIUtil.getFrameHeight(tool, content, "400px");
+		assertEquals("Content frameheight=600 should override tool frameheight=800", "600px", result);
+
+		// Test with content setting (should override default)
+		tool.frameheight = null;
+		result = SakaiLTIUtil.getFrameHeight(tool, content, "400px");
+		assertEquals("Content frameheight=600 should override default", "600px", result);
+
+		// Test with tool setting only (should override default)
+		tool.frameheight = 500;
+		content.frameheight = null;
+		result = SakaiLTIUtil.getFrameHeight(tool, content, "400px");
+		assertEquals("Tool frameheight=500 should override default when content is null", "500px", result);
+
+		// Test with default value when both are null
+		tool.frameheight = null;
+		content.frameheight = null;
+		result = SakaiLTIUtil.getFrameHeight(tool, content, "400px");
+		assertEquals("Default should be used when both are null", "400px", result);
+
+		// Test with null parameters
+		result = SakaiLTIUtil.getFrameHeight((org.sakaiproject.lti.beans.LtiToolBean) null, (org.sakaiproject.lti.beans.LtiContentBean) null, "300px");
+		assertEquals("Default should be used when both parameters are null", "300px", result);
+	}
+
+	@Test
+	public void testGetLaunchCodeKeyOverload() {
+		// Test the POJO overload of getLaunchCodeKey method
+		org.sakaiproject.lti.beans.LtiContentBean content = new org.sakaiproject.lti.beans.LtiContentBean();
+		content.id = 123L;
+
+		String result = SakaiLTIUtil.getLaunchCodeKey(content);
+		assertNotNull("Launch code key should not be null", result);
+		assertTrue("Launch code key should contain session prefix and ID", result.contains("123"));
+
+		// Test with null content
+		result = SakaiLTIUtil.getLaunchCodeKey((org.sakaiproject.lti.beans.LtiContentBean) null);
+		assertNotNull("Launch code key should not be null even with null content", result);
+	}
+
+	@Test
+	public void testGetLaunchCodeOverload() {
+		// Test the POJO overload of getLaunchCode method
+		org.sakaiproject.lti.beans.LtiContentBean content = new org.sakaiproject.lti.beans.LtiContentBean();
+		content.id = 456L;
+		content.placementsecret = "test-secret";
+
+		String result = SakaiLTIUtil.getLaunchCode(content);
+		assertNotNull("Launch code should not be null", result);
+		assertTrue("Launch code should contain content ID", result.contains("456"));
+
+		// Test with null content
+		result = SakaiLTIUtil.getLaunchCode((org.sakaiproject.lti.beans.LtiContentBean) null);
+		assertNotNull("Launch code should not be null even with null content", result);
+	}
+
+	@Test
+	public void testPojoOverloadsDelegateCorrectly() {
+		// Test that POJO overloads delegate correctly to map-based methods
+		// by ensuring they produce the same results
+
+		// Create equivalent POJO and Map objects
+		org.sakaiproject.lti.beans.LtiToolBean toolBean = new org.sakaiproject.lti.beans.LtiToolBean();
+		toolBean.newpage = 1; // LTI_TOOL_NEWPAGE_ON
+		toolBean.frameheight = 800;
+
+		Map<String, Object> toolMap = new HashMap<>();
+		toolMap.put("newpage", 1);
+		toolMap.put("frameheight", 800);
+
+		org.sakaiproject.lti.beans.LtiContentBean contentBean = new org.sakaiproject.lti.beans.LtiContentBean();
+		contentBean.newpage = false; // Boolean for content
+		contentBean.frameheight = 600;
+		contentBean.id = 123L;
+		contentBean.placementsecret = "test-secret";
+
+		Map<String, Object> contentMap = new HashMap<>();
+		contentMap.put("newpage", false);
+		contentMap.put("frameheight", 600);
+		contentMap.put("id", 123L);
+		contentMap.put("placementsecret", "test-secret");
+
+		// Test getNewpage delegation
+		boolean pojoResult = SakaiLTIUtil.getNewpage(toolBean, contentBean, false);
+		boolean mapResult = SakaiLTIUtil.getNewpage(toolMap, contentMap, false);
+		assertEquals("POJO and Map getNewpage should produce same result", pojoResult, mapResult);
+
+		// Test getFrameHeight delegation
+		String pojoHeight = SakaiLTIUtil.getFrameHeight(toolBean, contentBean, "400px");
+		String mapHeight = SakaiLTIUtil.getFrameHeight(toolMap, contentMap, "400px");
+		assertEquals("POJO and Map getFrameHeight should produce same result", pojoHeight, mapHeight);
+
+		// Test getLaunchCodeKey delegation
+		String pojoKey = SakaiLTIUtil.getLaunchCodeKey(contentBean);
+		String mapKey = SakaiLTIUtil.getLaunchCodeKey(contentMap);
+		assertEquals("POJO and Map getLaunchCodeKey should produce same result", pojoKey, mapKey);
+
+		// Test getLaunchCode delegation - both should produce valid codes
+		String pojoCode = SakaiLTIUtil.getLaunchCode(contentBean);
+		String mapCode = SakaiLTIUtil.getLaunchCode(contentMap);
+		
+		// Both codes should be valid (time-dependent, so they won't be identical)
+		assertTrue("POJO getLaunchCode should produce valid code", SakaiLTIUtil.checkLaunchCode(contentBean.asMap(), pojoCode));
+		assertTrue("Map getLaunchCode should produce valid code", SakaiLTIUtil.checkLaunchCode(contentMap, mapCode));
+		
+		// Both codes should contain the content ID
+		assertTrue("POJO code should contain content ID", pojoCode.contains(":123:"));
+		assertTrue("Map code should contain content ID", mapCode.contains(":123:"));
+	}
+
+	@Test
+	public void testFindBestToolMatchPojoNullHandling() {
+		// Test null tools parameter
+		org.sakaiproject.lti.beans.LtiToolBean result = SakaiLTIUtil.findBestToolMatchPojo("http://example.com/launch", "checksum", null);
+		assertNull("findBestToolMatchPojo should return null when tools is null", result);
+		
+		// Test empty tools list
+		List<org.sakaiproject.lti.beans.LtiToolBean> emptyTools = new ArrayList<>();
+		result = SakaiLTIUtil.findBestToolMatchPojo("http://example.com/launch", "checksum", emptyTools);
+		assertNull("findBestToolMatchPojo should return null when tools list is empty", result);
+		
+		// Test tools list with null entries
+		List<org.sakaiproject.lti.beans.LtiToolBean> toolsWithNulls = new ArrayList<>();
+		toolsWithNulls.add(null);
+		toolsWithNulls.add(null);
+		result = SakaiLTIUtil.findBestToolMatchPojo("http://example.com/launch", "checksum", toolsWithNulls);
+		assertNull("findBestToolMatchPojo should return null when all tools are null", result);
 	}
 }
 
