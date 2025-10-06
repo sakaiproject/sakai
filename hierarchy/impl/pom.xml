@@ -135,11 +135,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Needed because SpringCrudRepositoryImpl references Page/Pageable -->
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-jpa</artifactId>
-        </dependency>
         <!-- Jackson required by SpringCrudRepositoryImpl and MapperFactory -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
