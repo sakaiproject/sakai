@@ -2027,9 +2027,20 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		return newEvaluationModel;
 	}
 
-	public Set<AssessmentMetaData> prepareAssessmentMetaDataSet(AssessmentData p, Set<AssessmentMetaData> metaDataSet) {
-		return metaDataSet.stream().map(m -> new AssessmentMetaData(p, m.getLabel(), m.getEntry())).collect(Collectors.toSet());
-	}
+    public Set<AssessmentMetaData> prepareAssessmentMetaDataSet(AssessmentData p, Set<AssessmentMetaData> metaDataSet) {
+        Set<AssessmentMetaData> result = new HashSet<>();
+        if (metaDataSet != null) {
+            for (AssessmentMetaData m : metaDataSet) {
+                // Do not carry over ALIAS when copying; new copy must have a unique alias
+                if (!AssessmentMetaDataIfc.ALIAS.equals(m.getLabel())) {
+                    result.add(new AssessmentMetaData(p, m.getLabel(), m.getEntry()));
+                }
+            }
+        }
+        // Always assign a fresh globally-unique alias to the new assessment copy
+        result.add(new AssessmentMetaData(p, AssessmentMetaDataIfc.ALIAS, java.util.UUID.randomUUID().toString()));
+        return result;
+    }
 
 	public Set prepareSecuredIPSet(AssessmentData p, Set ipSet) {
 		HashSet h = new HashSet();

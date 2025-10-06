@@ -68,7 +68,6 @@ import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
@@ -428,20 +427,6 @@ public class PublishAssessmentListener
                         + " failed for module [" + moduleId + "] when trying to publish assessment");
             }
         }
-    }
-
-    // Add ALIAS if it doesn't exist
-    String settingsAlias = assessmentSettings.getAlias();
-    if (StringUtils.isBlank(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS))) {
-      String aliasToUse;
-      if (StringUtils.isNotBlank(settingsAlias)) {
-        aliasToUse = settingsAlias;
-      } else {
-        // Generate a new unique alias
-        aliasToUse = UUID.randomUUID().toString();
-      }
-      PublishedMetaData meta = new PublishedMetaData(pub.getData(), AssessmentMetaDataIfc.ALIAS, aliasToUse);
-      publishedAssessmentService.saveOrUpdateMetaData(meta);
     }
 
     // Now that everything is updated schedule an open notification email

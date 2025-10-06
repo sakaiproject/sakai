@@ -1078,6 +1078,16 @@ public class AuthoringHelper
       // Assessment Attachment
       exHelper.makeAssessmentAttachmentSet(assessment);
 
+      // Ensure a unique alias exists on imported draft assessments.
+      // QTI does not carry Sakai-specific ALIAS, and we want a globally unique
+      // start link id even before publish/copy flows.
+      if (org.apache.commons.lang3.StringUtils.isBlank(assessment.getAssessmentMetaDataByLabel(
+              org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc.ALIAS))) {
+          assessment.updateAssessmentMetaData(
+                  org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc.ALIAS,
+                  java.util.UUID.randomUUID().toString());
+      }
+
       assessmentService.saveAssessment(assessment);
       return assessment;
     }
