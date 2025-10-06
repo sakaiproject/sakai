@@ -539,7 +539,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             log.warn("Failed to get the polls for site {}: {}", fromContext, e.toString());
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override

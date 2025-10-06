@@ -23,6 +23,7 @@ package org.sakaiproject.poll.tool.params;
 
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -344,19 +345,21 @@ public class PollToolBean {
             log.debug("File uploaded: type={}, size={}, name={}", file.getContentType(), file.getSize(), file.getOriginalFilename());
             try {
                 // Detect by content, not HTTP mimetype; converter handles CSV (text), XLS, and XLSX via POI.
-                List<String> optionsList = OptionsFileConverterUtil.convertInputStreamToOptionList(file.getInputStream());
-                if (optionsList == null || optionsList.isEmpty()) {
-                    log.warn("No options found in uploaded file");
-                    fileError = true;
-                } else {
-                    int order = manager.getOptionsForPoll(pollId).size();
-                    for (String optionString : optionsList) {
-                        Option newOption = new Option();
-                        newOption.setPollId(pollId);
-                        newOption.setText(PollUtils.cleanupHtmlPtags(optionString));
-                        newOption.setOptionOrder(order++);
-                        manager.saveOption(newOption);
-                        log.debug("Option with id {} successfully saved.", newOption.getId());
+                try (InputStream in = file.getInputStream()) {
+                    List<String> optionsList = OptionsFileConverterUtil.convertInputStreamToOptionList(in);
+                    if (optionsList == null || optionsList.isEmpty()) {
+                        log.warn("No options found in uploaded file");
+                        fileError = true;
+                    } else {
+                        int order = manager.getOptionsForPoll(pollId).size();
+                        for (String optionString : optionsList) {
+                            Option newOption = new Option();
+                            newOption.setPollId(pollId);
+                            newOption.setText(PollUtils.cleanupHtmlPtags(optionString));
+                            newOption.setOptionOrder(order++);
+                            manager.saveOption(newOption);
+                            log.debug("Option with id {} successfully saved.", newOption.getId());
+                        }
                     }
                 }
             } catch (Exception ex) {
