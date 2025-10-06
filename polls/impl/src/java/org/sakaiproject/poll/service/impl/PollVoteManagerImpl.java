@@ -64,7 +64,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 	@Transactional
 	public boolean saveVote(Vote vote)  {
 		voteRepository.save(vote);
-		log.debug(" Vote  " + vote.getId() + " successfuly saved");
+		log.debug("Vote {} successfully saved", vote.getId());
 		return true;
 	}
 
