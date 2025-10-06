@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
@@ -507,27 +506,14 @@ public class ConfirmPublishAssessmentListener
     	assessmentSettings.setAssessment(assessment);
     }
     
-    //  we need a publishedUrl, this is the url used by anonymous user
+    // Display group summary if needed; published URL is created post-publish
     String releaseTo = assessment.getAssessmentAccessControl().getReleaseTo();
     if (releaseTo != null) {
-      // generate an alias to the pub assessment
-      String alias = UUID.randomUUID().toString();
-      assessmentSettings.setAlias(alias);
-
-      String server = ( (javax.servlet.http.HttpServletRequest) extContext.
-			      getRequest()).getRequestURL().toString();
-      int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo-app/"
-      server = server.substring(0, index);
-
-      String url = server + extContext.getRequestContextPath();
-      assessmentSettings.setPublishedUrl(url + "/servlet/Login?id=" + alias);
-
-      //SAK-40811 show groups on publish from action select
       if(isFromActionSelect && "Selected Groups".equals(releaseTo) && assessmentSettings.getGroupsAuthorized() != null){
-        String[] groupsAuthorized = assessmentSettings.getGroupsAuthorized();					
+        String[] groupsAuthorized = assessmentSettings.getGroupsAuthorized();
         String result = Arrays.stream(groupsAuthorized)
-			                  .map(group -> getGroupName(group, assessmentSettings))
-			                  .collect(Collectors.joining(", "));
+                              .map(group -> getGroupName(group, assessmentSettings))
+                              .collect(Collectors.joining(", "));
         assessmentSettings.setReleaseToGroupsAsString(result);
       }
     }

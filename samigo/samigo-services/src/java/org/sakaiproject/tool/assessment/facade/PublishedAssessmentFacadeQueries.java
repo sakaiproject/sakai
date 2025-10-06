@@ -735,12 +735,17 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
         PublishedAssessmentData publishedAssessment = preparePublishedAssessment(
                 (AssessmentData) assessment.getData());
 
-        // ALIAS is generated once at draft creation time.
+        // Generate a new globally-unique ALIAS for the published assessment
+        if (publishedAssessment.getAssessmentMetaDataSet() == null) {
+            publishedAssessment.setAssessmentMetaDataSet(new java.util.HashSet<>());
+        }
+        publishedAssessment.getAssessmentMetaDataSet().add(
+                new PublishedMetaData(publishedAssessment, AssessmentMetaDataIfc.ALIAS, java.util.UUID.randomUUID().toString()));
 
-        try {
-            saveOrUpdate(publishedAssessment);
-        } catch (Exception e) {
-            throw e;
+		try {
+			saveOrUpdate(publishedAssessment);
+		} catch (Exception e) {
+			throw e;
 		}
 
 		// reset PARTID in ItemMetaData to the section of the newly created section

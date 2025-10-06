@@ -288,8 +288,18 @@ public class PublishAssessmentListener
       // The notification message will be used by the calendar event
       PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
       sendEmailNotification = publishRepublishNotification.isSendNotification();
+      // Build published URL from the freshly published assessment's alias
+      javax.faces.context.ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+      javax.servlet.http.HttpServletRequest req = (javax.servlet.http.HttpServletRequest) extContext.getRequest();
+      String serverUrl = req.getRequestURL().toString();
+      int idx = serverUrl.indexOf(extContext.getRequestContextPath() + "/");
+      serverUrl = serverUrl.substring(0, idx);
+      String appUrl = serverUrl + extContext.getRequestContextPath();
+      String publishedAlias = pub.getData().getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS);
+      String publishedUrl = appUrl + "/servlet/Login?id=" + publishedAlias;
+
       String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(),
-                                                            assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
+                                                            assessmentSettings.getStartDateInClientTimezoneString(), publishedUrl,
                                                             assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
                                                             assessmentSettings.getUnlimitedSubmissions(), assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(),
                                                             assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateInClientTimezoneString(),

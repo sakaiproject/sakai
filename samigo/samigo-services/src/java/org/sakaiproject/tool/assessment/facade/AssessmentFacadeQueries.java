@@ -497,8 +497,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		} catch (CloneNotSupportedException ex) {
 			log.error(ex.getMessage(), ex);
 		}
-			// Centralized ALIAS assignment for newly created assessments
-			ensureAlias(assessment);
+
+			// ALIAS is created at publish time; keep drafts alias-free
 			return assessment;
 	}
 
@@ -1963,11 +1963,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		// attachmentSet
 		Set newAssessmentAttachmentSet = prepareAssessmentAttachmentSet(
 				newAssessment, a.getAssessmentAttachmentSet(), protocol, toContext);
-			newAssessment.setAssessmentAttachmentSet(newAssessmentAttachmentSet);
+		newAssessment.setAssessmentAttachmentSet(newAssessmentAttachmentSet);
 
-			// Centralized ALIAS assignment for copied assessments
-			ensureAlias(newAssessment);
-			return newAssessment;
+		// ALIAS is created at publish time; keep drafts alias-free
+		return newAssessment;
 	}
 
 	public AssessmentData prepareAssessment(AssessmentData a, String protocol) {
@@ -2044,17 +2043,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
         return result;
     }
 
-    private void ensureAlias(AssessmentData assessment) {
-        // Remove any existing ALIAS metadata (shouldn't exist on new/template-based assessments)
-        Set<AssessmentMetaData> set = assessment.getAssessmentMetaDataSet();
-        if (set == null) {
-            set = new HashSet<>();
-            assessment.setAssessmentMetaDataSet(set);
-        }
-        set.removeIf(m -> AssessmentMetaDataIfc.ALIAS.equals(m.getLabel()));
-        // Generate exactly once for new assessments
-        set.add(new AssessmentMetaData(assessment, AssessmentMetaDataIfc.ALIAS, java.util.UUID.randomUUID().toString()));
-    }
+    // Note: ALIAS is generated only at publish time for simplicity
 
 	public Set prepareSecuredIPSet(AssessmentData p, Set ipSet) {
 		HashSet h = new HashSet();

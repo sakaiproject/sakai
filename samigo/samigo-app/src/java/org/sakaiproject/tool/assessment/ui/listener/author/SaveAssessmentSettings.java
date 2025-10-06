@@ -308,8 +308,6 @@ public class SaveAssessmentSettings
     Map <String, String> h = assessmentSettings.getValueMap();
     updateMetaWithValueMap(assessment, h);
 
-    // Alias is generated centrally at creation time; ignore any UI-provided alias
-
     org.sakaiproject.grading.api.GradingService gradingService =
 			(org.sakaiproject.grading.api.GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
