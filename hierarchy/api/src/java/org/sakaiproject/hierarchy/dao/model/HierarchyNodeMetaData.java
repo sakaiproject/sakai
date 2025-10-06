@@ -34,12 +34,14 @@
 
 package org.sakaiproject.hierarchy.dao.model;
 
+import org.sakaiproject.springframework.data.PersistableEntity;
+
 /**
  * This is the persistent object for storing Hierarchy Node meta data
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
-public class HierarchyNodeMetaData {
+public class HierarchyNodeMetaData implements PersistableEntity<Long> {
 
    /**
     * The unique internal id for this meta data

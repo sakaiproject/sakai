@@ -14,11 +14,6 @@
         </constructor-arg>
     </bean>
 
-    <!-- DAO bean (no proxy) -->
-    <bean id="org.sakaiproject.hierarchy.dao.HierarchyDao"
-        class="org.sakaiproject.hierarchy.dao.HierarchyDaoHibernateImpl">
-        <property name="sessionFactory" 
-            ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-    </bean>
+    <!-- DAO bean removed in favor of Repository pattern -->
 
 </beans>

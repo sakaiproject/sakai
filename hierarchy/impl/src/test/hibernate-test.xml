@@ -54,11 +54,29 @@
       <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
    </bean>
 
+    <!-- Repository beans for tests -->
+    <bean id="org.sakaiproject.hierarchy.api.repository.HierarchyNodeMetaDataRepository"
+          class="org.sakaiproject.hierarchy.impl.repository.HierarchyNodeMetaDataRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
+
+    <bean id="org.sakaiproject.hierarchy.api.repository.HierarchyPersistentNodeRepository"
+          class="org.sakaiproject.hierarchy.impl.repository.HierarchyPersistentNodeRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
+
+    <bean id="org.sakaiproject.hierarchy.api.repository.HierarchyNodePermissionRepository"
+          class="org.sakaiproject.hierarchy.impl.repository.HierarchyNodePermissionRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
+
     <!-- Create a test data preload bean -->
     <bean id="org.sakaiproject.hierarchy.test.data.TestDataPreload"
         class="org.sakaiproject.hierarchy.impl.test.data.TestDataPreload"
         init-method="init">
-        <property name="dao" ref="org.sakaiproject.hierarchy.dao.HierarchyDao" />
+        <property name="nodeRepository" ref="org.sakaiproject.hierarchy.api.repository.HierarchyPersistentNodeRepository" />
+        <property name="nodeMetaRepository" ref="org.sakaiproject.hierarchy.api.repository.HierarchyNodeMetaDataRepository" />
+        <property name="permissionRepository" ref="org.sakaiproject.hierarchy.api.repository.HierarchyNodePermissionRepository" />
         <property name="transactionTemplate" ref="org.sakaiproject.hierarchy.test.TransactionTemplate" />
     </bean>
 

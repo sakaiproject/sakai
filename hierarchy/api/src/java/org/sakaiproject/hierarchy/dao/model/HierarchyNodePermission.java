@@ -34,6 +34,8 @@
 
 package org.sakaiproject.hierarchy.dao.model;
 
+import org.sakaiproject.springframework.data.PersistableEntity;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -43,7 +45,7 @@ import java.util.Date;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class HierarchyNodePermission implements Serializable {
+public class HierarchyNodePermission implements Serializable, PersistableEntity<Long> {
 	private static final long serialVersionUID = 1L;
 
     private Long id;

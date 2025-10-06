@@ -40,4 +40,16 @@
         </resources>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <!-- Needed because SpringCrudRepository uses Page/Pageable types -->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

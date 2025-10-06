@@ -14,7 +14,9 @@ package org.sakaiproject.hierarchy.impl.test.data;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.sakaiproject.hierarchy.dao.HierarchyDao;
+import org.sakaiproject.hierarchy.api.repository.HierarchyNodeMetaDataRepository;
+import org.sakaiproject.hierarchy.api.repository.HierarchyNodePermissionRepository;
+import org.sakaiproject.hierarchy.api.repository.HierarchyPersistentNodeRepository;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission;
 import org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode;
@@ -28,8 +30,12 @@ import org.springframework.transaction.support.TransactionTemplate;
  */
 public class TestDataPreload {
 
-   private HierarchyDao dao;
-   public void setDao(HierarchyDao d) { this.dao = d; }
+   private HierarchyPersistentNodeRepository nodeRepository;
+   public void setNodeRepository(HierarchyPersistentNodeRepository r) { this.nodeRepository = r; }
+   private HierarchyNodeMetaDataRepository nodeMetaRepository;
+   public void setNodeMetaRepository(HierarchyNodeMetaDataRepository r) { this.nodeMetaRepository = r; }
+   private HierarchyNodePermissionRepository permissionRepository;
+   public void setPermissionRepository(HierarchyNodePermissionRepository r) { this.permissionRepository = r; }
 
    private TransactionTemplate transactionTemplate;
    public void setTransactionTemplate(TransactionTemplate tt) { this.transactionTemplate = tt; }
@@ -153,29 +159,29 @@ public class TestDataPreload {
     * @param dao a generic dao
     */
    public void preloadTestData() {
-      dao.save(pNode1);
-      dao.save(pNode2);
-      dao.save(pNode3);
-      dao.save(pNode4);
-      dao.save(pNode5);
-      dao.save(pNode6);
-      dao.save(pNode7);
-      dao.save(pNode8);
-      dao.save(pNode9);
-      dao.save(pNode10);
-      dao.save(pNode11);
+      nodeRepository.save(pNode1);
+      nodeRepository.save(pNode2);
+      nodeRepository.save(pNode3);
+      nodeRepository.save(pNode4);
+      nodeRepository.save(pNode5);
+      nodeRepository.save(pNode6);
+      nodeRepository.save(pNode7);
+      nodeRepository.save(pNode8);
+      nodeRepository.save(pNode9);
+      nodeRepository.save(pNode10);
+      nodeRepository.save(pNode11);
 
-      dao.save(meta1);
-      dao.save(meta2);
-      dao.save(meta3);
-      dao.save(meta4);
-      dao.save(meta5);
-      dao.save(meta6);
-      dao.save(meta7);
-      dao.save(meta8);
-      dao.save(meta9);
-      dao.save(meta10);
-      dao.save(meta11);
+      nodeMetaRepository.save(meta1);
+      nodeMetaRepository.save(meta2);
+      nodeMetaRepository.save(meta3);
+      nodeMetaRepository.save(meta4);
+      nodeMetaRepository.save(meta5);
+      nodeMetaRepository.save(meta6);
+      nodeMetaRepository.save(meta7);
+      nodeMetaRepository.save(meta8);
+      nodeMetaRepository.save(meta9);
+      nodeMetaRepository.save(meta10);
+      nodeMetaRepository.save(meta11);
 
       node1 = HierarchyImplUtils.makeNode(pNode1, meta1);
       node2 = HierarchyImplUtils.makeNode(pNode2, meta2);
@@ -203,19 +209,19 @@ public class TestDataPreload {
       nodePerm12 = new HierarchyNodePermission(ACCESS_USER_ID, pNode8.getId().toString(), PERM_TWO);
       nodePerm13 = new HierarchyNodePermission(MAINT_USER_ID, pNode2.getId().toString(), PERM_TWO);
 
-      dao.save(nodePerm1);
-      dao.save(nodePerm2);
-      dao.save(nodePerm3);
-      dao.save(nodePerm4);
-      dao.save(nodePerm5);
-      dao.save(nodePerm6);
-      dao.save(nodePerm7);
-      dao.save(nodePerm8);
-      dao.save(nodePerm9);
-      dao.save(nodePerm10);
-      dao.save(nodePerm11);
-      dao.save(nodePerm12);
-      dao.save(nodePerm13);
+      permissionRepository.save(nodePerm1);
+      permissionRepository.save(nodePerm2);
+      permissionRepository.save(nodePerm3);
+      permissionRepository.save(nodePerm4);
+      permissionRepository.save(nodePerm5);
+      permissionRepository.save(nodePerm6);
+      permissionRepository.save(nodePerm7);
+      permissionRepository.save(nodePerm8);
+      permissionRepository.save(nodePerm9);
+      permissionRepository.save(nodePerm10);
+      permissionRepository.save(nodePerm11);
+      permissionRepository.save(nodePerm12);
+      permissionRepository.save(nodePerm13);
 
       preloaded = true;
    }

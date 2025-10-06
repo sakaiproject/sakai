@@ -24,8 +24,9 @@ import java.util.Set;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
-// genericdao removed; tests now call DAO methods directly where needed
-import org.sakaiproject.hierarchy.dao.HierarchyDao;
+import org.sakaiproject.hierarchy.api.repository.HierarchyNodeMetaDataRepository;
+import org.sakaiproject.hierarchy.api.repository.HierarchyNodePermissionRepository;
+import org.sakaiproject.hierarchy.api.repository.HierarchyPersistentNodeRepository;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
 import org.sakaiproject.hierarchy.impl.HierarchyServiceImpl;
 import org.sakaiproject.hierarchy.impl.test.data.TestDataPreload;
@@ -50,9 +51,12 @@ public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringC
 
     protected HierarchyServiceImpl hierarchyService;
 
-    @Autowired
-    @Qualifier("org.sakaiproject.hierarchy.dao.HierarchyDao")
-    private HierarchyDao dao;
+    @Autowired @Qualifier("org.sakaiproject.hierarchy.api.repository.HierarchyNodeMetaDataRepository")
+    private HierarchyNodeMetaDataRepository nodeMetaRepository;
+    @Autowired @Qualifier("org.sakaiproject.hierarchy.api.repository.HierarchyPersistentNodeRepository")
+    private HierarchyPersistentNodeRepository nodeRepository;
+    @Autowired @Qualifier("org.sakaiproject.hierarchy.api.repository.HierarchyNodePermissionRepository")
+    private HierarchyNodePermissionRepository permissionRepository;
     @Autowired
     @Qualifier("org.sakaiproject.hierarchy.test.data.TestDataPreload")
     private TestDataPreload tdp;
@@ -64,7 +68,9 @@ public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringC
 
         //create and setup the object to be tested
         hierarchyService = new HierarchyServiceImpl();
-        hierarchyService.setDao(dao);
+        hierarchyService.setNodeMetaRepository(nodeMetaRepository);
+        hierarchyService.setNodeRepository(nodeRepository);
+        hierarchyService.setPermissionRepository(permissionRepository);
         //    hierarchyService.setSessionManager(sessionManager);
     }
 
@@ -158,7 +164,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringC
     @Test
     public void testDestroyHierarchy() {
         hierarchyService.destroyHierarchy(TestDataPreload.HIERARCHYB);
-        long count = dao.countNodeMetaByHierarchyId(TestDataPreload.HIERARCHYB);
+        long count = nodeMetaRepository.countByHierarchyId(TestDataPreload.HIERARCHYB);
         assertEquals(0, count);
 
         // test removing a non-existent hierarchy fails

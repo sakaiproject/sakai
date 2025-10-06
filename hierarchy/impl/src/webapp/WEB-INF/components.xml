@@ -12,12 +12,30 @@
    <!-- Public beans -->
    <bean id="org.sakaiproject.hierarchy.HierarchyService" 
          class="org.sakaiproject.hierarchy.impl.HierarchyServiceImpl" init-method="init">
-      <property name="dao" ref="org.sakaiproject.hierarchy.dao.HierarchyDao" />
+      <property name="nodeMetaRepository" ref="org.sakaiproject.hierarchy.api.repository.HierarchyNodeMetaDataRepository" />
+      <property name="nodeRepository" ref="org.sakaiproject.hierarchy.api.repository.HierarchyPersistentNodeRepository" />
+      <property name="permissionRepository" ref="org.sakaiproject.hierarchy.api.repository.HierarchyNodePermissionRepository" />
       <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
       <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
    </bean>
 
    <!-- Enable annotation-driven transactions for service methods -->
    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+   <!-- Repository beans -->
+   <bean id="org.sakaiproject.hierarchy.api.repository.HierarchyNodeMetaDataRepository"
+         class="org.sakaiproject.hierarchy.impl.repository.HierarchyNodeMetaDataRepositoryImpl">
+      <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+   </bean>
+
+   <bean id="org.sakaiproject.hierarchy.api.repository.HierarchyPersistentNodeRepository"
+         class="org.sakaiproject.hierarchy.impl.repository.HierarchyPersistentNodeRepositoryImpl">
+      <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+   </bean>
+
+   <bean id="org.sakaiproject.hierarchy.api.repository.HierarchyNodePermissionRepository"
+         class="org.sakaiproject.hierarchy.impl.repository.HierarchyNodePermissionRepositoryImpl">
+      <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+   </bean>
 
 </beans>
