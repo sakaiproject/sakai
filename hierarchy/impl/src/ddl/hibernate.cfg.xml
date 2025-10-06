@@ -4,10 +4,9 @@
 		"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <!-- these mapping resource paths must point to your hibernate template files (.hbm.xml),
-            this should be the classpath location (typically after the src directory) -->
-        <mapping resource="org/sakaiproject/hierarchy/dao/hbm/HierarchyNodeMetaData.hbm.xml" />
-        <mapping resource="org/sakaiproject/hierarchy/dao/hbm/HierarchyPersistentNode.hbm.xml" />
-        <mapping resource="org/sakaiproject/hierarchy/dao/hbm/HierarchyNodePermission.hbm.xml" />
+        <!-- register the annotated entity classes -->
+        <mapping class="org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData" />
+        <mapping class="org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode" />
+        <mapping class="org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission" />
     </session-factory>
 </hibernate-configuration>

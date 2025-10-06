@@ -3,9 +3,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- Add our HBM files to the Sakai global session factory -->
+    <!-- Add our annotated entities to the Sakai global session factory -->
     <bean class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-        <property name="mappingResources" ref="hierarchy.hbmMappingList" />
+        <property name="annotatedClasses" ref="hierarchy.hbmMappingList" />
     </bean>
 
 </beans>

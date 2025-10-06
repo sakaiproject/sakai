@@ -34,6 +34,15 @@
 
 package org.sakaiproject.hierarchy.dao.model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 /**
@@ -41,16 +50,23 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Entity
+@Table(name = "HIERARCHY_NODE")
 public class HierarchyPersistentNode implements PersistableEntity<Long> {
 
     /**
      * The unique internal id for this hierarchy node
      */
+    @Id
+    @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "hierarchy_node_sequence")
+    @SequenceGenerator(name = "hierarchy_node_sequence", sequenceName = "HIERARCHY_NODE_ID_SEQ")
     private Long id;
     /**
      * the ids of parent nodes that touch this node directly,
      * similar treatment to the way the it works for the {@link #parentIds}
      */
+    @Column(name = "directParentIds", length = 2000)
     private String directParentIds;
     /**
      * the ids of all parents of this node, 
@@ -61,17 +77,22 @@ public class HierarchyPersistentNode implements PersistableEntity<Long> {
      * of and behind every id.<br/>
      * Examples: ":123:432:43:", ":38:", "" (no parent)
      */
+    @Column(name = "parentIds", length = 4000)
     private String parentIds;
     /**
      * the ids of child nodes that touch this node directly,
      * similar treatment to the way the it works for the {@link #parentIds}
      */
+    @Lob
+    @Column(name = "directChildIds")
     private String directChildIds;
     /**
      * the ids of all children of this node, 
      * this goes all the way down the hierarchy to the leaf nodes,
      * similar treatment to the way the it works for the {@link #parentIds}
      */
+    @Lob
+    @Column(name = "childIds")
     private String childIds;
 
 

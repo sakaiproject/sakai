@@ -34,6 +34,17 @@
 
 package org.sakaiproject.hierarchy.dao.model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 /**
@@ -41,51 +52,69 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
+@Entity
+@Table(name = "HIERARCHY_NODE_META", indexes = {
+      @Index(name = "HIERARCHY_HID", columnList = "hierarchyId"),
+      @Index(name = "HIERARCHY_PERMTOKEN", columnList = "permToken")
+})
 public class HierarchyNodeMetaData implements PersistableEntity<Long> {
 
    /**
     * The unique internal id for this meta data
     */
+   @Id
+   @Column(name = "ID")
    private Long id;
 
    /**
     * this is the node that this meta data is associated with
     */
+   @OneToOne(fetch = FetchType.EAGER, optional = false)
+   @JoinColumn(name = "ID")
+   @MapsId
    private HierarchyPersistentNode node;
 
    /**
     * The assigned unique id for this hierarchy (used for lookup)
     */
+   @Column(name = "hierarchyId", length = 255)
    private String hierarchyId;
 
    /**
     * true if this is the rootnode for this hierarchy
     */
+   @Column(name = "isRootNode", nullable = false)
    private Boolean isRootNode;
 
    /**
     * the userId of the owner (creator) of the associated node
     */
+   @Column(name = "ownerId", length = 99)
    private String ownerId;
 
    /**
     * the title for the associated node
     */
+   @Column(name = "title", length = 255)
    private String title;
 
    /**
     * the description for the associated node
     */
+   @Lob
+   @Column(name = "description")
    private String description;
 
    /**
     * the permissions token for the associated node
     */
+   @Column(name = "permToken", length = 255)
    private String permToken;
    
    /**
     * true if this node is disabled, i.e. left in hierarchy for historical purposes (default is false)
     */
+   @Column(name = "isDisabled", nullable = false)
    private Boolean isDisabled;
 
    /**
@@ -153,12 +182,13 @@ public class HierarchyNodeMetaData implements PersistableEntity<Long> {
       this.isRootNode = isRootNode;
    }
 
-   public HierarchyPersistentNode getNode() {
-      return node;
+    public HierarchyPersistentNode getNode() {
+       return node;
    }
 
    public void setNode(HierarchyPersistentNode node) {
       this.node = node;
+      this.id = node != null ? node.getId() : null;
    }
 
    public String getOwnerId() {

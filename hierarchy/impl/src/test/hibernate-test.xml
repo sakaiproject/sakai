@@ -5,6 +5,8 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
+    <import resource="spring-hibernate.xml" />
+
     <!-- read in the hibernate.properties file properties -->
     <bean id="testPropertiesConfigurer" 
             class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -29,7 +31,7 @@
    <bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
       class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
       <property name="dataSource" ref="javax.sql.DataSource" />
-      <property name="mappingResources" ref="hierarchy.hbmMappingList" />
+      <property name="annotatedClasses" ref="hierarchy.hbmMappingList" />
       <property name="hibernateProperties">
          <props>
             <prop key="hibernate.dialect">${hibernate.dialect}</prop>

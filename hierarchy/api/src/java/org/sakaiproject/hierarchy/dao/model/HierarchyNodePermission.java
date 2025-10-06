@@ -34,10 +34,21 @@
 
 package org.sakaiproject.hierarchy.dao.model;
 
-import org.sakaiproject.springframework.data.PersistableEntity;
-
 import java.io.Serializable;
 import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.sakaiproject.springframework.data.PersistableEntity;
 
 /**
  * This represents a single authorization entry in the hierarchy system,
@@ -45,14 +56,36 @@ import java.util.Date;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Entity
+@Table(name = "HIERARCHY_PERMS", indexes = {
+        @Index(name = "HIER_PERM_USER", columnList = "userId"),
+        @Index(name = "HIER_PERM_NODE", columnList = "nodeId"),
+        @Index(name = "HIER_PERM_PERM", columnList = "permission")
+})
 public class HierarchyNodePermission implements Serializable, PersistableEntity<Long> {
-	private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
+    @Id
+    @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "hierarchy_perm_sequence")
+    @SequenceGenerator(name = "hierarchy_perm_sequence", sequenceName = "HIERARCHY_PERM_ID_SEQ")
     private Long id;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "createdOn", nullable = false)
     private Date createdOn;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "lastModified", nullable = false)
     private Date lastModified;
+
+    @Column(name = "userId", length = 99, nullable = false)
     private String userId;
+
+    @Column(name = "nodeId", length = 255, nullable = false)
     private String nodeId;
+
+    @Column(name = "permission", length = 255, nullable = false)
     private String permission;
 
     public HierarchyNodePermission() {} // default constructor needed for reflection

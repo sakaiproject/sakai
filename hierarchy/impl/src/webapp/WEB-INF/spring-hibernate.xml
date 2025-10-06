@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <!-- define the list of HBM mapping files -->
-    <bean id="hierarchy.hbmMappingList" class="java.util.ArrayList">
-        <constructor-arg>
-            <list>
-                <value>org/sakaiproject/hierarchy/dao/hbm/HierarchyPersistentNode.hbm.xml</value>
-                <value>org/sakaiproject/hierarchy/dao/hbm/HierarchyNodeMetaData.hbm.xml</value>
-                <value>org/sakaiproject/hierarchy/dao/hbm/HierarchyNodePermission.hbm.xml</value>
-            </list>
-        </constructor-arg>
-    </bean>
+    <!-- define the list of annotated entity classes -->
+    <util:list id="hierarchy.hbmMappingList" value-type="java.lang.Class">
+        <value>org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode</value>
+        <value>org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData</value>
+        <value>org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission</value>
+    </util:list>
 
     <!-- DAO bean removed in favor of Repository pattern -->
 
