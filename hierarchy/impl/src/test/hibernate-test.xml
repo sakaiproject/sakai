@@ -51,6 +51,9 @@
          ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
    </bean>
 
+   <!-- Enable @Transactional annotations -->
+   <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
    <!-- Transaction template for preload to bind a Session -->
    <bean id="org.sakaiproject.hierarchy.test.TransactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
       <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>

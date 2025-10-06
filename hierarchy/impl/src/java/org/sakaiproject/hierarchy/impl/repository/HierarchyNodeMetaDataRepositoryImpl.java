@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class HierarchyNodeMetaDataRepositoryImpl extends SpringCrudRepositoryImpl<HierarchyNodeMetaData, Long> implements HierarchyNodeMetaDataRepository {
 
     @Override
+    @Transactional(readOnly = true)
     public long countByHierarchyId(String hierarchyId) {
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();

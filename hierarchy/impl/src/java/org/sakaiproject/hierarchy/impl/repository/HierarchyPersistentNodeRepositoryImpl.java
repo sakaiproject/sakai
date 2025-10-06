@@ -22,7 +22,7 @@ public class HierarchyPersistentNodeRepositoryImpl extends SpringCrudRepositoryI
 
     @Override
     @Transactional(readOnly = true)
-    public List<HierarchyPersistentNode> findByIds(List<Long> ids) {
+    public List<HierarchyPersistentNode> findByIdIn(List<Long> ids) {
         if (ids == null || ids.isEmpty()) return List.of();
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();

@@ -10,6 +10,6 @@ import org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface HierarchyPersistentNodeRepository extends SpringCrudRepository<HierarchyPersistentNode, Long> {
-    List<HierarchyPersistentNode> findByIds(List<Long> ids);
+    List<HierarchyPersistentNode> findByIdIn(List<Long> ids);
 }
 

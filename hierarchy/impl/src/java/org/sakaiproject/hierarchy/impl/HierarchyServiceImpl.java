@@ -187,10 +187,20 @@ public class HierarchyServiceImpl implements HierarchyService {
 
         Set<HierarchyPersistentNode> nodes = new HashSet<HierarchyPersistentNode>();
         Set<HierarchyNodeMetaData> nodesMetaData = new HashSet<HierarchyNodeMetaData>();
+        List<String> nodeIdStrings = new ArrayList<>();
         for (int i = 0; i < l.size(); i++) {
             HierarchyNodeMetaData nmd = (HierarchyNodeMetaData) l.get(i);
             nodesMetaData.add(nmd);
             nodes.add(nmd.getNode());
+            nodeIdStrings.add(nmd.getNode().getId().toString());
+        }
+
+        // delete related permissions, then metadata, then nodes
+        if (!nodeIdStrings.isEmpty()) {
+            List<HierarchyNodePermission> perms = permissionRepository.findByNodeIdIn(nodeIdStrings);
+            if (!perms.isEmpty()) {
+                permissionRepository.deleteAll(new HashSet<>(perms));
+            }
         }
 
         // delete metadata first, then nodes
@@ -1056,16 +1066,7 @@ public class HierarchyServiceImpl implements HierarchyService {
      * @return a {@link HierarchyNodeMetaData} or null if not found
      */
     private HierarchyNodeMetaData getNodeMeta(String nodeId) {
-        List<HierarchyNodeMetaData> l = new ArrayList<>();
-        HierarchyNodeMetaData one = nodeMetaRepository.findByNodeId(new Long(nodeId));
-        if (one != null) l.add(one);
-        if (l.size() > 1) {
-            throw new IllegalStateException("Invalid hierarchy state: more than one node with id: " + nodeId);
-        } else if (l.size() == 1) {
-            return l.get(0);
-        } else {
-            return null;
-        }
+        return nodeMetaRepository.findByNodeId(Long.valueOf(nodeId));
     }
 
     /**
@@ -1151,7 +1152,7 @@ public class HierarchyServiceImpl implements HierarchyService {
                 if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
                     arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
                 }
-                List<HierarchyPersistentNode> lIterration = nodeRepository.findByIds(nodeIdsList.subList(i, i + arraySize));
+                List<HierarchyPersistentNode> lIterration = nodeRepository.findByIdIn(nodeIdsList.subList(i, i + arraySize));
                 l.addAll(lIterration);
                 i += arraySize;
             }while(i < nodeIdsList.size());
