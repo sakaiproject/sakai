@@ -328,6 +328,11 @@ public abstract class BaseLTIService implements LTIService {
 		return updateToolDao(key, newProps, siteId, true, true);
 	}
 
+	@Override
+	public Object updateToolDao(Long key, org.sakaiproject.lti.beans.LtiToolBean tool, String siteId) {
+		return updateToolDao(key, tool != null ? tool.asMap() : null, siteId);
+	}
+
 	private Object updateTool(Long key, Object newProps, String siteId) {
 		return updateToolDao(key, newProps, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
@@ -585,6 +590,12 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public org.sakaiproject.lti.beans.LtiToolBean getToolBean(Long key, String siteId) {
+		Map<String, Object> toolMap = getTool(key, siteId);
+		return toolMap != null ? org.sakaiproject.lti.beans.LtiToolBean.of(toolMap) : null;
+	}
+
+	@Override
 	public Map<String, Object> getToolDao(Long key, String siteId)
 	{
 		return getToolDao(key, siteId, true);
@@ -596,13 +607,43 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId);
+		List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
+	}
+
+	@Override
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
 		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed);
 	}
 
 	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed);
+		List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
+	}
+
+	@Override
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
 		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed, includeLaunchable);
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed, includeLaunchable);
+		List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
 	}
 
 
@@ -636,6 +677,16 @@ public abstract class BaseLTIService implements LTIService {
 	@Override
     public List<Map<String, Object>> getToolsImportItem(String siteId) {
 		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1", LTIService.LTI_TITLE, 0 ,0, siteId, false, true);
+	}
+
+	@Override
+    public List<org.sakaiproject.lti.beans.LtiToolBean> getToolsImportItemBeans(String siteId) {
+		List<Map<String, Object>> toolMaps = getToolsImportItem(siteId);
+		List<org.sakaiproject.lti.beans.LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> toolMap : toolMaps) {
+			toolBeans.add(org.sakaiproject.lti.beans.LtiToolBean.of(toolMap));
+		}
+		return toolBeans;
 	}
 
 	@Override
@@ -723,6 +774,12 @@ public abstract class BaseLTIService implements LTIService {
 		return getContentDao(key, siteId, isAdmin(siteId));
 	}
 
+	@Override
+	public org.sakaiproject.lti.beans.LtiContentBean getContentBean(Long key, String siteId) {
+		Map<String, Object> contentMap = getContent(key, siteId);
+		return contentMap != null ? org.sakaiproject.lti.beans.LtiContentBean.of(contentMap) : null;
+	}
+
 	// This is with absolutely no site checking...
 	@Override
 	public Map<String, Object> getContentDao(Long key) {
@@ -738,6 +795,17 @@ public abstract class BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getContents(String search, String order, int first, int last, String siteId)
 	{
 		return getContentsDao(search, order, first, last, siteId, isAdmin(siteId));
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiContentBean> getContentBeans(String search, String order, int first, int last, String siteId)
+	{
+		List<Map<String, Object>> contentMaps = getContents(search, order, first, last, siteId);
+		List<org.sakaiproject.lti.beans.LtiContentBean> contentBeans = new ArrayList<>();
+		for (Map<String, Object> contentMap : contentMaps) {
+			contentBeans.add(org.sakaiproject.lti.beans.LtiContentBean.of(contentMap));
+		}
+		return contentBeans;
 	}
 
 	@Override
@@ -1453,6 +1521,111 @@ public abstract class BaseLTIService implements LTIService {
 
 		log.warn("Could not insert stub tool for content item {} in site {}", launchUrl, toSiteId);
 		return null;
+	}
+
+	// POJO overload method implementations - convert Map results to POJOs
+	
+	@Override
+	public org.sakaiproject.lti.beans.LtiToolBean getToolAsPojo(Long key, String siteId) {
+		Map<String, Object> toolMap = getTool(key, siteId);
+		return toolMap != null ? org.sakaiproject.lti.beans.LtiToolBean.of(toolMap) : null;
+	}
+
+	@Override
+	public org.sakaiproject.lti.beans.LtiToolBean getToolDaoAsPojo(Long key, String siteId, boolean isAdminRole) {
+		Map<String, Object> toolMap = getToolDao(key, siteId, isAdminRole);
+		return toolMap != null ? org.sakaiproject.lti.beans.LtiToolBean.of(toolMap) : null;
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolsAsPojos(String search, String order, int first, int last, String siteId) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId);
+		return toolMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiToolBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolsAsPojos(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
+		List<Map<String, Object>> toolMaps = getTools(search, order, first, last, siteId, includeStealthed);
+		return toolMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiToolBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolBean> getToolsLaunchAsPojos(String siteId) {
+		List<Map<String, Object>> toolMaps = getToolsLaunch(siteId);
+		return toolMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiToolBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public org.sakaiproject.lti.beans.LtiContentBean getContentAsPojo(Long key, String siteId) {
+		Map<String, Object> contentMap = getContent(key, siteId);
+		return contentMap != null ? org.sakaiproject.lti.beans.LtiContentBean.of(contentMap) : null;
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiContentBean> getContentsAsPojos(String search, String order, int first, int last, String siteId) {
+		List<Map<String, Object>> contentMaps = getContents(search, order, first, last, siteId);
+		return contentMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiContentBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public org.sakaiproject.lti.beans.LtiToolSiteBean getToolSiteAsPojo(Long key, String siteId) {
+		Map<String, Object> toolSiteMap = getToolSiteById(key, siteId);
+		return toolSiteMap != null ? org.sakaiproject.lti.beans.LtiToolSiteBean.of(toolSiteMap) : null;
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiToolSiteBean> getToolSitesByToolIdAsPojos(String toolId, String siteId) {
+		List<Map<String, Object>> toolSiteMaps = getToolSitesByToolId(toolId, siteId);
+		return toolSiteMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiToolSiteBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public org.sakaiproject.lti.beans.LtiMembershipsJobBean getMembershipsJobAsPojo(String siteId) {
+		Map<String, Object> jobMap = getMembershipsJob(siteId);
+		return jobMap != null ? org.sakaiproject.lti.beans.LtiMembershipsJobBean.of(jobMap) : null;
+	}
+
+	@Override
+	public List<org.sakaiproject.lti.beans.LtiMembershipsJobBean> getMembershipsJobsAsPojos() {
+		List<Map<String, Object>> jobMaps = getMembershipsJobs();
+		return jobMaps.stream()
+				.map(org.sakaiproject.lti.beans.LtiMembershipsJobBean::of)
+				.collect(java.util.stream.Collectors.toList());
+	}
+
+	@Override
+	public Object insertTool(org.sakaiproject.lti.beans.LtiToolBean toolBean, String siteId) {
+		return insertTool(toolBean != null ? toolBean.asMap() : null, siteId);
+	}
+
+	@Override
+	public Object insertContent(org.sakaiproject.lti.beans.LtiContentBean contentBean, String siteId) {
+		return insertContent(contentBean != null ? contentBean.asMap() : null, siteId);
+	}
+
+	@Override
+	public Object updateTool(Long key, org.sakaiproject.lti.beans.LtiToolBean toolBean, String siteId) {
+		return updateTool(key, toolBean != null ? toolBean.asMap() : null, siteId);
+	}
+
+	@Override
+	public Object updateContent(Long key, org.sakaiproject.lti.beans.LtiContentBean contentBean, String siteId) {
+		return updateContent(key, contentBean != null ? contentBean.asMap() : null, siteId);
+	}
+
+	@Override
+	public String getContentLaunch(org.sakaiproject.lti.beans.LtiContentBean contentBean) {
+		return getContentLaunch(contentBean != null ? contentBean.asMap() : null);
 	}
 
 }
