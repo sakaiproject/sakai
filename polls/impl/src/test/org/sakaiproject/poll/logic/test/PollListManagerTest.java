@@ -35,7 +35,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-import org.sakaiproject.poll.dao.PollDao;
+import org.sakaiproject.poll.api.repository.OptionRepository;
+import org.sakaiproject.poll.api.repository.PollRepository;
+import org.sakaiproject.poll.api.repository.VoteRepository;
 import org.sakaiproject.poll.logic.test.stubs.ExternalLogicStubb;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
@@ -51,9 +53,12 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 
 	private TestDataPreload tdp = new TestDataPreload();
 
-    @Autowired
-    @Qualifier("org.sakaiproject.poll.dao.PollDao")
-    private PollDao dao;
+    @Autowired @Qualifier("org.sakaiproject.poll.api.repository.PollRepository")
+    private PollRepository pollRepository;
+    @Autowired @Qualifier("org.sakaiproject.poll.api.repository.OptionRepository")
+    private OptionRepository optionRepository;
+    @Autowired @Qualifier("org.sakaiproject.poll.api.repository.VoteRepository")
+    private VoteRepository voteRepository;
 	private PollListManagerImpl pollListManager;
 	private PollVoteManagerImpl pollVoteManager;
 	private ExternalLogicStubb externalLogicStubb;
@@ -61,10 +66,13 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 	@Before
 	public void onSetUp() {
 		pollListManager = new PollListManagerImpl();
-		pollListManager.setDao(dao);
+        pollListManager.setPollRepository(pollRepository);
+        pollListManager.setOptionRepository(optionRepository);
+        pollListManager.setVoteRepository(voteRepository);
 		
 		pollVoteManager = new PollVoteManagerImpl();
-		pollVoteManager.setDao(dao);
+        pollVoteManager.setVoteRepository(voteRepository);
+        pollVoteManager.setPollRepository(pollRepository);
 		
 		
 		externalLogicStubb = new ExternalLogicStubb();
@@ -74,7 +82,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		pollListManager.setIdManager(mock(IdManager.class));
 		
 		// preload testData
-		tdp.preloadTestData(dao);
+        tdp.preloadTestData(pollRepository, optionRepository);
 	}
 	
 	@Test

@@ -3,19 +3,14 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	    <!-- define the list of HBM mapping files -->
-    <bean id="org.sakaiproject.poll.hbmMappingList" class="java.util.ArrayList">
-        <constructor-arg>
-            <list>
-            	<value>org/sakaiproject/poll/hbm/Poll.hbm.xml</value>
-				<value>org/sakaiproject/poll/hbm/Option.hbm.xml</value>
-				<value>org/sakaiproject/poll/hbm/Vote.hbm.xml</value>
-            </list>
-        </constructor-arg>
+    <!-- Repository beans using annotated JPA classes and AdditionalHibernateMappings registered in WEB-INF/hibernate-hbms.xml -->
+    <bean id="org.sakaiproject.poll.api.repository.PollRepository" class="org.sakaiproject.poll.impl.repository.PollRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
     </bean>
-    
-    <!-- DAO bean (no proxy). Transactions are declared at the service layer via @Transactional. -->
-    <bean id="org.sakaiproject.poll.dao.PollDao" class="org.sakaiproject.poll.dao.impl.PollDaoHibernateImpl">
+    <bean id="org.sakaiproject.poll.api.repository.OptionRepository" class="org.sakaiproject.poll.impl.repository.OptionRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
+    <bean id="org.sakaiproject.poll.api.repository.VoteRepository" class="org.sakaiproject.poll.impl.repository.VoteRepositoryImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
     </bean>
 </beans>

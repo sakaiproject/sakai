@@ -187,8 +187,8 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 
 		//UIOutput.make(form,"option-label",messageLocator.getMessage("new_poll_option"));
 		
-		if ((option != null) && (option.getId() != null) && (! option.getId().equalsIgnoreCase("null"))) {
-		    UIInput.make(form, "ckeditor-autosave-entity-id", "#{option.id}", option.getId());    
+		if (option != null && option.getOptionId() != null) {
+		    UIInput.make(form, "ckeditor-autosave-entity-id", "#{option.optionId}", option.getOptionId().toString());
 		}
 
 		if (option.getText() == null)
@@ -276,4 +276,3 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
     }
 
 }
-

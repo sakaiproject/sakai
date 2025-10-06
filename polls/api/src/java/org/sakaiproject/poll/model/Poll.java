@@ -34,39 +34,90 @@ import lombok.AccessLevel;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Data;
 import lombok.Getter;
+
+import javax.persistence.Column;
+// Avoid clash with org.sakaiproject.entity.api.Entity (implemented below)
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Index;
+import javax.persistence.Transient;
+import javax.persistence.PrePersist;
+
+import org.sakaiproject.springframework.data.PersistableEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
+// Intentionally no import for org.sakaiproject.entity.api.Entity to avoid name clash
 import org.sakaiproject.entity.api.ResourceProperties;
 
 @Slf4j
 @Data
-public class Poll implements Entity  {
+@javax.persistence.Entity
+@Table(name = "POLL_POLL")
+public class Poll implements PersistableEntity<Long> {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
+    @Id
+    @Column(name = "POLL_ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "poll_poll_sequence")
+    @SequenceGenerator(name = "poll_poll_sequence", sequenceName = "POLL_POLL_ID_SEQ")
     private Long pollId;
+    @Column(name = "POLL_OWNER", length = 255, nullable = false)
     private String owner;
+
+    @Column(name = "POLL_SITE_ID", length = 255, nullable = false)
     private String siteId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "POLL_CREATION_DATE", nullable = false)
     private Date creationDate;
+
+    @Lob
+    @Column(name = "POLL_TEXT", nullable = false)
     private String text;
+
+    @Lob
+    @Column(name = "POLL_DETAILS")
     private String description;
+    @Column(name = "POLL_MIN_OPTIONS", nullable = false)
     private int minOptions = 1;
+
+    @Column(name = "POLL_MAX_OPTIONS", nullable = false)
     private int maxOptions = 1;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "POLL_VOTE_OPEN", nullable = false)
     private Date voteOpen;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "POLL_VOTE_CLOSE", nullable = false)
     private Date voteClose;
+    @Transient
     private List<Vote> votes;
+    @Column(name = "POLL_DISPLAY_RESULT", length = 255, nullable = false)
     private String displayResult = "open";
+
+    @Column(name = "POLL_LIMIT_VOTE", nullable = false)
     private Boolean limitVoting = true;
+    @Transient
     private boolean currentUserVoted = false;
+    @Transient
     private List<Option> options;
+    @Column(name = "POLL_IS_PUBLIC", nullable = false)
     private Boolean isPublic = false;
 
     @Getter(AccessLevel.NONE)
-    private String id;
+    @Column(name = "POLL_UUID", length = 255, nullable = false)
+    private String uuid;
 
     public Poll() {
         //set the defaults
@@ -117,6 +168,25 @@ public class Poll implements Entity  {
         return DATE_FORMAT.format(voteClose);
     }
 
+    @PrePersist
+    protected void prePersistDefaults() {
+        if (this.uuid == null || this.uuid.isBlank()) {
+            this.uuid = java.util.UUID.randomUUID().toString();
+        }
+        if (this.creationDate == null) {
+            this.creationDate = new Date();
+        }
+        if (this.displayResult == null) {
+            this.displayResult = "open";
+        }
+        if (this.limitVoting == null) {
+            this.limitVoting = Boolean.TRUE;
+        }
+        if (this.isPublic == null) {
+            this.isPublic = Boolean.FALSE;
+        }
+    }
+
     /**
      * Attach a vote to the list of votes for this poll
      * @param vote
@@ -147,7 +217,7 @@ public class Poll implements Entity  {
 
     public String toString() {
         return new ToStringBuilder(this)
-        .append(this.id)
+        .append(this.uuid)
         .append(this.owner)
         .append(this.siteId)
         .append(this.creationDate)
@@ -159,12 +229,12 @@ public class Poll implements Entity  {
      * Entity Methods 
      */
     public String getUrl() {
-        return ServerConfigurationService.getAccessUrl() + "/poll/" + this.getId();
+        return ServerConfigurationService.getAccessUrl() + "/poll/" + this.getUuid();
     }
 
     public String getReference() {
 
-        return ServerConfigurationService.getAccessUrl() + "/poll/" + Entity.SEPARATOR + this.getId();
+        return ServerConfigurationService.getAccessUrl() + "/poll/" + org.sakaiproject.entity.api.Entity.SEPARATOR + this.getUuid();
     }
 
     public String getUrl(String arg0) {
@@ -177,11 +247,17 @@ public class Poll implements Entity  {
         return getReference();
     }
 
-    public String getId() {
-        if (id == null) {
-            id = pollId + "";
+    public String getUuid() {
+        if (uuid == null) {
+            uuid = pollId + "";
         }
-        return id;
+        return uuid;
+    }
+
+    // PersistableEntity implementation: return the PK id
+    @Override
+    public Long getId() {
+        return pollId;
     }
 
 	public ResourceProperties getProperties() {
@@ -219,7 +295,7 @@ public class Poll implements Entity  {
 
         stack.push(poll);
 
-        poll.setAttribute(ID, getId());
+        poll.setAttribute(ID, getUuid());
         poll.setAttribute(POLL_ID, getPollId().toString());
         poll.setAttribute(POLL_TEXT, getText());
         poll.setAttribute(MIN_OPTIONS, (new Integer(getMinOptions()).toString()));
@@ -244,7 +320,7 @@ public class Poll implements Entity  {
 
     public static Poll fromXML(Element element) {
         Poll poll = new Poll();
-        poll.setId(element.getAttribute(ID));
+        poll.setUuid(element.getAttribute(ID));
         poll.setText(element.getAttribute(POLL_TEXT));
         poll.setDisplayResult(element.getAttribute(DISPLAY_RESULT));
         poll.setDetails(element.getAttribute(DESCRIPTION));

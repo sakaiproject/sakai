@@ -31,7 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.sakaiproject.poll.dao.PollDao;
+import org.sakaiproject.poll.api.repository.PollRepository;
+import org.sakaiproject.poll.api.repository.VoteRepository;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -45,7 +46,8 @@ import org.sakaiproject.poll.model.Vote;
 public class PollVoteManagerImpl implements PollVoteManager {
 
 	private ExternalLogic externalLogic;    
-	private PollDao dao;
+	private VoteRepository voteRepository;
+	private PollRepository pollRepository;
 	private PollListManager pollListManager;
 
     @Transactional
@@ -61,17 +63,17 @@ public class PollVoteManagerImpl implements PollVoteManager {
 
 	@Transactional
 	public boolean saveVote(Vote vote)  {
-		dao.save(vote);
+		voteRepository.save(vote);
 		log.debug(" Vote  " + vote.getId() + " successfuly saved");
 		return true;
 	}
 
     public List<Vote> getAllVotesForPoll(Poll poll) {
-        return dao.findVotesByPollId(poll.getPollId()); 
+        return voteRepository.findByPollId(poll.getPollId()); 
     }
 
     public List<Vote> getAllVotesForOption(Option option) {
-        return dao.findVotesByPollIdAndOption(option.getPollId(), option.getOptionId());
+        return voteRepository.findByPollIdAndOptionId(option.getPollId(), option.getOptionId());
     }
 
     public Map<Long, List<Vote>> getVotesForUser(String userId, Long[] pollIds) {
@@ -88,7 +90,9 @@ public class PollVoteManagerImpl implements PollVoteManager {
         }
         Map<Long, List<Vote>> map = new HashMap<Long, List<Vote>>();
         if (pollIds != null && pollIds.length > 0) {
-            List<Vote> votes = dao.findVotesByUserAndPollIds(userId, pollIds);
+            List<Long> ids = new java.util.ArrayList<>();
+            for (Long id : pollIds) ids.add(id);
+            List<Vote> votes = voteRepository.findByUserIdAndPollIds(userId, ids);
             // put the list of votes into a map
             for (Vote vote : votes) {
                 Long pollId = vote.getPollId();
@@ -102,11 +106,11 @@ public class PollVoteManagerImpl implements PollVoteManager {
     }
 
 	public int getDisctinctVotersForPoll(Poll poll) {
-		return dao.getDisctinctVotersForPoll(poll);
+		return voteRepository.countDistinctSubmissionIdByPollId(poll.getPollId());
 	}
 
     public boolean userHasVoted(Long pollid, String userID) {
-        List<Vote> votes = dao.findVotesByUserAndPollId(userID, pollid);
+        List<Vote> votes = voteRepository.findByUserIdAndPollId(userID, pollid);
         if (votes.size() > 0)
             return true;
         else
@@ -122,13 +126,13 @@ public class PollVoteManagerImpl implements PollVoteManager {
         if (voteId == null) {
             throw new IllegalArgumentException("voteId cannot be null when getting vote");
         }
-        return dao.findVoteById(voteId);
+        return voteRepository.findByVoteId(voteId).orElse(null);
     }
 
     public boolean isUserAllowedVote(String userId, Long pollId, boolean ignoreVoted) {
         boolean allowed = false;
         //pollId
-        Poll poll = dao.findPollById(pollId);
+        Poll poll = pollRepository.findByPollId(pollId).orElse(null);
         if (poll == null) {
             throw new IllegalArgumentException("Invalid poll id ("+pollId+") when checking user can vote");
         }
@@ -209,7 +213,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 
 	@Transactional
 	public void deleteVote(Vote vote) {
-		dao.delete(vote);
+		voteRepository.delete(vote);
 	}
 
     @Transactional

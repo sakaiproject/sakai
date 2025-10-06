@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.sakaiproject.poll.dao.PollDao;
+import org.sakaiproject.poll.api.repository.PollRepository;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Poll;
@@ -40,20 +40,21 @@ public class PollListManagerImplTest {
     @Test
     public void testGetPollForUserCorrectSites() {
         ExternalLogic externalLogic = Mockito.mock(ExternalLogic.class);
-        PollDao dao = Mockito.mock(PollDao.class);
+        PollRepository dao = Mockito.mock(PollRepository.class);
 
         PollListManagerImpl impl = new PollListManagerImpl();
         impl.setExternalLogic(externalLogic);
-        impl.setDao(dao);
+        impl.setPollRepository(dao);
 
         // User can see 3 sites.
         List<String> userSites = new ArrayList<>(Arrays.asList(new String[]{"site1", "site2", "site3"}));
         Mockito.when(externalLogic.getSitesForUser("userId", PollListManager.PERMISSION_VOTE)).thenReturn(userSites);
         // Find the polls in just one site.
         impl.findAllPollsForUserAndSitesAndPermission("userId", new String[]{"site3"}, PollListManager.PERMISSION_VOTE);
-        ArgumentCaptor<String[]> sitesArg = ArgumentCaptor.forClass(String[].class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<java.util.List<String>> sitesArg = ArgumentCaptor.forClass(java.util.List.class);
         Mockito.verify(dao).findOpenPollsForSites(sitesArg.capture(), Mockito.any(), Mockito.eq(true));
-        // Check that the DAO call is just done against the site we asked for.
-        Assert.assertArrayEquals(new String[]{"site3"}, sitesArg.getValue());
+        // Check that the repository call is just done against the site we asked for.
+        Assert.assertEquals(java.util.List.of("site3"), sitesArg.getValue());
     }
 }

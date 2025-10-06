@@ -24,7 +24,8 @@ package org.sakaiproject.poll.logic.test;
 import java.util.Date;
 import java.util.UUID;
 
-import org.sakaiproject.poll.dao.PollDao;
+import org.sakaiproject.poll.api.repository.OptionRepository;
+import org.sakaiproject.poll.api.repository.PollRepository;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 
@@ -94,19 +95,22 @@ public class TestDataPreload {
 	/**
 	 * Preload a bunch of test data into the database
 	 * 
-     * @param dao a poll dao
+     * @param pollRepository repository
+     * @param optionRepository repository
      */
-    public void preloadTestData(PollDao dao) {
-		
-		Poll poll1 = new Poll();
-		poll1.setCreationDate(new Date());
-		poll1.setVoteOpen(new Date());
-		poll1.setVoteClose(new Date());
-		poll1.setDescription("this is some text");
-		poll1.setText("something");
-		poll1.setOwner(USER_UPDATE);
-		poll1.setSiteId(LOCATION1_ID);
-		dao.save(poll1);
+    public void preloadTestData(PollRepository pollRepository, OptionRepository optionRepository) {
+
+        Poll poll1 = new Poll();
+        poll1.setCreationDate(new Date());
+        poll1.setVoteOpen(new Date());
+        poll1.setVoteClose(new Date());
+        poll1.setDescription("this is some text");
+        poll1.setText("something");
+        poll1.setOwner(USER_UPDATE);
+        poll1.setSiteId(LOCATION1_ID);
+        // Ensure non-null external UUID for persistence
+        poll1.setUuid(UUID.randomUUID().toString());
+        pollRepository.save(poll1);
 
 		firstPollId = poll1.getPollId();
 		
@@ -116,14 +120,14 @@ public class TestDataPreload {
 		option1.setPollId(poll1.getPollId());
 		option1.setUuid(UUID.randomUUID().toString());
 		option1.setOptionOrder(0);
-		dao.save(option1);
+		optionRepository.save(option1);
 		
 		Option option2 = new Option();
 		option2.setText("Option 2");
 		option2.setPollId(poll1.getPollId());
 		option2.setUuid(UUID.randomUUID().toString());
 		option2.setOptionOrder(1);
-		dao.save(option2);
+		optionRepository.save(option2);
 		
 	}
 

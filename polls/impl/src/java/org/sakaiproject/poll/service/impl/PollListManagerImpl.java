@@ -56,7 +56,9 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.poll.dao.PollDao;
+import org.sakaiproject.poll.api.repository.PollRepository;
+import org.sakaiproject.poll.api.repository.OptionRepository;
+import org.sakaiproject.poll.api.repository.VoteRepository;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -77,7 +79,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     private EntityManager entityManager;
     private IdManager idManager;
-    private PollDao dao;
+    private PollRepository pollRepository;
+    private OptionRepository optionRepository;
+    private VoteRepository voteRepository;
     private PollVoteManager pollVoteManager;    
     private ExternalLogic externalLogic;
     @Setter private LTIService ltiService;
@@ -119,9 +123,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             if (siteIdsToSearch.length > 0) {
                 if (PollListManager.PERMISSION_VOTE.equals(permissionConstant)) {
                     // open polls only, ascending by creationDate
-                    polls = dao.findOpenPollsForSites(siteIdsToSearch, new Date(), true);
+                    polls = pollRepository.findOpenPollsForSites(Arrays.asList(siteIdsToSearch), new Date(), true);
                 } else {
-                    polls = dao.findPollsForSites(siteIdsToSearch, true);
+                    polls = pollRepository.findBySiteIdsOrderByCreationDate(Arrays.asList(siteIdsToSearch), true);
                 }
             } else {
                 polls = new ArrayList<>();
@@ -148,7 +152,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         
         if (t.getPollId() == null) {
             newPoll = true;
-            t.setId(idManager.createUuid());
+            t.setUuid(idManager.createUuid());
         }
         if(t.getCreationDate() == null) {
             t.setCreationDate(new Date());
@@ -161,7 +165,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                    t.setOwner(poll.getOwner());
                 }
             }
-            dao.save(t);
+            pollRepository.save(t);
 
         } catch (DataAccessException e) {
             log.error("Hibernate could not save: " + e.toString(), e);
@@ -184,7 +188,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
 
         if (!pollCanDelete(t)) {
-            throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't delete poll: " + t.getId());
+            throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't delete poll: " + t.getUuid());
         }
 
         //Delete the Votes
@@ -198,7 +202,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
 
         Set<Vote> voteSet = new HashSet<Vote>(vote);
-        dao.deleteSet(voteSet);
+        voteRepository.deleteAll(voteSet);
 
         //Delete the Options
         List<Option> options = t.getOptions();
@@ -208,14 +212,14 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
  
         Set<Option> optionSet = new HashSet<Option>(options);
-        dao.deleteSet(optionSet);
+        optionRepository.deleteAll(optionSet);
 
 
-        dao.delete(t);
+        pollRepository.delete(t);
 
-        log.debug("Poll id {} deleted", t.getId());
+        log.debug("Poll id {} deleted", t.getPollId());
         externalLogic.postEvent("poll.delete", "poll/site/"
-                + t.getSiteId() + "/poll/" + t.getId(), true);
+                + t.getSiteId() + "/poll/" + t.getUuid(), true);
         return true;
     }
 
@@ -232,12 +236,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     public List<Poll> findAllPolls() {
 
-        return dao.findAllPolls();
+        return pollRepository.findAllOrderByCreationDateAsc();
     }
 
     public List<Poll> findAllPolls(String siteId) {
         
-        return dao.findPollsBySite(siteId, false);
+        return pollRepository.findBySiteIdOrderByCreationDate(siteId, false);
     }
 
     public Poll getPollById(Long pollId) throws SecurityException {
@@ -247,7 +251,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     public Poll getPollById(Long pollId, boolean includeOptions) throws SecurityException {
  
-        Poll poll = dao.findPollById(pollId);
+        Poll poll = pollRepository.findByPollId(pollId).orElse(null);
         if (poll != null) {
             if (includeOptions) {
                 List<Option> optionList = getOptionsForPoll(poll);
@@ -282,7 +286,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         if (poll == null) {
             throw new IllegalArgumentException("Cannot get options for a poll ("+pollId+") that does not exist");
         }
-        return dao.findOptionsByPollId(pollId);
+        return optionRepository.findByPollIdOrderByOptionOrder(pollId);
     }
 
     public List<Option> getVisibleOptionsForPoll(Long pollId) {
@@ -300,12 +304,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public Poll getPollWithVotes(Long pollId) {
-        return dao.findPollById(pollId);
+        return pollRepository.findByPollId(pollId).orElse(null);
 
     }
 
     public Option getOptionById(Long optionId) {
-        Option option = dao.findOptionById(optionId);
+        Option option = optionRepository.findByOptionId(optionId).orElse(null);
         // if the id is null set it
         if (option != null && option.getUuid() == null) {
             option.setUuid( UUID.randomUUID().toString() );
@@ -317,7 +321,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     @Transactional
     public void deleteOption(Option option) {
         try {
-            dao.delete(option);
+            optionRepository.delete(option);
         } catch (DataAccessException e) {
             log.error("Hibernate could not delete: " + e.toString(), e);
             return;
@@ -333,7 +337,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         } else {
             try {
                 option.setDeleted(Boolean.TRUE);
-                dao.save(option);
+                optionRepository.save(option);
                 log.debug("Option id {} soft deleted.", option.getId());
             } catch (DataAccessException e) {
                 log.error("Hibernate could not soft delete delete!", e);
@@ -350,7 +354,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
 
         try {
-            dao.save(t);
+            optionRepository.save(t);
         } catch (DataAccessException e) {
             log.error("Hibernate could not save: " + e.toString(), e);
             return false;
@@ -416,7 +420,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         log.debug("got list of {} polls", pollsList.size());
         for (Poll poll : pollsList) {
             try {
-                log.debug("got poll {}", poll.getId());
+                log.debug("got poll {}", poll.getPollId());
 
                 // archive this assignment
                 Element el = poll.toXml(doc, stack);
@@ -432,7 +436,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
                 element.appendChild(el);
             } catch (Exception e) {
-                log.error("Failed to archive {} in site {}", poll.getId(), siteId, e);
+                log.error("Failed to archive {} in site {}", poll.getPollId(), siteId, e);
             }
 
         } // while
@@ -517,7 +521,25 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         Entity rv = null;
 
         if (REF_POLL_TYPE.equals(ref.getSubType())) {
-            rv = getPoll(ref.getReference());
+            Poll poll = getPoll(ref.getReference());
+            if (poll != null) {
+                rv = new Entity() {
+                    @Override
+                    public String getUrl() { return poll.getUrl(); }
+                    @Override
+                    public String getReference() { return poll.getReference(); }
+                    @Override
+                    public String getUrl(String rootProperty) { return poll.getUrl(rootProperty); }
+                    @Override
+                    public String getReference(String rootProperty) { return poll.getReference(rootProperty); }
+                    @Override
+                    public String getId() { return poll.getUuid(); }
+                    @Override
+                    public org.sakaiproject.entity.api.ResourceProperties getProperties() { return poll.getProperties(); }
+                    @Override
+                    public org.w3c.dom.Element toXml(org.w3c.dom.Document doc, java.util.Stack<org.w3c.dom.Element> stack) { return poll.toXml(doc, stack); }
+                };
+            }
         }
 
         return rv;
@@ -534,7 +556,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
         try {
             return findAllPolls(fromContext).stream()
-                .map(p -> Map.of("id", p.getId(), "title", p.getText())).collect(Collectors.toList());
+                .map(p -> Map.of("id", p.getUuid(), "title", p.getText())).collect(Collectors.toList());
         } catch (Exception e) {
             log.warn("Failed to get the polls for site {}: {}", fromContext, e.toString());
         }
@@ -645,10 +667,10 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     public Poll getPoll(String ref) {
         // we need to get the options here
         
-        Poll poll = dao.findPollByUuid(ref);
-        // if the id is null set it
-        if (poll.getId() == null) {
-            poll.setId(idManager.createUuid());
+        Poll poll = pollRepository.findByUuid(ref).orElse(null);
+        // if the UUID is null set it
+        if (poll.getUuid() == null) {
+            poll.setUuid(idManager.createUuid());
             savePoll(poll);
         }
         return poll;
@@ -665,7 +687,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
         if (poll.getDisplayResult().equals("afterVoting")) {
 
-            List<Vote> votes = dao.findVotesByUserAndPollId(userId, poll.getPollId());
+            List<Vote> votes = voteRepository.findByUserIdAndPollId(userId, poll.getPollId());
             log.debug("got {} votes for this poll", votes.size());
             if (votes.size() > 0) {
                 return true;

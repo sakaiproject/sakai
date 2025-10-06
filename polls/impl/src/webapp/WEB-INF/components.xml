@@ -13,13 +13,15 @@
 	<import resource="classpath:org/sakaiproject/poll/spring-hibernate.xml" />
 
 	<!-- Enable @Transactional driven proxies for our services -->
-	<tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
 	<!-- create a logic bean, give it the dao from above and some sakai services -->
 		<bean id="org.sakaiproject.poll.logic.PollListManager"
 		class="org.sakaiproject.poll.service.impl.PollListManagerImpl"
 		lazy-init="true" init-method="init">
-		<property name="dao" ref="org.sakaiproject.poll.dao.PollDao"/>
+        <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
+        <property name="optionRepository" ref="org.sakaiproject.poll.api.repository.OptionRepository"/>
+        <property name="voteRepository" ref="org.sakaiproject.poll.api.repository.VoteRepository"/>
 		<property name="idManager"
 			ref="org.sakaiproject.id.api.IdManager" />
 				<property name="entityManager"
@@ -34,7 +36,8 @@
 	<bean id="org.sakaiproject.tool.poll.api.PollVoteManager"
 		class="org.sakaiproject.poll.service.impl.PollVoteManagerImpl"
 		lazy-init="true">
-		<property name="dao" ref="org.sakaiproject.poll.dao.PollDao"/>
+        <property name="voteRepository" ref="org.sakaiproject.poll.api.repository.VoteRepository"/>
+        <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 		<property name="pollListManager" ref="org.sakaiproject.poll.logic.PollListManager"/>
 	</bean>

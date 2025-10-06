@@ -29,15 +29,50 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 import lombok.Data;
 
-@Data
-public class Vote {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
+import org.sakaiproject.springframework.data.PersistableEntity;
+
+@Data
+@Entity
+@Table(name = "POLL_VOTE", indexes = {
+        @Index(name = "POLLTOOL_VOTE_USERID_IDX", columnList = "USER_ID"),
+        @Index(name = "POLLTOOL_VOTE_POLLID_IDX", columnList = "VOTE_POLL_ID")
+})
+public class Vote implements PersistableEntity<Long> {
+
+    @Id
+    @Column(name = "VOTE_ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "poll_vote_sequence")
+    @SequenceGenerator(name = "poll_vote_sequence", sequenceName = "POLL_VOTE_ID_SEQ")
     private Long id;
+
+    @Column(name = "USER_ID", length = 255, nullable = false)
     private String userId;
+
+    @Column(name = "VOTE_IP", length = 255, nullable = false)
     private String ip;
+
+    @Column(name = "VOTE_POLL_ID", nullable = false)
     private Long pollId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "VOTE_DATE", nullable = false)
     private Date voteDate;
+
+    @Column(name = "VOTE_OPTION")
     private Long pollOption;
+
+    @Column(name = "VOTE_SUBMISSION_ID", length = 255, nullable = false)
     private String submissionId;
 
     public Vote() {
@@ -66,4 +101,8 @@ public class Vote {
         return this.pollId + ":" + this.userId + ":" + this.ip + ":" + this.pollOption;
     }
 
+    @Override
+    public Long getId() {
+        return id;
+    }
 }
