@@ -1,6 +1,5 @@
 package org.sakaiproject.signup.dao;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +18,6 @@ import java.util.*;
 @ContextConfiguration(locations = {
         "/hibernate-test.xml"
 })
-@Slf4j
 public class SignupMeetingDaoTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired

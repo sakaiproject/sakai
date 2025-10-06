@@ -34,8 +34,6 @@
 
 package org.sakaiproject.signup.dao;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -266,20 +264,12 @@ public class SignupMeetingDaoImpl implements SignupMeetingDao {
         }
     }
 
-    private Collection mergeAll(Collection entities) {
-        List merged = new ArrayList();
-        entities.forEach(ent -> merged.add(currentSession().merge(ent)));
-        return merged;
-    }
-
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean isEventExisted(Long eventId) {
-		//TODO need test with lazy loading
 		SignupMeeting ls = loadSignupMeeting(eventId);
-		if (ls ==null)
-			return false;
+		if (ls == null) return false;
 		
 		return true;
 	}
@@ -317,7 +307,7 @@ public class SignupMeetingDaoImpl implements SignupMeetingDao {
         return currentSession().createQuery(cq).getResultList();
     }
 
-	@Override
+    @Override
     public List<String> getAllCategories(String siteId) throws DataAccessException {
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<String> cq = cb.createQuery(String.class);
@@ -330,7 +320,7 @@ public class SignupMeetingDaoImpl implements SignupMeetingDao {
         return (results != null && !results.isEmpty()) ? results : null;
     }
 
-	@Override
+    @Override
     public List<String> getAllLocations(String siteId) throws DataAccessException {
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<String> cq = cb.createQuery(String.class);
