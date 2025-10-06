@@ -64,7 +64,7 @@ public interface FormattedText {
      * @deprecated since Nov 2007, use {@link #processFormattedText(String, StringBuilder)} instead
      */
     @Deprecated
-    public String processFormattedText(final String strFromBrowser, StringBuffer errorMessages);
+    public String processFormattedText(final String strFromBrowser, StringBuffer messages);
 
     /**
      * Processes and validates user-entered HTML received from the web browser (from the WYSIWYG editor). Validates that the user input follows the Sakai formatted text specification; disallows dangerous stuff such as &lt;SCRIPT&gt; JavaScript tags.
@@ -74,11 +74,11 @@ public interface FormattedText {
      * 
      * @param strFromBrowser
      *        The formatted text as sent from the web browser (from the WYSIWYG editor)
-     * @param errorMessages
-     *        User-readable error messages will be returned here.
+     * @param messages
+     *        If supplied, user-readable scanning results will be returned in this parameter; otherwise results are discarded.
      * @return The validated processed formatted text, ready for use by the system.
      */
-    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages);
+    public String processFormattedText(final String strFromBrowser, StringBuilder messages);
 
     /**
      * Processes and validates user-entered HTML received from the web browser (from the WYSIWYG editor). Validates that the user input follows the Sakai formatted text specification; disallows dangerous stuff such as &lt;SCRIPT&gt; JavaScript tags.
@@ -88,14 +88,14 @@ public interface FormattedText {
      * 
      * @param strFromBrowser
      *        The formatted text as sent from the web browser (from the WYSIWYG editor)
-     * @param errorMessages
-     *        User-readable error messages will be returned here.
+     * @param messages
+     *        If supplied, user-readable scanning results will be returned in this parameter; otherwise results are discarded.
      * @param level
      *        The security level used for the scan (HIGH level will be more aggressive about what is allowed while NONE will allow anything),
      *        null or DEFAULT will use whatever security level the system is configured for
      * @return The validated processed formatted text, ready for use by the system.
      */
-    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, Level level);
+    public String processFormattedText(final String strFromBrowser, StringBuilder messages, Level level);
 
     /**
      * Processes and validates user-entered HTML received from the web browser (from the WYSIWYG editor). Validates that the user input follows the Sakai formatted text specification; disallows dangerous stuff such as &lt;SCRIPT&gt; JavaScript tags.
@@ -103,12 +103,12 @@ public interface FormattedText {
      * 
      * @param strFromBrowser
      *        The formatted text as sent from the web browser (from the WYSIWYG editor)
-     * @param errorMessages
-     *        User-readable error messages will be returned here.
+     * @param messages
+     *        If supplied, user-readable scanning results will be returned in this parameter; otherwise results are discarded.
      * @param useLegacySakaiCleaner if true the old html cleaner is used, if false the new OWASP antisamy cleaner is used
      * @return The validated processed formatted text, ready for use by the system.
      */
-    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, boolean useLegacySakaiCleaner);
+    public String processFormattedText(final String strFromBrowser, StringBuilder messages, boolean useLegacySakaiCleaner);
 
     /**
      * Process an HTML document that has been edited using the formatted text widget. The document can contain any valid HTML; it will NOT be checked to eliminate things like image tags, script tags, etc, because it is its own document.
@@ -126,15 +126,15 @@ public interface FormattedText {
      * 
      * @param strFromBrowser
      *        The formatted text as sent from the web browser (from the WYSIWYG editor)
-     * @param errorMessages
-     *        User-readable error messages will be returned here.
+     * @param messages
+     *        If supplied, user-readable scanning results will be returned in this parameter; otherwise results are discarded.
      * @param checkForEvilTags
      *        If true, check for tags and attributes that shouldn't be in formatted text
      * @param replaceWhitespaceTags
      *        If true, clean up line breaks to be like "&lt;br /&gt;".
      * @return The validated processed HTML formatted text, ready for use by the system.
      */
-    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
+    public String processFormattedText(final String strFromBrowser, StringBuilder messages, boolean checkForEvilTags,
             boolean replaceWhitespaceTags);
 
     /**
@@ -143,8 +143,8 @@ public interface FormattedText {
      * 
      * @param strFromBrowser
      *        The formatted text as sent from the web browser (from the WYSIWYG editor)
-     * @param errorMessages
-     *        User-readable error messages will be returned here.
+     * @param messages
+     *        If supplied, user-readable scanning results will be returned in this parameter; otherwise results are discarded.
      * @param level
      *        The security level used for the scan (HIGH level will be more aggressive about what is allowed while NONE will allow anything),
      *        null or DEFAULT will use whatever security level the system is configured for
@@ -155,7 +155,7 @@ public interface FormattedText {
      * @param useLegacySakaiCleaner if true the old html cleaner is used, if false the new OWASP antisamy cleaner is used
      * @return The validated processed HTML formatted text, ready for use by the system.
      */
-    public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, Level level, boolean checkForEvilTags,
+    public String processFormattedText(final String strFromBrowser, StringBuilder messages, Level level, boolean checkForEvilTags,
             boolean replaceWhitespaceTags, boolean useLegacySakaiCleaner);
 
     /**
