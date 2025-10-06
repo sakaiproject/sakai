@@ -32,7 +32,7 @@ import java.util.Map;
 import org.sakaiproject.lti.beans.LtiContentBean;
 
 /**
- * Unit tests for LtiContentBean POJO conversion methods.
+ * Unit tests for LtiContentBean Bean conversion methods.
  */
 public class LtiContentBeanTest {
 
@@ -213,11 +213,11 @@ public class LtiContentBeanTest {
 
     @Test
     public void testRoundTripConversion() {
-        // Convert Map to POJO
+        // Convert Map to Bean
         LtiContentBean originalContent = LtiContentBean.of(testMap);
         assertNotNull(originalContent);
         
-        // Convert POJO back to Map
+        // Convert Bean back to Map
         Map<String, Object> convertedMap = originalContent.asMap();
         assertNotNull(convertedMap);
         
@@ -256,7 +256,7 @@ public class LtiContentBeanTest {
         mapWithNulls.put("newpage", null);
         mapWithNulls.put("created_at", null);
         
-        // Convert Map to POJO
+        // Convert Map to Bean
         LtiContentBean content = LtiContentBean.of(mapWithNulls);
         assertNotNull(content);
         assertEquals(Long.valueOf(999L), content.getId());
@@ -267,7 +267,7 @@ public class LtiContentBeanTest {
         assertNull(content.getNewpage());
         assertNull(content.getCreatedAt());
         
-        // Convert POJO back to Map
+        // Convert Bean back to Map
         Map<String, Object> convertedMap = content.asMap();
         assertNotNull(convertedMap);
         

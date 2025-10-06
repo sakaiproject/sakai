@@ -32,7 +32,7 @@ import java.util.Map;
 import org.sakaiproject.lti.beans.LtiToolBean;
 
 /**
- * Unit tests for LtiToolBean POJO conversion methods.
+ * Unit tests for LtiToolBean Bean conversion methods.
  */
 public class LtiToolBeanTest {
 
@@ -113,6 +113,10 @@ public class LtiToolBeanTest {
         // Timestamps
         testMap.put("created_at", testDate);
         testMap.put("updated_at", testDate);
+        
+        // Live attributes - computed fields that may be present in Map data
+        testMap.put("lti_content_count", 42L);
+        testMap.put("lti_site_count", 7L);
     }
 
     @Test
@@ -204,6 +208,10 @@ public class LtiToolBeanTest {
         // Timestamps
         assertEquals(testDate, tool.getCreatedAt());
         assertEquals(testDate, tool.getUpdatedAt());
+        
+        // Live attributes
+        assertEquals(Long.valueOf(42L), tool.getLtiContentCount());
+        assertEquals(Long.valueOf(7L), tool.getLtiSiteCount());
     }
 
     @Test
@@ -270,6 +278,10 @@ public class LtiToolBeanTest {
         
         tool.setCreatedAt(testDate);
         tool.setUpdatedAt(testDate);
+        
+        // Live attributes
+        tool.setLtiContentCount(99L);
+        tool.setLtiSiteCount(15L);
         
         Map<String, Object> result = tool.asMap();
         
@@ -344,15 +356,19 @@ public class LtiToolBeanTest {
         // Timestamps
         assertEquals(testDate, result.get("created_at"));
         assertEquals(testDate, result.get("updated_at"));
+        
+        // Live attributes
+        assertEquals(Long.valueOf(99L), result.get("lti_content_count"));
+        assertEquals(Long.valueOf(15L), result.get("lti_site_count"));
     }
 
     @Test
     public void testRoundTripConversion() {
-        // Convert Map to POJO
+        // Convert Map to Bean
         LtiToolBean originalTool = LtiToolBean.of(testMap);
         assertNotNull(originalTool);
         
-        // Convert POJO back to Map
+        // Convert Bean back to Map
         Map<String, Object> convertedMap = originalTool.asMap();
         assertNotNull(convertedMap);
         
@@ -395,7 +411,7 @@ public class LtiToolBeanTest {
         mapWithNulls.put("pl_launch", null);
         mapWithNulls.put("created_at", null);
         
-        // Convert Map to POJO
+        // Convert Map to Bean
         LtiToolBean tool = LtiToolBean.of(mapWithNulls);
         assertNotNull(tool);
         assertEquals(Long.valueOf(999L), tool.getId());
@@ -406,7 +422,7 @@ public class LtiToolBeanTest {
         assertNull(tool.getPlLaunch());
         assertNull(tool.getCreatedAt());
         
-        // Convert POJO back to Map
+        // Convert Bean back to Map
         Map<String, Object> convertedMap = tool.asMap();
         assertNotNull(convertedMap);
         
@@ -552,5 +568,64 @@ public class LtiToolBeanTest {
         assertEquals("BigDecimal 111.45 should truncate to 111", Long.valueOf(111L), tool.getId());
         assertEquals("BigDecimal 222 should convert to 222", Long.valueOf(222L), tool.getDeploymentId());
         assertEquals("BigDecimal 333.99 should truncate to 333", Integer.valueOf(333), tool.getFrameheight());
+    }
+
+    @Test
+    public void testLiveAttributesConversion() {
+        // Test with live attributes present
+        Map<String, Object> mapWithLiveAttributes = new HashMap<>();
+        mapWithLiveAttributes.put("id", 123L);
+        mapWithLiveAttributes.put("title", "Test Tool");
+        mapWithLiveAttributes.put("lti_content_count", 25L);
+        mapWithLiveAttributes.put("lti_site_count", 3L);
+        
+        LtiToolBean tool = LtiToolBean.of(mapWithLiveAttributes);
+        assertNotNull(tool);
+        assertEquals(Long.valueOf(123L), tool.getId());
+        assertEquals("Test Tool", tool.getTitle());
+        assertEquals(Long.valueOf(25L), tool.getLtiContentCount());
+        assertEquals(Long.valueOf(3L), tool.getLtiSiteCount());
+        
+        // Convert back to Map
+        Map<String, Object> result = tool.asMap();
+        assertEquals(Long.valueOf(25L), result.get("lti_content_count"));
+        assertEquals(Long.valueOf(3L), result.get("lti_site_count"));
+        
+        // Test with live attributes absent (should be null)
+        Map<String, Object> mapWithoutLiveAttributes = new HashMap<>();
+        mapWithoutLiveAttributes.put("id", 456L);
+        mapWithoutLiveAttributes.put("title", "Another Tool");
+        // No lti_content_count or lti_site_count
+        
+        LtiToolBean tool2 = LtiToolBean.of(mapWithoutLiveAttributes);
+        assertNotNull(tool2);
+        assertEquals(Long.valueOf(456L), tool2.getId());
+        assertEquals("Another Tool", tool2.getTitle());
+        assertNull("ltiContentCount should be null when not present", tool2.getLtiContentCount());
+        assertNull("ltiSiteCount should be null when not present", tool2.getLtiSiteCount());
+        
+        // Convert back to Map - live attributes should not be present
+        Map<String, Object> result2 = tool2.asMap();
+        assertFalse("lti_content_count should not be in map when null", result2.containsKey("lti_content_count"));
+        assertFalse("lti_site_count should not be in map when null", result2.containsKey("lti_site_count"));
+    }
+
+    @Test
+    public void testLiveAttributesTypeConversion() {
+        Map<String, Object> mapWithVariousTypes = new HashMap<>();
+        mapWithVariousTypes.put("id", 789L);
+        mapWithVariousTypes.put("title", "Type Test Tool");
+        
+        // Test different number types for live attributes
+        mapWithVariousTypes.put("lti_content_count", 100); // Integer instead of Long
+        mapWithVariousTypes.put("lti_site_count", "50"); // String instead of Long
+        mapWithVariousTypes.put("lti_content_count", Double.valueOf(75.0)); // Double instead of Long
+        
+        LtiToolBean tool = LtiToolBean.of(mapWithVariousTypes);
+        assertNotNull(tool);
+        assertEquals(Long.valueOf(789L), tool.getId());
+        assertEquals("Type Test Tool", tool.getTitle());
+        assertEquals(Long.valueOf(75L), tool.getLtiContentCount()); // Should use the last value (Double)
+        assertEquals(Long.valueOf(50L), tool.getLtiSiteCount()); // String should convert to Long
     }
 }

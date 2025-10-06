@@ -146,46 +146,48 @@ ${includeLatestJQuery}
 	        </tr>
 	        </thead>
 	        <tbody>
-            #foreach($tool in $ltiTools)
+            #foreach($toolBean in $ltiTools)
             	
 				<tr>
-	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$tool.get("id")">$formattedText.escapeHtml($tool.get("title"))</td>
+	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$toolBean.id">$formattedText.escapeHtml($toolBean.title)</td>
 	                <td headers="launch">
-						#set($launch="")
-						#set($launch=$tool.get("launch"))
-						$!launch
+						$!toolBean.launch
 	                </td>
 	                <td headers="site_id">
 	                	#set($siteId="<span style='display:none;'>zzzz</span>")
-	                	#set($siteId=$tool.get("SITE_ID"))
+	                	#set($siteId=$toolBean.siteId)
 	                	$!siteId
 	                </td>
-	                #if ($isAdmin) <td headers="use"><a href="$sakai_ActionURL.setPanel("ToolSite").setParameter("sakai_action","doFilter").setQueryString("id=$tool.get('id')")">$tool.get("lti_content_count")</a></td> #end
+	                #if ($isAdmin) <td headers="use"><a href="$sakai_ActionURL.setPanel("ToolSite").setParameter("sakai_action","doFilter").setQueryString("id=$toolBean.id")">$toolBean.ltiContentCount</a></td> #end
 					#if ($isAdmin)
 						<td headers="tool_deployment">
-							#if ($tool.get("lti_count_deployment"))
-								<a href="$sakai_ActionURL.setPanel("ToolSiteDeploy")&tool_id=$tool.get("id")">$!tool.get("lti_count_deployment")</a>
+							#set($toolProps = $context.get("tool_${toolBean.id}_props"))
+							#if ($toolProps && $toolProps.get("lti_count_deployment"))
+								<a href="$sakai_ActionURL.setPanel("ToolSiteDeploy")&tool_id=$toolBean.id">$!toolProps.get("lti_count_deployment")</a>
 							#end
 						</td>
 					#end
-	                #if ($isAdmin) <td headers="toolorder">$!tool.get("toolorder")</a></td> #end
+	                #if ($isAdmin) <td headers="toolorder">$!toolBean.toolorder</a></td> #end
 	                #if ( $isAdmin || $allowMaintainerAddSystemTool) 
 		                <td headers="action">
-		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $tool.get("SITE_ID")))
+		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $toolBean.siteId))
                                 <ul style="list-style: none;">
-									<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a></li>
-	                        		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a> </li>
-									#if ( $tool.get("lti_content_count") > 0 )
-                                		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolTransfer")&id=$tool.get("id")">$tlang.getString("gen.transfer")</a></li>
+									<li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$toolBean.id">$tlang.getString("gen.edit")</a></li>
+	                        		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$toolBean.id">$tlang.getString("gen.delete")</a> </li>
+									#if ( $toolBean.ltiContentCount > 0 )
+                                		<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolTransfer")&id=$toolBean.id">$tlang.getString("gen.transfer")</a></li>
                                 	#end
 
 									#set($privacy=0)
-									#set($privacy=$tool.get("pl_privacy"))
+									#set($privacy=$toolBean.plPrivacy)
 									#set($lti13=0)
-									#set($lti13=$tool.get("lti13"))
+									#set($lti13=$toolBean.lti13)
 
 									#if ( $lti13 == 1 && $privacy == 1 )
-										<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$tool.get("privacy_url")" target="_blank">$tlang.getString("gen.privacy")</a></li>
+										#set($toolProps = $context.get("tool_${toolBean.id}_props"))
+										#if ($toolProps && $toolProps.get("privacy_url"))
+											<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$toolProps.get("privacy_url")" target="_blank">$tlang.getString("gen.privacy")</a></li>
+										#end
 									#end
                                 </ul>
 	                        #end
