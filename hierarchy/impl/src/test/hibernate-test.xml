@@ -31,7 +31,7 @@
    <bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
       class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
       <property name="dataSource" ref="javax.sql.DataSource" />
-      <property name="annotatedClasses" ref="hierarchy.hbmMappingList" />
+      <property name="annotatedClasses" ref="hierarchy.annotatedClassList" />
       <property name="hibernateProperties">
          <props>
             <prop key="hibernate.dialect">${hibernate.dialect}</prop>

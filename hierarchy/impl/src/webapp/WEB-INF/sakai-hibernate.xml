@@ -5,7 +5,7 @@
 
     <!-- Add our annotated entities to the Sakai global session factory -->
     <bean class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-        <property name="annotatedClasses" ref="hierarchy.hbmMappingList" />
+        <property name="annotatedClasses" ref="hierarchy.annotatedClassList" />
     </bean>
 
 </beans>

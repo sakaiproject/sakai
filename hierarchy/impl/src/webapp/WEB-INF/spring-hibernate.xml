@@ -6,7 +6,7 @@
                         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!-- define the list of annotated entity classes -->
-    <util:list id="hierarchy.hbmMappingList" value-type="java.lang.Class">
+    <util:list id="hierarchy.annotatedClassList" value-type="java.lang.Class">
         <value>org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode</value>
         <value>org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData</value>
         <value>org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission</value>

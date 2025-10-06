@@ -34,6 +34,7 @@
 
 package org.sakaiproject.hierarchy.dao.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -69,7 +70,7 @@ public class HierarchyNodeMetaData implements PersistableEntity<Long> {
    /**
     * this is the node that this meta data is associated with
     */
-   @OneToOne(fetch = FetchType.EAGER, optional = false)
+   @OneToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
    @JoinColumn(name = "ID")
    @MapsId
    private HierarchyPersistentNode node;
@@ -121,6 +122,8 @@ public class HierarchyNodeMetaData implements PersistableEntity<Long> {
     * Empty constructor
     */
    public HierarchyNodeMetaData() {
+      this.isRootNode = false;
+      this.isDisabled = false;
    }
 
    /**
@@ -130,9 +133,9 @@ public class HierarchyNodeMetaData implements PersistableEntity<Long> {
          String ownerId) {
       this.node = node;
       this.hierarchyId = hierarchyId;
-      this.isRootNode = isRootNode;
+      this.isRootNode = Boolean.TRUE.equals(isRootNode);
       this.ownerId = ownerId;
-      this.isDisabled = false; // default is false and needs to be set
+      this.isDisabled = false;
    }
 
    /**
@@ -142,12 +145,12 @@ public class HierarchyNodeMetaData implements PersistableEntity<Long> {
          String ownerId, String title, String description, String permToken, Boolean isDisabled) {
       this.node = node;
       this.hierarchyId = hierarchyId;
-      this.isRootNode = isRootNode;
+      this.isRootNode = Boolean.TRUE.equals(isRootNode);
       this.ownerId = ownerId;
       this.title = title;
       this.description = description;
       this.permToken = permToken;
-      this.isDisabled = isDisabled;
+      this.isDisabled = Boolean.TRUE.equals(isDisabled);
    }
 
    public String getDescription() {
