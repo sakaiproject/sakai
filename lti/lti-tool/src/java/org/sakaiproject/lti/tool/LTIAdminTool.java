@@ -663,7 +663,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.id.not.found"));
 			return "lti_error";
 		}
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 		LtiToolBean toolBean = ltiService.getToolAsBean(key, getSiteId(state));
 		if (toolBean == null) {
 			return "lti_error";
@@ -714,7 +714,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.id.not.found"));
 			return "lti_error";
 		}
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 		LtiToolBean toolBean = ltiService.getToolAsBean(key, getSiteId(state));
 		if (toolBean == null) {
 			return "lti_error";
@@ -727,6 +727,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Hide sensitive fields in the Bean before form generation
 		toolBean.setSecret(LTIService.SECRET_HIDDEN);
 		toolBean.setConsumerkey(LTIService.SECRET_HIDDEN);
+
+		// Make sure this is ready to handle LTI 1.3 launches
+		minimalLTI13(toolBean);
 
 		String formOutput = ltiService.formOutput(toolBean, mappingForm);
 
@@ -803,6 +806,57 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		return retval;
 	}
 
+	// Bean version of minimalLTI13 - Make sure this is ready to handle LTI 1.3 launches
+	private boolean minimalLTI13(org.sakaiproject.lti.beans.LtiToolBean toolBean) {
+		boolean retval = false;
+
+		Long tool_id = toolBean.id;
+		String site_id = toolBean.siteId;
+
+		String clientId = StringUtils.trimToNull(toolBean.lti13ClientId);
+		if (clientId == null ) {
+			clientId = UUID.randomUUID().toString();
+			toolBean.lti13ClientId = clientId;
+			retval = true;
+		}
+
+		String keyset = StringUtils.trimToNull(toolBean.lti13LmsKeyset);
+		if (keyset == null ) {
+			keyset = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/keyset";
+			toolBean.lti13LmsKeyset = keyset;
+			retval = true;
+		}
+
+		String endpoint = StringUtils.trimToNull(toolBean.lti13LmsEndpoint);
+		if (endpoint == null ) {
+			endpoint = SakaiLTIUtil.getOurServerUrl() + "/imsoidc/lti13/oidc_auth";
+			toolBean.lti13LmsEndpoint = endpoint;
+			retval = true;
+		}
+
+		String tokenurl = StringUtils.trimToNull(toolBean.lti13LmsToken);
+		if (tokenurl == null && tool_id != null ) {
+			tokenurl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/token/" + tool_id;
+			toolBean.lti13LmsToken = tokenurl;
+		}
+
+		String deployment_id = StringUtils.trimToNull(toolBean.lti13LmsDeploymentId);
+		if ( deployment_id == null ) {
+			deployment_id = SakaiLTIUtil.getDeploymentId(site_id);
+			toolBean.lti13LmsDeploymentId = deployment_id;
+			retval = true;
+		}
+
+		String issuer = StringUtils.trimToNull(toolBean.lti13LmsIssuer);
+		if ( issuer == null ) {
+			issuer = SakaiLTIUtil.getIssuer(site_id);
+			toolBean.lti13LmsIssuer = issuer;
+			retval = true;
+		}
+
+		return retval;
+	}
+
 	// Make a tool with a title and sent to tool_insert (update) to dynamic register
 	public void doAutoInsert(RunData data, Context context)
 	{
@@ -838,7 +892,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
-		Long key = new Long(retval.toString());
+		Long key = Long.valueOf(retval.toString());
 
 		String newPanel = "ToolEdit&autoStart=true&id=" + key;
 		switchPanel(state, newPanel);
@@ -861,7 +915,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.id.not.found"));
 			return "lti_error";
 		}
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 		LtiToolBean toolBean = ltiService.getToolAsBean(key, getSiteId(state));
 		if (toolBean == null) {
 			return "lti_error";
@@ -890,30 +944,30 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return;
 		}
 
-		Map<String, Object> tool = ltiService.getTool(toolKey, getSiteId(state));
-		if (tool == null) {
+		LtiToolBean toolBean = ltiService.getToolAsBean(toolKey, getSiteId(state));
+		if (toolBean == null) {
 			addAlert(state, rb.getString("error.tool.not.found"));
 			switchPanel(state, "Error");
 			return;
 		}
 
 		// Make sure this is ready to handle LTI 1.3 launches
-		boolean changed = minimalLTI13(tool);
+		boolean changed = minimalLTI13(toolBean);
 
 		// Construct and time-stamp the one-time registration token and store it
 		String registration_token = LTI13Util.timeStamp(UUID.randomUUID().toString());
-		tool.put(LTIService.LTI13_AUTO_TOKEN, registration_token);
+		toolBean.lti13AutoToken = registration_token;
 
 		// Update the tool
-		Object retval = ltiService.updateTool(toolKey, tool, getSiteId(state));
+		Object retval = ltiService.updateTool(toolKey, toolBean, getSiteId(state));
 		if (retval instanceof String) {
 			addAlert(state, (String) retval);
 			switchPanel(state, "Error");
 			return;
 		}
 
-		String site_id = (String) tool.get(LTIService.LTI_SITE_ID);
-		String clientId = (String) tool.get(LTIService.LTI13_CLIENT_ID);
+		String site_id = toolBean.siteId;
+		String clientId = toolBean.lti13ClientId;
 		String issuerURL = SakaiLTIUtil.getIssuer(site_id);
 		String deploymentId = SakaiLTIUtil.getDeploymentId(site_id);
 
@@ -951,7 +1005,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.id.not.found"));
 			return "lti_error";
 		}
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 
 		// Retrieve the tool using a WHERE clause so the counts get computed
 		List<LtiToolBean> toolBeans = ltiService.getToolsAsBeans("lti_tools.id = " + key, null, 0, 0, getSiteId(state));
@@ -993,7 +1047,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			switchPanel(state, "ToolSystem");
 			return;
 		}
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 
 		// Delete the tool and all dependencies
 		List<String> errors = ltiService.deleteToolAndDependencies(key, getSiteId(state));
@@ -1366,7 +1420,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			addAlert(state, rb.getString("error.id.not.found"));
 			return "lti_main";
 		}
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 
 		// Retrieve the tool using a WHERE clause so the counts get computed
 		List<LtiToolBean> toolBeans = ltiService.getToolsAsBeans("lti_tools.id = " + key, null, 0, 0, getSiteId(state));
@@ -1415,8 +1469,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			switchPanel(state, "ToolSystem");
 			return;
 		}
-		Long key = new Long(id);
-		Long new_key = new Long(new_tool_id);
+		Long key = Long.valueOf(id);
+		Long new_key = Long.valueOf(new_tool_id);
 
 		Object retval = ltiService.transferToolContentLinks(key, new_key, getSiteId(state));
 		if ( retval instanceof String ) {
@@ -1534,27 +1588,27 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 		context.put("toolId", id);
 
-		Map<String, Object> tool = ltiService.getTool(Long.valueOf(id), getSiteId(state));
-		if (tool == null) {
+		LtiToolBean toolBean = ltiService.getToolAsBean(Long.valueOf(id), getSiteId(state));
+		if (toolBean == null) {
 			addAlert(state, rb.getString("error.tool.not.found"));
 			return "lti_error";
 		}
 
 		// Hide the old tool secret unless it is incomplete
-		if (!LTIService.LTI_SECRET_INCOMPLETE.equals(tool.get(LTIService.LTI_SECRET))) {
-			tool.put(LTIService.LTI_SECRET, LTIService.SECRET_HIDDEN);
+		if (!LTIService.LTI_SECRET_INCOMPLETE.equals(toolBean.secret)) {
+			toolBean.secret = LTIService.SECRET_HIDDEN;
 		}
 
 		// Set this up in case it becomes LTI 1.3
-		minimalLTI13(tool);
+		minimalLTI13(toolBean);
 
-		String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
+		String siteId = toolBean.siteId;
 		context.put("issuerURL", SakaiLTIUtil.getIssuer(siteId));
 
 		// If siteId is not blank, there is no option for visibility since the tool is always be visible in the site; otherwise, the tool can be visible or stealth
 		String excludePattern = StringUtils.isNotEmpty(siteId) ? "^visible:.*" : "^SITE_ID:.*";
 		String[] mappingForm = foorm.filterForm(ltiService.getToolModel(getSiteId(state)), null, excludePattern);
-		String formInput = ltiService.formInput(tool, mappingForm);
+		String formInput = ltiService.formInput(toolBean, mappingForm);
 		context.put("formInput", formInput);
 
 		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
@@ -1563,17 +1617,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		Placement placement = toolManager.getCurrentPlacement();
 		String autoStartUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
 				+ "?panel=AutoStart"
-				+ "&id=" + tool.get(LTIService.LTI_ID);
+				+ "&id=" + toolBean.id;
 		context.put("autoStartUrl", autoStartUrl);
 
-		String autoRegistrationUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/get_registration?key="+tool.get(LTIService.LTI_ID);
+		String autoRegistrationUrl = SakaiLTIUtil.getOurServerUrl() + "/imsblis/lti13/get_registration?key="+toolBean.id;
 		context.put("autoRegistrationUrl", autoRegistrationUrl);
 
 		// Tool Deployment
 		context.put("canDeploy", ltiService.isAdmin(getSiteId(state)) && StringUtils.isEmpty(siteId));
 		String deployUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId()
 				+ "?panel=ToolSiteDeploy"
-				+ "&tool_id=" + tool.get(LTIService.LTI_ID);
+				+ "&tool_id=" + toolBean.id;
 		context.put("deployUrl", deployUrl);
 
 		context.put("doToolAction", BUTTON + "doToolEdit");
@@ -1765,7 +1819,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		Long key = null;
 		if (toolId != null) {
 			try {
-				key = new Long(toolId);
+				key = Long.valueOf(toolId);
 			} catch (NumberFormatException e) {
 				//Reset toolId and key
 				key = null;
@@ -1795,7 +1849,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			// Edit
 		} else {
 			context.put("oldContentId", contentId);
-			Long contentKey = new Long(contentId);
+			Long contentKey = Long.valueOf(contentId);
 			Map<String, Object> content = ltiService.getContent(contentKey, getSiteId(state));
 			if (content == null) {
 				addAlert(state, rb.getString("error.content.not.found"));
@@ -1919,7 +1973,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		} else {
 			// the return value is the content key Long value
 			id = ((Long) retval).toString();
-			contentKey = new Long(id);
+			contentKey = Long.valueOf(id);
 			content = ltiService.getContent(contentKey, getSiteId(state));
 			if (content == null) {
 				addAlert(state, rb.getString("error.content.not.found"));
@@ -1960,7 +2014,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 
 			SakaiLineItem sakaiLineItem = (SakaiLineItem) state.getAttribute(STATE_LINE_ITEM);
 			state.removeAttribute(STATE_LINE_ITEM);
-			Long toolKey = new Long(toolId);
+			Long toolKey = Long.valueOf(toolId);
 			handleLineItem(state, sakaiLineItem, toolKey, content);
 
 			//Append the LTI item description to the URL so Lessons can use it.
@@ -3500,7 +3554,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			addAlert(state, rb.getString("error.id.not.found"));
 			return "lti_tool_system";
 		}
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 		Map<String, Object> content = ltiService.getContent(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
@@ -3508,7 +3562,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		}
 		Long tool_id_long = null;
 		try {
-			tool_id_long = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
+			tool_id_long = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
 		} catch (Exception e) {
 			// log the error
 			log.error("error parsing tool id {}", content.get(LTIService.LTI_TOOL_ID));
@@ -3539,7 +3593,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			switchPanel(state, "ToolSite");
 			return;
 		}
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 		// also remove the link
 		if (ltiService.deleteContent(key, getSiteId(state))) {
 			state.setAttribute(STATE_SUCCESS, rb.getString("success.deleted"));
@@ -3568,7 +3622,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			addAlert(state, rb.getString("error.id.not.found"));
 			return "lti_tool_system";
 		}
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 		Map<String, Object> content = ltiService.getContent(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
@@ -3621,7 +3675,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			addAlert(state, rb.getString("error.id.not.found"));
 			return "lti_error";
 		}
-		Long key = new Long(id);
+		Long key = Long.valueOf(id);
 		Map<String, Object> content = ltiService.getContent(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
@@ -3637,7 +3691,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		String id = data.getParameters().getString(LTIService.LTI_ID);
-		Long key = id == null ? null : new Long(id);
+		Long key = id == null ? null : Long.valueOf(id);
 
 		String rv = ltiService.deleteContentLink(key, getSiteId(state));
 		if (rv != null) {
