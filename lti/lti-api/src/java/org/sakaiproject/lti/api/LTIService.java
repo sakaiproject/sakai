@@ -1115,4 +1115,77 @@ public interface LTIService extends LTISubstitutionsFilter {
         Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
         return formOutput(toolSiteMap, formDefinition);
     }
+
+    // ------------------------------------------------------------------------------------
+    // BEAN FORM INPUT METHODS
+    // ------------------------------------------------------------------------------------
+    // These methods provide Bean-aware alternatives to the formInput methods.
+    // They take Bean objects as parameters and automatically convert them to Maps
+    // using asMap() before calling the underlying formInput methods.
+
+    /**
+     * Generate form input for a tool Bean
+     * @param toolBean The tool data as Bean
+     * @param fieldinfo The field information
+     * @return The formatted input
+     */
+    default String formInput(org.sakaiproject.lti.beans.LtiToolBean toolBean, String fieldinfo) {
+        Map<String, Object> toolMap = (toolBean != null) ? toolBean.asMap() : null;
+        return formInput(toolMap, fieldinfo);
+    }
+
+    /**
+     * Generate form input for a tool Bean
+     * @param toolBean The tool data as Bean
+     * @param formDefinition The form definition array
+     * @return The formatted input
+     */
+    default String formInput(org.sakaiproject.lti.beans.LtiToolBean toolBean, String[] formDefinition) {
+        Map<String, Object> toolMap = (toolBean != null) ? toolBean.asMap() : null;
+        return formInput(toolMap, formDefinition);
+    }
+
+    /**
+     * Generate form input for a content Bean
+     * @param contentBean The content data as Bean
+     * @param fieldinfo The field information
+     * @return The formatted input
+     */
+    default String formInput(org.sakaiproject.lti.beans.LtiContentBean contentBean, String fieldinfo) {
+        Map<String, Object> contentMap = (contentBean != null) ? contentBean.asMap() : null;
+        return formInput(contentMap, fieldinfo);
+    }
+
+    /**
+     * Generate form input for a content Bean
+     * @param contentBean The content data as Bean
+     * @param formDefinition The form definition array
+     * @return The formatted input
+     */
+    default String formInput(org.sakaiproject.lti.beans.LtiContentBean contentBean, String[] formDefinition) {
+        Map<String, Object> contentMap = (contentBean != null) ? contentBean.asMap() : null;
+        return formInput(contentMap, formDefinition);
+    }
+
+    /**
+     * Generate form input for a tool site Bean
+     * @param toolSiteBean The tool site data as Bean
+     * @param fieldinfo The field information
+     * @return The formatted input
+     */
+    default String formInput(org.sakaiproject.lti.beans.LtiToolSiteBean toolSiteBean, String fieldinfo) {
+        Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
+        return formInput(toolSiteMap, fieldinfo);
+    }
+
+    /**
+     * Generate form input for a tool site Bean
+     * @param toolSiteBean The tool site data as Bean
+     * @param formDefinition The form definition array
+     * @return The formatted input
+     */
+    default String formInput(org.sakaiproject.lti.beans.LtiToolSiteBean toolSiteBean, String[] formDefinition) {
+        Map<String, Object> toolSiteMap = (toolSiteBean != null) ? toolSiteBean.asMap() : null;
+        return formInput(toolSiteMap, formDefinition);
+    }
 }

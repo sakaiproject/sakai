@@ -438,7 +438,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String returnUrl = data.getParameters().getString("returnUrl");
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
-		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
+		context.put("isAdmin", Boolean.valueOf(ltiService.isAdmin(getSiteId(state))));
 		context.put("allowMaintainerAddToolSite", serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_TOOL_SITE, true));
 		context.put("getContext", toolManager.getCurrentPlacement().getContext());
 		context.put("doEndHelper", BUTTON + "doEndHelper");
@@ -497,8 +497,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			Map<String, String> siteURLMap = new HashMap<String, String>(); //cache for site URL
 			contentBeans = ltiService.getContentsAsBeans(search, order, index, lastIndex, getSiteId(state));
 			
-			// Add additional properties for template access
+			// Create maps for additional properties indexed by content ID
+			Map<Long, String> toolUrlMap = new HashMap<>();
+			Map<Long, String> siteUrlMap = new HashMap<>();
+			Map<Long, String> formattedDateMap = new HashMap<>();
+			
 			for (LtiContentBean contentBean : contentBeans) {
+				Long contentId = contentBean.getId();
+				
 				// Validate placement
 				String plstr = contentBean.getPlacement();
 				ToolConfiguration tool = SiteService.findTool(plstr);
@@ -509,41 +515,44 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 					// but we're just validating here, not fixing invalid placements
 				}
 
-				//get site url based on site id
+				// Get site URL based on site ID
 				String siteId = contentBean.getSiteId();
 				try {
-					//look for it in the cache
+					// Look for it in the cache
 					String url = siteURLMap.get(siteId);
 					if (url == null) {
 						url = SiteService.getSite(siteId).getUrl();
 						siteURLMap.put(siteId, url);
 					}
-					// Note: We could add a setSiteUrl() method to LtiContentBean for cleaner access
-					// For now, we'll use additional context properties
-					context.put("content_" + contentBean.getId() + "_siteUrl", url);
+					siteUrlMap.put(contentId, url);
 				} catch (Exception e) {
-					log.error("error getting url for site {}", siteId);
+					log.error("Error getting URL for site: {}", siteId);
 				}
 
 				// Format the date for display
 				Object created_at = contentBean.getCreatedAt();
 				String formattedDate = null;
-				if ( created_at instanceof Date ) {
+				if (created_at instanceof Date) {
 					formattedDate = userTimeService.dateTimeFormat(((Date) created_at), rb.getLocale(), java.text.DateFormat.MEDIUM);
-				} else if ( created_at instanceof LocalDateTime) {
+				} else if (created_at instanceof LocalDateTime) {
 					LocalDateTime ldt = (LocalDateTime) created_at;
-					// Foorm stores these as UTC
+					// Form stores these as UTC
 					Instant ldtInstant = ldt.toInstant(ZoneOffset.UTC);
 					formattedDate = userTimeService.dateTimeFormat(ldtInstant, FormatStyle.MEDIUM, FormatStyle.SHORT);
 				} else {
 					formattedDate = created_at.toString();
 				}
-				context.put("content_" + contentBean.getId() + "_createdAt", formattedDate);
+				formattedDateMap.put(contentId, formattedDate);
 
-				//get LTI url based on site id and tool id
+				// Get LTI URL based on site ID and tool ID
 				String toolUrl = LTIService.LAUNCH_PREFIX + siteId + "/content:" + contentBean.getId();
-				context.put("content_" + contentBean.getId() + "_toolUrl", toolUrl);
+				toolUrlMap.put(contentId, toolUrl);
 			}
+			
+			// Add maps to context for template access
+			context.put("toolUrlMap", toolUrlMap);
+			context.put("siteUrlMap", siteUrlMap);
+			context.put("formattedDateMap", formattedDateMap);
 		}
 		
 		// Pass Beans directly to template - much more efficient!
@@ -587,7 +596,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		String returnUrl = data.getParameters().getString("returnUrl");
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
-		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
+		context.put("isAdmin", Boolean.valueOf(ltiService.isAdmin(getSiteId(state))));
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		if (ltiService.isAdmin(getSiteId(state))
 				&& serverConfigurationService.getString(SakaiLTIUtil.LTI_ENCRYPTION_KEY, null) == null) {
@@ -595,8 +604,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		}
 
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
-		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
-		context.put("allowMaintainerAddSystemTool", new Boolean(serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_SYSTEM_TOOL, true)));
+		context.put("isAdmin", Boolean.valueOf(ltiService.isAdmin(getSiteId(state))));
+		context.put("allowMaintainerAddSystemTool", Boolean.valueOf(serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_SYSTEM_TOOL, true)));
 		context.put("getContext", contextString);
 
 		state.removeAttribute(STATE_SUCCESS);
@@ -605,22 +614,29 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// this is for the system tool panel - using Beans directly for better performance and type safety
 		List<LtiToolBean> toolBeans = ltiService.getToolsAsBeans(null, null, 0, 0, getSiteId(state));
 		
-		// Add additional properties directly to Beans for template access
+		// Create map for additional tool properties indexed by tool ID
+		Map<Long, Map<String, Object>> toolPropsMap = new HashMap<>();
+		
 		for (LtiToolBean toolBean : toolBeans) {
-			String privacyUrl = LTIService.LAUNCH_PREFIX + getSiteId(state) + "/tool:" + toolBean.getId()+"?"+
+			Long toolId = toolBean.getId();
+			String privacyUrl = LTIService.LAUNCH_PREFIX + getSiteId(state) + "/tool:" + toolId + "?" +
 					SakaiLTIUtil.MESSAGE_TYPE_PARAMETER + "=" + SakaiLTIUtil.MESSAGE_TYPE_PARAMETER_PRIVACY;
-			// Note: We could add a setPrivacyUrl() method to LtiToolBean for cleaner access
-			// For now, we'll use a Map for additional properties
+			
+			// Create properties map for this tool
 			Map<String, Object> additionalProps = new HashMap<>();
 			additionalProps.put("privacy_url", privacyUrl);
-			context.put("tool_" + toolBean.getId() + "_props", additionalProps);
 			
 			// Add deployment count for system tools
 			if (StringUtils.isBlank(toolBean.getSiteId())) {
-				List<LtiToolSiteBean> toolSiteBeans = ltiService.getToolSitesByToolIdAsBeans(String.valueOf(toolBean.getId()), getSiteId(state));
+				List<LtiToolSiteBean> toolSiteBeans = ltiService.getToolSitesByToolIdAsBeans(String.valueOf(toolId), getSiteId(state));
 				additionalProps.put("lti_count_deployment", toolSiteBeans.size());
 			}
+			
+			toolPropsMap.put(toolId, additionalProps);
 		}
+		
+		// Add tool properties map to context
+		context.put("toolPropsMap", toolPropsMap);
 
 		// Pass Beans directly to template - much more efficient!
 		context.put("ltiTools", toolBeans);
@@ -1017,7 +1033,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		LtiToolBean toolBean = toolBeans.get(0);
 		String formOutput = ltiService.formOutput(toolBean, mappingForm);
 		context.put("formOutput", formOutput);
-		context.put("tool", toolBean.asMap()); // Keep Map for template compatibility
+		context.put("tool", toolBean);
 		context.put("tool_count", toolBean.getLtiContentCount());
 		context.put("tool_unique_site_count", toolBean.getLtiSiteCount());
 
@@ -1090,18 +1106,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		if (toolBean == null) {
 			return "lti_error";
 		}
-		context.put("tool", toolBean.asMap()); // Keep Map for template compatibility
+		context.put("tool", toolBean);
 
 		String[] mappingForm = foorm.filterForm(ltiService.getToolModel(getSiteId(state)), "^title:.*|^launch:.*", null);
 		String formOutput = ltiService.formOutput(toolBean, mappingForm);
 		context.put("formOutput", formOutput);
 
 		List<LtiToolSiteBean> ltiToolSiteBeans = ltiService.getToolSitesByToolIdAsBeans(tool_id, getSiteId(state));
-		List<Map<String, Object>> ltiToolSites = new ArrayList<>();
-		for (LtiToolSiteBean toolSiteBean : ltiToolSiteBeans) {
-			ltiToolSites.add(toolSiteBean.asMap());
-		}
-		context.put("ltiToolSites", ltiToolSites);
+		context.put("ltiToolSites", ltiToolSiteBeans);
 
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
@@ -1280,7 +1292,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		context.put("formOutput", formOutput);
 
 		String[] mappingFormInput = foorm.filterForm(ltiService.getToolSiteModel(getSiteId(state)), null, "^SITE_ID:.*");
-		String formInput = ltiService.formInput(toolSiteBean.asMap(), mappingFormInput);
+		String formInput = ltiService.formInput(toolSiteBean, mappingFormInput);
 		context.put("formInput", formInput);
 
 		context.put("isAdmin", ltiService.isAdmin(getSiteId(state)));
@@ -1351,7 +1363,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 			return "lti_error";
 		}
 
-		context.put("toolSite", toolSiteBean.asMap()); // Keep Map for template compatibility
+		context.put("toolSite", toolSiteBean);
 
 		String toolId = String.valueOf(toolSiteBean.getToolId());
 
@@ -1723,7 +1735,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction {
 		// Pass Beans directly to template - much more efficient and type-safe!
 		context.put("contents", contentBeans);
 		context.put("messageSuccess", state.getAttribute(STATE_SUCCESS));
-		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
+		context.put("isAdmin", Boolean.valueOf(ltiService.isAdmin(getSiteId(state))));
 		context.put("getContext", toolManager.getCurrentPlacement().getContext());
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_content";
@@ -1800,7 +1812,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			addAlert(state, rb.getString("error.maintain.edit"));
 			return "lti_error";
 		}
-		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
+		context.put("isAdmin", Boolean.valueOf(ltiService.isAdmin(getSiteId(state))));
 		context.put("doAction", BUTTON + "doContentPut");
 		state.removeAttribute(STATE_SUCCESS);
 
@@ -2672,7 +2684,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		log.debug("Forwarding to {}", forward);
 		state.setAttribute(STATE_CONTENT_ITEM, new_content);
 		state.setAttribute(STATE_CONTENT_ITEM_FAILURES, failures);
-		state.setAttribute(STATE_CONTENT_ITEM_SUCCESSES, new Integer(goodcount));
+		state.setAttribute(STATE_CONTENT_ITEM_SUCCESSES, Integer.valueOf(goodcount));
 
 		if (sakaiSession == null) {
 			switchPanel(state, forward);
@@ -3103,7 +3115,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		// SAK-47867 - If both are set, prefer DeepLink / Content Item
 		if ( allowLinkSelection > 0 ) allowLaunch = 0L;
 
-		context.put("isAdmin", new Boolean(ltiService.isAdmin(getSiteId(state))));
+		context.put("isAdmin", Boolean.valueOf(ltiService.isAdmin(getSiteId(state))));
 		context.put("doAction", BUTTON + "doContentPut");
 		// Assignment flow does not want a cancel button - just close the modal
 		if (!FLOW_PARAMETER_ASSIGNMENT.equals(flow) && !returnUrl.startsWith("about:blank")) {
@@ -3301,6 +3313,9 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		// If at this point, we are not down to a single tool - give the user the list to select from
 		// And then come back through this logic
 		if (tool == null) {
+			// TODO: Convert to Bean usage when working on Assignment and Lessons flows
+			// This requires adding Bean versions of getToolsAssessmentSelection(), getToolsContentEditor(), 
+			// and getToolsLessonsSelection() to LTIService, plus thorough testing of all flow paths
 			context.put("allTools", allTools);
 			context.put("returnUrl", Base64DoubleUrlEncodeSafe.encode(returnUrl));
 			context.put("flow", flow);
@@ -3494,7 +3509,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_content_redirect";
 		} else if ( flow.equals(FLOW_PARAMETER_EDITOR) ) {
 			context.put("new_content", new_content);
-			context.put("goodcount", new Integer(1));
+			context.put("goodcount", Integer.valueOf(1));
 			return "lti_editor_done";
 		} else {
 			log.warn("Unhandled flow type {}", flow);
@@ -3555,18 +3570,12 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_tool_system";
 		}
 		Long key = Long.valueOf(id);
-		Map<String, Object> content = ltiService.getContent(key, getSiteId(state));
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentBean(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
 			return "lti_tool_system";
 		}
-		Long tool_id_long = null;
-		try {
-			tool_id_long = Long.valueOf(content.get(LTIService.LTI_TOOL_ID).toString());
-		} catch (Exception e) {
-			// log the error
-			log.error("error parsing tool id {}", content.get(LTIService.LTI_TOOL_ID));
-		}
+		Long tool_id_long = content.toolId;
 		context.put("tool_id_long", tool_id_long);
 		context.put("content", content);
 		context.put("ltiService", ltiService);
@@ -3623,7 +3632,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_tool_system";
 		}
 		Long key = Long.valueOf(id);
-		Map<String, Object> content = ltiService.getContent(key, getSiteId(state));
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentBean(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
 			return "lti_tool_system";
@@ -3676,7 +3685,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_error";
 		}
 		Long key = Long.valueOf(id);
-		Map<String, Object> content = ltiService.getContent(key, getSiteId(state));
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentBean(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
 			return "lti_error";

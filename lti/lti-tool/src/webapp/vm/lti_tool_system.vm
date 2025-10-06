@@ -161,7 +161,7 @@ ${includeLatestJQuery}
 	                #if ($isAdmin) <td headers="use"><a href="$sakai_ActionURL.setPanel("ToolSite").setParameter("sakai_action","doFilter").setQueryString("id=$toolBean.id")">$toolBean.ltiContentCount</a></td> #end
 					#if ($isAdmin)
 						<td headers="tool_deployment">
-							#set($toolProps = $context.get("tool_${toolBean.id}_props"))
+							#set($toolProps = $toolPropsMap.get($toolBean.id))
 							#if ($toolProps && $toolProps.get("lti_count_deployment"))
 								<a href="$sakai_ActionURL.setPanel("ToolSiteDeploy")&tool_id=$toolBean.id">$!toolProps.get("lti_count_deployment")</a>
 							#end
@@ -184,7 +184,7 @@ ${includeLatestJQuery}
 									#set($lti13=$toolBean.lti13)
 
 									#if ( $lti13 == 1 && $privacy == 1 )
-										#set($toolProps = $context.get("tool_${toolBean.id}_props"))
+										#set($toolProps = $toolPropsMap.get($toolBean.id))
 										#if ($toolProps && $toolProps.get("privacy_url"))
 											<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$toolProps.get("privacy_url")" target="_blank">$tlang.getString("gen.privacy")</a></li>
 										#end

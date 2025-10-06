@@ -183,14 +183,14 @@ ${includeLatestJQuery}
 						#set($launch = $formattedText.escapeHtml($tool.get("launch")))
 					#end
 				#end
-				#set($toolUrl = $context.get("content_" + $contentBean.id + "_toolUrl"))
+				#set($toolUrl = $toolUrlMap.get($contentBean.id))
 				<a target="_blank" href="$toolUrl">$launch</a>
 			</td>
 			#if ($isAdmin) 
-				#set($siteUrl = $context.get("content_" + $contentBean.id + "_siteUrl"))
+				#set($siteUrl = $siteUrlMap.get($contentBean.id))
 				<td headers="site"><a target="_blank" href="$!siteUrl">$formattedText.escapeHtml($!contentBean.siteTitle)</a></td>
 			#end
-				#set($formattedDate = $context.get("content_" + $contentBean.id + "_createdAt"))
+				#set($formattedDate = $formattedDateMap.get($contentBean.id))
 				<td headers="created_at">$!formattedDate</td>
 			#if ($isAdmin)
 				<td headers="contactname"> $formattedText.escapeHtml($!contentBean.siteContactName)</td>
