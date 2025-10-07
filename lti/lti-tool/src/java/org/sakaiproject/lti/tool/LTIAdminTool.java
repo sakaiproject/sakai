@@ -3701,9 +3701,17 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		Long key = id == null ? null : Long.valueOf(id);
+        Long key = null;
+        try {
+            key = id == null ? null : Long.valueOf(id);
+        } catch (NumberFormatException nfe) {
+            addAlert(state, rb.getString("error.id.not.found"));
+            switchPanel(state, "Error");
+            return;
+        }
 
-		String rv = ltiService.deleteContentLink(key, getSiteId(state));
-		if (rv != null) {
+        String rv = ltiService.deleteContentLink(key, getSiteId(state));
+        if (rv != null) {
 			// there is error removing the external tool site link
 			addAlert(state, rv);
 			switchPanel(state, "Error");
