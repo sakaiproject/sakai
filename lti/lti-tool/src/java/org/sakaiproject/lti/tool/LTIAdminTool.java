@@ -32,7 +32,7 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.Date;
 import java.util.stream.Collectors;
-import java.util.Collections;
+import java.util.Comparator;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -41,8 +41,6 @@ import java.time.format.FormatStyle;
 import java.net.URLEncoder;
 
 import java.text.MessageFormat;
-
-import java.security.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -90,7 +88,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
-// import org.sakaiproject.lti.impl.DBLTIService; // HACK
 import org.sakaiproject.util.foorm.SakaiFoorm;
 import org.sakaiproject.time.api.UserTimeService;
 
@@ -1797,7 +1794,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			systemToolBeans.add(toolBean);
 		}
 	}
-	systemToolBeans = systemToolBeans.stream().sorted((t1, t2) -> t1.getTitle().compareTo(t2.getTitle())).collect(Collectors.toList());
+	systemToolBeans = systemToolBeans.stream().sorted(Comparator.comparing(t -> String.valueOf(t.getTitle()))).collect(Collectors.toList());
 	return systemToolBeans;
 
 }
