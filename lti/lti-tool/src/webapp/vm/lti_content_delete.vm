@@ -6,21 +6,18 @@
 	#if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $formattedText.escapeHtml($alertMessage)</div>#end
 	<div class="sak-banner-warn">$tlang.getString("content.delete.sure")</div>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
-                <p>$content.title</p>
+                <p>$formattedText.escapeHtml($content.title)</p>
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
                 <input type="hidden" name="id" value="$content.id" />
         <p class="shorttext">
         	$tlang.getString("bl_site"): $content.siteId
         </p>
         <p class="shorttext">
-        	$tlang.getString("bl_title"): $content.title
-        </p>
-        <p class="shorttext">
         	$tlang.getString("bl_launch"):
         	#set($tool=false)
 			#set($tool=$ltiService.getToolBean($tool_id_long, $content.siteId))
 			#if ($!tool)
-				$tool.launch
+				$formattedText.escapeHtml($tool.launch)
 			#end
         </p>
 		<p class="act">

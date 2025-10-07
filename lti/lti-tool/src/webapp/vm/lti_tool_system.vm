@@ -149,9 +149,9 @@ ${includeLatestJQuery}
             #foreach($toolBean in $ltiTools)
             	
 				<tr>
-	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$toolBean.id">$formattedText.escapeHtml($toolBean.title)</td>
+	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$toolBean.id">$formattedText.escapeHtml($toolBean.title)</a></td>
 	                <td headers="launch">
-						$!toolBean.launch
+						$formattedText.escapeHtml($!toolBean.launch)
 	                </td>
 	                <td headers="site_id">
 	                	#set($siteId="<span style='display:none;'>zzzz</span>")
@@ -186,7 +186,7 @@ ${includeLatestJQuery}
 									#if ( $lti13 == 1 && $privacy == 1 )
 										#set($toolProps = $toolPropsMap.get($toolBean.id))
 										#if ($toolProps && $toolProps.get("privacy_url"))
-											<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$toolProps.get("privacy_url")" target="_blank">$tlang.getString("gen.privacy")</a></li>
+											<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$formattedText.escapeUrl($toolProps.get("privacy_url"))" target="_blank">$tlang.getString("gen.privacy")</a></li>
 										#end
 									#end
                                 </ul>
