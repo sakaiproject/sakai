@@ -87,8 +87,6 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
 	private static final int MAX_PASSWORD_RESET_MINUTES_DEFAULT = 60;
 
-	private static ResourceLoader rl = new ResourceLoader();
-
 	@Setter private IdManager idManager;
 	@Setter private ValidationAccountRepository repository;
 	@Setter private EmailTemplateService emailTemplateService;
@@ -99,8 +97,13 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private SecurityService securityService;
 	@Setter private GroupProvider groupProvider;
+	@Setter private ResourceLoader resourceLoader;
 
-	public void init() {
+    public AccountValidationServiceImpl() {
+        this.resourceLoader = new ResourceLoader();
+    }
+
+    public void init() {
 		log.info("init()");
 
 		// Need to populate the templates
@@ -257,7 +260,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 	private String getFormattedExpirationMinutes() {
 		int expirationMinutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
 		Period period = new Period(expirationMinutes * 60 * 1000);
-		PeriodFormatter periodFormatter = PeriodFormat.wordBased(rl.getLocale());
+		PeriodFormatter periodFormatter = PeriodFormat.wordBased(resourceLoader.getLocale());
 		return periodFormatter.print(period);
 	}
 
