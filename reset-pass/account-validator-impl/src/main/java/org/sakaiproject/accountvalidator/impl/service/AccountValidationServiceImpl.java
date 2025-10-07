@@ -65,12 +65,14 @@ import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementation of AccountValidationService using Spring's repository pattern.
  * This service handles all business logic for account validation operations.
  */
 @Slf4j
+@Transactional
 public class AccountValidationServiceImpl implements AccountValidationService {
 
 	private static final String TEMPLATE_KEY_EXISTINGUSER = "validate.existinguser";

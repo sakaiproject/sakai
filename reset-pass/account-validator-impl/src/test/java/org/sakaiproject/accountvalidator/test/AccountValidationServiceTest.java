@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.AopTestUtils;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -40,7 +42,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     private final String userThree = "user3";
 
     @Autowired
-    private AccountValidationServiceImpl accountValidationService;
+    private AccountValidationService accountValidationService;
 
     @Before
     public void setup() throws UserNotDefinedException {
@@ -49,7 +51,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
 
         ResourceLoader rl = Mockito.mock(ResourceLoader.class);
         Mockito.when(rl.getLocale()).thenReturn(new java.util.Locale("en", "US"));
-        accountValidationService.setResourceLoader(rl);
+        ((AccountValidationServiceImpl) AopTestUtils.getTargetObject(accountValidationService)).setResourceLoader(rl);
 
         // Setup server configuration mocks
         Mockito.when(serverConfigurationService.getServerUrl()).thenReturn("http://localhost:8080");
