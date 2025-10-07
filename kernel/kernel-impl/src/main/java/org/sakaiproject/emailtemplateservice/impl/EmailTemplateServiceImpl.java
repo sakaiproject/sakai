@@ -37,6 +37,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.xml.stream.XMLInputFactory;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.LocaleUtils;
@@ -99,6 +101,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     public EmailTemplateServiceImpl() {
         xmlMapper = new XmlMapper();
+        XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+        xmlMapper.getFactory().setXMLInputFactory(xmlInputFactory);
         xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         xmlMapper.configure(FromXmlParser.Feature.EMPTY_ELEMENT_AS_NULL, true);
     }
