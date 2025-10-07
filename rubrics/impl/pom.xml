@@ -52,6 +52,21 @@
             <artifactId>sakai-assignment-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.calendar</groupId>
+            <artifactId>sakai-calendar-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.announcement</groupId>
+            <artifactId>sakai-announcement-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.message</groupId>
+            <artifactId>sakai-message-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
