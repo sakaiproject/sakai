@@ -59,6 +59,17 @@ public class SyllabusFilePickerServlet extends JsfTool
 		// build up the target that will be dispatched to
 		String target = req.getPathInfo();
 
+		// Forward search parameters to the main page
+		String itemId = req.getParameter("itemId");
+		String action = req.getParameter("action");
+		if (itemId != null && "read_item".equals(action)) {
+			if (target == null || "/".equals(target)) {
+				target = "/main.jsf?itemId=" + itemId;
+				res.sendRedirect(req.getContextPath() + req.getServletPath() + target);
+				return;
+			}
+		}
+
 		// see if we have a helper request
     if (sendToHelper(req, res, target)) {
        return;

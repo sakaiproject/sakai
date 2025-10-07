@@ -197,7 +197,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
                         name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-override-${c.id}"
                         class="fine-tune-points form-control hide-input-arrows"
                         @input=${this.fineTuneRating}
-                        .value="${c.pointoverride && typeof c.pointoverride === "number" ? c.pointoverride.toLocaleString(this.locale) : c.pointoverride}"
+                        .value="${(c.pointoverride !== "" && c.pointoverride !== null && c.pointoverride !== undefined && typeof c.pointoverride === "number") ? c.pointoverride.toLocaleString(this.locale) : c.pointoverride}"
                     >
                   ` : nothing }
                   <input aria-labelledby="${this.tr("points")}" type="hidden" id="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" name="rbcs-${this.evaluatedItemId}-${this.entityId}-criterion-${c.id}" .value="${c.selectedvalue}">
@@ -288,7 +288,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
               // Apply weight if rubric is weighted
               const points = this.calculateCriterionScore(c, ratingItem);
               c.selectedvalue = points;
-              c.pointoverride = points;
+              // Don't set pointoverride here - it should remain empty string to indicate no override
             } else {
               c.pointoverride = ed.points;
               c.selectedvalue = ed.points;
@@ -342,7 +342,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
       return {
         criterionId: c.id,
-        points: c.pointoverride ? parseFloat(c.pointoverride) : c.selectedvalue,
+        points: (c.pointoverride !== "" && c.pointoverride !== null && c.pointoverride !== undefined) ? parseFloat(c.pointoverride) : c.selectedvalue,
         comments: c.comments,
         pointsAdjusted: c.pointoverride !== c.selectedvalue,
         selectedRatingId: c.selectedRatingId
@@ -449,10 +449,11 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     } else {
       criterion.ratings.forEach(r => r.selected = false);
       const auxPoints = this._rubric.weighted ?
-        (rating.points * (criterion.weight / 100)).toFixed(2) : rating.points;
+        parseFloat((rating.points * (criterion.weight / 100)).toFixed(2)) : rating.points;
       criterion.selectedvalue = auxPoints;
       criterion.selectedRatingId = rating.id;
-      criterion.pointoverride = auxPoints;
+      // Reset pointoverride to the rating value when clicking a rating
+      criterion.pointoverride = "";
       rating.selected = true;
     }
 
@@ -474,7 +475,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
     const points = this._criteria.reduce((a, c) => {
 
-      if (c.pointoverride) {
+      if (c.pointoverride !== "" && c.pointoverride !== null && c.pointoverride !== undefined) {
         return a + parseFloat(c.pointoverride);
       } else if (c.selectedvalue) {
         return a + parseFloat(c.selectedvalue);
@@ -590,7 +591,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   calculateCriterionScore(criterion, rating) {
     return this._rubric.weighted && criterion.weight ?
-      rating.points * (criterion.weight / 100).toFixed(2) :
+      parseFloat((rating.points * (criterion.weight / 100)).toFixed(2)) :
       rating.points;
   }
 }

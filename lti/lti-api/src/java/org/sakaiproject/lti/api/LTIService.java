@@ -84,10 +84,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "placement:text:hidden=true:maxlength=256",
             "placementsecret:text:hidden=true:maxlength=512",
             "oldplacementsecret:text:hidden=true:maxlength=512",
-            // LTI 1.3 support
-            // 0=inherit, 1=LTI 1.1, 2=LTI 1.3
-            "lti13:radio:hide=insert:label=bl_lti13:choices=inherit,off,on:role=admin",
-            "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
+            // LTI 1.3 support removed from content model
             "created_at:autodate",
             "updated_at:autodate"};
     String[] CONTENT_EXTRA_FIELDS = {
@@ -165,8 +162,6 @@ public interface LTIService extends LTISubstitutionsFilter {
 
             "secret:text:label=bl_secret:maxlength=1024",
 
-            "lti13_settings:textarea:hidden=true:maxlength=1M:role=admin",
-
             "xmlimport:textarea:hidden=true:maxlength=1M",
             "lti13_auto_token:text:hidden=true:maxlength=1024",
             "lti13_auto_state:integer:hidden=true",
@@ -229,6 +224,10 @@ public interface LTIService extends LTISubstitutionsFilter {
     int LTI_TOOL_NEWPAGE_CONTENT = 2;
     String LTI_PROTECT = "protect";
     String LTI_DEBUG = "debug";
+    // choices=off,on,content
+    int LTI_TOOL_DEBUG_OFF = 0;
+    int LTI_TOOL_DEBUG_ON = 1;
+    int LTI_TOOL_DEBUG_CONTENT = 2;
     String LTI_CUSTOM = "custom";
     String LTI_ROLEMAP = "rolemap";
     String LTI_SPLASH = "splash";
@@ -373,16 +372,36 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     Map<String, Object> getTool(Long key, String siteId);
 
+    org.sakaiproject.lti.beans.LtiToolBean getToolBean(Long key, String siteId);
+
     Map<String, Object> getToolDao(Long key, String siteId);
 
     Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole);
 
+    /**
+     * Get a tool as a POJO, bypassing security checks (DAO method).
+     * 
+     * @param key The tool key
+     * @param siteId The site ID
+     * @param isAdminRole Whether to bypass security checks
+     * @return LtiToolBean instance or null if not found
+     */
+    org.sakaiproject.lti.beans.LtiToolBean getToolDaoAsPojo(Long key, String siteId, boolean isAdminRole);
 
     Object updateTool(Long key, Properties newProps, String siteId);
 
     Object updateTool(Long key, Map<String, Object> newProps, String siteId);
 
     Object updateToolDao(Long key, Map<String, Object> newProps, String siteId);
+
+    /**
+     * Update a tool with a tool bean
+     * @param key the tool key
+     * @param tool the tool bean
+     * @param siteId the site id
+     * @return the result
+     */
+    Object updateToolDao(Long key, org.sakaiproject.lti.beans.LtiToolBean tool, String siteId);
 
     Object updateToolDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
@@ -403,9 +422,15 @@ public interface LTIService extends LTISubstitutionsFilter {
     // Tool Retrieval
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId);
 
+    List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId);
+
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed);
 
+    List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed);
+
     List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable);
+
+    List<org.sakaiproject.lti.beans.LtiToolBean> getToolBeans(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable);
 
     /**
      * Gets a list of the launchable tools in the site
@@ -444,6 +469,8 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param siteId
      */
     List<Map<String, Object>> getToolsImportItem(String siteId);
+
+    List<org.sakaiproject.lti.beans.LtiToolBean> getToolsImportItemBeans(String siteId);
 
     /**
      * Get a list of tools that can return content for the editor
@@ -487,6 +514,8 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     Map<String, Object> getContent(Long key, String siteId);
 
+    org.sakaiproject.lti.beans.LtiContentBean getContentBean(Long key, String siteId);
+
     Map<String, Object> getContentDao(Long key);
 
     Map<String, Object> getContentDao(Long key, String siteId);
@@ -510,6 +539,8 @@ public interface LTIService extends LTISubstitutionsFilter {
     Object updateContentDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
     List<Map<String, Object>> getContents(String search, String order, int first, int last, String siteId);
+
+    List<org.sakaiproject.lti.beans.LtiContentBean> getContentBeans(String search, String order, int first, int last, String siteId);
 
     /**
      * This finds a set of LTI Contents objects.
@@ -660,4 +691,133 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @return The text with updated LTI launch URLs
      */
     String fixLtiLaunchUrls(String text, String toContext, MergeConfig mcx);
+
+    // POJO overload methods - return strongly typed objects instead of Map<String, Object>
+    
+    /**
+     * Get a single LTI tool as a POJO
+     * @param key The tool ID
+     * @param siteId The site ID
+     * @return LtiTool POJO or null if not found
+     */
+    org.sakaiproject.lti.beans.LtiToolBean getToolAsPojo(Long key, String siteId);
+
+    /**
+     * Get a list of LTI tools as POJOs
+     * @param search Search criteria
+     * @param order Sort order
+     * @param first First result index
+     * @param last Last result index
+     * @param siteId The site ID
+     * @return List of LtiTool POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiToolBean> getToolsAsPojos(String search, String order, int first, int last, String siteId);
+
+    /**
+     * Get a list of LTI tools as POJOs with stealthed option
+     * @param search Search criteria
+     * @param order Sort order
+     * @param first First result index
+     * @param last Last result index
+     * @param siteId The site ID
+     * @param includeStealthed Whether to include stealthed tools
+     * @return List of LtiTool POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiToolBean> getToolsAsPojos(String search, String order, int first, int last, String siteId, boolean includeStealthed);
+
+    /**
+     * Get a list of launchable LTI tools as POJOs
+     * @param siteId The site ID
+     * @return List of LtiTool POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiToolBean> getToolsLaunchAsPojos(String siteId);
+
+    /**
+     * Get a single LTI content item as a POJO
+     * @param key The content ID
+     * @param siteId The site ID
+     * @return LtiContent POJO or null if not found
+     */
+    org.sakaiproject.lti.beans.LtiContentBean getContentAsPojo(Long key, String siteId);
+
+    /**
+     * Get a list of LTI content items as POJOs
+     * @param search Search criteria
+     * @param order Sort order
+     * @param first First result index
+     * @param last Last result index
+     * @param siteId The site ID
+     * @return List of LtiContent POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiContentBean> getContentsAsPojos(String search, String order, int first, int last, String siteId);
+
+    /**
+     * Get a single LTI tool site as a POJO
+     * @param key The tool site ID
+     * @param siteId The site ID
+     * @return LtiToolSite POJO or null if not found
+     */
+    org.sakaiproject.lti.beans.LtiToolSiteBean getToolSiteAsPojo(Long key, String siteId);
+
+    /**
+     * Get a list of LTI tool sites as POJOs
+     * @param toolId The tool ID
+     * @param siteId The site ID
+     * @return List of LtiToolSite POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiToolSiteBean> getToolSitesByToolIdAsPojos(String toolId, String siteId);
+
+    /**
+     * Get a single LTI memberships job as a POJO
+     * @param siteId The site ID
+     * @return LtiMembershipsJob POJO or null if not found
+     */
+    org.sakaiproject.lti.beans.LtiMembershipsJobBean getMembershipsJobAsPojo(String siteId);
+
+    /**
+     * Get all LTI memberships jobs as POJOs
+     * @return List of LtiMembershipsJob POJOs
+     */
+    List<org.sakaiproject.lti.beans.LtiMembershipsJobBean> getMembershipsJobsAsPojos();
+
+    /**
+     * Insert a new LTI tool using POJO
+     * @param toolBean The tool data as POJO
+     * @param siteId The site ID
+     * @return The ID of the inserted tool
+     */
+    Object insertTool(org.sakaiproject.lti.beans.LtiToolBean toolBean, String siteId);
+
+    /**
+     * Insert a new LTI content using POJO
+     * @param contentBean The content data as POJO
+     * @param siteId The site ID
+     * @return The ID of the inserted content
+     */
+    Object insertContent(org.sakaiproject.lti.beans.LtiContentBean contentBean, String siteId);
+
+    /**
+     * Update an existing LTI tool using POJO
+     * @param key The tool ID
+     * @param toolBean The tool data as POJO
+     * @param siteId The site ID
+     * @return The result of the update operation
+     */
+    Object updateTool(Long key, org.sakaiproject.lti.beans.LtiToolBean toolBean, String siteId);
+
+    /**
+     * Update an existing LTI content using POJO
+     * @param key The content ID
+     * @param contentBean The content data as POJO
+     * @param siteId The site ID
+     * @return The result of the update operation
+     */
+    Object updateContent(Long key, org.sakaiproject.lti.beans.LtiContentBean contentBean, String siteId);
+
+    /**
+     * Get the launch URL for a content item using POJO
+     * @param contentBean The content data as POJO
+     * @return The launch URL
+     */
+    String getContentLaunch(org.sakaiproject.lti.beans.LtiContentBean contentBean);
 }
