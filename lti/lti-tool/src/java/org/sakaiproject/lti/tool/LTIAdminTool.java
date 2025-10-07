@@ -3700,7 +3700,6 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		String id = data.getParameters().getString(LTIService.LTI_ID);
-		Long key = id == null ? null : Long.valueOf(id);
         Long key = null;
         try {
             key = id == null ? null : Long.valueOf(id);
