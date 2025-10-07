@@ -3569,7 +3569,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         try {
-            CalendarEventEdit edit = calendar.getEditEvent(event.getId(), CalendarService.EVENT_ADD_CALENDAR);
+            CalendarEventEdit edit = calendar.getEditEvent(event.getId(), CalendarService.EVENT_MODIFY_CALENDAR);
             edit.setField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
             edit.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, AssignmentConstants.TOOL_ID);
             if (assignment.getOpenDate() != null) {
