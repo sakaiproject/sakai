@@ -4498,17 +4498,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             for (Assignment assignment : getAssignmentsForContext(toContext)) {
                 try {
                     String msgBody = assignment.getInstructions();
-                    String msgBodyMigrated = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), msgBody);
+                    String msgBodyMigrated = msgBody != null
+                            ? linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), msgBody)
+                            : null;
 
                     String peerBody = assignment.getPeerAssessmentInstructions();
-                    String peerBodyMigrated = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), peerBody);
+                    String peerBodyMigrated = peerBody != null
+                            ? linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), peerBody)
+                            : null;
 
                     try {
-                        if (!msgBody.equals(msgBodyMigrated)) {
+                        if (!Objects.equals(msgBody, msgBodyMigrated)) {
                             assignment.setInstructions(msgBodyMigrated);
                             updateAssignment(assignment);
                         }
-                        if (!peerBody.equals(peerBodyMigrated)) {
+                        if (!Objects.equals(peerBody, peerBodyMigrated)) {
                             assignment.setPeerAssessmentInstructions(peerBodyMigrated);
                             updateAssignment(assignment);
                         }
@@ -4556,11 +4560,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nAssignment.setTypeOfGrade(oAssignment.getTypeOfGrade());
                     nAssignment.setTypeOfSubmission(oAssignment.getTypeOfSubmission());
 
+                    final boolean publishRequested = transferOptions != null && transferOptions.contains(EntityTransferrer.PUBLISH_OPTION);
+
                     // User supplied publish option takes precedence, then property, then source.
                     if (oAssignment.getAllowPeerAssessment()) {
                         // Always set peer assessment assignments to draft on import as they need setup
                         nAssignment.setDraft(true);
-                    } else if (transferOptions != null && transferOptions.contains(EntityTransferrer.PUBLISH_OPTION)) {
+                    } else if (publishRequested) {
                         nAssignment.setDraft(false);
                     } else if (serverConfigurationService.getBoolean("import.importAsDraft", true)) {
                         nAssignment.setDraft(true);
@@ -4603,7 +4609,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         // group assignment
                         if (oAssignment.getTypeOfAccess() == GROUP) {
                             nAssignment.setTypeOfAccess(GROUP);
-                            nAssignment.setDraft(true); // for group assignments always set to draft
+                            if (!publishRequested) {
+                                nAssignment.setDraft(true); // keep drafts for group assignments unless user requested publish
+                            }
                             Site oSite = siteService.getSite(oAssignment.getContext());
                             Site nSite = siteService.getSite(nAssignment.getContext());
 
@@ -4677,7 +4685,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nProperties.remove(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
                     nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
 
-                    if (!nAssignment.getDraft()) {
+                    if (publishRequested && !nAssignment.getDraft()) {
                         if ((originalAddDueDate || StringUtils.isNotBlank(originalCalendarEventId)) && nAssignment.getDueDate() != null) {
                             recreateCalendarEventForImport(nAssignment);
                         }
