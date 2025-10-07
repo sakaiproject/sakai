@@ -4685,12 +4685,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nProperties.remove(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
                     nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
 
-                    if (publishRequested && !nAssignment.getDraft()) {
-                        if ((originalAddDueDate || StringUtils.isNotBlank(originalCalendarEventId)) && nAssignment.getDueDate() != null) {
-                            recreateCalendarEventForImport(nAssignment);
-                        }
-                        if ((Boolean.parseBoolean(originalAutoAnnounce) || StringUtils.isNotBlank(originalAnnouncementId)) && nAssignment.getOpenDate() != null) {
-                            recreateAnnouncementForImport(oAssignment, nAssignment, nProperties);
+                    if (publishRequested) {
+                        if (nAssignment.getDraft()) {
+                            log.debug("Skipping calendar/announcement recreation for assignment {} because it remains in draft after publish request", nAssignment.getId());
+                        } else {
+                            if ((originalAddDueDate || StringUtils.isNotBlank(originalCalendarEventId)) && nAssignment.getDueDate() != null) {
+                                recreateCalendarEventForImport(nAssignment);
+                            }
+                            if ((Boolean.parseBoolean(originalAutoAnnounce) || StringUtils.isNotBlank(originalAnnouncementId)) && nAssignment.getOpenDate() != null) {
+                                recreateAnnouncementForImport(oAssignment, nAssignment, nProperties);
+                            }
                         }
                     }
 
