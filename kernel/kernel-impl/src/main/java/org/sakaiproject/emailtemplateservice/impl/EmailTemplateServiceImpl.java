@@ -74,12 +74,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 import lombok.Setter;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 
 @Slf4j
 @Setter
@@ -102,10 +99,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
     public EmailTemplateServiceImpl() {
         xmlMapper = new XmlMapper();
-        xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         xmlMapper.configure(FromXmlParser.Feature.EMPTY_ELEMENT_AS_NULL, true);
-        xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
     }
 
     public EmailTemplate getEmailTemplateById(Long id) {
@@ -489,17 +484,6 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                 sakaiSession.setUserId(null);
                 log.info("Updated email template: " + template.getKey() + " with locale: " + template.getLocale());
             }
-        }
-    }
-
-    public String exportTemplateAsXml(String key, Locale locale) {
- 
-        EmailTemplate template = getEmailTemplate(key, locale);
-        try {
-            return xmlMapper.writeValueAsString(template);
-        } catch (JsonProcessingException e) {
-            log.warn("Error serializing template '{}' to XML", key, e);
-            return null;
         }
     }
 
