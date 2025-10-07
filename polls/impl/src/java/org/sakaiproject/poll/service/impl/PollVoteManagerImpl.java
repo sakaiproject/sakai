@@ -111,10 +111,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 
     public boolean userHasVoted(Long pollid, String userID) {
         List<Vote> votes = voteRepository.findByUserIdAndPollId(userID, pollid);
-        if (votes.size() > 0)
-            return true;
-        else
-            return false;
+        return !votes.isEmpty();
     }
 
 	public boolean userHasVoted(Long pollId) {
