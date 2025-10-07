@@ -286,7 +286,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
 
             try {
                 BlobStore store = getBlobStore();
-                String asciiID = Base64.encodeBase64String(id.getBytes("UTF8"));
+                String asciiID = Base64.encodeBase64String(id.getBytes(StandardCharsets.UTF_8));
 
                 Blob blob = store.blobBuilder(can.name)
                     .payload(payload)
