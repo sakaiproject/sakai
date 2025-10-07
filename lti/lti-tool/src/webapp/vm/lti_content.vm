@@ -21,12 +21,12 @@
 		</tr>
 		#foreach ($contentBean in $contents)
 		<tr>
-		<td headers="matchpattern">$contentBean.title</td>
+		<td headers="matchpattern">$formattedText.escapeHtml($contentBean.title)</td>
 		#if ($isAdmin) <td headers="site">$!contentBean.siteId</a></td> #end
 		<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$contentBean.id">$tlang.getString("gen.edit")</a> / 
 		<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$contentBean.id">$tlang.getString("gen.delete")</a>
 		#if ( $contentBean.launch )
-		/ <a href="$contentBean.launch" target="_new" "$tlang.getString("gen.test")>$tlang.getString("gen.test")</a>
+		/ <a href="$formattedText.escapeHtml($contentBean.launch)" target="_blank" "$tlang.getString("gen.test")>$tlang.getString("gen.test")</a>
 		#end
 		</td>
                 <td headers="page">
