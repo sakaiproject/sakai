@@ -1686,13 +1686,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
                 String cssSheet = pageElement.getAttribute("csssheet");
                 if (StringUtils.isNotEmpty(cssSheet)) {
                     String newCss = cssSheet.replace("/group/" + fromSiteId + "/", "/group/" + siteId + "/");
-                    if (newCss.equals(cssSheet)) {
-                        // Fallback for IDs stored with the "/content" prefix
-                        newCss = cssSheet.replace("/content/group/" + fromSiteId + "/", "/content/group/" + siteId + "/");
-                        if (newCss.startsWith("/content")) {
-                            newCss = newCss.substring("/content".length());
-                        }
-                    }
                     page.setCssSheet(newCss);
                 }
 
@@ -2200,13 +2193,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
                         String css = page.getCssSheet();
                         if (css == null || css.isEmpty()) continue;
 
-                        // Keys in transversalMap commonly use "/content/..." IDs. Our stored ID uses
-                        // ContentHostingService resource IDs (e.g., "/group/..."), so check both forms.
+                        // transversalMap keys use ContentHostingService resource IDs (e.g., "/group/...").
                         String keyGroup = css; // e.g., /group/SITEID/LB-CSS/custom.css
-                        String keyContent = css.startsWith("/content") ? css : "/content" + css; // /content/group/...
 
                         String mapped = transversalMap.get(keyGroup);
-                        if (mapped == null) mapped = transversalMap.get(keyContent);
                         if (mapped != null && !mapped.isEmpty()) {
                             // Ensure we store a CHS resource ID (strip leading "/content" if present)
                             String newId = mapped.startsWith("/content") ? mapped.substring("/content".length()) : mapped;
