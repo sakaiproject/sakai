@@ -110,7 +110,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         Assert.assertEquals("Status should be SENT", ValidationAccount.STATUS_SENT, account.getStatus());
         Assert.assertEquals("Validations sent count should be 1", Integer.valueOf(1), account.getValidationsSent());
         Assert.assertEquals("Account status should be EXISTING",
-                Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_EXISITING), account.getAccountStatus());
+                Integer.valueOf(ValidationAccount.ACCOUNT_STATUS_EXISTING), account.getAccountStatus());
     }
 
     @Test
@@ -232,8 +232,8 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         service.save(account);
 
         ValidationAccount retrieved = service.getVaLidationAcountById(account.getId());
-        Assert.assertEquals("Empty first name should be converted to space", " ", retrieved.getFirstName());
-        Assert.assertEquals("Empty surname should be converted to space", " ", retrieved.getSurname());
+        Assert.assertNull("Empty first name should be converted to null", retrieved.getFirstName());
+        Assert.assertNull("Empty surname should be converted to null", retrieved.getSurname());
     }
 
     @Test

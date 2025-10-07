@@ -33,14 +33,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
-import org.sakaiproject.accountvalidator.logic.ValidationException;
+import org.sakaiproject.accountvalidator.exception.ValidationException;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.repository.ValidationAccountRepository;
 import org.sakaiproject.accountvalidator.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzPermissionException;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -58,9 +56,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
@@ -131,71 +127,82 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 	}
 
 	@Override
-	public boolean isAccountValidated(String userId) {
-		// This is a basic rule need to account for validations expiring
-		log.debug("validating" + userId);
+    public boolean isAccountValidated(String userId) {
+        // This is a basic rule need to account for validations expiring
+        log.debug("validating {}", userId);
 
-		ValidationAccount va = this.getVaLidationAcountByUserId(userId);
-		Calendar cal = new GregorianCalendar();
-		cal.add(Calendar.MONTH, VALIDATION_PERIOD_MONTHS);
-		// A time validation time in the past
-		Date validationDeadline = cal.getTime();
-		if (va == null) {
-			log.debug("no account found!");
-			return false;
-		} else {
-			if (isTokenExpired(va)) {
-				return true;
-			} else if (va.getValidationReceived() == null && va.getValidationSent().after(validationDeadline)) {
-				log.debug("validation sent still awaiting reply");
-				return true;
-			} else if (va.getValidationReceived() == null && va.getValidationSent().before(validationDeadline)) {
-				log.debug("validation sent but no reply received");
-				// What should we do in this case?
-				return true;
-			}
-			log.debug("got an item of status " + va.getStatus());
-			if (ValidationAccount.STATUS_CONFIRMED.equals(va.getStatus())) {
-				log.info("account is validated");
-				return true;
-			}
-		}
+        ValidationAccount va = this.getVaLidationAcountByUserId(userId);
+        Calendar cal = new GregorianCalendar();
+        cal.add(Calendar.MONTH, VALIDATION_PERIOD_MONTHS);
+        // A time validation time in the past
+        Date validationDeadline = cal.getTime();
+        if (va == null) {
+            log.debug("no account found!");
+            return false;
+        } else {
+            if (isTokenExpired(va)) {
+                return false;
+            }
 
-		log.debug("no conditions met assuming account is not validated");
-		return false;
-	}
+            if (va.getValidationReceived() == null) {
+                if (va.getValidationSent().after(validationDeadline)) {
+                    log.debug("validation sent still awaiting reply");
+                    return false;
+                } else {
+                    log.debug("validation sent but no reply received");
+                    return false;
+                }
+            }
 
-	@Override
-	public boolean isTokenExpired(ValidationAccount va) {
-		if (va == null) {
-			throw new IllegalArgumentException("null ValidationAccount passed to isTokenExpired");
-		}
+            log.debug("got an item of status {}", va.getStatus());
+            if (ValidationAccount.STATUS_CONFIRMED.equals(va.getStatus())) {
+                log.info("account is validated");
+                return true;
+            }
+        }
 
-		// Expiry validation only applies to validation tokens coming from reset-pass
-		if (va.getAccountStatus() != null && va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET)) {
-			// Check if it's expired in relation to accountValidator.maxPasswordResetMinutes sakai property
-			int minutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
+        log.debug("no conditions met assuming account is not validated");
+        return false;
+    }
 
-			// Get the time limit and convert to millis
-			long maxMillis = minutes * 60 * 1000;
+    @Override
+    public boolean isTokenExpired(ValidationAccount va) {
+        if (va == null) {
+            throw new IllegalArgumentException("null ValidationAccount passed to isTokenExpired");
+        }
 
-			// The time when the validation was sent to the email server
-			long sentTime = va.getValidationSent().getTime();
+        // Check if the account is already marked as expired
+        if (ValidationAccount.STATUS_EXPIRED.equals(va.getStatus())) {
+            return true;
+        }
 
-			// All calls to setValidationSent use 'new Date()' whose time is equivalent to System.currentTimeMillis(), so we can do this:
-			if (System.currentTimeMillis() - sentTime > maxMillis) {
-				// It's been too long, so invalidate the token and return
-				va.setStatus(ValidationAccount.STATUS_EXPIRED);
-				Calendar cal = new GregorianCalendar();
-				va.setValidationReceived(cal.getTime());
-				repository.save(va);
-				return true;
-			}
-		}
+        // Expiry validation only applies to validation tokens coming from reset-pass
+        if (va.getAccountStatus() != null && va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET)) {
+            if (va.getValidationSent() == null) {
+                return false;
+            }
 
-		// Perhaps accountValidator.maxPasswordResetMinutes wasn't set, in which case a quartz job may have invalidated the token
-		return ValidationAccount.STATUS_EXPIRED.equals(va.getStatus());
-	}
+            // Check if it's expired in relation to accountValidator.maxPasswordResetMinutes sakai property
+            int minutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
+
+            // Get the time limit and convert to millis
+            long maxMillis = minutes * 60L * 1000L;
+
+            // The time when the validation was sent to the email server
+            long sentTime = va.getValidationSent().getTime();
+
+            // Check if token has expired
+            if (System.currentTimeMillis() - sentTime > maxMillis) {
+                // It's been too long, so invalidate the token and return
+                va.setStatus(ValidationAccount.STATUS_EXPIRED);
+                va.setValidationReceived(new Date());
+                repository.save(va);
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 	@Override
 	public ValidationAccount getVaLidationAcountByUserId(String userId) {
@@ -214,12 +221,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
 	@Override
 	public ValidationAccount createValidationAccount(String userId, boolean newAccount) {
-		Integer status = ValidationAccount.ACCOUNT_STATUS_EXISITING;
-		if (newAccount) {
-			status = ValidationAccount.ACCOUNT_STATUS_NEW;
-		}
-
-		return createValidationAccount(userId, status);
+        return createValidationAccount(userId, newAccount ? ValidationAccount.ACCOUNT_STATUS_NEW : ValidationAccount.ACCOUNT_STATUS_EXISTING);
 	}
 
 	@Override
@@ -233,13 +235,12 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 			account.setEid(newUserId);
 		}
 		sendEmailTemplate(account, newUserId);
-		account = saveValidationAccount(account);
-		return account;
+		return saveValidationAccount(account);
 	}
 
 	@Override
 	public ValidationAccount createValidationAccount(String userRef, Integer accountStatus) {
-		log.debug("createValidationAccount(" + userRef + ", " + accountStatus);
+		log.debug("create validation account ref [{}], status [{}]", userRef, accountStatus);
 
 		// TODO creating a new Validation should clear old ones for the user
 
@@ -248,20 +249,15 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 		v.setValidationToken(idManager.createUuid());
 		v.setValidationsSent(1);
 
-		if (accountStatus == null) {
-			v.setAccountStatus(ValidationAccount.ACCOUNT_STATUS_NEW);
-		} else {
-			v.setAccountStatus(accountStatus);
-		}
+        v.setAccountStatus(accountStatus == null ? ValidationAccount.ACCOUNT_STATUS_NEW : accountStatus);
 		sendEmailTemplate(v, null);
 
-		v = saveValidationAccount(v);
-		return v;
+		return saveValidationAccount(v);
 	}
 
 	private String getFormattedExpirationMinutes() {
 		int expirationMinutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
-		Period period = new Period(expirationMinutes * 60 * 1000);
+		Period period = new Period(expirationMinutes * 60 * 1000L);
 		PeriodFormatter periodFormatter = PeriodFormat.wordBased(resourceLoader.getLocale());
 		return periodFormatter.print(period);
 	}
@@ -273,26 +269,12 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 		String userId = EntityReference.getIdFromRef(account.getUserId());
 		try {
 			User u = userDirectoryService.getUser(userId);
-			if (StringUtils.isNotBlank(u.getFirstName())) {
-				account.setFirstName(u.getFirstName());
-			}
-			// For oracle - empty strings map to null in the DB.
-			else {
-				account.setFirstName(" ");
-			}
-
-			if (StringUtils.isNotBlank(u.getLastName())) {
-				account.setSurname(u.getLastName());
-			}
-			// For oracle - empty strings map to null in the DB.
-			else {
-				account.setSurname(" ");
-			}
+            account.setFirstName(StringUtils.isNotBlank(u.getFirstName()) ? u.getFirstName() : null);
+            account.setSurname(StringUtils.isNotBlank(u.getLastName()) ? u.getLastName() : null);
 		} catch (UserNotDefinedException e) {
-			log.error("No User found for the id " + e.getMessage());
+			log.warn("No User found for the id [{}], {}", userId, e.toString());
 		}
-		repository.save(account);
-		return account;
+		return repository.save(account);
 	}
 
 	/**
@@ -320,36 +302,32 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 		return "validate";
 	}
 
-	private String getTemplateKey(Integer accountStatus) {
-		log.info("getTemplateKey( " + accountStatus);
+    private String getTemplateKey(Integer accountStatus) {
+        log.debug("retrieve template with account status [{}])", accountStatus);
 
-		String templateKey = TEMPLATE_KEY_NEW_USER;
+        String templateKey = TEMPLATE_KEY_NEW_USER;
 
-		if ((ValidationAccount.ACCOUNT_STATUS_EXISITING == accountStatus)) {
-			templateKey = TEMPLATE_KEY_EXISTINGUSER;
-		} else if ((ValidationAccount.ACCOUNT_STATUS_LEGACY == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus)) {
-			templateKey = TEMPLATE_KEY_LEGACYUSER;
-		} else if ((ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus)) {
-			templateKey = TEMPLATE_KEY_PASSWORDRESET;
-		} else if ((ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE == accountStatus)) {
-			templateKey = TEMPLATE_KEY_USERIDUPDATE;
-		} else if ((ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus)) {
-			templateKey = TEMPLATE_KEY_REQUEST_ACCOUNT;
-		}
-		return templateKey;
-	}
-
+        if (ValidationAccount.ACCOUNT_STATUS_EXISTING == accountStatus) {
+            templateKey = TEMPLATE_KEY_EXISTINGUSER;
+        } else if (ValidationAccount.ACCOUNT_STATUS_LEGACY == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus) {
+            templateKey = TEMPLATE_KEY_LEGACYUSER;
+        } else if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus) {
+            templateKey = TEMPLATE_KEY_PASSWORDRESET;
+        } else if (ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE == accountStatus) {
+            templateKey = TEMPLATE_KEY_USERIDUPDATE;
+        } else if (ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus) {
+            templateKey = TEMPLATE_KEY_REQUEST_ACCOUNT;
+        }
+        return templateKey;
+    }
 	@Override
 	public void mergeAccounts(String oldUserReference, String newUserReference) throws ValidationException {
-		log.debug("merge account: " + oldUserReference + ", " + newUserReference + ")");
+		log.debug("merge account: {}, {})", oldUserReference, newUserReference);
 		UserEdit olduser = null;
-		try {
-			String oldUserId = EntityReference.getIdFromRef(oldUserReference);
-			String newuserId = EntityReference.getIdFromRef(newUserReference);
 
-			// We need a security advisor
-			SecurityAdvisor secAdvice = (String userId, String function, String reference) -> {
-				log.debug("isAllowed( " + userId + ", " + function + ", " + reference);
+ 		// We need a security advisor
+ 		SecurityAdvisor secAdvice = (String userId, String function, String reference) -> {
+ 			log.debug("isAllowed({}, {}, {})", userId, function, reference);
 				if (UserDirectoryService.SECURE_UPDATE_USER_ANY.equals(function)) {
 					return SecurityAdvice.ALLOWED;
 				} else if (AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP.equals(function)) {
@@ -360,52 +338,52 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 				} else {
 					return SecurityAdvice.NOT_ALLOWED;
 				}
-			};
-			securityService.pushAdvisor(secAdvice);
-			log.debug("pushed security advisor: " + secAdvice);
+ 		};
+
+		try {
+     		securityService.pushAdvisor(secAdvice);
+ 	    	log.debug("pushed security advisor: {}", secAdvice);
+
+			String oldUserId = EntityReference.getIdFromRef(oldUserReference);
+			String newuserId = EntityReference.getIdFromRef(newUserReference);
+
 			olduser = userDirectoryService.editUser(oldUserId);
 
 			// Get the old users realm memberships
-			Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(EntityReference.getIdFromRef(oldUserReference), "site.visit", null);
-			Iterator<String> it = groups.iterator();
-			while (it.hasNext()) {
-				AuthzGroup group = authzGroupService.getAuthzGroup(it.next());
-				Member member = group.getMember(oldUserId);
-				// TODO we need to check if olduser and if so resolve the highest role
-				Member exisiting = group.getMember(newuserId);
-				String preferedRole = member.getRole().getId();
+			Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(
+                    EntityReference.getIdFromRef(oldUserReference), "site.visit", null);
 
-				// The groupProvider is optional it may not be set
-				if (exisiting != null && groupProvider != null) {
-					preferedRole = groupProvider.preferredRole(preferedRole, exisiting.getRole().getId());
-				}
-				// Add the new user, but don't switch their role if they're already a member
-				if (group.getMember(newuserId) == null) {
-					group.addMember(newuserId, preferedRole, true, false);
-				}
-				// Remove the old user
-				group.removeMember(oldUserId);
-				authzGroupService.save(group);
-			}
+            for (String s : groups) {
+                AuthzGroup group = authzGroupService.getAuthzGroup(s);
+                Member member = group.getMember(oldUserId);
+                // TODO we need to check if olduser and if so resolve the highest role
+                Member exisiting = group.getMember(newuserId);
+                String preferedRole = member.getRole().getId();
+
+                // The groupProvider is optional it may not be set
+                if (exisiting != null && groupProvider != null) {
+                    preferedRole = groupProvider.preferredRole(preferedRole, exisiting.getRole().getId());
+                }
+                // Add the new user, but don't switch their role if they're already a member
+                if (group.getMember(newuserId) == null) {
+                    group.addMember(newuserId, preferedRole, true, false);
+                }
+                // Remove the old user
+                group.removeMember(oldUserId);
+                authzGroupService.save(group);
+            }
 
 			// Remove the old user
 			userDirectoryService.removeUser(olduser);
 
-		} catch (UserNotDefinedException e) {
-			log.warn("User not defined", e);
-		} catch (UserPermissionException e) {
-			log.warn("User permission error", e);
+		} catch (Exception e) {
+            log.error("Failed to merge accounts old [{}], new [{}]", oldUserReference, newUserReference, e);
 			if (olduser != null) {
 				userDirectoryService.cancelEdit(olduser);
 			}
-		} catch (UserLockedException e) {
-			log.warn("User locked", e);
-		} catch (GroupNotDefinedException e) {
-			log.warn("AuthzGroup doesn't exist", e);
-		} catch (AuthzPermissionException e) {
-			log.warn("No permission to save group", e);
+            throw new ValidationException("Failed to merge accounts", e);
 		} finally {
-			SecurityAdvisor sa = securityService.popAdvisor();
+			SecurityAdvisor sa = securityService.popAdvisor(secAdvice);
 			if (sa == null) {
 				log.warn("Something cleared our advisor!");
 			}
@@ -419,13 +397,8 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
 	@Override
 	public void save(ValidationAccount toSave) {
-		// For oracle - empty strings map to null in the DB.
-		if (StringUtils.isEmpty(toSave.getFirstName())) {
-			toSave.setFirstName(" ");
-		}
-		if (StringUtils.isEmpty(toSave.getSurname())) {
-			toSave.setSurname(" ");
-		}
+        toSave.setFirstName(StringUtils.isNotBlank(toSave.getFirstName()) ? toSave.getFirstName() : null);
+        toSave.setSurname(StringUtils.isNotBlank(toSave.getSurname()) ? toSave.getSurname() : null);
 		repository.save(toSave);
 	}
 
@@ -451,10 +424,6 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 		List<String> emailAddresses = new ArrayList<>();
 		Map<String, Object> replacementValues = new HashMap<>();
 		replacementValues.put("validationToken", account.getValidationToken());
-		// Get the url
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put("tokenId", account.getValidationToken());
-
 		// We want a direct tool url
 		String page = getPageForAccountStatus(account.getAccountStatus());
 		String serverUrl = serverConfigurationService.getServerUrl();
@@ -488,13 +457,13 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 			replacementValues.put("supportemail", serverConfigurationService.getString("mail.support"));
 			replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
 
-		} catch (UserNotDefinedException e) {
-			log.error("No user with ID = " + userId, e);
+ 	} catch (UserNotDefinedException e) {
+ 		log.error("No user with ID = {}", userId, e);
 		}
 
-		// Information about the site(s) they have been added to
-		Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, null);
-		log.debug("got a list of: " + groups.size());
+ 	// Information about the site(s) they have been added to
+ 	Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, null);
+ 	log.debug("got a list of: {}", groups.size());
 		Iterator<String> itg = groups.iterator();
 		StringBuilder sb = new StringBuilder();
 		int siteCount = 0;
@@ -503,21 +472,22 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 			String siteId = developerHelperService.getLocationIdFromRef(groupRef);
 			try {
 				Site s = siteService.getSite(siteId);
-				if (siteCount > 0) {
-					sb.append(", ");
-				}
-				log.debug("adding site: " + s.getTitle());
+ 			if (siteCount > 0) {
+ 				sb.append(", ");
+ 			}
+ 			log.debug("adding site: {}", s.getTitle());
 				sb.append(s.getTitle());
 				siteCount++;
-			} catch (IdUnusedException e) {
-				log.error("No site with id = " + siteId, e);
+ 		} catch (IdUnusedException e) {
+ 			log.error("No site with id = {}", siteId, e);
 			}
 		}
 		replacementValues.put("memberSites", sb.toString());
 
 		String templateKey = getTemplateKey(account.getAccountStatus());
 		RenderedTemplate renderedTemplate = emailTemplateService.getRenderedTemplateForUser(templateKey, userReference, replacementValues);
-		emailTemplateService.sendMessage(userIds, emailAddresses, renderedTemplate, serverConfigurationService.getSmtpFrom(),
-			serverConfigurationService.getString("mail.support.name", serverConfigurationService.getString("support.name")));
+		emailTemplateService.sendMessage(
+                userIds, emailAddresses, renderedTemplate, serverConfigurationService.getSmtpFrom(),
+                serverConfigurationService.getString("mail.support.name", serverConfigurationService.getString("support.name")));
 	}
 }

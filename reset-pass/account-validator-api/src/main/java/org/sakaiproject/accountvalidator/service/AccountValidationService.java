@@ -21,7 +21,7 @@ package org.sakaiproject.accountvalidator.service;
 
 import java.util.List;
 
-import org.sakaiproject.accountvalidator.logic.ValidationException;
+import org.sakaiproject.accountvalidator.exception.ValidationException;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 
 /**

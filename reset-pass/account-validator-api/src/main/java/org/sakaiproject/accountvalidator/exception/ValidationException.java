@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.accountvalidator.logic;
+package org.sakaiproject.accountvalidator.exception;
 
 public class ValidationException extends Exception {
 

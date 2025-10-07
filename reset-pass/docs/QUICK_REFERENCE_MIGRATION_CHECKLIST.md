@@ -265,7 +265,7 @@ return repository.findById(id).orElse(null);
 
 ## File Structure Template
 
-```
+```plaintext
 {module}-api/src/java/com/example/
 ├── model/
 │   └── Entity.java (add JPA annotations)

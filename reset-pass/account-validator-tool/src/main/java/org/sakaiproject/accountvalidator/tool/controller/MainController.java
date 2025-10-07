@@ -47,9 +47,9 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
-import org.sakaiproject.accountvalidator.logic.ValidationException;
+import org.sakaiproject.accountvalidator.exception.ValidationException;
 import org.sakaiproject.accountvalidator.service.AccountValidationService;
-import org.sakaiproject.accountvalidator.logic.ValidationClaim;
+import org.sakaiproject.accountvalidator.dto.ValidationClaim;
 import org.sakaiproject.accountvalidator.tool.constants.AccountValidatorConstants;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -338,7 +338,7 @@ public class MainController {
             log.debug("Not a valid validation code");
             model.addAttribute("warnMsg", messageSource.getMessage("msg.noSuchValidation", new String[]{tokenId}, userLocale));
             return AccountValidatorConstants.ERROR_TEMPLATE;
-        } else if (!va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_NEW) && !va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_EXISITING) && !va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE)) {
+        } else if (!va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_NEW) && !va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_EXISTING) && !va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE)) {
             // this form is not appropriate, no such validation of the required account status
             model.addAttribute("warnMsg", messageSource.getMessage("msg.noSuchValidation", new String[]{va.getValidationToken()}, userLocale));
             return AccountValidatorConstants.ERROR_TEMPLATE;
@@ -466,7 +466,7 @@ public class MainController {
             log.debug("Not a valid validation code");
             model.addAttribute("warnMsg", messageSource.getMessage("msg.noSuchValidation", new String[]{tokenId}, userLocale));
             return AccountValidatorConstants.ERROR_TEMPLATE;
-        } else if (!va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_NEW) && !va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_EXISITING)) {
+        } else if (!va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_NEW) && !va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_EXISTING)) {
             // this form is not appropriate, no such validation of the required account status
             model.addAttribute("warnMsg", messageSource.getMessage("msg.noSuchValidation", new String[]{va.getValidationToken()}, userLocale));
             return AccountValidatorConstants.ERROR_TEMPLATE;
@@ -786,7 +786,7 @@ public class MainController {
             //we need permission to edit this user
 
                 //if this is an existing user did the password match?
-            if (ValidationAccount.ACCOUNT_STATUS_EXISITING == va.getAccountStatus() && !validateLogin(userId, formPw1)) {
+            if (ValidationAccount.ACCOUNT_STATUS_EXISTING == va.getAccountStatus() && !validateLogin(userId, formPw1)) {
                 jsonResponse.put("error", messageSource.getMessage("validate.invalidPassword", null, userLocale));
                 return jsonResponse;
             }

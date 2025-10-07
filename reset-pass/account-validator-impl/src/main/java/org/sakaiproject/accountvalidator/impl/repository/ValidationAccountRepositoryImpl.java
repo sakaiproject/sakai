@@ -27,12 +27,14 @@ import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.repository.ValidationAccountRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Implementation of ValidationAccountRepository using Spring's repository pattern.
  * Extends SpringCrudRepositoryImpl for standard CRUD operations and implements
  * custom query methods using Hibernate Criteria API.
  */
+@Transactional
 public class ValidationAccountRepositoryImpl extends SpringCrudRepositoryImpl<ValidationAccount, Long> implements ValidationAccountRepository {
 
 	@Override

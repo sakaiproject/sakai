@@ -41,8 +41,8 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -1449,8 +1449,8 @@ public class UsersAction extends PagedResourceActionII
 					// the eid is their email address. The password is random
 					newUser = userDirectoryService.addUser(id, eid, firstName, lastName, email, passwordFactory.generatePassword(), type, properties);
 					// Invoke AccountValidator to send an email to the user containing a link to a form on which they can set their name and password
-					ValidationLogic validationLogic = (ValidationLogic) ComponentManager.get(ValidationLogic.class);
-					validationLogic.createValidationAccount(newUser.getId(), ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT);
+					AccountValidationService avService = ComponentManager.get(AccountValidationService.class);
+					avService.createValidationAccount(newUser.getId(), ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT);
 				}
 				else
 				{

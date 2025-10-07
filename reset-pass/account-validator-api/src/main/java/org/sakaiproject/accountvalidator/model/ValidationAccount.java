@@ -35,6 +35,32 @@ import javax.persistence.Transient;
 import lombok.Data;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
+/**
+ * Represents a validation account record used in Sakai's account validation workflow.
+ * This entity stores information about account validation requests, including tokens,
+ * user details, and validation status.
+ *
+ * <p>ValidationAccount records are created when:</p>
+ * <ul>
+ *   <li>New users need to validate their accounts</li>
+ *   <li>Existing users need to reset their passwords</li>
+ *   <li>Legacy accounts need to be migrated</li>
+ *   <li>Users request account updates</li>
+ * </ul>
+ *
+ * <p>The class tracks various account statuses through static constants:</p>
+ * <ul>
+ *   <li>Token status: SENT, RESENT, CONFIRMED, EXPIRED</li>
+ *   <li>Account status: NEW, EXISTING, LEGACY, LEGACY_NOPASS, PASSWORD_RESET, REQUEST_ACCOUNT, USERID_UPDATE</li>
+ * </ul>
+ *
+ * <p>This entity is persisted in the VALIDATIONACCOUNT_ITEM table and includes
+ * both persistent fields (stored in database) and transient fields (used during
+ * validation workflow but not persisted).</p>
+ *
+ * @see org.sakaiproject.accountvalidator.dto.ValidationClaim
+ * @see org.sakaiproject.accountvalidator.entity.ValidationEntityProvider
+ */
 @Data
 @Entity
 @Table(name = "VALIDATIONACCOUNT_ITEM")
@@ -46,30 +72,12 @@ public class ValidationAccount implements PersistableEntity<Long> {
 	public static final Integer STATUS_EXPIRED = 3;
 
     public static final int ACCOUNT_STATUS_NEW = 1;  // Token for new account
-    public static final int ACCOUNT_STATUS_EXISITING = 2;  // Token for existing account
+    public static final int ACCOUNT_STATUS_EXISTING = 2;  // Token for existing account
     public static final int ACCOUNT_STATUS_LEGACY = 3;  // Token for pre-deployment account
     public static final int ACCOUNT_STATUS_LEGACY_NOPASS = 4;  // Legacy account without password
     public static final int ACCOUNT_STATUS_PASSWORD_RESET = 5;  // For password reset
     public static final int ACCOUNT_STATUS_REQUEST_ACCOUNT = 6;  // For requested accounts
     public static final int ACCOUNT_STATUS_USERID_UPDATE = 7;  // For userId updates
-
-    /*
-    TODO REMOVE THiS -- auto-generated definition
-    create table VALIDATIONACCOUNT_ITEM
-    (
-        id                  bigint auto_increment primary key,
-        USER_ID             varchar(255) not null,
-        EID                 varchar(255) null,
-        VALIDATION_TOKEN    varchar(255) not null,
-        VALIDATION_SENT     datetime(6)  null,
-        VALIDATION_RECEIVED datetime(6)  null,
-        VALIDATIONS_SENT    int          null,
-        STATUS              int          null,
-        FIRST_NAME          varchar(255) null,
-        SURNAME             varchar(255) null,
-        ACCOUNT_STATUS      int          null
-    ); */
-
 
     @Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "validation_account_seq")

@@ -204,22 +204,23 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 **File:** `components.xml`
 
 **Before:**
+
 ```xml
 <!-- Old DAO configuration -->
 <bean id="org.sakaiproject.accountvalidator.dao.ValidationLogicDao" ...>
-    <property name="sessionFactory" ... />
-    <property name="persistentClasses">
-        <list>
-            <value>org.sakaiproject.accountvalidator.model.ValidationAccount</value>
-        </list>
-    </property>
-</bean>
+<property name="sessionFactory" ... />
+<property name="persistentClasses">
+<list>
+    <value>org.sakaiproject.accountvalidator.model.ValidationAccount</value>
+</list>
+</property>
+        </bean>
 
-<!-- Old logic configuration -->
-<bean id="org.sakaiproject.accountvalidator.logic.ValidationLogic"
+        <!-- Old logic configuration -->
+<bean id="org.sakaiproject.accountvalidator.dto.ValidationLogic"
       class="...ValidationLogicImpl">
-    <property name="dao" ref="..." />
-    ...
+<property name="dao" ref="..."/>
+...
 </bean>
 ```
 
