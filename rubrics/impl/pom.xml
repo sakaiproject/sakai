@@ -141,6 +141,14 @@
             <groupId>org.sakaiproject.search</groupId>
             <artifactId>search-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.search.elasticsearch</groupId>
+            <artifactId>elasticsearch-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

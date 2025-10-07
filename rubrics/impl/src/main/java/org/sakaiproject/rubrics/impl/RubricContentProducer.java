@@ -55,7 +55,7 @@ public class RubricContentProducer implements EntityContentProducer {
     private List<String> removingEvents = new ArrayList<>();
 
     public void init() {
-        if (serverConfigurationService.getBoolean("search.enable", false)) {
+        if (searchIndexBuilder != null && searchService != null && serverConfigurationService.getBoolean("search.enable", false)) {
             addingEvents.add("rubric.create");
             addingEvents.add("rubric.update");
             removingEvents.add("rubric.delete");
