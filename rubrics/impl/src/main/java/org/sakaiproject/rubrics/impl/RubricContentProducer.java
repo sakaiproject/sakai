@@ -166,7 +166,8 @@ public class RubricContentProducer implements EntityContentProducer {
             try {
                 siteService.getSiteVisit(siteId);
                 // Don't index draft rubrics unless user has special permissions
-                return !rubric.getDraft();
+                // Treat null as false (not a draft)
+                return !Boolean.TRUE.equals(rubric.getDraft());
             } catch (Exception e) {
                 return false;
             }
