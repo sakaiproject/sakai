@@ -14,6 +14,7 @@
   <packaging>sakai-component</packaging>
 
   <properties>
+    <jclouds.version>2.7.0</jclouds.version>
     <deploy.target>components</deploy.target>
     <minio.version>8.6.0</minio.version>
   </properties>

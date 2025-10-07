@@ -324,9 +324,35 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     }
 
     @Override
-    public long saveInputStream(String id, String root, String filePath, InputStream stream) throws IOException {
-        if (stream == null) {
-            return 0L;
+        public long saveInputStream(String id, String root, String filePath, InputStream stream) throws IOException {
+            if(stream == null){
+                return 0L;
+            }
+            ContainerAndName can = getContainerAndName(id, root, filePath);
+            createContainerIfNotExist(can.container);
+
+            InputStream in = markableInputStream(stream);
+            long size = markableStreamLength(in);
+
+            Payload payload = Payloads.newInputStreamPayload(in);
+
+            try {
+                BlobStore store = getBlobStore();
+                String asciiID = Base64.encodeBase64String(id.getBytes(StandardCharsets.UTF_8));
+
+                Blob blob = store.blobBuilder(can.name)
+                    .payload(payload)
+                    .contentLength(size)
+                    .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
+                    .build();
+                store.putBlob(can.container, blob);
+            } finally {
+                payload.release();
+                Closeables.close(stream, true);
+                Closeables.close(in, true);
+            }
+
+            return size;
         }
 
         ContainerAndName can = getContainerAndName(id, root, filePath);
