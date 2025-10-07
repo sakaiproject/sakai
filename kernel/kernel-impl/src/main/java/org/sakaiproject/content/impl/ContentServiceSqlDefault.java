@@ -139,7 +139,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql {
      * returns the sql statement which updates the file path and xml fields in the content_resource table for a given resource id.
      */
     public String getUpdateContentResource3Sql() {
-        return "update CONTENT_RESOURCE set FILE_PATH = ?, XML = NULL, BINARY_ENTITY = ?, CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ? where RESOURCE_ID = ?";
+        return "update CONTENT_RESOURCE set FILE_PATH = ?, XML = NULL, BINARY_ENTITY = ?, CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ?, RESOURCE_SHA256 = ? where RESOURCE_ID = ?";
     }
 
     /**

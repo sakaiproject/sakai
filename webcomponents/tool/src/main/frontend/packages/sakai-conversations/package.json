@@ -6,9 +6,7 @@
   "module": "index.js",
   "scripts": {
     "lint:fix": "eslint src --fix",
-    "test": "wtr --coverage",
-    "test:dev": "cd ../../ && npm run test:dev",
-    "test:watch": "web-test-runner --node-resolve --watch"
+    "test": "wtr"
   },
   "files": [
     "*.js",
@@ -16,7 +14,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sakaiproject/sakai-ui.git"
+    "url": "git+https://github.com/sakaiproject/sakai",
+    "directory": "webcomponents/tool/src/main/frontend/packages/sakai-conversations"
   },
   "keywords": [
     "sakai"
@@ -30,10 +29,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "bugs": {
-    "url": "https://github.com/sakaiproject/sakai-ui/issues"
-  },
-  "homepage": "https://github.com/sakaiproject/sakai-ui#readme",
+  "homepage": "https://github.com/sakaiproject/sakai/tree/master/webcomponents/tool/src/main/frontend/packages/sakai-conversations#readme",
   "dependencies": {
     "@sakai-ui/sakai-date-picker": "file:../sakai-date-picker",
     "@sakai-ui/sakai-editor": "file:../sakai-editor",

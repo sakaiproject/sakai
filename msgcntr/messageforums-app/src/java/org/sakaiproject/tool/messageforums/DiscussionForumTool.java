@@ -160,6 +160,7 @@ import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.SiteGroupBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
@@ -353,7 +354,6 @@ public class DiscussionForumTool {
   private boolean showShortDescription = true;
   private boolean collapsePermissionPanel = false;
   private boolean showProfileInfo = false;
-  private boolean showProfileLink = false;
 
   // compose
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
@@ -527,7 +527,6 @@ public class DiscussionForumTool {
     showShortDescription = ServerConfigurationService.getBoolean("mc.showShortDescription", true);
     collapsePermissionPanel = ServerConfigurationService.getBoolean("mc.collapsePermissionPanel", false);
     showProfileInfo = ServerConfigurationService.getBoolean("msgcntr.forums.showProfileInfo", true);
-    showProfileLink = showProfileInfo && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
   }
 
   protected GradingService getGradingService() {
@@ -6284,44 +6283,38 @@ public class DiscussionForumTool {
 	  }
   }
  
-  public boolean isNumber(String validateString) 
-  {
-      NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
-
-      try  
-      {
-          double d = numberFormat.parse(validateString).doubleValue();
-          if(d >= 0)
-              return true;
-          else
-              return false;
-      }
-      catch (ParseException e) 
-      {
-          return false;
-      }
-  }   
-  
-   public boolean isFewerDigit(String validateString)
-   {
-	   	   NumberFormat numberFormat = DecimalFormat.getInstance(new ResourceLoader().getLocale());
-	   	   DecimalFormatSymbols dfs = ((DecimalFormat)numberFormat).getDecimalFormatSymbols();
-	   	   if(validateString.lastIndexOf(dfs.getDecimalSeparator()) >= 0)
-	   	   {
-	   		   String subString = validateString.substring(validateString.lastIndexOf(dfs.getDecimalSeparator()));
-	   		   if(subString != null && subString.length() > 3)
-	   			   return false;
-	   	   }
-     
-     return true;
-   }
-  
-   private boolean validateGradeInput()
-   {
-       GradingService gradingService = getGradingService();
-       if (gradingService == null) {
-           return false;
-       }
+	/**
+	 * Returns {@code true} when the supplied value parses to a non-negative, finite number for the current locale.
+	 */
+	public boolean isNumber(String validateString) 
+	{
+			Double parsed = NumberUtil.parseLocaleDouble(validateString, rb.getLocale());
+			return parsed != null && parsed >= 0 && Double.isFinite(parsed);
+	}	 
+     public boolean isFewerDigit(String validateString)
+     {
+         if (validateString == null) {
+             return true;
+         }
+         // Normalize first so separators are consistent with the locale; if parsing fails, defer to other validators
+         final String normalized = NumberUtil.normalizeLocaleDouble(validateString, rb.getLocale());
+         final DecimalFormatSymbols dfs = ((DecimalFormat) DecimalFormat.getInstance(rb.getLocale()))
+                 .getDecimalFormatSymbols();
+         int idx = normalized.lastIndexOf(dfs.getDecimalSeparator());
+         // Also handle dot-decimal input when the locale uses a comma
+         if (idx < 0 && dfs.getDecimalSeparator() != '.') {
+             idx = normalized.lastIndexOf('.');
+         }
+         // true if no decimal point or at most two digits after it
+         return idx < 0 || (normalized.length() - idx - 1) <= 2;
+     }
+	
+	 private boolean validateGradeInput()
+	 {
+			 GradingService gradingService = getGradingService();
+			 if (gradingService == null) {
+					 return false;
+			 }
 
        String gradebookUid = getSiteId();
        boolean gradeValid = gradingService.isGradeValid(gradebookUid, gradePoint);
@@ -8807,9 +8800,6 @@ public class DiscussionForumTool {
 	    return showProfileInfo;
 	}
 	
-	public boolean getShowProfileLink() {
-		return showProfileLink;
-	}
 	public Locale getUserLocale(){
 		return new ResourceLoader().getLocale();
 	}

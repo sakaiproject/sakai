@@ -1,17 +1,21 @@
-# sakai-i18n
+# @sakai-ui/sakai-i18n
 
-A set of utility functions for handling translations in Sakai. It converts
+A collection of functions to allow code to get Sakai translations.
+
+## Description
+
+This package provides internationalization utilities for Sakai, allowing components to access translations. It converts
 java properties file formats into js objects.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-i18n
+npm install @sakai-ui/sakai-i18n
 ```
 
 ## Usage
 
-```html
+```javascript
 import { loadProperties, tr } from "@sakai-ui/sakai-i18n";
 
 loadProperties("mybundle").then(r => {
@@ -26,13 +30,7 @@ const formattedValue = tr("mybundle", "sometranslationkey", ["sub1"]);
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
-```
-
-To automatically fix linting and formatting errors, run
-
-```bash
-npm run format
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -43,8 +41,6 @@ To execute a single test run:
 npm run test
 ```
 
-To run the tests in interactive watch mode run:
+## License
 
-```bash
-npm run test:watch
-```
+ECL-2.0

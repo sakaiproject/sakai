@@ -64,7 +64,13 @@ ASN.setupAssignNew = function(){
     // show the previously opened field
     $('.extraNode').hide();
     showNode = $('#attachments_for').val();
-    $('#' + showNode + '-node').fadeIn('slow');
+    if (showNode && showNode !== '') {
+        $('#' + showNode + '-node').fadeIn('slow');
+        // Scroll to the opened node to bring it into view
+        setTimeout(function() {
+            location.href = '#extraNodesTop';
+        }, 500); // Wait for fadeIn animation to complete
+    }
     $('.validationError').hide();
     
     if ($('#value_allPurpose').val() === 'true') {
@@ -157,10 +163,8 @@ ASN.setupAssignNew = function(){
             var toOK;
             var message = '';
             if (nodeType === "allPurpose") {
-                if ($('#' + nodeType + '_title').val() === '') {
-                    $('#' + nodeType + '_title_message').show();
-                    validation = 'failed';
-                }
+                // Title is now optional for allPurpose - attachments can be used instead
+                titleOK = true;  // Always valid for allPurpose
                 var selector_checked = $("#allPurposeGroupLists input:checked").length;
                 if (selector_checked === 0) {
                     $('#' + nodeType + '_userselect').show();
@@ -205,18 +209,29 @@ ASN.setupAssignNew = function(){
                 titleOK = true;
             }
             
-            if ($('#' + nodeType + '_text').val() === '') {
-                $('#' + nodeType + '_text_message').show();
-                validation = 'failed';
+            // Text is now optional for modelanswer and allPurpose - attachments can be used instead
+            if (nodeType === "modelanswer" || nodeType === "allPurpose") {
+                textOK = true;  // Always valid for these types
+            } else {
+                // For other node types (like note), still require text
+                if ($('#' + nodeType + '_text').val() === '') {
+                    $('#' + nodeType + '_text_message').show();
+                    validation = 'failed';
+                }
+                else {
+                    textOK = true;
+                }
             }
-            else {
-                textOK = true;
-            }
-            if (extraNodeTo === '0') {
-                $('#' + nodeType + '_to_message').show();
-                validation = 'failed';
-            }
-            else {
+            // Only validate "to" field for node types that have it (modelanswer, note)
+            if (nodeType === "modelanswer" || nodeType === "note") {
+                if (extraNodeTo === '0') {
+                    $('#' + nodeType + '_to_message').show();
+                    validation = 'failed';
+                }
+                else {
+                    toOK = true;
+                }
+            } else {
                 toOK = true;
             }
             

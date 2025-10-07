@@ -1,19 +1,24 @@
-# sakai-home-dashboard
+# @sakai-ui/sakai-home-dashboard
 
-A home dashboard component for Sakai
+The Sakai home dashboard component.
+
+## Description
+
+This component provides the main dashboard for Sakai's home page, displaying courses and widgets.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-home-dashboard
+npm install @sakai-ui/sakai-home-dashboard
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-home-dashboard/sakai-home-dashboard.js';
 
+// In your HTML
 <sakai-home-dashboard></sakai-home-dashboard>
-
 ```
 
 ## Linting and formatting
@@ -21,7 +26,7 @@ npm i @sakai-ui/sakai-home-dashboard
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -31,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

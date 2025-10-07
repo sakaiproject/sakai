@@ -16,9 +16,12 @@
 package org.sakaiproject.emailtemplateservice.impl.test;
 
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import java.util.Locale;
+import java.util.Collections;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +39,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.api.model.EmailTemplate;
+import org.sakaiproject.emailtemplateservice.impl.EmailTemplateServiceImpl;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {EmailTemplateServiceTestConfiguration.class})
@@ -53,6 +59,7 @@ public class EmailTemplateServiceTest extends AbstractTransactionalJUnit4SpringC
 
     @Autowired EmailTemplateService emailTemplateService;
 
+    private EmailTemplateServiceImpl emailTemplateServiceImpl;
     EmailTemplate template1 = new EmailTemplate();
     EmailTemplate template2 = new EmailTemplate();
     EmailTemplate template3 = new EmailTemplate();
@@ -64,6 +71,12 @@ public class EmailTemplateServiceTest extends AbstractTransactionalJUnit4SpringC
 
         emailTemplateService.deleteAllTemplates();
         populateData();
+        emailTemplateServiceImpl = (EmailTemplateServiceImpl) emailTemplateService;
+
+        SessionManager sessionManager = mock(SessionManager.class);
+        Session session = mock(Session.class);
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+        emailTemplateServiceImpl.setSessionManager(sessionManager);
     }
 
     private void populateData() {
@@ -249,5 +262,39 @@ public class EmailTemplateServiceTest extends AbstractTransactionalJUnit4SpringC
         exists = emailTemplateService.templateExistsWithDifferentId(t1.getKey(), null, null);
         Assert.assertTrue(exists);
 
+    }
+
+    @Test
+    public void testProcessEmailTemplatesCreatesAndUpdatesTemplates() {
+
+        final String templateKey = "process.test";
+
+        emailTemplateServiceImpl.processEmailTemplates(Collections.singletonList(
+            "org/sakaiproject/emailtemplateservice/impl/test/templates/process-template-v1.xml"));
+
+        EmailTemplate createdTemplate = emailTemplateService.getEmailTemplate(templateKey, Locale.UK);
+        Assert.assertNotNull(createdTemplate);
+        Assert.assertEquals("First Subject", createdTemplate.getSubject());
+        Assert.assertEquals("The first body", createdTemplate.getMessage());
+        Assert.assertEquals("<p>First HTML</p>", createdTemplate.getHtmlMessage());
+        Assert.assertEquals(Integer.valueOf(1), createdTemplate.getVersion());
+        Assert.assertEquals("en_GB", createdTemplate.getLocale());
+
+        emailTemplateServiceImpl.processEmailTemplates(Collections.singletonList(
+            "org/sakaiproject/emailtemplateservice/impl/test/templates/process-template-v2.xml"));
+
+        EmailTemplate updatedTemplate = emailTemplateService.getEmailTemplate(templateKey, Locale.UK);
+        Assert.assertEquals("Second Subject", updatedTemplate.getSubject());
+        Assert.assertEquals("The second body", updatedTemplate.getMessage());
+        Assert.assertEquals("<p>Second HTML</p>", updatedTemplate.getHtmlMessage());
+        Assert.assertEquals(Integer.valueOf(2), updatedTemplate.getVersion());
+
+        emailTemplateServiceImpl.processEmailTemplates(Collections.singletonList(
+            "org/sakaiproject/emailtemplateservice/impl/test/templates/process-template-v1.xml"));
+
+        EmailTemplate lockedTemplate = emailTemplateService.getEmailTemplate(templateKey, Locale.UK);
+        Assert.assertEquals("Second Subject", lockedTemplate.getSubject());
+        Assert.assertEquals(Integer.valueOf(2), lockedTemplate.getVersion());
+        Assert.assertEquals("<p>Second HTML</p>", lockedTemplate.getHtmlMessage());
     }
 }

@@ -1,17 +1,24 @@
-# sakai-conversations
+# @sakai-ui/sakai-conversations
+
+The Sakai conversations tool components.
+
+## Description
+
+This component provides the Sakai conversations tool functionality, allowing users to create, view, and participate in discussions.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-conversations
+npm install @sakai-ui/sakai-conversations
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-conversations/sakai-conversations.js';
 
+// In your HTML
 <sakai-conversations></sakai-conversations>
-
 ```
 
 ## Linting and formatting
@@ -29,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

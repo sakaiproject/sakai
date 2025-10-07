@@ -117,6 +117,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.grading.api.GradingAuthz;
+import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.lang.Nullable;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
@@ -2716,7 +2717,6 @@ public class GradingServiceImpl implements GradingService {
      *
      * @param doubleAsString
      * @return a locale-aware Double value representation of the given String
-     * @throws ParseException
      */
     public Double convertStringToDouble(final String doubleAsString) {
 
@@ -2724,15 +2724,12 @@ public class GradingServiceImpl implements GradingService {
             return null;
         }
 
-        Double scoreAsDouble = null;
-        try {
-            NumberFormat numberFormat = NumberFormat.getInstance(resourceLoader.getLocale());
-            Number numericScore = numberFormat.parse(doubleAsString.trim());
-            return numericScore.doubleValue();
-        } catch (final ParseException e) {
-            log.error("Failed to convert {}: {}", doubleAsString, e.toString());
+        final Double scoreAsDouble = NumberUtil.parseLocaleDouble(doubleAsString, resourceLoader.getLocale());
+        if (scoreAsDouble == null || !Double.isFinite(scoreAsDouble)) {
+            log.warn("Failed to convert score for locale {}: '{}'", resourceLoader.getLocale(), doubleAsString);
             return null;
         }
+        return scoreAsDouble;
     }
 
     /**
@@ -5760,7 +5757,7 @@ public class GradingServiceImpl implements GradingService {
                     boolean isCategoryInGradebook = false;
 
                     for (String groupId : groupList) {
-                        List<CategoryDefinition> categoryDefinitionList = getCategoryDefinitions(groupId, groupId);
+                        List<CategoryDefinition> categoryDefinitionList = getCategoryDefinitions(groupId, siteId);
 
                         boolean foundCategory = categoryDefinitionList.stream()
                             .anyMatch(category -> category.getId().equals(Long.parseLong(categoryId)));

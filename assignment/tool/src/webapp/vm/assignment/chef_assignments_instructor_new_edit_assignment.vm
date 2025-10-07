@@ -1246,7 +1246,7 @@ function showExternalIframe(title, doreload) {
 		<input type="hidden" name = "attachments_for" id="attachments_for" value="$!attachments_for" />
 		<fieldset class="extraNode" id="modelanswer-node" style="display:none">## the panel for model answer
 			<legend>$tlang.getString("modelAnswer")</legend>
-			<div class="form-group row form-required">
+			<div class="form-group row">
 				<label for="modelanswer_text" class="col-lg-2 form-control-label">
 					$tlang.getString("modelAnswer.instruction")
 				</label>
@@ -1422,7 +1422,7 @@ function showExternalIframe(title, doreload) {
 		</fieldset>
 		<fieldset class="extraNode" id="allPurpose-node" style="display:none">## the panel for allPurpose type of object
 			<legend>$tlang.getString('allPurpose')</legend>
-			<div class="form-group row form-required">
+			<div class="form-group row">
 				<label  for="allPurpose_title" class="form-control-label col-lg-2">
 					$formattedText.escapeHtml($tlang.getString("gen.title"))
 				</label>
@@ -1435,7 +1435,7 @@ function showExternalIframe(title, doreload) {
 				</div>
 			</div>
 
-			<div class="form-group row form-required">
+			<div class="form-group row">
 				<label for="allPurpose_text" class="form-control-label col-lg-2">
 					$tlang.getString("allPurpose.instruction")
 				</label>

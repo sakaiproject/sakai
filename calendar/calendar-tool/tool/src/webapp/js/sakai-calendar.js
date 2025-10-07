@@ -34,6 +34,10 @@ const sakaiCalendar = {
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
       },
+      datesSet: (dateInfo) => {
+        // This event fires when the calendar is fully rendered and ready
+        this.setupViewButtonHandlers();
+      },
       buttonIcons: {
         /*Use of bootstrap5 as themeSystem will expect bootstrap icons and prepend bi bi-*/
         prev: 'caret-left',
@@ -144,12 +148,30 @@ const sakaiCalendar = {
 	this.calendar.setOption('aspectRatio', aspectRatio);
   },
 
-    // When the user changes the view, reflect the change in a param to set the default view.
+  // When the user changes the view, reflect the change in a param to set the default view.
   onChangeCalendarView () {
     const currentView = this.calendar.currentData.currentViewType;
+    
+    // Map FullCalendar view types to backend expected values
+    let defaultSubview;
+    switch (currentView) {
+      case 'timeGridDay':
+        defaultSubview = 'day';
+        break;
+      case 'dayGridMonth':
+        defaultSubview = 'month';
+        break;
+      case 'listWeek':
+        defaultSubview = 'list';
+        break;
+      case 'timeGridWeek':
+      default:
+        defaultSubview = 'week';
+    }
+    
     const defaultViewParams = document.getElementsByName('calendar_default_subview');
     if (defaultViewParams && defaultViewParams.length > 0) {
-      defaultViewParams[0].value = currentView;
+      defaultViewParams[0].value = defaultSubview;
     }
     // Reenable the button when the subview changes.
     const changeDefaultViewButton = document.getElementsByName('eventSubmit_doDefaultview');
@@ -175,9 +197,23 @@ const sakaiCalendar = {
         view = 'timeGridWeek';
     }
 
-    document.querySelectorAll('.fc-timeGridWeek-button, .fc-dayGridMonth-button, .fc-timeGridDay-button, .fc-listWeek-button').forEach( (viewButton) => viewButton.setAttribute('onclick', 'sakaiCalendar.onChangeCalendarView();'));
-
     return view;
+  },
+
+  // Set up event handlers for view buttons after calendar is rendered
+  setupViewButtonHandlers () {
+    // Use a flag to ensure this only runs once
+    if (this.viewButtonHandlersSetup) return;
+    this.viewButtonHandlersSetup = true;
+    
+    document.querySelectorAll('.fc-timeGridWeek-button, .fc-dayGridMonth-button, .fc-timeGridDay-button, .fc-listWeek-button').forEach( (viewButton) => {
+      viewButton.addEventListener('click', () => {
+        // Use requestAnimationFrame to ensure FullCalendar has processed the view change
+        requestAnimationFrame(() => {
+          this.onChangeCalendarView();
+        });
+      });
+    });
   },
 
   printCalendar (printableVersionUrl) {

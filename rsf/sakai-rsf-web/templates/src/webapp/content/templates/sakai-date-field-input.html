@@ -33,7 +33,20 @@
 
 		// Initialize on DOM ready without jQuery
 		document.addEventListener('DOMContentLoaded', () => {
-			const initialVal = document.getElementById(rawHidden) ? document.getElementById(rawHidden).value : "";
+			let initialVal = document.getElementById(rawHidden) ? document.getElementById(rawHidden).value : "";
+			if (initialVal) {
+				// Check for ISO format with timezone. Could be more compact but ampersands don't work in RSF templates AFAIK.
+				const hasT = initialVal.indexOf('T') !== -1;
+				const hasPlus = (initialVal.lastIndexOf('+') == initialVal.length -3);
+				const hasMinus = (initialVal.lastIndexOf('-') == initialVal.length -3);
+
+				if (hasT) {
+					if (hasPlus || hasMinus) {
+						initialVal = initialVal + ':00';
+					}
+				}
+			}
+
 			new SakaiDateTimePicker({
 				input: selector,
 				useTime: time,

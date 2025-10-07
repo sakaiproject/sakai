@@ -210,6 +210,7 @@ export class SakaiRubricsList extends RubricsElement {
 
     const url = `/api/sites/${this.siteId}/rubrics/default`;
     fetch(url, {
+      method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     })

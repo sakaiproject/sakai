@@ -17,12 +17,6 @@
         <deploy.target>shared</deploy.target>
     </properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.simpleframework</groupId>
-		    <artifactId>simple-xml</artifactId>
-		</dependency>
-	</dependencies>
 
     <build>
         <resources>

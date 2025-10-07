@@ -246,6 +246,11 @@ public class BaseDbSingleStorage implements DbSingleStorage
 			{
 				// read the xml
 				Document doc = StorageUtils.readDocumentFromString(xml);
+				if (doc == null)
+				{
+					log.warn("readResource(): failed to parse resource XML");
+					return null;
+				}
 
 				// verify the root element
 				Element root = doc.getDocumentElement();

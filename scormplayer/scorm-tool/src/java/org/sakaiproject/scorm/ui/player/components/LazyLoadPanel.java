@@ -49,14 +49,46 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
+/**
+ * A reusable Wicket Panel that defers the construction and rendering of an expensive child component
+ * until after the page has been loaded in the browser. While the real content is being prepared
+ * on the server, a small “loading” indicator is shown. Once the client-side DOM is ready, an Ajax
+ * callback is triggered that asks the server to build the real component and replace the placeholder.
+ *
+ * Why/when to use:
+ * - When the initial page contains heavy components (e.g., SCORM player launch area, large trees, or
+ *   data-heavy panels) that would slow down the first render.
+ * - When you want the page to become interactive quickly and progressively load complex sections.
+ *
+ * How it works (high level):
+ * - On first render, this panel adds a lightweight placeholder (getLoadingComponent()) to markup id
+ *   "content" and registers an Ajax behavior.
+ * - When the DOM is ready, the behavior performs a callback. In respond(), the panel calls
+ *   getLazyLoadComponent() to build the actual component and replaces the placeholder via Ajax.
+ * - The implementation guards against duplicate/late callbacks: once the real content has been
+ *   loaded, subsequent callbacks are ignored.
+ *
+ * Extending:
+ * - Subclasses must implement getLazyLoadComponent(String markupId, AjaxRequestTarget target) and
+ *   should create the real content bound to the provided markup id.
+ * - Optionally override getLoadingComponent(String markupId, PageParameters params) to customize the
+ *   loading indicator.
+ *
+ * Note:
+ * This class is based on Apache Wicket's AjaxLazyLoadPanel with small adaptations for Sakai/SCORM
+ * usage and more robust duplicate-callback handling.
+ */
 public abstract class LazyLoadPanel extends Panel
 {
 	private static final long serialVersionUID = 1L;
+
+	private boolean loading = true;
 
 	public LazyLoadPanel(String id, IModel model, PageParameters params)
 	{
 		super(id, model);
 		setOutputMarkupId(true);
+		setOutputMarkupPlaceholderTag(true);
 		final Component loadingComponent = getLoadingComponent("content", params);
 		add(loadingComponent.setRenderBodyOnly(true));
 
@@ -65,10 +97,13 @@ public abstract class LazyLoadPanel extends Panel
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void respond(AjaxRequestTarget target)
-			{
+			protected void respond(AjaxRequestTarget target) {
+				if (!loading) {
+					return;
+				}
 				Component component = getLazyLoadComponent("content", target);
 				LazyLoadPanel.this.replace(component.setRenderBodyOnly(true));
+				loading = false;
 				target.add(LazyLoadPanel.this);
 			}
 
@@ -80,9 +115,8 @@ public abstract class LazyLoadPanel extends Panel
 			}
 
 			@Override
-			public boolean isEnabled(Component component)
-			{
-				return get("content") == loadingComponent;
+			public boolean isEnabled(Component component) {
+				return true;
 			}
 		});
 	}

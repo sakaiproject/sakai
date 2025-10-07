@@ -1,19 +1,25 @@
-# sakai-pageable-element
+# @sakai-ui/sakai-pageable-element
 
-A base class for elements that need their data paging.
+A base class for Sakai elements that need pagination functionality.
+
+## Description
+
+This component provides base functionality for creating pageable elements in Sakai. It handles pagination logic and rendering.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-pageable-element
+npm install @sakai-ui/sakai-pageable-element
 ```
 
 ## Usage
 
-```html
+```javascript
+import { SakaiPageableElement } from '@sakai-ui/sakai-pageable-element';
 
-<sakai-pageable-element tool="roster"></sakai-pageable-element>
-
+class MyPageableComponent extends SakaiPageableElement {
+  // Implement your component logic here
+}
 ```
 
 ## Linting and formatting
@@ -21,13 +27,7 @@ npm i @sakai-ui/sakai-pageable-element
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
-```
-
-To automatically fix linting and formatting errors, run
-
-```bash
-npm run format
+npm run lint:fix
 ```
 
 ## Testing with Web Test Runner
@@ -37,3 +37,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

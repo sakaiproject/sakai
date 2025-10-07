@@ -67,6 +67,13 @@ should be included in file importing DeliveryMessages
     </t:column>
   </t:dataTable>
 
+  <h:commandLink id="cmdclean" value="#{deliveryMessages.reset_selection}" action="#{delivery.cleanRadioButton}" onclick="saveTime(); serializeImagePoints();"
+	rendered="#{(delivery.actionString=='previewAssessment' || delivery.actionString=='previewAssessmentPublished'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')}">
+	<f:param name="radioId" value="#{question.itemData.itemId}" />
+  </h:commandLink>
+
 <f:verbatim><br /></f:verbatim>
 <h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment' 
