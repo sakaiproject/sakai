@@ -37,6 +37,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -71,6 +72,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
+import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentConstants.SubmissionStatus;
@@ -107,7 +110,9 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarConstants;
 import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -3493,6 +3498,136 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
     }
 
+    private void recreateCalendarEventForImport(Assignment sourceAssignment, Assignment targetAssignment, Map<String, String> targetProperties) {
+        Calendar calendar = getCalendar(targetAssignment.getContext());
+        if (calendar == null) {
+            return;
+        }
+
+        Instant dueDate = targetAssignment.getDueDate();
+        if (dueDate == null) {
+            return;
+        }
+
+        try {
+            CalendarEvent.EventAccess access = targetAssignment.getTypeOfAccess() == GROUP ? CalendarEvent.EventAccess.GROUPED : CalendarEvent.EventAccess.SITE;
+            Collection<Group> groups = resolveGroupsForAssignmentContext(targetAssignment);
+            String formattedDueTime = userTimeService.dateTimeFormat(dueDate, FormatStyle.MEDIUM, FormatStyle.LONG);
+            CalendarEvent event = calendar.addEvent(
+                    timeService.newTimeRange(dueDate.toEpochMilli(), 0),
+                    rb.getString("gen.due") + " " + targetAssignment.getTitle(),
+                    rb.getFormattedMessage("assign_due_event_desc", targetAssignment.getTitle(), formattedDueTime),
+                    "Deadline",
+                    "",
+                    access,
+                    groups,
+                    null);
+
+            if (event != null) {
+                targetProperties.put(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
+                targetProperties.put(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, event.getId());
+                targetProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
+                linkAssignmentToCalendarEvent(targetAssignment, calendar, event);
+            }
+        } catch (PermissionException e) {
+            log.warn("Unable to recreate calendar event for assignment {} in site {} due to permissions", targetAssignment.getId(), targetAssignment.getContext(), e);
+        } catch (Exception e) {
+            log.warn("Unable to recreate calendar event for assignment {} in site {}: {}", targetAssignment.getId(), targetAssignment.getContext(), e.toString());
+        }
+    }
+
+    private void linkAssignmentToCalendarEvent(Assignment assignment, Calendar calendar, CalendarEvent event) {
+        if (calendar == null || event == null) {
+            return;
+        }
+
+        try {
+            CalendarEventEdit edit = calendar.getEditEvent(event.getId(), CalendarService.EVENT_ADD_CALENDAR);
+            edit.setField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, assignment.getId());
+            edit.setField(CalendarConstants.EVENT_OWNED_BY_TOOL_ID, AssignmentConstants.TOOL_ID);
+            if (assignment.getOpenDate() != null) {
+                edit.setField(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, getUsersLocalDateTimeString(assignment.getOpenDate()));
+            }
+            calendar.commitEvent(edit);
+        } catch (IdUnusedException | PermissionException | InUseException e) {
+            log.warn("Unable to link assignment {} to calendar event {}: {}", assignment.getId(), event.getId(), e.toString());
+        }
+    }
+
+    private void recreateAnnouncementForImport(Assignment sourceAssignment, Assignment targetAssignment, Map<String, String> targetProperties) {
+        AnnouncementChannel channel = getAnnouncementChannel(targetAssignment.getContext());
+        if (channel == null || targetAssignment.getOpenDate() == null) {
+            return;
+        }
+
+        try {
+            AnnouncementMessageEdit message = channel.addAnnouncementMessage();
+            if (message == null) {
+                return;
+            }
+            AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
+            header.setDraft(false);
+            header.replaceAttachments(entityManager.newReferenceList());
+
+            if (targetAssignment.getTypeOfAccess() == GROUP) {
+                header.setGroupAccess(resolveGroupsForAssignmentContext(targetAssignment));
+            } else {
+                header.clearGroupAccess();
+            }
+
+            header.setSubject(rb.getFormattedMessage("assig6", targetAssignment.getTitle()));
+
+            String formattedOpenTime = userTimeService.dateTimeFormat(targetAssignment.getOpenDate(), FormatStyle.MEDIUM, FormatStyle.LONG);
+            message.setBody("<p>" + rb.getFormattedMessage("opedat",
+                    formattedText.convertPlaintextToFormattedText(targetAssignment.getTitle()), formattedOpenTime) + "</p>");
+
+            message.getPropertiesEdit().addProperty("assignmentReference",
+                    AssignmentReferenceReckoner.reckoner().assignment(targetAssignment).reckon().getReference());
+
+            String notificationSetting = sourceAssignment.getProperties().get(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION);
+            int notificationLevel = NotificationService.NOTI_NONE;
+            String notificationFlag = "n";
+            if (AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_LOW.equals(notificationSetting)) {
+                notificationLevel = NotificationService.NOTI_OPTIONAL;
+                notificationFlag = "o";
+            } else if (AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH.equals(notificationSetting)) {
+                notificationLevel = NotificationService.NOTI_REQUIRED;
+                notificationFlag = "r";
+            }
+
+            if (!"n".equals(notificationFlag)) {
+                message.getPropertiesEdit().addProperty("notificationLevel", notificationFlag);
+            }
+            message.getPropertiesEdit().addPropertyToList("noti_history", Instant.now().toString() + "_" + notificationLevel);
+
+            channel.commitMessage(message, notificationLevel, "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
+
+            targetProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.TRUE.toString());
+            targetProperties.put(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
+            targetProperties.put(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
+        } catch (PermissionException e) {
+            log.warn("Not permitted to create announcement for assignment {} in site {}", targetAssignment.getId(), targetAssignment.getContext(), e);
+        } catch (Exception e) {
+            log.warn("Unable to recreate announcement for assignment {} in site {}: {}", targetAssignment.getId(), targetAssignment.getContext(), e.toString());
+        }
+    }
+
+    private Collection<Group> resolveGroupsForAssignmentContext(Assignment assignment) {
+        if (assignment.getTypeOfAccess() != GROUP) {
+            return Collections.emptyList();
+        }
+        try {
+            Site site = siteService.getSite(assignment.getContext());
+            return assignment.getGroups().stream()
+                    .map(site::getGroup)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        } catch (IdUnusedException e) {
+            log.warn("Unable to resolve groups for assignment {} in site {}", assignment.getId(), assignment.getContext(), e);
+            return Collections.emptyList();
+        }
+    }
+
     // TODO zipSubmissions and zipGroupSubmissions should be combined
     private void zipSubmissions(String assignmentReference, String assignmentTitle, Assignment.GradeType gradeType, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withRubrics, boolean withoutFolders, String gradeFileFormat, boolean includeNotSubmitted, String siteId) {
         ZipOutputStream out = null;
@@ -4440,11 +4575,22 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         nAssignment.setPeerAssessmentPeriodDate(tenMinutesAfterCloseDate);
                     }
 
-                    // properties
+                    Map<String, String> oProperties = oAssignment.getProperties();
                     Map<String, String> nProperties = nAssignment.getProperties();
-                    nProperties.putAll(oAssignment.getProperties());
+                    nProperties.putAll(oProperties);
+
+                    String originalAutoAnnounce = oProperties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+                    String originalAnnouncementId = oProperties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID);
+                    String originalCalendarEventId = oProperties.get(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+                    boolean originalAddDueDate = Boolean.parseBoolean(oProperties.getOrDefault(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString()));
+
+                    if (StringUtils.isNotBlank(originalAutoAnnounce)) {
+                        nProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, originalAutoAnnounce);
+                    } else {
+                        nProperties.remove(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+                    }
+
                     // remove the link btw assignment and announcement item. One can announce the open date afterwards
-                    nProperties.remove(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
                     nProperties.remove(AssignmentConstants.NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED);
                     nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID);
 
@@ -4453,38 +4599,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     nProperties.remove(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
 
                     if (!nAssignment.getDraft()) {
-                        Map<String, String> oProperties = oAssignment.getProperties();
-
-                        String fromCalendarEventId = oProperties.get(
-                            ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-
-                        if (fromCalendarEventId != null) {
-                            String fromCalendarId
-                                = calendarService.calendarReference(
-                                    oAssignment.getContext(), SiteService.MAIN_CONTAINER);
-                            Calendar fromCalendar = calendarService.getCalendar(fromCalendarId);
-                            CalendarEvent fromEvent = fromCalendar.getEvent(fromCalendarEventId);
-                            String toCalendarId
-                                = calendarService.calendarReference(
-                                    nAssignment.getContext(), SiteService.MAIN_CONTAINER);
-                            Calendar toCalendar = null;
-                            try {
-                                toCalendar = calendarService.getCalendar(toCalendarId);
-                            } catch (IdUnusedException iue) {
-                                calendarService.commitCalendar(calendarService.addCalendar(toCalendarId));
-                                toCalendar = calendarService.getCalendar(toCalendarId);
-                            }
-
-                            String fromDisplayName = fromEvent.getDisplayName();
-                            CalendarEvent toCalendarEvent
-                                = toCalendar.addEvent(fromEvent.getRange(), fromEvent.getDisplayName()
-                                    , fromEvent.getDescription(), fromEvent.getType()
-                                    , fromEvent.getLocation(), fromEvent.getAccess()
-                                    , fromEvent.getGroups(), fromEvent.getAttachments());
-                            nProperties.put(
-                                ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, toCalendarEvent.getId());
-                            nProperties.put(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
-                            nProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
+                        if ((originalAddDueDate || StringUtils.isNotBlank(originalCalendarEventId)) && nAssignment.getDueDate() != null) {
+                            recreateCalendarEventForImport(oAssignment, nAssignment, nProperties);
+                        }
+                        if ((Boolean.parseBoolean(originalAutoAnnounce) || StringUtils.isNotBlank(originalAnnouncementId)) && nAssignment.getOpenDate() != null) {
+                            recreateAnnouncementForImport(oAssignment, nAssignment, nProperties);
                         }
                     }
 
