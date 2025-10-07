@@ -69,6 +69,7 @@
 - **Tests**: Include tests where sensible/possible
 - **Java Version**: Java 17 for trunk (Java 11 was used for Sakai 22 and Sakai 23)
 - **Pull Request Workflow**: "Squash and Merge" for single issues, "Rebase and Merge" for multiple issues
+- **Dependency Wiring**: Always ensure required services are injected via Spring configuration; do not introduce runtime "fallback" lookups when wiring can be fixed.
 
 ## Push Notifications
 

@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.sakaiproject.announcement.api.AnnouncementChannel;
+import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -356,6 +358,28 @@ public interface AssignmentService extends EntityProducer {
      * @throws PermissionException
      */
     public void updateAssignment(Assignment assignment) throws PermissionException;
+
+    /**
+     * Create or replace the assignment's due-date calendar event and persist the resulting reference on the assignment.
+     *
+     * @param assignment      the assignment being linked to the calendar
+     * @param calendar        the calendar that should hold the event
+     * @param title           the event title to display
+     * @param dueTime         when the event should occur
+     * @param dueDateProperty the assignment property key that stores the calendar event id
+     */
+    void createCalendarEventForAssignment(Assignment assignment, Calendar calendar, String title, Instant dueTime, String dueDateProperty);
+
+    /**
+     * Create or replace the assignment's open-date announcement and persist the resulting reference on the assignment.
+     *
+     * @param assignment        the assignment being linked to announcements
+     * @param channel           the announcement channel that should hold the message
+     * @param title             the message title to display
+     * @param openTime          when the announcement should reference
+     * @param notificationLevel optional notification preference to apply (n/o/r)
+     */
+    void createAnnouncementForAssignment(Assignment assignment, AnnouncementChannel channel, String title, Instant openTime, String notificationLevel);
 
     /**
      * @param submission
