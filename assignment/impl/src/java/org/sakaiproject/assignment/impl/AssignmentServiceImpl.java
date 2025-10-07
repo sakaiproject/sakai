@@ -3607,7 +3607,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             header.replaceAttachments(entityManager.newReferenceList());
 
             if (assignment.getTypeOfAccess() == GROUP) {
-                header.setGroupAccess(resolveGroupsForAssignmentContext(assignment));
+                header.setGroupAccess(resolveGroupsForAssignmentContext(assignment).stream()
+                        .map(Group::getReference)
+                        .collect(Collectors.toList()));
             } else {
                 header.clearGroupAccess();
             }
