@@ -157,6 +157,7 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.message.api.MessageService;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
@@ -171,6 +172,7 @@ import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.timesheet.api.TimeSheetEntry;
@@ -3619,6 +3621,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             message.getPropertiesEdit().addProperty("assignmentReference",
                     AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
+
+            Time releaseTime = timeService.newTime(openTime.toEpochMilli());
+            header.setInstant(openTime);
+            header.setDate(releaseTime);
+            message.getPropertiesEdit().addProperty(MessageService.RELEASE_DATE, releaseTime.toString());
 
             int notificationLevel = NotificationService.NOTI_NONE;
             String notificationFlag = StringUtils.defaultIfBlank(notificationSetting, "n");
