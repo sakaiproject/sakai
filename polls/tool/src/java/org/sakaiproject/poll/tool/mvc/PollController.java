@@ -16,18 +16,14 @@
 
 package org.sakaiproject.poll.tool.mvc;
 
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.TimeZone;
 
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.poll.logic.ExternalLogic;
@@ -35,6 +31,8 @@ import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.tool.service.PollsUiService;
+import org.sakaiproject.time.api.UserTimeService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,10 +41,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.sakaiproject.util.ResourceLoader;
 
 @Controller
 @RequestMapping("/faces")
-@RequiredArgsConstructor
 @Slf4j
 public class PollController {
 
@@ -55,6 +53,21 @@ public class PollController {
     private final ExternalLogic externalLogic;
     private final PollsUiService pollsUiService;
     private final MessageSource messageSource;
+    private final UserTimeService userTimeService;
+
+    public PollController(PollListManager pollListManager,
+                          PollVoteManager pollVoteManager,
+                          ExternalLogic externalLogic,
+                          PollsUiService pollsUiService,
+                          MessageSource messageSource,
+                          @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService) {
+        this.pollListManager = pollListManager;
+        this.pollVoteManager = pollVoteManager;
+        this.externalLogic = externalLogic;
+        this.pollsUiService = pollsUiService;
+        this.messageSource = messageSource;
+        this.userTimeService = userTimeService;
+    }
 
     @GetMapping({"/", "/votePolls"})
     public String listPolls(Locale locale, Model model) {
@@ -69,16 +82,13 @@ public class PollController {
         }
 
         List<Poll> polls = new ArrayList<>(pollListManager.findAllPolls(siteId));
-        ZoneId zoneId = Optional.ofNullable(externalLogic.getLocalTimeZone())
-                .map(TimeZone::toZoneId)
-                .orElse(TimeZone.getDefault().toZoneId());
+        Locale resourceLocale = new ResourceLoader().getLocale();
+        Locale effectiveLocale = normaliseLocale(resourceLocale != null ? resourceLocale
+                : (locale != null ? locale : Locale.getDefault()));
 
-        DateTimeFormatter displayFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
-                .withLocale(normaliseLocale(locale))
-                .withZone(zoneId);
         DateTimeFormatter sortFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                 .withLocale(Locale.US)
-                .withZone(zoneId);
+                .withZone(ZoneOffset.UTC);
 
         List<PollRow> rows = new ArrayList<>();
         boolean renderDelete = false;
@@ -96,14 +106,14 @@ public class PollController {
             String voteOpenDisplay = null;
             String voteOpenSortKey = null;
             if (poll.getVoteOpen() != null) {
-                voteOpenDisplay = displayFormatter.format(poll.getVoteOpen().toInstant());
+                voteOpenDisplay = userTimeService.shortLocalizedTimestamp(poll.getVoteOpen().toInstant(), effectiveLocale);
                 voteOpenSortKey = sortFormatter.format(poll.getVoteOpen().toInstant());
             }
 
             String voteCloseDisplay = null;
             String voteCloseSortKey = null;
             if (poll.getVoteClose() != null) {
-                voteCloseDisplay = displayFormatter.format(poll.getVoteClose().toInstant());
+                voteCloseDisplay = userTimeService.shortLocalizedTimestamp(poll.getVoteClose().toInstant(), effectiveLocale);
                 voteCloseSortKey = sortFormatter.format(poll.getVoteClose().toInstant());
             }
 
