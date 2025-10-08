@@ -86,7 +86,7 @@
 			document.getElementById('ltiSubmissionResubmitNote').style.display = 'block';
 			document.getElementById('site').checked = true;
 			document.getElementById('notificationOptions').style.display = 'none';
-			#if ($reviewServiceProviderId == $turnitinProviderId || $reviewServiceProviderId == $turnitinOCProviderId)
+			#if ($allowReviewService && ($reviewServiceProviderId == $turnitinProviderId || $reviewServiceProviderId == $turnitinOCProviderId))
 				document.getElementById('contentReviewServiceOptions').style.display = 'none';
 			#end
 			document.getElementById('notsendnotif').checked = true;
@@ -99,7 +99,7 @@
 			document.getElementById('External_Tool_Fieldset').style.display = 'none';
 			document.getElementById('ltiSubmissionResubmitNote').style.display = 'none';
 			document.getElementById('notificationOptions').style.display = 'block';
-			#if ($reviewServiceProviderId == $turnitinProviderId || $reviewServiceProviderId == $turnitinOCProviderId)
+			#if ($allowReviewService && ($reviewServiceProviderId == $turnitinProviderId || $reviewServiceProviderId == $turnitinOCProviderId))
 				document.getElementById('contentReviewServiceOptions').style.display = 'block';
 			#end
 			document.getElementById('releaseGradeNotifications').style.display = 'block';
