@@ -146,7 +146,14 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         
         if (t.getPollId() == null) {
             newPoll = true;
-            t.setUuid(idManager.createUuid());
+            String generatedUuid = null;
+            if (idManager != null) {
+                generatedUuid = idManager.createUuid();
+            }
+            if (generatedUuid == null || generatedUuid.trim().isEmpty()) {
+                generatedUuid = UUID.randomUUID().toString();
+            }
+            t.setUuid(generatedUuid);
         }
         if(t.getCreationDate() == null) {
             t.setCreationDate(new Date());
@@ -160,6 +167,9 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 }
             }
             pollRepository.save(t);
+            if (newPoll && t.getPollId() == null) {
+                pollRepository.findByUuid(t.getUuid()).ifPresent(persisted -> t.setPollId(persisted.getPollId()));
+            }
 
         } catch (DataAccessException e) {
             log.error("Hibernate could not save: " + e.toString(), e);
