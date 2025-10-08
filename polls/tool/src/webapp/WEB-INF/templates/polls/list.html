@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="#{poll_list_title}">Polls</title>
+</head>
+<body>
+  <div class="portletBody container-fluid">
+    <ul class="nav nav-pills mb-4">
+      <li class="nav-item">
+        <span class="nav-link active" th:text="#{action_main}">Polls</span>
+      </li>
+      <li class="nav-item" th:if="${canAdd}">
+        <a class="nav-link" th:href="@{/faces/voteAdd}" th:text="#{action_add_poll}">Add</a>
+      </li>
+      <li class="nav-item" th:if="${isSiteOwner}">
+        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
+      </li>
+    </ul>
+
+    <div th:if="${success}" class="alert alert-success" role="status" th:text="${success}">Success</div>
+    <div th:if="${alert}" class="alert alert-warning" role="alert" th:text="${alert}">Alert</div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="h3 mb-0" th:text="#{poll_list_title}">Polls</h1>
+      <a class="btn btn-primary" th:if="${canAdd}" th:href="@{/faces/voteAdd}" th:text="#{new_poll_title}">Add poll</a>
+    </div>
+
+    <div class="alert alert-info" role="status" th:if="${#lists.isEmpty(polls)}" th:text="#{poll_list_empty}">
+      No polls have been created yet.
+    </div>
+
+    <form th:if="${!#lists.isEmpty(polls)}" method="post" th:action="@{/faces/polls/bulk}">
+      <input type="hidden" name="siteId" th:value="${siteId}" />
+
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <caption class="visually-hidden" th:text="#{poll_list_summary}">Poll summary</caption>
+          <thead>
+            <tr>
+              <th scope="col">
+                <a href="#" class="link-body-emphasis text-decoration-none" th:text="#{poll_question_title}">Question</a>
+              </th>
+              <th scope="col">
+                <a href="#" class="link-body-emphasis text-decoration-none" th:text="#{poll_open_title}">Opening</a>
+              </th>
+              <th scope="col">
+                <a href="#" class="link-body-emphasis text-decoration-none" th:text="#{poll_close_title}">Closing</a>
+              </th>
+              <th scope="col" th:text="#{poll_result_title}">Results</th>
+              <th scope="col" class="text-nowrap">
+                <div class="form-check m-0" th:if="${renderDelete}">
+                  <input class="form-check-input" type="checkbox" id="remove-all" />
+                  <label class="form-check-label" for="remove-all" th:text="#{poll_select_title_all}">Select all</label>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="poll : ${polls}">
+              <td>
+                <div class="d-flex flex-column gap-1">
+                  <a th:if="${poll.votable}" class="fw-semibold" th:href="@{'/faces/voteQuestion'(pollId=${poll.id})}" th:text="${poll.text}">
+                    Poll question
+                  </a>
+                  <span th:if="${!poll.votable}" th:text="${poll.optionCount == 0 ? poll.text + ' (' + #messages.msgOrNull('poll_no_options') + ')' : poll.text}">
+                    Poll question
+                  </span>
+                  <div class="d-flex flex-wrap gap-2">
+                    <a th:if="${poll.editable}" class="btn btn-link btn-sm px-0" th:href="@{'/faces/voteAdd'(pollId=${poll.id})}" th:text="#{action_revise_poll}">
+                      Edit
+                    </a>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span th:if="${poll.voteOpenDisplay}" th:text="${poll.voteOpenDisplay}" th:attr="data-sort=${poll.voteOpenSortKey}">Opening</span>
+                <span th:if="${poll.voteOpenDisplay == null}">&nbsp;</span>
+              </td>
+              <td>
+                <span th:if="${poll.voteCloseDisplay}" th:text="${poll.voteCloseDisplay}" th:attr="data-sort=${poll.voteCloseSortKey}">Closing</span>
+                <span th:if="${poll.voteCloseDisplay == null}">&nbsp;</span>
+              </td>
+              <td>
+                <a th:if="${poll.resultsVisible}" th:href="@{'/faces/voteResults'(pollId=${poll.id})}" th:text="#{action_view_results}">Results</a>
+              </td>
+              <td>
+                <div class="form-check" th:if="${poll.deletable}">
+                  <input class="form-check-input" type="checkbox" th:id="${'delete-' + poll.id}" name="deleteIds" th:value="${poll.id}" />
+                  <label class="form-check-label visually-hidden" th:for="${'delete-' + poll.id}" th:text="${#messages.msg('delete_poll_tooltip', poll.text)}">Delete</label>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex gap-2 mt-3" th:if="${renderDelete}">
+        <button id="delete-polls" type="submit" name="action" value="delete" class="btn btn-danger" th:text="#{poll_list_delete}">Delete selected</button>
+        <button id="reset-polls-votes" type="submit" name="action" value="reset" class="btn btn-outline-secondary" th:text="#{poll_list_reset}">Reset votes</button>
+      </div>
+    </form>
+  </div>
+  <script type="module">
+  const selectAll = document.getElementById('remove-all');
+  const deleteButton = document.getElementById('delete-polls');
+  const resetButton = document.getElementById('reset-polls-votes');
+  const checkboxes = Array.from(document.querySelectorAll('input[name="deleteIds"]'));
+
+  const updateState = () => {
+    const checked = checkboxes.filter(cb => cb.checked);
+    if (deleteButton) {
+      deleteButton.disabled = checked.length === 0;
+    }
+    if (resetButton) {
+      resetButton.disabled = checked.length === 0;
+    }
+    if (selectAll) {
+      selectAll.checked = checked.length === checkboxes.length && checkboxes.length > 0;
+    }
+  };
+
+  if (selectAll) {
+    selectAll.addEventListener('change', (event) => {
+      checkboxes.forEach(cb => cb.checked = event.target.checked);
+      updateState();
+    });
+  }
+
+  checkboxes.forEach(cb => cb.addEventListener('change', updateState));
+  updateState();
+  </script>
+</body>
+</html>

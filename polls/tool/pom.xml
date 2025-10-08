@@ -76,22 +76,18 @@
             <artifactId>poi-ooxml</artifactId>
             <version>${sakai.poi.version}</version>
         </dependency>
-        <!-- RSF dependencies -->
+        <!-- Thymeleaf template engine for RSF replacement -->
         <dependency>
-            <groupId>org.sakaiproject.rsf</groupId>
-            <artifactId>sakai-rsf-core</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.rsf</groupId>
-            <artifactId>sakai-rsf-web-evolvers</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf-spring5</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.rsf</groupId>
-            <artifactId>sakai-rsf-web-templates</artifactId>
-            <version>${project.version}</version>
-            <type>war</type>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-java8time</artifactId>
         </dependency>
     </dependencies>
 </project>

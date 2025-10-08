@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${isNew} ? #{new_option_title} : #{edit_option_title}">Option</title>
+</head>
+<body>
+  <div class="portletBody container-fluid">
+    <ul class="nav nav-pills mb-4">
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/faces/votePolls}" th:text="#{action_main}">Polls</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/faces/voteAdd(pollId=${poll.pollId})}" th:text="#{action_add_poll}">Add</a>
+      </li>
+      <li class="nav-item" th:if="${isSiteOwner}">
+        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
+      </li>
+    </ul>
+
+    <h1 class="h4 mb-3" th:text="${isNew} ? #{new_option_title} : #{edit_option_title}">Option</h1>
+    <p class="text-muted">
+      <span th:text="#{new_poll_question}">Question</span>:
+      <span th:utext="${poll.text}">Poll question</span>
+    </p>
+
+    <form th:action="@{/faces/pollOption}" th:object="${optionForm}" method="post">
+      <input type="hidden" th:field="*{pollId}" />
+      <input type="hidden" th:field="*{optionId}" />
+
+      <div class="mb-3">
+        <label class="form-label" for="option-text" th:text="#{new_poll_option}">Option</label>
+        <textarea id="option-text"
+                  class="form-control"
+                  th:classappend="${#fields.hasErrors('text')}? ' is-invalid'"
+                  rows="4"
+                  th:field="*{text}"
+                  required></textarea>
+        <div class="invalid-feedback" th:if="${#fields.hasErrors('text')}" th:errors="*{text}">Provide text</div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" name="submitAction" value="save" class="btn btn-primary" th:text="#{new_poll_submit}">Save</button>
+        <button type="submit"
+                name="submitAction"
+                value="addAnother"
+                class="btn btn-outline-primary"
+                th:if="${isNew}"
+                th:text="#{new_poll_saveoption}">Save and add another</button>
+        <a class="btn btn-secondary" th:href="@{/faces/voteAdd(pollId=${poll.pollId})}" th:text="#{new_poll_cancel}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
