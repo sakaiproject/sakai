@@ -59,6 +59,10 @@ public class PollsUiService {
     public void deletePolls(Collection<Long> pollIds) {
         for (Long pollId : pollIds) {
             Poll poll = pollListManager.getPollById(pollId);
+            if (poll == null) {
+                log.warn("Poll {} not found during bulk delete", pollId);
+                continue;
+            }
             try {
                 pollListManager.deletePoll(poll);
             } catch (SecurityException e) {
@@ -70,6 +74,10 @@ public class PollsUiService {
     public void resetPollVotes(Collection<Long> pollIds) {
         for (Long pollId : pollIds) {
             Poll poll = pollListManager.getPollById(pollId);
+            if (poll == null) {
+                log.warn("Poll {} not found during bulk vote reset", pollId);
+                continue;
+            }
             if (pollListManager.userCanDeletePoll(poll)) {
                 List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
                 pollVoteManager.deleteAll(votes);
@@ -111,7 +119,7 @@ public class PollsUiService {
         if (!isNew) {
             List<Option> pollOptions = pollListManager.getOptionsForPoll(poll);
             poll.setOptions(pollOptions);
-            if (pollOptions.size() < poll.getMinOptions() || pollOptions.size() < poll.getMaxOptions()) {
+            if (pollOptions.size() < poll.getMinOptions() || pollOptions.size() > poll.getMaxOptions()) {
                 throw new PollValidationException("invalid_poll_limits");
             }
         }
@@ -142,11 +150,12 @@ public class PollsUiService {
             throw new PollValidationException("error_batch_options");
         }
 
+        int nextOrder = pollListManager.getOptionsForPoll(pollId).size();
         for (String optionText : optionTexts) {
             Option option = new Option();
             option.setPollId(pollId);
             option.setText(PollUtils.cleanupHtmlPtags(optionText));
-            option.setOptionOrder(pollListManager.getOptionsForPoll(pollId).size());
+            option.setOptionOrder(nextOrder++);
             pollListManager.saveOption(option);
         }
     }

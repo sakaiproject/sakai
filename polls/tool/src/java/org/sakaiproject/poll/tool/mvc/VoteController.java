@@ -59,6 +59,10 @@ public class VoteController {
                            Locale locale,
                            RedirectAttributes redirectAttributes) {
         Poll poll = pollListManager.getPollById(pollId);
+        if (poll == null) {
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
+            return "redirect:/faces/votePolls";
+        }
         if (!pollVoteManager.pollIsVotable(poll)) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
             return "redirect:/faces/votePolls";
@@ -84,6 +88,10 @@ public class VoteController {
                              RedirectAttributes redirectAttributes,
                              Locale locale) {
         Poll poll = pollListManager.getPollById(voteForm.getPollId());
+        if (poll == null) {
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
+            return "redirect:/faces/votePolls";
+        }
         try {
             VoteCollection voteCollection = pollsUiService.submitVote(voteForm.getPollId(), new ArrayList<>(voteForm.getSelectedOptionIds()));
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("thanks_msg", null, locale));
