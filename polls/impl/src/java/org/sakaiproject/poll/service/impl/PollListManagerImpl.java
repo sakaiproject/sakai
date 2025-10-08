@@ -127,7 +127,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         if (polls == null) {
             polls = new ArrayList<>();
         }
-        return new ArrayList<>(polls);
+        return polls;
     }
 
     public boolean savePoll(Poll t) throws SecurityException, IllegalArgumentException {
@@ -276,9 +276,6 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         if (pollId == null) {
             throw new IllegalArgumentException("Poll id cannot be null when retrieving options");
         }
-        if (!pollRepository.existsById(pollId)) {
-            throw new IllegalArgumentException("Cannot get options for a poll (" + pollId + ") that does not exist");
-        }
         return optionRepository.findByPollIdOrderByOptionOrder(pollId);
     }
 
@@ -286,12 +283,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         List<Option> options = getOptionsForPoll(pollId);
  
         //iterate and remove deleted options
-        for (Iterator<Option> i = options.listIterator(); i.hasNext();) {
-            Option o = i.next();
-            if (o == null || o.getDeleted()) {
-                i.remove();
-            }
-        }
+        options.removeIf(o -> o == null || o.getDeleted());
  
         return options;
     }
@@ -317,17 +309,15 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     public void deleteOption(Option option, boolean soft) {
         if (!soft) {
             deleteOption(option);
-            return;
         } else {
-            option.setDeleted(Boolean.TRUE);
+            option.setDeleted(true);
             optionRepository.save(option);
             log.debug("Option id {} soft deleted.", option.getOptionId());
         }
     }
 
     public boolean saveOption(Option t) {
-        if (t.getUuid() == null 
-                || t.getUuid().trim().length() == 0) {
+        if (t.getUuid() == null || t.getUuid().trim().isEmpty()) {
             t.setUuid( UUID.randomUUID().toString() );
         }
 
@@ -345,20 +335,13 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_ANY, externalLogic.getSiteRefFromId(poll.getSiteId())))
             return true;
 
-        if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_OWN, externalLogic.getSiteRefFromId(poll.getSiteId()))
-                && poll.getOwner().equals(externalLogic.getCurrentUserId()))
-            return true;
-
-        return false;
+        return externalLogic.isAllowedInLocation(PERMISSION_DELETE_OWN, externalLogic.getSiteRefFromId(poll.getSiteId()))
+                && poll.getOwner().equals(externalLogic.getCurrentUserId());
     }
 
     private boolean isSiteOwner(String siteId) {
-        if (externalLogic.isUserAdmin())
-            return true;
-        else if (externalLogic.isAllowedInLocation("site.upd", externalLogic.getSiteRefFromId(siteId)))
-            return true;
-        else
-            return false;
+        if (externalLogic.isUserAdmin()) return true;
+        else return externalLogic.isAllowedInLocation("site.upd", externalLogic.getSiteRefFromId(siteId));
     }
 
     /*
@@ -555,7 +538,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             log.warn("Failed to get the polls for site {}: {}", fromContext, e.toString());
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
