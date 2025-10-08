@@ -3,33 +3,52 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- Bring in the HBM related beans beans -->
-	<import resource="hibernate-hbms.xml" />
+	<bean id="org.sakaiproject.poll.hibernate.AdditionalMappings"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="annotatedClasses">
+			<list>
+				<value>org.sakaiproject.poll.model.Poll</value>
+				<value>org.sakaiproject.poll.model.Option</value>
+				<value>org.sakaiproject.poll.model.Vote</value>
+			</list>
+		</property>
+	</bean>
 
-	<!-- Bring in the hibernate related beans -->
-	<!-- This is in the implementation so it can be used by tests but then loaded from the classpath here. -->
-	<import resource="classpath:org/sakaiproject/poll/spring-hibernate.xml" />
+	<bean id="org.sakaiproject.poll.repository.PollRepository"
+		class="org.sakaiproject.poll.repository.impl.PollRepositoryImpl">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean>
 
-	<!-- create a logic bean, give it the dao from above and some sakai services -->
-		<bean id="org.sakaiproject.poll.logic.PollListManager"
+	<bean id="org.sakaiproject.poll.repository.OptionRepository"
+		class="org.sakaiproject.poll.repository.impl.OptionRepositoryImpl">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean>
+
+	<bean id="org.sakaiproject.poll.repository.VoteRepository"
+		class="org.sakaiproject.poll.repository.impl.VoteRepositoryImpl">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean>
+
+	<!-- create a logic bean, give it the repositories from above and some sakai services -->
+	<bean id="org.sakaiproject.poll.logic.PollListManager"
 		class="org.sakaiproject.poll.service.impl.PollListManagerImpl"
 		lazy-init="true" init-method="init">
-		<property name="dao" ref="org.sakaiproject.poll.dao.PollDao"/>
-		<property name="idManager"
-			ref="org.sakaiproject.id.api.IdManager" />
-				<property name="entityManager"
-			ref="org.sakaiproject.entity.api.EntityManager" />
-		<property name="externalLogic"
-			  ref="org.sakaiproject.poll.logic.ExternalLogic"/>
+		<property name="pollRepository" ref="org.sakaiproject.poll.repository.PollRepository"/>
+		<property name="optionRepository" ref="org.sakaiproject.poll.repository.OptionRepository"/>
+		<property name="voteRepository" ref="org.sakaiproject.poll.repository.VoteRepository"/>
+		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
-        <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+		<property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
 		<property name="pollVoteManager" ref="org.sakaiproject.tool.poll.api.PollVoteManager"/>
-    </bean>
+	</bean>
 
 	<bean id="org.sakaiproject.tool.poll.api.PollVoteManager"
 		class="org.sakaiproject.poll.service.impl.PollVoteManagerImpl"
 		lazy-init="true">
-		<property name="dao" ref="org.sakaiproject.poll.dao.PollDao"/>
+		<property name="voteRepository" ref="org.sakaiproject.poll.repository.VoteRepository"/>
+		<property name="pollRepository" ref="org.sakaiproject.poll.repository.PollRepository"/>
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 		<property name="pollListManager" ref="org.sakaiproject.poll.logic.PollListManager"/>
 	</bean>

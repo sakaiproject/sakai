@@ -354,8 +354,8 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		copyParamsToObject(params, poll);
 
 		poll.setCreationDate(new Date());
-		if (poll.getId() == null) {
-			poll.setId(UUID.randomUUID().toString());
+		if (poll.getUuid() == null) {
+			poll.setUuid(UUID.randomUUID().toString());
 		}
 		if (poll.getOwner() == null) {
 			poll.setOwner(developerHelperService.getCurrentUserId());
@@ -413,7 +413,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("Current user (" + userReference
 					+ ") cannot update polls in location (" + location + ")");
 		}
-		developerHelperService.copyBean(poll, current, 0, new String[] { "id",
+		developerHelperService.copyBean(poll, current, 0, new String[] { "uuid",
 				"pollId", "owner", "siteId", "creationDate", "reference",
 				"url", "properties" }, true);
 		pollListManager.savePoll(current);

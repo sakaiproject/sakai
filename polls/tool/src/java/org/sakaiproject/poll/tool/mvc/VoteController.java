@@ -89,7 +89,7 @@ public class VoteController {
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("thanks_msg", null, locale));
             return "redirect:/faces/voteThanks?voteRef=" + voteCollection.getId();
         } catch (PollValidationException ex) {
-            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage(ex.getMessage(), null, locale));
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale));
             return "redirect:/faces/voteQuestion?pollId=" + poll.getPollId();
         }
     }

@@ -21,30 +21,62 @@
 
 package org.sakaiproject.poll.model;
 
-import lombok.Data;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
-@Data
-public class Option {
+import lombok.Getter;
+import lombok.Setter;
+import org.sakaiproject.springframework.data.PersistableEntity;
 
+@Getter
+@Setter
+@Entity
+@Table(name = "POLL_OPTION")
+public class Option implements PersistableEntity<Long> {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "OPTION_ID")
     private Long optionId;
+
+    @Column(name = "OPTION_POLL_ID", nullable = false)
     private Long pollId;
+
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
+    @Column(name = "OPTION_TEXT", nullable = false)
     private String text;
+
+    @Transient
     private String status;
+
+    @Column(name = "OPTION_UUID", nullable = false, length = 255)
     private String uuid;
+
+    @Column(name = "DELETED", nullable = false)
     private Boolean deleted = Boolean.FALSE;
+
+    @Column(name = "OPTION_ORDER", nullable = false)
     private Integer optionOrder;
 
-    public Option() {}
-
-    public Option(Long oId) {
-        this.optionId = oId;
+    public Option() {
+        // default constructor
     }
 
-    public String getId() {
-        return optionId+"";
+    public Option(Long optionId) {
+        this.optionId = optionId;
     }
 
-    public void setId(Long id) {	
-        this.optionId = id;	
+    @Override
+    public Long getId() {
+        return optionId;
     }
 }
