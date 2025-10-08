@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title th:text="${isNew} ? #{new_poll_title} : #{new_poll_title_edit}">Poll</title>
-  <script type="module" src="/webcomponents/bundles/sakai-date-picker.js"></script>
 </head>
 <body>
   <div class="portletBody container-fluid">
@@ -28,10 +27,7 @@
       <input type="hidden" th:field="*{pollId}" />
 
       <div class="mb-3">
-        <label class="form-label" for="poll-text">
-          <span class="text-danger">*</span>
-          <span th:text="#{new_poll_question_label}">Question</span>
-        </label>
+        <label class="form-label" for="poll-text" th:text="#{new_poll_question_label}">Question</label>
         <input id="poll-text"
                type="text"
                class="form-control"
@@ -53,47 +49,39 @@
 
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="form-label" for="open-date-picker">
-            <span class="text-danger">*</span>
-            <span th:text="#{new_poll_open_label}">Opening</span>
-          </label>
-          <input type="hidden"
-                 id="open-date-field"
+          <label class="form-label" for="open-date" th:text="#{new_poll_open_label}">Opening</label>
+          <input type="datetime-local"
+                 id="open-date"
+                 class="form-control"
+                 th:classappend="${#fields.hasErrors('openDate')}? ' is-invalid'"
                  th:field="*{openDate}"
-                 th:value="${pollForm.openDate}" />
-          <sakai-date-picker id="open-date-picker"
-                             th:attr="label=#{new_poll_open_label}, iso-date=${pollForm.openDate}">
-          </sakai-date-picker>
-          <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('openDate')}" th:errors="*{openDate}">Provide an opening date</div>
+                 required />
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('openDate')}" th:errors="*{openDate}">Provide an opening date</div>
         </div>
         <div class="col-md-6">
-          <label class="form-label" for="close-date-picker">
-            <span class="text-danger">*</span>
-            <span th:text="#{new_poll_close_label}">Closing</span>
-          </label>
-          <input type="hidden"
-                 id="close-date-field"
+          <label class="form-label" for="close-date" th:text="#{new_poll_close_label}">Closing</label>
+          <input type="datetime-local"
+                 id="close-date"
+                 class="form-control"
+                 th:classappend="${#fields.hasErrors('closeDate')}? ' is-invalid'"
                  th:field="*{closeDate}"
-                 th:value="${pollForm.closeDate}" />
-          <sakai-date-picker id="close-date-picker"
-                             th:attr="label=#{new_poll_close_label}, iso-date=${pollForm.closeDate}">
-          </sakai-date-picker>
-          <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('closeDate')}" th:errors="*{closeDate}">Provide a closing date</div>
+                 required />
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('closeDate')}" th:errors="*{closeDate}">Provide a closing date</div>
         </div>
       </div>
 
-      <div class="mt-4" th:if="${!options.isEmpty()}">
+      <div class="mt-4" th:if="${pollForm.pollId != null}">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h5 mb-0" th:text="#{new_poll_option_title}">Answer Options</h2>
           <div class="btn-group">
-            <a class="btn btn-outline-primary btn-sm" th:href="@{'/faces/pollOption'(pollId=${pollForm.pollId})}" th:text="#{new_poll_option_add}">Add option</a>
-            <a class="btn btn-outline-secondary btn-sm" th:href="@{'/faces/pollOptionBatch'(pollId=${pollForm.pollId})}" th:text="#{new_poll_option_add_batch}">Add in batch</a>
+            <button type="submit" name="redirect" value="option" class="btn btn-outline-primary btn-sm" th:text="#{new_poll_option_add}">Add option</button>
+            <button type="submit" name="redirect" value="optionBatch" class="btn btn-outline-secondary btn-sm" th:text="#{new_poll_option_add_batch}">Add in batch</button>
           </div>
         </div>
 
         <div class="alert alert-warning" th:if="${hasVotes}" th:text="#{warn_poll_has_votes}">Existing votes warning</div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" th:if="${!options.isEmpty()}">
           <table class="table table-sm table-striped align-middle">
             <thead>
             <tr>
@@ -112,16 +100,14 @@
             </tbody>
           </table>
         </div>
+        <p class="text-muted" th:if="${options.isEmpty()}" th:text="#{new_poll_saveoption}">Save to add options</p>
       </div>
 
       <div class="mt-4">
         <h2 class="h5" th:text="#{new_poll_limits}">Limits</h2>
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label" for="min-options">
-              <span class="text-danger">*</span>
-              <span th:text="#{new_poll_min_limits}">Min options</span>
-            </label>
+            <label class="form-label" for="min-options" th:text="#{new_poll_min_limits}">Min options</label>
             <input type="number"
                    id="min-options"
                    class="form-control"
@@ -132,10 +118,7 @@
             <div class="invalid-feedback" th:if="${#fields.hasErrors('minOptions')}" th:errors="*{minOptions}">Invalid minimum</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="max-options">
-              <span class="text-danger">*</span>
-              <span th:text="#{new_poll_max_limits}">Max options</span>
-            </label>
+            <label class="form-label" for="max-options" th:text="#{new_poll_max_limits}">Max options</label>
             <input type="number"
                    id="max-options"
                    class="form-control"
@@ -169,27 +152,6 @@
       </div>
     </form>
 
-    <div class="mt-4" th:if="${isNew}">
-      <div class="alert alert-info" th:text="#{new_poll_saveoption}">Save to add options</div>
-    </div>
   </div>
-  <script type="module">
-    const linkPickerToField = (pickerId, fieldId) => {
-      const picker = document.getElementById(pickerId);
-      const field = document.getElementById(fieldId);
-      if (!picker || !field) {
-        return;
-      }
-      if (picker.isoDate && !field.value) {
-        field.value = picker.isoDate;
-      }
-      picker.addEventListener("datetime-selected", e => {
-        field.value = e.target.isoDate ?? "";
-      });
-    };
-
-    linkPickerToField("open-date-picker", "open-date-field");
-    linkPickerToField("close-date-picker", "close-date-field");
-  </script>
 </body>
 </html>

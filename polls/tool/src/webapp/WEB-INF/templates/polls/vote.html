@@ -34,6 +34,8 @@
                  name="selectedOptionIds"
                  th:id="${'option-' + option.optionId}"
                  th:value="${option.optionId}" />
+          <span class="flex-grow-1" th:utext="${option.text}">Option text</span>
+        </label>
           <span th:utext="${option.text}" class="flex-grow-1">Option text</span>
         </label>
       </div>
