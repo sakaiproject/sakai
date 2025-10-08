@@ -47,6 +47,11 @@
       <artifactId>minio</artifactId>
       <version>${minio.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp-jvm</artifactId>
+      <version>5.1.0</version>
+    </dependency>
   </dependencies>
 
   <build>
