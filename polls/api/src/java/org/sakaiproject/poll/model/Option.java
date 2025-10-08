@@ -58,7 +58,7 @@ public class Option implements PersistableEntity<Long> {
     @Transient
     private String status;
 
-    @Column(name = "OPTION_UUID", nullable = false, length = 255)
+    @Column(name = "OPTION_UUID", nullable = false, length = 99)
     private String uuid;
 
     @Column(name = "DELETED", nullable = false)
