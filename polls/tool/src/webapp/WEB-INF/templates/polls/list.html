@@ -67,7 +67,7 @@
                     Poll question
                   </span>
                   <div class="d-flex flex-wrap gap-2">
-                    <a th:if="${poll.editable}" class="btn btn-link btn-sm px-0" th:href="@{'/faces/voteAdd'(pollId=${poll.id})}" th:text="#{action_revise_poll}">
+                    <a th:if="${poll.editable}" class="btn btn-outline-secondary btn-sm" th:href="@{'/faces/voteAdd'(pollId=${poll.id})}" th:text="#{action_revise_poll}">
                       Edit
                     </a>
                   </div>

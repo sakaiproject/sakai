@@ -18,6 +18,7 @@ package org.sakaiproject.poll.tool.mvc;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -172,8 +173,8 @@ public class PollEditorController {
         form.setMinOptions(poll.getMinOptions());
         form.setMaxOptions(poll.getMaxOptions());
         form.setDisplayResult(poll.getDisplayResult());
-        form.setOpenDate(pollsUiService.toLocalDateTime(poll.getVoteOpen(), zoneId));
-        form.setCloseDate(pollsUiService.toLocalDateTime(poll.getVoteClose(), zoneId));
+        form.setOpenDate(truncateToMinutes(pollsUiService.toLocalDateTime(poll.getVoteOpen(), zoneId)));
+        form.setCloseDate(truncateToMinutes(pollsUiService.toLocalDateTime(poll.getVoteClose(), zoneId)));
         return form;
     }
 
@@ -199,6 +200,10 @@ public class PollEditorController {
     private ZoneId getUserZoneId() {
         TimeZone tz = externalLogic.getLocalTimeZone();
         return tz != null ? tz.toZoneId() : ZoneId.systemDefault();
+    }
+
+    private LocalDateTime truncateToMinutes(LocalDateTime value) {
+        return value != null ? value.truncatedTo(ChronoUnit.MINUTES) : null;
     }
 
     @Value

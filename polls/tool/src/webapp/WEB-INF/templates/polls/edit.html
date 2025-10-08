@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title th:text="${isNew} ? #{new_poll_title} : #{new_poll_title_edit}">Poll</title>
+  <script type="module" src="/webcomponents/bundles/sakai-date-picker.js"></script>
 </head>
 <body>
   <div class="portletBody container-fluid">
@@ -52,30 +53,32 @@
 
       <div class="row g-3">
         <div class="col-md-6">
-          <label class="form-label" for="open-date">
+          <label class="form-label" for="open-date-picker">
             <span class="text-danger">*</span>
             <span th:text="#{new_poll_open_label}">Opening</span>
           </label>
-          <input type="datetime-local"
-                 id="open-date"
-                 class="form-control"
-                 th:classappend="${#fields.hasErrors('openDate')}? ' is-invalid'"
+          <input type="hidden"
+                 id="open-date-field"
                  th:field="*{openDate}"
-                 required />
-          <div class="invalid-feedback" th:if="${#fields.hasErrors('openDate')}" th:errors="*{openDate}">Provide an opening date</div>
+                 th:value="${pollForm.openDate}" />
+          <sakai-date-picker id="open-date-picker"
+                             th:attr="label=#{new_poll_open_label}, iso-date=${pollForm.openDate}">
+          </sakai-date-picker>
+          <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('openDate')}" th:errors="*{openDate}">Provide an opening date</div>
         </div>
         <div class="col-md-6">
-          <label class="form-label" for="close-date">
+          <label class="form-label" for="close-date-picker">
             <span class="text-danger">*</span>
             <span th:text="#{new_poll_close_label}">Closing</span>
           </label>
-          <input type="datetime-local"
-                 id="close-date"
-                 class="form-control"
-                 th:classappend="${#fields.hasErrors('closeDate')}? ' is-invalid'"
+          <input type="hidden"
+                 id="close-date-field"
                  th:field="*{closeDate}"
-                 required />
-          <div class="invalid-feedback" th:if="${#fields.hasErrors('closeDate')}" th:errors="*{closeDate}">Provide a closing date</div>
+                 th:value="${pollForm.closeDate}" />
+          <sakai-date-picker id="close-date-picker"
+                             th:attr="label=#{new_poll_close_label}, iso-date=${pollForm.closeDate}">
+          </sakai-date-picker>
+          <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('closeDate')}" th:errors="*{closeDate}">Provide a closing date</div>
         </div>
       </div>
 
@@ -154,7 +157,7 @@
         <h2 class="h5" th:text="#{new_poll_results_label}">Results visible</h2>
         <div class="d-flex flex-column gap-2">
           <div class="form-check" th:each="choice : ${displayResultChoices}">
-            <input class="form-check-input" type="radio" th:field="*{displayResult}" th:value="${choice.value}" th:id="${'display-' + choice.value}" />
+            <input type="radio" th:field="*{displayResult}" th:value="${choice.value}" th:id="${'display-' + choice.value}" />
             <label class="form-check-label" th:for="${'display-' + choice.value}" th:text="#{${choice.labelKey}}">Choice</label>
           </div>
         </div>
@@ -170,5 +173,23 @@
       <div class="alert alert-info" th:text="#{new_poll_saveoption}">Save to add options</div>
     </div>
   </div>
+  <script type="module">
+    const linkPickerToField = (pickerId, fieldId) => {
+      const picker = document.getElementById(pickerId);
+      const field = document.getElementById(fieldId);
+      if (!picker || !field) {
+        return;
+      }
+      if (picker.isoDate && !field.value) {
+        field.value = picker.isoDate;
+      }
+      picker.addEventListener("datetime-selected", e => {
+        field.value = e.target.isoDate ?? "";
+      });
+    };
+
+    linkPickerToField("open-date-picker", "open-date-field");
+    linkPickerToField("close-date-picker", "close-date-field");
+  </script>
 </body>
 </html>
