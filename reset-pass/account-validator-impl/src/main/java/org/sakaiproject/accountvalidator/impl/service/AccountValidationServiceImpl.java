@@ -71,11 +71,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AccountValidationServiceImpl implements AccountValidationService {
 
-	private static final String TEMPLATE_KEY_EXISTINGUSER = "validate.existinguser";
+	private static final String TEMPLATE_KEY_EXISTING_USER = "validate.existinguser";
 	private static final String TEMPLATE_KEY_NEW_USER = "validate.newUser";
-	private static final String TEMPLATE_KEY_LEGACYUSER = "validate.legacyuser";
-	private static final String TEMPLATE_KEY_PASSWORDRESET = "validate.passwordreset";
-	private static final String TEMPLATE_KEY_USERIDUPDATE = "validate.userId.update";
+	private static final String TEMPLATE_KEY_LEGACY_USER = "validate.legacyuser";
+	private static final String TEMPLATE_KEY_PASSWORD_RESET = "validate.passwordreset";
+	private static final String TEMPLATE_KEY_USERID_UPDATE = "validate.userId.update";
 	private static final String TEMPLATE_KEY_DELETED = "validate.deleted";
 	private static final String TEMPLATE_KEY_REQUEST_ACCOUNT = "validate.requestAccount";
 	private static final String TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET = "acknowledge.passwordReset";
@@ -107,10 +107,10 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 		// Need to populate the templates
 		ClassLoader loader = AccountValidationServiceImpl.class.getClassLoader();
 		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_newUser.xml"), TEMPLATE_KEY_NEW_USER);
-		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_existingUser.xml"), TEMPLATE_KEY_EXISTINGUSER);
-		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_legacyUser.xml"), TEMPLATE_KEY_LEGACYUSER);
-		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_newPassword.xml"), TEMPLATE_KEY_PASSWORDRESET);
-		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_userIdUpdate.xml"), TEMPLATE_KEY_USERIDUPDATE);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_existingUser.xml"), TEMPLATE_KEY_EXISTING_USER);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_legacyUser.xml"), TEMPLATE_KEY_LEGACY_USER);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_newPassword.xml"), TEMPLATE_KEY_PASSWORD_RESET);
+		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_userIdUpdate.xml"), TEMPLATE_KEY_USERID_UPDATE);
 		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_deleted.xml"), TEMPLATE_KEY_DELETED);
 		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("validate_requestAccount.xml"), TEMPLATE_KEY_REQUEST_ACCOUNT);
 		emailTemplateService.importTemplateFromXmlFile(loader.getResourceAsStream("acknowledge_passwordReset.xml"), TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET);
@@ -147,11 +147,10 @@ public class AccountValidationServiceImpl implements AccountValidationService {
             if (va.getValidationReceived() == null) {
                 if (va.getValidationSent().after(validationDeadline)) {
                     log.debug("validation sent still awaiting reply");
-                    return false;
                 } else {
                     log.debug("validation sent but no reply received");
-                    return false;
                 }
+                return false;
             }
 
             log.debug("got an item of status {}", va.getStatus());
@@ -307,17 +306,14 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
         String templateKey = TEMPLATE_KEY_NEW_USER;
 
-        if (ValidationAccount.ACCOUNT_STATUS_EXISTING == accountStatus) {
-            templateKey = TEMPLATE_KEY_EXISTINGUSER;
-        } else if (ValidationAccount.ACCOUNT_STATUS_LEGACY == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus) {
-            templateKey = TEMPLATE_KEY_LEGACYUSER;
-        } else if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus) {
-            templateKey = TEMPLATE_KEY_PASSWORDRESET;
-        } else if (ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE == accountStatus) {
-            templateKey = TEMPLATE_KEY_USERIDUPDATE;
-        } else if (ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus) {
-            templateKey = TEMPLATE_KEY_REQUEST_ACCOUNT;
-        }
+        templateKey = switch (accountStatus) {
+            case ValidationAccount.ACCOUNT_STATUS_EXISTING -> TEMPLATE_KEY_EXISTING_USER;
+            case ValidationAccount.ACCOUNT_STATUS_LEGACY, ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS -> TEMPLATE_KEY_LEGACY_USER;
+            case ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET -> TEMPLATE_KEY_PASSWORD_RESET;
+            case ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE -> TEMPLATE_KEY_USERID_UPDATE;
+            case ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT -> TEMPLATE_KEY_REQUEST_ACCOUNT;
+            default -> templateKey;
+        };
         return templateKey;
     }
 	@Override
