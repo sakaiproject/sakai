@@ -17,9 +17,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.accountvalidator.dto;
+package org.sakaiproject.accountvalidator.api.dto;
 
 import lombok.Data;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 
 /**
  * Data Transfer Object (DTO) for account validation claim submissions.
@@ -38,12 +40,12 @@ import lombok.Data;
  *   <li>System validates credentials and merges accounts if valid</li>
  * </ol>
  * 
- * <p>This class differs from {@link org.sakaiproject.accountvalidator.model.ValidationAccount}
+ * <p>This class differs from {@link ValidationAccount}
  * which represents the persisted validation record in the database, while ValidationClaim
  * represents transient form submission data.</p>
  * 
- * @see org.sakaiproject.accountvalidator.model.ValidationAccount
- * @see org.sakaiproject.accountvalidator.service.AccountValidationService
+ * @see ValidationAccount
+ * @see AccountValidationService
  */
 @Data
 public class ValidationClaim {
@@ -62,12 +64,12 @@ public class ValidationClaim {
      * This token is generated when a validation account is created and sent to the user via email.
      * 
      * <p>The token serves as a secure, time-limited identifier that links the validation
-     * request to a specific {@link org.sakaiproject.accountvalidator.model.ValidationAccount}
+     * request to a specific {@link ValidationAccount}
      * record in the database.</p>
      * 
      * <p>Format: Typically a randomly generated alphanumeric string</p>
      * 
-     * @see org.sakaiproject.accountvalidator.model.ValidationAccount#getValidationToken()
+     * @see ValidationAccount#getValidationToken()
      */
     private String validationToken;
 

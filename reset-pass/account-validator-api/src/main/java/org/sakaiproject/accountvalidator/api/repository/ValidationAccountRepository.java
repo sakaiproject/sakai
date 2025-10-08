@@ -17,12 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.accountvalidator.repository;
+package org.sakaiproject.accountvalidator.api.repository;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 /**

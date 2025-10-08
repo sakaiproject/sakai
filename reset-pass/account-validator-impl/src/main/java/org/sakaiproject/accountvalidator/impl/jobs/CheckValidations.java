@@ -40,8 +40,8 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
-import org.sakaiproject.accountvalidator.service.AccountValidationService;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -199,7 +199,7 @@ public class CheckValidations implements Job {
 					}
 					catch (UserNotDefinedException e) {
 						//this is an orphaned validation token
-						ValidationAccount va = avService.getVaLidationAcountByUserId(users.get(i));
+						ValidationAccount va = avService.getValidationAccountByUserId(users.get(i));
 						avService.deleteValidationAccount(va);
 					}
 				}
@@ -243,7 +243,7 @@ public class CheckValidations implements Job {
 			
 			user = userDirectoryService.editUser(id);
 			userDirectoryService.removeUser(user);
-			ValidationAccount va = avService.getVaLidationAcountByUserId(id);
+			ValidationAccount va = avService.getValidationAccountByUserId(id);
 			avService.deleteValidationAccount(va);
 		} catch (UserNotDefinedException e) {
 			log.error(e.getMessage(), e);

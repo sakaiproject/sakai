@@ -19,15 +19,16 @@
  */
 package org.sakaiproject.accountvalidator.impl.repository;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Restrictions;
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
-import org.sakaiproject.accountvalidator.repository.ValidationAccountRepository;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation of ValidationAccountRepository using Spring's repository pattern.
@@ -39,40 +40,52 @@ public class ValidationAccountRepositoryImpl extends SpringCrudRepositoryImpl<Va
 
 	@Override
 	public Optional<ValidationAccount> findByValidationToken(String validationToken) {
-		if (validationToken == null) {
-			return Optional.empty();
-		}
+		if (validationToken == null) return Optional.empty();
 
-		Criteria criteria = startCriteriaQuery();
-		criteria.add(Restrictions.eq("validationToken", validationToken));
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<ValidationAccount> query = cb.createQuery(ValidationAccount.class);
+        Root<ValidationAccount> root = query.from(ValidationAccount.class);
 
-		ValidationAccount result = (ValidationAccount) criteria.uniqueResult();
+        query.select(root)
+                .where(cb.equal(root.get("validationToken"), validationToken));
+
+        ValidationAccount result = sessionFactory.getCurrentSession()
+            .createQuery(query)
+            .uniqueResult();
+
 		return Optional.ofNullable(result);
 	}
 
 	@Override
 	public Optional<ValidationAccount> findByUserId(String userId) {
-		if (userId == null) {
-			return Optional.empty();
-		}
+		if (userId == null) return Optional.empty();
 
-		Criteria criteria = startCriteriaQuery();
-		criteria.add(Restrictions.eq("userId", userId));
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<ValidationAccount> query = cb.createQuery(ValidationAccount.class);
+        Root<ValidationAccount> root = query.from(ValidationAccount.class);
 
-		ValidationAccount result = (ValidationAccount) criteria.uniqueResult();
+        query.select(root)
+                .where(cb.equal(root.get("userId"), userId));
+
+        ValidationAccount result = sessionFactory.getCurrentSession()
+                .createQuery(query)
+                .uniqueResult();
 		return Optional.ofNullable(result);
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public List<ValidationAccount> findByStatus(Integer status) {
-		if (status == null) {
-			return List.of();
-		}
+		if (status == null) return List.of();
 
-		Criteria criteria = startCriteriaQuery();
-		criteria.add(Restrictions.eq("status", status));
+		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+		CriteriaQuery<ValidationAccount> query = cb.createQuery(ValidationAccount.class);
+		Root<ValidationAccount> root = query.from(ValidationAccount.class);
 
-		return criteria.list();
+		query.select(root)
+				.where(cb.equal(root.get("status"), status));
+
+		return sessionFactory.getCurrentSession()
+				.createQuery(query)
+				.getResultList();
 	}
 }

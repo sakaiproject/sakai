@@ -7,7 +7,7 @@
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="annotatedClasses">
             <list>
-                <value>org.sakaiproject.accountvalidator.model.ValidationAccount</value>
+                <value>org.sakaiproject.accountvalidator.api.model.ValidationAccount</value>
             </list>
         </property>
     </bean>

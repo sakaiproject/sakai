@@ -27,8 +27,8 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
-import org.sakaiproject.accountvalidator.service.AccountValidationService;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 

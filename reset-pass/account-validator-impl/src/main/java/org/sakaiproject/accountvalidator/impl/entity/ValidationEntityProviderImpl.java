@@ -21,7 +21,7 @@
 
 package org.sakaiproject.accountvalidator.impl.entity;
 
-import org.sakaiproject.accountvalidator.entity.ValidationEntityProvider;
+import org.sakaiproject.accountvalidator.api.entity.ValidationEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 
 public class ValidationEntityProviderImpl implements ValidationEntityProvider, AutoRegisterEntityProvider {

@@ -46,10 +46,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
-import org.sakaiproject.accountvalidator.exception.ValidationException;
-import org.sakaiproject.accountvalidator.service.AccountValidationService;
-import org.sakaiproject.accountvalidator.dto.ValidationClaim;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.exception.ValidationException;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
+import org.sakaiproject.accountvalidator.api.dto.ValidationClaim;
 import org.sakaiproject.accountvalidator.tool.constants.AccountValidatorConstants;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -149,7 +149,7 @@ public class MainController {
             return AccountValidatorConstants.ERROR_TEMPLATE;
         }
 
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
         
         if (va == null) {
             log.debug("Not a valid validation code");
@@ -202,7 +202,7 @@ public class MainController {
         @RequestParam(value="tokenId", required = false) String tokenId) throws JsonProcessingException { 
 
         Locale userLocale = localeResolver(req, response);
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
 
         if (va == null) {
             log.debug("Not a valid validation code (POST)");
@@ -232,7 +232,7 @@ public class MainController {
             return AccountValidatorConstants.ERROR_TEMPLATE;
         }
 
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
 
         if (va == null) {
             log.debug("Not a valid validation code");
@@ -305,7 +305,7 @@ public class MainController {
         @RequestParam(value="tokenId", required = false) String tokenId) throws JsonProcessingException { 
 
         Locale userLocale = localeResolver(req, response);
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
 
         if (va == null) {
             log.debug("Not a valid validation code (POST)");
@@ -332,7 +332,7 @@ public class MainController {
             return AccountValidatorConstants.ERROR_TEMPLATE;
         }
 
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
 
         if (va == null) {
             log.debug("Not a valid validation code");
@@ -431,7 +431,7 @@ public class MainController {
         @RequestParam(value="tokenId", required = false) String tokenId) throws JsonProcessingException { 
 
         Locale userLocale = localeResolver(req, response);
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
 
         if (va == null) {
             log.debug("Not a valid validation code (POST)");
@@ -460,7 +460,7 @@ public class MainController {
             return AccountValidatorConstants.ERROR_TEMPLATE;
         }
 
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
 
         if (va == null) {
             log.debug("Not a valid validation code");
@@ -527,7 +527,7 @@ public class MainController {
         @RequestParam(value="tokenId", required = false) String tokenId) throws JsonProcessingException { 
 
         Locale userLocale = localeResolver(req, response);
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
         
         if (va == null) {
             log.debug("Not a valid validation code (POST)");
@@ -558,7 +558,7 @@ public class MainController {
             return AccountValidatorConstants.ERROR_TEMPLATE;
         }
 
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
 
         if (!sendLegacyLinksEnabled()) {
             log.debug("Legacy links were disabled");
@@ -713,7 +713,7 @@ public class MainController {
         @RequestParam(value="tokenId", required = false) String tokenId) throws JsonProcessingException { 
 
         Locale userLocale = localeResolver(req, response);
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
 
         if (va == null) {
             log.debug("Not a valid validation code (POST)");
@@ -731,7 +731,7 @@ public class MainController {
         @RequestParam(value="tokenId", required = false) String tokenId) throws JsonProcessingException { 
 
         Locale userLocale = localeResolver(req, response);
-        ValidationAccount va = avService.getVaLidationAcountBytoken(tokenId);
+        ValidationAccount va = avService.getValidationAccountBytoken(tokenId);
 
         if (va == null) {
             log.debug("Not a valid validation code (POST)");
@@ -931,7 +931,7 @@ public class MainController {
             return jsonResponse;
         }
 
-        ValidationAccount va = avService.getVaLidationAcountBytoken(vc.getValidationToken());
+        ValidationAccount va = avService.getValidationAccountBytoken(vc.getValidationToken());
 
         if (va == null) {
             log.warn("Couldn't obtain a ValidationAccount object for token: " + vc.getValidationToken());

@@ -17,12 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.accountvalidator.service;
+package org.sakaiproject.accountvalidator.api.service;
 
 import java.util.List;
 
-import org.sakaiproject.accountvalidator.exception.ValidationException;
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.exception.ValidationException;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
 
 /**
  * This service handles the business logic for the account validation tool.
@@ -34,21 +34,21 @@ public interface AccountValidationService {
 	 * @param id the account ID
 	 * @return the account or null if none found
 	 */
-	ValidationAccount getVaLidationAcountById(Long id);
+	ValidationAccount getValidationAccountById(Long id);
 
 	/**
 	 * Get a validation account by the token
 	 * @param token the validation token (String)
 	 * @return the account or null if none found
 	 */
-	ValidationAccount getVaLidationAcountBytoken(String token);
+	ValidationAccount getValidationAccountBytoken(String token);
 
 	/**
 	 * Get a validation account for a specific user
 	 * @param userId the user ID
 	 * @return the account or null if none found
 	 */
-	ValidationAccount getVaLidationAcountByUserId(String userId);
+	ValidationAccount getValidationAccountByUserId(String userId);
 
 	/**
 	 * Find if an account has been validated

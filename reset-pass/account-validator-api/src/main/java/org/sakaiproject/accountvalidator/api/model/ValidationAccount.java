@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.accountvalidator.model;
+package org.sakaiproject.accountvalidator.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
@@ -33,6 +33,8 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import lombok.Data;
+import org.sakaiproject.accountvalidator.api.dto.ValidationClaim;
+import org.sakaiproject.accountvalidator.api.entity.ValidationEntityProvider;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 /**
@@ -58,8 +60,8 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  * both persistent fields (stored in database) and transient fields (used during
  * validation workflow but not persisted).</p>
  *
- * @see org.sakaiproject.accountvalidator.dto.ValidationClaim
- * @see org.sakaiproject.accountvalidator.entity.ValidationEntityProvider
+ * @see ValidationClaim
+ * @see ValidationEntityProvider
  */
 @Data
 @Entity

@@ -45,8 +45,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
-import org.sakaiproject.accountvalidator.service.AccountValidationService;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
@@ -215,7 +215,7 @@ public class MainController {
                 if (!avService.isAccountValidated(userId)) {
                     log.debug("account is not validated");
                     // it is possible that the user has an outstanding Validation
-                    ValidationAccount va = avService.getVaLidationAcountByUserId(userId);
+                    ValidationAccount va = avService.getValidationAccountByUserId(userId);
                     if (va == null) {
                         //we need to validate the account.
                         log.debug("This is a legacy user to validate!");
@@ -227,7 +227,7 @@ public class MainController {
 
                 } else {
                     //there may be a pending VA that needs to be verified
-                    ValidationAccount va = avService.getVaLidationAcountByUserId(userId);
+                    ValidationAccount va = avService.getValidationAccountByUserId(userId);
 
                     if (va == null) {
                         // the account is validated need to send a password reset

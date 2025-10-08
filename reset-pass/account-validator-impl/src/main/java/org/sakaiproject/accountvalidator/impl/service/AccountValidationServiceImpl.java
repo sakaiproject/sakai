@@ -33,10 +33,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
-import org.sakaiproject.accountvalidator.exception.ValidationException;
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
-import org.sakaiproject.accountvalidator.repository.ValidationAccountRepository;
-import org.sakaiproject.accountvalidator.service.AccountValidationService;
+import org.sakaiproject.accountvalidator.api.exception.ValidationException;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupProvider;
@@ -117,12 +117,12 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 	}
 
 	@Override
-	public ValidationAccount getVaLidationAcountById(Long id) {
+	public ValidationAccount getValidationAccountById(Long id) {
 		return repository.findById(id).orElse(null);
 	}
 
 	@Override
-	public ValidationAccount getVaLidationAcountBytoken(String token) {
+	public ValidationAccount getValidationAccountBytoken(String token) {
 		return repository.findByValidationToken(token).orElse(null);
 	}
 
@@ -131,7 +131,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
         // This is a basic rule need to account for validations expiring
         log.debug("validating {}", userId);
 
-        ValidationAccount va = this.getVaLidationAcountByUserId(userId);
+        ValidationAccount va = this.getValidationAccountByUserId(userId);
         Calendar cal = new GregorianCalendar();
         cal.add(Calendar.MONTH, VALIDATION_PERIOD_MONTHS);
         // A time validation time in the past
@@ -204,7 +204,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
     }
 
 	@Override
-	public ValidationAccount getVaLidationAcountByUserId(String userId) {
+	public ValidationAccount getValidationAccountByUserId(String userId) {
 		return repository.findByUserId(userId).orElse(null);
 	}
 
@@ -400,7 +400,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
 	@Override
 	public void resendValidation(String token) {
-		ValidationAccount account = this.getVaLidationAcountBytoken(token);
+		ValidationAccount account = this.getValidationAccountBytoken(token);
 
 		if (account == null) {
 			throw new IllegalArgumentException("no such account: " + token);

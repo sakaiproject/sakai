@@ -29,7 +29,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.sakaiproject.accountvalidator.service.AccountValidationService;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;

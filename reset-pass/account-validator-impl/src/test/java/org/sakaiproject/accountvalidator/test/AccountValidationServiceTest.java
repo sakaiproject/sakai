@@ -6,9 +6,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.sakaiproject.accountvalidator.impl.service.AccountValidationServiceImpl;
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
-import org.sakaiproject.accountvalidator.repository.ValidationAccountRepository;
-import org.sakaiproject.accountvalidator.service.AccountValidationService;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.user.api.User;
@@ -147,7 +147,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     public void testGetValidationAccountById() {
         ValidationAccount created = service.createValidationAccount(userOne);
 
-        ValidationAccount retrieved = service.getVaLidationAcountById(created.getId());
+        ValidationAccount retrieved = service.getValidationAccountById(created.getId());
 
         Assert.assertNotNull("Retrieved account should not be null", retrieved);
         Assert.assertEquals("Account IDs should match", created.getId(), retrieved.getId());
@@ -156,7 +156,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
 
     @Test
     public void testGetValidationAccountByIdNotFound() {
-        ValidationAccount retrieved = service.getVaLidationAcountById(999999L);
+        ValidationAccount retrieved = service.getValidationAccountById(999999L);
 
         Assert.assertNull("Retrieved account should be null for non-existent ID", retrieved);
     }
@@ -165,7 +165,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     public void testGetValidationAccountByToken() {
         ValidationAccount created = service.createValidationAccount(userOne);
 
-        ValidationAccount retrieved = service.getVaLidationAcountBytoken(created.getValidationToken());
+        ValidationAccount retrieved = service.getValidationAccountBytoken(created.getValidationToken());
 
         Assert.assertNotNull("Retrieved account should not be null", retrieved);
         Assert.assertEquals("Validation tokens should match", created.getValidationToken(), retrieved.getValidationToken());
@@ -174,7 +174,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
 
     @Test
     public void testGetValidationAccountByTokenNotFound() {
-        ValidationAccount retrieved = service.getVaLidationAcountBytoken("non-existent-token");
+        ValidationAccount retrieved = service.getValidationAccountBytoken("non-existent-token");
 
         Assert.assertNull("Retrieved account should be null for non-existent token", retrieved);
     }
@@ -183,7 +183,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     public void testGetValidationAccountByUserId() {
         service.createValidationAccount(userOne);
 
-        ValidationAccount retrieved = service.getVaLidationAcountByUserId(userOne);
+        ValidationAccount retrieved = service.getValidationAccountByUserId(userOne);
 
         Assert.assertNotNull("Retrieved account should not be null", retrieved);
         Assert.assertEquals("User IDs should match", userOne, retrieved.getUserId());
@@ -191,7 +191,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
 
     @Test
     public void testGetValidationAccountByUserIdNotFound() {
-        ValidationAccount retrieved = service.getVaLidationAcountByUserId("nonExistentUser");
+        ValidationAccount retrieved = service.getValidationAccountByUserId("nonExistentUser");
 
         Assert.assertNull("Retrieved account should be null for non-existent user", retrieved);
     }
@@ -212,7 +212,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
 
         Assert.assertNotNull("Account ID should be set after save", account.getId());
 
-        ValidationAccount retrieved = service.getVaLidationAcountById(account.getId());
+        ValidationAccount retrieved = service.getValidationAccountById(account.getId());
         Assert.assertNotNull("Saved account should be retrievable", retrieved);
         Assert.assertEquals("User IDs should match", userOne, retrieved.getUserId());
     }
@@ -231,7 +231,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
 
         service.save(account);
 
-        ValidationAccount retrieved = service.getVaLidationAcountById(account.getId());
+        ValidationAccount retrieved = service.getValidationAccountById(account.getId());
         Assert.assertNull("Empty first name should be converted to null", retrieved.getFirstName());
         Assert.assertNull("Empty surname should be converted to null", retrieved.getSurname());
     }
@@ -243,7 +243,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
 
         service.deleteValidationAccount(account);
 
-        ValidationAccount retrieved = service.getVaLidationAcountById(accountId);
+        ValidationAccount retrieved = service.getValidationAccountById(accountId);
         Assert.assertNull("Deleted account should not be retrievable", retrieved);
     }
 
@@ -329,7 +329,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         Assert.assertTrue("Password reset older than max minutes should be expired", isExpired);
 
         // Verify the account was updated in the database
-        ValidationAccount updated = service.getVaLidationAcountById(account.getId());
+        ValidationAccount updated = service.getValidationAccountById(account.getId());
         Assert.assertEquals("Status should be updated to EXPIRED", ValidationAccount.STATUS_EXPIRED, updated.getStatus());
         Assert.assertNotNull("Validation received should be set", updated.getValidationReceived());
     }
@@ -347,7 +347,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
 
         service.resendValidation(token);
 
-        ValidationAccount updated = service.getVaLidationAcountBytoken(token);
+        ValidationAccount updated = service.getValidationAccountBytoken(token);
         Assert.assertEquals("Validations sent count should be incremented", Integer.valueOf(initialSentCount + 1), updated.getValidationsSent());
         Assert.assertEquals("Status should be RESENT", ValidationAccount.STATUS_RESENT, updated.getStatus());
     }
