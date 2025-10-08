@@ -50,8 +50,6 @@ export class SakaiAccount extends SakaiElement {
   connectedCallback() {
 
     super.connectedCallback();
-
-    this._loadUser();
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
