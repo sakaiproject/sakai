@@ -299,6 +299,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                     RemoveObjectArgs.builder().bucket(can.container).object(can.name).build());
             return true;
         } catch (Exception e) {
+            log.warn("Failed to delete object {}/{}: {}", can.container, can.name, e.getMessage(), e);
             return false;
         }
     }
