@@ -108,7 +108,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 			Assert.fail("should not be allowed to read this poll");
 		} 
 		catch (SecurityException e) {
-			log.error(e.getMessage(), e);
+			log.debug("Expected security exception when reading poll without access", e);
 		}
     }
 
@@ -153,7 +153,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
-			log.error(e.getMessage(), e);
+			log.debug("Expected illegal argument when saving null poll", e);
 		}
 		
 		
@@ -165,7 +165,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
-			log.error(e.getMessage(), e);
+			log.debug("Expected illegal argument when saving incomplete poll", e);
 		}
 		
 		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
@@ -174,10 +174,10 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
-			log.error(e.getMessage(), e);
+			log.debug("Expected illegal argument when unauthorized user saves poll", e);
 		}
 		catch (SecurityException se) {
-			log.error(se.getMessage(), se);
+			log.debug("Expected security exception when unauthorized user saves poll", se);
 		}
 
     }
@@ -200,7 +200,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 			pollListManager.deletePoll(poll1);
 			Assert.fail();
 		} catch (SecurityException e) {
-			log.error(e.getMessage(), e);
+			log.debug("Expected security exception when deleting unsaved poll", e);
 		} 
 		catch (IllegalArgumentException e) {
 			// Successful tests should be quiet. IllegalArgumentException is actually expected on a null ID.
