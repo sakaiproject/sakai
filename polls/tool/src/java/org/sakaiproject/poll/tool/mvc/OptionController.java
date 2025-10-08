@@ -120,7 +120,7 @@ public class OptionController {
             }
             return "redirect:/faces/voteAdd?pollId=" + option.getPollId();
         } catch (PollValidationException ex) {
-            bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage(ex.getMessage(), null, locale)));
+            bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
             model.addAttribute("poll", pollListManager.getPollById(optionForm.getPollId()));
             model.addAttribute("isNew", optionForm.getOptionId() == null);
             model.addAttribute("canAdd", isAllowedPollAdd());
@@ -155,7 +155,7 @@ public class OptionController {
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("new_poll_option_add_batch", null, locale));
             return "redirect:/faces/voteAdd?pollId=" + batchForm.getPollId();
         } catch (PollValidationException ex) {
-            bindingResult.addError(new FieldError("batchForm", "file", messageSource.getMessage(ex.getMessage(), null, locale)));
+            bindingResult.addError(new FieldError("batchForm", "file", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
             model.addAttribute("poll", pollListManager.getPollById(batchForm.getPollId()));
             model.addAttribute("canAdd", isAllowedPollAdd());
             model.addAttribute("isSiteOwner", isSiteOwner());
