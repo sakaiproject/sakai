@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${isNew} ? #{new_poll_title} : #{new_poll_title_edit}">Poll</title>
+</head>
+<body>
+  <div class="portletBody container-fluid">
+    <ul class="nav nav-pills mb-4">
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/faces/votePolls}" th:text="#{action_main}">Polls</a>
+      </li>
+      <li class="nav-item">
+        <span class="nav-link active" th:text="#{action_add_poll}">Add</span>
+      </li>
+      <li class="nav-item" th:if="${isSiteOwner}">
+        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
+      </li>
+    </ul>
+
+    <div th:if="${success}" class="alert alert-success" role="status" th:text="${success}">Saved</div>
+    <div th:if="${alert}" class="alert alert-warning" role="alert" th:text="${alert}">Alert</div>
+
+    <h1 class="h3 mb-3" th:text="${isNew} ? #{new_poll_title} : #{new_poll_title_edit}">Poll</h1>
+
+    <form th:action="@{/faces/voteAdd}" th:object="${pollForm}" method="post" class="needs-validation" novalidate>
+      <input type="hidden" th:field="*{pollId}" />
+
+      <div class="mb-3">
+        <label class="form-label" for="poll-text">
+          <span class="text-danger">*</span>
+          <span th:text="#{new_poll_question_label}">Question</span>
+        </label>
+        <input id="poll-text"
+               type="text"
+               class="form-control"
+               th:classappend="${#fields.hasErrors('text')}? ' is-invalid'"
+               maxlength="255"
+               th:field="*{text}"
+               required />
+        <div class="invalid-feedback" th:if="${#fields.hasErrors('text')}" th:errors="*{text}">Please enter a question</div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="poll-details" th:text="#{new_poll_descr_label}">Instructions</label>
+        <textarea id="poll-details"
+                  class="form-control"
+                  rows="5"
+                  th:field="*{details}"></textarea>
+        <small class="form-text text-muted" th:text="#{new_poll_descr_label2}">Additional info</small>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label" for="open-date">
+            <span class="text-danger">*</span>
+            <span th:text="#{new_poll_open_label}">Opening</span>
+          </label>
+          <input type="datetime-local"
+                 id="open-date"
+                 class="form-control"
+                 th:classappend="${#fields.hasErrors('openDate')}? ' is-invalid'"
+                 th:field="*{openDate}"
+                 required />
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('openDate')}" th:errors="*{openDate}">Provide an opening date</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="close-date">
+            <span class="text-danger">*</span>
+            <span th:text="#{new_poll_close_label}">Closing</span>
+          </label>
+          <input type="datetime-local"
+                 id="close-date"
+                 class="form-control"
+                 th:classappend="${#fields.hasErrors('closeDate')}? ' is-invalid'"
+                 th:field="*{closeDate}"
+                 required />
+          <div class="invalid-feedback" th:if="${#fields.hasErrors('closeDate')}" th:errors="*{closeDate}">Provide a closing date</div>
+        </div>
+      </div>
+
+      <div class="mt-4" th:if="${!options.isEmpty()}">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h2 class="h5 mb-0" th:text="#{new_poll_option_title}">Answer Options</h2>
+          <div class="btn-group">
+            <a class="btn btn-outline-primary btn-sm" th:href="@{'/faces/pollOption'(pollId=${pollForm.pollId})}" th:text="#{new_poll_option_add}">Add option</a>
+            <a class="btn btn-outline-secondary btn-sm" th:href="@{'/faces/pollOptionBatch'(pollId=${pollForm.pollId})}" th:text="#{new_poll_option_add_batch}">Add in batch</a>
+          </div>
+        </div>
+
+        <div class="alert alert-warning" th:if="${hasVotes}" th:text="#{warn_poll_has_votes}">Existing votes warning</div>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-striped align-middle">
+            <thead>
+            <tr>
+              <th scope="col" th:text="#{add_option}">Option</th>
+              <th scope="col" th:text="#{add_actions}">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="option : ${options}">
+              <td th:utext="${option.text}">Option text</td>
+              <td class="text-nowrap d-flex gap-2">
+                <a class="btn btn-outline-secondary btn-sm" th:href="@{'/faces/pollOption'(optionId=${option.optionId})}" th:text="#{new_poll_option_edit}">Edit</a>
+                <a class="btn btn-outline-danger btn-sm" th:href="@{'/faces/pollOptionDelete'(optionId=${option.optionId})}" th:text="#{new_poll_option_delete}">Delete</a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h2 class="h5" th:text="#{new_poll_limits}">Limits</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label" for="min-options">
+              <span class="text-danger">*</span>
+              <span th:text="#{new_poll_min_limits}">Min options</span>
+            </label>
+            <input type="number"
+                   id="min-options"
+                   class="form-control"
+                   th:classappend="${#fields.hasErrors('minOptions')}? ' is-invalid'"
+                   min="0"
+                   max="50"
+                   th:field="*{minOptions}" />
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('minOptions')}" th:errors="*{minOptions}">Invalid minimum</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="max-options">
+              <span class="text-danger">*</span>
+              <span th:text="#{new_poll_max_limits}">Max options</span>
+            </label>
+            <input type="number"
+                   id="max-options"
+                   class="form-control"
+                   th:classappend="${#fields.hasErrors('maxOptions')}? ' is-invalid'"
+                   min="1"
+                   max="50"
+                   th:field="*{maxOptions}" />
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('maxOptions')}" th:errors="*{maxOptions}">Invalid maximum</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-check form-switch mt-4" th:if="${showPublicAccess}">
+        <input class="form-check-input" type="checkbox" id="is-public" th:field="*{public}" />
+        <label class="form-check-label" for="is-public" th:text="#{new_poll_access_public}">Public poll</label>
+      </div>
+
+      <div class="mt-4">
+        <h2 class="h5" th:text="#{new_poll_results_label}">Results visible</h2>
+        <div class="d-flex flex-column gap-2">
+          <div class="form-check" th:each="choice : ${displayResultChoices}">
+            <input class="form-check-input" type="radio" th:field="*{displayResult}" th:value="${choice.value}" th:id="${'display-' + choice.value}" />
+            <label class="form-check-label" th:for="${'display-' + choice.value}" th:text="#{${choice.labelKey}}">Choice</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary" th:text="#{new_poll_submit}">Save</button>
+        <a class="btn btn-secondary" th:href="@{/faces/votePolls}" th:text="#{new_poll_cancel}">Cancel</a>
+      </div>
+    </form>
+
+    <div class="mt-4" th:if="${isNew}">
+      <div class="alert alert-info" th:text="#{new_poll_saveoption}">Save to add options</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="#{delete_confirm}">Delete option</title>
+</head>
+<body>
+  <div class="portletBody container-fluid">
+    <ul class="nav nav-pills mb-4">
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/faces/votePolls}" th:text="#{action_main}">Polls</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/faces/voteAdd(pollId=${poll.pollId})}" th:text="#{action_add_poll}">Add</a>
+      </li>
+      <li class="nav-item" th:if="${isSiteOwner}">
+        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
+      </li>
+    </ul>
+
+    <h1 class="h4 mb-3" th:text="#{delete_confirm}">Confirm delete</h1>
+    <div class="alert alert-warning">
+      <p class="mb-1" th:text="#{delete_option_message(${option.text})}">Delete message</p>
+      <p class="mb-0" th:if="${hasVotes}" th:text="#{delete_option_has_votes}">Vote handling message</p>
+    </div>
+
+    <form th:action="@{/faces/pollOptionDelete}" method="post">
+      <input type="hidden" name="optionId" th:value="${option.optionId}" />
+
+      <div class="mb-3" th:if="${hasVotes}">
+        <div class="form-check" th:each="choice : ${handleOptions}">
+          <input class="form-check-input" type="radio" name="orphanHandling" th:id="${'handle-' + choice.value()}" th:value="${choice.value()}" th:checked="${choice.value() == 'return-votes'}" />
+          <label class="form-check-label" th:for="${'handle-' + choice.value()}" th:text="#{${choice.labelKey()}}">Option</label>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-danger" th:text="#{delete_option_confirm}">Delete</button>
+        <a class="btn btn-secondary" th:href="@{/faces/voteAdd(pollId=${poll.pollId})}" th:text="#{new_poll_cancel}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

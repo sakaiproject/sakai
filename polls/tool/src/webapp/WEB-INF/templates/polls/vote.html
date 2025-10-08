@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="#{poll_vote_title}">Vote</title>
+</head>
+<body>
+  <div class="portletBody container-fluid">
+    <ul class="nav nav-pills mb-4">
+      <li class="nav-item">
+        <span class="nav-link active" th:text="#{action_main}">Polls</span>
+      </li>
+      <li class="nav-item" th:if="${canAdd}">
+        <a class="nav-link" th:href="@{/faces/voteAdd}" th:text="#{action_add_poll}">Add</a>
+      </li>
+      <li class="nav-item" th:if="${isSiteOwner}">
+        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
+      </li>
+    </ul>
+
+    <div th:if="${alert}" class="alert alert-warning" role="alert" th:text="${alert}">Alert</div>
+    <div th:if="${success}" class="alert alert-success" role="status" th:text="${success}">Success</div>
+
+    <h1 class="h4 mb-3" th:text="#{poll_vote_title}">Vote</h1>
+    <p class="fw-semibold" th:utext="${poll.text}">Poll question</p>
+    <div class="mb-3" th:utext="${poll.details}"></div>
+
+    <form th:action="@{/faces/voteQuestion}" th:object="${voteForm}" method="post" class="d-grid gap-3">
+      <input type="hidden" th:field="*{pollId}" />
+      <div class="list-group">
+        <label th:each="option : ${options}" class="list-group-item d-flex align-items-center gap-3">
+          <input th:type="${multipleChoice} ? 'checkbox' : 'radio'"
+                 class="form-check-input flex-shrink-0"
+                 name="selectedOptionIds"
+                 th:id="${'option-' + option.optionId}"
+                 th:value="${option.optionId}" />
+          <span th:utext="${option.text}" class="flex-grow-1">Option text</span>
+        </label>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary" th:text="#{vote_vote}">Vote</button>
+        <button type="reset" class="btn btn-outline-secondary" th:text="#{vote_reset}">Reset</button>
+        <a class="btn btn-secondary" th:href="@{/faces/votePolls}" th:text="#{vote_cancel}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
