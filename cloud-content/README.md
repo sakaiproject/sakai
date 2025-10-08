@@ -64,7 +64,7 @@ to deploy the component pack; it is included in the default top-level profile.
 In `sakai-configuration.xml`, ensure the alias activates the MinIO-backed
 handler. The file must remain valid Spring XML.
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
@@ -86,7 +86,7 @@ Provide handler settings via bean properties in `local.properties`,
 properties are required. All properties are suffixed with
 `@org.sakaiproject.content.api.FileSystemHandler.blobstore`.
 
-```
+```properties
 endpoint@org.sakaiproject.content.api.FileSystemHandler.blobstore      = https://minio.example.edu
 identity@org.sakaiproject.content.api.FileSystemHandler.blobstore      = <ACCESS_KEY>
 credential@org.sakaiproject.content.api.FileSystemHandler.blobstore    = <SECRET_KEY>
@@ -122,12 +122,3 @@ leading path elements become object store containers or pseudo-folders.
 The jclouds-based S3 and Swift handlers have been retired. Swift users should
 transition to S3-compatible endpoints (MinIO, AWS S3, Ceph, etc.). MinIO is the
 maintained and recommended implementation going forward.
-
-## Testing
-
-Integration tests require access to a MinIO server. Start a local MinIO
-container, apply the configuration above, and run:
-
-```
-mvn -pl cloud-content/impl test
-```
