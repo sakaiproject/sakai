@@ -99,7 +99,7 @@ public class PollOrderOptionBackFillJob implements Job
                         // If any of the option's order is null, we need to back-fill them
                         if( hasNullOptionOrder )
                         {
-                            log.info( "Poll ID {} has options with null order, processing...", poll.getId() );
+                            log.info( "Poll ID {} has options with null order, processing...", poll.getPollId() );
 
                             // Order the list by ID
                             pollOptions.sort( Comparator.comparingLong( Option::getOptionId ) );
@@ -112,7 +112,7 @@ public class PollOrderOptionBackFillJob implements Job
                                 option.setOptionOrder(i);
                                 pollService.saveOption( option );
                                 modifiedCount++;
-                                log.info( "Option {} ---> new order == {}", option.getId(), i );
+                                log.info( "Option {} ---> new order == {}", option.getOptionId(), i );
                             }
                         }
                     }

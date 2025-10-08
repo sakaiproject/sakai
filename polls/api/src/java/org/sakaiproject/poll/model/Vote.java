@@ -23,21 +23,50 @@ package org.sakaiproject.poll.model;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.springframework.data.PersistableEntity;
 import org.sakaiproject.tool.cover.SessionManager;
 
-import lombok.Data;
+@Getter
+@Setter
+@Entity
+@Table(name = "POLL_VOTE")
+public class Vote implements PersistableEntity<Long> {
 
-@Data
-public class Vote {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "VOTE_ID")
     private Long id;
+
+    @Column(name = "USER_ID", nullable = false, length = 255)
     private String userId;
+
+    @Column(name = "VOTE_IP", nullable = false, length = 255)
     private String ip;
+
+    @Column(name = "VOTE_POLL_ID", nullable = false)
     private Long pollId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "VOTE_DATE", nullable = false)
     private Date voteDate;
+
+    @Column(name = "VOTE_OPTION")
     private Long pollOption;
+
+    @Column(name = "VOTE_SUBMISSION_ID", nullable = false, length = 255)
     private String submissionId;
 
     public Vote() {
@@ -60,6 +89,11 @@ public class Vote {
         if (usageSession != null) {
             ip = usageSession.getIpAddress();
         }
+    }
+
+    @Override
+    public Long getId() {
+        return id;
     }
 
     public String toString() {

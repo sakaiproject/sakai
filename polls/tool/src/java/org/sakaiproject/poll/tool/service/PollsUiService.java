@@ -239,15 +239,15 @@ public class PollsUiService {
         if (poll.getMaxOptions() == poll.getMinOptions()
                 && poll.getMaxOptions() == 1
                 && selectionCount == 0) {
-            throw new PollValidationException("error_novote.voteCollection");
+            throw new PollValidationException("error_novote.voteCollection", poll.getMinOptions());
         }
 
         if (selectionCount > poll.getMaxOptions()) {
-            throw new PollValidationException("error_tomany_votes.voteCollection");
+            throw new PollValidationException("error_tomany_votes.voteCollection", poll.getMaxOptions());
         }
 
         if (selectionCount < poll.getMinOptions()) {
-            throw new PollValidationException("error_tofew_votes.voteCollection");
+            throw new PollValidationException("error_tofew_votes.voteCollection", poll.getMinOptions());
         }
     }
 

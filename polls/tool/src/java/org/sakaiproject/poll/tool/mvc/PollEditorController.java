@@ -129,9 +129,9 @@ public class PollEditorController {
                 default -> null;
             };
             if (field != null) {
-                bindingResult.addError(new FieldError("pollForm", field, messageSource.getMessage(ex.getMessage(), null, locale)));
+                bindingResult.addError(new FieldError("pollForm", field, messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
             } else {
-                bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage(ex.getMessage(), null, locale)));
+                bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
             }
             Poll contextPoll = pollForm.getPollId() != null ? pollListManager.getPollById(pollForm.getPollId()) : poll;
             model.addAttribute("poll", contextPoll);

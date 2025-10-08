@@ -30,61 +30,128 @@ import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
 import lombok.AccessLevel;
-import lombok.extern.slf4j.Slf4j;
-import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.springframework.data.PersistableEntity;
 
 @Slf4j
-@Data
-public class Poll implements Entity  {
+@Getter
+@Setter
+@Entity
+@Table(name = "POLL_POLL")
+public class Poll implements PersistableEntity<Long> {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "POLL_ID")
     private Long pollId;
+
+    @Column(name = "POLL_OWNER", nullable = false, length = 255)
     private String owner;
+
+    @Column(name = "POLL_SITE_ID", nullable = false, length = 255)
     private String siteId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "POLL_CREATION_DATE", nullable = false)
     private Date creationDate;
+
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
+    @Column(name = "POLL_TEXT", nullable = false)
     private String text;
+
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
+    @Column(name = "POLL_DETAILS")
     private String description;
+
+    @Column(name = "POLL_MIN_OPTIONS", nullable = false)
     private int minOptions = 1;
+
+    @Column(name = "POLL_MAX_OPTIONS", nullable = false)
     private int maxOptions = 1;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "POLL_VOTE_OPEN", nullable = false)
     private Date voteOpen;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "POLL_VOTE_CLOSE", nullable = false)
     private Date voteClose;
-    private List<Vote> votes;
+
+    @Transient
+    private List<Vote> votes = new ArrayList<>();
+
+    @Column(name = "POLL_DISPLAY_RESULT", nullable = false, length = 255)
     private String displayResult = "open";
-    private Boolean limitVoting = true;
+
+    @Column(name = "POLL_LIMIT_VOTE", nullable = false)
+    private Boolean limitVoting = Boolean.TRUE;
+
+    @Transient
     private boolean currentUserVoted = false;
-    private List<Option> options;
-    private Boolean isPublic = false;
+
+    @Transient
+    private List<Option> options = new ArrayList<>();
+
+    @Column(name = "POLL_IS_PUBLIC", nullable = false)
+    private Boolean isPublic = Boolean.FALSE;
 
     @Getter(AccessLevel.NONE)
-    private String id;
+    @Setter(AccessLevel.NONE)
+    @Column(name = "POLL_UUID", nullable = false, length = 255)
+    private String uuid;
 
     public Poll() {
-        //set the defaults
         this.text = "";
         this.description = "";
         this.minOptions = 1;
         this.maxOptions = 1;
-        this.limitVoting = true;
-        this.isPublic = false;
+        this.limitVoting = Boolean.TRUE;
+        this.isPublic = Boolean.FALSE;
         this.voteOpen = new Date();
 
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 7);
         this.voteClose = cal.getTime();
         this.displayResult = "open";
+    }
 
-		this.options = new ArrayList<Option>();
-		this.votes = new ArrayList<Vote>();
+    @Override
+    public Long getId() {
+        return pollId;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public void setVoteOpenStr(String value) {
@@ -103,7 +170,7 @@ public class Poll implements Entity  {
     }
 
     public void setVoteCloseStr(String value) {
-		try {
+        try {
             Date parsedDate = DATE_FORMAT.parse(value);
             if (parsedDate != null) {
                 voteClose = parsedDate;
@@ -118,17 +185,16 @@ public class Poll implements Entity  {
     }
 
     /**
-     * Attach a vote to the list of votes for this poll
-     * @param vote
+     * Attach a vote to the list of votes for this poll.
+     *
+     * @param vote the vote to add
      */
     public void addVote(Vote vote) {
         votes.add(vote);
-
     }
 
     public void addOption(Option option) {
-        this.options.add(option);
-
+        options.add(option);
     }
 
     public void setDetails(String value){
@@ -147,7 +213,7 @@ public class Poll implements Entity  {
 
     public String toString() {
         return new ToStringBuilder(this)
-        .append(this.id)
+        .append(this.uuid)
         .append(this.owner)
         .append(this.siteId)
         .append(this.creationDate)
@@ -155,16 +221,13 @@ public class Poll implements Entity  {
         .toString();
     }
 
-    /*
-     * Entity Methods 
-     */
     public String getUrl() {
-        return ServerConfigurationService.getAccessUrl() + "/poll/" + this.getId();
+        return ServerConfigurationService.getAccessUrl() + "/poll/" + this.getUuid();
     }
 
     public String getReference() {
 
-        return ServerConfigurationService.getAccessUrl() + "/poll/" + Entity.SEPARATOR + this.getId();
+        return ServerConfigurationService.getAccessUrl() + "/poll/" + org.sakaiproject.entity.api.Entity.SEPARATOR + this.getUuid();
     }
 
     public String getUrl(String arg0) {
@@ -175,13 +238,6 @@ public class Poll implements Entity  {
     public String getReference(String arg0) {
 
         return getReference();
-    }
-
-    public String getId() {
-        if (id == null) {
-            id = pollId + "";
-        }
-        return id;
     }
 
 	public ResourceProperties getProperties() {
@@ -219,23 +275,27 @@ public class Poll implements Entity  {
 
         stack.push(poll);
 
-        poll.setAttribute(ID, getId());
-        poll.setAttribute(POLL_ID, getPollId().toString());
+        poll.setAttribute(ID, getUuid());
+        if (getPollId() != null) {
+            poll.setAttribute(POLL_ID, getPollId().toString());
+        }
         poll.setAttribute(POLL_TEXT, getText());
-        poll.setAttribute(MIN_OPTIONS, (new Integer(getMinOptions()).toString()));
-        poll.setAttribute(MAX_OPTIONS, (new Integer(getMaxOptions()).toString()));
+        poll.setAttribute(MIN_OPTIONS, Integer.toString(getMinOptions()));
+        poll.setAttribute(MAX_OPTIONS, Integer.toString(getMaxOptions()));
 
-        if (description != null) poll.setAttribute(DESCRIPTION, description);
+        if (description != null) {
+            poll.setAttribute(DESCRIPTION, description);
+        }
 
         DateFormat dformat  = getDateFormatForXML();
         poll.setAttribute(VOTE_OPEN, dformat.format(this.voteOpen));
         poll.setAttribute(VOTE_CLOSE, dformat.format(this.voteClose));
-        poll.setAttribute(LIMIT_VOTING, Boolean.valueOf(limitVoting).toString());
+        poll.setAttribute(LIMIT_VOTING, Boolean.toString(limitVoting));
         poll.setAttribute(DISPLAY_RESULT, this.displayResult);
 
         // properties
         //getProperties().toXml(doc, stack);
-        //apppend the options as chidren
+        //append the options as children
 
         stack.pop();
 
@@ -244,7 +304,7 @@ public class Poll implements Entity  {
 
     public static Poll fromXML(Element element) {
         Poll poll = new Poll();
-        poll.setId(element.getAttribute(ID));
+        poll.setUuid(element.getAttribute(ID));
         poll.setText(element.getAttribute(POLL_TEXT));
         poll.setDisplayResult(element.getAttribute(DISPLAY_RESULT));
         poll.setDetails(element.getAttribute(DESCRIPTION));

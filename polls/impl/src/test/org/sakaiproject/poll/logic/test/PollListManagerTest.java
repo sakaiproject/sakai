@@ -30,41 +30,48 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import org.sakaiproject.id.api.IdManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.logic.test.stubs.ExternalLogicStubb;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.service.impl.PollListManagerImpl;
 import org.sakaiproject.poll.service.impl.PollVoteManagerImpl;
+import org.sakaiproject.poll.repository.impl.OptionRepositoryImpl;
+import org.sakaiproject.poll.repository.impl.PollRepositoryImpl;
+import org.sakaiproject.poll.repository.impl.VoteRepositoryImpl;
+import org.hibernate.SessionFactory;
 
 @ContextConfiguration(locations={
-		"/hibernate-test.xml",
-		"classpath:org/sakaiproject/poll/spring-hibernate.xml" })
+		"/hibernate-test.xml" })
 @Slf4j
 public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	private TestDataPreload tdp = new TestDataPreload();
-
-	@Autowired
-	@Qualifier("org.sakaiproject.poll.dao.impl.PollDaoTarget")
-	private PollDao dao;
 	private PollListManagerImpl pollListManager;
 	private PollVoteManagerImpl pollVoteManager;
 	private ExternalLogicStubb externalLogicStubb;
-	
+
 	@Before
 	public void onSetUp() {
+		SessionFactory sessionFactory = (SessionFactory) applicationContext.getBean("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory");
+		PollRepositoryImpl pollRepository = new PollRepositoryImpl();
+		pollRepository.setSessionFactory(sessionFactory);
+		OptionRepositoryImpl optionRepository = new OptionRepositoryImpl();
+		optionRepository.setSessionFactory(sessionFactory);
+		VoteRepositoryImpl voteRepository = new VoteRepositoryImpl();
+		voteRepository.setSessionFactory(sessionFactory);
+
 		pollListManager = new PollListManagerImpl();
-		pollListManager.setDao(dao);
+		pollListManager.setPollRepository(pollRepository);
+		pollListManager.setOptionRepository(optionRepository);
+		pollListManager.setVoteRepository(voteRepository);
 		
 		pollVoteManager = new PollVoteManagerImpl();
-		pollVoteManager.setDao(dao);
+		pollVoteManager.setVoteRepository(voteRepository);
+		pollVoteManager.setPollRepository(pollRepository);
 		
 		
 		externalLogicStubb = new ExternalLogicStubb();
@@ -74,7 +81,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		pollListManager.setIdManager(mock(IdManager.class));
 		
 		// preload testData
-		tdp.preloadTestData(dao);
+		tdp.preloadTestData(pollRepository, optionRepository);
 	}
 	
 	@Test

@@ -27,7 +27,13 @@
 	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
 			class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
 		<property name="dataSource" ref="testDataSource" />
-		<property name="mappingResources" ref="org.sakaiproject.poll.hbmMappingList" />
+		<property name="annotatedClasses">
+			<list>
+				<value>org.sakaiproject.poll.model.Poll</value>
+				<value>org.sakaiproject.poll.model.Option</value>
+				<value>org.sakaiproject.poll.model.Vote</value>
+			</list>
+		</property>
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
