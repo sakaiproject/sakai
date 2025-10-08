@@ -50,10 +50,10 @@ public class Vote implements PersistableEntity<Long> {
     @Column(name = "VOTE_ID")
     private Long id;
 
-    @Column(name = "USER_ID", nullable = false, length = 255)
+    @Column(name = "USER_ID", nullable = false, length = 99)
     private String userId;
 
-    @Column(name = "VOTE_IP", nullable = false, length = 255)
+    @Column(name = "VOTE_IP", nullable = false, length = 99)
     private String ip;
 
     @Column(name = "VOTE_POLL_ID", nullable = false)
@@ -66,7 +66,7 @@ public class Vote implements PersistableEntity<Long> {
     @Column(name = "VOTE_OPTION")
     private Long pollOption;
 
-    @Column(name = "VOTE_SUBMISSION_ID", nullable = false, length = 255)
+    @Column(name = "VOTE_SUBMISSION_ID", nullable = false, length = 99)
     private String submissionId;
 
     public Vote() {

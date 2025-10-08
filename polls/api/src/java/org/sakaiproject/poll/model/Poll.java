@@ -69,10 +69,10 @@ public class Poll implements PersistableEntity<Long> {
     @Column(name = "POLL_ID")
     private Long pollId;
 
-    @Column(name = "POLL_OWNER", nullable = false, length = 255)
+    @Column(name = "POLL_OWNER", nullable = false, length = 99)
     private String owner;
 
-    @Column(name = "POLL_SITE_ID", nullable = false, length = 255)
+    @Column(name = "POLL_SITE_ID", nullable = false, length = 99)
     private String siteId;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -106,7 +106,7 @@ public class Poll implements PersistableEntity<Long> {
     @Transient
     private List<Vote> votes = new ArrayList<>();
 
-    @Column(name = "POLL_DISPLAY_RESULT", nullable = false, length = 255)
+    @Column(name = "POLL_DISPLAY_RESULT", nullable = false, length = 99)
     private String displayResult = "open";
 
     @Column(name = "POLL_LIMIT_VOTE", nullable = false)
@@ -123,7 +123,7 @@ public class Poll implements PersistableEntity<Long> {
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    @Column(name = "POLL_UUID", nullable = false, length = 255)
+    @Column(name = "POLL_UUID", nullable = false, length = 99)
     private String uuid;
 
     public Poll() {
