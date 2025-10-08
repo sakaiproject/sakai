@@ -229,6 +229,7 @@ const defaults = {
 	  this.createHiddenFields();
 	  this.syncHiddenFields(initialDate);
 	  this.setupEventListeners();
+	  this.setupClipboardHandlers();
 	  this.setupDuration();
 	  
 	  // Add hasDatepicker class for backward compatibility with jquery-ui
@@ -288,6 +289,78 @@ const defaults = {
 	    if (this.options.allowEmptyDate && !this.element.value) {
 	      this.syncHiddenFields(null);
 	    }
+	  });
+	}
+
+	setupClipboardHandlers() {
+	  if (!this.element) return;
+
+	  const applyClipboardWrite = (event, text) => {
+	    if (!text) return false;
+	    const hasWindow = typeof window !== "undefined";
+	    const clipboardEventApi = event.clipboardData;
+	    if (clipboardEventApi && clipboardEventApi.setData) {
+	      clipboardEventApi.setData("text/plain", text);
+	      event.preventDefault();
+	      return true;
+	    }
+
+	    if (hasWindow && window.clipboardData && window.clipboardData.setData) {
+	      window.clipboardData.setData("Text", text);
+	      event.preventDefault();
+	      return true;
+	    }
+
+	    return false;
+	  };
+
+	  const getNormalizedValue = () => {
+	    const normalized = DateHelper.normalize(this.element.value);
+	    if (normalized) {
+	      return DateHelper.formatForInput(normalized, this.options.useTime);
+	    }
+	    return this.element.value?.trim() || "";
+	  };
+
+	  this.element.addEventListener("copy", (event) => {
+	    const text = getNormalizedValue();
+	    if (applyClipboardWrite(event, text)) {
+	      return;
+	    }
+	  });
+
+	  this.element.addEventListener("cut", (event) => {
+	    const text = getNormalizedValue();
+	    if (!applyClipboardWrite(event, text)) {
+	      return;
+	    }
+
+	    this.element.value = "";
+	    this.syncHiddenFields(null);
+	    this.element.dispatchEvent(new Event("change", { bubbles: true }));
+	  });
+
+	  this.element.addEventListener("paste", (event) => {
+	    const hasWindow = typeof window !== "undefined";
+	    let raw = "";
+
+	    if (event.clipboardData && event.clipboardData.getData) {
+	      raw = event.clipboardData.getData("text/plain") || event.clipboardData.getData("text") || "";
+	    } else if (hasWindow && window.clipboardData && window.clipboardData.getData) {
+	      raw = window.clipboardData.getData("Text") || "";
+	    } else {
+	      return;
+	    }
+
+	    raw = raw.trim();
+	    if (!raw) return;
+
+	    const parsed = DateHelper.normalize(raw);
+	    if (!parsed) return;
+
+	    event.preventDefault();
+	    this.element.value = DateHelper.formatForInput(parsed, this.options.useTime);
+	    this.element.dispatchEvent(new Event("change", { bubbles: true }));
 	  });
 	}
   
