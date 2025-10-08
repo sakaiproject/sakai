@@ -98,7 +98,8 @@ public class PollEditorController {
                            BindingResult bindingResult,
                            RedirectAttributes redirectAttributes,
                            Locale locale,
-                           Model model) {
+                           Model model,
+                           @RequestParam(value = "redirect", required = false) String redirectTarget) {
 
         if (!isAllowedPollAdd()) {
             bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
@@ -110,6 +111,12 @@ public class PollEditorController {
             Poll saved = pollsUiService.savePoll(poll, locale);
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("new_poll_submit", null, locale));
 
+            if ("option".equals(redirectTarget)) {
+                return "redirect:/faces/pollOption?pollId=" + saved.getPollId();
+            }
+            if ("optionBatch".equals(redirectTarget)) {
+                return "redirect:/faces/pollOptionBatch?pollId=" + saved.getPollId();
+            }
             if (pollListManager.getOptionsForPoll(saved).isEmpty()) {
                 return "redirect:/faces/pollOption?pollId=" + saved.getPollId();
             }
