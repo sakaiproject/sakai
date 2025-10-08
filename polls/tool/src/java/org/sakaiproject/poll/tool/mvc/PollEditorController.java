@@ -67,6 +67,11 @@ public class PollEditorController {
         Long resolvedId = pollId != null ? pollId : legacyId;
         Poll poll = resolvedId != null ? pollListManager.getPollById(resolvedId) : new Poll();
 
+        if (resolvedId != null && poll == null) {
+            model.addAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
+            return "redirect:/faces/votePolls";
+        }
+
         if (resolvedId != null && !canEditPoll(poll)) {
             model.addAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
             return "redirect:/faces/votePolls";
@@ -107,6 +112,10 @@ public class PollEditorController {
         }
 
         Poll poll = preparePollEntity(pollForm);
+        if (poll == null) {
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
+            return "redirect:/faces/votePolls";
+        }
         try {
             Poll saved = pollsUiService.savePoll(poll, locale);
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("new_poll_submit", null, locale));
@@ -134,6 +143,10 @@ public class PollEditorController {
                 bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
             }
             Poll contextPoll = pollForm.getPollId() != null ? pollListManager.getPollById(pollForm.getPollId()) : poll;
+            if (contextPoll == null) {
+                redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
+                return "redirect:/faces/votePolls";
+            }
             model.addAttribute("poll", contextPoll);
             model.addAttribute("options", contextPoll.getPollId() != null ? pollListManager.getVisibleOptionsForPoll(contextPoll.getPollId()) : List.of());
             model.addAttribute("hasVotes", contextPoll.getPollId() != null && !pollVoteManager.getAllVotesForPoll(contextPoll).isEmpty());
@@ -154,6 +167,9 @@ public class PollEditorController {
 
     private Poll preparePollEntity(PollForm form) {
         Poll poll = form.getPollId() != null ? pollListManager.getPollById(form.getPollId()) : new Poll();
+        if (poll == null) {
+            return null;
+        }
         poll.setText(StringUtils.trimToEmpty(form.getText()));
         poll.setDetails(form.getDetails());
         poll.setIsPublic(form.isPublic());

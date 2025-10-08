@@ -48,8 +48,8 @@ public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, Long> imp
         }
         Criteria criteria = startCriteriaQuery();
         criteria.add(Restrictions.in("siteId", siteIds));
-        criteria.add(Restrictions.lt("voteOpen", now));
-        criteria.add(Restrictions.gt("voteClose", now));
+        criteria.add(Restrictions.le("voteOpen", now));
+        criteria.add(Restrictions.ge("voteClose", now));
         criteria.addOrder(Order.asc("creationDate"));
         return criteria.list();
     }

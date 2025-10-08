@@ -150,6 +150,13 @@ public class OptionController {
                               Locale locale,
                               Model model) {
         batchForm.setFile(file);
+        if (!isAllowedPollAdd()) {
+            bindingResult.addError(new FieldError("batchForm", "file", messageSource.getMessage("new_poll_noperms", null, locale)));
+            model.addAttribute("poll", pollListManager.getPollById(batchForm.getPollId()));
+            model.addAttribute("canAdd", isAllowedPollAdd());
+            model.addAttribute("isSiteOwner", isSiteOwner());
+            return "polls/option-batch";
+        }
         try {
             pollsUiService.saveOptionsBatch(batchForm.getPollId(), batchForm.getFile());
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("new_poll_option_add_batch", null, locale));
@@ -192,6 +199,10 @@ public class OptionController {
                                 @RequestParam(value = "orphanHandling", required = false) String orphanHandling,
                                 RedirectAttributes redirectAttributes,
                                 Locale locale) {
+        if (!isAllowedPollAdd()) {
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
+            return "redirect:/faces/votePolls";
+        }
         if (StringUtils.isBlank(orphanHandling)) {
             orphanHandling = HANDLE_DELETE_OPTION_DO_NOTHING;
         }

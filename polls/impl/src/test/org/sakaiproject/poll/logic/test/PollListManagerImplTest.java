@@ -57,7 +57,7 @@ public class PollListManagerImplTest {
         Mockito.when(externalLogic.getSitesForUser("userId", PollListManager.PERMISSION_VOTE)).thenReturn(userSites);
         // Find the polls in just one site.
         impl.findAllPollsForUserAndSitesAndPermission("userId", new String[]{"site3"}, PollListManager.PERMISSION_VOTE);
-        ArgumentCaptor<List> siteCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<String>> siteCaptor = ArgumentCaptor.forClass(List.class);
         Mockito.verify(pollRepository).findOpenPollsBySiteIds(siteCaptor.capture(), Mockito.any());
         Assert.assertEquals(List.of("site3"), siteCaptor.getValue());
     }
