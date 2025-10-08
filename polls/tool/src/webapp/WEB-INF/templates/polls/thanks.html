@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="#{thanks_msg}">Thank you</title>
+</head>
+<body>
+  <div class="portletBody container-fluid">
+    <ul class="nav nav-pills mb-4">
+      <li class="nav-item">
+        <span class="nav-link active" th:text="#{action_main}">Polls</span>
+      </li>
+      <li class="nav-item" th:if="${canAdd}">
+        <a class="nav-link" th:href="@{/faces/voteAdd}" th:text="#{action_add_poll}">Add</a>
+      </li>
+      <li class="nav-item" th:if="${isSiteOwner}">
+        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
+      </li>
+    </ul>
+
+    <h1 class="h4 mb-3" th:text="#{thanks_msg}">Thank you for voting</h1>
+    <p th:text="#{thanks_ref}">Your reference number:</p>
+    <p class="fw-bold" th:text="${voteRef}">reference</p>
+
+    <a class="btn btn-primary" th:href="@{/faces/votePolls}" th:text="#{thanks_done}">Back</a>
+  </div>
+</body>
+</html>
