@@ -7,6 +7,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -274,7 +275,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
 
         try (CountingInputStream cis = new CountingInputStream(stream)) {
             Map<String, String> headers = new HashMap<>();
-            headers.put("x-amz-meta-id", Base64.encodeBase64String(id.getBytes("UTF-8")));
+            headers.put("x-amz-meta-id", Base64.encodeBase64String(id.getBytes(StandardCharsets.UTF_8)));
             headers.put("x-amz-meta-path", filePath);
 
             client.putObject(
