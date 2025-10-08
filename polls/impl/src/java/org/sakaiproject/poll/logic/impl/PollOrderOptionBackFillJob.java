@@ -22,8 +22,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -73,7 +71,7 @@ public class PollOrderOptionBackFillJob implements Job
         int modifiedCount = 0;
 
         List<Poll> pollsForSite = pollService.findAllPolls();
-        if( !CollectionUtils.isEmpty( pollsForSite ) )
+        if( pollsForSite != null && !pollsForSite.isEmpty() )
         {
             // Iterate over the polls for the site...
             for( Poll poll : pollsForSite )
@@ -83,7 +81,7 @@ public class PollOrderOptionBackFillJob implements Job
                     // Iterate over Options in the poll...
                     securityService.pushAdvisor( YES_MAN );
                     List<Option> pollOptions = pollService.getOptionsForPoll( poll );
-                    if( !CollectionUtils.isEmpty( pollOptions ) )
+                    if( pollOptions != null && !pollOptions.isEmpty() )
                     {
                         // Check if any options have a null order
                         boolean hasNullOptionOrder = false;
