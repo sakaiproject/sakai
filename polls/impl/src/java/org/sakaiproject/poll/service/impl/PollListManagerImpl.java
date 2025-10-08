@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -166,10 +165,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                    t.setOwner(poll.getOwner());
                 }
             }
-            pollRepository.save(t);
-            if (newPoll && t.getPollId() == null) {
-                pollRepository.findByUuid(t.getUuid()).ifPresent(persisted -> t.setPollId(persisted.getPollId()));
-            }
+            t = pollRepository.save(t);
 
         } catch (DataAccessException e) {
             log.error("Hibernate could not save: " + e.toString(), e);
@@ -204,8 +200,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             log.debug("got {} vote", vote.size());
         }
 
-        Set<Vote> voteSet = new HashSet<>(vote);
-        voteRepository.deleteAll(voteSet);
+        voteRepository.deleteAll(vote);
 
         //Delete the Options
         List<Option> options = t.getOptions();
@@ -214,8 +209,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             options = getOptionsForPoll(t);
         }
  
-        Set<Option> optionSet = new HashSet<>(options);
-        optionRepository.deleteAll(optionSet);
+        optionRepository.deleteAll(options);
 
         pollRepository.delete(t);
 
