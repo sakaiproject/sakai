@@ -23,11 +23,9 @@ package org.sakaiproject.poll.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -35,7 +33,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
-import java.util.Vector;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +43,6 @@ import org.springframework.dao.DataAccessException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.sakaiproject.entity.api.Entity;
@@ -62,6 +58,7 @@ import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.poll.repository.OptionRepository;
 import org.sakaiproject.poll.repository.PollRepository;
 import org.sakaiproject.poll.repository.VoteRepository;
@@ -168,7 +165,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             t = pollRepository.save(t);
 
         } catch (DataAccessException e) {
-            log.error("Hibernate could not save: " + e.toString(), e);
+            log.error("Hibernate could not save: {}", t, e);
             return false;
         }
         log.debug("Poll {} successfully saved", t.toString());
@@ -342,7 +339,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     private boolean isSiteOwner(String siteId) {
         if (externalLogic.isUserAdmin()) return true;
-        else return externalLogic.isAllowedInLocation("site.upd", externalLogic.getSiteRefFromId(siteId));
+        return externalLogic.isAllowedInLocation("site.upd", externalLogic.getSiteRefFromId(siteId));
     }
 
     /*
@@ -447,31 +444,31 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public boolean parseEntityReference(String reference, Reference ref) {
-        if (reference.startsWith(REFERENCE_ROOT)) {
-            // /syllabus/siteid/syllabusid
-            String[] parts = split(reference, Entity.SEPARATOR);
-
-            String subType = "";
-            String context = null;
-            String id = null;
-            String container = "";
-
-            if (parts.length > 2) {
-                // the site/context
-                context = parts[2];
-
-                // the id
-                if (parts.length > 3) {
-                    id = parts[3];
-                }
-            }
-
-            ref.set(PollListManager.class.getName(), subType, id, container, context);
-
-            return true;
+        if (reference == null || !reference.startsWith(REFERENCE_ROOT)) {
+            return false;
         }
 
-        return false;
+        String subType = "";
+        String context = null;
+        String id = null;
+        String container = "";
+
+        String remainder = StringUtils.removeStart(reference, REFERENCE_ROOT);
+        remainder = StringUtils.removeStart(remainder, Entity.SEPARATOR);
+
+        if (StringUtils.isNotEmpty(remainder)) {
+            String[] segments = StringUtils.split(remainder, Entity.SEPARATOR);
+            if (segments.length > 0) {
+                context = segments[0];
+                if (segments.length > 1) {
+                    id = segments[1];
+                }
+            }
+        }
+
+        ref.set(PollListManager.class.getName(), subType, id, container, context);
+
+        return true;
     }
 
     public Entity getEntity(Reference ref) {
@@ -486,8 +483,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     public String[] myToolIds()
     {
-        String[] toolIds = { "sakai.poll"};
-        return toolIds;
+        return new String[]{ "sakai.poll"};
     }
 
     private static class PollEntityAdapter implements Entity {
@@ -584,7 +580,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 toPoll.setVoteOpen(fromPollV.getVoteOpen());
                 toPoll.setVoteClose(fromPollV.getVoteClose());
                 toPoll.setDisplayResult(fromPollV.getDisplayResult());
-                toPoll.setLimitVoting(fromPollV.getLimitVoting());
+                toPoll.setLimitVoting(fromPollV.isLimitVoting());
                 String details = fromPollV.getDetails();
                 details = ltiService.fixLtiLaunchUrls(details, fromContext, toContext, transversalMap);
                 toPoll.setDetails(details);
@@ -628,38 +624,20 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return transversalMap;
     }
 
-
-    protected String[] split(String source, String splitter) {
-        // hold the results as we find them
-        Vector<String> rv = new Vector<String>();
-        int last = 0;
-        int next = 0;
-        do {
-            // find next splitter in source
-            next = source.indexOf(splitter, last);
-            if (next != -1) {
-                // isolate from last thru before next
-                rv.add(source.substring(last, next));
-                last = next + splitter.length();
-            }
-        } while (next != -1);
-        if (last < source.length()) {
-            rv.add(source.substring(last, source.length()));
-        }
-
-        // convert to array
-        return (String[]) rv.toArray(new String[rv.size()]);
-
-    } // split
-
     public Poll getPoll(String ref) {
         if (ref == null) {
             return null;
         }
 
-        String[] parts = split(ref, Entity.SEPARATOR);
-        String uuid = parts.length > 0 ? parts[parts.length - 1] : ref;
-        if (uuid == null || uuid.isEmpty()) {
+        String normalized = StringUtils.stripEnd(ref, Entity.SEPARATOR);
+        if (StringUtils.isEmpty(normalized)) {
+            normalized = ref;
+        }
+        String uuid = StringUtils.substringAfterLast(normalized, Entity.SEPARATOR);
+        if (StringUtils.isEmpty(uuid)) {
+            uuid = normalized;
+        }
+        if (StringUtils.isEmpty(uuid)) {
             uuid = ref;
         }
 
@@ -693,24 +671,17 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
 
         //the owner can view the results
-        if (poll.getOwner().equals(userId) && !externalLogic.userIsViewingAsRole()) {
-            return true;
-        }
-
-        return false;
+        return poll.getOwner().equals(userId) && !externalLogic.userIsViewingAsRole();
     }
 
     public boolean isPollPublic(Poll poll) {
  
-        //is this poll public?
-        if(poll.getIsPublic()){
+        // is this poll public?
+        if (poll.isPublic()){
             return true;
         }
  
         //can the anonymous user vote?
-        if(externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getSiteRefFromId(poll.getSiteId()))){
-            return true;
-        }
-        return false;
+        return externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getSiteRefFromId(poll.getSiteId()));
     }
 }

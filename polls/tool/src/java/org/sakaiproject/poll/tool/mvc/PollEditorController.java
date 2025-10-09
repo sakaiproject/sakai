@@ -172,7 +172,7 @@ public class PollEditorController {
         }
         poll.setText(StringUtils.trimToEmpty(form.getText()));
         poll.setDetails(form.getDetails());
-        poll.setIsPublic(form.isPublic());
+        poll.setPublic(form.isPublic());
         poll.setMinOptions(form.getMinOptions());
         poll.setMaxOptions(form.getMaxOptions());
         poll.setDisplayResult(form.getDisplayResult());
@@ -192,7 +192,7 @@ public class PollEditorController {
         form.setPollId(poll.getPollId());
         form.setText(poll.getText());
         form.setDetails(poll.getDetails());
-        form.setPublic(Boolean.TRUE.equals(poll.getIsPublic()));
+        form.setPublic(poll.isPublic());
         form.setMinOptions(poll.getMinOptions());
         form.setMaxOptions(poll.getMaxOptions());
         form.setDisplayResult(poll.getDisplayResult());
