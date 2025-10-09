@@ -33,6 +33,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.accountvalidator.api.dto.ValidationClaim;
 import org.sakaiproject.accountvalidator.api.entity.ValidationEntityProvider;
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -65,6 +66,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  */
 @Data
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "VALIDATIONACCOUNT_ITEM")
 public class ValidationAccount implements PersistableEntity<Long> {
 
@@ -84,6 +86,7 @@ public class ValidationAccount implements PersistableEntity<Long> {
     @Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "validation_account_seq")
 	@SequenceGenerator(name = "validation_account_seq", sequenceName = "VALIDATIONACCOUNT_ITEM_ID_SEQ")
+    @EqualsAndHashCode.Include
 	@JsonIgnore
 	private Long id;
 
