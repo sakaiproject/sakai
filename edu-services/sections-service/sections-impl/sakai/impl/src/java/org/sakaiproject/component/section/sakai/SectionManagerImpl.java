@@ -1207,12 +1207,12 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	@SuppressWarnings("unchecked")
 	public Map getTotalEnrollmentsMap(String learningContextUuid) {
 
-		Map roleMap = new HashMap<Role, Integer>();
+		Map<Role, Integer> roleMap = new HashMap<>();
 
 		Group group = findGroup(learningContextUuid); 
 
 		if (group == null) {
-			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
+            log.error("learning context {} is neither a site nor a section", learningContextUuid);
 			return roleMap;
 		}
 
@@ -1220,37 +1220,27 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		roleMap.put(Role.TA, countNonRoleViewUsers(group.getUsersIsAllowed(SectionAwareness.TA_MARKER)));
 		roleMap.put(Role.INSTRUCTOR, countNonRoleViewUsers(group.getUsersIsAllowed(SectionAwareness.INSTRUCTOR_MARKER)));
 		return roleMap;
-        }
+	}
 
-	protected int countNonRoleViewUsers(Set users) {
-		if (users == null) {
+	protected int countNonRoleViewUsers(Set<String> userIds) {
+		if (userIds == null || userIds.isEmpty()) {
 			return 0;
 		}
 
+		List<String> idsToLookup = new ArrayList<>(userIds);
+		List<org.sakaiproject.user.api.User> users = userDirectoryService.getUsers(idsToLookup);
+
 		int count = 0;
-		for (Iterator iterator = users.iterator(); iterator.hasNext();) {
-			String userId = (String) iterator.next();
-			if (!isRoleViewUser(userId)) {
+		for (org.sakaiproject.user.api.User user : users) {
+			if (!isRoleViewUser(user)) {
 				count++;
 			}
 		}
 		return count;
 	}
 
-	protected boolean isRoleViewUser(String userId) {
-		if (userId == null) {
-			return false;
-		}
-
-		try {
-			org.sakaiproject.user.api.User user = userDirectoryService.getUser(userId);
-			return user != null && UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType());
-		} catch (UserNotDefinedException e) {
-			if (log.isDebugEnabled()) {
-				log.debug("User {} not defined when checking for roleview type", userId, e);
-			}
-		}
-		return false;
+	protected boolean isRoleViewUser(org.sakaiproject.user.api.User user) {
+		return user != null && UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType());
 	}
 
 	
@@ -1674,33 +1664,47 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		
 		// Iterate through sections and create an empty TA set for each
 		for(Iterator sectionIter = sectionSet.iterator(); sectionIter.hasNext();) {
-			CourseSectionImpl section = (CourseSectionImpl)sectionIter.next();			
+			CourseSectionImpl section = (CourseSectionImpl)sectionIter.next();
 			siteGroupRefs.add(section.getGroup().getReference());
-			
+
 			List<ParticipationRecord> membersList = new ArrayList<ParticipationRecord>();
 			sectionTaMap.put(section.getGroup().getReference(), membersList);
-		}		
+		}
 
-		Set usersbygroup = authzGroupService.getUsersIsAllowedByGroup(SectionAwareness.TA_MARKER, siteGroupRefs);
-		
-		// Iterate through user/group pairs and add to the Map
-		for (Iterator iterator = usersbygroup.iterator(); iterator.hasNext();) {  
-		     String[] entry = (String[]) iterator.next();
-		     
-		     String useruid = entry[0];
-		     String sectionUuid = entry[1];		     
-		     
-		     List<ParticipationRecord> membersList = sectionTaMap.get(sectionUuid);
-		     
-		     try {
-		    	 org.sakaiproject.user.api.User sakaiUser = userDirectoryService.getUser(useruid);
-			     User user = SakaiUtil.convertUser(sakaiUser);
-			     TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(user);
-			     membersList.add(record);					
-		     } catch (UserNotDefinedException ex) {
-		    	 if (log.isDebugEnabled()) log.debug("Userid " + useruid + " found in group " + sectionUuid + " does not exist");
-		     }
-		  } 
+		Set<String[]> usersbygroup = authzGroupService.getUsersIsAllowedByGroup(SectionAwareness.TA_MARKER, siteGroupRefs);
+		Map<String, List<String>> sectionUserIds = new HashMap<>();
+		Set<String> userUids = new HashSet<>();
+
+		// Iterate through user/group pairs and collect identifiers
+        for (String[] entry : usersbygroup) {
+            String useruid = entry[0];
+            String sectionUuid = entry[1];
+
+            userUids.add(useruid);
+            sectionUserIds.computeIfAbsent(sectionUuid, key -> new ArrayList<>()).add(useruid);
+        }
+
+		Map<String, org.sakaiproject.user.api.User> userMap = new HashMap<>(userUids.size());
+		for (org.sakaiproject.user.api.User user : userDirectoryService.getUsers(new ArrayList<>(userUids))) {
+			userMap.put(user.getId(), user);
+		}
+
+		for (Map.Entry<String, List<String>> entry : sectionUserIds.entrySet()) {
+			List<ParticipationRecord> membersList = sectionTaMap.get(entry.getKey());
+			if (membersList == null) {
+				continue;
+			}
+			for (String userUid : entry.getValue()) {
+				org.sakaiproject.user.api.User sakaiUser = userMap.get(userUid);
+				if (sakaiUser == null) {
+					log.debug("Userid {} found in group {} does not exist", userUid, entry.getKey());
+					continue;
+				}
+				User user = SakaiUtil.convertUser(sakaiUser);
+				TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(user);
+				membersList.add(record);
+			}
+		}
 		
 		return sectionTaMap;
 	}
