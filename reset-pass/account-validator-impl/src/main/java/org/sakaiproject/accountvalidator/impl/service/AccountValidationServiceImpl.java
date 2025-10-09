@@ -128,36 +128,39 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
 	@Override
     public boolean isAccountValidated(String userId) {
-        // This is a basic rule need to account for validations expiring
         log.debug("validating {}", userId);
 
         ValidationAccount va = this.getValidationAccountByUserId(userId);
-        Calendar cal = new GregorianCalendar();
-        cal.add(Calendar.MONTH, VALIDATION_PERIOD_MONTHS);
-        // A time validation time in the past
-        Date validationDeadline = cal.getTime();
         if (va == null) {
             log.debug("no account found!");
             return false;
-        } else {
-            if (isTokenExpired(va)) {
-                return false;
-            }
+        }
 
-            if (va.getValidationReceived() == null) {
-                if (va.getValidationSent().after(validationDeadline)) {
-                    log.debug("validation sent still awaiting reply");
+        if (isTokenExpired(va)) {
+            return false;
+        }
+
+        if (va.getValidationReceived() == null) {
+            if (va.getValidationSent() != null) {
+                Calendar cal = new GregorianCalendar();
+                cal.add(Calendar.MONTH, VALIDATION_PERIOD_MONTHS); // 36 months ago
+                Date validationDeadline = cal.getTime();
+
+                if (va.getValidationSent().before(validationDeadline)) {
+                    log.debug("validation sent but expired - no reply received within {} months", Math.abs(VALIDATION_PERIOD_MONTHS));
                 } else {
-                    log.debug("validation sent but no reply received");
+                    log.debug("validation sent still awaiting reply");
                 }
-                return false;
+            } else {
+                log.debug("validation sent date is null");
             }
+            return false;
+        }
 
-            log.debug("got an item of status {}", va.getStatus());
-            if (ValidationAccount.STATUS_CONFIRMED.equals(va.getStatus())) {
-                log.info("account is validated");
-                return true;
-            }
+        log.debug("got an item of status {}", va.getStatus());
+        if (ValidationAccount.STATUS_CONFIRMED.equals(va.getStatus())) {
+            log.info("account is validated");
+            return true;
         }
 
         log.debug("no conditions met assuming account is not validated");
@@ -303,19 +306,17 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
     private String getTemplateKey(Integer accountStatus) {
         log.debug("retrieve template with account status [{}])", accountStatus);
-
-        String templateKey = TEMPLATE_KEY_NEW_USER;
-
-        templateKey = switch (accountStatus) {
+        if (accountStatus == null) return TEMPLATE_KEY_NEW_USER;
+        return switch (accountStatus) {
             case ValidationAccount.ACCOUNT_STATUS_EXISTING -> TEMPLATE_KEY_EXISTING_USER;
             case ValidationAccount.ACCOUNT_STATUS_LEGACY, ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS -> TEMPLATE_KEY_LEGACY_USER;
             case ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET -> TEMPLATE_KEY_PASSWORD_RESET;
             case ValidationAccount.ACCOUNT_STATUS_USERID_UPDATE -> TEMPLATE_KEY_USERID_UPDATE;
             case ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT -> TEMPLATE_KEY_REQUEST_ACCOUNT;
-            default -> templateKey;
+            default -> TEMPLATE_KEY_NEW_USER;
         };
-        return templateKey;
     }
+
 	@Override
 	public void mergeAccounts(String oldUserReference, String newUserReference) throws ValidationException {
 		log.debug("merge account: {}, {})", oldUserReference, newUserReference);
