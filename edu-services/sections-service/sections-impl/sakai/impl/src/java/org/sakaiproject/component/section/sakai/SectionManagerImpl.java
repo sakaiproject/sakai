@@ -1196,7 +1196,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			return 0;
 		}
 
-		Set users = group.getUsersIsAllowed(SectionAwareness.STUDENT_MARKER);
+		Set<String> users = group.getUsersIsAllowed(SectionAwareness.STUDENT_MARKER);
 
 		return countNonRoleViewUsers(users);
 	}
@@ -1204,8 +1204,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
-	public Map getTotalEnrollmentsMap(String learningContextUuid) {
+	@Override
+	public Map<Role, Integer> getTotalEnrollmentsMap(String learningContextUuid) {
 
 		Map<Role, Integer> roleMap = new HashMap<>();
 
@@ -1227,11 +1227,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			return 0;
 		}
 
-		List<String> idsToLookup = new ArrayList<>(userIds);
-		List<org.sakaiproject.user.api.User> users = userDirectoryService.getUsers(idsToLookup);
-
 		int count = 0;
-		for (org.sakaiproject.user.api.User user : users) {
+		for (org.sakaiproject.user.api.User user : userDirectoryService.getUsers(userIds)) {
 			if (!isRoleViewUser(user)) {
 				count++;
 			}
