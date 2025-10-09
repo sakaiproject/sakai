@@ -512,8 +512,38 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    realobjectid = objectid.substring(0, i);
 
 	String newassignment = objectMap.get(realobjectid);
-	if (newassignment != null)
+	if (newassignment == null) {
+	    newassignment = objectMap.get("/" + realobjectid);
+	}
+
+	if (newassignment == null) {
+	    String realobjectidWithSlash = "/" + realobjectid;
+	    for (Map.Entry<String,String> entry : objectMap.entrySet()) {
+		String key = entry.getKey();
+		String value = entry.getValue();
+		if (key == null || value == null) {
+		    continue;
+		}
+
+		boolean valueMatches = realobjectid.equals(value) || realobjectidWithSlash.equals(value);
+		if (valueMatches) {
+		    if (key.startsWith("/")) {
+			key = key.substring(1);
+		    }
+		    if (key.startsWith(ASSIGNMENT + "/")) {
+			newassignment = key;
+			break;
+		    }
+		}
+	    }
+	}
+
+	if (newassignment != null) {
+	    if (newassignment.startsWith("/")) {
+		return newassignment;
+	    }
 	    return "/" + newassignment;  // sakaiid is /assignment/ID
+	}
 
 	// not in map. try title, but only if title given
 	if (i <= 0)
