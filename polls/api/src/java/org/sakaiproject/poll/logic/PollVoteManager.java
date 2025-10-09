@@ -45,6 +45,16 @@ public interface PollVoteManager {
      * @param voteCollection
      */
     public void saveVoteList(List<Vote> voteCollection);
+    
+    /**
+     * Create a new vote for the supplied poll option with the current user's context.
+     *
+     * @param poll the poll being voted on
+     * @param option the poll option selected
+     * @param submissionId identifier that groups the vote submission
+     * @return a newly instantiated {@link Vote}
+     */
+    public Vote createVote(Poll poll, Option option, String submissionId);
 
     public List<Vote> getAllVotesForPoll(Poll poll);
 

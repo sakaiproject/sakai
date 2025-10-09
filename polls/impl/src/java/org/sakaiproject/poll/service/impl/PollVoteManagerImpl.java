@@ -21,6 +21,7 @@
 
 package org.sakaiproject.poll.service.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Arrays;
@@ -31,6 +32,8 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -44,10 +47,13 @@ import org.sakaiproject.poll.repository.VoteRepository;
 @Setter
 public class PollVoteManagerImpl implements PollVoteManager {
 
+    private static final String DEFAULT_IP_ADDRESS = "Nothing";
+
 	private ExternalLogic externalLogic;    
 	private VoteRepository voteRepository;
 	private PollRepository pollRepository;
 	private PollListManager pollListManager;
+	private UsageSessionService usageSessionService;
 
 	public void saveVoteList(List<Vote> votes) {
 		Long pollId = null;
@@ -57,6 +63,33 @@ public class PollVoteManagerImpl implements PollVoteManager {
 			saveVote(vote);
             externalLogic.registerStatement(pollListManager.getPollById(pollId).getText(), vote);
 		}
+	}
+
+	public Vote createVote(Poll poll, Option option, String submissionId) {
+		if (poll == null) {
+			throw new IllegalArgumentException("poll cannot be null when creating a vote");
+		}
+		if (option == null) {
+			throw new IllegalArgumentException("option cannot be null when creating a vote");
+		}
+		if (submissionId == null) {
+			throw new IllegalArgumentException("submissionId cannot be null when creating a vote");
+		}
+
+		String userId = externalLogic.getCurrentUserId();
+		if (userId == null) {
+			throw new IllegalStateException("Unable to determine current user id while creating vote");
+		}
+
+		String ip = DEFAULT_IP_ADDRESS;
+		if (usageSessionService != null) {
+			UsageSession usageSession = usageSessionService.getSession();
+			if (usageSession != null && usageSession.getIpAddress() != null && !usageSession.getIpAddress().trim().isEmpty()) {
+				ip = usageSession.getIpAddress();
+			}
+		}
+
+			return new Vote(poll, option, submissionId, Instant.now(), userId, ip);
 	}
 
 	public boolean saveVote(Vote vote)  {
@@ -177,7 +210,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 
 		if (pollAfterOpen && pollBeforeClose)
 		{
-			if (poll.getLimitVoting() && userHasVoted(poll.getPollId())) {
+			if (poll.isLimitVoting() && userHasVoted(poll.getPollId())) {
 				return false;
 			}
 			//the user hasn't voted do they have permission to vote?'
@@ -189,7 +222,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 			}
 			
 			//SAK-18855 individual public polls
-			if(poll.getIsPublic()) {
+			if(poll.isPublic()) {
 				log.debug("this poll is votable because it is public, " + poll.getText());
 				return true;
 			}
