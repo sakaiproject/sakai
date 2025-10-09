@@ -119,9 +119,6 @@ public class PollsUiService {
         if (!isNew) {
             List<Option> pollOptions = pollListManager.getOptionsForPoll(poll);
             poll.setOptions(pollOptions);
-            if (pollOptions.size() < poll.getMinOptions() || pollOptions.size() > poll.getMaxOptions()) {
-                throw new PollValidationException("invalid_poll_limits");
-            }
         }
 
         return poll;
@@ -135,6 +132,13 @@ public class PollsUiService {
 
         if (option.getOptionId() == null) {
             option.setOptionOrder(pollListManager.getOptionsForPoll(option.getPollId()).size());
+        } else {
+            Option existing = pollListManager.getOptionById(option.getOptionId());
+            if (existing == null) {
+                throw new IllegalArgumentException("Option not found");
+            }
+            option.setOptionOrder(existing.getOptionOrder());
+            option.setPollId(existing.getPollId());
         }
         pollListManager.saveOption(option);
         return option;
