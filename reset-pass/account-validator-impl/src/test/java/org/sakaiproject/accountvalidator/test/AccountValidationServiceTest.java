@@ -5,10 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.sakaiproject.accountvalidator.impl.service.AccountValidationServiceImpl;
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.api.repository.ValidationAccountRepository;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
+import org.sakaiproject.accountvalidator.impl.service.AccountValidationServiceImpl;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.user.api.User;
@@ -21,9 +21,8 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -202,7 +201,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         account.setUserId(userOne);
         account.setValidationToken("save-test-token");
         account.setStatus(ValidationAccount.STATUS_SENT);
-        account.setValidationSent(new Date());
+        account.setValidationSent(Instant.now());
         account.setValidationsSent(1);
         account.setAccountStatus(ValidationAccount.ACCOUNT_STATUS_NEW);
         account.setFirstName("Test");
@@ -223,7 +222,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         account.setUserId(userOne);
         account.setValidationToken("empty-test-token");
         account.setStatus(ValidationAccount.STATUS_SENT);
-        account.setValidationSent(new Date());
+        account.setValidationSent(Instant.now());
         account.setValidationsSent(1);
         account.setAccountStatus(ValidationAccount.ACCOUNT_STATUS_NEW);
         account.setFirstName("");
@@ -263,7 +262,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     public void testIsAccountValidatedWithConfirmedAccount() {
         ValidationAccount account = service.createValidationAccount(userOne);
         account.setStatus(ValidationAccount.STATUS_CONFIRMED);
-        account.setValidationReceived(new Date());
+        account.setValidationReceived(Instant.now());
         service.save(account);
 
         boolean isValidated = service.isAccountValidated(userOne);
@@ -302,7 +301,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     @Test
     public void testIsTokenExpiredForRecentPasswordReset() {
         ValidationAccount account = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-        account.setValidationSent(new Date());
+        account.setValidationSent(Instant.now());
         service.save(account);
 
         Mockito.when(serverConfigurationService.getInt("accountValidator.maxPasswordResetMinutes", 60)).thenReturn(60);
@@ -317,9 +316,7 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
         ValidationAccount account = service.createValidationAccount(userOne, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
 
         // Set validation sent to 2 hours ago
-        Calendar cal = new GregorianCalendar();
-        cal.add(Calendar.HOUR, -2);
-        account.setValidationSent(cal.getTime());
+        account.setValidationSent(Instant.now().minus(2, ChronoUnit.HOURS));
         service.save(account);
 
         Mockito.when(serverConfigurationService.getInt("accountValidator.maxPasswordResetMinutes", 60)).thenReturn(60);

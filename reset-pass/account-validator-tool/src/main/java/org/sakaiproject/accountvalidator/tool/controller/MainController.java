@@ -15,69 +15,67 @@
  */
 package org.sakaiproject.accountvalidator.tool.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
+import org.json.simple.JSONObject;
+import org.sakaiproject.accountvalidator.api.dto.ValidationClaim;
+import org.sakaiproject.accountvalidator.api.exception.ValidationException;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
+import org.sakaiproject.accountvalidator.tool.constants.AccountValidatorConstants;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.AuthenticationManager;
+import org.sakaiproject.user.api.Evidence;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserLockedException;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.util.ExternalTrustedEvidence;
+import org.sakaiproject.util.IdPwEvidence;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.support.RequestContextUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.json.simple.JSONObject;
-import org.joda.time.format.PeriodFormat;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.Period;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.ui.Model;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.support.RequestContextUtils;
-
-import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
-import org.sakaiproject.accountvalidator.api.exception.ValidationException;
-import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
-import org.sakaiproject.accountvalidator.api.dto.ValidationClaim;
-import org.sakaiproject.accountvalidator.tool.constants.AccountValidatorConstants;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
-import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
-import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.user.api.Authentication;
-import org.sakaiproject.user.api.AuthenticationException;
-import org.sakaiproject.user.api.AuthenticationManager;
-import org.sakaiproject.user.api.Evidence;
-import org.sakaiproject.user.api.UserAlreadyDefinedException;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserLockedException;
-import org.sakaiproject.user.api.UserPermissionException;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ExternalTrustedEvidence;
-import org.sakaiproject.util.IdPwEvidence;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 
 @Slf4j
 @Controller
@@ -267,7 +265,7 @@ public class MainController {
                 //get the time limit and convert to millis
                 long maxMillis = resetMinutes * 60 * 1000;
                 //the time when the validation token was sent to the email server
-                long sentTime = va.getValidationSent().getTime();
+                long sentTime = va.getValidationSent().toEpochMilli();
 
                 if (System.currentTimeMillis() - sentTime > maxMillis) {
                     //it's been too long, so invalide the token and stop the user
@@ -589,7 +587,7 @@ public class MainController {
                 //get the time limit and convert to millis
                 long maxMillis = minutes * 60 * 1000;
                 //the time when the validation token was sent to the email server
-                long sentTime = va.getValidationSent().getTime();
+                long sentTime = va.getValidationSent().toEpochMilli();
 
                 if (System.currentTimeMillis() - sentTime > maxMillis) {
                     //it's been too long, so invalidate the token and stop the user
@@ -864,7 +862,7 @@ public class MainController {
             userDirectoryService.commitEdit(u);
 
             //update the Validation object
-            va.setValidationReceived(new Date());
+            va.setValidationReceived(Instant.now());
             va.setStatus(ValidationAccount.STATUS_CONFIRMED);
             log.debug("Saving now ...");
 

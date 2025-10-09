@@ -20,7 +20,8 @@
 package org.sakaiproject.accountvalidator.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.Date;
+
+import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,8 +29,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import lombok.Data;
@@ -103,12 +102,10 @@ public class ValidationAccount implements PersistableEntity<Long> {
     private String validationToken;
 
     @Column(name = "VALIDATION_SENT")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date validationSent;
+	private Instant validationSent;
 
     @Column(name = "VALIDATION_RECEIVED")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date validationReceived;
+	private Instant validationReceived;
 
     @Column(name = "VALIDATIONS_SENT")
 	private Integer validationsSent;

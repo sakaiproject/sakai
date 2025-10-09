@@ -19,27 +19,16 @@
  */
 package org.sakaiproject.accountvalidator.impl.jobs;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-
 import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -60,6 +49,16 @@ import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 @Slf4j
 public class CheckValidations implements Job {
 
@@ -72,213 +71,169 @@ public class CheckValidations implements Job {
 	@Setter private SessionManager sessionManager;
 	@Setter private PreferencesService preferencesService;	
 
-	private int maxDays = 90;
-	
-	public void setMaxDays(int maxDays) {
-		this.maxDays = maxDays;
-	}
-
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
 		//set the user information into the current session
 	    Session sakaiSession = sessionManager.getCurrentSession();
 	    sakaiSession.setUserId("admin");
 	    sakaiSession.setUserEid("admin");
-		
-		
-		Calendar cal = new GregorianCalendar();
+
 		// check the old property first
-		String maxDaysLocalStr = serverConfigurationService.getString("accountValidator.maxDays", null);
-		if (maxDaysLocalStr == null)
-		{
+		String maxDaysConfig = serverConfigurationService.getString("accountValidator.maxDays");
+		if (StringUtils.isNotBlank(maxDaysConfig)) {
 			log.warn("accountValidator.maxDays was found. The new property is accountValidator.maxReminderDays");
 		}
 		// overwrite it with the new property if it exists, default to the old one
-		maxDaysLocalStr = serverConfigurationService.getString("accountValidator.maxReminderDays", maxDaysLocalStr);
-		if (maxDaysLocalStr == null)
-		{
-			// neither of the two properties are set, use the default
-			maxDaysLocalStr = "" + maxDays;
-		}
-		try{
-			maxDays = Integer.parseInt(maxDaysLocalStr);
-		}catch (Exception e) {}
-		cal.add(Calendar.DAY_OF_MONTH, (maxDays * -1));
-		Date maxAge = cal.getTime();
-		int maxAttempts =10;
-		String maxAttemptsStr = serverConfigurationService.getString("accountValidator.maxResendAttempts", "" + maxAttempts);
-		try{
-			maxAttempts = Integer.parseInt(maxAttemptsStr);
-		}catch (Exception e) {}
-		
+		maxDaysConfig = serverConfigurationService.getString("accountValidator.maxReminderDays", maxDaysConfig);
+        int maxDays = NumberUtils.toInt(maxDaysConfig, 90);
+        
+		String maxAttemptsConfig = serverConfigurationService.getString("accountValidator.maxResendAttempts");
+        int maxAttempts = NumberUtils.toInt(maxAttemptsConfig, 10);
+
 		StringBuilder usedAccounts = new StringBuilder();
-		List<String> oldAccounts = new ArrayList<String>();
-		//we need sent and resent
-		List<ValidationAccount> list = avService.getValidationAccountsByStatus(ValidationAccount.STATUS_SENT);
-		List<ValidationAccount> list2 = avService.getValidationAccountsByStatus(ValidationAccount.STATUS_RESENT);
+		List<String> oldAccounts = new ArrayList<>();
+		// we need sent and resent
+		List<ValidationAccount> sent = avService.getValidationAccountsByStatus(ValidationAccount.STATUS_SENT);
+		List<ValidationAccount> resent = avService.getValidationAccountsByStatus(ValidationAccount.STATUS_RESENT);
 
-		if (list2 != null) {
-			list.addAll(list2);
+		if (resent != null && !resent.isEmpty()) {
+			sent.addAll(resent);
 		}
 
+        boolean resendValidations = serverConfigurationService.getBoolean("accountValidator.resendValidations", true);
+
+        Instant maxAge = Instant.now().minus(maxDays, ChronoUnit.DAYS);
 		int loggedInAccounts = 0;
-		int notLogedIn = 0;
+		int notLoggedIn = 0;
 
-		for (int i = 0; i < list.size(); i++) {
-			ValidationAccount account = list.get(i);
-			log.debug("account " + account.getUserId() + " created on  " + account.getValidationSent());
+        for (ValidationAccount account : sent) {
+            log.debug("account {} created on {}", account.getUserId(), account.getValidationSent());
 
-			//has the user logged in - check for a authz realm
+            String userSiteId = siteService.getUserSiteId(account.getUserId());
+            if (siteService.siteExists(userSiteId)) {
+                log.debug("looks like this user logged in!");
+                loggedInAccounts++;
 
-
-			String userSiteId = siteService.getUserSiteId(account.getUserId());
-			if (siteService.siteExists(userSiteId)) {
-				log.info("looks like this user logged in!");
-				loggedInAccounts++;
-
-
-				if (account.getValidationsSent().intValue() < maxAttempts
-						&& serverConfigurationService.getBoolean(
-								"accountValidator.resendValidations", true)) {
-						avService.resendValidation(account.getValidationToken());
-				} else if (account.getValidationSent().before(maxAge) || account.getValidationsSent().intValue() >= maxAttempts) {
-					account.setStatus(ValidationAccount.STATUS_EXPIRED);
-					//set the received date so that it will create a new token the next time the user requests a reset
-					cal = new GregorianCalendar();
-					account.setValidationReceived(cal.getTime());
-					avService.save(account);
-				} 
-				else if (avService.isTokenExpired(account))
-				{
-					// Note: ^ isTokenExpired has the side effect of expiring tokens. We are doing this intentionally, so please do not remove this empty 'else if' block.
-				} else {
-					//TODO What do we do in this case?
-				}
-				usedAccounts.append(account.getUserId() + "\n");
-			} else {
-				//user has never logged in
-				log.debug("realm: " + "/site/~" + account.getUserId() + " does not seem to exist");
-				notLogedIn++;
-				if (account.getValidationSent().before(maxAge)) {
-					oldAccounts.add(account.getUserId());
-				}
-			}
-
-
-		}
-		log.info("users have logged in: " + loggedInAccounts + " not logged in: " + notLogedIn);
-		log.info("we would delete: " + oldAccounts.size() + " accounts");
-		if (log.isDebugEnabled()) {
-			log.debug("users:" + usedAccounts.toString());
-		}
+                if (resendValidations && account.getValidationsSent() < maxAttempts) {
+                    // User logged in, token still valid, haven't hit max attempts -> resend
+                    avService.resendValidation(account.getValidationToken());
+                } else if (account.getValidationSent().isBefore(maxAge) || account.getValidationsSent() >= maxAttempts) {
+                    // Token is too old OR hit max attempts -> expire it
+                    account.setStatus(ValidationAccount.STATUS_EXPIRED);
+                    account.setValidationReceived(Instant.now());
+                    avService.save(account);
+                } else if (avService.isTokenExpired(account)) {
+                    // Token expired due to password reset timeout -> already handled by calling isTokenExpired()
+                    log.debug("token expired for account {}", account);
+                } else {
+                    // What case gets here?
+                    // - resendValidations is FALSE
+                    // - validationsSent < maxAttempts
+                    // - validation sent is AFTER maxAge (still fresh)
+                    // - token is NOT expired
+                    log.debug("User {} has logged in but resendValidations is disabled. Token status: {}, sent: {}",
+                            account.getUserId(), account.getStatus(), account.getValidationsSent());
+                }
+                usedAccounts.append(account.getUserId()).append("\n");
+            } else {
+                // user has never logged in
+                log.debug("realm: /site/~{} does not seem to exist", account.getUserId());
+                notLoggedIn++;
+                if (account.getValidationSent().isBefore(maxAge)) {
+                    oldAccounts.add(account.getUserId());
+                }
+            }
+        }
+		log.info("users have logged in: {} not logged in: {}", loggedInAccounts, notLoggedIn);
+		log.info("we would delete: {} accounts", oldAccounts.size());
+        log.debug("users: {}", usedAccounts);
 		
-		//as potentially a user could have added lots of accounts we don't want to spam them
+		// as potentially a user could have added lots of accounts, we don't want to spam them
 		Map<String, List<String>> addedMap = buildAddedMap(oldAccounts);
 		
-		//Ok now we have a map of each user and who they added
+		// now have a map of each user and who they added
 		Set<Entry<String,List<String>>> entrySet = addedMap.entrySet();
-		Iterator<Entry<String,List<String>>> it = entrySet.iterator();
-		while (it.hasNext()) {
-			Entry<String,List<String>> entry = it.next();
-			String creatorId = entry.getKey();
-			try {
-				User creator = userDirectoryService.getUser(creatorId);
-				Locale locale = preferencesService.getLocale(creatorId);
-				List<String> users = entry.getValue();
-				StringBuilder userText = new StringBuilder();
-				for (int i = 0; i < users.size(); i++) {
-					try {
-						User u = userDirectoryService.getUser(users.get(i));
-						//added the added date 
-						DateTime dt = new DateTime(u.getCreatedDate());
-						DateTimeFormatter fmt = DateTimeFormat.longDate();
-						String str = fmt.withLocale(locale).print(dt);
-						userText.append(u.getEid() + " (" + str +")\n");
+        for (Entry<String, List<String>> entry : entrySet) {
+            String creatorId = entry.getKey();
+            try {
+                User creator = userDirectoryService.getUser(creatorId);
+                Locale locale = preferencesService.getLocale(creatorId);
+                List<String> users = entry.getValue();
+                StringBuilder userText = new StringBuilder();
+                for (String user : users) {
+                    try {
+                        User u = userDirectoryService.getUser(user);
+                        // added the added date 
+                        DateTime dt = new DateTime(u.getCreatedDate());
+                        DateTimeFormatter fmt = DateTimeFormat.longDate();
+                        String str = fmt.withLocale(locale).print(dt);
+                        userText.append(u.getEid()).append(" (").append(str).append(")\n");
+                        removeCleanUpUser(u.getId());
+                    } catch (UserNotDefinedException e) {
+                        // this is an orphaned validation token
+                        ValidationAccount va = avService.getValidationAccountByUserId(user);
+                        avService.deleteValidationAccount(va);
+                    }
+                }
 
-						removeCleaUpUser(u.getId());
-					}
-					catch (UserNotDefinedException e) {
-						//this is an orphaned validation token
-						ValidationAccount va = avService.getValidationAccountByUserId(users.get(i));
-						avService.deleteValidationAccount(va);
-					}
-				}
+                List<String> userReferences = new ArrayList<>();
+                userReferences.add(creator.getReference());
 
-				List<String> userReferences = new ArrayList<String>();
-				userReferences.add(creator.getReference());
-				
-				
-				
-				Map<String, Object> replacementValues = new HashMap<>();
-				replacementValues.put("userList", userText.toString());
-				replacementValues.put("creatorName", creator.getDisplayName());
-				replacementValues.put("deleteDays", Integer.valueOf(maxDays).toString());
-				replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
-				//now we send an email
-				String fromEmail = serverConfigurationService.getSmtpFrom();
-				String fromName = fromEmail;
-				emailTemplateService.sendRenderedMessages("validate.deleted", userReferences, replacementValues, fromEmail, fromName);
-				
-				
-			} catch (UserNotDefinedException e) {
-				log.error(e.getMessage(), e);
-			}
-		}
+
+                Map<String, Object> replacementValues = new HashMap<>();
+                replacementValues.put("userList", userText.toString());
+                replacementValues.put("creatorName", creator.getDisplayName());
+                replacementValues.put("deleteDays", Integer.valueOf(maxDays).toString());
+                replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
+                // now we send an email
+                String fromEmail = serverConfigurationService.getSmtpFrom();
+                emailTemplateService.sendRenderedMessages("validate.deleted", userReferences, replacementValues, fromEmail, fromEmail);
+            } catch (UserNotDefinedException e) {
+                log.warn(e.toString());
+            }
+        }
 	}
 
-	private void removeCleaUpUser(String id) {
-		
-		
-		
+	private void removeCleanUpUser(String id) {
 		UserEdit user;
 		try {
 			Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(EntityReference.getIdFromRef(id), "site.visit", null);
-			Iterator<String> it = groups.iterator();
-			while (it.hasNext()) {
-				AuthzGroup group = authzGroupService.getAuthzGroup(it.next());
-				group.removeMember(id);
-				authzGroupService.save(group);
-			}
-			
-			
-			user = userDirectoryService.editUser(id);
-			userDirectoryService.removeUser(user);
-			ValidationAccount va = avService.getValidationAccountByUserId(id);
-			avService.deleteValidationAccount(va);
-		} catch (UserNotDefinedException e) {
-			log.error(e.getMessage(), e);
-		} catch (UserPermissionException e) {
-			log.error(e.getMessage(), e);
-		} catch (UserLockedException e) {
-			log.error(e.getMessage(), e);
-		} catch (GroupNotDefinedException e) {
-			log.error(e.getMessage(), e);
-		} catch (AuthzPermissionException e) {
-			log.error(e.getMessage(), e);
-		}
+            for (String group : groups) {
+                AuthzGroup azGroup = authzGroupService.getAuthzGroup(group);
+                azGroup.removeMember(id);
+                authzGroupService.save(azGroup);
+            }
+
+            user = userDirectoryService.editUser(id);
+            userDirectoryService.removeUser(user);
+            ValidationAccount va = avService.getValidationAccountByUserId(id);
+            avService.deleteValidationAccount(va);
+        } catch (UserNotDefinedException | UserPermissionException | UserLockedException |
+                 GroupNotDefinedException | AuthzPermissionException e) {
+            log.warn(e.toString());
+        }
 	}
 
 	private Map<String, List<String>> buildAddedMap(List<String> oldAccounts) {
 		
-		Map<String, List<String>> ret = new HashMap<String, List<String>>();
-		
-		for (int i =0; i < oldAccounts.size(); i++) {
-			try {
-				User u = userDirectoryService.getUser(oldAccounts.get(i));
-				String createdBy = u.getCreatedBy().getId();
-				if (ret.containsKey(createdBy)) {
-					List<String> l = ret.get(createdBy);
-					l.add(u.getId());
-					ret.put(createdBy, l);
-				} else {
-					List<String> l = new ArrayList<String>();
-					l.add(u.getId());
-					ret.put(createdBy, l);
-				}
-			} catch (UserNotDefinedException e) {
-				log.error(e.getMessage(), e);
-			}
-		}
+		Map<String, List<String>> ret = new HashMap<>();
+
+        for (String oldAccount : oldAccounts) {
+            try {
+                User u = userDirectoryService.getUser(oldAccount);
+                String createdBy = u.getCreatedBy().getId();
+                List<String> l;
+                if (ret.containsKey(createdBy)) {
+                    l = ret.get(createdBy);
+                } else {
+                    l = new ArrayList<>();
+                }
+                l.add(u.getId());
+                ret.put(createdBy, l);
+            } catch (UserNotDefinedException e) {
+                log.warn(e.toString());
+            }
+        }
 		
 		return ret;
 	}

@@ -41,22 +41,20 @@ public class CheckAccountsJob implements Job {
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		
 		try {
-			//get all Guest Users
+			// get all Guest Users
 			List<User> users = userDirectoryService.getUsers();
-		
-			for (int i =0; i < users.size(); i++ ) {
-				User u = (User)users.get(i);
-				if ("guest".equals(u.getType())) {
-					if (!avService.isAccountValidated(u.getReference())){
-						log.info("found unvalidated account: " + u.getEid() + "(" + u.getId() + ")");
-						ValidationAccount va = avService.createValidationAccount(u.getReference(), ValidationAccount.ACCOUNT_STATUS_LEGACY);
-						log.info("sent validation token of " + va.getValidationToken());
-					}
-				}
-			}
-		}
-		catch (Exception e) {
-			log.error(e.getMessage(), e);
+
+            for (User u : users) {
+                if ("guest".equals(u.getType())) {
+                    if (!avService.isAccountValidated(u.getReference())) {
+                        log.info("found unvalidated account: {}({})", u.getEid(), u.getId());
+                        ValidationAccount va = avService.createValidationAccount(u.getReference(), ValidationAccount.ACCOUNT_STATUS_LEGACY);
+                        log.info("sent validation token of {}", va.getValidationToken());
+                    }
+                }
+            }
+		} catch (Exception e) {
+			log.warn(e.toString());
 		}
 	}
 

@@ -19,16 +19,8 @@
  */
 package org.sakaiproject.accountvalidator.impl.service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
@@ -58,10 +50,16 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementation of AccountValidationService using Spring's repository pattern.
@@ -80,7 +78,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 	private static final String TEMPLATE_KEY_REQUEST_ACCOUNT = "validate.requestAccount";
 	private static final String TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET = "acknowledge.passwordReset";
 
-	private static final int VALIDATION_PERIOD_MONTHS = -36;
+	private static final int VALIDATION_PERIOD_MONTHS = 36;
 
 	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
 	private static final int MAX_PASSWORD_RESET_MINUTES_DEFAULT = 60;
@@ -142,11 +140,8 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
         if (va.getValidationReceived() == null) {
             if (va.getValidationSent() != null) {
-                Calendar cal = new GregorianCalendar();
-                cal.add(Calendar.MONTH, VALIDATION_PERIOD_MONTHS); // 36 months ago
-                Date validationDeadline = cal.getTime();
-
-                if (va.getValidationSent().before(validationDeadline)) {
+                Instant validationDeadline = Instant.now().minus(VALIDATION_PERIOD_MONTHS, ChronoUnit.DAYS); // 36 months ago
+                if (va.getValidationSent().isBefore(validationDeadline)) {
                     log.debug("validation sent but expired - no reply received within {} months", Math.abs(VALIDATION_PERIOD_MONTHS));
                 } else {
                     log.debug("validation sent still awaiting reply");
@@ -191,13 +186,13 @@ public class AccountValidationServiceImpl implements AccountValidationService {
             long maxMillis = minutes * 60L * 1000L;
 
             // The time when the validation was sent to the email server
-            long sentTime = va.getValidationSent().getTime();
+            long sentTime = va.getValidationSent().toEpochMilli();
 
             // Check if token has expired
             if (System.currentTimeMillis() - sentTime > maxMillis) {
                 // It's been too long, so invalidate the token and return
                 va.setStatus(ValidationAccount.STATUS_EXPIRED);
-                va.setValidationReceived(new Date());
+                va.setValidationReceived(Instant.now());
                 repository.save(va);
                 return true;
             }
@@ -266,7 +261,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
 	// Set other details for ValidationAccount and save
 	private ValidationAccount saveValidationAccount(ValidationAccount account) {
-		account.setValidationSent(new Date());
+		account.setValidationSent(Instant.now());
 		account.setStatus(ValidationAccount.STATUS_SENT);
 		String userId = EntityReference.getIdFromRef(account.getUserId());
 		try {
@@ -406,9 +401,9 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 		if (account == null) {
 			throw new IllegalArgumentException("no such account: " + token);
 		}
-
-		account.setValidationSent(new Date());
-		account.setValidationsSent(account.getValidationsSent() + 1);
+        int validationsSent = account.getValidationsSent() == null ? 1 : account.getValidationsSent();
+		account.setValidationSent(Instant.now());
+		account.setValidationsSent(validationsSent + 1);
 		account.setStatus(ValidationAccount.STATUS_RESENT);
 		save(account);
 		sendEmailTemplate(account, null);
