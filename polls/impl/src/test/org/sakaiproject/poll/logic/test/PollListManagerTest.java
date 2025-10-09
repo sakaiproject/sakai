@@ -21,6 +21,7 @@
 
 package org.sakaiproject.poll.logic.test;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -231,7 +232,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 	    vote.setPollId(poll1.getPollId());
 	    vote.setPollOption(option1.getOptionId());
 	    vote.setUserId(TestDataPreload.USER_UPDATE);
-	    vote.setVoteDate(new Date());
+	    vote.setVoteDate(Instant.now());
 	    vote.setSubmissionId(TestDataPreload.USER_UPDATE + ":" + UUID.randomUUID());
 
 	    pollVoteManager.saveVote(vote);

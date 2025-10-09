@@ -112,7 +112,7 @@ public class Poll implements PersistableEntity<Long> {
     private String displayResult = "open";
 
     @Column(name = "POLL_LIMIT_VOTE", nullable = false)
-    private Boolean limitVoting = Boolean.TRUE;
+    private boolean limitVoting = true;
 
     @Transient
     private boolean currentUserVoted = false;
@@ -121,7 +121,7 @@ public class Poll implements PersistableEntity<Long> {
     private List<Option> options = new ArrayList<>();
 
     @Column(name = "POLL_IS_PUBLIC", nullable = false)
-    private Boolean isPublic = Boolean.FALSE;
+    private boolean isPublic = false;
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
@@ -133,8 +133,8 @@ public class Poll implements PersistableEntity<Long> {
         this.description = "";
         this.minOptions = 1;
         this.maxOptions = 1;
-        this.limitVoting = Boolean.TRUE;
-        this.isPublic = Boolean.FALSE;
+        this.limitVoting = true;
+        this.isPublic = false;
         this.voteOpen = new Date();
 
         Calendar cal = Calendar.getInstance();

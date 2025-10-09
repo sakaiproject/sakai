@@ -51,6 +51,7 @@
 		<property name="pollRepository" ref="org.sakaiproject.poll.repository.PollRepository"/>
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 		<property name="pollListManager" ref="org.sakaiproject.poll.logic.PollListManager"/>
+		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.poll.logic.ExternalLogic" class="org.sakaiproject.poll.logic.impl.ExternalLogicImpl"

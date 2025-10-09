@@ -210,7 +210,7 @@ public class PollsUiService {
             throw new PollValidationException("vote_noperm.voteCollection");
         }
 
-        if (poll.getLimitVoting() && pollVoteManager.userHasVoted(pollId)) {
+        if (poll.isLimitVoting() && pollVoteManager.userHasVoted(pollId)) {
             throw new PollValidationException("vote_hasvoted.voteCollection");
         }
 
@@ -231,10 +231,7 @@ public class PollsUiService {
         List<Vote> votesToSave = new ArrayList<>();
         for (Long optionId : votesToProcess) {
             Option option = new Option(optionId);
-            Vote vote = new Vote(poll, option, voteCollection.getId());
-            if (vote.getIp() == null) {
-                vote.setIp("Nothing");
-            }
+            Vote vote = pollVoteManager.createVote(poll, option, voteCollection.getId());
             votesToSave.add(vote);
         }
 

@@ -21,7 +21,7 @@
 
 package org.sakaiproject.poll.model;
 
-import java.util.Date;
+import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,15 +30,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.springframework.data.PersistableEntity;
-import org.sakaiproject.tool.cover.SessionManager;
 
 @Getter
 @Setter
@@ -61,9 +56,8 @@ public class Vote implements PersistableEntity<Long> {
     @Column(name = "VOTE_POLL_ID", nullable = false)
     private Long pollId;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "VOTE_DATE", nullable = false)
-    private Date voteDate;
+    private Instant voteDate;
 
     @Column(name = "VOTE_OPTION")
     private Long pollOption;
@@ -72,25 +66,16 @@ public class Vote implements PersistableEntity<Long> {
     private String submissionId;
 
     public Vote() {
-        // needed by hibernate
+        // JPA requires a no-arg constructor
     }
 
-    public Vote(Poll poll, Option option, String subId) {
+    public Vote(Poll poll, Option option, String subId, Instant voteDate, String userId, String ip) {
         this.pollId = poll.getPollId();
         this.pollOption = option.getOptionId();
         this.submissionId = subId;
-
-        // the date can default to now
-        voteDate = new Date();
-
-        // TODO move this stuff to the service
-        // user is current user
-        userId = SessionManager.getCurrentSessionUserId();
-        // set the Ip to the current sessions IP
-        UsageSession usageSession = UsageSessionService.getSession();
-        if (usageSession != null) {
-            ip = usageSession.getIpAddress();
-        }
+        this.voteDate = voteDate;
+        this.userId = userId;
+        this.ip = ip;
     }
 
     @Override

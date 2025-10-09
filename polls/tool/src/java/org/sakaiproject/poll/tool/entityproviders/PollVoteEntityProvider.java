@@ -22,7 +22,7 @@ package org.sakaiproject.poll.tool.entityproviders;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -153,7 +153,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
             }
         }
         // set default vote values
-        vote.setVoteDate( new Date() );
+        vote.setVoteDate(Instant.now());
         vote.setUserId(userId);
         if (vote.getSubmissionId() == null) {
             String sid = userId + ":" + UUID.randomUUID();
@@ -350,7 +350,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
 		for (Option option : options.values()) {
 			Vote vote = new Vote();
 
-			vote.setVoteDate(new Date());
+			vote.setVoteDate(Instant.now());
 			vote.setUserId(userId);
 			vote.setPollId(poll.getPollId());
 			vote.setPollOption(option.getOptionId());
