@@ -1197,8 +1197,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		}
 
 		Set users = group.getUsersIsAllowed(SectionAwareness.STUDENT_MARKER);
-		
-		return users.size();
+
+		return countNonRoleViewUsers(users);
 	}
 
 	/**
@@ -1216,10 +1216,41 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			return roleMap;
 		}
 
-        roleMap.put(Role.STUDENT, group.getUsersIsAllowed(SectionAwareness.STUDENT_MARKER).size());
-        roleMap.put(Role.TA, group.getUsersIsAllowed(SectionAwareness.TA_MARKER).size());
-        roleMap.put(Role.INSTRUCTOR, group.getUsersIsAllowed(SectionAwareness.INSTRUCTOR_MARKER).size());
-        return roleMap;
+		roleMap.put(Role.STUDENT, countNonRoleViewUsers(group.getUsersIsAllowed(SectionAwareness.STUDENT_MARKER)));
+		roleMap.put(Role.TA, countNonRoleViewUsers(group.getUsersIsAllowed(SectionAwareness.TA_MARKER)));
+		roleMap.put(Role.INSTRUCTOR, countNonRoleViewUsers(group.getUsersIsAllowed(SectionAwareness.INSTRUCTOR_MARKER)));
+		return roleMap;
+        }
+
+	protected int countNonRoleViewUsers(Set users) {
+		if (users == null) {
+			return 0;
+		}
+
+		int count = 0;
+		for (Iterator iterator = users.iterator(); iterator.hasNext();) {
+			String userId = (String) iterator.next();
+			if (!isRoleViewUser(userId)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	protected boolean isRoleViewUser(String userId) {
+		if (userId == null) {
+			return false;
+		}
+
+		try {
+			org.sakaiproject.user.api.User user = userDirectoryService.getUser(userId);
+			return user != null && UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType());
+		} catch (UserNotDefinedException e) {
+			if (log.isDebugEnabled()) {
+				log.debug("User {} not defined when checking for roleview type", userId, e);
+			}
+		}
+		return false;
 	}
 
 	
