@@ -1229,17 +1229,12 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 
 		int count = 0;
 		for (org.sakaiproject.user.api.User user : userDirectoryService.getUsers(userIds)) {
-			if (!isRoleViewUser(user)) {
+			if (!userDirectoryService.isRoleViewType(user.getId())) {
 				count++;
 			}
 		}
 		return count;
 	}
-
-	protected boolean isRoleViewUser(org.sakaiproject.user.api.User user) {
-		return user != null && UserDirectoryService.ROLEVIEW_USER_TYPE.equals(user.getType());
-	}
-
 	
 	/**
 	 * {@inheritDoc}
