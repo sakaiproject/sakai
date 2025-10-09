@@ -136,8 +136,8 @@ public class CalendarControllerTests extends BaseControllerTests {
         when(calendarService.calendarReference("site1", "main")).thenReturn("calendar1");
         when(calendarService.calendarReference("site2", "main")).thenReturn("calendar2");
 
-        var event1 = createEvent("site1", "Site 1", "Event 1", "Canapes and cocktails", 1000L, 40000L);
-        var event2 = createEvent("site2", "Site 2", "Event 2", "Fruit punch", 3000L, 70000L);
+        CalendarEvent event1 = createEvent("site1", "Site 1", "Event 1", "Canapes and cocktails", 1000L, 40000L);
+        CalendarEvent event2 = createEvent("site2", "Site 2", "Event 2", "Fruit punch", 3000L, 70000L);
         when(event2.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID)).thenReturn("assignment1");
 
         var site1 = mock(Site.class);
@@ -178,7 +178,7 @@ public class CalendarControllerTests extends BaseControllerTests {
 
         var siteId = "site1";
 
-        var event = createEvent(siteId, "Site 1", "Event 1", "Canapes and cocktails", 1000L, 40000L);
+        CalendarEvent event = createEvent(siteId, "Site 1", "Event 1", "Canapes and cocktails", 1000L, 40000L);
 
         when(event.getField(CalendarConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID)).thenReturn("assignment1");
 
@@ -186,9 +186,9 @@ public class CalendarControllerTests extends BaseControllerTests {
 
         var calendarEventVector = new CalendarEventVector(List.of(event).iterator());
         when(calendarService.getEvents(any(), any(), anyBoolean())).thenReturn(calendarEventVector);
-        var attachment1 = mock(Reference.class);
-        when(attachment1.getId()).thenReturn("attachment1-ref-id");
-        when(event.getAttachments()).thenReturn(List.of(attachment1));
+        var attachment1Ref = mock(Reference.class);
+        when(attachment1Ref.getId()).thenReturn("attachment1-ref-id");
+        when(event.getAttachments()).thenReturn(List.of(attachment1Ref));
 
         var attachment1Resource = mock(ContentResource.class);
         when(attachment1Resource.getId()).thenReturn("attachment1-id");
@@ -242,9 +242,9 @@ public class CalendarControllerTests extends BaseControllerTests {
         when(recurrenceRule.getCount()).thenReturn(5);
         when(recurrenceRule.getInterval()).thenReturn(17);
         when(recurrenceRule.getFrequency()).thenReturn("DAILY");
-        var until = mock(Time.class);
-        when(until.getTime()).thenReturn(8000L);
-        when(recurrenceRule.getUntil()).thenReturn(until);
+        var untilTime = mock(Time.class);
+        when(untilTime.getTime()).thenReturn(8000L);
+        when(recurrenceRule.getUntil()).thenReturn(untilTime);
         when(event.getRecurrenceRule()).thenReturn(recurrenceRule);
 
         return event;

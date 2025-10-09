@@ -32,6 +32,7 @@ import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import org.sakaiproject.event.api.UsageSessionService;
@@ -112,7 +113,7 @@ public class LoginControllerTests extends BaseControllerTests {
         var username = "user1";
         var password = "password1";
 
-        var result = mockMvc.perform(post("/login")
+        MvcResult result = mockMvc.perform(post("/login")
                 .param("username", username)
                 .param("password", password))
             .andExpect(status().isOk())

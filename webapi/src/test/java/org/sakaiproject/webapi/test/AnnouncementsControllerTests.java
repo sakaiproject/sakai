@@ -141,17 +141,17 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
 
         when(portalService.getPinnedSites()).thenReturn(List.of(site1Id, site2Id));
 
-        var subject1 = faker.lorem().sentence();
-        var author1 = faker.name().fullName();
+        String subject1 = faker.lorem().sentence();
+        String author1 = faker.name().fullName();
         var releaseDate1 = Instant.now().minus(7, ChronoUnit.DAYS);
         var url1 = "url1";
         var ref1 = "/ref/" + UUID.randomUUID().toString();
-        var am1 = createAnnouncementMessage(site1Id, subject1, author1, releaseDate1, ref1, url1);
+        AnnouncementMessage am1 = createAnnouncementMessage(site1Id, subject1, author1, releaseDate1, ref1, url1);
 
         when(announcementService.getMessages(site1ChannelRef, null, false, false)).thenReturn(List.of(am1));
 
-        var subject2 = faker.lorem().sentence();
-        var author2 = faker.name().fullName();
+        String subject2 = faker.lorem().sentence();
+        String author2 = faker.name().fullName();
         var releaseDate2 = Instant.now().minus(14, ChronoUnit.DAYS);
         var url2 = "url2";
         var ref2 = "/ref/" + UUID.randomUUID().toString();
@@ -197,7 +197,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
 
         when(announcementService.channelReference(siteId, "main")).thenReturn(channelRef);
 
-        var author = faker.name().fullName();
+        String author = faker.name().fullName();
         String subject = faker.lorem().sentence();
         var releaseDate = Instant.now().minus(3, ChronoUnit.DAYS);
         var url = "http://example.com/something";
