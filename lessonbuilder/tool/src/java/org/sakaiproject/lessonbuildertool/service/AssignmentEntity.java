@@ -511,38 +511,31 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	if (i > 0)
 	    realobjectid = objectid.substring(0, i);
 
-	String newassignment = objectMap.get(realobjectid);
-	if (newassignment == null) {
-	    newassignment = objectMap.get("/" + realobjectid);
-	}
-
-	if (newassignment == null) {
-	    String realobjectidWithSlash = "/" + realobjectid;
-	    for (Map.Entry<String,String> entry : objectMap.entrySet()) {
-		String key = entry.getKey();
-		String value = entry.getValue();
-		if (key == null || value == null) {
-		    continue;
-		}
-
-		boolean valueMatches = realobjectid.equals(value) || realobjectidWithSlash.equals(value);
-		if (valueMatches) {
-		    if (key.startsWith("/")) {
-			key = key.substring(1);
+	String newassignment = null;
+	if (objectMap != null && !objectMap.isEmpty()) {
+	    newassignment = objectMap.get(realobjectid);
+	    if (newassignment == null) {
+		newassignment = objectMap.get("/" + realobjectid);
+	    }
+	    if (newassignment == null) {
+		String legacy = realobjectid.startsWith("/") ? realobjectid.substring(1) : realobjectid;
+		for (Map.Entry<String,String> entry : objectMap.entrySet()) {
+		    String value = entry.getValue();
+		    if (value == null) {
+			continue;
 		    }
-		    if (key.startsWith(ASSIGNMENT + "/")) {
-			newassignment = key;
+
+		    String valueNoSlash = value.startsWith("/") ? value.substring(1) : value;
+		    if (legacy.equals(valueNoSlash)) {
+			newassignment = entry.getKey();
 			break;
 		    }
 		}
 	    }
 	}
 
-	if (newassignment != null) {
-	    if (newassignment.startsWith("/")) {
-		return newassignment;
-	    }
-	    return "/" + newassignment;  // sakaiid is /assignment/ID
+	if (newassignment != null && !newassignment.isEmpty()) {
+	    return newassignment.startsWith("/") ? newassignment : "/" + newassignment;
 	}
 
 	// not in map. try title, but only if title given
