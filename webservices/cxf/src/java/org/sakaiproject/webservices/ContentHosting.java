@@ -896,4 +896,62 @@ public class ContentHosting extends AbstractWebService {
 
 		return "success";
 	}
+
+	/**
+	 * Sets a collection to be hidden with accessible contents by adding the
+	 * SAKAI:hidden_accessible_content property. This ensures the collection's
+	 * contents remain accessible even when the collection itself is marked as hidden.
+	 *
+	 * Note: The collection must not be hidden for this property to take effect.
+	 * If the collection is currently hidden, it will be made visible before applying
+	 * the property.
+	 *
+	 * @param sessionId a valid session id
+	 * @param collectionId the id of the collection to modify
+	 * @return "success" if the operation completed, "failure" otherwise
+	 *
+	 * @see <a href="https://jira.sakaiproject.org/browse/SAK-52071">SAK-52071</a>
+	 * @see <a href="https://jira.sakaiproject.org/browse/SAK-50993">SAK-50993</a>
+	 */
+	@WebMethod
+	@Path("/setCollectionHiddenWithAccessibleContents")
+	@Produces("text/plain")
+	@GET
+	public String setCollectionHiddenWithAccessibleContents(
+			@WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+			@WebParam(name = "collectionId", partName = "collectionId") @QueryParam("collectionId") String collectionId){
+
+		// Validate inputs
+		if (StringUtils.isBlank(sessionId) || StringUtils.isBlank(collectionId)) {
+		log.warn("setCollectionHiddenWithAccessibleContents: sessionId and collectionId are required");
+		return "failure";
+		}
+
+		String propertyName="SAKAI:hidden_accessible_content";
+		String propertyValue="true";
+		Session session = establishSession(sessionId);
+		log.info("Start process ---> WS.setCollectionHiddenWithAccessibleContents()");
+
+		ContentCollectionEdit collection = null;
+		boolean success = false;
+		try {
+			collection = contentHostingService.editCollection(collectionId);
+			if (collection.isHidden()){
+				//Collection must be available for this property to work. Hidden collection is always hidden and property is ignored.
+				collection.setAvailability(false, null, null);
+			}
+			collection.getPropertiesEdit().addProperty(propertyName, propertyValue);
+			contentHostingService.commitCollection(collection);
+			log.info("Process completed --> Collection {} set hidden with accessible contents.", collectionId);
+			success = true;
+		} catch (Exception e) {
+			log.warn("Error in collection: {}. Error: {}", collectionId, e.getMessage(), e);
+			if (collection != null) {
+				contentHostingService.cancelCollection(collection);
+			}
+		}
+		log.info("End process ---> WS.setCollectionHiddenWithAccessibleContents()");
+
+		return success ? "success" : "failure";
+	}
 }
