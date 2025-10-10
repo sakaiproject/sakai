@@ -2601,6 +2601,11 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
     }
 
     @Override
+    public Optional<List<String>> getTransferOptions() {
+        return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
+    }
+
+    @Override
     public List<Map<String, String>> getEntityMap(String fromContext) {
 
         try {
@@ -2610,6 +2615,11 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
             log.warn("Failed to get topics for site {}: {}", fromContext, cpe.toString());
         }
         return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public String getToolPermissionsPrefix() {
+        return Permissions.PREFIX;
     }
 
     @Override

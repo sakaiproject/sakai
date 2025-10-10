@@ -1901,6 +1901,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	} // importResources
 
 	@Override
+	public String getToolPermissionsPrefix() {
+		return AUTH_PERMISSION_PREFIX;
+	}
+
+	@Override
 	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
 		if(transversalMap != null && transversalMap.size() > 0){
 			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
@@ -1954,6 +1959,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	{
 		String[] toolIds = { "sakai.schedule" };
 		return toolIds;
+	}
+
+	@Override
+	public Optional<List<String>> getTransferOptions() {
+		return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
 	}
 
 	@Override

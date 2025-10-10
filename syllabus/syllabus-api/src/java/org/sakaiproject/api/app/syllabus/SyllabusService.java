@@ -56,6 +56,7 @@ public interface SyllabusService extends EntityProducer
 	public static final String SECURE_BULK_ADD_ITEM = "syllabus.bulk.add.item";
 	public static final String SECURE_BULK_EDIT_ITEM = "syllabus.bulk.edit.item";
 	public static final String SECURE_REDIRECT = "syllabus.redirect";
+	public static final String SECURE_PERMISSION_PREFIX = "syllabus";
 		
 	public void postNewSyllabus(SyllabusData data);
 	

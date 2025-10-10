@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
@@ -548,6 +549,11 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     @Override
+    public Optional<List<String>> getTransferOptions() {
+        return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
+    }
+
+    @Override
     public List<Map<String, String>> getEntityMap(String fromContext) {
 
         try {
@@ -558,6 +564,11 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
 
         return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public String getToolPermissionsPrefix() {
+        return PollListManager.PERMISSION_PREFIX;
     }
 
     @Override
