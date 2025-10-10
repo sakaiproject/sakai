@@ -257,9 +257,14 @@ public class TaskServiceImpl implements TaskService, Observer {
     public List<UserTaskAdapterBean> getAllTasksForCurrentUserOnSite(String siteId) {
     	
         String userId = sessionManager.getCurrentSessionUserId();
+        Instant now = Instant.now();
 
         return userTaskRepository.findByUserIdAndSiteId(userId, siteId)
                 .stream()
+                .filter(ut -> {
+                    Instant starts = ut.getTask().getStarts();
+                    return starts == null || !starts.isAfter(now);
+                })
                 .map(ut -> {
                     UserTaskAdapterBean bean = new UserTaskAdapterBean();
                     BeanUtils.copyProperties(ut, bean);

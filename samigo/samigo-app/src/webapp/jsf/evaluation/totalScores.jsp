@@ -342,7 +342,7 @@ function showLoadingMessage() {
        </h:commandLink>
      </h:panelGroup>
      <span class="itemAction">
-       <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+       <h:panelGroup rendered="#{description.email != null && description.email != ''}">
          <h:outputText value="<a href=\"mailto:#{description.email}?subject=#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
          <h:outputText value="<span class=\"fa fa-envelope\" aria-hidden=\"true\"></span><span class=\"sr-only\">#{evaluationMessages.email}</span></a> " escape="false" />
        </h:panelGroup>
@@ -388,7 +388,7 @@ function showLoadingMessage() {
        </h:commandLink>
      </h:panelGroup>
      <span class="itemAction">
-       <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+       <h:panelGroup rendered="#{description.email != null && description.email != ''}">
          <h:outputText value="<a href=\"mailto:#{description.email}?subject=#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
          <h:outputText value="<span class=\"fa fa-envelope\" aria-hidden=\"true\"></span><span class=\"sr-only\">#{evaluationMessages.email}</span></a> " escape="false" />
        </h:panelGroup>
@@ -438,7 +438,7 @@ function showLoadingMessage() {
      <f:verbatim><br/></f:verbatim>
 
 	 <span class="itemAction">
-	  <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	  <h:panelGroup rendered="#{description.email != null && description.email != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" />
 	     <h:outputText value="?subject=" escape="false" />

@@ -152,14 +152,6 @@ public interface EmailTemplateService {
     public void processEmailTemplates(List<String> templatePaths);
    
     /**
-     * Export a given template as xml
-     * @param key
-     * @param locale
-     * @return
-     */
-    public String exportTemplateAsXml(String key, Locale locale);
-   
-    /**
      * Does a template for the key exist in this locale, but with a different (wrong) ID?
      * Mainly used when editing a template to ensure that the proper one is being edited.
      * @param key Key of the template to lookup

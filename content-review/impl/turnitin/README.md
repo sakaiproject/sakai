@@ -1,6 +1,6 @@
 ## Turnitin Content Review Implmentation
 
-This is the turitin content review implementation which is for use with those that use the turnitin service.
+This is the turnitin content review implementation which is for use with those that use the turnitin service.
 
 ### Configuration
 

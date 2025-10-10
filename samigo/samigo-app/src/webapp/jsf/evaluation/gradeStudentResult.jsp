@@ -417,7 +417,7 @@ function toPoint(id)
   </t:dataList>
 </div>
 
-<h:panelGroup rendered="#{totalScores.anonymous eq 'false' && studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+<h:panelGroup rendered="#{totalScores.anonymous eq 'false' && studentScores.email != null && studentScores.email != ''}">
   <h:outputText value="<a href=\"mailto:" escape="false" />
   <h:outputText value="#{studentScores.email}" />
   <h:outputText value="?subject=" escape="false" />

@@ -504,7 +504,7 @@ $Id$
        </h:commandLink>
 	   <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{description.email != null && description.email != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -544,7 +544,7 @@ $Id$
        </h:commandLink>
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{description.email != null && description.email != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -588,7 +588,7 @@ $Id$
        </h:commandLink>
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{description.email != null && description.email != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" />
 	     <h:outputText value="?subject=" escape="false" />

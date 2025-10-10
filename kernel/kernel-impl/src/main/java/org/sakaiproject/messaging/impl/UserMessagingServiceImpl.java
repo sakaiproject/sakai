@@ -62,6 +62,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.TransactionStatus;
@@ -115,6 +116,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     @Autowired private UserNotificationRepository userNotificationRepository;
     @Qualifier("org.sakaiproject.time.api.UserTimeService")
     @Autowired private UserTimeService userTimeService;
+    @Autowired private FormattedText formattedText;
 
     @Setter private ResourceLoader resourceLoader;
     @Setter private TransactionTemplate transactionTemplate;
@@ -385,13 +387,24 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     private UserNotification doInsert(String from, String to, String event, String ref, String title,
                                       String siteId, Date eventDate, boolean deferred, String url, String tool) {
 
+        String processedTitle = title;
+        if (processedTitle != null) {
+            try {
+                processedTitle = formattedText.processFormattedText(processedTitle, new StringBuilder());
+            } catch (Exception e) {
+                log.warn("Failed to process notification title for ref {}", ref, e);
+            }
+        }
+        final String finalTitle = processedTitle;
+
         return transactionTemplate.execute(status -> {
             UserNotification ba = new UserNotification();
             ba.setFromUser(from);
             ba.setToUser(to);
             ba.setEvent(event);
             ba.setRef(ref);
-            ba.setTitle(title);
+
+            ba.setTitle(finalTitle);
             ba.setSiteId(siteId);
             ba.setEventDate(eventDate.toInstant());
             ba.setUrl(url);
@@ -476,6 +489,10 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             notification.setFromDisplayName(notification.getFromUser());
         } catch (IdUnusedException iue) {
             notification.setSiteTitle(notification.getSiteId());
+        }
+
+        if (notification.getTitle() != null) {
+            notification.setTitle(formattedText.convertFormattedTextToPlaintext(notification.getTitle()));
         }
 
         return notification;

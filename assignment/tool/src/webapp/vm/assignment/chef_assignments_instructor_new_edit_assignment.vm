@@ -86,6 +86,9 @@
 			document.getElementById('ltiSubmissionResubmitNote').style.display = 'block';
 			document.getElementById('site').checked = true;
 			document.getElementById('notificationOptions').style.display = 'none';
+			#if ($allowReviewService && ($reviewServiceProviderId == $turnitinProviderId || $reviewServiceProviderId == $turnitinOCProviderId))
+				document.getElementById('contentReviewServiceOptions').style.display = 'none';
+			#end
 			document.getElementById('notsendnotif').checked = true;
 			document.getElementById('releaseGradeNotifications').style.display = 'none';
 			document.getElementById('notsendreleasegradenotif').checked = true;
@@ -96,6 +99,9 @@
 			document.getElementById('External_Tool_Fieldset').style.display = 'none';
 			document.getElementById('ltiSubmissionResubmitNote').style.display = 'none';
 			document.getElementById('notificationOptions').style.display = 'block';
+			#if ($allowReviewService && ($reviewServiceProviderId == $turnitinProviderId || $reviewServiceProviderId == $turnitinOCProviderId))
+				document.getElementById('contentReviewServiceOptions').style.display = 'block';
+			#end
 			document.getElementById('releaseGradeNotifications').style.display = 'block';
 			document.getElementById('additionalInformation').style.display = 'block';
 			document.getElementById('peerAssessmentContainer').style.display = 'block';
@@ -788,6 +794,7 @@ function showExternalIframe(title, doreload) {
 		#end
 
 		#if ($allowReviewService)
+		<fieldset id="contentReviewServiceOptions" #if (($reviewServiceProviderId == $turnitinProviderId || $reviewServiceProviderId == $turnitinOCProviderId) && $value_SubmissionType == 6) style = "display:none"#end>
 			<h4> $reviewServiceTitle </h4>
 			<div>
 				#if (4 == $value_SubmissionType)
@@ -1120,6 +1127,7 @@ function showExternalIframe(title, doreload) {
 				#end
 			</div>
 			</div>
+		</fieldset>
 		#end
 		#if($enableAnonGrading || $value_CheckAnonymousGrading)
 			<h4>$!tlang.getString('grading')</h4>

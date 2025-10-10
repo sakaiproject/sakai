@@ -16,15 +16,17 @@
 package org.sakaiproject.jsf2.spreadsheet;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -37,26 +39,34 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(ServerConfigurationService.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SpreadsheetDataFileWriterCsvTest {
+
+    private MockedStatic<ComponentManager> componentManagerMock;
+    @Mock private ServerConfigurationService serverConfigurationService;
 
     @Before
     public void setup() {
+        componentManagerMock = Mockito.mockStatic(ComponentManager.class);
+        componentManagerMock.when(() -> ComponentManager.get(ServerConfigurationService.class)).thenReturn(serverConfigurationService);
+
         FacesContext facesContext = ContextMocker.mockFacesContext();
         ExternalContext externalContextMock = Mockito.mock(ExternalContext.class);
 
         Mockito.when(facesContext.getExternalContext()).thenReturn(externalContextMock);
         Mockito.when(externalContextMock.getRequest()).thenReturn(new MockHttpServletRequest());
+    }
 
-        PowerMockito.mockStatic(ServerConfigurationService.class);
-        Mockito.when(ServerConfigurationService.getString(anyString(), anyString())).thenReturn(",");
+    @After
+    public void teardown() {
+        if (componentManagerMock != null) {
+            componentManagerMock.close();
+        }
     }
 
     @Test
     public void testDownload() throws IOException {
+        Mockito.when(serverConfigurationService.getString("csv.separator", ",")).thenReturn(",");
         SpreadsheetDataFileWriterCsv sdfw = new SpreadsheetDataFileWriterCsv();
         List<List<Object>> data = new ArrayList<>();
         data.add(Arrays.asList("asdf", "qwerty", "foobar", null));

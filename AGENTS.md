@@ -56,6 +56,7 @@
 - **ES6+**: Prefer ES6+ features (arrow functions, template literals, destructuring, etc.)
 - **Modular Code**: Write modular, reusable JavaScript components
 - **Avoid Global Scope**: Minimize use of global variables and functions
+- **Lit Component Encapsulation**: When adding reactive state to Lit-based web components, prefix internal-only properties with an underscore (e.g., `_points`) and expose explicit getters if external access is needed.
 
 ## Code Style Guidelines
 - **Commit Messages**: `<issue key> <component> <brief description>` (e.g., `SAK-12345 Assignments add option x`)
@@ -68,6 +69,8 @@
 - **Tests**: Include tests where sensible/possible
 - **Java Version**: Java 17 for trunk (Java 11 was used for Sakai 22 and Sakai 23)
 - **Pull Request Workflow**: "Squash and Merge" for single issues, "Rebase and Merge" for multiple issues
+- **No `var` in Java**: Do not use local variable type inference (`var`) in Java code. Always declare explicit types (e.g., `List<String> names = new ArrayList<>();` not `var names = new ArrayList<String>();`).
+   - Enforced: The build runs a Checkstyle rule during `mvn validate` to fail on `var` usages. To bypass in emergencies only, run with `-Dcheckstyle.skip=true` (not recommended for commits).
 
 ## Push Notifications
 

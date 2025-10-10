@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,7 +28,6 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -118,30 +116,26 @@ public class MainController {
         try {
             String jsonParam = requestString;
             if (StringUtils.isBlank(jsonParam)) {
-                jsonParam = "[]";
+                jsonParam = "{}";
             }
 
             ObjectMapper objectMapper = new ObjectMapper();
             EmailTemplate emailTemplate;
             if (id != null) {
                 emailTemplate = emailTemplateService.getEmailTemplateById(id);
+                if (emailTemplate == null) {
+                    JSONArray errorsArray = new JSONArray();
+                    errorsArray.add(messageSource.getMessage("GeneralActionError", null, loc));
+                    jsonResponse.put("status", "ERROR");
+                    jsonResponse.put("errors", errorsArray);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(jsonResponse.toJSONString());
+                }
             } else {
                 emailTemplate = new EmailTemplate();
                 emailTemplate.setOwner(userId);
             }
-            String jsonString = objectMapper.writeValueAsString(emailTemplate);
-            JSONParser parser = new JSONParser();
-            JSONObject json = (JSONObject) parser.parse(jsonString);
 
-            JSONObject modifiedJson = (JSONObject) parser.parse(jsonParam);
-
-            Set<Object> modifiedJsonKeys = modifiedJson.keySet();
-            modifiedJsonKeys.forEach(dynamicKey -> {
-                Object line = modifiedJson.get(dynamicKey);
-                json.put(dynamicKey, line);
-            });
-
-            emailTemplate = objectMapper.readValue(json.toJSONString(), EmailTemplate.class);
+            emailTemplate = objectMapper.readerForUpdating(emailTemplate).readValue(jsonParam);
 
             List<String> errors = getErrors(emailTemplate, req, response);
             if (errors.isEmpty()) {

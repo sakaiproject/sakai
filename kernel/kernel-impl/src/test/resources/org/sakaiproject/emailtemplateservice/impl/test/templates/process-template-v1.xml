@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+    <key>process.test</key>
+    <locale>en_GB</locale>
+    <owner>admin</owner>
+    <subject>First Subject</subject>
+    <message>The first body</message>
+    <messagehtml><![CDATA[<p>First HTML</p>]]></messagehtml>
+    <version>1</version>
+</emailTemplate>
