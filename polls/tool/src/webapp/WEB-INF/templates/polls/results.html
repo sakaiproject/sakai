@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="#{results_title}">Results</title>
+</head>
+<body>
+  <div class="portletBody container-fluid">
+    <ul class="nav nav-pills mb-4">
+      <li class="nav-item">
+        <span class="nav-link active" th:text="#{action_main}">Polls</span>
+      </li>
+      <li class="nav-item" th:if="${canAdd}">
+        <a class="nav-link" th:href="@{/faces/voteAdd}" th:text="#{action_add_poll}">Add</a>
+      </li>
+      <li class="nav-item" th:if="${isSiteOwner}">
+        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
+      </li>
+    </ul>
+
+    <h1 class="h4 mb-3" th:text="#{results_title}">Results</h1>
+    <p class="fw-semibold" th:utext="${poll.text}">Poll question</p>
+    <p th:text="${pollSizeMessage}">Poll size</p>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <caption class="visually-hidden" th:text="#{results_summary}">Results summary</caption>
+        <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col" th:text="#{results_answers_title}">Answer</th>
+          <th scope="col" th:text="#{results_answers_votes}">Votes</th>
+          <th scope="col">%</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${rows}">
+          <td th:text="${row.order}">1</td>
+          <td th:utext="${row.text}">Option</td>
+          <td th:text="${row.votes}">0</td>
+          <td th:text="${row.percentageLabel}">0%</td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+          <td></td>
+          <td><strong th:text="#{results_answers_total}">Total</strong></td>
+          <td><strong th:text="${totalVotes}">0</strong></td>
+          <td><strong th:text="${totalPercentageLabel}">100%</strong></td>
+        </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <a class="btn btn-secondary" th:href="@{/faces/votePolls}" th:text="#{results_cancel}">Back</a>
+  </div>
+</body>
+</html>
