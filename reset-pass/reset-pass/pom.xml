@@ -1,17 +1,20 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
+    <name>Reset pass</name>
+    <groupId>org.sakaiproject.reset-pass</groupId>
+    <artifactId>sakai-reset-pass</artifactId>
+    <packaging>war</packaging>
+
     <parent>
         <artifactId>reset-pass</artifactId>
         <groupId>org.sakaiproject.reset-pass</groupId>
         <version>26-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <name>Reset pass</name>
-    <groupId>org.sakaiproject.reset-pass</groupId>
-    <artifactId>sakai-reset-pass</artifactId>
-    <packaging>war</packaging>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
@@ -30,13 +33,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
         </dependency>
-        <!-- thymeleaf template engine -->
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
@@ -57,12 +58,10 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
-        <!-- we are running a webapp in a servlet container so we need the servlet API -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
-        <!-- third party dependencies -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
@@ -75,7 +74,6 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
-        <!-- Sakai dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -95,15 +93,8 @@
     </dependencies>
 
     <build>
-        <!-- configure the build to use the standard maven structure -->
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
-            <resource>
-                <directory>${basedir}/src/main/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-            </resource>
             <resource>
                 <directory>${basedir}/src/main/resources</directory>
                 <includes>
@@ -112,7 +103,6 @@
             </resource>
         </resources>
         <plugins>
-            <!-- configure the war plugin to correctly use the standard maven structure -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
