@@ -25,8 +25,8 @@ package org.adl.validator.metadata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.util.LogMessage;
 import org.adl.util.MessageType;
@@ -45,11 +45,8 @@ import org.w3c.dom.NodeList;
  *
  * @author ADL Technical Team<br><br>
  */
+@Slf4j
 public class MDChildren {
-	/**
-	* Logger object used for debug logging<br>
-	*/
-	private Logger mLogger;
 
 	/**
 	 * This list will hold the valid String names of the children that the parent 
@@ -76,7 +73,6 @@ public class MDChildren {
 	* Default Constructor.  Sets the attributes to their initial values.<br>
 	*/
 	public MDChildren() {
-		mLogger = Logger.getLogger("org.adl.util.debug.validator");
 		mChildren = new ArrayList<>();
 		mAllKidsValid = false;
 
@@ -299,7 +295,7 @@ public class MDChildren {
 					// If it isnt in the list see if its an extension
 					if (mKids.item(i).getNamespaceURI().equals("http://ltsc.ieee.org/xsd/LOM")) {
 						msgText = Messages.getString("MDValidator.323", mKids.item(i).getLocalName(), mParent.getLocalName());
-						mLogger.info("FAILED:" + msgText);
+						log.warn("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 						mAllKidsValid = false;
@@ -308,7 +304,7 @@ public class MDChildren {
 				}
 			} else {
 				msgText = Messages.getString("MDValidator.323", mParent.getLocalName());
-				mLogger.info("FAILED:" + msgText);
+				log.warn("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				mAllKidsValid = false;
 			}
@@ -333,7 +329,7 @@ public class MDChildren {
 				mAllKidsValid = true;
 			} else {
 				msgText = Messages.getString("MDValidator.323", mParent.getFirstChild().getLocalName(), mParent.getLocalName());
-				mLogger.info("FAILED:" + msgText);
+				log.warn("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				mAllKidsValid = false;
 			}

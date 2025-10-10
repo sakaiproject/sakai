@@ -25,6 +25,7 @@ package org.adl.logging;
 
 import java.util.LinkedList;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.util.LogMessage;
 
 /**
@@ -33,6 +34,7 @@ import org.adl.util.LogMessage;
  *   
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLMessageCollection {
 	/**
 	 * LinkedList used to hold the messages bound for the Summary Log
@@ -101,7 +103,7 @@ public class ADLMessageCollection {
 	 *         in the queue
 	 */
 	public synchronized boolean hasMessages() {
-		if (!(mMessages.size() > 0)) {
+		if (mMessages.isEmpty()) {
 			// If there aren't any messages queued to be written to the Summary 
 			//  Log tell the SummaryLogWriter to wait until notified and set the 
 			//  mSummaryLogWriterIsWaiting flag to true
@@ -111,10 +113,10 @@ public class ADLMessageCollection {
 					wait();
 				}
 			} catch (InterruptedException ie) {
-				System.out.println("Exception in " + "SummaryLogMessageCollection.hasMessages():" + ie);
+				log.debug("Thread interrupted, {}", ie);
 			}
-		}// end if
+		}
 
-		return mMessages.size() > 0;
+		return !mMessages.isEmpty();
 	}
 }

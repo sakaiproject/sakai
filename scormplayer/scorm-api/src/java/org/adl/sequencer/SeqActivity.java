@@ -23,6 +23,7 @@
 *******************************************************************************/
 package org.adl.sequencer;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -30,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation of one node of an activity tree.<br><br>
@@ -71,8 +72,10 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivityStateAccess, Serializable, ISeqActivity {
-	static final long serialVersionUID = 1L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 
 	/**
 	 * The PK of this object
@@ -114,14 +117,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
 	 */
 	@SuppressWarnings("unused")
-	private static String TER_EXITALL = "_EXITALL_";
+	private static final String TER_EXITALL = "_EXITALL_";
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * This describes the sequencing definition model element 2
 	 */
 	ISeqRuleset mPreConditionRules = null;
@@ -512,10 +510,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	  * @param ioChild The child activity to add.
 	  */
 	void addChild(SeqActivity ioChild) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - addChild");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - addChild");
 
 		if (mChildren == null) {
 			mChildren = new ArrayList<>();
@@ -533,10 +528,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		ioChild.setActiveOrder(mChildren.size() - 1);
 
 		ioChild.setParent(this);
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - addChild");
-		}
+        log.debug("  :: SeqActivity     --> END   - addChild");
 	}
 
 	/**
@@ -548,10 +540,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean clearObjMeasure() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "clearObjMeasure");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - clearObjMeasure");
 
 		boolean statusChange = false;
 
@@ -568,16 +557,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 				statusChange = obj.clearObjMeasure(affectSatisfaction);
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : No primary objective");
-				}
+                log.debug("  ::-->  ERROR : No primary objective");
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> " + statusChange);
-			System.out.println("  :: SeqActivity     --> END   - " + "clearObjMeasure");
-		}
+        log.debug("  ::--> {}", statusChange);
+		log.debug("  :: SeqActivity     --> END   - clearObjMeasure");
 
 		return statusChange;
 	}
@@ -593,11 +577,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean clearObjMeasure(String iObjID) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "clearObjMeasure");
-			System.out.println("  ::--> " + iObjID);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - clearObjMeasure");
+		log.debug("  ::--> {}", iObjID);
 
 		boolean statusChange = false;
 
@@ -617,16 +598,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 				statusChange = obj.clearObjMeasure(affectSatisfaction);
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  Objective Undefined");
-				}
+                log.debug("  ::-->  Objective Undefined");
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> " + statusChange);
-			System.out.println("  :: SeqActivity     --> END   - " + "clearObjMeasure");
-		}
+        log.debug("  ::--> {}", statusChange);
+		log.debug("  :: SeqActivity     --> END   - clearObjMeasure");
 
 		return statusChange;
 	}
@@ -638,188 +614,166 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void dumpState() {
+        log.debug("""
+                    :: SeqActivty   --> BEGIN - dumpState
+                  \t  ::--> Depth:         {}
+                  \t  ::--> Count:         {}
+                  \t  ::--> Order:         {}
+                  \t  ::--> Selected:      {}
+                  \t  ::--> Active Order:  {}
+                  \t  ::--> Learner:       {}
+                  \t  ::--> Activity ID:   {}
+                  \t  ::--> Resource ID:   {}
+                  \t  ::--> State ID:      {}
+                  \t  ::--> Title:         {}
+                  \t  ::--> Delivery Mode: {}
+                  
+                  \t  ::--> XML:           {}
+                  
+                  \t  ::--> Num Attempt :  {}
+                  """, 
+                mDepth, mCount, mOrder, mSelected, mActiveOrder, mLearnerID, mActivityID, mResourceID,
+                mStateID, mTitle, mDeliveryMode, mXML, mNumAttempt);
 
-		if (_Debug) {
-			System.out.println("  :: SeqActivty   --> BEGIN - dumpState");
+		if (mCurTracking != null) {
+            mCurTracking.dumpState();
+        } else {
+            log.debug("\t  ::--> Cur Track   :  NULL");
+        }
 
-			System.out.println("\t  ::--> Depth:         " + mDepth);
-			System.out.println("\t  ::--> Count:         " + mCount);
-			System.out.println("\t  ::--> Order:         " + mOrder);
-			System.out.println("\t  ::--> Selected:      " + mSelected);
-			System.out.println("\t  ::--> Active Order:  " + mActiveOrder);
-			System.out.println("\t  ::--> Learner:       " + mLearnerID);
-			System.out.println("\t  ::--> Activity ID:   " + mActivityID);
-			System.out.println("\t  ::--> Resource ID:   " + mResourceID);
-			System.out.println("\t  ::--> State ID:      " + mStateID);
-			System.out.println("\t  ::--> Title:         " + mTitle);
-			System.out.println("\t  ::--> Delivery Mode: " + mDeliveryMode);
+        log.debug("\t  ::--> Act Ab Dur  : {}", mActivityAbDur_track != null ? mActivityAbDur_track.format(IDuration.FORMAT_SECONDS) : "NULL");
+        log.debug("\t  ::--> Act Ex Dur  : {}", mActivityExDur_track != null ? mActivityExDur_track.format(IDuration.FORMAT_SECONDS) : "NULL");
 
-			System.out.println("");
-			System.out.println("\t  ::--> XML:           " + mXML);
-			System.out.println("");
+        if (mTracking != null) {
+            for (ADLTracking adlTracking : mTracking) {
+                adlTracking.dumpState();
+            }
+        }
 
-			System.out.println("\t  ::--> Num Attempt :  " + mNumAttempt);
+        log.debug("""
+                  \t  ::--> IsActive    :  {}
+                  \t  ::--> IsSupended  :  {}
+                  \t  ::--> IsVisible   :  {}
+                  \t  ::--> Parent      :  {}
+                  \t  ::--> Children    :  [{}]
+                  \t  ::--> ActChildren :  [{}]
+                  \t  ::--> Choice      :  {}
+                  \t  ::--> Choice Exit :  {}
+                  \t  ::--> Flow        :  {}
+                  \t  ::--> ForwardOnly :  {}
+                  \t  ::--> Constrain   :  {}
+                  \t  ::--> Prevent Act :  {}
+                  \t  ::--> Use Cur Obj :  {}
+                  \t  ::--> Use Cur Pro :  {}
+                  \t  ::--> PRE SeqRules : [{}]
+                  \t  ::--> EXIT SeqRules: [{}]
+                  \t  ::--> POST SeqRules: [{}]
+                  """,
+                mIsActive,
+                mIsSuspended,
+                mIsVisible,
+                mParent != null ? mParent.getID() : "NULL",
+                mChildren == null ? "NULL" : mChildren.size(),
+                mActiveChildren != null ? mActiveChildren.size() : "NULL",
+                mControl_choice,
+                mControl_choiceExit,
+                mControl_flow,
+                mControl_forwardOnly,
+                mConstrainChoice,
+                mPreventActivation,
+                mUseCurObj,
+                mUseCurPro,
+                mPreConditionRules == null ? "NULL" : mPreConditionRules.size(),
+                mExitActionRules == null ? "NULL" : mExitActionRules.size(),
+                mPostConditionRules != null ? mPostConditionRules.size() : "NULL");
 
-			if (mCurTracking != null) {
-				mCurTracking.dumpState();
-			} else {
-				System.out.println("\t  ::--> Cur Track   :  NULL ");
-			}
+        log.debug("\tCONTROL MaxAttempts :  {}", mMaxAttemptControl);
+        if (mMaxAttemptControl) {
+            log.debug("\t      ::-->         :  {}", mMaxAttempt);
+        }
 
-			if (mActivityAbDur_track != null) {
-				System.out.println("\t  ::--> Act Ab Dur  : " + mActivityAbDur_track.format(IDuration.FORMAT_SECONDS));
-			} else {
-				System.out.println("\t  ::--> Act Ab Dur  :  NULL");
-			}
+        log.debug("\tCONTROL Att Ab Dur  :  {}", mAttemptAbDurControl);
+        if (mAttemptAbDurControl) {
+            log.debug("\t      ::-->         :  {}", mAttemptAbDur.format(IDuration.FORMAT_SECONDS));
+        }
 
-			if (mActivityExDur_track != null) {
-				System.out.println("\t  ::--> Act Ex Dur  : " + mActivityExDur_track.format(IDuration.FORMAT_SECONDS));
-			} else {
-				System.out.println("\t  ::--> Act Ex Dur  :  NULL");
-			}
+        log.debug("\tCONTROL Att Ex Dur  :  {}", mAttemptExDurControl);
+        if (mAttemptExDurControl) {
+            log.debug("\t      ::-->         :  {}", mAttemptExDur.format(IDuration.FORMAT_SECONDS));
+        }
 
-			if (mTracking != null) {
-				for (int i = 0; i < mTracking.size(); i++) {
-					System.out.println("");
-					ADLTracking track = mTracking.get(i);
-					track.dumpState();
-				}
-			}
+        log.debug("\tCONTROL Act Ab Dur  :  {}", mActivityAbDurControl);
+        if (mActivityAbDurControl) {
+            log.debug("\t      ::-->         :  {}", mActivityAbDur.format(IDuration.FORMAT_SECONDS));
 
-			System.out.println("\t  ::--> IsActive    :  " + mIsActive);
-			System.out.println("\t  ::--> IsSupended  :  " + mIsSuspended);
-			System.out.println("\t  ::--> IsVisible   :  " + mIsVisible);
+        }
 
-			if (mParent == null) {
-				System.out.println("\t  ::--> Parent      :   NULL");
-			} else {
-				System.out.println("\t  ::--> Parent      :  " + mParent.getID());
-			}
+        log.debug("\tCONTROL Act Ex Dur  :  {}", mActivityExDurControl);
+        if (mActivityExDurControl) {
+            log.debug("\t      ::-->         :  {}", mActivityExDur.format(IDuration.FORMAT_SECONDS));
+        }
 
-			if (mChildren == null) {
-				System.out.println("\t  ::--> Children    :  NULL");
-			} else {
-				System.out.println("\t  ::--> Children    :  [" + mChildren.size() + "]");
-			}
+        log.debug("""
+                  \tCONTROL Begin Time  :  {}
+                  \t      ::-->         :  {}
+                  \tCONTROL End Time    :  {}
+                  \t      ::-->         :  {}
+                  """, 
+                mBeginTimeControl, mBeginTime, mEndTimeControl, mEndTime);
 
-			if (mActiveChildren == null) {
-				System.out.println("\t  ::--> ActChildren :  NULL");
-			} else {
-				System.out.println("\t  ::--> ActChildren :  [" + mActiveChildren.size() + "]");
-			}
+        
+        if (mAuxResources != null) {
+            log.debug("\t  ::--> Services    :  [{}]", mAuxResources.size());
+            mAuxResources.forEach(ADLAuxiliaryResource::dumpState);
+        } else {
+            log.debug("\t  ::--> Services    :  NULL");
+        }
 
-			System.out.println("\t  ::--> Choice      :  " + mControl_choice);
-			System.out.println("\t  ::--> Choice Exit :  " + mControl_choiceExit);
-			System.out.println("\t  ::--> Flow        :  " + mControl_flow);
-			System.out.println("\t  ::--> ForwardOnly :  " + mControl_forwardOnly);
-			System.out.println("\t  ::--> Constrain   :  " + mConstrainChoice);
-			System.out.println("\t  ::--> Prevent Act :  " + mPreventActivation);
-			System.out.println("\t  ::--> Use Cur Obj :  " + mUseCurObj);
-			System.out.println("\t  ::--> Use Cur Pro :  " + mUseCurPro);
+        log.debug("""
+                  \t  ::--> RollupRules :  [{}]
+                  \t  ::--> Rollup Satisfied      :  {}
+                  \t  ::--> Rollup Not Satisfied  :  {}
+                  \t  ::--> Rollup Completed      :  {}
+                  \t  ::--> Rollup Incomplete     :  {}
+                  """,
+                mRollupRules == null ? "NULL" : mRollupRules.size(),
+                mRequiredForSatisfied,
+                mRequiredForNotSatisfied,
+                mRequiredForCompleted,
+                mRequiredForIncomplete);
 
-			if (mPreConditionRules == null) {
-				System.out.println("\t  ::--> PRE SeqRules : NULL");
-			} else {
-				System.out.println("\t  ::--> PRE SeqRules : [" + mPreConditionRules.size() + "]");
-			}
+        if (mObjectives == null) {
+            log.debug("\t  ::--> Objectives  :  NULL");
+        } else {
+            log.debug("\t  ::--> Objectives  :  [{}]", mObjectives.size());
+            mObjectives.forEach(SeqObjective::dumpState);
+        }
 
-			if (mExitActionRules == null) {
-				System.out.println("\t  ::--> EXIT SeqRules: NULL");
-			} else {
-				System.out.println("\t  ::--> EXIT SeqRules: [" + mExitActionRules.size() + "]");
-			}
-
-			if (mPostConditionRules == null) {
-				System.out.println("\t  ::--> POST SeqRules: NULL");
-			} else {
-				System.out.println("\t  ::--> POST SeqRules: [" + mPostConditionRules.size() + "]");
-			}
-
-			System.out.println("\tCONTROL MaxAttempts :  " + mMaxAttemptControl);
-			if (mMaxAttemptControl) {
-				System.out.println("\t      ::-->         :  " + mMaxAttempt);
-			}
-
-			System.out.println("\tCONTROL Att Ab Dur  :  " + mAttemptAbDurControl);
-			if (mAttemptAbDurControl) {
-				System.out.println("\t      ::-->         :  " + mAttemptAbDur.format(IDuration.FORMAT_SECONDS));
-			}
-
-			System.out.println("\tCONTROL Att Ex Dur  :  " + mAttemptExDurControl);
-			if (mAttemptExDurControl) {
-				System.out.println("\t      ::-->         :  " + mAttemptExDur.format(IDuration.FORMAT_SECONDS));
-			}
-
-			System.out.println("\tCONTROL Act Ab Dur  :  " + mActivityAbDurControl);
-			if (mActivityAbDurControl) {
-				System.out.println("\t      ::-->         :  " + mActivityAbDur.format(IDuration.FORMAT_SECONDS));
-
-			}
-
-			System.out.println("\tCONTROL Act Ex Dur  :  " + mActivityExDurControl);
-			if (mActivityExDurControl) {
-				System.out.println("\t      ::-->         :  " + mActivityExDur.format(IDuration.FORMAT_SECONDS));
-			}
-
-			System.out.println("\tCONTROL Begin Time  :  " + mBeginTimeControl);
-			System.out.println("\t      ::-->         :  " + mBeginTime);
-			System.out.println("\tCONTROL End Time    :  " + mEndTimeControl);
-			System.out.println("\t      ::-->         :  " + mEndTime);
-
-			if (mAuxResources != null) {
-				System.out.println("\t  ::--> Services    :  [ " + mAuxResources.size() + "]");
-
-				ADLAuxiliaryResource temp = null;
-
-				for (int i = 0; i < mAuxResources.size(); i++) {
-					temp = mAuxResources.get(i);
-
-					temp.dumpState();
-				}
-			} else {
-				System.out.println("\t  ::--> Services    :  NULL");
-			}
-
-			if (mRollupRules == null) {
-				System.out.println("\t  ::--> RollupRules :  NULL");
-			} else {
-				System.out.println("\t  ::--> RollupRules :  [" + mRollupRules.size() + "]");
-			}
-
-			System.out.println("\t  ::--> Rollup Satisfied      :  " + mRequiredForSatisfied);
-			System.out.println("\t  ::--> Rollup Not Satisfied  :  " + mRequiredForNotSatisfied);
-			System.out.println("\t  ::--> Rollup Completed      :  " + mRequiredForCompleted);
-			System.out.println("\t  ::--> Rollup Incomplete     :  " + mRequiredForIncomplete);
-
-			if (mObjectives == null) {
-				System.out.println("\t  ::--> Objectives  :  NULL");
-			} else {
-				System.out.println("\t  ::--> Objectives  :  [" + mObjectives.size() + "]");
-
-				for (int i = 0; i < mObjectives.size(); i++) {
-					SeqObjective obj = mObjectives.get(i);
-
-					obj.dumpState();
-				}
-			}
-
-			System.out.println("\t  ::--> Rollup Obj     :  " + mIsObjectiveRolledUp);
-			System.out.println("\t  ::--> Rollup Weight  :  " + mObjMeasureWeight);
-			System.out.println("\t  ::--> Rollup Pro     :  " + mIsProgressRolledUp);
-
-			System.out.println("\t  ::--> Select Time    :  " + mSelectTiming);
-			System.out.println("\t CONTROL Select Count  :  " + mSelectStatus);
-			System.out.println("\t         ::-->         :  " + mSelectCount);
-
-			System.out.println("\t  ::--> Random Time    :  " + mRandomTiming);
-			System.out.println("\t  ::--> Reorder        :  " + mReorder);
-
-			System.out.println("\t  ::--> Is Tracked     :  " + mIsTracked);
-			System.out.println("\t  ::--> Cont Sets Obj  :  " + mContentSetsCompletion);
-			System.out.println("\t  ::--> Cont Sets Pro  :  " + mContentSetsObj);
-
-			System.out.println("  :: SeqActivity   --> END   - dumpState");
-		}
+        log.debug("""
+                  \t  ::--> Rollup Obj     :  {}
+                  \t  ::--> Rollup Weight  :  {}
+                  \t  ::--> Rollup Pro     :  {}
+                  \t  ::--> Select Time    :  {}
+                  \t CONTROL Select Count  :  {}
+                  \t         ::-->         :  {}
+                  \t  ::--> Random Time    :  {}
+                  \t  ::--> Reorder        :  {}
+                  \t  ::--> Is Tracked     :  {}
+                  \t  ::--> Cont Sets Obj  :  {}
+                  \t  ::--> Cont Sets Pro  :  {}
+                    :: SeqActivity   --> END   - dumpState
+                  """,
+                mIsObjectiveRolledUp,
+                mObjMeasureWeight,
+                mIsProgressRolledUp,
+                mSelectTiming,
+                mSelectStatus, 
+                mSelectCount,
+                mRandomTiming,
+                mReorder,
+                mIsTracked,
+                mContentSetsCompletion,
+                mContentSetsObj);
 	}
 
 	/**
@@ -830,12 +784,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         otherwise <code>false</code>.
 	 */
 	boolean evaluateLimitConditions() {
-
 		// This is an implementation of UP.1
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity --> BEGIN - " + "evaluateLimitConditions");
-		}
+        log.debug("  :: SeqActivity --> BEGIN - evaluateLimitConditions");
 
 		boolean disabled = false;
 
@@ -843,9 +793,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 			// Test max attempts
 			if (mMaxAttemptControl) {
-				if (_Debug) {
-					System.out.println("  ::--> Attempt Limit Check");
-				}
+                log.debug("  ::--> Attempt Limit Check");
 
 				if (mNumAttempt >= mMaxAttempt) {
 					disabled = true;
@@ -853,10 +801,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 			}
 
 			if (mActivityAbDurControl && !disabled) {
-
-				if (_Debug) {
-					System.out.println("  ::--> Activity Ab Dur Check");
-				}
+                log.debug("  ::--> Activity Ab Dur Check");
 
 				if (mActivityAbDur.compare(mActivityAbDur_track) != IDuration.LT) {
 					disabled = true;
@@ -864,10 +809,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 			}
 
 			if (mActivityExDurControl && !disabled) {
-
-				if (_Debug) {
-					System.out.println("  ::--> Activity Ex Dur Check");
-				}
+                log.debug("  ::--> Activity Ex Dur Check");
 
 				if (mActivityExDur.compare(mActivityExDur_track) != IDuration.LT) {
 					disabled = true;
@@ -875,10 +817,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 			}
 
 			if (mAttemptAbDurControl && !disabled) {
-
-				if (_Debug) {
-					System.out.println("  ::--> Attempt Ab Dur Check");
-				}
+                log.debug("  ::--> Attempt Ab Dur Check");
 
 				if (mActivityAbDur.compare(mCurTracking.mAttemptAbDur) != IDuration.LT) {
 					disabled = true;
@@ -886,10 +825,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 			}
 
 			if (mAttemptExDurControl && !disabled) {
-
-				if (_Debug) {
-					System.out.println("  ::--> Attempt Ex Dur Check");
-				}
+                log.debug("  ::--> Attempt Ex Dur Check");
 
 				if (mActivityExDur.compare(mCurTracking.mAttemptExDur) != IDuration.LT) {
 					disabled = true;
@@ -897,29 +833,16 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 			}
 
 			if (mBeginTimeControl && !disabled) {
-
-				if (_Debug) {
-					System.out.println("  ::--> Begin Time Check");
-				}
-
+                log.debug("  ::--> Begin Time Check");
 			}
 
 			if (mEndTimeControl && !disabled) {
-
-				if (_Debug) {
-					System.out.println("  ::--> End Time Check");
-				}
-
+                log.debug("  ::--> End Time Check");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> Nothing to check");
-			}
+            log.debug("  ::--> Nothing to check");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity --> END   - " + "evaluateLimitConditions");
-		}
+        log.debug("  :: SeqActivity --> END   - evaluateLimitConditions");
 
 		return disabled;
 
@@ -931,13 +854,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The order of this activity relative to its active siblings.
 	 */
 	public int getActiveOrder() {
+        log.debug("  :: SeqActivity     --> BEGIN - getActiveOrder");
 
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getActiveOrder");
-
-			System.out.println("  ::-->  " + mActiveOrder);
-			System.out.println("  :: SeqActivity     --> END   - getActiveOrder");
-		}
+		log.debug("  ::-->  {}", mActiveOrder);
+		log.debug("  :: SeqActivity     --> END   - getActiveOrder");
 
 		return mActiveOrder;
 	}
@@ -952,21 +872,15 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getActivityAbDur() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - getActivityAbDur");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getActivityAbDur");
 
 		String dur = null;
 
 		if (mActivityAbDur != null) {
 			dur = mActivityAbDur.format(IDuration.FORMAT_SCHEMA);
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + dur);
-			System.out.println("  :: SeqActivity    --> END   - getActivityAbDur");
-		}
+        log.debug("  ::-->  {}", dur);
+		log.debug("  :: SeqActivity    --> END   - getActivityAbDur");
 
 		return dur;
 	}
@@ -982,12 +896,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getActivityAbDurControl() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getActivityAbDurControl");
-			System.out.println("  ::-->  " + mActivityAbDurControl);
-			System.out.println("  :: SeqActivity    --> END   - " + "getActivityAbDurControl");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getActivityAbDurControl");
+		log.debug("  ::-->  {}", mActivityAbDurControl);
+		log.debug("  :: SeqActivity    --> END   - getActivityAbDurControl");
 
 		return mActivityAbDurControl;
 	}
@@ -1001,12 +912,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	boolean getActivityAttempted() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getActivityAttempted");
-			System.out.println("  ::-->  " + ((mNumAttempt == 0) ? "NotAttempted" : "Attempted"));
-			System.out.println("  :: SeqActivity     --> END   - " + "getActivityAttempted");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getActivityAttempted");
+		log.debug("  ::-->  {}", mNumAttempt == 0 ? "NotAttempted" : "Attempted");
+		log.debug("  :: SeqActivity     --> END   - getActivityAttempted");
 
 		return (mNumAttempt != 0);
 	}
@@ -1021,21 +929,15 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getActivityExDur() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - getActivityExDur");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getActivityExDur");
 
 		String dur = null;
 
 		if (mActivityExDur != null) {
 			dur = mActivityExDur.format(IDuration.FORMAT_SCHEMA);
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + dur);
-			System.out.println("  :: SeqActivity    --> END   - getActivityExDur");
-		}
+        log.debug("  ::-->  {}", dur);
+		log.debug("  :: SeqActivity    --> END   - getActivityExDur");
 
 		return dur;
 	}
@@ -1054,12 +956,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	public boolean getActivityExDurControl()
 
 	{
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getActivityExDurControl");
-			System.out.println("  ::-->  " + mActivityExDurControl);
-			System.out.println("  :: SeqActivity    --> END   - " + "getActivityExDurControl");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getActivityExDurControl");
+		log.debug("  ::-->  {}", mActivityExDurControl);
+		log.debug("  :: SeqActivity    --> END   - getActivityExDurControl");
 
 		return mActivityExDurControl;
 	}
@@ -1074,21 +973,15 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getAttemptAbDur() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - getAttemptAbDur");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getAttemptAbDur");
 
 		String dur = null;
 
 		if (mAttemptAbDur != null) {
 			dur = mAttemptAbDur.format(IDuration.FORMAT_SCHEMA);
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + dur);
-			System.out.println("  :: SeqActivity    --> END   - getAttemptAbDur");
-		}
+        log.debug("  ::-->  {}", dur);
+		log.debug("  :: SeqActivity    --> END   - getAttemptAbDur");
 
 		return dur;
 	}
@@ -1104,12 +997,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getAttemptAbDurControl() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getAttemptAbDurControl");
-			System.out.println("  ::-->  " + mAttemptAbDurControl);
-			System.out.println("  :: SeqActivity    --> END   - " + "getAttemptAbDurControl");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getAttemptAbDurControl");
+		log.debug("  ::-->  {}", mAttemptAbDurControl);
+		log.debug("  :: SeqActivity    --> END   - getAttemptAbDurControl");
 
 		return mAttemptAbDurControl;
 	}
@@ -1126,10 +1016,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getAttemptCompleted(boolean iIsRetry) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getAttemptCompleted");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getAttemptCompleted");
 
 		String progress = ADLTracking.TRACK_UNKNOWN;
 
@@ -1147,15 +1034,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 				progress = mCurTracking.mProgress;
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> " + progress);
-			System.out.println("  :: SeqActivity     --> END   - " + "getAttemptCompleted");
-		}
+        log.debug("  ::--> {}", progress);
+		log.debug("  :: SeqActivity     --> END   - getAttemptCompleted");
 
 		return (progress.equals(ADLTracking.TRACK_COMPLETED));
 	}
@@ -1170,21 +1052,15 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getAttemptExDur() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - getAttemptExDur");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getAttemptExDur");
 
 		String dur = null;
 
 		if (mAttemptExDur != null) {
 			dur = mAttemptExDur.format(IDuration.FORMAT_SCHEMA);
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + dur);
-			System.out.println("  :: SeqActivity    --> END   - getAttemptExDur");
-		}
+        log.debug("  ::-->  {}", dur);
+		log.debug("  :: SeqActivity    --> END   - getAttemptExDur");
 
 		return dur;
 	}
@@ -1201,19 +1077,16 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getAttemptExDurControl() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getAttemptExDurControl");
-			System.out.println("  ::-->  " + mAttemptExDurControl);
-			System.out.println("  :: SeqActivity    --> END   - " + "getAttemptExDurControl");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getAttemptExDurControl");
+		log.debug("  ::-->  {}", mAttemptExDurControl);
+		log.debug("  :: SeqActivity    --> END   - getAttemptExDurControl");
 
 		return mAttemptExDurControl;
 	}
 
 	/**
 	 * Retrieves the value of the limitCondition.attemptLimit Sequencing
-	 * Definition Model Element (<b>element 3.2</b> for this activity.
+	 * Definition Model Element (<b>element 3.2</b>) for this activity.
 	 * 
 	 * @return The maximum attempts (<code>long</code>) that has been defined
 	 *         for this activity, or <code>-1</code> if none have been
@@ -1222,19 +1095,16 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public long getAttemptLimit() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - getAttemptLimit");
-			System.out.println("  ::-->  " + mMaxAttempt);
-			System.out.println("  :: SeqActivity    --> END   - getAttemptLimit");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getAttemptLimit");
+		log.debug("  ::-->  {}", mMaxAttempt);
+		log.debug("  :: SeqActivity    --> END   - getAttemptLimit");
 
 		return mMaxAttempt;
 	}
 
 	/**
 	 * Retrieves the value of the limitCondition.attemptLimitControl Sequencing
-	 * Definition Model Element (<b>element 3.1</b> for this activity.
+	 * Definition Model Element (<b>element 3.1</b>) for this activity.
 	 * 
 	 * @return <code>true</code> if limitCondition.attemptLimit is defined for
 	 *         this activity, otherwise <code>false</code>.
@@ -1242,12 +1112,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getAttemptLimitControl() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getAttemptLimitControl");
-			System.out.println("  ::-->  " + mMaxAttemptControl);
-			System.out.println("  :: SeqActivity    --> END   - " + "getAttemptLimitControl");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getAttemptLimitControl");
+		log.debug("  ::-->  {}", mMaxAttemptControl);
+		log.debug("  :: SeqActivity    --> END   - getAttemptLimitControl");
 
 		return mMaxAttemptControl;
 	}
@@ -1262,17 +1129,14 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public List<ADLAuxiliaryResource> getAuxResources() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getAuxResources");
-			System.out.println("  :: SeqActivity     --> END   - " + "getAuxResources");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getAuxResources");
 
 		List<ADLAuxiliaryResource> result = null;
-		if (mAuxResources != null && mAuxResources.size() > 0) {
+		if (mAuxResources != null && !mAuxResources.isEmpty()) {
 			result = new ArrayList<>(mAuxResources);
 		}
 
+		log.debug("  :: SeqActivity     --> END   - getAuxResources");
 		return result;
 	}
 
@@ -1285,12 +1149,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getBeginTimeLimit() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getBeginTimeLimit");
-			System.out.println("  ::-->  " + mBeginTime);
-			System.out.println("  :: SeqActivity    --> END   - " + "getBeginTimeLimit");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getBeginTimeLimit");
+		log.debug("  ::-->  {}", mBeginTime);
+		log.debug("  :: SeqActivity    --> END   - getBeginTimeLimit");
 
 		return mBeginTime;
 	}
@@ -1306,12 +1167,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getBeginTimeLimitControl() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getBeginTimeLimitControl");
-			System.out.println("  ::-->  " + mBeginTimeControl);
-			System.out.println("  :: SeqActivity    --> END   - " + "getBeginTimeLimitControl");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getBeginTimeLimitControl");
+		log.debug("  ::-->  {}", mBeginTimeControl);
+		log.debug("  :: SeqActivity    --> END   - getBeginTimeLimitControl");
 
 		return mBeginTimeControl;
 	}
@@ -1356,30 +1214,23 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         children.
 	 */
 	public List<SeqActivity> getChildren(boolean iAll) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getChildren");
-			System.out.println("  ::-->  " + iAll);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getChildren");
+		log.debug("  ::-->  {}", iAll);
 
 		List<SeqActivity> result = null;
 
 		if (iAll) {
-			if (null != mChildren && mChildren.size() > 0) {
+			if (null != mChildren && !mChildren.isEmpty()) {
 				result = new ArrayList<>(mChildren);
 			}
 		} else {
-			if (null != mActiveChildren && mActiveChildren.size() > 0) {
+			if (null != mActiveChildren && !mActiveChildren.isEmpty()) {
 				result = new ArrayList<>(mActiveChildren);
 			}
 		}
-
-		if (_Debug) {
-			if (result != null) {
-				System.out.println("  ::-->  [" + result.size() + "]");
-			}
-
-			System.out.println("  :: SeqActivity     --> END   - getChildren");
+        if (result != null) {
+			log.debug("  ::-->  [{}]", result.size());
+			log.debug("  :: SeqActivity     --> END   - getChildren");
 		}
 
 		return result;
@@ -1395,12 +1246,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	  */
 	@Override
 	public boolean getConstrainChoice() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getConstrainChoice");
-			System.out.println("  ::-->  " + mConstrainChoice);
-			System.out.println("  :: SeqActivity     --> END   - " + "getConstrainChoice");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getConstrainChoice");
+		log.debug("  ::-->  {}", mConstrainChoice);
+		log.debug("  :: SeqActivity     --> END   - getConstrainChoice");
 
 		return mConstrainChoice;
 	}
@@ -1415,12 +1263,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getControlForwardOnly() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getForwardOnly");
-			System.out.println("  ::-->  " + mControl_forwardOnly);
-			System.out.println("  :: SeqActivity     --> END   - getForwardOnly");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getForwardOnly");
+		log.debug("  ::-->  {}", mControl_forwardOnly);
+		log.debug("  :: SeqActivity     --> END   - getForwardOnly");
 
 		return mControl_forwardOnly;
 	}
@@ -1435,12 +1280,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getControlModeChoice() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getChoice");
-			System.out.println("  ::-->  " + mControl_choice);
-			System.out.println("  :: SeqActivity     --> END   - getChoice");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getChoice");
+		log.debug("  ::-->  {}", mControl_choice);
+		log.debug("  :: SeqActivity     --> END   - getChoice");
 		return mControl_choice;
 	}
 
@@ -1454,12 +1296,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getControlModeChoiceExit() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getChoiceExit");
-			System.out.println("  ::-->  " + mControl_choiceExit);
-			System.out.println("  :: SeqActivity     --> END   - getChoiceExit");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getChoiceExit");
+		log.debug("  ::-->  {}", mControl_choiceExit);
+		log.debug("  :: SeqActivity     --> END   - getChoiceExit");
 
 		return mControl_choiceExit;
 	}
@@ -1474,12 +1313,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getControlModeFlow() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getFlow");
-			System.out.println("  ::-->  " + mControl_flow);
-			System.out.println("  :: SeqActivity     --> END   - getFlow");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getFlow");
+		log.debug("  ::-->  {}", mControl_flow);
+		log.debug("  :: SeqActivity     --> END   - getFlow");
 
 		return mControl_flow;
 	}
@@ -1490,12 +1326,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The count of this activity in the activity tree
 	 */
 	public int getCount() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getCount");
-			System.out.println("  :: SeqActivity     --> END   - getCount");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getCount");
+		log.debug("  :: SeqActivity     --> END   - getCount");
 		return mCount;
 	}
 
@@ -1507,13 +1339,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getDeliveryMode() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - getDeliveryMode");
-			System.out.println("  ::-->  " + mDeliveryMode);
-			System.out.println("  :: SeqActivity    --> END   - getDeliveryMode");
-		}
-
+        log.debug("  :: SeqActivity    --> BEGIN - getDeliveryMode");
+		log.debug("  ::-->  {}", mDeliveryMode);
+		log.debug("  :: SeqActivity    --> END   - getDeliveryMode");
 		return mDeliveryMode;
 	}
 
@@ -1523,12 +1351,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return The depth of this activity in the activity tree
 	 */
 	public int getDepth() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getDepth");
-			System.out.println("  :: SeqActivity     --> END   - getDepth");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getDepth");
+		log.debug("  :: SeqActivity     --> END   - getDepth");
 		return mDepth;
 	}
 
@@ -1541,13 +1365,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getEndTimeLimit() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getEndTimeLimit");
-			System.out.println("  ::-->  " + mEndTime);
-			System.out.println("  :: SeqActivity    --> END   - " + "getEndTimeLimit");
-		}
-
+        log.debug("  :: SeqActivity    --> BEGIN - getEndTimeLimit");
+		log.debug("  ::-->  {}", mEndTime);
+		log.debug("  :: SeqActivity    --> END   - getEndTimeLimit");
 		return mEndTime;
 	}
 
@@ -1562,13 +1382,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getEndTimeLimitControl() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getEndTimeLimitControl");
-			System.out.println("  ::-->  " + mEndTimeControl);
-			System.out.println("  :: SeqActivity    --> END   - " + "getEndTimeLimitControl");
-		}
-
+        log.debug("  :: SeqActivity    --> BEGIN - getEndTimeLimitControl");
+		log.debug("  ::-->  {}", mEndTimeControl);
+		log.debug("  :: SeqActivity    --> END   - getEndTimeLimitControl");
 		return mEndTimeControl;
 	}
 
@@ -1583,12 +1399,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public ISeqRuleset getExitSeqRules() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getExitSeqRules");
-			System.out.println("  :: SeqActivity     --> END   - " + "getExitSeqRules");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getExitSeqRules");
+		log.debug("  :: SeqActivity     --> END   - getExitSeqRules");
 		return mExitActionRules;
 	}
 
@@ -1608,14 +1420,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * Method added 8/24/2007 by JLR to facilitate SeqActivityTree implementing TreeModel
 	 * 
 	 */
-	public int getIndexOfChild(Object child) {
-		int index = -1;
-
-		if (mActiveChildren != null && mActiveChildren.contains(child)) {
-			index = mActiveChildren.indexOf(child);
-		}
-
-		return index;
+	public int getIndexOfChild(SeqActivity child) {
+        return mActiveChildren != null ? mActiveChildren.indexOf(child) : -1;
 	}
 
 	/**
@@ -1627,13 +1433,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getIsActive() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getIsActive");
-			System.out.println("  ::-->  " + mIsActive);
-			System.out.println("  :: SeqActivity     --> END   - getIsActive");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getIsActive");
+		log.debug("  ::-->  {}", mIsActive);
+		log.debug("  :: SeqActivity     --> END   - getIsActive");
 		return mIsActive;
 	}
 
@@ -1648,13 +1450,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getIsObjRolledUp() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getIsObjRolledUp");
-			System.out.println("  ::-->  " + mIsObjectiveRolledUp);
-			System.out.println("  :: SeqActivity     --> END   - " + "getIsObjRolledUp");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getIsObjRolledUp");
+		log.debug("  ::-->  {}", mIsObjectiveRolledUp);
+		log.debug("  :: SeqActivity     --> END   - getIsObjRolledUp");
 		return mIsObjectiveRolledUp;
 	}
 
@@ -1669,13 +1467,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getIsProgressRolledUp() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getIsProgressRolledUp");
-			System.out.println("  ::-->  " + mIsProgressRolledUp);
-			System.out.println("  :: SeqActivity     --> END   - " + "getIsProgressRolledUp");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getIsProgressRolledUp");
+		log.debug("  ::-->  {}", mIsProgressRolledUp);
+		log.debug("  :: SeqActivity     --> END   - getIsProgressRolledUp");
 		return mIsProgressRolledUp;
 	}
 
@@ -1687,16 +1481,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getIsSelected() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getSelected");
-		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + mSelected);
-			System.out.println("  :: SeqActivity     --> END   - getSelected");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getSelected");
+        log.debug("  ::-->  {}", mSelected);
+		log.debug("  :: SeqActivity     --> END   - getSelected");
 		return mSelected;
 	}
 
@@ -1709,13 +1496,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getIsSuspended() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getIsSuspended");
-			System.out.println("  ::-->  " + mIsSuspended);
-			System.out.println("  :: SeqActivity     --> END   - getIsSuspended");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getIsSuspended");
+		log.debug("  ::-->  {}", mIsSuspended);
+		log.debug("  :: SeqActivity     --> END   - getIsSuspended");
 		return mIsSuspended;
 	}
 
@@ -1729,12 +1512,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getIsTracked() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - getIsTracked");
-			System.out.println("  ::-->  " + mIsTracked);
-			System.out.println("  :: SeqActivity    --> END   - getIsTracked");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getIsTracked");
+		log.debug("  ::-->  {}", mIsTracked);
+		log.debug("  :: SeqActivity    --> END   - getIsTracked");
 
 		return mIsTracked;
 	}
@@ -1748,12 +1528,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getIsVisible() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getIsVisible");
-			System.out.println("  ::-->  " + mIsVisible);
-			System.out.println("  :: SeqActivity     --> END   - getIsVisible");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getIsVisible");
+		log.debug("  ::-->  {}", mIsVisible);
+		log.debug("  :: SeqActivity     --> END   - getIsVisible");
 
 		return mIsVisible;
 	}
@@ -1767,12 +1544,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getLearnerID() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getLearnerID");
-			System.out.println("  ::-->  " + mLearnerID);
-			System.out.println("  :: SeqActivity     --> END   - getLearnerID");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getLearnerID");
+		log.debug("  ::-->  {}", mLearnerID);
+		log.debug("  :: SeqActivity     --> END   - getLearnerID");
 
 		return mLearnerID;
 	}
@@ -1788,10 +1562,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         </code> if none exists.
 	 */
 	public SeqActivity getNextSibling(boolean iAll) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getNextSibling");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getNextSibling");
 
 		SeqActivity next = null;
 		int target = -1;
@@ -1809,17 +1580,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 				next = mParent.getChildren(iAll).get(target);
 			}
 		}
-
-		if (_Debug) {
-			if (next != null) {
-				System.out.println("  ::-->  " + next.getID());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-
-			System.out.println("  :: SeqActivity     --> END   - getNextSibling");
-		}
-
+        log.debug("  ::-->  {}", next != null ? next.getID() : "NULL");
+        log.debug("  :: SeqActivity     --> END   - getNextSibling");
 		return next;
 	}
 
@@ -1832,25 +1594,17 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public long getNumAttempt() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getNumAttempt");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getNumAttempt");
 
 		long attempt = 0;
 
 		if (mIsTracked) {
 			attempt = mNumAttempt;
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> " + attempt);
-			System.out.println("  :: SeqActivity     --> END   - " + "getNumAttempt");
-		}
+        log.debug("  ::--> {}", attempt);
+		log.debug("  :: SeqActivity     --> END   - getNumAttempt");
 
 		return attempt;
 	}
@@ -1877,17 +1631,14 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public List<SeqObjective> getObjectives() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjectives");
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjectives");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjectives");
 
 		List<SeqObjective> result = null;
-		if (mObjectives != null && mObjectives.size() > 0) {
+		if (mObjectives != null && !mObjectives.isEmpty()) {
 			result = new ArrayList<>(mObjectives);
 		}
 
+		log.debug("  :: SeqActivity     --> END   - getObjectives");
 		return result;
 	}
 
@@ -1904,14 +1655,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         or <code>null</code> if none exisit.
 	 */
 	public List<String> getObjIDs(String iObjID, boolean iRead) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjIDs");
-			if (iObjID != null) {
-				System.out.println("  ::--> " + iObjID);
-			} else {
-				System.out.println("  ::--> NULL");
-			}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjIDs");
+		if (iObjID != null) {
+            log.debug("  ::--> {}", iObjID);
+        } else {
+            log.debug("  ::--> NULL");
 		}
 
 		// Attempt to find the ID associated with the rolledup objective
@@ -1920,9 +1668,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 			if (mCurTracking != null) {
 				iObjID = mCurTracking.mPrimaryObj;
 			} else {
-				if (_Debug) {
-					System.out.println("  :: ERROR :: Unknown Tracking");
-				}
+                log.debug("  :: ERROR :: Unknown Tracking");
 			}
 		}
 
@@ -1935,42 +1681,31 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 				mapSet = mObjMaps.get(iObjID);
 				if (mapSet != null) {
 
-					for (int i = 0; i < mapSet.size(); i++) {
-						SeqObjectiveMap map = mapSet.get(i);
+                    for (SeqObjectiveMap map : mapSet) {
+                        if (!iRead && (map.mWriteStatus || map.mWriteMeasure)) {
+                            if (objSet == null) {
+                                objSet = new ArrayList<>();
+                            }
 
-						if (!iRead && (map.mWriteStatus || map.mWriteMeasure)) {
-							if (objSet == null) {
-								objSet = new ArrayList<>();
-							}
+                            objSet.add(map.mGlobalObjID);
+                        } else if (iRead && (map.mReadStatus || map.mReadMeasure)) {
+                            if (objSet == null) {
+                                objSet = new ArrayList<>();
+                            }
 
-							objSet.add(map.mGlobalObjID);
-						} else if (iRead && (map.mReadStatus || map.mReadMeasure)) {
-							if (objSet == null) {
-								objSet = new ArrayList<>();
-							}
-
-							objSet.add(map.mGlobalObjID);
-						}
-					}
+                            objSet.add(map.mGlobalObjID);
+                        }
+                    }
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> No Maps defined for objective");
-					}
+                    log.debug("  ::--> No Maps defined for objective");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> No Maps defined for activity");
-				}
+                log.debug("  ::--> No Maps defined for activity");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjIDs");
-		}
+        log.debug("  :: SeqActivity     --> END   - getObjIDs");
 
 		return objSet;
 	}
@@ -1988,54 +1723,38 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public double getObjMeasure(boolean iIsRetry) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjMeasure");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjMeasure");
 
 		double measure = 0.0;
 
 		if (mIsTracked) {
 			if (mCurTracking == null) {
 				ADLTracking track = new ADLTracking(mObjectives, mLearnerID, mScopeID);
-
 				track.mAttempt = mNumAttempt;
-
 				mCurTracking = track;
 			}
 
-			if (mCurTracking != null && mCurTracking.mObjectives != null) {
+			if (mCurTracking.mObjectives != null) {
 				SeqObjectiveTracking obj = (mCurTracking.mObjectives.get(mCurTracking.mPrimaryObj));
 
 				if (obj != null) {
-					String result = null;
-
-					result = obj.getObjMeasure(iIsRetry);
+					String result = obj.getObjMeasure(iIsRetry);
 
 					if (!result.equals(ADLTracking.TRACK_UNKNOWN)) {
-						measure = (new Double(result));
+						measure = Double.parseDouble(result);
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  ERROR : No primary objective");
-					}
+                    log.debug("  ::-->  ERROR : No primary objective");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : Bad Tracking");
-				}
+                log.debug("  ::-->  ERROR : Bad Tracking");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
+        log.debug("  ::-->  {}", measure);
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + measure);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjMeasure");
-		}
-
+		log.debug("  :: SeqActivity     --> END   - getObjMeasure");
 		return measure;
 
 	}
@@ -2054,11 +1773,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	double getObjMeasure(String iObjID, boolean iIsRetry) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjMeasure");
-			System.out.println("  ::--> " + iObjID);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjMeasure");
+		log.debug("  ::--> {}", iObjID);
 
 		double measure = 0.0;
 
@@ -2078,34 +1794,23 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 				SeqObjectiveTracking obj = (mCurTracking.mObjectives.get(iObjID));
 
 				if (obj != null) {
-					String result = null;
-
-					result = obj.getObjMeasure(iIsRetry);
+					String result = obj.getObjMeasure(iIsRetry);
 
 					if (!result.equals(ADLTracking.TRACK_UNKNOWN)) {
-						measure = (new Double(result));
+						measure = Double.parseDouble(result);
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  Objective undefined");
-					}
+                    log.debug("  ::-->  Objective undefined");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : Bad Tracking");
-				}
+                log.debug("  ::-->  ERROR : Bad Tracking");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
+        log.debug("  ::-->  {}", measure);
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + measure);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjMeasure");
-		}
-
+		log.debug("  :: SeqActivity     --> END   - getObjMeasure");
 		return measure;
 	}
 
@@ -2138,10 +1843,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *
 	 */
 	boolean getObjMeasureStatus(boolean iIsRetry, boolean iUseLocal) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjMeasureStatus");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjMeasureStatus");
 
 		boolean status = false;
 
@@ -2166,26 +1868,17 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 						status = true;
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  ERROR : No primary objective");
-					}
+                    log.debug("  ::-->  ERROR : No primary objective");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : Bad Tracking");
-				}
+                log.debug("  ::-->  ERROR : Bad Tracking");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
+        log.debug("  ::-->  {}", status);
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + status);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjMeasureStatus");
-		}
-
+		log.debug("  :: SeqActivity     --> END   - getObjMeasureStatus");
 		return status;
 
 	}
@@ -2203,11 +1896,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	boolean getObjMeasureStatus(String iObjID, boolean iIsRetry) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjMeasureStatus");
-			System.out.println("  ::-->  " + iObjID);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjMeasureStatus");
+		log.debug("  ::-->  {}", iObjID);
 
 		boolean status = false;
 
@@ -2235,26 +1925,17 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 						status = true;
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  Objective undefined");
-					}
+                    log.debug("  ::-->  Objective undefined");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : Bad Tracking");
-				}
+                log.debug("  ::-->  ERROR : Bad Tracking");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
+        log.debug("  ::-->  {}", status);
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + status);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjMeasureStatus");
-		}
-
+		log.debug("  :: SeqActivity     --> END   - getObjMeasureStatus");
 		return status;
 	}
 
@@ -2268,12 +1949,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public double getObjMeasureWeight() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjMeasureWeight");
-			System.out.println("  ::-->  " + mObjMeasureWeight);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjMeasureWeight");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjMeasureWeight");
+		log.debug("  ::-->  {}", mObjMeasureWeight);
+		log.debug("  :: SeqActivity     --> END   - getObjMeasureWeight");
 
 		return mObjMeasureWeight;
 	}
@@ -2310,29 +1988,21 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	double getObjMinMeasure(String iObjID) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjMinMeasure");
-			System.out.println("  ::--> " + iObjID);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjMinMeasure");
+		log.debug("  ::--> {}", iObjID);
 
 		double minMeasure = -1.0;
 
 		if (mObjectives != null) {
-			for (int i = 0; i < mObjectives.size(); i++) {
-				SeqObjective obj = mObjectives.get(i);
-
-				if (iObjID.equals(obj.mObjID)) {
-					minMeasure = obj.mMinMeasure;
-				}
-			}
+            for (SeqObjective obj : mObjectives) {
+                if (iObjID.equals(obj.mObjID)) {
+                    minMeasure = obj.mMinMeasure;
+                }
+            }
 		}
+        log.debug("  ::-->  {}", minMeasure);
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + minMeasure);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjMinMeasure");
-		}
-
+		log.debug("  :: SeqActivity     --> END   - getObjMinMeasure");
 		return minMeasure;
 
 	}
@@ -2349,10 +2019,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getObjSatisfied(boolean iIsRetry) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjSatisfied");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjSatisfied");
 
 		boolean status = false;
 
@@ -2381,26 +2048,17 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 						}
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  ERROR : No primary objective");
-					}
+                    log.debug("  ::-->  ERROR : No primary objective");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : Bad Tracking");
-				}
+                log.debug("  ::-->  ERROR : Bad Tracking");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
+        log.debug("  ::-->  {}", status);
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + status);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjSatisfied");
-		}
-
+		log.debug("  :: SeqActivity     --> END   - getObjSatisfied");
 		return status;
 	}
 
@@ -2418,11 +2076,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getObjSatisfied(String iObjID, boolean iIsRetry) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjSatisfied");
-			System.out.println("  ::--> " + iObjID);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjSatisfied");
+		log.debug("  ::--> {}", iObjID);
 
 		boolean status = false;
 
@@ -2454,26 +2109,17 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 						}
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  Objective not defined");
-					}
+                    log.debug("  ::-->  Objective not defined");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : Bad Tracking");
-				}
+                log.debug("  ::-->  ERROR : Bad Tracking");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
+        log.debug("  ::-->  {}", status);
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + status);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjSatisfied");
-		}
-
+		log.debug("  :: SeqActivity     --> END   - getObjSatisfied");
 		return status;
 	}
 
@@ -2486,10 +2132,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	boolean getObjSatisfiedByMeasure() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjSatisfiedByMeasure");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjSatisfiedByMeasure");
 
 		boolean byMeasure = false;
 
@@ -2499,17 +2142,12 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 			if (obj != null) {
 				byMeasure = obj.getByMeasure();
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : No primary objective");
-				}
+                log.debug("  ::-->  ERROR : No primary objective");
 			}
 		}
+        log.debug("  ::-->  {}", byMeasure);
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + byMeasure);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjSatisfiedByMeasure");
-		}
-
+		log.debug("  :: SeqActivity     --> END   - getObjSatisfiedByMeasure");
 		return byMeasure;
 	}
 
@@ -2542,10 +2180,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * 
 	 */
 	public boolean getObjStatus(boolean iIsRetry, boolean iUseLocal) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjStatus");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjStatus");
 
 		boolean status = false;
 
@@ -2574,26 +2209,17 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 						}
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  ERROR : No primary objective");
-					}
+                    log.debug("  ::-->  ERROR : No primary objective");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : Bad Tracking");
-				}
+                log.debug("  ::-->  ERROR : Bad Tracking");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
+        log.debug("  ::-->  {}", status);
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + status);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjStatus");
-		}
-
+		log.debug("  :: SeqActivity     --> END   - getObjStatus");
 		return status;
 	}
 
@@ -2610,11 +2236,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	boolean getObjStatus(String iObjID, boolean iIsRetry) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjStatus");
-			System.out.println("  ::--> " + iObjID);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjStatus");
+		log.debug("  ::--> {}", iObjID);
 
 		boolean status = false;
 
@@ -2646,26 +2269,16 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 						}
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  Objective not defined");
-					}
+                    log.debug("  ::-->  Objective not defined");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : Bad Tracking");
-				}
+                log.debug("  ::-->  ERROR : Bad Tracking");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + status);
-			System.out.println("  :: SeqActivity     --> END   - " + "getObjStatus");
-		}
-
+        log.debug("  ::-->  {}", status);
+		log.debug("  :: SeqActivity     --> END   - getObjStatus");
 		return status;
 	}
 
@@ -2675,10 +2288,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return A list (<code>List</code>) of <code>ADLObjStatus</code> records.
 	 */
 	public List<ADLObjStatus> getObjStatusSet() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjStatusSet");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getObjStatusSet");
 
 		List<ADLObjStatus> objSet = null;
 
@@ -2699,10 +2309,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 				// Only include objectives with IDs
 				if (!key.equals("_primary_")) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Getting  -> " + key);
-					}
+                    log.debug("  ::--> Getting  -> {}", key);
 
 					SeqObjectiveTracking obj = mCurTracking.mObjectives.get(key);
 
@@ -2714,7 +2321,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 					objStatus.mHasMeasure = !measure.equals(ADLTracking.TRACK_UNKNOWN);
 
 					if (objStatus.mHasMeasure) {
-						objStatus.mMeasure = (new Double(measure));
+						objStatus.mMeasure = Double.parseDouble(measure);
 					}
 
 					objStatus.mStatus = obj.getObjStatus(false);
@@ -2729,13 +2336,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 				objSet = null;
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getObjStatusSet");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getObjStatusSet");
 		return objSet;
-
 	}
 
 	/**
@@ -2745,19 +2347,12 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         or <code>null</code> if it is the 'Root'.
 	 */
 	public SeqActivity getParent() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getParent");
-
-			if (mParent != null) {
-				System.out.println("  ::--> " + mParent.getID());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-
-			System.out.println("  :: SeqActivity     --> END   - getParent");
-		}
-		return mParent;
+        log.debug("""
+                  :: SeqActivity     --> BEGIN - getParent
+                  ::--> {}
+                  :: SeqActivity     --> END   - getParent
+                """, mParent != null ? mParent.getID() : "NULL");
+        return mParent;
 	}
 
 	/**
@@ -2767,18 +2362,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         or <code>null</code> if it is the 'Root'.
 	 */
 	String getParentID() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getParentID");
-			System.out.println("  :: SeqActivity     --> END   - getParentID");
-		}
-
-		// If the parent is not null
-		if (mParent != null){
-			return mParent.getID();
-		}
-
-		return null;
+        log.debug("  :: SeqActivity     --> BEGIN - getParentID");
+        String parentID = mParent != null ? mParent.getID() : null;
+        log.debug("  :: SeqActivity     --> END   - getParentID");
+		return parentID;
 
 	}
 
@@ -2794,12 +2381,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public ISeqRuleset getPostSeqRules() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getPostSeqRules");
-			System.out.println("  :: SeqActivity     --> END   - " + "getPostSeqRules");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getPostSeqRules");
+		log.debug("  :: SeqActivity     --> END   - getPostSeqRules");
 		return mPostConditionRules;
 	}
 
@@ -2815,11 +2398,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public ISeqRuleset getPreSeqRules() {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getPreSeqRules");
-			System.out.println("  :: SeqActivity     --> END   - " + "getPreSeqRules");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getPreSeqRules");
+		log.debug("  :: SeqActivity     --> END   - getPreSeqRules");
 		return mPreConditionRules;
 	}
 
@@ -2833,13 +2413,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getPreventActivation() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getPreventActivation");
-			System.out.println("  ::-->  " + mPreventActivation);
-			System.out.println("  :: SeqActivity     --> END   - " + "getPreventActivation");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - getPreventActivation");
+		log.debug("  ::-->  {}", mPreventActivation);
+		log.debug("  :: SeqActivity     --> END   - getPreventActivation");
 		return mPreventActivation;
 	}
 
@@ -2854,15 +2430,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         </code> if none exists.
 	 */
 	public SeqActivity getPrevSibling(boolean iAll) {
+        log.debug("  :: SeqActivity     --> BEGIN - getPrevSibling");
 
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getPrevSibling");
-			if (iAll) {
-				System.out.println("  ::-->  " + mOrder);
-			} else {
-				System.out.println("  ::-->  " + mActiveOrder);
-			}
-		}
+        log.debug("  ::-->  {}", iAll ? mOrder : mActiveOrder);
 
 		SeqActivity prev = null;
 		int target = -1;
@@ -2881,15 +2451,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 			}
 		}
 
-		if (_Debug) {
-			if (prev != null) {
-				System.out.println("  ::-->  " + prev.getID());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-
-			System.out.println("  :: SeqActivity     --> END   - getPrevSibling");
-		}
+        log.debug("  ::-->  {}", prev != null ? prev.getID() : "NULL");
+        log.debug("  :: SeqActivity     --> END   - getPrevSibling");
 
 		return prev;
 	}
@@ -2906,10 +2469,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getProgressStatus(boolean iIsRetry) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getProgressStatus");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getProgressStatus");
 
 		boolean status = false;
 
@@ -2921,15 +2481,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 				}
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  ::--> " + status);
-			System.out.println("  :: SeqActivity     --> END   - " + "getProgressStatus");
-		}
+        log.debug("  ::--> {}", status);
+		log.debug("  :: SeqActivity     --> END   - getProgressStatus");
 
 		return status;
 	}
@@ -2941,11 +2496,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return Has the activity already had the Randomization Process applied?
 	 */
 	public boolean getRandomized() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getRandomized");
-			System.out.println("  :: SeqActivity     --> END   - getRandomized");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getRandomized");
+		log.debug("  :: SeqActivity     --> END   - getRandomized");
 
 		return mRandomized;
 	}
@@ -2961,12 +2513,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getRandomTiming() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - getRandomTiming");
-			System.out.println("  ::-->  " + mRandomTiming);
-			System.out.println("  :: SeqActivity    --> END   - getRandomTiming");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getRandomTiming");
+		log.debug("  ::-->  {}", mRandomTiming);
+		log.debug("  :: SeqActivity    --> END   - getRandomTiming");
 
 		return mRandomTiming;
 	}
@@ -2982,12 +2531,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getReorderChildren() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getReorderChildren");
-			System.out.println("  ::-->  " + mReorder);
-			System.out.println("  :: SeqActivity    --> END   - " + "getReorderChildren");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getReorderChildren");
+		log.debug("  ::-->  {}", mReorder);
+		log.debug("  :: SeqActivity    --> END   - getReorderChildren");
 
 		return mReorder;
 	}
@@ -3002,11 +2548,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getRequiredForCompleted() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getRequiredForCompleted");
-			System.out.println("  :: SeqActivity     --> END   - " + "getRequiredForCompleted");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getRequiredForCompleted");
+		log.debug("  :: SeqActivity     --> END   - getRequiredForCompleted");
 
 		return mRequiredForCompleted;
 	}
@@ -3021,11 +2564,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getRequiredForIncomplete() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getRequiredForIncomplete");
-			System.out.println("  :: SeqActivity     --> END   - " + "getRequiredForIncomplete");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getRequiredForIncomplete");
+		log.debug("  :: SeqActivity     --> END   - getRequiredForIncomplete");
 
 		return mRequiredForIncomplete;
 	}
@@ -3040,11 +2580,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getRequiredForNotSatisfied() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getRequiredForNotSatisfied");
-			System.out.println("  :: SeqActivity     --> END   - " + "getRequiredForNotSatisfied");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getRequiredForNotSatisfied");
+		log.debug("  :: SeqActivity     --> END   - getRequiredForNotSatisfied");
 
 		return mRequiredForNotSatisfied;
 	}
@@ -3059,11 +2596,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getRequiredForSatisfied() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getRequiredForSatisfied");
-			System.out.println("  :: SeqActivity     --> END   - " + "getRequiredForSatisfied");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getRequiredForSatisfied");
+		log.debug("  :: SeqActivity     --> END   - getRequiredForSatisfied");
 
 		return mRequiredForSatisfied;
 	}
@@ -3078,12 +2612,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getResourceID() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getResourceID");
-			System.out.println("  ::-->  " + mResourceID);
-			System.out.println("  :: SeqActivity     --> END   - getResourceID");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getResourceID");
+		log.debug("  ::-->  {}", mResourceID);
+		log.debug("  :: SeqActivity     --> END   - getResourceID");
 
 		return mResourceID;
 	}
@@ -3103,11 +2634,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public ISeqRollupRuleset getRollupRules() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getRollupRules");
-			System.out.println("  :: SeqActivity     --> END   - " + "getRollupRules");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getRollupRules");
+		log.debug("  :: SeqActivity     --> END   - getRollupRules");
 
 		return mRollupRules;
 	}
@@ -3122,11 +2650,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getSatisfactionIfActive() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getSatisfactionIfActive");
-			System.out.println("  :: SeqActivity     --> END   - " + "getSatisfactionIfActive");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getSatisfactionIfActive");
+		log.debug("  :: SeqActivity     --> END   - getSatisfactionIfActive");
 
 		return mActiveMeasure;
 	}
@@ -3140,12 +2665,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getScopeID() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getScopeID");
-			System.out.println("  ::-->  " + mScopeID);
-			System.out.println("  :: SeqActivity     --> END   - getScopeID");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getScopeID");
+		log.debug("  ::-->  {}", mScopeID);
+		log.debug("  :: SeqActivity     --> END   - getScopeID");
 
 		return mScopeID;
 	}
@@ -3160,10 +2682,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public int getSelectCount() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getSelectCount");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getSelectCount");
 
 		// If the number to be randomized is greater than the number of children
 		// available, no  selection is required
@@ -3177,11 +2696,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 			mSelectStatus = false;
 			mSelectCount = 0;
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + mSelectCount);
-			System.out.println("  :: SeqActivity     --> END   - " + "getSelectCount");
-		}
+        log.debug("  ::-->  {}", mSelectCount);
+		log.debug("  :: SeqActivity     --> END   - getSelectCount");
 
 		return mSelectCount;
 	}
@@ -3192,11 +2708,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @return Has the activity already had the Selection Process applied?
 	 */
 	public boolean getSelection() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getSelection");
-			System.out.println("  :: SeqActivity     --> END   - getSelection");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getSelection");
+		log.debug("  :: SeqActivity     --> END   - getSelection");
 
 		return mSelection;
 	}
@@ -3211,12 +2724,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getSelectionTiming() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "getSelectionTiming");
-			System.out.println("  ::-->  " + mSelectTiming);
-			System.out.println("  :: SeqActivity    --> END   - " + "getSelectionTiming");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getSelectionTiming");
+		log.debug("  ::-->  {}", mSelectTiming);
+		log.debug("  :: SeqActivity    --> END   - getSelectionTiming");
 
 		return mSelectTiming;
 	}
@@ -3231,12 +2741,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getSelectStatus() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getSelectStatus");
-			System.out.println("  ::-->  " + mSelectStatus);
-			System.out.println("  :: SeqActivity     --> END   - " + "getSelectStatus");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getSelectStatus");
+		log.debug("  ::-->  {}", mSelectStatus);
+		log.debug("  :: SeqActivity     --> END   - getSelectStatus");
 
 		return mSelectStatus;
 	}
@@ -3253,12 +2760,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getSetCompletion() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - getSetCompletion");
-			System.out.println("  ::-->  " + mContentSetsCompletion);
-			System.out.println("  :: SeqActivity    --> END   - getSetCompletion");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getSetCompletion");
+		log.debug("  ::-->  {}", mContentSetsCompletion);
+		log.debug("  :: SeqActivity    --> END   - getSetCompletion");
 
 		return mContentSetsCompletion;
 	}
@@ -3275,12 +2779,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getSetObjective() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - getSetObjective");
-			System.out.println("  ::-->  " + mContentSetsObj);
-			System.out.println("  :: SeqActivity    --> END   - getSetObjective");
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - getSetObjective");
+		log.debug("  ::-->  {}", mContentSetsObj);
+		log.debug("  :: SeqActivity    --> END   - getSetObjective");
 
 		return mContentSetsObj;
 	}
@@ -3294,15 +2795,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getStateID() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getStateID");
-		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + mStateID);
-			System.out.println("  :: SeqActivity     --> END   - getStateID");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getStateID");
+        log.debug("  ::-->  {}", mStateID);
+		log.debug("  :: SeqActivity     --> END   - getStateID");
 
 		return mStateID;
 	}
@@ -3316,12 +2811,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getTitle() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getTitle");
-			System.out.println("  ::-->  " + mTitle);
-			System.out.println("  :: SeqActivity     --> END   - getTitle");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getTitle");
+		log.debug("  ::-->  {}", mTitle);
+		log.debug("  :: SeqActivity     --> END   - getTitle");
 
 		return mTitle;
 	}
@@ -3337,12 +2829,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getUseCurObjective() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getUseCurObjective");
-			System.out.println("  ::-->  " + mUseCurObj);
-			System.out.println("  :: SeqActivity     --> END   - " + "getUseCurObjective");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getUseCurObjective");
+		log.debug("  ::-->  {}", mUseCurObj);
+		log.debug("  :: SeqActivity     --> END   - getUseCurObjective");
 
 		return mUseCurObj;
 	}
@@ -3358,12 +2847,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean getUseCurProgress() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "getUseCurProgress");
-			System.out.println("  ::-->  " + mUseCurPro);
-			System.out.println("  :: SeqActivity     --> END   - " + "getUseCurProgress");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getUseCurProgress");
+		log.debug("  ::-->  {}", mUseCurPro);
+		log.debug("  :: SeqActivity     --> END   - getUseCurProgress");
 
 		return mUseCurPro;
 	}
@@ -3376,12 +2862,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public String getXMLFragment() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - getXMLFragment");
-			System.out.println("  ::-->  " + mXML);
-			System.out.println("  :: SeqActivity     --> END   - getXMLFragment");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - getXMLFragment");
+		log.debug("  ::-->  {}", mXML);
+		log.debug("  :: SeqActivity     --> END   - getXMLFragment");
 
 		return mXML;
 	}
@@ -3397,24 +2880,18 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *         <code>false</code>.
 	 */
 	public boolean hasChildren(boolean iAll) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - hasChildren");
-			System.out.println("  ::-->  " + iAll);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - hasChildren");
+		log.debug("  ::-->  {}", iAll);
 
 		boolean result = false;
 
 		if (iAll) {
-			result = mChildren != null && mChildren.size() > 0;
+			result = mChildren != null && !mChildren.isEmpty();
 		} else {
-			result = mActiveChildren != null && mActiveChildren.size() > 0;
+			result = mActiveChildren != null && !mActiveChildren.isEmpty();
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + result);
-			System.out.println("  :: SeqActivity     --> END   - hasChildren");
-		}
+        log.debug("  ::-->  {}", result);
+		log.debug("  :: SeqActivity     --> END   - hasChildren");
 
 		return result;
 	}
@@ -3425,11 +2902,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void incrementAttempt() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "incrementAttempt");
-			System.out.println("  ::-->  " + mActivityID);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - incrementAttempt");
+		log.debug("  ::-->  {}", mActivityID);
 
 		// Store existing tracking information for historical purposes
 		if (mCurTracking != null) {
@@ -3451,26 +2925,21 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		// If this is a cluster, check useCurrent flags
 		if (mActiveChildren != null) {
 
-			for (int i = 0; i < mActiveChildren.size(); i++) {
-				SeqActivity temp = mActiveChildren.get(i);
+            for (SeqActivity temp : mActiveChildren) {
+                // Flag 'dirty' data if we are supposed to only use 'current attempt
+                // status -- Set existing data to 'dirty'.  When a new attempt on a
+                // a child activity begins, the new tracking information will be
+                // 'clean'.
+                if (mUseCurObj) {
+                    temp.setDirtyObj();
+                }
 
-				// Flag 'dirty' data if we are supposed to only use 'current attempt
-				// status -- Set existing data to 'dirty'.  When a new attempt on a
-				// a child activity begins, the new tracking information will be 
-				// 'clean'.
-				if (mUseCurObj) {
-					temp.setDirtyObj();
-				}
-
-				if (mUseCurPro) {
-					temp.setDirtyPro();
-				}
-			}
+                if (mUseCurPro) {
+                    temp.setDirtyPro();
+                }
+            }
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "incrementAttempt");
-		}
+        log.debug("  :: SeqActivity     --> END   - incrementAttempt");
 	}
 
 	/**
@@ -3505,19 +2974,13 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	void resetNumAttempt() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "resetNumAttempt");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - resetNumAttempt");
 
 		// Clear all current and historical tracking information.
 		mNumAttempt = 0;
 		mCurTracking = null;
 		mTracking = null;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "resetNumAttempt");
-		}
+        log.debug("  :: SeqActivity     --> END   - resetNumAttempt");
 	}
 
 	/**
@@ -3526,17 +2989,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iOrder The order of this activity relative to its active siblings.
 	 */
 	private void setActiveOrder(int iOrder) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setActiveOrder");
-			System.out.println("  ::-->  " + iOrder);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setActiveOrder");
+		log.debug("  ::-->  {}", iOrder);
 
 		mActiveOrder = iOrder;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setActiveOrder");
-		}
+        log.debug("  :: SeqActivity     --> END   - setActiveOrder");
 	}
 
 	/**
@@ -3549,21 +3006,17 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setActivityAbDur(String iDur) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setActivityAbDur");
-			System.out.println("  ::-->  " + iDur);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setActivityAbDur");
+		log.debug("  ::-->  {}", iDur);
 
 		if (iDur != null) {
 			mActivityAbDurControl = true;
 			mActivityAbDur = new ADLDuration(IDuration.FORMAT_SCHEMA, iDur);
 		} else {
 			mActivityAbDurControl = false;
-		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setActivityAbDur");
-		}
+		
+        }
+        log.debug("  :: SeqActivity     --> END   - setActivityAbDur");
 	}
 
 	/**
@@ -3577,10 +3030,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setActivityExDur(String iDur) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setActivityExDur");
-			System.out.println("  ::-->  " + iDur);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setActivityExDur");
+		log.debug("  ::-->  {}", iDur);
 
 		if (iDur != null) {
 			mActivityExDurControl = true;
@@ -3588,10 +3039,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		} else {
 			mActivityExDurControl = false;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setActivityExDur");
-		}
+        log.debug("  :: SeqActivity     --> END   - setActivityExDur");
 	}
 
 	/**
@@ -3605,10 +3053,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setAttemptAbDur(String iDur) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setAttemptAbDur");
-			System.out.println("  ::-->  " + iDur);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setAttemptAbDur");
+		log.debug("  ::-->  {}", iDur);
 
 		if (iDur != null) {
 			mAttemptAbDurControl = true;
@@ -3617,10 +3063,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 			mAttemptAbDurControl = false;
 			mAttemptAbDur = null;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setAttemptAbDur");
-		}
+        log.debug("  :: SeqActivity     --> END   - setAttemptAbDur");
 	}
 
 	/**
@@ -3634,10 +3077,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setAttemptExDur(String iDur) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setAttemptExDur");
-			System.out.println("  ::-->  " + iDur);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setAttemptExDur");
+		log.debug("  ::-->  {}", iDur);
 
 		if (iDur != null) {
 			mAttemptExDurControl = true;
@@ -3645,10 +3086,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		} else {
 			mAttemptExDurControl = false;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setAttemptExDur");
-		}
+        log.debug("  :: SeqActivity     --> END   - setAttemptExDur");
 	}
 
 	/**
@@ -3660,17 +3098,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setAttemptLimit(Long iMaxAttempt) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - setAttemptLimit");
-
-			if (iMaxAttempt != null) {
-				System.out.println("  ::-->  " + iMaxAttempt.toString());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - setAttemptLimit");
+        log.debug("  ::-->  {}", iMaxAttempt == null ? "NULL" : iMaxAttempt);
 
 		if (iMaxAttempt != null) {
 			long value = iMaxAttempt;
@@ -3683,10 +3112,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 				mMaxAttempt = -1;
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END  - setAttemptLimit");
-		}
+        log.debug("  :: SeqActivity     --> END  - setAttemptLimit");
 	}
 
 	/**
@@ -3700,22 +3126,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setAuxResources(List<ADLAuxiliaryResource> iRes) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setAuxResources");
-
-			if (iRes != null) {
-				System.out.println("  ::-->  " + iRes.size());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setAuxResources");
+        log.debug("  ::-->  {}", iRes != null ? iRes.size() : "NULL");
 		mAuxResources = iRes;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setAuxResources");
-		}
+        log.debug("  :: SeqActivity     --> END   - setAuxResources");
 	}
 
 	/**
@@ -3728,10 +3142,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setBeginTimeLimit(String iTime) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setBeginTimeLimit");
-			System.out.println("  ::-->  " + iTime);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setBeginTimeLimit");
+		log.debug("  ::-->  {}", iTime);
 
 		if (iTime != null) {
 			mBeginTimeControl = true;
@@ -3739,10 +3151,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		} else {
 			mBeginTimeControl = false;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setBeginTimeLimit");
-		}
+        log.debug("  :: SeqActivity     --> END   - setBeginTimeLimit");
 	}
 
 	/**
@@ -3755,11 +3164,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                  of this activity's children, or just the 'active' set.
 	 */
 	public void setChildren(List<SeqActivity> ioChildren, boolean iAll) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setChildren");
-			System.out.println("  ::-->  " + iAll);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setChildren");
+		log.debug("  ::-->  {}", iAll);
 
 		SeqActivity walk = null;
 
@@ -3776,11 +3182,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 				walk.setIsSelected(true);
 			}
 		} else {
-			for (int i = 0; i < mChildren.size(); i++) {
-				walk = mChildren.get(i);
-
-				walk.setIsSelected(false);
-			}
+            for (SeqActivity mChild : mChildren) {
+                walk = mChild;
+                walk.setIsSelected(false);
+            }
 
 			mActiveChildren = ioChildren;
 
@@ -3792,10 +3197,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 				walk.setParent(this);
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setChildren");
-		}
+        log.debug("  :: SeqActivity     --> END   - setChildren");
 	}
 
 	/**
@@ -3808,17 +3210,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setConstrainChoice(boolean iConstrainChoice) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setConstrainChoice");
-			System.out.println("  ::-->  " + iConstrainChoice);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setConstrainChoice");
+		log.debug("  ::-->  {}", iConstrainChoice);
 		mConstrainChoice = iConstrainChoice;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   -  " + "setConstrainChoice");
-		}
+        log.debug("  :: SeqActivity     --> END   -  setConstrainChoice");
 	}
 
 	/**
@@ -3831,17 +3226,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setControlForwardOnly(boolean iForwardOnly) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setForwardOnly");
-			System.out.println("  ::-->  " + iForwardOnly);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setForwardOnly");
+		log.debug("  ::-->  {}", iForwardOnly);
 		mControl_forwardOnly = iForwardOnly;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setForwardOnly");
-		}
+        log.debug("  :: SeqActivity     --> END   - setForwardOnly");
 	}
 
 	/**
@@ -3853,17 +3241,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setControlModeChoice(boolean iChoice) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setChoice");
-			System.out.println("  ::-->  " + iChoice);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setChoice");
+		log.debug("  ::-->  {}", iChoice);
 		mControl_choice = iChoice;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setChoice");
-		}
+        log.debug("  :: SeqActivity     --> END   - setChoice");
 	}
 
 	/**
@@ -3876,16 +3257,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setControlModeChoiceExit(boolean iChoiceExit) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setChoiceExit");
-			System.out.println("  ::-->  " + iChoiceExit);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setChoiceExit");
+		log.debug("  ::-->  {}", iChoiceExit);
 		mControl_choiceExit = iChoiceExit;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setChoiceExit");
-		}
+        log.debug("  :: SeqActivity     --> END   - setChoiceExit");
 	}
 
 	/**
@@ -3898,16 +3273,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setControlModeFlow(boolean iFlow) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setFlow");
-			System.out.println("  ::-->  " + iFlow);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setFlow");
+		log.debug("  ::-->  {}", iFlow);
 		mControl_flow = iFlow;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setFlow");
-		}
+        log.debug("  :: SeqActivity     --> END   - setFlow");
 	}
 
 	/**
@@ -3916,16 +3285,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iCount The depth of the activity.
 	 */
 	void setCount(int iCount) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setCount");
-			System.out.println("  ::-->  " + iCount);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setCount");
+		log.debug("  ::-->  {}", iCount);
 		mCount = iCount;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setCount");
-		}
+        log.debug("  :: SeqActivity     --> END   - setCount");
 	}
 
 	/**
@@ -3937,24 +3300,12 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setCurAttemptExDur(ADLDuration iDur) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity --> BEGIN - " + "setCurAttemptExDur");
-
-			if (iDur != null) {
-				System.out.println("  ::--> " + iDur.format(IDuration.FORMAT_SCHEMA));
-			} else {
-				System.out.println("  ::--> NULL");
-			}
-		}
-
+        log.debug("  :: SeqActivity --> BEGIN - setCurAttemptExDur");
+        log.debug("  ::--> {}", iDur != null ? iDur.format(IDuration.FORMAT_SCHEMA) : "NULL");
 		if (mCurTracking != null) {
 			mCurTracking.mAttemptAbDur = iDur;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity --> END   - " + "setCurAttemptExDur");
-		}
+        log.debug("  :: SeqActivity --> END   - setCurAttemptExDur");
 	}
 
 	/**
@@ -3965,11 +3316,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setDeliveryMode(String iDeliveryMode) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setDeliveryMode");
-			System.out.println("  ::-->  " + iDeliveryMode);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setDeliveryMode");
+		log.debug("  ::-->  {}", iDeliveryMode);
 
 		// Test vocabulary
 		if (iDeliveryMode.equals("browse") || iDeliveryMode.equals("review") || iDeliveryMode.equals("normal")) {
@@ -3977,10 +3325,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		} else {
 			mDeliveryMode = "normal";
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setDeliveryMode");
-		}
+        log.debug("  :: SeqActivity     --> END   - setDeliveryMode");
 	}
 
 	/**
@@ -3989,16 +3334,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iDepth The depth of the activity.
 	 */
 	void setDepth(int iDepth) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setDepth");
-			System.out.println("  ::-->  " + iDepth);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setDepth");
+		log.debug("  ::-->  {}", iDepth);
 		mDepth = iDepth;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setDepth");
-		}
+        log.debug("  :: SeqActivity     --> END   - setDepth");
 	}
 
 	/**
@@ -4013,13 +3352,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 		// If this is a cluster, check useCurrent flags
 		if (mActiveChildren != null) {
-			for (int i = 0; i < mActiveChildren.size(); i++) {
-				SeqActivity temp = mActiveChildren.get(i);
-
-				if (mUseCurObj) {
-					temp.setDirtyObj();
-				}
-			}
+            for (SeqActivity temp : mActiveChildren) {
+                if (mUseCurObj) {
+                    temp.setDirtyObj();
+                }
+            }
 		}
 	}
 
@@ -4034,13 +3371,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 		// If this is a cluster, check useCurrent flags
 		if (mActiveChildren != null) {
-			for (int i = 0; i < mActiveChildren.size(); i++) {
-				SeqActivity temp = mActiveChildren.get(i);
-
-				if (mUseCurPro) {
-					temp.setDirtyPro();
-				}
-			}
+            for (SeqActivity temp : mActiveChildren) {
+                if (mUseCurPro) {
+                    temp.setDirtyPro();
+                }
+            }
 		}
 	}
 
@@ -4054,10 +3389,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setEndTimeLimit(String iTime) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setEndTimeLimit");
-			System.out.println("  ::-->  " + iTime);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setEndTimeLimit");
+		log.debug("  ::-->  {}", iTime);
 
 		if (iTime != null) {
 			mEndTimeControl = true;
@@ -4065,10 +3398,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		} else {
 			mEndTimeControl = false;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setEndTimeLimit");
-		}
+        log.debug("  :: SeqActivity     --> END   - setEndTimeLimit");
 	}
 
 	/**
@@ -4081,22 +3411,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setExitSeqRules(ISeqRuleset iRuleSet) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setExitSeqRules");
-
-			if (iRuleSet != null) {
-				System.out.println("  ::-->  " + iRuleSet.size());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setExitSeqRules");
+        log.debug("  ::-->  {}", iRuleSet != null ? iRuleSet.size() : "NULL");
 		mExitActionRules = iRuleSet;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setExitSeqRules");
-		}
+        log.debug("  :: SeqActivity     --> END   - setExitSeqRules");
 	}
 
 	/**
@@ -4107,17 +3425,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setID(String iID) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setID");
-			System.out.println("  ::-->  " + iID);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setID");
+		log.debug("  ::-->  {}", iID);
 		mActivityID = iID;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setID");
-		}
+        log.debug("  :: SeqActivity     --> END   - setID");
 	}
 
 	/**
@@ -4128,16 +3439,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setIsActive(boolean iActive) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setIsActive");
-			System.out.println("  ::-->  " + iActive);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setIsActive");
+		log.debug("  ::-->  {}", iActive);
 		mIsActive = iActive;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setIsActive");
-		}
+        log.debug("  :: SeqActivity     --> END   - setIsActive");
 	}
 
 	/**
@@ -4151,17 +3456,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setIsObjRolledUp(boolean iRolledup) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setIsObjRolledUp");
-			System.out.println("  ::-->  " + iRolledup);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setIsObjRolledUp");
+		log.debug("  ::-->  {}", iRolledup);
 		mIsObjectiveRolledUp = iRolledup;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setIsObjRolledUp");
-		}
+        log.debug("  :: SeqActivity     --> END   - setIsObjRolledUp");
 	}
 
 	/**
@@ -4175,17 +3473,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setIsProgressRolledUp(boolean iRolledup) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setIsProgressRolledUp");
-			System.out.println("  ::-->  " + iRolledup);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setIsProgressRolledUp");
+		log.debug("  ::-->  {}", iRolledup);
 		mIsProgressRolledUp = iRolledup;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setIsProgressRolledUp");
-		}
+        log.debug("  :: SeqActivity     --> END   - setIsProgressRolledUp");
 	}
 
 	/**
@@ -4195,17 +3486,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setIsSelected(boolean iSelected) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setSelected");
-			System.out.println("  ::--> State ID     : " + iSelected);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setSelected");
+		log.debug("  ::--> State ID     : {}", iSelected);
 		mSelected = iSelected;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setSelected");
-		}
+        log.debug("  :: SeqActivity     --> END   - setSelected");
 	}
 
 	/**
@@ -4216,16 +3500,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setIsSuspended(boolean iSuspended) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setIsSuspended");
-			System.out.println("  ::-->  " + iSuspended);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setIsSuspended");
+		log.debug("  ::-->  {}", iSuspended);
 		mIsSuspended = iSuspended;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setIsSuspended");
-		}
+        log.debug("  :: SeqActivity     --> END   - setIsSuspended");
 	}
 
 	/**
@@ -4238,17 +3516,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setIsTracked(boolean iTracked) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setIsTracked");
-			System.out.println("  ::-->  " + iTracked);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setIsTracked");
+		log.debug("  ::-->  {}", iTracked);
 		mIsTracked = iTracked;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setIsTracked");
-		}
+        log.debug("  :: SeqActivity     --> END   - setIsTracked");
 	}
 
 	/**
@@ -4259,16 +3530,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setIsVisible(boolean iIsVisible) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setIsVisible");
-			System.out.println("  ::-->  " + iIsVisible);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setIsVisible");
+		log.debug("  ::-->  {}", iIsVisible);
 		mIsVisible = iIsVisible;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setIsVisible");
-		}
+        log.debug("  :: SeqActivity     --> END   - setIsVisible");
 	}
 
 	/**
@@ -4279,16 +3544,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setLearnerID(String iLearnerID) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setLearnerID");
-			System.out.println("  ::-->  " + iLearnerID);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setLearnerID");
+		log.debug("  ::-->  {}", iLearnerID);
 		mLearnerID = iLearnerID;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setLearnerID");
-		}
+        log.debug("  :: SeqActivity     --> END   - setLearnerID");
 	}
 
 	/**
@@ -4301,35 +3560,22 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setObjectives(List<SeqObjective> iObjs) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setObjectives");
-			if (iObjs != null) {
-				System.out.println("  ::-->  " + iObjs.size());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setObjectives");
+        log.debug("  ::-->  {}", iObjs != null ? iObjs.size() : "NULL");
 
 		mObjectives = iObjs;
 
 		if (iObjs != null) {
-			for (int i = 0; i < iObjs.size(); i++) {
-				SeqObjective obj = iObjs.get(i);
-
-				if (obj.mMaps != null) {
-					if (mObjMaps == null) {
-						mObjMaps = new Hashtable<>();
-					}
-
-					mObjMaps.put(obj.mObjID, obj.mMaps);
-				}
-			}
-		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setObjectives");
-		}
+            for (SeqObjective obj : iObjs) {
+                if (obj.mMaps != null) {
+                    if (mObjMaps == null) {
+                        mObjMaps = new Hashtable<>();
+                    }
+                    mObjMaps.put(obj.mObjID, obj.mMaps);
+                }
+            }
+		}		
+        log.debug("  :: SeqActivity     --> END   - setObjectives");
 	}
 
 	/**
@@ -4343,11 +3589,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean setObjMeasure(double iMeasure) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setObjMeasure");
-			System.out.println("  ::--> " + iMeasure);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setObjMeasure");
+		log.debug("  ::--> {}", iMeasure);
 
 		boolean statusChange = false;
 
@@ -4369,21 +3612,14 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 					statusChange = !prev.equals(obj.getObjStatus(false));
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  ERROR : No primary objective");
-					}
+                    log.debug("  ::-->  ERROR : No primary objective");
 				}
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + statusChange);
-			System.out.println("  :: SeqActivity     --> END   - " + "setObjMeasure");
-		}
+        log.debug("  ::-->  {}", statusChange);
+		log.debug("  :: SeqActivity     --> END   - setObjMeasure");
 
 		return statusChange;
 
@@ -4402,12 +3638,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean setObjMeasure(String iObjID, double iMeasure) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setObjMeasure");
-			System.out.println("  ::--> " + iObjID);
-			System.out.println("  ::--> " + iMeasure);
-		}
+        log.debug("""
+                    :: SeqActivity     --> BEGIN - setObjMeasure
+                    ::--> {}
+                    ::--> {}
+                  """, iObjID, iMeasure);
 
 		boolean statusChange = false;
 
@@ -4432,21 +3667,14 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 					statusChange = !prev.equals(obj.getObjStatus(false));
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  ERROR : No primary objective");
-					}
+                    log.debug("  ::-->  ERROR : No primary objective");
 				}
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + statusChange);
-			System.out.println("  :: SeqActivity     --> END   - " + "setObjMeasure");
-		}
+        log.debug("  ::-->  {}", statusChange);
+		log.debug("  :: SeqActivity     --> END   - setObjMeasure");
 
 		return statusChange;
 	}
@@ -4461,17 +3689,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setObjMeasureWeight(double iWeight) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setObjMeasureWeight");
-			System.out.println("  ::-->  " + iWeight);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setObjMeasureWeight");
+		log.debug("  ::-->  {}", iWeight);
 		mObjMeasureWeight = iWeight;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setObjMeasureWeight");
-		}
+        log.debug("  :: SeqActivity     --> END   - setObjMeasureWeight");
 	}
 
 	/**
@@ -4487,11 +3708,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean setObjSatisfied(String iStatus) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setObjSatisfied");
-			System.out.println("  ::--> " + iStatus);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setObjSatisfied");
+		log.debug("  ::--> {}", iStatus);
 
 		boolean statusChange = false;
 
@@ -4510,26 +3728,17 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 						statusChange = !result.equals(iStatus);
 					} else {
-						if (_Debug) {
-							System.out.println("  ::--> Invalid status value");
-						}
+                        log.debug("  ::--> Invalid status value");
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  ERROR : No primary objective");
-					}
+                    log.debug("  ::-->  ERROR : No primary objective");
 				}
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + statusChange);
-			System.out.println("  :: SeqActivity     --> END   - " + "setObjSatisfied");
-		}
+        log.debug("  ::-->  {}", statusChange);
+		log.debug("  :: SeqActivity     --> END   - setObjSatisfied");
 
 		return statusChange;
 	}
@@ -4549,12 +3758,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean setObjSatisfied(String iObjID, String iStatus) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setObjSatisfied");
-			System.out.println("  ::--> " + iObjID);
-			System.out.println("  ::--> " + iStatus);
-		}
+        log.debug("""
+                    :: SeqActivity     --> BEGIN - setObjSatisfied
+                    ::--> {}
+                    ::--> {}
+                  """, iObjID, iStatus);
 
 		boolean statusChange = false;
 
@@ -4576,26 +3784,17 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 
 						statusChange = !result.equals(iStatus);
 					} else {
-						if (_Debug) {
-							System.out.println("  ::--> Invalid status value");
-						}
+                        log.debug("  ::--> Invalid status value");
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  ERROR : No primary objective");
-					}
+                    log.debug("  ::-->  ERROR : No primary objective");
 				}
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + statusChange);
-			System.out.println("  :: SeqActivity     --> END   - " + "setObjSatisfied");
-		}
+        log.debug("  ::-->  {}", statusChange);
+		log.debug("  :: SeqActivity     --> END   - setObjSatisfied");
 
 		return statusChange;
 	}
@@ -4606,17 +3805,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iOrder The order of this activity relative to its siblings.
 	 */
 	private void setOrder(int iOrder) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setOrder");
-			System.out.println("  ::-->  " + iOrder);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setOrder");
+		log.debug("  ::-->  {}", iOrder);
 		mOrder = iOrder;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setOrder");
-		}
+        log.debug("  :: SeqActivity     --> END   - setOrder");
 	}
 
 	/**
@@ -4625,16 +3817,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * @param iParent The parent activity of this activity.
 	 */
 	private void setParent(SeqActivity iParent) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setParent");
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setParent");
 		mParent = iParent;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setParent");
-		}
+        log.debug("  :: SeqActivity     --> END   - setParent");
 	}
 
 	/**
@@ -4648,22 +3833,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setPostSeqRules(ISeqRuleset iRuleSet) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setPostSeqRules");
-
-			if (iRuleSet != null) {
-				System.out.println("  ::-->  " + iRuleSet.size());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setPostSeqRules");
+        log.debug("  ::-->  {}", iRuleSet != null ? iRuleSet.size() : "NULL");
 		mPostConditionRules = iRuleSet;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setPostSeqRules");
-		}
+        log.debug("  :: SeqActivity     --> END   - setPostSeqRules");
 	}
 
 	/**
@@ -4677,22 +3850,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setPreSeqRules(ISeqRuleset iRuleSet) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setPreSeqRules");
-
-			if (iRuleSet != null) {
-				System.out.println("  ::-->  " + iRuleSet.size());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setPreSeqRules");
+        log.debug("  ::-->  {}", iRuleSet != null ? iRuleSet.size() : "NULL");
 		mPreConditionRules = iRuleSet;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setPreSeqRules");
-		}
+        log.debug("  :: SeqActivity     --> END   - setPreSeqRules");
 	}
 
 	/**
@@ -4705,17 +3866,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setPreventActivation(boolean iPreventActivation) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setPreventActivation");
-			System.out.println("  ::-->  " + iPreventActivation);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setPreventActivation");
+		log.debug("  ::-->  {}", iPreventActivation);
 		mPreventActivation = iPreventActivation;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setPreventActivation");
-		}
+        log.debug("  :: SeqActivity     --> END   - setPreventActivation");
 	}
 
 	/**
@@ -4731,10 +3885,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public boolean setProgress(String iProgress) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setProgress");
-			System.out.println("  ::-->  " + iProgress);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setProgress");
+		log.debug("  ::-->  {}", iProgress);
 
 		boolean statusChange = false;
 
@@ -4751,15 +3903,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 				statusChange = !prev.equals(iProgress);
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + statusChange);
-			System.out.println("  :: SeqActivity     --> END   - setProgress");
-		}
+        log.debug("  ::-->  {}", statusChange);
+		log.debug("  :: SeqActivity     --> END   - setProgress");
 
 		return statusChange;
 	}
@@ -4772,16 +3919,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                    Process applied?
 	 */
 	public void setRandomized(boolean iRandomized) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setRandomized");
-			System.out.println("  ::-->  " + iRandomized);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setRandomized");
+		log.debug("  ::-->  {}", iRandomized);
 		mRandomized = iRandomized;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setRandomized");
-		}
+        log.debug("  :: SeqActivity     --> END   - setRandomized");
 	}
 
 	/**
@@ -4794,10 +3935,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setRandomTiming(String iTiming) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - setRandomTiming");
-			System.out.println("  ::-->  " + iTiming);
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - setRandomTiming");
+		log.debug("  ::-->  {}", iTiming);
 
 		// Validate vocabulary
 		if (!(iTiming.equals(SeqActivity.TIMING_NEVER) || iTiming.equals(SeqActivity.TIMING_ONCE) || iTiming.equals(SeqActivity.TIMING_EACHNEW))) {
@@ -4805,10 +3944,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		} else {
 			mRandomTiming = iTiming;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END  - setRandomTiming");
-		}
+        log.debug("  :: SeqActivity     --> END  - setRandomTiming");
 	}
 
 	/**
@@ -4823,16 +3959,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setReorderChildren(boolean iReorder) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "setReorderChildren");
-			System.out.println("  ::-->  " + iReorder);
-		}
-
+        log.debug("  :: SeqActivity    --> BEGIN - setReorderChildren");
+		log.debug("  ::-->  {}", iReorder);
 		mReorder = iReorder;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> END   - " + "setReorderChildren");
-		}
+        log.debug("  :: SeqActivity    --> END   - setReorderChildren");
 	}
 
 	/**
@@ -4845,18 +3975,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setRequiredForCompleted(String iConsider) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setRequiredForCompleted");
-			System.out.println("  ::-->  " + iConsider);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setRequiredForCompleted");
+		log.debug("  ::-->  {}", iConsider);
 		// Assume the token is OK due to previous validation.
 		mRequiredForCompleted = iConsider;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setRequiredForCompleted");
-		}
+        log.debug("  :: SeqActivity     --> END   - setRequiredForCompleted");
 	}
 
 	/**
@@ -4869,18 +3992,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setRequiredForIncomplete(String iConsider) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setRequiredForIncomplete");
-			System.out.println("  ::-->  " + iConsider);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setRequiredForIncomplete");
+		log.debug("  ::-->  {}", iConsider);
 		// Assume the token is OK due to previous validation.
 		mRequiredForIncomplete = iConsider;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setRequiredForIncomplete");
-		}
+        log.debug("  :: SeqActivity     --> END   - setRequiredForIncomplete");
 	}
 
 	/**
@@ -4893,18 +4009,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setRequiredForNotSatisfied(String iConsider) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setRequiredForNotSatisfied");
-			System.out.println("  ::-->  " + iConsider);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setRequiredForNotSatisfied");
+		log.debug("  ::-->  {}", iConsider);
 		// Assume the token is OK due to previous validation.
 		mRequiredForNotSatisfied = iConsider;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setRequiredForNotSatisfied");
-		}
+        log.debug("  :: SeqActivity     --> END   - setRequiredForNotSatisfied");
 	}
 
 	/**
@@ -4917,18 +4026,12 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setRequiredForSatisfied(String iConsider) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setRequiredForSatisfied");
-			System.out.println("  ::-->  " + iConsider);
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - setRequiredForSatisfied");
+		log.debug("  ::-->  {}", iConsider);
 
 		// Assume the token is OK due to previous validation.
 		mRequiredForSatisfied = iConsider;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setRequiredForSatisfied");
-		}
+        log.debug("  :: SeqActivity     --> END   - setRequiredForSatisfied");
 	}
 
 	/**
@@ -4939,17 +4042,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setResourceID(String iResourceID) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setResourceID");
-			System.out.println("  ::--> Resource ID     : " + iResourceID);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setResourceID");
+		log.debug("  ::--> Resource ID     : {}", iResourceID);
 		mResourceID = iResourceID;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setResourceID");
-		}
+        log.debug("  :: SeqActivity     --> END   - setResourceID");
 	}
 
 	/**
@@ -4962,21 +4058,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setRollupRules(ISeqRollupRuleset iRuleSet) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setRollupRules");
-			if (iRuleSet != null) {
-				System.out.println("  ::-->  " + iRuleSet.size());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setRollupRules");
+        log.debug("  ::-->  {}", iRuleSet != null ? iRuleSet.size() : "NULL");
 		mRollupRules = iRuleSet;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setRollupRules");
-		}
+        log.debug("  :: SeqActivity     --> END   - setRollupRules");
 	}
 
 	/**
@@ -4989,18 +4074,11 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setSatisfactionIfActive(boolean iActiveMeasure) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setSatisfactionIfActive");
-			System.out.println("  ::-->  " + iActiveMeasure);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setSatisfactionIfActive");
+		log.debug("  ::-->  {}", iActiveMeasure);
 		// Assume the token is OK due to previous validation.
 		mActiveMeasure = iActiveMeasure;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setSatisfactionIfActive");
-		}
+        log.debug("  :: SeqActivity     --> END   - setSatisfactionIfActive");
 	}
 
 	/**
@@ -5011,16 +4089,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setScopeID(String iScopeID) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setScopeID");
-			System.out.println("  ::-->  " + iScopeID);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setScopeID");
+		log.debug("  ::-->  {}", iScopeID);
 		mScopeID = iScopeID;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setScopeID");
-		}
+        log.debug("  :: SeqActivity     --> END   - setScopeID");
 	}
 
 	/**
@@ -5033,10 +4105,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setSelectCount(int iCount) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - setSelectCount");
-			System.out.println("  ::-->  " + iCount);
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - setSelectCount");
+		log.debug("  ::-->  {}", iCount);
 
 		if (iCount >= 0) {
 			mSelectStatus = true;
@@ -5044,10 +4114,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		} else {
 			mSelectStatus = false;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END  - setSelectCount");
-		}
+        log.debug("  :: SeqActivity     --> END  - setSelectCount");
 	}
 
 	/**
@@ -5057,16 +4124,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 *                   applied?
 	 */
 	public void setSelection(boolean iSelection) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setSelection");
-			System.out.println("  ::-->  " + iSelection);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setSelection");
+		log.debug("  ::-->  {}", iSelection);
 		mSelection = iSelection;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setSelection");
-		}
+        log.debug("  :: SeqActivity     --> END   - setSelection");
 	}
 
 	/**
@@ -5079,10 +4140,8 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setSelectionTiming(String iTiming) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity    --> BEGIN - " + "setSelectionTiming");
-			System.out.println("  ::-->  " + iTiming);
-		}
+        log.debug("  :: SeqActivity    --> BEGIN - setSelectionTiming");
+		log.debug("  ::-->  {}", iTiming);
 
 		// Validate vocabulary
 		if (!(iTiming.equals(SeqActivity.TIMING_NEVER) || iTiming.equals(SeqActivity.TIMING_ONCE) || iTiming.equals(SeqActivity.TIMING_EACHNEW))) {
@@ -5090,10 +4149,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		} else {
 			mSelectTiming = iTiming;
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END  - " + "setSelectionTiming");
-		}
+        log.debug("  :: SeqActivity     --> END  - setSelectionTiming");
 	}
 
 	/**
@@ -5107,17 +4163,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setSetCompletion(boolean iSet) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setSetCompletion");
-			System.out.println("  ::-->  " + iSet);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setSetCompletion");
+		log.debug("  ::-->  {}", iSet);
 		mContentSetsCompletion = iSet;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setSetCompletion");
-		}
+        log.debug("  :: SeqActivity     --> END   - setSetCompletion");
 	}
 
 	/**
@@ -5131,17 +4180,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setSetObjective(boolean iSet) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setSetObjective");
-			System.out.println("  ::-->  " + iSet);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setSetObjective");
+		log.debug("  ::-->  {}", iSet);
 		mContentSetsObj = iSet;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "setSetObjective");
-		}
+        log.debug("  :: SeqActivity     --> END   - setSetObjective");
 	}
 
 	/**
@@ -5153,17 +4195,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setStateID(String iStateID) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setStateID");
-			System.out.println("  ::--> State ID     : " + iStateID);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setStateID");
+		log.debug("  ::--> State ID     : {}", iStateID);
 		mStateID = iStateID;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setStateID");
-		}
+        log.debug("  :: SeqActivity     --> END   - setStateID");
 	}
 
 	/**
@@ -5174,16 +4209,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setTitle(String iTitle) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setTitle");
-			System.out.println("  ::-->  " + iTitle);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setTitle");
+		log.debug("  ::-->  {}", iTitle);
 		mTitle = iTitle;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setTitle");
-		}
+        log.debug("  :: SeqActivity     --> END   - setTitle");
 	}
 
 	/**
@@ -5200,16 +4229,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setUseCurObjective(boolean iUseCur) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setUseCurObjective");
-			System.out.println("  ::-->  " + iUseCur);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setUseCurObjective");
+		log.debug("  ::-->  {}", iUseCur);
 		mUseCurObj = iUseCur;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END - " + "setUseCurObjective");
-		}
+        log.debug("  :: SeqActivity     --> END - setUseCurObjective");
 	}
 
 	/**
@@ -5226,17 +4249,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setUseCurProgress(boolean iUseCur) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "setUseCurProgress");
-			System.out.println("  ::-->  " + iUseCur);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setUseCurProgress");
+		log.debug("  ::-->  {}", iUseCur);
 		mUseCurPro = iUseCur;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END - " + "setUseCurProgress");
-		}
+        log.debug("  :: SeqActivity     --> END - setUseCurProgress");
 	}
 
 	/**
@@ -5247,16 +4263,10 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 */
 	@Override
 	public void setXMLFragment(String iXML) {
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - setXMLFragment");
-			System.out.println("  ::-->  " + iXML);
-		}
-
+        log.debug("  :: SeqActivity     --> BEGIN - setXMLFragment");
+		log.debug("  ::-->  {}", iXML);
 		mXML = iXML;
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - setXMLFragment");
-		}
+        log.debug("  :: SeqActivity     --> END   - setXMLFragment");
 	}
 
 	/**
@@ -5264,10 +4274,7 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 	 * 
 	 */
 	public void triggerObjMeasure() {
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> BEGIN - " + "triggerObjMeasure");
-		}
+        log.debug("  :: SeqActivity     --> BEGIN - triggerObjMeasure");
 
 		double measure = 0.0;
 
@@ -5292,36 +4299,24 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 						result = obj.getObjMeasure(false);
 
 						if (!result.equals(ADLTracking.TRACK_UNKNOWN)) {
-							measure = (new Double(result));
-
+							measure = Double.parseDouble(result);
 							obj.setObjMeasure(measure, true);
 						} else {
 							obj.clearObjMeasure(true);
 						}
 					} else {
-						if (_Debug) {
-							System.out.println("  ::--> Satisfaction not affected " + "by measure");
-						}
+                        log.debug("  ::--> Satisfaction not affected by measure");
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::-->  ERROR : No primary objective");
-					}
+                    log.debug("  ::-->  ERROR : No primary objective");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::-->  ERROR : Bad Tracking");
-				}
+                log.debug("  ::-->  ERROR : Bad Tracking");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> NOT TRACKED");
-			}
+            log.debug("  ::--> NOT TRACKED");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqActivity     --> END   - " + "triggerObjMeasure");
-		}
+        log.debug("  :: SeqActivity     --> END   - triggerObjMeasure");
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.net.URL;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 import org.adl.util.servlet.ServletWriter;
 import org.ims.ssp.samplerte.server.SSP_ServletRequest;
 import org.ims.ssp.samplerte.server.SSP_ServletResponse;
@@ -60,13 +60,10 @@ import org.ims.ssp.samplerte.server.bucket.SuccessStatus;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class ServletProxy {
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
 
-	/**
+    /**
 	 * The URL of the target servlet.
 	 */
 	private URL mServletURL = null;
@@ -93,39 +90,26 @@ public class ServletProxy {
 	 */
 	public SSP_ServletResponse postLMSRequest(SSP_ServletRequest iRequest) {
 
-		if (_Debug) {
-			System.out.println("In ServletProxy::postLMSRequest()");
-		}
+        log.debug("In ServletProxy::postLMSRequest()");
 
 		SSP_ServletResponse response = new SSP_ServletResponse();
 
 		try {
 			Serializable[] data = { iRequest };
 
-			if (_Debug) {
-				System.out.println("Before postObjects()");
-			}
+            log.debug("Before postObjects()");
 
-			try (ObjectInputStream in = ServletWriter.postObjects(mServletURL, data))
-			{
-				if (_Debug) {
-					System.out.println("Back In " + "ServletProxy::postLMSRequest()");
-					System.out.println("Attempting to read servlet " + "response now...");
-				}
-				
-				response = (SSP_ServletResponse) in.readObject();
+			try (ObjectInputStream in = ServletWriter.postObjects(mServletURL, data)) {
+                log.debug("Back In ServletProxy::postLMSRequest(), attempting to read servlet response now...");
+
+                response = (SSP_ServletResponse) in.readObject();
 			}
 		} catch (Exception e) {
-			if (_Debug) {
-				System.out.println("Exception caught in " + "ServletProxy::postLMSRequest()");
-				System.out.println(e.getMessage());
-			}
-
-			e.printStackTrace();
+            log.warn("Exception caught in ServletProxy::postLMSRequest()", e);
 			response.mManagedBucketInfo.setSuccessStatus(SuccessStatus.FAILURE);
 		}
 
 		return response;
 	}
 
-} // ServletProxy
+}

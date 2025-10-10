@@ -23,9 +23,8 @@
 ******************************************************************************/
 package org.adl.validator;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.parsers.dom.ADLDOMParser;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 
 /**
@@ -50,6 +49,7 @@ import org.w3c.dom.Document;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class DOMRulesCreator {
 	/**
 	 * The application profile type to read the rules for the following:
@@ -85,11 +85,6 @@ public class DOMRulesCreator {
 	private String mValidatorType;
 
 	/**
-	 * Logger object used for debug logging.
-	 */
-	private static Log log = LogFactory.getLog(DOMRulesCreator.class);
-
-	/**
 	 *
 	 * Constructor that sets the application profile and validator attributes
 	 * values.
@@ -100,9 +95,11 @@ public class DOMRulesCreator {
 	 * include: contentpackage, metadata, sequence  
 	 */
 	public DOMRulesCreator(String iApplicationProfileType, String iValidatorType) {
-		log.debug("DOMRulesCreator()");
-		log.debug("      iApplicationProfileType coming in is " + iApplicationProfileType);
-		log.debug("      iValidatorType coming in is " + iValidatorType);
+        log.debug("""
+                    DOMRulesCreator()
+                      iApplicationProfileType coming in is {}
+                      iValidatorType coming in is {}
+                  """, iApplicationProfileType, iValidatorType);
 
 		mApplicationProfileType = iApplicationProfileType;
 		mValidatorType = iValidatorType;
@@ -129,19 +126,19 @@ public class DOMRulesCreator {
 		if (mValidatorType.equals("metadata") && mApplicationProfileType.equals("adlreg")) {
 			urlLocation = DOMRulesCreator.class.getResource("metadata/rules/md_adlregRules.xml");
 
-			log.debug("adlreg fileLocation is" + urlLocation);
+			log.debug("adlreg fileLocation is {}", urlLocation);
 		} else if (mValidatorType.equals("contentpackage") && mApplicationProfileType.equals("resource")) {
 			urlLocation = DOMRulesCreator.class.getResource("contentpackage/rules/cp_resourceRules.xml");
 
-			log.debug("resource fileLocation is" + urlLocation);
+			log.debug("resource fileLocation is {}", urlLocation);
 		} else if (mValidatorType.equals("contentpackage") && mApplicationProfileType.equals("contentaggregation")) {
 			urlLocation = DOMRulesCreator.class.getResource("contentpackage/rules/cp_contentaggregationRules.xml");
 
-			log.debug("contentaggregation fileLocation is" + urlLocation);
+			log.debug("contentaggregation fileLocation is {}", urlLocation);
 		} else if (mValidatorType.equals("sequence") && mApplicationProfileType.equals("sequence")) {
 			urlLocation = DOMRulesCreator.class.getResource("sequence/rules/sequenceRules.xml");
 
-			log.debug("sequence fileLocation is" + urlLocation);
+			log.debug("sequence fileLocation is {}", urlLocation);
 		} else {
 			log.error("Error, ApplicationProfile and/or ValidatorType DNE");
 		}

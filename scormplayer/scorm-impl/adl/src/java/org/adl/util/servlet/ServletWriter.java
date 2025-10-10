@@ -31,7 +31,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Provides a means to 'POST' multiple serialized objects to a servlet.<br><br>
@@ -62,14 +62,10 @@ import org.adl.util.debug.DebugIndicator;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class ServletWriter {
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * Provides a means to 'POST' multiple serialized objects to a servlet.
 	 *
 	 * @param iServlet   The URL of the target servlet.
@@ -81,36 +77,22 @@ public class ServletWriter {
 	 */
 	static public ObjectInputStream postObjects(URL iServlet, Serializable iObjs[]) throws Exception {
 
-		if (_Debug) {
-			System.out.println("In ServletWriter::postObjects()");
-		}
+        log.debug("In ServletWriter::postObjects()");
 
 		URLConnection con = null;
 
 		try {
-			if (_Debug) {
-				System.out.println("Opening HTTP URL connection to " + "servlet.");
-			}
-
+            log.debug("Opening HTTP URL connection to servlet.");
 			con = iServlet.openConnection();
 		} catch (Exception e) {
-			System.out.println("e = 1");
-
-			if (_Debug) {
-				System.out.println("Exception caught in " + "ServletWriter::postObjects()");
-				e.printStackTrace();
-			}
-
-			System.out.println(e.getMessage());
+            log.debug("Exception caught in ServletWriter::postObjects()", e);
 			throw e;
 		}
 
-		if (_Debug) {
-			System.out.println("HTTP connection to servlet is open");
-			System.out.println("configuring HTTP connection properties");
-		}
+        log.debug("HTTP connection to servlet is open");
+        log.debug("configuring HTTP connection properties");
 
-		con.setDoInput(true);
+        con.setDoInput(true);
 		con.setDoOutput(true);
 		con.setUseCaches(false);
 		con.setRequestProperty("Content-Type", "text/plain");
@@ -120,104 +102,58 @@ public class ServletWriter {
 		ObjectOutputStream out = null;
 
 		try {
-			if (_Debug) {
-				System.out.println("Creating new http output stream");
-			}
+            log.debug("Creating new http output stream");
 
 			out = new ObjectOutputStream(con.getOutputStream());
 
-			if (_Debug) {
-				System.out.println("Created new http output stream.");
-				System.out.println("Writing command and data to servlet...");
-			}
+            log.debug("Created new http output stream.");
+            log.debug("Writing command and data to servlet...");
 
-			int numObjects = iObjs.length;
+            int numObjects = iObjs.length;
 
-			if (_Debug) {
-				System.out.println("Num objects: " + numObjects);
-			}
+            log.debug("Num objects: {}", numObjects);
 
-			for (int i = 0; i < numObjects; i++) {
-				out.writeObject(iObjs[i]);
-
-				if (_Debug) {
-					System.out.println("Just wrote a serialized object on " + "output stream... " + iObjs[i].getClass().getName());
-				}
-			}
+            for (Serializable iObj : iObjs) {
+                out.writeObject(iObj);
+                log.debug("Just wrote a serialized object on output stream... {}", iObj.getClass());
+            }
 		} catch (Exception e) {
-			if (_Debug) {
-				System.out.println("Exception caught in " + "ServletWriter::postObjects()");
-				System.out.println(e.getMessage());
-			}
-
-			e.printStackTrace();
+            log.debug("Exception caught in ServletWriter::postObjects()", e);
 			throw e;
 		}
 
 		try {
-			if (_Debug) {
-				System.out.println("Flushing Object Output Stream.");
-			}
+            log.debug("Flushing Object Output Stream.");
 			out.flush();
 		} catch (IOException ioe) {
-			if (_Debug) {
-				System.out.println("Caught IOException when calling " + "out.flush()");
-				System.out.println(ioe.getMessage());
-			}
-
-			ioe.printStackTrace();
+            log.debug("Caught IOException when calling out.flush()", ioe);
 			throw ioe;
 		} catch (Exception e) {
-			if (_Debug) {
-				System.out.println("Caught Exception when calling " + "out.flush()");
-				System.out.println(e.getMessage());
-			}
-
-			e.printStackTrace();
-			throw e;
+            log.debug("Caught Exception when calling out.flush()", e);
+            throw e;
 		}
 
 		try {
-			if (_Debug) {
-				System.out.println("Closing object output stream.");
-			}
+            log.debug("Closing object output stream.");
 			out.close();
 		} catch (IOException ioe) {
-			if (_Debug) {
-				System.out.println("Caught IOException when calling " + "out.close()");
-				System.out.println(ioe.getMessage());
-			}
-
-			ioe.printStackTrace();
+            log.debug("Caught IOException when calling out.close()", ioe);
 			throw ioe;
 		} catch (Exception e) {
-			if (_Debug) {
-				System.out.println("Caught Exception when calling " + "out.close()");
-				System.out.println(e.getMessage());
-			}
-
-			e.printStackTrace();
+            log.debug("Caught Exception when calling out.close()", e);
 			throw e;
 		}
 
 		ObjectInputStream in;
 
 		try {
-			if (_Debug) {
-				System.out.println("Creating new http input stream.");
-			}
-
+            log.debug("Creating new http input stream.");
 			in = new ObjectInputStream(con.getInputStream());
 		} catch (Exception e) {
-			if (_Debug) {
-				System.out.println("Exception caught in " + "ServletWriter::postObjects()");
-				System.out.println(e.getMessage());
-			}
-			e.printStackTrace();
+            log.debug("Exception caught in ServletWriter::postObjects()", e);
 			throw e;
 		}
-
 		return in;
 	}
 
-} // ServletWriter
+}

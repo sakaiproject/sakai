@@ -24,6 +24,8 @@
 
 package org.adl.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -59,6 +61,7 @@ import javax.swing.JPanel;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class MessageBox extends JPanel {
 	/**
 	  * serialVersionUID
@@ -118,7 +121,7 @@ public class MessageBox extends JPanel {
 			break;
 		}
 		default: {
-			System.out.println("message type was not specified");
+			log.debug("message type was not specified");
 		}
 		}
 	}

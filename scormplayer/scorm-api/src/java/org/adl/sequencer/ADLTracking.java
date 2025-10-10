@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Encapsulation of information tracked for each attempt at an activity.<br><br>
@@ -62,6 +62,7 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLTracking implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -115,12 +116,7 @@ public class ADLTracking implements Serializable {
 	 */
 	public static String TRACK_INCOMPLETE = "incomplete";
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * Indicates if the recorded Progress status is invalid
 	 */
 	public boolean mDirtyPro = false;
@@ -187,10 +183,7 @@ public class ADLTracking implements Serializable {
 
 			for (int i = 0; i < iObjs.size(); i++) {
 				SeqObjective obj = iObjs.get(i);
-
-				if (_Debug) {
-					System.out.println("  ::--> Building Objective  :: " + obj.mObjID);
-				}
+                log.debug("  ::--> Building Objective  :: {}", obj.mObjID);
 
 				// Construct an objective for each local objective
 				SeqObjectiveTracking objTrack = new SeqObjectiveTracking(obj, iLearnerID, iScopeID);
@@ -209,9 +202,7 @@ public class ADLTracking implements Serializable {
 				}
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> Making default Obj");
-			}
+            log.debug("  ::--> Making default Obj");
 
 			// All activities must have at least one objective and that objective
 			// is the primary objective
@@ -236,39 +227,34 @@ public class ADLTracking implements Serializable {
 	 * diagnostic purposes.<br>
 	 */
 	public void dumpState() {
+        log.debug("""
+                    :: ADLTracking   --> BEGIN - dumpState
+                    \t  ::--> Attempt #:   {}
+                    \t  ::--> Dirty Pro:   {}
+                  """, mAttempt, mDirtyPro);
 
-		if (_Debug) {
-			System.out.println("  :: ADLTracking   --> BEGIN - dumpState");
+		if (mObjectives == null) {
+            log.debug("\t  ::--> Objectives :       NULL");
+        } else {
+            log.debug("\t  ::--> Objectives :       [{}]", mObjectives.size());
 
-			System.out.println("\t  ::--> Attempt #:   " + mAttempt);
-			System.out.println("\t  ::--> Dirty Pro:   " + mDirtyPro);
+            Iterator<String> it = mObjectives.keySet().iterator();
+            while (it.hasNext()) {
+                String key = it.next();
+                log.debug("\t\t  :: {} ::", key);
 
-			if (mObjectives == null) {
-				System.out.println("\t  ::--> Objectives :       NULL");
-			} else {
+                SeqObjectiveTracking obj = mObjectives.get(key);
 
-				System.out.println("\t  ::--> Objectives :       [" + mObjectives.size() + "]");
+                log.debug("\t\t  ::--> {}", obj.getObjStatus(false));
+                log.debug("\t\t  ::--> {}", obj.getObjMeasure(false));
+            }
+        }
 
-				Iterator<String> it = mObjectives.keySet().iterator();
-
-				while (it.hasNext()) {
-					String key = it.next();
-
-					System.out.println("\t\t  :: " + key + " ::");
-
-					SeqObjectiveTracking obj = mObjectives.get(key);
-
-					System.out.println("\t\t  ::--> " + obj.getObjStatus(false));
-					System.out.println("\t\t  ::--> " + obj.getObjMeasure(false));
-				}
-
-			}
-
-			System.out.println("\t  ::--> Primary:       " + mPrimaryObj);
-			System.out.println("\t  ::--> Progress:      " + mProgress);
-
-			System.out.println("  :: ADLTracking   --> END   - dumpState");
-		}
+        log.debug("""
+                  \t  ::--> Primary:       {}
+                  \t  ::--> Progress:      {}
+                    :: ADLTracking   --> END   - dumpState
+                  """, mPrimaryObj, mProgress);
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -292,9 +278,7 @@ public class ADLTracking implements Serializable {
 	  * attempt on the activity's parent.
 	  */
 	void setDirtyObj() {
-		if (_Debug) {
-			System.out.println("  :: ADLTracking     --> BEGIN - " + "setDirtyObj");
-		}
+        log.debug("  :: ADLTracking     --> BEGIN - setDirtyObj");
 
 		if (mObjectives != null) {
 
@@ -309,10 +293,7 @@ public class ADLTracking implements Serializable {
 
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLTracking     --> END   - " + "setDirtyObj");
-		}
+        log.debug("  :: ADLTracking     --> END   - setDirtyObj");
 	}
 
-} // end ADLTracking
+}

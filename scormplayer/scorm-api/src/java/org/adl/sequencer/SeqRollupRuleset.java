@@ -24,11 +24,13 @@
 
 package org.adl.sequencer;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Encapsulation of a set of rollup rules associated with an activity.<br><br>
@@ -62,17 +64,15 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
-	private static final long serialVersionUID = 1L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 
-	private long id;
+	@Getter
+    private long id;
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * This is the set of rollup rules applied to the activity.
 	 */
 	private List<SeqRollupRule> mRollupRules = null;
@@ -117,26 +117,18 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 	 *                    </code>).
 	 */
 	public SeqRollupRuleset(List<SeqRollupRule> iRules) {
+        log.debug("  :: SeqRollupRuleset  --> BEGIN - constructor");
 
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRuleset  --> BEGIN - constructor");
-
-			if (iRules == null) {
-				System.out.println("  ::--> Default Rules");
-			} else {
-				for (int i = 0; i < iRules.size(); i++) {
-					SeqRollupRule temp = iRules.get(i);
-
-					temp.dumpState();
-				}
-			}
+		if (iRules == null) {
+			log.debug("  ::--> Default Rules");
+        } else {
+            for (SeqRollupRule temp : iRules) {
+                temp.dumpState();
+            }
 		}
 
 		mRollupRules = iRules;
-
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRuleset  --> END   - constructor");
-		}
+        log.debug("  :: SeqRollupRuleset  --> END   - constructor");
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -150,9 +142,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 	 * @param ioThisActivity The target activity of the rollup evaluation.
 	 */
 	private void applyMeasureRollup(SeqActivity ioThisActivity) {
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRuleset  --> BEGIN - " + "applyMeasureRollup");
-		}
+        log.debug("  :: SeqRollupRuleset  --> BEGIN - applyMeasureRollup");
 
 		double total = 0.0;
 		double countedMeasure = 0.0;
@@ -160,47 +150,32 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 		List<SeqActivity> children = ioThisActivity.getChildren(false);
 
 		// Measure Rollup Behavior 
-		for (int i = 0; i < children.size(); i++) {
-			SeqActivity child = children.get(i);
+        for (SeqActivity child : children) {
+            log.debug("  ::--> Look At :: {}", child.getID());
 
-			if (_Debug) {
-				System.out.println("  ::--> Look At :: " + child.getID());
-			}
+            if (child.getIsTracked()) {
+                // Make sure a non-zero weight is defined
+                if (child.getObjMeasureWeight() > 0.0) {
+                    countedMeasure += child.getObjMeasureWeight();
 
-			if (child.getIsTracked()) {
-				// Make sure a non-zero weight is defined
-				if (child.getObjMeasureWeight() > 0.0) {
-					countedMeasure += child.getObjMeasureWeight();
-
-					// If a measure is defined for the child
-					if (child.getObjMeasureStatus(false)) {
-						total += child.getObjMeasureWeight() * child.getObjMeasure(false);
-					}
-				}
-			}
-		}
+                    // If a measure is defined for the child
+                    if (child.getObjMeasureStatus(false)) {
+                        total += child.getObjMeasureWeight() * child.getObjMeasure(false);
+                    }
+                }
+            }
+        }
 
 		if (countedMeasure > 0.0) {
-
-			if (_Debug) {
-				System.out.println("  ::--> Counted         --> " + countedMeasure);
-				System.out.println("  ::--> Setting Measure --> " + (total / countedMeasure));
-			}
-
+            log.debug("  ::--> Counted         --> {}", countedMeasure);
+			log.debug("  ::--> Setting Measure --> {}", (total / countedMeasure));
 			ioThisActivity.setObjMeasure(total / countedMeasure);
 		} else {
-
-			if (_Debug) {
-				System.out.println("  ::--> Setting Measure --> UNKNOWN");
-			}
-
+            log.debug("  ::--> Setting Measure --> UNKNOWN");
 			// Measure could not be determined through rollup, clear measure
 			ioThisActivity.clearObjMeasure();
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRuleset  --> END   - " + "applyMeasureRollup");
-		}
+        log.debug("  :: SeqRollupRuleset  --> END   - applyMeasureRollup");
 	}
 
 	@Override
@@ -241,15 +216,8 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 		mIsNotSatisfied = false;
 
 		// This method implements part of RB.1.5
-
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRuleset  --> BEGIN - evaluate");
-			if (mRollupRules != null) {
-				System.out.println("  ::-->  " + mRollupRules.size());
-			} else {
-				System.out.println("  ::-->  NULL");
-			}
-		}
+        log.debug("  :: SeqRollupRuleset  --> BEGIN - evaluate");
+        log.debug("  ::-->  {}", mRollupRules != null ? mRollupRules.size() : "NULL");
 
 		// Evaluate all defined rollup rules for this activity.
 		// Make sure there is a legal target and a set of children. 
@@ -281,9 +249,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 
 				// If no satisfied rule is defined, use default objective rollup
 				if (!satisfiedRule) {
-					if (_Debug) {
-						System.out.println("  ::--> Creating default " + "satisfied rules");
-					}
+                    log.debug("  ::--> Creating default satisfied rules");
 
 					if (mRollupRules == null) {
 						mRollupRules = new ArrayList<>();
@@ -330,10 +296,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 
 				// If no completion rule is defined, use default completion rollup
 				if (!completedRule) {
-
-					if (_Debug) {
-						System.out.println("  ::--> Creating default " + "completion rules");
-					}
+                    log.debug("  ::--> Creating default completion rules");
 
 					if (mRollupRules == null) {
 						mRollupRules = new ArrayList<>();
@@ -378,105 +341,62 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 					// Add the default Completion rule to the set
 					mRollupRules.add(rule);
 				}
-
-				if (_Debug) {
-					System.out.println("  ::--> Size == " + mRollupRules.size());
-				}
+                log.debug("  ::--> Size == {}", mRollupRules.size());
 
 				// Evaluate all rollup rules.
-				for (int i = 0; i < mRollupRules.size(); i++) {
-					SeqRollupRule rule = mRollupRules.get(i);
+                for (SeqRollupRule rule : mRollupRules) {
+                    log.debug("  :: EVALUATE ::-->  ");
 
-					if (_Debug) {
-						System.out.print("  :: EVALUATE ::-->  ");
+                    switch (rule.mAction) {
+                        case SeqRollupRule.ROLLUP_ACTION_SATISFIED:
+                            log.debug("satisified");
+                            break;
+                        case SeqRollupRule.ROLLUP_ACTION_NOTSATISFIED:
+                            log.debug("notSatisified");
+                            break;
+                        case SeqRollupRule.ROLLUP_ACTION_COMPLETED:
+                            log.debug("completed");
+                            break;
+                        case SeqRollupRule.ROLLUP_ACTION_INCOMPLETE:
+                            log.debug("incomplete");
+                            break;
+                        default:
+                            log.debug("ERROR");
+                    }
 
-						switch (rule.mAction) {
-						case SeqRollupRule.ROLLUP_ACTION_SATISFIED:
+                    int result = rule.evaluate(ioThisActivity.getChildren(false));
 
-							System.out.println("satisified");
-							break;
-
-						case SeqRollupRule.ROLLUP_ACTION_NOTSATISFIED:
-
-							System.out.println("notSatisified");
-							break;
-
-						case SeqRollupRule.ROLLUP_ACTION_COMPLETED:
-
-							System.out.println("completed");
-							break;
-
-						case SeqRollupRule.ROLLUP_ACTION_INCOMPLETE:
-
-							System.out.println("incomplete");
-							break;
-
-						default:
-							System.out.println("ERROR");
-
-						}
-					}
-
-					int result = rule.evaluate(ioThisActivity.getChildren(false));
-
-					// Track state changes
-					switch (result) {
-					case SeqRollupRule.ROLLUP_ACTION_NOCHANGE:
-
-						// No status change indicated
-						if (_Debug) {
-							System.out.println("  :+ NO STATUS CHANGE +: CHANGE");
-						}
-
-						break;
-
-					case SeqRollupRule.ROLLUP_ACTION_SATISFIED:
-
-						if (_Debug) {
-							System.out.println("  :+ SATISFIED +: CHANGE");
-						}
-
-						mIsSatisfied = true;
-						break;
-
-					case SeqRollupRule.ROLLUP_ACTION_NOTSATISFIED:
-
-						if (_Debug) {
-							System.out.println("  :+ NOT SATISFIED +: CHANGE");
-						}
-
-						mIsNotSatisfied = true;
-						break;
-
-					case SeqRollupRule.ROLLUP_ACTION_COMPLETED:
-
-						if (_Debug) {
-							System.out.println("  :+ COMPLETED +: CHANGE");
-						}
-
-						mIsCompleted = true;
-						break;
-
-					case SeqRollupRule.ROLLUP_ACTION_INCOMPLETE:
-
-						if (_Debug) {
-							System.out.println("  :+ INCOMPLETE +: CHANGE");
-						}
-
-						mIsIncomplete = true;
-						break;
-
-					default:
-						break;
-					}
-				}
+                    // Track state changes
+                    switch (result) {
+                        case SeqRollupRule.ROLLUP_ACTION_NOCHANGE:
+                            // No status change indicated
+                            log.debug("  :+ NO STATUS CHANGE +: CHANGE");
+                            break;
+                        case SeqRollupRule.ROLLUP_ACTION_SATISFIED:
+                            log.debug("  :+ SATISFIED +: CHANGE");
+                            mIsSatisfied = true;
+                            break;
+                        case SeqRollupRule.ROLLUP_ACTION_NOTSATISFIED:
+                            log.debug("  :+ NOT SATISFIED +: CHANGE");
+                            mIsNotSatisfied = true;
+                            break;
+                        case SeqRollupRule.ROLLUP_ACTION_COMPLETED:
+                            log.debug("  :+ COMPLETED +: CHANGE");
+                            mIsCompleted = true;
+                            break;
+                        case SeqRollupRule.ROLLUP_ACTION_INCOMPLETE:
+                            log.debug("  :+ INCOMPLETE +: CHANGE");
+                            mIsIncomplete = true;
+                            break;
+                        default:
+                            break;
+                    }
+                }
 
 				// If a measure threshold exists, it was already used to determine
 				// the activity's status.  Otherwise, use the results of the rollup
 				if (!ioThisActivity.getObjSatisfiedByMeasure()) {
-					if (_Debug) {
-						System.out.println("  ::--> Objective rollup using rules");
-					}
+                    log.debug("  ::--> Objective rollup using rules");
 
 					if (mIsSatisfied) {
 						ioThisActivity.setObjSatisfied(ADLTracking.TRACK_SATISFIED);
@@ -484,10 +404,7 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 						ioThisActivity.setObjSatisfied(ADLTracking.TRACK_NOTSATISFIED);
 					}
 				}
-
-				if (_Debug) {
-					System.out.println("  ::--> Completion rollup using rules");
-				}
+                log.debug("  ::--> Completion rollup using rules");
 
 				if (mIsCompleted) {
 					ioThisActivity.setProgress(ADLTracking.TRACK_COMPLETED);
@@ -495,26 +412,15 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 					ioThisActivity.setProgress(ADLTracking.TRACK_INCOMPLETE);
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR : No Children");
-				}
+                log.debug("  ::--> ERROR : No Children");
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Invalid rollup rules");
-			}
+            log.debug("  ::--> ERROR : Invalid rollup rules");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRuleset  --> END - evaluate");
-		}
+        log.debug("  :: SeqRollupRuleset  --> END - evaluate");
 	}
 
-	public long getId() {
-		return id;
-	}
-
-	@Override
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -532,8 +438,6 @@ public class SeqRollupRuleset implements Serializable, ISeqRollupRuleset {
 		if (mRollupRules != null){
 			return mRollupRules.size();
 		}
-
 		return 0;
 	}
-
-} // end SeqRollupRuleset
+}

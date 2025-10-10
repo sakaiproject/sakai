@@ -28,8 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Defines run-time data model utilities.
@@ -57,7 +55,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DMTimeUtility {
 	private static final Pattern TIME_STRING_PATTERN = Pattern.compile("P(?:(\\d*)Y)?(?:(\\d*)M)?(?:(\\d*)D)?T?(?:(\\d*)H)?(?:(\\d*)M)?(?:(\\d*)(?:[.])?(\\d{0,2})?S)?");
-	static final Log log = LogFactory.getLog(DMTimeUtility.class);
 
 	/**
 	 * This method calls the timeStringParse method to convert a time interval 

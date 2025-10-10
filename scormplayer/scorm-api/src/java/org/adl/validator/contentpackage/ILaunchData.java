@@ -204,17 +204,19 @@ public interface ILaunchData extends Serializable {
 
 	/**
 	 * Displays a string representation of the data structure for the SCO
-	 * Integration to the Java logger. 
+	 * Integration to the log.
 	 */
 	public void print();
 
-	/**
-	 * Displays a string representation of the data structure for Integration to
-	 * the Java Console.
-	 */
-	public void printToConsole();
+    /**
+     * @deprecated use {@link #print()} instead
+     */
+    @Deprecated
+    default void printToConsole() {
+        print();
+    }
 
-	/**
+    /**
 	 * Assigns the given value to the mAbandon attribute.
 	 *
 	 * @param iAbandon The abandon value to be assigned.

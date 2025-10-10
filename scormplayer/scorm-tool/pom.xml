@@ -115,6 +115,14 @@
             <artifactId>wicket-core</artifactId>
             <version>9.18.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-extensions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.portlet</groupId>
+            <artifactId>portlet-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

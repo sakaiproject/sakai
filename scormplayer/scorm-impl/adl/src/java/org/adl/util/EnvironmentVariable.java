@@ -23,6 +23,8 @@
 *******************************************************************************/
 package org.adl.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -43,6 +45,7 @@ import org.apache.commons.lang3.StringUtils;
  
  * @author ADL Technical Team
  */
+@Slf4j
 public final class EnvironmentVariable {
 	/**
 	 * Retrieves the value of the specified environment variable.
@@ -75,9 +78,9 @@ public final class EnvironmentVariable {
 			}
 			p.destroy();
 		} catch (IOException ioe) {
-			System.out.println("Could not read environment variable key " + iKey);
+			log.warn("Could not read environment variable key {}", iKey, ioe);
 		} catch (InterruptedException ie) {
-			System.out.println("The process has been interrupted");
+			log.warn("The process has been interrupted", ie);
 		}
 
 		return value;

@@ -28,9 +28,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.zip.ZipException;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 
@@ -50,6 +54,7 @@ import org.apache.tools.zip.ZipFile;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class UnZipHandler {
 	/**
 	 * Buffer size for use in extracting Zip File
@@ -69,7 +74,9 @@ public class UnZipHandler {
 	/**
 	 * The encoding of the zip file
 	 */
-	private String encoding = "UTF-8";
+	@Setter
+    @Getter
+    private String encoding = StandardCharsets.UTF_8.name();
 
 	/**
 	 * Constructor for the <code>UnZipHandler</code> class.
@@ -93,94 +100,53 @@ public class UnZipHandler {
 	public void extract() {
 		String fileName = "";
 		String destFileName = "";
-		InputStream in = null;
-		OutputStream out = null;
 
 		// Create a byte buffer
 		byte[] buffer = new byte[BUFFER_SIZE];
 
-		try {
-			ZipFile archive = new ZipFile(mZipFile, encoding);
+        try (ZipFile archive = new ZipFile(mZipFile, encoding)) {
+            for (Enumeration<?> e = archive.getEntries(); e.hasMoreElements(); ) {
+                // Get the next entry in the Zip File
+                ZipEntry entry = (ZipEntry) e.nextElement();
 
-			for (Enumeration<?> e = archive.getEntries(); e.hasMoreElements();) {
-				// Get the next entry in the Zip File
-				ZipEntry entry = (ZipEntry) e.nextElement();
+                if (!entry.isDirectory()) {
+                    fileName = entry.getName();
+                    fileName = fileName.replace('/', File.separatorChar);
 
-				if (!entry.isDirectory()) {
-					fileName = entry.getName();
-					fileName = fileName.replace('/', File.separatorChar);
+                    destFileName = mExtractToDir + fileName;
 
-					destFileName = mExtractToDir + fileName;
+                    File destFile = new File(destFileName);
 
-					File destFile = new File(destFileName);
+                    // Create the destination path, if needed
+                    String parent = destFile.getParent();
+                    if (parent != null) {
+                        File parentFile = new File(parent);
+                        if (!parentFile.exists()) {
+                            // Create the chain of sub-directories to the file
+                            parentFile.mkdirs();
+                        }
+                    }
 
-					// Create the destination path, if needed
-					String parent = destFile.getParent();
-					if (parent != null) {
-						File parentFile = new File(parent);
-						if (!parentFile.exists()) {
-							// Create the chain of sub-directories to the file
-							parentFile.mkdirs();
-						}
-					}
+                    // Get a stream of the archive entry's bytes
+                    try (InputStream in = archive.getInputStream(entry);
+                         FileOutputStream out = new FileOutputStream(destFileName)) {
 
-					// Get a stream of the archive entry's bytes
-					in = archive.getInputStream(entry);
+                        // Repeat reading into buffer and writing buffer to file,
+                        // until done. Count will always be # bytes read, until
+                        // EOF when it is -1.
+                        int count;
+                        while ((count = in.read(buffer)) != -1) {
+                            out.write(buffer, 0, count);
+                        }
+                    }
+                }
+            }
+        } catch (NullPointerException | IOException | SecurityException ze) {
+            log.warn("Could not extract zip file [{}]", mZipFile, ze);
+        }
+    }
 
-					// Open a stream to the destination file
-					out = new FileOutputStream(destFileName);
-
-					// Repeat reading into buffer and writing buffer to file,
-					// until done. Count will always be # bytes read, until
-					// EOF when it is -1.
-					int count;
-					while ((count = in.read(buffer)) != -1) {
-						out.write(buffer, 0, count);
-					}
-
-					// Close the input stream and output stream
-					in.close();
-					out.close();
-				}
-			}
-			archive.close();
-		} catch (ZipException ze) {
-			ze.printStackTrace();
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} catch (SecurityException se) {
-			se.printStackTrace();
-		} finally {
-			// In case an exception is thrown prior to closing the input stream
-			// and output stream, close the streams
-
-			// Check to make sure the input stream has not been closed
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-			// Check to make sure the output stream has not been closed
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		} // end finally
-	} // end extract()
-
-	public String getEncoding() {
-		return encoding;
-	}
-
-	/**
+    /**
 	 * Returns the target directory of the extracted contents of the Zip File.
 	 * 
 	 * @return target The target directory of the extracted contents of the Zip
@@ -190,11 +156,7 @@ public class UnZipHandler {
 		return mExtractToDir;
 	}
 
-	public void setEncoding(String encoding) {
-		this.encoding = encoding;
-	}
-
-	/**
+    /**
 	 * Set the name and location of the Zip File to be extracted.
 	 * 
 	 * @param iFileName
@@ -204,7 +166,7 @@ public class UnZipHandler {
 		try {
 			mZipFile = new File(iFileName);
 		} catch (NullPointerException npe) {
-			npe.printStackTrace();
+			log.warn("Could not set zip file [{}], {}", iFileName, npe.toString());
 		}
 	}
 
@@ -220,7 +182,7 @@ public class UnZipHandler {
 		try {
 			mExtractToDir = iTargetDirPath;
 		} catch (NullPointerException npe) {
-			npe.printStackTrace();
+			log.warn("Could not set target directory [{}], {}", iTargetDirPath, npe.toString());
 		}
 	}
 }

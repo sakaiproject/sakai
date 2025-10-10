@@ -24,8 +24,8 @@
 package org.adl.validator.contentpackage;
 
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.util.LogMessage;
 import org.adl.util.MessageType;
@@ -41,6 +41,7 @@ import org.adl.util.Messages;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class ParameterChecker {
 
 	/**
@@ -65,15 +66,9 @@ public class ParameterChecker {
 	private String mPattern = "[" + mUnreservedValues + "|" + mMark + "|" + mEscaped + "]*";
 
 	/**
-	 * Logger object used for debug logging. 
-	 */
-	private Logger mLogger;
-
-	/**
 	 * Default Constructor 
 	 */
 	public ParameterChecker() {
-		mLogger = Logger.getLogger("org.adl.util.debug.validator");
 	}
 
 	/**
@@ -128,18 +123,18 @@ public class ParameterChecker {
 	 *          otherwise 
 	 */
 	public boolean checkParameters(String iParameterString) {
-		mLogger.info("checkParameters(String): " + iParameterString);
+		log.debug("checkParameters(String): {}", iParameterString);
 		boolean result = true;
 
 		if (iParameterString.startsWith("#")) {
-			mLogger.info("Parameter value starts with a #");
+			log.debug("Parameter value starts with a #");
 			result = checkPoundSyntax(iParameterString.substring(1));
 		} else if (iParameterString.startsWith("?")) {
-			mLogger.info("Parameter value starts with a ?");
+			log.debug("Parameter value starts with a ?");
 			result = checkQuestionMarkSyntax(iParameterString.substring(1));
 		} else {
 
-			mLogger.info("does not start with a special character");
+			log.debug("does not start with a special character");
 
 			// CHECK TO SEE if the string has a crosshatch in it.  If so, validate
 			// that is is of the proper syntax
@@ -157,18 +152,18 @@ public class ParameterChecker {
 			}
 
 			StringTokenizer tok = new StringTokenizer(iParameterString, "&");
-			mLogger.info("number of tokens = " + tok.countTokens());
+			log.debug("number of tokens = {}", tok.countTokens());
 
 			if (tok.countTokens() == 1) {
 				String tempToken = tok.nextToken();
-				mLogger.info("count tokens = 0");
+				log.debug("count tokens = 0");
 
 				result = performEqualSplit(tempToken);
 
 			} else {
 				while (tok.hasMoreTokens()) {
 					String temp = tok.nextToken();
-					mLogger.info("CALLING PERFORM SPLIT ON " + temp);
+					log.debug("CALLING PERFORM SPLIT ON {}", temp);
 
 					if (temp.indexOf('=') != -1) {
 						result = performEqualSplit(temp) && result;
@@ -181,19 +176,19 @@ public class ParameterChecker {
 			}
 		}
 
-		mLogger.info("Leaving ParamChecker::checkParameterString(), returning: " + result);
+		log.debug("Leaving ParamChecker::checkParameterString(), returning: {}", result);
 		// print results to log
 
 		if (result) {
 			//  URI passes as valid syntax
 			String msgText = Messages.getString("ParameterChecker.100", iParameterString);
-			mLogger.info("PASSED: " + msgText);
+			log.debug("PASSED: {}", msgText);
 
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 		} else {
 			// URI does not pass for valid syntax
 			String msgText = Messages.getString("ParameterChecker.101", iParameterString);
-			mLogger.info("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 		}
@@ -209,7 +204,7 @@ public class ParameterChecker {
 	 * false implies otherwise 
 	 */
 	private boolean checkPoundSyntax(String iParameterString) {
-		mLogger.info("|---checkPoundSyntax(): " + iParameterString);
+		log.debug("|---checkPoundSyntax(): {}", iParameterString);
 		return iParameterString.matches(mPattern);
 	}
 
@@ -223,7 +218,7 @@ public class ParameterChecker {
 	 * false implies otherwise
 	 */
 	private boolean checkQuestionMarkSyntax(String iParameterString) {
-		mLogger.info("|---checkQuestionMarkSyntax(): " + iParameterString);
+		log.debug("|---checkQuestionMarkSyntax(): {}", iParameterString);
 		boolean result = true;
 
 		// CHECK TO SEE if the string has a crosshatch in it.  If so, validate
@@ -244,11 +239,11 @@ public class ParameterChecker {
 		// Check to see if there is multiple parameters separated by an '&'
 		// symbol
 		StringTokenizer tok = new StringTokenizer(iParameterString, "&");
-		mLogger.info("number of tokens = " + tok.countTokens());
+		log.debug("number of tokens = {}", tok.countTokens());
 
 		if (tok.countTokens() == 1) {
 			// There is only 1 set of tokens after the '&' token
-			mLogger.info("count tokens = 0");
+			log.debug("count tokens = 0");
 			if (iParameterString.indexOf('=') == -1) {
 				// must have ?<name>=<value>
 				result = false;
@@ -257,7 +252,7 @@ public class ParameterChecker {
 				result = performEqualSplit(iParameterString) && result;
 			}
 		} else {
-			mLogger.info("more then one sets of tokens");
+			log.debug("more then one sets of tokens");
 
 			while (tok.hasMoreTokens()) {
 				// Get the first token
@@ -274,7 +269,7 @@ public class ParameterChecker {
 			}
 		}
 
-		mLogger.info("|--Leaving checkQuestionMarkSyntax(): " + result);
+		log.debug("|--Leaving checkQuestionMarkSyntax(): {}", result);
 
 		return result;
 	}
@@ -292,8 +287,8 @@ public class ParameterChecker {
 
 		String[] tempHolder = iToken.split("=");
 		if (tempHolder.length > 1) {
-			mLogger.info("String[0]: " + tempHolder[0]);
-			mLogger.info("String[1]: " + tempHolder[1]);
+			log.debug("String[0]: {}", tempHolder[0]);
+			log.debug("String[1]: {}", tempHolder[1]);
 
 			if (tempHolder[0].isEmpty()) {
 				result = false;
@@ -325,7 +320,7 @@ public class ParameterChecker {
 		boolean result = true;
 
 		if (iCrossHatchString.startsWith("#")) {
-			mLogger.info("crossHatchSub value starts with a #");
+			log.debug("crossHatchSub value starts with a #");
 			result = checkPoundSyntax(iCrossHatchString.substring(1));
 		} else {
 			// must start with #<parameter>

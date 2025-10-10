@@ -26,7 +26,7 @@ package org.adl.sequencer;
 
 import java.io.Serializable;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <strong>Filename:</strong> ADLAuxiliaryResource.java<br><br>
@@ -57,17 +57,13 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLAuxiliaryResource implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private long id;
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * The type of the available auxillary resource.
 	 */
 	public String mType = null;
@@ -90,16 +86,15 @@ public class ADLAuxiliaryResource implements Serializable {
 	 * diagnostic purposes.
 	 */
 	public void dumpState() {
-		if (_Debug) {
-			System.out.println("  :: ADLAuxiliaryResource --> BEGIN - dumpState");
-
-			System.out.println("  ::--> Type:        " + mType);
-			System.out.println("  ::--> Resource ID: " + mResourceID);
-			System.out.println("  ::--> Parameter:   " + mParameter);
-
-			System.out.println("  :: ADLAuxiliaryResource --> END   - dumpState");
-		}
-	}
+        log.debug("""
+                        :: ADLAuxiliaryResource --> BEGIN - dumpState
+                        ::--> Type:        {}
+                        ::--> Resource ID: {}
+                        ::--> Parameter:   {}
+                        :: ADLAuxiliaryResource --> END   - dumpState
+                      """,
+                mType, mResourceID, mParameter);
+    }
 
 	@Override
 	public boolean equals(Object obj) {

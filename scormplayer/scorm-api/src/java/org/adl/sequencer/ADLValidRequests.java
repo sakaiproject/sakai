@@ -24,6 +24,8 @@
 
 package org.adl.sequencer;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -62,6 +64,7 @@ import javax.swing.tree.TreeModel;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLValidRequests implements Serializable, IValidRequests {
 	private static final long serialVersionUID = 1L;
 
@@ -193,42 +196,34 @@ public class ADLValidRequests implements Serializable, IValidRequests {
 		return mSuspend;
 	}
 
-	/**
-	 * This method provides the state this <code>ADLUIState</code> object for
-	 * diagnostic purposes.<br><br>
-	 *
-	 * NOTE: The table of contents (TOC) is not provided with this method.  For
-	 * a dump of the current TOC, call the code>dumpTOC</code> method of on the
-	 * <code>ADLSeqUtilities</code> class.
-	 * 
-	 * @see <code>ADLSeqUtilities</code>
-	 */
-	/*
-	   public void dumpState()
-	   {
-	      if ( _Debug )
-	      {
-	         System.out.println("  :: ADLValidRequests   --> BEGIN - dumpState");
-
-	         System.out.println("  ::--> Start         : " + mStart);
-	         System.out.println("  ::--> Start         : " + mResume);
-	         System.out.println("  ::--> Continue      : " + mContinue);
-	         System.out.println("  ::--> Continue Exit : " + mContinueExit);
-	         System.out.println("  ::--> Previous      : " + mPrevious);
-
-	         if ( mTOC != null )
-	         {
-	            System.out.println("  ::--> TOC:           YES");
-	            ADLSeqUtilities.dumpTOC(mTOC);
-	         }
-	         else
-	         {
-	            System.out.println("  ::--> TOC:           NO");
-	         }
-
-	         System.out.println("  :: ADLValidRequests    --> END   - dumpState");
-	      }
-	   }
-	*/
-
-} // end ADLValidRequests
+    /**
+     * This method provides the state this <code>ADLUIState</code> object for
+     * diagnostic purposes.<br><br>
+     *
+     * NOTE: The table of contents (TOC) is not provided with this method.  For
+     * a dump of the current TOC, call the code>dumpTOC</code> method of on the
+     * <code>ADLSeqUtilities</code> class.
+     *
+     * @see <code>ADLSeqUtilities</code>
+     */
+    public void dumpState() {
+        log.debug("""
+                    :: ADLValidRequests   --> BEGIN - dumpState
+                    ::--> Start         : {}
+                    ::--> Resume        : {}
+                    ::--> Continue      : {}
+                    ::--> Continue Exit : {}
+                    ::--> Previous      : {}
+                    :: ADLValidRequests    --> END   - dumpState
+                  """,
+                mStart, mResume, mContinue, mContinueExit, mPrevious);
+        /*
+        if (mTOC != null) {
+            log.debug("  ::--> TOC:           YES");
+            ADLSeqUtilities.dumpTOC(mTOC);
+        } else {
+            log.debug("  ::--> TOC:           NO");
+        }
+        */
+    }
+}

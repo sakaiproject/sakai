@@ -24,6 +24,8 @@
 
 package org.adl.sequencer;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.Serializable;
 
 /**
@@ -58,6 +60,7 @@ import java.io.Serializable;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLTOC implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -132,25 +135,23 @@ public class ADLTOC implements Serializable {
 	 * diagnostic purposes.
 	 */
 	public void dumpState() {
-		/*if ( _Debug )
-		{
-		   System.out.println("  :: ADLTOC       --> BEGIN - dumpState");
-
-		   System.out.println("  ::--> Title:       " + mTitle);
-		   System.out.println("  ::--> Depth:       " + mDepth);
-		   System.out.println("  ::--> Count:       " + mCount);
-		   System.out.println("  ::--> Activity ID: " + mID);
-		   System.out.println("  ::--> Leaf?        " + mLeaf);
-		   System.out.println("  ::--> In Choice?   " + mInChoice);
-		   System.out.println("  ::--> Parent:      " + mParent);
-		   System.out.println("  ::--> Enabled:     " + mIsEnabled);
-		   System.out.println("  ::--> Visible:     " + mIsVisible);
-		   System.out.println("  ::--> Current:     " + mIsCurrent);
-		   System.out.println("  ::--> Selectable:  " + mIsSelectable);
-
-		   System.out.println("  :: ADLTOC       --> END   - dumpState");
-		}*/
-	}
+        log.debug("""
+                          :: ADLTOC       --> BEGIN - dumpState
+                          ::--> Title:       {}
+                          ::--> Depth:       {}
+                          ::--> Count:       {}
+                          ::--> Activity ID: {}
+                          ::--> Leaf?        {}
+                          ::--> In Choice?   {}
+                          ::--> Parent:      {}
+                          ::--> Enabled:     {}
+                          ::--> Visible:     {}
+                          ::--> Current:     {}
+                          ::--> Selectable:  {}
+                          :: ADLTOC       --> END   - dumpState
+                        """,
+                mTitle, mDepth, mCount, mID, mLeaf, mInChoice, mParent, mIsEnabled, mIsVisible, mIsCurrent, mIsSelectable);
+    }
 
 	@Override
 	public boolean equals(Object obj) {

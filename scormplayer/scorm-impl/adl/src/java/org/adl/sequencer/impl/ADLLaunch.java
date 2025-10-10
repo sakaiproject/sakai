@@ -28,11 +28,11 @@ import java.util.Hashtable;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.sequencer.ADLAuxiliaryResource;
 import org.adl.sequencer.ADLValidRequests;
 import org.adl.sequencer.ILaunch;
 import org.adl.sequencer.IValidRequests;
-import org.adl.util.debug.DebugIndicator;
 
 /**
  * Encapsulation of information required for launch.<br><br>
@@ -66,6 +66,7 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLLaunch implements ILaunch {
 
 	/**
@@ -156,12 +157,7 @@ public class ADLLaunch implements ILaunch {
 	 */
 	public static String LAUNCH_ERROR_INVALIDNAVREQ = "_INVALIDNAVREQ_";
 
-	/**
-	 * This controls display of log messages to the java console.
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * Informs the Client what has occured in within the sequencer if no content has
 	 * been identifed for delivery.
 	 */
@@ -216,29 +212,25 @@ public class ADLLaunch implements ILaunch {
 	 */
 	public ADLValidRequests mNavState = null;
 
-	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-	
-	 Public Methods
-	
-	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-
 	/**
 	 * This method provides the state this <code>ADLLaunch</code> object
 	 * for diagnostic purposes.<br>
 	 */
 	@Override
 	public void dumpState() {
-		if (_Debug) {
-			System.out.println("  :: ADLLaunch  --> BEGIN - dumpState");
-
-			System.out.println("  ::--> Non Content:   " + mSeqNonContent);
-			System.out.println("  ::--> End Session:   " + mEndSession);
-			System.out.println("  ::--> Activity ID:   " + mActivityID);
-			System.out.println("  ::--> Resource ID:   " + mResourceID);
-			System.out.println("  ::--> State ID:      " + mStateID);
-			System.out.println("  ::--> Attempt #:     " + mNumAttempt);
-			System.out.println("  ::--> Delivery Mode: " + mDeliveryMode);
-			System.out.println("  ::--> Max Time:      " + mMaxTime);
+		if (log.isDebugEnabled()) {
+            log.debug("""
+                            :: ADLLaunch  --> BEGIN - dumpState
+                            ::--> Non Content:   {}
+                            ::--> End Session:   {}
+                            ::--> Activity ID:   {}
+                            ::--> Resource ID:   {}
+                            ::--> State ID:      {}
+                            ::--> Attempt #:     {}
+                            ::--> Delivery Mode: {}
+                            ::--> Max Time:      {}
+                          """,
+                    mSeqNonContent, mEndSession, mActivityID, mResourceID, mStateID, mNumAttempt, mDeliveryMode, mMaxTime);
 
 			if (mServices != null) {
 				Set<Entry<String, ADLAuxiliaryResource>> entrySet = mServices.entrySet();
@@ -246,17 +238,7 @@ public class ADLLaunch implements ILaunch {
 					entry.getValue().dumpState();
 				}
 			}
-			/*
-			         if ( mNavState != null )
-			         {
-			            mNavState.dumpState();
-			         }
-			         else
-			         {
-			            System.out.println("  ::--> Nav State:       NULL");
-			         }
-			*/
-			System.out.println("  :: ADLLaunch  --> END   - dumpState");
+			log.debug("  :: ADLLaunch  --> END   - dumpState");
 		}
 	}
 

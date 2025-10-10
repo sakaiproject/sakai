@@ -26,7 +26,8 @@ package org.adl.sequencer;
 import java.io.Serializable;
 import java.util.List;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Encapsulation of a set of conditions used to evaluate sequencing and rollup
@@ -59,9 +60,11 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqConditionSet implements Serializable {
 
-	private long id;
+	@Getter
+    private long id;
 
 	static final long serialVersionUID = 1L; // -8248834341813485224L;
 
@@ -109,12 +112,7 @@ public class SeqConditionSet implements Serializable {
 	 */
 	public static String COMBINATION_ANY = "any";
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * Describes the evaluation criteria for this set of conditions.
 	 */
 	public String mCombination = null;
@@ -162,28 +160,21 @@ public class SeqConditionSet implements Serializable {
 	 * for diagnostic purposes.
 	 */
 	public void dumpState() {
-		if (_Debug) {
-			System.out.println("  :: SeqConditionSet  --> BEGIN - dumpState");
+        log.debug("  :: SeqConditionSet  --> BEGIN - dumpState");
+		log.debug("  ::--> Set : {}", mCombination);
 
-			System.out.println("  ::--> Set : " + mCombination);
+		if (mConditions != null) {
+			log.debug("  ::-->   [{}]", mConditions.size());
+			log.debug("  ::----------------::");
 
-			if (mConditions != null) {
-				System.out.println("  ::-->   [" + mConditions.size() + "]");
-				System.out.println("  ::----------------::");
-
-				for (int i = 0; i < mConditions.size(); i++) {
-					SeqCondition cond = mConditions.get(i);
-
-					cond.dumpState();
-				}
-
-			} else {
-				System.out.println("         NULL");
-				System.out.println("  ::----------------::");
-			}
-
-			System.out.println("  :: SeqConditionSet --> END   - dumpState");
+            for (SeqCondition cond : mConditions) {
+                cond.dumpState();
+            }
+        } else {
+            log.debug("         NULL");
+            log.debug("  ::----------------::");
 		}
+        log.debug("  :: SeqConditionSet --> END   - dumpState");
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -218,26 +209,15 @@ public class SeqConditionSet implements Serializable {
 	 * @return The result of the condition set evaluation
 	 */
 	int evaluate(ISeqActivity iThisActivity) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqConditionSet --> BEGIN - evaluate");
-			System.out.println("  :: --> RETRY == " + mRetry);
-		}
+        log.debug("  :: SeqConditionSet --> BEGIN - evaluate");
+		log.debug("  :: --> RETRY == {}", mRetry);
 
 		int result = EVALUATE_UNKNOWN;
 
 		// Make sure we have a valid target activity  
 		if (iThisActivity != null) {
-
-			if (_Debug) {
-				System.out.println("  ::-->  Set - " + mCombination);
-
-				if (mConditions != null) {
-					System.out.println("  ::-->  [" + mConditions.size() + "]");
-				} else {
-					System.out.println("  ::-->  NULL");
-				}
-			}
+            log.debug("  ::-->  Set - {}", mCombination);
+            log.debug("  ::-->  [{}]", mConditions != null ? mConditions.size() : "NULL");
 
 			if (mConditions != null) {
 				// Evaluate this rule's conditions
@@ -278,14 +258,9 @@ public class SeqConditionSet implements Serializable {
 
 		// Reset the 'retry' flag
 		mRetry = false;
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + result);
-			System.out.println("  :: SeqConditionSet --> END   - evaluate");
-		}
-
+        log.debug("  ::-->  {}", result);
+		log.debug("  :: SeqConditionSet --> END   - evaluate");
 		return result;
-
 	}
 
 	/**
@@ -320,11 +295,8 @@ public class SeqConditionSet implements Serializable {
 	 *         <code>false</code>.
 	 */
 	private int evaluateCondition(int iIndex, SeqActivity iTarget) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqConditionSet --> BEGIN - " + "evaluateCondition");
-			System.out.println("  ::-->  " + iIndex);
-		}
+        log.debug("  :: SeqConditionSet --> BEGIN - evaluateCondition");
+		log.debug("  ::-->  {}", iIndex);
 
 		int result = EVALUATE_UNKNOWN;
 
@@ -332,10 +304,7 @@ public class SeqConditionSet implements Serializable {
 		if (iIndex < mConditions.size()) {
 
 			SeqCondition cond = mConditions.get(iIndex);
-
-			if (_Debug) {
-				System.out.println("  ::--> Evaluate :: " + cond.mCondition);
-			}
+            log.debug("  ::--> Evaluate :: {}", cond.mCondition);
 
 			// evaluate the current condtion
 			if (cond.mCondition.equals(SeqCondition.ALWAYS)) {
@@ -395,27 +364,16 @@ public class SeqConditionSet implements Serializable {
 
 			// Account for condition operator
 			if (cond.mNot && result != EVALUATE_UNKNOWN) {
-				if (_Debug) {
-					System.out.println("  ::--> Negate Result");
-				}
-
+                log.debug("  ::--> Negate Result");
 				result = (result == EVALUATE_FALSE) ? EVALUATE_TRUE : EVALUATE_FALSE;
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + ((result == 1) ? "True" : "False"));
-			System.out.println("  :: SeqConditionSet --> END   - " + "evaluateCondition");
-		}
-
+        log.debug("  ::-->  {}", ((result == 1) ? "True" : "False"));
+		log.debug("  :: SeqConditionSet --> END   - evaluateCondition");
 		return result;
 	}
 
-	public long getId() {
-		return id;
-	}
-
-	@Override
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -423,4 +381,4 @@ public class SeqConditionSet implements Serializable {
 		return result;
 	}
 
-} // end SeqConditionSet
+}
