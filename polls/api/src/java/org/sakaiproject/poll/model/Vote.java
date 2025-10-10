@@ -77,7 +77,7 @@ public class Vote implements PersistableEntity<Long> {
      * Foreign key column for {@code VOTE_OPTION}. Set this identifier to persist the selected option; the
      * {@link #option} relationship is read-only.
      */
-    @Column(name = "VOTE_OPTION")
+    @Column(name = "VOTE_OPTION", nullable = false)
     private Long pollOption;
 
     /**
