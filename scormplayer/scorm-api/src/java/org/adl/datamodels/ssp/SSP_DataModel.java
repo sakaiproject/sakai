@@ -33,8 +33,6 @@ import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMProcessingInfo;
 import org.adl.datamodels.DMRequest;
 import org.adl.datamodels.ieee.IValidatorFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * <br><br>
@@ -129,7 +127,7 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 	 */
 	@Override
 	public int getValue(DMRequest iRequest, DMProcessingInfo oInfo) {
-		log.info("getValue(" + iRequest.toString() + ", " + oInfo.toString() + ")");
+		log.debug("getValue({}, {})", iRequest, oInfo);
 
 		/*if( _Debug )
 		{
@@ -520,7 +518,7 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 	@Override
 	public int setValue(DMRequest iRequest, IValidatorFactory validatorFactory) {
 
-		log.info("setValue(" + iRequest.toString() + ")");
+		log.debug("setValue({})", iRequest);
 
 		/*if( _Debug )
 		{
