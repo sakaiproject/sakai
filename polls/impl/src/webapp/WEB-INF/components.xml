@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 	<!-- Bring in the HBM related beans beans -->
 	<import resource="hibernate-hbms.xml" />
@@ -10,11 +12,16 @@
 	<!-- This is in the implementation so it can be used by tests but then loaded from the classpath here. -->
 	<import resource="classpath:org/sakaiproject/poll/spring-hibernate.xml" />
 
+	<!-- Enable @Transactional driven proxies for our services -->
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
 	<!-- create a logic bean, give it the dao from above and some sakai services -->
 		<bean id="org.sakaiproject.poll.logic.PollListManager"
 		class="org.sakaiproject.poll.service.impl.PollListManagerImpl"
 		lazy-init="true" init-method="init">
-		<property name="dao" ref="org.sakaiproject.poll.dao.PollDao"/>
+        <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
+        <property name="optionRepository" ref="org.sakaiproject.poll.api.repository.OptionRepository"/>
+        <property name="voteRepository" ref="org.sakaiproject.poll.api.repository.VoteRepository"/>
 		<property name="idManager"
 			ref="org.sakaiproject.id.api.IdManager" />
 				<property name="entityManager"
@@ -29,7 +36,8 @@
 	<bean id="org.sakaiproject.tool.poll.api.PollVoteManager"
 		class="org.sakaiproject.poll.service.impl.PollVoteManagerImpl"
 		lazy-init="true">
-		<property name="dao" ref="org.sakaiproject.poll.dao.PollDao"/>
+        <property name="voteRepository" ref="org.sakaiproject.poll.api.repository.VoteRepository"/>
+        <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 		<property name="pollListManager" ref="org.sakaiproject.poll.logic.PollListManager"/>
 	</bean>

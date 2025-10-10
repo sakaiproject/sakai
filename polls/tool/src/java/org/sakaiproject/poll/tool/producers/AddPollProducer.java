@@ -256,9 +256,9 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 
 		//the form fields
-		if ((poll != null) && (poll.getId() != null) && (! poll.getId().equalsIgnoreCase("null"))) {
-		    UIInput.make(newPoll, "ckeditor-autosave-entity-id", "#{poll.id}", poll.getId());
-		}
+        if ((poll != null) && (poll.getUuid() != null) && (! poll.getUuid().equalsIgnoreCase("null"))) {
+            UIInput.make(newPoll, "ckeditor-autosave-entity-id", "#{poll.uuid}", poll.getUuid());
+        }
 		UIInput.make(newPoll, "new-poll-text", "#{poll.text}",poll.getText());
 		
 		
@@ -432,4 +432,3 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
     }
 
 }
-

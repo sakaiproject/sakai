@@ -120,8 +120,8 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         Poll poll = (Poll) entity;
         poll.setCreationDate(new Date());
-        if (poll.getId() == null) {
-            poll.setId( UUID.randomUUID().toString() );
+        if (poll.getUuid() == null) {
+            poll.setUuid( UUID.randomUUID().toString() );
         }
         if (poll.getOwner() == null) {
             poll.setOwner( developerHelperService.getCurrentUserId() );
