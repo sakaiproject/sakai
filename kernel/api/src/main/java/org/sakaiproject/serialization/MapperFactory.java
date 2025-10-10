@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.Module;
 
 import javax.xml.stream.XMLInputFactory;
 
@@ -50,6 +51,7 @@ public final class MapperFactory {
      */
     public static ObjectMapper createDefaultJsonMapper() {
         return jsonBuilder()
+                .registerJdk8Module()
                 .registerJavaTimeModule()
                 .ignoreUnknownProperties()
                 .excludeNulls()
@@ -158,6 +160,26 @@ public final class MapperFactory {
          */
         public JsonMapperBuilder registerJavaTimeModule() {
             mapper.registerModule(new JavaTimeModule());
+            return this;
+        }
+
+        /**
+         * Registers Jdk8Module for handling Optional and other JDK8 types.
+         *
+         * @return this builder for chaining
+         */
+        public JsonMapperBuilder registerJdk8Module() {
+            try {
+                Class<?> clazz = Class.forName("com.fasterxml.jackson.datatype.jdk8.Jdk8Module");
+                Object module = clazz.getDeclaredConstructor().newInstance();
+                if (module instanceof Module) {
+                    mapper.registerModule((Module) module);
+                }
+            } catch (ClassNotFoundException | NoClassDefFoundError e) {
+                // Module not on classpath in this test/runtime; skip registration
+            } catch (ReflectiveOperationException e) {
+                // Could not instantiate module; skip registration
+            }
             return this;
         }
 
@@ -349,6 +371,9 @@ public final class MapperFactory {
          */
         public XmlMapperBuilder setMaxAttributeSize(int maxAttributeSize) {
             xmlMapper.getFactory().getXMLInputFactory().setProperty(WstxInputProperties.P_MAX_ATTRIBUTE_SIZE, maxAttributeSize);
+            // Ensure XXE defenses remain in effect prior to rebuild
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
             xmlMapper.getFactory().rebuild().build();
             return this;
         }
@@ -363,6 +388,9 @@ public final class MapperFactory {
          */
         public XmlMapperBuilder disableNamespaceAware() {
             xmlMapper.getFactory().getXMLInputFactory().setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
+            // Ensure XXE defenses remain in effect prior to rebuild
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            xmlMapper.getFactory().getXMLInputFactory().setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
             xmlMapper.getFactory().rebuild().build();
             return this;
         }

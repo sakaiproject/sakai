@@ -23,6 +23,9 @@ package org.sakaiproject.tool.impl;
 import com.google.common.collect.MapMaker;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URL;
+import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
@@ -32,9 +35,8 @@ import javax.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import org.azeckoski.reflectutils.ConstructorUtils;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSession;
@@ -75,6 +77,17 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
     private final int minSecondsAfterRebuildDefault = 30;
     private final int smallestMinSecondsBetweenStores = 1;
     private final int minAgeToStoreSecondsDefault = 10;
+    private static final List<Class<?>> SIMPLE_ASSIGNABLE_TYPES = Arrays.asList(
+            CharSequence.class,
+            Number.class,
+            Date.class,
+            Calendar.class,
+            Locale.class,
+            URI.class,
+            URL.class,
+            UUID.class,
+            TemporalAccessor.class
+    );
     /**
      * sessionClassWhitelist contains a list of classnames that are known safe to serialize
      * and store in sessions (since they can be deserialized safely)
@@ -871,12 +884,19 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
      * @return true if the object is a String or primitive class type
      */
     private boolean isObjectSimple(Object object) {
-        boolean primitive = false;
-        if (object != null) {
-            Class clazz = object.getClass();
-            primitive = clazz.isPrimitive() || ConstructorUtils.isClassSimple(clazz);
+        if (object == null) {
+            return false;
         }
-        return primitive;
+        Class<?> clazz = object.getClass();
+        if (clazz.isPrimitive() || ClassUtils.isPrimitiveOrWrapper(clazz) || clazz.isEnum()) {
+            return true;
+        }
+        for (Class<?> simpleType : SIMPLE_ASSIGNABLE_TYPES) {
+            if (simpleType.isAssignableFrom(clazz) && Serializable.class.isAssignableFrom(clazz)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -888,7 +908,7 @@ public class RebuildBreakdownServiceImpl implements RebuildBreakdownService {
         boolean map = false;
         if (object != null) {
             Class clazz = object.getClass();
-            map = ConstructorUtils.isClassMap(clazz);
+            map = Map.class.isAssignableFrom(clazz);
         }
         return map;
     }
