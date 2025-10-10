@@ -33,7 +33,7 @@
               data-user-id="${loginUserId}"
               onclick="portal.displayProfile(event);"
               class="nav-link">
-            ${rloader.sit_account_details}
+            ${rloader.sit_profile}
           </a>
         </li>
 
@@ -70,7 +70,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="account-details-modal-label">${rloader.sit_account_details}</h1>
+        <h1 class="modal-title fs-5" id="account-details-modal-label">${rloader.sit_profile}</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${rloader.sit_closepage}"></button>
       </div>
       <div class="modal-body">

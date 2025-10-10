@@ -10,7 +10,7 @@
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="profileService" ref="org.sakaiproject.profile2.api.ProfileService"/>
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"

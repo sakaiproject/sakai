@@ -5572,7 +5572,7 @@
       <value>/sakai_screensteps_profileUserGuide/whatistheProfiletool.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.profile2</value>
+      <value>sakai.profile</value>
     </property>
   </bean>
   <bean id="howdoIsetupmyprofile" class="org.sakaiproject.component.app.help.model.ResourceBean">

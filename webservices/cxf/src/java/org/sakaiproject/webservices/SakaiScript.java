@@ -3068,7 +3068,7 @@ public class SakaiScript extends AbstractWebService {
      *
      * @param pagelayout single or double column (0 or 1). Any other value will revert to 0.
      * @param sessionid  the id of a valid session for the admin user
-     * @param toolid     the id of the tool you want to add (ie sakai.profile2)
+     * @param toolid     the id of the tool you want to add (ie sakai.announcements)
      * @param pagetitle  the title of the page shown in the site navigation
      * @param tooltitle  the title of the tool shown in the main portlet
      * @param position   integer specifying the position within other pages on the site (0 means top, for right at the bottom a large enough number, ie 99)
@@ -3754,7 +3754,7 @@ public class SakaiScript extends AbstractWebService {
                 toolIdAttr.setNodeValue(toolConfig.getId());
                 toolNode.setAttributeNode(toolIdAttr);
 
-                //registration (eg sakai.profile2)
+                //registration (eg sakai.announcements)
                 Element toolIdNode = dom.createElement("tool-id");
                 toolIdNode.appendChild(dom.createTextNode(toolConfig.getToolId()));
                 toolNode.appendChild(toolIdNode);
@@ -3905,7 +3905,7 @@ public class SakaiScript extends AbstractWebService {
      * @param pagelayout if you want the page to be single or double column (0 or 1). Any other value will revert to 0.
      * @param sessionid  the id of a valid session for the admin user
      * @param siteid     the id of the site to add the page to
-     * @param toolid     the id of the tool you want to add (ie sakai.profile2)
+     * @param toolid     the id of the tool you want to add (ie sakai.announcements)
      * @param pagetitle  the desired title for the page shown in the site navigation. If null, will use default from tool configuration.
      * @param tooltitle  the desired title for the tool shown in the main portlet.  If null, will use default from tool configuration. Custom tool titles only respected if you also have a custom page title.
      * @param position   integer specifying the position of this page within other pages on the site (0 means top, for right at the bottom a large enough number, ie 99)
