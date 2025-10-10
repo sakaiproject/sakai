@@ -148,23 +148,30 @@ class RangeAndGroupsDelegate
 			List<String> groupChoice
 				= new ArrayList<>(Arrays.asList(ArrayUtils.nullToEmpty(
 					data.getParameters().getStrings("selectedGroups"))));
-			String assignmentId
-				= AssignmentReferenceReckoner.reckoner().reference(
-					data.getParameters().getString("assignmentId")).reckon().getId();
-			try {
-				Assignment assignment = assignmentService.getAssignment(assignmentId);
-				if (assignment.getIsGroup()) {
-					// If this assignment has any group submissions, ensure the group id is not removed
-					// from the list. The html form will not submit disabled fields, so it can happen.
-					assignment.getSubmissions().stream().filter(as -> as.getUserSubmission()).forEach(as -> {
-
-						if (!groupChoice.contains(as.getGroupId())) {
-							groupChoice.add(as.getGroupId());
-						}
-					});
+			String assignmentIdParam = StringUtils.trimToNull(data.getParameters().getString("assignmentId"));
+			if (assignmentIdParam != null) {
+				String assignmentId = AssignmentReferenceReckoner.reckoner()
+						.reference(assignmentIdParam)
+						.reckon()
+						.getId();
+				if (StringUtils.isBlank(assignmentId)) {
+					assignmentId = assignmentIdParam;
 				}
-			} catch (Exception e) {
-				log.warn("Failed to retrieve assignment with id {}, {}", assignmentId, e.getMessage());
+				final String resolvedAssignmentId = assignmentId;
+				try {
+					Assignment assignment = assignmentService.getAssignment(resolvedAssignmentId);
+					if (assignment.getIsGroup()) {
+						// If this assignment has any group submissions, ensure the group id is not removed
+						// from the list. The html form will not submit disabled fields, so it can happen.
+						assignment.getSubmissions().stream().filter(as -> as.getUserSubmission()).forEach(as -> {
+							if (!groupChoice.contains(as.getGroupId())) {
+								groupChoice.add(as.getGroupId());
+							}
+						});
+					}
+				} catch (Exception e) {
+					log.warn("Failed to retrieve assignment (param '{}', resolved '{}'): {}", assignmentIdParam, resolvedAssignmentId, e.toString());
+				}
 			}
 
 			if (!groupChoice.isEmpty()) {
