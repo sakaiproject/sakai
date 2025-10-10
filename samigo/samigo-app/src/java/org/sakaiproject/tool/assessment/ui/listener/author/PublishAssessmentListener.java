@@ -22,12 +22,15 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -41,20 +44,20 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
 import org.sakaiproject.grading.api.InvalidCategoryException;
+import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -62,33 +65,30 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Priorities;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
-import org.sakaiproject.samigo.util.SamigoConstants;
-import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
-import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
-import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PreDeliveryPhase;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
@@ -99,10 +99,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.web.client.HttpClientErrorException;
 
-
-import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
-import java.util.ListIterator;
-import java.time.Instant;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>Title: Samigo</p>2
@@ -257,7 +254,6 @@ public class PublishAssessmentListener
     boolean sendEmailNotification = false;
 
     try {
-      assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
       pub = publishedAssessmentService.publishAssessment(assessment);
 
       //Lock the groups for deletion if the assessment is released to groups, students can lose submissions if the group is deleted.
@@ -292,8 +288,18 @@ public class PublishAssessmentListener
       // The notification message will be used by the calendar event
       PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
       sendEmailNotification = publishRepublishNotification.isSendNotification();
+      // Build published URL from the freshly published assessment's alias
+      javax.faces.context.ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+      javax.servlet.http.HttpServletRequest req = (javax.servlet.http.HttpServletRequest) extContext.getRequest();
+      String serverUrl = req.getRequestURL().toString();
+      int idx = serverUrl.indexOf(extContext.getRequestContextPath() + "/");
+      serverUrl = serverUrl.substring(0, idx);
+      String appUrl = serverUrl + extContext.getRequestContextPath();
+      String publishedAlias = pub.getData().getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS);
+      String publishedUrl = appUrl + "/servlet/Login?id=" + publishedAlias;
+
       String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(),
-                                                            assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
+                                                            assessmentSettings.getStartDateInClientTimezoneString(), publishedUrl,
                                                             assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
                                                             assessmentSettings.getUnlimitedSubmissions(), assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(),
                                                             assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateInClientTimezoneString(),
@@ -432,15 +438,6 @@ public class PublishAssessmentListener
             }
         }
     }
-
-    // Add ALIAS if it doesn't exist
-    if ("".equals(assessment.getAssessmentMetaDataByLabel("ALIAS"))) {
-      // generate an alias to the pub assessment
-      String alias = assessmentSettings.getAlias();
-      PublishedMetaData meta = new PublishedMetaData(pub.getData(),
-          AssessmentMetaDataIfc.ALIAS, alias);
-      publishedAssessmentService.saveOrUpdateMetaData(meta);
-    }  
 
     // Now that everything is updated schedule an open notification email
     if (sendEmailNotification) samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId()));

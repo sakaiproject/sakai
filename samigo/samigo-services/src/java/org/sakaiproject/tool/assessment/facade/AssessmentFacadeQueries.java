@@ -497,7 +497,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		} catch (CloneNotSupportedException ex) {
 			log.error(ex.getMessage(), ex);
 		}
-		return assessment;
+
+			// ALIAS is created at publish time; keep drafts alias-free
+			return assessment;
 	}
 
 	/**
@@ -1935,10 +1937,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		final String releaseTo = newAccessControl.getReleaseTo();
 		switch (releaseTo) {
 			case AssessmentAccessControl.ANONYMOUS_USERS:
-				// generate an alias to the pub assessment
-				String alias = AgentFacade.getAgentString() + Instant.now().toEpochMilli();
-				AssessmentMetaData meta = new AssessmentMetaData(newAssessment, "ALIAS", alias);
-				newMetaDataSet.add(meta);
 				break;
 			// case AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS:
 			default:
@@ -1967,6 +1965,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				newAssessment, a.getAssessmentAttachmentSet(), protocol, toContext);
 		newAssessment.setAssessmentAttachmentSet(newAssessmentAttachmentSet);
 
+		// ALIAS is created at publish time; keep drafts alias-free
 		return newAssessment;
 	}
 
@@ -2031,9 +2030,20 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		return newEvaluationModel;
 	}
 
-	public Set<AssessmentMetaData> prepareAssessmentMetaDataSet(AssessmentData p, Set<AssessmentMetaData> metaDataSet) {
-		return metaDataSet.stream().map(m -> new AssessmentMetaData(p, m.getLabel(), m.getEntry())).collect(Collectors.toSet());
-	}
+    public Set<AssessmentMetaData> prepareAssessmentMetaDataSet(AssessmentData p, Set<AssessmentMetaData> metaDataSet) {
+        Set<AssessmentMetaData> result = new HashSet<>();
+        if (metaDataSet != null) {
+            for (AssessmentMetaData m : metaDataSet) {
+                // Do not carry over ALIAS when copying; new copy will get alias in one central place
+                if (!AssessmentMetaDataIfc.ALIAS.equals(m.getLabel())) {
+                    result.add(new AssessmentMetaData(p, m.getLabel(), m.getEntry()));
+                }
+            }
+        }
+        return result;
+    }
+
+    // Note: ALIAS is generated only at publish time for simplicity
 
 	public Set prepareSecuredIPSet(AssessmentData p, Set ipSet) {
 		HashSet h = new HashSet();
