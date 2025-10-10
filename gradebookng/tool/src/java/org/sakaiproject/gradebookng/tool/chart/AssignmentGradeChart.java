@@ -27,6 +27,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.GbChartData;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.util.ResourceLoader;
@@ -63,7 +64,7 @@ public class AssignmentGradeChart extends BaseChart {
 			// so students can get grade stats
 			addAdvisor();
 
-			final Integer gradingType = this.businessService.getGradebook(currentGradebookUid, currentSiteId).getGradeType();
+			final GradeType gradingType = this.businessService.getGradebook(currentGradebookUid, currentSiteId).getGradeType();
 			final Assignment assignment = this.businessService.getAssignment(currentGradebookUid, currentSiteId, this.assignmentId);
 			final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, Arrays.asList(assignment), this.businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null), null);
 
@@ -137,9 +138,9 @@ public class AssignmentGradeChart extends BaseChart {
 	 * @param gradingType
 	 * @return
 	 */
-	private boolean getExtraCredit(final Double grade, final Assignment assignment, final Integer gradingType) {
-		return (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType) && grade > 100)
-				|| (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, gradingType) && grade > assignment.getPoints());
+	private boolean getExtraCredit(Double grade, Assignment assignment, GradeType gradingType) {
+		return (gradingType == GradeType.PERCENTAGE && grade > 100)
+				|| (gradingType == GradeType.POINTS && grade > assignment.getPoints());
 	}
 
 	private String determineKeyForGrade(final double percentage, final int range) {
@@ -157,8 +158,8 @@ public class AssignmentGradeChart extends BaseChart {
 		}
 	}
 
-	private double getPercentage(final Double grade, final Assignment assignment, final int gradingType) {
-		if (GradingConstants.GRADE_TYPE_PERCENTAGE == gradingType) {
+	private double getPercentage(Double grade, Assignment assignment, GradeType gradingType) {
+		if (gradingType == GradeType.PERCENTAGE) {
 			return grade;
 		} else {
 			return grade / assignment.getPoints() * 100;
