@@ -23,11 +23,9 @@
 *******************************************************************************/
 package org.adl.validator.contentpackage;
 
-// native java imports
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import lombok.extern.slf4j.Slf4j;
 import org.adl.parsers.dom.DOMTreeUtility;
@@ -112,7 +110,6 @@ public class ManifestHandler implements Serializable {
 	 * @return List Containing a list of organization nodes.
 	 */
 	public static List<Node> getOrganizationNodes(Node iRootNode, boolean iDefaultOrganizationOnly) {
-		//mLogger.entering("ManifestHandler", "getOrganizationNodes()");
 		List<Node> result = new ArrayList<>();
 
 		if (iDefaultOrganizationOnly) {
@@ -182,11 +179,6 @@ public class ManifestHandler implements Serializable {
 		}
 		return result;
 	}
-
-	/**
-	 * This attribute serves as the Logger object used for debug logging.
-	 */
-	private transient Logger mLogger = Logger.getLogger("org.adl.util.debug.validator");
 
 	/**
 	 * This attribute describes whether or not SCO launch data has been
@@ -268,7 +260,6 @@ public class ManifestHandler implements Serializable {
 	 * @param iOrgID The ID of the organization.
 	 */
 	private void addItemInfo(Node iNode, String iOrgID) {
-		mLogger.entering("ManifestHandler", "addItemInfo()");
 		if (iNode == null){
 			return;
 		}
@@ -677,7 +668,6 @@ public class ManifestHandler implements Serializable {
 	 * @return List containing the launch data information for SCOs.
 	 */
 	public List<LaunchData> getLaunchData(Node iRootNode, boolean iDefaultOrganizationOnly, boolean iRemoveAssets) {
-		mLogger.entering("ManifestHandler", "getLaunchData(iRootNode)");
 		if (!mLaunchDataTracked) {
 			setLaunchData(iRootNode, iDefaultOrganizationOnly, iRemoveAssets);
 		}
@@ -930,7 +920,6 @@ public class ManifestHandler implements Serializable {
 	 * 
 	 */
 	private void setLaunchData(Node iRootNode, boolean iDefaultOrganizationOnly, boolean iRemoveAssets) {
-		mLogger.entering("ManifestHandler", "SetLaunchData(iRootNode)");
 		List<Node> organizationNodes = getOrganizationNodes(iRootNode, iDefaultOrganizationOnly);
 
 		int size = organizationNodes.size();

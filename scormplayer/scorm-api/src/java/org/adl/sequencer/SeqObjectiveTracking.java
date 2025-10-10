@@ -613,15 +613,18 @@ public class SeqObjectiveTracking implements Serializable {
 	 *                 be evaluated
 	 */
 	void setObjMeasure(double iMeasure, boolean iAffectSatisfaction) {
-        log.debug("  :: SeqObjectiveTracking   --> BEGIN - " + "setObjMeasure");
-		log.debug("  ::-->  {}", iMeasure);
-		log.debug("  ::-->  {}", iAffectSatisfaction);
+        log.debug("""
+                    :: SeqObjectiveTracking   --> BEGIN - setObjMeasure
+                    ::-->  {}
+                    ::-->  {}
+                  """, iMeasure, iAffectSatisfaction);
 
 		// Validate the range of the measure
 		if (iMeasure < -1.0 || iMeasure > 1.0) {
-            log.debug("  ::--> Invalid Measure: {}", iMeasure);
-			log.debug("  ::--> Assume 'Unknown'");
-
+            log.debug("""
+                        ::--> Invalid Measure: {}
+                        ::--> Assume 'Unknown'
+                      """, iMeasure);
 			clearObjMeasure(iAffectSatisfaction);
 		} else {
 			mHasMeasure = true;

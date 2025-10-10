@@ -161,8 +161,6 @@ public class LaunchData implements ILaunchData {
 	 * The default constructor.
 	 */
 	public LaunchData() {
-		//mLogger = Logger.getLogger("org.adl.util.debug.validator");
-
 		mOrganizationIdentifier = "";
 		mItemIdentifier = "";
 		mResourceIdentifier = "";

@@ -25,8 +25,8 @@ package org.adl.validator.metadata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.datamodels.datatypes.DateTimeValidator;
 import org.adl.datamodels.datatypes.DateTimeValidatorImpl;
 import org.adl.datamodels.datatypes.DurationValidator;
@@ -56,11 +56,8 @@ import org.w3c.dom.NodeList;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class MDValidator extends ADLSCORMValidator {
-	/**
-	 * Logger object used for debug logging
-	 */
-	private Logger mLogger;
 
 	/**
 	 * The Metadata Rule Validator Object
@@ -105,7 +102,6 @@ public class MDValidator extends ADLSCORMValidator {
 	 */
 	public MDValidator(String iApplicationProfileType) {
 		super("metadata");
-		mLogger = Logger.getLogger("org.adl.util.debug.validator");
 		mMetadataRulesValidator = new RulesValidator("metadata");
 		mTypeValue = "";
 		mNameValue = "";
@@ -141,7 +137,7 @@ public class MDValidator extends ADLSCORMValidator {
 
 			if (iCurrentChildName.equals("orComposite")) {
 				msgText = Messages.getString("MDValidator.303");
-				mLogger.info("INFO: " + msgText);
+				log.debug("INFO: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 				result = checkThatNameTypeCoexist(iCurrentChild);
@@ -169,7 +165,7 @@ public class MDValidator extends ADLSCORMValidator {
 		} else if (iDataType.equalsIgnoreCase("langstring")) {
 			// Log: Test the element against the LangString Data Type
 			msgText = Messages.getString("MDValidator.43", iCurrentChildName);
-			mLogger.info("INFO: " + msgText);
+			log.debug("INFO: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 			// Test that the element meets the requirements of a LangString Data 
@@ -180,7 +176,7 @@ public class MDValidator extends ADLSCORMValidator {
 			// Log: Test the element against the DateTime or Duration Type
 			// This is a datetime or a duration data type element
 			msgText = Messages.getString("MDValidator.48", iCurrentChildName, iDataType);
-			mLogger.info("INFO: " + msgText);
+			log.debug("INFO: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 			// Test the element against the DateTime or Duration Type
@@ -190,7 +186,7 @@ public class MDValidator extends ADLSCORMValidator {
 			// Step 1:  Log: Testing element for basic vocabulary data type 
 			// requirements
 			msgText = Messages.getString("MDValidator.53", iCurrentChildName);
-			mLogger.info("INFO: " + msgText);
+			log.debug("INFO: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 			result = checkSourceValuePair(iCurrentChild, iCurrentChildName, "bestpractice", iPath);
@@ -217,7 +213,7 @@ public class MDValidator extends ADLSCORMValidator {
 							if (nodes.item(0).getNodeValue().equals("none")) {
 								// "none" is a valid value for the general.language element
 								msgText = Messages.getString("MDValidator.315", nodes.item(0).getNodeValue());
-								mLogger.info("PASSED: " + msgText);
+								log.debug("PASSED: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 							}
 						}
@@ -228,12 +224,12 @@ public class MDValidator extends ADLSCORMValidator {
 						if (intResult == 0) {
 							// no error
 							msgText = Messages.getString("MDValidator.315", nodes.item(0).getNodeValue());
-							mLogger.info("PASSED: " + msgText);
+							log.debug("PASSED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 						} else {
 							// type mismatch error, value is not a valid language code
 							msgText = Messages.getString("MDValidator.316", nodes.item(0).getNodeValue());
-							mLogger.info("FAILED: " + msgText);
+							log.warn("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							result = false;
@@ -243,7 +239,7 @@ public class MDValidator extends ADLSCORMValidator {
 					// the element is empty
 					msgText = "The element <language> cannot be empty";
 					msgText = Messages.getString("MDValidator.317");
-					mLogger.info("FAILED: " + msgText);
+					log.warn("FAILED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					result = false;
 				}
@@ -254,14 +250,14 @@ public class MDValidator extends ADLSCORMValidator {
 		} else if (iDataType.equalsIgnoreCase("bestpracticevocabulary")) {
 			// This is a best practice vocabulary
 			msgText = Messages.getString("MDValidator.53", iCurrentChildName);
-			mLogger.info("INFO: " + msgText);
+			log.debug("INFO: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 			result = checkSourceValuePair(iCurrentChild, iCurrentChildName, "bestpractice", iPath);
 		} else if (iDataType.equalsIgnoreCase("restrictedvocabulary")) {
 			// This is a restricted vocabulary data type
 			msgText = Messages.getString("MDValidator.53", iCurrentChildName);
-			mLogger.info("INFO: " + msgText);
+			log.debug("INFO: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 			result = checkSourceValuePair(iCurrentChild, iCurrentChildName, "restricted", iPath);
 		} else {
@@ -350,12 +346,12 @@ public class MDValidator extends ADLSCORMValidator {
 						if (intResult == 0) {
 							// no error
 							msgText = Messages.getString("MDValidator.319", currentChildValue, "dateTime");
-							mLogger.info("PASSED: " + msgText);
+							log.debug("PASSED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 						} else {
 							//  error, value is not a valid dateTime value
 							msgText = Messages.getString("MDValidator.320", currentChildValue, "dateTime");
-							mLogger.info("FAILED: " + msgText);
+							log.warn("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							result = false;
@@ -367,12 +363,12 @@ public class MDValidator extends ADLSCORMValidator {
 						if (intResult == 0) {
 							// no error
 							msgText = Messages.getString("MDValidator.321", currentChildValue, "duration");
-							mLogger.info("PASSED: " + msgText);
+							log.debug("PASSED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 						} else {
 							// type mismatch error, value is not a valid language code
 							msgText = Messages.getString("MDValidator.322", currentChildValue, "duration");
-							mLogger.info("FAILED: " + msgText);
+							log.warn("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							result = false;
@@ -392,7 +388,7 @@ public class MDValidator extends ADLSCORMValidator {
 				if (currentChildName.equals("description")) {
 					//This is a Langstring data type element
 					msgText = Messages.getString("MDValidator.43", currentChildName);
-					mLogger.info("INFO: " + msgText);
+					log.debug("INFO: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 					result = checkLangString(currentChild, "") && result;
@@ -423,7 +419,7 @@ public class MDValidator extends ADLSCORMValidator {
 
 		if (multiplicityUsed < 1) {
 			msgText = Messages.getString("MDValidator.198", iNodeName);
-			mLogger.info("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 			result = false;
 		}
@@ -444,7 +440,7 @@ public class MDValidator extends ADLSCORMValidator {
 
 		if (multiplicityUsed < 2) {
 			String msgText = Messages.getString("MDValidator.201", iNodeName);
-			mLogger.info("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 			result = false;
 		}
@@ -539,7 +535,6 @@ public class MDValidator extends ADLSCORMValidator {
 	  * @return     true if the value is a valid string token, false otherwise<br>
 	  */
 	private boolean checkMetadataSchema() {
-		mLogger.entering("MDValidator", "checkMetadataSchema()");
 
 		boolean result = false;
 		String msgText;
@@ -551,7 +546,7 @@ public class MDValidator extends ADLSCORMValidator {
 
 		msgText = Messages.getString("MDValidator.243", currentElementName);
 
-		mLogger.info("INFO: " + msgText);
+		log.debug("INFO: {}", msgText);
 		DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 		// retrieve the restricted string values for the <metadataSchema> element
@@ -573,11 +568,11 @@ public class MDValidator extends ADLSCORMValidator {
 				if (currentMetadataSchemaValue.equals(currentVocabToken)) {
 					if (currentVocabToken.equals("LOMv1.0")) {
 						foundLOMSchema = true;
-						mLogger.finer("Found LOMv1.0");
+						log.debug("Found LOMv1.0");
 						break;
 					} else if (currentVocabToken.equals("ADLv1.0")) {
 						foundADLSchema = true;
-						mLogger.finer("Found ADLv1.0");
+						log.debug("Found ADLv1.0");
 						break;
 					}
 				}
@@ -586,25 +581,24 @@ public class MDValidator extends ADLSCORMValidator {
 
 		if (foundLOMSchema) {
 			msgText = Messages.getString("MDValidator.251", "LOMv1.0", currentElementName);
-			mLogger.info("PASSED: " + msgText);
+			log.debug("PASSED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 		} else {
 			msgText = Messages.getString("MDValidator.253", "LOMv1.0", currentElementName);
-			mLogger.info("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 		}
 		if (foundADLSchema) {
 			msgText = Messages.getString("MDValidator.251", "ADLv1.0", currentElementName);
-			mLogger.info("PASSED: " + msgText);
+			log.debug("PASSED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 		} else {
 			msgText = Messages.getString("MDValidator.253", "ADLv1.0", currentElementName);
-			mLogger.info("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 		}
 
 		mMetadataSchemaTracked = true;
-		mLogger.exiting("MDValidator", "checkMetadataSchema");
 
 		result = foundLOMSchema && foundADLSchema;
 		return result;
@@ -631,20 +625,20 @@ public class MDValidator extends ADLSCORMValidator {
 		if ((iMinRule != -1) && (iMaxRule != -1)) {
 			if (iMultiplicityUsed >= iMinRule && iMultiplicityUsed <= iMaxRule) {
 				msgText = Messages.getString("MDValidator.73", iElementName);
-				mLogger.info("PASSED: " + msgText);
+				log.debug("PASSED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 			} else {
 				if ((iMaxRule > 1) || (iMaxRule > 2))
 				// we are handing spm multiplicity
 				{
 					msgText = Messages.getString("MDValidator.208", iElementName, iMaxRule);
-					mLogger.info("WARNING: " + msgText);
+					log.debug("WARNING: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 				}
 				// we are dealing with no spm multiplicity but rather a 0 or 1 max
 				else {
 					msgText = Messages.getString("MDValidator.211", iElementName);
-					mLogger.info("FAILED: " + msgText);
+					log.warn("FAILED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					result = false;
 				}
@@ -653,11 +647,11 @@ public class MDValidator extends ADLSCORMValidator {
 		} else if ((iMinRule != -1) && (iMaxRule == -1)) {
 			if (iMultiplicityUsed >= iMinRule) {
 				msgText = Messages.getString("MDValidator.73", iElementName);
-				mLogger.info("PASSED: " + msgText);
+				log.debug("PASSED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 			} else {
 				msgText = Messages.getString("MDValidator.211", iElementName);
-				mLogger.info("FAILED: " + msgText);
+				log.warn("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				result = false;
 			}
@@ -681,18 +675,18 @@ public class MDValidator extends ADLSCORMValidator {
 				        && (!mNameValue.equals("pc-dos") && !mNameValue.equals("ms-windows") && !mNameValue.equals("macos") && !mNameValue.equals("unix")
 				                && !mNameValue.equals("multi-os") && !mNameValue.equals("none"))) {
 					msgText = Messages.getString("MDValidator.302", iCurrentChildName);
-					mLogger.info("WARNING: " + msgText);
+					log.warn("WARNING: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 				} else if (mTypeValue.equals("browser")
 				        && (!mNameValue.equals("any") && !mNameValue.equals("netscape communicator") && !mNameValue.equals("ms-internet explorer")
 				                && !mNameValue.equals("opera") && !mNameValue.equals("amaya"))) {
 					msgText = Messages.getString("MDValidator.302", iCurrentChildName);
-					mLogger.info("WARNING: " + msgText);
+					log.warn("WARNING: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 				}
 			} else {
 				msgText = Messages.getString("MDValidator.314");
-				mLogger.info("WARNING: " + msgText);
+				log.warn("WARNING: {}", msgText);
 			}
 		}
 	}// end of checkNameTypePair()
@@ -713,11 +707,12 @@ public class MDValidator extends ADLSCORMValidator {
 		super.setPerformFullValidation(true);
 		super.performValidatorParse(iXMLFileName);
 
-		mLogger.info("************************************");
-		mLogger.info(" VALIDSCHEMA Result is " + super.getIsValidToSchema());
-		mLogger.info(" mIsExtensionsUsed is " + super.getIsExtensionsUsed());
-		mLogger.info("************************************");
-
+        log.debug("""
+                    ************************************
+                     VALIDSCHEMA Result is {}
+                     mIsExtensionsUsed is {}
+                    ************************************
+                  """, super.getIsValidToSchema(), super.getIsExtensionsUsed());
 		if (!super.getIsValidToSchema()) {
 			schemaResult = false;
 		}
@@ -785,7 +780,7 @@ public class MDValidator extends ADLSCORMValidator {
 
 					if (!(currentVocabChildValue.equalsIgnoreCase("LOMv1.0")) && iVocabularyType.equals("bestpractice")) {
 						msgText = Messages.getString("MDValidator.284", iElementName);
-						mLogger.info("WARNING: " + msgText);
+						log.warn("WARNING: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 						checkBestPracticeVocabulary = false;
 					}
@@ -850,20 +845,20 @@ public class MDValidator extends ADLSCORMValidator {
 		if (iSPMRule != -1) {
 			if (elementValueLength > iSPMRule) {
 				msgText = Messages.getString("MDValidator.154", iElementName, Integer.toString(iSPMRule));
-				mLogger.info("WARNING: " + msgText);
+				log.warn("WARNING: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 			} else if (elementValueLength < 1) {
 				// only need to fail mandatory elements if they contain no data
 				if (iMinRule == 1) {
 					msgText = Messages.getString("MDValidator.158", iElementName);
-					mLogger.info("FAILED: " + msgText);
+					log.warn("FAILED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 					result = false;
 				}
 			} else {
 				msgText = Messages.getString("MDValidator.161", iElementName);
-				mLogger.info("PASSED: " + msgText);
+				log.debug("PASSED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 			}
 		} else if (elementValueLength < 1) {
@@ -871,7 +866,7 @@ public class MDValidator extends ADLSCORMValidator {
 			// only need to fail mandatory elements if they contain no data
 			if (iMinRule == 1) {
 				msgText = Messages.getString("MDValidator.158", iElementName);
-				mLogger.info("FAILED: " + msgText);
+				log.warn("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 				result = false;
@@ -879,7 +874,7 @@ public class MDValidator extends ADLSCORMValidator {
 			}
 		} else {
 			msgText = Messages.getString("MDValidator.161", iElementName);
-			mLogger.info("PASSED: " + msgText);
+			log.debug("PASSED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 		}
 
@@ -947,7 +942,7 @@ public class MDValidator extends ADLSCORMValidator {
 
 			if (!doesChild1Exist) {
 				msgText = Messages.getString("MDValidator.326", iParentName, iChild1);
-				mLogger.info("WARNING: " + msgText);
+				log.warn("WARNING: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 			}
 		}
@@ -990,13 +985,13 @@ public class MDValidator extends ADLSCORMValidator {
 
 			if (!doesChild1Exist) {
 				msgText = Messages.getString("MDValidator.326", iParentName, iChild1);
-				mLogger.info("WARNING: " + msgText);
+				log.warn("WARNING: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 
 			}
 			if (!doesChild2Exist) {
 				msgText = Messages.getString("MDValidator.326", iParentName, iChild2);
-				mLogger.info("WARNING: " + msgText);
+				log.warn("WARNING: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 
 			}
@@ -1045,13 +1040,13 @@ public class MDValidator extends ADLSCORMValidator {
 
 			if (doesTypeExist && doesNameExist) {
 				msgText = Messages.getString("MDValidator.305");
-				mLogger.info("PASSED: " + msgText);
+				log.debug("PASSED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 
 			} else {
 				// must error, they do not coexist.
 				msgText = Messages.getString("MDValidator.314");
-				mLogger.info("WARNING: " + msgText);
+				log.warn("WARNING: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 				result = true;
 			}
@@ -1076,7 +1071,6 @@ public class MDValidator extends ADLSCORMValidator {
 	 * @return     true if the value is a valid vocab token, false otherwise<br>
 	 */
 	private boolean checkVocabulary(String iName, String iValue, List<String> iVocabValues) {
-		mLogger.entering("MDValidator", "checkVocabulary()");
 
 		boolean result = false;
 		String msgText;
@@ -1093,14 +1087,13 @@ public class MDValidator extends ADLSCORMValidator {
 
 		if (result) {
 			msgText = Messages.getString("MDValidator.172", iValue, iName);
-			mLogger.info("PASSED: " + msgText);
+			log.debug("PASSED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 		} else {
 			msgText = Messages.getString("MDValidator.176", iValue, iName);
-			mLogger.info("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 		}
-		mLogger.exiting("MDValidator", "checkVocabulary()");
 
 		return result;
 	}
@@ -1121,9 +1114,11 @@ public class MDValidator extends ADLSCORMValidator {
 		super.setPerformFullValidation(false);
 		super.performValidatorParse(iXMLFileName);
 
-		mLogger.info("************************************");
-		mLogger.info(" WELLFORMED Result is " + super.getIsWellformed());
-		mLogger.info("************************************");
+        log.debug("""
+                    ************************************
+                     WELLFORMED Result is {}
+                    ************************************
+                  """, super.getIsWellformed());
 
 		if (!super.getIsWellformed()) {
 			wellnessResult = false;
@@ -1147,7 +1142,6 @@ public class MDValidator extends ADLSCORMValidator {
 	    */
 	private boolean compareToRules(Node iTestSubjectNode, String iPath) {
 		// looks exactly like prunetree as we walk down the tree
-		mLogger.entering("MDValidator", "compareToRules");
 
 		boolean result = true;
 		String msgText = "";
@@ -1172,13 +1166,13 @@ public class MDValidator extends ADLSCORMValidator {
 			String rootNodeName = rootNode.getLocalName();
 
 			msgText = Messages.getString("MDValidator.70", rootNodeName);
-			mLogger.info("INFO: " + msgText);
+			log.debug("INFO: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 			// XML Parser would have caught if the <lom> element was found more
 			// than once.  Since we are here, the <lom> element only exists once
 			msgText = Messages.getString("MDValidator.73", rootNodeName);
-			mLogger.info("PASSED: " + msgText);
+			log.debug("PASSED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 
 			result = compareToRules(rootNode, "") && result;
@@ -1280,7 +1274,7 @@ public class MDValidator extends ADLSCORMValidator {
 								maxRule = Integer.parseInt(mMetadataRulesValidator.getRuleValue(currentChildName, path, "max"));
 
 								msgText = Messages.getString("MDValidator.70", currentChildName);
-								mLogger.info("INFO: " + msgText);
+								log.debug("INFO: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 								result = checkMultiplicity(multiplicityUsed, minRule, maxRule, currentChildName) && result;
@@ -1322,7 +1316,6 @@ public class MDValidator extends ADLSCORMValidator {
 			break;
 		}
 		}
-		mLogger.exiting("MDValidator", "compareToRules()");
 		return result;
 	}
 
@@ -1373,17 +1366,15 @@ public class MDValidator extends ADLSCORMValidator {
 		boolean validateResult = true;
 		String msgText;
 
-		mLogger.entering("MDValidator", "validate(iRootLOMNode)");
-
 		// DEBUG LOG: Testing the Metadata XML Instance for wellformedness
-		mLogger.info("INFO: Testing the Metadata XML Instance for Well-" + "formedness");
+		log.debug("INFO: Testing the Metadata XML Instance for Well-formedness");
 
 		msgText = Messages.getString("MDValidator.14");
-		mLogger.info(msgText);
+		log.debug(msgText);
 		DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 		msgText = Messages.getString("MDValidator.22");
-		mLogger.info(msgText);
+		log.debug(msgText);
 		DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 
 		super.setIsWellformed(true);
@@ -1396,13 +1387,13 @@ public class MDValidator extends ADLSCORMValidator {
 		super.setIsRootElement(true);
 
 		msgText = Messages.getString("MDValidator.15");
-		mLogger.info(msgText);
+		log.debug(msgText);
 		DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 		if (iDidValidationToSchemaPass) {
 			msgText = Messages.getString("MDValidator.23");
 
-			mLogger.info(msgText);
+			log.debug(msgText);
 
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 
@@ -1410,12 +1401,11 @@ public class MDValidator extends ADLSCORMValidator {
 		} else {
 			msgText = Messages.getString("MDValidator.24");
 
-			mLogger.info(msgText);
+			log.debug(msgText);
 
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 		}
 
-		mLogger.exiting("MDValidator", "validate()");
 		return validateResult;
 	}
 
@@ -1434,11 +1424,10 @@ public class MDValidator extends ADLSCORMValidator {
 	public boolean validate(String iXMLFileName) {
 		boolean validateResult = true;
 
-		mLogger.entering("MDValidator", "validate(iXMLFileName)");
-		mLogger.finer("iXMLFileName coming in is " + iXMLFileName);
+		log.debug("iXMLFileName coming in is {}", iXMLFileName);
 
 		// Perform Wellformedness Parse
-		mLogger.info("INFO: Testing the Metadata XML Instance for " + "Well-formedness");
+		log.debug("INFO: Testing the Metadata XML Instance for Well-formedness");
 
 		// Well-formedness and Validity to Schema Check
 		validateResult = checkWellformedness(iXMLFileName) && validateResult;
@@ -1447,12 +1436,11 @@ public class MDValidator extends ADLSCORMValidator {
 		super.setIsRootElement(true);
 
 		// Perform Validation to the Schema Parse
-		mLogger.info("INFO: Testing the Metadata XML Instance for Validity" + " to the Controlling Documents");
+		log.debug("INFO: Testing the Metadata XML Instance for Validity to the Controlling Documents");
 
 		// Well-formedness and Validity to Schema Check
 		validateResult = checkSchema(iXMLFileName) && validateResult;
 
-		mLogger.exiting("MDValidator", "validate()");
 		return validateResult;
 	}
 

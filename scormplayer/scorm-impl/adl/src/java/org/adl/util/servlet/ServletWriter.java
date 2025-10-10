@@ -85,7 +85,6 @@ public class ServletWriter {
             log.debug("Opening HTTP URL connection to servlet.");
 			con = iServlet.openConnection();
 		} catch (Exception e) {
-			log.debug("e = 1");
             log.debug("Exception caught in ServletWriter::postObjects()", e);
 			throw e;
 		}
@@ -112,7 +111,7 @@ public class ServletWriter {
 
             int numObjects = iObjs.length;
 
-            log.debug("Num objects: " + numObjects);
+            log.debug("Num objects: {}", numObjects);
 
             for (Serializable iObj : iObjs) {
                 out.writeObject(iObj);
