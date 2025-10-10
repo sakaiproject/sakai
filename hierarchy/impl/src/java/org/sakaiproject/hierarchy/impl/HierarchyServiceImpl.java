@@ -47,11 +47,11 @@ import java.util.TreeSet;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.genericdao.api.search.Order;
-import org.sakaiproject.genericdao.api.search.Restriction;
-import org.sakaiproject.genericdao.api.search.Search;
+import org.springframework.transaction.annotation.Transactional;
 import org.sakaiproject.hierarchy.HierarchyService;
-import org.sakaiproject.hierarchy.dao.HierarchyDao;
+import org.sakaiproject.hierarchy.api.repository.HierarchyNodeMetaDataRepository;
+import org.sakaiproject.hierarchy.api.repository.HierarchyNodePermissionRepository;
+import org.sakaiproject.hierarchy.api.repository.HierarchyPersistentNodeRepository;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission;
 import org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode;
@@ -66,15 +66,26 @@ import org.sakaiproject.memory.api.MemoryService;
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
 @Slf4j
+@Transactional(readOnly = true)
 public class HierarchyServiceImpl implements HierarchyService {
 
     private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
     private boolean oracle = false;
 
-    private HierarchyDao dao;
+    private HierarchyNodeMetaDataRepository nodeMetaRepository;
+    private HierarchyPersistentNodeRepository nodeRepository;
+    private HierarchyNodePermissionRepository permissionRepository;
 
-    public void setDao(HierarchyDao dao) {
-        this.dao = dao;
+    public void setNodeMetaRepository(HierarchyNodeMetaDataRepository nodeMetaRepository) {
+        this.nodeMetaRepository = nodeMetaRepository;
+    }
+
+    public void setNodeRepository(HierarchyPersistentNodeRepository nodeRepository) {
+        this.nodeRepository = nodeRepository;
+    }
+
+    public void setPermissionRepository(HierarchyNodePermissionRepository permissionRepository) {
+        this.permissionRepository = permissionRepository;
     }
 
     private SqlService sqlService;
@@ -94,6 +105,7 @@ public class HierarchyServiceImpl implements HierarchyService {
     }
     private final String CACHE_NAME = "org.sakaiproject.hierarchy.cache";
 
+
     // private SessionManager sessionManager;
     // public void setSessionManager(SessionManager sessionManager) {
     // this.sessionManager = sessionManager;
@@ -106,20 +118,19 @@ public class HierarchyServiceImpl implements HierarchyService {
             this.oracle = true;
         }
 
-        // handle any DB migration/cleanup which needs to happen (mostly for upgrades)
-        dao.fixupDatabase();
+        // no runtime DB fixups; schema migration should enforce invariants
         
         cache = memoryService.getCache(CACHE_NAME);
     }
 
+    @Transactional
     public HierarchyNode createHierarchy(String hierarchyId) {
         if (hierarchyId.length() < 1 || hierarchyId.length() > 250) {
             throw new IllegalArgumentException("Invalid hierarchyId (" + hierarchyId
                     + "): length must be 1 to 250 chars");
         }
 
-        long count = dao.countBySearch(HierarchyNodeMetaData.class, 
-                new Search("hierarchyId", hierarchyId) );
+        long count = nodeMetaRepository.countByHierarchyId(hierarchyId);
         if (count > 0) {
             throw new IllegalArgumentException("Invalid hierarchyId (" + hierarchyId
                     + "): this id is already in use, you must use a unique id when creating a new hierarchy");
@@ -133,6 +144,7 @@ public class HierarchyServiceImpl implements HierarchyService {
         return HierarchyImplUtils.makeNode(pNode, metaData);
     }
 
+    @Transactional
     public HierarchyNode setHierarchyRootNode(String hierarchyId, String nodeId) {
         HierarchyNodeMetaData metaData = getNodeMeta(nodeId);
         HierarchyNodeMetaData rootMetaData = getRootNodeMetaByHierarchy(hierarchyId);
@@ -160,14 +172,14 @@ public class HierarchyServiceImpl implements HierarchyService {
         metaData.setIsRootNode(Boolean.TRUE);
         entities.add(metaData);
 
-        dao.saveSet(entities);
+        nodeMetaRepository.saveAll(entities);
         return HierarchyImplUtils.makeNode(metaData);
     }
 
     @SuppressWarnings("rawtypes")
+    @Transactional
     public void destroyHierarchy(String hierarchyId) {
-        List<HierarchyNodeMetaData> l = dao.findBySearch(HierarchyNodeMetaData.class, 
-                new Search("hierarchyId", hierarchyId) );
+        List<HierarchyNodeMetaData> l = nodeMetaRepository.findByHierarchyId(hierarchyId);
         if (l.isEmpty()) {
             throw new IllegalArgumentException("Could not find hierarchy to remove with the following id: "
                     + hierarchyId);
@@ -175,14 +187,25 @@ public class HierarchyServiceImpl implements HierarchyService {
 
         Set<HierarchyPersistentNode> nodes = new HashSet<HierarchyPersistentNode>();
         Set<HierarchyNodeMetaData> nodesMetaData = new HashSet<HierarchyNodeMetaData>();
+        List<String> nodeIdStrings = new ArrayList<>();
         for (int i = 0; i < l.size(); i++) {
             HierarchyNodeMetaData nmd = (HierarchyNodeMetaData) l.get(i);
             nodesMetaData.add(nmd);
             nodes.add(nmd.getNode());
+            nodeIdStrings.add(nmd.getNode().getId().toString());
         }
 
-        Set[] entitySets = new Set[] { nodesMetaData, nodes };
-        dao.deleteMixedSet(entitySets);
+        // delete related permissions, then metadata, then nodes
+        if (!nodeIdStrings.isEmpty()) {
+            List<HierarchyNodePermission> perms = permissionRepository.findByNodeIdIn(nodeIdStrings);
+            if (!perms.isEmpty()) {
+                permissionRepository.deleteAll(new HashSet<>(perms));
+            }
+        }
+
+        // delete metadata first, then nodes
+        nodeMetaRepository.deleteAll(nodesMetaData);
+        nodeRepository.deleteAll(nodes);
     }
 
     public HierarchyNode getRootNode(String hierarchyId) {
@@ -281,6 +304,7 @@ public class HierarchyServiceImpl implements HierarchyService {
         return parents;
     }
 
+    @Transactional
     public HierarchyNode addNode(String hierarchyId, String parentNodeId) {
         if (parentNodeId == null) {
             throw new RuntimeException("Setting parentNodeId to null is not yet supported");
@@ -331,11 +355,12 @@ public class HierarchyServiceImpl implements HierarchyService {
             // invalidate cache entry so the next get includes this new child
             cache.remove("cn"+node.getId().toString());
         }
-        dao.saveSet(pNodes);
+        nodeRepository.saveAll(pNodes);
 
         return HierarchyImplUtils.makeNode(pNode, metaData);
     }
 
+    @Transactional
     public HierarchyNode removeNode(String nodeId) {
         if (nodeId == null) {
             throw new NullPointerException("nodeId to remove cannot be null");
@@ -390,11 +415,12 @@ public class HierarchyServiceImpl implements HierarchyService {
             // invalidate cache entry so the next get doesn't include this removed child
             cache.remove("cn"+pNode.getId().toString());
         }
-        dao.saveSet(pNodes);
+        nodeRepository.saveAll(pNodes);
 
         return HierarchyImplUtils.makeNode(getNodeMeta(currentParentNodeId));
     }
 
+    @Transactional
     public HierarchyNode saveNodeMetaData(String nodeId, String title, String description, String permToken) {
         if (nodeId == null) {
             throw new NullPointerException("nodeId to remove cannot be null");
@@ -430,11 +456,14 @@ public class HierarchyServiceImpl implements HierarchyService {
         }
 
         // save the node meta data
-        dao.save(metaData);
+        nodeMetaRepository.save(metaData);
+        // Invalidate single-node cache so subsequent reads see updated metadata
+        cache.remove("n" + nodeId);
 
         return HierarchyImplUtils.makeNode(metaData);
     }
 
+    @Transactional
     public HierarchyNode setNodeDisabled(String nodeId, Boolean isDisabled) {
 
         if (nodeId == null) {
@@ -454,12 +483,15 @@ public class HierarchyServiceImpl implements HierarchyService {
         }
 
         // save the node meta data
-        dao.save(metaData);
+        nodeMetaRepository.save(metaData);
+        // Invalidate single-node cache so subsequent reads see updated disabled flag
+        cache.remove("n" + nodeId);
 
         return HierarchyImplUtils.makeNode(metaData);
 
     }
 
+    @Transactional
     public HierarchyNode addChildRelation(String nodeId, String childNodeId) {
         if (nodeId == null || childNodeId == null) {
             throw new NullPointerException("nodeId (" + nodeId + ") and childNodeId (" + childNodeId
@@ -540,12 +572,17 @@ public class HierarchyServiceImpl implements HierarchyService {
                 pNodes.add(pNode);
             }
 
-            dao.saveSet(pNodes);
+            // Invalidate cached child-node sets for all affected nodes
+            for (HierarchyPersistentNode n : pNodes) {
+                cache.remove("cn" + n.getId());
+            }
+            nodeRepository.saveAll(pNodes);
         }
 
         return HierarchyImplUtils.makeNode(metaData);
     }
 
+    @Transactional
     public HierarchyNode removeChildRelation(String nodeId, String childNodeId) {
         if (nodeId == null || childNodeId == null) {
             throw new NullPointerException("nodeId (" + nodeId + ") and childNodeId (" + childNodeId
@@ -633,18 +670,24 @@ public class HierarchyServiceImpl implements HierarchyService {
                 pNodes.add(pNode);
             }
 
-            dao.saveSet(pNodes);
+            // Invalidate cached child-node sets for all affected nodes
+            for (HierarchyPersistentNode n : pNodes) {
+                cache.remove("cn" + n.getId());
+            }
+            nodeRepository.saveAll(pNodes);
 
         }
 
         return HierarchyImplUtils.makeNode(metaData);
     }
 
+    @Transactional
     public HierarchyNode addParentRelation(String nodeId, String parentNodeId) {
         // TODO Not implemented yet - not sure we even want to allow this
         throw new RuntimeException("This method is not implemented yet");
     }
 
+    @Transactional
     public HierarchyNode removeParentRelation(String nodeId, String parentNodeId) {
         // TODO Not implemented yet - not sure this is even a good idea
         throw new RuntimeException("This method is not implemented yet");
@@ -656,18 +699,13 @@ public class HierarchyServiceImpl implements HierarchyService {
             throw new NullPointerException("permToken cannot be null or empty string");
         }
 
-        List<HierarchyNodeMetaData> l = dao.findBySearch(HierarchyNodeMetaData.class, 
-                new Search("hierarchyId", hierarchyId) );
+        List<HierarchyNodeMetaData> l = nodeMetaRepository.findByHierarchyId(hierarchyId);
         if (l.isEmpty()) {
             throw new IllegalArgumentException("Could not find hierarchy with the following id: "
                     + hierarchyId);
         }
 
-        List<HierarchyNodeMetaData> nodeIdsList = dao.findBySearch(HierarchyNodeMetaData.class, 
-                new Search(new Restriction[] {
-                        new Restriction("hierarchyId", hierarchyId),
-                        new Restriction("permToken", permToken)
-                }, new Order("node.id")));
+        List<HierarchyNodeMetaData> nodeIdsList = nodeMetaRepository.findByHierarchyIdAndPermTokenOrdered(hierarchyId, permToken);
 
         Set<String> nodeIds = new TreeSet<String>();
         for (Iterator<HierarchyNodeMetaData> iter = nodeIdsList.iterator(); iter.hasNext();) {
@@ -695,18 +733,14 @@ public class HierarchyServiceImpl implements HierarchyService {
 
     // PERMISSIONS
 
+    @Transactional
     public void assignUserNodePerm(String userId, String nodeId, String hierarchyPermission, boolean cascade) {
         if (userId == null || "".equals(userId)
                 || nodeId == null || "".equals(nodeId)
                 || hierarchyPermission == null || "".equals(hierarchyPermission)) {
             throw new IllegalArgumentException("Invalid arguments to assignUserNodePerm, no arguments can be null or blank: userId="+userId+", nodeId="+nodeId+", hierarchyPermission="+hierarchyPermission);
         }
-        HierarchyNodePermission nodePerm = dao.findOneBySearch(HierarchyNodePermission.class, new Search(
-                new Restriction[] {
-                        new Restriction("userId", userId),
-                        new Restriction("nodeId", nodeId),
-                        new Restriction("permission", hierarchyPermission)
-                }));
+        HierarchyNodePermission nodePerm = permissionRepository.findByUserIdAndNodeIdAndPermission(userId, nodeId, hierarchyPermission);
         if (nodePerm == null) {
             // validate the nodeId
             Long nodeIdeNum;
@@ -716,12 +750,12 @@ public class HierarchyServiceImpl implements HierarchyService {
                 throw new IllegalArgumentException("Node id ("+nodeId+") provided is invalid, must be a valid identifier from an existing node");
             }
             // check it exists
-            HierarchyPersistentNode pNode = dao.findById(HierarchyPersistentNode.class, nodeIdeNum);
+            HierarchyPersistentNode pNode = nodeRepository.findById(nodeIdeNum).orElse(null);
             if (pNode == null) {
                 throw new IllegalArgumentException("Node id ("+nodeId+") provided is invalid, node does not exist");
             }
             // create the perm
-            dao.create( new HierarchyNodePermission(userId, nodeId, hierarchyPermission) );
+            permissionRepository.save( new HierarchyNodePermission(userId, nodeId, hierarchyPermission) );
         } else {
             // permission already set, do nothing
         }
@@ -741,12 +775,7 @@ public class HierarchyServiceImpl implements HierarchyService {
                         arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
                     }
                     // get all the permissions which are related to the nodes under this one
-                    List<HierarchyNodePermission> nodePermsItteration = dao.findBySearch(HierarchyNodePermission.class, new Search(
-                            new Restriction[] {
-                                    new Restriction("userId", userId),
-                                    new Restriction("permission", hierarchyPermission),
-                                    new Restriction("nodeId", nodeIdsList.subList(i, i + arraySize).toArray())
-                            }));
+                    List<HierarchyNodePermission> nodePermsItteration = permissionRepository.findByUserIdAndPermissionAndNodeIds(userId, hierarchyPermission, nodeIdsList.subList(i, i + arraySize));
                     nodePerms.addAll(nodePermsItteration);
                     i += arraySize;
                 }while(i < nodeIdsList.size());
@@ -774,12 +803,13 @@ public class HierarchyServiceImpl implements HierarchyService {
                     // nothing to do here, all permissions already exist or there are none to add
                 } else {
                     // save the new permissions
-                    dao.saveSet( new HashSet<HierarchyNodePermission>(allPerms) );
+                    permissionRepository.saveAll( new HashSet<HierarchyNodePermission>(allPerms) );
                 }
             }
         }
     }
 
+    @Transactional
     public void removeUserNodePerm(String userId, String nodeId, String hierarchyPermission, boolean cascade) {
         if (userId == null || "".equals(userId)
                 || nodeId == null || "".equals(nodeId)
@@ -788,16 +818,11 @@ public class HierarchyServiceImpl implements HierarchyService {
         }
         if (! cascade) {
             // delete the current permission if it can be found
-            HierarchyNodePermission nodePerm = dao.findOneBySearch(HierarchyNodePermission.class, new Search(
-                    new Restriction[] {
-                            new Restriction("userId", userId),
-                            new Restriction("nodeId", nodeId),
-                            new Restriction("permission", hierarchyPermission)
-                    }));
+            HierarchyNodePermission nodePerm = permissionRepository.findByUserIdAndNodeIdAndPermission(userId, nodeId, hierarchyPermission);
             if (nodePerm == null) {
                 // not found, nothing to do
             } else {
-                dao.delete(nodePerm);
+                permissionRepository.delete(nodePerm);
             }
         } else {
             // cascade the permission removal and delete current one as well
@@ -818,15 +843,10 @@ public class HierarchyServiceImpl implements HierarchyService {
                         arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
                     }
                     // get all the permissions which are related to the nodes under this one
-                    List<HierarchyNodePermission> nodePerms = dao.findBySearch(HierarchyNodePermission.class, new Search(
-                            new Restriction[] {
-                                    new Restriction("userId", userId),
-                                    new Restriction("permission", hierarchyPermission),
-                                    new Restriction("nodeId", nodeIdsList.subList(i, i + arraySize).toArray())
-                            }));
+                    List<HierarchyNodePermission> nodePerms = permissionRepository.findByUserIdAndPermissionAndNodeIds(userId, hierarchyPermission, nodeIdsList.subList(i, i + arraySize));
                     if (nodePerms.size() > 0) {
                         // delete all as one operation
-                        dao.deleteSet( new HashSet<HierarchyNodePermission>(nodePerms) );
+                        permissionRepository.deleteAll( new HashSet<HierarchyNodePermission>(nodePerms) );
                     }
                     i += arraySize;
                 }while(i < nodeIdsList.size());
@@ -841,12 +861,7 @@ public class HierarchyServiceImpl implements HierarchyService {
             throw new IllegalArgumentException("Invalid arguments to checkUserNodePerm, no arguments can be null or blank: userId="+userId+", nodeId="+nodeId+", hierarchyPermission="+hierarchyPermission);
         }
         boolean allowed = false;
-        HierarchyNodePermission nodePerm = dao.findOneBySearch(HierarchyNodePermission.class, new Search(
-                new Restriction[] {
-                        new Restriction("userId", userId),
-                        new Restriction("nodeId", nodeId),
-                        new Restriction("permission", hierarchyPermission)
-                }));
+        HierarchyNodePermission nodePerm = permissionRepository.findByUserIdAndNodeIdAndPermission(userId, nodeId, hierarchyPermission);
         if (nodePerm != null) {
             allowed = true;
         }
@@ -859,11 +874,7 @@ public class HierarchyServiceImpl implements HierarchyService {
             throw new IllegalArgumentException("Invalid arguments to getNodesForUserPerm, no arguments can be null or blank: userId="+userId+", hierarchyPermission="+hierarchyPermission);
         }
         Set<HierarchyNode> nodes = new HashSet<HierarchyNode>();
-        List<HierarchyNodePermission> nodePerms = dao.findBySearch(HierarchyNodePermission.class, new Search(
-                new Restriction[] {
-                        new Restriction("userId", userId),
-                        new Restriction("permission", hierarchyPermission)
-                }));
+        List<HierarchyNodePermission> nodePerms = permissionRepository.findByUserIdAndPermission(userId, hierarchyPermission);
         Set<String> nodeIds = new HashSet<String>();
         for (HierarchyNodePermission nodePerm : nodePerms) {
             nodeIds.add( nodePerm.getNodeId() );
@@ -889,11 +900,8 @@ public class HierarchyServiceImpl implements HierarchyService {
                 if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
                     arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
                 }
-                List<HierarchyNodePermission> nodePerms = dao.findBySearch(HierarchyNodePermission.class, new Search(
-                        new Restriction[] {
-                                new Restriction("nodeId", nodeIdsList.subList(i, i + arraySize).toArray()),
-                                new Restriction("permission", hierarchyPermission)
-                        }));
+                // Filter by permission token for the specified nodes
+                List<HierarchyNodePermission> nodePerms = permissionRepository.findByPermissionAndNodeIds(hierarchyPermission, nodeIdsList.subList(i, i + arraySize));
                 for (HierarchyNodePermission nodePerm : nodePerms) {
                     userIds.add( nodePerm.getUserId() );
                 }
@@ -917,11 +925,7 @@ public class HierarchyServiceImpl implements HierarchyService {
                 if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
                     arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
                 }
-                List<HierarchyNodePermission> nodePerms = dao.findBySearch(HierarchyNodePermission.class, new Search(
-                        new Restriction[] {
-                                new Restriction("userId", userId),
-                                new Restriction("nodeId", nodeIdsList.subList(i, i + arraySize).toArray())
-                        }));
+                List<HierarchyNodePermission> nodePerms = permissionRepository.findByUserIdAndNodeIds(userId, nodeIdsList.subList(i, i + arraySize));
                 for (HierarchyNodePermission nodePerm : nodePerms) {
                     perms.add( nodePerm.getPermission() );
                 }
@@ -947,8 +951,7 @@ public class HierarchyServiceImpl implements HierarchyService {
             if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
                 arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
             }
-            List<HierarchyNodePermission> nodePermsItteration = dao.findBySearch(HierarchyNodePermission.class, 
-                    new Search("nodeId", nodeIdsList.subList(i, i + arraySize).toArray()));
+            List<HierarchyNodePermission> nodePermsItteration = permissionRepository.findByNodeIdIn(nodeIdsList.subList(i, i + arraySize));
             nodePerms.addAll(nodePermsItteration);
             i += arraySize;
         }while(i < nodeIdsList.size());
@@ -984,8 +987,7 @@ public class HierarchyServiceImpl implements HierarchyService {
             if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
                 arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
             }
-            List<HierarchyNodePermission> nodePermsItteration = dao.findBySearch(HierarchyNodePermission.class, 
-                    new Search("userId", userIdsList.subList(i, i + arraySize).toArray()));
+            List<HierarchyNodePermission> nodePermsItteration = permissionRepository.findByUserIdIn(userIdsList.subList(i, i + arraySize));
             nodePerms.addAll(nodePermsItteration);
             i += arraySize;
         }while(i < userIdsList.size());
@@ -1020,8 +1022,9 @@ public class HierarchyServiceImpl implements HierarchyService {
         pNodes.add(pNode);
         Set<HierarchyNodeMetaData> metaDatas = new HashSet<HierarchyNodeMetaData>();
         metaDatas.add(metaData);
-        Set[] entitySets = new Set[] { pNodes, metaDatas };
-        dao.saveMixedSet(entitySets);
+        // Save both node and metadata
+        nodeRepository.saveAll(pNodes);
+        nodeMetaRepository.saveAll(metaDatas);
         /* NORMALLY the code below should not be needed, however, 
          * we are seeing weird cases where the line above fails to create the metadata
          * so the code below is meant to detect that case and correct it by saving
@@ -1030,13 +1033,13 @@ public class HierarchyServiceImpl implements HierarchyService {
         if (metaData.getId() == null) {
             // something went wrong and we're not sure what so delete pNode
             if (pNode.getId() != null) {
-                dao.delete(pNode);
+                nodeRepository.delete(pNode);
             }
             throw new RuntimeException("Metadata didn't save, node was removed: "+pNode);
         } else if (pNode.getId() == null) {
             // something went wrong and we're not sure what so delete metadata
             if (metaData.getId() != null) {
-                dao.delete(metaData);
+                nodeMetaRepository.delete(metaData);
             }
             throw new RuntimeException("Metadata didn't save, metaData was removed: "+metaData);
         } else if (!metaData.getId().equals(pNode.getId())) {
@@ -1045,19 +1048,19 @@ public class HierarchyServiceImpl implements HierarchyService {
             if (pNode.getId() > metaData.getId()) {
                 while (i < 100 && metaData.getId() != null && pNode.getId() != metaData.getId()) {
                     // need to keep saving metaData until it's sequence has caught up
-                    dao.delete(metaData);
+                    nodeMetaRepository.delete(metaData);
                     // set ID back to null to make it save with a new incremented ID
                     metaData.setId(null);
-                    dao.save(metaData);
+                    nodeMetaRepository.save(metaData);
                     i++;
                 }
             } else {
                 while (i < 100 && pNode.getId() != null && pNode.getId() != metaData.getId()) {
                     // need to keep saving node until it's sequence has caught up
-                    dao.delete(pNode);
+                    nodeRepository.delete(pNode);
                     // set ID back to null to make it save with a new incremented ID
                     pNode.setId(null);
-                    dao.save(pNode);
+                    nodeRepository.save(pNode);
                     i++;
                 }
             }
@@ -1075,15 +1078,7 @@ public class HierarchyServiceImpl implements HierarchyService {
      * @return a {@link HierarchyNodeMetaData} or null if not found
      */
     private HierarchyNodeMetaData getNodeMeta(String nodeId) {
-        List<HierarchyNodeMetaData> l = dao.findBySearch(HierarchyNodeMetaData.class, 
-                new Search("node.id", new Long(nodeId)));
-        if (l.size() > 1) {
-            throw new IllegalStateException("Invalid hierarchy state: more than one node with id: " + nodeId);
-        } else if (l.size() == 1) {
-            return l.get(0);
-        } else {
-            return null;
-        }
+        return nodeMetaRepository.findByNodeId(Long.valueOf(nodeId));
     }
 
     /**
@@ -1093,19 +1088,18 @@ public class HierarchyServiceImpl implements HierarchyService {
      * @return the root {@link HierarchyNodeMetaData} of the hierarchy
      */
     private HierarchyNodeMetaData getRootNodeMetaByHierarchy(String hierarchyId) {
-        List<HierarchyNodeMetaData> l = dao.findBySearch(HierarchyNodeMetaData.class, 
-                new Search(new Restriction[] {
-                        new Restriction("hierarchyId", hierarchyId),
-                        new Restriction("isRootNode", Boolean.TRUE)
-                }) );
-        if (l.size() > 1) {
-            throw new IllegalStateException("Invalid hierarchy state: more than one root node for hierarchyId: "
-                    + hierarchyId);
-        } else if (l.size() == 1) {
-            return l.get(0);
-        } else {
+        HierarchyNodeMetaData root = nodeMetaRepository.findRootByHierarchyId(hierarchyId);
+        if (root == null) {
             return null;
         }
+        // safeguard: ensure uniqueness
+        List<HierarchyNodeMetaData> l = nodeMetaRepository.findByHierarchyId(hierarchyId);
+        long roots = l.stream().filter(m -> Boolean.TRUE.equals(m.getIsRootNode())).count();
+        if (roots > 1) {
+            throw new IllegalStateException("Invalid hierarchy state: more than one root node for hierarchyId: "
+                    + hierarchyId);
+        }
+        return root;
     }
 
     /**
@@ -1135,8 +1129,7 @@ public class HierarchyServiceImpl implements HierarchyService {
                 if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
                     arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
                 }
-                List<HierarchyNodeMetaData> lIterration = dao.findBySearch(HierarchyNodeMetaData.class, 
-                        new Search("node.id", nodeIdsList.subList(i, i + arraySize).toArray()) );
+                List<HierarchyNodeMetaData> lIterration = nodeMetaRepository.findByNodeIds(nodeIdsList.subList(i, i + arraySize));
                 l.addAll(lIterration);
                 i += arraySize;
             }while(i < nodeIdsList.size());
@@ -1171,8 +1164,7 @@ public class HierarchyServiceImpl implements HierarchyService {
                 if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
                     arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
                 }
-                List<HierarchyPersistentNode> lIterration = dao.findBySearch(HierarchyPersistentNode.class, 
-                        new Search("id", nodeIdsList.subList(i, i + arraySize).toArray()) );
+                List<HierarchyPersistentNode> lIterration = nodeRepository.findByIdIn(nodeIdsList.subList(i, i + arraySize));
                 l.addAll(lIterration);
                 i += arraySize;
             }while(i < nodeIdsList.size());

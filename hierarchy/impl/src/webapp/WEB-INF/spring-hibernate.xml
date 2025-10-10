@@ -1,47 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <!-- define the list of HBM mapping files -->
-    <bean id="hierarchy.hbmMappingList" class="java.util.ArrayList">
-        <constructor-arg>
-            <list>
-                <value>org/sakaiproject/hierarchy/dao/hbm/HierarchyPersistentNode.hbm.xml</value>
-                <value>org/sakaiproject/hierarchy/dao/hbm/HierarchyNodeMetaData.hbm.xml</value>
-                <value>org/sakaiproject/hierarchy/dao/hbm/HierarchyNodePermission.hbm.xml</value>
-            </list>
-        </constructor-arg>
-    </bean>
+    <!-- define the list of annotated entity classes -->
+    <util:list id="hierarchy.annotatedClassList" value-type="java.lang.Class">
+        <value>org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode</value>
+        <value>org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData</value>
+        <value>org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission</value>
+    </util:list>
 
-    <!-- create a DAO bean, use the hibernate implementation -->
-    <bean id="org.sakaiproject.hierarchy.dao.HierarchyDaoTarget"
-        class="org.sakaiproject.hierarchy.dao.HierarchyDaoImpl">
-        <property name="sessionFactory" 
-            ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-        <property name="persistentClasses">
-            <list>
-                <value>org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode</value>
-                <value>org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData</value>
-                <value>org.sakaiproject.hierarchy.dao.model.HierarchyNodePermission</value>
-            </list>
-        </property>
-    </bean>
-
-    <!-- This wraps our DAO so that the transactions are managed automatically -->
-    <bean id="org.sakaiproject.hierarchy.dao.HierarchyDao"
-        class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">
-      <property name="transactionManager" 
-        ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-      <property name="target" ref="org.sakaiproject.hierarchy.dao.HierarchyDaoTarget" />
-        <property name="transactionAttributes">
-            <props>
-                <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
-                <prop key="count*">PROPAGATION_REQUIRED,readOnly</prop>
-                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
-        </property>
-    </bean>
+    <!-- DAO bean removed in favor of Repository pattern -->
 
 </beans>
