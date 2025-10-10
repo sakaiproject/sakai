@@ -3371,14 +3371,21 @@ public class GradingServiceImpl implements GradingService {
 
             final List<GradebookAssignment> assignments = getAssignmentsCounted(gradebook.getId());
 
-            // this takes care of drop/keep scores
-            final List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), userUuids);
-
             // gradeMap MUST be sorted for the grade mapping to apply correctly
             final Map<String, Double> sortedGradeMap = GradeMappingDefinition.sortGradeMapping(gradeMap);
 
-            gradeRecords.forEach(gr -> {
+            final int batchSize = 1000;
+            List<CourseGradeRecord> allGradeRecords = new ArrayList<>();
+            for (int i = 0; i < userUuids.size(); i += batchSize) {
+                List<String> batch = userUuids.subList(i, Math.min(i + batchSize, userUuids.size()));
+                // this takes care of drop/keep scores
+                List<CourseGradeRecord> batchRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), batch);
+                if (batchRecords != null) {
+                    allGradeRecords.addAll(batchRecords);
+                }
+            }
 
+            allGradeRecords.forEach(gr -> {
                 final CourseGradeTransferBean cg = new CourseGradeTransferBean();
 
                 // ID of the course grade item
