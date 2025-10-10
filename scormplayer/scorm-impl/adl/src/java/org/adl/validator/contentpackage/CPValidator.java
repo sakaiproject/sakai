@@ -2968,7 +2968,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 		if (!resourceNodes.isEmpty()) {
 			Node currentResource;
 			int numChildren = resourceNodes.size();
-			log.debug("Number of resource children are ", numChildren);
+			log.debug("Number of resource children are {}", numChildren);
 
 			// loop through each resource and track all files per resource
 			// identifer
@@ -2978,7 +2978,7 @@ public class CPValidator extends ADLSCORMValidator implements IValidator {
 				// resourceID used for hash table key
 				String resourceID = DOMTreeUtility.getAttributeValue(currentResource, "identifier");
 
-				log.debug("Calling findFiles on resource ", resourceID);
+				log.debug("Calling findFiles on resource {}", resourceID);
 
 				// call our recursive function here
 				// pass in a resource node and expect back an arrayList of files

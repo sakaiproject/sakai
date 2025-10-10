@@ -103,7 +103,7 @@ public class ADLMessageCollection {
 	 *         in the queue
 	 */
 	public synchronized boolean hasMessages() {
-		if (!(mMessages.size() > 0)) {
+		if (mMessages.isEmpty()) {
 			// If there aren't any messages queued to be written to the Summary 
 			//  Log tell the SummaryLogWriter to wait until notified and set the 
 			//  mSummaryLogWriterIsWaiting flag to true
@@ -113,10 +113,10 @@ public class ADLMessageCollection {
 					wait();
 				}
 			} catch (InterruptedException ie) {
-				log.debug("Exception in " + "SummaryLogMessageCollection.hasMessages():" + ie);
+				log.debug("Thread interrupted, {}", ie);
 			}
 		}
 
-		return mMessages.size() > 0;
+		return !mMessages.isEmpty();
 	}
 }

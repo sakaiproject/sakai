@@ -123,7 +123,7 @@ public class ADLDuration implements Serializable, IDuration {
                     // store internally as milliseconds
                     mDuration = totalSeconds * 1000;
                 } else {
-                    log.warn(" ERROR : Invalid format  --> {}", iValue);
+                    log.warn("Invalid schema duration format: {}", iValue);
                 }
                 break;
             }

@@ -404,7 +404,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	@Override
 	public String getCourseID() {
         log.debug("  :: SeqActivityTree  --> BEGIN - getCourseID");
-		log.debug("  ::--> Student ID    : {}", mCourseID);
+		log.debug("  ::--> Course ID    : {}", mCourseID);
 		log.debug("  :: SeqActivityTree  --> END   - getCourseID");
 		return mCourseID;
 	}
@@ -799,7 +799,7 @@ public class SeqActivityTree implements Serializable, ISeqActivityTree {
 	@Override
 	public void setFirstCandidate(ISeqActivity iFirst) {
         log.debug("  :: SeqActivityTree  --> BEGIN - setFirstCandidate");
-        log.debug("  ::-->  {}", iFirst != null ? iFirst.getID() : "NULL current activity.");
+        log.debug("  ::-->  {}", iFirst != null ? iFirst.getID() : "NULL first candidate.");
 		mFirstCandidate = (SeqActivity) iFirst;
         log.debug("  :: SeqActivityTree  --> END   - setFirstCandidate");
 	}

@@ -489,8 +489,8 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
                             data = bucketAllocation.getValue().getBytes(Bucket.CHARSET);
                         } catch (UnsupportedEncodingException uee) {
                             data = bucketAllocation.getValue().getBytes();
-                            log.warn("{} is not a supported encoding. The default encoding is being used, {}",
-                                    Bucket.CHARSET, uee.toString());
+                            log.warn("{} is not a supported encoding. The default encoding is being used",
+                                    Bucket.CHARSET, uee);
                         }
 
                         statusInfo = appendData(bucketAllocation.getBucketID(), data, bucketAllocation);
@@ -597,6 +597,7 @@ public class SSP_Servlet extends HttpServlet implements BucketCollectionManagerI
             // Close the input and output streams
         } catch (ClassNotFoundException | IOException e) {
             log.warn("Exception caught while processing the SSP_ServletRequest", e);
+            oResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 

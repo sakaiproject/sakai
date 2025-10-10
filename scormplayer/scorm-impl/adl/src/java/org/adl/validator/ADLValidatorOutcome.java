@@ -25,7 +25,6 @@ package org.adl.validator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import lombok.extern.slf4j.Slf4j;
 import org.adl.parsers.dom.DOMTreeUtility;
@@ -141,11 +140,6 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	private boolean mIsValidRoot;
 
 	/**
-	 * Logger object used for debug logging.
-	 */
-	private transient Logger mLogger = Logger.getLogger("org.adl.util.debug.validator");
-
-	/**
 	 * Default constructor. Sets the attributes to their initial values.
 	 * @param iDoc The Test Subject Document
 	 * @param iRequiredManifest Indicates whether or not the manifest file exists
@@ -166,9 +160,8 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	public ADLValidatorOutcome(Document iDoc, boolean iRequiredManifest, boolean iWell, boolean iValidToSchema, boolean iValidToAppProfile, boolean iExt,
 	        boolean iRequiredFiles, boolean iIsValidRoot) {
-		//mLogger = Logger.getLogger("org.adl.util.debug.validator");
 
-		mLogger.entering("ADLValidatorOutcome", "ADLValidatorOutcome()");
+		log.debug("ADLValidatorOutcome", "ADLValidatorOutcome()");
 
 		mDocument = iDoc;
 		mDoesIMSManifestExist = iRequiredManifest;
@@ -180,7 +173,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 		mDoRequiredCPFilesExist = iRequiredFiles;
 		mIsValidRoot = iIsValidRoot;
 
-		mLogger.exiting("ADLValidatorOutcome", "ADLValidatorOutcome()");
+		log.debug("ADLValidatorOutcome", "ADLValidatorOutcome()");
 	}
 
 	/**
@@ -192,7 +185,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	@Override
 	public void applyXMLBase(Node iManifestNode) {
-		mLogger.entering("ADLValidatorOutcome", "applyXMLBase()");
+		log.debug("ADLValidatorOutcome", "applyXMLBase()");
 		String x = "";
 		String y = "";
 		Node currentNode;
@@ -261,7 +254,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 				}
 			}
 		}
-		mLogger.exiting("ADLValidatorOutcome", "applyXMLBase()");
+		log.debug("ADLValidatorOutcome", "applyXMLBase()");
 	}
 
 	/**
@@ -274,7 +267,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	@Override
 	public List<Node> getAllManifests(Node iManifest) {
-		mLogger.entering("ADLValidatorOutcome", "getAllManifests()");
+		log.debug("ADLValidatorOutcome", "getAllManifests()");
 		List<Node> resultList = new ArrayList<>();
 		List<Node> manifestList = new ArrayList<>();
 		Node currentManifest = null;
@@ -287,7 +280,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 			currentManifest = manifestList.get(manifestCount);
 			resultList.addAll(getAllManifests(currentManifest));
 		}
-		mLogger.exiting("ADLValidatorOutcome", "getAllManifests()");
+		log.debug("ADLValidatorOutcome", "getAllManifests()");
 		return resultList;
 	}
 
@@ -301,7 +294,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	@Override
 	public List<Node> getAllResources(Node iManifest) {
-		mLogger.entering("ADLValidatorOutcome", "getAllResources()");
+		log.debug("ADLValidatorOutcome", "getAllResources()");
 		List<Node> resourceList = new ArrayList<>();
 		List<Node> manifestList = new ArrayList<>();
 		Node resourcesNode = DOMTreeUtility.getNode(iManifest, "resources");
@@ -313,7 +306,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 			currentManifest = manifestList.get(i);
 			resourceList.addAll(getAllResources(currentManifest));
 		}
-		mLogger.exiting("ADLValidatorOutcome", "getAllResources()");
+		log.debug("ADLValidatorOutcome", "getAllResources()");
 		return resourceList;
 	}
 
@@ -436,7 +429,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	@Override
 	public List<Node> getItems(Node iItem) {
-		mLogger.entering("ADLValidatorOutcome", "getItems()");
+		log.debug("ADLValidatorOutcome", "getItems()");
 		List<Node> result = new ArrayList<>();
 		List<Node> itemList = new ArrayList<>();
 		Node currentItem = null;
@@ -448,7 +441,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 			currentItem = itemList.get(itemCount);
 			result.addAll(getItems(currentItem));
 		}
-		mLogger.exiting("ADLValidatorOutcome", "getItems()");
+		log.debug("ADLValidatorOutcome", "getItems()");
 		return result;
 	}
 
@@ -464,7 +457,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	@Override
 	public List<Node> getItemsInManifest(Node iManifest) {
-		mLogger.entering("ADLValidatorOutcome", "getItemsInManifest()");
+		log.debug("ADLValidatorOutcome", "getItemsInManifest()");
 		Node organizationsNode = null;
 		List<Node> organizationList = new ArrayList<>();
 		List<Node> itemList = new ArrayList<>();
@@ -485,7 +478,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 				resultList.addAll(getItems(currentItem));
 			}
 		}
-		mLogger.exiting("ADLValidatorOutcome", "getItemsInManifest()");
+		log.debug("ADLValidatorOutcome", "getItemsInManifest()");
 		return resultList;
 	}
 
@@ -499,7 +492,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	@Override
 	public Node getItemWithID(String iItemID) {
-		mLogger.entering("ADLValidatorOutcome", "getItemsWithID()");
+		log.debug("ADLValidatorOutcome", "getItemsWithID()");
 		Node manifestNode = mDocument.getDocumentElement();
 
 		List<Node> manifestList = getAllManifests(manifestNode);
@@ -541,7 +534,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 				}
 			}
 		}
-		mLogger.exiting("ADLValidatorOutcome", "getItemWithID()");
+		log.debug("ADLValidatorOutcome", "getItemWithID()");
 		return theNode;
 	}
 
@@ -559,7 +552,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	@Override
 	public Node getNodeWithID(Node iManifest, String iID) {
-		mLogger.entering("ADLValidatorOutcome", "getNodeWithID()");
+		log.debug("ADLValidatorOutcome", "getNodeWithID()");
 		boolean isFound = false;
 		Node theNode = null;
 		Node currentManifest = null;
@@ -585,7 +578,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 		}
 
 		if (!isFound) {
-			mLogger.info("NOT FOUND" + iID);
+			log.info("NOT FOUND" + iID);
 			List<Node> allResources = getAllResources(iManifest);
 			while ((j < allResources.size()) && (!isFound)) {
 				currentResource = allResources.get(j);
@@ -601,7 +594,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 				j++;
 			}
 		}
-		mLogger.exiting("ADLValidatorOutcome", "getNodeWithID()");
+		log.debug("ADLValidatorOutcome", "getNodeWithID()");
 		return theNode;
 	}
 
@@ -642,7 +635,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	@Override
 	public String getXMLBaseValue(Node iNode) {
-		mLogger.entering("ADLValidatorOutcome", "getXMLBaseValue()");
+		log.debug("ADLValidatorOutcome", "getXMLBaseValue()");
 		String result = "";
 
 		if (iNode != null) {
@@ -653,7 +646,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 				DOMTreeUtility.removeAttribute(iNode, "xml:base");
 			}
 		}
-		mLogger.exiting("ADLValidatorOutcome", "getXMLBaseValue()");
+		log.debug("ADLValidatorOutcome", "getXMLBaseValue()");
 		return result;
 	}
 
@@ -674,7 +667,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	@Override
 	public void processManifestMap(IManifestMap iManifestMap, Node iManifestNode) {
-		mLogger.entering("ADLValidatorOutcome", "processManifestMap()");
+		log.debug("ADLValidatorOutcome", "processManifestMap()");
 		boolean isInResources = false;
 		Node theNode = null;
 		String theNodeName = "";
@@ -811,7 +804,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
             currentManifestMap = (ManifestMap) manifestMap;
             processManifestMap(currentManifestMap, iManifestNode);
         }
-		mLogger.exiting("ADLValidatorOutcome", "processManifestMap()");
+		log.debug("ADLValidatorOutcome", "processManifestMap()");
 	}
 
 	/**
@@ -824,7 +817,7 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 	 */
 	@Override
 	public void rollupSubManifests(boolean isResPackage) {
-		mLogger.entering("ADLValidatorOutcome", "rollupSubManifests()");
+		log.debug("ADLValidatorOutcome", "rollupSubManifests()");
 		Node manifest = mDocument.getDocumentElement();
 		ManifestMap manifestMap = new ManifestMap();
 		List<Node> manifestList = new ArrayList<>();
@@ -864,6 +857,6 @@ public class ADLValidatorOutcome implements IValidatorOutcome {
 				}
 			}
 		}
-		mLogger.exiting("ADLValidatorOutcome", "rollupSubManifests()");
+		log.debug("ADLValidatorOutcome", "rollupSubManifests()");
 	}
 }
