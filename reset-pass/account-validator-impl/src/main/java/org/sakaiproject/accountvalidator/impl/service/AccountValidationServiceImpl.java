@@ -384,7 +384,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
 	@Override
 	public void deleteValidationAccount(ValidationAccount toDelete) {
-		repository.delete(toDelete);
+		if (toDelete != null) repository.delete(toDelete);
 	}
 
 	@Override
