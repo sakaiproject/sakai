@@ -132,7 +132,7 @@
       </div>
 
       <div class="form-check form-switch mt-4" th:if="${showPublicAccess}">
-        <input class="form-check-input" type="checkbox" id="is-public" th:field="*{public}" />
+        <input type="checkbox" id="is-public" th:field="*{public}" />
         <label class="form-check-label" for="is-public" th:text="#{new_poll_access_public}">Public poll</label>
       </div>
 
