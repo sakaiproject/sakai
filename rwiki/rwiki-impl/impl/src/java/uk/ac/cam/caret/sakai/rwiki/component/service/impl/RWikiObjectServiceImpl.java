@@ -155,7 +155,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	
 	private int maxReferencesStringSize = 4000;
 
-	private boolean trackReads = ServerConfigurationService.getBoolean("wiki.trackreads", true);
+	private boolean trackReads = true;
    
 	/**
 	 * Configuration: to run the ddl on init or not.
@@ -234,6 +234,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			log.error("Perform additional SQL setup", ex);
 		}
 		
+		trackReads = ServerConfigurationService.getBoolean("wiki.trackreads", true);
 		maxReferencesStringSize = ServerConfigurationService.getInt("wiki.maxReferences",4000);
 
 		

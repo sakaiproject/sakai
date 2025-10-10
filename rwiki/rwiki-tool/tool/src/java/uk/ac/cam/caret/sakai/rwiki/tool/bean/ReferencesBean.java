@@ -25,12 +25,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
-
-import org.sakaiproject.entity.api.Entity;
-
-import uk.ac.cam.caret.sakai.rwiki.service.api.EntityHandler;
+import java.util.TreeMap;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
@@ -114,23 +110,7 @@ public class ReferencesBean
 		return referenceLinks;
 	}
 
-	public List getFeedsLinks()
-	{
-		List feedsLinks = new ArrayList();
-		Map m = objectService.getHandlers();
-		for (Iterator<Entry<String, EntityHandler>> ii = m.entrySet().iterator(); ii.hasNext();)
-		{
-			Entry<String, EntityHandler> entry = ii.next();
-			EntityHandler eh = entry.getValue();
-			Entity e = objectService.getEntity(rwikiObject);
-			String displayLink = eh.getHTML(e);
-			if (displayLink != null)
-			{
-				feedsLinks.add(displayLink);
-			}
-		}
-		return feedsLinks;
-	}
+	
 
 	/**
 	 * Gets links to the pages referencing the current RWikiObject.
