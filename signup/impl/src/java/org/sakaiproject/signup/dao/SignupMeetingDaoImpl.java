@@ -34,20 +34,19 @@
 
 package org.sakaiproject.signup.dao;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
-
-import org.sakaiproject.genericdao.hibernate.HibernateGeneralGenericDao;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 
@@ -62,8 +61,17 @@ import org.sakaiproject.signup.model.SignupTimeslot;
  * </p>
  */
 @Slf4j
-public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
-		SignupMeetingDao {
+public class SignupMeetingDaoImpl implements SignupMeetingDao {
+
+    private SessionFactory sessionFactory;
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    private Session currentSession() {
+        return sessionFactory.getCurrentSession();
+    }
 
 	public void init() {
 		log.debug("init");
@@ -72,216 +80,196 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
-	public List<SignupMeeting> getAllSignupMeetings(String siteId) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupMeeting.class).addOrder(Order.asc("startTime"))
-				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-				.createCriteria("signupSites").add(
-						Restrictions.eq("siteId", siteId));
-		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
-	}
+    public List<SignupMeeting> getAllSignupMeetings(String siteId) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root).distinct(true)
+          .where(cb.equal(sites.get("siteId"), siteId))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
+    }
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
-	public List<SignupMeeting> getSignupMeetings(String siteId,
-			Date searchEndDate) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupMeeting.class).add(
-				Restrictions.le("startTime", searchEndDate)).addOrder(
-				Order.asc("startTime")).createCriteria("signupSites").add(
-				Restrictions.eq("siteId", siteId));
-
-		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
-	}
+    public List<SignupMeeting> getSignupMeetings(String siteId, Date searchEndDate) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.lessThanOrEqualTo(root.<Date>get("startTime"), searchEndDate),
+                  cb.equal(sites.get("siteId"), siteId)
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
+    }
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
-	public List<SignupMeeting> getSignupMeetings(String siteId, Date startDate,
-			Date endDate) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupMeeting.class).setResultTransformer(
-				Criteria.DISTINCT_ROOT_ENTITY)
-				.add(Restrictions.ge("endTime", startDate))
-				.add(Restrictions.lt("startTime", endDate))
-				.addOrder(Order.asc("startTime")).createCriteria("signupSites")
-				.add(Restrictions.eq("siteId", siteId));
-
-		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
-	}
+    public List<SignupMeeting> getSignupMeetings(String siteId, Date startDate, Date endDate) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.greaterThanOrEqualTo(root.<Date>get("endTime"), startDate),
+                  cb.lessThan(root.<Date>get("startTime"), endDate),
+                  cb.equal(sites.get("siteId"), siteId)
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
+    }
 	
-	@SuppressWarnings("unchecked")
-	public List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate,
-			Date endDate) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupMeeting.class).setResultTransformer(
-				Criteria.DISTINCT_ROOT_ENTITY)
-				.add(Restrictions.ge("endTime", startDate))
-				.add(Restrictions.lt("startTime", endDate))
-				.addOrder(Order.asc("startTime")).createCriteria("signupSites")
-				.add(Restrictions.eq("siteId", siteId));
-
-		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
-	}
+    public List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate, Date endDate) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.greaterThanOrEqualTo(root.<Date>get("endTime"), startDate),
+                  cb.lessThan(root.<Date>get("startTime"), endDate),
+                  cb.equal(sites.get("siteId"), siteId)
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
+    }
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
-	public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate,
-			Date endDate) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupMeeting.class).setResultTransformer(
-				Criteria.DISTINCT_ROOT_ENTITY)
-				.add(Restrictions.ge("endTime", startDate))
-				.add(Restrictions.lt("startTime", endDate))
-				.addOrder(Order.asc("startTime")).createCriteria("signupSites")
-				.add(Restrictions.in("siteId", siteIds));
-
-		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	public List<SignupMeeting> getRecurringSignupMeetings(String siteId,
-			Long recurrenceId, Date currentTime) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupMeeting.class).setResultTransformer(
-				Criteria.DISTINCT_ROOT_ENTITY).add(
-				Restrictions.eq("recurrenceId", recurrenceId)).add(
-				Restrictions.gt("endTime", currentTime)).addOrder(
-				Order.asc("startTime")).createCriteria("signupSites").add(
-				Restrictions.eq("siteId", siteId));
-
-		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
-	}
+    public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        Expression<String> siteIdPath = sites.get("siteId");
+        Predicate inSites = siteIdPath.in(siteIds);
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.greaterThanOrEqualTo(root.<Date>get("endTime"), startDate),
+                  cb.lessThan(root.<Date>get("startTime"), endDate),
+                  inSites
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
+    }
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public Long saveMeeting(SignupMeeting signupMeeting) {
-		return (Long) getHibernateTemplate().save(signupMeeting);
-	}
+    public List<SignupMeeting> getRecurringSignupMeetings(String siteId, Long recurrenceId, Date currentTime) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.equal(root.get("recurrenceId"), recurrenceId),
+                  cb.greaterThan(root.<Date>get("endTime"), currentTime),
+                  cb.equal(sites.get("siteId"), siteId)
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
+    }
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void saveMeetings(List<SignupMeeting> signupMeetings) {
-		if (signupMeetings != null && signupMeetings.size() > 0) {
-			SignupMeeting sm = (SignupMeeting) signupMeetings.get(0);
-			if (sm.isRecurredMeeting()) {
-				Long reRecurId = (Long) getHibernateTemplate().save(sm);
-				/*
-				 * use the first unique meeting id as the reRecurId for all
-				 * recurring meetings
-				 */
-				for (SignupMeeting sMeeting : signupMeetings) {
-					sMeeting.setRecurrenceId(reRecurId);
-				}
-
-			}
-			for (SignupMeeting signupMeeting : signupMeetings) {
-				getHibernateTemplate().saveOrUpdate(signupMeeting);
-			}
-		}
-
-	}
+    public Long saveMeeting(SignupMeeting signupMeeting) {
+        return (Long) currentSession().save(signupMeeting);
+    }
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public SignupMeeting loadSignupMeeting(Long meetingId) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupMeeting.class).setResultTransformer(
-				Criteria.DISTINCT_ROOT_ENTITY).add(
-				Restrictions.eq("id", meetingId));
-		List<SignupMeeting> ls = (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
-		if (ls == null || ls.isEmpty())
-			return null;
-
-		return (SignupMeeting) ls.get(0);
-
-	}
+    public void saveMeetings(List<SignupMeeting> signupMeetings) {
+        if (signupMeetings != null && signupMeetings.size() > 0) {
+            SignupMeeting sm = signupMeetings.get(0);
+            if (sm.isRecurredMeeting()) {
+                Long reRecurId = (Long) currentSession().save(sm);
+                // use the first unique meeting id as the recurrenceId for all recurring meetings
+                for (SignupMeeting sMeeting : signupMeetings) {
+                    sMeeting.setRecurrenceId(reRecurId);
+                }
+            }
+            for (SignupMeeting signupMeeting : signupMeetings) {
+                currentSession().saveOrUpdate(signupMeeting);
+            }
+        }
+    }
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateMeeting(SignupMeeting meeting) throws DataAccessException {
-		getHibernateTemplate().update(meeting);
+    public SignupMeeting loadSignupMeeting(Long meetingId) {
+        return currentSession().get(SignupMeeting.class, meetingId);
+    }
 
-	}
+	/**
+	 * {@inheritDoc}
+	 */
+    public void updateMeeting(SignupMeeting meeting) throws DataAccessException {
+        currentSession().update(meeting);
+    }
 	
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateMeetings(List<SignupMeeting> meetings)
-			throws DataAccessException {
-		for (SignupMeeting meeting : meetings) {
-			getHibernateTemplate().saveOrUpdate(meeting);
-		}
-	}
+    public void updateMeetings(List<SignupMeeting> meetings) throws DataAccessException {
+        for (SignupMeeting meeting : meetings) {
+            currentSession().saveOrUpdate(meeting);
+        }
+    }
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public void updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots) 
-			throws DataAccessException {
-		for (SignupMeeting meeting : meetings) {
-			getHibernateTemplate().saveOrUpdate(meeting);
-		}
-		
-		/*remove the deleted timeslot and related attendees/wait-list people*/
-		if(removedTimeslots !=null && removedTimeslots.size() > 0 ){
-			for (SignupTimeslot ts : removedTimeslots) {
-				long tsId = ts.getId();
-				SignupTimeslot sTimeslot = loadSignupTimeslot(tsId);
-				getHibernateTemplate().delete(sTimeslot);
-			}
-		}
-		
-	}
+    public void updateModifiedMeetings(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots)
+            throws DataAccessException {
+        for (SignupMeeting meeting : meetings) {
+            currentSession().saveOrUpdate(meeting);
+        }
+
+        // remove the deleted timeslot and related attendees/wait-list people
+        if (removedTimeslots != null && !removedTimeslots.isEmpty()) {
+            for (SignupTimeslot ts : removedTimeslots) {
+                long tsId = ts.getId();
+                SignupTimeslot sTimeslot = loadSignupTimeslot(tsId);
+                if (sTimeslot != null) {
+                    currentSession().delete(sTimeslot);
+                }
+            }
+        }
+    }
 	
-	private SignupTimeslot loadSignupTimeslot(Long timeslotId) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupTimeslot.class).setResultTransformer(
-				Criteria.DISTINCT_ROOT_ENTITY).add(
-				Restrictions.eq("id", timeslotId));
-		List ls = getHibernateTemplate().findByCriteria(criteria);
-		if (ls == null || ls.isEmpty())
-			return null;
-
-		return (SignupTimeslot) ls.get(0);
-
-	}
+    private SignupTimeslot loadSignupTimeslot(Long timeslotId) {
+        return currentSession().get(SignupTimeslot.class, timeslotId);
+    }
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void removeMeetings(List<SignupMeeting> meetings) {
-		getHibernateTemplate().deleteAll(mergeAll(meetings));
-	}
-
-	private Collection mergeAll(Collection entities) {
-		List merged = new ArrayList();
-		entities.forEach(ent->merged.add(getHibernateTemplate().merge(ent)));
-		return merged;
-	}
+    public void removeMeetings(List<SignupMeeting> meetings) {
+        for (SignupMeeting meeting : meetings) {
+            SignupMeeting attached = (SignupMeeting) currentSession().merge(meeting);
+            currentSession().delete(attached);
+        }
+    }
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean isEventExisted(Long eventId) {
-		//TODO need test with lazy loading
 		SignupMeeting ls = loadSignupMeeting(eventId);
-		if (ls ==null)
-			return false;
+		if (ls == null) return false;
 		
 		return true;
 	}
@@ -289,66 +277,61 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getAutoReminderTotalEventCounts(Date startDate, Date endDate) {
-		Number size = (Number) getHibernateTemplate().execute(session -> session.createCriteria(SignupMeeting.class)
-				.add(Restrictions.eq("autoReminder", true))
-				.add(Restrictions.between("startTime", startDate, endDate))
-				.setProjection(Projections.rowCount())
-				.uniqueResult());
-		return size.intValue();
-	}
+    public int getAutoReminderTotalEventCounts(Date startDate, Date endDate) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        cq.select(cb.count(root))
+          .where(cb.and(
+                  cb.isTrue(root.get("autoReminder")),
+                  cb.between(root.<Date>get("startTime"), startDate, endDate)
+          ));
+        Long count = currentSession().createQuery(cq).getSingleResult();
+        return count == null ? 0 : count.intValue();
+    }
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
-	public List<SignupMeeting> getAutoReminderSignupMeetings(Date startDate,
-			Date endDate) {
-		DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupMeeting.class).setResultTransformer(
-				Criteria.DISTINCT_ROOT_ENTITY).add(Restrictions.eq("autoReminder", true))
-				//.add(Restrictions.between("startTime", startDate, endDate))
-				.add(Restrictions.le("startTime", endDate))
-				.add(Restrictions.ge("endTime",startDate))
-				.addOrder(Order.asc("startTime"));		
+    public List<SignupMeeting> getAutoReminderSignupMeetings(Date startDate, Date endDate) {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<SignupMeeting> cq = cb.createQuery(SignupMeeting.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        cq.select(root).distinct(true)
+          .where(cb.and(
+                  cb.isTrue(root.get("autoReminder")),
+                  cb.lessThanOrEqualTo(root.<Date>get("startTime"), endDate),
+                  cb.greaterThanOrEqualTo(root.<Date>get("endTime"), startDate)
+          ))
+          .orderBy(cb.asc(root.get("startTime")));
+        return currentSession().createQuery(cq).getResultList();
+    }
 
-		return (List<SignupMeeting>) getHibernateTemplate().findByCriteria(criteria);
-	}
+    @Override
+    public List<String> getAllCategories(String siteId) throws DataAccessException {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<String> cq = cb.createQuery(String.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root.get("category")).distinct(true)
+          .where(cb.equal(sites.get("siteId"), siteId))
+          .orderBy(cb.asc(root.get("category")));
+        List<String> results = currentSession().createQuery(cq).getResultList();
+        return (results != null && !results.isEmpty()) ? results : null;
+    }
 
-	@Override
-	public List<String> getAllCategories(String siteId) throws DataAccessException {
-		DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupMeeting.class).setProjection(Projections.distinct(Projections.projectionList()
-					    	    .add(Projections.property("category"), "category") )).setResultTransformer(
-				Criteria.DISTINCT_ROOT_ENTITY)				
-				.addOrder(Order.asc("category")).createCriteria("signupSites")
-				.add(Restrictions.eq("siteId", siteId));
-		
-		List<String> categorys = (List<String>) getHibernateTemplate().findByCriteria(criteria);
-		
-		if(categorys !=null && !categorys.isEmpty()){
-			return categorys;
-		}
-		
-		return null;
-	}
+    @Override
+    public List<String> getAllLocations(String siteId) throws DataAccessException {
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<String> cq = cb.createQuery(String.class);
+        Root<SignupMeeting> root = cq.from(SignupMeeting.class);
+        Join<Object, Object> sites = root.join("signupSites");
+        cq.select(root.get("location")).distinct(true)
+          .where(cb.equal(sites.get("siteId"), siteId))
+          .orderBy(cb.asc(root.get("location")));
 
-	@Override
-	public List<String> getAllLocations(String siteId) throws DataAccessException {
-				DetachedCriteria criteria = DetachedCriteria.forClass(
-				SignupMeeting.class).setProjection(Projections.distinct(Projections.projectionList()
-					    	    .add(Projections.property("location"), "location") )).setResultTransformer(
-				Criteria.DISTINCT_ROOT_ENTITY)				
-				.addOrder(Order.asc("location")).createCriteria("signupSites")
-				.add(Restrictions.eq("siteId", siteId));
-		
-		List<String> locations = (List<String>) getHibernateTemplate().findByCriteria(criteria);
-		
-		if(locations !=null && !locations.isEmpty()){
-			return locations;
-		}
-		
-		return null;
-	}
+        List<String> results = currentSession().createQuery(cq).getResultList();
+        return (results != null && !results.isEmpty()) ? results : null;
+    }
 
 }
