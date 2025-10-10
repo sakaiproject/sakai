@@ -28,6 +28,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -56,11 +58,19 @@ public class Vote implements PersistableEntity<Long> {
     @Column(name = "VOTE_POLL_ID", nullable = false)
     private Long pollId;
 
+    @ManyToOne
+    @JoinColumn(name = "VOTE_POLL_ID", nullable = false, insertable = false, updatable = false)
+    private Poll poll;
+
     @Column(name = "VOTE_DATE", nullable = false)
     private Instant voteDate;
 
     @Column(name = "VOTE_OPTION")
     private Long pollOption;
+
+    @ManyToOne
+    @JoinColumn(name = "VOTE_OPTION", insertable = false, updatable = false)
+    private Option option;
 
     @Column(name = "VOTE_SUBMISSION_ID", nullable = false, length = 99)
     private String submissionId;
@@ -72,6 +82,8 @@ public class Vote implements PersistableEntity<Long> {
     public Vote(Poll poll, Option option, String subId, Instant voteDate, String userId, String ip) {
         this.pollId = poll.getPollId();
         this.pollOption = option.getOptionId();
+        this.poll = poll;
+        this.option = option;
         this.submissionId = subId;
         this.voteDate = voteDate;
         this.userId = userId;

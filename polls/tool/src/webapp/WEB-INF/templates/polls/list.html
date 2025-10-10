@@ -51,7 +51,7 @@
               <th scope="col" th:text="#{poll_result_title}">Results</th>
               <th scope="col" class="text-nowrap">
                 <div class="form-check m-0" th:if="${renderDelete}">
-                  <input class="form-check-input" type="checkbox" id="remove-all" />
+                  <input type="checkbox" id="remove-all" />
                   <label class="form-check-label" for="remove-all" th:text="#{poll_select_title_all}">Select all</label>
                 </div>
               </th>
@@ -87,7 +87,7 @@
               </td>
               <td>
                 <div class="form-check" th:if="${poll.deletable}">
-                  <input class="form-check-input" type="checkbox" th:id="${'delete-' + poll.id}" name="deleteIds" th:value="${poll.id}" />
+                  <input type="checkbox" th:id="${'delete-' + poll.id}" name="deleteIds" th:value="${poll.id}" />
                   <label class="form-check-label visually-hidden" th:for="${'delete-' + poll.id}" th:text="${#messages.msg('delete_poll_tooltip', poll.text)}">Delete</label>
                 </div>
               </td>

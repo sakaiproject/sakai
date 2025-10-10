@@ -29,7 +29,7 @@
 
       <div class="mb-3" th:if="${hasVotes}">
         <div class="form-check" th:each="choice : ${handleOptions}">
-          <input class="form-check-input" type="radio" name="orphanHandling" th:id="${'handle-' + choice.value()}" th:value="${choice.value()}" th:checked="${choice.value() == 'return-votes'}" />
+          <input type="radio" name="orphanHandling" th:id="${'handle-' + choice.value()}" th:value="${choice.value()}" th:checked="${choice.value() == 'return-votes'}" />
           <label class="form-check-label" th:for="${'handle-' + choice.value()}" th:text="#{${choice.labelKey()}}">Option</label>
         </div>
       </div>
