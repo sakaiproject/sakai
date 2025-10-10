@@ -8,25 +8,25 @@ debugging.
 (1) Serving content package resources
 
 	-Depending on your chosen ScormResourceService in components, try turning on:
-	log4j.logger.org.sakaiproject.scorm.service.sakai.impl.SakaiResourceService=DEBUG
+	org.sakaiproject.scorm.service.sakai.impl.SakaiResourceService=DEBUG
 	or
-	log4j.logger.org.sakaiproject.scorm.service.standalone.impl.StandaloneResourceService=DEBUG 
+	org.sakaiproject.scorm.service.standalone.impl.StandaloneResourceService=DEBUG
 
 	-To see the resources being loaded into Wicket, use:
-	log4j.logger.org.sakaiproject.scorm.ui.player.components.LazyLaunchPanel=DEBUG
+	org.sakaiproject.scorm.ui.player.components.LazyLaunchPanel=DEBUG
 
 
 (2) SJAX Communication
 
 	-To debug Wicket's AJAX communcation inside the browser, turn on these two:
-	log4j.logger.org.sakaiproject.scorm.ui.player.ScormTool=DEBUG
-	log4j.logger.org.sakaiproject.wicket.protocol.http.SakaiWebApplication=DEBUG
+	org.sakaiproject.scorm.ui.player.ScormTool=DEBUG
+	org.sakaiproject.wicket.protocol.http.SakaiWebApplication=DEBUG
 
 	-To see high-level output from the SCORM API Communication at the server, turn on:
-	log4j.logger.org.sakaiproject.scorm.ui.player.components.SjaxContainer=DEBUG	
+	org.sakaiproject.scorm.ui.player.components.SjaxContainer=DEBUG
 
 	-To see more detailed output from the SCORM API Communcation at the server, turn on:
-	log4j.logger.org.sakaiproject.scorm.service.impl.ScormApplicationServiceImpl=DEBUG
+	org.sakaiproject.scorm.service.impl.ScormApplicationServiceImpl=DEBUG
 
 
 (3) ADL Code problems

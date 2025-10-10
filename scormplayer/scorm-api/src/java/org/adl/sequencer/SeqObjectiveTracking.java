@@ -23,11 +23,13 @@
 *******************************************************************************/
 package org.adl.sequencer;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 
 /**
@@ -60,17 +62,14 @@ import org.apache.commons.lang3.math.NumberUtils;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqObjectiveTracking implements Serializable {
-	private static final long serialVersionUID = 1L;
+	@Serial private static final long serialVersionUID = 1L;
 
-	private long id;
+	@Getter
+    private long id;
 
-	/**
-	    * This controls display of log messages to the java console
-	    */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * Identifies the learner with which this objective is associated.
 	 */
 	@SuppressWarnings("unused")
@@ -85,7 +84,7 @@ public class SeqObjectiveTracking implements Serializable {
 	/**
 	 * Identifies the objective being tracked.
 	 */
-	private SeqObjective mObj = null;
+    private SeqObjective mObj = null;
 
 	/**
 	 * Indicates if the recorded Objective status is invalid
@@ -159,26 +158,19 @@ public class SeqObjectiveTracking implements Serializable {
 	 */
 	public SeqObjectiveTracking(SeqObjective iObj, String iLearnerID, String iScopeID) {
 
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking --> BEGIN -  " + "constructor");
-			System.out.println("  ::--> " + iLearnerID);
-			System.out.println("  ::--> " + iScopeID);
-		}
+		log.debug("  :: SeqObjectiveTracking --> BEGIN -  constructor");
+		log.debug("  ::--> {}", iLearnerID);
+		log.debug("  ::--> {}", iScopeID);
 
 		if (iObj != null) {
-
-			if (_Debug) {
-				System.out.println("  ::--> Objective ID : " + iObj.mObjID);
-			}
+			log.debug("  ::--> Objective ID : {}", iObj.mObjID);
 
 			mObj = iObj;
 			mLearnerID = iLearnerID;
 			mScopeID = iScopeID;
 
 			if (iObj.mMaps != null) {
-				if (_Debug) {
-					System.out.println("  ::--> Setting up obj maps");
-				}
+				log.debug("  ::--> Setting up obj maps");
 
 				for (int i = 0; i < mObj.mMaps.size(); i++) {
 					SeqObjectiveMap map = mObj.mMaps.get(i);
@@ -209,14 +201,10 @@ public class SeqObjectiveTracking implements Serializable {
 				}
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : No associated objective");
-			}
+			log.debug("  ::--> ERROR : No associated objective");
 		}
 
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking --> END   -  " + "constructor");
-		}
+		log.debug("  :: SeqObjectiveTracking --> END   -  constructor");
 	}
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -237,27 +225,22 @@ public class SeqObjectiveTracking implements Serializable {
 	 */
 	boolean clearObjMeasure(boolean iAffectSatisfaction) {
 
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> BEGIN - " + "clearObjMeasure");
-			System.out.println("  ::--> " + iAffectSatisfaction);
-		}
+		log.debug("  :: SeqObjectiveTracking   --> BEGIN - clearObjMeasure");
+		log.debug("  ::--> {}", iAffectSatisfaction);
 
 		boolean statusChange = false;
 
 		if (mHasMeasure) {
 			// Clear any global objectives
 			if (mWriteMeasure != null) {
-				for (int i = 0; i < mWriteMeasure.size(); i++) {
-					@SuppressWarnings("unused")
-					String objID = mWriteMeasure.get(i);
-
-					// FIXME
+                for (String objID : mWriteMeasure) {
+                    // FIXME
 					/*ADLSeqUtilities.setGlobalObjMeasure(objID, 
 					                                    mLearnerID,
 					                                    mScopeID,
 					                                    ADLTracking.TRACK_UNKNOWN);
 					*/
-				}
+                }
 			}
 
 			// Clear the measure
@@ -269,10 +252,8 @@ public class SeqObjectiveTracking implements Serializable {
 			}
 		}
 
-		if (_Debug) {
-			System.out.println("  ::--> " + statusChange);
-			System.out.println("  :: SeqObjectiveTracking   --> END   - " + "clearObjMeasure");
-		}
+		log.debug("  ::--> {}", statusChange);
+		log.debug("  :: SeqObjectiveTracking   --> END   - clearObjMeasure");
 
 		return statusChange;
 	}
@@ -285,34 +266,27 @@ public class SeqObjectiveTracking implements Serializable {
 	 */
 	boolean clearObjStatus() {
 
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> BEGIN - " + "clearObjStatus");
-		}
+		log.debug("  :: SeqObjectiveTracking   --> BEGIN - clearObjStatus");
 
 		boolean statusChange = false;
 
 		if (mHasSatisfied) {
 
 			if (mObj.mSatisfiedByMeasure) {
-				if (_Debug) {
-					System.out.println("  ::--> Cannot clear: Objective " + "satisfied by measure");
-				}
+				log.debug("  ::--> Cannot clear: Objective satisfied by measure");
 			} else {
 
 				// Clear any global objectives
 				if (mWriteStatus != null) {
-					for (int i = 0; i < mWriteStatus.size(); i++) {
-						@SuppressWarnings("unused")
-						String objID = mWriteStatus.get(i);
-
-						// FIXME
+                    for (String objID : mWriteStatus) {
+                        // FIXME
 						/*ADLSeqUtilities.
 						setGlobalObjSatisfied(objID, 
 						                      mLearnerID, 
 						                      mScopeID,
 						                      ADLTracking.TRACK_UNKNOWN);
 						*/
-					}
+                    }
 				}
 
 				// Clear the satisfaction status
@@ -321,10 +295,8 @@ public class SeqObjectiveTracking implements Serializable {
 			}
 		}
 
-		if (_Debug) {
-			System.out.println("  ::--> " + statusChange);
-			System.out.println("  :: SeqObjectiveTracking   --> END   - " + "clearObjStatus");
-		}
+		log.debug("  ::--> {}", statusChange);
+		log.debug("  :: SeqObjectiveTracking   --> END   - clearObjStatus");
 
 		return statusChange;
 	}
@@ -337,41 +309,30 @@ public class SeqObjectiveTracking implements Serializable {
 	 */
 	void forceObjStatus(String iSatisfied) {
 
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> BEGIN - " + "forceObjStatus");
-			System.out.println("  ::-->  " + iSatisfied);
-		}
+		log.debug("  :: SeqObjectiveTracking   --> BEGIN - forceObjStatus");
+		log.debug("  ::-->  {}", iSatisfied);
 
 		if (iSatisfied.equals(ADLTracking.TRACK_UNKNOWN)) {
 			clearObjStatus();
 		} else {
 			// Set any global objectives
 			if (mWriteStatus != null) {
-				for (int i = 0; i < mWriteStatus.size(); i++) {
-					@SuppressWarnings("unused")
-					String objID = mWriteStatus.get(i);
-
-					// FIXME: Implement this
+                for (String objID : mWriteStatus) {
+                    // FIXME: Implement this
 					/*ADLSeqUtilities.setGlobalObjSatisfied(objID, 
 					                                      mLearnerID,
 					                                      mScopeID,
 					                                      iSatisfied);
 					*/
-				}
+                }
 			}
 
 			mHasSatisfied = true;
 
-			if (iSatisfied.equals(ADLTracking.TRACK_SATISFIED)) {
-				mSatisfied = true;
-			} else {
-				mSatisfied = false;
-			}
+            mSatisfied = iSatisfied.equals(ADLTracking.TRACK_SATISFIED);
 		}
 
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> END   - " + "forceObjStatus");
-		}
+		log.debug("  :: SeqObjectiveTracking   --> END   - forceObjStatus");
 	}
 
 	/**
@@ -381,9 +342,7 @@ public class SeqObjectiveTracking implements Serializable {
 	 *         otherwise <code>false</code>
 	 */
 	boolean getByMeasure() {
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> BEGIN - " + "getByMeasure");
-		}
+		log.debug("  :: SeqObjectiveTracking   --> BEGIN - getByMeasure");
 
 		boolean byMeasure = false;
 
@@ -391,15 +350,9 @@ public class SeqObjectiveTracking implements Serializable {
 			byMeasure = mObj.mSatisfiedByMeasure;
 		}
 
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> END   - " + "getByMeasure");
-		}
+		log.debug("  :: SeqObjectiveTracking   --> END   - getByMeasure");
 
 		return byMeasure;
-	}
-
-	public long getId() {
-		return id;
 	}
 
 	/**
@@ -418,11 +371,9 @@ public class SeqObjectiveTracking implements Serializable {
 	 * @return The ID (<code>String</code>) of this objective.
 	 */
 	String getObjID() {
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> BEGIN - " + "getObjID");
-			System.out.println("  ::-->  " + mObj.mObjID);
-			System.out.println("  :: SeqObjectiveTracking   --> END   - " + "getObjID");
-		}
+		log.debug("  :: SeqObjectiveTracking   --> BEGIN - getObjID");
+		log.debug("  ::-->  {}", mObj.mObjID);
+		log.debug("  :: SeqObjectiveTracking   --> END   - getObjID");
 
 		return mObj.mObjID;
 	}
@@ -458,19 +409,15 @@ public class SeqObjectiveTracking implements Serializable {
 		// Do not assume there is a valid measure
 		String ret = ADLTracking.TRACK_UNKNOWN;
 
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> BEGIN   - " + "getObjMeasure");
-			System.out.println("  ::  LOCAL --> " + iUseLocal);
-		}
+		log.debug("  :: SeqObjectiveTracking   --> BEGIN   - getObjMeasure");
+		log.debug("  ::  LOCAL --> {}", iUseLocal);
 
 		boolean done = false;
 
 		// Is there a 'read' objective map?
 		if (mReadMeasure != null) {
 
-			if (_Debug) {
-				System.out.println("  ::-->  Looking at shared measure");
-			}
+			log.debug("  ::-->  Looking at shared measure");
 
 			String measure = null;
 			// FIXME
@@ -487,12 +434,10 @@ public class SeqObjectiveTracking implements Serializable {
 
 		if (mHasMeasure && (!done || iUseLocal)) {
 
-			if (_Debug) {
-				System.out.println("  ::--> Using local measure");
-			}
+			log.debug("  ::--> Using local measure");
 
 			if (mHasMeasure && !(iIsRetry && mDirtyObj)) {
-				ret = (new Double(mMeasure)).toString();
+				ret = Double.valueOf(mMeasure).toString();
 			}
 		}
 
@@ -503,18 +448,14 @@ public class SeqObjectiveTracking implements Serializable {
 			double val = -999.0;
 
 			try {
-				val = (new Double(ret));
+				val = Double.parseDouble(ret);
 			} catch (Exception e) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR: Bad measure value");
-				}
+				log.debug("  ::--> ERROR: Bad measure value");
 			}
 
 			// Validate the range of the measure
 			if (val < -1.0 || val > 1.0) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR :  Invalid Measure: " + val);
-				}
+                log.debug("  ::--> ERROR :  Invalid Measure: {}", val);
 			} else {
 				mSetOK = true;
 
@@ -527,11 +468,8 @@ public class SeqObjectiveTracking implements Serializable {
 				mSetOK = false;
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + ret);
-			System.out.println("  :: SeqObjectiveTracking   --> END   - " + "getObjMeasure");
-		}
+        log.debug("  ::-->  {}", ret);
+		log.debug("  :: SeqObjectiveTracking   --> END   - getObjMeasure");
 
 		return ret;
 	}
@@ -561,10 +499,8 @@ public class SeqObjectiveTracking implements Serializable {
 	 */
 	@SuppressWarnings("unused")
 	String getObjStatus(boolean iIsRetry, boolean iUseLocal) {
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> BEGIN - " + "getObjStatus");
-			System.out.println("  ::  LOCAL --> " + iUseLocal);
-		}
+        log.debug("  :: SeqObjectiveTracking   --> BEGIN - getObjStatus");
+		log.debug("  ::  LOCAL --> {}", iUseLocal);
 
 		String ret = ADLTracking.TRACK_UNKNOWN;
 		boolean done = false;
@@ -572,19 +508,14 @@ public class SeqObjectiveTracking implements Serializable {
 		// if satisfied by measure, ensure that it has been set if a measure is
 		// avaliable.
 		if (mObj.mSatisfiedByMeasure) {
-			if (_Debug) {
-				System.out.println("  ::--> Only using Measure +---><---+  ");
-			}
+            log.debug("  ::--> Only using Measure +---><---+  ");
 
 			done = true;
 			String measure = null;
 
 			// Is there a 'read' objective map?
 			if (mReadMeasure != null) {
-
-				if (_Debug) {
-					System.out.println("  ::-->  Looking at shared measure");
-				}
+                log.debug("  ::-->  Looking at shared measure");
 
 				// FIXME
 				/*measure =
@@ -594,12 +525,10 @@ public class SeqObjectiveTracking implements Serializable {
 			}
 
 			if (mHasMeasure && measure == null) {
-				if (_Debug) {
-					System.out.println("  ::--> Using local measure");
-				}
+                log.debug("  ::--> Using local measure");
 
 				if (mHasMeasure && !(iIsRetry && mDirtyObj)) {
-					measure = (new Double(mMeasure)).toString();
+					measure = Double.valueOf(mMeasure).toString();
 				}
 			}
 
@@ -607,23 +536,17 @@ public class SeqObjectiveTracking implements Serializable {
 
 			if (NumberUtils.isNumber(measure)) {
 				try {
-					val = (new Double(measure));
+					val = Double.parseDouble(measure);
 				} catch (Exception e) {
-					if (_Debug) {
-						System.out.println("  ::--> ERROR: Bad measure value");
-					}
+                    log.debug("  ::--> ERROR: Bad measure value");
 				}
 			} else {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR: Bad measure value");
-				}
+                log.debug("  ::--> ERROR: Bad measure value");
 			}
 
 			// Validate the range of the measure
 			if (val < -1.0 || val > 1.0) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR :  Invalid Measure: " + val);
-				}
+                log.debug("  ::--> ERROR :  Invalid Measure: {}", val);
 			} else {
 				if (val >= mObj.mMinMeasure) {
 					ret = ADLTracking.TRACK_SATISFIED;
@@ -636,9 +559,7 @@ public class SeqObjectiveTracking implements Serializable {
 		if (!done) {
 			// Is there a 'read' objective map?
 			if (mReadStatus != null) {
-				if (_Debug) {
-					System.out.println("  ::--> Using shared status");
-				}
+                log.debug("  ::--> Using shared status");
 
 				// Retrieve shared competency mastery status
 				String status = null;
@@ -653,9 +574,7 @@ public class SeqObjectiveTracking implements Serializable {
 			}
 
 			if (mHasSatisfied && (!done || iUseLocal)) {
-				if (_Debug) {
-					System.out.println("  ::--> Using local objective status");
-				}
+                log.debug("  ::--> Using local objective status");
 
 				if (mHasSatisfied && !(iIsRetry && mDirtyObj)) {
 					if (mSatisfied) {
@@ -666,11 +585,8 @@ public class SeqObjectiveTracking implements Serializable {
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + ret);
-			System.out.println("  :: SeqObjectiveTracking   --> END   - " + "getObjStatus");
-		}
+        log.debug("  ::-->  {}", ret);
+		log.debug("  :: SeqObjectiveTracking   --> END   - getObjStatus");
 
 		return ret;
 	}
@@ -680,15 +596,9 @@ public class SeqObjectiveTracking implements Serializable {
 	  * attempt on the activity's parent.
 	  */
 	void setDirtyObj() {
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking     --> BEGIN - " + "setDirtyObj");
-		}
-
+        log.debug("  :: SeqObjectiveTracking     --> BEGIN - setDirtyObj");
 		mDirtyObj = true;
-
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking     --> END   - " + "setDirtyObj");
-		}
+        log.debug("  :: SeqObjectiveTracking     --> END   - setDirtyObj");
 	}
 
 	/**
@@ -703,20 +613,18 @@ public class SeqObjectiveTracking implements Serializable {
 	 *                 be evaluated
 	 */
 	void setObjMeasure(double iMeasure, boolean iAffectSatisfaction) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> BEGIN - " + "setObjMeasure");
-			System.out.println("  ::-->  " + iMeasure);
-			System.out.println("  ::-->  " + iAffectSatisfaction);
-		}
+        log.debug("""
+                    :: SeqObjectiveTracking   --> BEGIN - setObjMeasure
+                    ::-->  {}
+                    ::-->  {}
+                  """, iMeasure, iAffectSatisfaction);
 
 		// Validate the range of the measure
 		if (iMeasure < -1.0 || iMeasure > 1.0) {
-			if (_Debug) {
-				System.out.println("  ::--> Invalid Measure: " + iMeasure);
-				System.out.println("  ::--> Assume 'Unknown'");
-			}
-
+            log.debug("""
+                        ::--> Invalid Measure: {}
+                        ::--> Assume 'Unknown'
+                      """, iMeasure);
 			clearObjMeasure(iAffectSatisfaction);
 		} else {
 			mHasMeasure = true;
@@ -724,18 +632,15 @@ public class SeqObjectiveTracking implements Serializable {
 
 			// Set any global objectives
 			if (mWriteMeasure != null) {
-				for (int i = 0; i < mWriteMeasure.size(); i++) {
-					@SuppressWarnings("unused")
-					String objID = mWriteMeasure.get(i);
-
-					// FIXME
+                for (String objID : mWriteMeasure) {
+                    // FIXME
 					/*ADLSeqUtilities.
 					setGlobalObjMeasure(objID, 
 					                    mLearnerID,
 					                    mScopeID,
 					                    (new Double(iMeasure)).toString());
 					*/
-				}
+                }
 			}
 
 			// If objective status is determined by measure, set it
@@ -747,10 +652,7 @@ public class SeqObjectiveTracking implements Serializable {
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> END - " + "setObjMeasure");
-		}
+        log.debug("  :: SeqObjectiveTracking   --> END - setObjMeasure");
 	}
 
 	/**
@@ -759,18 +661,13 @@ public class SeqObjectiveTracking implements Serializable {
 	 * @param iSatisfied Desired objective status.   
 	 */
 	void setObjStatus(String iSatisfied) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> BEGIN - " + "setObjStatus");
-			System.out.println("  ::-->  " + mObj.mObjID);
-			System.out.println("  ::-->  " + iSatisfied);
-		}
+        log.debug("  :: SeqObjectiveTracking   --> BEGIN - setObjStatus");
+		log.debug("  ::-->  {}", mObj.mObjID);
+		log.debug("  ::-->  {}", iSatisfied);
 
 		// If the objective is only satified my measure, don't set its status
 		if (mObj.mSatisfiedByMeasure && !mSetOK) {
-			if (_Debug) {
-				System.out.println("  ::--> Cannot set: Objective satisfied by " + "measure");
-			}
+            log.debug("  ::--> Cannot set: Objective satisfied by measure");
 		} else {
 			if (iSatisfied.equals(ADLTracking.TRACK_UNKNOWN)) {
 				clearObjStatus();
@@ -778,32 +675,22 @@ public class SeqObjectiveTracking implements Serializable {
 
 				// Set any global objectives
 				if (mWriteStatus != null) {
-					for (int i = 0; i < mWriteStatus.size(); i++) {
-						@SuppressWarnings("unused")
-						String objID = mWriteStatus.get(i);
-
-						// FIXME: Implement this
+                    for (String objID : mWriteStatus) {
+                        // FIXME: Implement this
 						/*   ADLSeqUtilities.setGlobalObjSatisfied(objID, 
 						                                         mLearnerID,
 						                                         mScopeID,
 						                                         iSatisfied);
 						*/
-					}
+                    }
 				}
 
 				mHasSatisfied = true;
 
-				if (iSatisfied.equals(ADLTracking.TRACK_SATISFIED)) {
-					mSatisfied = true;
-				} else {
-					mSatisfied = false;
-				}
+                mSatisfied = iSatisfied.equals(ADLTracking.TRACK_SATISFIED);
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqObjectiveTracking   --> END   - " + "setObjStatus");
-		}
+        log.debug("  :: SeqObjectiveTracking   --> END   - setObjStatus");
 	}
 
-} // end SeqObjectiveTracking
+}

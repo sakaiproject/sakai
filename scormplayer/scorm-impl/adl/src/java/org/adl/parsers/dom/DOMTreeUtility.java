@@ -26,9 +26,8 @@ package org.adl.parsers.dom;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -53,6 +52,7 @@ import org.w3c.dom.NodeList;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class DOMTreeUtility {
 
 	/**
@@ -95,8 +95,6 @@ public class DOMTreeUtility {
 	 */
 	public static final String IMSSSP_NAMESPACE = "http://www.imsglobal.org/xsd/imsssp";
 
-	private static Log log = LogFactory.getLog(DOMTreeUtility.class);
-
 	/**
 	 * This method returns the attribute of the given node whose name matches
 	 * the named value (iAttributeName) and a particular namespace
@@ -113,8 +111,10 @@ public class DOMTreeUtility {
 
 		// Determine if the node is null
 		if (iNode != null) {
-			log.debug("Parent Node: " + iNode.getLocalName());
-			log.debug("Node being searched for: " + iAttributeName);
+            log.debug("""
+                        Parent Node: {}
+                        Node being searched for: {}
+                      """, iNode.getLocalName(), iAttributeName);
 			// If the node is not null, then get the list of attributes from
 			// the node
 			NamedNodeMap attrList = iNode.getAttributes();
@@ -160,9 +160,11 @@ public class DOMTreeUtility {
 	 * @return Returns the value the attribute<br>
 	 */
 	public static String getAttributeValue(Node iNode, String iAttributeName) {
-		log.debug("DOMTreeUtility getAttributeValue()");
-		log.debug("Parent Node: " + iNode.getLocalName());
-		log.debug("Node being searched for: " + iAttributeName);
+        log.debug("""
+                    DOMTreeUtility getAttributeValue()
+                    Parent Node: {}
+                    Node being searched for: {}
+                  """, iNode.getLocalName(), iAttributeName);
 		String result = "";
 		// Get the attribute from the node matching the attribute name
 		// and namespace
@@ -191,9 +193,11 @@ public class DOMTreeUtility {
 		Node result = null;
 
 		if (iNode != null) {
-			log.debug("Parent Node: " + iNode.getLocalName());
-			log.debug("Node being searched for: " + iNodeName);
-			
+            log.debug("""
+                        Parent Node: {}
+                        Node being searched for: {}
+                      """, iNode.getLocalName(), iNodeName);
+
 			// Get the children of the current node
 			NodeList children = iNode.getChildNodes();
 
@@ -206,7 +210,7 @@ public class DOMTreeUtility {
 
 					// Get the current child node's local name
 					String currentChildName = currentChild.getLocalName();
-					log.debug("Child #" + i + ": " + currentChildName);
+					log.debug("Child #{}: {}", i, currentChildName);
 
 					if (currentChildName != null) {
 						// Determine if the current child node is the one that
@@ -240,8 +244,10 @@ public class DOMTreeUtility {
 
 		// Check to see if the input node is null
 		if (iNode != null) {
-			log.debug("Parent Node: " + iNode.getLocalName());
-			log.debug("Node being searched for: " + iNodeName);
+            log.debug("""
+                        Parent Node: {}
+                        Node being searched for: {}
+                      """, iNode.getLocalName(), iNodeName);
 			// Get the set of child nodes of the input node
 			NodeList children = iNode.getChildNodes();
 
@@ -318,10 +324,12 @@ public class DOMTreeUtility {
 	 *         correct node we are looking for
 	 */
 	public static boolean isAppropriateElement(Node iNode, String iNodeName, String iNamespace) {
-		log.debug("DOMTreeUtility isAppropriateElement()");
-		log.debug("Input Parent Node: " + iNode.getLocalName());
-		log.debug("Input Node being searched for: " + iNodeName);
-		log.debug("Input Namespace of node being searched for: " + iNamespace);
+        log.debug("""
+                    DOMTreeUtility isAppropriateElement()
+                      Input Parent Node: {}
+                      Input Node being searched for: {}
+                      Input Namespace of node being searched for: {}
+                  """, iNode.getLocalName(), iNodeName, iNamespace);
 
 		boolean result = false;
 
@@ -356,9 +364,11 @@ public class DOMTreeUtility {
 	 * application profile node
 	 */
 	public static boolean isSCORMAppProfileNode(Node iCurrentNode, Node iParentNode) {
-		log.debug("DOMTreeUtility isSCORMAppProfileNode");
-		log.debug("Input Current Node: " + iCurrentNode.getLocalName());
-		log.debug("Input Parent Node: " + iParentNode.getLocalName());
+        log.debug("""
+                    DOMTreeUtility isSCORMAppProfileNode
+                      Input Current Node: {}
+                      Input Parent Node: {}
+                  """, iCurrentNode.getLocalName(), iParentNode.getLocalName());
 
 		boolean result = false;
 

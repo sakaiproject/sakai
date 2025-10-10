@@ -23,8 +23,6 @@
 *******************************************************************************/
 package org.adl.validator.contentpackage;
 
-import java.util.logging.Logger;
-
 /**
  *
  * <strong>Filename: </strong><br>XSDHandler.java<br><br>
@@ -41,15 +39,8 @@ import java.util.logging.Logger;
  */
 public class XSDHandler {
 	/**
-	 * Logger object used for debug logging.
-	 */
-	@SuppressWarnings("unused")
-	private Logger mLogger;
-
-	/**
 	 * The constructor.
 	 */
 	public XSDHandler(String iDirectory, String iApplicationProfile) {
-		mLogger = Logger.getLogger("org.adl.util.debug.validator");
 	}
 }
