@@ -132,16 +132,16 @@
       </div>
 
       <div class="form-check form-switch mt-4" th:if="${showPublicAccess}">
-        <input type="checkbox" id="is-public" th:field="*{public}" />
-        <label class="form-check-label" for="is-public" th:text="#{new_poll_access_public}">Public poll</label>
+        <input type="checkbox" th:field="*{public}" />
+        <label class="form-check-label" th:for="*{public}" th:text="#{new_poll_access_public}">Public poll</label>
       </div>
 
       <div class="mt-4">
         <h2 class="h5" th:text="#{new_poll_results_label}">Results visible</h2>
         <div class="d-flex flex-column gap-2">
           <div class="form-check" th:each="choice : ${displayResultChoices}">
-            <input type="radio" th:field="*{displayResult}" th:value="${choice.value}" th:id="${'display-' + choice.value}" />
-            <label class="form-check-label" th:for="${'display-' + choice.value}" th:text="#{${choice.labelKey}}">Choice</label>
+            <input type="radio" th:field="*{displayResult}" th:value="${choice.value}" />
+            <label class="form-check-label" th:for="*{displayResult}" th:text="#{${choice.labelKey}}">Choice</label>
           </div>
         </div>
       </div>

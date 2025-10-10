@@ -55,9 +55,17 @@ public class Vote implements PersistableEntity<Long> {
     @Column(name = "VOTE_IP", nullable = false, length = 99)
     private String ip;
 
+    /**
+     * Foreign key column for {@code VOTE_POLL_ID}. Persist changes by setting this identifier directly; the
+     * {@link #poll} relationship is maintained by JPA but is not writeable.
+     */
     @Column(name = "VOTE_POLL_ID", nullable = false)
     private Long pollId;
 
+    /**
+     * Read-only relationship for navigating to the parent poll. Refresh or reload the entity to populate this field;
+     * it is not persisted because {@link #pollId} controls database writes.
+     */
     @ManyToOne
     @JoinColumn(name = "VOTE_POLL_ID", nullable = false, insertable = false, updatable = false)
     private Poll poll;
@@ -65,9 +73,17 @@ public class Vote implements PersistableEntity<Long> {
     @Column(name = "VOTE_DATE", nullable = false)
     private Instant voteDate;
 
+    /**
+     * Foreign key column for {@code VOTE_OPTION}. Set this identifier to persist the selected option; the
+     * {@link #option} relationship is read-only.
+     */
     @Column(name = "VOTE_OPTION")
     private Long pollOption;
 
+    /**
+     * Read-only relationship for the selected {@link Option}. JPA populates this when the entity is reloaded; writes
+     * must go through {@link #pollOption}.
+     */
     @ManyToOne
     @JoinColumn(name = "VOTE_OPTION", insertable = false, updatable = false)
     private Option option;

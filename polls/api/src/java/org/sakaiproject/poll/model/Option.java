@@ -51,6 +51,10 @@ public class Option implements PersistableEntity<Long> {
     @Column(name = "OPTION_ID")
     private Long optionId;
 
+    /**
+     * Foreign key column for {@code OPTION_POLL_ID}. Set this identifier when creating or updating an Option;
+     * JPA uses it for persistence while the {@link #poll} relationship remains read-only.
+     */
     @Column(name = "OPTION_POLL_ID", nullable = false)
     private Long pollId;
 
@@ -71,6 +75,10 @@ public class Option implements PersistableEntity<Long> {
     @Column(name = "OPTION_ORDER", nullable = false)
     private Integer optionOrder;
 
+    /**
+     * Read-only relationship for navigation. JPA populates this association when the entity is reloaded; updates
+     * must be performed via {@link #pollId}.
+     */
     @ManyToOne
     @JoinColumn(name = "OPTION_POLL_ID", nullable = false, insertable = false, updatable = false)
     private Poll poll;
