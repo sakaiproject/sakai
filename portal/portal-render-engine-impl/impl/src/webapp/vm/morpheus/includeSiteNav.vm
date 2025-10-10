@@ -97,8 +97,13 @@
 #end
 
 #macro( pageListItem $page $url $icon $indentation)
-    
-    <li class="nav-item ms-${indentation}">
+
+    #set ($hideClass = "")
+    #if ($page.isHiddenFromNavigation)
+        #set ($hideClass = "d-none")
+    #end
+
+    <li class="nav-item ms-${indentation} $!{hideClass}">
         <a class="btn btn-nav w-100 ps-3 #if ($activePageId == $page.id)selected-page#end" data-page-id="${page.id}"
                 href="$!{url}"
                 title="${page.title}: ${page.description}">
