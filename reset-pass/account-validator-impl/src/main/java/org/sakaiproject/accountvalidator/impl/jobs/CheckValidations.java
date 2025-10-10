@@ -191,7 +191,7 @@ public class CheckValidations implements Job {
                 String fromEmail = serverConfigurationService.getSmtpFrom();
                 emailTemplateService.sendRenderedMessages("validate.deleted", userReferences, replacementValues, fromEmail, fromEmail);
             } catch (UserNotDefinedException e) {
-                log.warn(e.toString());
+                log.warn("Failed to process creator user {}: {}", creatorId, e.toString());
             }
         }
 	}
@@ -212,7 +212,7 @@ public class CheckValidations implements Job {
             avService.deleteValidationAccount(va);
         } catch (UserNotDefinedException | UserPermissionException | UserLockedException |
                  GroupNotDefinedException | AuthzPermissionException e) {
-            log.warn(e.toString());
+            log.warn("Failed to remove/cleanup user {}: {}", id, e);
         }
 	}
 
@@ -223,17 +223,15 @@ public class CheckValidations implements Job {
         for (String oldAccount : oldAccounts) {
             try {
                 User u = userDirectoryService.getUser(oldAccount);
-                String createdBy = u.getCreatedBy().getId();
-                List<String> l;
-                if (ret.containsKey(createdBy)) {
-                    l = ret.get(createdBy);
+                User createdBy = u.getCreatedBy();
+                if (createdBy != null) {
+                    String createdById = createdBy.getId();
+                    ret.computeIfAbsent(createdById, k -> new ArrayList<>()).add(u.getId());
                 } else {
-                    l = new ArrayList<>();
+                    log.warn("user {} has no createdBy", u.getId());
                 }
-                l.add(u.getId());
-                ret.put(createdBy, l);
             } catch (UserNotDefinedException e) {
-                log.warn(e.toString());
+                log.warn("User not found for account {}: {}", oldAccount, e.toString());
             }
         }
 		
