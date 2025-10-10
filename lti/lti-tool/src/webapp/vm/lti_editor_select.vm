@@ -1,4 +1,5 @@
 <div class="portletBody">
+## TODO: Convert $tool.get() calls to Bean properties when working on Assignment and Lessons flows
 #if ( $allTools )
 <style>
 .lti_tool_list {

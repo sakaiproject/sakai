@@ -1069,7 +1069,7 @@ public class SakaiLTIUtilTest {
 
 	@Test
 	public void testGetPublicKeyOverload() {
-		// Test that the POJO overload delegates to the map-based method
+		// Test that the Bean overload delegates to the map-based method
 		// We'll test with a null keyset to avoid making real HTTP requests
 
 		// Create a test tool bean with null keyset
@@ -1101,7 +1101,7 @@ public class SakaiLTIUtilTest {
 		}
 
 		// Both should fail with the same type of exception
-		assertNotNull("POJO method should throw exception", pojoException);
+		assertNotNull("Bean method should throw exception", pojoException);
 		assertNotNull("Map method should throw exception", mapException);
 		assertEquals("Both methods should throw the same type of exception",
 					mapException.getClass(), pojoException.getClass());
@@ -1109,7 +1109,7 @@ public class SakaiLTIUtilTest {
 
 	@Test
 	public void testGetNewpageOverload() {
-		// Test the POJO overload of getNewpage method
+		// Test the Bean overload of getNewpage method
 		org.sakaiproject.lti.beans.LtiToolBean tool = new org.sakaiproject.lti.beans.LtiToolBean();
 		tool.newpage = 1; // LTI_TOOL_NEWPAGE_ON
 
@@ -1150,7 +1150,7 @@ public class SakaiLTIUtilTest {
 
 	@Test
 	public void testGetDebugOverload() {
-		// Test the POJO overload of getDebug method
+		// Test the Bean overload of getDebug method
 		org.sakaiproject.lti.beans.LtiToolBean tool = new org.sakaiproject.lti.beans.LtiToolBean();
 		tool.debug = 1; // LTI_TOOL_DEBUG_ON
 
@@ -1191,7 +1191,7 @@ public class SakaiLTIUtilTest {
 
 	@Test
 	public void testGetFrameHeightOverload() {
-		// Test the POJO overload of getFrameHeight method
+		// Test the Bean overload of getFrameHeight method
 		org.sakaiproject.lti.beans.LtiToolBean tool = new org.sakaiproject.lti.beans.LtiToolBean();
 		tool.frameheight = 800;
 
@@ -1226,7 +1226,7 @@ public class SakaiLTIUtilTest {
 
 	@Test
 	public void testGetLaunchCodeKeyOverload() {
-		// Test the POJO overload of getLaunchCodeKey method
+		// Test the Bean overload of getLaunchCodeKey method
 		org.sakaiproject.lti.beans.LtiContentBean content = new org.sakaiproject.lti.beans.LtiContentBean();
 		content.id = 123L;
 
@@ -1241,7 +1241,7 @@ public class SakaiLTIUtilTest {
 
 	@Test
 	public void testGetLaunchCodeOverload() {
-		// Test the POJO overload of getLaunchCode method
+		// Test the Bean overload of getLaunchCode method
 		org.sakaiproject.lti.beans.LtiContentBean content = new org.sakaiproject.lti.beans.LtiContentBean();
 		content.id = 456L;
 		content.placementsecret = "test-secret";
@@ -1256,11 +1256,11 @@ public class SakaiLTIUtilTest {
 	}
 
 	@Test
-	public void testPojoOverloadsDelegateCorrectly() {
-		// Test that POJO overloads delegate correctly to map-based methods
+	public void testBeanOverloadsDelegateCorrectly() {
+		// Test that Bean overloads delegate correctly to map-based methods
 		// by ensuring they produce the same results
 
-		// Create equivalent POJO and Map objects
+		// Create equivalent Bean and Map objects
 		org.sakaiproject.lti.beans.LtiToolBean toolBean = new org.sakaiproject.lti.beans.LtiToolBean();
 		toolBean.newpage = 1; // LTI_TOOL_NEWPAGE_ON
 		toolBean.frameheight = 800;
@@ -1284,48 +1284,48 @@ public class SakaiLTIUtilTest {
 		// Test getNewpage delegation
 		boolean pojoResult = SakaiLTIUtil.getNewpage(toolBean, contentBean, false);
 		boolean mapResult = SakaiLTIUtil.getNewpage(toolMap, contentMap, false);
-		assertEquals("POJO and Map getNewpage should produce same result", pojoResult, mapResult);
+		assertEquals("Bean and Map getNewpage should produce same result", pojoResult, mapResult);
 
 		// Test getFrameHeight delegation
 		String pojoHeight = SakaiLTIUtil.getFrameHeight(toolBean, contentBean, "400px");
 		String mapHeight = SakaiLTIUtil.getFrameHeight(toolMap, contentMap, "400px");
-		assertEquals("POJO and Map getFrameHeight should produce same result", pojoHeight, mapHeight);
+		assertEquals("Bean and Map getFrameHeight should produce same result", pojoHeight, mapHeight);
 
 		// Test getLaunchCodeKey delegation
 		String pojoKey = SakaiLTIUtil.getLaunchCodeKey(contentBean);
 		String mapKey = SakaiLTIUtil.getLaunchCodeKey(contentMap);
-		assertEquals("POJO and Map getLaunchCodeKey should produce same result", pojoKey, mapKey);
+		assertEquals("Bean and Map getLaunchCodeKey should produce same result", pojoKey, mapKey);
 
 		// Test getLaunchCode delegation - both should produce valid codes
 		String pojoCode = SakaiLTIUtil.getLaunchCode(contentBean);
 		String mapCode = SakaiLTIUtil.getLaunchCode(contentMap);
 		
 		// Both codes should be valid (time-dependent, so they won't be identical)
-		assertTrue("POJO getLaunchCode should produce valid code", SakaiLTIUtil.checkLaunchCode(contentBean.asMap(), pojoCode));
+		assertTrue("Bean getLaunchCode should produce valid code", SakaiLTIUtil.checkLaunchCode(contentBean.asMap(), pojoCode));
 		assertTrue("Map getLaunchCode should produce valid code", SakaiLTIUtil.checkLaunchCode(contentMap, mapCode));
 		
 		// Both codes should contain the content ID
-		assertTrue("POJO code should contain content ID", pojoCode.contains(":123:"));
+		assertTrue("Bean code should contain content ID", pojoCode.contains(":123:"));
 		assertTrue("Map code should contain content ID", mapCode.contains(":123:"));
 	}
 
 	@Test
-	public void testFindBestToolMatchPojoNullHandling() {
+	public void testFindBestToolMatchBeanNullHandling() {
 		// Test null tools parameter
-		org.sakaiproject.lti.beans.LtiToolBean result = SakaiLTIUtil.findBestToolMatchPojo("http://example.com/launch", "checksum", null);
-		assertNull("findBestToolMatchPojo should return null when tools is null", result);
+		org.sakaiproject.lti.beans.LtiToolBean result = SakaiLTIUtil.findBestToolMatchBean("http://example.com/launch", "checksum", null);
+		assertNull("findBestToolMatchBean should return null when tools is null", result);
 		
 		// Test empty tools list
 		List<org.sakaiproject.lti.beans.LtiToolBean> emptyTools = new ArrayList<>();
-		result = SakaiLTIUtil.findBestToolMatchPojo("http://example.com/launch", "checksum", emptyTools);
-		assertNull("findBestToolMatchPojo should return null when tools list is empty", result);
+		result = SakaiLTIUtil.findBestToolMatchBean("http://example.com/launch", "checksum", emptyTools);
+		assertNull("findBestToolMatchBean should return null when tools list is empty", result);
 		
 		// Test tools list with null entries
 		List<org.sakaiproject.lti.beans.LtiToolBean> toolsWithNulls = new ArrayList<>();
 		toolsWithNulls.add(null);
 		toolsWithNulls.add(null);
-		result = SakaiLTIUtil.findBestToolMatchPojo("http://example.com/launch", "checksum", toolsWithNulls);
-		assertNull("findBestToolMatchPojo should return null when all tools are null", result);
+		result = SakaiLTIUtil.findBestToolMatchBean("http://example.com/launch", "checksum", toolsWithNulls);
+		assertNull("findBestToolMatchBean should return null when all tools are null", result);
 	}
 }
 

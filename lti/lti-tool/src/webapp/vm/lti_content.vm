@@ -19,22 +19,22 @@
 			<th id="action" width="25%">$tlang.getString("bl_action")</th>
 	                <th id="page">$tlang.getString("bl_page")</th>
 		</tr>
-		#foreach ($content in $contents)
+		#foreach ($contentBean in $contents)
 		<tr>
-		<td headers="matchpattern">$content.get("title")</td>
-		#if ($isAdmin) <td headers="site">$!content.get("SITE_ID")</a></td> #end
-		<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">$tlang.getString("gen.edit")</a> / 
-		<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">$tlang.getString("gen.delete")</a>
-		#if ( $content.get("launch_url") )
-		/ <a href="$content.get("launch_url")" target="_new" "$tlang.getString("gen.test")>$tlang.getString("gen.test")</a>
+		<td headers="matchpattern">$formattedText.escapeHtml($contentBean.title)</td>
+		#if ($isAdmin) <td headers="site">$!contentBean.siteId</a></td> #end
+		<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$contentBean.id">$tlang.getString("gen.edit")</a> / 
+		<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$contentBean.id">$tlang.getString("gen.delete")</a>
+		#if ( $contentBean.launch )
+		/ <a href="$formattedText.escapeHtml($contentBean.launch)" target="_blank" "$tlang.getString("gen.test")>$tlang.getString("gen.test")</a>
 		#end
 		</td>
                 <td headers="page">
-                #if ($getContext == $content.get("SITE_ID") ) 
-                #if ( $content.get("placement") ) 
-			<a href="$sakai_ActionURL.setPanel("LinkRemove")&id=$content.get("id")">$tlang.getString("bl_removelink")</a>
+                #if ($getContext == $contentBean.siteId ) 
+                #if ( $contentBean.placement ) 
+			<a href="$sakai_ActionURL.setPanel("LinkRemove")&id=$contentBean.id">$tlang.getString("bl_removelink")</a>
 		#else 
-			<a href="$sakai_ActionURL.setPanel("LinkAdd")&id=$content.get("id")">$tlang.getString("bl_addlink")</a>
+			<a href="$sakai_ActionURL.setPanel("LinkAdd")&id=$contentBean.id">$tlang.getString("bl_addlink")</a>
 		#end
 		#end
 		</td>

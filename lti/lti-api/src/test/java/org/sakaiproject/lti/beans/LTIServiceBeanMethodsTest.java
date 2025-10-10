@@ -31,10 +31,10 @@ import org.sakaiproject.lti.beans.LtiToolSiteBean;
 import org.sakaiproject.lti.beans.LtiMembershipsJobBean;
 
 /**
- * Test that the POJO conversion methods work correctly.
+ * Test that the Bean conversion methods work correctly.
  * This is a basic test to verify the fromMap/toMap round-trip functionality.
  */
-public class LTIServicePojoMethodsTest {
+public class LTIServiceBeanMethodsTest {
 
     @Test
     public void testLtiToolBeanFromMapToMap() {
@@ -51,7 +51,7 @@ public class LTIServicePojoMethodsTest {
         toolMap.put("sendname", true);
         toolMap.put("sendemailaddr", false);
 
-        // Convert to POJO
+        // Convert to Bean
         LtiToolBean tool = LtiToolBean.of(toolMap);
 
         // Verify the conversion
@@ -98,7 +98,7 @@ public class LTIServicePojoMethodsTest {
         contentMap.put("protect", false);
         contentMap.put("debug", true);
 
-        // Convert to POJO
+        // Convert to Bean
         LtiContentBean content = LtiContentBean.of(contentMap);
 
         // Verify the conversion
@@ -242,7 +242,7 @@ public class LTIServicePojoMethodsTest {
         contentMap.put("debug", false);
         contentMap.put("protect", true);
 
-        // Convert to POJO
+        // Convert to Bean
         LtiContentBean content = LtiContentBean.of(contentMap);
 
         // Verify the conversion
@@ -291,7 +291,7 @@ public class LTIServicePojoMethodsTest {
         jobMap.put("consumerkey", "test-consumer-key");
         jobMap.put("lti_version", "1.3");
 
-        // Convert to POJO
+        // Convert to Bean
         LtiMembershipsJobBean job = LtiMembershipsJobBean.of(jobMap);
 
         // Verify the conversion

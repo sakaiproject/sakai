@@ -32,10 +32,10 @@ import org.sakaiproject.lti.beans.LtiContentBean;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 
 /**
- * Integration tests for POJO usage patterns in assignments and lessonbuilder tools.
- * These tests verify that the POJO methods work correctly in realistic usage scenarios.
+ * Integration tests for Bean usage patterns in assignments and lessonbuilder tools.
+ * These tests verify that the Bean methods work correctly in realistic usage scenarios.
  */
-public class LTIPojoIntegrationTest {
+public class LTIBeanIntegrationTest {
 
     @Test
     public void testAssignmentsToolUsagePattern() {
@@ -88,7 +88,7 @@ public class LTIPojoIntegrationTest {
         assertTrue("Protect should be updated to true", content.protect);
         assertTrue("Settings should contain submission date", content.settings.contains("2023-01-15"));
         
-        // Simulate calling updateContentDao with the POJO
+        // Simulate calling updateContentDao with the Bean
         Map<String, Object> contentMap = content.asMap();
         assertNotNull("asMap() should not return null", contentMap);
         assertEquals("asMap() should preserve updated placement secret", "updated-secret", contentMap.get("placementsecret"));
@@ -156,7 +156,7 @@ public class LTIPojoIntegrationTest {
         assertEquals("XML import should be set", "test-xml-import", newContent.xmlimport);
         assertEquals("Custom should be set", "lesson=custom", newContent.custom);
         
-        // Simulate calling insertContent with the POJO
+        // Simulate calling insertContent with the Bean
         Map<String, Object> contentMap = newContent.asMap();
         assertNotNull("asMap() should not return null", contentMap);
         assertEquals("asMap() should preserve tool ID", Long.valueOf(200L), contentMap.get("tool_id"));
@@ -169,7 +169,7 @@ public class LTIPojoIntegrationTest {
 
     @Test
     public void testSakaiLTIUtilIntegration() {
-        // Test that SakaiLTIUtil POJO overloads work with realistic data
+        // Test that SakaiLTIUtil Bean overloads work with realistic data
         
         // Create tool and content beans
         LtiToolBean tool = new LtiToolBean();
@@ -182,20 +182,20 @@ public class LTIPojoIntegrationTest {
         content.id = 123L;
         content.placementsecret = "test-secret";
         
-        // Test getNewpage with POJOs
+        // Test getNewpage with Beans
         boolean newpage = SakaiLTIUtil.getNewpage(tool, content, false);
         assertTrue("Tool newpage=1 should override content newpage=0", newpage);
         
-        // Test getFrameHeight with POJOs
+        // Test getFrameHeight with Beans
         String height = SakaiLTIUtil.getFrameHeight(tool, content, "400px");
         assertEquals("Content frameheight=600 should override tool frameheight=800", "600px", height);
         
-        // Test getLaunchCodeKey with POJO
+        // Test getLaunchCodeKey with Bean
         String launchKey = SakaiLTIUtil.getLaunchCodeKey(content);
         assertNotNull("Launch code key should not be null", launchKey);
         assertTrue("Launch code key should contain content ID", launchKey.contains("123"));
         
-        // Test getLaunchCode with POJO
+        // Test getLaunchCode with Bean
         String launchCode = SakaiLTIUtil.getLaunchCode(content);
         assertNotNull("Launch code should not be null", launchCode);
         assertTrue("Launch code should contain content ID", launchCode.contains("123"));
@@ -203,7 +203,7 @@ public class LTIPojoIntegrationTest {
 
     @Test
     public void testTypeSafetyBenefits() {
-        // Demonstrate the type safety benefits of POJO approach
+        // Demonstrate the type safety benefits of Bean approach
         
         LtiContentBean content = new LtiContentBean();
         content.id = 123L;
@@ -211,7 +211,7 @@ public class LTIPojoIntegrationTest {
         content.toolId = 456L;
         content.protect = true;
         
-        // With POJOs, we get compile-time type checking
+        // With Beans, we get compile-time type checking
         Long id = content.id;           // Compile-time verified as Long
         String title = content.title;   // Compile-time verified as String
         Long toolId = content.toolId;   // Compile-time verified as Long
@@ -245,7 +245,7 @@ public class LTIPojoIntegrationTest {
 
     @Test
     public void testSecurityBenefits() {
-        // Demonstrate the security benefits of POJO toString() exclusions
+        // Demonstrate the security benefits of Bean toString() exclusions
         
         LtiToolBean tool = new LtiToolBean();
         tool.id = 123L;

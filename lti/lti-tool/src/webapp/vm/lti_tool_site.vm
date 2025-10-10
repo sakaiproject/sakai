@@ -169,36 +169,39 @@ ${includeLatestJQuery}
 			</thead>
 			<tbody>
 			#if ($contents && $contents.size() > 0)
-			#foreach ($content in $contents)
+			#foreach ($contentBean in $contents)
 			<tr class="#if($velocityCount%2 == 0)even#{else}odd#end">
-			<td headers="matchpattern">$formattedText.escapeHtml($content.get("title"))</td>
+			<td headers="matchpattern">$formattedText.escapeHtml($contentBean.title)</td>
 			<td headers="url">
 				#set($launch = "-")
-				#if ($content.get("launch"))
-					 #set($launch = $formattedText.escapeHtml($content.get("launch")))
+				#if ($contentBean.launch)
+					 #set($launch = $formattedText.escapeHtml($contentBean.launch))
 				#else
 					#set($tool=false)
-					#set($tool=$ltiService.getTool($content.get("tool_id_long"), $content.get("SITE_ID")))
+					#set($tool=$ltiService.getTool($contentBean.toolId, $contentBean.siteId))
 					#if ($!tool)
 						#set($launch = $formattedText.escapeHtml($tool.get("launch")))
 					#end
 				#end
-				<a target="_blank" href="$content.get("tool_url")">$launch</a>
+				#set($toolUrl = $toolUrlMap.get($contentBean.id))
+				<a target="_blank" href="$toolUrl">$launch</a>
 			</td>
 			#if ($isAdmin) 
-				<td headers="site"><a target="_blank" href="$!content.get("site_url")">$formattedText.escapeHtml($!content.get("SITE_TITLE"))</a></td>
+				#set($siteUrl = $siteUrlMap.get($contentBean.id))
+				<td headers="site"><a target="_blank" href="$!siteUrl">$formattedText.escapeHtml($!contentBean.siteTitle)</a></td>
 			#end
-				<td headers="created_at">$!content.get("created_at")</td>
+				#set($formattedDate = $formattedDateMap.get($contentBean.id))
+				<td headers="created_at">$!formattedDate</td>
 			#if ($isAdmin)
-				<td headers="contactname"> $formattedText.escapeHtml($!content.get("SITE_CONTACT_NAME"))</td>
-				<td headers="contactemail"> $formattedText.escapeHtml($!content.get("SITE_CONTACT_EMAIL"))</td>
+				<td headers="contactname"> $formattedText.escapeHtml($!contentBean.siteContactName)</td>
+				<td headers="contactemail"> $formattedText.escapeHtml($!contentBean.siteContactEmail)</td>
 				#if ($attribution_name)
-				<td headers="attribution"> $formattedText.escapeHtml($!content.get("ATTRIBUTION"))</td>
+				<td headers="attribution"> $formattedText.escapeHtml($!contentBean.attribution)</td>
 				#end
 			#end
             <ul style="list-style: none;">
-			<li style="display:inline"><td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">$tlang.getString("gen.edit")</a></li>
-			<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">$tlang.getString("gen.delete")</a></li>
+			<li style="display:inline"><td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$contentBean.id">$tlang.getString("gen.edit")</a></li>
+			<li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$contentBean.id">$tlang.getString("gen.delete")</a></li>
             </ul>
 			</td>
 			</tr>

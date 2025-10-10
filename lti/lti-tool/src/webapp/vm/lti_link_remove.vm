@@ -7,7 +7,7 @@
 	$tlang.getString("link.remove.detail")
 	<form action="#toolForm("")" method="post" name="customizeForm" >
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                <input type="hidden" name="id" value="$content.get("id")" />
+                <input type="hidden" name="id" value="$content.id" />
 		<p class="act">
  			<input type="submit" accesskey ="d" class="active" name="$doAction" 
 				value="$tlang.getString('gen.remove')" />

@@ -27,9 +27,9 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Base class providing common type conversion utilities for LTI POJOs.
+ * Base class providing common type conversion utilities for LTI Beans.
  * These methods handle the robust conversion of Object types from database results
- * to strongly-typed POJO fields, similar to the LTIUtil conversion methods.
+ * to strongly-typed Bean fields, similar to the LTIUtil conversion methods.
  *
  * Implementation assistance provided by Claude AI for comprehensive type conversion
  * and robust database number handling across SQLite, Oracle, and MySQL systems.
