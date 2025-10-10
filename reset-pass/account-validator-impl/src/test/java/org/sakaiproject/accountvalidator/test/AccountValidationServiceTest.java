@@ -33,24 +33,22 @@ public class AccountValidationServiceTest extends AbstractTransactionalJUnit4Spr
     @Autowired private AccountValidationService service;
     @Autowired private ValidationAccountRepository repository;
     @Autowired private IdManager idManager;
-    @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private ResourceLoader resourceLoader;
     @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired private UserDirectoryService userDirectoryService;
 
     private final String userOne = "user1";
     private final String userTwo = "user2";
     private final String userThree = "user3";
-
-    @Autowired
-    private AccountValidationService accountValidationService;
 
     @Before
     public void setup() throws UserNotDefinedException {
         // Clear any existing test data
         repository.deleteAll();
 
-        ResourceLoader rl = Mockito.mock(ResourceLoader.class);
-        Mockito.when(rl.getLocale()).thenReturn(new java.util.Locale("en", "US"));
-        ((AccountValidationServiceImpl) AopTestUtils.getTargetObject(accountValidationService)).setResourceLoader(rl);
+
+        Mockito.when(resourceLoader.getLocale()).thenReturn(new java.util.Locale("en", "US"));
+        ((AccountValidationServiceImpl) AopTestUtils.getTargetObject(service)).setResourceLoader(resourceLoader);
 
         // Setup server configuration mocks
         Mockito.when(serverConfigurationService.getServerUrl()).thenReturn("http://localhost:8080");

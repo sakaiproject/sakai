@@ -9,6 +9,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -63,5 +64,10 @@ public class AccountValidationTestConfiguration extends SakaiTestConfiguration {
     @Bean(name="org.sakaiproject.user.api.PreferencesService")
     public PreferencesService preferencesService() {
         return Mockito.mock(PreferencesService.class);
+    }
+
+    @Bean
+    public ResourceLoader resourceLoader() {
+        return Mockito.mock(ResourceLoader.class);
     }
 }

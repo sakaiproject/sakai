@@ -107,7 +107,9 @@ public class CheckValidations implements Job {
 		int notLoggedIn = 0;
 
         for (ValidationAccount account : sent) {
-            log.debug("account {} created on {}", account.getUserId(), account.getValidationSent());
+            log.debug("account [{}] created on [{}] attempts [{}]",
+                    account.getUserId(), account.getValidationSent(), account.getValidationsSent());
+            if (account.getValidationSent() == null || account.getValidationsSent() == null) continue;
 
             String userSiteId = siteService.getUserSiteId(account.getUserId());
             if (siteService.siteExists(userSiteId)) {
