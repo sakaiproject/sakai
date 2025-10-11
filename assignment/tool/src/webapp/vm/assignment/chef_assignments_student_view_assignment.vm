@@ -80,10 +80,10 @@
 				<h4 class="card-title mb-0">$tlang.getString("gen.assinf")</h4>
 			</div>
 			<div class="card-body">
-                               #set ($assignmentInstructions = $!assignment.Instructions)
-                               #if ($assignmentInstructions && $assignmentInstructions.length() > 0)
-                                       $formattedText.escapeHtmlFormattedText($assignmentInstructions)
-                               #end
+				#set ($assignmentInstructions = $!assignment.Instructions)
+					#if ($assignmentInstructions && $assignmentInstructions.length() > 0)
+						$formattedText.escapeHtmlFormattedText($assignmentInstructions)
+				#end
 				
 				## assignment attachment
 				#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
