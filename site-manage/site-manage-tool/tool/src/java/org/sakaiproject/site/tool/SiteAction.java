@@ -11902,6 +11902,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					break;
 				}
 			}
+			ResourcePropertiesEdit siteProperties = site.getPropertiesEdit();
+			if (siteProperties.getProperty(Site.PROP_CUSTOM_OVERVIEW) != null) {
+				siteProperties.removeProperty(Site.PROP_CUSTOM_OVERVIEW);
+				customOverview = false;
+			}
 		}
 
 		// declare flags used in making decisions about whether to add, remove,
