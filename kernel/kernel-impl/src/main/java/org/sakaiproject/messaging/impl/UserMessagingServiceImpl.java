@@ -458,6 +458,13 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 .stream().map(this::decorateNotification).collect(Collectors.toList());
     }
 
+    public boolean hasNotifications() {
+        String userId = getCurrentUserId();
+        if (userId == null) return false;
+
+        return userNotificationRepository.existsByToUser(userId);
+    }
+
     @Transactional
     public boolean clearAllNotifications() {
         String userId = getCurrentUserId();

@@ -37,7 +37,7 @@
           aria-label="$rloader.sit_notifications"
           title="$rloader.sit_notifications">
         <span class="bi bi-bell" aria-hidden="true"></span>
-        <span class="portal-notifications-indicator p-1 rounded-circle d-none">
+        <span class="portal-notifications-indicator p-1 rounded-circle#if (!$hasNotifications) d-none#end">
           <span class="visually-hidden">$rloader.sit_new_notifications_label</span>
         </span>
       </button>
