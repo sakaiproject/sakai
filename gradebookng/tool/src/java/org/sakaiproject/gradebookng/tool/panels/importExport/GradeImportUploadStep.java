@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ooxml.POIXMLException;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
@@ -163,6 +164,11 @@ public class GradeImportUploadStep extends BasePanel {
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), 
 																					upload.getClientFileName(), businessService, ComponentManager.get(FormattedText.class).getDecimalSeparator());
+				} catch (final POIXMLException e) {
+					log.debug("strict OOXML workbook encountered", e);
+					error(getString("importExport.error.strictOOXML"));
+					page.updateFeedback(target);
+					return;
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
 					log.debug("incorrect type", e);
 					error(getString("importExport.error.incorrecttype"));
