@@ -80,8 +80,9 @@
 				<h4 class="card-title mb-0">$tlang.getString("gen.assinf")</h4>
 			</div>
 			<div class="card-body">
-				#if ($assignment.Instructions.length()>0)
-					$formattedText.escapeHtmlFormattedText($assignment.Instructions)
+				#set ($assignmentInstructions = $!assignment.Instructions)
+					#if ($assignmentInstructions && $assignmentInstructions.length() > 0)
+						$formattedText.escapeHtmlFormattedText($assignmentInstructions)
 				#end
 				
 				## assignment attachment
