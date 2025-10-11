@@ -1959,7 +1959,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     }
                 }
             } else {
-                log.warn("The property \"prop_new_assignment_add_to_gradebook\" is null for the assignment feed");
+                log.debug("The property \"prop_new_assignment_add_to_gradebook\" is null for the assignment feed");
             }
 
             this.attachments = a.getAttachments().stream().map(att -> {
