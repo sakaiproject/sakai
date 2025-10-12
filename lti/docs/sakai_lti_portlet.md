@@ -510,10 +510,8 @@ to hide the form, and then automatically submit the form. If JavaScript
 is turned off, the form submit button remains visible and the user must
 press the button to proceed to the external tool.
 
-Since External Tool is a portlet, we do not have the
-"frame-within-frame" problem that Linktool would have since LinkTool is
-a traditional Sakai tool. But since LTI demands an iframe for an
-external tool the External Tool portlet generates an iframe for the
+But since LTI demands an iframe for an
+external tool, the External Tool portlet generates an iframe for the
 external tool content and places the following URL into the iframe:
 
 /access/lti/site/63ed6677-6ac4-4-466f7f51fc68/dcb61c3e-508-3238ecd330cc
@@ -535,38 +533,3 @@ simply launch to the proper URL. Another possible feature would be to
 add a checkbox to "hide the tool from students" and show the instructor
 the access URL as part of the configuration dialog.
 
-Comparing LTI With Sakai LinkTool
-=================================
-
-Within the Sakai community, one of my goals is to convince developers to
-stop using the LinkTool since the LinkTool only works with Sakai.
-Developers who have built external tools that support the LinkTool
-protocol should be able to add Tool Interoperability.
-
-Since IMS LTI 1.1 uses OAuth, it does not require any web-services
-call-back to Sakai for key validation (i.e. you do not need to call
-SakaiSigning.jws). This allows as Sakai site to use IMS LTI 1.1 with
-web-services turned off and also improves reliability in situations
-where campus proxy servers are in operation that may block some of these
-web service calls. Also it discourages the writing of tools that "trust"
-the linktool call parameters without calling Sakaisigning.jws.
-
-The ultimate advantage of using IMS LTI 1.1 over LinkTool is primarily
-the fact that as more consumer/proxy tools are written in different
-environments such as Blackboard, Desire2Learn, OLAT, WebCT, Moodle,
-ATutor, Canvas, etc – that these tools can work in those environments as
-well as Sakai.
-
-IMS LTI 1.1 does put a small additional burden on external tool
-developers, as they need to support the OAuth approach and IMS LTI 1.1
-sign-on (see sample code from IMS).
-
-It is possible for an external tool that uses IMS LTI 1.1 for launch,
-provisioning, and trust to use the run-time web services developed for
-use with LinkTool tools. If the property **ext\_sakai\_session** is set
-to "true" in the tool placement, the Sakai LTI tool includes a
-signed session key and server information in the **ext\_sakai\_session**
-and **ext\_sakai\_server** variables. These values are created in the
-exact same manner as the LinkTool so they can be used with these web
-services. As of LTI 2.1.0 and Sakai 2.9.2 these values are not send by
-default as they potentially a security exploit for an unscrupulous tool.

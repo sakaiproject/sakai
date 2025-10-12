@@ -75,7 +75,6 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.model.Gradebook;
-import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.portal.util.CSSUtils;
@@ -965,19 +964,6 @@ public class SakaiLTIUtil {
 					setProperty(props, "ext_ims_lis_memberships_url", roster_url);
 				}
 
-			}
-
-			// Send along the deprecated LinkTool encrypted session if requested
-			String sendsession = StringUtils.trimToNull(getCorrectProperty(config, "ext_sakai_session", placement));
-			if ("true".equals(sendsession)) {
-				Session s = SessionManager.getCurrentSession();
-				if (s != null) {
-					String sessionid = s.getId();
-					if (sessionid != null) {
-						sessionid = LinkToolUtil.encrypt(sessionid);
-						setProperty(props, "ext_sakai_session", sessionid);
-					}
-				}
 			}
 
 			// Send along the SAK-28125 encrypted session if requested
