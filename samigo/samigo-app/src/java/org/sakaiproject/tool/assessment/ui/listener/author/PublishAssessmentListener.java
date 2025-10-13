@@ -255,6 +255,8 @@ public class PublishAssessmentListener
 	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
     boolean sendEmailNotification = false;
+    String prePopulateTextFormatted = "";
+    PublishRepublishNotificationBean publishRepublishNotification = null;
 
     try {
       assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
@@ -290,8 +292,10 @@ public class PublishAssessmentListener
       }
 
       // The notification message will be used by the calendar event
-      PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
+      publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
       sendEmailNotification = publishRepublishNotification.isSendNotification();
+      prePopulateTextFormatted=getPrePopulateTextFormatted(publishRepublishNotification);
+      String subject = publishRepublishNotification.getNotificationSubject();
       String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(),
                                                             assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
                                                             assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
@@ -443,7 +447,14 @@ public class PublishAssessmentListener
     }  
 
     // Now that everything is updated schedule an open notification email
-    if (sendEmailNotification) samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId()));
+    if (sendEmailNotification) {
+        if (prePopulateTextFormatted.isBlank()) {
+            samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId()));
+        } else {
+            samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId()), prePopulateTextFormatted);
+        }
+    }
+
   }
 
   private boolean checkTitle(AssessmentFacade assessment){
@@ -504,6 +515,13 @@ public class PublishAssessmentListener
 	  String bold_open = "<b>";
 	  String bold_close = "</b>";
 	  StringBuilder message = new StringBuilder();
+
+	  String prePopulateTextFormatted=getPrePopulateTextFormatted(publishRepublishNotification);
+	  if (!prePopulateTextFormatted.isBlank()) {
+		  message.append(prePopulateTextFormatted);
+		  message.append(newline);
+		  message.append(newline);
+	  }
 
 	  message.append("\"");
 	  message.append(bold_open);
@@ -646,4 +664,14 @@ public class PublishAssessmentListener
 	  
 	  return message.toString();
   }
+
+    protected String getPrePopulateTextFormatted(PublishRepublishNotificationBean publishRepublishNotification) {
+        String prePopulateText = publishRepublishNotification.getPrePopulateText();
+        return (prePopulateText != null && !prePopulateText.trim().equals("") &&
+            (!prePopulateText.trim().equals(rl.getString("pre_populate_text_publish")) &&
+            !prePopulateText.trim().equals(rl.getString("pre_populate_text_republish")) &&
+            !prePopulateText.trim().equals(rl.getString("pre_populate_text_regrade_republish")))) ?
+            TextFormat.convertPlaintextToFormattedTextNoHighUnicode(prePopulateText) : "";
+    }
+
 }

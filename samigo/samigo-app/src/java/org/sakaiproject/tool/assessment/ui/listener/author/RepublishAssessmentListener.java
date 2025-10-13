@@ -78,6 +78,8 @@ public class RepublishAssessmentListener implements ActionListener {
 
 	@Override
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
+		String prePopulateTextFormatted = "";
+
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
 				.lookupBean("assessmentBean");
 		boolean hasGradingData = assessmentBean.getHasGradingData();
@@ -109,13 +111,14 @@ public class RepublishAssessmentListener implements ActionListener {
 
 		PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
 		String subject = publishRepublishNotification.getNotificationSubject();
+		prePopulateTextFormatted=publishAssessmentListener.getPrePopulateTextFormatted(publishRepublishNotification);
 		String notificationMessage = publishAssessmentListener.getNotificationMessage(publishRepublishNotification, publishedAssessmentSettings.getTitle(), publishedAssessmentSettings.getReleaseTo(), 
 				publishedAssessmentSettings.getStartDateInClientTimezoneString(), publishedAssessmentSettings.getPublishedUrl(), publishedAssessmentSettings.getDueDateInClientTimezoneString(),
 				publishedAssessmentSettings.getTimedHours(), publishedAssessmentSettings.getTimedMinutes(), publishedAssessmentSettings.getUnlimitedSubmissions(),
 				publishedAssessmentSettings.getSubmissionsAllowed(), publishedAssessmentSettings.getScoringType(), publishedAssessmentSettings.getFeedbackDelivery(),
 				publishedAssessmentSettings.getFeedbackDateInClientTimezoneString(), publishedAssessmentSettings.getFeedbackEndDateString(), publishedAssessmentSettings.getFeedbackScoreThreshold(),
 				publishedAssessmentSettings.getAutoSubmit(), publishedAssessmentSettings.getLateHandling(), publishedAssessmentSettings.getRetractDateString());
-		
+
 		GradingService gradingService = new GradingService();
 		AssessmentService assessmentService = new AssessmentService();
 		AuthorActionListener authorActionListener = new AuthorActionListener();
@@ -166,7 +169,11 @@ public class RepublishAssessmentListener implements ActionListener {
 		// then schedule new ones only if opted in.
 		samigoAvailableNotificationService.removeScheduledAssessmentNotification(publishedAssessmentId);
 		if (publishRepublishNotification.isSendNotification()) {
-			samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(publishedAssessmentId);
+			if (prePopulateTextFormatted.isBlank()) {
+				samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(publishedAssessmentId);
+			} else {
+				samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(publishedAssessmentId, prePopulateTextFormatted);
+			}
 		}
 		author.setOutcome("author");
 	}

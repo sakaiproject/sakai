@@ -4,12 +4,14 @@
 		<subject>[${siteName}] "${assessmentName}" is now available to take</subject>
 		<message>"${assessmentName}" is now available as of ${openDate}.
 ${dueDate}
+${prePopulateTextFormatted}
 ${timeLimit} You can submit this assessment ${numOfAttempts} times. The ${scoreType} score will be recorded.
 You will receive${feedbackType} feedback.
 Find this assessment in the "${siteName}" site at ${siteUrl}
 		</message>
 		<messagehtml>"${assessmentName}" is now available as of ${openDate}.
 ${dueDate}
+${prePopulateTextFormatted}
 ${timeLimit} You can submit this assessment ${numOfAttempts} times. The ${scoreType} score will be recorded.
 You will receive${feedbackType} feedback.
 Find this assessment in the "${siteName}" site at ${siteUrl}
