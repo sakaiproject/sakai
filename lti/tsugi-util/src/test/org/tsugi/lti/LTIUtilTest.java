@@ -222,41 +222,6 @@ public class LTIUtilTest {
 		assertEquals(Boolean.TRUE, obj);
 	}
 
-	@Test
-	public void validateDescriptorBad() throws Exception {
-		String valid = LTIUtil.validateDescriptor(null);
-		assertNull(valid);
-
-		valid = LTIUtil.validateDescriptor("garbage");
-		assertNull(valid);
-
-		//Validate a descriptor that has no launch urls
-		InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("descriptor_no_launch.xml");
-		String fileContents = IOUtils.toString(resourceAsStream, "UTF-8");
-		valid = LTIUtil.validateDescriptor(fileContents);
-		assertNull(valid);
-
-		resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("descriptor_empty_base_tag.xml");
-		fileContents = IOUtils.toString(resourceAsStream, "UTF-8");
-		valid = LTIUtil.validateDescriptor(fileContents);
-		assertNull(valid);
-	}
-
-	@Test
-	public void validateDescriptor() throws Exception {
-		//Validate a descriptor with a secure launch
-		InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("descriptor_secure.xml");
-		String fileContents = IOUtils.toString(resourceAsStream, "UTF-8");
-		String valid = LTIUtil.validateDescriptor(fileContents);
-		assertEquals("secure url to the basiclti launch URL", valid);
-
-		//Validate a descriptor with a regular launch
-		resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("descriptor.xml");
-		fileContents = IOUtils.toString(resourceAsStream, "UTF-8");
-		valid = LTIUtil.validateDescriptor(fileContents);
-		assertEquals("url to the basiclti launch URL", valid);
-	}
-
 	@Test(expected = IllegalArgumentException.class)
 	public void adaptToCustomPropertyNameNull() {
 		LTIUtil.adaptToCustomPropertyName(null);
@@ -271,62 +236,6 @@ public class LTIUtilTest {
 	public void adaptToCustomPropertyName() {
 		String newPropName = LTIUtil.adaptToCustomPropertyName("foobar");
 		assertEquals("custom_foobar", newPropName);
-	}
-
-	@Test
-	public void parseDescriptorNulls() throws Exception {
-		boolean parsed = LTIUtil.parseDescriptor(new HashMap(), null, null);
-		assertFalse(parsed);
-
-		InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("descriptor_empty.xml");
-		String descriptor = IOUtils.toString(resourceAsStream, "UTF-8");
-
-		parsed = LTIUtil.parseDescriptor(new HashMap(), new HashMap(), descriptor);
-		assertFalse(parsed);
-	}
-
-	@Test
-	public void parseDescriptorNoLaunch() throws Exception {
-		InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("descriptor_no_launch.xml");
-		String descriptor = IOUtils.toString(resourceAsStream, "UTF-8");
-
-		Map<String, String> launchMap = new HashMap<>();
-		Map<String, String> postPropMap = new HashMap<>();
-
-		boolean parsed = LTIUtil.parseDescriptor(launchMap, postPropMap, descriptor);
-		assertFalse(parsed);
-	}
-
-	@Test
-	public void parseDescriptor() throws Exception {
-		InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("descriptor.xml");
-		String descriptor = IOUtils.toString(resourceAsStream, "UTF-8");
-
-		Map<String, String> launchMap = new HashMap<>();
-		Map<String, String> postPropMap = new HashMap<>();
-
-		boolean parsed = LTIUtil.parseDescriptor(launchMap, postPropMap, descriptor);
-		assertTrue(parsed);
-	}
-
-	@Test
-	public void prepareForExport() throws Exception {
-		String forExport = LTIUtil.prepareForExport(null);
-		assertNull(forExport);
-
-		InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("descriptor_secure.xml");
-		String descriptor = IOUtils.toString(resourceAsStream, "UTF-8");
-
-		assertTrue(descriptor.contains("x-secure"));
-
-		forExport = LTIUtil.prepareForExport(descriptor);
-		assertFalse(forExport.contains("x-secure"));
-
-		resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("descriptor_empty.xml");
-		descriptor = IOUtils.toString(resourceAsStream, "UTF-8");
-
-		forExport = LTIUtil.prepareForExport(descriptor);
-		assertNull(forExport);
 	}
 
 	@Test
