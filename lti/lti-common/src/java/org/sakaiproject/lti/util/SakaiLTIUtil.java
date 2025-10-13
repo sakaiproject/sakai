@@ -965,30 +965,6 @@ public class SakaiLTIUtil {
 				}
 
 			}
-
-			// Send along the SAK-28125 encrypted session if requested
-			String encryptsession = StringUtils.trimToNull(getCorrectProperty(config, "ext_sakai_encrypted_session", placement));
-			String secret = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_SECRET, placement));
-			String key = StringUtils.trimToNull(getCorrectProperty(config, LTI_PORTLET_KEY, placement));
-			if (secret != null && key != null && "true".equals(encryptsession)
-					&& !SecurityService.isSuperUser()) {
-
-				secret = decryptSecret(secret);
-				// sha1secret is 160-bits hex the sha1 for "secret" is
-				// e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4
-				String sha1Secret = PortableShaUtil.sha1Hash(secret);
-				Session s = SessionManager.getCurrentSession();
-				if (s != null) {
-					String sessionid = s.getId();
-					if (sessionid != null) {
-						sessionid = BlowFish.encrypt(sha1Secret, sessionid);
-						setProperty(props, "ext_sakai_encrypted_session", sessionid);
-						// Don't just change this as it will break existing connections
-						// Especially to LTI tools written in Java with the default JCE
-						setProperty(props, "ext_sakai_blowfish_length", "128");
-					}
-				}
-			}
 		}
 
 		// Send along the content link
