@@ -117,7 +117,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	/**
 	 ** Checks if the tool's page has set the custom_title property (for custom page or tool titles),
 	 ** or alternately checks if this tool should be cosidered a "legacy" custom tool title
-	 ** (e.g. iframe, news, linktool). 
+	 ** (e.g. iframe, news). 
 	 ** 
 	 ** @see org.sakaiproject.site.impl.BaseSitePage#getTitleCustom
 	 **/
