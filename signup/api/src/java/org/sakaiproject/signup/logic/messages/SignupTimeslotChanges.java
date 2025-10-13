@@ -36,7 +36,7 @@ package org.sakaiproject.signup.logic.messages;
 
 import java.util.List;
 
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 
 /**
  * Email notification classes implement this to show that they hold information about timeslot changes for a user

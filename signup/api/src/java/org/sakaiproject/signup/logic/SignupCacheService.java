@@ -37,7 +37,7 @@ package org.sakaiproject.signup.logic;
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupMeeting;
 
 /**
  * <p>

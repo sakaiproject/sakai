@@ -29,13 +29,11 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
-import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfoImpl;
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupTimeslot;
-import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.ToolManager;
 

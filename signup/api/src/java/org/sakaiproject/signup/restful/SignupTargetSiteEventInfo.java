@@ -34,7 +34,7 @@
 
 package org.sakaiproject.signup.restful;
 
-import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupMeeting;
 
 /**
  * <p>

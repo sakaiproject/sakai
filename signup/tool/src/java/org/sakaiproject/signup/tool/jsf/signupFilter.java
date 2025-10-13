@@ -22,8 +22,8 @@ package org.sakaiproject.signup.tool.jsf;
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 
 /**

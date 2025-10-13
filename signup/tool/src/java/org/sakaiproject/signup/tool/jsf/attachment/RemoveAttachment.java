@@ -27,8 +27,8 @@ import org.springframework.dao.OptimisticLockingFailureException;
 
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupMeetingService;
-import org.sakaiproject.signup.model.SignupAttachment;
-import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupAttachment;
+import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.tool.jsf.organizer.action.SignupAction;
 import org.sakaiproject.signup.tool.util.Utilities;
 

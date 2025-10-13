@@ -37,8 +37,8 @@ package org.sakaiproject.signup.logic;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 
 /**
  * <P>

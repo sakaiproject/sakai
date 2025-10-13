@@ -44,8 +44,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.signup.logic.Permission;
-import org.sakaiproject.signup.model.MeetingTypes;
-import org.sakaiproject.signup.model.SignupAttachment;
+import org.sakaiproject.signup.api.model.MeetingTypes;
+import org.sakaiproject.signup.api.model.SignupAttachment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

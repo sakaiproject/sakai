@@ -19,11 +19,9 @@
 
 package org.sakaiproject.signup.tool.jsf.organizer.action;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +31,13 @@ import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupMessageTypes;
-import org.sakaiproject.signup.model.MeetingTypes;
-import org.sakaiproject.signup.model.SignupAttachment;
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupGroup;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupSite;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.MeetingTypes;
+import org.sakaiproject.signup.api.model.SignupAttachment;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupGroup;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupSite;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;

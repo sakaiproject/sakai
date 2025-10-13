@@ -91,7 +91,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
 import org.sakaiproject.signup.logic.SignupMeetingService;
-import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;

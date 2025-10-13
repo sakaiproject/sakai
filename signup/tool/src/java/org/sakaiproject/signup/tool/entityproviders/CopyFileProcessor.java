@@ -52,9 +52,9 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
-import org.sakaiproject.signup.model.SignupAttachment;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupAttachment;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.jsf.attachment.RemoveAttachment;
 

@@ -25,9 +25,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
-import org.sakaiproject.signup.model.SignupAttachment;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupAttachment;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 

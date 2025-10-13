@@ -19,7 +19,7 @@
 
 package org.sakaiproject.signup.tool.jsf;
 
-import org.sakaiproject.signup.model.SignupGroup;
+import org.sakaiproject.signup.api.model.SignupGroup;
 
 /**
  * <p>

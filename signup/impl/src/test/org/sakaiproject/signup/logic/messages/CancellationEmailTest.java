@@ -23,9 +23,9 @@ import org.mockito.MockitoAnnotations;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupCalendarHelper;
 import org.sakaiproject.signup.logic.SignupTrackingItem;
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.user.api.User;
 
 import java.util.ArrayList;

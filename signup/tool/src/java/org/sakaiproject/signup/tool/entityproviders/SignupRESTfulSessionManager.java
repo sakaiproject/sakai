@@ -39,7 +39,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.restful.SignupEvent;
 import org.sakaiproject.signup.restful.SignupParticipant;
 import org.sakaiproject.signup.restful.SignupTimeslotItem;

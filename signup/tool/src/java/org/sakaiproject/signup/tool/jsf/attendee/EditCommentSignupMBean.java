@@ -30,8 +30,8 @@ import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.logic.messages.AttendeeComment;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfoImpl;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.AttendeeWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
@@ -39,7 +39,6 @@ import org.sakaiproject.signup.tool.jsf.organizer.OrganizerSignupMBean;
 import org.sakaiproject.signup.tool.jsf.organizer.action.EditComment;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>

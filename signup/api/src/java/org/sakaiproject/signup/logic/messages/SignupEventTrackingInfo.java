@@ -37,9 +37,9 @@ package org.sakaiproject.signup.logic.messages;
 import java.util.List;
 
 import org.sakaiproject.signup.logic.SignupTrackingItem;
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 
 /**
  * <P>

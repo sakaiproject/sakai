@@ -20,7 +20,6 @@
 package org.sakaiproject.signup.tool.jsf;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,8 +28,8 @@ import java.util.Locale;
 import javax.faces.model.SelectItem;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.time.api.TimeService;
 

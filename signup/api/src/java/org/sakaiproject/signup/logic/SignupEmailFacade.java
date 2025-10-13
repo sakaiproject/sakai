@@ -35,7 +35,7 @@
 package org.sakaiproject.signup.logic;
 
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
-import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupMeeting;
 
 /**
  * <P>

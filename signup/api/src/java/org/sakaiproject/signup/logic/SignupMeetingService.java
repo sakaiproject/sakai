@@ -40,8 +40,8 @@ import java.util.List;
 
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.restful.SignupTargetSiteEventInfo;
 
 /**

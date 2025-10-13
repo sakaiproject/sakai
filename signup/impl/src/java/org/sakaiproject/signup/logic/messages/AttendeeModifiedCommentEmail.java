@@ -23,7 +23,7 @@ import net.fortuna.ical4j.model.component.VEvent;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupCalendarHelper;
-import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.user.api.User;
 
 public class AttendeeModifiedCommentEmail extends SignupEmailBase {

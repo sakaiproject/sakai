@@ -56,17 +56,16 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendaring.api.ExternalCalendaringService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.signup.dao.SignupMeetingDao;
+import org.sakaiproject.signup.api.repository.SignupMeetingRepository;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
-import org.sakaiproject.signup.model.MeetingTypes;
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupGroup;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupSite;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.MeetingTypes;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupGroup;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupSite;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.restful.SignupTargetSiteEventInfo;
 import org.sakaiproject.signup.util.PlainTextFormat;
 import org.sakaiproject.site.api.Group;
@@ -91,7 +90,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
 
 	@Getter @Setter
-	private SignupMeetingDao signupMeetingDao;
+	private SignupMeetingRepository repository;
 
 	@Getter @Setter
 	private SakaiFacade sakaiFacade;
@@ -116,7 +115,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 */
 	@Override
 	public List<SignupMeeting> getAllSignupMeetings(String currentSiteId, String userId) {
-		List<SignupMeeting> meetings = signupMeetingDao.getAllSignupMeetings(currentSiteId);
+		List<SignupMeeting> meetings = repository.findAllBySiteId(currentSiteId);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
 
@@ -125,7 +124,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 */
 	@Override
 	public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date searchEndDate) {
-		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetings(currentSiteId, searchEndDate);
+		List<SignupMeeting> meetings = repository.findBySiteIdAndStartTimeBefore(currentSiteId, searchEndDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
 
@@ -134,7 +133,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 */
 	@Override
 	public List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate) {
-		List<SignupMeeting> meetings = signupMeetingDao.getSignupMeetings(currentSiteId, startDate, endDate);
+		List<SignupMeeting> meetings = repository.findBySiteIdAndDateRange(currentSiteId, startDate, endDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
 	
@@ -158,7 +157,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	public List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate, Date endDate) {
-		return signupMeetingDao.getSignupMeetingsInSite(siteId, startDate, endDate);
+		return repository.findInSiteByDateRange(siteId, startDate, endDate);
 	}
 	
 	/**
@@ -166,7 +165,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 */
 	@Override
 	public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate) {
-		return signupMeetingDao.getSignupMeetingsInSites(siteIds, startDate, endDate);
+		return repository.findInSitesByDateRange(siteIds, startDate, endDate);
 	}
 	
 	/**
@@ -174,7 +173,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 */
 	@Override
 	public List<SignupMeeting> getRecurringSignupMeetings(String currentSiteId, String userId, Long recurrenceId, Date startDate) {
-		List<SignupMeeting> meetings = signupMeetingDao.getRecurringSignupMeetings(currentSiteId, recurrenceId, startDate);
+		List<SignupMeeting> meetings = repository.findRecurringMeetings(currentSiteId, recurrenceId, startDate);
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
 
@@ -413,7 +412,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 */
 	public Long saveMeeting(SignupMeeting signupMeeting, String userId) throws PermissionException {
 		if (isAllowedToCreate(userId, signupMeeting)) {
-			return signupMeetingDao.saveMeeting(signupMeeting);
+			return repository.save(signupMeeting).getId();
 		}
 		throw new PermissionException(userId, "signup.create", "signup tool");
 	}
@@ -424,11 +423,11 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	public void saveMeetings(List<SignupMeeting> signupMeetings, String userId) throws PermissionException {
 		if (signupMeetings ==null || signupMeetings.isEmpty())
 			return;
-		
+
 		if (isAllowedToCreate(userId, signupMeetings.get(0))) {
-			signupMeetingDao.saveMeetings(signupMeetings);
+			repository.saveAll(signupMeetings);
 		}
-		else{ 
+		else{
 			throw new PermissionException(userId, "signup.create", "signup tool");
 		}
 	}
@@ -523,7 +522,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		 */
 		if (permission == null) {
 			if (isAllowToUpdate(sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), meeting)) {
-				signupMeetingDao.updateMeeting(meeting);
+				repository.save(meeting);
 				return;
 			}
 			throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
@@ -531,12 +530,12 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 		if (isOrganizer) {
 			if (permission.isUpdate())
-				signupMeetingDao.updateMeeting(meeting);
+				repository.save(meeting);
 			else
 				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
 		} else {
 			if (permission.isAttend())
-				signupMeetingDao.updateMeeting(meeting);
+				repository.save(meeting);
 			else
 				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.attend", "SignupTool");
 		}
@@ -561,7 +560,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		 */
 		if (permission == null) {
 			if (isAllowToUpdate(sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), oneMeeting)) {
-				signupMeetingDao.updateMeetings(meetings);
+				repository.updateAll(meetings);
 				return;
 			}
 			throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
@@ -569,12 +568,12 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 		if (isOrganizer) {
 			if (permission.isUpdate())
-				signupMeetingDao.updateMeetings(meetings);
+				repository.updateAll(meetings);
 			else
 				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
 		} else {
 			if (permission.isAttend())
-				signupMeetingDao.updateMeetings(meetings);
+				repository.updateAll(meetings);
 			else
 				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.attend", "SignupTool");
 		}
@@ -600,7 +599,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		 */
 		if (permission == null) {
 			if (isAllowToUpdate(sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), oneMeeting)) {
-				signupMeetingDao.updateModifiedMeetings(meetings, removedTimeslots);
+				repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots);
 				return;
 			}
 			throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
@@ -608,12 +607,12 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 		if (isOrganizer) {
 			if (permission.isUpdate())
-				signupMeetingDao.updateModifiedMeetings(meetings, removedTimeslots);
+				repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots);
 			else
 				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
 		} else {
 			if (permission.isAttend())
-				signupMeetingDao.updateModifiedMeetings(meetings, removedTimeslots);
+				repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots);
 			else
 				throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.attend", "SignupTool");
 		}
@@ -623,7 +622,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	public SignupMeeting loadSignupMeeting(Long meetingId, String userId, String siteId) {
-		SignupMeeting meeting = signupMeetingDao.loadSignupMeeting(meetingId);
+		SignupMeeting meeting = repository.findById(meetingId).orElse(null);
 		List<SignupMeeting> temp = new ArrayList<SignupMeeting>();
 		temp.add(meeting);
 		updatePermissions(userId, siteId, temp);
@@ -634,7 +633,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	public SignupTargetSiteEventInfo loadSignupMeetingWithAutoSelectedSite(Long meetingId, String userId, String siteId) {
-		SignupMeeting meeting = signupMeetingDao.loadSignupMeeting(meetingId);
+		SignupMeeting meeting = repository.findById(meetingId).orElse(null);
 		String sId = assignPermission(userId, siteId, meeting);
 		SignupTargetSiteEventInfo defaultSiteEvent = new SignupTargetSiteEventInfo(meeting,sId);
 		return defaultSiteEvent;
@@ -1117,7 +1116,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	public void removeMeetings(List<SignupMeeting> meetings) throws Exception {
-		signupMeetingDao.removeMeetings(meetings);
+		repository.deleteAll(meetings);
 		Set<Long> sent = new HashSet<Long>();
 				
 		for(SignupMeeting m: meetings) {
@@ -1150,7 +1149,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 * {@inheritDoc}
 	 */
 	public boolean isEventExisted(Long eventId) {
-		return signupMeetingDao.isEventExisted(eventId);
+		return repository.existsById(eventId);
 	}
 	
 	/**
@@ -1162,12 +1161,12 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 	@Override
 	public List<String> getAllLocations(String siteId) throws Exception {
-		return signupMeetingDao.getAllLocations(siteId);
+		return repository.findAllLocationsBySiteId(siteId);
 	}
 
 	@Override
 	public List<String> getAllCategories(String siteId) throws Exception {
-		return signupMeetingDao.getAllCategories(siteId);
+		return repository.findAllCategoriesBySiteId(siteId);
 	}
 	
 	

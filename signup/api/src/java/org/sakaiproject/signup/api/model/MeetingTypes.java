@@ -32,7 +32,7 @@
 * limitations under the License.
 */
 
-package org.sakaiproject.signup.model;
+package org.sakaiproject.signup.api.model;
 
 /**
  * <P>

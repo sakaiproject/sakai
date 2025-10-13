@@ -32,7 +32,10 @@
 * limitations under the License.
 */
 
-package org.sakaiproject.signup.model;
+package org.sakaiproject.signup.api.model;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 /**
  * <p>
@@ -40,15 +43,19 @@ package org.sakaiproject.signup.model;
  * the DB storage by Hibernate
  * </p>
  */
-
+@Embeddable
 public class SignupGroup {
 
+	@Column(name = "title")
 	private String title;
 
+	@Column(name = "group_id", length = 99, nullable = false)
 	private String groupId;
 
+	@Column(name = "calendar_event_id", length = 2000)
 	private String calendarEventId;
 
+	@Column(name = "calendar_id", length = 99)
 	private String calendarId;
 
 	public String getGroupId() {

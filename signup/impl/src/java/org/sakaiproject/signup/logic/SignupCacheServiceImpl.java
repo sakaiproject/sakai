@@ -43,8 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.signup.dao.SignupMeetingDao;
-import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.api.repository.SignupMeetingRepository;
+import org.sakaiproject.signup.api.model.SignupMeeting;
 
 /**
  * <p>
@@ -60,7 +60,7 @@ public class SignupCacheServiceImpl implements SignupCacheService {
 
 	private MemoryService memoryService;
 
-	protected SignupMeetingDao signupMeetingDao;
+	protected SignupMeetingRepository repository;
 
 	private Cache m_signupSiteCache = null;
 
@@ -110,7 +110,7 @@ public class SignupCacheServiceImpl implements SignupCacheService {
 		/* Case: if not cached */
 
 		//get data from db then cache and return it
-		sEvents = getSignupMeetingDao().getSignupMeetingsInSite(siteId,
+		sEvents = repository.findInSiteByDateRange(siteId,
 				startDate, endDate);
 
 		if (sEvents == null || sEvents.isEmpty()) {
@@ -176,12 +176,12 @@ public class SignupCacheServiceImpl implements SignupCacheService {
 		this.memoryService = memoryService;
 	}
 
-	public SignupMeetingDao getSignupMeetingDao() {
-		return signupMeetingDao;
+	public SignupMeetingRepository getRepository() {
+		return repository;
 	}
 
-	public void setSignupMeetingDao(SignupMeetingDao signupMeetingDao) {
-		this.signupMeetingDao = signupMeetingDao;
+	public void setRepository(SignupMeetingRepository repository) {
+		this.repository = repository;
 	}
 
 }

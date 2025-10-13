@@ -21,7 +21,7 @@ package org.sakaiproject.signup.tool.jsf;
 
 import java.util.List;
 
-import org.sakaiproject.signup.model.SignupSite;
+import org.sakaiproject.signup.api.model.SignupSite;
 
 /**
  * <p>

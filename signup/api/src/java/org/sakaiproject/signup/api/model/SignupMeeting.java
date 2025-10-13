@@ -32,7 +32,7 @@
 * limitations under the License.
 */
 
-package org.sakaiproject.signup.model;
+package org.sakaiproject.signup.api.model;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -41,8 +41,29 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.sakaiproject.signup.logic.Permission;
 import org.sakaiproject.signup.logic.SignupMessageTypes;
+import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -58,99 +79,166 @@ import lombok.Setter;
  * @author gl256
  *
  */
+@Entity
+@Table(name = "signup_meetings")
 @Getter @Setter
-public class SignupMeeting implements MeetingTypes, SignupMessageTypes {
+public class SignupMeeting implements MeetingTypes, SignupMessageTypes, PersistableEntity<Long> {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "signup_meeting_seq")
+	@SequenceGenerator(name = "signup_meeting_seq", sequenceName = "signup_meeting_ID_SEQ")
+	@Column(name = "id")
 	private Long id;
 
+	@Column(name = "recurrence_id")
 	private Long recurrenceId;
 
+	@Version
+	@Column(name = "version")
 	@SuppressWarnings("unused")
 	private int version;
 
+	@Column(name = "title", length = 255, nullable = false)
 	private String title;
 
+	@Lob
+	@Column(name = "description")
 	private String description;
 
+	@Column(name = "location", length = 255, nullable = false)
 	private String location;
-	
+
+	@Column(name = "category", length = 255)
 	private String category;
 
 	/* sakai user id */
+	@Column(name = "creator_user_id", length = 99, nullable = false)
 	private String creatorUserId;
-	
+
+	@Column(name = "coordinators_user_Ids", length = 1000)
 	private String coordinatorIds;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "start_time", nullable = false)
 	private Date startTime;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "end_time", nullable = false)
 	private Date endTime;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "signup_begins")
 	private Date signupBegins;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "signup_deadline")
 	private Date signupDeadline;
 
+	@Column(name = "canceled")
 	private boolean canceled;
 
+	@Column(name = "locked")
 	private boolean locked;
 
+	@Column(name = "meeting_type", length = 50, nullable = false)
 	private String meetingType;
-	
+
 	/*once,daily,weekdays,weekly,biweekly */
-	private String repeatType; 
-	
+	@Column(name = "repeat_type", length = 20)
+	private String repeatType;
+
+	@Column(name = "allow_waitList")
 	private boolean allowWaitList;
-	
+
+	@Column(name = "allow_comment")
 	private boolean allowComment;
-	
+
+	@Column(name = "auto_reminder")
 	private boolean autoReminder;
-	
+
+	@Column(name = "eid_input_mode")
 	private boolean eidInputMode;
 
+	@Column(name = "receive_email_owner")
 	private boolean receiveEmailByOwner;
-	
+
+	@Column(name = "default_send_email_by_owner")
 	private boolean sendEmailByOwner;
 
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+	@org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.ALL)
+	@org.hibernate.annotations.Fetch(FetchMode.SELECT)
+	@BatchSize(size = 50)
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	@OrderColumn(name = "list_index")
+	@javax.persistence.JoinColumn(name = "meeting_id", nullable = false)
 	private List<SignupTimeslot> signupTimeSlots;
 
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+	@org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.ALL)
+	@org.hibernate.annotations.Fetch(FetchMode.SELECT)
+	@BatchSize(size = 50)
+	@org.hibernate.annotations.ForeignKey(name = "none")
+	@OrderColumn(name = "list_index")
+	@javax.persistence.JoinColumn(name = "meeting_id", nullable = false)
 	private List<SignupSite> signupSites;
-	
+
+	@org.hibernate.annotations.CollectionOfElements(fetch = FetchType.EAGER)
+	@org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.ALL)
+	@org.hibernate.annotations.Fetch(FetchMode.SELECT)
+	@BatchSize(size = 50)
+	@OrderColumn(name = "list_index")
+	@javax.persistence.JoinTable(name = "signup_attachments", joinColumns = @javax.persistence.JoinColumn(name = "meeting_id", nullable = false))
 	private List<SignupAttachment> signupAttachments;
 
+	@Transient
 	private Permission permission;
-	
-	//private boolean emailAttendeesOnly = false;
-	
-	private String sendEmailToSelectedPeopleOnly;
-	
-	private boolean allowAttendance;
-	
-	private boolean createGroups;
-	
-	private Integer maxNumOfSlots;
-	
-	//numbers of occurrences
-	private int repeatNum;	
 
+	//private boolean emailAttendeesOnly = false;
+
+	@Transient
+	private String sendEmailToSelectedPeopleOnly;
+
+	@Column(name = "allow_attendance")
+	private boolean allowAttendance;
+
+	@Column(name = "create_groups")
+	private boolean createGroups;
+
+	@Column(name = "maxnumof_slot")
+	private Integer maxNumOfSlots;
+
+	//numbers of occurrences
+	@Transient
+	private int repeatNum;
+
+	@Transient
 	private boolean applyToAllRecurMeetings;
-	
+
 	/* For RESTful case to pass siteId for email*/
+	@Transient
 	private String currentSiteId;
-	
+
+	@Transient
 	private Calendar cal = Calendar.getInstance();
 
+	@Transient
 	private Date repeatUntil;
-	
+
+	@Transient
 	private boolean inMultipleCalendarBlocks = false;
-	
-	
+
+
 	/**
 	 * ICS VEvent created for this meeting
 	 */
+	@Transient
 	private net.fortuna.ical4j.model.component.VEvent vevent;
-	
+
 	/**
 	 * For tracking the event so that we can issue updates, persisted, generated once, never updated.
 	 */
+	@Column(name = "vevent_uuid", length = 36)
 	@Setter(AccessLevel.PRIVATE)
 	private String uuid;
 	

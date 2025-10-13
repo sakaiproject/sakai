@@ -32,29 +32,60 @@
 * limitations under the License.
 */
 
-package org.sakaiproject.signup.model;
+package org.sakaiproject.signup.api.model;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import lombok.extern.slf4j.Slf4j;
 
+@Embeddable
 @Slf4j
 public class SignupAttachment {
 
+	@Column(name = "resource_Id", length = 255)
 	private String resourceId;
+
+	@Column(name = "file_name", length = 255)
 	private String filename;
+
+	@Column(name = "mime_type", length = 80)
 	private String mimeType;
+
+	@Column(name = "fileSize")
 	private Long fileSize; // in kilobyte
+
+	@Column(name = "location", length = 255)
 	private String location;
+
+	@Column(name = "isLink")
 	private Boolean isLink;
+
+	@Column(name = "timeslot_id")
 	private Long timeslotId;
+
 	/*veiwByAll means all participants in the event*/
+	@Column(name = "view_by_all")
 	private Boolean viewByAll;
+
+	@Column(name = "created_by", length = 99, nullable = false)
 	private String createdBy;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "created_date", nullable = false)
 	private Date createdDate;
+
+	@Column(name = "last_modified_by", length = 99, nullable = false)
 	private String lastModifiedBy;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "last_modified_date", nullable = false)
 	private Date lastModifiedDate;	
 
 	public SignupAttachment(){

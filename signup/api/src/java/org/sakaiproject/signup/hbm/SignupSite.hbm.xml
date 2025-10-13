@@ -3,7 +3,7 @@
 <hibernate-mapping package="org.sakaiproject.signup.model"
 				   default-lazy="false">
 
-	<class name="org.sakaiproject.signup.model.SignupSite"
+	<class name="org.sakaiproject.signup.api.model.SignupSite"
 			table="signup_sites" optimistic-lock="version">
 
 		<id name="id" type="long">
@@ -22,7 +22,7 @@
 		<list name="signupGroups" cascade="all" table="signup_site_groups" fetch="select" batch-size="50">
 			<key column="signup_site_id" not-null="true"/>
 			<list-index column="list_index" />
-			<composite-element class="org.sakaiproject.signup.model.SignupGroup">
+			<composite-element class="org.sakaiproject.signup.api.model.SignupGroup">
 				<property name="title" column="title" type="string" not-null="false" />
 				<property name="groupId" column="group_id" length="99" type="string" not-null="true"/>
 				<property name="calendarEventId" column="calendar_event_id" type="string" length="2000" not-null="false" />

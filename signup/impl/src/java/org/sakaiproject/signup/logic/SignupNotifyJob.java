@@ -45,13 +45,12 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.signup.dao.SignupMeetingDao;
+import org.sakaiproject.signup.api.repository.SignupMeetingRepository;
 import org.sakaiproject.signup.logic.messages.AutoReminderEmail;
-import org.sakaiproject.signup.logic.messages.OrganizerPreAssignEmail;
 import org.sakaiproject.signup.logic.messages.SignupEmailNotification;
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -65,7 +64,7 @@ public class SignupNotifyJob implements Job {
 
 	private EmailService emailService;
 
-	private SignupMeetingDao signupMeetingDao;
+	private SignupMeetingRepository repository;
 
 	private SakaiFacade sakaiFacade;
 	
@@ -125,7 +124,7 @@ public class SignupNotifyJob implements Job {
 		calendar.add(Calendar.HOUR, ONE_DAY_INTERVAL);//next day 24 hours
 		Date searchEndDate = calendar.getTime();
 					
-		int totalCounts = signupMeetingDao.getAutoReminderTotalEventCounts(searchStarDate, searchEndDate);
+		int totalCounts = repository.countAutoReminderMeetings(searchStarDate, searchEndDate);
 		if(totalCounts ==0){
 			log.info("There is no upcoming event today for Signup Auto Reminder Notification");
 			return;
@@ -138,7 +137,7 @@ public class SignupNotifyJob implements Job {
 		}
 		
 		int totalEmails = 0;
-		signupMeetings = signupMeetingDao.getAutoReminderSignupMeetings(searchStarDate,searchEndDate);
+		signupMeetings = repository.findAutoReminderMeetings(searchStarDate,searchEndDate);
 		if (signupMeetings !=null){		
 			for (SignupMeeting sm : signupMeetings) {
 				List<SignupTimeslot> tsList = sm.getSignupTimeSlots();
@@ -179,12 +178,12 @@ public class SignupNotifyJob implements Job {
 		emailService.sendToUsers(userlist, email.getHeader(), email.getMessage());
 	}
 
-	public SignupMeetingDao getSignupMeetingDao() {
-		return signupMeetingDao;
+	public SignupMeetingRepository getRepository() {
+		return repository;
 	}
 
-	public void setSignupMeetingDao(SignupMeetingDao signupMeetingDao) {
-		this.signupMeetingDao = signupMeetingDao;
+	public void setRepository(SignupMeetingRepository repository) {
+		this.repository = repository;
 	}
 
 	public SakaiFacade getSakaiFacade() {

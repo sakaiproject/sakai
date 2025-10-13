@@ -21,7 +21,7 @@ package org.sakaiproject.signup.tool.jsf.organizer.action;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupUserActionException;
-import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.springframework.dao.OptimisticLockingFailureException;
 

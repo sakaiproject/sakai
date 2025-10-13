@@ -32,12 +32,30 @@
 * limitations under the License.
 */
 
-package org.sakaiproject.signup.model;
+package org.sakaiproject.signup.api.model;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OrderColumn;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+
+import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -49,44 +67,70 @@ import lombok.Setter;
  * directly to the DB storage by Hibernate
  * </p>
  */
+@Entity
+@Table(name = "signup_ts")
 @Getter @Setter
-public class SignupTimeslot implements Comparable{
+public class SignupTimeslot implements Comparable, PersistableEntity<Long> {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "signup_ts_seq")
+	@SequenceGenerator(name = "signup_ts_seq", sequenceName = "signup_ts_ID_SEQ")
 	private Long id;
 
+	@Version
+	@Column(name = "version")
 	@SuppressWarnings("unused")
 	private int version;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "start_time", nullable = false)
 	private Date startTime;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "end_time", nullable = false)
 	private Date endTime;
 
+	@Column(name = "locked")
 	private boolean locked;
-	
+
+	@Column(name = "group_id", length = 99)
 	private String groupId;
 
+	@Column(name = "canceled")
 	private boolean canceled;
 
+	@Column(name = "max_no_of_attendees")
 	private int maxNoOfAttendees;
 
+	@Column(name = "display_attendees")
 	private boolean displayAttendees;// TODO : this should be moved to meeting class
 
+	@ElementCollection
+	@CollectionTable(name = "signup_ts_attendees", joinColumns = @JoinColumn(name = "timeslot_id", nullable = false))
+	@OrderColumn(name = "list_index")
 	private List<SignupAttendee> attendees;
 
+	@ElementCollection
+	@CollectionTable(name = "signup_ts_waitinglist", joinColumns = @JoinColumn(name = "timeslot_id", nullable = false))
+	@OrderColumn(name = "list_index")
 	private List<SignupAttendee> waitingList;
-	
+
+	@Transient
 	private String startTimeString;
 
+	@Transient
 	private String endTimeString;
 
 	/**
 	 * ICS VEvent created for this timeslot, not persisted
 	 */
+	@Transient
 	private net.fortuna.ical4j.model.component.VEvent vevent;
-	
+
 	/**
 	 * For tracking the event so that we can issue updates, persisted, generated once, never updated.
 	 */
+	@Column(name = "vevent_uuid", length = 36)
 	@Setter(AccessLevel.PRIVATE)
 	private String uuid;
 	

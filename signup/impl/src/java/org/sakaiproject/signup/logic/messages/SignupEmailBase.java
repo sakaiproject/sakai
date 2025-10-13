@@ -41,9 +41,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.signup.logic.SakaiFacade;
-import org.sakaiproject.signup.model.MeetingTypes;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.MeetingTypes;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;

@@ -19,8 +19,6 @@
 
 package org.sakaiproject.signup.tool.jsf.attendee;
 
-import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.List;
 
 import javax.faces.component.UIData;
@@ -28,18 +26,15 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.Getter;
-import lombok.Setter;
 
 import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.tool.jsf.AttendeeWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
 import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
-import org.sakaiproject.signup.tool.jsf.attendee.EditCommentSignupMBean;
 import org.sakaiproject.signup.tool.jsf.organizer.action.AddAttendee;
 import org.sakaiproject.signup.tool.jsf.organizer.action.AddWaiter;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CancelAttendee;

@@ -32,9 +32,25 @@
 * limitations under the License.
 */
 
-package org.sakaiproject.signup.model;
+package org.sakaiproject.signup.api.model;
 
 import java.util.List;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.OrderColumn;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Version;
+
+import org.sakaiproject.springframework.data.PersistableEntity;
 
 /**
  * <p>
@@ -42,21 +58,37 @@ import java.util.List;
  * directly to the DB storage by Hibernate
  * </p>
  */
-public class SignupSite {
+@Entity
+@Table(name = "signup_sites", indexes = {
+	@Index(name = "IDX_SITE_ID", columnList = "site_id")
+})
+public class SignupSite implements PersistableEntity<Long> {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "signup_sites_seq")
+	@SequenceGenerator(name = "signup_sites_seq", sequenceName = "signup_sites_ID_SEQ")
 	private Long id;
 
+	@Version
+	@Column(name = "version")
 	@SuppressWarnings("unused")
 	private int version;
 
+	@Column(name = "title")
 	private String title;
 
+	@Column(name = "site_id", length = 99, nullable = false)
 	private String siteId;
 
+	@Column(name = "calendar_event_id", length = 2000)
 	private String calendarEventId;
 
+	@Column(name = "calendar_id", length = 99)
 	private String calendarId;
 
+	@ElementCollection
+	@CollectionTable(name = "signup_site_groups", joinColumns = @JoinColumn(name = "signup_site_id", nullable = false))
+	@OrderColumn(name = "list_index")
 	private List<SignupGroup> signupGroups;
 
 	/**

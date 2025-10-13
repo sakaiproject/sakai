@@ -32,9 +32,13 @@
 * limitations under the License.
 */
 
-package org.sakaiproject.signup.model;
+package org.sakaiproject.signup.api.model;
 
 import java.time.Instant;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 /**
  * <p>
@@ -42,23 +46,32 @@ import java.time.Instant;
  * the DB storage by Hibernate
  * </p>
  */
+@Embeddable
 public class SignupAttendee implements Comparable<SignupAttendee>{
 
 	/* sakai user id */
+	@Column(name = "attendee_user_id", length = 99, nullable = false)
 	private String attendeeUserId;
 
+	@Column(name = "signup_site_id", length = 99, nullable = false)
 	private String signupSiteId;
 
+	@Column(name = "comments", columnDefinition = "TEXT")
 	private String comments;
 
+	@Column(name = "calendar_event_id", length = 2000)
 	private String calendarEventId;
 
+	@Column(name = "calendar_id", length = 99)
 	private String calendarId;
-	
+
+	@Transient
 	private String displayName;
-	
+
+	@Column(name = "attended")
 	private boolean attended;
 
+	@Column(name = "inscription_time")
 	private Instant inscriptionTime;
 	
 	/**

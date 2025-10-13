@@ -17,7 +17,7 @@ package org.sakaiproject.signup.logic.messages;
 
 import net.fortuna.ical4j.model.component.VEvent;
 import org.sakaiproject.signup.logic.SignupCalendarHelper;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.user.api.User;
 
 import java.util.ArrayList;

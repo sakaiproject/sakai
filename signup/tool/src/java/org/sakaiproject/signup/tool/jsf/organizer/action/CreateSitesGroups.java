@@ -26,9 +26,9 @@ import java.util.List;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
-import org.sakaiproject.signup.model.SignupGroup;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupSite;
+import org.sakaiproject.signup.api.model.SignupGroup;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupSite;
 import org.sakaiproject.signup.tool.jsf.SignupGroupWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupSiteWrapper;
 

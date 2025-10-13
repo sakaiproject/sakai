@@ -21,7 +21,7 @@ package org.sakaiproject.signup.tool.jsf;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sakaiproject.signup.model.SignupAttachment;
+import org.sakaiproject.signup.api.model.SignupAttachment;
 
 public class SignupAttachmentWrapper {
 	

@@ -12,7 +12,7 @@
 			ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		<property name="persistentClasses">
 			<list>
-				<value>org.sakaiproject.signup.model.SignupMeeting</value>
+				<value>org.sakaiproject.signup.api.model.SignupMeeting</value>
 			</list>
 		</property>
 	</bean>

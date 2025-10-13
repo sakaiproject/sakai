@@ -39,12 +39,12 @@ import java.util.List;
 
 import org.sakaiproject.signup.logic.Permission;
 import org.sakaiproject.signup.logic.SakaiFacade;
-import org.sakaiproject.signup.model.SignupAttachment;
-import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.model.SignupGroup;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupSite;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupAttachment;
+import org.sakaiproject.signup.api.model.SignupAttendee;
+import org.sakaiproject.signup.api.model.SignupGroup;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupSite;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.restful.SignupEvent;
 import org.sakaiproject.signup.restful.SignupGroupItem;
 import org.sakaiproject.signup.restful.SignupParticipant;

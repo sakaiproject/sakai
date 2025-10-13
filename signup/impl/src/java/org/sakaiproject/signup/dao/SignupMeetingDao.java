@@ -38,8 +38,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.genericdao.api.GeneralGenericDao;
-import org.sakaiproject.signup.model.SignupMeeting;
-import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.api.model.SignupMeeting;
+import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.springframework.dao.DataAccessException;
 
 /**
