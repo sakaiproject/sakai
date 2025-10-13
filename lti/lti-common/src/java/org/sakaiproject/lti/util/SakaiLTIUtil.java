@@ -294,13 +294,6 @@ public class SakaiLTIUtil {
 			log.debug("Sakai properties={}", config);
 			String launch_url = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_LAUNCH, placement));
 			setProperty(info, "launch_url", launch_url);
-			if (launch_url == null) {
-				String xml = StringUtils.trimToNull(getCorrectProperty(config, "xml", placement));
-				if (xml == null) {
-					return false;
-				}
-				LTIUtil.parseDescriptor(info, launch, xml);
-			}
 
 			String secret = getCorrectProperty(config, LTIService.LTI_SECRET, placement);
 
@@ -1112,28 +1105,6 @@ public class SakaiLTIUtil {
 		setProperty(props, "ext_sakai_serverid", serverId);
 		setProperty(props, "ext_sakai_server", getOurServerUrl());
 	}
-
-		// Gnerate HTML from a descriptor and properties from
-		public static String[] postLaunchHTML(String descriptor, String contextId, String resourceId, ResourceProperties props, ResourceLoader rb) {
-			if (descriptor == null || contextId == null || resourceId == null) {
-				return postError("<p>" + getRB(rb, "error.descriptor", "Error, missing contextId, resourceid or descriptor") + "</p>");
-			}
-
-			// Add user, course, etc to the launch parameters
-			Properties launch = new Properties();
-			if (!sakaiInfo(launch, contextId, resourceId, rb)) {
-				return postError("<p>" + getRB(rb, "error.info.resource",
-						"Error, cannot load Sakai information for resource=") + resourceId + ".</p>");
-			}
-
-			Properties info = new Properties();
-			if (!LTIUtil.parseDescriptor(info, launch, descriptor)) {
-				return postError("<p>" + getRB(rb, "error.badxml.resource",
-						"Error, cannot parse descriptor for resource=") + resourceId + ".</p>");
-			}
-
-			return postLaunchHTML(info, launch, rb);
-		}
 
 		// This must return an HTML message as the [0] in the array
 		// If things are successful - the launch URL is in [1]
