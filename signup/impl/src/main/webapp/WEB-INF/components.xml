@@ -52,7 +52,6 @@
 		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 		<property name="signupEmailFacade" ref="org.sakaiproject.signup.logic.SignupEmailFacade" />
-		<property name="signupCacheService" ref="org.sakaiproject.signup.logic.signupCacheService" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 	</bean>
 	
@@ -95,14 +94,6 @@
 		<property name="beanId" value="org.sakaiproject.signup.impl.SignupNotifyJob" />
 		<property name="jobName" value="Sign-up Auto Reminder Notification" />
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
-	</bean>
-
-	<bean id="org.sakaiproject.signup.logic.signupCacheService"
-          class="org.sakaiproject.signup.impl.SignupCacheServiceImpl"
-          init-method="init"
-          destroy-method="destroy">
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
-		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />
 	</bean>
 
 </beans>

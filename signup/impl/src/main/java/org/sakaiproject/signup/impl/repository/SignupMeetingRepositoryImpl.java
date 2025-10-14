@@ -310,4 +310,54 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 
 		return locations != null && !locations.isEmpty() ? locations : List.of();
 	}
+
+	@Override
+	public List<Long> findIdsBySiteIdAndDateRange(String siteId, Date startDate, Date endDate) {
+		if (siteId == null || startDate == null || endDate == null) return List.of();
+
+		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+		CriteriaQuery<Long> query = cb.createQuery(Long.class);
+		Root<SignupMeeting> root = query.from(SignupMeeting.class);
+		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+
+		query.select(root.get("id")).distinct(true)
+				.where(
+						cb.and(
+								cb.equal(signupSites.get("siteId"), siteId),
+								cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
+								cb.lessThan(root.get("startTime"), endDate)
+						)
+				)
+				.orderBy(cb.asc(root.get("startTime")));
+
+		return sessionFactory.getCurrentSession()
+				.createQuery(query)
+				.setCacheable(true)
+				.getResultList();
+	}
+
+	@Override
+	public List<Long> findIdsBySitesByDateRange(List<String> siteIds, Date startDate, Date endDate) {
+		if (siteIds == null || siteIds.isEmpty() || startDate == null || endDate == null) return List.of();
+
+		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+		CriteriaQuery<Long> query = cb.createQuery(Long.class);
+		Root<SignupMeeting> root = query.from(SignupMeeting.class);
+		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+
+		query.select(root.get("id")).distinct(true)
+				.where(
+						cb.and(
+								signupSites.get("siteId").in(siteIds),
+								cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
+								cb.lessThan(root.get("startTime"), endDate)
+						)
+				)
+				.orderBy(cb.asc(root.get("startTime")));
+
+		return sessionFactory.getCurrentSession()
+				.createQuery(query)
+				.setCacheable(true)
+				.getResultList();
+	}
 }

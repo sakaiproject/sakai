@@ -36,6 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -160,6 +163,21 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
             ids.forEach(id -> findById(id).ifPresent(list::add));
         }
         return list;
+    }
+
+    @Override
+    public List<T> findAllByIds(List<ID> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<T> query = cb.createQuery(domainClass);
+        Root<T> root = query.from(domainClass);
+
+        query.select(root).where(root.get("id").in(ids));
+
+        return sessionFactory.getCurrentSession()
+                .createQuery(query)
+                .getResultList();
     }
 
     @Override

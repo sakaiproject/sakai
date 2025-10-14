@@ -124,7 +124,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 			Date startDate = calendar.getTime();
 			int timeFrameInDays = Integer.parseInt(searchDateStr);
 			
-			List<SignupMeeting> sMeetings = signupMeetingService.getSignupMeetingsInSitesWithCache(siteIds, startDate, timeFrameInDays);		
+			List<SignupMeeting> sMeetings = signupMeetingService.getSignupMeetingsInSites(siteIds, startDate, timeFrameInDays);		
 	
 			/*filter out and output only my signed-up events*/
 			events = getMySignedUpEvents(sMeetings,userId);

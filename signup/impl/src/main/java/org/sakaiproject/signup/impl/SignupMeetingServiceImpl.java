@@ -39,22 +39,26 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.signup.api.Permission;
 import org.sakaiproject.signup.api.Retry;
 import org.sakaiproject.signup.api.SakaiFacade;
-import org.sakaiproject.signup.api.SignupCacheService;
 import org.sakaiproject.signup.api.SignupEmailFacade;
 import org.sakaiproject.signup.api.SignupMeetingService;
 import org.sakaiproject.signup.api.SignupMessageTypes;
@@ -103,9 +107,6 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 	@Getter @Setter
 	private SakaiFacade sakaiFacade;
-	
-	@Getter @Setter
-	private SignupCacheService signupCacheService;
 
 	@Getter @Setter
 	private SignupEmailFacade signupEmailFacade;
@@ -146,20 +147,28 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		return screenAllowableMeetings(currentSiteId, userId, meetings);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public List<SignupMeeting> getSignupMeetingsInSiteWithCache(String siteId, Date startDate, int timeFrameInDays) {
-		return signupCacheService.getAllSignupMeetingsInSite(siteId, startDate, timeFrameInDays);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<SignupMeeting> getSignupMeetingsInSitesWithCache(List<String> siteIds, Date startDate, int timeFrameInDays) {
-		return signupCacheService.getAllSignupMeetingsInSites(siteIds, startDate, timeFrameInDays);
+	public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, int timeFrameInDays) {
+		if (siteIds == null || siteIds.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		Instant startInstant = startDate.toInstant();
+		Instant endInstant = startInstant.plus(timeFrameInDays, ChronoUnit.DAYS);
+		Date endDate = Date.from(endInstant);
+
+		// Get all matching IDs for all sites in one query (more efficient)
+		List<Long> ids = repository.findIdsBySitesByDateRange(siteIds, startDate, endDate);
+
+		if (ids.isEmpty()) return List.of();
+
+		// Load entities in a single batch query
+		List<SignupMeeting> meetings = repository.findAllByIds(ids);
+
+		// Sort by start time (already sorted by query, but ensuring order)
+		meetings.sort(Comparator.comparing(SignupMeeting::getStartTime));
+
+		return meetings;
 	}
 	
 	/**
@@ -727,8 +736,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 						SecurityAdvisor advisor = sakaiFacade.pushAllowCalendarEdit(calendar);
 
 						try {
-							eventEdit = calendar.getEditEvent(eventId,
-									org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);
+							eventEdit = calendar.getEditEvent(eventId, CalendarService.EVENT_MODIFY_CALENDAR);
 							isNew = false;
 							if (!calendar.allowEditEvent(eventId)) {
 								continue;

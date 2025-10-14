@@ -94,34 +94,6 @@ public interface SignupMeetingService {
 	 * @return a list of SignupMeeting objects
 	 */
 	List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate);
-	
-	/**
-	 * This returns a subset list of SignupMeeting from startDate to endDate for
-	 * the site. The result might be 5 minutes old data due to ECache
-	 * 
-	 * @param siteId
-	 *            unique id which represents the multiple sites
-	 * @param startDate
-	 *            date,which constraints the search starting date.
-	 * @param timeFrameInDays
-	 *            number of days ,which constraints the search ending date.
-	 * @return a list of SignupMeeting objects
-	 */
-	List<SignupMeeting> getSignupMeetingsInSiteWithCache(String siteId, Date startDate, int timeFrameInDays);
-	
-	/**
-	 * This returns a subset list of SignupMeeting from startDate to endDate for
-	 * the sites, The result maybe 5 minutes old due to ECache
-	 * 
-	 * @param siteIds
-	 *            a collection of unique ids which represents the multiple sites
-	 * @param startDate
-	 *            date,which constraints the search starting date.
-	 * @param timeFrameInDays
-	 *            number of days ,which constraints the search ending date.
-	 * @return a list of SignupMeeting objects
-	 */
-	List<SignupMeeting> getSignupMeetingsInSitesWithCache(List<String> siteIds, Date startDate, int timeFrameInDays);
 
 	/**
 	 * This returns a subset list of SignupMeeting from startDate to endDate for
@@ -139,8 +111,8 @@ public interface SignupMeetingService {
 	
 	/**
 	 * This returns a subset list of SignupMeeting from startDate to endDate for
-	 * the sites with out cached
-	 * 
+	 * the sites
+	 *
 	 * @param siteIds
 	 *            a collection of unique ids which represents the multiple sites
 	 * @param startDate
@@ -150,6 +122,20 @@ public interface SignupMeetingService {
 	 * @return a list of SignupMeeting objects
 	 */
 	List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate);
+
+	/**
+	 * This returns a subset list of SignupMeeting from startDate to calculated endDate for the sites.
+	 * This is a convenience method that calculates endDate as startDate + timeFrameInDays.
+	 *
+	 * @param siteIds
+	 *            a collection of unique ids which represents the multiple sites
+	 * @param startDate
+	 *            date,which constraints the search starting date.
+	 * @param timeFrameInDays
+	 *            number of days to add to startDate to calculate endDate
+	 * @return a list of SignupMeeting objects
+	 */
+	List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, int timeFrameInDays);
 
 	/**
 	 * This returns a subset list of SignupMeetings with the same recurrenceId from starting date for

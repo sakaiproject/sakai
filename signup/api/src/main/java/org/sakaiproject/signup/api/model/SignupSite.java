@@ -50,6 +50,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import lombok.Data;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -64,6 +67,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 @Table(name = "signup_sites", indexes = {
 	@Index(name = "IDX_SITE_ID", columnList = "site_id")
 })
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class SignupSite implements PersistableEntity<Long> {
 
     @Id

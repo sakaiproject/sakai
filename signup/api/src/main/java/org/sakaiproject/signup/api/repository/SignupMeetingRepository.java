@@ -137,4 +137,26 @@ public interface SignupMeetingRepository extends SpringCrudRepository<SignupMeet
 	 * @return a list of Locations in a site
 	 */
 	List<String> findAllLocationsBySiteId(String siteId);
+
+	/**
+	 * Returns IDs of SignupMeetings from startDate to endDate for the defined site
+	 * This method uses query cache to return only IDs for improved caching performance
+	 *
+	 * @param siteId a unique id which represents the site
+	 * @param startDate date which constraints the search starting date
+	 * @param endDate date which constraints the search ending date
+	 * @return a list of SignupMeeting IDs
+	 */
+	List<Long> findIdsBySiteIdAndDateRange(String siteId, Date startDate, Date endDate);
+
+	/**
+	 * Returns IDs of SignupMeetings from startDate to endDate for the defined sites
+	 * This method uses query cache to return only IDs for improved caching performance
+	 *
+	 * @param siteIds a collection of unique ids which represents multiple sites
+	 * @param startDate date which constraints the search starting date
+	 * @param endDate date which constraints the search ending date
+	 * @return a list of SignupMeeting IDs
+	 */
+	List<Long> findIdsBySitesByDateRange(List<String> siteIds, Date startDate, Date endDate);
 }

@@ -55,6 +55,9 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import lombok.Data;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -67,6 +70,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 @Data
 @Entity
 @Table(name = "signup_ts")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class SignupTimeslot implements Comparable, PersistableEntity<Long> {
 
 	@Id
@@ -139,8 +143,8 @@ public class SignupTimeslot implements Comparable, PersistableEntity<Long> {
 	 * 
 	 */
 	public SignupTimeslot() {
-		attendees = new ArrayList<SignupAttendee>();
-		waitingList = new ArrayList<SignupAttendee>();
+		attendees = new ArrayList<>();
+		waitingList = new ArrayList<>();
 		
 		//set the timeslot UUID only at construction time
 		uuid = UUID.randomUUID().toString();

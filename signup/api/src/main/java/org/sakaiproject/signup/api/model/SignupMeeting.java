@@ -62,6 +62,8 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.sakaiproject.signup.api.Permission;
@@ -84,6 +86,7 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "signup_meetings")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Getter @Setter
 public class SignupMeeting implements MeetingTypes, SignupMessageTypes, PersistableEntity<Long> {
 
@@ -170,6 +173,7 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@Fetch(FetchMode.SELECT)
 	@BatchSize(size = 50)
+	@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	@OrderColumn(name = "list_index")
 	@JoinColumn(name = "meeting_id", nullable = false)
 	private List<SignupTimeslot> signupTimeSlots;
@@ -177,6 +181,7 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@Fetch(FetchMode.SELECT)
 	@BatchSize(size = 50)
+	@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	@OrderColumn(name = "list_index")
 	@JoinColumn(name = "meeting_id", nullable = false)
 	private List<SignupSite> signupSites;
@@ -184,6 +189,7 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
 	@CollectionTable
 	@Fetch(FetchMode.SELECT)
 	@BatchSize(size = 50)
+	@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	@OrderColumn(name = "list_index")
 	@JoinTable(name = "signup_attachments", joinColumns = @JoinColumn(name = "meeting_id", nullable = false))
 	private List<SignupAttachment> signupAttachments;
