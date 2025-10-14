@@ -98,32 +98,7 @@
                 </includes>
                 <filtering>false</filtering>
             </resource>
-<!--            <resource>-->
-<!--                <directory>src/main/java</directory>-->
-<!--                <includes>-->
-<!--                    <include>**/*.xml</include>-->
-<!--                </includes>-->
-<!--                <filtering>false</filtering>-->
-<!--            </resource>-->
         </resources>
-<!--        <testResources>-->
-<!--            <testResource>-->
-<!--                <directory>-->
-<!--					${basedir}/../pack/src/webapp/WEB-INF-->
-<!--				</directory>-->
-<!--                <includes>-->
-<!--                    <include>spring-hibernate.xml</include>-->
-<!--                    <include>logic-support.xml</include>-->
-<!--                </includes>-->
-<!--            </testResource>-->
-<!--            <testResource>-->
-<!--                <directory>${basedir}/src/test</directory>-->
-<!--                <includes>-->
-<!--                    <include>hibernate-test.xml</include>-->
-<!--                    <include>hibernate.properties</include>-->
-<!--                </includes>-->
-<!--            </testResource>-->
-<!--        </testResources>-->
         <plugins>
             <plugin>
                 <groupId>org.sakaiproject.maven.plugins</groupId>

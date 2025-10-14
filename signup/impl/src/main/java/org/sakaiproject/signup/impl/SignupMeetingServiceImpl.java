@@ -82,6 +82,7 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * <p>
@@ -94,6 +95,7 @@ import org.sakaiproject.util.ResourceLoader;
  * </p>
  */
 @Slf4j
+@Transactional
 public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
 
 	@Getter @Setter
