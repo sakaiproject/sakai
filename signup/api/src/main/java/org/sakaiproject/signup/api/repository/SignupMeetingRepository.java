@@ -99,13 +99,6 @@ public interface SignupMeetingRepository extends SpringCrudRepository<SignupMeet
 	List<SignupMeeting> findAutoReminderMeetings(Date startDate, Date endDate);
 
 	/**
-	 * Saves a list of meeting objects into database
-	 *
-	 * @param signupMeetings list of SignupMeeting objects
-	 */
-	void saveAll(List<SignupMeeting> signupMeetings);
-
-	/**
 	 * Updates a list of SignupMeeting objects in the DB
 	 *
 	 * @param meetings a list of SignupMeeting objects
@@ -119,21 +112,6 @@ public interface SignupMeetingRepository extends SpringCrudRepository<SignupMeet
 	 * @param removedTimeslots a list of SignupTimeslot objects to be removed
 	 */
 	void updateMeetingsAndRemoveTimeslots(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots);
-
-	/**
-	 * Deletes a list of SignupMeeting objects
-	 *
-	 * @param meetings a list of SignupMeeting objects to be removed
-	 */
-	void deleteAll(List<SignupMeeting> meetings);
-
-	/**
-	 * Tests if the event exists
-	 *
-	 * @param eventId a Long Id for event
-	 * @return true if the event exists
-	 */
-	boolean existsById(Long eventId);
 
 	/**
 	 * Gets total Events record-Counts for auto-reminder process

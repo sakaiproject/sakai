@@ -414,25 +414,32 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public Long saveMeeting(SignupMeeting signupMeeting, String userId) throws PermissionException {
 		if (isAllowedToCreate(userId, signupMeeting)) {
 			return repository.save(signupMeeting).getId();
 		}
 		throw new PermissionException(userId, "signup.create", "signup tool");
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+
+    @Override
 	public void saveMeetings(List<SignupMeeting> signupMeetings, String userId) throws PermissionException {
-		if (signupMeetings ==null || signupMeetings.isEmpty())
+		if (signupMeetings == null || signupMeetings.isEmpty())
 			return;
 
 		if (isAllowedToCreate(userId, signupMeetings.get(0))) {
+
+			SignupMeeting sm = signupMeetings.get(0);
+			if (sm.isRecurredMeeting()) {
+				// Use the first unique meeting id as the recurrenceId for all recurring meetings
+                SignupMeeting meeting = repository.save(sm);
+				Long recurrenceId = meeting.getId();
+				for (SignupMeeting sMeeting : signupMeetings) {
+					sMeeting.setRecurrenceId(recurrenceId);
+				}
+			}
 			repository.saveAll(signupMeetings);
+
 		}
 		else{
 			throw new PermissionException(userId, "signup.create", "signup tool");

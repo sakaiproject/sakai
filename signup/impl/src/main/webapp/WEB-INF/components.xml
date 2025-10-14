@@ -1,24 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
-	<!-- Bring in the HBM related beans beans (retained for verification, will be removed after migration) -->
-	<import resource="hibernate-hbms.xml" />
+    <bean id="org.sakaiproject.signup.hibernate.AdditionalHibernateMappings"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.signup.api.model.SignupAttachment</value>
+                <value>org.sakaiproject.signup.api.model.SignupAttendee</value>
+                <value>org.sakaiproject.signup.api.model.SignupGroup</value>
+                <value>org.sakaiproject.signup.api.model.SignupMeeting</value>
+                <value>org.sakaiproject.signup.api.model.SignupSite</value>
+                <value>org.sakaiproject.signup.api.model.SignupTimeslot</value>
+            </list>
+        </property>
+    </bean>
 
-	<!-- Repository configuration -->
+
+    <!-- Repository configuration -->
 	<bean id="org.sakaiproject.signup.api.repository.SignupMeetingRepository"
 		class="org.sakaiproject.signup.impl.repository.SignupMeetingRepositoryImpl">
-		<property name="sessionFactory"
-			ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
 
 	<!--
 		create an external logic bean which abstracts out the Sakai bits
 	-->
-	<bean id="org.sakaiproject.signup.logic.SakaiFacade" class="org.sakaiproject.signup.impl.SakaiFacadeImpl"
-		init-method="init">
+	<bean id="org.sakaiproject.signup.logic.SakaiFacade"
+          class="org.sakaiproject.signup.impl.SakaiFacadeImpl"
+          init-method="init">
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
@@ -35,8 +47,8 @@
 
 	<!-- create a logic bean, give it the repository from above -->
 	<bean id="org.sakaiproject.signup.logic.SignupMeetingService"
-		class="org.sakaiproject.signup.impl.SignupMeetingServiceImpl"
-		init-method="init">
+          class="org.sakaiproject.signup.impl.SignupMeetingServiceImpl"
+          init-method="init">
 		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 		<property name="signupEmailFacade" ref="org.sakaiproject.signup.logic.SignupEmailFacade" />
@@ -44,12 +56,14 @@
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
 	</bean>
 	
-	<bean id="org.sakaiproject.signup.logic.SignupCalendarHelper" class="org.sakaiproject.signup.impl.SignupCalendarHelperImpl">
+	<bean id="org.sakaiproject.signup.logic.SignupCalendarHelper"
+          class="org.sakaiproject.signup.impl.SignupCalendarHelperImpl">
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 		<property name="externalCalendaringService" ref="org.sakaiproject.calendaring.api.ExternalCalendaringService" />
 	</bean>
 
-	<bean id="org.sakaiproject.signup.logic.SignupEmailFacade" class="org.sakaiproject.signup.impl.SignupEmailFacadeImpl">
+	<bean id="org.sakaiproject.signup.logic.SignupEmailFacade"
+          class="org.sakaiproject.signup.impl.SignupEmailFacadeImpl">
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
@@ -60,8 +74,10 @@
 	<!--
 		Quartz Job auto-remind attendee's next upcoming appointment job
 	-->
-	<bean id="org.sakaiproject.signup.logic.SignupNotifyJob" class="org.sakaiproject.signup.impl.SignupNotifyJob"
-		init-method="init" destroy-method="destroy">
+	<bean id="org.sakaiproject.signup.logic.SignupNotifyJob"
+          class="org.sakaiproject.signup.impl.SignupNotifyJob"
+          init-method="init"
+          destroy-method="destroy">
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />
@@ -76,22 +92,16 @@
 		id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.signupNotifyJob"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
 		init-method="init">
-		<property name="beanId">
-			<value>org.sakaiproject.signup.impl.SignupNotifyJob</value>
-		</property>
-		<property name="jobName">
-			<value>Sign-up Auto Reminder Notification</value>
-		</property>
-		<property name="schedulerManager">
-			<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
-		</property>
+		<property name="beanId" value="org.sakaiproject.signup.impl.SignupNotifyJob" />
+		<property name="jobName" value="Sign-up Auto Reminder Notification" />
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
 
-	<bean id="org.sakaiproject.signup.logic.signupCacheService" class="org.sakaiproject.signup.impl.SignupCacheServiceImpl"
-		init-method="init" destroy-method="destroy">
-		<property name="memoryService">
-			<ref bean="org.sakaiproject.memory.api.MemoryService" />
-		</property>
+	<bean id="org.sakaiproject.signup.logic.signupCacheService"
+          class="org.sakaiproject.signup.impl.SignupCacheServiceImpl"
+          init-method="init"
+          destroy-method="destroy">
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
 		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />
 	</bean>
 

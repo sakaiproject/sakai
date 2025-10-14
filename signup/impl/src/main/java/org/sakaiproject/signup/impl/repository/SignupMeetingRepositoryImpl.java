@@ -38,8 +38,6 @@ import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
  * Implementation of SignupMeetingRepository using Spring Data pattern.
  * Provides methods to access the database for retrieving, creating, updating
  * and removing SignupMeeting objects.
- *
- * @author Peter Liu
  */
 @Slf4j
 @Transactional
@@ -111,9 +109,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 				.getResultList();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<SignupMeeting> findInSiteByDateRange(String siteId, Date startDate, Date endDate) {
 		if (siteId == null || startDate == null || endDate == null) return List.of();
@@ -138,9 +133,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 				.getResultList();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<SignupMeeting> findInSitesByDateRange(List<String> siteIds, Date startDate, Date endDate) {
 		if (siteIds == null || siteIds.isEmpty() || startDate == null || endDate == null) return List.of();
@@ -165,9 +157,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 				.getResultList();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<SignupMeeting> findRecurringMeetings(String siteId, Long recurrenceId, Date currentTime) {
 		if (siteId == null || recurrenceId == null || currentTime == null) return List.of();
@@ -192,29 +181,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 				.getResultList();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void saveAll(List<SignupMeeting> signupMeetings) {
-		if (signupMeetings != null && signupMeetings.size() > 0) {
-			SignupMeeting sm = signupMeetings.get(0);
-			if (sm.isRecurredMeeting()) {
-				// Use the first unique meeting id as the recurrenceId for all recurring meetings
-				Long recurrenceId = (Long) sessionFactory.getCurrentSession().save(sm);
-				for (SignupMeeting sMeeting : signupMeetings) {
-					sMeeting.setRecurrenceId(recurrenceId);
-				}
-			}
-			for (SignupMeeting signupMeeting : signupMeetings) {
-				sessionFactory.getCurrentSession().saveOrUpdate(signupMeeting);
-			}
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateAll(List<SignupMeeting> meetings) {
 		if (meetings == null || meetings.isEmpty()) return;
@@ -224,9 +190,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void updateMeetingsAndRemoveTimeslots(List<SignupMeeting> meetings, List<SignupTimeslot> removedTimeslots) {
 		if (meetings != null && !meetings.isEmpty()) {
@@ -245,12 +208,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		}
 	}
 
-	/**
-	 * Loads a SignupTimeslot by its ID
-	 *
-	 * @param timeslotId the timeslot ID
-	 * @return Optional containing the SignupTimeslot if found
-	 */
 	private Optional<SignupTimeslot> loadSignupTimeslot(Long timeslotId) {
 		if (timeslotId == null) return Optional.empty();
 
@@ -268,37 +225,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		return Optional.ofNullable(result);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void deleteAll(List<SignupMeeting> meetings) {
-		if (meetings == null || meetings.isEmpty()) return;
-
-		List<SignupMeeting> merged = new ArrayList<>();
-		for (SignupMeeting meeting : meetings) {
-			merged.add((SignupMeeting) sessionFactory.getCurrentSession().merge(meeting));
-		}
-
-		for (SignupMeeting meeting : merged) {
-			sessionFactory.getCurrentSession().delete(meeting);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean existsById(Long eventId) {
-		if (eventId == null) return false;
-
-		Optional<SignupMeeting> meeting = findById(eventId);
-		return meeting.isPresent();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int countAutoReminderMeetings(Date startDate, Date endDate) {
 		if (startDate == null || endDate == null) return 0;
@@ -322,9 +248,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		return count != null ? count.intValue() : 0;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<SignupMeeting> findAutoReminderMeetings(Date startDate, Date endDate) {
 		if (startDate == null || endDate == null) return List.of();
@@ -348,9 +271,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 				.getResultList();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<String> findAllCategoriesBySiteId(String siteId) {
 		if (siteId == null) return List.of();
@@ -371,9 +291,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		return categories != null && !categories.isEmpty() ? categories : List.of();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<String> findAllLocationsBySiteId(String siteId) {
 		if (siteId == null) return List.of();
