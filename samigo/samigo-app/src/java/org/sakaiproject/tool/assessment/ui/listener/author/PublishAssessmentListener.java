@@ -60,6 +60,7 @@ import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -512,17 +513,17 @@ public class PublishAssessmentListener
 	  }
 
 	  totalScoresBean.setPublishedId(pub.getPublishedAssessmentId().toString());
-	  Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_NOTIFICATION_LISTENER, AgentFacade.getCurrentSiteId()); 
+	  Map<String, EnrollmentRecord> useridMap = totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_NOTIFICATION_LISTENER, AgentFacade.getCurrentSiteId()); 
 	  AgentFacade agent = null;
 
 	  AgentFacade instructor = new AgentFacade();
-	  ArrayList<InternetAddress> toIAList = new ArrayList<>();
+	  List<InternetAddress> toIAList = new ArrayList<>();
 	  try {
 		  toIAList.add(new InternetAddress(instructor.getEmail())); // send one copy to instructor
 	  } catch (AddressException e) {
 		  log.warn("AddressException encountered when constructing instructor's email.");
 	  }
-	  Iterator iter = useridMap.keySet().iterator();
+	  Iterator<String> iter = useridMap.keySet().iterator();
 
 	  while (iter.hasNext()) {
 		  String userUid = (String) iter.next();
@@ -531,33 +532,37 @@ public class PublishAssessmentListener
 		  try {
 			  ia = new InternetAddress(agent.getEmail());
 		  } catch (AddressException e) {
-			  log.warn("AddressException encountered when constructing toIAList email. userUid = " + userUid);
+			  log.warn("AddressException encountered when constructing toIAList email. userUid = {}", userUid);
 		  }
 		  if (ia != null) {
 			  toIAList.add(ia);
 		  }
 	  }
 
-	  InternetAddress[] toIA = new InternetAddress[toIAList.size()];
-	  int count = 0;
-	  Iterator iter2 = toIAList.iterator();
-	  while (iter2.hasNext()) {
-		  toIA[count++] = (InternetAddress) iter2.next();
+	  if (!toIAList.isEmpty()) {
+		  InternetAddress[] toIA = new InternetAddress[toIAList.size()];
+		  int count = 0;
+		  Iterator iter2 = toIAList.iterator();
+		  while (iter2.hasNext()) {
+			  toIA[count++] = (InternetAddress) iter2.next();
+		  }
+
+		  String noReplyEmaillAddress =  ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
+	      InternetAddress[] noReply = new InternetAddress[1];
+	      InternetAddress from = null;
+	      try {
+	          from = new InternetAddress(noReplyEmaillAddress);
+	          noReply[0] = from;
+	      } catch (AddressException e) {
+	          log.warn("AddressException encountered when constructing no_reply@serverName email.");
+	      }
+
+		  List<String> headers = new  ArrayList<String>();
+		  headers.add("Content-Type: text/html");
+		  EmailService.sendMail(from, toIA, subject, message, noReply, noReply, headers);
+	  } else {
+		  log.info("sendNotification is not possible, the toIAList is empty.");
 	  }
-
-	  String noReplyEmaillAddress =  ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
-      InternetAddress[] noReply = new InternetAddress[1];
-      InternetAddress from = null;
-      try {
-          from = new InternetAddress(noReplyEmaillAddress);
-          noReply[0] = from;
-      } catch (AddressException e) {
-          log.warn("AddressException encountered when constructing no_reply@serverName email.");
-      }
-
-	  List<String> headers = new  ArrayList<String>();
-	  headers.add("Content-Type: text/html");
-	  EmailService.sendMail(from, toIA, subject, message, noReply, noReply, headers);
   }
 
     public String getNotificationMessage(PublishRepublishNotificationBean publishRepublishNotification, String title, String releaseTo, String startDateString, String publishedURL, String dueDateString,
