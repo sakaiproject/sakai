@@ -31,7 +31,7 @@ import java.util.Map;
 import org.sakaiproject.lti.beans.LtiMembershipsJobBean;
 
 /**
- * Unit tests for LtiMembershipsJobBean POJO conversion methods.
+ * Unit tests for LtiMembershipsJobBean Bean conversion methods.
  */
 public class LtiMembershipsJobBeanTest {
 
@@ -99,11 +99,11 @@ public class LtiMembershipsJobBeanTest {
 
     @Test
     public void testRoundTripConversion() {
-        // Convert Map to POJO
+        // Convert Map to Bean
         LtiMembershipsJobBean originalJob = LtiMembershipsJobBean.of(testMap);
         assertNotNull(originalJob);
         
-        // Convert POJO back to Map
+        // Convert Bean back to Map
         Map<String, Object> convertedMap = originalJob.asMap();
         assertNotNull(convertedMap);
         
@@ -129,7 +129,7 @@ public class LtiMembershipsJobBeanTest {
         mapWithNulls.put("consumerkey", null);
         mapWithNulls.put("lti_version", "LTI-1p0");
         
-        // Convert Map to POJO
+        // Convert Map to Bean
         LtiMembershipsJobBean job = LtiMembershipsJobBean.of(mapWithNulls);
         assertNotNull(job);
         assertEquals("site999", job.getSiteId());
@@ -138,7 +138,7 @@ public class LtiMembershipsJobBeanTest {
         assertNull(job.getConsumerkey());
         assertEquals("LTI-1p0", job.getLtiVersion());
         
-        // Convert POJO back to Map
+        // Convert Bean back to Map
         Map<String, Object> convertedMap = job.asMap();
         assertNotNull(convertedMap);
         

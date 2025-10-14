@@ -608,6 +608,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			if ( rv.size() > 1 ) {
 				log.warn("Warning more than one row returned: {}", statement);
 			}
+			log.debug("rv: " + rv.get(0));
 			return rv.get(0);
 		}
 		return null;
@@ -892,7 +893,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			final String[] columns) {
 		log.debug("getResultSet sql={} fields={}", statement, fields);
 		List rv = jdbcTemplate.query(statement, fields, new FoormMapRowMapper(columns));
-		log.debug("getResultSet size={} sql={}", rv.size(), statement);
+		log.debug("getResultSet size={}", rv.size());
 
 		return (List<Map<String, Object>>) rv;
 	}

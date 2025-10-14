@@ -505,7 +505,7 @@ public class LTI13Servlet extends HttpServlet {
 			return;
 		}
 
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsPojo(toolKey, site.getId(), true);
+		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, site.getId(), true);
 		if (tool == null) {
 			log.error("Could not load tool={}", toolKey);
 			LTI13Util.return400(response, "Missing tool");
@@ -590,7 +590,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// TODO: A little moar checking on the session.
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsPojo(tool_key, null, true);
+		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(tool_key, null, true);
 		if (tool == null) {
 			LTI13Util.return400(response, "Could not load tool");
 			log.error("Could not load tool {}", tool_key);
@@ -856,7 +856,7 @@ public class LTI13Servlet extends HttpServlet {
 		}
 
 		// Load the tool
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsPojo(toolKey, null, true);
+		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, null, true);
 		if (tool == null) {
 			LTI13Util.return400(response, "Could not load tool");
 			log.error("Could not load tool {}", tool_id);
@@ -1084,7 +1084,7 @@ public class LTI13Servlet extends HttpServlet {
 				return;
 			}
 
-			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
+			tool = ltiService.getToolDaoAsBean(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -1200,7 +1200,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 			return;
 		}
 
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsPojo(tool_key, null, true);
+		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(tool_key, null, true);
 		if (tool == null) {
 			log.error("Could not load tool={}", tool_key);
 			LTI13Util.return400(response, "Missing tool");
@@ -1368,7 +1368,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 				return;
 			}
 
-			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
+			tool = ltiService.getToolDaoAsBean(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -1620,7 +1620,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 			return;
 		}
 
-		tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
+		tool = ltiService.getToolDaoAsBean(sat.tool_id, site.getId(), true);
 		if (tool == null) {
 			log.error("Could not load tool={}", sat.tool_id);
 			LTI13Util.return400(response, "Missing tool");
@@ -1834,7 +1834,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 
 		// Note that all of the above checking requires no database access :)
 		// Now we have a valid access token and valid JSON, proceed with validating the signed_placement
-		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsPojo(contentKey, context_id);
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsBean(contentKey, context_id);
 		if (content == null) {
 			log.error("Could not load Content Item {}", contentKey);
 			LTI13Util.return400(response, "Could not load Content Item");
@@ -1912,7 +1912,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 
 	protected static boolean checkToolHasPlacements(Long toolKey, String siteId, HttpServletResponse response)
 	{
-		 List<org.sakaiproject.lti.beans.LtiContentBean> contents = ltiService.getContentsAsPojos(null, null, 0, 2, siteId);
+		 List<org.sakaiproject.lti.beans.LtiContentBean> contents = ltiService.getContentsAsBeans(null, null, 0, 2, siteId);
 		if (contents.size() < 1) {
 			log.error("Tool id={} has no placements in site={}", toolKey, siteId);
 			LTI13Util.return400(response, "No placements for tool");
@@ -1929,7 +1929,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 			return null;
 		}
 
-		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsPojo(toolKey, site.getId(), true);
+		org.sakaiproject.lti.beans.LtiToolBean tool = ltiService.getToolDaoAsBean(toolKey, site.getId(), true);
 		if (tool == null) {
 			log.error("Could not load tool={}", toolKey);
 			LTI13Util.return400(response, "Missing tool");
@@ -2067,7 +2067,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 				return;
 			}
 
-			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
+			tool = ltiService.getToolDaoAsBean(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -2167,7 +2167,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 				return;
 			}
 
-			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
+			tool = ltiService.getToolDaoAsBean(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -2256,7 +2256,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 				return;
 			}
 
-			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
+			tool = ltiService.getToolDaoAsBean(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -2372,7 +2372,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 				return;
 			}
 
-			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
+			tool = ltiService.getToolDaoAsBean(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");
@@ -2604,7 +2604,7 @@ log.debug("calling SakaiLTIUtil.handleGradebookLTI13 bean version content="+cont
 				return;
 			}
 
-			tool = ltiService.getToolDaoAsPojo(sat.tool_id, site.getId(), true);
+			tool = ltiService.getToolDaoAsBean(sat.tool_id, site.getId(), true);
 			if (tool == null) {
 				log.error("Could not load tool={}", sat.tool_id);
 				LTI13Util.return400(response, "Missing tool");

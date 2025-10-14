@@ -114,6 +114,10 @@ public class LtiToolBean extends LTIBaseBean {
     // Timestamps from TOOL_MODEL
     public Date createdAt;             // TOOL_MODEL: "created_at:autodate"
     public Date updatedAt;             // TOOL_MODEL: "updated_at:autodate"
+    
+    // Live attributes - computed fields that may be present in Map data
+    public Long ltiContentCount;       // Live attribute: "lti_content_count" from database joins
+    public Long ltiSiteCount;          // Live attribute: "lti_site_count" from database joins
 
     /**
      * Creates an LtiToolBean instance from a Map<String, Object>.
@@ -198,6 +202,10 @@ public class LtiToolBean extends LTIBaseBean {
         tool.setCreatedAt(getDateValue(map, LTIService.LTI_CREATED_AT));
         tool.setUpdatedAt(getDateValue(map, LTIService.LTI_UPDATED_AT));
         
+        // Live attributes - computed fields that may be present in Map data
+        tool.setLtiContentCount(getLongValue(map, "lti_content_count"));
+        tool.setLtiSiteCount(getLongValue(map, "lti_site_count"));
+        
         return tool;
     }
 
@@ -278,6 +286,10 @@ public class LtiToolBean extends LTIBaseBean {
         // Timestamps
         putIfNotNull(map, LTIService.LTI_CREATED_AT, createdAt);
         putIfNotNull(map, LTIService.LTI_UPDATED_AT, updatedAt);
+        
+        // Live attributes - computed fields that may be present in Map data
+        putIfNotNull(map, "lti_content_count", ltiContentCount);
+        putIfNotNull(map, "lti_site_count", ltiSiteCount);
         
         return map;
     }

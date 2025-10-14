@@ -143,16 +143,16 @@ ${includeLatestJQuery}
                             <tr>
                                 <td headers="site_id">
                                     #set($siteId="<span style='display:none;'>Nothing here</span>")
-                                    #set($siteId=$toolSite.get("SITE_ID"))
+                                    #set($siteId=$toolSite.siteId)
                                     $!siteId
                                 </td>
-                                <td headers="site_notes">$formattedText.escapeHtml($toolSite.get("notes"))</td>
+                                <td headers="site_notes">$formattedText.escapeHtml($toolSite.notes)</td>
 
                                 #if ($isAdmin)
                                     <td headers="action">
                                         <ul style="list-style: none;">
-                                            <li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolSiteEdit")&id=$toolSite.get("id")">$tlang.getString("gen.edit")</a></li>
-                                            <li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolSiteDelete")&id=$toolSite.get("id")">$tlang.getString("gen.delete")</a> </li>
+                                            <li style="display:inline"><a href="$sakai_ActionURL.setPanel("ToolSiteEdit")&id=$toolSite.id">$tlang.getString("gen.edit")</a></li>
+                                            <li style="display:inline"><span aria-hidden="true"> / </span> <a href="$sakai_ActionURL.setPanel("ToolSiteDelete")&id=$toolSite.id">$tlang.getString("gen.delete")</a> </li>
                                         </ul>
                                     </td>
                                 #end
