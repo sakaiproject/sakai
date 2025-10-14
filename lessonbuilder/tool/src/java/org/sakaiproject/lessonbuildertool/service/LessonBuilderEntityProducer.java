@@ -320,13 +320,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		log.info("destroy()");
 	}
 
-	// lessonbuilder allows new tools to be created that use lessonbuilder. They will have
-	// different tool ID's. The best way to find them seems to be to look
-	// for all tools that set "linktool" as a keyword. Perhaps I should cache
-	// this value. However in theory it would be possible to dynamically add
-	// tools. Note that the tools are loaded when LinkTool.class is loaded. That's
-	// often after this class, so at init time these lists would be empty.
-
 	@Override
 	public String[] myToolIds()
 	{

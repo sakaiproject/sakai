@@ -25,8 +25,8 @@ package org.adl.validator.sequence;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.util.LogMessage;
 import org.adl.util.MessageType;
@@ -49,12 +49,8 @@ import org.w3c.dom.NodeList;
  *
  * @author ADL Technical Team
  */
-
+@Slf4j
 public class ObjectiveMap {
-	/**
-	 * Logger object used for debug logging.
-	 */
-	private Logger mLogger;
 
 	/**
 	 * The identifier attribute of the <code>&lt;objective&gt;</code> or 
@@ -103,8 +99,6 @@ public class ObjectiveMap {
 	 * The default constructor.
 	 */
 	public ObjectiveMap() {
-		mLogger = Logger.getLogger("org.adl.util.debug.validator");
-
 		mObjectiveID = "";
 		mTargetObjectiveID = "";
 		mReadSatisfiedStatus = "";
@@ -134,7 +128,6 @@ public class ObjectiveMap {
 	 * </ul>
 	 */
 	private boolean checkReadAttributes(ObjectiveMap iObjectiveMap, int iMapLoc) {
-		mLogger.entering("ObjectiveMap", "checkReadAttributes");
 		boolean result = true;
 		String msgText = "";
 		boolean foundDuplicateReadStatus = false;
@@ -178,23 +171,23 @@ public class ObjectiveMap {
 			}
 
 			catch (ArrayIndexOutOfBoundsException iAIOBE) {
-				mLogger.severe("ArrayIndexOutOfBoundsException thrown");
+				log.warn("ArrayIndexOutOfBoundsException thrown");
 			} catch (NullPointerException iNPE) {
-				mLogger.severe("NullPointerException thrown");
+				log.warn("NullPointerException thrown");
 			}
 		}
 		// log error messages
 		if (foundDuplicateReadStatus) {
 			msgText = Messages.getString("ObjectiveMap.34", iObjectiveMap.getObjectiveID());
 
-			mLogger.info("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 		}
 
 		if (foundDuplicateReadMeasure) {
 			msgText = Messages.getString("ObjectiveMap.38", iObjectiveMap.getObjectiveID());
 
-			mLogger.info("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 		}
 
@@ -209,16 +202,14 @@ public class ObjectiveMap {
 
 				result = checkReadAttributes(nextObjectiveMap, i) && result;
 			} catch (ArrayIndexOutOfBoundsException iAIOBE) {
-				mLogger.severe("ArrayIndexOutOfBoundsException thrown");
+				log.warn("ArrayIndexOutOfBoundsException thrown");
 			} catch (NullPointerException iNPE) {
-				mLogger.severe("NullPointerExceptionException thrown");
+				log.warn("NullPointerExceptionException thrown");
 			}
 
 		}
 
-		mLogger.exiting("ObjectiveMap", "checkReadAttributes");
 		return result;
-
 	}
 
 	/**
@@ -241,7 +232,6 @@ public class ObjectiveMap {
 	 */
 	private boolean checkWriteAttributes(ObjectiveMap iObjectiveMap, int iMapLoc) {
 
-		mLogger.entering("ObjectiveMap", "checkWriteAttributes");
 		boolean result = true;
 		String msgText = "";
 
@@ -266,10 +256,10 @@ public class ObjectiveMap {
 				String objectiveID2 = currentObjectiveMap.getTargetObjectiveID();
 
 				msgText = "targetID1 is " + iObjectiveMap.getTargetObjectiveID();
-				mLogger.info("INFO: " + msgText);
+				log.debug("INFO: {}", msgText);
 
 				msgText = "targetID2 is " + currentObjectiveMap.getTargetObjectiveID();
-				mLogger.info("INFO: " + msgText);
+				log.debug("INFO: {}", msgText);
 
 				if (iObjectiveMap.getTargetObjectiveID().equals(objectiveID2)) {
 					// Found a match, need to validate that both do not read 
@@ -280,7 +270,7 @@ public class ObjectiveMap {
 
 						msgText = Messages.getString("ObjectiveMap.53", iObjectiveMap.getTargetObjectiveID());
 
-						mLogger.info("FAILED: " + msgText);
+						log.warn("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					}
 
@@ -290,14 +280,14 @@ public class ObjectiveMap {
 
 						msgText = Messages.getString("ObjectiveMap.58", iObjectiveMap.getTargetObjectiveID());
 
-						mLogger.info("FAILED: " + msgText);
+						log.warn("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					}
 				}
 			} catch (ArrayIndexOutOfBoundsException iAIOBE) {
-				mLogger.severe("ArrayIndexOutOfBoundsException thrown");
+				log.warn("ArrayIndexOutOfBoundsException thrown");
 			} catch (NullPointerException iNPE) {
-				mLogger.severe("NullPointerException thrown");
+				log.warn("NullPointerException thrown");
 			}
 		}
 
@@ -312,16 +302,13 @@ public class ObjectiveMap {
 
 				result = checkWriteAttributes(nextObjectiveMap, i) && result;
 			} catch (ArrayIndexOutOfBoundsException iAIOBE) {
-				mLogger.severe("ArrayIndexOutOfBoundsException thrown");
+				log.warn("ArrayIndexOutOfBoundsException thrown");
 			} catch (NullPointerException iNPE) {
-				mLogger.severe("NullPointerException thrown");
+				log.warn("NullPointerException thrown");
 			}
 
 		}
-
-		mLogger.exiting("ObjectiveMap", "checkWriteAttributes");
 		return result;
-
 	}
 
 	/**
@@ -421,7 +408,6 @@ public class ObjectiveMap {
 	 * and populate the ObjectiveMap object.
 	 */
 	public void populateObjectiveMap(Node iNode) {
-		mLogger.entering("ObjectiveMap", "populateObjectiveMap");
 
 		boolean addToListFlag = false;
 		String mapObjectiveID = "";
@@ -444,7 +430,7 @@ public class ObjectiveMap {
 			NamedNodeMap attrList = iNode.getAttributes();
 
 			int numAttr = attrList.getLength();
-			mLogger.finer("There are " + numAttr + " attributes of " + nodeName + " to test");
+			log.debug("There are {} attributes of {} to test", numAttr, nodeName);
 
 			Attr currentAttrNode;
 			String currentNodeName;
@@ -502,7 +488,7 @@ public class ObjectiveMap {
 						NamedNodeMap mapAttrList = currentChild.getAttributes();
 
 						int numMapAttr = mapAttrList.getLength();
-						mLogger.finer("There are " + numMapAttr + " attributes of " + currentChildName + " to test");
+						log.debug("There are {} attributes of {} to test", numMapAttr, currentChildName);
 
 						Attr currentMapAttrNode;
 						String currentMapAttrNodeName;
@@ -565,8 +551,6 @@ public class ObjectiveMap {
 				}
 			}
 		}
-
-		mLogger.exiting("ObjectiveMap", "populateObjectiveMap");
 	}
 
 	/**
