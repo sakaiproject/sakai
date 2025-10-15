@@ -3471,16 +3471,16 @@ public class SakaiLTIUtil {
 	}
 
 	/**
-	 * POJO overload for findBestToolMatch
+	 * Bean overload for findBestToolMatch
 	 */
-	public static org.sakaiproject.lti.beans.LtiToolBean findBestToolMatchPojo(String launchUrl, String toolCheckSum, List<org.sakaiproject.lti.beans.LtiToolBean> tools)
+	public static org.sakaiproject.lti.beans.LtiToolBean findBestToolMatchBean(String launchUrl, String toolCheckSum, List<org.sakaiproject.lti.beans.LtiToolBean> tools)
 	{
 		// Guard against null tools parameter
 		if (tools == null) {
 			return null;
 		}
 		
-		// Convert POJOs to maps for the existing logic
+		// Convert Beans to maps for the existing logic
 		List<Map<String,Object>> toolMaps = new ArrayList<>();
 		for (org.sakaiproject.lti.beans.LtiToolBean tool : tools) {
 			if (tool != null) {
