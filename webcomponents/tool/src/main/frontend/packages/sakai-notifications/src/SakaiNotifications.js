@@ -122,7 +122,7 @@ export class SakaiNotifications extends SakaiElement {
         this.notifications.unshift(message);
         this._fireLoadedEvent();
         this._decorateNotification(message);
-        this._filterIntoToolNotifications(false);
+        this._filterIntoToolNotifications();
       });
     })
     .catch(error => {
@@ -137,22 +137,21 @@ export class SakaiNotifications extends SakaiElement {
     });
   }
 
-  _filterIntoToolNotifications(decorate = true) {
+  _filterIntoToolNotifications() {
 
     this._filteredNotifications.clear();
 
     this.notifications.forEach(noti => {
 
-      decorate && this._decorateNotification(noti);
+      const decorated = this._decorateNotification(noti);
 
-      // Grab the first section of the event. This is the tool event prefix.
-      const toolEventPrefix = noti.event.substring(0, noti.event.indexOf("."));
+      const toolEventPrefix = decorated.event.substring(0, decorated.event.indexOf("."));
 
       if (!this._filteredNotifications.has(toolEventPrefix)) {
         this._filteredNotifications.set(toolEventPrefix, []);
       }
 
-      this._filteredNotifications.get(toolEventPrefix).push(noti);
+      this._filteredNotifications.get(toolEventPrefix).push(decorated);
     });
 
     // Make sure the motd bundle is at the top.
@@ -165,24 +164,27 @@ export class SakaiNotifications extends SakaiElement {
 
   _decorateNotification(noti) {
 
-    // Grab the first section of the event. This is the tool event prefix.
-    const toolEventPrefix = noti.event.substring(0, noti.event.indexOf("."));
+    const decorated = { ...noti };
+
+    const toolEventPrefix = decorated.event.substring(0, decorated.event.indexOf("."));
 
     if (toolEventPrefix === "asn") {
-      this._decorateAssignmentNotification(noti);
+      this._decorateAssignmentNotification(decorated);
     } else if (toolEventPrefix === "annc") {
-      this._decorateAnnouncementNotification(noti);
+      this._decorateAnnouncementNotification(decorated);
     } else if (toolEventPrefix === "commons") {
-      this._decorateCommonsNotification(noti);
+      this._decorateCommonsNotification(decorated);
     } else if (toolEventPrefix === "sam") {
-      this._decorateSamigoNotification(noti);
+      this._decorateSamigoNotification(decorated);
     } else if (toolEventPrefix === "message") {
-      this._decorateMessageNotification(noti);
+      this._decorateMessageNotification(decorated);
     } else if (toolEventPrefix === "lessonbuilder") {
-      this._decorateLessonsCommentNotification(noti);
+      this._decorateLessonsCommentNotification(decorated);
     } else if (toolEventPrefix === "test") {
-      this._decorateTestNotification(noti);
+      this._decorateTestNotification(decorated);
     }
+
+    return decorated;
   }
 
   _decorateAssignmentNotification(noti) {
@@ -202,6 +204,7 @@ export class SakaiNotifications extends SakaiElement {
   }
 
   _decorateCommonsNotification(noti) {
+
     noti.title = this._i18n.academic_comment_graded.replace("{0}", noti.siteTitle);
   }
 
@@ -220,6 +223,7 @@ export class SakaiNotifications extends SakaiElement {
   }
 
   _decorateLessonsCommentNotification(noti) {
+
     noti.title = this._i18n.lessons_comment_posted.replace("{0}", noti.siteTitle);
   }
 
@@ -248,7 +252,7 @@ export class SakaiNotifications extends SakaiElement {
           const index = this.notifications.findIndex(a => a.id == notificationId);
           this.notifications.splice(index, 1);
           this._fireLoadedEvent();
-          this._filterIntoToolNotifications(false);
+          this._filterIntoToolNotifications();
         } else {
           throw new Error(`Network error while clearing notification at ${url}`);
         }
