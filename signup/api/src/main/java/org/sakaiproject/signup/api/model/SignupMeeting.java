@@ -44,13 +44,13 @@ import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
@@ -176,7 +176,7 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
 	@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	@OrderColumn(name = "list_index")
 	@JoinColumn(name = "meeting_id", nullable = false)
-	private List<SignupTimeslot> signupTimeSlots;
+	private List<SignupTimeslot> signupTimeSlots = new ArrayList<>();
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@Fetch(FetchMode.SELECT)
@@ -184,15 +184,14 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
 	@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	@OrderColumn(name = "list_index")
 	@JoinColumn(name = "meeting_id", nullable = false)
-	private List<SignupSite> signupSites;
+	private List<SignupSite> signupSites = new ArrayList<>();
 
-	@CollectionTable
-	@Fetch(FetchMode.SELECT)
+    @ElementCollection
+    @CollectionTable(name = "signup_attachments", joinColumns = @JoinColumn(name = "meeting_id", nullable = false))
+    @Fetch(FetchMode.SELECT)
 	@BatchSize(size = 50)
-	@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 	@OrderColumn(name = "list_index")
-	@JoinTable(name = "signup_attachments", joinColumns = @JoinColumn(name = "meeting_id", nullable = false))
-	private List<SignupAttachment> signupAttachments;
+	private List<SignupAttachment> signupAttachments = new ArrayList<>();
 
 	@Transient
 	private Permission permission;
@@ -476,6 +475,14 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
 		} else {
 			return true;
 		}
+	}
+
+	public List<SignupAttachment> getSignupAttachments() {
+		return signupAttachments;
+	}
+
+	public void setSignupAttachments(List<SignupAttachment> signupAttachments) {
+		this.signupAttachments = signupAttachments;
 	}
 
 	/**

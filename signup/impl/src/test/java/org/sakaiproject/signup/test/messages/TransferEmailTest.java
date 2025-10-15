@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.signup.impl.messages;
+package org.sakaiproject.signup.test.messages;
 
 import net.fortuna.ical4j.model.component.VEvent;
 import org.junit.Before;
@@ -26,6 +26,9 @@ import org.sakaiproject.signup.api.SignupTrackingItem;
 import org.sakaiproject.signup.api.model.SignupAttendee;
 import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.api.model.SignupTimeslot;
+import org.sakaiproject.signup.impl.messages.MoveAttendeeEmail;
+import org.sakaiproject.signup.impl.messages.SwapAttendeeEmail;
+import org.sakaiproject.signup.impl.messages.TransferEmailBase;
 import org.sakaiproject.user.api.User;
 
 import java.util.Collections;

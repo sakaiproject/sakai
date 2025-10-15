@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
-    <bean id="org.sakaiproject.signup.hibernate.AdditionalHibernateMappings"
+    <bean id="org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.signupMeeting"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="annotatedClasses">
             <list>
@@ -47,8 +47,7 @@
 
 	<!-- create a logic bean, give it the repository from above -->
 	<bean id="org.sakaiproject.signup.logic.SignupMeetingService"
-          class="org.sakaiproject.signup.impl.SignupMeetingServiceImpl"
-          init-method="init">
+          class="org.sakaiproject.signup.impl.SignupMeetingServiceImpl">
 		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 		<property name="signupEmailFacade" ref="org.sakaiproject.signup.logic.SignupEmailFacade" />

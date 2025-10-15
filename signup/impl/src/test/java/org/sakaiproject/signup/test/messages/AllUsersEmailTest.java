@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2007-2016 The Apereo Foundation
+ * Copyright (c) 2007-2014 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.signup.impl.messages;
+package org.sakaiproject.signup.test.messages;
 
 import net.fortuna.ical4j.model.component.VEvent;
 import org.junit.Before;
@@ -26,24 +26,28 @@ import org.sakaiproject.signup.api.SignupTrackingItem;
 import org.sakaiproject.signup.api.model.SignupAttendee;
 import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.api.model.SignupTimeslot;
+import org.sakaiproject.signup.impl.messages.AllUsersEmailBase;
+import org.sakaiproject.signup.impl.messages.CancelMeetingEmail;
+import org.sakaiproject.signup.impl.messages.ModifyMeetingEmail;
+import org.sakaiproject.signup.impl.messages.NewMeetingEmail;
 import org.sakaiproject.user.api.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Ben Holmes
  */
-public class AttendeeEmailTest {
+public class AllUsersEmailTest {
 
-    protected AttendeeEmailBase _email;
+    protected AllUsersEmailBase _email;
 
-    @Mock protected User _mockedOrganiser;
-    @Mock protected User _mockedAttendingUser;
+    @Mock protected User _mockedUser;
     @Mock protected SignupMeeting _mockedMeeting;
     @Mock protected SignupTrackingItem _mockedItem;
     @Mock protected SignupAttendee _mockedAttendee;
@@ -58,10 +62,10 @@ public class AttendeeEmailTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        when(_mockedAttendingUser.getId()).thenReturn("userId");
+        when(_mockedUser.getId()).thenReturn("userId");
 
-        when(_mockedItem.getAttendee()).thenReturn(_mockedAttendee);
-        when(_mockedAttendee.getSignupSiteId()).thenReturn("signupSiteId");
+        // Prepare for the organiser situation
+        when(_mockedMeeting.getVevent()).thenReturn(_mockedEvent);
 
         // Prepare for the attendee situation
         userIsAttendingTimeslot("userId", _mockedTimeslot1);
@@ -79,42 +83,66 @@ public class AttendeeEmailTest {
      */
 
     @Test
-    public void addAttendeeEmailTest() {
-        _email = new AddAttendeeEmail(_mockedOrganiser, _mockedAttendingUser, _mockedItem, _mockedMeeting, _mockedFacade);
+    public void modifyMeetingEmailToOrganiserTest() {
+        userIsAnOrganiser();
+        _email = new ModifyMeetingEmail(_mockedUser, _mockedMeeting, _mockedFacade, "returnSiteId");
+        assertFalse(_email.isCancellation());
+        assertGenerates(1);
+    }
+
+    @Test
+    public void modifyMeetingEmailToAttendeeTest() {
+        _email = new ModifyMeetingEmail(_mockedUser, _mockedMeeting, _mockedFacade, "returnSiteId");
         assertFalse(_email.isCancellation());
         assertGenerates(2);
     }
 
     @Test
-    public void promoteAttendeeEmailTest() {
-        _email = new PromoteAttendeeEmail(_mockedAttendingUser, _mockedItem, _mockedMeeting, _mockedFacade);
+    public void newMeetingEmailToOrganiserTest() {
+        userIsAnOrganiser();
+        _email = new NewMeetingEmail(_mockedUser, _mockedMeeting, _mockedFacade, "returnSiteId");
+        assertFalse(_email.isCancellation());
+        assertGenerates(1);
+    }
+
+    @Test
+    public void newMeetingEmailToAttendeeTest() {
+        _email = new NewMeetingEmail(_mockedUser, _mockedMeeting, _mockedFacade, "returnSiteId");
         assertFalse(_email.isCancellation());
         assertGenerates(2);
     }
 
     @Test
-    public void organizerPreAssignEmailTest() {
-        _email = new OrganizerPreAssignEmail(_mockedOrganiser, _mockedMeeting, _mockedTimeslot1, _mockedAttendingUser, _mockedFacade, "returnSiteId");
-        assertFalse(_email.isCancellation());
-        assertGenerates(2);
+    public void cancelMeetingEmailToOrganiserTest() {
+        userIsAnOrganiser();
+        _email = new CancelMeetingEmail(_mockedUser, _mockedMeeting, _mockedFacade, "returnSiteId");
+        assertTrue(_email.isCancellation());
+        assertCancels(1);
     }
-
     @Test
-    public void attendeeSignupOwnEmailTest() {
-        _email = new AttendeeSignupOwnEmail(_mockedAttendingUser, _mockedMeeting, _mockedTimeslot1, _mockedFacade);
-        assertFalse(_email.isCancellation());
-        assertGenerates(2);
+    public void cancelMeetingEmailToAttendeeTest() {
+        _email = new CancelMeetingEmail(_mockedUser, _mockedMeeting, _mockedFacade, "returnSiteId");
+        assertTrue(_email.isCancellation());
+        assertCancels(2);
     }
 
     private void assertGenerates(int n) {
-        final List<VEvent> events = _email.generateEvents(_mockedAttendingUser, _mockedCalendarHelper);
+        final List<VEvent> events = _email.generateEvents(_mockedUser, _mockedCalendarHelper);
         assertEquals(n, events.size());
-        verify(_mockedCalendarHelper, times(n)).addUsersToVEvent(eq(_mockedEvent), any(Set.class));
+    }
+
+    private void assertCancels(int n) {
+        assertGenerates(n);
+        verify(_mockedCalendarHelper, times(n)).cancelVEvent(_mockedEvent);
     }
 
     private void userIsAttendingTimeslot(String userId, SignupTimeslot mockedTimeslot) {
         when(mockedTimeslot.getVevent()).thenReturn(_mockedEvent);
         when(mockedTimeslot.getAttendee(userId)).thenReturn(_mockedAttendee);
+    }
+
+    private void userIsAnOrganiser() {
+        when(_mockedMeeting.getCreatorUserId()).thenReturn("userId");
     }
 
 }

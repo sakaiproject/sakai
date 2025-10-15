@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.signup.impl.messages;
+package org.sakaiproject.signup.test.messages;
+
+import java.util.Collections;
+import java.util.List;
 
 import net.fortuna.ical4j.model.component.VEvent;
 import org.junit.Before;
@@ -26,14 +29,14 @@ import org.sakaiproject.signup.api.SignupTrackingItem;
 import org.sakaiproject.signup.api.model.SignupAttendee;
 import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.api.model.SignupTimeslot;
+import org.sakaiproject.signup.impl.messages.AttendeeCancellationEmail;
+import org.sakaiproject.signup.impl.messages.AttendeeSignupEmail;
+import org.sakaiproject.signup.impl.messages.OrganizerEmailBase;
 import org.sakaiproject.user.api.User;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Ben Holmes

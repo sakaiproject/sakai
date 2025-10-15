@@ -402,7 +402,7 @@ public interface SignupMeetingService {
 	 * @throws Exception
 	 *             thrown if something goes bad
 	 */
-	void removeCalendarEventsOnModifiedMeeting(List<SignupMeeting> meetings) throws Exception;
+	void removeCalendarEventsOnModifiedMeeting(List<SignupMeeting> meetings);
 	
 	/**
 	 * This method will remove a list of the posted Calendar for the
@@ -442,7 +442,7 @@ public interface SignupMeetingService {
 	 * @return a list of Locations in a site
 	 * @throws Exception
 	 */
-	List<String> getAllLocations(String siteId) throws Exception;
+	List<String> getAllLocations(String siteId);
 	
 	/**
 	 * Get all the Categories from a site
@@ -451,7 +451,7 @@ public interface SignupMeetingService {
 	 * @return a list of Categories in a site
 	 * @throws Exception
 	 */
-	List<String> getAllCategories(String siteId) throws Exception;
+	List<String> getAllCategories(String siteId);
 	
 	/**
 	 * 

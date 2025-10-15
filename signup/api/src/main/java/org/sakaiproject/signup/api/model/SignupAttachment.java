@@ -43,22 +43,26 @@ import javax.persistence.Embeddable;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Embeddable
+@Getter
+@Setter
 @Slf4j
 public class SignupAttachment {
 
 	@Column(name = "resource_Id", length = 255)
 	private String resourceId;
 
-	@Column(name = "file_name", length = 255)
+    @Column(name = "file_name", length = 255)
 	private String filename;
 
-	@Column(name = "mime_type", length = 80)
+    @Column(name = "mime_type", length = 80)
 	private String mimeType;
 
-	@Column(name = "fileSize")
+    @Column(name = "fileSize")
 	private Long fileSize; // in kilobyte
 
 	@Column(name = "location", length = 255)
@@ -70,7 +74,6 @@ public class SignupAttachment {
 	@Column(name = "timeslot_id")
 	private Long timeslotId;
 
-	/*veiwByAll means all participants in the event*/
 	@Column(name = "view_by_all")
 	private Boolean viewByAll;
 
@@ -92,14 +95,6 @@ public class SignupAttachment {
 		viewByAll = true; //default
 	}
 
-	public String getResourceId() {
-		return resourceId;
-	}
-
-	public void setResourceId(String resourceId) {
-		this.resourceId = resourceId;
-	}
-
 	public String getEncodedResourceId() {
 		try {
 			return URLEncoder.encode(resourceId, "UTF-8");
@@ -108,93 +103,4 @@ public class SignupAttachment {
 		}
 		return "";
 	}
-
-	public String getFilename() {
-		return filename;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-
-	public String getMimeType() {
-		return mimeType;
-	}
-
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	}
-
-	public Long getFileSize() {
-		return fileSize;
-	}
-
-	public void setFileSize(Long fileSize) {
-		this.fileSize = fileSize;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public Boolean getIsLink() {
-		return isLink;
-	}
-
-	public void setIsLink(Boolean isLink) {
-		this.isLink = isLink;
-	}
-
-	public Long getTimeslotId() {
-		return timeslotId;
-	}
-
-	public void setTimeslotId(Long timeslotId) {
-		this.timeslotId = timeslotId;
-	}
-
-	public Boolean getViewByAll() {
-		return viewByAll;
-	}
-
-	public void setViewByAll(Boolean viewByAll) {
-		this.viewByAll = viewByAll;
-	}
-
-	public String getCreatedBy() {
-		return createdBy;
-	}
-
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
-
-	public Date getCreatedDate() {
-		return createdDate;
-	}
-
-	public void setCreatedDate(Date createdDate) {
-		this.createdDate = createdDate;
-	}
-
-	public String getLastModifiedBy() {
-		return lastModifiedBy;
-	}
-
-	public void setLastModifiedBy(String lastModifiedBy) {
-		this.lastModifiedBy = lastModifiedBy;
-	}
-
-	public Date getLastModifiedDate() {
-		return lastModifiedDate;
-	}
-
-	public void setLastModifiedDate(Date lastModifiedDate) {
-		this.lastModifiedDate = lastModifiedDate;
-	}
-
 }
