@@ -102,7 +102,8 @@ describe("sakai-notifications tests", () => {
 
     const refreshedTitle = el._filteredNotifications.get("asn")[0].title;
     expect(refreshedTitle).to.equal(decoratedTitle);
-    const siteTitleOccurrences = (decoratedTitle.match(new RegExp(assignmentNotification.siteTitle, "g")) || []).length;
+    const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const siteTitleOccurrences = (decoratedTitle.match(new RegExp(escapeRe(assignmentNotification.siteTitle), "g")) || []).length;
     expect(siteTitleOccurrences).to.equal(1);
   });
 });

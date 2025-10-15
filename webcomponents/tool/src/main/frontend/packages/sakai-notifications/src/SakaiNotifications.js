@@ -121,7 +121,6 @@ export class SakaiNotifications extends SakaiElement {
 
         this.notifications.unshift(message);
         this._fireLoadedEvent();
-        this._decorateNotification(message);
         this._filterIntoToolNotifications();
       });
     })
@@ -144,8 +143,8 @@ export class SakaiNotifications extends SakaiElement {
     this.notifications.forEach(noti => {
 
       const decorated = this._decorateNotification(noti);
-
-      const toolEventPrefix = decorated.event.substring(0, decorated.event.indexOf("."));
+      const dot = decorated.event.indexOf(".");
+      const toolEventPrefix = dot === -1 ? decorated.event : decorated.event.slice(0, dot);
 
       if (!this._filteredNotifications.has(toolEventPrefix)) {
         this._filteredNotifications.set(toolEventPrefix, []);
@@ -155,8 +154,9 @@ export class SakaiNotifications extends SakaiElement {
     });
 
     // Make sure the motd bundle is at the top.
-    const newMap = Array.from(this._filteredNotifications).sort(a => a === "motd" ? 1 : -1);
-    this._filteredNotifications = new Map(newMap);
+    const entries = Array.from(this._filteredNotifications.entries());
+    entries.sort((a, b) => (a[0] === "motd" ? -1 : b[0] === "motd" ? 1 : 0));
+    this._filteredNotifications = new Map(entries);
 
     this._state = NOTIFICATIONS;
     this.requestUpdate();
@@ -165,8 +165,8 @@ export class SakaiNotifications extends SakaiElement {
   _decorateNotification(noti) {
 
     const decorated = { ...noti };
-
-    const toolEventPrefix = decorated.event.substring(0, decorated.event.indexOf("."));
+    const dot = decorated.event.indexOf(".");
+    const toolEventPrefix = dot === -1 ? decorated.event : decorated.event.slice(0, dot);
 
     if (toolEventPrefix === "asn") {
       this._decorateAssignmentNotification(decorated);
@@ -512,7 +512,7 @@ export class SakaiNotifications extends SakaiElement {
             <span class="me-1">${this._i18n.push_not_enabled}</span>
             <button type="button"
                 class="btn btn-secondary btn-sm"
-                aria-label="${this._i18n_enable_push_label}"
+                aria-label="${this._i18n.enable_push_label}"
                 @click=${this._enablePush}>
               ${this._i18n.enable_push}
             </button>
