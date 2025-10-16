@@ -31,6 +31,7 @@
 	<bean id="org.sakaiproject.signup.logic.SakaiFacade"
           class="org.sakaiproject.signup.impl.SakaiFacadeImpl"
           init-method="init">
+        <property name="additionalCalendarService" ref="org.sakaiproject.additional.calendar"/>
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
@@ -45,19 +46,28 @@
 		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
 	</bean>
 
-	<!-- create a logic bean, give it the repository from above -->
 	<bean id="org.sakaiproject.signup.logic.SignupMeetingService"
           class="org.sakaiproject.signup.impl.SignupMeetingServiceImpl">
 		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 		<property name="signupEmailFacade" ref="org.sakaiproject.signup.logic.SignupEmailFacade" />
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+		<property name="resourceLoader">
+			<bean class="org.sakaiproject.util.ResourceLoader">
+				<constructor-arg value="emailMessage"/>
+			</bean>
+		</property>
 	</bean>
 	
 	<bean id="org.sakaiproject.signup.logic.SignupCalendarHelper"
           class="org.sakaiproject.signup.impl.SignupCalendarHelperImpl">
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 		<property name="externalCalendaringService" ref="org.sakaiproject.calendaring.api.ExternalCalendaringService" />
+		<property name="resourceLoader">
+			<bean class="org.sakaiproject.util.ResourceLoader">
+				<constructor-arg value="emailMessage"/>
+			</bean>
+		</property>
 	</bean>
 
 	<bean id="org.sakaiproject.signup.logic.SignupEmailFacade"
@@ -66,7 +76,11 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 		<property name="calendarHelper" ref="org.sakaiproject.signup.logic.SignupCalendarHelper" />
-		
+		<property name="resourceLoader">
+			<bean class="org.sakaiproject.util.ResourceLoader">
+				<constructor-arg value="emailMessage"/>
+			</bean>
+		</property>
 	</bean>
 
 	<!--
@@ -82,10 +96,6 @@
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 	</bean>
 
-	<!--
-		this is the helper that will register the above bean with the job
-		scheduler
-	-->
 	<bean
 		id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.signupNotifyJob"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"

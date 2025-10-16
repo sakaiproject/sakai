@@ -97,12 +97,11 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
 
-    protected static ResourceLoader rb = new ResourceLoader("emailMessage");
-
     @Setter private SignupMeetingRepository repository;
     @Setter private SakaiFacade sakaiFacade;
     @Setter private SignupEmailFacade signupEmailFacade;
     @Setter private UserTimeService userTimeService;
+    @Setter private ResourceLoader resourceLoader;
 
     @Override
     public List<SignupMeeting> getAllSignupMeetings(String currentSiteId, String userId) {
@@ -665,7 +664,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
                     // new time frame
                     String title_suffix = "";
                     if (hasMultipleBlock) {
-                        String partSequence = MessageFormat.format(rb.getString("signup.event.part"), sequence);
+                        String partSequence = MessageFormat.format(resourceLoader.getString("signup.event.part"), sequence);
                         title_suffix = " (" + partSequence + ")";
                         sequence++;
                     }
@@ -732,7 +731,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         int num = 0;
 
         if (!meeting.getSignupTimeSlots().isEmpty()) {
-            attendeeNamesMarkup.append("<br /><br /><span style=\"font-weight: bold\"><b>").append(rb.getString("signup.event.attendees")).append("</b></span><br />");
+            attendeeNamesMarkup.append("<br /><br /><span style=\"font-weight: bold\"><b>").append(resourceLoader.getString("signup.event.attendees")).append("</b></span><br />");
         }
 
         boolean displayAttendeeName = false;
@@ -751,14 +750,14 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         }
 
         if (!displayAttendeeName || num < 1) {
-            String currentAttendees = MessageFormat.format(rb.getString("signup.event.currentattendees"), num);
+            String currentAttendees = MessageFormat.format(resourceLoader.getString("signup.event.currentattendees"), num);
             attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>").append(currentAttendees).append("</i></span><br />");
         }
 
         String desc = meeting.getDescription() + attendeeNamesMarkup;
         eventEdit.setDescription(PlainTextFormat.convertFormattedHtmlTextToPlaintext(desc));
         eventEdit.setLocation(meeting.getLocation());
-        String eventTitleAttendees = MessageFormat.format(rb.getString("signup.event.attendeestitle"), num);
+        String eventTitleAttendees = MessageFormat.format(resourceLoader.getString("signup.event.attendeestitle"), num);
         eventEdit.setDisplayName(meeting.getTitle() + title_suffix + " (" + eventTitleAttendees + ")");
         eventEdit.setRange(timeRange);
     }
@@ -1077,7 +1076,9 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
             return "";
         }
         final ZoneId zone = userTimeService.getLocalTimeZone().toZoneId();
-        final DateTimeFormatter df = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withZone(zone).withLocale(rb.getLocale());
+        final DateTimeFormatter df = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+                .withZone(zone)
+                .withLocale(resourceLoader.getLocale());
         return df.format(date);
     }
 

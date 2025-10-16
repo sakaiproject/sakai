@@ -63,11 +63,12 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 
 	@Getter @Setter
 	private SakaiFacade sakaiFacade;
-	
+
+	@Setter
+	protected ResourceLoader rb;
+
 	@Getter
 	protected SignupMeeting meeting;
-
-	protected static ResourceLoader rb = new ResourceLoader("emailMessage");
 
 	public static final String newline = "<BR>\r\n"; // System.getProperty("line.separator");\r\n
 
@@ -236,7 +237,7 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	static private String myServiceName = null;
 
 	protected String getServiceName() {
-		/* first look at email bundle and then sakai.properties. 
+		/* first look at email bundle and then sakai.properties.
 		 * it will allow user to define different 'ui.service' value */
 		if (myServiceName == null) {
 			try {
@@ -268,7 +269,7 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 			recurFrqs = rb.getString("body.meeting.repeatBiWeekly");
 		else
 			recurFrqs = rb.getString("body.meeting.unknown.repeatType");
-		
+
 		return recurFrqs;
 	}
 	

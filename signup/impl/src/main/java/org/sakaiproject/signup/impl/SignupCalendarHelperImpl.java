@@ -290,15 +290,14 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	
 	
 	/**
-	 * SIGNUP-183 append some additional text to the event 
+	 * SIGNUP-183 append some additional text to the event
 	 */
-	protected static ResourceLoader rb = new ResourceLoader("emailMessage");
 	public static final String newline = "<br />";// somehow the "\n" is not working for linebreak here.
 	private String addWarningMessageForCancellation(String meetingDesc, String siteId){
 		meetingDesc = meetingDesc ==null? " ": meetingDesc;
         return meetingDesc + newline + newline +
-                rb.getString("ical.footer.separator") +
-                newline + rb.getString("ical.footer.text");
+                resourceLoader.getString("ical.footer.separator") +
+                newline + resourceLoader.getString("ical.footer.text");
 	};
 	
 	/**
@@ -342,7 +341,9 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	}
 
 	private SakaiFacade sakaiFacade;
-	
+
 	private ExternalCalendaringService externalCalendaringService;
+
+	private ResourceLoader resourceLoader;
 
 }

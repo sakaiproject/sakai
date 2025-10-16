@@ -1,5 +1,8 @@
 package org.sakaiproject.signup.test;
 
+import java.util.Locale;
+import java.util.Optional;
+
 import org.mockito.Mockito;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -78,6 +81,11 @@ public class SignupMeetingServiceTestConfiguration extends SakaiTestConfiguratio
         return Mockito.mock(CalendarService.class);
     }
 
+    @Bean(name = "org.sakaiproject.additional.calendar")
+    public Optional<CalendarService> additionalCalendarService() {
+        return Optional.of(Mockito.mock(CalendarService.class));
+    }
+
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
         return Mockito.mock(ServerConfigurationService.class);
@@ -121,10 +129,5 @@ public class SignupMeetingServiceTestConfiguration extends SakaiTestConfiguratio
     @Bean(name = "org.sakaiproject.time.api.UserTimeService")
     public UserTimeService userTimeService() {
         return Mockito.mock(UserTimeService.class);
-    }
-
-    @Bean
-    public ResourceLoader resourceLoader() {
-        return Mockito.mock(ResourceLoader.class);
     }
 }

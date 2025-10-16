@@ -81,6 +81,7 @@ import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <P>
@@ -99,9 +100,12 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 
 	@Getter @Setter
 	private SakaiFacade sakaiFacade;
-	
+
 	@Setter
 	private SignupCalendarHelper calendarHelper;
+
+	@Setter
+	private ResourceLoader resourceLoader;
 
 	/**
 	 * {@inheritDoc}
@@ -110,7 +114,6 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	public void sendEmailAllUsers(SignupMeeting meeting, String messageType) throws Exception {
 		if (messageType.equals(SIGNUP_NEW_MEETING) || messageType.equals(SIGNUP_MEETING_MODIFIED) || messageType.equals(SIGNUP_CANCEL_MEETING)) {
 			sendEmailToAllUsers(meeting, messageType);
-			return;
 		}
 	}
 
@@ -152,13 +155,9 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				}
 			}
 		}
-		
-		if(isException)
-			throw new Exception("Email may not be sent out due to error.");
 
-		return;
-
-	}
+        if (isException) throw new Exception("Email may not be sent out due to error.");
+    }
 	
 	private List<User> getMeetingOwnerAndCoordinators(SignupMeeting meeting){
 		Set<User> organizerCoordinators = new LinkedHashSet<User>();
@@ -370,23 +369,28 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 
 	/* send email via Sakai email Service */
 	private void sendEmail(User user, SignupEmailNotification email) {
-		
+
+		// Inject ResourceLoader into email object
+		if (email instanceof org.sakaiproject.signup.impl.messages.SignupEmailBase) {
+			((org.sakaiproject.signup.impl.messages.SignupEmailBase) email).setRb(resourceLoader);
+		}
+
 		log.debug("sendMail called for user:" + user.getEid());
-		
+
 		try {
 			EmailMessage message = convertSignupEmail(email, user);
-			
+
 			if(message != null) {
 				emailService.send(message);
 			}
-			
+
 		} catch (NoRecipientsException e) {
 			log.error("Cannot send mail. No recipient." + e.getMessage());
 		} catch (AddressValidationException e) {
 			//this should be caught when adding the email address, since it is validated then.
 			log.warn("Cannot send mail to user: " +  user.getEid() + ". Invalid email address." + EmailAddress.toString(e.getInvalidEmailAddresses()));
 		}
-		
+
 	}
 	
 	/* all email is sent in this manner, so that we can send attachments. So individual users are processed separately

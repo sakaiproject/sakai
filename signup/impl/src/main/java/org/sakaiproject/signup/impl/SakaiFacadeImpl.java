@@ -42,6 +42,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +57,6 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -79,7 +79,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.UserSortNameComparator;
 
@@ -102,8 +101,6 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 public class SakaiFacadeImpl implements SakaiFacade {
 
-	private static ResourceLoader rb=  new ResourceLoader();
-
 	private FunctionManager functionManager;
 	private ToolManager toolManager;
 	private SecurityService securityService;
@@ -116,17 +113,17 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	private FormattedText formattedText;
 	private TimeService timeService;
 	private ContentHostingService contentHostingService;
+    private Optional<CalendarService> additionalCalendarService;
 
 	// Returns Google calendar if the calendar has been created in Google
 	public Calendar getAdditionalCalendar(String siteId) throws PermissionException {
-		CalendarService additionalCalendarService = null;
-		additionalCalendarService = (CalendarService) ComponentManager.get(CalendarService.ADDITIONAL_CALENDAR);
-		if (additionalCalendarService != null){
-			if (additionalCalendarService.isCalendarToolInitialized(siteId)) {
+        if (additionalCalendarService.isPresent()) {
+            CalendarService calService = additionalCalendarService.get();
+			if (calService.isCalendarToolInitialized(siteId)) {
 				try {
-					return additionalCalendarService.getCalendar(siteId);
+					return calService.getCalendar(siteId);
 				} catch (IdUnusedException e) {
-					log.error("Error retrieving Calendar." + e.getMessage());
+					log.warn("Could not retrieve additional calendar for site [{}], {}", siteId, e.toString());
 				}
 			}
 		}
