@@ -15,25 +15,23 @@
  */
 package org.sakaiproject.signup.impl.repository;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
-
-import org.sakaiproject.signup.api.repository.SignupMeetingRepository;
 import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.api.model.SignupSite;
 import org.sakaiproject.signup.api.model.SignupTimeslot;
+import org.sakaiproject.signup.api.repository.SignupMeetingRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation of SignupMeetingRepository using Spring Data pattern.
@@ -52,10 +50,10 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<SignupMeeting> query = cb.createQuery(SignupMeeting.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
 
 		query.select(root)
-				.where(cb.equal(signupSites.get("siteId"), siteId))
+				.where(cb.equal(join.get("siteId"), siteId))
 				.orderBy(cb.asc(root.get("startTime")));
 
 		return sessionFactory.getCurrentSession()
@@ -70,15 +68,14 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<SignupMeeting> query = cb.createQuery(SignupMeeting.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
+
+        List<Predicate> predicates = List.of(
+                cb.equal(join.get("siteId"), siteId),
+                cb.lessThanOrEqualTo(root.get("startTime"), searchEndDate));
 
 		query.select(root)
-				.where(
-						cb.and(
-								cb.equal(signupSites.get("siteId"), siteId),
-								cb.lessThanOrEqualTo(root.get("startTime"), searchEndDate)
-						)
-				)
+				.where(cb.and(predicates.toArray(new Predicate[0])))
 				.orderBy(cb.asc(root.get("startTime")));
 
 		return sessionFactory.getCurrentSession()
@@ -93,16 +90,15 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<SignupMeeting> query = cb.createQuery(SignupMeeting.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
 
-		query.select(root).distinct(true)
-				.where(
-						cb.and(
-								cb.equal(signupSites.get("siteId"), siteId),
-								cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
-								cb.lessThan(root.get("startTime"), endDate)
-						)
-				)
+        List<Predicate> predicates = List.of(
+                cb.equal(join.get("siteId"), siteId),
+                cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
+                cb.lessThan(root.get("startTime"), endDate));
+
+		query.select(root)
+				.where(cb.and(predicates.toArray(new Predicate[0])))
 				.orderBy(cb.asc(root.get("startTime")));
 
 		return sessionFactory.getCurrentSession()
@@ -117,16 +113,15 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<SignupMeeting> query = cb.createQuery(SignupMeeting.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
 
-		query.select(root).distinct(true)
-				.where(
-						cb.and(
-								cb.equal(signupSites.get("siteId"), siteId),
-								cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
-								cb.lessThan(root.get("startTime"), endDate)
-						)
-				)
+        List<Predicate> predicates = List.of(
+                cb.equal(join.get("siteId"), siteId),
+                cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
+                cb.lessThan(root.get("startTime"), endDate));
+
+		query.select(root)
+				.where(cb.and(predicates.toArray(new Predicate[0])))
 				.orderBy(cb.asc(root.get("startTime")));
 
 		return sessionFactory.getCurrentSession()
@@ -141,16 +136,15 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<SignupMeeting> query = cb.createQuery(SignupMeeting.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
 
-		query.select(root).distinct(true)
-				.where(
-						cb.and(
-								signupSites.get("siteId").in(siteIds),
-								cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
-								cb.lessThan(root.get("startTime"), endDate)
-						)
-				)
+        List<Predicate> predicates = List.of(
+                join.get("siteId").in(siteIds),
+                cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
+                cb.lessThan(root.get("startTime"), endDate));
+
+		query.select(root)
+				.where(cb.and(predicates.toArray(new Predicate[0])))
 				.orderBy(cb.asc(root.get("startTime")));
 
 		return sessionFactory.getCurrentSession()
@@ -165,16 +159,15 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<SignupMeeting> query = cb.createQuery(SignupMeeting.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
 
-		query.select(root).distinct(true)
-				.where(
-						cb.and(
-								cb.equal(signupSites.get("siteId"), siteId),
-								cb.equal(root.get("recurrenceId"), recurrenceId),
-								cb.greaterThan(root.get("endTime"), currentTime)
-						)
-				)
+        List<Predicate> predicates = List.of(
+                cb.equal(join.get("siteId"), siteId),
+                cb.equal(root.get("recurrenceId"), recurrenceId),
+                cb.greaterThan(root.get("endTime"), currentTime));
+
+		query.select(root)
+				.where(cb.and(predicates.toArray(new Predicate[0])))
 				.orderBy(cb.asc(root.get("startTime")));
 
 		return sessionFactory.getCurrentSession()
@@ -216,7 +209,7 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaQuery<SignupTimeslot> query = cb.createQuery(SignupTimeslot.class);
 		Root<SignupTimeslot> root = query.from(SignupTimeslot.class);
 
-		query.select(root).distinct(true)
+		query.select(root)
 				.where(cb.equal(root.get("id"), timeslotId));
 
 		SignupTimeslot result = sessionFactory.getCurrentSession()
@@ -234,19 +227,18 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaQuery<Long> query = cb.createQuery(Long.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
 
-		query.select(cb.count(root))
-				.where(
-						cb.and(
-								cb.equal(root.get("autoReminder"), true),
-								cb.between(root.get("startTime"), startDate, endDate)
-						)
-				);
+        List<Predicate> predicates = List.of(
+                cb.equal(root.get("autoReminder"), true),
+                cb.between(root.get("startTime"), startDate, endDate));
 
-		Long count = sessionFactory.getCurrentSession()
+		query.select(cb.count(root))
+				.where(cb.and(predicates.toArray(new Predicate[0])));
+
+		Number count = sessionFactory.getCurrentSession()
 				.createQuery(query)
 				.uniqueResult();
 
-		return count != null ? count.intValue() : 0;
+		return count.intValue();
 	}
 
 	@Override
@@ -257,14 +249,13 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaQuery<SignupMeeting> query = cb.createQuery(SignupMeeting.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
 
-		query.select(root).distinct(true)
-				.where(
-						cb.and(
-								cb.equal(root.get("autoReminder"), true),
-								cb.lessThanOrEqualTo(root.get("startTime"), endDate),
-								cb.greaterThanOrEqualTo(root.get("endTime"), startDate)
-						)
-				)
+        List<Predicate> predicates = List.of(
+                cb.equal(root.get("autoReminder"), true),
+                cb.lessThanOrEqualTo(root.get("startTime"), endDate),
+                cb.greaterThanOrEqualTo(root.get("endTime"), startDate));
+
+        query.select(root)
+				.where(cb.and(predicates.toArray(new Predicate[0])))
 				.orderBy(cb.asc(root.get("startTime")));
 
 		return sessionFactory.getCurrentSession()
@@ -279,10 +270,11 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<String> query = cb.createQuery(String.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
 
-		query.select(root.get("category")).distinct(true)
-				.where(cb.equal(signupSites.get("siteId"), siteId))
+		query.select(root.get("category"))
+                .distinct(true)
+				.where(cb.equal(join.get("siteId"), siteId))
 				.orderBy(cb.asc(root.get("category")));
 
 		List<String> categories = sessionFactory.getCurrentSession()
@@ -299,10 +291,11 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<String> query = cb.createQuery(String.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
 
-		query.select(root.get("location")).distinct(true)
-				.where(cb.equal(signupSites.get("siteId"), siteId))
+        query.select(root.get("location"))
+                .distinct(true)
+				.where(cb.equal(join.get("siteId"), siteId))
 				.orderBy(cb.asc(root.get("location")));
 
 		List<String> locations = sessionFactory.getCurrentSession()
@@ -345,10 +338,10 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
         Root<SignupMeeting> root = query.from(SignupMeeting.class);
         Join<SignupMeeting, SignupSite> join = root.join("signupSites");
 
-        List<Predicate> predicates = new ArrayList<>();
-        predicates.add(join.get("siteId").in(siteIds));
-        predicates.add(cb.greaterThanOrEqualTo(root.get("endTime"), startDate));
-        predicates.add(cb.lessThan(root.get("startTime"), endDate));
+        List<Predicate> predicates = List.of(
+                join.get("siteId").in(siteIds),
+                cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
+                cb.lessThan(root.get("startTime"), endDate));
 
         query.select(root.get("id"))
                 .where(cb.and(predicates.toArray(new Predicate[0])))
