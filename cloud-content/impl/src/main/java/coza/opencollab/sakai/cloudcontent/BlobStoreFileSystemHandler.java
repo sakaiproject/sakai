@@ -8,9 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +51,6 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     private MinioClient client;
 
     private long maxBlobStreamSize;
-    private String temporaryBlobDirectory;
     private int partSize;
     private int signedUrlExpiry;
 
@@ -127,30 +123,6 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             this.partSize = (int) partSizeBytes;
         }
 
-        // Validate temporary blob directory (optional)
-        String tmpDir = serverConfigurationService.getString("cloud.content.temporary.directory", null);
-        if (tmpDir != null && !tmpDir.trim().isEmpty()) {
-            try {
-                Path tmpPath = Paths.get(tmpDir);
-                if (!Files.exists(tmpPath)) {
-                    Files.createDirectories(tmpPath);
-                }
-                if (!Files.isDirectory(tmpPath)) {
-                    throw new IllegalArgumentException("Configured 'cloud.content.temporary.directory' is not a directory: " + tmpDir);
-                }
-                if (!Files.isWritable(tmpPath)) {
-                    throw new IllegalArgumentException("Configured 'cloud.content.temporary.directory' is not writable: " + tmpDir);
-                }
-                this.temporaryBlobDirectory = tmpPath.toFile().getAbsolutePath();
-            } catch (IOException | RuntimeException e) {
-                String msg = "Invalid 'cloud.content.temporary.directory' (" + tmpDir + "): " + e.getMessage();
-                log.error(msg, e);
-                throw new IllegalArgumentException(msg, e);
-            }
-        } else {
-            this.temporaryBlobDirectory = null;
-        }
-
         // All checks passed; construct the MinIO client last
         this.client = MinioClient.builder()
                 .endpoint(endpoint)
@@ -218,9 +190,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             InputStream in = client.getObject(
                     GetObjectArgs.builder().bucket(can.container).object(can.name).build());
             if (size > maxBlobStreamSize) {
-                File tmp = (temporaryBlobDirectory != null)
-                        ? File.createTempFile("minio", ".tmp", new File(temporaryBlobDirectory))
-                        : File.createTempFile("minio", ".tmp");
+                File tmp = File.createTempFile("minio", ".tmp");
                 // Guard against process crashes; still delete explicitly on close
                 tmp.deleteOnExit();
                 try (FileOutputStream fos = new FileOutputStream(tmp)) {

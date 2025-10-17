@@ -95,7 +95,6 @@ useIdForPath@org.sakaiproject.content.api.FileSystemHandler.blobstore  = true
 cloud.content.signedurl.expiry                                         = 600
 cloud.content.multipart.partsize.mb                                    = 10
 cloud.content.maxblobstream.size                                       = 104857600
-cloud.content.temporary.directory                                      = /var/tmp/sakai-blobs
 
 bodyPath@org.sakaiproject.content.api.ContentHostingService  = /content/live/
 bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService = /content/deleted/
@@ -114,6 +113,7 @@ leading path elements become object store containers or pseudo-folders.
 - Explicitly set `contentType`; MinIO does not infer types automatically.
 - Tune presigned URL expiry via `cloud.content.signedurl.expiry` and ensure NTP
   synchronization to avoid clock-skew issues.
+- Large spill files use the JVM default temp directory (`java.io.tmpdir`); ensure it has sufficient space.
 - For installations requiring server-side encryption, configure the appropriate
   SSE headers when building `PutObjectArgs`.
 
