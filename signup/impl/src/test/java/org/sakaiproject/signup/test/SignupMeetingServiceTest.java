@@ -13,8 +13,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.api.SignupEmailFacade;
 import org.sakaiproject.signup.api.SignupMeetingService;
+import org.sakaiproject.signup.api.messages.AttendeeComment;
 import org.sakaiproject.signup.api.messages.SignupEventTrackingInfo;
 import org.sakaiproject.signup.api.messages.SignupEventTrackingInfoImpl;
+import org.sakaiproject.signup.api.model.SignupAttendee;
 import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.api.model.SignupSite;
 import org.sakaiproject.signup.api.model.SignupTimeslot;
@@ -368,8 +370,7 @@ public class SignupMeetingServiceTest {
 
     @Test(expected = PermissionException.class)
     public void testSaveMeetingWithoutPermission() throws PermissionException {
-        // Configure security service to deny permission
-        when(securityService.unlock(anyString(), anyString())).thenReturn(false);
+        when(securityService.unlock(anyString(), anyString(), anyString())).thenReturn(false);
 
         SignupMeeting meeting = createTestMeeting("Unauthorized Meeting");
         service.saveMeeting(meeting, TEST_USER_ID);
@@ -435,8 +436,7 @@ public class SignupMeetingServiceTest {
         SignupMeeting meeting = createTestMeeting("Meeting to Update");
         Long id = service.saveMeeting(meeting, TEST_USER_ID);
 
-        // Deny update permission
-        when(securityService.unlock(anyString(), anyString())).thenReturn(false);
+        when(securityService.unlock(anyString(), anyString(), anyString())).thenReturn(false);
 
         SignupMeeting loaded = service.loadSignupMeeting(id, TEST_USER_ID, TEST_SITE_ID);
         loaded.setTitle("Should Fail");
@@ -548,7 +548,7 @@ public class SignupMeetingServiceTest {
 
     @Test
     public void testIsAllowedToCreateinSiteDenied() {
-        when(securityService.unlock(anyString(), anyString())).thenReturn(false);
+        when(securityService.unlock(anyString(), anyString(), anyString())).thenReturn(false);
 
         boolean allowed = service.isAllowedToCreateinSite(TEST_USER_ID, TEST_SITE_ID);
 
@@ -574,12 +574,12 @@ public class SignupMeetingServiceTest {
     }
 
     @Test
-    public void testIsAllowedToCreateAnyInSiteWithInvalidSite() {
-        try {
-            when(siteService.getSite("invalid-site")).thenThrow(new IdUnusedException("invalid-site"));
-        } catch (IdUnusedException e) {
-            // Expected
-        }
+    public void testIsAllowedToCreateAnyInSiteWithInvalidSite() throws IdUnusedException {
+        // Deny site-level permission so the method proceeds to check groups
+        when(securityService.unlock(anyString(), anyString(), anyString())).thenReturn(false);
+
+        // Mock getSite to throw IdUnusedException for invalid site
+        when(siteService.getSite("invalid-site")).thenThrow(new IdUnusedException("invalid-site"));
 
         boolean allowed = service.isAllowedToCreateAnyInSite(TEST_USER_ID, "invalid-site");
 
@@ -617,10 +617,31 @@ public class SignupMeetingServiceTest {
     @Test
     public void testSendCancellationEmail() throws Exception {
         SignupMeeting meeting = createTestMeeting("Cancellation Test");
-        service.saveMeeting(meeting, TEST_USER_ID);
+
+        // Add a timeslot to the meeting
+        SignupTimeslot timeslot = createTestTimeslot(meeting.getStartTime(), meeting.getEndTime());
+        meeting.setSignupTimeSlots(new ArrayList<>(Collections.singletonList(timeslot)));
+
+        Long id = service.saveMeeting(meeting, TEST_USER_ID);
+
+        // Load the meeting to populate permissions
+        meeting = service.loadSignupMeeting(id, TEST_USER_ID, TEST_SITE_ID);
+
+        // Ensure timeslots exist after reload (may not persist in test environment)
+        if (meeting.getSignupTimeSlots() == null || meeting.getSignupTimeSlots().isEmpty()) {
+            meeting.setSignupTimeSlots(new ArrayList<>(Collections.singletonList(timeslot)));
+        }
+
+        // Create an attendee who is cancelling
+        SignupAttendee attendee = new SignupAttendee();
+        attendee.setAttendeeUserId(TEST_USER_ID);
+        attendee.setSignupSiteId(TEST_SITE_ID);
 
         SignupEventTrackingInfo trackingInfo = new SignupEventTrackingInfoImpl();
         trackingInfo.setMeeting(meeting);
+
+        // Add the cancellation with the attendee as initiator
+        trackingInfo.addOrUpdateAttendeeAllocationInfo(attendee, meeting.getSignupTimeSlots().get(0), "attendee.cancel", true);
 
         // Should not throw exception
         service.sendCancellationEmail(trackingInfo);
@@ -629,10 +650,17 @@ public class SignupMeetingServiceTest {
     @Test
     public void testSendUpdateCommentEmail() throws Exception {
         SignupMeeting meeting = createTestMeeting("Comment Update Test");
-        service.saveMeeting(meeting, TEST_USER_ID);
+        Long id = service.saveMeeting(meeting, TEST_USER_ID);
+
+        // Load the meeting to populate permissions
+        meeting = service.loadSignupMeeting(id, TEST_USER_ID, TEST_SITE_ID);
 
         SignupEventTrackingInfo trackingInfo = new SignupEventTrackingInfoImpl();
         trackingInfo.setMeeting(meeting);
+
+        // Create and set AttendeeComment
+        AttendeeComment attendeeComment = new AttendeeComment("Test comment", TEST_USER_ID, TEST_USER_ID);
+        trackingInfo.setAttendeeComment(attendeeComment);
 
         // Should not throw exception
         service.sendUpdateCommentEmail(trackingInfo);
