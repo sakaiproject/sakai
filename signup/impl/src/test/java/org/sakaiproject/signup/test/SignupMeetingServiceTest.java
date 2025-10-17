@@ -1,5 +1,6 @@
 package org.sakaiproject.signup.test;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,9 +14,11 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.api.SignupEmailFacade;
 import org.sakaiproject.signup.api.SignupMeetingService;
+import org.sakaiproject.signup.api.SignupMessageTypes;
 import org.sakaiproject.signup.api.messages.AttendeeComment;
 import org.sakaiproject.signup.api.messages.SignupEventTrackingInfo;
 import org.sakaiproject.signup.api.messages.SignupEventTrackingInfoImpl;
+import org.sakaiproject.signup.api.model.MeetingTypes;
 import org.sakaiproject.signup.api.model.SignupAttendee;
 import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.api.model.SignupSite;
@@ -89,6 +92,15 @@ public class SignupMeetingServiceTest {
     private void setupResourceLoader() {
         resourceLoader = Mockito.mock(ResourceLoader.class);
         Mockito.when(resourceLoader.getLocale()).thenReturn(Locale.getDefault());
+        when(resourceLoader.getString("body.footer.text.no.access.link")).thenReturn("No access link");
+        when(resourceLoader.getString("body.meeting.crossdays.timeslot.timeframe")).thenReturn("{0}, {1} - {2}, {3} ({4})");
+        when(resourceLoader.getString("body.meetingTopic.part")).thenReturn("Meeting Topic");
+        when(resourceLoader.getString("body.timeslot")).thenReturn("Time slot:");
+        when(resourceLoader.getString("body.attendee.cancel.own")).thenReturn("Cancel own");
+        when(resourceLoader.getString("body.top.greeting.part")).thenReturn("Hello");
+        when(resourceLoader.getString("subject.attendee.cancel.own.field")).thenReturn("Cancel own field");
+        when(resourceLoader.getString("signup.event.currentattendees")).thenReturn("Current attendees");
+        when(resourceLoader.getString("signup.event.attendeestitle")).thenReturn("Attendees");
         ((SignupMeetingServiceImpl) AopTestUtils.getTargetObject(service)).setResourceLoader(resourceLoader);
         ((SignupEmailFacadeImpl) AopTestUtils.getTargetObject(signupEmailFacade)).setResourceLoader(resourceLoader);
     }
@@ -162,15 +174,15 @@ public class SignupMeetingServiceTest {
     private void setupTimeService() {
         when(timeService.newTime(anyLong())).thenAnswer(invocation -> {
             Time mockTime = mock(Time.class);
-            when(mockTime.getTime()).thenReturn((Long) invocation.getArgument(0));
+            when(mockTime.getTime()).thenReturn(invocation.getArgument(0));
             return mockTime;
         });
-
         when(timeService.newTimeRange(any(Time.class), any(Time.class), anyBoolean(), anyBoolean()))
                 .thenAnswer(invocation -> {
                     TimeRange mockTimeRange = mock(TimeRange.class);
                     return mockTimeRange;
                 });
+        when(timeService.getLocalTimeZone()).thenReturn(TimeZone.getDefault());
     }
 
     private void setupUserTimeService() {
@@ -193,6 +205,7 @@ public class SignupMeetingServiceTest {
         meeting.setLocation("Test location");
         meeting.setCreatorUserId(TEST_USER_ID);
         meeting.setMeetingType("individual");
+        meeting.setCurrentSiteId(TEST_SITE_ID);
 
         Date now = new Date();
         meeting.setStartTime(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
@@ -203,7 +216,7 @@ public class SignupMeetingServiceTest {
         SignupSite site = new SignupSite();
         site.setSiteId(TEST_SITE_ID);
         site.setTitle("Test Site");
-        meeting.setSignupSites(Collections.singletonList(site));
+        meeting.setSignupSites(new ArrayList<>(List.of(site)));
 
         return meeting;
     }
@@ -223,8 +236,17 @@ public class SignupMeetingServiceTest {
      */
 
     @Test
-    public void testServiceNotNull() {
+    public void testServicesNotNull() {
         assertNotNull("SignupMeetingService is null", service);
+        assertNotNull("SignupEmailFacade is null", signupEmailFacade);
+        assertNotNull("SecurityService is null", securityService);
+        assertNotNull("SessionManager is null", sessionManager);
+        assertNotNull("SiteService is null", siteService);
+        assertNotNull("UserDirectoryService is null", userDirectoryService);
+        assertNotNull("CalendarService is null", calendarService);
+        assertNotNull("ServerConfigurationService is null", serverConfigurationService);
+        assertNotNull("TimeService is null", timeService);
+        assertNotNull("UserTimeService is null", userTimeService);
     }
 
     /* ==========================
@@ -391,9 +413,9 @@ public class SignupMeetingServiceTest {
     @Test
     public void testSaveMeetingsWithRecurrence() throws PermissionException {
         SignupMeeting meeting1 = createTestMeeting("Recurring Event 1");
-        meeting1.setRepeatType("daily");
+        meeting1.setRepeatType(MeetingTypes.DAILY);
         SignupMeeting meeting2 = createTestMeeting("Recurring Event 2");
-        meeting2.setRepeatType("daily");
+        meeting2.setRepeatType(MeetingTypes.DAILY);
 
         List<SignupMeeting> meetings = Arrays.asList(meeting1, meeting2);
         service.saveMeetings(meetings, TEST_USER_ID);
@@ -401,6 +423,10 @@ public class SignupMeetingServiceTest {
         assertNotNull("Recurrence ID should be set", meeting1.getRecurrenceId());
         assertEquals("Both meetings should have same recurrence ID",
                 meeting1.getRecurrenceId(), meeting2.getRecurrenceId());
+        assertEquals("Meeting 1 should have recurrence daily",
+                MeetingTypes.DAILY, meeting1.getRepeatType());
+        assertEquals("Meeting 2 should have recurrence daily",
+                MeetingTypes.DAILY, meeting2.getRepeatType());
     }
 
     @Test
@@ -615,22 +641,21 @@ public class SignupMeetingServiceTest {
     }
 
     @Test
-    public void testSendCancellationEmail() throws Exception {
+    public void testSendCancelllationEmail() throws Exception {
         SignupMeeting meeting = createTestMeeting("Cancellation Test");
 
         // Add a timeslot to the meeting
         SignupTimeslot timeslot = createTestTimeslot(meeting.getStartTime(), meeting.getEndTime());
-        meeting.setSignupTimeSlots(new ArrayList<>(Collections.singletonList(timeslot)));
+        meeting.getSignupTimeSlots().add(timeslot);
 
         Long id = service.saveMeeting(meeting, TEST_USER_ID);
 
         // Load the meeting to populate permissions
         meeting = service.loadSignupMeeting(id, TEST_USER_ID, TEST_SITE_ID);
+        meeting.setCurrentSiteId(TEST_SITE_ID); // need to add as it is a transient field
 
         // Ensure timeslots exist after reload (may not persist in test environment)
-        if (meeting.getSignupTimeSlots() == null || meeting.getSignupTimeSlots().isEmpty()) {
-            meeting.setSignupTimeSlots(new ArrayList<>(Collections.singletonList(timeslot)));
-        }
+        Assert.assertEquals("Timeslots should be populated", 1, meeting.getSignupTimeSlots().size());
 
         // Create an attendee who is cancelling
         SignupAttendee attendee = new SignupAttendee();
@@ -641,7 +666,7 @@ public class SignupMeetingServiceTest {
         trackingInfo.setMeeting(meeting);
 
         // Add the cancellation with the attendee as initiator
-        trackingInfo.addOrUpdateAttendeeAllocationInfo(attendee, meeting.getSignupTimeSlots().get(0), "attendee.cancel", true);
+        trackingInfo.addOrUpdateAttendeeAllocationInfo(attendee, meeting.getSignupTimeSlots().get(0), SignupMessageTypes.SIGNUP_ATTENDEE_CANCEL, true);
 
         // Should not throw exception
         service.sendCancellationEmail(trackingInfo);

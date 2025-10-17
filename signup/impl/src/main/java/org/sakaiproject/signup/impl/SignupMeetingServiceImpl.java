@@ -83,6 +83,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,6 +106,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
 
     @Setter private CalendarService calendarService;
+    @Setter private FormattedText formattedText;
     @Setter private FunctionManager functionManager;
     @Setter private ResourceLoader resourceLoader;
     @Setter private SignupMeetingRepository repository;
@@ -438,19 +440,21 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
     public void saveMeetings(List<SignupMeeting> signupMeetings, String userId) throws PermissionException {
         if (signupMeetings == null || signupMeetings.isEmpty()) return;
 
-        if (isAllowedToCreate(userId, signupMeetings.get(0))) {
-
-            SignupMeeting sm = signupMeetings.get(0);
-            if (sm.isRecurredMeeting()) {
+        List<SignupMeeting> toSave = new ArrayList<>();
+        SignupMeeting first = signupMeetings.get(0);
+        if (isAllowedToCreate(userId, first)) {
+            int size = signupMeetings.size();
+            if (first.isRecurredMeeting() && size > 1) {
                 // Use the first unique meeting id as the recurrenceId for all recurring meetings
-                SignupMeeting meeting = repository.save(sm);
-                Long recurrenceId = meeting.getId();
-                for (SignupMeeting sMeeting : signupMeetings) {
-                    sMeeting.setRecurrenceId(recurrenceId);
-                }
+                SignupMeeting saved = repository.save(first);
+                Long recurrenceId = saved.getId();
+                toSave.add(saved);
+                toSave.addAll(signupMeetings.subList(1, size));
+                toSave.forEach(m -> m.setRecurrenceId(recurrenceId));
+            } else {
+                toSave.addAll(signupMeetings);
             }
-            repository.saveAll(signupMeetings);
-
+            repository.saveAll(toSave);
         } else {
             throw new PermissionException(userId, "signup.create", "signup tool");
         }
@@ -794,7 +798,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         }
 
         String desc = meeting.getDescription() + attendeeNamesMarkup;
-        eventEdit.setDescription(PlainTextFormat.convertFormattedHtmlTextToPlaintext(desc));
+        eventEdit.setDescription(new PlainTextFormat(formattedText).convertFormattedHtmlTextToPlaintext(desc));
         eventEdit.setLocation(meeting.getLocation());
         String eventTitleAttendees = MessageFormat.format(resourceLoader.getString("signup.event.attendeestitle"), num);
         eventEdit.setDisplayName(meeting.getTitle() + title_suffix + " (" + eventTitleAttendees + ")");

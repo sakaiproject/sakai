@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import lombok.extern.slf4j.Slf4j;
@@ -318,16 +319,15 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
 		CriteriaQuery<Long> query = cb.createQuery(Long.class);
 		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
 
-		query.select(root.get("id")).distinct(true)
-				.where(
-						cb.and(
-								cb.equal(signupSites.get("siteId"), siteId),
-								cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
-								cb.lessThan(root.get("startTime"), endDate)
-						)
-				)
+        List<Predicate> predicates = List.of(
+                cb.equal(join.get("siteId"), siteId),
+                cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
+                cb.lessThan(root.get("startTime"), endDate));
+
+        query.select(root.get("id"))
+				.where(cb.and(predicates.toArray(new Predicate[0])))
 				.orderBy(cb.asc(root.get("startTime")));
 
 		return sessionFactory.getCurrentSession()
@@ -340,20 +340,19 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 	public List<Long> findIdsBySitesByDateRange(List<String> siteIds, Date startDate, Date endDate) {
 		if (siteIds == null || siteIds.isEmpty() || startDate == null || endDate == null) return List.of();
 
-		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
-		CriteriaQuery<Long> query = cb.createQuery(Long.class);
-		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> signupSites = root.join("signupSites");
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<SignupMeeting> root = query.from(SignupMeeting.class);
+        Join<SignupMeeting, SignupSite> join = root.join("signupSites");
 
-		query.select(root.get("id")).distinct(true)
-				.where(
-						cb.and(
-								signupSites.get("siteId").in(siteIds),
-								cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
-								cb.lessThan(root.get("startTime"), endDate)
-						)
-				)
-				.orderBy(cb.asc(root.get("startTime")));
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(join.get("siteId").in(siteIds));
+        predicates.add(cb.greaterThanOrEqualTo(root.get("endTime"), startDate));
+        predicates.add(cb.lessThan(root.get("startTime"), endDate));
+
+        query.select(root.get("id"))
+                .where(cb.and(predicates.toArray(new Predicate[0])))
+                .orderBy(cb.asc(root.get("startTime")));
 
 		return sessionFactory.getCurrentSession()
 				.createQuery(query)

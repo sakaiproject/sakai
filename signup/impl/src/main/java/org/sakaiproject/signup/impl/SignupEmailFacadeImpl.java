@@ -810,7 +810,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		
 		//generate VEvent for meeting, add to object
 		meeting.setVevent(calendarHelper.generateVEventForMeeting(meeting));
-			
+
 		//now one for each timeslot
 		for(SignupTimeslot ts: meeting.getSignupTimeSlots()){
 				

@@ -460,12 +460,11 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
 	}
 
 	public boolean isRecurredMeeting() {
-		if (recurrenceId != null || DAILY.equals(getRepeatType()) || WEEKLY.equals(getRepeatType())
-				|| BIWEEKLY.equals(getRepeatType()) || WEEKDAYS.equals(getRepeatType()))  {
-			return true;
-		} else {
-			return false;
-		}
+        return recurrenceId != null
+                || DAILY.equals(repeatType)
+                || WEEKLY.equals(repeatType)
+                || BIWEEKLY.equals(repeatType)
+                || WEEKDAYS.equals(repeatType);
 	}
 
 	

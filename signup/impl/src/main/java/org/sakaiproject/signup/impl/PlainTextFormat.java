@@ -37,6 +37,8 @@ package org.sakaiproject.signup.impl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.api.FormattedText;
 
+import lombok.Setter;
+
 /**
  * <P>
  * This class just provides a static method to extend the funtionality of the
@@ -46,14 +48,21 @@ import org.sakaiproject.util.api.FormattedText;
  */
 public class PlainTextFormat {
 
-	/**
+    @Setter
+    private FormattedText formattedText;
+
+    public PlainTextFormat(FormattedText formattedText) {
+        this.formattedText = formattedText;
+    }
+
+    /**
 	 * customized html from fck editor for calendar
 	 * 
 	 * @param htmlText
 	 *            a html formatted text
 	 * @return a plain text
 	 */
-	public static String convertFormattedHtmlTextToPlaintext(String htmlText) {
+	public String convertFormattedHtmlTextToPlaintext(String htmlText) {
 		/*
 		 * replace "<p>" with nothing. Replace "</p>" and "<p />" HTML
 		 * tags with "<br />"
@@ -64,7 +73,7 @@ public class PlainTextFormat {
 		htmlText = htmlText.replaceAll("<p>", "");
 		htmlText = htmlText.replaceAll("</p>", "<br />");
 		htmlText = htmlText.replaceAll("<p />", "<br />");
-		return ComponentManager.get(FormattedText.class).convertFormattedTextToPlaintext(htmlText);
+		return formattedText.convertFormattedTextToPlaintext(htmlText);
 	}
 	
 	/**
@@ -74,7 +83,7 @@ public class PlainTextFormat {
 	 * @param htmlText
 	 * @return
 	 */
-	public static String convertFormattedHtmlTextToICalText(String htmlText) {
+	public String convertFormattedHtmlTextToICalText(String htmlText) {
 		htmlText = convertFormattedHtmlTextToPlaintext(htmlText);
 		htmlText = htmlText.replaceAll("\r", "");
 		htmlText = htmlText.replaceAll("\t", "");

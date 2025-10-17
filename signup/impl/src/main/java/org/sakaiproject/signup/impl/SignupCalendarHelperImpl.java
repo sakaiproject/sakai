@@ -60,6 +60,7 @@ import org.sakaiproject.util.ResourceLoader;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.component.VEvent;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * Impl of SignupCalendarHelper
@@ -71,14 +72,20 @@ import net.fortuna.ical4j.model.component.VEvent;
 @Slf4j
 public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 
-	@Override
+    private FormattedText formattedText;
+    private SakaiFacade sakaiFacade;
+    private ExternalCalendaringService externalCalendaringService;
+    private ResourceLoader resourceLoader;
+
+
+    @Override
 	public CalendarEventEdit generateEvent(SignupMeeting m) {
 		return generateEvent(m, null);
 	}
 	
 	@Override
 	public CalendarEventEdit generateEvent(SignupMeeting m, SignupTimeslot ts) {
-		
+
 		//only interested in first site
 		String siteId = m.getSignupSites().get(0).getSiteId();
 		
@@ -271,7 +278,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 			
 			//NOTE: these pieces of data may need adjusting so that its obvious this is a timeslot within the meeting
 			event.setDisplayName(title);
-			event.setDescription(PlainTextFormat.convertFormattedHtmlTextToICalText(addWarningMessageForCancellation(description, siteId)));
+			event.setDescription(new PlainTextFormat(formattedText).convertFormattedHtmlTextToICalText(addWarningMessageForCancellation(description, siteId)));
 			event.setLocation(location);
 			
 			//SIGNUP-183 add URL property to all events
@@ -339,11 +346,4 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 			}
 		}
 	}
-
-	private SakaiFacade sakaiFacade;
-
-	private ExternalCalendaringService externalCalendaringService;
-
-	private ResourceLoader resourceLoader;
-
 }
