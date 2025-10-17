@@ -34,6 +34,8 @@
 
 package org.sakaiproject.signup.impl;
 
+import static org.sakaiproject.signup.api.SignupConstants.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,6 +65,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.api.SakaiFacade;
+import org.sakaiproject.signup.api.SignupMeetingService;
 import org.sakaiproject.signup.api.SignupUser;
 import org.sakaiproject.signup.api.model.SignupGroup;
 import org.sakaiproject.signup.api.model.SignupMeeting;
@@ -114,6 +117,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	private TimeService timeService;
 	private ContentHostingService contentHostingService;
     private Optional<CalendarService> additionalCalendarService;
+    private SignupMeetingService signupMeetingService;
 
 	// Returns Google calendar if the calendar has been created in Google
 	public Calendar getAdditionalCalendar(String siteId) throws PermissionException {
@@ -136,20 +140,6 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	public void init() {
 		log.debug("init");
-		// register Sakai permissions for this tool
-		functionManager.registerFunction(SIGNUP_VIEW, true);
-		functionManager.registerFunction(SIGNUP_VIEW_ALL, true);
-		functionManager.registerFunction(SIGNUP_ATTEND, true);
-		functionManager.registerFunction(SIGNUP_ATTEND_ALL, true);
-		functionManager.registerFunction(SIGNUP_CREATE_SITE, true);
-		functionManager.registerFunction(SIGNUP_CREATE_GROUP, true);
-		functionManager.registerFunction(SIGNUP_CREATE_GROUP_ALL, true);
-		functionManager.registerFunction(SIGNUP_DELETE_SITE, true);
-		functionManager.registerFunction(SIGNUP_DELETE_GROUP, true);
-		functionManager.registerFunction(SIGNUP_DELETE_GROUP_ALL, true);
-		functionManager.registerFunction(SIGNUP_UPDATE_SITE, true);
-		functionManager.registerFunction(SIGNUP_UPDATE_GROUP, true);
-		functionManager.registerFunction(SIGNUP_UPDATE_GROUP_ALL, true);
 	}
 
 	@Override
@@ -390,11 +380,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 
 	/* check permission */
 	private boolean isAllowed(String userId, String permission, String realmId) {
-		if (securityService.unlock(userId, permission, realmId)) {
-			return true;
-		}
-		return false;
-	}
+        return securityService.unlock(userId, permission, realmId);
+    }
 
 	@Override
 	public String getUserId(String eid) throws UserNotDefinedException {

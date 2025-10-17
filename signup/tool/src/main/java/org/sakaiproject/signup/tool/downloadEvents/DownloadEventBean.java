@@ -286,18 +286,15 @@ public class DownloadEventBean extends SignupMeetingsBean {
 	}
 
 
-	private void excelSpreadsheet(OutputStream os, List<SignupMeetingWrapper> meetingWrappers,
-			String downloadType) throws IOException {
-		EventWorksheet worksheet = new EventWorksheet(getSakaiFacade());
-		worksheet.setSignupMeetingService(getSignupMeetingService());
-
+	private void excelSpreadsheet(OutputStream os, List<SignupMeetingWrapper> meetingWrappers, String downloadType) throws IOException {
+		EventWorksheet worksheet = new EventWorksheet(formattedText, sakaiFacade, signupMeetingService);
 		Workbook wb = worksheet.getEventWorkbook(meetingWrappers, downloadType);
 		wb.write(os);
 	}
 	
 	private void csvSpreadsheet(OutputStream os, List<SignupMeetingWrapper> meetingWrappers) throws IOException {
 		
-		CSVExport export = new CSVExport(meetingWrappers, getSakaiFacade());
+		CSVExport export = new CSVExport(meetingWrappers, sakaiFacade);
 
 		
 		CSVWriter writer = new CSVWriter(new OutputStreamWriter(os), ',', CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, downloadVersion);

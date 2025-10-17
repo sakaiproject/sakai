@@ -32,26 +32,33 @@
           class="org.sakaiproject.signup.impl.SakaiFacadeImpl"
           init-method="init">
         <property name="additionalCalendarService" ref="org.sakaiproject.additional.calendar"/>
-		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
-		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-		<property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService" />
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
-		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
-		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="signupMeetingService" ref="org.sakaiproject.signup.logic.SignupMeetingService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.signup.logic.SignupMeetingService"
-          class="org.sakaiproject.signup.impl.SignupMeetingServiceImpl">
+          class="org.sakaiproject.signup.impl.SignupMeetingServiceImpl"
+          init-method="init">
+        <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />
-		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 		<property name="signupEmailFacade" ref="org.sakaiproject.signup.logic.SignupEmailFacade" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
 		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="resourceLoader">
 			<bean class="org.sakaiproject.util.ResourceLoader">
 				<constructor-arg value="emailMessage"/>

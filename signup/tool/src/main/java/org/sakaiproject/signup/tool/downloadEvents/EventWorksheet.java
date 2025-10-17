@@ -44,8 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.Cell;
@@ -76,6 +74,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.util.api.FormattedText;
 
 /*
  * <p> This class will provides formatting data to Excel style functionality.
@@ -86,43 +85,39 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
-	private static final int COLUMNS_NOT_GROUPING_BY_SLOT = 8;
+    private static final String BreakMark="~@~";
+    private static final String LINEBREAK_EXCEL="\n";
 
+    private static final int COLUMNS_NOT_GROUPING_BY_SLOT = 8;
 	private static final int COLUMNS_GROUPING_BY_SLOT = 7;
 
 	private static final ResourceLoader rb = new ResourceLoader("signup");
 
+    private SakaiFacade sakaiFacade;
+	private SignupMeetingService signupMeetingService;
+    private FormattedText formattedText;
+
 	private String[] tabTitles_Organizor;
-
 	private String[] tabTitles_Participant;
-
 	private String[] tabTitles_shortVersion;
-
 	private Workbook wb = null;
-
 	private String currentTabTitles[];
-
 	private static int rowHigh = 15;
-
 	private SimpleDateFormat dateFormat;
-
 	Map<String, CellStyle> styles = null;
-
 	CreationHelper createHelper = null;
 
-	private SakaiFacade sakaiFacade;
-	
-	@Getter @Setter
-	private SignupMeetingService signupMeetingService;
-
 	/**
-	 * Constructor
-	 * 
-	 * @param sakaiFacade -
-	 *            a SakaiFacade Object
-	 */
-	public EventWorksheet(SakaiFacade sakaiFacade) {
-		this.sakaiFacade = sakaiFacade;
+     * Constructor
+     *
+     * @param formattedText
+     * @param sakaiFacade   -
+     *                      a SakaiFacade Object
+     */
+	public EventWorksheet(FormattedText formattedText, SakaiFacade sakaiFacade, SignupMeetingService signupMeetingService) {
+        this.formattedText = formattedText;
+        this.sakaiFacade = sakaiFacade;
+		this.signupMeetingService = signupMeetingService;
 
 		wb = new XSSFWorkbook();
 
@@ -475,8 +470,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 				// event status
 				cell = row.getCell(6);
-				cell.setCellValue(ExcelPlainTextFormat.convertFormattedHtmlTextToExcelPlaintext(wrp
-						.getAvailableStatus()));
+				cell.setCellValue(convertFormattedHtmlTextToExcelPlaintext(wrp.getAvailableStatus()));
 			}
 		}
 
@@ -603,8 +597,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		cell.setCellStyle(styles.get("item_left_wrap_top"));
 		String description = wrapper.getMeeting().getDescription();
 		if (description != null && description.length() > 0) {
-			description = ExcelPlainTextFormat
-					.convertFormattedHtmlTextToExcelPlaintext(description);
+			description = convertFormattedHtmlTextToExcelPlaintext(description);
 			row.setHeightInPoints(rowHigh * getDescRowNum(description));
 		}
 		cell.setCellValue(description);
@@ -746,8 +739,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 								cell.setCellStyle(styles.get("item_leftBold"));
 								cell = row.getCell(3);
 								cell.setCellStyle(styles.get("item_left_wrap_top"));
-								comment = ExcelPlainTextFormat
-										.convertFormattedHtmlTextToExcelPlaintext(comment);
+								comment = convertFormattedHtmlTextToExcelPlaintext(comment);
 								row.setHeightInPoints(rowHigh * getDescRowNum(comment));
 
 								cell.setCellValue(comment);
@@ -1472,5 +1464,48 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		}
 		return cleanedList;
 	}
+
+    /**
+     * customized html from fck editor for calendar
+     *
+     * @param htmlText
+     *            a html formatted text
+     * @return a plain text
+     */
+    private String convertFormattedHtmlTextToExcelPlaintext(String htmlText) {
+        /*
+         * replace "<p>" with nothing. Replace "</p>" and "<p />" HTML
+         * tags with "<br />"
+         */
+        if (htmlText == null)
+            return "";
+
+        htmlText = htmlText.replaceAll("<p>", "");
+        htmlText = htmlText.replaceAll("\r", "");
+        htmlText = htmlText.replaceAll("</p>", BreakMark);
+        htmlText = htmlText.replaceAll("<p />", BreakMark);
+        htmlText = htmlText.replaceAll("<br />", BreakMark);
+        htmlText = formattedText.convertFormattedTextToPlaintext(htmlText);
+        StringBuilder sb = new StringBuilder();
+        int begin_pos = 0;
+        int find_pos= 0;
+        while(find_pos > -1 && find_pos < htmlText.length()){
+            find_pos = htmlText.indexOf(BreakMark,begin_pos);
+            if(find_pos > -1){
+                sb.append(htmlText.subSequence(begin_pos, find_pos));
+                sb.append(LINEBREAK_EXCEL);
+                find_pos +=BreakMark.length();
+                begin_pos = find_pos;
+            }
+
+        }
+
+        if (begin_pos < htmlText.length()){
+            sb.append(htmlText.subSequence(begin_pos, htmlText.length()-1));
+        }
+        htmlText = htmlText.replaceAll(BreakMark, LINEBREAK_EXCEL);
+
+        return htmlText;
+    }
 
 }

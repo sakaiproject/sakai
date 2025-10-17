@@ -11,6 +11,7 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.signup.api.SignupEmailFacade;
 import org.sakaiproject.signup.api.SignupMeetingService;
 import org.sakaiproject.signup.api.messages.SignupEventTrackingInfo;
 import org.sakaiproject.signup.api.messages.SignupEventTrackingInfoImpl;
@@ -18,6 +19,7 @@ import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.api.model.SignupSite;
 import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.api.restful.SignupTargetSiteEventInfo;
+import org.sakaiproject.signup.impl.SignupEmailFacadeImpl;
 import org.sakaiproject.signup.impl.SignupMeetingServiceImpl;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -50,6 +52,7 @@ import static org.mockito.Mockito.*;
 @ContextConfiguration(classes = { SignupMeetingServiceTestConfiguration.class })
 public class SignupMeetingServiceTest {
 
+    @Autowired private SignupEmailFacade signupEmailFacade;
     @Autowired private SignupMeetingService service;
     @Autowired private SecurityService securityService;
     @Autowired private SessionManager sessionManager;
@@ -85,6 +88,7 @@ public class SignupMeetingServiceTest {
         resourceLoader = Mockito.mock(ResourceLoader.class);
         Mockito.when(resourceLoader.getLocale()).thenReturn(Locale.getDefault());
         ((SignupMeetingServiceImpl) AopTestUtils.getTargetObject(service)).setResourceLoader(resourceLoader);
+        ((SignupEmailFacadeImpl) AopTestUtils.getTargetObject(signupEmailFacade)).setResourceLoader(resourceLoader);
     }
 
     private void setupSessionManager() {
@@ -99,6 +103,7 @@ public class SignupMeetingServiceTest {
         /* By default, allow basic view/attend/create/update/delete permissions.
          * SecurityService.unlock(userId, permission, reference) where reference is from siteService.siteReference()
          */
+        when(securityService.isSuperUser(anyString())).thenReturn(false);
         when(securityService.unlock(anyString(), anyString(), anyString())).thenReturn(true);
         when(securityService.unlock(any(User.class), anyString(), anyString())).thenReturn(true);
     }

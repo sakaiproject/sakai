@@ -296,7 +296,7 @@
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+			<value>#{org_sakaiproject_signup_api_SignupMeetingService}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
@@ -326,7 +326,7 @@
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+			<value>#{org_sakaiproject_signup_api_SignupMeetingService}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
@@ -356,7 +356,7 @@
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+			<value>#{org_sakaiproject_signup_api_SignupMeetingService}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
@@ -369,7 +369,7 @@
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+			<value>#{org_sakaiproject_signup_api_SignupMeetingService}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
@@ -391,7 +391,7 @@
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+			<value>#{org_sakaiproject_signup_api_SignupMeetingService}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
@@ -413,7 +413,7 @@
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+			<value>#{org_sakaiproject_signup_api_SignupMeetingService}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
@@ -439,7 +439,7 @@
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+			<value>#{org_sakaiproject_signup_api_SignupMeetingService}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
@@ -461,7 +461,7 @@
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+			<value>#{org_sakaiproject_signup_api_SignupMeetingService}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
@@ -494,7 +494,7 @@
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+			<value>#{org_sakaiproject_signup_api_SignupMeetingService}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>
@@ -536,7 +536,7 @@
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
-			<value>#{org_sakaiproject_signup_logic_SignupMeetingService}</value>
+			<value>#{org_sakaiproject_signup_api_SignupMeetingService}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>sakaiFacade</property-name>

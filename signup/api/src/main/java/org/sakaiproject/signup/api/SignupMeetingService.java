@@ -53,7 +53,7 @@ import org.sakaiproject.signup.api.restful.SignupTargetSiteEventInfo;
  */
 public interface SignupMeetingService {
 
-	/**
+    /**
 	 * This returns a list of SignupMeeting for a specified site that are
 	 * available to the user in the site
 	 * 
@@ -169,7 +169,7 @@ public interface SignupMeetingService {
 	/**
 	 * This saves meeting objects into database
 	 * 
-	 * @param signupMeeting
+	 * @param signupMeetings
 	 *            a list of SignupMeeting objects
 	 * @param userId
 	 *            the internal user id (not username)

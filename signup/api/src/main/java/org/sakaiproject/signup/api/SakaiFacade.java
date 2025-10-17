@@ -62,48 +62,12 @@ import org.sakaiproject.util.api.FormattedText;
  */
 public interface SakaiFacade {
 
-	public final static String NO_LOCATION = "noLocationAvailable";
-
-	public static final String SIGNUP_PERMISSION_PREFIX = "signup";
-
-	public static final String SIGNUP_VIEW = "signup.view";
-
-	public static final String SIGNUP_VIEW_ALL = "signup.view.all";
-
-	public static final String SIGNUP_ATTEND = "signup.attend";
-
-	public static final String SIGNUP_ATTEND_ALL = "signup.attend.all";
-
-	/** Can create meetings in site and groups in that site* */
-	public static final String SIGNUP_CREATE_SITE = "signup.create.site";
-
-	public static final String SIGNUP_CREATE_GROUP = "signup.create.group";
-
-	public static final String SIGNUP_CREATE_GROUP_ALL = "signup.create.group.all";
-
-	public static final String SIGNUP_DELETE_SITE = "signup.delete.site";
-
-	public static final String SIGNUP_DELETE_GROUP = "signup.delete.group";
-
-	public static final String SIGNUP_DELETE_GROUP_ALL = "signup.delete.group.all";
-
-	public static final String SIGNUP_UPDATE_SITE = "signup.update.site";
-
-	public static final String SIGNUP_UPDATE_GROUP = "signup.update.group";
-
-	public static final String SIGNUP_UPDATE_GROUP_ALL = "signup.update.group.all";
-
-	public static final String STUDENT_ROLE_ID = "student";
-
-	public static final String REALM_ID_FOR_LOGIN_REQUIRED_ONLY =".auth";
-
-	public static final String GROUP_PREFIX = "SIGNUP_";
-
-	// see https://jira.sakaiproject.org/browse/SAK-21403
-	//this is currently hardcode but could be moved later
-	public static final String GROUP_PROP_SITEINFO_VISIBLE = "group_prop_wsetup_created";
-
-	public static final String GROUP_PROP_SIGNUP_IGNORE = "group_prop_signup_ignore";
+	String NO_LOCATION = "noLocationAvailable";
+	String STUDENT_ROLE_ID = "student";
+	String REALM_ID_FOR_LOGIN_REQUIRED_ONLY =".auth";
+	String GROUP_PREFIX = "SIGNUP_";
+	String GROUP_PROP_SITEINFO_VISIBLE = "group_prop_wsetup_created";
+	String GROUP_PROP_SIGNUP_IGNORE = "group_prop_signup_ignore";
 
 	/**
 	 * check to see if the user is Admin
@@ -502,4 +466,6 @@ public interface SakaiFacade {
 	 * @return Returns the tool-reset type url, to return the signup tool to its initial state
 	 */
 	public String getToolResetUrl();
+
+    public SignupMeetingService getSignupMeetingService();
 }

@@ -19,6 +19,11 @@
 
 package org.sakaiproject.signup.tool.jsf;
 
+import javax.faces.component.UIData;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -26,12 +31,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.faces.component.UIData;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ValueChangeEvent;
-import javax.faces.model.SelectItem;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.signup.api.Permission;
@@ -48,8 +47,12 @@ import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.api.FormattedText;
+
+import static org.sakaiproject.signup.api.SignupConstants.*;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,59 +64,33 @@ import lombok.extern.slf4j.Slf4j;
  * </P>
  */
 @Slf4j
+@NoArgsConstructor
 public class SignupMeetingsBean implements SignupBeanConstants {
 
+    @Setter protected FormattedText formattedText;
+    @Setter protected SakaiFacade sakaiFacade;
+    @Setter protected SignupMeetingService signupMeetingService;
+
+	protected String viewDateRang = ALL_FUTURE; // default setting
 	protected UIData meetingTable;
-
-	protected String viewDateRang = ALL_FUTURE;// default setting
-
-	protected SignupMeetingService signupMeetingService;
-
 	protected List<SignupMeetingWrapper> signupMeetings;
-
-	protected SakaiFacade sakaiFacade;
-
 	protected AttendeeSignupMBean attendeeSignupMBean;
-
 	protected OrganizerSignupMBean organizerSignupMBean;
-
 	protected AttendanceSignupBean attendanceSignupBean;
-
 	private NewSignupMeetingBean newSignupMeetingBean;
-
 	protected SignupSorter signupSorter = new SignupSorter();
-
 	protected Boolean showAllRecurMeetings = null;
-
 	protected boolean enableExpandOption = false;
-
 	protected List<SelectItem> viewDropDownList;
-
 	protected final String disabledSelectView = "none";
-
 	protected String meetingUnavailableMessages;
-	
 	protected Boolean categoriesExist = null;
-	
 	protected Boolean locationsExist = null;
 	
 	
 	@Getter @Setter
 	protected String categoryFilter = CATERGORY_FILER_ALL; // default setting is blank, which means all categories
 
-
-	/**
-	 * Default Constructor
-	 * 
-	 */
-	public SignupMeetingsBean() {
-	}
-
-	/**
-	 * This is a getter method.
-	 * 
-	 * @return the current user display name.
-	 */
 	public String getCurrentUserDisplayName() {
 		return sakaiFacade.getUserDisplayName(sakaiFacade.getCurrentUserId());
 	}
@@ -167,11 +144,11 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 						+ " - UserId:"
 						+ sakaiFacade.getCurrentUserId()
 						+ " - has removed the meeting at meeting startTime:"
-						+ getSakaiFacade().getTimeService().newTime(meeting.getStartTime().getTime())
+						+ sakaiFacade.getTimeService().newTime(meeting.getStartTime().getTime())
 								.toStringLocalFull());
 
 				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_REMOVE, ToolManager.getCurrentPlacement().getContext(),
-						meeting.getId(), meeting.getTitle(), "at startTime:" + getSakaiFacade().getTimeService().newTime(meeting.getStartTime().getTime())
+						meeting.getId(), meeting.getTitle(), "at startTime:" + sakaiFacade.getTimeService().newTime(meeting.getStartTime().getTime())
 						.toStringLocalFull());
 
 			}
@@ -398,45 +375,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 	}
 
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return a SakaiFacade object.
-	 */
-	public SakaiFacade getSakaiFacade() {
-		return sakaiFacade;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param sakaiFacade
-	 *            a SakaiFacade object.
-	 */
-	public void setSakaiFacade(SakaiFacade sakaiFacade) {
-		this.sakaiFacade = sakaiFacade;
-	}
-
-	/**
-	 * This is a getter method.
-	 * 
-	 * @return a SignupMeetingService object.
-	 */
-	public SignupMeetingService getSignupMeetingService() {
-		return signupMeetingService;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param signupMeetingService
-	 *            a SignupMeetingService object.
-	 */
-	public void setSignupMeetingService(SignupMeetingService signupMeetingService) {
-		this.signupMeetingService = signupMeetingService;
-	}
-
-	/**
+    /**
 	 * This is a getter method for UI and filters the list according to what has been set.
 	 * 
 	 * @return a list of SignupMeetingWrapper objects.
@@ -564,7 +503,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		List<SignupMeetingWrapper> wrappers = new ArrayList<SignupMeetingWrapper>();
 		for (SignupMeeting meeting : filteredCategorySignupMeetings) {
 			SignupMeetingWrapper wrapper = new SignupMeetingWrapper(meeting, sakaiFacade.getUserDisplayName(meeting
-					.getCreatorUserId()), sakaiFacade.getCurrentUserId(), getSakaiFacade());
+					.getCreatorUserId()), sakaiFacade.getCurrentUserId(), sakaiFacade);
 			wrappers.add(wrapper);
 		}
 
@@ -589,7 +528,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 *         current user.
 	 */
 	public boolean isAllowedToDelete() {
-		if (sakaiFacade.isAllowedSite(sakaiFacade.getCurrentUserId(), SakaiFacade.SIGNUP_DELETE_SITE, sakaiFacade.getCurrentLocationId())) {
+		if (sakaiFacade.isAllowedSite(sakaiFacade.getCurrentUserId(), SIGNUP_DELETE_SITE, sakaiFacade.getCurrentLocationId())) {
 			return true;
 		}
 
@@ -614,7 +553,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 */
 	public boolean isAllowedToUpdate() {
 		// Do we really need to loop through 1000 meetings if the user has elevated site permissions?!
-		if (sakaiFacade.isAllowedSite(sakaiFacade.getCurrentUserId(), SakaiFacade.SIGNUP_UPDATE_SITE, sakaiFacade.getCurrentLocationId())) {
+		if (sakaiFacade.isAllowedSite(sakaiFacade.getCurrentUserId(), SIGNUP_UPDATE_SITE, sakaiFacade.getCurrentLocationId())) {
 			return true;
 		}
 
@@ -857,7 +796,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 */
 	public boolean isShowAllRecurMeetings() {
 		if (showAllRecurMeetings == null) {
-			if (getSakaiFacade().getServerConfigurationService().getBoolean("signup.showAllRecurMeetings.default", false)) {
+			if (sakaiFacade.getServerConfigurationService().getBoolean("signup.showAllRecurMeetings.default", false)) {
 				showAllRecurMeetings = true;
 			}
 			else {
@@ -1034,7 +973,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	private boolean userLoggedInStatus = false;
 	public boolean isUserLoggedInStatus(){
 		if(!userLoggedInStatus){
-			if(getSakaiFacade().getCurrentUserId()!=null)
+			if(sakaiFacade.getCurrentUserId()!=null)
 				this.userLoggedInStatus=true;
 			else{
 				return false;
@@ -1049,7 +988,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 */
 	public boolean isAttendanceOn() {
 			
-		if (getSakaiFacade().getServerConfigurationService().getBoolean("signup.enableAttendance", true)) {
+		if (sakaiFacade.getServerConfigurationService().getBoolean("signup.enableAttendance", true)) {
 			return true;
 		}
 		else{
@@ -1063,7 +1002,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * @return
 	 */
 	public List<SelectItem> getInstructors(SignupMeeting meeting) {
-		List<User> users = sakaiFacade.getUsersWithPermission(SakaiFacade.SIGNUP_CREATE_SITE);
+		List<User> users = sakaiFacade.getUsersWithPermission(SIGNUP_CREATE_SITE);
 		
 		List<SelectItem> instructors= new ArrayList<SelectItem>();
 		
@@ -1120,8 +1059,8 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	public boolean isCurrentUserAllowedUpdateSite() {
 		String currentUserId = sakaiFacade.getCurrentUserId();
 		String currentSiteId = sakaiFacade.getCurrentLocationId();
-		boolean isAllowedUpdateSite = (sakaiFacade.isAllowedSite(currentUserId, sakaiFacade.SIGNUP_UPDATE_SITE, currentSiteId) 
-				|| sakaiFacade.isAllowedSite(currentUserId, sakaiFacade.SIGNUP_CREATE_SITE, currentSiteId));
+		boolean isAllowedUpdateSite = (sakaiFacade.isAllowedSite(currentUserId, SIGNUP_UPDATE_SITE, currentSiteId)
+				|| sakaiFacade.isAllowedSite(currentUserId, SIGNUP_CREATE_SITE, currentSiteId));
 
 		return isAllowedUpdateSite;
 	}

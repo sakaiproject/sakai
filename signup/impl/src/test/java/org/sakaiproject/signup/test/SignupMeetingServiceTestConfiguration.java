@@ -1,6 +1,5 @@
 package org.sakaiproject.signup.test;
 
-import java.util.Locale;
 import java.util.Optional;
 
 import org.mockito.Mockito;
@@ -21,7 +20,6 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

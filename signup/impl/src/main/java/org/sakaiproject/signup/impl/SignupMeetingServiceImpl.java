@@ -49,7 +49,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -57,7 +59,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.api.Permission;
 import org.sakaiproject.signup.api.Retry;
-import org.sakaiproject.signup.api.SakaiFacade;
 import org.sakaiproject.signup.api.SignupEmailFacade;
 import org.sakaiproject.signup.api.SignupMeetingService;
 import org.sakaiproject.signup.api.SignupMessageTypes;
@@ -73,13 +74,19 @@ import org.sakaiproject.signup.api.repository.SignupMeetingRepository;
 import org.sakaiproject.signup.api.restful.SignupTargetSiteEventInfo;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.sakaiproject.signup.api.SignupConstants.*;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -97,11 +104,34 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
 
-    @Setter private SignupMeetingRepository repository;
-    @Setter private SakaiFacade sakaiFacade;
-    @Setter private SignupEmailFacade signupEmailFacade;
-    @Setter private UserTimeService userTimeService;
+    @Setter private CalendarService calendarService;
+    @Setter private FunctionManager functionManager;
     @Setter private ResourceLoader resourceLoader;
+    @Setter private SignupMeetingRepository repository;
+    @Setter private SecurityService securityService;
+    @Setter private SessionManager sessionManager;
+    @Setter private SignupEmailFacade signupEmailFacade;
+    @Setter private SiteService siteService;
+    @Setter private TimeService timeService;
+    @Setter private UserDirectoryService userDirectoryService;
+    @Setter private UserTimeService userTimeService;
+
+    public void init() {
+        // register Sakai permissions for this tool
+        functionManager.registerFunction(SIGNUP_VIEW);
+        functionManager.registerFunction(SIGNUP_VIEW_ALL);
+        functionManager.registerFunction(SIGNUP_ATTEND);
+        functionManager.registerFunction(SIGNUP_ATTEND_ALL);
+        functionManager.registerFunction(SIGNUP_CREATE_SITE);
+        functionManager.registerFunction(SIGNUP_CREATE_GROUP);
+        functionManager.registerFunction(SIGNUP_CREATE_GROUP_ALL);
+        functionManager.registerFunction(SIGNUP_DELETE_SITE);
+        functionManager.registerFunction(SIGNUP_DELETE_GROUP);
+        functionManager.registerFunction(SIGNUP_DELETE_GROUP_ALL);
+        functionManager.registerFunction(SIGNUP_UPDATE_SITE);
+        functionManager.registerFunction(SIGNUP_UPDATE_GROUP);
+        functionManager.registerFunction(SIGNUP_UPDATE_GROUP_ALL);
+    }
 
     @Override
     public List<SignupMeeting> getAllSignupMeetings(String currentSiteId, String userId) {
@@ -262,23 +292,23 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
      * have all level permission? across site
      */
     private boolean isAllowToDelete(String userId, String siteId, SignupMeeting meeting) {
-        if (sakaiFacade.isUserAdmin(userId)) return true;
+        if (securityService.isSuperUser(userId)) return true;
 
         SignupSite site = currentSite(meeting, siteId);
         if (site != null) {
             if (site.isSiteScope()) { // GroupList is null or empty case
-                return sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_DELETE_SITE, site.getSiteId());
+                return securityService.unlock(userId, SIGNUP_DELETE_SITE, site.getSiteId());
             }
 
             // it's group scoped
-            if (sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_DELETE_GROUP_ALL, site.getSiteId()) || sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_DELETE_SITE, site.getSiteId()))
+            if (securityService.unlock(userId, SIGNUP_DELETE_GROUP_ALL, site.getSiteId()) || securityService.unlock(userId, SIGNUP_DELETE_SITE, site.getSiteId()))
                 return true;
 
             // organizer has to have permission to delete every group in the list, otherwise can't delete
             boolean allowedTodelete = true;
             List<SignupGroup> signupGroups = site.getSignupGroups();
             for (SignupGroup group : signupGroups) {
-                if (!(sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_DELETE_GROUP, site.getSiteId(), group.getGroupId()) || sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_DELETE_GROUP_ALL, siteId, group.getGroupId()))) {
+                if (!(securityService.unlock(userId, SIGNUP_DELETE_GROUP, siteService.siteGroupReference(site.getSiteId(), group.getGroupId())) || securityService.unlock(userId, SIGNUP_DELETE_GROUP_ALL, siteService.siteGroupReference(siteId, group.getGroupId())))) {
                     allowedTodelete = false;
                     break;
                 }
@@ -299,22 +329,22 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
      * @return true if the user has update permission, false otherwise
      */
     private boolean isAllowToUpdate(String userId, String siteId, SignupMeeting meeting) {
-        if (sakaiFacade.isUserAdmin(userId)) return true;
+        if (securityService.isSuperUser(userId)) return true;
 
         SignupSite site = currentSite(meeting, siteId);
         if (site != null) {
             if (site.isSiteScope()) {
-                if (sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_UPDATE_SITE, site.getSiteId())) return true;
+                if (securityService.unlock(userId, SIGNUP_UPDATE_SITE, site.getSiteId())) return true;
             }
             /* Do we allow people with a group.all permission to update the meeting with a site scope?
              * currently we allow them to update
              */
-            if (sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_UPDATE_GROUP_ALL, site.getSiteId()) || sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_UPDATE_SITE, site.getSiteId()))
+            if (securityService.unlock(userId, SIGNUP_UPDATE_GROUP_ALL, site.getSiteId()) || securityService.unlock(userId, SIGNUP_UPDATE_SITE, site.getSiteId()))
                 return true;
 
             List<SignupGroup> signupGroups = site.getSignupGroups();
             for (SignupGroup group : signupGroups) {
-                if (sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_UPDATE_GROUP, site.getSiteId(), group.getGroupId()) || sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_UPDATE_GROUP_ALL, siteId, group.getGroupId()))
+                if (securityService.unlock(userId, SIGNUP_UPDATE_GROUP, siteService.siteGroupReference(site.getSiteId(), group.getGroupId())) || securityService.unlock(userId, SIGNUP_UPDATE_GROUP_ALL, siteService.siteGroupReference(siteId, group.getGroupId())))
                     return true;
             }
         }
@@ -337,17 +367,17 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
      * @return true if the user has permission to attend, false otherwise
      */
     private boolean isAllowToAttend(String userId, String siteId, SignupMeeting meeting) {
-        if (sakaiFacade.isUserAdmin(userId)) return true;
+        if (securityService.isSuperUser(userId)) return true;
 
-        if (sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_ATTEND_ALL, siteId)) return true;
+        if (securityService.unlock(userId, SIGNUP_ATTEND_ALL, siteId)) return true;
 
         SignupSite site = currentSite(meeting, siteId);
         if (site != null) {
-            if (site.isSiteScope()) return sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_ATTEND, siteId);
+            if (site.isSiteScope()) return securityService.unlock(userId, SIGNUP_ATTEND, siteId);
 
             List<SignupGroup> signupGroups = site.getSignupGroups();
             for (SignupGroup group : signupGroups) {
-                if (sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_ATTEND, siteId, group.getGroupId()) || sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_ATTEND_ALL, siteId, group.getGroupId()))
+                if (securityService.unlock(userId, SIGNUP_ATTEND, siteService.siteGroupReference(siteId, group.getGroupId())) || securityService.unlock(userId, SIGNUP_ATTEND_ALL, siteService.siteGroupReference(siteId, group.getGroupId())))
                     return true;
             }
         }
@@ -365,21 +395,20 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
      *         or group-scoped view permission for any of the meeting's groups
      */
     private boolean isAllowedToView(SignupMeeting meeting, String userId, String siteId) {
-        if (sakaiFacade.isUserAdmin(userId)) return true;
-        if (sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_VIEW_ALL, siteId)) return true;
+        if (securityService.isSuperUser(userId)) return true;
+        if (securityService.unlock(userId, SIGNUP_VIEW_ALL, siteId)) return true;
 
         SignupSite site = currentSite(meeting, siteId);
         if (site != null) {
-            if (site.isSiteScope()) return sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_VIEW, siteId);
+            if (site.isSiteScope()) return securityService.unlock(userId, SIGNUP_VIEW, siteId);
 
             List<SignupGroup> signupGroups = site.getSignupGroups();
             for (SignupGroup group : signupGroups) {
-                if (sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_VIEW, siteId, group.getGroupId()) || sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_VIEW_ALL, siteId, group.getGroupId()))
+                if (securityService.unlock(userId, SIGNUP_VIEW, siteService.siteGroupReference(siteId, group.getGroupId())) || securityService.unlock(userId, SIGNUP_VIEW_ALL, siteService.siteGroupReference(siteId, group.getGroupId())))
                     return true;
             }
         }
         return false;
-
     }
 
     /**
@@ -429,22 +458,22 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
     // check to see if the user has create permission at any level
     private boolean isAllowedToCreate(String userId, SignupMeeting signupMeeting) {
-        if (sakaiFacade.isUserAdmin(userId)) return true;
+        if (securityService.isSuperUser(userId)) return true;
 
         List<SignupSite> signupSites = signupMeeting.getSignupSites();
         for (SignupSite site : signupSites) {
             if (site.isSiteScope()) {
-                if (!sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_CREATE_SITE, site.getSiteId())) {
+                if (!securityService.unlock(userId, SIGNUP_CREATE_SITE, site.getSiteId())) {
                     return false;
                 }
             } else {
-                if (sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_CREATE_SITE, site.getSiteId()) || sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_CREATE_GROUP_ALL, site.getSiteId())) {
+                if (securityService.unlock(userId, SIGNUP_CREATE_SITE, site.getSiteId()) || securityService.unlock(userId, SIGNUP_CREATE_GROUP_ALL, site.getSiteId())) {
                     continue;
                 }
 
                 List<SignupGroup> signupGroups = site.getSignupGroups();
                 for (SignupGroup group : signupGroups) {
-                    if (!(sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_CREATE_GROUP, site.getSiteId(), group.getGroupId()) || sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_CREATE_GROUP_ALL, site.getSiteId(), group.getGroupId())))
+                    if (!(securityService.unlock(userId, SIGNUP_CREATE_GROUP, siteService.siteGroupReference(site.getSiteId(), group.getGroupId())) || securityService.unlock(userId, SIGNUP_CREATE_GROUP_ALL, siteService.siteGroupReference(site.getSiteId(), group.getGroupId()))))
                         return false;
                 }
             }
@@ -456,24 +485,24 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
     @Override
     public boolean isAllowedToCreateinGroup(String userId, String siteId, String groupId) {
-        return sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_CREATE_GROUP_ALL, siteId) || sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_CREATE_GROUP, siteId, groupId);
+        return securityService.unlock(userId, SIGNUP_CREATE_GROUP_ALL, siteId) || securityService.unlock(userId, SIGNUP_CREATE_GROUP, siteService.siteGroupReference(siteId, groupId));
     }
 
     @Override
     public boolean isAllowedToCreateinSite(String userId, String siteId) {
-        return sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_CREATE_SITE, siteId);
+        return securityService.unlock(userId, SIGNUP_CREATE_SITE, siteId);
     }
 
     @Override
     public boolean isAllowedToCreateAnyInSite(String userId, String siteId) {
-        if (sakaiFacade.isUserAdmin(userId)) return true;
+        if (securityService.isSuperUser(userId)) return true;
 
-        if (sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_CREATE_SITE, siteId)) return true;
+        if (securityService.unlock(userId, SIGNUP_CREATE_SITE, siteId)) return true;
 
         // check groups
         Site site;
         try {
-            site = sakaiFacade.getSiteService().getSite(siteId);
+            site = siteService.getSite(siteId);
         } catch (IdUnusedException e) {
             log.warn("Unable to retrieve site [{}], {}", siteId, e.toString());
             return false;
@@ -490,19 +519,19 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
         // if null, only consider an organizer-updating case (higher requirement level)
         if (permission == null) {
-            if (isAllowToUpdate(sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), meeting)) {
+            if (isAllowToUpdate(sessionManager.getCurrentSessionUserId(), meeting.getCurrentSiteId(), meeting)) {
                 repository.save(meeting);
                 return;
             }
-            throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         }
 
         if (isOrganizer) {
             if (permission.isUpdate()) repository.save(meeting);
-            else throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
+            else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         } else {
             if (permission.isAttend()) repository.save(meeting);
-            else throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.attend", "SignupTool");
+            else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.attend", "SignupTool");
         }
     }
 
@@ -519,19 +548,19 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
         // if null, only consider an organizer-updating case (higher requirement level)
         if (permission == null) {
-            if (isAllowToUpdate(sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), oneMeeting)) {
+            if (isAllowToUpdate(sessionManager.getCurrentSessionUserId(), oneMeeting.getCurrentSiteId(), oneMeeting)) {
                 repository.updateAll(meetings);
                 return;
             }
-            throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         }
 
         if (isOrganizer) {
             if (permission.isUpdate()) repository.updateAll(meetings);
-            else throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
+            else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         } else {
             if (permission.isAttend()) repository.updateAll(meetings);
-            else throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.attend", "SignupTool");
+            else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.attend", "SignupTool");
         }
     }
 
@@ -548,19 +577,19 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
         // if null, only consider an organizer-updating case (higher requirement level)
         if (permission == null) {
-            if (isAllowToUpdate(sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), oneMeeting)) {
+            if (isAllowToUpdate(sessionManager.getCurrentSessionUserId(), oneMeeting.getCurrentSiteId(), oneMeeting)) {
                 repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots);
                 return;
             }
-            throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         }
 
         if (isOrganizer) {
             if (permission.isUpdate()) repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots);
-            else throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.update", "SignupTool");
+            else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         } else {
             if (permission.isAttend()) repository.updateMeetingsAndRemoveTimeslots(meetings, removedTimeslots);
-            else throw new PermissionException(sakaiFacade.getCurrentUserId(), "signup.attend", "SignupTool");
+            else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.attend", "SignupTool");
         }
     }
 
@@ -612,7 +641,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         for (SignupTimeslot calendarBlock : calendarBlocks) {
             for (SignupSite site : signupSites) {
                 try {
-                    Calendar calendar = chooseCalendar(site);
+                    final Calendar calendar = chooseCalendar(site);
 
                     if (calendar == null) continue; // something went wrong when fetching the calendar
 
@@ -641,8 +670,15 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
                     // for custom_ts type, TF/instructor has no modification here eventId is null
                     if (eventId != null && eventId.trim().length() > 1) {
                         // allow attendee to update calendar
-                        SecurityAdvisor advisor = sakaiFacade.pushAllowCalendarEdit(calendar);
+                        SecurityAdvisor advisor = (userId, function, reference) -> {
+                            if (calendar.canModifyAnyEvent(function)) {
+                                return SecurityAdvisor.SecurityAdvice.ALLOWED;
+                            } else {
+                                return SecurityAdvisor.SecurityAdvice.NOT_ALLOWED;
+                            }
+                        };
 
+                        securityService.pushAdvisor(advisor);
                         try {
                             eventEdit = calendar.getEditEvent(eventId, CalendarService.EVENT_MODIFY_CALENDAR);
                             isNew = false;
@@ -654,7 +690,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
                             // If the event was removed from the calendar.
                             eventEdit = calendarEvent(calendar, site);
                         } finally {
-                            sakaiFacade.popSecurityAdvisor(advisor);
+                            securityService.popAdvisor(advisor);
                         }
                     } else {
                         eventEdit = calendarEvent(calendar, site);
@@ -720,8 +756,6 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
      * It will make the calendar unreadable.
      */
     private void populateDataForEventEditObject(CalendarEventEdit eventEdit, SignupMeeting meeting, String title_suffix, Date startTime, Date endTime) {
-
-        TimeService timeService = sakaiFacade.getTimeService();
         Time start = timeService.newTime(startTime.getTime());
         Time end = timeService.newTime(endTime.getTime());
         TimeRange timeRange = timeService.newTimeRange(start, end, true, false);
@@ -736,14 +770,19 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
         boolean displayAttendeeName = false;
         for (SignupTimeslot ts : meeting.getSignupTimeSlots()) {
-            displayAttendeeName = ts.isDisplayAttendees();// just need one of TS, it is not fine-grained yet
+            displayAttendeeName = ts.isDisplayAttendees();
+            // just need one of TS, it is not fine-grained yet
             // case: custom calender blocks, only print the related info
             if ((startTime.getTime() <= ts.getStartTime().getTime()) && endTime.getTime() >= ts.getEndTime().getTime()) {
                 num += ts.getAttendees().size();
                 if (ts.isDisplayAttendees() && !ts.getAttendees().isEmpty()) {
-                    //privacy issue
+                    // privacy issue
                     for (SignupAttendee attendee : ts.getAttendees()) {
-                        attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>").append(sakaiFacade.getUserDisplayName(attendee.getAttendeeUserId())).append("</i></span><br />");
+                        userDirectoryService.getOptionalUser(attendee.getAttendeeUserId()).ifPresent(u -> {
+                            attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>")
+                                .append(u.getDisplayName())
+                                .append("</i></span><br />");
+                        });
                     }
                 }
             }
@@ -911,9 +950,14 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
     // See if additional calendar is deployed and ready to use.
     // If not, we use the Sakai calendar tool by default.
     private Calendar chooseCalendar(SignupSite site) throws PermissionException {
-        Calendar calendar = sakaiFacade.getAdditionalCalendar(site.getSiteId());
+        Calendar calendar = null;
+//                sakaiFacade.getAdditionalCalendar(site.getSiteId());
         if (calendar == null) {
-            calendar = sakaiFacade.getCalendar(site.getSiteId());
+            try {
+                calendar = calendarService.getCalendar(site.getSiteId());
+            } catch (IdUnusedException e) {
+                log.warn("Could not find calendar for site: {}", site.getSiteId());
+            }
         }
         return calendar;
     }
@@ -991,7 +1035,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         List<SignupGroup> signupGroups = site.getSignupGroups();
         for (SignupGroup group : signupGroups) {
             try {
-                groups.add(sakaiFacade.getGroup(site.getSiteId(), group.getGroupId()));
+                Site s = siteService.getSite(site.getSiteId());
+                groups.add(s.getGroup(group.getGroupId()));
             } catch (IdUnusedException e) {
                 log.warn("Unable to find group in site {} with group ID {}, {}", site.getSiteId(), group.getGroupId(), e.toString());
             }
