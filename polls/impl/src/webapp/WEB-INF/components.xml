@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="org.sakaiproject.poll.hibernate.AdditionalMappings"
+	<bean id="org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.poll"
 		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="annotatedClasses">
 			<list>
@@ -13,6 +13,9 @@
 			</list>
 		</property>
 	</bean>
+
+	<alias name="org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.poll"
+		alias="org.sakaiproject.poll.hibernate.AdditionalMappings" />
 
 	<bean id="org.sakaiproject.poll.repository.PollRepository"
 		class="org.sakaiproject.poll.repository.impl.PollRepositoryImpl">
