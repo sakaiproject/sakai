@@ -21,16 +21,17 @@ import static org.junit.Assert.fail;
 import java.util.Map;
 import java.util.Set;
 
-import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.genericdao.api.search.Search;
-import org.sakaiproject.hierarchy.dao.HierarchyDao;
+import org.sakaiproject.hierarchy.api.repository.HierarchyNodeMetaDataRepository;
+import org.sakaiproject.hierarchy.api.repository.HierarchyNodePermissionRepository;
+import org.sakaiproject.hierarchy.api.repository.HierarchyPersistentNodeRepository;
 import org.sakaiproject.hierarchy.dao.model.HierarchyNodeMetaData;
 import org.sakaiproject.hierarchy.impl.HierarchyServiceImpl;
 import org.sakaiproject.hierarchy.impl.test.data.TestDataPreload;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.memory.api.Cache;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
@@ -50,13 +51,16 @@ public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringC
 
     protected HierarchyServiceImpl hierarchyService;
 
-    @Autowired
-    @Qualifier("org.sakaiproject.hierarchy.dao.HierarchyDao")
-    private HierarchyDao dao;
+    @Autowired @Qualifier("org.sakaiproject.hierarchy.api.repository.HierarchyNodeMetaDataRepository")
+    private HierarchyNodeMetaDataRepository nodeMetaRepository;
+    @Autowired @Qualifier("org.sakaiproject.hierarchy.api.repository.HierarchyPersistentNodeRepository")
+    private HierarchyPersistentNodeRepository nodeRepository;
+    @Autowired @Qualifier("org.sakaiproject.hierarchy.api.repository.HierarchyNodePermissionRepository")
+    private HierarchyNodePermissionRepository permissionRepository;
     @Autowired
     @Qualifier("org.sakaiproject.hierarchy.test.data.TestDataPreload")
     private TestDataPreload tdp;
-    private Cache cache;
+    private Cache<String, Object> cache;
 
     // run this before each test starts
     @Before
@@ -64,8 +68,12 @@ public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringC
 
         //create and setup the object to be tested
         hierarchyService = new HierarchyServiceImpl();
-        hierarchyService.setDao(dao);
+        hierarchyService.setNodeMetaRepository(nodeMetaRepository);
+        hierarchyService.setNodeRepository(nodeRepository);
+        hierarchyService.setPermissionRepository(permissionRepository);
         //    hierarchyService.setSessionManager(sessionManager);
+
+        initializeMockCache();
     }
 
 
@@ -158,8 +166,7 @@ public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringC
     @Test
     public void testDestroyHierarchy() {
         hierarchyService.destroyHierarchy(TestDataPreload.HIERARCHYB);
-        long count = dao.countBySearch(HierarchyNodeMetaData.class, 
-                new Search("hierarchyId", TestDataPreload.HIERARCHYB) );
+        long count = nodeMetaRepository.countByHierarchyId(TestDataPreload.HIERARCHYB);
         assertEquals(0, count);
 
         // test removing a non-existent hierarchy fails
@@ -1503,12 +1510,10 @@ public class HierarchyServiceImplTest extends AbstractTransactionalJUnit4SpringC
      }
 
     private void initializeMockCache(){
-        Cache mock = EasyMock.createMock(Cache.class);
-        hierarchyService.setCache(mock);
-        EasyMock.expect(mock.containsKey(EasyMock.anyObject())).andReturn(false).anyTimes();
-        EasyMock.expect(mock.remove(EasyMock.anyObject())).andReturn(false).anyTimes();
-        mock.put(EasyMock.anyObject(),EasyMock.anyObject());
-        EasyMock.expectLastCall().anyTimes();
-        EasyMock.replay(mock);
+        cache = Mockito.mock(Cache.class);
+        hierarchyService.setCache(cache);
+        Mockito.when(cache.containsKey(Mockito.anyString())).thenReturn(false);
+        Mockito.when(cache.remove(Mockito.anyString())).thenReturn(false);
+        Mockito.doNothing().when(cache).put(Mockito.anyString(), Mockito.any());
     }
 }

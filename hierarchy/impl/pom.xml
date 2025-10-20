@@ -76,11 +76,7 @@
             <artifactId>hierarchy-api</artifactId>
         </dependency>
 
-        <!-- generic DAO -->
-        <dependency>
-            <groupId>org.sakaiproject.genericdao</groupId>
-            <artifactId>generic-dao</artifactId>
-        </dependency>
+        <!-- genericdao removed: use standard Hibernate via SessionFactory -->
 
         <!-- sakai dependencies -->
         <dependency>
@@ -94,6 +90,10 @@
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hsqldb</groupId>
@@ -128,15 +128,29 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>3.4</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${sakai.mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Jackson required by SpringCrudRepositoryImpl and MapperFactory -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
     </dependencies>
 
