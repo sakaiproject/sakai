@@ -766,7 +766,7 @@ public abstract class BaseLTIService implements LTIService {
 
 	protected Object insertToolContentDao(String id, String toolId, Properties reqProps, String siteId, boolean isAdminRole, boolean isMaintainRole)
 	{
-		log.debug("insertToolContentDao id={} toolId={} reqProps={} siteId={} isAdminRole={} isMaintainRole={}", id, toolId, reqProps, siteId, isAdminRole, isMaintainRole);
+		log.debug("insertToolContentDao id={} toolId={} siteId={} isAdminRole={} isMaintainRole={}", id, toolId, siteId, isAdminRole, isMaintainRole);
 		Object retval = null;
 		if ( ! isMaintainRole ) {
 			retval = rb.getString("error.maintain.edit");
@@ -789,24 +789,30 @@ public abstract class BaseLTIService implements LTIService {
 		}
 
 		// Check if the tool is stealth and not yet deployed to the site
-		// If the tool is not deployed and the current user is an administrator,add the site to the list of deployed sites.
+		// If the tool is not deployed and the current user is an administrator, add the site to the list of deployed sites.
 		// If the tool is not deployed and the current user is not an administrator, return an error message.
 		Long visible = LTIUtil.toLong(tool.get(LTIService.LTI_VISIBLE));
 		String contentSite = (String) reqProps.get(LTIService.LTI_SITE_ID);
 		log.debug("checking if tool {} is stealth and about to deploy to site {}, visible={}", toolKey, contentSite, visible);
-		if ( contentSite != null && visible == LTIService.LTI_VISIBLE_STEALTH ) {
-			if ( toolDeployed(toolKey, contentSite)) {
-				// The tool is already deployed to the site our work is done
-			} else if ( isAdminRole && !toolDeployed(toolKey, contentSite)) {
+		if ( contentSite != null && visible != null && visible.equals(LTIService.LTI_VISIBLE_STEALTH) ) {
+			boolean isDeployed = toolDeployed(toolKey, contentSite);
+			if ( isDeployed ) {
+				// The tool is already deployed to the site, our work is done
+			} else if ( isAdminRole ) {
 				log.debug("tool {} is not deployed, adding site {} to list of deployed sites", toolKey, contentSite);
 				Properties props = new Properties();
-				props.setProperty("tool_id", toolKey.toString());
-				props.setProperty("SITE_ID", contentSite);
+				props.setProperty(LTIService.LTI_TOOL_ID, toolKey.toString());
+				props.setProperty(LTIService.LTI_SITE_ID, contentSite);
 				props.setProperty("notes", rb.getString("tool.added.by.insert.content"));
-				retval = insertToolSiteDao(props, contentSite, isAdminRole, isMaintainRole);
+				Object insertResult = insertToolSiteDao(props, contentSite, isAdminRole, isMaintainRole);
+				if (insertResult instanceof String) {
+					// insertToolSiteDao returned an error message
+					retval = insertResult;
+					return retval;
+				}
 			} else {
-				// If the tool is deployed, return an error message.
-				retval = rb.getString("error.tool.not.deployed");
+				// The tool is NOT deployed and the current user is not an administrator
+				retval = rb.getString("error.tool.not.available");
 				return retval;
 			}
 		}
