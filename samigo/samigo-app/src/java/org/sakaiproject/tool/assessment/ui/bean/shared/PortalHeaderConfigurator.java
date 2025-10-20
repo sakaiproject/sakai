@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.ui.bean.shared;
 
 import java.util.Map;
 
+import javax.faces.application.ResourceHandler;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
@@ -53,6 +54,14 @@ public class PortalHeaderConfigurator {
 
         ExternalContext externalContext = context.getExternalContext();
         Map<String, Object> requestMap = externalContext.getRequestMap();
+
+        // Prevent Mojarra from injecting its own jsf.js tag into component markup.
+        try {
+            ResourceHandler resourceHandler = context.getApplication().getResourceHandler();
+            resourceHandler.markResourceRendered(context, "jsf.js", "javax.faces");
+        } catch (Exception e) {
+            log.debug("Unable to mark jsf.js as rendered", e);
+        }
 
         Object sakaiHead = requestMap.get("sakai.html.head");
         if (sakaiHead instanceof String) {

@@ -72,6 +72,16 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
  */
   @Slf4j
   public class SamigoJsfTool extends JsfTool {
+    @Override
+    protected String redirectRequestedTarget(String target)
+    {
+        if (target != null && target.startsWith("/*/"))
+        {
+            return target.substring(2);
+        }
+        return super.redirectRequestedTarget(target);
+    }
+
     private static final String HELPER_EXT = ".helper";
     private static final String HELPER_SESSION_PREFIX = "session.";
     private static final String HELPER_RETURN_NOTIFICATION = "/returnToCaller";
@@ -118,6 +128,9 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       // build up the target that will be dispatched to
       String target = req.getPathInfo();
       log.debug("***0. dispatch, target ="+target);
+      if (target != null && target.startsWith("/*/")) {
+        target = target.substring(2);
+      }
       
       //To avoid lessons collide url
       Session ses = SessionManager.getCurrentSession();
@@ -172,7 +185,16 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       }
 
       if (isResourceRequest) {
-        // get a dispatcher to the path
+        // JSF runtime emits /javax.faces.resource/jsf.js even when the portal injects "/*/".
+        // Serve our static copy directly so we don't rely on Mojarra's ResourceServlet.
+        if ("/javax.faces.resource/jsf.js".equals(target) || target.startsWith("/javax.faces.resource/jsf.js")) {
+            RequestDispatcher resourceDispatcher = getServletContext().getRequestDispatcher("/js/jsf.js");
+            if (resourceDispatcher != null) {
+                resourceDispatcher.forward(req, res);
+                return;
+            }
+        }
+
         RequestDispatcher resourceDispatcher = getServletContext().getRequestDispatcher(target);
         if (resourceDispatcher != null)  {
           resourceDispatcher.forward(req, res);

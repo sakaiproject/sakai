@@ -20,6 +20,12 @@
     <param-name>com.sun.faces.validateXml</param-name>
     <param-value>false</param-value>
   </context-param>
+
+  <context-param>
+    <description>Samigo loads Mojarra's client script from a static path.</description>
+    <param-name>javax.faces.AUTOMATIC_JSF_JS</param-name>
+    <param-value>false</param-value>
+  </context-param>
    
 	<!-- begin SAMIGO RSF context params --> 
  	<context-param>
@@ -103,11 +109,6 @@
       <param-value>false</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet>
-    <servlet-name>FacesResourceServlet</servlet-name>
-    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
   </servlet>
 
   <servlet>
@@ -298,11 +299,6 @@
   <servlet-mapping>
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>*.xml</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>FacesResourceServlet</servlet-name>
-    <url-pattern>/javax.faces.resource/*</url-pattern>
   </servlet-mapping>
 
   <!-- BEGIN SAMIGO JSF SECTION-->

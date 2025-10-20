@@ -13,50 +13,10 @@
             <title>
                 <h:outputText value="#{authorFrontDoorMessages.auth_front_door}" />
             </title>
+            <script type="text/javascript" src="/samigo-app/js/jsf.js"></script>
         </h:head>
         <h:body onload="#{requestScope['html.body.onload']}">
             <ui:include src="authorIndex_content.xhtml" />
-            <h:outputScript target="body">
-//<![CDATA[
-(function() {
-  if (!window.mojarra) {
-    window.mojarra = {};
-  }
-  if (!window.mojarra.jsfcljs) {
-    window.mojarra.jsfcljs = function(form, params, elementId) {
-      if (!form) {
-        return;
-      }
-      var appended = [];
-      if (params) {
-        for (var key in params) {
-          if (Object.prototype.hasOwnProperty.call(params, key)) {
-            appended.push(addHidden(form, key, params[key]));
-          }
-        }
-      }
-      form.submit();
-      cleanup(form, appended);
-    };
-  }
-
-  function addHidden(form, name, value) {
-    var input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = name;
-    input.value = value;
-    form.appendChild(input);
-    return input;
-  }
-
-  function cleanup(form, inputs) {
-    while (inputs.length) {
-      form.removeChild(inputs.pop());
-    }
-  }
-})();
-//]]>
-            </h:outputScript>
         </h:body>
     </f:view>
 
