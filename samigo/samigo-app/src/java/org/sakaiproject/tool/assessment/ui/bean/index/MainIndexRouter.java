@@ -29,12 +29,15 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
+import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.util.Web;
 
 /**
  * Routes the legacy Tests &amp; Quizzes landing page to the author or select view.
@@ -80,10 +83,20 @@ public class MainIndexRouter {
 
     private void redirect(FacesContext context, String targetPath) {
         ExternalContext externalContext = context.getExternalContext();
-        String contextPath = externalContext.getRequestContextPath();
-        String encodedTarget = externalContext.encodeActionURL(contextPath + targetPath);
+        HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
+        Object nativeUrl = request.getAttribute(Tool.NATIVE_URL);
+        request.removeAttribute(Tool.NATIVE_URL);
+
+        String portalTarget;
         try {
-            externalContext.redirect(encodedTarget);
+            portalTarget = Web.returnUrl(request, targetPath);
+        } finally {
+            if (nativeUrl != null) {
+                request.setAttribute(Tool.NATIVE_URL, nativeUrl);
+            }
+        }
+        try {
+            externalContext.redirect(portalTarget);
         } catch (IOException e) {
             throw new FacesException(e);
         } finally {

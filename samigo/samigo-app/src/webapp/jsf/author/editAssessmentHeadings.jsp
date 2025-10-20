@@ -1,34 +1,17 @@
-<!-- $Id: assessmentHeading.jsp 11254 2006-06-28 03:38:28Z daisyf@stanford.edu $
-<%--
-***********************************************************************************
-*
-* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.osedu.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License. 
-*
-**********************************************************************************/
---%>
--->
+<!-- Facelets migration compatibility fragment -->
 <h:panelGroup>
     <ul class="navIntraTool actionToolbar" role="menu">
         <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
             <li role="menuitem">
                 <span>
-                    <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true">
+                    <h:commandButton title="#{generalMessages.t_assessment}"
+                                     action="author"
+                                     immediate="true"
+                                     value="#{generalMessages.assessment}"
+                                     styleClass="btn btn-link p-0">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
-                        <h:outputText value="#{generalMessages.assessment}" />
-                    </h:commandLink>
+                    </h:commandButton>
                 </span>
             </li>
         </h:panelGroup>
@@ -41,51 +24,73 @@
         </h:panelGroup>
         <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
             <li role="menuitem">
-                <span> 
-                    <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
+                <span>
+                    <h:commandButton title="#{generalMessages.t_template}"
+                                     action="template"
+                                     immediate="true"
+                                     value="#{generalMessages.template}"
+                                     styleClass="btn btn-link p-0">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-                        <h:outputText value="#{generalMessages.template}" />
-                    </h:commandLink>
+                    </h:commandButton>
                 </span>
             </li>
         </h:panelGroup>
         <h:panelGroup rendered="#{authorization.adminQuestionPool}">
             <li role="menuitem">
                 <span>
-                    <h:commandLink id="questionPoolsLink" title="#{generalMessages.t_questionPool}" action="poolList" immediate="true">
-                        <h:outputText value="#{generalMessages.questionPool}" />
+                    <h:commandButton id="questionPoolsLink"
+                                     title="#{generalMessages.t_questionPool}"
+                                     action="poolList"
+                                     immediate="true"
+                                     value="#{generalMessages.questionPool}"
+                                     styleClass="btn btn-link p-0">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
-                    </h:commandLink>
+                    </h:commandButton>
                 </span>
             </li>
         </h:panelGroup>
         <h:panelGroup rendered="#{authorization.adminQuestionPool}">
             <li role="menuitem">
                 <span>
-                    <h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true">
-                        <h:outputText value="#{generalMessages.eventLog}" />
+                    <h:commandButton id="evnetLogLink"
+                                     accesskey="#{generalMessages.a_log}"
+                                     title="#{generalMessages.t_eventLog}"
+                                     action="eventLog"
+                                     immediate="true"
+                                     value="#{generalMessages.eventLog}"
+                                     styleClass="btn btn-link p-0">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
-                    </h:commandLink>
+                    </h:commandButton>
                 </span>
             </li>
         </h:panelGroup>
         <h:panelGroup rendered="#{authorization.adminQuestionPool}">
             <li role="menuitem">
-                <span> 
-                    <h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true">
-                        <h:outputText value="#{generalMessages.section_activity}" />
+                <span>
+                    <h:commandButton id="sectionActivity"
+                                     accesskey="#{generalMessages.a_section_activity}"
+                                     title="#{generalMessages.section_activity}"
+                                     action="sectionActivity"
+                                     immediate="true"
+                                     value="#{generalMessages.section_activity}"
+                                     styleClass="btn btn-link p-0">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
-                    </h:commandLink>
+                    </h:commandButton>
                 </span>
-            </li> 
+            </li>
         </h:panelGroup>
         <h:panelGroup rendered="#{authorization.adminAssessment}">
             <li role="menuitem">
                 <span>
-                    <h:commandLink id="restoreAssessments" accesskey="#{generalMessages.a_restore_assessments}" title="#{generalMessages.t_restore_assessments}" action="restoreAssessments" immediate="true">
-                        <h:outputText value="#{generalMessages.restore_assessments}" />
+                    <h:commandButton id="restoreAssessments"
+                                     accesskey="#{generalMessages.a_restore_assessments}"
+                                     title="#{generalMessages.t_restore_assessments}"
+                                     action="restoreAssessments"
+                                     immediate="true"
+                                     value="#{generalMessages.restore_assessments}"
+                                     styleClass="btn btn-link p-0">
                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RestoreAssessmentsListener" />
-                    </h:commandLink>
+                    </h:commandButton>
                 </span>
             </li>
         </h:panelGroup>

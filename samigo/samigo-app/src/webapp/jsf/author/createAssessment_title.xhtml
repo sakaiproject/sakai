@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorFrontDoorMessages.auth_front_door}" />
+            </title>
+            <script src="/samigo-app/js/info.js"></script>
+            <script src="/library/js/spinner.js"></script>
+        </h:head>
+        <h:body onload="#{requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+                <h:form id="authorIndexForm">
+                    <ui:include src="/jsf/author/editAssessmentHeadings.xhtml" />
+
+                    <script>includeWebjarLibrary('datatables');</script>
+
+                    <div class="page-header">
+                        <h1>
+                            <h:outputText value="#{questionPoolMessages.add} #{authorFrontDoorMessages.assessments}" />
+                        </h1>
+                    </div>
+
+                    <div class="samigo-container">
+                        <h:panelGroup layout="block"
+                                      styleClass="sak-banner-error"
+                                      rendered="#{not empty facesContext.maximumSeverity}">
+                            <h:messages rendered="#{not empty facesContext.maximumSeverity}" layout="table" />
+                        </h:panelGroup>
+
+                        <div class="col-md-6">
+                            <h2>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_scratch}" rendered="#{authorization.createAssessment}" />
+                            </h2>
+
+                            <div class="form-group form-inline">
+                                <h:outputLabel for="title"
+                                               value="#{authorFrontDoorMessages.assessment_create}"
+                                               styleClass="required" />
+                                <h:inputText id="title"
+                                             maxlength="255"
+                                             value="#{author.assessTitle}"
+                                             styleClass="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <t:selectOneRadio id="creationMode"
+                                                  layout="spread"
+                                                  value="#{author.assessCreationMode}"
+                                                  rendered="#{samLiteBean.visible}">
+                                    <f:selectItem itemValue="1" itemLabel="#{authorFrontDoorMessages.assessmentBuild}" />
+                                    <f:selectItem itemValue="2" itemLabel="#{authorFrontDoorMessages.markupText}" />
+                                </t:selectOneRadio>
+                                <ul class="creation-mode-list no-list">
+                                    <li>
+                                        <t:radio renderLogicalId="true" for="creationMode" index="0" />
+                                    </li>
+                                    <li>
+                                        <t:radio renderLogicalId="true" for="creationMode" index="1" />
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <h:panelGroup layout="block"
+                                          styleClass="form-group"
+                                          rendered="#{author.showTemplateList}">
+                                <h:outputLabel value="#{authorFrontDoorMessages.assessment_choose} "
+                                               rendered="#{author.showTemplateList}" />
+                                <h:selectOneMenu id="assessmentTemplate"
+                                                 value="#{author.assessmentTemplateId}"
+                                                 rendered="#{author.showTemplateList}">
+                                    <f:selectItem itemValue="" itemLabel="#{generalMessages.select_menu}" />
+                                    <f:selectItems value="#{author.assessmentTemplateList}" />
+                                </h:selectOneMenu>
+                            </h:panelGroup>
+
+                            <div class="form-group act">
+                                <h:commandButton id="createnew"
+                                                 styleClass="active"
+                                                 value="#{authorFrontDoorMessages.button_create}"
+                                                 action="#{author.getOutcome}"
+                                                 onclick="SPNR.disableElementAndSpin(this.parentNode.id, this, true)">
+                                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
+                                </h:commandButton>
+                            </div>
+                        </div>
+
+                        <div class="or-line col-md-4 my-4">
+                            <span>
+                                <h:outputText value="#{authorFrontDoorMessages.label_or}" />
+                            </span>
+                        </div>
+
+                        <div class="col-md-5">
+                            <h2>
+                                <h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}" />
+                            </h2>
+                            <h:commandButton id="import"
+                                             value="#{authorFrontDoorMessages.button_import}"
+                                             immediate="true"
+                                             rendered="#{authorization.createAssessment}"
+                                             action="importAssessment" />
+                        </div>
+                    </div>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

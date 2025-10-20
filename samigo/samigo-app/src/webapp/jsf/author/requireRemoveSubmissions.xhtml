@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.remove_assessment_co}" />
+            </title>
+        </h:head>
+        <h:body onload="#{requestScope['html.body.onload']}">
+            <div class="portletBody">
+                <h:form id="requireRemoveSubmissionsForm">
+                    <h:inputHidden id="publishedId" value="#{publishedassessment.publishedID}" />
+                    <h3>
+                        <h:outputText value="#{authorMessages.remove_assessment_check}" />
+                    </h3>
+                    <div class="validation tier1">
+                        <h:outputFormat value="#{authorMessages.cert_rem_submissions}" escape="false">
+                            <f:param value="#{publishedassessment.title}" />
+                        </h:outputFormat>
+                    </div>
+                    <p class="act">
+                        <h:commandButton accesskey="#{authorMessages.a_remove}"
+                                         value="#{authorMessages.button_remove_submissions}"
+                                         styleClass="active"
+                                         action="totalScores">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+                        </h:commandButton>
+                        <h:commandButton accesskey="#{authorMessages.a_cancel}"
+                                         value="#{authorMessages.button_cancel}"
+                                         action="author" />
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

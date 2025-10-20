@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.remove_attachment_heading}" />
+            </title>
+        </h:head>
+        <h:body onload="#{requestScope['html.body.onload']}">
+            <h:form>
+                <h:inputHidden id="attachmentId" value="#{attachmentBean.attachmentId}" />
+                <h3>
+                    <h:outputText value="#{authorMessages.remove_attachment_conf}" />
+                </h3>
+                <div class="validation tier1">
+                    <h:outputText value="#{authorMessages.cert_rem_attachment}" />
+                </div>
+                <p class="ms-4">
+                    <h:outputLink title="#{authorMessages.t_attachment}"
+                                  value="#"
+                                  onclick="window.open('#{attachmentBean.location}','new_window');"
+                                  onkeypress="window.open('#{attachmentBean.location}','new_window');">
+                        <h:outputText value="#{attachmentBean.filename}" />
+                    </h:outputLink>
+                </p>
+                <p class="act">
+                    <h:commandButton id="remove"
+                                     value="#{commonMessages.remove_action}"
+                                     action="editAssessmentSettings"
+                                     styleClass="active">
+                        <f:param name="assessmentId" value="#{assessmentSettingsBean.assessmentId}" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemoveAttachmentListener" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
+                    </h:commandButton>
+                    <h:commandButton id="cancel"
+                                     value="#{commonMessages.cancel_action}"
+                                     action="editAssessment" />
+                </p>
+            </h:form>
+        </h:body>
+    </f:view>
+
+</ui:composition>

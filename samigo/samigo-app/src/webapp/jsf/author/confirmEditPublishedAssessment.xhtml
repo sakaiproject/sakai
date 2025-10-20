@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf}" />
+            </title>
+        </h:head>
+        <h:body onload="#{requestScope['html.body.onload']}">
+            <div class="portletBody">
+                <h3>
+                    <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf}" />
+                </h3>
+                <h:form id="editPublishedAssessmentForm">
+                    <div class="sak-banner-warn tier1">
+                        <h:panelGroup layout="block">
+                            <h:outputText value="#{authorMessages.warning}" />
+                        </h:panelGroup>
+                        <h:panelGroup layout="block">
+                            <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_1}" />
+                        </h:panelGroup>
+                        <h:panelGroup layout="block">
+                            <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_2}" />
+                        </h:panelGroup>
+                        <h:panelGroup layout="block">
+                            <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_3}" />
+                        </h:panelGroup>
+                        <h:panelGroup layout="block">
+                            <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_4}" />
+                        </h:panelGroup>
+                    </div>
+                    <p class="act">
+                        <h:commandButton id="edit"
+                                         value="#{commonMessages.edit_action}"
+                                         styleClass="active"
+                                         action="#{author.getOutcome}">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
+                        </h:commandButton>
+                        <h:commandButton value="#{commonMessages.cancel_action}"
+                                         action="author"
+                                         styleClass="act">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                        </h:commandButton>
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

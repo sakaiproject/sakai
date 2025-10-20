@@ -386,7 +386,7 @@
     <!--Added another page for remove submissions before delete assessment SAM-2587 -->
     <navigation-case>
       <from-outcome>requireRemoveSubmissions</from-outcome>
-      <to-view-id>/jsf/author/requireRemoveSubmissions.jsp</to-view-id>
+      <to-view-id>/jsf/author/requireRemoveSubmissions.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>timeout</from-outcome>
@@ -416,7 +416,7 @@
   <!-- AUTHOR -->
     <navigation-case>
       <from-outcome>createAssessmentTitle</from-outcome>
-      <to-view-id>/jsf/author/createAssessment_title.jsp</to-view-id>
+      <to-view-id>/jsf/author/createAssessment_title.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>createAssessment</from-outcome>
@@ -452,15 +452,15 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>editAssessmentSettings</from-outcome>
-      <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+      <to-view-id>/jsf/author/authorSettings.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>timeError</from-outcome>
-      <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+      <to-view-id>/jsf/author/authorSettings.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>editPublishedAssessmentSettings</from-outcome>
-      <to-view-id>/jsf/author/publishedSettings.jsp</to-view-id>
+      <to-view-id>/jsf/author/publishedSettings.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>editAssessment</from-outcome>
@@ -492,7 +492,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>authorSettings</from-outcome>
-      <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+      <to-view-id>/jsf/author/authorSettings.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>editPublishedAssessmentError</from-outcome>
@@ -500,15 +500,15 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmEditPublishedAssessment</from-outcome>
-      <to-view-id>/jsf/author/confirmEditPublishedAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/confirmEditPublishedAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmCopyAssessment</from-outcome>
-      <to-view-id>/jsf/author/confirmCopyAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/confirmCopyAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemovePart</from-outcome>
-      <to-view-id>/jsf/author/removePart.jsp</to-view-id>
+      <to-view-id>/jsf/author/removePart.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>removePart</from-outcome>
@@ -516,7 +516,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>removeQuestion</from-outcome>
-      <to-view-id>/jsf/author/removeQuestion.jsp</to-view-id>
+      <to-view-id>/jsf/author/removeQuestion.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemoveMedia</from-outcome>
@@ -573,15 +573,15 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemovePartAttachment</from-outcome>
-      <to-view-id>/jsf/author/removePartAttachment.jsp</to-view-id>
+      <to-view-id>/jsf/author/removePartAttachment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemoveAssessmentAttachment</from-outcome>
-      <to-view-id>/jsf/author/removeAssessmentAttachment.jsp</to-view-id>
+      <to-view-id>/jsf/author/removeAssessmentAttachment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmAssessmentRetract</from-outcome>
-      <to-view-id>/jsf/author/confirmAssessmentRetract.jsp</to-view-id>
+      <to-view-id>/jsf/author/confirmAssessmentRetract.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>variableItem</from-outcome>

@@ -114,6 +114,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
 		// THESE LINES OF CODE IS THE ONLY REASON THIS CLASS EXISTS!
 		if (ext.equals(".jsf")) return false;
 		if (ext.equals(".faces")) return false;
+        if (ext.equals(".jsp") || ext.equals(".xhtml") || ext.equals(".jspx")) return false;
 		if (path.startsWith("/faces/")) return false;
                 if (path.indexOf(".helper") > -1) return false;
 		
@@ -282,7 +283,26 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       }
      
       // add the configured folder root and extension (if missing)
-      target = m_path + target;
+      if (!target.startsWith("/")) {
+          target = "/" + target;
+      }
+
+      StringBuilder combinedPath = new StringBuilder();
+      if (m_path != null && !m_path.isEmpty()) {
+          combinedPath.append(m_path);
+          if (!m_path.endsWith("/") && !target.startsWith("/")) {
+              combinedPath.append('/');
+          }
+      }
+      combinedPath.append(target);
+
+      String normalizedTarget = combinedPath.toString();
+      while (normalizedTarget.contains("//")) {
+          normalizedTarget = normalizedTarget.replace("//", "/");
+      }
+      target = normalizedTarget;
+          log.warn("Samigo dispatch normalized target: uri={}, servletPath={}, pathInfo={}, query={}, target={}",
+                  req.getRequestURI(), req.getServletPath(), req.getPathInfo(), req.getQueryString(), target);
 
       // add the default JSF extension (if we have no extension)
       int lastSlash = target.lastIndexOf("/");
@@ -293,7 +313,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
      
       // set the information that can be removed from return URLs
       req.setAttribute(URL_PATH, m_path);
-      req.setAttribute(URL_EXT, ".jsp");
+      req.setAttribute(URL_EXT, ".xhtml");
 
       // set the sakai request object wrappers to provide the native, not Sakai set up, URL information
       // - this assures that the FacesServlet can dispatch to the proper view based on the path info
