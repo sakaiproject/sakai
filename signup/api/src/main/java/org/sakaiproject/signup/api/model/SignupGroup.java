@@ -63,8 +63,4 @@ public class SignupGroup {
 	@Column(name = "calendar_id", length = 99)
 	private String calendarId;
 
-	public String getGroupId() {
-		return groupId;
-	}
-
 }

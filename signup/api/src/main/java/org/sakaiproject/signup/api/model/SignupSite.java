@@ -54,6 +54,8 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 /**
@@ -64,6 +66,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  */
 @Data
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "signup_sites", indexes = {
 	@Index(name = "IDX_SITE_ID", columnList = "site_id")
 })
@@ -73,6 +76,8 @@ public class SignupSite implements PersistableEntity<Long> {
     @Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "signup_sites_seq")
 	@SequenceGenerator(name = "signup_sites_seq", sequenceName = "signup_sites_ID_SEQ")
+    @EqualsAndHashCode.Include
+    @Column(name = "id")
 	private Long id;
 
 	@Version
@@ -97,26 +102,12 @@ public class SignupSite implements PersistableEntity<Long> {
 	private List<SignupGroup> signupGroups;
 
     /**
-	 * check if the event/meeting is a site scope-wide
+	 * Check if the event/meeting is scoped by site or group
 	 * 
-	 * @return true if the event/meeting is a site scope-wide
+	 * @return true if the event/meeting is scoped by site, false if scoped by group
 	 */
 	public boolean isSiteScope() {
-		return (signupGroups == null || signupGroups.isEmpty()) ? true : false;
+		return signupGroups == null || signupGroups.isEmpty();
 	}
 
-	/**
-	 * check if the two SignupSite object are equal
-	 */
-	public boolean equals(Object object) {
-		if (object == null || !(object instanceof SignupSite))
-			return false;
-		SignupSite other = (SignupSite) object;
-
-		return (siteId.equals(other.getSiteId()) || id.equals(other.getId()));
-	}
-
-	public int hashCode() {
-		return siteId.hashCode();
-	}
 }

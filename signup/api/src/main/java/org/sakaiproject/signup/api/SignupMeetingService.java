@@ -35,6 +35,7 @@
 package org.sakaiproject.signup.api;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -52,6 +53,14 @@ import org.sakaiproject.signup.api.restful.SignupTargetSiteEventInfo;
  * </p>
  */
 public interface SignupMeetingService {
+
+	/**
+	 * Comparator for sorting SignupTimeslot objects by start time, then by end time.
+	 * This provides consistent ordering of timeslots throughout the application.
+	 */
+	Comparator<SignupTimeslot> TIMESLOT_COMPARATOR =
+		Comparator.comparing(SignupTimeslot::getStartTime)
+				  .thenComparing(SignupTimeslot::getEndTime);
 
     /**
 	 * This returns a list of SignupMeeting for a specified site that are

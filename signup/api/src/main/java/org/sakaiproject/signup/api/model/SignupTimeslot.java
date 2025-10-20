@@ -55,10 +55,12 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import net.fortuna.ical4j.model.component.VEvent;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 /**
@@ -69,13 +71,18 @@ import org.sakaiproject.springframework.data.PersistableEntity;
  */
 @Data
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "signup_ts")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class SignupTimeslot implements Comparable, PersistableEntity<Long> {
+public class SignupTimeslot implements PersistableEntity<Long> {
 
-	@Id
+    // a constants maximum number for attendees
+    public static final int UNLIMITED = Integer.MAX_VALUE;
+
+    @Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "signup_ts_seq")
 	@SequenceGenerator(name = "signup_ts_seq", sequenceName = "signup_ts_ID_SEQ")
+	@EqualsAndHashCode.Include
 	private Long id;
 
 	@Version
@@ -103,50 +110,28 @@ public class SignupTimeslot implements Comparable, PersistableEntity<Long> {
 	private int maxNoOfAttendees;
 
 	@Column(name = "display_attendees")
-	private boolean displayAttendees;// TODO : this should be moved to meeting class
+	private boolean displayAttendees; // TODO : this should be moved to meeting class
 
 	@ElementCollection
 	@CollectionTable(name = "signup_ts_attendees", joinColumns = @JoinColumn(name = "timeslot_id", nullable = false))
 	@OrderColumn(name = "list_index")
-	private List<SignupAttendee> attendees;
+	private List<SignupAttendee> attendees = new ArrayList<>();
 
 	@ElementCollection
 	@CollectionTable(name = "signup_ts_waitinglist", joinColumns = @JoinColumn(name = "timeslot_id", nullable = false))
 	@OrderColumn(name = "list_index")
-	private List<SignupAttendee> waitingList;
+	private List<SignupAttendee> waitingList = new ArrayList<>();
 
-	@Transient
-	private String startTimeString;
-
-	@Transient
-	private String endTimeString;
-
-	/**
-	 * ICS VEvent created for this timeslot, not persisted
-	 */
-	@Transient
-	private net.fortuna.ical4j.model.component.VEvent vevent;
-
-	/**
-	 * For tracking the event so that we can issue updates, persisted, generated once, never updated.
-	 */
+    // For tracking the event so that we can issue updates, persisted, generated once, never updated.
 	@Column(name = "vevent_uuid", length = 36)
 	private String uuid;
 	
-	/**
-	 * a constants maximum number for attendees
-	 */
-	public static final int UNLIMITED = Integer.MAX_VALUE;
+	@Transient private String startTimeString;
+	@Transient private String endTimeString;
+	@Transient private VEvent vevent; // ICS VEvent created for this timeslot, not persisted
 
-	/**
-	 * constructor
-	 * 
-	 */
 	public SignupTimeslot() {
-		attendees = new ArrayList<>();
-		waitingList = new ArrayList<>();
-		
-		//set the timeslot UUID only at construction time
+		// set the timeslot UUID only at construction time
 		uuid = UUID.randomUUID().toString();
 	}
 
@@ -156,10 +141,7 @@ public class SignupTimeslot implements Comparable, PersistableEntity<Long> {
 	 * @return true if current time slot is available for adding more people
 	 */
 	public boolean isAvailable() {
-		if (attendees == null)
-			return true;
-
-		return (attendees.size() < maxNoOfAttendees);
+        return attendees == null || attendees.size() < maxNoOfAttendees;
 	}
 
 	/**
@@ -170,13 +152,10 @@ public class SignupTimeslot implements Comparable, PersistableEntity<Long> {
 	 * @return a SignupAttendee object
 	 */
 	public SignupAttendee getAttendee(String attendeeId) {
-		if (attendees == null)
-			return null;
-		for (SignupAttendee attendee : attendees) {
-			if (attendee.getAttendeeUserId().equals(attendeeId))
-				return attendee;
-		}
-		return null;
+        return attendees == null ? null : attendees.stream()
+                .filter(attendee -> attendee.getAttendeeUserId().equals(attendeeId))
+                .findFirst()
+                .orElse(null);
 	}
 
 	/**
@@ -188,13 +167,10 @@ public class SignupTimeslot implements Comparable, PersistableEntity<Long> {
 	 * @return a SignupAttendee object
 	 */
 	public SignupAttendee getWaiter(String attendeeId) {
-		if (waitingList == null)
-			return null;
-		for (SignupAttendee waiter : waitingList) {
-			if (waiter.getAttendeeUserId().equals(attendeeId))
-				return waiter;
-		}
-		return null;
+        return waitingList == null ? null : waitingList.stream()
+                .filter(waiter -> waiter.getAttendeeUserId().equals(attendeeId))
+                .findFirst()
+                .orElse(null);
 	}
 
 	/**
@@ -205,26 +181,14 @@ public class SignupTimeslot implements Comparable, PersistableEntity<Long> {
 	public boolean isUnlimitedAttendee() {
 		return (maxNoOfAttendees == UNLIMITED);
 	}
-	
-	public int compareTo(Object o) throws ClassCastException{
-		if(!(o instanceof SignupTimeslot))
-			throw new ClassCastException("SignupTimeslot object expected.");
 
-		int result = this.getStartTime().compareTo(((SignupTimeslot)o).getStartTime());
-		return result;
-	}
-	
 	/**
 	 * This method will obtain number of participants total signed
-	 * 
+	 *
 	 * @return a int
 	 */
 	public int getParticipantsNum() {
-		if (attendees == null) {
-			return 0;
-		}else {
-			return attendees.size();
-		}
+        return attendees == null ? 0 : attendees.size();
 	}
 	
 	/**
@@ -233,10 +197,6 @@ public class SignupTimeslot implements Comparable, PersistableEntity<Long> {
 	 * @return a int
 	 */
 	public int getWaitingListNum() {
-		if (waitingList == null) {
-			return 0;
-		}else {
-			return waitingList.size();
-		}
+        return waitingList == null ? 0 : waitingList.size();
 	}
 }

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.IntStream;
 
 import javax.faces.model.SelectItem;
 
@@ -33,99 +34,44 @@ import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.time.api.TimeService;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * <p>
  * This class is a wrapper class for SignupTimeslot for UI purpose
  * </P>
  */
-public class TimeslotWrapper implements Comparable{
+public class TimeslotWrapper implements Comparable<TimeslotWrapper> {
 
-	private final SignupTimeslot timeSlot;
+	@Getter private final SignupTimeslot timeSlot;
+    @Getter @Setter private String currentUserId;
+    @Setter @Getter private List<AttendeeWrapper> attendeeWrappers;
+    @Setter @Getter private List<AttendeeWrapper> waitingList;
+    @Setter @Getter private SignupAttendee newAttendee;
+    @Setter private int rankingOnWaiting;
+    @Getter private List<SelectItem> swapDropDownList;
+    @Setter @Getter private List<SelectItem> moveAvailableTimeSlots;
+    @Setter @Getter private int positionInTSlist;
+	@Getter @Setter private Boolean deleted = false;
+	@Setter private String errorStyle = "";
+    @Getter private boolean comment = false;
 
-	//private String eids;
-
-	private String currentUserId;
-
-	private List<AttendeeWrapper> attendeeWrappers;
-
-	private List<AttendeeWrapper> waitingList;
-
-	private SignupAttendee newAttendee;
-
-	private int rankingOnWaiting;
-
-	private List<SelectItem> swapDropDownList;
-
-	private List<SelectItem> moveAvailableTimeSlots;
-
-	private int positionInTSlist;
-	
-	/*Mark the original timeslot sequence in the list. should not changes 
+	/* Mark the original timeslot sequence in the list. should not changes 
 	 * regardless of moving ts up and down the time line or deleted. It is useful 
-	 * for modifying the recurring events at custom_ts type*/
-	private int tsMarker = Integer.MAX_VALUE;
-		
-	private boolean deleted = false;
-	
-	private String errorStyle="";
-	
-	private boolean comment = false;
+	 * for modifying the recurring events at custom_ts type */
+	@Setter @Getter private int tsMarker = Integer.MAX_VALUE;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param slot
-	 *            a SignupTimeslot object.
-	 */
 	public TimeslotWrapper(SignupTimeslot slot) {
 		this.timeSlot = slot;
 	}
 
-	/**
-	 * Constructor
-	 * 
-	 * @param slot
-	 *            a SignupTimeslot object.
-	 * @param currentUserId
-	 *            a sakai unique internal user id.
-	 */
 	public TimeslotWrapper(SignupTimeslot slot, String currentUserId) {
 		this.timeSlot = slot;
 		this.currentUserId = currentUserId;
 	}
 
-	/**
-	 * This is a getter method.
-	 * 
-	 * @return a string of Eids. /* public String getEids() { return eids; }
-	 * 
-	 * public void setEids(String eids) { this.eids = eids; }
-	 * 
-	 * public List<String> eids() { if (eids == null || eids.trim().length() ==
-	 * 0) return null; // eids = eids.trim(); /* Split for any whitespace
-	 */
-	/*
-	 * The tokenizer uses the default delimiter set,which is "\t\n\r\f":
-	 * thespace character,the tabcharacter, thenewlinecharacter,
-	 * thecarriage-returncharacter, andthe form-feedcharacter.
-	 * 
-	 * StringTokenizer token = new StringTokenizer(eids); List<String>
-	 * attendees = new ArrayList<String>(); while (token.hasMoreTokens()) {
-	 * attendees.add(token.nextToken().trim()); }
-	 * 
-	 * return attendees; }
-	 */
-
-	/**
-	 * This is a getter for UI.
-	 * 
-	 * @return a SignupTimeslot object.
-	 */
-	public SignupTimeslot getTimeSlot() {
-		return timeSlot;
-	}
-
-	/**
+    /**
 	 * This is a getter method for UI.
 	 * 
 	 * @return true if the current user has signed up in this time slot.
@@ -134,36 +80,23 @@ public class TimeslotWrapper implements Comparable{
 		return isAttendeeInList(timeSlot.getAttendees());
 	}
 
-	private boolean isAttendeeInList(List attendees) {
-		if (attendees == null)
-			return false;
-		for (Iterator iter = attendees.iterator(); iter.hasNext();) {
-			SignupAttendee attendee = (SignupAttendee) iter.next();
-			if (currentUserId.equals(attendee.getAttendeeUserId())){
-				//to see whether there is a comment for this attendee
-				String comm = attendee.getComments();
-				if (comm != null && comm.trim().length() > 0){
-					this.comment = true;
-				}
-				
-				//in the attendee list
-				return true;
-			}
+    private boolean isAttendeeInList(List<SignupAttendee> attendees) {
+        if (attendees == null) return false;
 
-		}
-		return false;
+        return attendees.stream()
+                .filter(attendee -> currentUserId.equals(attendee.getAttendeeUserId()))
+                .findFirst()
+                .map(attendee -> {
+                    // Check for comments
+                    String comments = attendee.getComments();
+                    if (comments != null && !comments.trim().isEmpty()) {
+                        this.comment = true;
+                    }
+                    return true;
+                })
+                .orElse(false);
 	}
-	
-	/**
-	 * This is a getter for UI.
-	 * 
-	 * @return a boolean true if attendee has a comment.
-	 */
-	public boolean isComment(){
-		return this.comment;
-	}
-
-	/**
+    /**
 	 * This is a getter method for UI.
 	 * 
 	 * @return true if the current user is on waiting list at this time slot.
@@ -173,75 +106,27 @@ public class TimeslotWrapper implements Comparable{
 
 	}
 
-	/**
-	 * This is a setter.
-	 * 
-	 * @param currentUserId
-	 *            an unique sakai internal user Id.
-	 */
-	public void setCurrentUserId(String currentUserId) {
-		this.currentUserId = currentUserId;
-	}
-	
-
-	public String getCurrentUserId() {
-		return currentUserId;
-	}
-
-	/**
+    /**
 	 * This is a getter method for UI.
 	 * 
 	 * @return a list of String Objects, which hold attendee's diplay-name.
 	 */
-	public AttendeeWrapper[] getDisplayAttendees() {
-		AttendeeWrapper[] displayAttendees;
+    public AttendeeWrapper[] getDisplayAttendees() {
+        List<AttendeeWrapper> attendees = getAttendeeWrappers();
+        int arraySize = attendees == null || attendees.size() < timeSlot.getMaxNoOfAttendees()
+                ? timeSlot.getMaxNoOfAttendees()
+                : attendees.size();
 
-		List<AttendeeWrapper> attendees = getAttendeeWrappers();
-		if (attendees == null || attendees.size() < timeSlot.getMaxNoOfAttendees())// bug
-			// for Max_Value
-			displayAttendees = new AttendeeWrapper[timeSlot.getMaxNoOfAttendees()];
-		else
-			displayAttendees = new AttendeeWrapper[attendees.size()];
+        AttendeeWrapper[] displayAttendees = new AttendeeWrapper[arraySize];
 
-		if (attendees == null)
-			return displayAttendees;
+        if (attendees != null) {
+            IntStream.range(0, attendees.size())
+                    .forEach(i -> displayAttendees[i] = attendees.get(i));
+        }
 
-		for (int i = 0; i < attendees.size(); i++) {
-			displayAttendees[i] = (AttendeeWrapper) attendees.get(i);
-		}
-
-		return displayAttendees;
+        return displayAttendees;
 	}
-
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return a list of AttendeeWrapper objects.
-	 */
-	public List<AttendeeWrapper> getAttendeeWrappers() {
-		return attendeeWrappers;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param attendeeWrappers
-	 *            a list of AttendeeWrapper objects.
-	 */
-	public void setAttendeeWrappers(List<AttendeeWrapper> attendeeWrappers) {
-		this.attendeeWrappers = attendeeWrappers;
-	}
-
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return a list of AttendeeWrapper object
-	 */
-	public List<AttendeeWrapper> getWaitingList() {
-		return waitingList;
-	}
-
-	/**
+    /**
 	 * This is a getter method for UI.
 	 * 
 	 * @return an int value.
@@ -250,63 +135,24 @@ public class TimeslotWrapper implements Comparable{
 		return waitingList != null ? waitingList.size() : 0;
 	}
 
-	/**
-	 * This is a setter.
-	 * 
-	 * @param waitingList
-	 *            a list of AttendeeWrapper objects.
-	 */
-	public void setWaitingList(List<AttendeeWrapper> waitingList) {
-		this.waitingList = waitingList;
-	}
-
-	/**
+    /**
 	 * This is a getter method for UI.
 	 * 
 	 * @return true if there is spot avaiable for signing up.
 	 */
-	public boolean getAvailableForSignup() {
-		if (timeSlot.getAttendees() == null)
-			return true;
-
-		if (timeSlot.getAttendees().size() < timeSlot.getMaxNoOfAttendees())
-			return true;
-
-		return false;
+    public boolean getAvailableForSignup() {
+        return timeSlot.getAttendees() == null || timeSlot.getAttendees().size() < timeSlot.getMaxNoOfAttendees();
 	}
-
-	/**
-	 * This is a getter.
-	 * 
-	 * @return a SignupAttendee object.
-	 */
-	public SignupAttendee getNewAttendee() {
-		return newAttendee;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param newAttendee
-	 *            a SignupAttendee object.
-	 */
-	public void setNewAttendee(SignupAttendee newAttendee) {
-		this.newAttendee = newAttendee;
-	}
-
-	/**
+    /**
 	 * This is a getter method for UI.
 	 * 
 	 * @return an int value.
 	 */
-	public int getAvailability() {
-		if (timeSlot.getAttendees() == null)
-			return timeSlot.getMaxNoOfAttendees();
-		/*
-		 * attendee size can be over the Max#
-		 */
-		int num = timeSlot.getMaxNoOfAttendees() - timeSlot.getAttendees().size();
-		return (num > -1) ? num : 0;
+    public int getAvailability() {
+        if (timeSlot.getAttendees() == null) {
+            return timeSlot.getMaxNoOfAttendees();
+        }
+        return Math.max(0, timeSlot.getMaxNoOfAttendees() - timeSlot.getAttendees().size());
 	}
 
 	/**
@@ -315,58 +161,32 @@ public class TimeslotWrapper implements Comparable{
 	 * @return an int value.
 	 */
 	public int getNumberOnWaitingList() {
-		if (timeSlot.getWaitingList() == null)
-			return 0;
-
-		return timeSlot.getWaitingList().size();
-	}
+        return timeSlot.getWaitingList() == null ? 0 : timeSlot.getWaitingList().size();
+    }
 
 	/**
 	 * This is a getter method for UI.
 	 * 
 	 * @return an int value.
 	 */
-	public int getRankingOnWaiting() {
-		if (this.rankingOnWaiting == 0) {
-			List<SignupAttendee> waiters = timeSlot.getWaitingList();
-			if (waiters == null) {
-				setRankingOnWaiting(0);
-				return rankingOnWaiting;
-			}
+    public int getRankingOnWaiting() {
+        if (this.rankingOnWaiting == 0) {
+            List<SignupAttendee> waiters = timeSlot.getWaitingList();
+            if (waiters == null) {
+                setRankingOnWaiting(0);
+                return rankingOnWaiting;
+            }
 
-			for (int i = 0; i < waiters.size(); i++) {
-				if (((SignupAttendee) waiters.get(i)).getAttendeeUserId().equals(currentUserId)) {
-					setRankingOnWaiting(i + 1);
-					break;
-				}
-				setRankingOnWaiting(0);
-			}
-
-		}
-
-		return rankingOnWaiting;
+            // Use streams to find the index of the current user in the waiting list
+            rankingOnWaiting = waiters.stream()
+                    .filter(waiter -> waiter.getAttendeeUserId().equals(currentUserId))
+                    .findFirst()
+                    .map(waiter -> waiters.indexOf(waiter) + 1)
+                    .orElse(0);
+        }
+        return rankingOnWaiting;
 	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param rankingOnWaiting
-	 *            an int value.
-	 */
-	public void setRankingOnWaiting(int rankingOnWaiting) {
-		this.rankingOnWaiting = rankingOnWaiting;
-	}
-
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return a list of SelectItem objects.
-	 */
-	public List<SelectItem> getSwapDropDownList() {
-		return swapDropDownList;
-	}
-
-	/**
+    /**
 	 * This is a setter.
 	 * 
 	 * @param swapDropDownList
@@ -378,26 +198,7 @@ public class TimeslotWrapper implements Comparable{
 		this.swapDropDownList = swapDropDownList;
 	}
 
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return a list of SelectItem objects.
-	 */
-	public List<SelectItem> getMoveAvailableTimeSlots() {
-		return moveAvailableTimeSlots;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param moveAvailableTimeSlots
-	 *            a list of SelectItem objects.
-	 */
-	public void setMoveAvailableTimeSlots(List<SelectItem> moveAvailableTimeSlots) {
-		this.moveAvailableTimeSlots = moveAvailableTimeSlots;
-	}
-
-	/**
+    /**
 	 * This is a getter method, which gives a formated timeslot period.
 	 * 
 	 * @return a string value.
@@ -417,26 +218,7 @@ public class TimeslotWrapper implements Comparable{
 				+ ts.dateFormat(timeSlot.getEndTime(), locale, DateFormat.SHORT); 
 	}
 
-	/**
-	 * This is a getter method for UI (javaScript function needs it).
-	 * 
-	 * @return an int value.
-	 */
-	public int getPositionInTSlist() {
-		return positionInTSlist;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param positionInTSlist
-	 *            an int value.
-	 */
-	public void setPositionInTSlist(int positionInTSlist) {
-		this.positionInTSlist = positionInTSlist;
-	}
-
-	/**
+    /**
 	 * This method performs adding attendee into current time slot.
 	 * 
 	 * @param attendee
@@ -445,13 +227,12 @@ public class TimeslotWrapper implements Comparable{
 	 *            a string of user display name.
 	 */
 	public void addAttendee(SignupAttendee attendee, String displayName) {
-		if (attendeeWrappers == null)
-			attendeeWrappers = new ArrayList<AttendeeWrapper>();
+		if (attendeeWrappers == null) attendeeWrappers = new ArrayList<>();
 
 		timeSlot.getAttendees().add(attendee);
 		AttendeeWrapper wrapper = new AttendeeWrapper(attendee, displayName);
 		attendeeWrappers.add(wrapper);
-		wrapper.setPositionIndex(attendeeWrappers.size() - 1);// index=size-1=
+		wrapper.setPositionIndex(attendeeWrappers.size() - 1);
 	}
 
 	/**
@@ -460,98 +241,57 @@ public class TimeslotWrapper implements Comparable{
 	 * @param attendeeUserId
 	 *            a unique sakai internal user id.
 	 */
-	public void removeAttendee(String attendeeUserId) {
-		if (attendeeWrappers == null)
-			return;
+    public void removeAttendee(String attendeeUserId) {
+        if (attendeeWrappers == null) return;
 
-		for (Iterator iter = attendeeWrappers.iterator(); iter.hasNext();) {
-			AttendeeWrapper attendeeWrapper = (AttendeeWrapper) iter.next();
-			if (attendeeWrapper.getSignupAttendee().getAttendeeUserId().equals(attendeeUserId)) {
-				iter.remove();
-				break;
-			}
-		}
-		List<SignupAttendee> attendees = timeSlot.getAttendees();
-		for (Iterator iter = attendees.iterator(); iter.hasNext();) {
-			SignupAttendee attendee = (SignupAttendee) iter.next();
-			if (attendee.getAttendeeUserId().equals(attendeeUserId)) {
-				iter.remove();
-				break;
-			}
-		}
+        // Remove from attendeeWrappers
+        attendeeWrappers.removeIf(wrapper ->
+                wrapper.getSignupAttendee().getAttendeeUserId().equals(attendeeUserId));
 
-		updatePositionIndex(attendeeWrappers);
+        // Remove from timeSlot's attendees
+        timeSlot.getAttendees().removeIf(attendee ->
+                attendee.getAttendeeUserId().equals(attendeeUserId));
 
+        updatePositionIndex(attendeeWrappers);
+	}
+	/**
+     *  Resets all the position index of the attendee wrapperst
+     */
+    private void updatePositionIndex(List<AttendeeWrapper> attendeeWrappers) {
+        IntStream.range(0, attendeeWrappers.size()).forEach(i -> attendeeWrappers.get(i).setPositionIndex(i));
 	}
 
-	/** Resets all the position index of the attendee wrapperst */
-	private void updatePositionIndex(List<AttendeeWrapper> attendeeWrappers) {
-		int count = 0;
-		for (AttendeeWrapper wrapper : attendeeWrappers) {
-			wrapper.setPositionIndex(count++);
-		}
+	/**
+	 * Compare timeslot wrappers by start time, then by end time.
+	 * This ordering matches SignupMeetingService.TIMESLOT_COMPARATOR for consistency.
+	 */
+    public int compareTo(TimeslotWrapper other) {
+        if (other == null) return 1; // null values should sort last
+
+        int result = this.getTimeSlot().getStartTime().compareTo(other.getTimeSlot().getStartTime());
+        if (result == 0) {
+            result = this.getTimeSlot().getEndTime().compareTo(other.getTimeSlot().getEndTime());
+        }
+        return result;
 	}
 
-	public int compareTo(Object o) throws ClassCastException{
-		if(!(o instanceof TimeslotWrapper))
-			throw new ClassCastException("TimeslotWrapper object expected.");
-
-		int result = this.getTimeSlot().getStartTime().compareTo(((TimeslotWrapper)o).getTimeSlot().getStartTime());
-		
-		if(result == 0){
-			result=this.getTimeSlot().getEndTime().compareTo(((TimeslotWrapper)o).getTimeSlot().getEndTime());
-		}
-		return result;
-	}
-
-	public int getTsMarker() {
-		return tsMarker;
-	}
-
-	public void setTsMarker(int tsMarker) {
-		this.tsMarker = tsMarker;
-	}
-
-	/*
+    /**
 	 * to see if this is a newly added by user and is not in DB.
 	 */
 	public boolean getNewlyAddedTS() {
-		if(this.tsMarker == Integer.MAX_VALUE)
-			return true;
-		
-		return false;
-	}
+        return this.tsMarker == Integer.MAX_VALUE;
+    }
 
-	public boolean getDeleted() {
-		return deleted;
-	}
-
-	public void setDeleted(boolean deleted) {
-		this.deleted = deleted;
-	}
-
-	public boolean getNewTimeslotBlock(){
-		if(this.tsMarker ==Integer.MAX_VALUE)
-			return true;
-		else
-			return false;
+    public boolean getNewTimeslotBlock(){
+        return this.tsMarker == Integer.MAX_VALUE;
 	}
 
 	public String getErrorStyle() {
-		//only once
-		String style= this.errorStyle;
+		String style = this.errorStyle;
 		this.errorStyle = "";
 		return style;
 	}
 
-	public void setErrorStyle(String errorStyle) {
-		this.errorStyle = errorStyle;
-	}
-	
-	/**
-	 * Helper to get the groupId associated with a timeslot
-	 * @return
-	 */
 	public String getGroupId() {
 		return timeSlot.getGroupId();
 	}

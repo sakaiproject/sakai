@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
@@ -33,6 +34,7 @@ import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.signup.api.SakaiFacade;
+import org.sakaiproject.signup.api.SignupMeetingService;
 import org.sakaiproject.signup.api.model.SignupAttendee;
 import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.api.model.SignupTimeslot;
@@ -41,88 +43,88 @@ import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.util.DateFormatterUtil;
 
+import lombok.Getter;
+import lombok.Setter;
+
 
 public class UserDefineTimeslotBean implements SignupBeanConstants {
 
-	SakaiFacade sakaiFacade;
+	public static final String NEW_MEETING = "new_meeting";
+	public static final String MODIFY_MEETING = "modify_meeting";
+	public static final String COPY_MEETING = "copy_meeting";
 
+	private static final String HIDDEN_ISO_STARTTIME = "startTimeISO8601";
+	private static final String HIDDEN_ISO_ENDTIME = "endTimeISO8601";
+
+	@Setter @Getter SakaiFacade sakaiFacade;
 	private final int MAX_NUM_PARTICIPANTS = 1;
-
-	private String gobackURL = "";
-
+	@Setter @Getter private String gobackURL = "";
 	private boolean validationError = false;
 
-	//for create new meeting step 1 case
-	private boolean userEverCreateCTS = false;
-
+	@Setter @Getter private boolean userEverCreateCTS = false; // for create new meeting step 1 case
 	private SignupMeeting signupMeeting;
+	@Setter @Getter protected UIData tsTable;
+	@Setter @Getter public String placeOrderBean;
+	@Setter @Getter private List<TimeslotWrapper> timeSlotWrpList; // discontinued time slots case
+	@Setter @Getter private List<TimeslotWrapper> destTSwrpList;
+	@Setter private boolean someoneSignedUp;
+	@Setter private boolean putInMultipleCalendarBlocks = true;
 
-	protected UIData tsTable;
 
-	public String placeOrderBean;
+    public void init(SignupMeeting sMeeting,
+                     String backPageURL,
+                     List<TimeslotWrapper> origTSwrpList,
+                     String whoPlaceOrder) {
+        // Initialize core fields
+        this.signupMeeting = sMeeting;
+        this.destTSwrpList = origTSwrpList;
+        this.placeOrderBean = whoPlaceOrder;
+        setGobackURL(backPageURL);
 
-	public final static String NEW_MEETING = "new_meeting";
+        // Initialize calendar with zeroed time components
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
 
-	public final static String MODIFY_MEETING = "modify_meeting";
+        // Initialize timeslot list
+        this.timeSlotWrpList = initializeTimeslotList(origTSwrpList, calendar);
 
-	public final static String COPY_MEETING = "copy_meeting";
+        // Set warning flag if modifying existing meeting
+        this.someoneSignedUp = MODIFY_MEETING.equals(getPlaceOrderBean());
 
-	// discontinued time slots case
-	private List<TimeslotWrapper> timeSlotWrpList;
+        // Reset validation state and set position indices
+        this.validationError = false;
+        setPositionIndex(this.timeSlotWrpList);
+    }
 
-	private List<TimeslotWrapper> destTSwrpList;
-	
-	private boolean someoneSignedUp;
-	
-	private boolean putInMultipleCalendarBlocks = true;
-	
-	String errorStyleValue = "background: #EEF3F6;";
+    /**
+     * Helper method to initialize the timeslot list
+     */
+    private List<TimeslotWrapper> initializeTimeslotList(List<TimeslotWrapper> origList, Calendar calendar) {
+        return (origList == null || origList.isEmpty()) ? createNewTimeslotList(calendar) : deepCopyTimeslotList(origList);
+    }
 
-	private static String HIDDEN_ISO_STARTTIME = "startTimeISO8601";
-	private static String HIDDEN_ISO_ENDTIME = "endTimeISO8601";
+    /**
+     * Creates a new timeslot list with one default slot
+     */
+    private List<TimeslotWrapper> createNewTimeslotList(Calendar calendar) {
+        List<TimeslotWrapper> list = new ArrayList<>();
+        SignupTimeslot ts = new SignupTimeslot();
+        ts.setStartTime(calendar.getTime());
+        ts.setEndTime(calendar.getTime());
+        ts.setMaxNoOfAttendees(MAX_NUM_PARTICIPANTS);
+        list.add(new TimeslotWrapper(ts));
+        return list;
+    }
 
-	public void init(SignupMeeting sMeeting, String backPageURL,
-			List<TimeslotWrapper> origTSwrpList, String whoPlaceOrder) {
-		/* new page and initialize */
-		/*
-		 * this signupMeeting object has original timeslot info and later will
-		 * be one by one populated with latest modified ts info
-		 */
-		this.signupMeeting = sMeeting;
-		this.destTSwrpList = origTSwrpList; // keep old copy
-		this.placeOrderBean = whoPlaceOrder;
-		setGobackURL(backPageURL);
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(new Date());
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		if (origTSwrpList == null || origTSwrpList.size() == 0) {
-			timeSlotWrpList = new ArrayList<TimeslotWrapper>();
-			SignupTimeslot ts = new SignupTimeslot();
-			ts.setStartTime(calendar.getTime());
-			ts.setEndTime(calendar.getTime());
-			ts.setMaxNoOfAttendees(MAX_NUM_PARTICIPANTS);
-			TimeslotWrapper tsWrp = new TimeslotWrapper(ts);
-			timeSlotWrpList.add(tsWrp);
-		} else {
-			//deep copy
-			this.timeSlotWrpList = new ArrayList<TimeslotWrapper>();
-			for (TimeslotWrapper origTswrp : origTSwrpList) {
-				this.timeSlotWrpList.add(deepCopyTimeslotWrapper(origTswrp));
-			}
-		}
-
-		//warning for user
-		if(MODIFY_MEETING.equals(getPlaceOrderBean())){
-			this.someoneSignedUp=true;
-		}
-		
-		this.validationError = false;
-		setPositionIndex(this.timeSlotWrpList);
-
-	}
-
+    /**
+     * Creates a deep copy of the original timeslot list
+     */
+    private List<TimeslotWrapper> deepCopyTimeslotList(List<TimeslotWrapper> origList) {
+        return origList.stream().map(this::deepCopyTimeslotWrapper).collect(Collectors.toList());
+ }
 	/**
 	 * This will update the time-slots with latest changes by user during
 	 * modifying the events.
@@ -135,32 +137,29 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 	 *            a boolean value
 	 * @param deletedTSList -
 	 *            contain a list of SignupTimslot objects, which will be removed from original list.
-	 * @throws Exception
-	 */
+     */
 	public void modifyTimesSlotsWithChanges(List<TimeslotWrapper> userModifiedTSwrapperList,
 			List<SignupTimeslot> needUpdateTimeslots, Calendar newEventStartTime,
-			boolean showAttendeeName, List<SignupTimeslot> deletedTSList) throws Exception {
+			boolean showAttendeeName, List<SignupTimeslot> deletedTSList) {
 		/*
 		 * The key here is that there will be no time-slot removed in old events
 		 * only the new one can be added in. You can only cancel time slot.
 		 */
-		//long eventNewStartTime = newEventStartTime.getTime().getTime();
 		if (userModifiedTSwrapperList != null && !userModifiedTSwrapperList.isEmpty()) {
 			
-			/*First: update the modified info into TS*/
+			// First: update the modified info into TS
 			Date userMdfEventStartDate = getStartTime(userModifiedTSwrapperList);
 			for (TimeslotWrapper tsWrp : userModifiedTSwrapperList) {
-				if(tsWrp.getDeleted())//no need to be updated
-					continue;
-				
+				if(tsWrp.getDeleted()) continue; // no need to be updated
+
 				SignupTimeslot userModifiedOne = tsWrp.getTimeSlot();
 				int markerPos = tsWrp.getTsMarker();
-				/*update the original existed timeslots*/
+				// update the original existed timeslots
 				if (markerPos < needUpdateTimeslots.size()) {
-					/* get the corresponding ts */
+					// get the corresponding ts
 					SignupTimeslot needUPdateOne = needUpdateTimeslots.get(markerPos);
 					
-					/* get start time - consider recurring events case */
+					// get start time - consider recurring events case
 					needUPdateOne.setStartTime(getUpdatedTime(newEventStartTime,
 							userMdfEventStartDate, userModifiedOne.getStartTime()));
 					needUPdateOne.setEndTime(getUpdatedTime(newEventStartTime,
@@ -170,28 +169,29 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 				} 
 			}
 			
-			/*second: remove the delete timeslot*/
+			// second: remove the delete timeslot
 			int orignalTS_size = needUpdateTimeslots.size();
 			List<Integer> removedList = getUserDeletedTSItems(userModifiedTSwrapperList);
 			for (int i = removedList.size()-1; i >=0; i--) {
-				int markerPos = (Integer)removedList.get(i).intValue();
+				int markerPos = removedList.get(i);
 				if (markerPos < orignalTS_size) {
-					/*for further removal of attendees preparation*/
+					// for further removal of attendees preparation
 					deletedTSList.add(needUpdateTimeslots.get(markerPos));
 					
-					/*remove from original list*/
+					// remove from original list
 					needUpdateTimeslots.remove(markerPos);
 				}				
 			}
 			
 			
-			/*third: This one has to come in third -important!!!! 
-			 * Add newly added TS to the list*/
+			/* third: This one has to come in third - important!!!!
+			 * Add newly added TS to the list
+			 */
 			for (TimeslotWrapper tsWrp : userModifiedTSwrapperList) {
 				SignupTimeslot userModifiedOne = tsWrp.getTimeSlot();
 				int markerPos = tsWrp.getTsMarker();
 				if (markerPos == Integer.MAX_VALUE) {
-					/* newly added timeslots */
+					// newly added timeslots
 					SignupTimeslot newTs = new SignupTimeslot();
 					newTs.setStartTime(getUpdatedTime(newEventStartTime, userMdfEventStartDate,
 							userModifiedOne.getStartTime()));
@@ -204,15 +204,15 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 				}
 			}
 
-			/* Make sure they are in right order */
-			doSort(needUpdateTimeslots);
+			// Make sure they are in right order
+			doSortTimeSlots(needUpdateTimeslots);
 		}
 
 	}
 	
 	private TimeslotWrapper deepCopyTimeslotWrapper(TimeslotWrapper copyOne) {
 		SignupTimeslot old = copyOne.getTimeSlot();
-		
+
 		SignupTimeslot newTs = new SignupTimeslot();
 		newTs.setId(old.getId());
 		newTs.setStartTime(old.getStartTime());
@@ -225,10 +225,10 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 		newTs.setMaxNoOfAttendees(old.getMaxNoOfAttendees());
 		newTs.setAttendees(null);
 		newTs.setWaitingList(null);
-	
+
 		if (old.getAttendees() != null) {
 			List<SignupAttendee> atts = old.getAttendees();
-			List<SignupAttendee> newOnes = new ArrayList<SignupAttendee>();
+			List<SignupAttendee> newOnes = new ArrayList<>();
 			for (SignupAttendee s : atts) {
 				SignupAttendee one = new SignupAttendee();
 				one.setAttendeeUserId(s.getAttendeeUserId());
@@ -237,16 +237,16 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 				one.setComments(s.getComments());
 				one.setCalendarId(s.getCalendarId());
 				one.setCalendarEventId(s.getCalendarEventId());
-	
+
 				newOnes.add(one);
 			}
-	
+
 			newTs.setAttendees(newOnes);
 		}
-	
+
 		if (old.getWaitingList() != null) {
 			List<SignupAttendee> atts = old.getWaitingList();
-			List<SignupAttendee> waitList = new ArrayList<SignupAttendee>();
+			List<SignupAttendee> waitList = new ArrayList<>();
 			for (SignupAttendee s : atts) {
 				SignupAttendee one = new SignupAttendee();
 				one.setAttendeeUserId(s.getAttendeeUserId());
@@ -266,42 +266,38 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 		
 		return newTsWrp;
 	}
-	
+
 	private List<Integer> getUserDeletedTSItems(List<TimeslotWrapper> userModifiedTSwrapperList){
-		List<Integer> deletedTSlist= new ArrayList<Integer>();
-		for (TimeslotWrapper tsWrp : userModifiedTSwrapperList) {
-			if(tsWrp.getDeleted()){
-				int markerPos = tsWrp.getTsMarker();
-				deletedTSlist.add(new Integer(markerPos));
-			}
-		}
-		
-		doSort(deletedTSlist);
-		
-		return deletedTSlist;
-	}
+        List<Integer> deletedTSlist = new ArrayList<>();
+        for (TimeslotWrapper tsWrp : userModifiedTSwrapperList) {
+            if (tsWrp.getDeleted()) {
+                int markerPos = tsWrp.getTsMarker();
+                deletedTSlist.add(markerPos);
+            }
+        }
 
-	public String doSave() {
-		if (validationError) {
-			validationError = false;
-			return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
-		}
-		// init("");
-		preProcess();
-		setUserEverCreateCTS(true);
+        doSortIntegers(deletedTSlist);
+        return deletedTSlist;
+    }
 
-		/* pass it to destination list */
-		destTSwrpList = getTimeSlotWrpList();
-		/*
-		 * this start/end times info via signupMeeting object pointer back to
-		 * parent page
-		 */
-		this.signupMeeting.setStartTime(getEventStartTime());
-		this.signupMeeting.setEndTime(getEventEndTime());
-		return getGobackURL();
-	}
+    public String doSave() {
+        if (validationError) {
+            validationError = false;
+            return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
+        }
+        // init("");
+        preProcess();
+        setUserEverCreateCTS(true);
 
-	public String doCancel() {
+        // pass it to destination list
+        destTSwrpList = getTimeSlotWrpList();
+        // this start/end times info via signupMeeting object pointer back to parent page
+        this.signupMeeting.setStartTime(getEventStartTime());
+        this.signupMeeting.setEndTime(getEventEndTime());
+        return getGobackURL();
+    }
+
+    public String doCancel() {
 		/*
 		 * this start/end times info via signupMeeting object pointer back to
 		 * parent page JSF will populate null value for start/end time due to
@@ -354,57 +350,49 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 				
 				if (tmp.getPositionInTSlist() == tsWrapper.getPositionInTSlist()) {
 					if (tmp.getTsMarker() == Integer.MAX_VALUE){
-						/*remove newly added TS by user*/
+						// remove newly added TS by user
 						timeSlotWrpList.remove(tmp);
 					}
 					else{
-						/*Mark the deleted original TS for further removal.
-						 * This will involve to remove attendees and notification process in later stage*/
+						/* Mark the deleted original TS for further removal.
+						 * This will involve to remove attendees and notification process in later stage
+						 */
 						tmp.setDeleted(true);
 					}
 					break;
 				}
 
 			}
-			if (isEmptyTimeslotWrpList())
-				addOneTSBlock();//always a timeslot there
+			if (isEmptyTimeslotWrpList()) addOneTSBlock(); // always a timeslot there
 				
 		}
 
 		return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
 	}
-	
-	private boolean isEmptyTimeslotWrpList(){
-		if (this.timeSlotWrpList.size() == 0)
-			return true;
-		
-		for (TimeslotWrapper wrp : this.timeSlotWrpList) {
-			if(!wrp.getDeleted())
-				return false;
-		}
-		
-		return true;
-	}
 
-	public void validateTimeslots(ActionEvent e) {
-		if (this.timeSlotWrpList == null)
-			return;
+    private boolean isEmptyTimeslotWrpList() {
+        return timeSlotWrpList.isEmpty() ||
+                timeSlotWrpList.stream().allMatch(TimeslotWrapper::getDeleted);
+	}
+	
+    public void validateTimeslots(ActionEvent e) {
+		if (this.timeSlotWrpList == null) return;
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		int position = 1;
 		int i = 1;
 		for (TimeslotWrapper tsWrp : this.timeSlotWrpList) {
-			if(tsWrp.getDeleted())
-				continue;//skip
-			
-			String isoStartTime = params.get((position - 1) + HIDDEN_ISO_STARTTIME);
+            if (tsWrp.getDeleted()) continue; // skip
+
+            String isoStartTime = params.get((position - 1) + HIDDEN_ISO_STARTTIME);
 			String isoEndTime = params.get((position - 1) + HIDDEN_ISO_ENDTIME);
-			
-			if (isoStartTime == null && isoEndTime == null) {
+
+            String errorStyleValue = "background: #EEF3F6;";
+            if (isoStartTime == null && isoEndTime == null) {
 				while (isoStartTime == null) {
 					position++;
 					if (position > params.size()) {
 						this.validationError = true;
-						tsWrp.setErrorStyle(this.errorStyleValue);
+						tsWrp.setErrorStyle(errorStyleValue);
 						Utilities.addErrorMessage(MessageFormat.format(Utilities.rb
 								.getString("event.data_sync_error"), i));
 						return;
@@ -417,7 +405,7 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 			if(DateFormatterUtil.isValidISODate(isoStartTime)){
 				tsWrp.getTimeSlot().setStartTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoStartTime));
 			}
-			
+
 			if(DateFormatterUtil.isValidISODate(isoEndTime)){
 				tsWrp.getTimeSlot().setEndTime(sakaiFacade.getTimeService().parseISODateInUserTimezone(isoEndTime));
 			}
@@ -425,9 +413,8 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 			Date startTime = tsWrp.getTimeSlot().getStartTime();
 			if (endTime.before(startTime) || endTime.equals(startTime)) {
 				this.validationError = true;
-				tsWrp.setErrorStyle(this.errorStyleValue);
-				Utilities.addErrorMessage(MessageFormat.format(Utilities.rb
-						.getString("event.endTimeslot_should_after_startTimeslot"), i));
+				tsWrp.setErrorStyle(errorStyleValue);
+				Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("event.endTimeslot_should_after_startTimeslot"), i));
 				return;
 			}
 			position++;
@@ -438,8 +425,9 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 
 	private void preProcess() {
 		
-		/*set any date for deleted TS just for sorting purpose to avoid crash
-		 * The JSF make such data value to null*/
+		/* set any date for deleted TS just for sorting purpose to avoid crash
+		 * The JSF make such data value to null
+		 */
 		for (TimeslotWrapper wrp : timeSlotWrpList) {
 			if(wrp.getDeleted()){
 				wrp.getTimeSlot().setStartTime(new Date());
@@ -471,7 +459,6 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 		if (whoCalled.equals(this.placeOrderBean)) {
 			this.timeSlotWrpList = null;
 			this.destTSwrpList = null;
-			//this.dataTsUpdated = false;
 			this.validationError = false;
 			this.placeOrderBean = "";
 			this.gobackURL = "";
@@ -481,139 +468,109 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 		}
 	}
 
-	public boolean getTruncatedAttendees() {		
-		if (this.destTSwrpList != null && this.signupMeeting.getSignupTimeSlots() != null){
-			List<SignupTimeslot> orgTsList = this.signupMeeting.getSignupTimeSlots();
-			int count=0;
-			for (TimeslotWrapper tsWrp : destTSwrpList) {
-				SignupTimeslot userModifiedOne = tsWrp.getTimeSlot();
-				int markerPos = tsWrp.getTsMarker();
+    public boolean getTruncatedAttendees() {
+        // Early exit if no data
+        if (destTSwrpList == null || signupMeeting == null || signupMeeting.getSignupTimeSlots() == null) {
+            return false;
+        }
 
-				if (markerPos < orgTsList.size()) {
-					List<SignupAttendee> atts = orgTsList.get(markerPos).getAttendees();
-					if(atts !=null && (tsWrp.getTimeSlot().getMaxNoOfAttendees() < atts.size())){
-						return true;
-					}
-					count++;					
-				}
-			}
-			if(count < orgTsList.size()){
-				/*deleted some original rows*/
-				return true;
-			}
-		}
-		
-		return false;
+        List<SignupTimeslot> orgTsList = signupMeeting.getSignupTimeSlots();
+        int processedTimeslots = 0;
+
+        for (TimeslotWrapper tsWrp : destTSwrpList) {
+            int markerPos = tsWrp.getTsMarker();
+
+            // Skip if marker position is out of bounds
+            if (markerPos >= orgTsList.size()) {
+                continue;
+            }
+
+            // Check if attendees exceed max allowed
+            SignupTimeslot timeslot = orgTsList.get(markerPos);
+            List<SignupAttendee> attendees = timeslot.getAttendees();
+            if (attendees != null && tsWrp.getTimeSlot().getMaxNoOfAttendees() < attendees.size()) {
+                return true;
+            }
+
+            processedTimeslots++;
+        }
+
+        // Return true if some original timeslots were not processed (i.e. deleted)
+        return processedTimeslots < orgTsList.size();
+    }
+
+    private void doSortTimeSlots(List<SignupTimeslot> timeslots) {
+		timeslots.sort(SignupMeetingService.TIMESLOT_COMPARATOR);
 	}
 
-	private void doSort(List ls) {
-		Collections.sort(ls);
+	private void doSort(List<TimeslotWrapper> wrappers) {
+		Collections.sort(wrappers);
 	}
 
-	/*this index is for javaScript purpose on the UI*/
-	private void setPositionIndex(List<TimeslotWrapper> ls) {
-		if (ls != null && ls.size() > 0) {
-			int i = 0;
-			for (TimeslotWrapper tsWrp : ls) {
-				if(tsWrp.getDeleted())
-					continue;
-				
-				tsWrp.setPositionInTSlist(i);
-				i++;
-			}
-		}
-
+	private void doSortIntegers(List<Integer> integers) {
+		Collections.sort(integers);
 	}
 
-	public SakaiFacade getSakaiFacade() {
-		return sakaiFacade;
+    private void setPositionIndex(List<TimeslotWrapper> ls) {
+        if (ls == null || ls.isEmpty()) return;
+
+        int position = 0;
+        for (TimeslotWrapper tsWrp : ls) {
+            if (!tsWrp.getDeleted()) {
+                tsWrp.setPositionInTSlist(position++);
+            }
+        }
 	}
 
-	public void setSakaiFacade(SakaiFacade sakaiFacade) {
-		this.sakaiFacade = sakaiFacade;
-	}
-
-	public List<TimeslotWrapper> getTimeSlotWrpList() {
-		return timeSlotWrpList;
-	}
-
-	public void setTimeSlotWrpList(List<TimeslotWrapper> timeSlotWrpList) {
-		this.timeSlotWrpList = timeSlotWrpList;
-	}
-
-	public String getGobackURL() {
-		return gobackURL;
-	}
-
-	public void setGobackURL(String gobackURL) {
-		this.gobackURL = gobackURL;
-	}
-
-
-	/**
+    /**
 	 * This is a getter method which provide current Iframe id for refresh
 	 * IFrame purpose.
 	 * 
 	 * @return a String
 	 */
 	public String getIframeId() {
-		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-				.getExternalContext().getRequest();
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 		String iFrameId = (String) request.getAttribute("sakai.tool.placement.id");
 		return iFrameId;
 	}
 
-	public UIData getTsTable() {
-		return tsTable;
-	}
-
-	public void setTsTable(UIData tsTable) {
-		this.tsTable = tsTable;
-	}
-
-	public Date getEventStartTime() {
-
+    public Date getEventStartTime() {
 		return getStartTime(this.destTSwrpList);
 	}
 
 	public Date getEventEndTime() {
 
-		if (this.destTSwrpList == null || this.destTSwrpList.isEmpty())
-			return new Date();
+        if (this.destTSwrpList == null || this.destTSwrpList.isEmpty()) return new Date();
 
-		doSort(this.destTSwrpList);
-		Date endTime = null;
-		for (int i = 0; i < this.destTSwrpList.size(); i++) {
-			TimeslotWrapper ts = (TimeslotWrapper) destTSwrpList.get(i);
-			if(!ts.getDeleted()){
-				endTime = ts.getTimeSlot().getEndTime();
-				break;
-			}
-		}
-		
-		for (TimeslotWrapper tsWrp : this.destTSwrpList) {
-			if(tsWrp.getDeleted())
-				continue;
-			
-			Date tmpDate = tsWrp.getTimeSlot().getEndTime();
-			if (endTime.before(tmpDate))
-				endTime = tmpDate;
-		}
+        doSort(this.destTSwrpList);
+        Date endTime = null;
+        for (TimeslotWrapper ts : this.destTSwrpList) {
+            if (!ts.getDeleted()) {
+                endTime = ts.getTimeSlot().getEndTime();
+                break;
+            }
+        }
 
-		return endTime;
+        for (TimeslotWrapper tsWrp : this.destTSwrpList) {
+            if (tsWrp.getDeleted()) continue;
+
+            Date tmpDate = tsWrp.getTimeSlot().getEndTime();
+            if (endTime.before(tmpDate)) endTime = tmpDate;
+        }
+
+        return endTime;
 	}
 
 	private Date getStartTime(List<TimeslotWrapper> tsList) {
-		if (tsList == null || tsList.isEmpty())
-			return new Date();
+		if (tsList == null || tsList.isEmpty()) return new Date();
 
 		doSort(tsList);
-		
-		for (int i = 0; i < tsList.size(); i++) {
-			TimeslotWrapper ts = (TimeslotWrapper) tsList.get(i);
-			if(!ts.getDeleted())
-				return ts.getTimeSlot().getStartTime();
-		}
+
+        for (TimeslotWrapper timeslotWrapper : tsList) {
+            TimeslotWrapper ts = timeslotWrapper;
+            if (!ts.getDeleted())
+                return ts.getTimeSlot().getStartTime();
+        }
 
 		return new Date();
 	}
@@ -624,74 +581,33 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 	 * @return int value for duration in minutes
 	 */
 	public int getEventDuration() {
-		long duration =  (getEventEndTime().getTime() - getEventStartTime().getTime())
-				/ MINUTE_IN_MILLISEC;
+		long duration =  (getEventEndTime().getTime() - getEventStartTime().getTime()) / MINUTE_IN_MILLISEC;
 		return (int) duration;
 	}
 
 	private Date getUpdatedTime(Calendar newEventStartDate, Date origEventDate, Date d) {
-
 		long diffs = newEventStartDate.getTime().getTime() - origEventDate.getTime();
-		Date date = new Date(diffs + d.getTime());
-
-		return date;
+        return new Date(diffs + d.getTime());
 	}
 
-	public List<TimeslotWrapper> getDestTSwrpList() {
-		return destTSwrpList;
-	}
-
-	public void setDestTSwrpList(List<TimeslotWrapper> destTSwrpList) {
-		this.destTSwrpList = destTSwrpList;
-	}
-
-	public String getPlaceOrderBean() {
-		return placeOrderBean;
-	}
-
-	public void setPlaceOrderBean(String placeOrderBean) {
-		this.placeOrderBean = placeOrderBean;
-	}
-
-	public String getCopyBeanOrderName() {
+    public String getCopyBeanOrderName() {
 		return COPY_MEETING;
 	}
 	
 	public String getNewMeetingBeanOrderName() {
 		return NEW_MEETING;
 	}
-	
-	public boolean getWarnUserModify(){
-		if(MODIFY_MEETING.equals(getPlaceOrderBean())){
-			return true;
-		}
-		
-		return false;
-	}
 
-	public boolean getSomeoneSignedUp() {			
+    public boolean getWarnUserModify() {
+        return MODIFY_MEETING.equals(getPlaceOrderBean());
+    }
+
+    public boolean getSomeoneSignedUp() {			
 			return this.someoneSignedUp;
 	}
 
-	public void setSomeoneSignedUp(boolean someoneSignedUp) {
-		this.someoneSignedUp = someoneSignedUp;
-	}
-
-	public boolean getPutInMultipleCalendarBlocks() {
+    public boolean getPutInMultipleCalendarBlocks() {
 		return putInMultipleCalendarBlocks;
 	}
-
-	public void setPutInMultipleCalendarBlocks(boolean putInMultipleCalendarBlocks) {
-		this.putInMultipleCalendarBlocks = putInMultipleCalendarBlocks;
-	}
-
-	public boolean isUserEverCreateCTS() {
-		return userEverCreateCTS;
-	}
-
-	public void setUserEverCreateCTS(boolean userEverCreateCTS) {
-		this.userEverCreateCTS = userEverCreateCTS;
-	}
-	
 
 }
