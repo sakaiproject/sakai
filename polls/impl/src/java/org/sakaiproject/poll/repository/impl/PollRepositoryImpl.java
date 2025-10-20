@@ -4,10 +4,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.repository.PollRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
@@ -17,41 +18,61 @@ import org.springframework.stereotype.Repository;
 public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, Long> implements PollRepository {
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<Poll> findBySiteIdOrderByCreationDateDesc(String siteId) {
         if (siteId == null) {
             return Collections.emptyList();
         }
-        Criteria criteria = startCriteriaQuery();
-        criteria.add(Restrictions.eq("siteId", siteId));
-        criteria.addOrder(Order.desc("creationDate"));
-        return criteria.list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Poll> query = cb.createQuery(Poll.class);
+        Root<Poll> root = query.from(Poll.class);
+
+        query.select(root)
+                .where(cb.equal(root.get("siteId"), siteId))
+                .orderBy(cb.desc(root.get("creationDate")));
+
+        return sessionFactory.getCurrentSession()
+                .createQuery(query)
+                .getResultList();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<Poll> findBySiteIdsOrderByCreationDate(List<String> siteIds) {
         if (siteIds == null || siteIds.isEmpty()) {
             return Collections.emptyList();
         }
-        Criteria criteria = startCriteriaQuery();
-        criteria.add(Restrictions.in("siteId", siteIds));
-        criteria.addOrder(Order.asc("creationDate"));
-        return criteria.list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Poll> query = cb.createQuery(Poll.class);
+        Root<Poll> root = query.from(Poll.class);
+
+        query.select(root)
+                .where(root.get("siteId").in(siteIds))
+                .orderBy(cb.asc(root.get("creationDate")));
+
+        return sessionFactory.getCurrentSession()
+                .createQuery(query)
+                .getResultList();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<Poll> findOpenPollsBySiteIds(List<String> siteIds, Date now) {
         if (siteIds == null || siteIds.isEmpty() || now == null) {
             return Collections.emptyList();
         }
-        Criteria criteria = startCriteriaQuery();
-        criteria.add(Restrictions.in("siteId", siteIds));
-        criteria.add(Restrictions.le("voteOpen", now));
-        criteria.add(Restrictions.ge("voteClose", now));
-        criteria.addOrder(Order.asc("creationDate"));
-        return criteria.list();
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Poll> query = cb.createQuery(Poll.class);
+        Root<Poll> root = query.from(Poll.class);
+
+        Predicate sitePredicate = root.get("siteId").in(siteIds);
+        Predicate openPredicate = cb.lessThanOrEqualTo(root.get("voteOpen"), now);
+        Predicate closePredicate = cb.greaterThanOrEqualTo(root.get("voteClose"), now);
+
+        query.select(root)
+                .where(cb.and(sitePredicate, openPredicate, closePredicate))
+                .orderBy(cb.asc(root.get("creationDate")));
+
+        return sessionFactory.getCurrentSession()
+                .createQuery(query)
+                .getResultList();
     }
 
     @Override
@@ -59,8 +80,15 @@ public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, Long> imp
         if (uuid == null) {
             return Optional.empty();
         }
-        Criteria criteria = startCriteriaQuery();
-        criteria.add(Restrictions.eq("uuid", uuid));
-        return Optional.ofNullable((Poll) criteria.uniqueResult());
+        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
+        CriteriaQuery<Poll> query = cb.createQuery(Poll.class);
+        Root<Poll> root = query.from(Poll.class);
+
+        query.select(root)
+                .where(cb.equal(root.get("uuid"), uuid));
+
+        return sessionFactory.getCurrentSession()
+                .createQuery(query)
+                .uniqueResultOptional();
     }
 }
