@@ -106,7 +106,7 @@ public class AuthorAssessmentListener
 
     // create an assessment based on the title entered and the assessment
     // template selected
-    // #1 - read from form authorIndex_content.jsp
+    // #1 - read from form authorIndex_content.xhtml
     String assessmentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(author.getAssessTitle());
 
     //HUONG's EDIT

@@ -92,7 +92,7 @@
     <servlet-class>org.sakaiproject.jsf.util.SamigoJsfTool</servlet-class>
     <init-param>
       <param-name>default</param-name>
-      <param-value>jsf/index/mainIndex</param-value>
+      <param-value>jsf/index/mainIndex.xhtml</param-value>
     </init-param>
     <init-param>
       <param-name>path</param-name>
@@ -278,6 +278,11 @@
   <servlet-mapping>
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>*.jsf</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.xhtml</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

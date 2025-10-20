@@ -246,7 +246,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
               log.debug("***4c. dispatch, authorization error : path="+target);
               target = computeDefaultTarget(false);
       }
-      //based on assessmentHeadings.jsp, "event" and "section-activity" paths are based on questionpool permissions
+      //based on assessmentHeadings.xhtml, "event" and "section-activity" paths are based on questionpool permissions
       //TODO : create custom permissions for event and section-activity
       if ((target.indexOf("/jsf/questionpool/") > -1 || target.indexOf("/jsf/event/") > -1 || target.indexOf("/jsf/section-activity/") > -1)  && 
           !authBean.getAdminPrivilege() &&

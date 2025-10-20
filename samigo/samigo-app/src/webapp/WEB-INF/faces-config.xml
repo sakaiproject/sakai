@@ -331,15 +331,15 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>author</from-outcome>
-      <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
+      <to-view-id>/jsf/author/authorIndex_container.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeError</from-outcome>
-      <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
+      <to-view-id>/jsf/author/authorIndex_container.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>sortCore</from-outcome>
-      <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
+      <to-view-id>/jsf/author/authorIndex_container.xhtml</to-view-id>
     </navigation-case>
 	<navigation-case>
       <from-outcome>poolUpdateError</from-outcome>
@@ -544,7 +544,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>removeAssessment</from-outcome>
-      <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
+      <to-view-id>/jsf/author/authorIndex_container.xhtml</to-view-id>
       <redirect/>
     </navigation-case>
     <navigation-case>
@@ -561,7 +561,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>saveSettings</from-outcome>
-      <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
+      <to-view-id>/jsf/author/authorIndex_container.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>saveSettingsAndConfirmPublish</from-outcome>
@@ -569,7 +569,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>publishAssessment</from-outcome>
-      <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
+      <to-view-id>/jsf/author/authorIndex_container.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemovePartAttachment</from-outcome>

@@ -1,14 +1,13 @@
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
 <!--
-* $Id$
-<%--
 **********************************************************************************
 *
 * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
@@ -25,15 +24,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *
-**********************************************************************************/
---%>
+**********************************************************************************
 -->
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head><%= request.getAttribute("html.head") %>
-    <title><h:outputText value="#{authorFrontDoorMessages.auth_front_door}" /></title>
-</head>
-<body onload="<%= request.getAttribute("html.body.onload") %>">
     <div class="portletBody container-fluid">
 
     <script>includeWebjarLibrary('datatables');</script>
@@ -42,15 +35,16 @@
     <script src="/samigo-app/js/naturalSort.js"></script>
     <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
     <script>
+        //<![CDATA[
         $(document).ready(function() {
 
             function getPageLength() {
-                const pageLength = localStorage.getItem(`samigo-pageLength-\${portal.user.id}`);
+                const pageLength = localStorage.getItem('samigo-pageLength-\${portal.user.id}');
                 return pageLength === null ? 20 : parseInt(pageLength);
             }
 
             function setPageLength(pageLength) {
-                localStorage.setItem(`samigo-pageLength-\${portal.user.id}`, pageLength);
+                localStorage.setItem('samigo-pageLength-\${portal.user.id}', pageLength);
             }
 
             const notEmptyTableTd = $("#authorIndexForm\\:coreAssessments td:not(:empty)").length;
@@ -60,7 +54,7 @@
                 $.fn.dataTable.ext.classes.sLengthSelect = 'input-form-control';
                 var table = $("#authorIndexForm\\:coreAssessments").DataTable({
                     "paging": true,
-                    "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="`#{authorFrontDoorMessages.assessment_view_all}`" />]],
+                    "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
                     "pageLength": getPageLength(),
                     "aaSorting": [[parseInt(assessmentSortingColumn), "desc"]],
                     "columns": [
@@ -77,20 +71,20 @@
                         {"bSortable": false, "bSearchable": false},
                     ],
                     "language": {
-                        "search": <h:outputText value="`#{dataTablesMessages.search}`" />,
-                        "lengthMenu": <h:outputText value="`#{authorFrontDoorMessages.datatables_lengthMenu}`" />,
-                        "zeroRecords": <h:outputText value="`#{authorFrontDoorMessages.datatables_zeroRecords}`" />,
-                        "info": <h:outputText value="`#{dataTablesMessages.info}`" />,
-                        "infoEmpty": <h:outputText value="`#{authorFrontDoorMessages.datatables_infoEmpty}`" />,
-                        "infoFiltered": <h:outputText value="`#{authorFrontDoorMessages.datatables_infoFiltered}`" />,
-                        "emptyTable": <h:outputText value="`#{dataTablesMessages.infoEmpty}`" />,
+                        "search": <h:outputText value="'#{dataTablesMessages.search}'" />,
+                        "lengthMenu": <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu}'" />,
+                        "zeroRecords": <h:outputText value="'#{authorFrontDoorMessages.datatables_zeroRecords}'" />,
+                        "info": <h:outputText value="'#{dataTablesMessages.info}'" />,
+                        "infoEmpty": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
+                        "infoFiltered": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoFiltered}'" />,
+                        "emptyTable": <h:outputText value="'#{dataTablesMessages.infoEmpty}'" />,
                         "paginate": {
-                            "next": <h:outputText value="`#{dataTablesMessages.paginate_next}`" />,
-                            "previous": <h:outputText value="`#{dataTablesMessages.paginate_previous}`" />,
+                            "next": <h:outputText value="'#{dataTablesMessages.paginate_next}'" />,
+                            "previous": <h:outputText value="'#{dataTablesMessages.paginate_previous}'" />,
                         },
                         "aria": {
-                            "sortAscending": <h:outputText value="`#{dataTablesMessages.aria_sortAscending}`" />,
-                            "sortDescending": <h:outputText value="`#{dataTablesMessages.aria_sortDescending}`" />,
+                            "sortAscending": <h:outputText value="'#{dataTablesMessages.aria_sortAscending}'" />,
+                            "sortDescending": <h:outputText value="'#{dataTablesMessages.aria_sortDescending}'" />,
                         }
                     },
                     "fnDrawCallback": function(oSettings) {
@@ -105,7 +99,7 @@
                     $.fn.dataTableExt.afnFiltering.push(
                         function (oSettings, aData, iDataIndex) {
                             let showBySpan = true;
-                            let showByGroups = !<h:outputText value="#{author.groupFilterEnabled}" />;
+                            let showByGroups = #{author.groupFilterEnabled ? "false" : "true"};
 
                             if (spanClassName != "") {
                                 showBySpan = (($(oSettings.aoData[iDataIndex].anCells).children("span." + spanClassName).length > 0) ? true : false);
@@ -166,19 +160,19 @@
                 filterGroups = $("#authorIndexForm\\:group-select").val();
 
                 const divElem = document.createElement('div');
-                let filterPlaceholder = <h:outputText value="`#{authorFrontDoorMessages.multiselect_filterPlaceholder}`" />;
+                let filterPlaceholder = <h:outputText value="'#{authorFrontDoorMessages.multiselect_filterPlaceholder}'" />;
                 divElem.innerHTML = filterPlaceholder;
                 filterPlaceholder = divElem.textContent;
-                let selectAllText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_selectAllText}`" />;
+                let selectAllText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_selectAllText}'" />;
                 divElem.innerHTML = selectAllText;
                 selectAllText = divElem.textContent;
-                let nonSelectedText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_nonSelectedText}`" />;
+                let nonSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_nonSelectedText}'" />;
                 divElem.innerHTML = nonSelectedText;
                 nonSelectedText = divElem.textContent;
-                let allSelectedText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_allSelectedText}`" />;
+                let allSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_allSelectedText}'" />;
                 divElem.innerHTML = allSelectedText;
                 allSelectedText = divElem.textContent;
-                let nSelectedText = <h:outputText value="`#{authorFrontDoorMessages.multiselect_nSelectedText}`" />;
+                let nSelectedText = <h:outputText value="'#{authorFrontDoorMessages.multiselect_nSelectedText}'" />;
                 divElem.innerHTML = nSelectedText;
                 nSelectedText = divElem.textContent;
                 $("#authorIndexForm\\:group-select").multiselect({
@@ -217,12 +211,13 @@
                 }
             }
         });
+        //]]>
 
         function removeSelectedButtonAction() {
             if (!$("#authorIndexForm\\:remove-selected").hasClass("disabled")) {
-                var message = <h:outputText value="`#{authorMessages.cert_rem_assmt}`" />;
+                var message = <h:outputText value="'#{authorMessages.cert_rem_assmt}'" />;
                 message += "\n\n";
-                message += <h:outputText value="`#{authorMessages.cert_rem_assmt2}`" />;
+                message += <h:outputText value="'#{authorMessages.cert_rem_assmt2}'" />;
                 var elem = document.createElement('div');
                 elem.innerHTML = message;
                 if(!confirm(elem.textContent)) {
@@ -236,7 +231,7 @@
         function publishSelectedButtonAction() {
 
             if (!document.getElementById("authorIndexForm:remove-selected").classList.contains("disabled")) {
-                let message = <h:outputText value="`#{authorMessages.cert_pub_assmt}`" />;
+                let message = <h:outputText value="'#{authorMessages.cert_pub_assmt}'" />;
                 const elem = document.createElement('div');
                 elem.innerHTML = message;
                 if (!confirm(elem.textContent)) {
@@ -252,7 +247,7 @@
     <!-- content... -->
     <h:form id="authorIndexForm">
         <!-- HEADINGS -->
-        <%@ include file="/jsf/author/assessmentHeadings.jsp" %>
+        <ui:include src="/jsf/author/assessmentHeadings.xhtml" />
 
         <h:panelGroup layout="block" styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}">
             <h:messages rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
@@ -267,7 +262,7 @@
 
             <h:panelGroup rendered="#{author.allAssessments.size() > 0}">
                 <div>
-                    <f:verbatim><label class="form-label"></f:verbatim>
+                    <label class="form-label">
                         <h:outputText value="#{authorFrontDoorMessages.assessment_view} "/>
                         <h:selectOneMenu value="select" id="filter-type">
                             <f:selectItem itemValue="" itemLabel="#{authorFrontDoorMessages.assessment_view_all}" />
@@ -276,20 +271,20 @@
                             <f:selectItem itemValue="status_published_1" itemLabel="#{authorFrontDoorMessages.assessment_status_pending}" />
                             <f:selectItem itemValue="status_published_0" itemLabel="#{authorFrontDoorMessages.assessment_status_inactive}" />
                         </h:selectOneMenu>
-                    <f:verbatim></label></f:verbatim>
+                    </label>
                 </div>
             </h:panelGroup>
 
             <h:panelGroup rendered="#{author.groupFilterEnabled and author.allAssessments.size() > 0}">
                 <div>
-                    <f:verbatim><label></f:verbatim>
+                    <label>
                         <h:outputText value="#{authorFrontDoorMessages.filterbygroup} "/>
                         <h:selectOneMenu value="select" id="group-select">
                             <f:selectItem itemValue="releaseto_anon" itemLabel="#{authorFrontDoorMessages.anonymous_users}" />
                             <f:selectItem itemValue="releaseto_entire" itemLabel="#{authorFrontDoorMessages.entire_site}" />
                             <t:selectItems value="#{author.groups.entrySet()}" var="group" itemValue="#{group.key}" itemLabel="#{group.value}" />
                         </h:selectOneMenu>
-                    <f:verbatim></label></f:verbatim>
+                    </label>
                 </div>
             </h:panelGroup>
 
@@ -298,13 +293,13 @@
                 <h:outputText value="#{authorFrontDoorMessages.datatables_zeroRecords}" styleClass="sak-banner-info" />
             </h:panelGroup>
             <t:dataTable cellpadding="0" cellspacing="0" rowClasses="list-row-even,list-row-odd" styleClass="table table-hover table-striped table-bordered table-assessments" id="coreAssessments" value="#{author.allAssessments}" var="assessment" rendered="#{author.allAssessments.size() > 0}" summary="#{authorFrontDoorMessages.sum_coreAssessment}">
-                <%/* Title */%>
+                
                 <t:column headerstyleClass="titlePending" styleClass="titlePending">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
+                            <a href="#" tabindex="-1">
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_title}" />
-                            <f:verbatim></a></f:verbatim>
+                            </a>
                         </h:panelGroup>
                     </f:facet>
 
@@ -322,24 +317,21 @@
 
                 </t:column>
 
-                <%/* Action */%>
+                
                 <t:column headerstyleClass="titleActions" styleClass="titleActions">
                     <f:facet name="header">
                     </f:facet>
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" styleClass="btn-group pull-right">
-                        <f:verbatim><button class="btn btn-primary dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" title="</f:verbatim>
-                            <h:outputText value="#{authorMessages.actions_for} " />
-                            <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                            <h:outputText value="#{assessment.title}" />
-                        <f:verbatim>" aria-label="</f:verbatim>
-                            <h:outputText value="#{authorMessages.actions_for} " />
-                            <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                            <h:outputText value="#{assessment.title}" />
-                        <f:verbatim>"></f:verbatim>
+                        <button class="btn btn-primary dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                title="#{authorMessages.actions_for.concat(' ').concat(assessment['class'].simpleName == 'AssessmentFacade' ? authorFrontDoorMessages.assessment_draft.concat(' - ').concat(assessment.title) : assessment.title)}"
+                                aria-label="#{authorMessages.actions_for.concat(' ').concat(assessment['class'].simpleName == 'AssessmentFacade' ? authorFrontDoorMessages.assessment_draft.concat(' - ').concat(assessment.title) : assessment.title)}">
                             <h:outputText value="#{authorMessages.select_action}" />
                             <span class="caret"></span>
-                        <f:verbatim></button></f:verbatim>
+                        </button>
 
                         <t:dataList layout="unorderedList" value="#{author.pendingSelectActionList1}" var="pendingSelectActionList" rendered="#{assessment.questionSize > 0 }" styleClass="dropdown-menu row">
                             <h:commandLink id="publishedHiddenlink" styleClass="hiddenBtn_#{pendingSelectActionList.value} dropdown-item" action="#{author.getOutcome}" value="#{pendingSelectActionList.label}" >
@@ -359,24 +351,20 @@
                     </h:panelGroup>
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}" styleClass="btn-group pull-right">
-                        <h:panelGroup rendered="#{(author.isGradeable && assessment.hasAssessmentGradingData) && (author.isEditable && (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
-                            <f:verbatim><button class="btn btn-primary btn-xs dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" title="</f:verbatim>
-                                <h:outputText value="#{authorMessages.actions_for} " />
-                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                                <h:outputText value="#{assessment.title}" />
-                            <f:verbatim>" aria-label="</f:verbatim>
-                                <h:outputText value="#{authorMessages.actions_for} " />
-                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                                <h:outputText value="#{assessment.title}" />
-                            <f:verbatim>"></f:verbatim>
+                        <h:panelGroup rendered="#{(author.isGradeable  and  assessment.hasAssessmentGradingData)  and  (author.isEditable  and  (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
+                            <button class="btn btn-primary btn-xs dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    title="#{authorMessages.actions_for.concat(' ').concat(assessment['class'].simpleName == 'AssessmentFacade' ? authorFrontDoorMessages.assessment_draft.concat(' - ').concat(assessment.title) : assessment.title)}"
+                                    aria-label="#{authorMessages.actions_for.concat(' ').concat(assessment['class'].simpleName == 'AssessmentFacade' ? authorFrontDoorMessages.assessment_draft.concat(' - ').concat(assessment.title) : assessment.title)}">
                                 <h:outputText value="#{authorMessages.select_action}" />
                                 <span class="caret"></span>
-                            <f:verbatim></button></f:verbatim>
-
+                            </button>
 
                             <t:dataList layout="unorderedList" value="#{author.publishedSelectActionList}" var="pendingSelectActionList" rowIndexVar="index" styleClass="dropdown-menu row">
                                 <li>
-                                    <h:commandLink action="#{author.getOutcome}" value="#{authorMessages.action_scores}" styleClass="hiddenBtn_scores dropdown-item" rendered="#{index == 0 && assessment.submittedCount > 0}">
+                                    <h:commandLink action="#{author.getOutcome}" value="#{authorMessages.action_scores}" styleClass="hiddenBtn_scores dropdown-item" rendered="#{index == 0  and  assessment.submittedCount > 0}">
                                         <f:param name="action" value="scores" />
                                         <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
                                         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
@@ -400,22 +388,19 @@
                             </t:dataList>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{(author.isGradeable && assessment.hasAssessmentGradingData) && (author.isEditable && !(!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
-                            <f:verbatim><button class="btn btn-pirmary btn-xs dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" title="</f:verbatim>
-                                <h:outputText value="#{authorMessages.actions_for} " />
-                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                                <h:outputText value="#{assessment.title}" />
-                            <f:verbatim>" aria-label="</f:verbatim>
-                                <h:outputText value="#{authorMessages.actions_for} " />
-                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                                <h:outputText value="#{assessment.title}" />
-                            <f:verbatim>"></f:verbatim>
+                        <h:panelGroup rendered="#{(author.isGradeable  and  assessment.hasAssessmentGradingData)  and  (author.isEditable  and  !(!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
+                            <button class="btn btn-primary btn-xs dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    title="#{authorMessages.actions_for.concat(' ').concat(assessment['class'].simpleName == 'AssessmentFacade' ? authorFrontDoorMessages.assessment_draft.concat(' - ').concat(assessment.title) : assessment.title)}"
+                                    aria-label="#{authorMessages.actions_for.concat(' ').concat(assessment['class'].simpleName == 'AssessmentFacade' ? authorFrontDoorMessages.assessment_draft.concat(' - ').concat(assessment.title) : assessment.title)}">
                                 <h:outputText value="#{authorMessages.select_action}" />
                                 <span class="caret"></span>
-                            <f:verbatim></button></f:verbatim>
+                            </button>
 
                             <t:dataList layout="unorderedList" value="#{author.publishedSelectActionList}" var="pendingSelectActionList" styleClass="dropdown-menu row" rowIndexVar="index">
-                                <h:commandLink action="#{author.getOutcome}" value="#{authorMessages.action_scores}" rendered="#{index == 0 && assessment.submittedCount > 0}" styleClass="hiddenBtn_scores dropdown-item">
+                                <h:commandLink action="#{author.getOutcome}" value="#{authorMessages.action_scores}" rendered="#{index == 0  and  assessment.submittedCount > 0}" styleClass="hiddenBtn_scores dropdown-item">
                                     <f:param name="action" value="scores" />
                                     <f:param name="publishedId" value="#{assessment.publishedAssessmentId}"/>
                                     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
@@ -430,19 +415,16 @@
                             </t:dataList>
                         </h:panelGroup>
 
-                        <h:panelGroup rendered="#{!(author.isGradeable && assessment.hasAssessmentGradingData) && (author.isEditable && (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
-                            <f:verbatim><button class="btn btn-primary btn-xs dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" title="</f:verbatim>
-                                <h:outputText value="#{authorMessages.actions_for} " />
-                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                                <h:outputText value="#{assessment.title}" />
-                            <f:verbatim>" aria-label="</f:verbatim>
-                                <h:outputText value="#{authorMessages.actions_for} " />
-                                <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}" />
-                                <h:outputText value="#{assessment.title}" />
-                            <f:verbatim>"></f:verbatim>
+                        <h:panelGroup rendered="#{!(author.isGradeable  and  assessment.hasAssessmentGradingData)  and  (author.isEditable  and  (!author.editPubAssessmentRestricted || !assessment.hasAssessmentGradingData))}">
+                            <button class="btn btn-primary btn-xs dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    title="#{authorMessages.actions_for.concat(' ').concat(assessment['class'].simpleName == 'AssessmentFacade' ? authorFrontDoorMessages.assessment_draft.concat(' - ').concat(assessment.title) : assessment.title)}"
+                                    aria-label="#{authorMessages.actions_for.concat(' ').concat(assessment['class'].simpleName == 'AssessmentFacade' ? authorFrontDoorMessages.assessment_draft.concat(' - ').concat(assessment.title) : assessment.title)}">
                                 <h:outputText value="#{authorMessages.select_action}" />
                                 <span class="caret"></span>
-                            <f:verbatim></button></f:verbatim>
+                            </button>
 
                             <t:dataList layout="unorderedList" value="#{author.publishedSelectActionList}" var="pendingSelectActionList" styleClass="dropdown-menu row" rowIndexVar="index">
                                 <li>
@@ -465,40 +447,40 @@
                     </h:panelGroup>
                 </t:column>
 
-                <%/* Status */%>
+                
                 <t:column headerstyleClass="status" styleClass="status">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
+                            <a href="#" tabindex="-1">
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_status}"/>
-                            <f:verbatim></a></f:verbatim>
+                            </a>
                         </h:panelGroup>
                     </f:facet>
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'AssessmentFacade'}">
-                        <f:verbatim><span class="status_draft"></f:verbatim>
+                        <span class="status_draft">
                             <h:outputText styleClass="d-none spanValue" value="-1" />
                             <h:outputText value="#{authorFrontDoorMessages.assessment_status_draft}" />
-                        <f:verbatim></span></f:verbatim>
+                        </span>
                     </h:panelGroup>
 
                     <h:panelGroup rendered="#{assessment['class'].simpleName == 'PublishedAssessmentFacade'}">
-                        <f:verbatim><span class="status_published_</f:verbatim><h:outputText value="#{assessment.activeStatus}" /><f:verbatim>"></f:verbatim>
-                        <h:outputText styleClass="d-none spanValue" value="#{assessment.activeStatus}" />
-                        <h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" rendered="#{assessment.activeStatus==2}"/>
-                        <h:outputText value="#{authorFrontDoorMessages.assessment_status_pending}" rendered="#{assessment.activeStatus==1}"/>
-                        <h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" rendered="#{assessment.activeStatus==0}"/>
-                        <f:verbatim></span></f:verbatim>
+                        <span class="status_published_#{assessment.activeStatus}">
+                            <h:outputText styleClass="d-none spanValue" value="#{assessment.activeStatus}" />
+                            <h:outputText value="#{authorFrontDoorMessages.assessment_status_active}" rendered="#{assessment.activeStatus==2}"/>
+                            <h:outputText value="#{authorFrontDoorMessages.assessment_status_pending}" rendered="#{assessment.activeStatus==1}"/>
+                            <h:outputText value="#{authorFrontDoorMessages.assessment_status_inactive}" rendered="#{assessment.activeStatus==0}"/>
+                        </span>
                     </h:panelGroup>
                 </t:column>
 
-                <%/* In Progress */%>
+                
                 <t:column headerstyleClass="inProgress d-none d-sm-table-cell" styleClass="inProgress d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
+                            <a href="#" tabindex="-1">
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_in_progress}"/>
-                            <f:verbatim></a></f:verbatim>
+                            </a>
                         </h:panelGroup>
                     </f:facet>
 
@@ -507,13 +489,13 @@
                     </h:panelGroup>
                 </t:column>
 
-                <%/* Submitted */%>
+                
                 <t:column headerstyleClass="submitted d-none d-sm-table-cell" styleClass="submitted d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
+                            <a href="#" tabindex="-1">
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_submitted}"/>
-                            <f:verbatim></a></f:verbatim>
+                            </a>
                         </h:panelGroup>
                     </f:facet>
 
@@ -523,9 +505,7 @@
                         </h:panelGroup>
 
                         <h:panelGroup rendered="#{assessment.submittedCount>0 and (authorization.gradeAnyAssessment or authorization.gradeOwnAssessment)}">
-                            <f:verbatim><span aria-label="</f:verbatim>
-                                <h:outputText value="#{assessment.submittedCount} #{authorFrontDoorMessages.assessment_submissions}" />
-                            <f:verbatim>" role="link" tabindex="0"></f:verbatim>
+                            <span aria-label="#{assessment.submittedCount} #{authorFrontDoorMessages.assessment_submissions}" role="link" tabindex="0">
                                 <h:commandLink title="#{authorFrontDoorMessages.assessment_submissions}" action="#{author.getOutcome}" immediate="true" id="authorIndexToScore1" tabindex="-1">
                                     <h:outputText value="#{assessment.submittedCount}" />
                                     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
@@ -533,23 +513,23 @@
                                     <f:param name="publishedId" value="#{assessment.publishedAssessmentId}" />
                                     <f:param name="allSubmissionsT" value="3"/>
                                 </h:commandLink>
-                            <f:verbatim></span></f:verbatim>
+                            </span>
                         </h:panelGroup>
                     </h:panelGroup>
                 </t:column>
 
-                <%/* Release To */%>
+                
                 <t:column headerstyleClass="releaseTo d-none d-sm-table-cell" styleClass="releaseTo d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
+                            <a href="#" tabindex="-1">
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_release }"/>
-                            <f:verbatim></a></f:verbatim>
+                            </a>
                         </h:panelGroup>
                     </f:facet>
 
                     <h:outputText value="#{authorFrontDoorMessages.anonymous_users}" styleClass="releaseto_anon" rendered="#{assessment.releaseTo eq 'Anonymous Users'}" />
-                    <h:outputText value="#{authorFrontDoorMessages.entire_site}" styleClass="releaseto_entire" rendered="#{assessment.releaseTo ne 'Anonymous Users' && assessment.releaseTo ne 'Selected Groups'}" />
+                    <h:outputText value="#{authorFrontDoorMessages.entire_site}" styleClass="releaseto_entire" rendered="#{assessment.releaseTo ne 'Anonymous Users'  and  assessment.releaseTo ne 'Selected Groups'}" />
 
                     <t:div rendered="#{assessment.releaseTo eq 'Selected Groups'}">
                         <t:div id="groupsHeader" onclick="#{assessment.groupCount gt 0 ? 'toggleGroups( this );' : ''}" styleClass="#{assessment.groupCount ge 1 ? 'collapsed' : 'sak-banner-error'}">
@@ -567,17 +547,17 @@
                     </t:div>
                 </t:column>
 
-                <%/* Release Date */%>
+                
                 <t:column headerstyleClass="releaseDate d-none d-sm-table-cell" styleClass="releaseDate d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
+                            <a href="#" tabindex="-1">
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_date}"/>
-                            <f:verbatim></a></f:verbatim>
+                            </a>
                         </h:panelGroup>
                     </f:facet>
 
-                    <f:verbatim><div></f:verbatim>
+                    <div>
                         <h:outputText value="#{assessment.startDate}" >
                             <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                         </h:outputText>
@@ -585,20 +565,20 @@
                         <h:outputText value="#{assessment.startDate}" styleClass="d-none spanValue">
                             <f:convertDateTime pattern="yyyyMMddHHmmss" />
                         </h:outputText>
-                    <f:verbatim></div></f:verbatim>
+                    </div>
                 </t:column>
 
-                <%/* Due Date */%>
+                
                 <t:column headerstyleClass="dueDate" styleClass="dueDate">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
+                            <a href="#" tabindex="-1">
                                 <h:outputText value="#{authorFrontDoorMessages.assessment_due}"/>
-                            <f:verbatim></a></f:verbatim>
+                            </a>
                         </h:panelGroup>
                     </f:facet>
 
-                    <f:verbatim><div></f:verbatim>
+                    <div>
                         <h:outputText value="#{assessment.dueDate}">
                             <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                         </h:outputText>
@@ -609,33 +589,33 @@
                         <h:outputText value="#{assessment.dueDate}" styleClass="d-none spanValue">
                             <f:convertDateTime pattern="yyyyMMddHHmmss" />
                         </h:outputText>
-                    <f:verbatim></div></f:verbatim>
+                    </div>
                 </t:column>
 
-                <%/* Last Modified */%>
+                
                 <t:column headerstyleClass="lastModified d-none d-sm-table-cell" styleClass="lastModified d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
+                            <a href="#" tabindex="-1">
                                 <h:outputText value="#{authorFrontDoorMessages.header_last_modified}"/>
-                            <f:verbatim></a></f:verbatim>
+                            </a>
                         </h:panelGroup>
                     </f:facet>
 
                     <h:outputText value="#{assessment.lastModifiedBy}" />
                 </t:column>
 
-                <%/* Modified Date */%>
+                
                 <t:column headerstyleClass="lastModifiedDate d-none d-sm-table-cell" styleClass="lastModifiedDate d-none d-sm-table-cell">
                     <f:facet name="header">
                         <h:panelGroup>
-                            <f:verbatim><a href="#" tabindex="-1"></f:verbatim>
+                            <a href="#" tabindex="-1">
                                 <h:outputText value="#{authorFrontDoorMessages.header_last_modified_date}"/>
-                            <f:verbatim></a></f:verbatim>
+                            </a>
                         </h:panelGroup>
                     </f:facet>
 
-                    <f:verbatim><div></f:verbatim>
+                    <div>
                         <h:outputText value="#{assessment.lastModifiedDate}">
                             <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
                         </h:outputText>
@@ -643,10 +623,10 @@
                         <h:outputText value="#{assessment.lastModifiedDate}" styleClass="d-none spanValue">
                             <f:convertDateTime pattern="yyyyMMddHHmmss" />
                         </h:outputText>
-                    <f:verbatim></div></f:verbatim>
+                    </div>
                 </t:column>
 
-                <%/* Remove */%>
+                
                 <t:column rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}">
                     <f:facet name="header">
                         <h:outputText value="#{authorFrontDoorMessages.header_select}" />
@@ -660,10 +640,10 @@
 
             <div class="clearfix"></div>
 
-            <h:panelGroup rendered="#{author.isAnyAssessmentRetractForEdit == true && author.allAssessments.size() > 0}">
-                <f:verbatim><p></f:verbatim>
+            <h:panelGroup rendered="#{author.isAnyAssessmentRetractForEdit == true  and  author.allAssessments.size() > 0}">
+                <p>
                     <h:outputText id="assessment-retracted" value="#{authorFrontDoorMessages.retracted_for_edit}" styleClass="sak-banner-red-warn" />
-                <f:verbatim></p></f:verbatim>
+                </p>
             </h:panelGroup>
         </div>
 
@@ -680,7 +660,6 @@
             <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
         </h:commandButton>
     </h:form>
-<!-- end content -->
-</div>
-</body>
-</html>
+    <!-- end content -->
+    </div>
+</ui:composition>
