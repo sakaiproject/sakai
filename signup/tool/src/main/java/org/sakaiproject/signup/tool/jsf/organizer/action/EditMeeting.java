@@ -369,7 +369,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 			int maxAttendees = (unlimited) ? SignupTimeslot.UNLIMITED : maxNumOfAttendees;
 			timeslot.setMaxNoOfAttendees(maxAttendees);
 			if(!newlyModifyMeeting.isAllowWaitList()){
-				timeslot.setWaitingList(null);
+				timeslot.getWaitingList().clear();
 			}
 		}
 
@@ -791,7 +791,8 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 			for (SignupAttachment curAttach : currentAttachList) {
 				upToDateList.add(getAttachmentHandler().copySignupAttachment(sMeeting,true,curAttach, ATTACH_MODIFY + recurNum));
 			}
-			sMeeting.setSignupAttachments(upToDateList);
+		sMeeting.getSignupAttachments().clear();
+		sMeeting.getSignupAttachments().addAll(upToDateList);
 			return;
 		}
 		

@@ -155,9 +155,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
     @Override
     public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, int timeFrameInDays) {
-        if (siteIds == null || siteIds.isEmpty()) {
-            return new ArrayList<>();
-        }
+        if (siteIds == null || siteIds.isEmpty()) return List.of();
 
         Instant startInstant = startDate.toInstant();
         Instant endInstant = startInstant.plus(timeFrameInDays, ChronoUnit.DAYS);
