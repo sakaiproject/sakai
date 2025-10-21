@@ -22,6 +22,11 @@
   </context-param>
 
   <context-param>
+    <param-name>javax.faces.FACELETS_LIBRARIES</param-name>
+    <param-value>/WEB-INF/samigo-facelets.taglib.xml</param-value>
+  </context-param>
+
+  <context-param>
     <description>Samigo loads Mojarra's client script from a static path.</description>
     <param-name>javax.faces.AUTOMATIC_JSF_JS</param-name>
     <param-value>false</param-value>
