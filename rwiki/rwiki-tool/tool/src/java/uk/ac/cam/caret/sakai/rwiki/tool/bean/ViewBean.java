@@ -145,16 +145,6 @@ public class ViewBean
 	 * 
 	 * @return
 	 */
-	public String getExportUrl()
-	{
-		return getPageUrl(pageName, WikiPageAction.EXPORT_ACTION.getName());
-	}
-
-	/**
-	 * Returns a public view URL with no breadcrumbs
-	 * 
-	 * @return
-	 */
 	public String getPublicViewUrl()
 	{
 		return getPublicViewUrl(false);

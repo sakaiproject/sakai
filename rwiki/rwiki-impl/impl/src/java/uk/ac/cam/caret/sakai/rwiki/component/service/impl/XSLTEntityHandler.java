@@ -145,10 +145,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 */
 	private Map outputProperties;
 	
-	/**
-	 * A map containing transform parameters.
-	 */
-	private Map<String, String> transformParameters;
 
 	@Getter @Setter
 	private EntityManager entityManager;
@@ -853,12 +849,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			xsltTransform.setXslt(new InputSource(this.getClass().getResourceAsStream(xslt)));
                         TransformerHandler th = xsltTransform.getContentHandler();
 
-                        Transformer transformer = th.getTransformer();
-                        if (transformParameters != null) {
-                                for (Map.Entry<String, String> entry: transformParameters.entrySet()) {
-                                        transformer.setParameter(entry.getKey(), entry.getValue());
-                                }
-                        }
+			Transformer transformer = th.getTransformer();
 
                         Properties outputProps = transformer.getOutputProperties();
                         if (outputProps == null) {
@@ -1034,15 +1025,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	public void setOutputProperties(Map outputProperties)
 	{
 		this.outputProperties = outputProperties;
-	}
-
-	/**
-	 * @param transformParameters
-	 *        The transform paramaters that should be passed when transforming it.
-	 */
-	public void setTransformParameters(Map<String,String> transformParameters)
-	{
-		this.transformParameters = transformParameters;
 	}
 
 	/**

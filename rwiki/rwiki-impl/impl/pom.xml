@@ -29,7 +29,6 @@
 				<includes>
 					<include>**/*.xsl</include>
 					<include>**/*.xml</include>
-					<include>**/*.ttf</include>
 				</includes>
 				<filtering>false</filtering>
 			</resource>
