@@ -23,6 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import org.apache.commons.io.IOUtils;
 
@@ -111,4 +113,29 @@ public class DefaultFileSystemHandler implements FileSystemHandler {
 	public URI getAssetDirectLink(String id, String root, String filePath) throws IOException {
 		return null;
 	}
+
+    @Override
+    public long copy(String sourceId, String sourceRoot, String sourceFilePath,
+                     String destId, String destRoot, String destFilePath) throws IOException {
+        File src = getFile(sourceId, sourceRoot, sourceFilePath);
+        File dst = getFile(destId, destRoot, destFilePath);
+
+        if (!src.exists()) {
+            throw new IOException("Source file does not exist: " + src.getAbsolutePath());
+        }
+        // Fail fast on directory sources – this method is for files only
+        if (src.isDirectory()) {
+            throw new IOException("Source is a directory (not a file): " + src.getAbsolutePath());
+        }
+
+        File parent = dst.getParentFile();
+        if (parent != null) {
+            // Create destination parent directories, propagating IOExceptions
+            Files.createDirectories(parent.toPath());
+        }
+
+        // replace if present to mirror saveInputStream semantics
+        Files.copy(src.toPath(), dst.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        return Files.size(dst.toPath());
+    }
 }

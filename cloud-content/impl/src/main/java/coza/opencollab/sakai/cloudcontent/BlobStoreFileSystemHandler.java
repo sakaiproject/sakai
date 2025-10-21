@@ -9,6 +9,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.lang.reflect.Method;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -16,6 +19,7 @@ import org.jclouds.ContextBuilder;
 import org.jclouds.aws.s3.AWSS3ProviderMetadata;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
+import org.jclouds.blobstore.options.CopyOptions;
 import org.jclouds.blobstore.domain.Blob;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.http.HttpRequest;
@@ -282,7 +286,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
 
             try {
                 BlobStore store = getBlobStore();
-                String asciiID = Base64.encodeBase64String(id.getBytes("UTF8"));
+                String asciiID = Base64.encodeBase64String(id.getBytes(StandardCharsets.UTF_8));
 
                 Blob blob = store.blobBuilder(can.name)
                     .payload(payload)
@@ -342,6 +346,45 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             deleteContainerIfEmpty(can.container);
             return true;
         }
+    }
+    
+    @Override
+    public long copy(String sourceId, String sourceRoot, String sourceFilePath,
+                     String destId, String destRoot, String destFilePath) throws IOException {
+        ContainerAndName src = getContainerAndName(sourceId, sourceRoot, sourceFilePath);
+        ContainerAndName dst = getContainerAndName(destId, destRoot, destFilePath);
+        createContainerIfNotExist(dst.container);
+        BlobStore store = getBlobStore();
+        // Server-side copy with metadata override so the destination reflects destId/destFilePath
+        // Encode id similarly to saveInputStream to satisfy provider metadata charset restrictions
+        String asciiID = Base64.encodeBase64String(destId.getBytes(StandardCharsets.UTF_8));
+        CopyOptions opts = buildCopyOptionsWithUserMetadata(ImmutableMap.of("id", asciiID, "path", destFilePath));
+        store.copyBlob(src.container, src.name, dst.container, dst.name, opts);
+        // Return size of the destination
+        Blob copied = store.getBlob(dst.container, dst.name);
+        if (copied == null || copied.getMetadata() == null || copied.getMetadata().getSize() == null) {
+            throw new IOException("Failed to verify copied object size for: " + dst.container + "/" + dst.name);
+        }
+        return copied.getMetadata().getSize();
+    }
+
+    // Build CopyOptions that override user metadata if the API supports it. Fall back to NONE.
+    private CopyOptions buildCopyOptionsWithUserMetadata(Map<String, String> metadata) {
+        try {
+            Class<?> builder = CopyOptions.Builder.class;
+            for (String name : new String[] { "overrideMetadata", "overrideUserMetadata", "metadata", "userMetadata" }) {
+                try {
+                    Method m = builder.getMethod(name, Map.class);
+                    Object result = m.invoke(null, metadata);
+                    return (CopyOptions) result;
+                } catch (NoSuchMethodException nsme) {
+                    // try next
+                }
+            }
+        } catch (Throwable t) {
+            // ignore and fall back
+        }
+        return CopyOptions.NONE;
     }
     
     /**
