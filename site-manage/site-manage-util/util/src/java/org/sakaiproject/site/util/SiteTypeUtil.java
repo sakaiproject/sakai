@@ -18,39 +18,45 @@ package org.sakaiproject.site.util;
 import java.util.List;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.SiteService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SiteTypeUtil {
-	
-	private static SiteService siteService = ComponentManager.get(SiteService.class);
-	
-	private static ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
-	
+
+	private final SiteService siteService;
+	private final ServerConfigurationService serverConfigurationService;
+
+	public SiteTypeUtil(SiteService siteService, ServerConfigurationService serverConfigurationService) {
+		this.siteService = siteService;
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
     /**
      * get all site type strings associated with course site type
      * @return
      */
-    public static List<String> getCourseSiteTypes()
+    public List<String> getCourseSiteTypes()
     {
     	return siteService.getSiteTypeStrings("course");
     }
-    
+
     /**
      * get all site type strings associated with project site type
      * @return
      */
-    public static List<String> getProjectSiteTypes()
+    public List<String> getProjectSiteTypes()
     {
     	return siteService.getSiteTypeStrings("project");
     }
-    
+
 	/**
 	 * Is the siteType of course site types
 	 * @param siteType
 	 * @return
 	 */
-    public static boolean isCourseSite(String siteType)
+    public boolean isCourseSite(String siteType)
     {
     	return isOfSiteType("course", siteType);
     }
@@ -60,11 +66,11 @@ public class SiteTypeUtil {
 	 * @param siteType
 	 * @return
 	 */
-    public static boolean isProjectSite(String siteType)
+    public boolean isProjectSite(String siteType)
     {
-    	return isOfSiteType("project", siteType); 
+    	return isOfSiteType("project", siteType);
     }
-    
+
     /**
      * site type lookup
      * @param targetSiteType
@@ -72,7 +78,7 @@ public class SiteTypeUtil {
      * @param currentSiteType
      * @return
      */
-	private static boolean isOfSiteType(String targetSiteType, String currentSiteType) {
+	private boolean isOfSiteType(String targetSiteType, String currentSiteType) {
 		boolean rv = false;
 		List<String> siteTypes = siteService.getSiteTypeStrings(targetSiteType);
 		if (currentSiteType != null && siteTypes != null && siteTypes.contains(currentSiteType))
@@ -81,17 +87,17 @@ public class SiteTypeUtil {
 		}
 		return rv;
 	}
-	
+
 	/**
 	 * returns the site type String to use for sites created based on the template site with siteType
 	 * @param siteType
 	 * @return
 	 */
-	public static String getTargetSiteType(String siteType)
+	public String getTargetSiteType(String siteType)
 	{
 		// defaults to current siteType
 		String rv = siteType;
-		
+
 		// TODO: we only look for course and project site types for now
 		if (isCourseSite(siteType))
 		{
@@ -101,7 +107,7 @@ public class SiteTypeUtil {
 		{
 			rv = serverConfigurationService.getString("projectSiteTargetType", siteType);
 		}
-		
+
 		return rv;
 	}
 }

@@ -57,7 +57,6 @@
     <sakai.opencsv.version>5.12.0</sakai.opencsv.version>
     <sakai.openpdf.version>1.3.28</sakai.openpdf.version>
     <sakai.groovy.version>2.4.17</sakai.groovy.version>
-    <sakai.simple-xml.version>2.7.1</sakai.simple-xml.version>
     <sakai.spring.version>5.3.39</sakai.spring.version>
     <sakai.spring.data.commons.version>2.5.12</sakai.spring.data.commons.version>
     <sakai.spring.data.jpa.version>2.5.12</sakai.spring.data.jpa.version>
@@ -66,14 +65,13 @@
     <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>3.2.3</sakai.tika.version>
-    <sakai.tomcat.version>9.0.109</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.111</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.24.3</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
     <sakai.poi.version>5.4.1</sakai.poi.version>
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
-    <sakai.powermock.version>2.0.9</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.14.0</joda.time.version>
     <sakai.weld.shaded.version>3.1.9.Final</sakai.weld.shaded.version>
@@ -2328,21 +2326,15 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-inline</artifactId>
+        <version>${sakai.mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
           <groupId>org.mockito</groupId>
           <artifactId>mockito-junit-jupiter</artifactId>
           <version>${sakai.mockito.version}</version>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.powermock</groupId>
-          <artifactId>powermock-module-junit4</artifactId>
-          <version>${sakai.powermock.version}</version>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.powermock</groupId>
-          <artifactId>powermock-api-mockito2</artifactId>
-          <version>${sakai.powermock.version}</version>
           <scope>test</scope>
       </dependency>
       <dependency>
@@ -2367,12 +2359,6 @@
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
         <version>${sakai.hikaricp.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.simpleframework</groupId>
-        <artifactId>simple-xml</artifactId>
-        <version>${sakai.simple-xml.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -2617,12 +2603,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.3</version>
+          <version>3.5.4</version>
           <dependencies>
             <dependency>
               <groupId>org.apache.maven.surefire</groupId>
               <artifactId>surefire-junit4</artifactId>
-              <version>3.5.3</version>
+              <version>3.5.4</version>
             </dependency>
           </dependencies>
         </plugin>

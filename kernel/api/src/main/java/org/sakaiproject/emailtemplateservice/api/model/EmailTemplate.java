@@ -34,8 +34,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Element;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -46,7 +47,8 @@ import lombok.Setter;
  * EmailTemplate is an email template, though it could actually be used for anything,
  * identified by a unique key and set to be locale specific if desired
  */
-@Root
+@JsonIgnoreProperties(value = { "id", "lastModified", "from", "defaultType" }, ignoreUnknown = true)
+@JacksonXmlRootElement(localName = "emailTemplate")
 @Entity
 @Table(name = "EMAIL_TEMPLATE_ITEM",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"TEMPLATE_KEY", "TEMPLATE_LOCALE"})},
@@ -68,34 +70,28 @@ public class EmailTemplate implements java.io.Serializable, PersistableEntity<Lo
     @Column(name = "LAST_MODIFIED", nullable = false)
     private Date lastModified;
 
-    @Element
     @Column(name = "TEMPLATE_KEY", nullable = false, length = 255)
     private String key;
 
-    @Element(required = false)
     @Column(name = "TEMPLATE_LOCALE", length = 255)
     private String locale;
 
-    @Element
     @Column(name = "OWNER", nullable = false, length = 255)
     private String owner;
 
-    @Element
     @Lob
     @Column(name = "SUBJECT", nullable = false, length = 100000000)
     private String subject;
 
-    @Element
     @Lob
     @Column(name = "MESSAGE", nullable = false, length = 100000000)
     private String message;
 
-    @Element(required = false)
     @Lob
     @Column(name = "HTMLMESSAGE", length = 100000000)
+    @JsonAlias("messagehtml")
     private String htmlMessage;
 
-    @Element
     @Column(name = "VERSION")
     private Integer version;
 

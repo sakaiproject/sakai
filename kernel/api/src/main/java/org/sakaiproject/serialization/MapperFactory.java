@@ -233,6 +233,11 @@ public final class MapperFactory {
          */
         public XmlMapperBuilder() {
             xmlMapper = new XmlMapper(WstxInputFactory.newInstance(), WstxOutputFactory.newInstance());
+            XMLInputFactory xmlInputFactory = xmlMapper.getFactory().getXMLInputFactory();
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+            xmlMapper.getFactory().setXMLInputFactory(xmlInputFactory);
+            xmlMapper.getFactory().rebuild().build();
         }
 
         /**

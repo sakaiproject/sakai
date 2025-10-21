@@ -140,7 +140,7 @@ $Id$
        <h:outputText value="#{description.firstName}" />
        <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
-	   <h:panelGroup styleClass="itemAction" rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup styleClass="itemAction" rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -150,7 +150,7 @@ $Id$
 	   </h:panelGroup>
      </h:panelGroup>
 
-	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
+	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && description.retakeAllowed}" />
 
 	 <span class="itemAction">
      <h:commandLink title="#{evaluationMessages.t_retake}" id="retakeAssessment1" immediate="true" 
@@ -186,7 +186,7 @@ $Id$
        <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -197,7 +197,7 @@ $Id$
 	 </span>
      </h:panelGroup>
 	
-	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
+	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && description.retakeAllowed}" />
 
 	 <span class="itemAction">
      <h:commandLink title="#{evaluationMessages.t_retake}" id="retakeAssessment2" immediate="true" 
@@ -234,7 +234,7 @@ $Id$
        <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -245,7 +245,7 @@ $Id$
 	 </span>
      </h:panelGroup>
 	
-	<h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
+	<h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && description.retakeAllowed}" />
 
 	 <span class="itemAction">
      <h:commandLink title="#{evaluationMessages.t_retake}" id="retakeAssessment3" immediate="true" 

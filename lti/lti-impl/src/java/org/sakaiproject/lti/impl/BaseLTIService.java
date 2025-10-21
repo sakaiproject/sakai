@@ -328,6 +328,7 @@ public abstract class BaseLTIService implements LTIService {
 		return updateToolDao(key, newProps, siteId, true, true);
 	}
 
+
 	private Object updateTool(Long key, Object newProps, String siteId) {
 		return updateToolDao(key, newProps, siteId, isAdmin(siteId), isMaintain(siteId));
 	}
@@ -584,6 +585,7 @@ public abstract class BaseLTIService implements LTIService {
 		return getToolDao(key, siteId, isAdmin(siteId));
 	}
 
+
 	@Override
 	public Map<String, Object> getToolDao(Long key, String siteId)
 	{
@@ -595,15 +597,18 @@ public abstract class BaseLTIService implements LTIService {
 		return getTools(search, order, first, last, siteId, false);
 	}
 
+
 	@Override
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed) {
 		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed);
 	}
 
+
 	@Override
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId, boolean includeStealthed, boolean includeLaunchable) {
 		return getToolsDao(search, order, first, last, siteId, isAdmin(siteId), includeStealthed, includeLaunchable);
 	}
+
 
 
 	@Override
@@ -637,6 +642,7 @@ public abstract class BaseLTIService implements LTIService {
     public List<Map<String, Object>> getToolsImportItem(String siteId) {
 		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1", LTIService.LTI_TITLE, 0 ,0, siteId, false, true);
 	}
+
 
 	@Override
     public List<Map<String, Object>> getToolsContentEditor(String siteId) {
@@ -723,6 +729,7 @@ public abstract class BaseLTIService implements LTIService {
 		return getContentDao(key, siteId, isAdmin(siteId));
 	}
 
+
 	// This is with absolutely no site checking...
 	@Override
 	public Map<String, Object> getContentDao(Long key) {
@@ -739,6 +746,7 @@ public abstract class BaseLTIService implements LTIService {
 	{
 		return getContentsDao(search, order, first, last, siteId, isAdmin(siteId));
 	}
+
 
 	@Override
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId) {
@@ -1454,5 +1462,7 @@ public abstract class BaseLTIService implements LTIService {
 		log.warn("Could not insert stub tool for content item {} in site {}", launchUrl, toSiteId);
 		return null;
 	}
+
+
 
 }

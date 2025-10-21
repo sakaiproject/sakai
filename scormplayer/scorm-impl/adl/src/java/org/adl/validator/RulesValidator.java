@@ -27,8 +27,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -56,6 +55,7 @@ import org.w3c.dom.NodeList;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class RulesValidator implements Serializable {
 	/**
 	  * 
@@ -78,11 +78,6 @@ public class RulesValidator implements Serializable {
 	private String mValidatorType;
 
 	/**
-	 * Logger object used for debug logging.<br>
-	 */
-	private static Log log = LogFactory.getLog(RulesValidator.class);
-
-	/**
 	 * Default constructor - inializes the attributes for this class.<br>
 	 *
 	 * @param iValidatorType The validator that is currently being worked.
@@ -93,7 +88,6 @@ public class RulesValidator implements Serializable {
 	 * </ul>
 	 */
 	public RulesValidator(String iValidatorType) {
-		//mLogger = Logger.getLogger("org.adl.util.debug.validator");
 
 		log.debug("RulesValidator()");
 
@@ -158,11 +152,11 @@ public class RulesValidator implements Serializable {
 	 * specified rule at the specified element with the specified path.<br>
 	 */
 	public List<String> getAttribVocabRuleValues(String iElementName, String iPath, String iAttribName) {
-		log.debug("getAttribVocabRuleValues()");
-		log.debug("    iElementName coming in is " + iElementName);
-		log.debug("    iPath coming in is " + iPath);
-		log.debug("    iAttribName coming in is " + iAttribName);
-
+        log.debug("""
+                    iElementName coming in is {}
+                    iPath coming in is {}
+                    iAttribName coming in is {}
+                  """, iElementName, iPath, iAttribName);
 		List<Node> ruleNodeList;
 		List<String> vocabList = new ArrayList<>();
 
@@ -210,12 +204,11 @@ public class RulesValidator implements Serializable {
 	 * specified path.<br>
 	 */
 	public String getRuleValue(String iElementName, String iPath, String iRuleName) {
-		log.debug("getRuleValue()");
-
-		log.debug("    iElementName coming in is " + iElementName);
-		log.debug("    iPath coming in is " + iPath);
-		log.debug("    iRuleName coming in is " + iRuleName);
-
+        log.debug("""
+                    iElementName coming in is {}
+                    iPath coming in is {}
+                    iRuleName coming in is {}
+                  """, iElementName, iPath, iRuleName);
 		String stringResult = "-1";
 		Node ruleNode;
 
@@ -234,7 +227,7 @@ public class RulesValidator implements Serializable {
 		} else {
 			log.error("Can not continue validation of rules, doc is null");
 		}
-		log.debug("Returning the following value " + stringResult);
+		log.debug("Returning the following value {}", stringResult);
 		log.debug("getRuleValue()");
 
 		return stringResult;
@@ -264,12 +257,12 @@ public class RulesValidator implements Serializable {
 	 * specified path.<br>
 	 */
 	public String getRuleValue(String iElementName, String iPath, String iRuleName, String iAttribAttribName) {
-		log.debug("getRuleValue()");
-		log.debug("    iElementName coming in is " + iElementName);
-		log.debug("    iPath coming in is " + iPath);
-		log.debug("    iRuleName coming in is " + iRuleName);
-		log.debug("    iAttribAttribName coming in is " + iAttribAttribName);
-
+        log.debug("""
+                    iElementName coming in is {}
+                    iPath coming in is {}
+                    iRuleName coming in is {}
+                    iAttribAttribName coming in is {}
+                  """, iElementName, iPath, iRuleName, iAttribAttribName);
 		String stringResult = "-1";
 		Node ruleNode;
 
@@ -289,7 +282,7 @@ public class RulesValidator implements Serializable {
 		} else {
 			log.error("Can not continue validation of rules, doc is null");
 		}
-		log.debug("Returning the following value " + stringResult);
+		log.debug("Returning the following value {}", stringResult);
 		log.debug("getRuleValue()");
 
 		return stringResult;
@@ -350,11 +343,10 @@ public class RulesValidator implements Serializable {
 	 *
 	 */
 	public List<String> getVocabRuleValues(String iElementName, String iPath) {
-		log.debug("getVocabRuleValues()");
-
-		log.debug("    iElementName coming in is " + iElementName);
-		log.debug("    iPath coming in is " + iPath);
-
+        log.debug("""
+                    iElementName coming in is {}
+                    iPath coming in is {}
+                  """, iElementName, iPath);
 		List<Node> ruleNodeList = new ArrayList<>();
 		List<String> vocabList = new ArrayList<>();
 
@@ -377,8 +369,6 @@ public class RulesValidator implements Serializable {
 		} else {
 			log.error("Can not continue validation of rules, doc is null");
 		}
-		log.debug("getVocabRuleValues()");
-
 		return vocabList;
 	}
 
@@ -399,8 +389,7 @@ public class RulesValidator implements Serializable {
 	 * 
 	 */
 	public boolean readInRules(String iApplicationProfileType) {
-		log.debug("readInRules()");
-		log.debug("      iApplicationProfileType coming in is " + iApplicationProfileType);
+		log.debug("iApplicationProfileType coming in is {}", iApplicationProfileType);
 
 		boolean result = true;
 
@@ -411,12 +400,11 @@ public class RulesValidator implements Serializable {
 
 		if (rules != null) {
 			mRulesDocument = rules;
-			log.debug("root element mRulesDoc = " + ((Node) mRulesDocument.getDocumentElement()).getNodeName());
+			log.debug("root element mRulesDoc = {}", mRulesDocument.getDocumentElement().getNodeName());
 		} else {
 			log.error("Problem parsing XML rules");
 			result = false;
 		}
-		log.debug("readInRules()");
 		return result;
 	}
 
@@ -450,17 +438,17 @@ public class RulesValidator implements Serializable {
 			// name and path attribute value
 			currentElementNode = kids.item(i);
 			nodeName = getAttribute(currentElementNode, "name");
-			log.debug("currentElementNode's name is " + nodeName);
+			log.debug("currentElementNode's name is {}", nodeName);
 
 			path = getAttribute(currentElementNode, "path");
-			log.debug("currentElementNode's path is " + path);
+			log.debug("currentElementNode's path is {}", path);
 
 			if (nodeName.equals(iElementName) && path.equals(iPath)) {
 				// traverse the child nodes and find the one with the attribute
 				// elements
 				NodeList currentElementNodeKids = currentElementNode.getChildNodes();
 				int numCurrentNodeKids = currentElementNodeKids.getLength();
-				log.debug("numCurrentNodeKids is " + numCurrentNodeKids);
+				log.debug("numCurrentNodeKids is {}", numCurrentNodeKids);
 
 				Node attributeNode;
 				String attributeNodeName;
@@ -469,13 +457,13 @@ public class RulesValidator implements Serializable {
 					// the name that we want
 					attributeNode = currentElementNodeKids.item(j);
 					attributeNodeName = attributeNode.getNodeName();
-					log.debug("attributeNodeName is " + attributeNodeName);
+					log.debug("attributeNodeName is {}", attributeNodeName);
 
 					if (attributeNodeName.equals("attrib")) {
 						String attributeName = getAttribute(attributeNode, "name");
 
 						if (attributeName.equals(iAttribName)) {
-							log.debug("Attribute rule found for " + attributeName);
+							log.debug("Attribute rule found for {}", attributeName);
 
 							// traverse the children of the specified attribute and
 							// get the specified rule
@@ -488,10 +476,10 @@ public class RulesValidator implements Serializable {
 							for (int k = 0; k < numAttributeNodeKids; k++) {
 								ruleNode = attributeNodeKids.item(k);
 								ruleNodeName = ruleNode.getNodeName();
-								log.debug("Found the " + ruleNodeName + " attribute");
+								log.debug("Found the {} attribute", ruleNodeName);
 
 								if (ruleNodeName.equals(iRuleName)) {
-									log.debug("Found the " + iRuleName + " rule");
+									log.debug("Found the {} rule", iRuleName);
 									resultNode = ruleNode;
 									break;
 								}
@@ -543,17 +531,17 @@ public class RulesValidator implements Serializable {
 			// name and path attribute value
 			currentElementNode = kids.item(i);
 			nodeName = getAttribute(currentElementNode, "name");
-			log.debug("currentElementNode's name is " + nodeName);
+			log.debug("currentElementNode's name is {}", nodeName);
 
 			path = getAttribute(currentElementNode, "path");
-			log.debug("currentElementNode's path is " + path);
+			log.debug("currentElementNode's path is {}", path);
 
 			if (nodeName.equals(iElementName) && path.equals(iPath)) {
 				// traverse the child nodes and find the one with the attribute
 				// elements
 				NodeList currentElementNodeKids = currentElementNode.getChildNodes();
 				int numCurrentNodeKids = currentElementNodeKids.getLength();
-				log.debug("numCurrentNodeKids is " + numCurrentNodeKids);
+				log.debug("numCurrentNodeKids is {}", numCurrentNodeKids);
 
 				Node attributeNode;
 				String attributeNodeName;
@@ -562,13 +550,13 @@ public class RulesValidator implements Serializable {
 					// the name that we want
 					attributeNode = currentElementNodeKids.item(j);
 					attributeNodeName = attributeNode.getNodeName();
-					log.debug("attributeNodeName is " + attributeNodeName);
+					log.debug("attributeNodeName is {}", attributeNodeName);
 
 					if (attributeNodeName.equals("attrib")) {
 						String attributeName = getAttribute(attributeNode, "name");
 
 						if (attributeName.equals(iAttribName)) {
-							log.debug("Attribute rule found for " + attributeName);
+							log.debug("Attribute rule found for {}", attributeName);
 
 							// traverse the children of the specified attribute and
 							// get the specified rule
@@ -581,10 +569,10 @@ public class RulesValidator implements Serializable {
 							for (int k = 0; k < numAttributeNodeKids; k++) {
 								ruleNode = attributeNodeKids.item(k);
 								ruleNodeName = ruleNode.getNodeName();
-								log.debug("Found the " + ruleNodeName + " attribute");
+								log.debug("Found the {} attribute", ruleNodeName);
 
 								if (ruleNodeName.equals(iRuleName) && iRuleName.equals("vocab")) {
-									log.debug("Found the " + iRuleName + " rule");
+									log.debug("Found the {} rule", iRuleName);
 									resultList.add(ruleNode);
 								}
 							}
@@ -631,17 +619,17 @@ public class RulesValidator implements Serializable {
 			// name and path attribute value
 			currentElementNode = kids.item(i);
 			nodeName = getAttribute(currentElementNode, "name");
-			log.debug("currentElementNode's name is " + nodeName);
+			log.debug("currentElementNode's name is {}", nodeName);
 
 			path = getAttribute(currentElementNode, "path");
-			log.debug("currentElementNode's path is " + path);
+			log.debug("currentElementNode's path is {}", path);
 
 			if (nodeName.equals(iElementName) && path.equals(iPath)) {
 				// traverse the child nodes and find the one with the attribute
 				// elements
 				NodeList currentElementNodeKids = currentElementNode.getChildNodes();
 				int numCurrentNodeKids = currentElementNodeKids.getLength();
-				log.debug("numCurrentNodeKids is " + numCurrentNodeKids);
+				log.debug("numCurrentNodeKids is {}", numCurrentNodeKids);
 
 				Node ruleNode;
 				String ruleNodeName;
@@ -650,7 +638,7 @@ public class RulesValidator implements Serializable {
 					// the name that we want
 					ruleNode = currentElementNodeKids.item(j);
 					ruleNodeName = ruleNode.getNodeName();
-					log.debug("ruleNodeName is " + ruleNodeName);
+					log.debug("ruleNodeName is {}", ruleNodeName);
 
 					if (iRuleName.equals("min") || iRuleName.equals("max") || iRuleName.equals("spm") || iRuleName.equals("datatype")) {
 						if (ruleNodeName.equals(iRuleName)) {
@@ -699,17 +687,17 @@ public class RulesValidator implements Serializable {
 			// name and path attribute value
 			currentElementNode = kids.item(i);
 			nodeName = getAttribute(currentElementNode, "name");
-			log.debug("currentElementNode's name is " + nodeName);
+			log.debug("currentElementNode's name is {}", nodeName);
 
 			path = getAttribute(currentElementNode, "path");
-			log.debug("currentElementNode's path is " + path);
+			log.debug("currentElementNode's path is {}", path);
 
 			if (nodeName.equals(iElementName) && path.equals(iPath)) {
 				// traverse the child nodes and find the one with the attribute
 				// elements
 				NodeList currentElementNodeKids = currentElementNode.getChildNodes();
 				int numCurrentNodeKids = currentElementNodeKids.getLength();
-				log.debug("numCurrentNodeKids is " + numCurrentNodeKids);
+				log.debug("numCurrentNodeKids is {}", numCurrentNodeKids);
 
 				Node ruleNode;
 				String ruleNodeName;
@@ -718,7 +706,7 @@ public class RulesValidator implements Serializable {
 					// the name that we want
 					ruleNode = currentElementNodeKids.item(j);
 					ruleNodeName = ruleNode.getNodeName();
-					log.debug("ruleNodeName is " + ruleNodeName);
+					log.debug("ruleNodeName is {}", ruleNodeName);
 
 					if (iRuleName.equals("vocab")) {
 						if (ruleNodeName.equals(iRuleName)) {
