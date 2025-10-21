@@ -1869,7 +1869,8 @@ GbGradeTable.getFilteredColumns = function() {
         formatterParams: { _data_: column },
         titleFormatter: GbGradeTable.headerFormatter(null, column),
         width: 180,
-        editor: column.type === 'category' || column.externallyMaintained ? false : "GbGradeTableEditor",
+        editor: column.type === 'category' || column.externallyMaintained ? false : GbGradeTable.settings.isLetterGradeEntry ? "list" : "GbGradeTableEditor",
+        ...GbGradeTable.settings.isLetterGradeEntry && { editorParams: { values: GbGradeTable.settings.letterGrades } },
       }))
   );
 };

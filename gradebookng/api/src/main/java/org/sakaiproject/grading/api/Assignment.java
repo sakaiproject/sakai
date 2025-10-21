@@ -70,6 +70,8 @@ public class Assignment implements Serializable, Comparable<Assignment> {
      */
     private Double points;
 
+    private String maxLetterGrade;
+
     /**
      * the due date for the assignment, or null if none is defined.
      */
