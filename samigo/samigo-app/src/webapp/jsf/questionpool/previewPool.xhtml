@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{questionPoolMessages.t_previewPool}" />
+            </title>
+            <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css" />
+            <script src="/samigo-app/js/selection.author.preview.js"></script>
+            <script>
+                //<![CDATA[
+                jQuery(window).load(function(){
+                    jQuery('input:hidden[id*=hiddenSerializedCoords_]').each(function(){
+                        var myregexp = /hiddenSerializedCoords_(\d+)?_(\d+)_(\d+)/;
+                        var matches = myregexp.exec(this.id);
+                        var sequence = "_";
+                        if (matches[1] !== undefined) {
+                            sequence = matches[1];
+                        }
+                        sequence = sequence + matches[2];
+                        var label = matches[3];
+
+                        var sel = new selectionAuthor({selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'imageMapContainer_' + sequence);
+                        try {
+                            sel.setCoords(jQuery.parseJSON(this.value));
+                            sel.setText(label);
+                        } catch(err) {}
+                    });
+                });
+                //]]>
+            </script>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody">
+
+                <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation" />
+
+                <h3 class="insColor insBak insBor">
+                    <h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.displayNameNotCPool}" rendered="#{questionpool.notCurrentPool}" />
+                    <h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}" rendered="#{not questionpool.notCurrentPool}" />
+                </h3>
+
+                <div class="tier1">
+                    <h:form id="previewPool">
+                        <p class="navViewAction">
+                            <h:commandLink title="#{questionPoolMessages.t_exportPool}" rendered="#{not questionpool.importToAuthoring}" id="exportPool" immediate="true" action="#{questionpool.startExportPool}">
+                                <h:outputText id="exportp" value="#{questionPoolMessages.t_exportPool}" />
+                                <f:param name="action" value="exportPool" />
+                                <f:param name="qpid" value="#{questionpool.currentPool.id}" />
+                                <f:param name="outCome" value="previewPool" />
+                            </h:commandLink>
+                            <h:outputText rendered="#{not questionpool.importToAuthoring}" value=" #{questionPoolMessages.separator} " />
+                            <h:commandLink title="#{questionPoolMessages.t_export}" rendered="#{not questionpool.importToAuthoring}" id="exportlink" immediate="true" action="#{questionpool.exportPool}">
+                                <h:outputText id="exportq" value="#{questionPoolMessages.export}" />
+                                <f:param name="poolId" value="#{questionpool.currentPool.id}" />
+                            </h:commandLink>
+                            <h:outputText rendered="#{not questionpool.importToAuthoring}" value=" #{questionPoolMessages.separator} " />
+                            <h:outputLink id="printlink" rendered="#{not questionpool.importToAuthoring}" onclick="print(); return false;" title="#{questionPoolMessages.t_print}">
+                                <h:outputText id="printq" value="#{questionPoolMessages.print}" />
+                            </h:outputLink>
+                        </p>
+                    </h:form>
+                </div>
+
+                <h:dataTable id="parts" width="100%" value="#{questionpool.itemsBean}" var="question">
+                    <h:column>
+                        <h:panelGrid columns="1" width="100%" styleClass="table table-condensed" columnClasses="navView,navList">
+                            <h:panelGroup>
+                                <h:outputText value="#{authorMessages.q} " />
+                                <h:outputText value="#{question.number}: " />
+
+                                <h:panelGroup>
+                                    <h:outputText rendered="#{question.itemData.typeId eq 1}" value=" #{commonMessages.multiple_choice_sin}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 2}" value=" #{commonMessages.multipl_mc_ms}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 12}" value=" #{commonMessages.multipl_mc_ss}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 13}" value=" #{authorMessages.matrix_choice_surv}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 3}" value=" #{authorMessages.multiple_choice_surv}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 4}" value=" #{authorMessages.true_false}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 5}" value=" #{authorMessages.short_answer_essay}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 8}" value=" #{authorMessages.fill_in_the_blank}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 11}" value=" #{authorMessages.fill_in_numeric}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 9}" value=" #{authorMessages.matching}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 7}" value=" #{authorMessages.audio_recording}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 6}" value=" #{authorMessages.file_upload}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 14}" value=" #{authorMessages.extended_matching_items}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 15}" value=" #{authorMessages.calculated_question}" />
+                                    <h:outputText rendered="#{question.itemData.typeId eq 16}" value=" #{authorMessages.image_map_question}" />
+
+                                    <h:outputText value=" #{authorMessages.dash} " />
+
+                                    <h:inputText rendered="#{question.itemData.typeId ne 3}" id="answerptr" value="#{question.updatedScore}"
+                                        disabled="true" size="6">
+                                        <f:validateDoubleRange minimum="0.00" />
+                                    </h:inputText>
+
+                                    <h:outputText rendered="#{question.itemData.typeId eq 3}" value="#{question.updatedScore}" />
+                                    <h:outputText rendered="#{question.itemData.score gt 1}" value=" #{authorMessages.points_lower_case}" />
+                                    <h:outputText rendered="#{question.itemData.score eq 1}" value=" #{authorMessages.point_lower_case}" />
+                                    <h:outputText rendered="#{question.itemData.score eq 0}" value=" #{authorMessages.points_lower_case}" />
+                                </h:panelGroup>
+                            </h:panelGroup>
+                        </h:panelGrid>
+
+                        <div class="samigo-question-callout">
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 11}">
+                                <ui:include src="/jsf/author/preview_item/FillInNumeric.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 9}">
+                                <ui:include src="/jsf/author/preview_item/Matching.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 8}">
+                                <ui:include src="/jsf/author/preview_item/FillInTheBlank.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 7}">
+                                <ui:include src="/jsf/author/preview_item/AudioRecording.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 6}">
+                                <ui:include src="/jsf/author/preview_item/FileUpload.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 5}">
+                                <ui:include src="/jsf/author/preview_item/ShortAnswer.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 4}">
+                                <ui:include src="/jsf/author/preview_item/TrueFalse.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 3}">
+                                <ui:include src="/jsf/author/preview_item/MultipleChoiceSurvey.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 2}">
+                                <ui:include src="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 1}">
+                                <ui:include src="/jsf/author/preview_item/MultipleChoiceSingleCorrect.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 12}">
+                                <ui:include src="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 13}">
+                                <ui:include src="/jsf/author/preview_item/MatrixChoicesSurvey.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 14}">
+                                <ui:include src="/jsf/author/preview_item/ExtendedMatchingItems.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 15}">
+                                <ui:include src="/jsf/author/preview_item/CalculatedQuestion.xhtml" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{question.itemData.typeId eq 16}">
+                                <ui:include src="/jsf/author/preview_item/ImageMapQuestion.xhtml" />
+                            </h:panelGroup>
+                        </div>
+                    </h:column>
+                </h:dataTable>
+
+                <h:form id="previewPool_cancel">
+                    <p class="act">
+                        <h:commandButton type="submit" immediate="true" id="cancel"
+                            value="#{questionPoolMessages.preview_pool_return}"
+                            action="#{questionpool.editPool}" />
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

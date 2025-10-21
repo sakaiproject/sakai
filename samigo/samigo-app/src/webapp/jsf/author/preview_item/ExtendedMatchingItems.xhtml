@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h3>
+        <h:outputText escape="false" value="#{question.itemData.themeText}" />
+    </h3>
+
+    <h:dataTable value="#{question.itemData.emiAnswerOptions}" var="option" rendered="#{question.itemData.isAnswerOptionsSimple}" cellpadding="3">
+        <h:column>
+            <h:outputText escape="false" value="#{option.label}. " />
+        </h:column>
+        <h:column>
+            <h:outputText escape="false" value=" #{option.text}" />
+        </h:column>
+    </h:dataTable>
+
+    <h:outputText value="#{question.itemData.emiAnswerOptionsRichText}" escape="false" rendered="#{question.itemData.isAnswerOptionsRich}" />
+
+    <h:dataTable value="#{question.itemData.itemAttachmentList}" var="attach" rendered="#{question.itemData.isAnswerOptionsRich}" cellpadding="4">
+        <h:column>
+            <ui:include src="/jsf/shared/mimeicon.xhtml" />
+        </h:column>
+        <h:column>
+            <h:outputLink value="#{attach.location}" target="new_window">
+                <h:outputText escape="false" value="#{attach.filename}" />
+            </h:outputLink>
+        </h:column>
+        <h:column>
+            <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink}" />
+        </h:column>
+    </h:dataTable>
+
+    <h3>
+        <h:outputText escape="false" value="#{question.itemData.leadInText}" />
+    </h3>
+
+    <h:dataTable value="#{question.itemData.emiQuestionAnswerCombinations}" var="item" styleClass="simpleBorder" cellspacing="0" cellpadding="4">
+        <h:column>
+            <h:outputText escape="false" value="#{item.emiCorrectOptionLabels}" />
+            <h:outputText escape="false" value="(#{item.requiredOptionsCount} #{authorMessages.answers_required})" rendered="#{item.requiredOptionsCount > 0}" />
+        </h:column>
+        <h:column>
+            <h:panelGroup rendered="#{(item.text != null and item.text ne '') or item.hasAttachment}">
+                <h:outputText escape="false" value="#{item.sequence}. #{item.text}" />
+
+                <h:dataTable value="#{item.itemTextAttachmentList}" var="attach" styleClass="noBorder">
+                    <h:column>
+                        <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                    </h:column>
+                    <h:column>
+                        <h:outputLink value="#{attach.location}" target="new_window">
+                            <h:outputText escape="false" value="#{attach.filename}" />
+                        </h:outputLink>
+                    </h:column>
+                    <h:column>
+                        <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink}" />
+                    </h:column>
+                </h:dataTable>
+            </h:panelGroup>
+        </h:column>
+    </h:dataTable>
+
+    <br /><br />
+
+    <h:panelGroup>
+        <h:outputLabel value="#{authorMessages.answerKey}: " />
+        <h:outputText escape="false" value="#{question.itemData.answerKey}" />
+        <br />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.correctItemFeedback}: " />
+        <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
+        <br />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: " />
+        <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.correctItemFeedback}: " />
+        <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
+        <br />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: " />
+        <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+    </h:panelGroup>
+
+    <ui:include src="/jsf/author/preview_item/tags.xhtml" />
+
+</ui:composition>

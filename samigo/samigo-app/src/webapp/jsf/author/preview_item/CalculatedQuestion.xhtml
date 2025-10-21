@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:include src="/jsf/author/preview_item/attachment.xhtml" />
+
+    <h:outputText escape="false" value="#{question.instruction}" />
+
+    <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
+        <h:column />
+    </h:dataTable>
+
+    <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.correct}:" />
+        <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
+        <br />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.incorrect}:" />
+        <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.correct}:" />
+        <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
+        <br />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.incorrect}:" />
+        <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+    </h:panelGroup>
+
+    <ui:include src="/jsf/author/preview_item/tags.xhtml" />
+
+</ui:composition>

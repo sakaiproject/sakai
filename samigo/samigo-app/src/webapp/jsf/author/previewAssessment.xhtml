@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}" >
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.create_modify_a}" />
+            </title>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody">
+                <h:form id="assessmentForm">
+
+                    <h:messages styleClass="sak-banner-error" layout="table" />
+
+                    <div class="navView">
+                        <h3>
+                            <h:outputText value="#{assessmentBean.title}" />
+                        </h3>
+                    </div>
+
+                    <h:dataTable border="1" cellpadding="0" cellspacing="0" styleClass="listHier"
+                        id="parts" value="#{assessmentBean.sections}" var="partBean">
+                        <h:column>
+                            <h:panelGrid columns="2" width="100%">
+                                <h:panelGroup>
+                                    <h:outputText styleClass="tier1" value="#{authorMessages.p}" />
+                                    <h:outputText styleClass="tier1" value="#{partBean.number}" />
+                                    <h:outputText styleClass="tier1" value="#{partBean.title}" />
+                                    <h:outputText styleClass="tier1" value="&#160;- " escape="false" />
+                                    <h:outputText rendered="#{partBean.sectionAuthorTypeString == null or partBean.sectionAuthorTypeString == '1'}"
+                                        styleClass="tier1" value="#{partBean.questions}" />
+                                    <h:outputText rendered="#{partBean.sectionAuthorTypeString != null and partBean.sectionAuthorTypeString == '3'}"
+                                        styleClass="tier1" value="#{partBean.numberToBeFixedString}" />
+                                    <h:outputText rendered="#{partBean.sectionAuthorTypeString != null and (partBean.sectionAuthorTypeString == '2' or partBean.sectionAuthorTypeString == '3' or partBean.sectionAuthorTypeString == '4')}"
+                                        styleClass="tier1" value="#{partBean.numberToBeDrawnString}" />
+                                    <h:outputText styleClass="tier1" value="#{authorMessages.questions_lower_case}" />
+                                </h:panelGroup>
+                            </h:panelGrid>
+
+                            <ui:include src="/jsf/author/part_attachment.xhtml" />
+
+                            <h:dataTable border="1" cellpadding="0" cellspacing="0" styleClass="listHier"
+                                value="#{partBean.itemContents}" var="question">
+                                <h:column>
+                                    <h:panelGrid columns="2" border="1" width="100%">
+                                        <h:panelGroup>
+                                            <h:outputText styleClass="tier1" value="#{authorMessages.q}" />
+                                            <h:outputText styleClass="tier1" value="#{question.number}" />
+                                            <h:outputText styleClass="tier1" value="#{question.itemData.type.keyword}" />
+                                            <h:outputText styleClass="tier1" value="#{question.itemData.score}" />
+                                            <h:outputText styleClass="tier1" value="#{authorMessages.points_lower_case}" />
+                                            <h:outputText styleClass="extraCreditLabel"
+                                                rendered="#{question.itemData.isExtraCredit}"
+                                                value=" #{authorMessages.extra_credit_preview}" />
+                                        </h:panelGroup>
+                                    </h:panelGrid>
+
+                                    <h:panelGrid>
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 9}">
+                                            <ui:include src="/jsf/author/preview_item/Matching.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 11}">
+                                            <ui:include src="/jsf/author/preview_item/FillInNumeric.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 8}">
+                                            <ui:include src="/jsf/author/preview_item/FillInTheBlank.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 7}">
+                                            <ui:include src="/jsf/author/preview_item/AudioRecording.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 6}">
+                                            <ui:include src="/jsf/author/preview_item/FileUpload.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 5}">
+                                            <ui:include src="/jsf/author/preview_item/ShortAnswer.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 4}">
+                                            <ui:include src="/jsf/author/preview_item/TrueFalse.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 3}">
+                                            <ui:include src="/jsf/author/preview_item/MultipleChoiceSurvey.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 2}">
+                                            <ui:include src="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 1}">
+                                            <ui:include src="/jsf/author/preview_item/MultipleChoiceSingleCorrect.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 12}">
+                                            <ui:include src="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 14}">
+                                            <ui:include src="/jsf/author/preview_item/ExtendedMatchingItems.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 13}">
+                                            <ui:include src="/jsf/author/preview_item/MatrixChoicesSurvey.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 15}">
+                                            <ui:include src="/jsf/author/preview_item/CalculatedQuestion.xhtml" />
+                                        </h:panelGroup>
+
+                                        <h:panelGroup rendered="#{question.itemData.typeId == 16}">
+                                            <ui:include src="/jsf/author/preview_item/ImageMapQuestion.xhtml" />
+                                        </h:panelGroup>
+                                    </h:panelGrid>
+                                </h:column>
+                            </h:dataTable>
+                        </h:column>
+                    </h:dataTable>
+
+                    <p class="act">
+                        <h:commandButton value="#{authorMessages.button_back}" action="editAssessment"
+                            type="submit" styleClass="active" />
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

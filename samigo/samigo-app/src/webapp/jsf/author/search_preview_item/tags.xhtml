@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <br />
+    <h:outputLabel value="#{questionPoolMessages.t_tags}" />
+    <br />
+
+    <t:dataList value="#{itemValue.itemTagSet.toArray()}" var="tag" layout="unorderedList">
+        <span>
+            <h:outputText value="#{tag.tagLabel}" />
+            <span class="collection">(<h:outputText value="#{tag.tagCollectionName}" />)</span>
+        </span>
+        <br />
+    </t:dataList>
+
+</ui:composition>

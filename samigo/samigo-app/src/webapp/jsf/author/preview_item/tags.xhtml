@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <script>includeWebjarLibrary('select2');</script>
+
+    <script>
+        //<![CDATA[
+        $(document).ready(function () {
+            var selector = '.tag_selector_' + '<h:outputText value="#{question.itemData.itemId}" />';
+            $(selector).select2({
+                width: '50%',
+                disabled: true,
+                escapeMarkup: function (markup) {
+                    return markup;
+                },
+                templateResult: window['formatRepo_' + '<h:outputText value="#{question.itemData.itemId}" />'],
+                templateSelection: window['formatRepoSelection_' + '<h:outputText value="#{question.itemData.itemId}" />']
+            });
+
+            var tagData = <h:outputText value="#{question.tagsListToJson}" escape="false" />;
+            if (tagData.length < 1) {
+                $('.tag_div_' + '<h:outputText value="#{question.itemData.itemId}" />').hide();
+            }
+            tagData.forEach(function (obj) {
+                var newOption = new Option(obj['tagLabel'], obj['tagId'], true, true);
+                $(selector).append(newOption);
+                $(selector + ' option[value=' + obj['tagId'] + ']').attr('title', obj['tagCollectionName']);
+            });
+            $(selector).trigger('change');
+            $('.temporalhide_' + '<h:outputText value="#{question.itemData.itemId}" />').show();
+        });
+
+        window['formatRepo_' + '<h:outputText value="#{question.itemData.itemId}" />'] = function (repo) {
+            return $('<span>' + repo.text + ' <span class="collection">(' + repo.collection + ')</span></span>');
+        };
+
+        window['formatRepoSelection_' + '<h:outputText value="#{question.itemData.itemId}" />'] = function (repo) {
+            var selector = '.tag_selector_' + '<h:outputText value="#{question.itemData.itemId}" />';
+            if (typeof repo.collection !== 'undefined') {
+                return $('<span>' + repo.text + ' <span class="collection">(' + repo.collection + ')</span></span>');
+            }
+
+            var collection = $(selector + ' option[value=' + repo.id + ']').attr('title');
+            if (typeof collection !== 'undefined') {
+                return $('<span>' + repo.text + ' <span class="collection">(' + collection + ')</span></span>');
+            }
+            return $('<span>' + repo.text + '</span>');
+        };
+        //]]>
+    </script>
+
+    <div class="temporalhide_#{question.itemData.itemId}" style="display:none;">
+        <div class="longtext tag_div_#{question.itemData.itemId}" style="#{itemauthor.showTagsStyle}">
+            <h:outputLabel value="#{authorMessages.tag_title}" /><br />
+
+            <h:panelGroup>
+                <select class="tag_selector_#{question.itemData.itemId}"
+                    name="tag_selector_#{question.itemData.itemId}[]"
+                    id="tag_selector_#{question.itemData.itemId}" multiple="multiple">
+                </select>
+            </h:panelGroup>
+        </div>
+    </div>
+
+</ui:composition>

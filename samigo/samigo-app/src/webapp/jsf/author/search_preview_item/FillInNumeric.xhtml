@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputLabel escape="false" value="#{authorMessages.fill_in_numeric}" />
+    <br />
+
+    <h:dataTable value="#{searchQuestionBean.getData(param.idString)}" var="item" width="100%">
+        <h:column>
+            <h:outputText escape="false" value="#{item.text}" />
+
+            <ui:include src="/jsf/author/search_preview_item/attachment.xhtml">
+                <ui:param name="item" value="#{item}" />
+            </ui:include>
+
+            <h:dataTable value="#{item.itemTextArraySorted}" var="itemText">
+                <h:column />
+            </h:dataTable>
+
+            <br />
+            <h:outputLabel value="#{authorMessages.answerKey}: " />
+            <br />
+            <h:dataTable value="#{item.itemTextArraySorted}" var="itemText">
+                <h:column>
+                    <samigo:dataLine value="#{itemText.answerArraySorted}" var="answer"
+                        separator=", " first="0" rows="100">
+                        <h:column>
+                            <h:outputText escape="false" value="#{answer.text}" />
+                        </h:column>
+                    </samigo:dataLine>
+                </h:column>
+            </h:dataTable>
+
+            <h:outputLabel rendered="#{answer.text != null and answer.text ne ''}" value="#{authorMessages.preview_model_short_answer}: " />
+            <h:outputText rendered="#{answer.text != null and answer.text ne ''}" escape="false" value="#{answer.text}" />
+
+            <br />
+
+            <h:panelGroup rendered="#{item.correctItemFeedback != null and item.correctItemFeedback ne '' and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.correctItemFeedback}: " />
+                <h:outputText value="#{item.correctItemFeedback}" escape="false" />
+                <br />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{item.inCorrectItemFeedback != null and item.inCorrectItemFeedback ne '' and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: " />
+                <h:outputText value="#{item.inCorrectItemFeedback}" escape="false" />
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{item.correctItemFeedback != null and item.correctItemFeedback ne '' and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.correctItemFeedback}: " />
+                <h:outputText value="#{item.correctItemFeedback}" escape="false" />
+                <br />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{item.inCorrectItemFeedback != null and item.inCorrectItemFeedback ne '' and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: " />
+                <h:outputText value="#{item.inCorrectItemFeedback}" escape="false" />
+            </h:panelGroup>
+
+            <ui:include src="/jsf/author/search_preview_item/tags.xhtml">
+                <ui:param name="itemValue" value="#{item}" />
+            </ui:include>
+        </h:column>
+    </h:dataTable>
+
+</ui:composition>

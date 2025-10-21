@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputText escape="false" value="#{question.itemData.text}" />
+
+    <ui:include src="/jsf/author/preview_item/attachment.xhtml" />
+
+    <br />
+    <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
+        <h:column>
+            <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
+                <h:column>
+                    <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o" />
+                    <h:outputText escape="false" value="#{answer.text}">
+                        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+                    </h:outputText>
+                </h:column>
+            </h:dataTable>
+
+            <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.generalItemFeedback}: " />
+                <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.generalItemFeedback}: " />
+                <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
+            </h:panelGroup>
+        </h:column>
+    </h:dataTable>
+
+    <ui:include src="/jsf/author/preview_item/tags.xhtml" />
+
+</ui:composition>

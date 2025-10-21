@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h3>
+        <h:outputText escape="false" value="#{searchQuestionBean.getItem(param.idString)[0].itemData.themeText}" />
+    </h3>
+
+    <h:dataTable value="#{searchQuestionBean.getData(param.idString)}" var="item" width="100%">
+        <h:column>
+            <h:dataTable value="#{item.emiAnswerOptions}" var="option" rendered="#{item.isAnswerOptionsSimple}" cellpadding="3">
+                <h:column>
+                    <h:outputText escape="false" value="#{option.label}. " />
+                </h:column>
+                <h:column>
+                    <h:outputText escape="false" value=" #{option.text}" />
+                </h:column>
+            </h:dataTable>
+
+            <h:outputText value="#{item.emiAnswerOptionsRichText}" escape="false" rendered="#{item.isAnswerOptionsRich}" />
+
+            <h:dataTable value="#{item.itemAttachmentList}" var="attach" rendered="#{item.isAnswerOptionsRich}" cellpadding="4">
+                <h:column>
+                    <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                </h:column>
+                <h:column>
+                    <h:outputLink value="#{attach.location}" target="new_window">
+                        <h:outputText escape="false" value="#{attach.filename}" />
+                    </h:outputLink>
+                </h:column>
+                <h:column>
+                    <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink}" />
+                </h:column>
+            </h:dataTable>
+
+            <h3>
+                <h:outputText escape="false" value="#{item.leadInText}" />
+            </h3>
+
+            <h:dataTable value="#{item.emiQuestionAnswerCombinations}" var="combo" styleClass="simpleBorder" cellspacing="0" cellpadding="4">
+                <h:column>
+                    <h:outputText escape="false" value="#{combo.emiCorrectOptionLabels}" />
+                    <h:outputText escape="false" value="(#{combo.requiredOptionsCount} #{authorMessages.answers_required})" rendered="#{combo.requiredOptionsCount gt 0}" />
+                </h:column>
+                <h:column>
+                    <h:panelGroup rendered="#{(combo.text != null and combo.text ne '') or combo.hasAttachment}">
+                        <h:outputText escape="false" value="#{combo.sequence}. #{combo.text}" />
+                        <h:dataTable value="#{combo.itemTextAttachmentList}" var="attach" styleClass="noBorder">
+                            <h:column>
+                                <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                            </h:column>
+                            <h:column>
+                                <h:outputLink value="#{attach.location}" target="new_window">
+                                    <h:outputText escape="false" value="#{attach.filename}" />
+                                </h:outputLink>
+                            </h:column>
+                            <h:column>
+                                <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink}" />
+                            </h:column>
+                        </h:dataTable>
+                    </h:panelGroup>
+                </h:column>
+            </h:dataTable>
+
+            <h:panelGroup>
+                <h:outputLabel value="#{authorMessages.answerKey}: " />
+                <h:outputText escape="false" value="#{item.answerKey}" />
+                <br />
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{item.correctItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.correctItemFeedback}: " />
+                <h:outputText value="#{item.correctItemFeedback}" escape="false" />
+                <br />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{item.incorrectItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: " />
+                <h:outputText value="#{item.inCorrectItemFeedback}" escape="false" />
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{item.correctItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.correctItemFeedback}: " />
+                <h:outputText value="#{item.correctItemFeedback}" escape="false" />
+                <br />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{item.incorrectItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: " />
+                <h:outputText value="#{item.inCorrectItemFeedback}" escape="false" />
+            </h:panelGroup>
+
+            <ui:include src="/jsf/author/search_preview_item/tags.xhtml">
+                <ui:param name="itemValue" value="#{item}" />
+            </ui:include>
+        </h:column>
+    </h:dataTable>
+
+</ui:composition>
