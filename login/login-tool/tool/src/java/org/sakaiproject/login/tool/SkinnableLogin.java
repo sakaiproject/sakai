@@ -4,13 +4,13 @@
  ***********************************************************************************
  *
  * Copyright (c) 2008 The Sakai Foundation.
- * 
+ *
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software 
  * distributed under the License is distributed on an "AS IS" BASIS, 
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
@@ -89,7 +89,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	private transient LoginService loginService;
 
 	private static ResourceLoader rb = new ResourceLoader("auth");
-	
+
 	// the list of login choices that could be supplied
 	enum AuthChoices {
 		CONTAINER,
@@ -137,7 +137,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 	@SuppressWarnings(value = "HRS_REQUEST_PARAMETER_TO_HTTP_HEADER", justification = "Looks like the data is already URL encoded")
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
-		throws ServletException, IOException 
+			throws ServletException, IOException
 	{
 		// get the session
 		Session session = SessionManager.getCurrentSession();
@@ -174,7 +174,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		{
 
 			// if this is an impersonation, then reset the users old session and
-			if (isImpersonating()) 
+			if (isImpersonating())
 			{
 				UsageSession oldSession = (UsageSession) session.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
 				String impersonatingEid = session.getUserEid();
@@ -191,12 +191,12 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				session.setUserEid(userEid);
 				authzGroupService.refreshUser(userId);
 
-				try 
+				try
 				{
 					res.sendRedirect(serverConfigurationService.getString("portalPath", "/portal"));
 					res.getWriter().close();
-				} 
-				catch (IOException e) 
+				}
+				catch (IOException e)
 				{
 					log.error("failed to redirect after impersonating", e);
 				}
@@ -221,7 +221,11 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			}
 			return;
 		}
-		
+		if(session != null && session.getUserId() != null) {
+			String returnUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
+			complete(returnUrl, session, tool, res);
+		}
+
 		//SAK-29092 if an auth is specified in the URL, skip any other checks and go straight to it
 		String authPreferred = req.getParameter("auth");
 		log.debug("authPreferred: " + authPreferred);
@@ -230,7 +234,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			log.debug("Going straight to xlogin");
 			skipContainer = true;
 		}
-		
+
 		// see if we need to check container
 		boolean checkContainer = serverConfigurationService.getBoolean("container.login", false);
 		if (checkContainer && !skipContainer)
@@ -267,8 +271,8 @@ public class SkinnableLogin extends HttpServlet implements Login {
 					log.debug("Going straight to container login");
 					showAuthChoice = false;
 				}
-				
-				if (showAuthChoice && !(StringUtils.isEmpty(helperPath) || helperPath.equals("/portal") || 
+
+				if (showAuthChoice && !(StringUtils.isEmpty(helperPath) || helperPath.equals("/portal") ||
 						helperPath.equals("/portal/") )) {
 					String xloginUrl = serverConfigurationService.getPortalUrl() + "/xlogin";
 
@@ -395,7 +399,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				// Decide whether or not to put up the Cancel
 				String portalUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
 				String actualPortal = serverConfigurationService.getPortalUrl();
-						if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
+				if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
 					rcontext.put("doCancel", Boolean.TRUE);
 				}
 
@@ -603,7 +607,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	/**
 	 * Helper to log failed login attempts (SAK-22430)
 	 * @param credentials the credentials supplied
-	 * 
+	 *
 	 * Note that this could easily be extedned to track login attempts per session and report on it here
 	 */
 	private void logFailedAttempt(LoginCredentials credentials) {
@@ -615,16 +619,16 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 	/**
 	 * Helper to see if this session has used SuTool to become another user
-	 * 
+	 *
 	 * Returns true if the user is currently impersonating.
 	 */
-	private boolean isImpersonating() 
+	private boolean isImpersonating()
 	{
 		Session s = SessionManager.getCurrentSession();
 		String  userId = s.getUserId();
 		UsageSession session = (UsageSession) s.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
 
-		if (session != null) 
+		if (session != null)
 		{
 			// If we have a session for this user, simply reuse
 			if (userId != null)
@@ -632,13 +636,13 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				if (userId.equals(session.getUserId()))
 				{
 					return false;
-				} 
-				else 
+				}
+				else
 				{
 					return true;
 				}
 			}
-			else 
+			else
 			{
 				log.error("null userId in check isImpersonating");
 			}
