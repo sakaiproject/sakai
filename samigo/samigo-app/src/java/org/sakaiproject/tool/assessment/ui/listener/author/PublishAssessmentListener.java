@@ -437,7 +437,7 @@ public class PublishAssessmentListener
       if (StringUtils.isNotBlank(settingsAlias)) {
         aliasToUse = settingsAlias;
       } else {
-        log.warn("Alias was not set before publishing assessment {}; generating fallback UUID", pub.getData().getAssessmentId());
+        log.warn("Alias was not set before publishing assessment {}; generating fallback UUID", assessment.getAssessmentId());
         // Generate a new unique alias
         aliasToUse = UUID.randomUUID().toString();
       }
