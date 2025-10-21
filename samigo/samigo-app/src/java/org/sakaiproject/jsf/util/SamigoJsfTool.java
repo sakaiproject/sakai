@@ -75,9 +75,21 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
     @Override
     protected String redirectRequestedTarget(String target)
     {
-        if (target != null && target.startsWith("/*/"))
-        {
-            return target.substring(2);
+        if (target != null) {
+            if (target.startsWith("/*/")) {
+                return target.substring(2);
+            }
+
+            if (target.endsWith(".jsp")) {
+                String candidate = target.substring(0, target.length() - 4) + ".xhtml";
+                try {
+                    if (getServletContext().getResource(candidate) != null) {
+                        return candidate;
+                    }
+                } catch (Exception e) {
+                    log.debug("Unable to resolve candidate Facelets view {}", candidate, e);
+                }
+            }
         }
         return super.redirectRequestedTarget(target);
     }

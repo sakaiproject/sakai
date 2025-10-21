@@ -18,7 +18,7 @@
         SelectActionListener selectListener = new SelectActionListener();
         selectListener.processAction(null);
 %>
-<jsp:forward page="/jsf/select/selectIndex_content.jsp" />
+<jsp:forward page="/jsf/select/selectIndex_container.xhtml" />
 <%
     }
 %>

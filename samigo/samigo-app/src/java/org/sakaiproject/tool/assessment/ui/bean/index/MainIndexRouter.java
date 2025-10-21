@@ -61,7 +61,7 @@ public class MainIndexRouter {
             redirect(context, "/jsf/author/authorIndex_container.xhtml");
         } else {
             triggerSelectFlow();
-            redirect(context, "/jsf/select/selectIndex_content.jsp");
+            redirect(context, "/jsf/select/selectIndex_container.xhtml");
         }
     }
 

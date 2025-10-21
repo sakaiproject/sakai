@@ -262,31 +262,7 @@
 						<configuration>
 							<validationSets>
 								<validationSet>
-									<dir>${project.basedir}/src/webapp/jsf/author</dir>
-									<includes>
-										<include>**/*.xhtml</include>
-									</includes>
-								</validationSet>
-								<validationSet>
-									<dir>${project.basedir}/src/webapp/jsf/author/inc</dir>
-									<includes>
-										<include>**/*.xhtml</include>
-									</includes>
-								</validationSet>
-								<validationSet>
-									<dir>${project.basedir}/src/webapp/jsf/author/preview_item</dir>
-									<includes>
-										<include>**/*.xhtml</include>
-									</includes>
-								</validationSet>
-								<validationSet>
-									<dir>${project.basedir}/src/webapp/jsf/shared</dir>
-									<includes>
-										<include>**/*.xhtml</include>
-									</includes>
-								</validationSet>
-								<validationSet>
-									<dir>${project.basedir}/src/webapp/jsf/index</dir>
+									<dir>${project.basedir}/src/webapp</dir>
 									<includes>
 										<include>**/*.xhtml</include>
 									</includes>

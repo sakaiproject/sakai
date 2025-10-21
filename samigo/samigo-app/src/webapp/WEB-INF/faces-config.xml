@@ -323,7 +323,7 @@
     <from-view-id>*</from-view-id>
     <navigation-case>
       <from-outcome>select</from-outcome>
-      <to-view-id>/jsf/select/selectIndex.jsp</to-view-id>
+      <to-view-id>/jsf/select/selectIndex_container.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>view</from-outcome>
@@ -420,7 +420,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>createAssessment</from-outcome>
-      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/editAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>importAssessment</from-outcome>
@@ -464,11 +464,11 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>editAssessment</from-outcome>
-      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/editAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>previewAssessment</from-outcome>
-      <to-view-id>/jsf/author/previewAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/previewAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>printAssessment</from-outcome>
@@ -512,7 +512,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>removePart</from-outcome>
-      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/editAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeQuestion</from-outcome>
@@ -702,11 +702,11 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>previewPool</from-outcome>
-      <to-view-id>/jsf/questionpool/previewPool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/previewPool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>previewQuestion</from-outcome>
-      <to-view-id>/jsf/questionpool/previewQuestion.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/previewQuestion.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>importPool</from-outcome>
@@ -852,7 +852,7 @@
     <from-view-id>/jsf/author/item/multipleChoice.jsp</from-view-id>
     <navigation-case>
       <from-outcome>MCAddSuccess</from-outcome>
-      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/editAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>MCAddFailure</from-outcome>
@@ -872,7 +872,7 @@
     <from-view-id>/jsf/author/item/fillInTheBlank.jsp</from-view-id>
     <navigation-case>
       <from-outcome>FIBSuccess</from-outcome>
-      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/editAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>FIBFailure</from-outcome>
