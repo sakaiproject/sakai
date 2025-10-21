@@ -312,9 +312,7 @@
 
         <div class="col-md-10">
             <h:panelGrid>
-                <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author">
-                <f:validateLength maximum="60000"/>
-                </samigo:wysiwyg>
+                <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author" maxCharCount="60000" />
             </h:panelGrid>
         </div>
     </div>
@@ -1007,9 +1005,7 @@
         <h:outputLabel value="#{assessmentSettingsMessages.submission_message}" styleClass="col-md-10 form-label" />
         <div class="col-md-10">
             <h:panelGrid>
-                <samigo:wysiwyg rows="140" value="#{assessmentSettings.submissionMessage}" hasToggle="yes" mode="author">
-                    <f:validateLength maximum="4000"/>
-                </samigo:wysiwyg>
+                <samigo:wysiwyg rows="140" value="#{assessmentSettings.submissionMessage}" hasToggle="yes" mode="author" maxCharCount="4000" />
             </h:panelGrid>
         </div>
     </h:panelGroup>

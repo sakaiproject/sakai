@@ -1,54 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<!--
-* $Id$
-<%--
-***********************************************************************************
-*
-* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.osedu.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License. 
-*
-**********************************************************************************/
---%>
--->
-  <f:view>
-    <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-      <script src="/samigo-app/js/authoring.js"></script>
-      </head>
-<body onload="countNum();;<%= request.getAttribute("html.body.onload") %>">
-
-<div class="portletBody container-fluid">
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.item_display_author}" />
+            </title>
+            <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+        </h:head>
+        <h:body onload="countNum();#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
 <!-- content... -->
 <!-- FORM -->
 
 
 
 <!-- HEADING -->
-<%@ include file="/jsf/author/item/itemHeadings.jsp" %>
+<ui:include src="/jsf/author/item/itemHeadings.xhtml" />
 <h:form id="itemForm">
-<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_edit_tf" /></f:verbatim>
-<h:panelGroup rendered="#{itemauthor.currentItem.itemId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{itemauthor.currentItem.itemId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+    <ui:fragment>
+        <input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_edit_tf" />
+    </ui:fragment>
+    <ui:fragment rendered="#{itemauthor.currentItem.itemId != null}">
+        <input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="#{itemauthor.currentItem.itemId}" />
+    </ui:fragment>
 <p class="act">
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
@@ -141,7 +124,7 @@
     </div>
 
     <!-- Extra Credit -->
-    <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+    <ui:include src="/jsf/author/inc/extraCreditSetting.xhtml" />
 
     <!-- 2 TEXT -->
     <div class="form-group row">
@@ -150,15 +133,13 @@
         <!-- WYSIWYG -->   
         <div class="col-md-10">
             <h:panelGrid>
-                <samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
-                    <f:validateLength maximum="60000"/>
-                </samigo:wysiwyg>
+                <samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author" maxCharCount="60000" />
             </h:panelGrid>
         </div>
     </div>
 
     <!-- 2a ATTACHMENTS -->
-    <%@ include file="/jsf/author/item/attachment.jsp" %>
+    <ui:include src="/jsf/author/item/attachment.xhtml" />
 
     <!-- 3 ANSWER -->
     <div class="form-group row">
@@ -184,11 +165,11 @@
     </div>
 
     <!-- 4a TIMED -->
-    <%@ include file="/jsf/author/item/timed.jsp" %>
+    <ui:include src="/jsf/author/item/timed.xhtml" />
 
     <!-- 5 PART -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment'}">
-        <h:panelGroup rendered="#{!author.isEditPoolFlow}">
+        <h:panelGroup rendered="#{not author.isEditPoolFlow}">
             <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-2 form-label"/>
             <div class="col-md-10">
                 <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
@@ -200,7 +181,7 @@
 
     <!-- 6 POOL -->
     <h:panelGroup styleClass="form-group row" layout="block" 
-                  rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">  
+                  rendered="#{itemauthor.target == 'assessment'  and  author.isEditPendingAssessmentFlow}">  
         <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-2 form-label"/>
         <div class="col-md-10">
             <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
@@ -211,7 +192,7 @@
     </h:panelGroup>
 
     <!-- FEEDBACK -->
-    <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}"><br/>
+    <h:panelGroup rendered="#{itemauthor.target == 'questionpool' or (itemauthor.target != 'questionpool' and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2') or (!author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2')}"><br />
         <div class="form-group row">
             <h2>
                 <h:outputText value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-label"/>
@@ -222,9 +203,7 @@
             <!-- WYSIWYG -->
             <div class="col-md-10">
                 <h:panelGrid>
-                    <samigo:wysiwyg identity="questionFeedbackCorrect" rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
-                        <f:validateLength maximum="60000"/>
-                    </samigo:wysiwyg>
+                    <samigo:wysiwyg identity="questionFeedbackCorrect" rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author" maxCharCount="60000" />
                 </h:panelGrid>
             </div>
         </div>
@@ -233,9 +212,7 @@
             <!-- WYSIWYG -->
             <div class="col-md-10">
                 <h:panelGrid>
-                    <samigo:wysiwyg identity="questionFeedbackIncorrect" rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
-                        <f:validateLength maximum="60000"/>
-                    </samigo:wysiwyg>
+                    <samigo:wysiwyg identity="questionFeedbackIncorrect" rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author" maxCharCount="60000" />
                 </h:panelGrid>
             </div>
         </div>
@@ -264,25 +241,8 @@
        </div>
     </h:panelGroup>
 
-    <%@ include file="/jsf/author/item/tags.jsp" %>
+    <ui:include src="/jsf/author/item/tags.xhtml" />
 
-
-<%--
-<div class="longtext tier1">
-  <h:panelGrid columns="3" rendered="#{itemauthor.showMetadata == 'true'}">
-  <f:verbatim><span id="num8" class="number"></span></f:verbatim>
-  <h:outputLabel for="obj" value="#{authorMessages.objective}" />
-  <h:inputText id="obj" value="#{itemauthor.currentItem.objective}" />
-  <f:verbatim><span id="num9" class="number"></span></f:verbatim>
-  <h:outputLabel for="keyword" value="#{authorMessages.keyword}" />
-  <h:inputText id="keyword" value="#{itemauthor.currentItem.keyword}" />
-  <f:verbatim><span id="num10" class="number"></span></f:verbatim>
-  <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" />
-  <h:inputText id="rubric" value="#{itemauthor.currentItem.rubric}" />
-  </h:panelGrid>
-
-  </div>
---%>
 
 <p class="act">
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
@@ -312,7 +272,8 @@
 
 
 <!-- end content -->
-</div>
-    </body>
-  </html>
-</f:view>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

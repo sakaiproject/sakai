@@ -1,60 +1,36 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8"
-	language="java"%>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo"%>
-<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai"%>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!--
-* $Id: extendedMatchingItems.jsp 59352 2009-03-31 16:59:41Z gopal@zestware.com $
-<%--
-***********************************************************************************
-*
-* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.osedu.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License. 
-*
-**********************************************************************************/
---%>
--->
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai">
 
-<f:view>
-	<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<%=request.getAttribute("html.head")%>
-<title><h:outputText
-		value="#{authorMessages.item_display_author}" />
-</title>
-<!-- AUTHORING -->
-<link type="text/css"
-	rel="Stylesheet" />
-<script>
-	var emiAuthoring = true;
-</script>
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.item_display_author}" />
+            </title>
+            <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+            <script type="text/javascript" src="/samigo-app/js/utils-emi.js"></script>
+            <script type="text/javascript" src="/samigo-app/js/authoring-emi.js"></script>
+            <h:outputScript target="head">
+                //<![CDATA[
+                var emiAuthoring = true;
+                //]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div id="portletContent" class="portletBody" style="display: none;">
 
-<script src="/samigo-app/js/authoring.js"></script>
-<script src="/samigo-app/js/utils-emi.js"></script>
-<script src="/samigo-app/js/authoring-emi.js"></script>
-</head>
-<body onload="<%=request.getAttribute("html.body.onload")%>">
-    
-	<div id="portletContent" class="portletBody" style="display: none;">
 		<!-- content... -->
 		<!-- FORM -->
 		<!-- HEADING -->
-		<%@ include file="/jsf/author/item/itemHeadings.jsp"%>
+		<ui:include src="/jsf/author/item/itemHeadings.xhtml" />
 		<table width="80%">
 			<tbody id='emiErrorMessageTable'>
 			</tbody>
@@ -127,7 +103,7 @@
 			</div>
 
 			<!-- Extra Credit -->
-			<%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+			<ui:include src="/jsf/author/inc/extraCreditSetting.xhtml" />
 
 			<!-- 2 QUESTION THEME TEXT -->
 			<h3>
@@ -141,10 +117,10 @@
 			<h:inputText id="themetext"
 				value="#{itemauthor.currentItem.itemText}" required="true" size="60"></h:inputText>
 			<h:message for="themetext" styleClass="validate" />
-			<f:verbatim>
+			
 				<br />
 				<br />
-			</f:verbatim>
+			
 
 			<!-- 3 ANSWER OPTIONS - SIMPLE OR RICH TEXT-->
 			<div class="act greyBox">
@@ -156,9 +132,9 @@
 						<h:outputText  value=" (#{authorMessages.emi_whats_this})"/>
 					</h:outputLink>
 				</h3>
-				<f:verbatim>
+				
 					<br />
-				</f:verbatim>
+				
 				<div
 					style="padding: 2px; border-style: outset; border-radius: 1em; border-color: black; border-width: 1px;">
 					<h:outputLabel for="emiAnswerOptionsSimpleOrRich" value="#{authorMessages.select_appropriate_format}" />
@@ -175,9 +151,9 @@
 							itemValue="1" />
 					</h:selectOneRadio>
 				</div>
-				<f:verbatim>
+				
 					<br />
-				</f:verbatim>
+				
 
 				<!-- 3.1(a) ANSWER OPTIONS - SIMPLE TEXT OPTIONS -->
 				<!-- dynamically generate rows of answer options -->
@@ -193,9 +169,9 @@
 
 								<h:panelGroup>
 									<h:outputText id="Label" value="#{answer.label}" />
-									<f:verbatim>
+									
 										<div style="width: 10px"></div>
-									</f:verbatim>
+									
 								</h:panelGroup>
 
 								<h:panelGrid>
@@ -206,9 +182,9 @@
                                 <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
 									<h:outputLink id="RemoveLink"
 										title="#{authorMessages.t_removeO}">
-										<f:verbatim>
+										
 											<span class="bi bi-x" aria-hidden="true"></span>
-										</f:verbatim>
+										
 									</h:outputLink>
 								</h:panelGroup>
 							</h:panelGrid>
@@ -265,16 +241,16 @@
 						<h:panelGroup rendered="#{itemauthor.hasAttachment}">
 							<h:dataTable value="#{itemauthor.attachmentList}" var="attach">
 								<h:column>
-									<%@ include file="/jsf/shared/mimeicon.jsp"%>
+								<ui:include src="/jsf/shared/mimeicon.xhtml" />
 								</h:column>
 								<h:column>
-									<f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+										&#160;&#160;&#160;&#160;
 									<h:outputLink value="#{attach.location}" target="new_window">
 										<h:outputText escape="false" value="#{attach.filename}" />
 									</h:outputLink>
 								</h:column>
 								<h:column>
-									<f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+										&#160;&#160;&#160;&#160;
 									<h:outputText escape="false"
 										value="(#{attach.fileSize} #{generalMessages.kb})"
 										rendered="#{!attach.isLink}" />
@@ -295,10 +271,10 @@
 						</h:panelGroup>
 					</div>
 					<!-- ATTACHMENTS ABOVE - OPTIONS-->
-					<f:verbatim>
+					
 						<br />
 						<br />
-					</f:verbatim>
+					
 					<div class="tier2">
 						<h:outputLabel for="answerOptionsRichCount" value="#{authorMessages.answer_options_count}" />
 						<h:selectOneMenu id="answerOptionsRichCount"
@@ -362,9 +338,9 @@
 						<h:outputText  value=" (#{authorMessages.emi_whats_this})"/>
 					</h:outputLink>
 				</h3>
-				<f:verbatim>
+				
 					<br />
-				</f:verbatim>
+				
 				<div class="tier2">
 				<h:dataTable id="emiQuestionAnswerCombinations"
 					value="#{itemauthor.currentItem.emiQuestionAnswerCombinationsUI}"
@@ -372,14 +348,14 @@
 					<h:column>
 						<h:panelGrid id="Row" columns="4" columnClasses="alignTop">
 							<h:panelGroup>
-								<f:verbatim>
+								
 									<span id="showItemLabel"></span>
-								</f:verbatim>
+								
 
 								<h:inputHidden id="Label" value="#{answer.label}" />
-								<f:verbatim>
+								
 									<br />
-								</f:verbatim>
+								
 							</h:panelGroup>
 
 							<!-- WYSIWYG -->
@@ -397,16 +373,16 @@
 									<h:panelGroup rendered="#{answer.hasAttachment}">
 										<h:dataTable value="#{answer.attachmentList}" var="attach">
 											<h:column>
-												<%@ include file="/jsf/shared/mimeicon.jsp"%>
+												<ui:include src="/jsf/shared/mimeicon.xhtml" />
 											</h:column>
 											<h:column>
-												<f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+										&#160;&#160;&#160;&#160;
 												<h:outputLink value="#{attach.location}" target="new_window">
 													<h:outputText escape="false" value="#{attach.filename}" />
 												</h:outputLink>
 											</h:column>
 											<h:column>
-												<f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+										&#160;&#160;&#160;&#160;
 												<h:outputText escape="false"
 													value="(#{attach.fileSize} #{generalMessages.kb})"
 													rendered="#{!attach.isLink}" />
@@ -434,21 +410,21 @@
 
 							<h:panelGroup>
 								<h:outputLabel for="correctOptionLabels" value="#{authorMessages.correct_option_labels}" />
-								<f:verbatim>
+								
 									<br />
-								</f:verbatim>
+								
 								<h:inputText id="correctOptionLabels"
 									value="#{answer.correctOptionLabels}" size="6"
 									style="text-transform:uppercase;" />
-								<f:verbatim>
+								
 									<br />
 									<br />
-								</f:verbatim>
+								
 
 								<h:outputLabel for="requiredOptionsCount" value="#{authorMessages.required_options_count}" />
-								<f:verbatim>
+								
 									<br />
-								</f:verbatim>
+								
 								<h:selectOneMenu id="requiredOptionsCount"
 									onchange="this.form.onsubmit();"
 									value="#{answer.requiredOptionsCount}">
@@ -480,10 +456,10 @@
 									<f:selectItem itemLabel="25" itemValue="25" />
 									<f:selectItem itemLabel="26" itemValue="26" />
 								</h:selectOneMenu>
-								<f:verbatim>
+								
 									<br />
 									<br />
-								</f:verbatim>
+								
 								
 								<h:outputLabel for="itemScore" value="#{authorMessages.emi_pt}" />
 								<h:outputLink title="#{authorMessages.emi_whats_this}" value="#" 
@@ -491,9 +467,9 @@
 										onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=point#point','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
 									<h:outputText  value=" (#{authorMessages.emi_whats_this})"/>
 								</h:outputLink>
-								<f:verbatim>
+								
 									<br />
-								</f:verbatim>
+								
 								<h:inputText id="itemScore" value="#{answer.score}" styleClass="ConvertPoint" size="4" maxlength="4" >
 									<f:validateDoubleRange minimum="0.00"/>
 								</h:inputText>
@@ -503,17 +479,17 @@
                             <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
 								<h:outputLink id="RemoveLink"
 									title="#{authorMessages.t_removeI}" rendered="true">
-									<f:verbatim>
+									
 										<span class="bi bi-x" aria-hidden="true"></span>
-									</f:verbatim>
+									
 								</h:outputLink>
 							</h:panelGroup>
 						</h:panelGrid>
 					</h:column>
 				</h:dataTable>
-				<f:verbatim>
+				
 					<br />
-				</f:verbatim>
+				
 				<h:outputLink id="addEmiQuestionAnswerCombinationsLink" value="#" 
 					styleClass="bi bi-plus-circle" rendered="#{author.isEditPendingAssessmentFlow}">
 					<h:outputLabel for="addEmiQuestionAnswerCombinationsSelect" value="#{authorMessages.add_more_items}" />
@@ -533,12 +509,12 @@
 			<br />
 
 			<!-- 5a TIMED -->
-			<%@ include file="/jsf/author/item/timed.jsp" %>
+		<ui:include src="/jsf/author/item/timed.xhtml" />
 
 			<!-- 6 PART -->
 			<h:panelGrid columns="3" columnClasses="shorttext"
-				rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
-				<f:verbatim>&nbsp;</f:verbatim>
+				rendered="#{itemauthor.target == 'assessment' and not author.isEditPoolFlow}">
+					&#160;
 				<h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p} " />
 				<h:selectOneMenu id="assignToPart"
 					value="#{itemauthor.currentItem.selectedSection}">
@@ -548,8 +524,8 @@
 
 			<!-- 7 POOL -->
 			<h:panelGrid columns="3" columnClasses="shorttext"
-				rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
-				<f:verbatim>&nbsp;</f:verbatim>
+				rendered="#{itemauthor.target == 'assessment' and author.isEditPendingAssessmentFlow}">
+					&#160;
 				<h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p} " />
 				<h:selectOneMenu rendered="#{itemauthor.target == 'assessment'}"
 					id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
@@ -578,7 +554,7 @@
 				</h:panelGrid>
 			</h:panelGroup>
 
-			<%@ include file="/jsf/author/item/tags.jsp" %>
+		<ui:include src="/jsf/author/item/tags.xhtml" />
 
 			<p class="act">
 				<h:commandButton rendered="#{itemauthor.target=='assessment'}"
@@ -650,7 +626,6 @@
 
 		<!-- end content -->
 	</div>
-</body>
-	</html>
-</f:view>
-
+        </h:body>
+    </f:view>
+</ui:composition>

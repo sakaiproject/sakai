@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.item_display_author}" />
+            </title>
+            <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+            <h:outputScript target="head">
+                //<![CDATA[
+                var definingAnswers;
+                var mutuallyExclusive;
+                var lastMarkers;
+
+                jQuery(function () {
+                    definingAnswers = jQuery('#defining_answers').html();
+                    mutuallyExclusive = jQuery('#mutually_exclusive').html();
+                    var markers = jQuery('#itemForm\\:newmarkers').val();
+                    if (markers === '{}') {
+                        jQuery('#itemForm\\:customMarker\\:0').prop('checked', true);
+                        jQuery('#customMarkerSettings').hide();
+                    } else {
+                        jQuery('#itemForm\\:customMarker\\:1').prop('checked', true);
+                        checkMarkers();
+                        jQuery('#customMarkerSettings').show();
+                    }
+
+                    jQuery('input[name=\'itemForm\\:customMarker\']').change(function () {
+                        markerRadio();
+                    });
+                    jQuery('#newmarkers').change(function () {
+                        checkMarkers();
+                    });
+                });
+
+                function safeTags(str) {
+                    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                }
+
+                function markerRadio() {
+                    var markerState = jQuery('input[name=\'itemForm\\:customMarker\']\\:checked').val();
+                    if (markerState === 'true') {
+                        if (lastMarkers) {
+                            jQuery('#itemForm\\:newmarkers').val(lastMarkers);
+                            checkMarkers();
+                        }
+                        jQuery('#customMarkerSettings').slideDown();
+                    } else {
+                        jQuery('#customMarkerSettings').slideUp();
+                        lastMarkers = jQuery('#itemForm\\:newmarkers').val();
+                        jQuery('#itemForm\\:newmarkers').val('{}');
+                        checkMarkers();
+                    }
+                }
+
+                function checkMarkers() {
+                    var markerPair = jQuery('#itemForm\\:newmarkers').val();
+                    if (markerPair !== '{}') {
+                        jQuery('#customMarkerSettings').show();
+                    }
+                    var markerEl = document.getElementById('itemForm:newmarkers');
+                    var poolBadMarkersError3 = '#{authorMessages.pool_badmarkers_error_3}';
+                    var poolBadMarkersError2 = '#{authorMessages.pool_badmarkers_error_2}';
+                    var poolBadMarkersError1 = '#{authorMessages.pool_badmarkers_error_1}';
+
+                    if (markerPair.match(/["'.,&<>\\ |*]/)) {
+                        setError(markerEl, poolBadMarkersError3);
+                        return;
+                    }
+                    if (markerPair.charAt(0) === markerPair.charAt(1)) {
+                        setError(markerEl, poolBadMarkersError2);
+                        return;
+                    }
+                    if (markerPair.length === 1 || markerPair.length > 2) {
+                        setError(markerEl, poolBadMarkersError1);
+                        return;
+                    }
+
+                    jQuery('#defining_answers').html(definingAnswers.replace(/\{/g, safeTags(markerPair.charAt(0))).replace(/\}/g, safeTags(markerPair.charAt(1))));
+                    jQuery('#mutually_exclusive').html(mutuallyExclusive.replace(/\{/g, safeTags(markerPair.charAt(0))).replace(/\}/g, safeTags(markerPair.charAt(1))));
+                    removeError(markerEl);
+                }
+
+                function setError(el, msg) {
+                    el.parentNode.querySelector('#validationForbiddenCharacters').innerHTML = 'Error:';
+                    el.parentNode.classList.remove('has-success');
+                    el.parentNode.classList.add('has-error');
+                    el.parentNode.querySelector('label').innerHTML = msg;
+                }
+
+                function removeError(el) {
+                    el.parentNode.querySelector('#validationForbiddenCharacters').innerHTML = '';
+                    el.parentNode.classList.remove('has-error');
+                    el.parentNode.classList.add('has-success');
+                    el.parentNode.querySelector('label').innerHTML = '';
+                }
+                //]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="countNum();#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+                <ui:include src="/jsf/author/item/itemHeadings.xhtml" />
+
+                <h:form id="itemForm">
+                    <ui:fragment>
+                        <input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_edit_fillInNumeric" />
+                    </ui:fragment>
+                    <ui:fragment rendered="#{itemauthor.currentItem.itemId != null}">
+                        <input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="#{itemauthor.currentItem.itemId}" />
+                    </ui:fragment>
+
+                    <p class="act">
+                        <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+                        </h:commandButton>
+                        <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+                        </h:commandButton>
+                        <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.cancel_action}" action="editAssessment" immediate="true">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
+                        </h:commandButton>
+                        <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.cancel_action}" action="editPool" immediate="true">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
+                        </h:commandButton>
+                    </p>
+
+                    <div class="form-group row">
+                        <h:outputLabel for="answerptr" value="#{authorMessages.answer_point_value}" styleClass="col-md-2 form-label" />
+                        <div class="col-md-2">
+                            <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
+                                <f:validateDoubleRange minimum="0.00" />
+                            </h:inputText>
+                            <h:message for="answerptr" styleClass="validate" />
+                        </div>
+                    </div>
+
+                    <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
+                        <div class="form-group row">
+                            <h:outputLabel for="answerminptr" value="#{authorMessages.answer_min_point_value}" styleClass="col-md-2 form-label" />
+                            <div class="col-md-2">
+                                <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="form-control ConvertPoint">
+                                    <f:validateDoubleRange />
+                                </h:inputText>
+                                <h:outputText value="#{authorMessages.answer_min_point_info}" />
+                                <h:message for="answerminptr" styleClass="validate" />
+                            </div>
+                        </div>
+                    </f:subview>
+
+                    <ui:include src="/jsf/author/inc/extraCreditSetting.xhtml" />
+
+                    <div class="form-group row">
+                        <h:outputLabel value="#{authorMessages.fib_marker}" styleClass="col-md-2 form-label" />
+                        <div class="col-md-2 samigo-inline-radio">
+                            <h:selectOneRadio value="customMarker" id="customMarker">
+                                <f:selectItem itemValue="false" itemLabel="#{authorMessages.fib_marker_default}" id="default" />
+                                <f:selectItem itemValue="true" itemLabel="#{authorMessages.fib_marker_custom}" id="custom" />
+                            </h:selectOneRadio>
+                            <h:outputText value="#{authorMessages.fib_note_5}" />
+                            <h:message for="customMarker" styleClass="validate" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row" id="customMarkerSettings" style="display: none;">
+                        <h:outputLabel value="#{authorMessages.fib_label_custom_markers}" styleClass="col-md-2 form-label" />
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <h:inputText id="newmarkers" style="width: 50px;" value="#{itemauthor.currentItem.markersPair}" styleClass="form-control" maxlength="2" onchange="checkMarkers()">
+                                    <f:validateLength maximum="2" minimum="2" />
+                                </h:inputText>
+                                <label for="newmarkers" id="validationForbiddenCharacters" class="help-block"></label>
+                            </div>
+                            <h:outputText value="#{authorMessages.fib_note_4}" />
+                        </div>
+                    </div>
+
+                    <div id="defining_answers">
+                        <h:outputText value="#{authorMessages.defining_answers}" />
+                        <br />
+                        <h:outputText value="#{authorMessages.fib_note_1}" />
+                        <br />
+                        <br />
+                        <h:outputText value="#{authorMessages.fib_note_2}" />
+                        <br />
+                        <br />
+                        <h:outputText value="#{authorMessages.fib_note_3}" />
+                    </div>
+
+                    <h:panelGroup layout="block" styleClass="mb-4">
+                        <h:outputText value="#{authorMessages.accepted_characters}" styleClass="h5 border-bottom pb-2 d-block mb-3" escape="false" />
+                        <h:panelGroup layout="block" styleClass="row row-cols-1 row-cols-md-3 g-4">
+                            <h:panelGroup layout="block" styleClass="col">
+                                <h:panelGroup layout="block" styleClass="card h-100 card-body">
+                                    <h:outputText value="#{authorMessages.standard_notation}" styleClass="card-title" escape="false" />
+                                    <h:outputText value="#{authorMessages.standard_notation_example}" styleClass="card-text" escape="false" />
+                                </h:panelGroup>
+                            </h:panelGroup>
+                            <h:panelGroup layout="block" styleClass="col">
+                                <h:panelGroup layout="block" styleClass="card h-100 card-body">
+                                    <h:outputText value="#{authorMessages.scientific_notataion}" styleClass="card-title" escape="false" />
+                                    <h:outputText value="#{authorMessages.scientific_notataion_example}" styleClass="card-text" escape="false" />
+                                </h:panelGroup>
+                            </h:panelGroup>
+                            <h:panelGroup layout="block" styleClass="col">
+                                <h:panelGroup layout="block" styleClass="card h-100 card-body">
+                                    <h:outputText value="#{authorMessages.complex_numbers}" styleClass="card-title" escape="false" />
+                                    <h:outputText value="#{authorMessages.complex_numbers_example}" styleClass="card-text" escape="false" />
+                                </h:panelGroup>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                    </h:panelGroup>
+
+                    <h:panelGroup layout="block" styleClass="mathjax-warning sak-banner-warn" style="display: none;">
+                        <h:outputText value="#{authorMessages.mathjax_usage_warning}" escape="false" />
+                    </h:panelGroup>
+
+                    <div class="longtext">
+                        <h:outputLabel for="questionItemText_textinput" value="#{authorMessages.q_text}" />
+                    </div>
+                    <h:panelGrid>
+                        <samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author" maxCharCount="60000">
+                            <f:validator validatorId="finQuestionValidator" />
+                        </samigo:wysiwyg>
+                    </h:panelGrid>
+                    <br />
+
+                    <ui:include src="/jsf/author/item/attachment.xhtml" />
+                    <ui:include src="/jsf/author/item/timed.xhtml" />
+
+                    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' and not author.isEditPoolFlow}">
+                        <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-2 form-label" />
+                        <div class="col-md-10">
+                            <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
+                                <f:selectItems value="#{itemauthor.sectionSelectList}" />
+                            </h:selectOneMenu>
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' and author.isEditPendingAssessmentFlow}">
+                        <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-2 form-label" />
+                        <div class="col-md-10">
+                            <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
+                                <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
+                                <f:selectItems value="#{itemauthor.poolSelectList}" />
+                            </h:selectOneMenu>
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{itemauthor.target == 'questionpool' or (itemauthor.target != 'questionpool' and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2') or (!author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2')}">
+                        <div class="form-group row">
+                            <h2>
+                                <h:outputText value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-label" />
+                            </h2>
+                        </div>
+                        <div class="form-group row">
+                            <h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" styleClass="form-label" />
+                            <div class="col-md-8">
+                                <h:panelGrid>
+                                    <samigo:wysiwyg identity="questionFeedbackCorrect" rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author" maxCharCount="60000" />
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" styleClass="form-label" />
+                            <div class="col-md-8">
+                                <h:panelGrid>
+                                    <samigo:wysiwyg identity="questionFeedbackIncorrect" rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author" maxCharCount="60000" />
+                                </h:panelGrid>
+                            </div>
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}">
+                        <h:outputLabel value="Metadata" />
+                        <br />
+                        <div class="form-group row">
+                            <h:outputLabel for="obj" value="#{authorMessages.objective}" styleClass="col-md-2 form-label" />
+                            <div class="col-md-5">
+                                <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" styleClass="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <h:outputLabel for="keyword" value="#{authorMessages.keyword}" styleClass="col-md-2 form-label" />
+                            <div class="col-md-5">
+                                <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" styleClass="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" styleClass="col-md-2 form-label" />
+                            <div class="col-md-5">
+                                <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" styleClass="form-control" />
+                            </div>
+                        </div>
+                    </h:panelGroup>
+
+                    <ui:include src="/jsf/author/item/tags.xhtml" />
+
+                    <p class="act">
+                        <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+                        </h:commandButton>
+                        <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+                        </h:commandButton>
+                        <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.cancel_action}" action="editAssessment" immediate="true">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
+                        </h:commandButton>
+                        <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.cancel_action}" action="editPool" immediate="true">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
+                        </h:commandButton>
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

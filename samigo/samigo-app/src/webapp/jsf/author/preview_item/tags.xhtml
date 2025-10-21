@@ -19,7 +19,7 @@
                 templateSelection: window['formatRepoSelection_' + '<h:outputText value="#{question.itemData.itemId}" />']
             });
 
-            var tagData = <h:outputText value="#{question.tagsListToJson}" escape="false" />;
+            var tagData = #{question.tagsListToJson};
             if (tagData.length < 1) {
                 $('.tag_div_' + '<h:outputText value="#{question.itemData.itemId}" />').hide();
             }

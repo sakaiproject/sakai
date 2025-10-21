@@ -832,7 +832,32 @@ function resetSelectMenus(){
 function clickInsertLink(field){
   var insertlinkid = field.id.replace("changeQType", "hiddenlink");
   var hiddenSelector = "#" + insertlinkid.replace( /(:|\.|\[|\]|,)/g, "\\$1" );
-  $(hiddenSelector)[0].click()
+  var hiddenLink = document.querySelector(hiddenSelector);
+
+  if (!hiddenLink) {
+    for (var i = 0; i < document.links.length; i++) {
+      var candidate = document.links[i];
+      if (candidate.id && candidate.id.indexOf("hiddenlink") >= 0) {
+        hiddenLink = candidate;
+        break;
+      }
+    }
+  }
+
+  if (!hiddenLink) {
+    if (window.console && console.warn) {
+      console.warn("Unable to locate hidden insert link for", insertlinkid);
+    }
+    return;
+  }
+
+  if (typeof hiddenLink.click === "function") {
+    hiddenLink.click();
+  } else {
+    var evt = document.createEvent("MouseEvents");
+    evt.initEvent("click", true, true);
+    hiddenLink.dispatchEvent(evt);
+  }
 }
 
 // Show MathJax warning messages if applicable

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <h:outputScript target="body">
+        //<![CDATA[
+        function changeTypeLink(field) {
+            let newIndex = 0;
+            for (let i = 0; i < document.links.length; i += 1) {
+                if (document.links[i].id.indexOf("hiddenlink") >= 0) {
+                    newIndex = i;
+                    break;
+                }
+            }
+
+            if (document.links[newIndex]) {
+                document.links[newIndex].onclick();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!window.jQuery) {
+                return;
+            }
+
+            const itemType = "#{itemauthor.currentItem.itemType}";
+            if (itemType === "2" || itemType === "12") {
+                const select = window.jQuery('#itemFormHeading\\:changeQType2');
+                if (select && select.length) {
+                    select.find('option[value="1"]').prop('selected', true);
+                }
+            }
+
+            const itemAuthorTarget = "#{itemauthor.target}";
+            if (itemAuthorTarget === 'questionpool') {
+                const select = window.jQuery('#itemFormHeading\\:changeQType2');
+                if (select && select.length) {
+                    select.find('option:last').remove();
+                }
+            }
+        });
+
+        function displayEMIHelp() {
+            window.open('../../../../../../samigo-app/emi/help.txt', '_blank', 'location=no,menubar=no,status=no,toolbar=no');
+        }
+        //]]>
+    </h:outputScript>
+
+    <script type="text/javascript">
+        //<![CDATA[
+        includeWebjarLibrary('select2');
+        //]]>
+    </script>
+    <script type="text/javascript" src="/samigo-app/js/select2.js"></script>
+    <h:outputScript library="javax.faces" name="jsf.js" target="head" />
+
+    <input id="toolId" type="hidden" value="#{authoringPortalState.panelFrameId}" />
+    <input id="selectorId" type="hidden" value="itemForm:assignToPool" />
+    <input id="selectorIdFixed" type="hidden" value="itemForm:assignToPoolFixed" />
+
+    <h:form id="itemFormHeading">
+        <!-- Persist relevant fields when toggling item type -->
+        <h:inputHidden value="#{itemauthor.currentItem.itemScore}" />
+        <h:inputHidden value="#{itemauthor.currentItem.itemText}" />
+        <h:inputHidden value="#{itemauthor.currentItem.instruction}" />
+        <h:inputHidden value="#{itemauthor.currentItem.corrFeedback}" />
+        <h:inputHidden value="#{itemauthor.currentItem.incorrFeedback}" />
+        <h:inputHidden value="#{itemauthor.currentItem.generalFeedback}" />
+
+        <ul class="navIntraTool actionToolbar" role="menu">
+            <h:panelGroup rendered="#{authorization.createAssessment or authorization.editAnyAssessment or authorization.editOwnAssessment or authorization.gradeAnyAssessment or authorization.gradeOwnAssessment}">
+                <li role="menuitem">
+                    <span>
+                        <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true">
+                            <h:outputText value="#{generalMessages.assessment}" />
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetResultsCalculatedListener" />
+                        </h:commandLink>
+                    </span>
+                </li>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{authorization.createAssessment}">
+                <li role="menuitem">
+                    <span>
+                        <h:commandLink title="#{generalMessages.add}" action="#{author.getOutcome}" immediate="true">
+                            <f:param name="action" value="create_assessment_title" />
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
+                            <h:outputText value="#{generalMessages.add}" />
+                        </h:commandLink>
+                    </span>
+                </li>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
+                <li role="menuitem">
+                    <span>
+                        <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
+                            <h:outputText value="#{generalMessages.template}" />
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
+                        </h:commandLink>
+                    </span>
+                </li>
+            </h:panelGroup>
+            <li role="menuitem">
+                <span>
+                    <h:commandLink title="#{generalMessages.t_questionPool}" action="poolList" immediate="true">
+                        <h:outputText value="#{generalMessages.questionPool}" />
+                    </h:commandLink>
+                </span>
+            </li>
+            <li role="menuitem">
+                <span>
+                    <h:commandLink id="evnetLogLink" accesskey="#{generalMessages.a_log}" title="#{generalMessages.t_eventLog}" action="eventLog" immediate="true" rendered="#{authorization.adminQuestionPool}">
+                        <h:outputText value="#{generalMessages.eventLog}" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
+                    </h:commandLink>
+                </span>
+            </li>
+            <li role="menuitem">
+                <span>
+                    <h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true" rendered="#{authorization.adminQuestionPool}">
+                        <h:outputText value="#{generalMessages.section_activity}" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
+                    </h:commandLink>
+                </span>
+            </li>
+        </ul>
+
+        <br />
+
+        <nav class="samigo-breadcrumb" aria-label="breadcrumb">
+            <ol class="breadcrumb m-0">
+                <h:panelGroup rendered="#{itemauthor.target == 'assessment'}">
+                    <li class="breadcrumb-item">
+                        <h:commandLink title="#{authorMessages.t_assessment}" action="author" immediate="true">
+                            <h:outputText value="#{authorMessages.global_nav_assessmt}" />
+                        </h:commandLink>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <h:commandLink title="#{authorMessages.t_question}" action="editAssessment" immediate="true">
+                            <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" escape="false" />
+                        </h:commandLink>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <h:outputText value="#{authorMessages.q} #{itemauthor.itemNo}" />
+                    </li>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{itemauthor.target == 'questionpool'}">
+                    <li class="breadcrumb-item">
+                        <h:outputText value="#{authorMessages.global_nav_pools}" />
+                    </li>
+                    <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent" separator="" first="0" rows="100">
+                        <h:column>
+                            <li class="breadcrumb-item">
+                                <h:commandLink action="#{questionpool.editPool}" immediate="true">
+                                    <h:outputText value="#{parent.displayName}" escape="false" />
+                                    <f:param name="qpid" value="#{parent.questionPoolId}" />
+                                </h:commandLink>
+                            </li>
+                        </h:column>
+                    </samigo:dataLine>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <h:commandLink action="#{questionpool.editPool}" immediate="true">
+                            <h:outputText value="#{questionpool.currentPool.displayName}" />
+                            <f:param name="qpid" value="#{questionpool.currentPool.id}" />
+                        </h:commandLink>
+                    </li>
+                </h:panelGroup>
+            </ol>
+        </nav>
+
+        <div class="page-header">
+            <h1>
+                <h:outputText value="#{authorMessages.modify_q}#{authorMessages.column} " />
+                <small>
+                    <h:outputText value="#{assessmentBean.title}" rendered="#{itemauthor.target == 'assessment'}" escape="false" />
+                </small>
+            </h1>
+        </div>
+
+        <h3>
+            <h:outputText value="#{authorMessages.q}" />
+            <h:outputText rendered="#{itemauthor.target == 'assessment'}" value="#{itemauthor.itemNo}" />
+            <small class="rightNav">
+                <h:outputText value=" #{authorMessages.dash} " />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 1 or itemauthor.currentItem.itemType == 2 or itemauthor.currentItem.itemType == 12}" value="#{authorMessages.multiple_choice_type}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 3}" value="#{authorMessages.multiple_choice_surv}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 4}" value="#{authorMessages.true_false}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 5}" value="#{authorMessages.short_answer_essay}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 8}" value="#{authorMessages.fill_in_the_blank}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 11}" value="#{authorMessages.fill_in_numeric}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 9}" value="#{authorMessages.matching}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 7}" value="#{authorMessages.audio_recording}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 6}" value="#{authorMessages.file_upload}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 10}" value="#{authorMessages.import_from_q}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 14}" value="#{authorMessages.extended_matching_items}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 13}" value="#{authorMessages.matrix_choices_surv}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 15}" value="#{authorMessages.calculated_question}" />
+                <h:outputText rendered="#{itemauthor.currentItem.itemType == 16}" value="#{authorMessages.image_map_question}" />
+                <h:commandLink title="#{authorMessages.t_removeQ}" rendered="#{author.isEditPendingAssessmentFlow and itemauthor.currentItem.itemId != null}" styleClass="navList" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
+                    <h:outputText value="#{commonMessages.remove_action}" />
+                    <f:param name="itemid" value="#{itemauthor.currentItem.itemId}" />
+                </h:commandLink>
+            </small>
+        </h3>
+
+    </h:form>
+
+</ui:composition>

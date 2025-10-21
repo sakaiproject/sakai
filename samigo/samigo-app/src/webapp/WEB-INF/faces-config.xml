@@ -480,11 +480,11 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>addPart</from-outcome>
-      <to-view-id>/jsf/author/editPart.jsp</to-view-id>
+      <to-view-id>/jsf/author/editPart.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>editPart</from-outcome>
-      <to-view-id>/jsf/author/editPart.jsp</to-view-id>
+      <to-view-id>/jsf/author/editPart.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>authorQuestions</from-outcome>
@@ -585,11 +585,11 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>variableItem</from-outcome>
-      <to-view-id>/jsf/author/item/calculatedQuestion.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/calculatedQuestion.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>calculatedQuestionVariableItem</from-outcome>
-      <to-view-id>/jsf/author/item/calculatedQuestion.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/calculatedQuestion.xhtml</to-view-id>
     </navigation-case>
 
     <!-- RESTORE PUBLISHED ASSESSMENTS -->
@@ -601,51 +601,51 @@
   <!-- ITEM AUTHORING -->
     <navigation-case>
       <from-outcome>trueFalseItem</from-outcome>
-      <to-view-id>/jsf/author/item/trueFalse.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/trueFalse.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>fillInBlackItem</from-outcome>
-      <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/fillInTheBlank.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
    <from-outcome>fillInNumericItem</from-outcome>
-      <to-view-id>/jsf/author/item/fillInNumeric.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/fillInNumeric.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>shortAnswerItem</from-outcome>
-      <to-view-id>/jsf/author/item/shortAnswer.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/shortAnswer.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>surveyItem</from-outcome>
-      <to-view-id>/jsf/author/item/multipleChoiceSurvey.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/multipleChoiceSurvey.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>multipleChoiceItem</from-outcome>
-      <to-view-id>/jsf/author/item/multipleChoice.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/multipleChoice.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>fileUploadItem</from-outcome>
-      <to-view-id>/jsf/author/item/fileUpload.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/fileUpload.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>audioRecItem</from-outcome>
-      <to-view-id>/jsf/author/item/audioRecording.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/audioRecording.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>matchingItem</from-outcome>
-      <to-view-id>/jsf/author/item/matching.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/matching.xhtml</to-view-id>
     </navigation-case>
    <navigation-case>
       <from-outcome>imageMapItem</from-outcome>
-      <to-view-id>/jsf/author/item/imageMapQuestion.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/imageMapQuestion.xhtml</to-view-id>
    </navigation-case>
     <navigation-case>
       <from-outcome>emiItem</from-outcome>
-      <to-view-id>/jsf/author/item/extendedMatchingItems.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/extendedMatchingItems.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>matrixChoicesSurveyItem</from-outcome>
-      <to-view-id>/jsf/author/item/matrixChoicesSurvey.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/matrixChoicesSurvey.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>searchQuestion</from-outcome>
@@ -849,14 +849,14 @@
   </navigation-rule>
 
   <navigation-rule>
-    <from-view-id>/jsf/author/item/multipleChoice.jsp</from-view-id>
+    <from-view-id>/jsf/author/item/multipleChoice.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>MCAddSuccess</from-outcome>
       <to-view-id>/jsf/author/editAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>MCAddFailure</from-outcome>
-      <to-view-id>/jsf/author/item/multipleChoice.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/multipleChoice.xhtml</to-view-id>
     </navigation-case>
      <navigation-case>
       <from-outcome>MCPoolAddSuccess</from-outcome>
@@ -864,19 +864,19 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>MCPoolAddFailure</from-outcome>
-      <to-view-id>/jsf/author/item/multipleChoice.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/multipleChoice.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
 <navigation-rule>
-    <from-view-id>/jsf/author/item/fillInTheBlank.jsp</from-view-id>
+    <from-view-id>/jsf/author/item/fillInTheBlank.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>FIBSuccess</from-outcome>
       <to-view-id>/jsf/author/editAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>FIBFailure</from-outcome>
-      <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/fillInTheBlank.xhtml</to-view-id>
     </navigation-case>
      <navigation-case>
       <from-outcome>FIBPoolSuccess</from-outcome>
@@ -884,20 +884,20 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>FIBPoolFailure</from-outcome>
-      <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/fillInTheBlank.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
 
 <navigation-rule>
-    <from-view-id>/jsf/author/item/fillInNumeric.jsp</from-view-id>
+    <from-view-id>/jsf/author/item/fillInNumeric.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>FINSuccess</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>FINFailure</from-outcome>
-      <to-view-id>/jsf/author/item/fillInNumeric.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/fillInNumeric.xhtml</to-view-id>
     </navigation-case>
      <navigation-case>
       <from-outcome>FINPoolSuccess</from-outcome>
@@ -905,7 +905,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>FINPoolFailure</from-outcome>
-      <to-view-id>/jsf/author/item/fillInNumeric.jsp</to-view-id>
+      <to-view-id>/jsf/author/item/fillInNumeric.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 

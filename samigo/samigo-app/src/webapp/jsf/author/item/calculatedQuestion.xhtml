@@ -1,90 +1,66 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!--
-* $Id: matching.jsp 59563 2009-04-02 15:18:05Z arwhyte@umich.edu $
-<%--
-***********************************************************************************
-*
-* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.osedu.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License. 
-*
-**********************************************************************************/
---%>
--->
-<%-- "checked in wysiwyg code but disabled, added in lydia's changes between 1.9 and 1.10" --%>
-<%-- 
-saveButton style is used only on save buttons to attach a click handler, so that javascript
-can throw a confirm dialog box if nothing has been changed.  saveButton style doesn't do any
-styling.
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai">
 
-changeWatch style is used only on fields that should be watched for changes, with the saveButton 
-above.  If a changeWatch field is changed, the saveButton buttons will not trigger a 
-confirmation dialog
---%>
-<f:view>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head><%= request.getAttribute("html.head") %>
-	<title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-	<script src="/samigo-app/js/info.js"></script>
-	<!-- AUTHORING -->
-	<script src="/samigo-app/js/authoring.js"></script>
-	<script src="/samigo-app/js/focusElement.js"></script>
-	<script>
-		const addGlobalVariable = () => {
-			const globalVariable = prompt("<h:outputText value="#{authorMessages.calc_question_enter_global_variable}" escape="false"/>");
-			if (globalVariable) {
-				document.getElementById('globalvariablename').value = globalVariable;
-			}
-		}
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.item_display_author}" />
+            </title>
+            <script type="text/javascript" src="/samigo-app/js/info.js"></script>
+            <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+            <script type="text/javascript" src="/samigo-app/js/focusElement.js"></script>
+            <h:outputScript target="head">
+                //<![CDATA[
+                const addGlobalVariable = () => {
+                    const globalVariable = prompt("#{authorMessages.calc_question_enter_global_variable}");
+                    if (globalVariable) {
+                        document.getElementById('globalvariablename').value = globalVariable;
+                    }
+                };
 
-		document.addEventListener('DOMContentLoaded', () => {
-			initCalcQuestion();
-			const deleteLinks = document.querySelectorAll('a.sam-deleteglobalvariable');
-			[].forEach.call(deleteLinks, (link) => {
-				link.existingOnclick = link.onclick;
-				link.onclick = null;
-				link.addEventListener('click', (evt) => {
-					evt.preventDefault();
-					const shouldEvt = confirm("<h:outputText value="#{authorMessages.calc_question_delete_global_variable_confirm}" escape="false"/>");
-					if ( shouldEvt && evt.currentTarget.existingOnclick ) {
-						evt.currentTarget.existingOnclick();
-						evt.stopPropagation();
-					}
-				 })
-			});
-		}, false);
-	</script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    initCalcQuestion();
+                    const deleteLinks = document.querySelectorAll('a.sam-deleteglobalvariable');
+                    [].forEach.call(deleteLinks, (link) => {
+                        link.existingOnclick = link.onclick;
+                        link.onclick = null;
+                        link.addEventListener('click', (evt) => {
+                            evt.preventDefault();
+                            const shouldEvt = confirm("#{authorMessages.calc_question_delete_global_variable_confirm}");
+                            if (shouldEvt && evt.currentTarget.existingOnclick) {
+                                evt.currentTarget.existingOnclick();
+                                evt.stopPropagation();
+                            }
+                        });
+                    });
+                }, false);
+                //]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
 
-</head>
-<%-- unfortunately have to use a scriptlet here --%>
-<body onload="<%= request.getAttribute("html.body.onload") %>">
-
-<div class="portletBody container-fluid">
 <!-- content... -->
 <!-- FORM -->
 
 <!-- HEADING -->
-<%@ include file="/jsf/author/item/itemHeadings.jsp" %>
+<ui:include src="/jsf/author/item/itemHeadings.xhtml" />
 <h:form id="itemForm">
-        <f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_edit_calculatedQuestion" /></f:verbatim>
-        <h:panelGroup rendered="#{itemauthor.currentItem.itemId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{itemauthor.currentItem.itemId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+        <ui:fragment>
+            <input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_edit_calculatedQuestion" />
+        </ui:fragment>
+        <ui:fragment rendered="#{itemauthor.currentItem.itemId != null}">
+            <input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="#{itemauthor.currentItem.itemId}" />
+        </ui:fragment>
 	<p class="act">
 		<h:commandButton 
 				rendered="#{itemauthor.target=='assessment'}" 
@@ -120,7 +96,7 @@ confirmation dialog
 
   	<!-- QUESTION PROPERTIES -->
   	<!-- this is for creating multiple choice questions -->
-	<%-- kludge: we add in 1 useless textarea, the 1st does not seem to work --%>
+	<!-- kludge: we add in 1 useless textarea, the 1st does not seem to work -->
 	<div style="display:none">
 		<h:inputTextarea id="ed0" cols="10" rows="10" value="            " />
 	</div>
@@ -148,9 +124,9 @@ confirmation dialog
 	</div>
 
 	<!-- Extra Credit -->
-	<%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+	<ui:include src="/jsf/author/inc/extraCreditSetting.xhtml" />
 
-    <%-- 2 QUESTION TEXT --%>
+	<!-- 2 QUESTION TEXT -->
 	<div>
 
 		<h3><h:outputText value="#{authorMessages.calc_question_general_instructsion_label}" /></h3>
@@ -170,7 +146,7 @@ confirmation dialog
 			<p><i><h:outputText value="#{authorMessages.calc_question_example2_formula}" /></i></p>
 		</div>
 		
-		<hr>
+        <hr />
 
 		<h3><h:outputText value="#{authorMessages.calc_question_instructions_label}" /></h3>
 		<p><h:outputText value="#{authorMessages.calc_question_walkthrough_label}" /></p>
@@ -183,7 +159,7 @@ confirmation dialog
 			<li><h:outputText value="#{authorMessages.calc_question_walkthrough6}" /></li>
 		</ol>
 
-		<hr>
+        <hr />
 
 		<h3><h:outputText value="#{authorMessages.calc_question_syntax_label}" /></h3>
 		<table class="table">
@@ -234,7 +210,7 @@ confirmation dialog
 		<p><h:outputText value="#{authorMessages.calc_question_definition2}" /></p>
 		<p><h:outputText value="#{authorMessages.calc_question_definition3}" /></p>
 
-		<hr>
+        <hr />
 
 		<h3><h:outputText value="#{authorMessages.calc_question_additional_label}" /></h3>
 		<ol>
@@ -276,7 +252,7 @@ confirmation dialog
 	</div>
 
   	<!-- 2a ATTACHMENTS -->
-  	<%@ include file="/jsf/author/item/attachment.jsp" %>
+	<ui:include src="/jsf/author/item/attachment.xhtml" />
 
   	<!-- 3 ANSWER -->
 
@@ -328,8 +304,9 @@ confirmation dialog
 	      	</h:column>
 	
 		</h:dataTable>
-		<h:outputLabel value="<p>#{authorMessages.no_variables_defined}</p>" escape="false"
-				rendered="#{itemauthor.currentItem.calculatedQuestion.variablesList eq '[]'}"/>
+	<h:panelGroup rendered="#{itemauthor.currentItem.calculatedQuestion.variablesList eq '[]'}">
+		<p><h:outputText value="#{authorMessages.no_variables_defined}" /></p>
+	</h:panelGroup>
 	</div>
 
 	<!-- display global variables -->
@@ -372,8 +349,9 @@ confirmation dialog
 		        	<f:param name="globalvariabledelete" value="#{globalvariable.name}" />
 	        	</h:commandLink>
 	      </h:column>
-		<h:outputLabel value="<p>#{authorMessages.no_global_variables_defined}</p>" escape="false"
-				rendered="#{itemauthor.currentItem.calculatedQuestion.globalVariablesList eq '[]'}"/>
+	<h:panelGroup rendered="#{itemauthor.currentItem.calculatedQuestion.globalVariablesList eq '[]'}">
+		<p><h:outputText value="#{authorMessages.no_global_variables_defined}" /></p>
+	</h:panelGroup>
 	    </h:dataTable>
 	</div>
 
@@ -469,8 +447,9 @@ confirmation dialog
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionFormulaValidatorListener" />
 		</h:commandButton>
 
-		<h:outputLabel value="<p>#{authorMessages.no_formulas_defined}</p>" escape="false"
-				rendered="#{itemauthor.currentItem.calculatedQuestion.formulasList eq '[]'}"/>
+	<h:panelGroup rendered="#{itemauthor.currentItem.calculatedQuestion.formulasList eq '[]'}">
+		<p><h:outputText value="#{authorMessages.no_formulas_defined}" /></p>
+	</h:panelGroup>
 	</div>
 
     <!-- display calculations -->
@@ -503,19 +482,20 @@ confirmation dialog
             <h:outputText value="#{calculation.status}" />
           </h:column>
         </h:dataTable>
-        <h:outputLabel value="<p>#{authorMessages.calc_question_no_calculations}</p>" escape="false"
-                rendered="#{! itemauthor.currentItem.calculatedQuestion.hasCalculations}"/>
+	    <h:panelGroup rendered="#{not itemauthor.currentItem.calculatedQuestion.hasCalculations}">
+	        <p><h:outputText value="#{authorMessages.calc_question_no_calculations}" /></p>
+	    </h:panelGroup>
     </div>
 
 	<br/>
 	<br/>
 
     <!-- 5a TIMED -->
-    <%@ include file="/jsf/author/item/timed.jsp" %>
+    <ui:include src="/jsf/author/item/timed.xhtml" />
 
     <!-- 6 PART -->
 	<h:panelGroup styleClass="mb-3 row" layout="block"
-					rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">		
+					rendered="#{itemauthor.target == 'assessment' and not author.isEditPoolFlow}">		
 		<h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-2 form-label"/>
 		<div class="col-md-10">
 	  		<h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
@@ -526,7 +506,7 @@ confirmation dialog
 
     <!-- 7 POOL -->
 	<h:panelGroup styleClass="mb-3 row" layout="block"
-			rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
+					rendered="#{itemauthor.target == 'assessment' and author.isEditPendingAssessmentFlow}">
 		<h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-2 form-label"/>
 		<div class="col-md-10">
 	  		<h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
@@ -537,7 +517,7 @@ confirmation dialog
 	</h:panelGroup>
 
 	<!-- 8 FEEDBACK -->
-	<h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
+	<h:panelGroup rendered="#{itemauthor.target == 'questionpool' or (itemauthor.target != 'questionpool' and ((author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2') or (!author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2')))}">
 		<div class="mb-3 row">
 			<h2>
 				<h:outputText value="#{authorMessages.correct_incorrect_an}" styleClass="col-md-12 form-label"/>
@@ -592,7 +572,7 @@ confirmation dialog
 		</div>
 	</h:panelGroup>
 
-	<%@ include file="/jsf/author/item/tags.jsp" %>
+	<ui:include src="/jsf/author/item/tags.xhtml" />
 
 	<p class="act">
 		<h:commandButton 
@@ -628,8 +608,7 @@ confirmation dialog
 
 </h:form>
 <!-- end content -->
-</div>
-</body>
-</html>
-</f:view>
-
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

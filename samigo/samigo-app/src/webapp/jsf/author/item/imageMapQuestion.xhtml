@@ -1,122 +1,104 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
-<%@ taglib uri="http://java.sun.com/upload" prefix="corejsf" %>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!--
-* $Id: matching.jsp 124679 2013-05-20 17:09:41Z ktsao@stanford.edu $
-<%--
-***********************************************************************************
-*
-* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.osedu.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License. 
-*
-**********************************************************************************/
---%>
--->
-<%-- "checked in wysiwyg code but disabled, added in lydia's changes between 1.9 and 1.10" --%>
-  <f:view>
-    <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-      <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
-      <script src="/samigo-app/js/jquery.dynamiclist.author.js"></script>
-      <script src="/samigo-app/js/selection.author.js"></script>
-      <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:corejsf="http://java.sun.com/upload">
 
-      <!-- AUTHORING -->
-      <script src="/samigo-app/js/authoring.js"></script>
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.item_display_author}" />
+            </title>
+            <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+            <script type="text/javascript" src="/samigo-app/js/jquery.dynamiclist.author.js"></script>
+            <script type="text/javascript" src="/samigo-app/js/selection.author.js"></script>
+            <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css" />
+            <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+            <h:outputScript target="head">
+                //<![CDATA[
+                const dynamicList = new DynamicList('itemForm\\:serialized', 'template', { selectionClass: 'selectiondiv', textClass: 'textContainer' }, 'imageContainer');
 
-<script>
+                window.addEventListener('load', () => {
+                    const serialized = document.getElementById('itemForm:serialized');
+                    const defaultDescription = document.getElementById('defaultDescriptionTemplate').value;
 
-	var dynamicList = new DynamicList('itemForm\\:serialized', 'template', {selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'imageContainer');
-			
-	jQuery(window).load(function(){
-		if($('#itemForm\\:serialized').val() != '')
-			dynamicList.fillElements();
-		else
-			dynamicList.addElement("<h:outputText value='#{authorMessages.im_description}' escape="false" />", true,true);
+                    if (serialized && serialized.value !== '') {
+                        dynamicList.fillElements();
+                    } else {
+                        dynamicList.addElement(defaultDescription, true, true);
+                    }
 
-		document.getElementById('addNewElement').addEventListener('click', function(e) {
-			dynamicList.addElement("<h:outputText value='#{authorMessages.im_description}' escape="false" />", true,true);
-		}, false);
-	});
-	
-	function resetList()
-	{
-		dynamicList.resetElements();
-		dynamicList.serializeElements();
-	}
-	
-	function validate(){
-		if (validateDescriptions()){
-			return validateZones();
-		}
-		return false;
-	}
-	
-	function validateDescriptions(){
-		
-		var ok = true;
-		
-		$('input[id^=value_]').each(function(){
-			if (!$.trim(this.value).length){
-				ok = false;
-				return false;
-			}
-		});
-		
-		if (!ok){
-			alert("<h:outputText value="#{authorMessages.all_im_descriptions_needed}" />");
-		}
-		
-		return ok;
-	}
-	
-	function validateZones()
-	{
-		var val = dynamicList.validateElements();
-		if(val == 0)
-		{
-			alert("<h:outputText value="#{authorMessages.all_im_zones_needed}" />");
-			return false;
-		}
-		dynamicList.serializeElements();
-		return true;
-	}
-</script>
-      </head>
-<%-- unfortunately have to use a scriptlet here --%>
-<body onload="<%= request.getAttribute("html.body.onload") %>">
-<%--
-      <body onload="javascript:initEditors('<%=request.getContextPath()%>');;<%= request.getAttribute("html.body.onload") %>" >
---%>
+                    const addButton = document.getElementById('addNewElement');
+                    if (addButton) {
+                        addButton.addEventListener('click', () => {
+                            dynamicList.addElement(defaultDescription, true, true);
+                        }, false);
+                    }
+                });
 
-<div class="portletBody container-fluid">
+                function resetList() {
+                    dynamicList.resetElements();
+                    dynamicList.serializeElements();
+                }
+
+                function validate() {
+                    if (validateDescriptions()) {
+                        return validateZones();
+                    }
+                    return false;
+                }
+
+                function validateDescriptions() {
+                    let ok = true;
+                    jQuery('input[id^=value_]').each(function () {
+                        if (!jQuery.trim(this.value).length) {
+                            ok = false;
+                            return false;
+                        }
+                    });
+
+                    if (!ok) {
+                        alert("#{authorMessages.all_im_descriptions_needed}");
+                    }
+                    return ok;
+                }
+
+                function validateZones() {
+                    const val = dynamicList.validateElements();
+                    if (val === 0) {
+                        alert("#{authorMessages.all_im_zones_needed}");
+                        return false;
+                    }
+                    dynamicList.serializeElements();
+                    return true;
+                }
+                //]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+
 <!-- content... -->
 <!-- FORM -->
 
 <!-- HEADING -->
-<%@ include file="/jsf/author/item/itemHeadings.jsp" %>
+<ui:include src="/jsf/author/item/itemHeadings.xhtml" />
 
 <h:form id="itemForm" enctype="multipart/form-data">
-<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_edit_imageMapQuestion" /></f:verbatim>
-<h:panelGroup rendered="#{itemauthor.currentItem.itemId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{itemauthor.currentItem.itemId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+<ui:fragment>
+    <input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_edit_imageMapQuestion" />
+    <input type="hidden" id="defaultDescriptionTemplate" value="#{authorMessages.im_description}" />
+</ui:fragment>
+<ui:fragment rendered="#{itemauthor.currentItem.itemId != null}">
+    <input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="#{itemauthor.currentItem.itemId}" />
+</ui:fragment>
 <p class="act">
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active" onclick="return validateZones()">
         <f:actionListener
@@ -142,7 +124,7 @@
 
   <!-- QUESTION PROPERTIES -->
   <!-- this is for creating multiple choice questions -->
-  <%-- kludge: we add in 1 useless textarea, the 1st does not seem to work --%>
+  <!-- kludge: we add in 1 useless textarea, the 1st does not seem to work -->
   <div style="display:none">
   <h:inputTextarea id="ed0" cols="10" rows="10" value="            " />
   </div>
@@ -171,7 +153,7 @@
     </div>    
 
     <!-- Extra Credit -->
-    <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+    <ui:include src="/jsf/author/inc/extraCreditSetting.xhtml" />
 
     <!-- 2 TEXT -->
     <div class="form-group row">
@@ -187,7 +169,7 @@
     </div>
 
     <!-- 2a ATTACHMENTS -->
-    <%@ include file="/jsf/author/item/attachment.jsp" %>
+    <ui:include src="/jsf/author/item/attachment.xhtml" />
   
     <hr class="itemSeparator" />
     <br />
@@ -232,7 +214,7 @@
   
  
     <div onmousedown="return false" id="imageContainer" class='authorImageContainer'>
-        <img id='img' src='<h:outputText value="#{itemauthor.currentItem.imageMapSrc}" />' alt='<h:outputText value="#{itemauthor.currentItem.imageMapAltText}" />'/>
+        <h:graphicImage id="img" value="#{itemauthor.currentItem.imageMapSrc}" alt="#{itemauthor.currentItem.imageMapAltText}" />
     </div>
 
     <!-- Match FEEDBACK -->
@@ -251,10 +233,10 @@
     <hr class="itemSeparator" />
 
     <!-- 5a TIMED -->
-    <%@ include file="/jsf/author/item/timed.jsp" %>
+    <ui:include src="/jsf/author/item/timed.xhtml" />
 
     <!-- 6 PART -->
-    <h:panelGroup rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}" layout="block" styleClass="form-group row">
+    <h:panelGroup rendered="#{itemauthor.target == 'assessment' and not author.isEditPoolFlow}" layout="block" styleClass="form-group row">
         <h:outputLabel for="assignToPart" value="#{authorMessages.assign_to_p}" styleClass="col-md-2 form-label"/>
         <div class="col-md-10">
             <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
@@ -264,9 +246,9 @@
     </h:panelGroup>
 
     <!-- 7 POOL -->
-    <h:panelGroup rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}" layout="block" styleClass="form-group row">
+    <h:panelGroup rendered="#{itemauthor.target == 'assessment' and author.isEditPendingAssessmentFlow}" layout="block" styleClass="form-group row">
         <h:outputLabel for="assignToPool" value="#{authorMessages.assign_to_question_p}" styleClass="col-md-2 form-label"/>
-        <%-- stub debug --%>
+        <!-- stub debug -->
         <div class="col-md-10">
             <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
                 <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
@@ -276,7 +258,7 @@
     </h:panelGroup>
 
     <!-- 8 FEEDBACK -->
-    <h:panelGroup  layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
+    <h:panelGroup  layout="block" rendered="#{itemauthor.target == 'questionpool' or (itemauthor.target != 'questionpool' and ((author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2') or (!author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2')))}">
         <h2>
             <h:outputText value="#{authorMessages.correct_incorrect_an}" />
         </h2>
@@ -326,7 +308,7 @@
         </div>
     </h:panelGroup>
 
-    <%@ include file="/jsf/author/item/tags.jsp" %>
+    <ui:include src="/jsf/author/item/tags.xhtml" />
 
 
 <p class="act">
@@ -354,9 +336,7 @@
 </p>
 </h:form>
 <!-- end content -->
-</div>
-
-    </body>
-  </html>
-</f:view>
-
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

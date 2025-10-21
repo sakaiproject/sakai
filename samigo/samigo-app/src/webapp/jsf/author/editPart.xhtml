@@ -1,95 +1,80 @@
-<%@ page contentType="text/html;charset=UTF-8" pageEncoding="utf-8" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
-<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
 
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!--
-* $Id$
-<%--
-***********************************************************************************
-*
-* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.osedu.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License. 
-*
-**********************************************************************************/
---%>
--->
-<%
-	String thisId = request.getParameter("panel");
-	if (thisId == null) {
-		thisId = "Main"	+ org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
-	}
-    String selectId = "modifyPartForm:assignToPool";
-    String selectIdFixed = "modifyPartForm:assignToPoolFixed";
-%>
-  <f:view>
-    <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{authorMessages.create_modify_p}" /></title>
-      <!-- AUTHORING -->
-      <script src="/samigo-app/js/authoring.js"></script>
-      <script src="/library/js/spinner.js"></script>
-      <script>includeWebjarLibrary('select2');</script>
-      <script src="/samigo-app/js/select2.js"></script>
-      <script>includeWebjarLibrary('bootstrap-multiselect');</script>
-      <script>
-        window.addEventListener("load", () => {
-          // Initialize bootstrap multiselect
-          const multiplePoolsSelect = document.getElementById("modifyPartForm:multiplePools");
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.create_modify_p}" />
+            </title>
+            <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+            <script type="text/javascript" src="/library/js/spinner.js"></script>
+            <script type="text/javascript" src="/samigo-app/js/select2.js"></script>
+            <script type="text/javascript" src="/samigo-app/js/jsf.js"></script>
+            <script type="text/javascript">
+                //<![CDATA[
+                includeWebjarLibrary('select2');
+                includeWebjarLibrary('bootstrap-multiselect');
+                //]]>
+            </script>
+            <h:outputScript target="body">
+                //<![CDATA[
+                window.addEventListener('load', function () {
+                    const multiplePoolsSelect = document.getElementById('modifyPartForm:multiplePools');
+                    if (!multiplePoolsSelect || !window.jQuery || !jQuery.fn.multiselect) {
+                        return;
+                    }
 
-          const filterPlaceholder = `<h:outputText value="#{assessmentSettingsMessages.multiselect_filterPlaceholder}" />`;
-          const selectAllText = `<h:outputText value="#{authorMessages.multiselect_select_all_pools}" />`;
-          const nonSelectedText = `<h:outputText value="#{authorMessages.multiselect_no_pools_selected}" />`;
-          const allSelectedText = `<h:outputText value="#{authorMessages.multiselect_select_all_pools}" />`;
-          const nSelectedText = `<h:outputText value="#{authorMessages.multiselect_n_pools_selected}" />`;
+                    const filterPlaceholder = "#{assessmentSettingsMessages.multiselect_filterPlaceholder}";
+                    const selectAllText = "#{authorMessages.multiselect_select_all_pools}";
+                    const nonSelectedText = "#{authorMessages.multiselect_no_pools_selected}";
+                    const allSelectedText = "#{authorMessages.multiselect_select_all_pools}";
+                    const nSelectedText = "#{authorMessages.multiselect_n_pools_selected}";
 
-          $(multiplePoolsSelect).multiselect({
-              enableFiltering: true,
-              enableCaseInsensitiveFiltering: true,
-              includeSelectAllOption: true,
-              filterPlaceholder: filterPlaceholder,
-              selectAllText: selectAllText,
-              nonSelectedText: nonSelectedText,
-              allSelectedText: allSelectedText,
-              nSelectedText: nSelectedText,
-              templates: {
-                button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>',
-                filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>',
-              },
-          });
-      });
-      </script>
-    </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
+                    jQuery(multiplePoolsSelect).multiselect({
+                        enableFiltering: true,
+                        enableCaseInsensitiveFiltering: true,
+                        includeSelectAllOption: true,
+                        filterPlaceholder: filterPlaceholder,
+                        selectAllText: selectAllText,
+                        nonSelectedText: nonSelectedText,
+                        allSelectedText: allSelectedText,
+                        nSelectedText: nSelectedText,
+                        templates: {
+                            button: '<button type="button" class="multiselect dropdown-toggle btn-primary" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span><i class="si si-caret-down-fill ps-2"></i></button>',
+                            filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fa fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>'
+                        }
+                    });
+                });
+                //]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{requestScope['html.body.onload']}">
+            <div class="portletBody">
 
-<div class="portletBody">
-<%-- content... --%>
-<%-- some back end stuff stubbed --%>
-<%-- TODO need to add validation--%>
-<input id="toolId" type="hidden" value="<%= thisId %>">
-<input id="selectorId" type="hidden" value="<%= selectId %>">
-<input id="selectorIdFixed" type="hidden" value="<%= selectIdFixed %>">
+
+
+<input id="toolId" type="hidden" value="#{authoringPortalState.panelFrameId}" />
+<input id="selectorId" type="hidden" value="modifyPartForm:assignToPool" />
+<input id="selectorIdFixed" type="hidden" value="modifyPartForm:assignToPoolFixed" />
 
 <h3><h:outputText value="#{authorMessages.create_modify_p} #{authorMessages.dash} #{sectionBean.assessmentTitle}" escape="false"/></h3>
 <h:form id="modifyPartForm"  onsubmit="return editorCheck();">
-    <f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_editPart" /></f:verbatim>
-    <h:panelGroup rendered="#{sectionBean.sectionId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{sectionBean.sectionId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+    <ui:fragment>
+        <input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_editPart" />
+    </ui:fragment>
+    <ui:fragment rendered="#{sectionBean.sectionId!=null}">
+        <input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="#{sectionBean.sectionId}" />
+    </ui:fragment>
 
     <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
     <h:inputHidden id="assessmentId" value="#{sectionBean.assessmentId}"/>
@@ -105,15 +90,15 @@
         
         <div class="infoEditor">
             <h:outputLabel value="#{authorMessages.information}" />
-            <samigo:wysiwyg rows="140" value="#{sectionBean.sectionDescription}" hasToggle="yes" mode="author">
-              <f:validateLength maximum="60000"/>
-            </samigo:wysiwyg>
+            <h:panelGrid>
+                <samigo:wysiwyg rows="140" value="#{sectionBean.sectionDescription}" hasToggle="yes" mode="author" maxCharCount="60000" />
+            </h:panelGrid>
         </div>
         
-        <%-- PART ATTACHMENTS --%>
-        <%@ include file="/jsf/author/editPart_attachment.jsp" %>
+        
+        <ui:include src="/jsf/author/editPart_attachment.xhtml" />
 
-        <%-- TIMED --%>
+        
         <fieldset>
             <legend>
                 <h:outputText value="#{authorMessages.timed}" />
@@ -137,11 +122,11 @@
                                 <span>.&#160;</span>
                                 <h:outputLabel id="isTimedTimeLimitLabel" value="#{assessmentSettingsMessages.assessment_is_timed_limit} " />
                                 
-                                <input type="number" min="0" max="11" onchange="this.reportValidity()? document.getElementById('modifyPartForm:hiddenTimedHours').value=this.value : false" value="<h:outputText value="#{sectionBean.timedHours}" />"/>
+                                <input type="number" min="0" max="11" onchange="this.reportValidity()? document.getElementById('modifyPartForm:hiddenTimedHours').value=this.value : false" value="#{sectionBean.timedHours}"/>
                                 <h:inputHidden id="hiddenTimedHours" value="#{sectionBean.timedHours}" />
                                 <h:outputLabel id="timedHoursLabel"  value="#{assessmentSettingsMessages.timed_hours} " />
                                 
-                                <input type="number" min="0" max="59" onchange="this.reportValidity()? document.getElementById('modifyPartForm:hiddenTimedMinutes').value=this.value : false" value="<h:outputText value="#{sectionBean.timedMinutes}" />"/>
+                                <input type="number" min="0" max="59" onchange="this.reportValidity()? document.getElementById('modifyPartForm:hiddenTimedMinutes').value=this.value : false" value="#{sectionBean.timedMinutes}"/>
                                 <h:inputHidden id="hiddenTimedMinutes" value="#{sectionBean.timedMinutes}" />
                                 <h:outputLabel id="timedMinutesLabel" value="#{assessmentSettingsMessages.timed_minutes} " />
                             </h:panelGroup>
@@ -152,7 +137,7 @@
             </div>
         </fieldset>
         
-        <%-- Type --%>
+        
         <fieldset>
             <legend>
                 <h:outputText value="#{authorMessages.type}" />
@@ -166,11 +151,11 @@
             </h:selectOneRadio>
         </fieldset>
         
-        <%-- Options --%>
+        
         <fieldset class="addEditPartOptions">
             <legend><h:outputText value="#{authorMessages.options}"/></legend>
 
-            <%-- Question Ordering --%>    
+                
             <t:fieldset styleClass="roundedBorder" legend="#{authorMessages.q_ordering_n}" rendered="#{sectionBean.type == '1'}">
                 <h:selectOneRadio rendered="#{sectionBean.type =='1'}" layout="pageDirection" value="#{sectionBean.questionOrdering}">
                     <f:selectItem itemLabel="#{authorMessages.as_listed_on_assessm}" itemValue="1"/>
@@ -178,7 +163,7 @@
                 </h:selectOneRadio>
             </t:fieldset>
 
-            <%-- Fixed --%>
+            
             <t:fieldset styleClass="roundedBorder" legend="#{authorMessages.fixed}" rendered="#{sectionBean.type == '3'}">
                 <h:outputText rendered="#{sectionBean.type == '3'}" value="#{authorMessages.random_fixed_and_draw_questions_prefix}"/>
                 <h:outputText rendered="#{sectionBean.type == '3'}" value="#{authorMessages.random_draw_questions_suffix}"/>
@@ -228,7 +213,7 @@
                  </t:dataTable>
             </t:fieldset>
 
-            <%-- Randomization --%>
+            
             <t:fieldset styleClass="roundedBorder" legend="#{authorMessages.randomization}" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
                 <t:div id="drawOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
                     <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" value="#{authorMessages.random_draw_questions_prefix}"/>
@@ -242,7 +227,6 @@
                     <h:selectManyListbox rendered="#{sectionBean.type == '4'}" id="multiplePools" value="#{sectionBean.selectedPoolsMultiple}">
                       <f:selectItems value="#{sectionBean.poolsAvailable}" />
                     </h:selectManyListbox>
-  </div>
                 </t:div>
                 <t:div id="randomSubmitOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
                     <h:selectOneRadio rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" value="#{sectionBean.randomizationType}" layout="pageDirection" disabled="#{!author.isEditPendingAssessmentFlow}" id="randomizationType">
@@ -251,7 +235,7 @@
                 </t:div>
             </t:fieldset>
 
-            <%-- Scoring --%>
+            
             <t:fieldset styleClass="roundedBorder" legend="#{authorMessages.scoring}" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
                 <t:div id="pointsOption" rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}">
                     <h:outputText rendered="#{sectionBean.type == '2' || sectionBean.type == '3' || sectionBean.type == '4'}" value="#{authorMessages.random_draw_correct_prefix}"/>
@@ -265,9 +249,9 @@
                 </t:div>
             </t:fieldset>
         </fieldset>
-        <%-- End Options --%>
         
-        <%-- METADATA --%>
+        
+        
         <fieldset>
             <legend><h:outputText value="#{authorMessages.metadata}"/></legend>
             <h:panelGrid columns="2" columnClasses="shorttext">
@@ -297,10 +281,12 @@
   
 <h:outputText value="#{authorMessages.required}" />
 
+        </div>
 </h:form>
 <!-- end content -->
-</div>
+            </div>
+        </h:body>
 
-</body>
-</html>
-</f:view>
+    </f:view>
+
+</ui:composition>

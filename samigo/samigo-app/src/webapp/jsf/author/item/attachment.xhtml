@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai">
+
+    <h:panelGroup layout="block" id="attachments">
+        <h:outputLabel value="#{authorMessages.attachments}" />
+
+        <h:panelGroup id="attachmentTable" layout="block" rendered="#{itemauthor.hasAttachment}">
+            <h:dataTable styleClass="table table-bordered table-striped attachment-table" value="#{itemauthor.attachmentList}" var="attach">
+                <h:column>
+                    <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                    <h:outputText value="&#160;" escape="false" />
+                    <h:outputLink value="#{attach.location}" target="new_window">
+                        <h:outputText value="#{attach.filename}" />
+                    </h:outputLink>
+                </h:column>
+                <h:column>
+                    <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}" />
+                </h:column>
+            </h:dataTable>
+        </h:panelGroup>
+
+        <h:panelGroup layout="block" rendered="#{!itemauthor.hasAttachment}">
+            <h:outputText escape="false" value="#{authorMessages.no_attachments}" />
+        </h:panelGroup>
+
+        <h:panelGroup layout="block" rendered="#{!itemauthor.hasAttachment}">
+            <sakai:button_bar>
+                <h:commandButton action="#{itemauthor.addAttachmentsRedirect}" value="#{authorMessages.add_attachments}" />
+            </sakai:button_bar>
+        </h:panelGroup>
+
+        <h:panelGroup layout="block" rendered="#{itemauthor.hasAttachment}">
+            <sakai:button_bar>
+                <h:commandButton action="#{itemauthor.addAttachmentsRedirect}" value="#{authorMessages.add_remove_attachments}" />
+            </sakai:button_bar>
+        </h:panelGroup>
+    </h:panelGroup>
+
+</ui:composition>

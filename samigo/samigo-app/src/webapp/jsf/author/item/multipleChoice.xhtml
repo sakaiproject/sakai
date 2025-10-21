@@ -1,53 +1,35 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!--
-* $Id$
-<%--
-***********************************************************************************
-*
-* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.osedu.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License. 
-*
-**********************************************************************************/
---%>
--->
-<%-- "checked in wysiwyg code but disabled, added in lydia's changes between 1.9 and 1.10" --%>
-  <f:view>
-    <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-      <!-- AUTHORING -->
-      <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-      </head>
-<body onload="<%= request.getAttribute("html.body.onload") %>;resetInsertAnswerSelectMenus();disablePartialCreditField();">
-
-<div class="portletBody container-fluid">
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.item_display_author}" />
+            </title>
+            <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']};resetInsertAnswerSelectMenus();disablePartialCreditField();">
+            <div class="portletBody container-fluid">
 <!-- content... -->
 <!-- FORM -->
 <!-- HEADING -->
-<%@ include file="/jsf/author/item/itemHeadings.jsp" %>
+<ui:include src="/jsf/author/item/itemHeadings.xhtml" />
 <h:form id="itemForm" onsubmit="return editorCheck();">
-<f:verbatim><input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_edit_mc" /></f:verbatim>
-<h:panelGroup rendered="#{itemauthor.currentItem.itemId!=null}"><f:verbatim><input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="</f:verbatim><h:outputText value="#{itemauthor.currentItem.itemId}"/><f:verbatim>"/></f:verbatim></h:panelGroup>
+<ui:fragment>
+    <input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_edit_mc" />
+</ui:fragment>
+<ui:fragment rendered="#{itemauthor.currentItem.itemId != null}">
+    <input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="#{itemauthor.currentItem.itemId}" />
+</ui:fragment>
 <p class="act">
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
@@ -143,7 +125,7 @@
   </f:subview>
 
     <!-- Extra Credit -->
-    <%@ include file="/jsf/author/inc/extraCreditSetting.jspf" %>
+    <ui:include src="/jsf/author/inc/extraCreditSetting.xhtml" />
 
   <h2 class="answer-subsection">
     <h:outputText value="#{authorMessages.answer} " />  
@@ -170,7 +152,7 @@
   <!-- partial credit vs negative marking -->
   <!--
                       -->
-  <h:panelGroup layout="block" id="partialCredit_toggle" styleClass="tier3" rendered="#{itemauthor.currentItem.itemType == 1 && itemauthor.currentItem.partialCreditEnabled==true}">
+  <h:panelGroup layout="block" id="partialCredit_toggle" styleClass="tier3" rendered="#{itemauthor.currentItem.itemType == 1 and itemauthor.currentItem.partialCreditEnabled == true}">
     <h:panelGroup id="partialCredit_JSF_toggle">
       <h:selectOneRadio id="partialCredit_NegativeMarking"
 					  layout="pageDirection"
@@ -182,7 +164,7 @@
         <f:selectItem itemValue="true" itemLabel="#{authorMessages.enable_partial_credit}"  />
       </h:selectOneRadio>
       <h:panelGroup>
-	    <h:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" escape="false" />
+	    <h:outputText value="&#160;&#160;&#160;&#160;&#160;&#160;&#160;" escape="false" />
         <h:commandLink  title="#{authorMessages.reset_grading_logic}"
 					id="resetlink" 
 					rendered="#{itemauthor.currentItem.itemType == 1}"
@@ -214,33 +196,49 @@
   <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint">
     <f:validateDoubleRange/>
   </h:inputText>
-  <f:verbatim> <script type="text/javascript" defer='defer'>
-  		var itemType = "${itemauthor.currentItem.itemType}";
-  		var discDiv=document.getElementById('itemForm:discountDiv');
-		
-  		if(itemType == 1) {
-		  	var toggleDiv=document.getElementById('itemForm:partialCredit_NegativeMarking');
-	    	if( typeof(toggleDiv) != 'undefined' && toggleDiv != null){
-	    		toggleDiv.rows[0].cells[0].appendChild(discDiv);
-	    	}else {
-	       	 	var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
-	       	 	QtypeTable.rows[0].cells[0].appendChild(discDiv);
-	        }   
-  		} else{
-		    	if(itemType == 12) {
-		            var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
-	        	    QtypeTable.rows[1].cells[0].appendChild(discDiv);
-			 }
-			 if(itemType == 2) {
-			     var mcmsPartialCredit = "${itemauthor.currentItem.mcmsPartialCredit}";
-   		    	     if(mcmsPartialCredit == 'false') {
-		    	          var QtypeTable=document.getElementById('itemForm:mcms_credit_partial_credit');
-			     	  QtypeTable.rows[1].cells[0].appendChild(discDiv);
-			     }
-			 }
-		}
-    </script>
-  </f:verbatim>
+  <h:outputScript target="body">
+        //<![CDATA[
+        (function () {
+            var discDiv = document.getElementById('itemForm:discountDiv');
+            if (!discDiv) {
+                return;
+            }
+
+            var itemType = "#{itemauthor.currentItem.itemType}";
+
+            if (itemType === '1') {
+                var toggleTable = document.getElementById('itemForm:partialCredit_NegativeMarking');
+                if (toggleTable && toggleTable.rows.length > 0) {
+                    toggleTable.rows[0].cells[0].appendChild(discDiv);
+                } else {
+                    var typeTable = document.getElementById('itemForm:chooseAnswerTypeForMC');
+                    if (typeTable && typeTable.rows.length > 0) {
+                        typeTable.rows[0].cells[0].appendChild(discDiv);
+                    }
+                }
+                return;
+            }
+
+            if (itemType === '12') {
+                var singleSelectTable = document.getElementById('itemForm:chooseAnswerTypeForMC');
+                if (singleSelectTable && singleSelectTable.rows.length > 1) {
+                    singleSelectTable.rows[1].cells[0].appendChild(discDiv);
+                }
+                return;
+            }
+
+            if (itemType === '2') {
+                var mcmsPartialCredit = "#{itemauthor.currentItem.mcmsPartialCredit}";
+                if (mcmsPartialCredit === 'false') {
+                    var mcmsTable = document.getElementById('itemForm:mcms_credit_partial_credit');
+                    if (mcmsTable && mcmsTable.rows.length > 1) {
+                        mcmsTable.rows[1].cells[0].appendChild(discDiv);
+                    }
+                }
+            }
+        })();
+        //]]>
+  </h:outputScript>
 </h:panelGroup>
 </h:panelGroup>
 
@@ -257,16 +255,14 @@
             <!-- WYSIWYG -->
             <div>
                 <h:panelGroup layout="block" styleClass="w-100 d-flex justify-content-end">
-                    <samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="plain" mode="author">
-                        <f:validateLength maximum="60000"/>
-                    </samigo:wysiwyg>
+                    <samigo:wysiwyg identity="questionItemText" rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="plain" mode="author" maxCharCount="60000" />
                 </h:panelGroup>
             </div>
         </div>
   </div>
 
   <!-- 2a ATTACHMENTS -->
-  <%@ include file="/jsf/author/item/attachment.jsp" %>
+  <ui:include src="/jsf/author/item/attachment.xhtml" />
 
 	<!-- dynamicaly generate rows of answers based on number of answers-->
   <h:dataTable id="mcchoices" styleClass="table" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" headerClass="navView longtext">
@@ -298,23 +294,19 @@
  </h:panelGroup>
 
    <!-- WYSIWYG -->
-   <samigo:wysiwyg rows="140" value="#{answer.text}" hasToggle="plain" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
+   <samigo:wysiwyg rows="140" value="#{answer.text}" hasToggle="plain" mode="author" maxCharCount="60000" />
 			
-         <h:outputText value="#{commonMessages.feedback_optional}" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}" />
+         <h:outputText value="#{commonMessages.feedback_optional}" rendered="#{itemauthor.target == 'questionpool' or (itemauthor.target != 'questionpool' and ((author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '1') or (!author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '1')))}" />
 
         <!-- WYSIWYG -->
-  <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
-         <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="plain" mode="author">
-           <f:validateLength maximum="60000"/>
-         </samigo:wysiwyg>
+  <h:panelGrid rendered="#{itemauthor.target == 'questionpool' or (itemauthor.target != 'questionpool' and ((author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '1') or (!author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '1')))}">
+         <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="plain" mode="author" maxCharCount="60000" />
   </h:panelGrid>
         </h:panelGrid>
 
 	</h:column>
 	
-	<h:column rendered="#{itemauthor.currentItem.itemType==1 && itemauthor.currentItem.partialCreditFlag=='true'}"> 
+	<h:column rendered="#{itemauthor.currentItem.itemType == 1 and itemauthor.currentItem.partialCreditFlag == 'true'}"> 
 	<h:panelGrid id="partialCreditInput" >
 	<h:commandLink  title="#{authorMessages.reset_score_values}" 
 	                rendered="#{answer.sequence==1}"
@@ -328,7 +320,7 @@
 	    <h:outputText id="partialCreditReminder" value="#{authorMessages.enter_new_pc_value}" style="visibility:hidden;" />
 	    <h:message for="partialCredit" styleClass="validate"/>
 	<!-- end of partial credit -->
-	<f:verbatim><br/><br/></f:verbatim>
+	<br /><br />
 	
 	<h:commandLink  title="#{authorMessages.reset_score_values}" 
 	                rendered="#{itemauthor.currentItem.totalMCAnswers==answer.sequence}" 
@@ -391,10 +383,10 @@
   </div>
 
   <!-- 5a TIMED -->
-  <%@ include file="/jsf/author/item/timed.jsp" %>
+  <ui:include src="/jsf/author/item/timed.xhtml" />
 
   <!-- 6 PART -->
-  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' and not author.isEditPoolFlow}">
     <h:outputLabel for="assignToPart" styleClass="col-md-2" value="#{authorMessages.assign_to_p} " />
     <div class="col-md-10">
       <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
@@ -404,7 +396,7 @@
   </h:panelGroup>
 
   <!-- 7 POOL -->
-  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'assessment' and author.isEditPendingAssessmentFlow}">
     <h:outputLabel for="assignToPool" styleClass="col-md-2" value="#{authorMessages.assign_to_question_p} " />
     <div class="col-md-10">
       <h:selectOneMenu rendered="#{itemauthor.target == 'assessment'}" id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
@@ -415,22 +407,18 @@
   </h:panelGroup>
 
   <!-- 8 FEEDBACK -->
-  <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
+  <h:panelGroup rendered="#{itemauthor.target == 'questionpool' or (itemauthor.target != 'questionpool' and ((author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2') or (!author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2')))}">
 
     <div class="form-group row">
       <h:outputLabel for="questionFeedbackCorrect_textinput" value="#{authorMessages.correct_answer_opti}" />
       <div class="col-md-8">
-        <samigo:wysiwyg identity="questionFeedbackCorrect" rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="plain" mode="author">
-          <f:validateLength maximum="60000"/>
-        </samigo:wysiwyg>
+        <samigo:wysiwyg identity="questionFeedbackCorrect" rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="plain" mode="author" maxCharCount="60000" />
       </div>
     </div>
     <div class="form-group row">
       <h:outputLabel for="questionFeedbackIncorrect_textinput" value="#{authorMessages.incorrect_answer_op}" />
       <div class="col-md-8">
-     <samigo:wysiwyg identity="questionFeedbackIncorrect" rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  hasToggle="plain" mode="author">
-       <f:validateLength maximum="60000"/>
-     </samigo:wysiwyg>
+     <samigo:wysiwyg identity="questionFeedbackIncorrect" rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  hasToggle="plain" mode="author" maxCharCount="60000" />
       </div>
     </div>
   </h:panelGroup>
@@ -448,7 +436,7 @@
 </h:panelGrid>
 </h:panelGroup>
 
-    <%@ include file="/jsf/author/item/tags.jsp" %>
+    <ui:include src="/jsf/author/item/tags.xhtml" />
 
 <p class="act">
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
@@ -477,43 +465,45 @@
 </p>
 </h:form>
 <!-- end content -->
-</div>
+            </div>
 
-<f:verbatim> 
-	<script defer='defer'>
-	$(document).ready(function(){
-		var itemType = "${itemauthor.currentItem.itemType}";
-		var prefixId='#itemForm\\:';
-		var refId=prefixId+'chooseAnswerTypeForMC\\:';
-		var optionId=prefixId;
-		if(itemType == 1){
-			refId+='0';
-			var partialCredit=${itemauthor.currentItem.partialCreditEnabled==true};
-			if(partialCredit){  				
-				optionId+='partialCredit_toggle';
-				var showDiscountDiv=${itemauthor.currentItem.partialCreditFlag==false};
-				if(showDiscountDiv){
-					$(prefixId+'partialCredit_NegativeMarking\\:0').parent().append($(prefixId+'discountDiv'));
-				}
-			}else{
-				optionId+='discountDiv';
-			}
-		}else if (itemType == 12){
-			refId+='1';
-			optionId+='discountDiv';
-		}else if (itemType == 2) {
- 			var showSecondOption= ${itemauthor.currentItem.mcmsPartialCredit==false};
-			if(showSecondOption){
-				$(prefixId+'mcms_credit_toggle').append($(prefixId+'discountDiv'));
-			}
-			refId+='2';
-			optionId+='mcms_credit_toggle';
-		}
-		$(refId).parent().append($(optionId));
-	});
-	</script>
-</f:verbatim>
-    </body>
-  </html>
-</f:view>
+<h:outputScript target="body">
+        //<![CDATA[
+        $(document).ready(function () {
+            var itemType = "#{itemauthor.currentItem.itemType}";
+            var prefixId = '#itemForm\\:';
+            var refId = prefixId + 'chooseAnswerTypeForMC\\:';
+            var optionId = prefixId;
 
+            if (itemType === '1') {
+                refId += '0';
+                var partialCredit = #{itemauthor.currentItem.partialCreditEnabled == true};
+                if (partialCredit) {
+                    optionId += 'partialCredit_toggle';
+                    var showDiscountDiv = #{itemauthor.currentItem.partialCreditFlag == false};
+                    if (showDiscountDiv) {
+                        $(prefixId + 'partialCredit_NegativeMarking\\:0').parent().append($(prefixId + 'discountDiv'));
+                    }
+                } else {
+                    optionId += 'discountDiv';
+                }
+            } else if (itemType === '12') {
+                refId += '1';
+                optionId += 'discountDiv';
+            } else if (itemType === '2') {
+                var showSecondOption = #{itemauthor.currentItem.mcmsPartialCredit == false};
+                if (showSecondOption) {
+                    $(prefixId + 'mcms_credit_toggle').append($(prefixId + 'discountDiv'));
+                }
+                refId += '2';
+                optionId += 'mcms_credit_toggle';
+            }
+
+            $(refId).parent().append($(optionId));
+        });
+        //]]>
+    </h:outputScript>
+        </h:body>
+    </f:view>
+
+</ui:composition>
