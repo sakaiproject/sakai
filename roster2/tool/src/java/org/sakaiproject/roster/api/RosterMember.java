@@ -67,9 +67,8 @@ public class RosterMember {
 	private String enrollmentStatusText;
 	private String credits;
 	private String nickname;
-	private String profileLink;
 	private String pronouns;
-	private String pronunciation;
+	private boolean hasPronunciationRecording;
 	private String studentNumber;
 	private List<String> specialNeeds;
 	private List<String> additionalNotes;

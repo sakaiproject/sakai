@@ -856,7 +856,8 @@ public class AnnouncementAction extends PagedResourceActionII
 		//Check for MOTD, if yes then is not ok to show permissions button
 		boolean showMerge = !isMotd(channelId) && isOkToShowMergeButton(statusName);
 		boolean showPermissions = !isMotd(channelId) && isOkToShowPermissionsButton(statusName);
-		boolean showOptions = this.isOkToShowOptionsButton(statusName);
+		boolean showOptions = isOkToShowOptionsButton();
+		context.put("showOptionsButton", showOptions);
 
 		ActiveTab activeTab = ActiveTab.LIST;
 		if(statusName != null) switch(statusName) {
@@ -1110,6 +1111,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	{
 		// Add resource bundle to velocity context
 		context.put("tlang", rb);
+		context.put("showOptionsButton", isOkToShowOptionsButton());
 
 		// retrieve the state from state object
 		AnnouncementActionState actionState = (AnnouncementActionState) getState(portlet, runData, AnnouncementActionState.class);
@@ -1165,7 +1167,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	/**
 	 * Returns true if it is ok to show the options button in the toolbar.
 	 */
-	private boolean isOkToShowOptionsButton(String statusName)
+	private boolean isOkToShowOptionsButton()
 	{
 		return SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()) && !isOnWorkspaceTab();
 	}
@@ -2445,13 +2447,15 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 		// *** make sure the subject and body won't be empty
 		// read in the subject input from announcements-new.vm
-		final String subject = params.getString("subject");
+		final String subjectRaw = params.getString("subject");
+		final String subject = subjectRaw == null ? "" : subjectRaw;
+		final String normalizedSubject = formattedText.unEscapeHtml(subject);
 		boolean highlight = params.getBoolean("highlight"); 
 		// read in the body input
 		String body = params.getString("body");
 		body = processFormattedTextFromBrowser(sstate, body);
 
-		state.setTempSubject(subject);
+		state.setTempSubject(normalizedSubject);
 		state.setTempBody(body);
 		state.setTempHighlight(highlight);
 

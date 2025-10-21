@@ -29,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.adl.util.debug.DebugIndicator;
 import org.apache.xerces.parsers.DOMParser;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -38,6 +37,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -60,13 +61,10 @@ import org.xml.sax.SAXException;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLSeqParser extends DOMParser {
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
 
-	/**
+    /**
 	 * This controls display of log messages to the java console
 	 */
 	private String mFileToParse = null;
@@ -105,16 +103,8 @@ public class ADLSeqParser extends DOMParser {
 	 */
 	public ADLSeqParser(String iFileName) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> BEGIN - constructor");
-			System.out.println("  ::--> " + iFileName);
-		}
-
+        log.debug("  :: ADLSeqParser   --> BEGIN - constructor\n  ::--> {}", iFileName);
 		mFileToParse = iFileName;
-
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> END   - constructor");
-		}
 	}
 
 	/**
@@ -127,9 +117,7 @@ public class ADLSeqParser extends DOMParser {
 	 */
 	public Node findDefaultOrganization() {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> BEGIN - " + "findDefaultOrganization");
-		}
+        log.debug("  :: ADLSeqParser   --> BEGIN - findDefaultOrganization");
 
 		Node organization = null;
 
@@ -158,9 +146,7 @@ public class ADLSeqParser extends DOMParser {
 				// Make sure this is an "element node"
 				if (curNode.getNodeType() == Node.ELEMENT_NODE) {
 					if (curNode.getLocalName().equals("organizations")) {
-						if (_Debug) {
-							System.out.println("  ::--> Found the " + "<organizations> element");
-						}
+                        log.debug("  ::--> Found the <organizations> element");
 
 						// Get and set the identifier for the default organization
 						mOrganizationID = getAttribute(curNode, "default");
@@ -175,9 +161,7 @@ public class ADLSeqParser extends DOMParser {
 							// Make sure this is an "element node"
 							if (curOrg.getNodeType() == Node.ELEMENT_NODE) {
 								if (curOrg.getLocalName().equals("organization")) {
-									if (_Debug) {
-										System.out.println("  ::--> Found an " + "<organization> element");
-									}
+                                    log.debug("  ::--> Found an <organization> element");
 
 									// Compare this organization's ID to the default
 									String id = getAttribute(curOrg, "identifier");
@@ -219,36 +203,24 @@ public class ADLSeqParser extends DOMParser {
 						// We are done looking at the <organizations> element
 						// Make sure we have found the default
 						if (organization == null) {
-							if (_Debug) {
-								System.out.println("  ::--> Default <organization> " + "not found, using the first one.");
-							}
+                            log.debug("  ::--> Default <organization> not found, using the first one.");
 
 							// Use the first <organization> by default
 							organization = orgs.item(0);
 						}
 					} else if (curNode.getLocalName().equals("resources")) {
-						if (_Debug) {
-							System.out.println("  ::--> Found the " + "<resources> element");
-						}
+                        log.debug("  ::--> Found the <resources> element");
 					} else if (curNode.getLocalName().equals("sequencingCollection")) {
-						if (_Debug) {
-							System.out.println("  ::--> Found the " + "<sequencingCollection> element");
-						}
-
+                        log.debug("  ::--> Found the <sequencingCollection> element");
 						mSequencingCollection = curNode;
 					}
 				}
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::-->  ERROR: Parse failed");
-			}
+            log.debug("  ::-->  ERROR: Parse failed");
 		}
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> END   - " + "findDefaultOrganization");
-		}
-
+        log.debug("  :: ADLSeqParser   --> END   - " + "findDefaultOrganization");
 		return organization;
 	}
 
@@ -264,12 +236,8 @@ public class ADLSeqParser extends DOMParser {
 	 */
 	private String getAttribute(Node iNode, String iAttribute) {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> BEGIN - getAttribute");
-			System.out.println("  ::-->  " + iAttribute);
-		}
-
-		String value = null;
+        log.debug("  :: ADLSeqParser   --> BEGIN - getAttribute\n  ::-->  {}", iAttribute);
+        String value = null;
 
 		// Extract the node's attribute list and check if the requested
 		// attribute is contained in it.
@@ -293,21 +261,12 @@ public class ADLSeqParser extends DOMParser {
 			}
 
 			if (value == null) {
-				if (_Debug) {
-					System.out.println("  ::-->  The attribute \"" + iAttribute + "\" does not exist.");
-				}
+                log.debug("  ::-->  The attribute \"{}\" does not exist.", iAttribute);
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::-->  This node has no attributes.");
-			}
+            log.debug("  ::-->  This node has no attributes.");
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + value);
-			System.out.println("  :: ADLSeqParser   --> END - getAttribute");
-		}
-
+        log.debug("  ::-->  {}\n  :: ADLSeqParser   --> END - getAttribute", value);
 		return value;
 	}
 
@@ -319,14 +278,13 @@ public class ADLSeqParser extends DOMParser {
 	 */
 	public String getCourseID() {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> BEGIN - getCourseID");
-			System.out.println("  ::-->  " + mCourseID);
-			System.out.println("  :: ADLSeqParser   --> END   - getCourseID");
-		}
-
-		return mCourseID;
-	}
+        log.debug("""
+                  :: ADLSeqParser   --> BEGIN - getCourseID
+                  ::-->  {}
+                  :: ADLSeqParser   --> END   - getCourseID
+                """, mCourseID);
+        return mCourseID;
+    }
 
 	/**
 	 * Retrieves the identifier for the default organization.
@@ -336,13 +294,12 @@ public class ADLSeqParser extends DOMParser {
 	 */
 	public String getOrganizationID() {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> BEGIN - " + "getOrganizationID");
-			System.out.println("  ::-->  " + mOrganizationID);
-			System.out.println("  :: ADLSeqParser   --> END   - " + "getOrganizationID");
-		}
-
-		return mOrganizationID;
+        log.debug("""
+                  :: ADLSeqParser   --> BEGIN - getOrganizationID
+                  ::-->  {}
+                  :: ADLSeqParser   --> END   - getOrganizationID
+                """, mOrganizationID);
+        return mOrganizationID;
 	}
 
 	/**
@@ -355,22 +312,21 @@ public class ADLSeqParser extends DOMParser {
 	 */
 	public String getScopeID() {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> BEGIN - " + "getScopeID");
-			System.out.println("  ::-->  " + mGlobalToSystem);
-		}
+        log.debug("""
+                    :: ADLSeqParser   --> BEGIN - getScopeID
+                    ::-->  {}
+                  """, mGlobalToSystem);
 
-		String scopeID = null;
+        String scopeID = null;
 
 		if (!mGlobalToSystem) {
 			scopeID = mCourseID + "__" + mOrganizationID;
 		}
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + scopeID);
-			System.out.println("  :: ADLSeqParser   --> END   - " + "getScopeID");
-		}
-
+        log.debug("""
+                    ::-->  {};
+                    :: ADLSeqParser   --> END   - getScopeID
+                  """, scopeID);
 		return scopeID;
 	}
 
@@ -383,12 +339,11 @@ public class ADLSeqParser extends DOMParser {
 	 */
 	public Node getSequencingCollection() {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> BEGIN - " + "getSequencingCollection");
-			System.out.println("  ::-->  " + mSequencingCollection);
-			System.out.println("  :: ADLSeqParser   --> END   - " + "getSequencingCollection");
-		}
-
+        log.debug("""
+                    :: ADLSeqParser   --> BEGIN - getSequencingCollection
+                    ::-->  {}
+                    :: ADLSeqParser   --> END   - getSequencingCollection
+                  """, mSequencingCollection);
 		return mSequencingCollection;
 	}
 
@@ -400,9 +355,7 @@ public class ADLSeqParser extends DOMParser {
 	 */
 	private InputSource openSourceFile() {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> BEGIN - openSourceFile");
-		}
+        log.debug("  :: ADLSeqParser   --> BEGIN - openSourceFile");
 
 		InputSource input = null;
 
@@ -414,40 +367,23 @@ public class ADLSeqParser extends DOMParser {
 				if (xmlFile.isFile()) {
 					String tmp = xmlFile.getAbsolutePath();
 
-					if (_Debug) {
-						System.out.println("  ::--> Found XML File: " + tmp);
-					}
+                    log.debug("  ::--> Found XML File: {}", tmp);
 
 					// Create the input source
 					FileReader fr = new FileReader(xmlFile);
 					input = new InputSource(fr);
 				}
 			} catch (NullPointerException npe) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR: Null pointer");
-					System.out.println(npe);
-				}
+                log.debug("  ::--> ERROR: Null pointer", npe);
 			} catch (SecurityException se) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR: Security exception");
-					System.out.println(se);
-				}
+                log.debug("  ::--> ERROR: Security exception", se);
 			} catch (FileNotFoundException fnfe) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR: File not found");
-					System.out.println(fnfe);
-				}
+                log.debug("  ::--> ERROR: File not found", fnfe);
 			}
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR: No file to parse");
-			}
+            log.debug("  ::--> ERROR: No file to parse");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> END   - openSourceFile");
-		}
-
+        log.debug("  :: ADLSeqParser   --> END   - openSourceFile");
 		return input;
 	}
 
@@ -459,9 +395,7 @@ public class ADLSeqParser extends DOMParser {
 	 */
 	private boolean parseFile() {
 
-		if (_Debug) {
-			System.out.println("  :: ADLSeqParser   --> BEGIN - parseFile");
-		}
+        log.debug("  :: ADLSeqParser   --> BEGIN - parseFile");
 
 		boolean result = false;
 
@@ -469,30 +403,15 @@ public class ADLSeqParser extends DOMParser {
 		if (instanceInputSource != null) {
 			// Attempt to parse the XML source file
 			try {
-				if (_Debug) {
-					System.out.println("  ::--> Calling super.parse()");
-				}
-
+                log.debug("  ::--> Calling super.parse()");
 				super.parse(instanceInputSource);
-
-				if (_Debug) {
-					System.out.println("  ::--> Parse complete");
-				}
+                log.debug("  ::--> Parse complete");
 			} catch (SAXException se) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR: SAX exception");
-					System.out.println(se);
-				}
+                log.debug("  ::--> ERROR: SAX exception", se);
 			} catch (IOException ioe) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR: IO exception");
-					System.out.println(ioe);
-				}
+                log.debug("  ::--> ERROR: IO exception", ioe);
 			} catch (NullPointerException npe) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR: Null pointer");
-					System.out.println(npe);
-				}
+                log.debug("  ::--> ERROR: Null pointer", npe);
 			}
 
 			// Attempt to get the the root of XML document
@@ -503,25 +422,17 @@ public class ADLSeqParser extends DOMParser {
 				if (mDocument.hasChildNodes()) {
 					result = true;
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> The document has no children.");
-					}
-
+                    log.debug("  ::--> The document has no children.");
 				}
 			} catch (NullPointerException npe) {
-				if (_Debug) {
-					System.out.println("  ::--> ERROR: Null pointer -- No Doc");
-					System.out.println(npe);
-				}
+                log.debug("  ::--> ERROR: Null pointer -- No Doc", npe);
 			}
 		}
 
-		if (_Debug) {
-			System.out.println("  ::-->  " + result);
-			System.out.println("  :: ADLSeqParser   --> END   - parseFile");
-		}
-
+        log.debug("""
+                    ::-->  {}
+                    :: ADLSeqParser   --> END   - parseFile
+                  """, result);
 		return result;
 	}
-
-} // End ADLSeqParser
+}

@@ -1,19 +1,24 @@
-# sakai-pager
+# @sakai-ui/sakai-pager
 
-A base class for elements that need their data paging.
+The Sakai pager component.
+
+## Description
+
+This component provides pagination functionality for Sakai, allowing users to navigate through pages of content.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-pager
+npm install @sakai-ui/sakai-pager
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-pager/sakai-pager.js';
 
-<sakai-pager tool="roster"></sakai-pager>
-
+// In your HTML
+<sakai-pager></sakai-pager>
 ```
 
 ## Linting and formatting
@@ -21,5 +26,17 @@ npm i @sakai-ui/sakai-pager
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
+npm run lint:fix
 ```
+
+## Testing with Web Test Runner
+
+To execute a single test run:
+
+```bash
+npm run test
+```
+
+## License
+
+ECL-2.0

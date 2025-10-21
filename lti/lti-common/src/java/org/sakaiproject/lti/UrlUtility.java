@@ -110,15 +110,4 @@ public class UrlUtility {
 			padding += "=";
 		return cleanedUrl.replaceAll("-", "+").replaceAll("_", "/") + padding;
 	}
-
-	public static void main(String[] args) {
-		String sample = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'����������Э��ҹ������ό�ĩ����ɾֳ���ÍŽ";
-		String encoded = encodeUrl(sample);
-		String decoded = decodeUrl(encoded);
-		boolean same = sample.equals(decoded);
-		log.debug("encoded={}", encoded);
-		log.debug("sample={}", sample);
-		log.debug("decoded={}", decoded);
-		log.debug("sample.equals(decoded)={}", same);
-	}
 }

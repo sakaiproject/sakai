@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.datamodels.DMDelimiterDescriptor;
 import org.adl.datamodels.DMElement;
 import org.adl.datamodels.DMElementDescriptor;
@@ -61,6 +62,7 @@ import static org.sakaiproject.scorm.api.ScormConstants.*;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class SCORM_2004_DM extends DataModel implements Serializable {
 	/**
 	 * serialVersionUID
@@ -637,7 +639,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		}
 
 		// Skip over the index to find the field be tested
-		tok = ioRequest.getNextToken();
+		ioRequest.getNextToken();
 		tok = ioRequest.getNextToken();
 
 		// How many elements do we need to look at?
@@ -660,7 +662,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 				count = Integer.parseInt(pi.mValue);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+            log.warn("Unable to process request: {}", newRequest, e);
 		}
 
 		StringBuilder value = new StringBuilder(iValue.getValue());
@@ -673,7 +675,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		for (int i = 0; i < (count - 1); i++) {
 			newRequest = new StringBuilder(request);
 			newRequest.append(".");
-			newRequest.append(String.valueOf(i));
+			newRequest.append(i);
 			newRequest.append(".");
 			newRequest.append(tok.getValue());
 
@@ -690,7 +692,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 					break;
 				}
 			} catch (Exception e) {
-				// Do nothing
+				log.warn("Could not parse request: {}", newRequest, e);
 			}
 		}
 
@@ -1048,13 +1050,13 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 
 				DMElement elem = (DMElement) obj;
 
-				System.out.println("DMElement Binding: " + elem.getDMElementBindingString());
+				log.debug("DMElement Binding: " + elem.getDMElementBindingString());
 
 				DMElementDescriptor desc = elem.getDescription();
 
 				if (null != desc) {
-					System.out.println("DMElement Desc Binding " + desc.mBinding);
-					System.out.println("DMElement Desc Initial " + desc.mInitial);
+					log.debug("DMElement Desc Binding " + desc.mBinding);
+					log.debug("DMElement Desc Initial " + desc.mInitial);
 
 					List<DMDelimiterDescriptor> delims = desc.mDelimiters;
 
@@ -1064,12 +1066,12 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 							DMDelimiterDescriptor del = (DMDelimiterDescriptor) o;
 
 							if (null != del) {
-								System.out.println("DMElement Delim Value " + del.mName);
+								log.debug("DMElement Delim Value " + del.mName);
 
 								//DMDelimiterDescriptor delDesc = del;
 
 								//if (null != delDesc)
-								//   System.out.println("DMElement Delim Desc " + delDesc.mName);
+								//   log.debug("DMElement Delim Desc " + delDesc.mName);
 							}
 						}
 					}

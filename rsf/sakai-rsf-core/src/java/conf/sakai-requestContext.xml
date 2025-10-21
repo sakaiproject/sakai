@@ -59,10 +59,7 @@
 
 	<bean id="sakai-EntityReference" factory-bean="sakaiRequestParser" factory-method="getEntityReference" />
 
-	<bean id="genericDAOEntityBeanManagerParent" class="org.sakaiproject.rsf.genericdao.GenericDAOEntityBeanManager"
-		abstract="true" init-method="init">
-		<property name="mappingContext" ref="ELMappingContext" />
-	</bean>
+
 
 	<bean id="helperHandlerHookBean" class="org.sakaiproject.rsf.helper.HelperHandlerHookBean" lazy-init="true">
 		<property name="activeToolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />

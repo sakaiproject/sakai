@@ -405,7 +405,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		if(pr != null)
 		{
 			pr.setViewable(value.booleanValue());
-			savePrivacyRecord(pr);
+			pr = savePrivacyRecord(pr);
 		}
 		else
 		{
@@ -589,7 +589,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 			throw new IllegalArgumentException("Null Argument in createPrivacyRecord");
 		} else {
 			PrivacyRecord privacy = new PrivacyRecord(userId, contextId, recordType, viewable);
-			savePrivacyRecord(privacy);
+			privacy = savePrivacyRecord(privacy);
 			return privacy;
 		}
 	}
@@ -667,14 +667,14 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
   	return getHibernateTemplate().execute(hcb);
   }
 
-  private void savePrivacyRecord(PrivacyRecord privacy)
+  private PrivacyRecord savePrivacyRecord(PrivacyRecord privacy)
   {
-  	getHibernateTemplate().saveOrUpdate(privacy);
+    return (PrivacyRecord) getHibernateTemplate().merge(privacy);
   }
 
   private void removePrivacyObject(PrivacyRecord o)
   {
-    getHibernateTemplate().delete(o);
+    getHibernateTemplate().delete(getHibernateTemplate().merge(o));
   }
   
   private boolean checkPrivacyRecord(PrivacyRecord sysRecord, PrivacyRecord userRecord)
