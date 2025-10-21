@@ -594,12 +594,13 @@ public class ViewBean
 				.getName());
 	}
 
-        public String getBaseAccessUrl()
-        {
-                // /wiki
-                return RWikiObjectService.REFERENCE_ROOT + pageName + ".";
+	public String getBaseAccessUrl()
+	{
+		// /wiki
+		return RWikiObjectService.REFERENCE_ROOT + pageName + ".";
 
-        }
+	}
+
 	public String getPreferencesUrl()
 	{
 		return this.getPageUrl(getPageName(), WikiPageAction.PREFERENCES_ACTION

@@ -834,10 +834,10 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 * @see uk.co.tfd.sakai.xmlserver.api.OutputContentHandler#getOutputHandler(java.io.Writer)
 	 */
 
-        public ContentHandler getOutputHandler(Writer out) throws IOException
-        {
-                throw new UnsupportedOperationException("Writer-based output is no longer supported. Use OutputStream-based output instead.");
-        }
+	public ContentHandler getOutputHandler(Writer out) throws IOException
+	{
+			throw new UnsupportedOperationException("Writer-based output is no longer supported. Use OutputStream-based output instead.");
+	}
 
 	public ContentHandler getOutputHandler(OutputStream out) throws IOException
 	{
@@ -847,45 +847,36 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		{
 			XSLTTransform xsltTransform = new XSLTTransform();
 			xsltTransform.setXslt(new InputSource(this.getClass().getResourceAsStream(xslt)));
-                        TransformerHandler th = xsltTransform.getContentHandler();
+			TransformerHandler th = xsltTransform.getContentHandler();
 
 			Transformer transformer = th.getTransformer();
 
-                        Properties outputProps = transformer.getOutputProperties();
-                        if (outputProps == null) {
-                                outputProps = new Properties();
-                        }
+			Properties outputProps = transformer.getOutputProperties();
+			if (outputProps == null) {
+					outputProps = new Properties();
+			}
 
-				if (outputProperties != null) {
-					for (Map.Entry<?, ?> entry : ((Map<?, ?>) outputProperties).entrySet()) {
-						Object key = entry.getKey();
-						Object value = entry.getValue();
-						if (key != null && value != null) {
-							outputProps.setProperty(key.toString(), value.toString());
-						}
-                                }
-                        }
+			if (outputProperties != null) {
+				for (Map.Entry<?, ?> entry : ((Map<?, ?>) outputProperties).entrySet()) {
+					Object key = entry.getKey();
+					Object value = entry.getValue();
+					if (key != null && value != null) {
+						outputProps.setProperty(key.toString(), value.toString());
+					}
+				}
+			}
 
-                        for (String name : outputProps.stringPropertyNames()) {
-                                transformer.setOutputProperty(name, outputProps.getProperty(name));
-                        }
+			for (String name : outputProps.stringPropertyNames()) {
+				transformer.setOutputProperty(name, outputProps.getProperty(name));
+			}
 
-                        th.setResult(new StreamResult(out));
-                        return th;
-                }
-                catch (Exception ex)
-                {
-                        log.debug("Failed to create Content Handler for XSLT transformation", ex);
-                        throw new RuntimeException("Failed to create Content Handler", ex); //$NON-NLS-1$
-			/*
-			 * String stackTrace = null; try { StringWriter exw = new
-			 * StringWriter(); PrintWriter pw = new PrintWriter(exw);
-			 * log.error(ex.getMessage(), ex); stackTrace = exw.toString(); } catch
-			 * (Exception ex2) { stackTrace =
-			 * MessageFormat.format(defaultStackTrace, new Object[] {
-			 * ex.getMessage() }); } out.write(MessageFormat.format(errorFormat,
-			 * new Object[] { ex.getMessage(), stackTrace }));
-			 */
+			th.setResult(new StreamResult(out));
+			return th;
+		}
+		catch (Exception ex)
+		{
+			log.error("Failed to create Content Handler for XSLT transformation", ex);
+			throw new RuntimeException("Failed to create Content Handler", ex); //$NON-NLS-1$
 		}
 	}
 
