@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:outputText styleClass="questionBlock" escape="false" value="#{question.itemData.text}" />
+    <br />
+    <br />
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
+        <h:column>
+            <h:dataTable styleClass="inputBlock" value="#{itemText.answerArraySorted}" var="answer">
+                <h:column>
+                    <h:panelGroup id="image1" styleClass="samigo-inline-radio fa fa-circle-o" />
+                    <h:outputText escape="false" value="#{answer.text}">
+                        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+                    </h:outputText>
+                </h:column>
+                <h:column>
+                    <h:panelGroup styleClass="feedbackBlock" rendered="#{printSettings.showKeysFeedback and not empty answer.text}">
+                        <h:outputLabel value="#{commonMessages.feedback}: " />
+                        <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" rendered="#{not empty answer.generalAnswerFeedback}" />
+                        <h:outputText escape="false" value="--------" rendered="#{empty answer.generalAnswerFeedback}" />
+                    </h:panelGroup>
+                </h:column>
+            </h:dataTable>
+        </h:column>
+    </h:dataTable>
+
+    <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys or printSettings.showKeysFeedback}">
+        <h:outputLabel value="#{printMessages.answer_point}: " />
+        <h:outputText escape="false" value="0 #{authorMessages.points_lower_case}" />
+        <br />
+    </h:panelGroup>
+
+</ui:composition>

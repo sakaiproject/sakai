@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:outputText styleClass="questionBlock" escape="false" value="#{question.text}" />
+    <br />
+    <br />
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <h:panelGrid columns="2" width="99%">
+        <h:panelGroup>
+            <h:dataTable value="#{question.matchingArray}" var="matching">
+                <h:column>
+                    <h:outputText value="#{matching.text}" escape="false" styleClass="mcAnswerText" />
+                </h:column>
+            </h:dataTable>
+        </h:panelGroup>
+        <h:panelGroup>
+            <h:dataTable styleClass="inputBlock" value="#{question.answers}" var="answer">
+                <h:column>
+                    <h:outputText value="#{answer}" escape="false" styleClass="mcAnswerText" />
+                </h:column>
+            </h:dataTable>
+        </h:panelGroup>
+    </h:panelGrid>
+
+    <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys or printSettings.showKeysFeedback}">
+        <h:outputLabel value="#{printMessages.answer_point}: " />
+        <h:outputText value="#{question.itemData.score}">
+            <f:convertNumber maxFractionDigits="2" groupingUsed="false" />
+        </h:outputText>
+        <h:outputText escape="false" value=" #{authorMessages.points_lower_case}" />
+        <br />
+        <h:outputLabel value="#{printMessages.answer_key}: " />
+        <h:outputText escape="false" value="#{question.key}" />
+        <br />
+    </h:panelGroup>
+
+    <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
+        <h:outputLabel value="#{printMessages.correct_feedback}: " />
+        <h:outputText escape="false" value="#{question.itemData.correctItemFeedback}" rendered="#{not empty question.itemData.correctItemFeedback}" />
+        <h:outputText escape="false" value="--------" rendered="#{empty question.itemData.correctItemFeedback}" />
+        <br />
+        <h:outputLabel value="#{printMessages.incorrect_feedback}: " />
+        <h:outputText escape="false" value="#{question.itemData.inCorrectItemFeedback}" rendered="#{not empty question.itemData.inCorrectItemFeedback}" />
+        <h:outputText escape="false" value="--------" rendered="#{empty question.itemData.inCorrectItemFeedback}" />
+        <br />
+    </h:panelGroup>
+
+</ui:composition>

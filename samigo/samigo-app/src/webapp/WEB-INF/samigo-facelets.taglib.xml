@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<facelet-taglib xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facelettaglibrary_2_2.xsd"
+    version="2.2">
+
+    <namespace>http://www.sakaiproject.org/samigo</namespace>
+
+    <tag>
+        <tag-name>wysiwyg</tag-name>
+        <component>
+            <component-type>SakaiRichTextEditArea</component-type>
+            <renderer-type>SakaiRichTextEditArea</renderer-type>
+        </component>
+    </tag>
+
+    <tag>
+        <tag-name>dataLine</tag-name>
+        <component>
+            <component-type>javax.faces.Data</component-type>
+            <renderer-type>DataLine</renderer-type>
+        </component>
+    </tag>
+
+</facelet-taglib>

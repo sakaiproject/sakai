@@ -471,12 +471,8 @@
       <to-view-id>/jsf/author/previewAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>printAssessment</from-outcome>
-      <to-view-id>/sakai.questionbank.printout.helper/printAssessment</to-view-id>
-    </navigation-case>
-    <navigation-case>
-    <from-outcome>print</from-outcome>
-      <to-view-id>/jsf/print/printAssessment.jsp</to-view-id>
+      <from-outcome>print</from-outcome>
+      <to-view-id>/jsf/print/printAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>addPart</from-outcome>

@@ -84,10 +84,7 @@
 
                         <h:outputText value=" #{authorMessages.separator} " rendered="#{assessmentBean.showPrintLink eq 'true'}" />
 
-                        <h:commandLink action="#{itemauthor.print}" rendered="#{assessmentBean.showPrintLink eq 'true' and assessmentBean.showPrintAssessment ne 'true'}">
-                            <h:outputText value="#{authorMessages.subnav_print}" escape="false" />
-                        </h:commandLink>
-                        <h:commandLink action="#{pdfAssessment.prepPDF}" rendered="#{assessmentBean.showPrintLink eq 'true' and assessmentBean.showPrintAssessment eq 'true'}">
+                        <h:commandLink action="#{pdfAssessment.prepPDF}" rendered="#{assessmentBean.showPrintLink eq 'true'}">
                             <f:param name="assessmentId" value="#{assessmentBean.assessmentId}" />
                             <f:param name="publishedId" value="#{author.editPublishedAssessmentID}" />
                             <f:param name="actionString" value="editAssessment" />
@@ -209,6 +206,36 @@
                                     </h:panelGroup>
                                 </h:panelGrid>
 
+                                <h:panelGroup layout="block" styleClass="navList" rendered="#{!author.isEditPoolFlow}">
+                                    <h:commandLink title="#{authorMessages.copy_to_pool}" id="copyToPool" immediate="true"
+                                        action="#{questionpool.startCopyFromAssessment}"
+                                        rendered="#{author.isEditPendingAssessmentFlow and (partBean.sectionAuthorType == null or partBean.sectionAuthorTypeString == '1')}">
+                                        <h:outputText value="#{authorMessages.copy_to_pool}" />
+                                        <f:param name="sectionId" value="#{partBean.sectionId}" />
+                                    </h:commandLink>
+
+                                    <h:outputText value=" #{authorMessages.separator} "
+                                        rendered="#{author.isEditPendingAssessmentFlow and (partBean.sectionAuthorType == null or partBean.sectionAuthorTypeString == '1')}" />
+
+                                    <h:commandLink title="#{authorMessages.t_removeP}" action="confirmRemovePart" immediate="true"
+                                        rendered="#{partBean.number ne 1 and author.isEditPendingAssessmentFlow}">
+                                        <h:outputText value="#{commonMessages.remove_action}" />
+                                        <f:param name="sectionId" value="#{partBean.sectionId}" />
+                                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemovePartListener" />
+                                    </h:commandLink>
+
+                                    <h:outputText value=" #{authorMessages.separator} "
+                                        rendered="#{partBean.number ne 1 and author.isEditPendingAssessmentFlow}" />
+
+                                    <h:commandLink title="#{authorMessages.t_editP}" id="editPart" immediate="true" action="editPart"
+                                        onclick="SPNR.insertSpinnerInPreallocated( null, null, 'assessmentForm:parts:#{partBean.number - 1}:editPartSpinner' );">
+                                        <h:outputText value="#{commonMessages.edit_action}" />
+                                        <f:param name="sectionId" value="#{partBean.sectionId}" />
+                                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener" />
+                                    </h:commandLink>
+                                    <h:panelGroup id="editPartSpinner" layout="block" styleClass="allocatedSpinPlaceholder" />
+                                </h:panelGroup>
+
                                 <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow and !author.isEditPoolFlow}">
                                     <div class="insert-question-row">
                                         <div class="sak-banner-info">
@@ -252,6 +279,25 @@
                                                     <h:outputText rendered="#{question.itemData.typeId == 15}" value=" #{authorMessages.calculated_question}" />
                                                     <h:outputText rendered="#{question.itemData.typeId == 16}" value=" #{authorMessages.image_map_question}" />
                                                 </h:panelGroup>
+                                            </h:panelGroup>
+                                            <h:panelGroup>
+                                                <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow and question.cancellable and partBean.cancellationAllowed}">
+                                                    <a href="#" data-item-cancellable="true" data-itemId="#{question.itemData.itemIdString}">
+                                                        <h:outputText value="#{commonMessages.cancel_question}" />
+                                                    </a>
+                                                    <h:outputText value=" #{authorMessages.separator} " />
+                                                </h:panelGroup>
+                                                <h:commandLink title="#{authorMessages.t_removeQ}" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}" rendered="#{author.isEditPendingAssessmentFlow}">
+                                                    <h:outputText value="#{commonMessages.remove_action}" />
+                                                    <f:param name="itemid" value="#{question.itemData.itemIdString}" />
+                                                </h:commandLink>
+                                                <h:outputText value=" #{authorMessages.separator} " rendered="#{author.isEditPendingAssessmentFlow}" />
+                                                <h:commandLink title="#{authorMessages.t_editQ}" id="modify" action="#{itemauthor.doit}" immediate="true">
+                                                    <h:outputText value="#{commonMessages.edit_action}" />
+                                                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
+                                                    <f:param name="itemid" value="#{question.itemData.itemIdString}" />
+                                                    <f:param name="target" value="assessment" />
+                                                </h:commandLink>
                                             </h:panelGroup>
                                         </h:panelGrid>
 

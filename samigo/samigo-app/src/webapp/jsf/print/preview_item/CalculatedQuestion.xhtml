@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <h:outputText styleClass="questionBlock" escape="false" value="#{question.calculatedQuestionText}" />
+    <br />
+
+    <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys or printSettings.showKeysFeedback}">
+        <h:outputLabel value="#{printMessages.answer_point}: " />
+        <h:outputText value="#{question.itemData.score}">
+            <f:convertNumber maxFractionDigits="2" groupingUsed="false" />
+        </h:outputText>
+        <h:outputText escape="false" value=" #{authorMessages.points_lower_case}" />
+        <br />
+        <h:outputLabel value="#{printMessages.answer_key}: " />
+        <h:outputText escape="false" value="#{question.answerKeyCalcQuestion} = #{question.calculatedQuestionAnswer}" />
+        <br />
+    </h:panelGroup>
+
+    <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
+        <h:outputLabel value="#{printMessages.correct_feedback}: " />
+        <h:outputText escape="false" value="#{question.itemData.correctItemFeedbackValue}" rendered="#{not empty question.itemData.correctItemFeedback}" />
+        <h:outputText escape="false" value="--------" rendered="#{empty question.itemData.correctItemFeedback}" />
+        <br />
+        <h:outputLabel value="#{printMessages.incorrect_feedback}: " />
+        <h:outputText escape="false" value="#{question.itemData.inCorrectItemFeedbackValue}" rendered="#{not empty question.itemData.inCorrectItemFeedback}" />
+        <h:outputText escape="false" value="--------" rendered="#{empty question.itemData.inCorrectItemFeedback}" />
+        <br />
+    </h:panelGroup>
+    <br />
+
+</ui:composition>
