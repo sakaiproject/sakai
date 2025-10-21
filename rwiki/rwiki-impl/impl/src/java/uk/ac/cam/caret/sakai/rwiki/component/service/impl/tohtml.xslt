@@ -42,8 +42,8 @@
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js">
 					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
 				</script>
-                                <link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/tool_base.css" type="text/css" rel="stylesheet"
-                                        media="all"/>
+				<link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/tool_base.css" type="text/css" rel="stylesheet"
+					media="all"/>
 				<link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin']/value}/tool.css" type="text/css" rel="stylesheet"
 					media="all"/>
 				<script type="text/javascript" src="/library/js/headscripts.js">
