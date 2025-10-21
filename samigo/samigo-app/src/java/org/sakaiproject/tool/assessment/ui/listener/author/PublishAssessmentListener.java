@@ -432,11 +432,12 @@ public class PublishAssessmentListener
 
     // Add ALIAS if it doesn't exist
     String settingsAlias = assessmentSettings.getAlias();
-    if (StringUtils.isBlank(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS))) {
+    if (StringUtils.isBlank(pub.getData().getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS))) {
       String aliasToUse;
       if (StringUtils.isNotBlank(settingsAlias)) {
         aliasToUse = settingsAlias;
       } else {
+        log.warn("Alias was not set before publishing assessment {}; generating fallback UUID", pub.getData().getAssessmentId());
         // Generate a new unique alias
         aliasToUse = UUID.randomUUID().toString();
       }
