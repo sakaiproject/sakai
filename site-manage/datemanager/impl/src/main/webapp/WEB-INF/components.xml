@@ -13,7 +13,7 @@
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
 		<property name="assessmentPersistenceService" ref="PersistenceService"/>
 		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
-		<property name="signupService" ref="org.sakaiproject.signup.logic.SignupMeetingService"/>
+		<property name="signupService" ref="org.sakaiproject.signup.api.SignupMeetingService"/>
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 		<property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService" />
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />

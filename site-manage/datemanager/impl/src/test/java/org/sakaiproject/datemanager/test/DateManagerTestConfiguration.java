@@ -109,7 +109,7 @@ public class DateManagerTestConfiguration {
         return Mockito.mock(SessionManager.class);
     }
 
-    @Bean(name = "org.sakaiproject.signup.logic.SignupMeetingService")
+    @Bean(name = "org.sakaiproject.signup.api.SignupMeetingService")
     public SignupMeetingService signupMeetingService() {
         return Mockito.mock(SignupMeetingService.class);
     }

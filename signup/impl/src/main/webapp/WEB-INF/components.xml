@@ -31,7 +31,8 @@
 	<bean id="org.sakaiproject.signup.logic.SakaiFacade"
           class="org.sakaiproject.signup.impl.SakaiFacadeImpl"
           init-method="init">
-        <property name="additionalCalendarService" ref="org.sakaiproject.additional.calendar"/>
+        <!-- TODO Optional Calendar dependency -->
+        <!-- property name="additionalCalendarService" ref="org.sakaiproject.additional.calendar"/ -->
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
@@ -39,14 +40,14 @@
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-        <property name="signupMeetingService" ref="org.sakaiproject.signup.logic.SignupMeetingService"/>
+        <property name="signupMeetingService" ref="org.sakaiproject.signup.api.SignupMeetingService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 
-	<bean id="org.sakaiproject.signup.logic.SignupMeetingService"
+	<bean id="org.sakaiproject.signup.api.SignupMeetingService"
           class="org.sakaiproject.signup.impl.SignupMeetingServiceImpl"
           init-method="init">
         <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
