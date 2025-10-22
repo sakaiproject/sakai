@@ -54,74 +54,84 @@ import lombok.Setter;
 import net.fortuna.ical4j.model.component.VEvent;
 
 /**
+ * Abstract base class for Signup Email notifications that provides common functionality
+ * for email notifications such as getting footer information, site details, and time
+ * formatting. Implements SignupEmailNotification interface for sending email notifications
+ * related to signup events.
  * <p>
- * This is a abstract base class for Signup Email. It provides some must-have or
- * common used methods like getFooter()
- * </P>
+ * Subclasses must implement abstract methods to define email headers, message content,
+ * from address and subject. Provides utility methods for:
+ * <ul>
+ * <li>Generating email footers with site access links</li>
+ * <li>Formatting site titles and meeting information</li>
+ * <li>Converting Java dates to Sakai Time objects</li>
+ * <li>Checking user attendance in timeslots</li>
+ * <li>Retrieving events for attendees</li>
+ * </ul>
  */
 abstract public class SignupEmailBase implements SignupEmailNotification, MeetingTypes {
 
-	@Getter @Setter
-	private SakaiFacade sakaiFacade;
+	public static final String NEWLINE = "<BR>\r\n";
 
-	@Setter
-	protected ResourceLoader rb;
+	@Getter @Setter private SakaiFacade sakaiFacade;
+	@Setter protected ResourceLoader rb;
+	@Getter protected SignupMeeting meeting;
+	@Setter @Getter protected boolean modifyComment = false;
+    // Indicates whether the email represents a cancellation - to be overwritten by subclasses
+	@Getter protected boolean cancellation = false;
 
-	@Getter
-	protected SignupMeeting meeting;
+    private String myServiceName = null;
 
-	public static final String newline = "<BR>\r\n"; // System.getProperty("line.separator");\r\n
-
-	public static final String space = " ";
-	
-	private static final int SITE_DESCRIPTION_DISPLAY_LENGTH=20;
-
-	/** Indicates whether the email represents a cancellation - to be overwritten by subclasses */
-	protected boolean cancellation = false;
-	
-	protected boolean modifyComment = false;
-
-	/* footer for the email */
 	protected String getFooter(String newline) {
-		/* tag the message - HTML version */
-		if(this.meeting.getCurrentSiteId()==null)
-			return getFooterWithAccessUrl(newline);
-		else
-			return getFooterWithNoAccessUrl(newline);
+        // tag the message - HTML version
+        if (this.meeting.getCurrentSiteId() == null) {
+            return getFooterWithAccessUrl(newline);
+        } else {
+            return getFooterWithNoAccessUrl(newline);
+        }
 	}
 
-	/* footer for the email */
 	protected String getFooter(String newline, String targetSiteId) {
-		/* tag the message - HTML version */
-		Object[] params = new Object[] { getServiceName(),
+		// tag the message - HTML version
+		Object[] params = new Object[] {
+                getServiceName(),
 				"<a href=\"" + getSiteAccessUrl(targetSiteId) + "\">" + getSiteAccessUrl(targetSiteId) + "</a>",
-				getSiteTitle(targetSiteId), newline };
-		String rv = newline + rb.getString("separator") + newline
-				+ MessageFormat.format(rb.getString("body.footer.text"), params) + newline;
-
-		return rv;
+				getSiteTitle(targetSiteId),
+                newline };
+        return newline
+                + rb.getString("separator")
+                + newline
+                + MessageFormat.format(rb.getString("body.footer.text"), params)
+                + newline;
 	}
 	
-	/* footer for the email */
 	private String getFooterWithAccessUrl(String newline) {
-		/* tag the message - HTML version */
-		Object[] params = new Object[] { getServiceName(),
-				"<a href=\"" + getSiteAccessUrl() + "\">" + getSiteAccessUrl() + "</a>", getSiteTitle(), newline };
-		String rv = newline + rb.getString("separator") + newline
-				+ MessageFormat.format(rb.getString("body.footer.text"), params) + newline;
-
-		return rv;
+		// tag the message - HTML version
+		Object[] params = new Object[] {
+                getServiceName(),
+				"<a href=\"" + getSiteAccessUrl() + "\">" + getSiteAccessUrl() + "</a>",
+                getSiteTitle(),
+                newline
+        };
+        return newline
+                + rb.getString("separator")
+                + newline
+                + MessageFormat.format(rb.getString("body.footer.text"), params)
+                + newline;
 	}
 	
-	/* footer for the email */
 	private String getFooterWithNoAccessUrl(String newline) {
-		/* tag the message - HTML version */
-		Object[] params = new Object[] { getServiceName(),
-				getSiteTitle(), newline };
-		String rv = newline + rb.getString("separator") + newline
-				+ MessageFormat.format(rb.getString("body.footer.text.no.access.link"), params) + newline;
-
-		return rv;
+		// tag the message - HTML version
+		Object[] params = new Object[] {
+                getServiceName(),
+				getSiteTitle(),
+                newline
+        };
+        return newline
+                + rb.getString("separator")
+                + newline
+                + MessageFormat.format(rb.getString("body.footer.text.no.access.link"), params)
+                + newline;
 	}
 
 	/**
@@ -152,60 +162,48 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	 */
 	protected String getSiteId() {
 		String siteId = getSakaiFacade().getCurrentLocationId();
-		if(SakaiFacade.NO_LOCATION.equals(siteId)){
-			siteId =meeting.getCurrentSiteId()!=null? this.meeting.getCurrentSiteId() : SakaiFacade.NO_LOCATION;			
-		}
-		
-		return siteId;
+        if (SakaiFacade.NO_LOCATION.equals(siteId)) {
+            siteId = meeting.getCurrentSiteId() != null ? this.meeting.getCurrentSiteId() : SakaiFacade.NO_LOCATION;
+        }
+        return siteId;
 	}
 
-	/* get the site name */
 	protected String getSiteTitle() {
 		return getSakaiFacade().getLocationTitle(getSiteId());
 	}
 
-	/* get the site name */
 	protected String getSiteTitle(String targetSiteId) {
 		return getSakaiFacade().getLocationTitle(targetSiteId);
 	}
 	
-	/* get the site name */
 	protected String getShortSiteTitle(String targetSiteId) {
 		return getSakaiFacade().getLocationTitle(targetSiteId);
 	}
 
-	/* get the site name with a quotation mark */
 	protected String getSiteTitleWithQuote() {
 		return "\"" + getSiteTitle() + "\"";
 	}
 
-	/* get the site name with a quotation mark */
 	protected String getSiteTitleWithQuote(String targetSiteId) {
 		return "\"" + getSiteTitle(targetSiteId) + "\"";
 	}
 	
-	/* get the site name with a quotation mark */
 	protected String getShortSiteTitleWithQuote(String targetSiteId) {
 		return "\"" + getShortSiteTitle(targetSiteId) + "\"";
 	}
 
-	/* get the link to access the current-site signup tool page in a site */
-	protected String getSiteAccessUrl() {
-		// TODO May have efficiency issue with getPageId
-		String siteUrl = getSakaiFacade().getServerConfigurationService().getPortalUrl() + "/site/" + getSiteId()
-				+ "/page/" + getSakaiFacade().getCurrentPageId();
-		return siteUrl;
-	}
+    protected String getSiteAccessUrl() {
+        return getSakaiFacade().getServerConfigurationService().getPortalUrl()
+                + "/site/" + getSiteId()
+                + "/page/" + getSakaiFacade().getCurrentPageId();
+    }
 
-	/* get the link to access corresponding site - signup tool page in a site */
-	protected String getSiteAccessUrl(String targetSiteId) {
-		// TODO May have efficiency issue with getPageId
-		String siteUrl = getSakaiFacade().getServerConfigurationService().getPortalUrl() + "/site/" + targetSiteId
-				+ "/page/" + getSakaiFacade().getSiteSignupPageId(targetSiteId);
-		return siteUrl;
-	}
-	
-	/* Get the meeting title, max length of 30 chars (with ellipsis where required) */
+    protected String getSiteAccessUrl(String targetSiteId) {
+        return getSakaiFacade().getServerConfigurationService().getPortalUrl()
+                + "/site/" + targetSiteId
+                + "/page/" + getSakaiFacade().getSiteSignupPageId(targetSiteId);
+    }
+
 	protected String getAbbreviatedMeetingTitle(){
 		return StringUtils.abbreviate(meeting.getTitle(), 30);
 	}
@@ -219,8 +217,7 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	 * @return a Sakai's Time object.
 	 */
 	protected Time getTime(Date date) {
-		Time time = getSakaiFacade().getTimeService().newTime(date.getTime());
-		return time;
+        return getSakaiFacade().getTimeService().newTime(date.getTime());
 	}
 
 	/**
@@ -234,26 +231,21 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 		return StringUtils.capitalize(st);
 	}
 
-	static private String myServiceName = null;
-
 	protected String getServiceName() {
 		/* first look at email bundle and then sakai.properties.
 		 * it will allow user to define different 'ui.service' value */
-		if (myServiceName == null) {
-			try {
-				if(rb.keySet().contains("ui.service"))
-					myServiceName = rb.getString("ui.service");
-				else
-					myServiceName = getSakaiFacade().getServerConfigurationService().getString("ui.service",
-							"Sakai Service");
-			} catch (Exception e) {
-				myServiceName = getSakaiFacade().getServerConfigurationService().getString("ui.service",
-						"Sakai Service");
-			}
-		}
-
-		return myServiceName;
-
+        if (myServiceName == null) {
+            try {
+                if (rb.keySet().contains("ui.service")) {
+                    myServiceName = rb.getString("ui.service");
+                } else {
+                    myServiceName = getSakaiFacade().getServerConfigurationService().getString("ui.service", "Sakai Service");
+                }
+            } catch (Exception e) {
+                myServiceName = getSakaiFacade().getServerConfigurationService().getString("ui.service", "Sakai Service");
+            }
+        }
+        return myServiceName;
 	}
 	
 	
@@ -283,7 +275,7 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 
 	protected List<VEvent> eventsWhichUserIsAttending(User user) {
 		final List<SignupTimeslot> timeslots = meeting.getSignupTimeSlots();
-		List<VEvent> events = new ArrayList<VEvent>();
+		List<VEvent> events = new ArrayList<>();
 		for (SignupTimeslot timeslot : timeslots) {
 			if (userIsAttendingTimeslot(user, timeslot)) {
 				final VEvent event = timeslot.getVevent();
@@ -295,15 +287,4 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 		return events;
 	}
 
-	public boolean isCancellation() {
-		return cancellation;
-	}
-
-	public boolean isModifyComment() {
-		return modifyComment;
-	}
-
-	public void setModifyComment(boolean modifyComment) {
-		this.modifyComment = modifyComment;
-	}
 }

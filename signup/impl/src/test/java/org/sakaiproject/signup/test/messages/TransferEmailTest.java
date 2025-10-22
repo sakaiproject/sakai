@@ -81,7 +81,7 @@ public class TransferEmailTest {
 
     @Test
     public void swapAttendeeEmail() {
-        _email = new SwapAttendeeEmail(_mockedOrganiser, _mockedAttendingUser1, _mockedAttendingUser2, _mockedItem, _mockedMeeting, _mockedFacade);
+        _email = new SwapAttendeeEmail(_mockedOrganiser, _mockedAttendingUser1, _mockedItem, _mockedMeeting, _mockedFacade);
         assertFalse(_email.isCancellation());
         assertGenerates(2);
         assertCancels(1);

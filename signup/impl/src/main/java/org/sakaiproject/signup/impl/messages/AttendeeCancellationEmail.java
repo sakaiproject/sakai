@@ -45,35 +45,26 @@ import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.user.api.User;
 
 /**
- * <p>
- * This class is used by attendee of an event/meeting to notify orgainzer the
- * cancellation event
- * </p>
+ * Handles email notifications sent to event/meeting organizers when
+ * an attendee cancels their attendance. This notification informs the organizer  
+ * about which attendee cancelled and from which timeslot.
  */
 public class AttendeeCancellationEmail extends OrganizerEmailBase {
 
 	private final User organizer;
-
 	private final User initiator;
-
 	private final List<SignupTrackingItem> items;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param organizer
-	 *            an User, who organizes the event/meeting
-	 * @param initiator
-	 *            an User, who initialize the events
-	 * @param items
-	 *            a SignupTrackingItem object
-	 * @param meeting
-	 *            a SignupMeeting object
-	 * @param sakaiFacade
-	 *            a SakaiFacade object
+    /**
+     * Initialize attendee cancellation email object
+     *
+     * @param organizer   an User, who organizes the event/meeting
+     * @param initiator   an User, who initialize the events
+     * @param items       a SignupTrackingItem object
+     * @param meeting     a SignupMeeting object
+     * @param sakaiFacade a SakaiFacade object
 	 */
-	public AttendeeCancellationEmail(User organizer, User initiator, List<SignupTrackingItem> items,
-			SignupMeeting meeting, SakaiFacade sakaiFacade) {
+	public AttendeeCancellationEmail(User organizer, User initiator, List<SignupTrackingItem> items, SignupMeeting meeting, SakaiFacade sakaiFacade) {
 		this.organizer = organizer;
 		this.initiator = initiator;
 		this.items = items;
@@ -81,11 +72,9 @@ public class AttendeeCancellationEmail extends OrganizerEmailBase {
 		this.setSakaiFacade(sakaiFacade);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public List<String> getHeader() {
-		List<String> rv = new ArrayList<String>();
+		List<String> rv = new ArrayList<>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
 		rv.add("Subject: " + getSubject());
@@ -95,9 +84,7 @@ public class AttendeeCancellationEmail extends OrganizerEmailBase {
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public String getMessage() {
 		SignupTrackingItem intiatorItem = null;
 		for (SignupTrackingItem item : items) {
@@ -108,25 +95,22 @@ public class AttendeeCancellationEmail extends OrganizerEmailBase {
 		}
 
 		StringBuilder message = new StringBuilder();
-		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"),
-				new Object[] { makeFirstCapLetter(organizer.getDisplayName()) }));
+		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"), makeFirstCapLetter(organizer.getDisplayName())));
 
-		Object[] params = new Object[] { makeFirstCapLetter(initiator.getDisplayName()), getSiteTitleWithQuote(),
-				getServiceName() };
-		message.append(newline + newline
-				+ MessageFormat.format(rb.getString("body.attendee.cancel.appointment.part"), params));
+		Object[] params = new Object[] { makeFirstCapLetter(initiator.getDisplayName()), getSiteTitleWithQuote(), getServiceName() };
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(rb.getString("body.attendee.cancel.appointment.part"), params));
 
-		message.append(newline + newline
-				+ MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
-		message.append(newline + rb.getString("body.timeslot") + space);
-		/* Currently, we only consider the first one */
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
+		message.append(NEWLINE).append(rb.getString("body.timeslot")).append(StringUtils.SPACE);
+		// Currently, we only consider the first one
 		if (intiatorItem.getRemovedFromTimeslot() != null && !intiatorItem.getRemovedFromTimeslot().isEmpty())
 			if (!meeting.isMeetingCrossDays()) {
 				Object[] paramsTimeframe = new Object[] {
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime(),
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalTime(),
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalDate(),
-						getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
+						getSakaiFacade().getTimeService().getLocalTimeZone().getID()
+                };
 				message.append(MessageFormat.format(rb.getString("body.meeting.timeslot.timeframe"), paramsTimeframe));
 			} else {
 				Object[] paramsTimeframe = new Object[] {
@@ -134,13 +118,12 @@ public class AttendeeCancellationEmail extends OrganizerEmailBase {
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalShortDate(),
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalTime(),
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalShortDate(),
-						getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
-				message.append(MessageFormat.format(rb.getString("body.meeting.crossdays.timeslot.timeframe"),
-						paramsTimeframe));
+						getSakaiFacade().getTimeService().getLocalTimeZone().getID()
+                };
+				message.append(MessageFormat.format(rb.getString("body.meeting.crossdays.timeslot.timeframe"), paramsTimeframe));
 			}
 
-		message.append(newline + getFooter(newline));
-
+		message.append(NEWLINE).append(getFooter(NEWLINE));
 		return message.toString();
 	}
 	
@@ -151,8 +134,11 @@ public class AttendeeCancellationEmail extends OrganizerEmailBase {
 	
 	@Override
 	public String getSubject() {
-		return MessageFormat.format(rb.getString("subject.Cancel.appointment.field"), new Object[] {
-			getTime(meeting.getStartTime()).toStringLocalDate(), initiator.getDisplayName(), getAbbreviatedMeetingTitle() });
+		return MessageFormat.format(
+                rb.getString("subject.Cancel.appointment.field"),
+                getTime(meeting.getStartTime()).toStringLocalDate(),
+                initiator.getDisplayName(),
+                getAbbreviatedMeetingTitle());
 	}
 
 }

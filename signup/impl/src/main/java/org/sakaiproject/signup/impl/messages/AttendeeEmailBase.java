@@ -30,11 +30,9 @@ import java.util.List;
  */
 abstract public class AttendeeEmailBase extends SignupEmailBase {
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public List<VEvent> generateEvents(User user, SignupCalendarHelper calendarHelper) {
-        List<VEvent> events = new ArrayList<VEvent>();
+        List<VEvent> events = new ArrayList<>();
         events.addAll(eventsWhichUserIsAttending(user));
 
         for (VEvent event : events) {

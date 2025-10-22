@@ -44,27 +44,29 @@ import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.user.api.User;
 
 /**
- * <p>
- * This class is used by organizer of an event/meeting to notify participants the meeting has been cancelled.
- * </p>
+ * This class handles the email notification sent to participants when an event/meeting 
+ * is cancelled by its organizer. It extends AllUsersEmailBase to provide meeting 
+ * cancellation specific email functionality.
+ *
+ * <p>The email includes:
+ * <ul>
+ *   <li>Notification of cancellation</li>
+ *   <li>Meeting title and site information</li>
+ *   <li>Organizer's information</li>
+ * </ul>
+ *
+ * @see AllUsersEmailBase
  */
 public class CancelMeetingEmail extends AllUsersEmailBase {
 
 	private final User organizer;
-
 	private final String emailReturnSiteId;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param orgainzer
-	 *            an User, who organizes the event/meeting
-	 * @param meeting
-	 *            a SignupMeeting object
-	 * @param sakaiFacade
-	 *            a SakaiFacade object
-	 * @param emailReturnSiteId
-	 *            a unique SiteId string
+    /**
+     * @param orgainzer an User, who organizes the event/meeting
+     * @param meeting a SignupMeeting object
+     * @param sakaiFacade a SakaiFacade object
+     * @param emailReturnSiteId a unique SiteId string
 	 */
 	public CancelMeetingEmail(User orgainzer, SignupMeeting meeting, SakaiFacade sakaiFacade, String emailReturnSiteId) {
 		this.organizer = orgainzer;
@@ -74,11 +76,9 @@ public class CancelMeetingEmail extends AllUsersEmailBase {
 		this.cancellation = true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public List<String> getHeader() {
-		List<String> rv = new ArrayList<String>();
+		List<String> rv = new ArrayList<>();
 		rv.add("Content-Type: text/html; charset=UTF-8");
 		rv.add("Subject: " + getSubject());
 		rv.add("From: " + getFromAddress());
@@ -87,16 +87,18 @@ public class CancelMeetingEmail extends AllUsersEmailBase {
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public String getMessage() {
 		StringBuilder message = new StringBuilder();
 
-		Object[] params = new Object[] { makeFirstCapLetter(organizer.getDisplayName()), meeting.getTitle(), getSiteTitleWithQuote(this.emailReturnSiteId), getServiceName() };
-		message.append(newline + newline + MessageFormat.format(rb.getString("body.organizerCancel.meeting.part"), params));
-		
-		message.append(newline + getFooter(newline, emailReturnSiteId));
+		Object[] params = new Object[] {
+                makeFirstCapLetter(organizer.getDisplayName()),
+                meeting.getTitle(),
+                getSiteTitleWithQuote(this.emailReturnSiteId),
+                getServiceName()
+        };
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(rb.getString("body.organizerCancel.meeting.part"), params));
+		message.append(NEWLINE).append(getFooter(NEWLINE, emailReturnSiteId));
 		return message.toString();
 	}
 	
@@ -107,6 +109,6 @@ public class CancelMeetingEmail extends AllUsersEmailBase {
 	
 	@Override
 	public String getSubject() {
-		return MessageFormat.format(rb.getString("subject.meeting.cancel.field"), new Object[] { getAbbreviatedMeetingTitle(), getSiteTitle(this.emailReturnSiteId)});
+		return MessageFormat.format(rb.getString("subject.meeting.cancel.field"), getAbbreviatedMeetingTitle(), getSiteTitle(this.emailReturnSiteId));
 	}
 }

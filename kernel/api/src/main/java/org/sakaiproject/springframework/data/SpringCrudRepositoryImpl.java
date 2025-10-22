@@ -39,6 +39,7 @@ import org.springframework.util.Assert;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.EntityType;
 import java.io.Serializable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -172,8 +173,10 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<T> query = cb.createQuery(domainClass);
         Root<T> root = query.from(domainClass);
+        EntityType<T> entityType = sessionFactory.getMetamodel().entity(domainClass);
 
-        query.select(root).where(root.get("id").in(ids));
+        query.select(root)
+                .where(root.get(entityType.getId(domainClass)).in(ids));
 
         return sessionFactory.getCurrentSession()
                 .createQuery(query)

@@ -18,22 +18,19 @@ package org.sakaiproject.signup.impl.messages;
 public class AttendeeComment {
 	
 	private String attendeeComment;
-	
 	private String attendeeId;
-	
 	private String commentModifierUserId;
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param attendeeComment
-	 *            holds the comment of the attendee in the timeslot
-	 * @param attendeeId
-	 *         	  the attendee's Id
-	 * @param commentModifierUserId
-	 *            current user's Id / comment modifier's Id
+
+    /**
+     * Creates a new AttendeeComment with the specified parameters.
+     *
+     * @param attendeeComment
+     *            holds the comment of the attendee in the timeslot
+     * @param attendeeId
+     *         	  the attendee's Id
+     * @param commentModifierUserId
+     *            current user's Id / comment modifier's Id
 	 */
-	
 	public AttendeeComment(String attendeeComment, String attendeeId, String commentModifierUserId){
 		this.attendeeComment = attendeeComment;
 		this.attendeeId = attendeeId;

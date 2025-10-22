@@ -158,5 +158,5 @@ public interface SignupMeetingRepository extends SpringCrudRepository<SignupMeet
 	 * @param endDate date which constraints the search ending date
 	 * @return a list of SignupMeeting IDs
 	 */
-	List<Long> findIdsBySitesByDateRange(List<String> siteIds, Date startDate, Date endDate);
+	List<Long> findIdsBySiteIdsAndDateRange(List<String> siteIds, Date startDate, Date endDate);
 }

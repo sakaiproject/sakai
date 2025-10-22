@@ -21,36 +21,28 @@ import org.sakaiproject.user.api.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
- * An email that is sent to all users as an announcement
+ * An email sent to all users as an announcement
+ *
  * @author Ben Holmes
  */
 abstract public class AllUsersEmailBase extends SignupEmailBase {
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public List<VEvent> generateEvents(User user, SignupCalendarHelper calendarHelper) {
-
-        List<VEvent> events = new ArrayList<VEvent>();
+        List<VEvent> events = new ArrayList<>();
 
         if (this.userIsAnOrganiser(user)) {
-
-            final VEvent meetingEvent = this.meeting.getVevent();
-            if (meetingEvent != null) {
-                events.add(meetingEvent);
-            }
-
+            Optional.ofNullable(this.meeting.getVevent()).ifPresent(events::add);
         } else {
             events.addAll(eventsWhichUserIsAttending(user));
         }
 
         if (this.cancellation) {
-            for (VEvent event : events) {
-                calendarHelper.cancelVEvent(event);
-            }
+            events.forEach(calendarHelper::cancelVEvent);
         }
 
         return events;

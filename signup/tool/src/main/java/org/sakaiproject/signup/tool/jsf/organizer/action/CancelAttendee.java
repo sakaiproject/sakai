@@ -150,7 +150,7 @@ public class CancelAttendee extends SignupAction {
 			try {
 				meeting = signupMeetingService.loadSignupMeeting(meeting.getId(), userId, siteId);
 				actionsForOptimisticVersioning(meeting, currentTimeslot, currentAttendee);
-				signupMeetingService.updateSignupMeeting(meeting, isOrganizer);
+				meeting = signupMeetingService.updateSignupMeeting(meeting, isOrganizer);
 				return meeting;
 			} catch (OptimisticLockingFailureException oe) {
 				// don't do any thing

@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.fortuna.ical4j.model.component.VEvent;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.signup.api.SakaiFacade;
 import org.sakaiproject.signup.api.SignupCalendarHelper;
 import org.sakaiproject.signup.api.SignupTrackingItem;
@@ -58,14 +59,12 @@ public class AttendeeCancellationOwnEmail extends SignupEmailBase implements Sig
 	private final SignupTimeslot timeslot;
 	private List<SignupTimeslot> removed;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param attendee the user who cancels their own attendance
-	 * @param signupMeeting the SignupMeeting they signed up to
-	 * @param timeslot the SignupTimeslot they signed up to
-	 * @param sakaiFacade a SakaiFacade object
-	 */
+    /**
+     * @param attendee the user who cancels their own attendance
+     * @param signupMeeting the SignupMeeting they signed up to
+     * @param timeslot the SignupTimeslot they signed up to
+     * @param sakaiFacade a SakaiFacade object
+     */
 	public AttendeeCancellationOwnEmail(User attendee, List<SignupTrackingItem> items, SignupMeeting meeting, SakaiFacade sakaiFacade) {
 		this.attendee = attendee;
 		this.meeting = meeting;
@@ -83,9 +82,7 @@ public class AttendeeCancellationOwnEmail extends SignupEmailBase implements Sig
 		this.cancellation = true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public List<String> getHeader() {
 		List<String> rv = new ArrayList<>();
 		rv.add("Content-Type: text/html; charset=UTF-8");
@@ -96,27 +93,22 @@ public class AttendeeCancellationOwnEmail extends SignupEmailBase implements Sig
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public String getMessage() {
-		
-
 		StringBuilder message = new StringBuilder();
 		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"), makeFirstCapLetter(attendee.getDisplayName())));
-
-		message.append(newline + newline + MessageFormat.format(rb.getString("body.attendee.cancel.own"), getSiteTitleWithQuote(), getServiceName()));
-
-		message.append(newline + newline + MessageFormat.format(rb.getString("body.meetingTopic.part"), meeting.getTitle()));
-		message.append(newline + rb.getString("body.timeslot") + space);
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(rb.getString("body.attendee.cancel.own"), getSiteTitleWithQuote(), getServiceName()));
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(rb.getString("body.meetingTopic.part"), meeting.getTitle()));
+		message.append(NEWLINE).append(rb.getString("body.timeslot")).append(StringUtils.SPACE);
 		
-		/** only handles a single timeslot, as per organiser cancellation email class */
+		// only handles a single timeslot, as per organiser cancellation email class
 		if (!meeting.isMeetingCrossDays()) {
 			Object[] paramsTimeframe = new Object[] {
 					getTime(timeslot.getStartTime()).toStringLocalTime(),
 					getTime(timeslot.getEndTime()).toStringLocalTime(),
 					getTime(timeslot.getStartTime()).toStringLocalDate(),
-					getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()
+            };
 			message.append(MessageFormat.format(rb.getString("body.meeting.timeslot.timeframe"), paramsTimeframe));
 		} else {
 			Object[] paramsTimeframe = new Object[] {
@@ -124,12 +116,12 @@ public class AttendeeCancellationOwnEmail extends SignupEmailBase implements Sig
 					getTime(timeslot.getStartTime()).toStringLocalShortDate(),
 					getTime(timeslot.getEndTime()).toStringLocalTime(),
 					getTime(timeslot.getEndTime()).toStringLocalShortDate(),
-					getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()
+            };
 			message.append(MessageFormat.format(rb.getString("body.meeting.crossdays.timeslot.timeframe"), paramsTimeframe));
 		}
 
-		message.append(newline + getFooter(newline));
-
+		message.append(NEWLINE).append(getFooter(NEWLINE));
 		return message.toString();
 	}
 	
@@ -150,15 +142,13 @@ public class AttendeeCancellationOwnEmail extends SignupEmailBase implements Sig
 
 	@Override
 	public List<SignupTimeslot> getAdded() {
-		return Collections.EMPTY_LIST; //not applicable here
+		return Collections.EMPTY_LIST; // not applicable here
 	}
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public List<VEvent> generateEvents(User user, SignupCalendarHelper calendarHelper) {
 
-        List<VEvent> events = new ArrayList<VEvent>();
+        List<VEvent> events = new ArrayList<>();
         for (SignupTimeslot timeslot : removed) {
             VEvent event = timeslot.getVevent();
             calendarHelper.cancelVEvent(event);

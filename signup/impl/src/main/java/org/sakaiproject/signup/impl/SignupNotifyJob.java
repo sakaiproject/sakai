@@ -39,6 +39,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -57,49 +60,26 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
- * 
+ * Implements a job that sends automated reminder email notifications to users who have signed up for events. 
+ * The job runs daily and notifies users 24 hours before their scheduled event time.
+ *
  * @author Peter Liu
  */
+@NoArgsConstructor
 @Slf4j
 public class SignupNotifyJob implements Job {
 
-	private EmailService emailService;
-
-	private SignupMeetingRepository repository;
-
-	private SakaiFacade sakaiFacade;
-	
-	private UserDirectoryService userDirectoryService;
-
-	private static final int HOURS_IN_ADVANCE = 24;
-	
-	private static final int ONE_DAY_INTERVAL=24;
-	
-	/*maximum number of events, which will be occurred at the same day*/
+	// maximum number of events, which will be occurred at the same day
 	private static final int MAX_EVENTS_LIMITS = 2000;
+	private static final int HOURS_IN_ADVANCE = 24;
+	private static final int ONE_DAY_INTERVAL = 24;
+
+	@Setter @Getter private EmailService emailService;
+	@Setter private SignupMeetingRepository repository;
+	@Setter @Getter private SakaiFacade sakaiFacade;
+	@Setter private UserDirectoryService userDirectoryService;
 	
-
-	/** Creates a new instance */
-	public SignupNotifyJob() {
-	}
-
-	/** init method */
-	public void init() {
-	}
-
-	/** destroy method */
-	public void destroy() {
-	}
-
-	public EmailService getEmailService() {
-		return emailService;
-	}
-
-	public void setEmailService(EmailService emailService) {
-		this.emailService = emailService;
-	}
-
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+    public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		log.warn("Starting Signup Auto Reminder Notification job");
 
 		List<SignupMeeting> signupMeetings = null;
@@ -139,7 +119,7 @@ public class SignupNotifyJob implements Job {
 		
 		int totalEmails = 0;
 		signupMeetings = repository.findAutoReminderMeetings(searchStarDate,searchEndDate);
-		if (signupMeetings !=null){		
+		if (signupMeetings != null){
 			for (SignupMeeting sm : signupMeetings) {
 				List<SignupTimeslot> tsList = sm.getSignupTimeSlots();
 				if(tsList !=null){
@@ -178,29 +158,5 @@ public class SignupNotifyJob implements Job {
 		userlist.add(user);
 		emailService.sendToUsers(userlist, email.getHeader(), email.getMessage());
 	}
-
-	public SignupMeetingRepository getRepository() {
-		return repository;
-	}
-
-	public void setRepository(SignupMeetingRepository repository) {
-		this.repository = repository;
-	}
-
-	public SakaiFacade getSakaiFacade() {
-		return sakaiFacade;
-	}
-
-	public void setSakaiFacade(SakaiFacade sakaiFacade) {
-		this.sakaiFacade = sakaiFacade;
-	}
-
-	public UserDirectoryService getUserDirectoryService() {
-		return userDirectoryService;
-	}
-
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}	
 
 }

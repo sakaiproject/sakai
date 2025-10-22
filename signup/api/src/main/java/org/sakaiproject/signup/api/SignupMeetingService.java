@@ -192,15 +192,16 @@ public interface SignupMeetingService {
 	 * This updates the SingupMeeting object into the database storage. If it's
 	 * an organizer, permission: signup.update is required. Otherwise
 	 * permission: signup.attend/signup.attend.all is required
-	 * 
+	 *
 	 * @param meeting
 	 *            a SignupMeeting object
 	 * @param isOrganizer
 	 *            true if the user is event-organizer
+	 * @return the managed SignupMeeting entity after save
 	 * @throws Exception
 	 *             thrown if something goes bad
 	 */
-	void updateSignupMeeting(SignupMeeting meeting, boolean isOrganizer) throws Exception;
+	SignupMeeting updateSignupMeeting(SignupMeeting meeting, boolean isOrganizer) throws Exception;
 	
 	/**
 	 * This updates a list of SingupMeeting objects into the database storage. If it's
@@ -408,8 +409,6 @@ public interface SignupMeetingService {
 	 * 
 	 * @param meetings
 	 *            a list of SignupMeeting objects
-	 * @throws Exception
-	 *             thrown if something goes bad
 	 */
 	void removeCalendarEventsOnModifiedMeeting(List<SignupMeeting> meetings);
 	

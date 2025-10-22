@@ -30,23 +30,15 @@ import org.sakaiproject.user.api.User;
 public class AttendeeModifiedCommentEmail extends SignupEmailBase {
 
 	private final User modifier;
-
 	private final String emailReturnSiteId;
-	
 	private AttendeeComment attendeeComment;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param organizer
-	 *            an User, who organizes the event/meeting
-	 * @param meeting
-	 *            a SignupMeeting object
-	 * @param sakaiFacade
-	 *            a SakaiFacade object
-	 * @param emailReturnSiteId
-	 *            a unique SiteId string
-	 */
+    /**
+     * @param modifier a User, who organizes the event/meeting
+     * @param meeting a SignupMeeting object
+     * @param sakaiFacade a SakaiFacade object
+     * @param emailReturnSiteId a unique SiteId string
+     */
 	public AttendeeModifiedCommentEmail(User modifier, SignupMeeting meeting, SakaiFacade sakaiFacade, String emailReturnSiteId, AttendeeComment attendeeComment) {
 		this.modifier = modifier;
 		this.meeting = meeting;
@@ -56,11 +48,9 @@ public class AttendeeModifiedCommentEmail extends SignupEmailBase {
 		this.modifyComment = true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public List<String> getHeader() {
-		List<String> rv = new ArrayList<String>();
+		List<String> rv = new ArrayList<>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
 		rv.add("Subject: " + getSubject());
@@ -70,39 +60,40 @@ public class AttendeeModifiedCommentEmail extends SignupEmailBase {
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public String getMessage() {
 		StringBuilder message = new StringBuilder();
-		Object[] params = new Object[] { getSiteTitleWithQuote(emailReturnSiteId), getServiceName(),
-				makeFirstCapLetter(modifier.getDisplayName()), getSakaiFacade().getUserDisplayLastFirstName(getSakaiFacade().getCurrentUserId()) };
-		message.append(newline + MessageFormat.format(rb.getString("body.organizer.comment.update"), params));
+		Object[] params = new Object[] {
+                getSiteTitleWithQuote(emailReturnSiteId),
+                getServiceName(),
+				makeFirstCapLetter(modifier.getDisplayName()), getSakaiFacade().getUserDisplayLastFirstName(getSakaiFacade().getCurrentUserId())
+        };
+		message.append(NEWLINE).append(MessageFormat.format(rb.getString("body.organizer.comment.update"), params));
 
-		message.append(newline + newline
-				+ MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(rb.getString("body.meetingTopic.part"), meeting.getTitle()));
 		if (!meeting.isMeetingCrossDays()) {
-			Object[] paramsTimeframe = new Object[] { getTime(meeting.getStartTime()).toStringLocalDate(),
+			Object[] paramsTimeframe = new Object[] {
+                    getTime(meeting.getStartTime()).toStringLocalDate(),
 					getTime(meeting.getStartTime()).toStringLocalTime(),
 					getTime(meeting.getEndTime()).toStringLocalTime(),
-					getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
-			message.append(newline
-					+ MessageFormat.format(rb.getString("body.organizer.meeting.timeframe"), paramsTimeframe));
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()
+            };
+			message.append(NEWLINE).append(MessageFormat.format(rb.getString("body.organizer.meeting.timeframe"), paramsTimeframe));
 		} else {
-			Object[] paramsTimeframe1 = new Object[] { getTime(meeting.getStartTime()).toStringLocalTime(),
+			Object[] paramsTimeframe1 = new Object[] {
+                    getTime(meeting.getStartTime()).toStringLocalTime(),
 					getTime(meeting.getStartTime()).toStringLocalShortDate(),
 					getTime(meeting.getEndTime()).toStringLocalTime(),
 					getTime(meeting.getEndTime()).toStringLocalShortDate(),
-					getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
-			message.append(newline
-					+ MessageFormat.format(rb.getString("body.organizer.meeting.crossdays.timeframe"), paramsTimeframe1));
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()
+            };
+			message.append(NEWLINE).append(MessageFormat.format(rb.getString("body.organizer.meeting.crossdays.timeframe"), paramsTimeframe1));
 		}
 		
-		message.append(newline + newline + MessageFormat.format(rb.getString("body.comment"), new Object[] {
-			makeFirstCapLetter(attendeeComment.getAttendeeComment()) }));
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(rb.getString("body.comment"), makeFirstCapLetter(attendeeComment.getAttendeeComment())));
 		
-		/* footer */
-		message.append(newline + getFooter(newline, emailReturnSiteId));
+		// footer
+		message.append(NEWLINE).append(getFooter(NEWLINE, emailReturnSiteId));
 		return message.toString();
 	}
 	
@@ -113,14 +104,14 @@ public class AttendeeModifiedCommentEmail extends SignupEmailBase {
 	
 	@Override
 	public String getSubject() {
-		return MessageFormat.format(rb.getString("subject.comment.modification.field"), new Object[] {
-			getShortSiteTitleWithQuote(emailReturnSiteId), modifier.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate(),
-			getTime(meeting.getStartTime()).toStringLocalTime() });
+		return MessageFormat.format(
+                rb.getString("subject.comment.modification.field"),
+                getShortSiteTitleWithQuote(emailReturnSiteId), modifier.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate(),
+                getTime(meeting.getStartTime()).toStringLocalTime());
 	}
 
 	@Override
-	public List<VEvent> generateEvents(User user,
-			SignupCalendarHelper calendarHelper) {
+	public List<VEvent> generateEvents(User user, SignupCalendarHelper calendarHelper) {
 		// do nothing
 		return null;
 	}

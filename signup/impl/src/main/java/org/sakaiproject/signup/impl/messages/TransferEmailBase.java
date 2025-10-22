@@ -26,35 +26,40 @@ import java.util.List;
 
 
 /**
- * An email that is sent when an attendee is transfered from one event to another
+ * Abstract base class for email notifications that are sent when an attendee is transferred 
+ * between timeslots in a signup event. This includes both moving an attendee to a different 
+ * timeslot and swapping attendees between timeslots.
+ *
+ * <p>Subclasses should implement specific email notification logic for different types of transfers
+ * such as moves and swaps.</p>
+ *
  * @author Ben Holmes
+ * @see MoveAttendeeEmail
+ * @see SwapAttendeeEmail
  */
 abstract public class TransferEmailBase extends SignupEmailBase implements SignupTimeslotChanges {
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public List<VEvent> generateEvents(User user, SignupCalendarHelper calendarHelper) {
 
-        //The tracking classes don't maintain the transient VEVents we have created previously
-        //so we need to check and recreate.
-
-        //cancel all of the removed events
-        List<VEvent> events = new ArrayList<VEvent>();
-        for(SignupTimeslot timeslot: this.getRemoved()) {
-            //check and recreate if necessary
+        /* The tracking classes don't maintain the transient VEVents we have created previously
+           so we need to check and recreate.
+           Cancel all of the removed events */
+        List<VEvent> events = new ArrayList<>();
+        for (SignupTimeslot timeslot : this.getRemoved()) {
+            // check and recreate if necessary
             VEvent event = calendarHelper.generateVEventForTimeslot(meeting, timeslot);
-            if(event != null){
+            if (event != null) {
                 calendarHelper.cancelVEvent(event);
                 events.add(event);
             }
         }
 
-        //add all of the new events
-        for(SignupTimeslot timeslot: this.getAdded()) {
-            //check and recreate if necessary
+        // add all of the new events
+        for (SignupTimeslot timeslot : this.getAdded()) {
+            // check and recreate if necessary
             VEvent event = calendarHelper.generateVEventForTimeslot(meeting, timeslot);
-            if(event != null){
+            if (event != null) {
                 events.add(event);
             }
         }

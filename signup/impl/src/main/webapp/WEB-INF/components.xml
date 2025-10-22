@@ -96,10 +96,8 @@
 	<!--
 		Quartz Job auto-remind attendee's next upcoming appointment job
 	-->
-	<bean id="org.sakaiproject.signup.logic.SignupNotifyJob"
-          class="org.sakaiproject.signup.impl.SignupNotifyJob"
-          init-method="init"
-          destroy-method="destroy">
+	<bean id="org.sakaiproject.signup.impl.SignupNotifyJob"
+          class="org.sakaiproject.signup.impl.SignupNotifyJob">
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />

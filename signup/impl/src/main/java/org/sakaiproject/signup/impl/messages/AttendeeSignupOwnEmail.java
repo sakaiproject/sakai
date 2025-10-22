@@ -44,9 +44,20 @@ import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.user.api.User;
 
 /**
- * <p>
- * This class is used to notify attendee when they signup to a meeting themselves
+ * Represents an email notification sent to an attendee when they sign themselves up for a meeting timeslot.
+ * Extends {@link AttendeeEmailBase} to provide specific email content for self-signup scenarios.
+ *
+ * <p>This class handles:
+ * <ul>
+ *   <li>Email formatting and content generation for self-signup confirmations</li>
+ *   <li>Includes meeting details, timeslot information, and any attendee comments</li>
+ *   <li>Uses appropriate localization for message content</li>
+ * </ul>
  * </p>
+ *
+ * @see AttendeeEmailBase
+ * @see SignupMeeting
+ * @see SignupTimeslot
  */
 public class AttendeeSignupOwnEmail extends AttendeeEmailBase {
 
@@ -54,8 +65,6 @@ public class AttendeeSignupOwnEmail extends AttendeeEmailBase {
 	private final SignupTimeslot timeslot;
 
 	/**
-	 * Constructor
-	 * 
 	 * @param attendee User who just signed up
 	 * @param signupMeeting the SignupMeeting they signed up to
 	 * @param timeslot the SignupTimeslot they signed up to
@@ -68,11 +77,9 @@ public class AttendeeSignupOwnEmail extends AttendeeEmailBase {
 		this.setSakaiFacade(sakaiFacade);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public List<String> getHeader() {
-		List<String> rv = new ArrayList<String>();
+		List<String> rv = new ArrayList<>();
 		rv.add("Content-Type: text/html; charset=UTF-8");
 		rv.add("Subject: " + getSubject());
 		rv.add("From: " + getFromAddress());
@@ -81,44 +88,51 @@ public class AttendeeSignupOwnEmail extends AttendeeEmailBase {
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public String getMessage() {
 		StringBuilder message = new StringBuilder();
-		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"), new Object[] { makeFirstCapLetter(attendee.getDisplayName()) }));
+		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"), makeFirstCapLetter(attendee.getDisplayName())));
 
-		message.append(newline + newline + MessageFormat.format(rb.getString("body.attendee.signup.own"), new Object[] { getSiteTitleWithQuote(), getServiceName() }));
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(
+                rb.getString("body.attendee.signup.own"),
+                getSiteTitleWithQuote(),
+                getServiceName()));
 
-		message.append(newline + newline + MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(
+                rb.getString("body.meetingTopic.part"), meeting.getTitle()));
 		if (!meeting.isMeetingCrossDays()) {
-			Object[] paramsTimeframe = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
+			Object[] paramsTimeframe = new Object[] {
+                    getTime(timeslot.getStartTime()).toStringLocalTime(),
 					getTime(timeslot.getEndTime()).toStringLocalTime(),
 					getTime(timeslot.getStartTime()).toStringLocalDate(),
-					getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
-			message.append(newline
-					+ MessageFormat.format(rb.getString("body.attendee.meeting.timeslot"), paramsTimeframe));
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()
+            };
+			message.append(NEWLINE).append(MessageFormat.format(
+                    rb.getString("body.attendee.meeting.timeslot"), paramsTimeframe));
 		} else {
-			Object[] paramsTimeframe = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
+			Object[] paramsTimeframe = new Object[] {
+                    getTime(timeslot.getStartTime()).toStringLocalTime(),
 					getTime(timeslot.getStartTime()).toStringLocalShortDate(),
 					getTime(timeslot.getEndTime()).toStringLocalTime(),
 					getTime(timeslot.getEndTime()).toStringLocalShortDate(),
-					getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
-			message.append(newline
-					+ MessageFormat.format(rb.getString("body.attendee.meeting.crossdays.timeslot"), paramsTimeframe));
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()
+            };
+			message.append(NEWLINE).append(MessageFormat.format(
+                    rb.getString("body.attendee.meeting.crossdays.timeslot"), paramsTimeframe));
 
 		}
 		
-		//attendee's comment
-		if(timeslot.getAttendee(attendee.getId()) !=null && timeslot.getAttendee(attendee.getId()).getComments() !=null
-				&& timeslot.getAttendee(attendee.getId()).getComments().length()> 0
-				&& !"&nbsp;".equals(timeslot.getAttendee(attendee.getId()).getComments())){
-			message.append(newline + newline + MessageFormat.format(rb.getString("body.ownComment"), new Object[] { 
-					timeslot.getAttendee(attendee.getId()).getComments() }));
-		}
-		
-		/* footer */
-		message.append(newline + getFooter(newline));
+		// attendee's comment
+        if (timeslot.getAttendee(attendee.getId()) != null
+                && timeslot.getAttendee(attendee.getId()).getComments() != null
+                && !timeslot.getAttendee(attendee.getId()).getComments().isEmpty()
+                && !"&nbsp;".equals(timeslot.getAttendee(attendee.getId()).getComments())) {
+            message.append(NEWLINE).append(NEWLINE).append(
+                    MessageFormat.format(rb.getString("body.ownComment"), timeslot.getAttendee(attendee.getId()).getComments()));
+        }
+
+        // footer
+		message.append(NEWLINE).append(getFooter(NEWLINE));
 		return message.toString();
 	}
 	
@@ -129,7 +143,7 @@ public class AttendeeSignupOwnEmail extends AttendeeEmailBase {
 
 	@Override
 	public String getSubject() {
-		return MessageFormat.format(rb.getString("subject.attendee.signup.own.field"), new Object[] { getAbbreviatedMeetingTitle(), getSiteTitle()});
+		return MessageFormat.format(rb.getString("subject.attendee.signup.own.field"), getAbbreviatedMeetingTitle(), getSiteTitle());
 	}
 	
 }

@@ -34,7 +34,6 @@
 
 package org.sakaiproject.signup.impl;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.api.FormattedText;
 
 import lombok.Setter;

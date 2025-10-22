@@ -120,7 +120,7 @@ public class LockUnlockTimeslot extends SignupAction {
 
 				currentTimeslot.setLocked(lockAction);
 
-				signupMeetingService.updateSignupMeeting(meeting,isOrganizer);
+				meeting = signupMeetingService.updateSignupMeeting(meeting,isOrganizer);
 				return meeting;
 			} catch (OptimisticLockingFailureException oe) {
 				// don't do any thing

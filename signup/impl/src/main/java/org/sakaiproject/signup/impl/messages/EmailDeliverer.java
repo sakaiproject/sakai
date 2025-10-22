@@ -41,8 +41,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.user.api.User;
 
-/*
- * @author  Peter Liu
+
+/**
+ * An implementation of Runnable that handles asynchronous email delivery to Sakai users.
+ * This class encapsulates the email sending functionality using the EmailService.
  */
 @Slf4j
 public class EmailDeliverer implements Runnable {
@@ -52,25 +54,35 @@ public class EmailDeliverer implements Runnable {
 	private final List<String> headers;
 	private final String message;
 
-	public EmailDeliverer(List<User> sakaiUsers, List<String> headers,
-			String message, EmailService emailService) {
+    /**
+     * Constructs a new EmailDeliverer with the specified parameters.
+     *
+     * @param sakaiUsers the list of Sakai users to receive the email
+     * @param headers the email headers to be used
+     * @param message the email message content
+     * @param emailService the EmailService instance to send the emails
+     */
+    public EmailDeliverer(List<User> sakaiUsers, List<String> headers, String message, EmailService emailService) {
 		this.sakaiUsers = sakaiUsers;
 		this.headers = headers;
 		this.message = message;
 		this.emailService = emailService;
 	}
 
-	public void run() {
+    /**
+     * Executes the email delivery process.
+     * Sends emails to all specified users and cleans up resources afterward.
+     * Any exceptions during sending are logged as warnings.
+     */
+    @Override
+    public void run() {
 		try {
 			emailService.sendToUsers(sakaiUsers, headers, message);
 		} catch (Exception e) {
-			log.warn("The emails may not be sent away due to error: "
-					+ e.getMessage());
+			log.warn("The emails may not be sent away due to error: {}", e.toString());
 		} finally {
-			if(this.sakaiUsers !=null)
-				this.sakaiUsers.clear();
-			
-			this.sakaiUsers = null;
+            if (this.sakaiUsers != null) this.sakaiUsers.clear();
+            this.sakaiUsers = null;
 		}
 	}
 

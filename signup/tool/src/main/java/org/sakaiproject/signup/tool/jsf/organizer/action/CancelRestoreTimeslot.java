@@ -140,7 +140,7 @@ public class CancelRestoreTimeslot extends SignupAction {
 							.getString("someone.already.changed.ts.cancel_status"));
 
 				cancel(currentTimeslot, cancelAction);
-				signupMeetingService.updateSignupMeeting(meeting,isOrganizer);
+				meeting = signupMeetingService.updateSignupMeeting(meeting,isOrganizer);
 				return meeting;
 			} catch (OptimisticLockingFailureException oe) {
 				// don't do any thing

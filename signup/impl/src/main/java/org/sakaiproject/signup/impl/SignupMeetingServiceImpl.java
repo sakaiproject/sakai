@@ -161,7 +161,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         Date endDate = Date.from(endInstant);
 
         // Get all matching IDs for all sites in one query (more efficient)
-        List<Long> ids = repository.findIdsBySitesByDateRange(siteIds, startDate, endDate);
+        List<Long> ids = repository.findIdsBySiteIdsAndDateRange(siteIds, startDate, endDate);
 
         if (ids.isEmpty()) return List.of();
 
@@ -210,7 +210,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
                 allowedMeetings.add(meeting);
             }
         }
-        updatePermissions(userId, currentSiteId, meetings);
+        updatePermissions(userId, currentSiteId, allowedMeetings);
 
         return allowedMeetings;
     }
@@ -515,24 +515,29 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
     }
 
     @Override
-    public void updateSignupMeeting(SignupMeeting meeting, boolean isOrganizer) throws Exception {
+    public SignupMeeting updateSignupMeeting(SignupMeeting meeting, boolean isOrganizer) throws Exception {
         Permission permission = meeting.getPermission();
 
         // if null, only consider an organizer-updating case (higher requirement level)
         if (permission == null) {
             if (isAllowToUpdate(sessionManager.getCurrentSessionUserId(), meeting.getCurrentSiteId(), meeting)) {
-                repository.save(meeting);
-                return;
+                return repository.save(meeting);
             }
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
         }
 
         if (isOrganizer) {
-            if (permission.isUpdate()) repository.save(meeting);
-            else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
+            if (permission.isUpdate()) {
+                return repository.save(meeting);
+            } else {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.update", "SignupTool");
+            }
         } else {
-            if (permission.isAttend()) repository.save(meeting);
-            else throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.attend", "SignupTool");
+            if (permission.isAttend()) {
+                return repository.save(meeting);
+            } else {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), "signup.attend", "SignupTool");
+            }
         }
     }
 
@@ -606,6 +611,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
     @Override
     public SignupTargetSiteEventInfo loadSignupMeetingWithAutoSelectedSite(Long meetingId, String userId, String siteId) {
         SignupMeeting meeting = repository.findById(meetingId).orElse(null);
+        if (meeting == null) return null;
         String sId = assignPermission(userId, siteId, meeting);
         return new SignupTargetSiteEventInfo(meeting, sId);
     }

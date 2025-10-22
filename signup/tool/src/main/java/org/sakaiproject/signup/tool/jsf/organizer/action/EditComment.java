@@ -114,9 +114,8 @@ public class EditComment extends SignupAction {
 				checkPrecondition(upToDateMeeting, relatedTimeslotId);
 				if(isOrganizer)
 					upToDateMeeting.setPermission(originalMeeting.getPermission());
-				signupMeetingService.updateSignupMeeting(upToDateMeeting, isOrganizer);
-				upToDateMeeting = signupMeetingService.loadSignupMeeting(originalMeeting.getId(), currentUserId, siteId);
-				
+				upToDateMeeting = signupMeetingService.updateSignupMeeting(upToDateMeeting, isOrganizer);
+
 				return upToDateMeeting;
 				
 			} catch (OptimisticLockingFailureException oe) {

@@ -45,10 +45,10 @@ import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.user.api.User;
 
 /**
- * <p>
- * This class is used by organizer to notify attendee that he/she has been
- * pre-assigned to an event/meeting
- * </p>
+ * Handles the email notification sent by an organizer to an attendee when they have been pre-assigned to an event/meeting.
+ *
+ * The email includes details about the event such as date/time, location, description, and recurrence information if applicable.
+ * It is sent from the organizer's email address to notify the attendee of their pre-assignment to the event/meeting.
  */
 public class OrganizerPreAssignEmail extends AttendeeEmailBase {
 
@@ -60,22 +60,14 @@ public class OrganizerPreAssignEmail extends AttendeeEmailBase {
 
 	private final String emailReturnSiteId;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param currentUser
-	 *            an User, who organizes the event/meeting.
-	 * @param signupMeeting
-	 *            a SignupMeeting object.
-	 * @param timeslot
-	 *            a SignupTimeslot object.
-	 * @param user
-	 *            an User, who has been pre-assigned to an event/meeting.
-	 * @param sakaiFacade
-	 *            a SakaiFacade object.
-	 * @param emailReturnSiteId
-	 *            a unique SiteId string
-	 */
+    /**
+     * @param currentUser an User, who organizes the event/meeting
+     * @param signupMeeting a SignupMeeting object
+     * @param timeslot a SignupTimeslot object
+     * @param user an User, who has been pre-assigned to an event/meeting
+     * @param sakaiFacade a SakaiFacade object
+     * @param emailReturnSiteId a unique SiteId string
+     */
 	public OrganizerPreAssignEmail(User currentUser, SignupMeeting signupMeeting, SignupTimeslot timeslot, User user,
 			SakaiFacade sakaiFacade, String emailReturnSiteId) {
 		this.organizer = currentUser;
@@ -86,11 +78,9 @@ public class OrganizerPreAssignEmail extends AttendeeEmailBase {
 		this.setSakaiFacade(sakaiFacade);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public List<String> getHeader() {
-		List<String> rv = new ArrayList<String>();
+		List<String> rv = new ArrayList<>();
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
 		rv.add("Subject: " + getSubject());
@@ -100,63 +90,52 @@ public class OrganizerPreAssignEmail extends AttendeeEmailBase {
 		return rv;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    @Override
 	public String getMessage() {
 
 		StringBuilder message = new StringBuilder();
-		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"),
-				new Object[] { makeFirstCapLetter(user.getDisplayName()) }));
-		Object[] params = new Object[] { getSiteTitleWithQuote(emailReturnSiteId), getServiceName(),
-				organizer.getDisplayName() };
-		message.append(newline + newline
-				+ MessageFormat.format(rb.getString("body.organizerPreAssign.appointment.part"), params));
-		message.append(newline + newline
-				+ MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
+		message.append(MessageFormat.format(rb.getString("body.top.greeting.part"), makeFirstCapLetter(user.getDisplayName())));
+		Object[] params = new Object[] { getSiteTitleWithQuote(emailReturnSiteId), getServiceName(), organizer.getDisplayName() };
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(rb.getString("body.organizerPreAssign.appointment.part"), params));
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
 		if (!meeting.isMeetingCrossDays()) {
 			Object[] paramsTimeframe = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
 					getTime(timeslot.getEndTime()).toStringLocalTime(),
 					getTime(timeslot.getStartTime()).toStringLocalDate(),
-					getSakaiFacade().getTimeService().getLocalTimeZone().getID() };
-			message.append(newline
-					+ MessageFormat.format(rb.getString("body.organizer.preassigned.attendee.meeting.timeframe"),
-							paramsTimeframe));
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()
+            };
+			message.append(NEWLINE).append(MessageFormat.format(rb.getString("body.organizer.preassigned.attendee.meeting.timeframe"), paramsTimeframe));
 		} else {
 			Object[] paramsTimeframe1 = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
 					getTime(timeslot.getStartTime()).toStringLocalShortDate(),
 					getTime(timeslot.getEndTime()).toStringLocalTime(),
 					getTime(timeslot.getEndTime()).toStringLocalShortDate(),
-					getSakaiFacade().getTimeService().getLocalTimeZone().getID() };
-			message.append(newline
-					+ MessageFormat.format(rb
-							.getString("body.organizer.preassigned.attendee.meeting.crossdays.timeframe"),
-							paramsTimeframe1));
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()
+            };
+			message.append(NEWLINE).append(MessageFormat.format(rb.getString("body.organizer.preassigned.attendee.meeting.crossdays.timeframe"), paramsTimeframe1));
 		}
 
-		message.append(newline + rb.getString("body.meeting.place") + space + meeting.getLocation());
+		message.append(NEWLINE + rb.getString("body.meeting.place")).append(StringUtils.SPACE).append(meeting.getLocation());
 
-		/* for recurring meeting */
+		// for recurring meeting
 		if (meeting.isRecurredMeeting()) {
-			message.append(newline + rb.getString("body.meeting.recurrence") + space);
+			message.append(NEWLINE).append(rb.getString("body.meeting.recurrence")).append(StringUtils.SPACE);
 			String recurFrqs = getRepeatTypeMessage(meeting);
 
 			Object[] paramsRecur = new Object[] { recurFrqs, getTime(meeting.getRepeatUntil()).toStringLocalDate() };
 			message.append(MessageFormat.format(rb.getString("body.recurrence.meeting.status"), paramsRecur));
 
-			if (meeting.isApplyToAllRecurMeetings())
-				message.append(newline + newline + rb.getString("body.meeting.assigned.all.recurringMeetings"));
-			else
-				message.append(newline + newline + rb.getString("body.meeting.assigned.to.firstOne.recurringMeetings"));
+			if (meeting.isApplyToAllRecurMeetings()) {
+                message.append(NEWLINE).append(NEWLINE).append(rb.getString("body.meeting.assigned.all.recurringMeetings"));
+            } else {
+                message.append(NEWLINE).append(NEWLINE).append(rb.getString("body.meeting.assigned.to.firstOne.recurringMeetings"));
+            }
 		}
 
-		message.append(newline + newline + meeting.getDescription());
-		message.append(newline
-				+ newline
-				+ MessageFormat.format(rb.getString("body.attendeeCheck.meetingStatus"),
-						new Object[] { getServiceName() }));
+		message.append(NEWLINE).append(NEWLINE).append(meeting.getDescription());
+		message.append(NEWLINE).append(NEWLINE).append(MessageFormat.format(rb.getString("body.attendeeCheck.meetingStatus"), getServiceName()));
 
-		message.append(newline + getFooter(newline, this.emailReturnSiteId));
+		message.append(NEWLINE).append(getFooter(NEWLINE, emailReturnSiteId));
 		return message.toString();
 	}
 	
@@ -167,8 +146,7 @@ public class OrganizerPreAssignEmail extends AttendeeEmailBase {
 	
 	@Override
 	public String getSubject() {
-		return MessageFormat.format(rb.getString("subject.organizerPreAssign.appointment.field"), new Object[] {
-			organizer.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate(), getAbbreviatedMeetingTitle() });
+		return MessageFormat.format(rb.getString("subject.organizerPreAssign.appointment.field"), organizer.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate(), getAbbreviatedMeetingTitle());
 	}
 
 }

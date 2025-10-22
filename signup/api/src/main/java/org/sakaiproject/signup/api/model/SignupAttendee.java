@@ -96,14 +96,25 @@ public class SignupAttendee implements Comparable<SignupAttendee>{
 		this.inscriptionTime = Instant.now();
 	}
 
-	/**
-	 * for sorting purpose. It's according to string alphabetic order. Last name
-	 * comes first
-	 */
-	@Override
-	public int compareTo(SignupAttendee signupAttendeeToCompare) {
-		if (signupAttendeeToCompare == null || displayName == null) return -1;
-		return displayName.compareTo(signupAttendeeToCompare.getDisplayName());
-	}
+    /**
+     * Compares this SignupAttendee with another for sorting purposes.
+     * Comparison is based on alphabetical order of display names.
+     *
+     * @param otherAttendee the SignupAttendee to compare with
+     * @return negative if this attendee should be sorted before, positive if after,
+     *         or zero if equivalent
+     * @throws NullPointerException if otherAttendee is null
+     */
+    @Override
+    public int compareTo(SignupAttendee otherAttendee) {
+        if (otherAttendee == null) {
+            throw new NullPointerException("Cannot compare to null SignupAttendee");
+        }
 
+        if (displayName == null && otherAttendee.getDisplayName() == null) return 0;
+        if (displayName == null) return -1;
+        if (otherAttendee.getDisplayName() == null) return 1;
+
+        return displayName.compareTo(otherAttendee.getDisplayName());
+    }
 }

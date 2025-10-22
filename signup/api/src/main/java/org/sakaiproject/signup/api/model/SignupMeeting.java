@@ -163,14 +163,14 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
     @Column(name = "default_send_email_by_owner")
     private boolean sendEmailByOwner;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 50)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OrderColumn(name = "list_index") @JoinColumn(name = "meeting_id", nullable = false)
     private List<SignupTimeslot> signupTimeSlots = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 50)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -295,7 +295,8 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
     public SignupTimeslot getTimeslot(Long timeslotId) {
         if (signupTimeSlots == null) return null;
         for (SignupTimeslot timeslot : signupTimeSlots) {
-            if (timeslot.getId().equals(timeslotId)) {
+            Long id = timeslot.getId();
+            if (id != null && id.equals(timeslotId)) {
                 return timeslot;
             }
         }
@@ -320,10 +321,7 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
      * @return true if the event/meeting is expired
      */
     public boolean isMeetingExpired() {
-        Date today = new Date();
-        // pastMeeting => today>endDate => value>0
-        int value = today.compareTo(endTime);
-        return value > 0;
+        return new Date().after(endTime);
     }
 
     /**
@@ -333,9 +331,8 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
      * @return true if the current time has already passed the signup deadline
      */
     public boolean isPassedDeadline() {
-        Date today = new Date();
-        int value = today.compareTo(signupDeadline);
-        return value > 0;
+        if (signupDeadline == null) return false;
+        return new Date().after(signupDeadline);
     }
 
     /**
@@ -357,6 +354,7 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
      * @return true if the sign-up begin time is before current time.
      */
     public boolean isStartToSignUp() {
+        if (signupBegins == null) return true;
         return signupBegins.before(new Date());
     }
 
