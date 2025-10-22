@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <div class="sr-only">
+        <h:outputFormat value="#{deliveryMessages.calcq_sr_explanation}" escape="false">
+            <f:param value="#{question.finArray.size() - 1}" />
+        </h:outputFormat>
+    </div>
+
+    <samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0" rows="100">
+        <h:column>
+            <h:outputText id="calcq-question-text" styleClass="calcq-question-text" value="#{answer.text} " escape="false">
+                <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+            </h:outputText>
+            <h:outputText value="&#160;" escape="false" />
+            <h:panelGroup styleClass="si si-check-lg" id="image"
+                rendered="#{delivery.feedback eq 'true'
+                    and delivery.feedbackComponent.showCorrectResponse
+                    and answer.isCorrect and answer.hasInput
+                    and delivery.noFeedback != 'true'}" />
+            <h:panelGroup styleClass="si si-remove feedBackCross" id="image2"
+                rendered="#{delivery.feedback eq 'true'
+                    and delivery.feedbackComponent.showCorrectResponse
+                    and answer.isCorrect != null and !answer.isCorrect
+                    and answer.hasInput and delivery.noFeedback != 'true'}" />
+            <h:panelGroup rendered="#{answer.hasInput and delivery.actionString != 'gradeAssessment' and delivery.actionString != 'reviewAssessment'}">
+                <h:outputLabel styleClass="sr-only" for="calcq"
+                    value="#{deliveryMessages.calcq_sr_answer_label_part1} #{question.answerCounter}. #{deliveryMessages.calcq_sr_answer_label_part2}" />
+                <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="calcq"
+                    styleClass="calculatedQuestionInput" />
+            </h:panelGroup>
+            <h:outputText style="text-decoration: underline"
+                rendered="#{delivery.actionString == 'gradeAssessment' or delivery.actionString == 'reviewAssessment'}"
+                value="#{answer.response}" />
+        </h:column>
+    </samigo:dataLine>
+
+    <br />
+
+    <h:panelGroup rendered="#{(delivery.actionString == 'previewAssessment'
+            or delivery.actionString == 'takeAssessment'
+            or delivery.actionString == 'takeAssessmentViaUrl')
+        and delivery.navigation ne '1'
+        and delivery.displayMardForReview}">
+        <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
+        <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
+        <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#"
+            onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();">
+            <h:outputText value=" #{assessmentSettingsMessages.whats_this_link}" />
+        </h:outputLink>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
+        <br />
+        <h:panelGroup rendered="#{(delivery.feedbackComponent.showCorrectResponse and delivery.feedbackComponent.showCorrection and delivery.noFeedback != 'true')
+                or delivery.actionString == 'gradeAssessment'}">
+            <strong>
+                <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{deliveryMessages.ans_key}: " />
+            </strong>
+            <h:outputText id="answerKeyMC" value="#{question.key}" escape="false" />
+        </h:panelGroup>
+        <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel and delivery.noFeedback != 'true' and question.feedbackIsNotEmpty}">
+            <br />
+            <strong>
+                <h:outputLabel for="feedSC" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+            </strong>
+            <h:outputText id="feedSC" value="#{question.feedbackValue}" escape="false" />
+        </h:panelGroup>
+        <h:panelGroup rendered="#{delivery.actionString != 'gradeAssessment'
+                and delivery.feedbackComponent.showGraderComment
+                and delivery.noFeedback != 'true'
+                and question.gradingCommentIsNotEmpty}">
+            <br />
+            <strong>
+                <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+            </strong>
+            <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" />
+        </h:panelGroup>
+    </h:panelGroup>
+
+    <h:outputScript target="body">
+        //<![CDATA[
+        var calcqFormatError = "#{deliveryMessages.calcq_invalid_characters_error}";
+        //]]>
+    </h:outputScript>
+    <script src="/samigo-app/js/calcQuestInputValidator.js"></script>
+
+</ui:composition>

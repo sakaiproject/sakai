@@ -260,15 +260,15 @@
     <from-view-id>*</from-view-id>
     <navigation-case>
       <from-outcome>takeAssessment</from-outcome>
-      <to-view-id>/jsf/delivery/deliverAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/deliverAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmsubmit</from-outcome>
-      <to-view-id>/jsf/delivery/confirmSubmit.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/confirmSubmit.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>assessmentHasBeenSubmitted</from-outcome>
-      <to-view-id>/jsf/delivery/assessmentHasBeenSubmitted.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/assessmentHasBeenSubmitted.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>noSubmissionLeft</from-outcome>
@@ -349,11 +349,11 @@
   <!-- DELIVERY -->
     <navigation-case>
       <from-outcome>beginAssessment</from-outcome>
-      <to-view-id>/jsf/delivery/beginTakingAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/beginTakingAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>takeAssessment</from-outcome>
-      <to-view-id>/jsf/delivery/deliverAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/deliverAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>timeExpired</from-outcome>
@@ -361,7 +361,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>tableOfContents</from-outcome>
-      <to-view-id>/jsf/delivery/tableOfContents.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/tableOfContents.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>accessDenied</from-outcome>

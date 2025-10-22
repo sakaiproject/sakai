@@ -236,6 +236,8 @@
                                     <h:panelGroup id="editPartSpinner" layout="block" styleClass="allocatedSpinPlaceholder" />
                                 </h:panelGroup>
 
+                                <ui:include src="/jsf/author/part_attachment.xhtml" />
+
                                 <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow and !author.isEditPoolFlow}">
                                     <div class="insert-question-row">
                                         <div class="sak-banner-info">

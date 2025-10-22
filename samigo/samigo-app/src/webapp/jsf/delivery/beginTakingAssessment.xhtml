@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{delivery.assessmentTitle}" />
+            </title>
+            <ui:include src="/jsf/delivery/deliveryjQuery.xhtml" />
+            <script src="/library/js/spinner.js"></script>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+                <h:form id="takeAssessmentForm">
+                    <h:inputHidden id="timerId" value="#{delivery.timerId}" rendered="#{delivery.timerId != null}" />
+
+                    <h:panelGroup rendered="#{delivery.actionString != 'previewAssessment'}">
+                        <h:outputText value="#{delivery.secureDeliveryHTMLFragment}" escape="false" />
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{delivery.actionString == 'previewAssessment'}">
+                        <div class="sak-banner-info">
+                            <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
+                            <br />
+                            <h:panelGroup rendered="#{delivery.sebSetup}" layout="block">
+                                <h:outputText value="#{deliveryMessages.seb_preview_info}" escape="false" />
+                            </h:panelGroup>
+                            <br />
+                            <br />
+                            <h:commandButton value="#{deliveryMessages.exit_preview}"
+                                action="#{person.cleanResourceIdListInPreview}"
+                                type="submit"
+                                onclick="return returnToHostUrl(&#39;#{delivery.selectURL}&#39;);" />
+                        </div>
+                    </h:panelGroup>
+
+                    <div style="#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}">
+
+                    <h1>
+                        <h:outputText value="#{deliveryMessages.begin_assessment_}" rendered="#{delivery.firstTimeTaking}" />
+                        <h:outputText value="#{deliveryMessages.continue_assessment_}" rendered="#{!delivery.firstTimeTaking and !delivery.timeExpired}" />
+                    </h1>
+
+                    <div class="lead">
+                        <h:outputText value="&#34;#{delivery.assessmentTitle}&#34; #{deliveryMessages.t_for} #{delivery.courseName} " escape="false" />
+                    </div>
+
+                    <h:messages styleClass="sak-banner-error" rendered="#{not empty facesContext.maximumSeverity}" layout="table" />
+
+                    <div class="sak-banner-info">
+                        <h:outputText value="#{delivery.instructorMessage}" escape="false"
+                            rendered="#{delivery.instructorMessage != null and delivery.instructorMessage != ''}" />
+
+                        <ui:include src="/jsf/delivery/assessment_attachment.xhtml" />
+
+                        <div>
+                            <h:panelGrid columns="1" border="0">
+                                <h:panelGroup rendered="#{delivery.sebSetup}">
+                                    <h:outputText value="#{deliveryMessages.begin_assessment_msg_seb_required}" escape="false" />
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{delivery.firstTimeTaking}">
+                                    <h:panelGroup rendered="#{delivery.dueDate != null and delivery.dueDate ne ''}">
+                                        <h:outputText value="#{deliveryMessages.begin_assessment_msg_due} " escape="false" />
+                                        <h:outputText value="#{delivery.dueDate}">
+                                            <f:convertDateTime dateStyle="full" timeStyle="short" timeZone="#{delivery.userTimeZone}" />
+                                        </h:outputText>
+                                        <h:outputText value="." />
+                                    </h:panelGroup>
+                                    <h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}"
+                                        rendered="#{delivery.dueDate == null or delivery.dueDate eq ''}" escape="false" />
+                                </h:panelGroup>
+
+                                <h:outputText value="#{deliveryMessages.begin_assessment_msg_no_due}"
+                                    rendered="#{(delivery.dueDate == null or delivery.dueDate eq '') and !delivery.firstTimeTaking and !delivery.hasTimeLimit}"
+                                    escape="false" />
+
+                                <h:outputText value=" " />
+                                <h:outputText value=" " />
+
+                                <h:panelGroup rendered="#{delivery.hasTimeLimit and delivery.firstTimeTaking}">
+                                    <h:outputFormat value="#{deliveryMessages.begin_assessment_msg_timed}"
+                                        escape="false">
+                                        <f:param value="#{delivery.timeAllowedString}" />
+                                    </h:outputFormat>
+                                    <h:outputFormat value="#{deliveryMessages.begin_assessment_msg_timed_time_ensure}"
+                                        escape="false">
+                                        <f:param value="#{delivery.timeAllowedString}" />
+                                    </h:outputFormat>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{delivery.hasTimeLimit and !delivery.firstTimeTaking and !delivery.timeExpired}">
+                                    <h:outputFormat value="#{deliveryMessages.begin_assessment_msg_timed_continue}"
+                                        escape="false">
+                                        <f:param value="#{delivery.beginTimeString}" />
+                                        <f:param value="#{delivery.adjustedTimedAssesmentDueDateString}" />
+                                    </h:outputFormat>
+                                </h:panelGroup>
+
+                                <h:outputFormat value="#{deliveryMessages.time_expired2}" escape="false"
+                                    rendered="#{delivery.hasTimeLimit and !delivery.firstTimeTaking and delivery.timeExpired}" />
+
+                                <h:outputText value="#{deliveryMessages.begin_assessment_msg_no_time_limit}"
+                                    rendered="#{!delivery.hasTimeLimit}" escape="false" />
+
+                                <h:outputText value=" " />
+                                <h:outputText value=" " />
+
+                                <h:panelGroup>
+                                    <h:outputText value="#{deliveryMessages.begin_assessment_msg_linear}" escape="false"
+                                        rendered="#{delivery.navigation == 1}" />
+                                    <h:outputText value=" #{deliveryMessages.begin_assessment_msg_linear_continue}" escape="false"
+                                        rendered="#{delivery.navigation == 1 and !delivery.firstTimeTaking}" />
+                                </h:panelGroup>
+
+                                <h:outputText value=" " rendered="#{delivery.navigation == 1}" />
+                                <h:outputText value=" " rendered="#{delivery.navigation == 1}" />
+
+                                <h:panelGroup>
+                                    <h:panelGroup rendered="#{delivery.firstTimeTaking}">
+                                        <h:outputText value="#{deliveryMessages.begin_assessment_msg_unlimited_submission} "
+                                            rendered="#{delivery.settings.unlimitedAttempts and !delivery.anonymousLogin}"
+                                            escape="false" />
+
+                                        <h:outputFormat value="#{deliveryMessages.submission_allowed_1}"
+                                            escape="false"
+                                            rendered="#{!delivery.settings.unlimitedAttempts and delivery.totalSubmissions == 0 and !delivery.anonymousLogin}">
+                                            <f:param value="#{delivery.settings.maxAttempts}" />
+                                        </h:outputFormat>
+
+                                        <h:outputFormat value="#{deliveryMessages.submission_allowed_2}"
+                                            escape="false"
+                                            rendered="#{!delivery.settings.unlimitedAttempts and delivery.totalSubmissions != 0 and !delivery.anonymousLogin}">
+                                            <f:param value="#{delivery.submissionsRemaining}" />
+                                        </h:outputFormat>
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{!delivery.firstTimeTaking}">
+                                        <h:outputText value="#{deliveryMessages.begin_assessment_msg_unlimited_submission} "
+                                            rendered="#{delivery.settings.unlimitedAttempts and !delivery.anonymousLogin and (delivery.deadline == null or delivery.deadline == '')}"
+                                            escape="false" />
+
+                                        <h:outputFormat value="#{deliveryMessages.begin_assessment_msg_unlimited_submission_continue}"
+                                            escape="false"
+                                            rendered="#{delivery.settings.unlimitedAttempts and !delivery.anonymousLogin and delivery.deadlineString != null and delivery.deadlineString != ''}">
+                                            <f:param value="#{delivery.deadlineString}" />
+                                        </h:outputFormat>
+
+                                        <h:outputFormat value="#{deliveryMessages.submission_allowed_1}" escape="false"
+                                            rendered="#{!delivery.settings.unlimitedAttempts and delivery.totalSubmissions == 0 and !delivery.anonymousLogin and (delivery.deadlineString == null or delivery.deadlineString == '')}">
+                                            <f:param value="#{delivery.settings.maxAttempts}" />
+                                        </h:outputFormat>
+
+                                        <h:outputFormat value="#{deliveryMessages.submission_allowed_2}" escape="false"
+                                            rendered="#{!delivery.settings.unlimitedAttempts and delivery.totalSubmissions != 0 and !delivery.anonymousLogin and (delivery.deadlineString == null or delivery.deadlineString == '')}">
+                                            <f:param value="#{delivery.submissionsRemaining}" />
+                                        </h:outputFormat>
+
+                                        <h:outputFormat value="#{deliveryMessages.submission_allowed_1_continue}" escape="false"
+                                            rendered="#{!delivery.settings.unlimitedAttempts and delivery.totalSubmissions == 0 and !delivery.anonymousLogin and delivery.deadlineString != null and delivery.deadlineString != ''}">
+                                            <f:param value="#{delivery.settings.maxAttempts}" />
+                                            <f:param value="#{delivery.deadlineString}" />
+                                        </h:outputFormat>
+
+                                        <h:outputFormat value="#{deliveryMessages.submission_allowed_2_continue}" escape="false"
+                                            rendered="#{!delivery.settings.unlimitedAttempts and delivery.totalSubmissions != 0 and !delivery.anonymousLogin and delivery.deadlineString != null and delivery.deadlineString != ''}">
+                                            <f:param value="#{delivery.submissionsRemaining}" />
+                                            <f:param value="#{delivery.deadlineString}" />
+                                        </h:outputFormat>
+                                    </h:panelGroup>
+
+                                    <h:outputText value=" #{deliveryMessages.begin_assessment_msg_highest}"
+                                        rendered="#{delivery.scoringType == 1 and (delivery.settings.unlimitedAttempts or delivery.settings.maxAttempts > 1)}"
+                                        escape="false" />
+                                    <h:outputText value=" #{deliveryMessages.begin_assessment_msg_latest}"
+                                        rendered="#{delivery.scoringType == 2 and (delivery.settings.unlimitedAttempts or delivery.settings.maxAttempts > 1)}"
+                                        escape="false" />
+                                    <h:outputText value=" #{deliveryMessages.begin_assessment_msg_average}"
+                                        rendered="#{delivery.scoringType == 4 and (delivery.settings.unlimitedAttempts or delivery.settings.maxAttempts > 1)}"
+                                        escape="false" />
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{delivery.settings.autoSubmit}">
+                                    <h:outputFormat value="#{deliveryMessages.begin_assessment_msg_autosubmit_info}" escape="false">
+                                        <f:param value="#{delivery.deadlineString}" />
+                                    </h:outputFormat>
+                                </h:panelGroup>
+
+                                <h:outputText value=" " />
+                                <h:outputText value=" " />
+
+                                <h:panelGroup rendered="#{delivery.recURL != null and delivery.recURL != ''}">
+                                    <h:outputText value="#{deliveryMessages.please_read_1} " />
+                                    <h:outputLink value="#{delivery.recURL}" target="_blank">
+                                        <h:outputText value="#{deliveryMessages.please_read_2}" />
+                                    </h:outputLink>
+                                    <h:outputText value=" #{deliveryMessages.please_read_3}" />
+                                </h:panelGroup>
+                            </h:panelGrid>
+                        </div>
+                    </div>
+
+                    <h:panelGrid rendered="#{!delivery.sebSetup}" columns="2" border="0">
+                        <h:outputText value=" " />
+                        <h:outputText value=" " />
+
+                        <h:outputLabel for="baPassword" value="#{deliveryMessages.password}"
+                            rendered="#{delivery.settings.password ne ''}" />
+                        <h:inputSecret id="baPassword" value="#{delivery.password}" size="20"
+                            rendered="#{delivery.settings.password ne ''}" />
+                    </h:panelGrid>
+
+                    <h:panelGroup layout="block" styleClass="sak-banner-warn" rendered="#{!delivery.sebSetup}">
+                        <h:outputText value="#{deliveryMessages.begin_assessment_msg_warn_tabs}" />
+                    </h:panelGroup>
+
+                    <h:panelGroup layout="block" styleClass="honor-container"
+                        rendered="#{delivery.honorPledge and delivery.firstTimeTaking and !delivery.sebSetup}">
+                        <h:selectBooleanCheckbox id="honor_pledge" />
+                        <h:outputLabel for="honor_pledge" value="#{deliveryMessages.honor_pledge_detail}" />
+                    </h:panelGroup>
+                    <h:outputText id="honorPledgeRequired" value="#{deliveryMessages.honor_pledge_select}" styleClass="sak-banner-error" style="display:none" />
+
+                    <h:panelGroup layout="block" styleClass="sak-banner-warn"
+                        rendered="#{delivery.totalSubmissions > 0 and delivery.settings.autoSubmit and (delivery.scoringType == 2 or delivery.scoringType == 4)}">
+                        <h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_average}"
+                            rendered="#{delivery.scoringType == 4}" escape="false" />
+                        <h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_last}"
+                            rendered="#{delivery.scoringType == 2}" escape="false" />
+                    </h:panelGroup>
+                    <h:panelGroup layout="block" styleClass="honor-container"
+                        rendered="#{delivery.totalSubmissions > 0 and delivery.settings.autoSubmit and (delivery.scoringType == 2 or delivery.scoringType == 4)}">
+                        <h:selectBooleanCheckbox id="understand_pledge" />
+                        <h:outputLabel for="understand_pledge" value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_understand_checkbox}" />
+                    </h:panelGroup>
+                    <h:outputText id="understandPledgeRequired"
+                        value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_understand_required}"
+                        styleClass="sak-banner-error" style="display:none" />
+
+                    <p class="act">
+                        <h:commandButton id="beginAssessment1" value="#{deliveryMessages.begin_assessment_}"
+                            action="#{delivery.validate}" type="submit" styleClass="active"
+                            rendered="#{(delivery.actionString == 'takeAssessment' or delivery.actionString == 'takeAssessmentViaUrl')
+                                and delivery.navigation != 1 and delivery.firstTimeTaking and !delivery.sebSetup}">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+                        </h:commandButton>
+
+                        <h:commandButton id="beginAssessment2" value="#{deliveryMessages.begin_assessment_}"
+                            action="#{delivery.validate}" type="submit" styleClass="active"
+                            rendered="#{(delivery.actionString == 'takeAssessment' or delivery.actionString == 'takeAssessmentViaUrl')
+                                and delivery.navigation == 1 and delivery.firstTimeTaking and !delivery.sebSetup}">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
+                        </h:commandButton>
+
+                        <h:commandButton id="continueAssessment1" value="#{deliveryMessages.continue_assessment_}"
+                            action="#{delivery.validate}" type="submit" styleClass="active"
+                            rendered="#{(delivery.actionString == 'takeAssessment' or delivery.actionString == 'takeAssessmentViaUrl')
+                                and delivery.navigation != 1 and !delivery.firstTimeTaking and !delivery.timeExpired and !delivery.sebSetup}">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+                        </h:commandButton>
+
+                        <h:commandButton id="continueAssessment2" value="#{deliveryMessages.continue_assessment_}"
+                            action="#{delivery.validate}" type="submit" styleClass="active"
+                            rendered="#{(delivery.actionString == 'takeAssessment' or delivery.actionString == 'takeAssessmentViaUrl')
+                                and delivery.navigation == 1 and !delivery.firstTimeTaking and !delivery.timeExpired and !delivery.sebSetup}">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
+                        </h:commandButton>
+
+                        <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}"
+                            action="#{delivery.pvalidate}" type="submit" styleClass="active"
+                            rendered="#{delivery.actionString == 'previewAssessment' and !delivery.sebSetup}">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+                        </h:commandButton>
+
+                        <h:panelGroup rendered="#{delivery.sebSetup}">
+                            <h:panelGroup rendered="#{delivery.actionString != 'previewAssessment'}">
+                                <a id="sebLaunchSeb" class="active"
+                                    onclick="SPNR.insertSpinnerAfter(this, ['sebDownloadSeb', 'sebDownloadConfiguration', 'takeAssessmentForm:cancel1'], null);">
+                                    <h:outputText value="#{deliveryMessages.seb_launch_seb}" />
+                                </a>
+                                <a id="sebDownloadConfiguration" class="button">
+                                    <h:outputText value="#{deliveryMessages.seb_download_configuration}" />
+                                </a>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{delivery.actionString == 'previewAssessment'}">
+                                <a id="sebLaunchSeb" class="button disabled">
+                                    <h:outputText value="#{deliveryMessages.seb_launch_seb}" />
+                                </a>
+                                <a id="sebDownloadConfiguration" class="button disabled">
+                                    <h:outputText value="#{deliveryMessages.seb_download_configuration}" />
+                                </a>
+                            </h:panelGroup>
+                        </h:panelGroup>
+
+                        <h:commandButton id="resetViewHidden" styleClass="hidden" value="begin" action="takeAssessmentViaUrl"
+                            type="submit"
+                            rendered="#{delivery.sebSetup and delivery.actionString == 'takeAssessmentViaUrl'}"
+                            immediate="true">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.SebSetupActionListener" />
+                            <f:param name="sebSetup" value="false" />
+                        </h:commandButton>
+
+                        <h:commandButton id="cancel1" value="#{commonMessages.cancel_action}" action="select" type="submit"
+                            rendered="#{delivery.actionString == 'previewAssessment' or delivery.actionString == 'takeAssessment'}"
+                            disabled="#{delivery.actionString == 'previewAssessment'}">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
+                        </h:commandButton>
+                    </p>
+
+                    <h:panelGroup rendered="#{delivery.actionString == 'previewAssessment'}">
+                        <h:commandButton value="#{deliveryMessages.exit_preview}"
+                            action="#{person.cleanResourceIdListInPreview}"
+                            type="submit"
+                            onclick="return returnToHostUrl(&#39;#{delivery.selectURL}&#39;);" />
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{delivery.sebSetup}">
+                        <h:panelGroup rendered="#{delivery.actionString != 'previewAssessment'}">
+                            <h:outputLink id="sebDownloadSeb" value="#{delivery.sebDownloadLink}" target="_blank">
+                                <h:outputText value="#{deliveryMessages.seb_download_seb}" />
+                            </h:outputLink>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                    </div>
+                </h:form>
+            </div>
+
+            <ui:include src="/jsf/delivery/deliveryScript.xhtml" />
+
+            <h:outputScript target="body">
+                //<![CDATA[
+                function saveTime() {
+                  if ((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed']) != undefined) &&
+                      ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed']) != null)) {
+                    pauseTiming = 'false';
+                    document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value = #{delivery.timeElapse};
+                  }
+                }
+                //]]>
+            </h:outputScript>
+        </h:body>
+    </f:view>
+
+</ui:composition>

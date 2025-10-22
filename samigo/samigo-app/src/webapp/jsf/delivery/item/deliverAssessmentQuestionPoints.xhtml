@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <p class="input-group-addon ps-4 border-start-0">
+        <h:outputText value="#{question.roundedMaxPointsToDisplay} #{deliveryMessages.pt}"
+            rendered="#{delivery.actionString == 'reviewAssessment'}" />
+
+        <h:outputText value="#{question.roundedMaxPoints}"
+            rendered="#{delivery.settings.displayScoreDuringAssessments != '2'
+                and question.itemData.scoreDisplayFlag
+                and delivery.actionString != 'reviewAssessment'}">
+            <f:convertNumber maxFractionDigits="2" groupingUsed="false" />
+        </h:outputText>
+        <h:outputText value=" #{deliveryMessages.pt}"
+            rendered="#{delivery.settings.displayScoreDuringAssessments != '2'
+                and question.itemData.scoreDisplayFlag
+                and delivery.actionString != 'reviewAssessment'}" />
+
+        <h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "
+            rendered="#{question.itemData.discount != '0.0'
+                and delivery.settings.displayScoreDuringAssessments != '2'
+                and question.itemData.scoreDisplayFlag}">
+            <f:convertNumber maxFractionDigits="2" groupingUsed="false" />
+        </h:outputText>
+
+        <h:outputText styleClass="extraCreditLabel" rendered="#{question.itemData.isExtraCredit == true}"
+            value="#{deliveryMessages.extra_credit_preview}" />
+    </p>
+
+</ui:composition>

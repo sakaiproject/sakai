@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:panelGroup rendered="#{delivery.actionString!='previewAssessment' and delivery.hasTimeLimit}">
+        <div style="height:60px;">&#160;&#160;</div>
+    </h:panelGroup>
+
+    <h1>
+        <h:outputText value="#{delivery.assessmentTitle}" escape="false" />
+    </h1>
+
+    <div id="timerPosition"></div>
+
+    <ul class="navIntraTool actionToolbar" role="menu">
+        <h:panelGroup rendered="#{delivery.showFeedbackLink}">
+            <li role="menuitem" class="firstToolBarItem">
+                <span>
+                    <h:commandLink title="#{commonMessages.feedback}" action="#{delivery.getOutcome}"
+                        id="showFeedback" onclick="questionProgress.blockLink(this); saveTime(); serializeImagePoints();"
+                        rendered="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}">
+                        <h:outputText value="#{deliveryMessages.show_feedback}" />
+                        <f:param name="showfeedbacknow" value="true" />
+                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.ShowFeedbackActionListener" />
+                    </h:commandLink>
+
+                    <h:outputText value="#{deliveryMessages.show_feedback_preview}"
+                        rendered="#{delivery.actionString=='previewAssessment'}" />
+                </span>
+            </li>
+        </h:panelGroup>
+
+        <li role="menuitem">
+            <span>
+                <h:commandLink title="#{deliveryMessages.t_tableOfContents}" action="#{delivery.getOutcome}"
+                    id="showTOC" onclick="questionProgress.blockLink(this); saveTime(); serializeImagePoints();"
+                    rendered="#{(delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl') and delivery.navigation ne '1'}">
+                    <h:outputText value="#{deliveryMessages.table_of_contents}" />
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.TableOfContentsActionListener" />
+                </h:commandLink>
+
+                <h:commandLink title="#{deliveryMessages.t_tableOfContents}" action="tableOfContents" onmouseup="saveTime();"
+                    rendered="#{delivery.actionString=='previewAssessment' and delivery.navigation ne '1'}">
+                    <h:outputText value="#{deliveryMessages.table_of_contents}" />
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+                </h:commandLink>
+
+                <h:commandLink action="select" title="#{deliveryMessages.t_returnAssessmentList}"
+                    rendered="#{delivery.showReturnToAssessmentLink}">
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
+                    <h:outputText value="#{deliveryMessages.button_return_select}" />
+                </h:commandLink>
+            </span>
+        </li>
+    </ul>
+
+    <br />
+    <h:panelGrid rendered="#{delivery.feedbackComponent.showGraderComment and delivery.actionString=='reviewAssessment' 
+                    and (delivery.graderComment ne '' or delivery.hasAssessmentGradingAttachment)}"
+        columns="1" border="0">
+        <h:panelGroup>
+            <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel"
+                value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+            <h:outputText id="commentSC" value="#{delivery.graderComment}" escape="false"
+                rendered="#{delivery.graderComment ne ''}" />
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{delivery.hasAssessmentGradingAttachment}">
+            <h:dataTable value="#{delivery.assessmentGradingAttachmentList}" var="attach">
+                <h:column>
+                    <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                </h:column>
+                <h:column>
+                    <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                    <h:outputLink value="#{attach.location}" target="new_window">
+                        <h:outputText value="#{attach.filename}" />
+                    </h:outputLink>
+                </h:column>
+                <h:column>
+                    <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                    <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})"
+                        rendered="#{!attach.isLink}" />
+                </h:column>
+            </h:dataTable>
+        </h:panelGroup>
+    </h:panelGrid>
+
+    <ui:include src="/jsf/delivery/assessmentDeliveryTimer.xhtml" />
+
+</ui:composition>

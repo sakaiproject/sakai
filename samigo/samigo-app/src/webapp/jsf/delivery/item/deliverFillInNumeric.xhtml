@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <h:outputScript target="body">
+        //<![CDATA[
+        includeWebjarLibrary("qtip2");
+        //]]>
+    </h:outputScript>
+
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <h:panelGroup styleClass="hasTooltip toolTipLink">
+        <h:outputText value="#{deliveryMessages.additional_instructions_label}" />
+    </h:panelGroup>
+    <h:panelGroup layout="block" id="div_accepted_instruction" style="display:none;">
+        <h:outputText value="#{deliveryMessages.fin_accepted_instruction} " escape="false" />
+        <br />
+        <h:outputText value="#{deliveryMessages.fin_complex_note} " escape="false" />
+        <br />
+        <h:outputText value="#{deliveryMessages.fin_complex_example} " escape="false" />
+        <br />
+    </h:panelGroup>
+
+    <h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false"
+        rendered="#{question.isInvalidFinInput}" styleClass="sak-banner-error" />
+    <br />
+
+    <div class="sr-only">
+        <h:outputFormat value="#{deliveryMessages.fin_sr_explanation}" escape="false">
+            <f:param value="#{question.finArray.size() - 1}" />
+        </h:outputFormat>
+    </div>
+
+    <samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0" rows="100">
+        <h:column>
+            <h:outputText id="fin-question-text" styleClass="fin-question-text" value="#{answer.text} " escape="false">
+                <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+            </h:outputText>
+            <h:outputText value="&#160;" escape="false" />
+            <h:panelGroup styleClass="si si-check-lg" id="image"
+                rendered="#{delivery.feedback eq 'true'
+                    and delivery.feedbackComponent.showCorrectResponse
+                    and answer.isCorrect and answer.hasInput
+                    and delivery.noFeedback != 'true'
+                    and !delivery.anyInvalidFinInput}" />
+            <h:panelGroup styleClass="si si-remove feedBackCross" id="ximage"
+                rendered="#{delivery.feedback eq 'true'
+                    and delivery.feedbackComponent.showCorrectResponse
+                    and answer.isCorrect != null and !answer.isCorrect
+                    and answer.hasInput and delivery.noFeedback != 'true'}" />
+            <h:panelGroup rendered="#{answer.hasInput and delivery.actionString != 'gradeAssessment' and delivery.actionString != 'reviewAssessment'}">
+                <h:outputLabel styleClass="sr-only" for="fin"
+                    value="#{deliveryMessages.fin_sr_answer_label_part1} #{question.answerCounter}. #{deliveryMessages.fin_sr_answer_label_part2}" />
+                <h:inputText size="20" value="#{answer.response}" onkeypress="return noenter()" id="fin" styleClass="fillInNumericInput" />
+            </h:panelGroup>
+            <h:outputText style="text-decoration: underline"
+                rendered="#{delivery.actionString == 'gradeAssessment' or delivery.actionString == 'reviewAssessment'}"
+                value="#{answer.response}" />
+        </h:column>
+    </samigo:dataLine>
+
+    <br />
+
+    <h:panelGroup rendered="#{(delivery.actionString == 'previewAssessment'
+            or delivery.actionString == 'takeAssessment'
+            or delivery.actionString == 'takeAssessmentViaUrl')
+        and delivery.navigation ne '1'
+        and delivery.displayMardForReview}">
+        <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
+        <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
+        <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#"
+            onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();">
+            <h:outputText value=" #{assessmentSettingsMessages.whats_this_link}" />
+        </h:outputLink>
+    </h:panelGroup>
+
+    <br />
+
+    <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
+        <h:panelGrid
+            rendered="#{(delivery.feedbackComponent.showCorrectResponse and delivery.feedbackComponent.showCorrection and delivery.noFeedback != 'true')
+                or delivery.actionString == 'gradeAssessment'}">
+            <h:panelGroup>
+                <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{deliveryMessages.ans_key}: " />
+                <h:outputText id="answerKeyMC" value="#{question.key}" escape="false" />
+            </h:panelGroup>
+            <h:outputText value=" " />
+        </h:panelGrid>
+
+        <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel and delivery.noFeedback != 'true' and question.feedbackIsNotEmpty}">
+            <h:panelGroup>
+                <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+                <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+            </h:panelGroup>
+            <h:outputText value=" " />
+        </h:panelGrid>
+
+        <h:panelGrid columns="1" border="0"
+            rendered="#{delivery.actionString != 'gradeAssessment'
+                and delivery.feedbackComponent.showGraderComment
+                and delivery.noFeedback != 'true'
+                and (question.gradingCommentIsNotEmpty or question.hasItemGradingAttachment)}">
+            <h:panelGroup>
+                <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+                <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false"
+                    rendered="#{question.gradingCommentIsNotEmpty}" />
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+                <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+                    <h:column>
+                        <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                    </h:column>
+                    <h:column>
+                        <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                        <h:outputLink value="#{attach.location}" target="new_window">
+                            <h:outputText value="#{attach.filename}" />
+                        </h:outputLink>
+                    </h:column>
+                    <h:column>
+                        <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                        <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})"
+                            rendered="#{!attach.isLink}" />
+                    </h:column>
+                </h:dataTable>
+            </h:panelGroup>
+        </h:panelGrid>
+    </h:panelGroup>
+
+    <h:outputScript target="body">
+        //<![CDATA[
+        var finFormatError = "#{deliveryMessages.fin_invalid_characters_error}";
+        //]]>
+    </h:outputScript>
+    <script src="/samigo-app/js/finInputValidator.js"></script>
+
+</ui:composition>

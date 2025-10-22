@@ -609,7 +609,7 @@ public class DeliveryBean implements Serializable {
    */
   public SettingsDeliveryBean getSettings() {
     // SAM-1438 - We occasionally see the settings bean as null during
-    // submission, within a JSF phase of deliverAssessment.jsp but it is
+    // submission, within a JSF phase of deliverAssessment.xhtml but it is
     // generally not reproducible. This block protects against the bug
     // by loading up the settings for this assessment. They are not assigned
     // to the local settings variable as to avoid changing any more behavior
@@ -1625,7 +1625,7 @@ public class DeliveryBean implements Serializable {
   }
 
   /**
-   * This method is used by jsf/delivery/deliverAudioRecording.jsp and
+   * This method is used by jsf/delivery/deliverAudioRecording.xhtml and
    * is called by addMediaToItemGrading(javax.faces.event.ValueChangeEvent e)
    *
    * @param mediaLocation the  media location

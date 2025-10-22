@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{deliveryMessages.table_of_contents}" />
+            </title>
+            <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+            <ui:include src="/jsf/delivery/deliveryjQuery.xhtml" />
+            <h:outputText value="#{delivery.mathJaxHeader}" escape="false"
+                rendered="#{(delivery.actionString == 'takeAssessmentViaUrl' or delivery.actionString == 'previewAssessment') and delivery.isMathJaxEnabled}" />
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <h:outputText value="#{delivery.secureDeliveryHTMLFragment}" escape="false" />
+
+            <div class="portletBody">
+                <div style="#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}">
+                    <h:form id="tableOfContentsForm" onsubmit="saveTime()">
+                        <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}" />
+                        <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}" />
+                        <h:inputHidden id="showTimer" value="#{delivery.showTimer}" />
+
+                        <h:panelGroup rendered="#{delivery.actionString == 'previewAssessment'}">
+                            <div class="sak-banner-info">
+                                <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
+                                <h:commandButton value="#{deliveryMessages.exit_preview}"
+                                    styleClass="exitPreviewButton"
+                                    action="#{person.cleanResourceIdListInPreview}"
+                                    type="submit"
+                                    onclick="return returnToHostUrl(&#39;#{delivery.selectURL}&#39;);" />
+                            </div>
+                        </h:panelGroup>
+
+                        <h3>
+                            <h:outputText value="#{delivery.assessmentTitle} " escape="false" />
+                        </h3>
+
+                        <h:panelGroup rendered="#{delivery.hasTimeLimit}">
+                            <h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload == null or delivery.timeElapseDouble ge delivery.timeElapseAfterFileUploadDouble}">
+                                <samigo:timerBar height="15" width="300"
+                                    wait="#{delivery.timeLimit}"
+                                    elapsed="#{delivery.timeElapse}"
+                                    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null and delivery.timeElapseDouble lt delivery.timeElapseAfterFileUploadDouble}">
+                                <samigo:timerBar height="15" width="300"
+                                    wait="#{delivery.timeLimit}"
+                                    elapsed="#{delivery.timeElapseAfterFileUpload}"
+                                    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
+                            </h:panelGroup>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{delivery.actionString == 'previewAssessment' and delivery.hasTimeLimit}">
+                            <div class="sak-banner-info">
+                                <h:outputText value="#{deliveryMessages.timer_preview_not_available}" />
+                            </div>
+                        </h:panelGroup>
+
+                        <div class="tier1">
+                            <strong>
+                                <h:outputText value="#{deliveryMessages.warning}#{deliveryMessages.column} " />
+                            </strong>
+                            <h:outputText value="#{deliveryMessages.instruction_submitGrading}" />
+                        </div>
+
+                        <div class="tier1">
+                            <h4>
+                                <h:outputText value="#{deliveryMessages.table_of_contents} " />
+                                <h:outputText styleClass="tier10" value="#{deliveryMessages.tot_score} " />
+                                <h:outputText value="#{delivery.tableOfContents.maxScore}">
+                                    <f:convertNumber maxFractionDigits="2" groupingUsed="false" />
+                                </h:outputText>
+                                <h:outputText value=" #{deliveryMessages.pt}" />
+                            </h4>
+                        </div>
+
+                        <div class="tier2">
+                            <h5>
+                                <h:outputLabel value="#{deliveryMessages.key}" />
+                            </h5>
+                            <h:graphicImage alt="#{deliveryMessages.alt_unans_q}" url="/images/whiteBubble15.png" />
+                            <h:outputText value="#{deliveryMessages.unans_q}" />
+                            <br />
+                            <h:graphicImage alt="#{deliveryMessages.alt_ans_q}" url="/images/blackBubble15.png" />
+                            <h:outputText value="#{deliveryMessages.ans_q}" />
+                            <br />
+                            <h:graphicImage alt="#{deliveryMessages.alt_q_marked}" url="/images/questionMarkBubble15.png"
+                                rendered="#{delivery.displayMardForReview}" />
+                            <h:outputText value="#{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}" />
+                        </div>
+
+                        <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}" />
+                        <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
+                        <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
+                        <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}" />
+
+                        <h:messages styleClass="sak-banner-error" rendered="#{not empty facesContext.maximumSeverity}" layout="table" />
+
+                        <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part" styleClass="tableofcontents">
+                            <h:column>
+                                <div class="tier2">
+                                    <h2>
+                                        <h:commandLink immediate="true" action="takeAssessment"
+                                            styleClass="#{part.enabled == 0 ? 'inactive' : ''}">
+                                            <h:outputText value="#{deliveryMessages.p} #{part.number} - " />
+                                            <h:outputText value="#{part.nonDefaultText} - " />
+                                            <h:outputText value="#{part.questions - part.unansweredQuestions}/#{part.questions} #{deliveryMessages.ans_q}, " />
+                                            <h:outputText value="#{part.pointsDisplayString}#{deliveryMessages.splash}#{part.roundedMaxPoints} #{deliveryMessages.pt}" />
+                                            <h:outputText escape="false" rendered="#{part.timedSection}"
+                                                value=" &lt;i title='#{authorMessages.timed}' class='fa fa-clock-o'&gt;&lt;/i&gt;" />
+                                            <f:param name="partnumber" value="#{part.number}" />
+                                            <f:param name="questionnumber" value="1" />
+                                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerFromTOCListener" />
+                                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+                                        </h:commandLink>
+                                    </h2>
+                                    <h:panelGroup rendered="#{part.enabled >= 0}">
+                                        <h:dataTable value="#{part.itemContents}" var="question">
+                                            <h:column>
+                                                <div class="tier3">
+                                                    <h:graphicImage alt="#{deliveryMessages.alt_unans_q}" url="/images/whiteBubble15.png"
+                                                        rendered="#{question.unanswered}" />
+                                                    <h:graphicImage alt="#{deliveryMessages.alt_ans_q}" url="/images/blackBubble15.png"
+                                                        rendered="#{!question.unanswered}" />
+                                                    <h:graphicImage alt="#{deliveryMessages.alt_q_marked}" url="/images/questionMarkBubble15.png"
+                                                        rendered="#{question.review}" />
+                                                    <h:commandLink immediate="true" action="takeAssessment"
+                                                        styleClass="#{question.enabled == 0 or part.enabled == 0 ? 'inactive' : ''}">
+                                                        <h:outputText escape="false" value="#{question.sequence}#{deliveryMessages.dot}">
+                                                            <f:convertNumber maxFractionDigits="2" />
+                                                        </h:outputText>
+                                                        <h:outputText escape="false" value=" #{question.strippedText}"
+                                                            rendered="#{question.enabled >= 0}" />
+                                                        <h:outputText escape="false" value=" #{deliveryMessages.title_not_available}"
+                                                            rendered="#{question.enabled == -1}" />
+                                                        <f:param name="partnumber" value="#{part.number}" />
+                                                        <f:param name="questionnumber" value="#{question.sequence}" />
+                                                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerFromTOCListener" />
+                                                        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+                                                    </h:commandLink>
+                                                    <h:panelGroup rendered="#{question.enabled >= 0}">
+                                                        <h:outputText value=" #{deliveryMessages.dash} " />
+                                                        <h:outputText value="#{question.pointsDisplayString} #{deliveryMessages.pt}" />
+                                                    </h:panelGroup>
+                                                </div>
+                                            </h:column>
+                                        </h:dataTable>
+                                    </h:panelGroup>
+                                </div>
+                            </h:column>
+                        </h:dataTable>
+
+                        <p class="act">
+                            <h:panelGroup rendered="#{delivery.actionString == 'takeAssessment' or delivery.actionString == 'takeAssessmentViaUrl'}">
+                                <h:commandButton value="#{deliveryMessages.button_submit_grading}" type="submit" styleClass="active"
+                                    action="#{delivery.submitForGrade}"
+                                    disabled="#{delivery.navigation == '1'}"
+                                    rendered="#{delivery.navigation ne '1'}" />
+                                <h:commandButton value="#{deliveryMessages.button_submit_grading}" type="submit" styleClass="active"
+                                    action="#{delivery.submitForGrade}"
+                                    rendered="#{delivery.navigation eq '1'}"
+                                    onclick="pauseTiming='false'" onkeypress="pauseTiming='false'" />
+                            </h:panelGroup>
+
+                            <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="takeAssessment"
+                                rendered="#{delivery.navigation ne '1'}">
+                                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+                            </h:commandButton>
+                        </p>
+                    </h:form>
+                </div>
+            </div>
+
+            <ui:include src="/jsf/delivery/deliveryScript.xhtml" />
+
+            <h:outputScript target="body">
+                //<![CDATA[
+                function isFromLink() {
+                  return #{delivery.actionMode != null ? delivery.actionMode : 0} == 5;
+                }
+
+                function saveTime() {
+                  var elapsedField = document.getElementById('tableOfContentsForm:elapsed');
+                  if (elapsedField) {
+                    elapsedField.value = #{delivery.timeElapse};
+                    pauseTiming = 'true';
+                  }
+                }
+                //]]>
+            </h:outputScript>
+        </h:body>
+    </f:view>
+
+</ui:composition>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <h:panelGroup rendered="#{(delivery.actionString == 'takeAssessment' or delivery.actionString == 'takeAssessmentViaUrl')
+        and (delivery.hasTimeLimit or delivery.turnIntoTimedAssessment)}">
+
+        <h:panelGroup rendered="#{delivery.hasTimeLimit}">
+            <span id="timer"> </span>
+        </h:panelGroup>
+
+        <span id="bar">
+            <h:panelGroup rendered="#{(delivery.timeElapseAfterFileUpload == null or delivery.timeElapseDouble ge delivery.timeElapseAfterFileUploadDouble)
+                and delivery.hasTimeLimit}">
+                <samigo:timerBar height="15" width="300"
+                    wait="#{delivery.timeLimit}"
+                    elapsed="#{delivery.timeElapse}"
+                    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null and delivery.timeElapseDouble lt delivery.timeElapseAfterFileUploadDouble and delivery.hasTimeLimit}">
+                <samigo:timerBar height="15" width="300"
+                    wait="#{delivery.timeLimit}"
+                    elapsed="#{delivery.timeElapseAfterFileUpload}"
+                    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
+            </h:panelGroup>
+        </span>
+
+        <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
+        <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}" />
+
+        <h:outputScript target="body">
+            //<![CDATA[
+            function isFromLink() {
+              return #{delivery.actionMode != null ? delivery.actionMode : 0} == 5;
+            }
+            //]]>
+        </h:outputScript>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{delivery.actionString == 'previewAssessment' and delivery.hasTimeLimit}">
+        <div class="sak-banner-info">
+            <h:outputText value="#{deliveryMessages.timer_preview_not_available}" />
+        </div>
+    </h:panelGroup>
+
+</ui:composition>

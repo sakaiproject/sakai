@@ -151,7 +151,7 @@ public class LoginServlet
     SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBean("select");
 
     // we are going to use the delivery bean to flag that this access is via url
-    // this is the flag that we will use in deliverAssessment.jsp to decide what
+    // this is the flag that we will use in deliverAssessment.xhtml to decide what
     // button to display - daisyf
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet(
        "delivery", req, res);
@@ -260,7 +260,7 @@ public class LoginServlet
         }
         // Assessment is available for taking
         else if ("safeToProceed".equals(nextAction)){
-          // if assessment is available, set it in delivery bean for display in deliverAssessment.jsp
+          // if assessment is available, set it in delivery bean for display in deliverAssessment.xhtml
           path = "/jsf/delivery/beginTakingAssessment_viaurl.faces";
         }
         // Assessment is currently not available (eg., retracted for edit, due date has passed, submission limit has been reached, etc)

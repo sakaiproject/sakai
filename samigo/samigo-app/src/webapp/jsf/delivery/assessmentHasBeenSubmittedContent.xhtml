@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <div class="portletBody">
+        <h3>
+            <h:outputText value="#{deliveryMessages.assessment_has_been_submitted_title}" />
+        </h3>
+        <h:outputText value="#{deliveryMessages.assessment_has_been_submitted}"
+            rendered="#{delivery.actionString != 'takeAssessmentViaUrl'}" />
+        <h:outputText value="#{deliveryMessages.assessment_has_been_submitted_url}"
+            rendered="#{delivery.actionString == 'takeAssessmentViaUrl'}" />
+
+        <h:form id="assessment_has_been_submitted">
+            <p class="act">
+                <h:commandButton value="#{deliveryMessages.button_return}" type="submit"
+                    styleClass="active" action="select"
+                    rendered="#{delivery.actionString != 'takeAssessmentViaUrl'}">
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
+                </h:commandButton>
+            </p>
+        </h:form>
+    </div>
+
+</ui:composition>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <h:outputText value="#{question.text}" escape="false" />
+
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <h:panelGroup rendered="#{!(delivery.actionString == 'reviewAssessment' or delivery.actionString == 'gradeAssessment')}">
+        <br />
+        <br />
+        <h:outputText value="#{deliveryMessages.maxSAText}" />
+    </h:panelGroup>
+
+    <br />
+
+    <h:panelGrid rendered="#{delivery.actionString != 'reviewAssessment'
+            and delivery.actionString != 'gradeAssessment'}">
+        <samigo:wysiwyg rows="140" value="#{question.responseText}" hasToggle="yes" maxCharCount="32000">
+            <f:validateLength maximum="32000" />
+        </samigo:wysiwyg>
+    </h:panelGrid>
+
+    <h:outputText value="#{question.responseTextForDisplay}"
+        rendered="#{delivery.actionString == 'reviewAssessment'
+            or delivery.actionString == 'gradeAssessment'}"
+        escape="false" />
+
+    <br />
+
+    <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
+        rendered="#{(delivery.actionString == 'previewAssessment'
+                or delivery.actionString == 'takeAssessment'
+                or delivery.actionString == 'takeAssessmentViaUrl')
+            and delivery.navigation ne '1'}" />
+
+    <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}"
+        rendered="#{(delivery.actionString == 'previewAssessment'
+                or delivery.actionString == 'takeAssessment'
+                or delivery.actionString == 'takeAssessmentViaUrl')
+            and delivery.navigation ne '1'}" />
+
+    <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
+        <h:panelGrid
+            rendered="#{((delivery.feedbackComponent.showCorrectResponse and delivery.feedbackComponent.showCorrection and delivery.noFeedback != 'true')
+                or delivery.actionString == 'gradeAssessment') and question.modelAnswerIsNotEmpty}">
+            <h:panelGroup>
+                <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{deliveryMessages.model} " />
+                <h:outputText value="#{question.key}" escape="false" />
+            </h:panelGroup>
+            <h:outputText value=" " />
+        </h:panelGrid>
+
+        <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel and delivery.noFeedback != 'true' and question.feedbackIsNotEmpty}">
+            <h:panelGroup>
+                <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+                <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+            </h:panelGroup>
+            <h:outputText value=" " />
+        </h:panelGrid>
+
+        <h:panelGrid columns="1" border="0"
+            rendered="#{delivery.actionString != 'gradeAssessment'
+                and delivery.feedbackComponent.showGraderComment
+                and delivery.noFeedback != 'true'
+                and (question.gradingCommentIsNotEmpty or question.hasItemGradingAttachment)}">
+            <h:panelGroup>
+                <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+                <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false"
+                    rendered="#{question.gradingCommentIsNotEmpty}" />
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+                <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+                    <h:column>
+                        <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                    </h:column>
+                    <h:column>
+                        <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                        <h:outputLink value="#{attach.location}" target="new_window">
+                            <h:outputText value="#{attach.filename}" />
+                        </h:outputLink>
+                    </h:column>
+                    <h:column>
+                        <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                        <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})"
+                            rendered="#{!attach.isLink}" />
+                    </h:column>
+                </h:dataTable>
+            </h:panelGroup>
+        </h:panelGrid>
+    </h:panelGroup>
+
+</ui:composition>

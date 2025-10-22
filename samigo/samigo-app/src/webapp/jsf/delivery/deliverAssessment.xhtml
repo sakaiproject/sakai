@@ -1,59 +1,44 @@
-<%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<%@ taglib uri="http://java.sun.com/upload" prefix="corejsf" %>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<!--
-* $Id$
-<%--
-***********************************************************************************
-*
-* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License. 
-*
-**********************************************************************************/
---%>
--->
-  <f:view>
-    <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title> <h:outputText value="#{delivery.assessmentTitle}"/> </title>
-          <script>var portal = portal || { siteId: '<h:outputText value="#{delivery.siteId}" />' };</script>
-          <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
-      <script src="/sakai-editor/editor-bootstrap.js"></script>
-      <script src="/sakai-editor/editor.js"></script>
-      <script src="/sakai-editor/editor-launch.js"></script>
-      <script src="/samigo-app/js/saveForm.js"></script>
-      <script src="/samigo-app/js/deliveryQuestionCancellation.js"></script>
-      <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
-      <script src="/library/webjars/bootstrap/5.2.0/js/bootstrap.min.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
-
-    <h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{(delivery.actionString=='takeAssessmentViaUrl' ||  delivery.actionString=='previewAssessment') and delivery.isMathJaxEnabled}"/>
-      </head>
-	<body>
-
-  <h:panelGroup rendered="#{delivery.assessmentSubmitted}">
-    <%@ include file="/jsf/delivery/assessmentHasBeenSubmittedContent.jsp" %>
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:corejsf="http://java.sun.com/upload">
+    <f:view>
+        <h:head>
+        <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{delivery.assessmentTitle}" />
+            </title>
+            <h:outputScript target="head">
+                //<![CDATA[
+                window.portal = window.portal || {};
+                window.portal.siteId = '#{delivery.siteId}';
+                var portal = window.portal;
+                //]]>
+            </h:outputScript>
+            <ui:include src="/jsf/delivery/deliveryjQuery.xhtml" />
+            <script src="/sakai-editor/editor-bootstrap.js"></script>
+            <script src="/sakai-editor/editor.js"></script>
+            <script src="/sakai-editor/editor-launch.js"></script>
+            <script src="/samigo-app/js/saveForm.js"></script>
+            <script src="/samigo-app/js/deliveryQuestionCancellation.js"></script>
+            <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js#{questionScores.CDNQuery}"></script>
+            <script src="/library/webjars/bootstrap/5.2.0/js/bootstrap.min.js#{questionScores.CDNQuery}"></script>
+            <h:outputText value="#{delivery.mathJaxHeader}" escape="false"
+                rendered="#{(delivery.actionString=='takeAssessmentViaUrl' or delivery.actionString=='previewAssessment') and delivery.isMathJaxEnabled}" />
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+<h:panelGroup rendered="#{delivery.assessmentSubmitted}">
+    <ui:include src="/jsf/delivery/assessmentHasBeenSubmittedContent.xhtml" />
   </h:panelGroup>
 
   <h:panelGroup rendered="#{!delivery.assessmentSubmitted}">
  
-      <h:outputText value="<a name='top'></a>" escape="false" />
+      <h:outputText value="&lt;a name='top'&gt;&lt;/a&gt;" escape="false" />
       
 <div class="portletBody Mrphs-sakai-samigo">
 <div>
@@ -63,9 +48,10 @@
    onsubmit="saveTime(); serializeImagePoints();">
 
 <!-- JAVASCRIPT -->
-<%@ include file="/js/delivery.js" %>
+<ui:include src="/jsf/delivery/deliveryScript.xhtml" />
 
 <script>
+//<![CDATA[
 function checkRadio()
 {
   for (i=0; i<document.forms[0].elements.length; i++)
@@ -121,7 +107,7 @@ function saveTime()
 {
   if((typeof (document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=undefined) && ((document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'])!=null) ){
   pauseTiming = 'false';
-  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=${delivery.timeElapse};
+  document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=#{delivery.timeElapse};
  }
 }
 function disableRationale(){
@@ -162,10 +148,11 @@ for (i=0; i<document.links.length; i++) {
 }
 document.links[newindex].onclick();
 }
+//]]>
 </script>
 
 
-<h:panelGroup rendered="#{delivery.actionString =='gradeAssessment' || delivery.actionString =='reviewAssessment' }" >
+<h:panelGroup rendered="#{delivery.actionString =='gradeAssessment' or delivery.actionString =='reviewAssessment' }" >
 	<f:verbatim>
 		<script language='javascript' src='/samigo-app/js/jquery.dynamiclist.student.preview.js'></script>
 		<script language='javascript' src='/samigo-app/js/selection.student.preview.js'></script>
@@ -173,7 +160,7 @@ document.links[newindex].onclick();
 	</f:verbatim>
 </h:panelGroup>
 
-<h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' && delivery.actionString !='reviewAssessment' }" >
+<h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' and delivery.actionString !='reviewAssessment' }" >
 	<f:verbatim>
 		<script language='javascript' src='/samigo-app/js/jquery.dynamiclist.student.js'></script>
 		<script language='javascript' src='/samigo-app/js/selection.student.js'></script>
@@ -181,8 +168,8 @@ document.links[newindex].onclick();
 	</f:verbatim>
 </h:panelGroup>
 
-<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css">
-<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css">
+<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css" />
+<link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css" />
 
 <script>
 	var dynamicListMap = [];		
@@ -256,34 +243,32 @@ document.links[newindex].onclick();
         styleClass="exitPreviewButton"
         action="#{person.cleanResourceIdListInPreview}"
         type="submit"
-        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
+        onclick="return returnToHostUrl('#{delivery.selectURL}');" />
   </div>
 </h:panelGroup>
 
 <div id="delivPageWrapper">
-<h:outputText value="<div id='delivAssessmentWrapper' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
+<div id="delivAssessmentWrapper" style="#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}">
 
     <!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
     <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false"  />
 
     <!-- HEADING -->
-    <f:subview id="assessmentDeliveryHeading">
-      <%@ include file="/jsf/delivery/assessmentDeliveryHeading.jsp" %>
-    </f:subview>
+      <ui:include src="/jsf/delivery/assessmentDeliveryHeading.xhtml" />
 
     <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
     <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
     <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
     <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 
-    <%-- PART/ITEM DATA TABLES --%>
-    <h:panelGroup layout="block" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}">
+    <!-- PART/ITEM DATA TABLES -->
+    <h:panelGroup layout="block" rendered="#{delivery.pageContents.isNoParts and delivery.navigation eq '1'}">
       <h:outputText value="#{deliveryMessages.linear_no_contents_warning_1}"/>
       <h:outputText value="#{deliveryMessages.linear_no_contents_warning_2}" escape="false"/>
       <h:outputText value="#{deliveryMessages.linear_no_contents_warning_3}" escape="false"/>
     </h:panelGroup>
 
-<h:panelGroup rendered="#{!delivery.pageContents.isNoParts || delivery.navigation ne '1'}">
+<h:panelGroup rendered="#{!delivery.pageContents.isNoParts or delivery.navigation ne '1'}">
   <div class="tier1">
   <h:dataTable width="100%" value="#{delivery.pageContents.partsContents}" var="part">
     <h:column>
@@ -299,9 +284,9 @@ document.links[newindex].onclick();
             </h:outputText>
         </small>
     </h4>
-    <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && part.enabled == -1}" styleClass="time-bar-button-container" layout="block">
+    <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl') and part.enabled == -1}" styleClass="time-bar-button-container" layout="block">
         <div class="sak-banner-info">
-            <h:outputFormat value="#{deliveryMessages.partTimer_info_start_deadline}" escape="false" rendered="#{delivery.deadline != null && delivery.deadline != ''}">
+            <h:outputFormat value="#{deliveryMessages.partTimer_info_start_deadline}" escape="false" rendered="#{delivery.deadline ne null and delivery.deadline ne ''}">
                 <f:param value="#{part.timeLimitString}"/>
                 <f:param value="#{delivery.deadlineString}"/>
             </h:outputFormat>
@@ -319,25 +304,25 @@ document.links[newindex].onclick();
         />
     </h:panelGroup>
 
-    <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && part.timedSection && part.enabled == 1}" styleClass="time-bar-container" layout="block">
+    <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl') and part.timedSection and part.enabled == 1}" styleClass="time-bar-container" layout="block">
         <sakai-timer-bar
-            id="<h:outputText value="#{part.sectionId}" />"
-            time-limit="<h:outputText value="#{part.realTimeLimit}" />"
-            time-elapsed="<h:outputText value="#{part.timeElapsed}" />"
-            text="<h:outputText value="#{deliveryMessages.partTimer_title}" />"
-            sync-call="/api/assessmentgrading/<h:outputText value="#{delivery.assessmentGradingId}" />/timerinfo/part/<h:outputText value="#{part.sectionId}" />"
+            id="#{part.sectionId}"
+            time-limit="#{part.realTimeLimit}"
+            time-elapsed="#{part.timeElapsed}"
+            text="#{deliveryMessages.partTimer_title}"
+            sync-call="/api/assessmentgrading/#{delivery.assessmentGradingId}/timerinfo/part/#{part.sectionId}"
         ></sakai-timer-bar>
     </h:panelGroup>
 
-    <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && part.enabled == 0 && !delivery.settings.formatByQuestion}">
+    <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl') and part.enabled == 0 and !delivery.settings.formatByQuestion}">
         <div class="sak-banner-warn"><h:outputText value="#{deliveryMessages.partTimer_info_end}" /></div>
     </h:panelGroup>
 
     <!-- PART can be hidden if is timed and not enabled (this does not apply to assessments by question) -->
-    <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' || delivery.actionString=='reviewAssessment' || part.enabled == 1 || delivery.settings.formatByQuestion}">
+    <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' or delivery.actionString=='reviewAssessment' or part.enabled == 1 or delivery.settings.formatByQuestion}">
   <!-- PART ATTACHMENTS -->
-  <%@ include file="/jsf/delivery/part_attachment.jsp" %>
-   <f:verbatim><div class="tier2"></f:verbatim>
+  <ui:include src="/jsf/delivery/part_attachment.xhtml" />
+   <div class="tier2">
 
    <h:outputText value="#{deliveryMessages.no_question}" escape="false" rendered="#{part.noQuestions}"/>
 
@@ -349,46 +334,46 @@ document.links[newindex].onclick();
               <h:panelGroup layout="block" styleClass="col-12">
                 <div class="input-group my-3">
                   <p class="samigo-input-group-text m-0 pe-4 border-end-0">
-                    <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
+                    <h:outputText value="&lt;a name='p#{part.number}q#{question.number}'&gt;&lt;/a&gt;" escape="false" />
                     <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
                   </p>
-                  <%-- REVIEW ASSESSMENT --%>
+                  <!-- REVIEW ASSESSMENT -->
                   <h:inputText styleClass="form-control adjustedScore" value="#{question.pointsDisplayString}" disabled="true" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 
-                  <h:panelGroup layout="block" rendered="#{delivery.actionString != 'gradeAssessment' && delivery.actionString != 'reviewAssessment'}">
-                    <%@ include file="/jsf/delivery/item/deliverAssessmentQuestionPoints.jsp" %>
+                  <h:panelGroup layout="block" rendered="#{delivery.actionString != 'gradeAssessment' and delivery.actionString != 'reviewAssessment'}">
+                    <ui:include src="/jsf/delivery/item/deliverAssessmentQuestionPoints.xhtml" />
                   </h:panelGroup>
                 </div>
               </h:panelGroup>
-              <h:panelGroup layout="block" styleClass="col-12" rendered="#{delivery.actionString != 'takeAssessment' && delivery.actionString != 'takeAssessmentViaUrl' && delivery.actionString != 'previewAssessment'}">
-                <%@ include file="/jsf/delivery/item/deliverAssessmentQuestionPoints.jsp" %>
+              <h:panelGroup layout="block" styleClass="col-12" rendered="#{delivery.actionString != 'takeAssessment' and delivery.actionString != 'takeAssessmentViaUrl' and delivery.actionString != 'previewAssessment'}">
+                <ui:include src="/jsf/delivery/item/deliverAssessmentQuestionPoints.xhtml" />
               </h:panelGroup>
             </h:panelGroup>
           </h:panelGroup>
         </h:panelGroup>
 
        <!-- PART can be hidden if is timed and not enabled (apply to assessments by question) -->
-       <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' || delivery.actionString=='reviewAssessment' || part.enabled == 1}">
+       <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' or delivery.actionString=='reviewAssessment' or part.enabled == 1}">
        <h:panelGroup rendered="#{delivery.actionString == 'reviewAssessment' and delivery.feedbackComponent.showItemLevel}">
          <sakai-rubric-student
-           site-id='<h:outputText value="#{delivery.siteId}" />'
+           site-id="#{delivery.siteId}"
            tool-id="sakai.samigo"
-           entity-id='<h:outputText value="#{delivery.rubricAssociation}.#{question.effectiveItemId}"/>'
-           evaluated-item-id='<h:outputText value="#{delivery.assessmentGradingId}.#{question.itemData.itemId}" />'
-           evaluated-item-owner-id='<h:outputText value="#{person.id}" />'>
+           entity-id="#{delivery.rubricAssociation}.#{question.effectiveItemId}"
+           evaluated-item-id="#{delivery.assessmentGradingId}.#{question.itemData.itemId}"
+           evaluated-item-owner-id="#{person.id}">
          </sakai-rubric-student>
        </h:panelGroup>
 
-       <h:panelGroup rendered="#{(delivery.actionString == 'takeAssessment' || delivery.actionString == 'takeAssessmentViaUrl') && question.enabled == 1 || delivery.actionString == 'previewAssessment'}">
+       <h:panelGroup rendered="#{(delivery.actionString == 'takeAssessment' or delivery.actionString == 'takeAssessmentViaUrl') and question.enabled == 1 or delivery.actionString == 'previewAssessment'}">
            <sakai-rubric-student-preview-button
-                site-id='<h:outputText value="#{delivery.siteId}" />'
+                site-id="#{delivery.siteId}"
                 tool-id="sakai.samigo"
-                entity-id="<h:outputText value="#{delivery.rubricAssociation}.#{question.effectiveItemId}" />"></sakai-rubric-student-preview-button>
+                entity-id="#{delivery.rubricAssociation}.#{question.effectiveItemId}"></sakai-rubric-student-preview-button>
        </h:panelGroup>
 
-       <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && question.enabled == -1}" styleClass="time-bar-button-container" layout="block">
+       <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl') and question.enabled == -1}" styleClass="time-bar-button-container" layout="block">
            <h:panelGroup rendered="#{question.timedQuestion}" styleClass="sak-banner-info" layout="block">
-               <h:outputFormat value="#{deliveryMessages.questionTimer_info_start_deadline}" escape="false" rendered="#{delivery.deadline != null && delivery.deadline != ''}">
+               <h:outputFormat value="#{deliveryMessages.questionTimer_info_start_deadline}" escape="false" rendered="#{delivery.deadline ne null and delivery.deadline ne ''}">
                     <f:param value="#{question.timeLimitString}"/>
                     <f:param value="#{delivery.deadlineString}"/>
                </h:outputFormat>
@@ -406,88 +391,88 @@ document.links[newindex].onclick();
             />
        </h:panelGroup>
 
-       <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && question.enabled == 0}">
+       <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl') and question.enabled == 0}">
            <div class="sak-banner-warn"><h:outputText value="#{deliveryMessages.questionTimer_info_end}" /></div>
        </h:panelGroup>
        
-       <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl') && question.timedQuestion && question.enabled == 1}" styleClass="time-bar-container" layout="block">
+       <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl') and question.timedQuestion and question.enabled == 1}" styleClass="time-bar-container" layout="block">
            <sakai-timer-bar
-               id="<h:outputText value="#{question.itemData.itemId}" />"
-               time-limit="<h:outputText value="#{question.realTimeLimit}" />"
-               time-elapsed="<h:outputText value="#{question.timeElapsed}" />"
-               text="<h:outputText value="#{deliveryMessages.questionTimer_title}" />"
-               sync-call="/api/assessmentgrading/<h:outputText value="#{delivery.assessmentGradingId}" />/timerinfo/question/<h:outputText value="#{question.itemData.itemId}" />"
+               id="#{question.itemData.itemId}"
+               time-limit="#{question.realTimeLimit}"
+               time-elapsed="#{question.timeElapsed}"
+               text="#{deliveryMessages.questionTimer_title}"
+               sync-call="/api/assessmentgrading/#{delivery.assessmentGradingId}/timerinfo/question/#{question.itemData.itemId}"
            ></sakai-timer-bar>
        </h:panelGroup>
 
-       <h:panelGroup id="questionContent" rendered="#{delivery.actionString=='previewAssessment' || delivery.actionString=='reviewAssessment' || question.enabled == 1}" styleClass="samigo-question-callout#{question.cancelled ? ' samigo-question-cancelled' : ''}" layout="block">
+       <h:panelGroup id="questionContent" rendered="#{delivery.actionString=='previewAssessment' or delivery.actionString=='reviewAssessment' or question.enabled == 1}" styleClass="samigo-question-callout#{question.cancelled ? ' samigo-question-cancelled' : ''}" layout="block">
           <h:panelGroup rendered="#{question.itemData.typeId == 7}">
            <f:subview id="deliverAudioRecording">
-           <%@ include file="/jsf/delivery/item/deliverAudioRecording.jsp" %>
+           <ui:include src="/jsf/delivery/item/deliverAudioRecording.xhtml" />
            </f:subview>
           </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 6}">
            <f:subview id="deliverFileUpload">
-           <%@ include file="/jsf/delivery/item/deliverFileUpload.jsp" %>
+           <ui:include src="/jsf/delivery/item/deliverFileUpload.xhtml" />
            </f:subview>
           </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 11}">
 	       <f:subview id="deliverFillInNumeric">
-	       <%@ include file="/jsf/delivery/item/deliverFillInNumeric.jsp" %>
+	       <ui:include src="/jsf/delivery/item/deliverFillInNumeric.xhtml" />
 	       </f:subview>
           </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 8}">
            <f:subview id="deliverFillInTheBlank">
-           <%@ include file="/jsf/delivery/item/deliverFillInTheBlank.jsp" %>
+           <ui:include src="/jsf/delivery/item/deliverFillInTheBlank.xhtml" />
            </f:subview>
           </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 9}">
            <f:subview id="deliverMatching">
-            <%@ include file="/jsf/delivery/item/deliverMatching.jsp" %>
+            <ui:include src="/jsf/delivery/item/deliverMatching.xhtml" />
            </f:subview>
           </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 15}"><!-- // CALCULATED_QUESTION -->
            <f:subview id="deliverCalculatedQuestion">
-            <%@ include file="/jsf/delivery/item/deliverCalculatedQuestion.jsp" %>
+            <ui:include src="/jsf/delivery/item/deliverCalculatedQuestion.xhtml" />
            </f:subview>
           </h:panelGroup>
            <h:panelGroup rendered="#{question.itemData.typeId == 16}"><!-- // IMAGEMAP_QUESTION -->
            <f:subview id="deliverImageMapQuestion">
-            <%@ include file="/jsf/delivery/item/deliverImageMapQuestion.jsp" %>
+            <ui:include src="/jsf/delivery/item/deliverImageMapQuestion.xhtml" />
            </f:subview>
           </h:panelGroup>
           <h:panelGroup
-            rendered="#{question.itemData.typeId == 1 || question.itemData.typeId == 3 || question.itemData.typeId == 12}">
+            rendered="#{question.itemData.typeId == 1 or question.itemData.typeId == 3 or question.itemData.typeId == 12}">
            <f:subview id="deliverMultipleChoiceSingleCorrect">
-           <%@ include file="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.jsp" %>
+           <ui:include src="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.xhtml" />
            </f:subview>
           </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 2}">
            <f:subview id="deliverMultipleChoiceMultipleCorrect">
-           <%@ include file="/jsf/delivery/item/deliverMultipleChoiceMultipleCorrect.jsp" %>
+           <ui:include src="/jsf/delivery/item/deliverMultipleChoiceMultipleCorrect.xhtml" />
            </f:subview>
           </h:panelGroup>
           
           <h:panelGroup rendered="#{question.itemData.typeId == 14}">
            <f:subview id="deliverExtendedMatchingItems">
-           <%@ include file="/jsf/delivery/item/deliverExtendedMatchingItems.jsp" %>
+           <ui:include src="/jsf/delivery/item/deliverExtendedMatchingItems.xhtml" />
            </f:subview>
           </h:panelGroup>
           
           <h:panelGroup rendered="#{question.itemData.typeId == 5}">
            <f:subview id="deliverShortAnswer">
-           <%@ include file="/jsf/delivery/item/deliverShortAnswer.jsp" %>
+           <ui:include src="/jsf/delivery/item/deliverShortAnswer.xhtml" />
            </f:subview>
           </h:panelGroup>
           <h:panelGroup rendered="#{question.itemData.typeId == 4}">
            <f:subview id="deliverTrueFalse">
-           <%@ include file="/jsf/delivery/item/deliverTrueFalse.jsp" %>
+           <ui:include src="/jsf/delivery/item/deliverTrueFalse.xhtml" />
            </f:subview>
            </h:panelGroup>
            
            <h:panelGroup rendered="#{question.itemData.typeId == 13}">
            <f:subview id="deliverMatrixChoicesSurvey">
-           <%@ include file="/jsf/delivery/item/deliverMatrixChoicesSurvey.jsp" %>
+           <ui:include src="/jsf/delivery/item/deliverMatrixChoicesSurvey.xhtml" />
            </f:subview>
            </h:panelGroup>
 
@@ -495,7 +480,7 @@ document.links[newindex].onclick();
              <h:outputText value="#{deliveryMessages.time_expired2} " />
            </div>
            <div role="alert" class="sak-banner-error" style="display: none" id="autosave-timeleft-warning">
-             <h:panelGroup rendered="#{(delivery.deadlineString != null && delivery.deadlineString ne '')}">
+             <h:panelGroup rendered="#{(delivery.deadlineString != null and delivery.deadlineString ne '')}">
                <h:outputFormat value="#{deliveryMessages.time_left}" escape="false">
                  <f:param value="#{delivery.deadlineString}"/>
                </h:outputFormat>
@@ -531,13 +516,13 @@ document.links[newindex].onclick();
          </h:panelGroup>
        </h:panelGroup>
 
-       <h:panelGroup rendered="#{part.enabled == 0 && delivery.settings.formatByQuestion}">
+       <h:panelGroup rendered="#{part.enabled == 0 and delivery.settings.formatByQuestion}">
          <div class="sak-banner-warn"><h:outputText value="#{deliveryMessages.partTimer_info_end_byquestion}" /></div>
        </h:panelGroup>
         </h:column>
       </h:dataTable>
-      </h:panelGroup>
      </div>
+      </h:panelGroup>
      <!-- /f:subview -->
 
     </h:column>
@@ -552,118 +537,118 @@ document.links[newindex].onclick();
   </div>
 
 <!-- 1. special case: linear + no question to answer -->
-<h:panelGrid columns="2" border="0" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}">
+<h:panelGrid columns="2" border="0" rendered="#{delivery.pageContents.isNoParts and delivery.navigation eq '1'}">
   <h:panelGrid columns="1" width="100%" border="0" columnClasses="act">
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.confirmSubmit}"  id="submitForm3" styleClass="active"
       rendered="#{(delivery.actionString=='takeAssessment'
-                   || delivery.actionString=='takeAssessmentViaUrl'
-				   || delivery.actionString=='previewAssessment')
-				   && delivery.navigation eq '1' && !delivery.doContinue}" 
+                   or delivery.actionString=='takeAssessmentViaUrl'
+		   or delivery.actionString=='previewAssessment')
+		   and delivery.navigation eq '1' and !delivery.doContinue}" 
       />
   </h:panelGrid>
 
   <h:panelGrid columns="1" width="100%" border="0">
   <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
-     action="select" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}" />
+     action="select" rendered="#{delivery.pageContents.isNoParts and delivery.navigation eq '1'}" />
   </h:panelGrid>
 </h:panelGrid>
 
 <!-- 2. normal flow -->
-<h:panelGrid columns="6" border="0" rendered="#{!(delivery.pageContents.isNoParts && delivery.navigation eq '1')}">
-  <%-- PREVIOUS --%>
+<h:panelGrid columns="6" border="0" rendered="#{!(delivery.pageContents.isNoParts and delivery.navigation eq '1')}">
+  <!-- PREVIOUS -->
   <h:panelGrid columns="1" border="0">
 	<h:commandButton id="previous" type="submit" value="#{deliveryMessages.previous}" styleClass="active"
     action="#{delivery.previous}"
     disabled="#{!delivery.previous}" 
 	rendered="#{(delivery.actionString=='previewAssessment'
-                 || delivery.actionString=='takeAssessment'
-                 || delivery.actionString=='takeAssessmentViaUrl')
-              && delivery.navigation ne '1' && ((delivery.previous && delivery.doContinue) || (!delivery.previous && delivery.doContinue) || (delivery.previous && !delivery.doContinue))}" />
+                 or delivery.actionString=='takeAssessment'
+                 or delivery.actionString=='takeAssessmentViaUrl')
+              and delivery.navigation ne '1' and ((delivery.previous and delivery.doContinue) or (!delivery.previous and delivery.doContinue) or (delivery.previous and !delivery.doContinue))}" />
   </h:panelGrid>
 
-  <%-- NEXT --%>
+  <!-- NEXT -->
   <h:panelGrid columns="1" border="0" columnClasses="act">
     <h:commandButton id="next1" type="submit" value="#{commonMessages.action_next}" styleClass="active"
     action="#{delivery.nextPage}" disabled="#{!delivery.doContinue}"
 	rendered="#{(delivery.actionString=='previewAssessment'
-                 || delivery.actionString=='takeAssessment'
-                 || delivery.actionString=='takeAssessmentViaUrl')
-              && (delivery.previous && !delivery.doContinue)}" />
+                 or delivery.actionString=='takeAssessment'
+                 or delivery.actionString=='takeAssessmentViaUrl')
+              and (delivery.previous and !delivery.doContinue)}" />
 
     <h:commandButton id="next" type="submit" value="#{commonMessages.action_next}"
     action="#{delivery.nextPage}" styleClass="active" disabled="#{!delivery.nextEnabled}"
 	rendered="#{(delivery.actionString=='previewAssessment'
-                 || delivery.actionString=='takeAssessment'
-                 || delivery.actionString=='takeAssessmentViaUrl')
-              && delivery.doContinue}" />
+                 or delivery.actionString=='takeAssessment'
+                 or delivery.actionString=='takeAssessmentViaUrl')
+              and delivery.doContinue}" />
 
   </h:panelGrid>
 
 
   <h:panelGrid columns="1" border="0">
-           <h:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" escape="false" />
+           <h:outputText value="&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;" escape="false" />
   </h:panelGrid>
 
-  <%-- SAVE --%>
+  <!-- SAVE -->
   <h:panelGrid columns="1" border="0" >
   <h:commandButton id="save" type="submit" value="#{commonMessages.action_save}" styleClass="active"
     action="#{delivery.saveWork}" rendered="#{delivery.actionString=='previewAssessment'
-                 || delivery.actionString=='takeAssessment'
-                 || delivery.actionString=='takeAssessmentViaUrl'}" />
+                 or delivery.actionString=='takeAssessment'
+                 or delivery.actionString=='takeAssessmentViaUrl'}" />
   </h:panelGrid>
 
   <h:panelGrid columns="1"  border="0">
-  <%-- EXIT --%>
+  <!-- EXIT -->
   <h:commandButton type="submit" value="#{deliveryMessages.button_exit}" styleClass="active"
     action="#{delivery.saveAndExit}" id="saveAndExit"
     rendered="#{(delivery.actionString=='previewAssessment'  
-                 || delivery.actionString=='takeAssessment'
-                 || (delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin))
-              && delivery.navigation ne '1' && !delivery.hasTimeLimit}"  
+                 or delivery.actionString=='takeAssessment'
+                 or (delivery.actionString=='takeAssessmentViaUrl' and !delivery.anonymousLogin))
+              and delivery.navigation ne '1' and !delivery.hasTimeLimit}"  
     />
 
-  <%-- SAVE AND EXIT DURING PAU WITH ANONYMOUS LOGIN--%>
+  <!-- SAVE AND EXIT DURING PAU WITH ANONYMOUS LOGIN -->
   <h:commandButton  type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}" id="quit"
-    rendered="#{(delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin) && !delivery.hasTimeLimit}"
+    rendered="#{(delivery.actionString=='takeAssessmentViaUrl' and delivery.anonymousLogin) and !delivery.hasTimeLimit}"
     /> 
 
-  <%-- SAVE AND EXIT FOR LINEAR ACCESS --%>
+  <!-- SAVE AND EXIT FOR LINEAR ACCESS -->
   <h:commandButton type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{(delivery.actionString=='previewAssessment'  
-                 ||delivery.actionString=='takeAssessment'
-                 || (delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin))
-            && delivery.navigation eq '1' && delivery.doContinue && !delivery.hasTimeLimit}"
+                 or delivery.actionString=='takeAssessment'
+                 or (delivery.actionString=='takeAssessmentViaUrl' and !delivery.anonymousLogin))
+            and delivery.navigation eq '1' and delivery.doContinue and !delivery.hasTimeLimit}"
     />
   </h:panelGrid>
 
   <h:panelGrid columns="2" width="100%" border="0" columnClasses="act">
-  <%-- SUBMIT FOR GRADE --%>
+  <!-- SUBMIT FOR GRADE -->
   <h:commandButton id="submitForGrade" type="submit" value="#{deliveryMessages.button_submit_grading}"
     action="#{delivery.confirmSubmit}" styleClass="active"
-    rendered="#{(delivery.actionString=='takeAssessment' ||delivery.actionString=='takeAssessmentViaUrl' || delivery.actionString=='previewAssessment') 
-             && delivery.navigation ne '1' 
-             && !delivery.doContinue}"
+    rendered="#{(delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl' or delivery.actionString=='previewAssessment') 
+             and delivery.navigation ne '1' 
+             and !delivery.doContinue}"
     />
 
-  <%-- SUBMIT FOR GRADE DURING PAU --%>
+  <!-- SUBMIT FOR GRADE DURING PAU -->
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.confirmSubmit}"  id="submitForm1" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.doContinue && delivery.anonymousLogin}"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.doContinue and delivery.anonymousLogin}"
     />
 
-  <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
+  <!-- SUBMIT FOR GRADE FOR LINEAR ACCESS -->
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.confirmSubmit}"  id="submitForm" styleClass="active"
       rendered="#{(delivery.actionString=='takeAssessment'
-                   || delivery.actionString=='takeAssessmentViaUrl'
-				   || delivery.actionString=='previewAssessment')
-				   && delivery.navigation eq '1' && !delivery.doContinue}" 
+                   or delivery.actionString=='takeAssessmentViaUrl'
+			   or delivery.actionString=='previewAssessment')
+			   and delivery.navigation eq '1' and !delivery.doContinue}" 
       />
 
-  <%-- SUBMIT FOR DUE OR RETRACT DATE --%>
+  <!-- SUBMIT FOR DUE OR RETRACT DATE -->
   <h:commandButton id="submitNoCheck" type="submit" styleClass="d-none active" action="#{delivery.submitFromTimeoutPopup}" value="" />
 
   </h:panelGrid>
@@ -671,41 +656,41 @@ document.links[newindex].onclick();
 
    <h:commandButton id="autoSave" type="submit" value="" style="display: none"
    action="#{delivery.autoSave}" rendered="#{delivery.actionString=='takeAssessment'
-                  || delivery.actionString=='takeAssessmentViaUrl'}" />
+                  or delivery.actionString=='takeAssessmentViaUrl'}" />
 
 	<h:commandLink id="hiddenReloadLink" action="#{delivery.samePage}" value="">
 	</h:commandLink>
 
-<f:verbatim></p><br /><br /></f:verbatim>
+<br /><br />
 
-<!-- CLOSING THE WRAPPER DIVS -->
-<f:verbatim></div></f:verbatim>
-<f:verbatim></div>
-</f:verbatim>
-<%@ include file="/jsf/delivery/questionProgress.jspf" %>
+<!-- Close assessment wrapper -->
+</div>
+</div>
+<ui:include src="/jsf/delivery/questionProgress.xhtml" />
 
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
   <h:commandButton value="#{deliveryMessages.exit_preview}"
      action="#{person.cleanResourceIdListInPreview}"
      type="submit"
-     onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
+     onclick="return returnToHostUrl('#{delivery.selectURL}');" />
 </h:panelGroup>
 
 </h:form>
 <!-- end content -->
 </div>
-<f:verbatim></div></f:verbatim>
+</div>
 <script src="/samigo-app/js/questionProgress.js"></script>
 <script>
-	<%= request.getAttribute("html.body.onload") %> 
+	//<![CDATA[
+	<h:outputText value="#{empty requestScope['html.body.onload'] ?  : requestScope['html.body.onload']}" escape="false" /> 
 	setLocation(); 
 	checkRadio();
 	fixImplicitLabeling();
-	SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText value="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}"/>); 
+	SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  #{delivery.autoSaveRepeatMilliseconds}, #{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}); 
 	setTimeout('setLocation2()',2);
 	questionProgress.transposeTOCTables();
-	questionProgress.access(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);
+	questionProgress.access(#{delivery.navigation}, #{delivery.questionLayout});
     questionProgress.setUp();
 
 	//Save button can be disabled due to auto-save. If so, just wait a bit and try again.
@@ -725,7 +710,7 @@ document.links[newindex].onclick();
 			if(event.origin == window.location.origin){
 				switch(event.data.msg) {
 					case 'SAVE':
-						SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2', 0, <h:outputText value="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}"/>); 
+						SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2', 0, #{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}); 
 						break;
 
 					case 'END':
@@ -738,8 +723,10 @@ document.links[newindex].onclick();
 			}
 		}
 	);
+//]]>
 </script>
 </h:panelGroup>
-    </body>
-  </html>
-</f:view>
+    
+        </h:body>
+    </f:view>
+</ui:composition>
