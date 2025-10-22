@@ -272,49 +272,49 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>noSubmissionLeft</from-outcome>
-      <to-view-id>/jsf/delivery/noSubmissionLeft.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/noSubmissionLeft.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>noLateSubmission</from-outcome>
-      <to-view-id>/jsf/delivery/noLateSubmission.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/noLateSubmission.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>notSubmitted</from-outcome>
-      <to-view-id>/jsf/delivery/notSubmitted.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/notSubmitted.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>isRemoved</from-outcome>
-      <to-view-id>/jsf/delivery/isRemoved.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/isRemoved.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>isRetracted</from-outcome>
-      <to-view-id>/jsf/delivery/isRetracted.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/isRetracted.xhtml</to-view-id>
     </navigation-case>
     <!-- isRetractedForEdit is the error page during taking assessment
          isRetractedForEdit2 is the error page during review submitted assessment -->
     <navigation-case>
       <from-outcome>isRetractedForEdit</from-outcome>
-      <to-view-id>/jsf/delivery/isRetractedForEdit.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/isRetractedForEdit.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>isRetractedForEdit2</from-outcome>
-      <to-view-id>/jsf/delivery/isRetractedForEdit2.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/isRetractedForEdit2.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>timeExpired</from-outcome>
-      <to-view-id>/jsf/delivery/timeExpired.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/timeExpired.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>discrepancyInData</from-outcome>
-      <to-view-id>/jsf/delivery/discrepancyInData.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/discrepancyInData.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>assessmentNotAvailable</from-outcome>
-      <to-view-id>/jsf/delivery/assessmentNotAvailable.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/assessmentNotAvailable.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>saveForLaterWarning</from-outcome>
-      <to-view-id>/jsf/delivery/saveForLaterWarning.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/saveForLaterWarning.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
@@ -343,7 +343,7 @@
     </navigation-case>
 	<navigation-case>
       <from-outcome>poolUpdateError</from-outcome>
-      <to-view-id>/jsf/delivery/poolUpdateError.jsp</to-view-id>
+      <to-view-id>/jsf/author/poolUpdateError.xhtml</to-view-id>
     </navigation-case>
 
   <!-- DELIVERY -->
@@ -357,7 +357,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>timeExpired</from-outcome>
-      <to-view-id>/jsf/delivery/timeExpired.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/timeExpired.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>tableOfContents</from-outcome>
@@ -365,23 +365,23 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>accessDenied</from-outcome>
-      <to-view-id>/jsf/delivery/accessDenied.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/accessDenied.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>accessError</from-outcome>
-      <to-view-id>/jsf/delivery/accessError.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/accessError.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>ipAccessError</from-outcome>
-      <to-view-id>/jsf/delivery/ipAccessError.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/ipAccessError.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
      <from-outcome>secureDeliveryError</from-outcome>
-	 <to-view-id>/jsf/delivery/secureDeliveryError.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/secureDeliveryError.xhtml</to-view-id>
 	</navigation-case>
     <navigation-case>
       <from-outcome>passwordAccessError</from-outcome>
-      <to-view-id>/jsf/delivery/passwordAccessError.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/passwordAccessError.xhtml</to-view-id>
     </navigation-case>
     <!--Added another page for remove submissions before delete assessment SAM-2587 -->
     <navigation-case>
@@ -390,27 +390,27 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>timeout</from-outcome>
-      <to-view-id>/jsf/delivery/timeout.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/timeout.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>submitAssessment</from-outcome>
-      <to-view-id>/jsf/delivery/submitted.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/submitted.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>reviewAssessment</from-outcome>
-      <to-view-id>/jsf/delivery/reviewAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/reviewAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>reviewAssessmentError</from-outcome>
-      <to-view-id>/jsf/delivery/reviewAssessmentError.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/reviewAssessmentError.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>anonymousThankYou</from-outcome>
-      <to-view-id>/jsf/delivery/submitted.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/submitted.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>anonymousQuit</from-outcome>
-      <to-view-id>/jsf/delivery/anonymousQuitMessage.jsp</to-view-id>
+      <to-view-id>/jsf/delivery/anonymousQuitMessage.xhtml</to-view-id>
     </navigation-case>
 
   <!-- AUTHOR -->
@@ -516,7 +516,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemoveMedia</from-outcome>
-      <to-view-id>/jsf/shared/removeMedia.jsp</to-view-id>
+      <to-view-id>/jsf/shared/removeMedia.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>addMatchItem</from-outcome>

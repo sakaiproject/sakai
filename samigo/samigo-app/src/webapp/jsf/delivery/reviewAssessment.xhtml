@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{deliveryMessages.item_display_author}" />
+            </title>
+            <ui:include src="/jsf/delivery/deliveryjQuery.xhtml" />
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody">
+                <h:form id="takeAssessmentForm">
+                    <h:outputText value="#{deliveryMessages.review} " />
+
+                    <h:messages styleClass="sak-banner-error" rendered="#{not empty facesContext.maximumSeverity}"
+                        layout="table" />
+
+                    <div class="tier2">
+                        <ui:repeat value="#{delivery.pageContents.partsContents}" var="part">
+                            <section class="tier1">
+                                <h4 class="tier1">
+                                    <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
+                                    <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false" />
+                                </h4>
+                                <div class="tier1">
+                                    <h:outputText value="#{part.description}" escape="false">
+                                        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+                                    </h:outputText>
+                                </div>
+
+                                <ui:repeat value="#{part.itemContents}" var="question">
+                                    <article class="tier1">
+                                        <h4 class="tier1">
+                                            <h:outputText value="#{deliveryMessages.q} #{question.number} #{deliveryMessages.of} #{part.itemContentsSize}" />
+                                            <h:outputText value=" #{question.points}#{deliveryMessages.splash}#{question.roundedMaxPoints} #{deliveryMessages.pt}" />
+                                        </h4>
+
+                                        <h:outputText value="#{question.itemData.description}" escape="false">
+                                            <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+                                        </h:outputText>
+
+                                        <ui:fragment rendered="#{question.itemData.typeId == 7}">
+                                            <ui:include src="/jsf/delivery/item/deliverAudioRecording.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 6}">
+                                            <ui:include src="/jsf/delivery/item/deliverFileUpload.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 11}">
+                                            <ui:include src="/jsf/delivery/item/deliverFillInNumeric.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 8}">
+                                            <ui:include src="/jsf/delivery/item/deliverFillInTheBlank.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 9}">
+                                            <ui:include src="/jsf/delivery/item/deliverMatching.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 15}">
+                                            <ui:include src="/jsf/delivery/item/deliverCalculatedQuestion.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 16}">
+                                            <ui:include src="/jsf/delivery/item/deliverImageMapQuestion.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 1 or question.itemData.typeId == 3 or question.itemData.typeId == 12}">
+                                            <ui:include src="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 2}">
+                                            <ui:include src="/jsf/delivery/item/deliverMultipleChoiceMultipleCorrect.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 5}">
+                                            <ui:include src="/jsf/delivery/item/deliverShortAnswer.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 4}">
+                                            <ui:include src="/jsf/delivery/item/deliverTrueFalse.xhtml" />
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{question.itemData.typeId == 13}">
+                                            <ui:include src="/jsf/delivery/item/deliverMatrixChoicesSurvey.xhtml" />
+                                        </ui:fragment>
+                                    </article>
+                                </ui:repeat>
+                            </section>
+                        </ui:repeat>
+                    </div>
+
+                    <h:panelGrid columns="3" cellpadding="3" cellspacing="3">
+                        <h:commandButton type="submit" value="#{commonMessages.cancel_action}" action="select">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
+                        </h:commandButton>
+                    </h:panelGrid>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>
