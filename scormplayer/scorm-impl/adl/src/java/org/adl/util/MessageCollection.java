@@ -22,6 +22,8 @@
 ******************************************************************************/
 package org.adl.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -46,6 +48,7 @@ import java.util.List;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class MessageCollection {
 	/**
 	 * linked list of all messages
@@ -285,9 +288,9 @@ public class MessageCollection {
 					wait();
 				}
 			} catch (InterruptedException ie) {
-				System.out.println("InterruptedException in MessageCollection." + "hasMessages(): " + ie);
+				log.warn("InterruptedException in MessageCollection.hasMessages()", ie);
 			} catch (Exception e) {
-				System.out.println("Exception in " + "MessageCollection.hasMessages():" + e);
+				log.warn("Exception in MessageCollection.hasMessages()", e);
 			}
 		}// end if
 

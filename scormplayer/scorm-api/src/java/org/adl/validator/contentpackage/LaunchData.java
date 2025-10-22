@@ -23,8 +23,9 @@
 *******************************************************************************/
 package org.adl.validator.contentpackage;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.Serializable;
-import java.util.logging.Logger;
 
 /**
  * <strong>Filename: </strong><br>LaunchData.java<br><br>
@@ -34,7 +35,7 @@ import java.util.logging.Logger;
  *
  * @author ADL Technical Team
  */
-
+@Slf4j
 public class LaunchData implements ILaunchData {
 	private static final long serialVersionUID = 1L;
 
@@ -69,11 +70,6 @@ public class LaunchData implements ILaunchData {
 	 * The variable representing the hideLMSUI value of "suspendAll".
 	 */
 	public boolean mSuspendAll;
-
-	/**
-	 * Logger object used for debug logging.
-	 */
-	private transient Logger mLogger = Logger.getLogger("org.adl.util.debug.validator");
 
 	/**
 	 * The identifier attribute of the <code>&lt;organization&gt;</code> 
@@ -165,8 +161,6 @@ public class LaunchData implements ILaunchData {
 	 * The default constructor.
 	 */
 	public LaunchData() {
-		//mLogger = Logger.getLogger("org.adl.util.debug.validator");
-
 		mOrganizationIdentifier = "";
 		mItemIdentifier = "";
 		mResourceIdentifier = "";
@@ -535,42 +529,27 @@ public class LaunchData implements ILaunchData {
 
 	/**
 	 * Displays a string representation of the data structure for the SCO
-	 * Integration to the Java logger. 
+	 * Integration to the log. 
 	 */
 	@Override
 	public void print() {
-		mLogger.fine("##################################################");
-		mLogger.fine("####   resourceIdentifier = '" + mResourceIdentifier + "'");
-		mLogger.fine("####   itemIdentifier = '" + mItemIdentifier + "'");
-		mLogger.fine("####   itemTitle = '" + mItemTitle + "'");
-		mLogger.fine("####   manifestXMLBase = '" + mManifestXMLBase + "'");
-		mLogger.fine("####   resourcesXMLBase = '" + mResourcesXMLBase + "'");
-		mLogger.fine("####   resourceXMLBase = '" + mResourceXMLBase + "'");
-		mLogger.fine("####   scormType = '" + mSCORMType + "'");
-		mLogger.fine("####   parameters = '" + mParameters + "'");
-		mLogger.fine("####   location = '" + mLocation + "'");
-		mLogger.fine("####   LaunchLine = '" + getLaunchLine() + "'");
-		mLogger.fine("##################################################");
-	}
-
-	/**
-	 * Displays a string representation of the data structure for Integration to
-	 * the Java Console.
-	 */
-	@Override
-	public void printToConsole() {
-		System.out.println("###############################################");
-		System.out.println("###   resourceIdentifier = '" + mResourceIdentifier + "'");
-		System.out.println("###  itemIdentifier = '" + mItemIdentifier + "'");
-		System.out.println("###  itemTitle = '" + mItemTitle + "'");
-		System.out.println("###  manifestXMLBase = '" + mManifestXMLBase + "'");
-		System.out.println("###  resourcesXMLBase = '" + mResourcesXMLBase + "'");
-		System.out.println("###  resourceXMLBase = '" + mResourceXMLBase + "'");
-		System.out.println("###  scormType = '" + mSCORMType + "'");
-		System.out.println("###  parameters = '" + mParameters + "'");
-		System.out.println("###  location = '" + mLocation + "'");
-		System.out.println("###  LaunchLine = '" + getLaunchLine() + "'");
-		System.out.println("###############################################");
+        log.info("""
+                   ###############################################
+                   ###  resourceIdentifier = '{}'
+                   ###  itemIdentifier = '{}'
+                   ###  itemTitle = '{}'
+                   ###  manifestXMLBase = '{}'
+                   ###  resourcesXMLBase = '{}'
+                   ###  resourceXMLBase = '{}'
+                   ###  scormType = '{}'
+                   ###  parameters = '{}'
+                   ###  location = '{}'
+                   ###  LaunchLine = '{}'
+                   ###############################################
+                 """,
+                mResourceIdentifier, mItemIdentifier, mItemTitle,
+                mManifestXMLBase, mResourcesXMLBase, mResourceXMLBase,
+                mSCORMType, mParameters, mLocation, getLaunchLine());
 	}
 
 	/**
