@@ -46,6 +46,7 @@
                 "mathJaxConfig" : {
                     "format" : [#foreach( $format in $mathJaxFormat )"${format}",#end]
                 },
+                "hasNotifications" : #if ($hasNotifications) true #else false #end,
                 toolTitles : {#foreach ($entry in $toolTitles.entrySet())"$entry.key": "$entry.value",#end},
             };
         </script>
