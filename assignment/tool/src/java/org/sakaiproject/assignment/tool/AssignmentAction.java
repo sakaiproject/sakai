@@ -1655,6 +1655,34 @@ public class AssignmentAction extends PagedResourceActionII {
         return null;
     }
 
+    private void clearContentReviewContext(Context context) {
+        if (context == null) {
+            return;
+        }
+        context.put("plagiarismNote", null);
+        context.put("plagiarismFileTypes", null);
+        context.put("plagiarismProviderInfo", null);
+        context.put("plagiarismStudentPreview", null);
+        context.put("plagiarismEULALink", null);
+        context.put("name_plagiarism_eula_agreement", null);
+        context.put("value_plagiarism_eula_agreement", null);
+        context.put("name_check_plagiarism_eula_agreement", null);
+    }
+
+    private void clearContentReviewSubmissionState(SessionState state) {
+        if (state == null) {
+            return;
+        }
+        state.removeAttribute("plagiarismNote");
+        state.removeAttribute("plagiarismFileTypes");
+        state.removeAttribute("plagiarismProviderInfo");
+        state.removeAttribute("plagiarismStudentPreview");
+        state.removeAttribute("plagiarismEULALink");
+        state.removeAttribute("eulaServiceLink");
+        state.removeAttribute(AssignmentConstants.SUBMISSION_REVIEW_SERVICE_EULA_AGREEMENT);
+        state.removeAttribute(AssignmentConstants.SUBMISSION_REVIEW_CHECK_SERVICE_EULA_AGREEMENT);
+    }
+
     /**
      * build the student view of showing an assignment submission
      */
@@ -1671,6 +1699,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         context.put("context", contextString);
+        clearContentReviewContext(context);
         context.put("NamePropSubmissionScaledPreviousGrades", ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
         context.put("showUserId", serverConfigurationService.getBoolean("assignment.users.ids.show", true));
 
@@ -1678,6 +1707,9 @@ public class AssignmentAction extends PagedResourceActionII {
         log.debug(this + " BUILD SUBMISSION FORM WITH USER " + user.getId() + " NAME " + user.getDisplayName());
         String currentAssignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
         Assignment assignment = getAssignment(currentAssignmentReference, "build_student_view_submission_context", state);
+        if (assignment == null || !assignment.getContentReview()) {
+            clearContentReviewSubmissionState(state);
+        }
         AssignmentSubmission s = null;
         boolean newAttachments = false;
         boolean isAnyRegTimeSheet = false;
@@ -2416,8 +2448,12 @@ public class AssignmentAction extends PagedResourceActionII {
     protected String build_student_confirm_submission_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
         User user = (User) state.getAttribute(STATE_USER);
         String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+        clearContentReviewContext(context);
 
         Assignment assignment = getAssignment(aReference, "build_student_confirm_submission_context", state);
+        if (assignment == null || !assignment.getContentReview()) {
+            clearContentReviewSubmissionState(state);
+        }
         if (assignment != null) {
             context.put("assignment", assignment);
             context.put("assignmentReference", AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
@@ -2518,8 +2554,12 @@ public class AssignmentAction extends PagedResourceActionII {
     protected String build_student_preview_submission_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
         User user = (User) state.getAttribute(STATE_USER);
         String aReference = (String) state.getAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+        clearContentReviewContext(context);
 
         Assignment assignment = getAssignment(aReference, "build_student_preview_submission_context", state);
+        if (assignment == null || !assignment.getContentReview()) {
+            clearContentReviewSubmissionState(state);
+        }
         if (assignment != null) {
             context.put("assignment", assignment);
             context.put("assignmentReference", AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference());
@@ -6670,6 +6710,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // reset the view assignment
         state.setAttribute(VIEW_ASSIGNMENT_ID, "");
+        clearContentReviewSubmissionState(state);
 
         String fromView = (String) state.getAttribute(FROM_VIEW);
         if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(fromView)) {
