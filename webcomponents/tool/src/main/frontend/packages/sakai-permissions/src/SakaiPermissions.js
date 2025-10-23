@@ -212,7 +212,9 @@ export class SakaiPermissions extends SakaiElement {
         </div>
       `;
     } else if (this.error) {
-      return html`<div class="sak-banner-error">${this._errorMessage || this._i18n.alert_permission}</div>`;
+      return html`<div class="sak-banner-error" role="alert" aria-live="polite">
+        ${this._errorMessage || this._i18n.alert_permission}
+      </div>`;
     }
 
     return html`<div class="sak-banner-info">${this._i18n.waiting_for_permissions}</div>`;
@@ -226,7 +228,7 @@ export class SakaiPermissions extends SakaiElement {
 
         if (!res.ok) {
           const message = (await res.text())?.trim();
-          const fallbackMessage = this._i18n ? this._i18n.alert_permission : "Unable to load permissions.";
+          const fallbackMessage = this._i18n?.alert_permission || "";
           this._errorMessage = message || fallbackMessage;
           this.error = true;
           throw new Error(`Permissions fetch failed with status ${res.status}${message ? `: ${message}` : ""}`);
@@ -273,7 +275,7 @@ export class SakaiPermissions extends SakaiElement {
         const failureMessage = document.querySelector(`#${this.tool.replace(".", "\\.")}-failure-message`);
         const message = (await res.text())?.trim();
         if (failureMessage) {
-          const fallbackMessage = this._i18n ? this._i18n["per.error.save"] : "Unable to save permissions.";
+          const fallbackMessage = this._i18n?.["per.error.save"] || "";
           failureMessage.textContent = message || fallbackMessage;
           failureMessage.style.display = "inline-block";
         }
