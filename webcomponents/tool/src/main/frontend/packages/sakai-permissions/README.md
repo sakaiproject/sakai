@@ -1,42 +1,32 @@
-# sakai-permissions
+# @sakai-ui/sakai-permissions
 
-Handles display and manipulation of permissions for a Sakai tool.
+The Sakai permissions component.
 
-Usage, from the Roster tool:
+## Description
 
-<sakai-permissions tool="roster"></sakai-permissions>
+This component provides an interface for managing permissions in Sakai. It handles display and manipulation of permissions for a Sakai tool.
 
-Other attributes:
+### Attributes
 
-bundle-key: Allows to set the bundle name (f.ex: "announcement" or "org.sakaiproject.api.app.messagecenter.bundle.Messages"). By default, it will take the tool attribute value.
-on-refresh: Allows to set the return page location. By default, it will refresh the current URL.
-group-reference: Allows to set reference to get permissions from. By default, "/site/${portal.siteId}". Order is important. This attribute must be set before the tool attribute.
-disable-groups: Disables group permissions editing
-
-This component needs to be able to lookup a tool's translations, and this happens via the
-sakai-i18n.js module, loading the translations from a Sakai web service. The translations need
-to be jarred and put in TOMCAT/lib, and the permission translation keys need to start with "perm-",
-eg: perm-TOOLPERMISSION.
-
-Example:
-
-perm-roster.viewallmembers = View all participants
-perm-roster.viewhidden = View hidden participants
-perm-roster.export = Export roster
-perm-roster.viewgroup = View groups
+- **tool**: The tool ID (required)
+- **bundle-key**: Allows to set the bundle name (e.g., "announcement"). By default, it will use the tool attribute value.
+- **on-refresh**: Allows to set the return page location. By default, it will refresh the current URL.
+- **group-reference**: Allows to set reference to get permissions from. By default, "/site/${portal.siteId}".
+- **disable-groups**: Disables group permissions editing
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-permissions
+npm install @sakai-ui/sakai-permissions
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-permissions/sakai-permissions.js';
 
+// In your HTML
 <sakai-permissions tool="roster"></sakai-permissions>
-
 ```
 
 ## Linting and formatting
@@ -54,3 +44,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

@@ -4825,7 +4825,7 @@ public class SimplePageBean {
 				try {
 					ContentCollectionEdit edit = contentHostingService.addCollection(collectionId);
 					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, "LB-CSS");
-					//this folder should be hidden from access user
+					//this folder should be hidden with access from access user
 					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
 					contentHostingService.commitCollection(edit);
 				}catch(Exception e) {
@@ -6606,7 +6606,7 @@ public class SimplePageBean {
 	public String getCollectionId(boolean urls) {
 		String siteId = getCurrentPage().getSiteId();
 		String baseDir = ServerConfigurationService.getString("lessonbuilder.basefolder", null);
-		boolean hiddenDir = ServerConfigurationService.getBoolean("lessonbuilder.folder.hidden",false);
+		boolean hiddenWithAccessDir = ServerConfigurationService.getBoolean("lessonbuilder.folder.hidden.withaccess",false);
 		String pageOwner = getCurrentPage().getOwner();
 		String collectionId;
 		String folder;
@@ -6622,16 +6622,14 @@ public class SimplePageBean {
 			    if (!baseDir.endsWith("/"))
 				baseDir = baseDir + "/";
 			    collectionId = collectionId + baseDir;
-			    // basedir which is hidden; have to create it if it doesn't exist, so we can make hidden
-			    if (hiddenDir) {
-				hiddenDir = false; // hiding base, done hide actual folder
+			    // basedir which is hidden; have to create it if it doesn't exist, so we can make hidden with access
 				try {
 				    try {
 					contentHostingService.checkCollection(collectionId);
 				    } catch (IdUnusedException idex) {
 					ContentCollectionEdit edit = contentHostingService.addCollection(collectionId);
 					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME,  Validator.escapeResourceName(baseDir.substring(0,baseDir.length()-1)));
-					edit.setHidden();
+					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, String.valueOf(hiddenWithAccessDir));
 					contentHostingService.commitCollection(edit);
 				    }
 				} catch (Exception ignore) {
@@ -6639,7 +6637,6 @@ public class SimplePageBean {
 				    // that will cause failure at a later stage where we can
 				    // return an error message. This may not be optimal.
 				}
-			    }
 			}
 			// actual folder. Use hierarchy of files
 			SimplePage page = getCurrentPage();
@@ -6707,8 +6704,7 @@ public class SimplePageBean {
 			try {
 				ContentCollectionEdit edit = contentHostingService.addCollection(root);
 				edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME,  Validator.escapeResourceName(getPageTitle()));
-				if (hiddenDir)
-				    edit.setHidden();
+				edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, String.valueOf(hiddenWithAccessDir));
 				contentHostingService.commitCollection(edit);
 				
 				// well, we got that far anyway
@@ -6724,8 +6720,7 @@ public class SimplePageBean {
 	    		edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, "urls");
 	    	else {
 	    		edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, Validator.escapeResourceName(getPageTitle()));
-			if (hiddenDir)
-			    edit.setHidden();
+	    		edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, String.valueOf(hiddenWithAccessDir));
 		}		
 	    	contentHostingService.commitCollection(edit);
 	    	return folder; // worked. use it

@@ -28,6 +28,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * <strong>Filename:</strong><br>
  * MessageBox.java<br><br>
@@ -59,6 +61,7 @@ import javax.swing.JPanel;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class MessageBox extends JPanel {
 	/**
 	  * 
@@ -118,7 +121,7 @@ public class MessageBox extends JPanel {
 			break;
 		}
 		default: {
-			System.out.println("message type was not specified");
+			log.warn("message type was not specified");
 		}
 		}
 	}

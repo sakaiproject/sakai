@@ -104,11 +104,38 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 	if (openDataId && openDataId !== ''){
 		//instructor is working on this data item, keep it open and focused on when refreshing
 		$( "#accordion div[syllabusItem=" + openDataId + "].group .ui-accordion-header").click().focus();
-		
 	}
 	
-	$( "#accordion div.group:first-child h3:first-child").focus();
-	
+	// Handle direct navigation from search results using itemId parameter
+	const urlParams = new URLSearchParams(window.location.search);
+	const itemId = urlParams.get('itemId');
+	if (itemId && itemId !== '') {
+		// Use the same pattern as openDataId to open and focus the item
+		setTimeout(function() {
+			// First close all accordions
+			$('#accordion > span > div.ui-accordion').each(function(){
+				if ($(this).find(".ui-accordion-content:first").is(":visible")) {
+					$(this).find(".ui-accordion-header:first").click();
+				}
+			});
+			
+			// Then open only the target accordion
+			const esc = (window.CSS && CSS.escape) ? CSS.escape : (s => s.replace(/(["\\`])/g, '\\$1'));
+			const safeItemId = esc(itemId);
+			const targetHeader = $(`#accordion div[syllabusItem="${safeItemId}"].group .ui-accordion-header`);
+			if (targetHeader.length > 0) {
+				targetHeader.click().focus();
+				// Scroll to the item
+				const targetDiv = $(`div[syllabusItem="${safeItemId}"].group`);
+				if (targetDiv.length > 0) {
+					$('html, body').animate({
+						scrollTop: targetDiv.offset().top - 100
+					}, 600);
+				}
+			}
+		}, 800); // Increased timeout for more reliable loading
+	}
+		
 	//set hover over text for collapse/expand arrow:
 	$(".ui-accordion-header-icon").attr("title", msgs.clickToExpandAndCollapse);
 }

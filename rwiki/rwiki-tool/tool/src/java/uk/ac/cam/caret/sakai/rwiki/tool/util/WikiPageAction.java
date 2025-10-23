@@ -99,9 +99,6 @@ public class WikiPageAction
 	public static final WikiPageAction LISTSPACECHAT_ACTION = new WikiPageAction(
 			"presencechatlist");
 
-	public static final WikiPageAction EXPORT_ACTION = new WikiPageAction(
-			"export");
-
 	public static final WikiPageAction LINK_ATTACHMENT_RETURN_ACTION = new WikiPageAction(
 			"addAttachmentReturnLink");
 

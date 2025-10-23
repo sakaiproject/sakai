@@ -6,10 +6,6 @@
     <head>
       <title>${title}</title>
       ${request.getAttribute("sakai.html.head")}
-      #if ( $viewBean ) 
-	<link rel="alternate" title="Sakai Wiki RSS" 
- 			href="${util.escapeHtml(${viewBean.rssAccessUrl})}" type="application/rss+xml" />
- 			  #end
     </head>
     <body onload="setMainFrameHeightNoScroll('${request.getAttribute("sakai.tool.placement.id")}');setFocus(focus_path); ${extraonload} callAllLoaders(); "  >
 
@@ -54,8 +50,8 @@ LOG-LOG-LOG-LOG-LOG
 #if ($useHomeLink)
 <li  class="firstToolBarItem"><span>
 <a href="${util.escapeHtml($homeBean.getHomeLinkUrl())}"
-	id="homeLink"  
-	title="${resourceLoaderBean.getString("jsp_wiki_home_title")}" >${resourceLoaderBean.getString("jsp_wiki_home")}<span class="skip"> ${resourceLoaderBean.getString("jsp_wiki_home_sc")}</span></a> 
+        id="homeLink"
+        title="${resourceLoaderBean.getString("jsp_wiki_home_title")}" >${resourceLoaderBean.getString("jsp_wiki_home")}<span class="skip"> ${resourceLoaderBean.getString("jsp_wiki_home_sc")}</span></a>
 </span></li>
 #end
 #if ($useViewLink)

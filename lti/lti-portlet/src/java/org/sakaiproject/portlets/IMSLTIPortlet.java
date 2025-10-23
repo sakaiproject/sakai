@@ -119,7 +119,6 @@ public class IMSLTIPortlet extends GenericPortlet {
 		fieldList.add("launch");
 		fieldList.add("secret");
 		fieldList.add(LTI_PORTLET_KEY);
-		fieldList.add("xml");
 		fieldList.add("frameheight");
 		fieldList.add("toolorder");
 		fieldList.add("debug");
@@ -325,9 +324,6 @@ public class IMSLTIPortlet extends GenericPortlet {
 				}
 			}
 			if ( propValue != null ) {
-				if ( "xml".equals(element)) {
-					propValue = propValue.replace("&amp;","&amp;amp;");
-				}
 				if ( "secret".equals(element)) {
 					propValue = LEAVE_SECRET_ALONE;
 				}
@@ -600,36 +596,16 @@ public class IMSLTIPortlet extends GenericPortlet {
 			PortletSession pSession = request.getPortletSession(true);
 			Properties sakaiProperties = getSakaiProperties();
 
-			String imsType  = getFormParameter(request,sakaiProperties,"type");
+			String launch_url  = getFormParameter(request,sakaiProperties,"launch");
+			if ( launch_url != null && launch_url.trim().length() < 1 ) launch_url = null;
 
-			String imsTIUrl  = getFormParameter(request,sakaiProperties,"launch");
-			if ( imsTIUrl != null && imsTIUrl.trim().length() < 1 ) imsTIUrl = null;
-			String imsTIXml  = getFormParameter(request,sakaiProperties,"xml");
-			if ( imsTIXml != null && imsTIXml.trim().length() < 1 ) imsTIXml = null;
-
-			// imsType will be null if launch or xml is coming from final properties
-			if ( imsType != null ) {
-				if ( imsType.equalsIgnoreCase("XML") ) {
-					if ( imsTIXml != null ) imsTIUrl = null;
-				} else {
-					if ( imsTIUrl != null ) imsTIXml = null;
-				}
-			}
-
-			String launch_url = imsTIUrl;
-			if ( imsTIXml != null ) {
-				launch_url = LTIUtil.validateDescriptor(imsTIXml);
-				if ( launch_url == null ) {
-					setErrorMessage(request, rb.getString("error.xml.input"));
-					return;
-				}
-			} else if ( imsTIUrl == null ) {
+			if ( launch_url == null ) {
 				setErrorMessage(request, rb.getString("error.no.input") );
 				return;
-			} else if ( imsTIUrl.startsWith("http://") || imsTIUrl.startsWith("https://") ) {
+			} else if ( launch_url.startsWith("http://") || launch_url.startsWith("https://") ) {
 				try {
-					URL testUrl = new URL(imsTIUrl);
-					URI testUri = new URI(imsTIUrl);
+					URL testUrl = new URL(launch_url);
+					URI testUri = new URI(launch_url);
 				}
 				catch(Exception e) {
 					setErrorMessage(request, rb.getString("error.bad.url") );
@@ -766,21 +742,6 @@ public class IMSLTIPortlet extends GenericPortlet {
 				} catch (ReadOnlyException e) {
 					setErrorMessage(request, rb.getString("error.modify.prefs") );
 					return;
-				}
-			}
-
-			// Clear out the other setting
-			if ( imsType != null ) {
-				if ( imsType.equalsIgnoreCase("XML") ) {
-					if ( imsTIXml != null ) {
-						prefs.reset("sakai:imsti.launch");
-						changed = true;
-					}
-				} else {
-					if ( imsTIUrl != null ) {
-						prefs.reset("sakai:imsti.xml");
-						changed = true;
-					}
 				}
 			}
 
