@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{commonMessages.total_scores}" />
+            </title>
+
+            <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+            <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+            <script src="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+            <script src="/samigo-app/js/jquery.dynamiclist.student.preview.js"></script>
+            <script src="/samigo-app/js/selection.student.preview.js"></script>
+            <script src="/samigo-app/js/selection.author.preview.js"></script>
+            <script type="module"
+                src="/webcomponents/bundles/rubric-association-requirements.js#{studentScores.CDNQuery}" />
+            <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css" />
+            <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css" />
+            <script>includeWebjarLibrary('awesomplete')</script>
+            <script src="/library/js/sakai-reminder.js"></script>
+            <script>
+              var finFormatError = '<h:outputText value="#{deliveryMessages.fin_invalid_characters_error}" escape="false"/>';
+            </script>
+            <script src="/samigo-app/js/finInputValidator.js"></script>
+
+            <h:outputScript target="body">
+//<![CDATA[
+jQuery(window).on('load', function(){
+    jQuery('div[id^=sectionImageMap_]').each(function(){
+        const matches = /sectionImageMap_(\d+_\d+)/.exec(this.id);
+        if (!matches) {
+            return;
+        }
+        const sequence = matches[1];
+        const serializedImageMapId = jQuery(this).find('input:hidden[id$=serializedImageMap]').attr('id').replace(/:/g, '\\:');
+        const dynamicList = new DynamicList(serializedImageMapId, 'imageMapTemplate_' + sequence, 'pointerClass', 'imageMapContainer_' + sequence);
+        dynamicList.fillElements();
+    });
+
+    jQuery('input:hidden[id^=hiddenSerializedCoords_]').each(function(){
+        const matches = /hiddenSerializedCoords_(\d+_\d+)_(\d+)/.exec(this.id);
+        if (!matches) {
+            return;
+        }
+        const sequence = matches[1];
+        const label = parseInt(matches[2], 10) + 1;
+        const sel = new selectionAuthor({selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'answerImageMapContainer_' + sequence);
+        try {
+            sel.setCoords(jQuery.parseJSON(this.value));
+            sel.setText(label);
+        } catch (err) {
+            /* ignore malformed coords */
+        }
+    });
+
+    const sakaiReminder = new SakaiReminder();
+    jQuery('textarea.awesomplete').each(function() {
+        new Awesomplete(this, {
+            list: sakaiReminder.getAll()
+        });
+    });
+    jQuery('#editStudentResults').on('submit', function() {
+        jQuery('textarea.awesomplete').each(function() {
+            sakaiReminder.new(jQuery(this).val());
+        });
+    });
+});
+//]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <h:outputScript target="body">
+//<![CDATA[
+function toPoint(id) {
+  var element = document.getElementById(id);
+  if (!element) {
+    return;
+  }
+  element.value = element.value.replace(',', '.');
+}
+
+function initRubricDialogWrapper(gradingId) {
+  initRubricDialog(gradingId,
+    <h:outputText value="'#{evaluationMessages.done}'"/>,
+    <h:outputText value="'#{evaluationMessages.cancel}'"/>,
+    <h:outputText value="'#{evaluationMessages.saverubricgrading}'"/>,
+    <h:outputText value="'#{evaluationMessages.unsavedchangesrubric}'"/>);
+}
+
+jQuery(document).ready(function(){
+  const currentLink = jQuery('#editStudentResults\\:totalScoresMenuLink');
+  if (currentLink.length) {
+    currentLink.addClass('current');
+    currentLink.html(currentLink.find('a').text());
+  }
+});
+//]]>
+            </h:outputScript>
+
+            <div class="portletBody container-fluid">
+                <h:form id="editStudentResults">
+                    <h:inputHidden id="publishedIdd" value="#{studentScores.publishedId}" />
+                    <h:inputHidden id="publishedId" value="#{studentScores.publishedId}" />
+                    <h:inputHidden id="studentid" value="#{studentScores.studentId}" />
+                    <h:inputHidden id="studentName" value="#{studentScores.studentName}" />
+                    <h:inputHidden id="gradingData" value="#{studentScores.assessmentGradingId}" />
+                    <h:inputHidden id="itemId" value="#{totalScores.firstItem}" />
+
+                    <ui:include src="/jsf/evaluation/evaluationHeadings.xhtml" />
+
+                    <h:panelGroup layout="block" styleClass="page-header">
+                        <div class="b5 d-flex flex-wrap justify-content-between">
+                            <h1>
+                                <h:outputText value="#{studentScores.studentName} (#{studentScores.displayId})"
+                                    rendered="#{totalScores.anonymous eq 'false'}" />
+                                <small>
+                                    <h:outputText
+                                        value="#{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}"
+                                        rendered="#{totalScores.anonymous eq 'true'}" />
+                                </small>
+                            </h1>
+                            <ui:include src="/jsf/evaluation/submissionNav.xhtml" />
+                        </div>
+                    </h:panelGroup>
+
+                    <ui:include src="/jsf/evaluation/evaluationSubmenu.xhtml" />
+
+                    <h:messages styleClass="sak-banner-error"
+                        rendered="#{! empty facesContext.maximumSeverity}" layout="table" />
+
+                    <h2>
+                        <div class="container">
+                            <h:outputText value="#{totalScores.assessmentName}" escape="false" />
+                            <h:commandButton styleClass="pull-right print_button" id="print"
+                                value="#{evaluationMessages.print_report}" immediate="true">
+                                <f:actionListener
+                                    type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportAction" />
+                            </h:commandButton>
+                        </div>
+                    </h2>
+
+                    <div class="form-group row">
+                        <h:outputLabel styleClass="col-md-2"
+                            value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}" />
+                        <div class="col-md-6">
+                            <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30"
+                                styleClass="awesomplete" />
+                        </div>
+                    </div>
+
+                    <h2>
+                        <h:outputText value="#{deliveryMessages.table_of_contents}" />
+                    </h2>
+
+                    <h:panelGroup rendered="#{totalScores.isOneSelectionType}">
+                        <fieldset class="short-summary-box">
+                            <legend class="summary-title">
+                                <h:outputText value="#{evaluationMessages.summary_title}" />
+                            </legend>
+                            <ul>
+                                <li>
+                                    <h5 style="display: inline;">
+                                        <h:outputText value="#{evaluationMessages.correct_title}" />:
+                                        <h:outputText
+                                            value="#{totalScores.results[studentScores.longAssessmentGradingId][0]}" />
+                                    </h5>
+                                </li>
+                                <li>
+                                    <h5 style="display: inline;">
+                                        <h:outputText value="#{evaluationMessages.incorrect_title}" />:
+                                        <h:outputText
+                                            value="#{totalScores.results[studentScores.longAssessmentGradingId][1]}" />
+                                    </h5>
+                                </li>
+                                <li>
+                                    <h5 style="display: inline;">
+                                        <h:outputText value="#{evaluationMessages.empty_title}" />:
+                                        <h:outputText
+                                            value="#{totalScores.results[studentScores.longAssessmentGradingId][2]}" />
+                                    </h5>
+                                </li>
+                            </ul>
+                        </fieldset>
+                    </h:panelGroup>
+
+                    <div class="toc-holder">
+                        <t:dataList styleClass="part-wrapper" value="#{delivery.tableOfContents.partsContents}"
+                            var="part">
+                            <h:panelGroup styleClass="toc-part">
+                                <samigo:hideDivision id="part"
+                                    title=" #{deliveryMessages.p} #{part.number} #{evaluationMessages.dash} #{part.text} #{evaluationMessages.dash} #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{evaluationMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}">
+                                    <t:dataList layout="unorderedList" itemStyleClass="list-group-item"
+                                        styleClass="list-group question-wrapper" value="#{part.itemContents}"
+                                        var="question">
+                                        <span class="badge rounded-pill text-bg-secondary">
+                                            <h:outputText escape="false"
+                                                value="#{commonMessages.cancel_question_cancelled} "
+                                                rendered="#{question.cancelled}" />
+                                            <h:outputText escape="false" value="#{question.roundedMaxPoints}">
+                                                <f:convertNumber maxFractionDigits="2" groupingUsed="false" />
+                                            </h:outputText>
+                        <h:outputText escape="false" value=" #{deliveryMessages.pt} " />
+                                        </span>
+                                        <h:outputLink
+                                            value="##{part.number}#{deliveryMessages.underscore}#{question.number}"
+                                            styleClass="#{question.cancelled ? 'cancelled-question-link' : ''}">
+                                            <h:outputText escape="false"
+                                                value="#{question.sequence}#{deliveryMessages.dot} #{question.strippedText}" />
+                                        </h:outputLink>
+                                        <h:outputText styleClass="extraCreditLabel"
+                                            rendered="#{question.itemData.isExtraCredit}"
+                                            value=" #{deliveryMessages.extra_credit_preview}" />
+                                    </t:dataList>
+                                </samigo:hideDivision>
+                            </h:panelGroup>
+                        </t:dataList>
+                    </div>
+
+                    <br />
+
+                    <div class="tier2">
+                        <t:dataList value="#{delivery.pageContents.partsContents}" var="part" styleClass="table">
+                            <div class="page-header">
+                                <h4 class="part-header">
+                                    <h:outputText
+                                        value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
+                                    <small class="part-text">
+                                        <h:outputText value="#{part.text}" escape="false"
+                                            rendered="#{part.numParts ne '1'}" />
+                                    </small>
+                                </h4>
+                            </div>
+
+                            <h:panelGroup layout="block" styleClass="sak-banner-error"
+                                rendered="#{part.noQuestions}">
+                                <h:outputText value="#{evaluationMessages.no_questions}" escape="false" />
+                            </h:panelGroup>
+
+                            <t:dataList value="#{part.itemContents}" var="question"
+                                itemStyleClass="page-header question-box" styleClass="question-wrapper"
+                                layout="unorderedList">
+                                <a name="#{part.number}_#{question.number}"></a>
+                                <h:panelGroup layout="block"
+                                    styleClass="row #{delivery.actionString}">
+                                    <h:panelGroup layout="block" styleClass="col-sm-7">
+                                        <h:panelGroup layout="block" styleClass="row">
+                                            <h:panelGroup layout="block" styleClass="col-sm-12 input-group">
+                                                <p class="input-group-addon m-0">
+                                                    <h:outputText
+                                                        value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} " />
+                                                    <h:outputText
+                                                        value="#{part.numbering}#{deliveryMessages.column}  " />
+                                                </p>
+                                                <h:inputText
+                                                    styleClass="form-control #{delivery.trackingQuestions and question.formattedTimeElapsed ? '' : 'form-control-center'} adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}"
+                                                    id="adjustedScore" value="#{question.pointsForEdit}"
+                                                    onchange="toPoint(this.id);"
+                                                    validatorMessage="#{evaluationMessages.number_format_error_adjusted_score}"
+                                                    disabled="#{question.cancelled}">
+                                                    <f:validateDoubleRange />
+                                                </h:inputText>
+                                                <p class="input-group-addon">
+                                                    <h:outputText
+                                                        value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
+                                                    <h:outputText value="#{deliveryMessages.pt}" />
+                                                    <h:message for="adjustedScore" styleClass="sak-banner-error" />
+                                                    <h:outputText styleClass="extraCreditLabel"
+                                                        rendered="#{question.itemData.isExtraCredit}"
+                                                        value=" #{deliveryMessages.extra_credit_preview}" />
+                                                    <h:panelGroup styleClass="d-none d-sm-inline small"
+                                                        rendered="#{question.itemData.minScore gt 0 or question.itemData.discount gt 0}">
+                                                        <h:outputText value=", (" />
+                                                        <h:outputText
+                                                            value="#{authorMessages.answer_min_point_short}: #{question.itemData.minScore}"
+                                                            rendered="#{question.itemData.minScore gt 0}" />
+                                                        <h:outputText value=", "
+                                                            rendered="#{question.itemData.minScore gt 0 and question.itemData.discount gt 0}" />
+                                                        <h:outputText
+                                                            value="#{authorMessages.answer_discount_point_short}: #{question.itemData.discount}"
+                                                            rendered="#{question.itemData.discount gt 0}" />
+                                                        <h:outputText value=")" />
+                                                    </h:panelGroup>
+                                                </p>
+                                                <h:panelGroup
+                                                    rendered="#{delivery.trackingQuestions and question.formattedTimeElapsed ne ''}">
+                                                    <p class="input-group-addon input-group-addon-right">
+                                                        <h:outputText
+                                                            value="#{evaluationMessages.time_elapsed}: #{question.formattedTimeElapsed}" />
+                                                    </p>
+                                                </h:panelGroup>
+                                            </h:panelGroup>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{question.hasAssociatedRubric}">
+                                    <ul class="nav nav-tabs">
+                                        <li class="nav-item active">
+                                            <a class="nav-link active" data-bs-toggle="tab"
+                                                href="#submition#{question.itemData.itemId}">
+                                                <h:outputText value="#{commonMessages.student_response}" />
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <h:panelGroup rendered="#{question.associatedRubricType == '1'}">
+                                                <a class="nav-link" data-bs-toggle="tab"
+                                                    href="#rubric#{question.itemData.itemId}">
+                                                    <h:outputText
+                                                        value="#{assessmentSettingsMessages.grading_rubric}" />
+                                                </a>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{question.associatedRubricType == '2'}">
+                                                <h:outputLink value="#" styleClass="nav-link"
+                                                    onclick="initRubricDialogWrapper('#{studentScores.assessmentGradingId}.#{question.itemData.itemId}'); return false;"
+                                                    onkeypress="initRubricDialogWrapper('#{studentScores.assessmentGradingId}.#{question.itemData.itemId}'); return false;">
+                                                    <h:outputText
+                                                        value="#{assessmentSettingsMessages.grading_rubric}" />
+                                                </h:outputLink>
+                                            </h:panelGroup>
+                                        </li>
+                                    </ul>
+                                </h:panelGroup>
+
+                                <h:panelGroup layout="block"
+                                    styleClass="#{question.hasAssociatedRubric ? 'tab-content' : null}">
+                                    <div id="submition#{question.itemData.itemId}"
+                                        class="#{question.hasAssociatedRubric ? 'tab-pane active' : null}"
+                                        role="#{question.hasAssociatedRubric ? 'tabpanel' : null}">
+                                        <h:panelGroup
+                                            styleClass="samigo-question-callout#{question.cancelled ? ' samigo-question-cancelled' : ''}"
+                                            layout="block">
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 7}">
+                                        <ui:include id="deliverAudioRecording"
+                                            src="/jsf/evaluation/item/displayAudioRecording.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 6}">
+                                        <ui:include id="deliverFileUpload"
+                                            src="/jsf/evaluation/item/displayFileUpload.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 11}">
+                                        <ui:include id="deliverFillInNumeric"
+                                            src="/jsf/delivery/item/deliverFillInNumeric.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 8}">
+                                        <ui:include id="deliverFillInTheBlank"
+                                            src="/jsf/delivery/item/deliverFillInTheBlank.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 9}">
+                                        <ui:include id="deliverMatching"
+                                            src="/jsf/delivery/item/deliverMatching.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 15}">
+                                        <ui:include id="deliverCalculatedQuestion"
+                                            src="/jsf/delivery/item/deliverCalculatedQuestion.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 16}">
+                                        <ui:include id="deliverImageMapQuestion"
+                                            src="/jsf/delivery/item/deliverImageMapQuestion.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup
+                                        rendered="#{question.itemData.typeId == 1 or question.itemData.typeId == 12 or question.itemData.typeId == 3}">
+                                        <ui:include id="deliverMultipleChoiceSingleCorrect"
+                                            src="/jsf/delivery/item/deliverMultipleChoiceSingleCorrect.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 2}">
+                                        <ui:include id="deliverMultipleChoiceMultipleCorrect"
+                                            src="/jsf/delivery/item/deliverMultipleChoiceMultipleCorrect.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 5}">
+                                        <ui:include id="deliverShortAnswer"
+                                            src="/jsf/delivery/item/deliverShortAnswerLink.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 4}">
+                                        <ui:include id="deliverTrueFalse"
+                                            src="/jsf/delivery/item/deliverTrueFalse.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 14}">
+                                        <ui:include id="deliverExtendedMatchingItems"
+                                            src="/jsf/delivery/item/deliverExtendedMatchingItems.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup rendered="#{question.itemData.typeId == 13}">
+                                        <ui:include id="deliverMatrixChoicesSurvey"
+                                            src="/jsf/delivery/item/deliverMatrixChoicesSurvey.xhtml" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup styleClass="sak-banner-info" rendered="#{question.cancelled}"
+                                        layout="block">
+                                        <h:outputText
+                                            value="#{commonMessages.cancel_question_info_cancelled_question}" />
+                                    </h:panelGroup>
+                                        </h:panelGroup>
+                                    </div>
+
+                                    <h:panelGroup rendered="#{question.hasAssociatedRubric}">
+                                        <div id="rubric#{question.itemData.itemId}" class="tab-pane" role="tabpanel">
+                                            <h:panelGroup rendered="#{question.associatedRubricType == '1'}">
+                                            <sakai-rubric-grading
+                                                id="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"
+                                                tool-id="sakai.samigo"
+                                                enable-pdf-export="true"
+                                                site-id="#{totalScores.siteId}"
+                                                entity-id="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"
+                                                evaluated-item-id="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}"
+                                                evaluated-item-owner-id="#{studentScores.studentId}">
+                                            </sakai-rubric-grading>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{question.associatedRubricType == '2'}">
+                                            <div id="#{studentScores.assessmentGradingId}-inputs"></div>
+                                            <div id="modal#{studentScores.assessmentGradingId}.#{question.itemData.itemId}"
+                                                style="display:none;overflow:initial">
+                                                <sakai-dynamic-rubric
+                                                    id="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}-pub.#{totalScores.publishedId}.#{question.itemData.itemId}.#{studentScores.assessmentGradingId}"
+                                                    grading-id="#{studentScores.assessmentGradingId}.#{question.itemData.itemId}"
+                                                    entity-id="pub.#{totalScores.publishedId}.#{question.itemData.itemId}"
+                                                    site-id="#{totalScores.siteId}"
+                                                    evaluated-item-owner-id="#{studentScores.studentId}"
+                                                    previous-grade="#{question.pointsForEdit}"
+                                                    origin="gradeStudentResult">
+                                                </sakai-dynamic-rubric>
+                                            </div>
+                                            </h:panelGroup>
+                                        </div>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+
+                                <div class="tier2">
+                                    <h:panelGrid columns="2" border="0">
+                                        <h:outputLabel
+                                            value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}" />
+                                        <h:outputText value="&#160;" escape="false" />
+                                        <h:inputTextarea value="#{question.gradingComment}" rows="4" cols="40"
+                                            styleClass="awesomplete" />
+                                        <ui:include src="/jsf/evaluation/gradeStudentResultAttachment.xhtml" />
+                                    </h:panelGrid>
+                                </div>
+                            </t:dataList>
+                        </t:dataList>
+                    </div>
+
+                    <h:panelGroup
+                        rendered="#{totalScores.anonymous eq 'false' and studentScores.email != null and studentScores.email != ''}">
+                        <a href="mailto:#{studentScores.email}?subject=#{totalScores.assessmentName} #{commonMessages.feedback}">
+                            <h:outputText value="  #{evaluationMessages.email} " escape="false" />
+                            <h:outputText value="#{studentScores.firstName}" />
+                        </a>
+                    </h:panelGroup>
+
+                    <p class="act">
+                        <h:commandButton id="save" styleClass="active"
+                            value="#{evaluationMessages.save_cont}" action="gradeStudentResult" type="submit">
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+                        </h:commandButton>
+                        <h:commandButton id="cancel" value="#{commonMessages.cancel_action}"
+                            action="totalScores" immediate="true">
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+                        </h:commandButton>
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

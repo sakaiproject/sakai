@@ -9,7 +9,7 @@
 function addAttachments(event, field){
   event.preventDefault();
   const insertlinkid = field.id.replace('addAttachments', 'hiddenlink');
-  for (let i = 0; i < document.links.length; i++) {
+  for (let i = 0; i lt document.links.length; i++) {
     if (document.links[i].id === insertlinkid) {
       document.links[i].click();
       break;
@@ -20,7 +20,7 @@ function addAttachments(event, field){
 function addRemoveAttachments(event, field){
   event.preventDefault();
   const insertlinkid = field.id.replace('addRemoveAttachments', 'hiddenlink');
-  for (let i = 0; i < document.links.length; i++) {
+  for (let i = 0; i lt document.links.length; i++) {
     if (document.links[i].id === insertlinkid) {
       document.links[i].click();
       break;

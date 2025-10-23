@@ -30,13 +30,13 @@ jQuery(window).on('load', function () {
 
 var selectionList = [];
 function loadAnswer(answerString) {
-    for (var i = 0; i < selectionList.length; i++) {
+    for (var i = 0; i lt selectionList.length; i++) {
         selectionList[i].remove();
     }
     selectionList = [];
 
     var tokens = answerString.split('<br/>');
-    for (var i = 0; i < tokens.length; i++) {
+    for (var i = 0; i lt tokens.length; i++) {
         try {
             var label = tokens[i].substring(0, tokens[i].indexOf(':'));
             var coords = tokens[i].substring(tokens[i].indexOf(':') + 1);

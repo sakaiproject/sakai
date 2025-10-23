@@ -133,8 +133,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             <h:column>
                                 <f:facet name="header">
-                                    <h:outputText escape="false"
-                                        value="#{evaluationMessages.pct_correct_of}<br/>#{evaluationMessages.whole_group}" />
+                                    <h:panelGroup layout="block">
+                                        <h:outputText value="#{evaluationMessages.pct_correct_of}" />
+                                        <br />
+                                        <h:outputText value="#{evaluationMessages.whole_group}" />
+                                    </h:panelGroup>
                                 </f:facet>
                                 <h:outputText value="#{item.percentCorrect}" escape="false"
                                     rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" />
@@ -142,8 +145,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             <h:column rendered="#{histogramScores.showDiscriminationColumn == 'true'}">
                                 <f:facet name="header">
-                                    <h:outputText escape="false"
-                                        value="#{evaluationMessages.pct_correct_of}<br/>#{evaluationMessages.upper_pct}" />
+                                    <h:panelGroup layout="block">
+                                        <h:outputText value="#{evaluationMessages.pct_correct_of}" />
+                                        <br />
+                                        <h:outputText value="#{evaluationMessages.upper_pct}" />
+                                    </h:panelGroup>
                                 </f:facet>
                                 <h:outputText value="#{item.percentCorrectFromUpperQuartileStudents}" escape="false"
                                     rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" />
@@ -151,8 +157,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             <h:column rendered="#{histogramScores.showDiscriminationColumn == 'true'}">
                                 <f:facet name="header">
-                                    <h:outputText escape="false"
-                                        value="#{evaluationMessages.pct_correct_of}<br/>#{evaluationMessages.lower_pct}" />
+                                    <h:panelGroup layout="block">
+                                        <h:outputText value="#{evaluationMessages.pct_correct_of}" />
+                                        <br />
+                                        <h:outputText value="#{evaluationMessages.lower_pct}" />
+                                    </h:panelGroup>
                                 </f:facet>
                                 <h:outputText value="#{item.percentCorrectFromLowerQuartileStudents}" escape="false"
                                     rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" />
@@ -166,28 +175,28 @@ document.addEventListener('DOMContentLoaded', function () {
                                     rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 0}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="#{evaluationMessages.difficulty}" />
                                 </f:facet>
                                 <h:outputText value="#{item.difficulty}" escape="false" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 0}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="#{evaluationMessages.total_correct}" />
                                 </f:facet>
                                 <h:outputText value="#{item.numberOfStudentsWithCorrectAnswers}" escape="false" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 0}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="#{evaluationMessages.total_incorrect}" />
                                 </f:facet>
                                 <h:outputText value="#{item.numberOfStudentsWithIncorrectAnswers}" escape="false" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 0}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="#{evaluationMessages.no_answer}" />
                                 </f:facet>
@@ -208,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <h:outputText value="#{item.keywords}" escape="false" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 0}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="A" />
                                 </f:facet>
@@ -219,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 1}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 1}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="B" />
                                 </f:facet>
@@ -230,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 2}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 2}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="C" />
                                 </f:facet>
@@ -241,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 3}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 3}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="D" />
                                 </f:facet>
@@ -252,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 4}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 4}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="E" />
                                 </f:facet>
@@ -263,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 5}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 5}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="F" />
                                 </f:facet>
@@ -274,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 6}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 6}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="G" />
                                 </f:facet>
@@ -285,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 7}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 7}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="H" />
                                 </f:facet>
@@ -296,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 8}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 8}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="I" />
                                 </f:facet>
@@ -307,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 9}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 9}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="J" />
                                 </f:facet>
@@ -318,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 10}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 10}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="K" />
                                 </f:facet>
@@ -329,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 11}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 11}">
                                 <f:facet name="header">
                                     <h:outputText escape="false" value="L" />
                                 </f:facet>
@@ -340,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     styleClass="detailedStatsCorrectAnswerText" />
                             </h:column>
 
-                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 12}">
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers gt 12}">
                                 <f:facet name="header">
                                     <h:outputText escape="false"
                                         value="#{histogramScores.undisplayedStudentResponseInItemAnalysisColumnHeader}" />

@@ -23,7 +23,7 @@
         </h:column>
     </h:dataTable>
 
-    <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
+    <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel and question.feedbackIsNotEmpty}">
         <h:panelGroup>
             <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
                 value="#{commonMessages.feedback}: " />

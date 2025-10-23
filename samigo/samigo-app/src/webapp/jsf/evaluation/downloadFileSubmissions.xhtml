@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function toggleChecked() {
     document.querySelectorAll("input[type='checkbox']").forEach(function (checkbox) {
-        if (checkbox.name && checkbox.name.indexOf('downloadFileSubmissions') !== -1
-            && checkbox.name.indexOf('questionCheckbox') !== -1) {
+        if (checkbox.name and checkbox.name.indexOf('downloadFileSubmissions') !== -1
+            and checkbox.name.indexOf('questionCheckbox') !== -1) {
             checkbox.checked = true;
         }
     });
@@ -47,7 +47,7 @@ function toggleChecked() {
 
 function showHideReleaseSections() {
     var selected = document.querySelector("input[name='downloadFileSubmissions:siteSection']:checked");
-    var showSections = selected && selected.value === 'sections';
+    var showSections = selected and selected.value === 'sections';
     document.querySelectorAll('.allSections').forEach(function (element) {
         element.style.display = showSections ? '' : 'none';
     });
@@ -84,7 +84,7 @@ function showHideReleaseSections() {
                     <div style="margin-left:30px;">
                         <h:panelGrid columns="1">
                             <h:outputLink title="#{evaluationMessages.select_all}" onclick="toggleChecked()" value="#"
-                                rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 1}">
+                                rendered="#{downloadFileSubmissions.fileUploadQuestionListSize gt 1}">
                                 <h:outputText value="#{evaluationMessages.select_all}" />
                             </h:outputLink>
                         </h:panelGrid>
@@ -95,15 +95,16 @@ function showHideReleaseSections() {
                             columnClasses="downloanQuestionCheckbox,downloanQuestionDescription">
                             <h:column>
                                 <h:selectManyCheckbox value="" id="questionCheckbox"
-                                    rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 1}">
+                                    rendered="#{downloadFileSubmissions.fileUploadQuestionListSize gt 1}">
                                     <f:selectItem itemValue="#{question.itemIdString}" />
                                 </h:selectManyCheckbox>
                             </h:column>
                             <h:column>
                                 <h:panelGrid columnClasses="samLeftNav," border="0">
-                                    <h:outputText
-                                        value="<b>#{evaluationMessages.part} #{question.section.sequence}: #{evaluationMessages.question} #{question.sequence}</b> - #{evaluationMessages.q_fu}"
-                                        escape="false" />
+                                    <h:panelGroup>
+                                        <strong><h:outputText value="#{evaluationMessages.part} #{question.section.sequence}: #{evaluationMessages.question} #{question.sequence}" /></strong>
+                                        <h:outputText value=" - #{evaluationMessages.q_fu}" />
+                                    </h:panelGroup>
                                     <h:outputText value="#{question.text}" escape="false" />
                                 </h:panelGrid>
                             </h:column>
@@ -114,7 +115,7 @@ function showHideReleaseSections() {
                         <h:panelGrid border="0">
                             <h:selectOneRadio id="siteSection" layout="pagedirection"
                                 value="#{downloadFileSubmissions.firstTargetSelected}" onclick="showHideReleaseSections();"
-                                required="true" rendered="#{downloadFileSubmissions.availableSectionSize > 0}">
+                                required="true" rendered="#{downloadFileSubmissions.availableSectionSize gt 0}">
                                 <f:selectItems value="#{downloadFileSubmissions.siteSectionItems}" />
                             </h:selectOneRadio>
                         </h:panelGrid>
@@ -123,7 +124,7 @@ function showHideReleaseSections() {
                     <div class="allSections" style="margin-left:24px;">
                         <h:selectManyCheckbox id="sectionsForSite" layout="pagedirection"
                             value="#{downloadFileSubmissions.sectionsSelected}"
-                            rendered="#{downloadFileSubmissions.availableSectionSize > 1}">
+                            rendered="#{downloadFileSubmissions.availableSectionSize gt 1}">
                             <f:selectItems value="#{downloadFileSubmissions.availableSectionItems}" />
                         </h:selectManyCheckbox>
                     </div>

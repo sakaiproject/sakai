@@ -28,14 +28,13 @@
 
             <div>
                 <h:outputFormat value=" #{deliveryMessages.can_you_hear}" escape="false">
-                    <f:param
-                        value="<a href='#{author.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&amp;setMimeType=false'>#{deliveryMessages.can_you_hear_2}</a>" />
+                    <f:param value="&lt;a href='#{author.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&amp;setMimeType=false'&gt;#{deliveryMessages.can_you_hear_2}&lt;/a&gt;" />
                 </h:outputFormat>
             </div>
         </h:column>
     </h:dataTable>
 
-    <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
+    <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel and question.feedbackIsNotEmpty}">
         <h:panelGroup>
             <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
                 value="#{commonMessages.feedback}: " />

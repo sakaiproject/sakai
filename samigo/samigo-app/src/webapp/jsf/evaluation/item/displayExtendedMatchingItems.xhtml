@@ -64,7 +64,7 @@
                 <h:outputText escape="false" value="#{option.emiCorrectOptionLabels}" />
                 <h:outputText escape="false"
                     value="(#{option.requiredOptionsCount} #{authorMessages.answers_required})"
-                    rendered="#{option.requiredOptionsCount > 0}" />
+                    rendered="#{option.requiredOptionsCount gt 0}" />
             </h:panelGroup>
         </h:column>
     </h:dataTable>

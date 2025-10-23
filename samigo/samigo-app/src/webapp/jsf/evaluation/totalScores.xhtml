@@ -38,7 +38,7 @@ var exitTime = now.getTime() + numberMillis;
 while (true)
 {
 now = new Date();
-if (now.getTime() > exitTime)
+if (now.getTime() gt exitTime)
 return;
 }
 }
@@ -46,7 +46,7 @@ return;
 function inIt()
 {
   var inputs= document.getElementsByTagName("INPUT");
-  for (var i = 0; i < inputs.length; i++) {
+  for (var i = 0; i lt inputs.length; i++) {
     if (inputs[i].name.indexOf("applyScoreButton") >=0) {
       inputs[i].disabled=false;
     }
@@ -56,7 +56,7 @@ function inIt()
 function disableIt()
 {
   var inputs= document.getElementsByTagName("INPUT");
-  for (var i = 0; i < inputs.length; i++) {
+  for (var i = 0; i lt inputs.length; i++) {
     if (inputs[i].name.indexOf("applyScoreButton") >=0) {
       inputs[i].disabled=true;
     }
@@ -275,7 +275,7 @@ function showLoadingMessage() {
   <h:dataTable id="totalScoreTable" value="#{totalScores.agents}" var="description" styleClass="table table-striped table-bordered" columnClasses="textTable">
 
 	<!-- Add Submission Attempt Deleter-->
-	<h:column rendered="#{person.isAdmin || !totalScores.restrictedDelete}">
+	<h:column rendered="#{person.isAdmin or !totalScores.restrictedDelete}">
      <f:facet name="header">
        <h:outputText value="#{commonMessages.delete}" rendered="true" />
      </f:facet>
@@ -319,10 +319,10 @@ function showLoadingMessage() {
          <a name="#{description.lastInitial}"></a>
        </ui:fragment>
 
-         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' || description.forGrade == 'false' || totalScores.allSubmissions eq'4'}" />
-         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' || description.forGrade == 'false') &amp;&amp; description.lastInitial ne 'Anonymous' || totalScores.allSubmissions eq'4'}"/>
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.forGrade == 'false'  || totalScores.allSubmissions eq'4'}" />
-         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' &amp;&amp; (description.assessmentGradingId eq '-1' || description.forGrade == 'false')}" />
+         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' or description.forGrade == 'false' or totalScores.allSubmissions eq'4'}" />
+         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' or description.forGrade == 'false') &amp;&amp; description.lastInitial ne 'Anonymous' or totalScores.allSubmissions eq'4'}"/>
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' or description.forGrade == 'false'  or totalScores.allSubmissions eq'4'}" />
+         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' &amp;&amp; (description.assessmentGradingId eq '-1' or description.forGrade == 'false')}" />
        <h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true" 
           rendered="#{description.forGrade == 'true' &amp;&amp;  description.assessmentGradingId ne '-1' &amp;&amp; totalScores.allSubmissions!='4'}" >
          <h:outputText value="#{description.lastName}" />
@@ -371,10 +371,10 @@ function showLoadingMessage() {
          <a name="#{description.lastInitial}"></a>
        </ui:fragment>
 
-         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' || description.forGrade == 'false' || totalScores.allSubmissions eq'4'}" />
-         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' || description.forGrade == 'false') &amp;&amp; description.lastInitial ne 'Anonymous' || totalScores.allSubmissions eq'4'}"/>
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.forGrade == 'false' ||totalScores.allSubmissions eq '4'}" />
-         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' &amp;&amp; (description.assessmentGradingId eq '-1' || description.forGrade == 'false')}" />
+         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' or description.forGrade == 'false' or totalScores.allSubmissions eq'4'}" />
+         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' or description.forGrade == 'false') &amp;&amp; description.lastInitial ne 'Anonymous' or totalScores.allSubmissions eq'4'}"/>
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' or description.forGrade == 'false' ortotalScores.allSubmissions eq '4'}" />
+         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' &amp;&amp; (description.assessmentGradingId eq '-1' or description.forGrade == 'false')}" />
        <h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true" 
           rendered="#{description.forGrade == 'true' &amp;&amp; description.assessmentGradingId ne '-1' &amp;&amp;  totalScores.allSubmissions!='4'}" >
          <h:outputText value="#{description.lastName}" />
@@ -424,10 +424,10 @@ function showLoadingMessage() {
          <a name="#{description.lastInitial}"></a>
        </ui:fragment>
 
-         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' || description.forGrade == 'false'}" />
-         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' || description.forGrade == 'false') &amp;&amp; description.lastInitial ne 'Anonymous' || totalScores.allSubmissions eq'4'}"/>
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' || description.forGrade == 'false' || totalScores.allSubmissions eq'4' || totalScores.allSubmissions eq'4'}" />
-         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' &amp;&amp; (description.assessmentGradingId eq '-1' || description.forGrade == 'false')}" />
+         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' or description.forGrade == 'false'}" />
+         <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' or description.forGrade == 'false') &amp;&amp; description.lastInitial ne 'Anonymous' or totalScores.allSubmissions eq'4'}"/>
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' or description.forGrade == 'false' or totalScores.allSubmissions eq'4' or totalScores.allSubmissions eq'4'}" />
+         <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' &amp;&amp; (description.assessmentGradingId eq '-1' or description.forGrade == 'false')}" />
        <h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true" 
           rendered="#{description.forGrade == 'true' &amp;&amp; description.assessmentGradingId ne '-1' &amp;&amp;  totalScores.allSubmissions!='4'}" >
          <h:outputText value="#{description.lastName}" />
@@ -638,11 +638,11 @@ function showLoadingMessage() {
         </h:outputText>
         <h:panelGroup rendered="#{description.attemptDate != null}">
           <h:panelGroup rendered="#{description.isLate == 'true' &amp;&amp; ((description.isAutoSubmitted == 'false' &amp;&amp; !(totalScores.isTimedAssessment eq 'true' &amp;&amp; totalScores.acceptLateSubmission eq 'false'))
-                                      || (description.isAutoSubmitted == 'true' &amp;&amp; totalScores.acceptLateSubmission eq 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true'))}">
+                                      or (description.isAutoSubmitted == 'true' &amp;&amp; totalScores.acceptLateSubmission eq 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true'))}">
             <br />
             <h:outputText style="color:red" value="#{evaluationMessages.late}"/>
           </h:panelGroup>
-          <h:panelGroup rendered="#{description.isAutoSubmitted == 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true' &amp;&amp; (description.isLate == 'false' || totalScores.acceptLateSubmission eq 'true')}">
+          <h:panelGroup rendered="#{description.isAutoSubmitted == 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true' &amp;&amp; (description.isLate == 'false' or totalScores.acceptLateSubmission eq 'true')}">
             <br />
             <h:outputText style="color:red" value="#{evaluationMessages.auto_submit}"/>
           </h:panelGroup>
@@ -666,11 +666,11 @@ function showLoadingMessage() {
         </h:outputText>
         <h:panelGroup rendered="#{description.attemptDate != null}">
           <h:panelGroup rendered="#{description.isLate == 'true' &amp;&amp; ((description.isAutoSubmitted == 'false' &amp;&amp; !(totalScores.isTimedAssessment eq 'true' &amp;&amp; totalScores.acceptLateSubmission eq 'false'))
-                                      || (description.isAutoSubmitted == 'true' &amp;&amp; totalScores.acceptLateSubmission eq 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true'))}">
+                                      or (description.isAutoSubmitted == 'true' &amp;&amp; totalScores.acceptLateSubmission eq 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true'))}">
             <br />
             <h:outputText style="color:red" value="#{evaluationMessages.late}"/>
           </h:panelGroup>
-          <h:panelGroup rendered="#{description.isAutoSubmitted == 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true' &amp;&amp; (description.isLate == 'false' || totalScores.acceptLateSubmission eq 'true')}">
+          <h:panelGroup rendered="#{description.isAutoSubmitted == 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true' &amp;&amp; (description.isLate == 'false' or totalScores.acceptLateSubmission eq 'true')}">
             <br />
             <h:outputText style="color:red" value="#{evaluationMessages.auto_submit}"/>
           </h:panelGroup>
@@ -694,11 +694,11 @@ function showLoadingMessage() {
         </h:outputText>
         <h:panelGroup rendered="#{description.attemptDate != null}">
           <h:panelGroup rendered="#{description.isLate == 'true' &amp;&amp; ((description.isAutoSubmitted == 'false' &amp;&amp; !(totalScores.isTimedAssessment eq 'true' &amp;&amp; totalScores.acceptLateSubmission eq 'false'))
-                                      || (description.isAutoSubmitted == 'true' &amp;&amp; totalScores.acceptLateSubmission eq 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true'))}">
+                                      or (description.isAutoSubmitted == 'true' &amp;&amp; totalScores.acceptLateSubmission eq 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true'))}">
             <br />
             <h:outputText style="color:red" value="#{evaluationMessages.late}"/>
           </h:panelGroup>
-          <h:panelGroup rendered="#{description.isAutoSubmitted == 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true' &amp;&amp; (description.isLate == 'false' || totalScores.acceptLateSubmission eq 'true')}">
+          <h:panelGroup rendered="#{description.isAutoSubmitted == 'true' &amp;&amp; totalScores.isTimedAssessment ne 'true' &amp;&amp; (description.isLate == 'false' or totalScores.acceptLateSubmission eq 'true')}">
             <br />
             <h:outputText style="color:red" value="#{evaluationMessages.auto_submit}"/>
           </h:panelGroup>

@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const tags = #{question.tagListToJsonString};
     const tagArray = Array.isArray(tags) ? tags : [];
-    if (tagArray.length < 1) {
+    if (tagArray.length lt 1) {
         $(tagDivSelector).hide();
     }
     tagArray.forEach(function (obj) {

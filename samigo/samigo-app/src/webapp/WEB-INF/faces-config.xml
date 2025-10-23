@@ -790,7 +790,7 @@
   <!-- EVALUATION -->
     <navigation-case>
       <from-outcome>studentScores</from-outcome>
-      <to-view-id>/jsf/evaluation/gradeStudentResult.jsp</to-view-id>
+      <to-view-id>/jsf/evaluation/gradeStudentResult.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>totalScores</from-outcome>
@@ -798,30 +798,30 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>questionScores</from-outcome>
-      <to-view-id>/jsf/evaluation/questionScore.jsp</to-view-id>
+      <to-view-id>/jsf/evaluation/questionScore.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>submissionStatus</from-outcome>
-      <to-view-id>/jsf/evaluation/submissionStatus.jsp</to-view-id>
+      <to-view-id>/jsf/evaluation/submissionStatus.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>histogramScores</from-outcome>
-      <to-view-id>/jsf/evaluation/histogramScores.jsp</to-view-id>
+      <to-view-id>/jsf/evaluation/histogramScores.xhtml</to-view-id>
     </navigation-case>
     
     <navigation-case>
       <from-outcome>detailedStatistics</from-outcome>
-      <to-view-id>/jsf/evaluation/detailedStatistics.jsp</to-view-id>
+      <to-view-id>/jsf/evaluation/detailedStatistics.xhtml</to-view-id>
     </navigation-case>
      
     <navigation-case>
       <from-outcome>exportResponses</from-outcome>
-      <to-view-id>/jsf/evaluation/exportResponses.jsp</to-view-id>
+      <to-view-id>/jsf/evaluation/exportResponses.xhtml</to-view-id>
     </navigation-case>
     
     <navigation-case>
       <from-outcome>downloadFileSubmissions</from-outcome>
-      <to-view-id>/jsf/evaluation/downloadFileSubmissions.jsp</to-view-id>
+      <to-view-id>/jsf/evaluation/downloadFileSubmissions.xhtml</to-view-id>
     </navigation-case>
     
     <navigation-case>
@@ -830,7 +830,7 @@
     </navigation-case>
   	<navigation-case>
       <from-outcome>confirmRetake</from-outcome>
-      <to-view-id>/jsf/evaluation/confirmRetake.jsp</to-view-id>
+      <to-view-id>/jsf/evaluation/confirmRetake.xhtml</to-view-id>
     </navigation-case>
 
   <!-- XML -->
