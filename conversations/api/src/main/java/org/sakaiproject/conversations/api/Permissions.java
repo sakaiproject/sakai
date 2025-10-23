@@ -47,6 +47,7 @@ public enum Permissions {
     VIEW_STATISTICS("conversations.statistics.view");
 
     public final String label;
+    public final static String PREFIX = "conversations";
 
     private Permissions(String label) {
         this.label = label;
