@@ -98,6 +98,8 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.print.PDFAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -1057,30 +1059,38 @@ public class ItemAuthorBean implements Serializable {
 		return outcome;
 	}
 
-    /**
-	 * Launch the print helper
+	/**
+	 * Prepare the assessment for printing using the Facelets view directly.
 	 */
 	public String print() {
-
-		try {
-			AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
-					.lookupBean("assessmentBean");
-			ToolSession currentToolSession = SessionManager
-					.getCurrentToolSession();
-			currentToolSession.setAttribute("QB_assessemnt_id", assessmentBean
-					.getAssessmentId());
-			ExternalContext context = FacesContext.getCurrentInstance()
-					.getExternalContext();
-			context
-					.redirect("sakai.questionbank.printout.helper/printAssessment?assessmentId="
-							+ assessmentBean.getAssessmentId()
-							+ "&actionString=previewAssessment");
-		} catch (Exception e) {
-			log.error("fail to redirect to assessment print out: "
-					+ e.getMessage());
+		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+		ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+		if (assessmentBean != null && currentToolSession != null) {
+			currentToolSession.setAttribute("QB_assessemnt_id", assessmentBean.getAssessmentId());
 		}
 
-		return outcome;
+		try {
+			DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
+			PDFAssessmentBean pdfAssessment = (PDFAssessmentBean) ContextUtil.lookupBean("pdfAssessment");
+
+			if (deliveryBean != null) {
+				deliveryBean.setActionString("previewAssessment");
+				deliveryBean.setFromPrint(true);
+				if (assessmentBean != null && assessmentBean.getAssessmentId() != null) {
+					deliveryBean.setAssessmentId(assessmentBean.getAssessmentId().toString());
+				}
+			}
+
+			if (pdfAssessment != null) {
+				String navigation = pdfAssessment.prepPDF();
+				pdfAssessment.setActionString("editAssessment");
+				return navigation;
+			}
+		} catch (Exception e) {
+			log.error("fail to prepare assessment print view", e);
+		}
+
+		return null;
 	}
 	
  public String confirmDeleteItem(){

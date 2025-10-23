@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{questionPoolMessages.sol_q}" />
+            </title>
+        </h:head>
+        <h:body>
+            <ui:fragment rendered="#{searchQuestionBean.userOwns(param.idString)}">
+                <h:dataTable value="#{searchQuestionBean.getItem(param.idString)}" var="itemValue" width="100%">
+                    <h:column>
+                        <ui:include src="/jsf/author/search_preview_item/Matching.xhtml" rendered="#{param.typeId eq '9'}" />
+                        <ui:include src="/jsf/author/search_preview_item/FillInNumeric.xhtml" rendered="#{param.typeId eq '11'}" />
+                        <ui:include src="/jsf/author/search_preview_item/FillInTheBlank.xhtml" rendered="#{param.typeId eq '8'}" />
+                        <ui:include src="/jsf/author/search_preview_item/AudioRecording.xhtml" rendered="#{param.typeId eq '7'}" />
+                        <ui:include src="/jsf/author/search_preview_item/FileUpload.xhtml" rendered="#{param.typeId eq '6'}" />
+                        <ui:include src="/jsf/author/search_preview_item/ShortAnswer.xhtml" rendered="#{param.typeId eq '5'}" />
+                        <ui:include src="/jsf/author/search_preview_item/TrueFalse.xhtml" rendered="#{param.typeId eq '4'}" />
+                        <ui:include src="/jsf/author/search_preview_item/MultipleChoiceSurvey.xhtml" rendered="#{param.typeId eq '3'}" />
+                        <ui:include src="/jsf/author/search_preview_item/MultipleChoiceMultipleCorrect.xhtml" rendered="#{param.typeId eq '2' or param.typeId eq '12'}" />
+                        <ui:include src="/jsf/author/search_preview_item/MultipleChoiceSingleCorrect.xhtml" rendered="#{param.typeId eq '1'}" />
+                        <ui:include src="/jsf/author/search_preview_item/ExtendedMatchingItems.xhtml" rendered="#{param.typeId eq '14'}" />
+                        <ui:include src="/jsf/author/search_preview_item/MatrixChoicesSurvey.xhtml" rendered="#{param.typeId eq '13'}" />
+                        <ui:include src="/jsf/author/search_preview_item/CalculatedQuestion.xhtml" rendered="#{param.typeId eq '15'}" />
+                        <ui:include src="/jsf/author/search_preview_item/ImageMapQuestion.xhtml" rendered="#{param.typeId eq '16'}" />
+
+                        <br />
+                        <h:outputLabel value="#{authorMessages.origins}" />
+                        <br />
+                        <t:dataList value="#{searchQuestionBean.originFull(itemValue.hash)}" var="origin" layout="unorderedList">
+                            <span>
+                                <h:outputText value="#{origin}" />
+                            </span>
+                            <br />
+                        </t:dataList>
+                    </h:column>
+                </h:dataTable>
+            </ui:fragment>
+        </h:body>
+    </f:view>
+
+</ui:composition>

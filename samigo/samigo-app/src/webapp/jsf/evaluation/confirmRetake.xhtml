@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{evaluationMessages.retake_heading}" />
+            </title>
+            <script src="/library/js/spinner.js"></script>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody">
+                <h3>
+                    <h:outputText value="#{evaluationMessages.retake_assessment}" />
+                </h3>
+                <h:form id="retractAssessmentForm">
+                    <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
+
+                    <h:outputFormat value="#{evaluationMessages.retake_not_available_to_student}"
+                        styleClass="sak-banner-warn" rendered="#{!retakeAssessment.available}">
+                        <f:param value="#{retakeAssessment.studentName}" />
+                    </h:outputFormat>
+                    <h:outputText
+                        value="#{evaluationMessages.retake_confirmation_1} #{retakeAssessment.studentName} #{evaluationMessages.retake_confirmation_2}" />
+
+                    <p class="act">
+                        <h:commandButton id="retake" value="#{evaluationMessages.allow_retake}" type="submit"
+                            styleClass="active" action="submissionStatus"
+                            rendered="#{retakeAssessment.available}">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.RetakeAssessmentListener" />
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+                        </h:commandButton>
+                        <h:commandButton id="retakeGoToSettings"
+                            value="#{evaluationMessages.allow_retake_go_to_settings}" type="submit"
+                            styleClass="active" action="editPublishedAssessmentSettings"
+                            rendered="#{!retakeAssessment.available}" onclick="SPNR.disableControlsAndSpin(this, null);">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.RetakeAssessmentListener" />
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
+                        </h:commandButton>
+                        <h:commandButton value="#{commonMessages.cancel_action}" type="submit" style="act"
+                            action="submissionStatus" />
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

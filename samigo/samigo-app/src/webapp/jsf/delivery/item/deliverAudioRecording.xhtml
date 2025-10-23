@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <script src="/library/webjars/wavesurfer.js/5.1.0/dist/wavesurfer.min.js"></script>
+    <script src="/library/webjars/wavesurfer.js/5.1.0/dist/plugin/wavesurfer.microphone.min.js"></script>
+    <script src="/library/js/recorder/recorder.js"></script>
+    <script src="/library/js/sakai-recorder.js"></script>
+    <script>includeWebjarLibrary('featherlight');</script>
+    <h:outputScript target="body">
+        //<![CDATA[
+        $(document).ready(function() {
+            if (typeof initiatedFeatherlight === "undefined") {
+                var $elems = $("a[id$='deliverAudioRecording:openRecord']");
+                $elems.each(function(index, elem) {
+                    setTimeout(function() {
+                        var questionId = $(elem).parent().find("input[name=questionId]").val();
+                        elem.dataset.featherlight = ".audioRecordingPopup-" + questionId;
+                        elem.dataset.featherlightPersist = true;
+                        elem.dataset.featherlightBeforeClose = "$('.audioRecordingPopup-" + questionId + " .audio-stop:enabled').click();";
+                    }, 0);
+                });
+                initiatedFeatherlight = true;
+            }
+        });
+        //]]>
+    </h:outputScript>
+
+    <br />
+
+    <h:commandButton id="audioButton" styleClass="audioUploadListenerBtn d-none" value="Upload" type="submit"
+        rendered="#{delivery.actionString == 'takeAssessment' or delivery.actionString == 'takeAssessmentViaUrl'}">
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.AudioUploadActionListener" />
+    </h:commandButton>
+
+    <h:outputText escape="false"
+        value="&lt;input type='hidden' name='mediaLocation_#{question.itemData.itemId}' value='jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}.au'/&gt;" />
+
+    <h:outputText value="#{question.text} " escape="false">
+        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+    </h:outputText>
+
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <br />
+    <br />
+    <div id="question#{question.itemData.itemId}" style="#{question == null or question.hasNoMedia ? 'display:none;' : ''}">
+        <h:panelGrid cellpadding="10" columns="1">
+            <h:panelGroup>
+                <script>
+                    var audio = new Audio();
+                    var deliveryProtocol = "#{delivery.protocol}";
+                    var hasNoMedia = "#{question.hasNoMedia}";
+                    var mediaId = "#{question.mediaArray[0].mediaId}";
+                    var questionId = "#{question.itemData.itemId}";
+                    if (!audio.canPlayType("audio/wav")) {
+                      document.write('<object><param name="autostart" value="false"/><param name="autoplay" value="false"/><param name="controller" value="true"/><embed id="audioEmbed' + questionId + '" src="' + deliveryProtocol + '/samigo-app/servlet/ShowMedia?mediaId=' + mediaId + '" volume="50" height="25" width="300" autostart="false" autoplay="false" controller="true" type="audio/basic"/></object>');
+                    } else {
+                      document.write('<audio controls="controls"><source class="audioSrc' + questionId + '" src="' + deliveryProtocol + '/samigo-app/servlet/ShowMedia?mediaId=' + mediaId + '" type="audio/wav"/></audio>');
+                    }
+                </script>
+
+                <br />
+                <h:outputText value="#{deliveryMessages.open_bracket}" />
+                <span id="details#{question.itemData.itemId}">
+                    <h:outputText styleClass="recordedOn#{question.itemData.itemId}"
+                        value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} "
+                        rendered="#{!question.mediaArray[0].durationIsOver}" />
+                    <h:outputText value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} "
+                        rendered="#{question.mediaArray[0].durationIsOver}" />
+                    <h:outputText value="#{question.mediaArray[0].createdDate}">
+                        <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{delivery.userTimeZone}" />
+                    </h:outputText>
+                </span>
+                <h:outputText value="#{deliveryMessages.close_bracket}" />
+                <br />
+                <h:outputFormat styleClass="can_you_hear_#{question.itemData.itemId}" value=" #{deliveryMessages.can_you_hear}" escape="false">
+                    <f:param value="&lt;a href='#{delivery.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{question.mediaArray[0].mediaId}&amp;setMimeType=false'&gt; #{deliveryMessages.can_you_hear_2}&lt;/a&gt;" />
+                </h:outputFormat>
+            </h:panelGroup>
+        </h:panelGrid>
+    </div>
+
+    <div id="attempts#{question.itemData.itemId}">
+        <h:panelGroup rendered="#{question.attemptsRemaining eq null or question.attemptsRemaining gt 0}">
+            <h:outputLink id="openRecord" title="#{assessmentSettingsMessages.record_your_answer}" value="#"
+                rendered="#{delivery.actionString != 'reviewAssessment'}">
+                <h:outputText value="#{assessmentSettingsMessages.record_your_answer}" />
+            </h:outputLink>
+            <h:panelGroup rendered="#{delivery.actionString != 'reviewAssessment'}" styleClass="audioRecordingPopup-#{question.itemData.itemId} hidden">
+                <h:outputText escape="false" value="&lt;input type='hidden' name='questionId' value='#{question.itemData.itemId}'/&gt;" />
+                <ui:include src="/jsf/author/audioRecordingPopup.xhtml" />
+            </h:panelGroup>
+        </h:panelGroup>
+    </div>
+
+    <h:panelGroup rendered="#{question.attemptsRemaining ne null and question.attemptsRemaining lt 1}">
+        <h:outputText value=" #{assessmentSettingsMessages.record_no_more_attempts}" />
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{(delivery.actionString == 'previewAssessment'
+            or delivery.actionString == 'takeAssessment'
+            or delivery.actionString == 'takeAssessmentViaUrl')
+        and delivery.navigation ne '1'
+        and delivery.displayMardForReview}">
+        <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
+        <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
+        <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#"
+            onclick="javascript:window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/author/markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');event.preventDefault();">
+            <h:outputText value=" #{assessmentSettingsMessages.whats_this_link}" />
+        </h:outputLink>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
+        <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel and question.feedbackIsNotEmpty}">
+            <h:panelGroup>
+                <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+                <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+            </h:panelGroup>
+            <h:outputText value=" " />
+        </h:panelGrid>
+
+        <h:panelGrid columns="1" border="0"
+            rendered="#{delivery.actionString != 'gradeAssessment'
+                and delivery.feedbackComponent.showGraderComment
+                and delivery.noFeedback != 'true'
+                and (question.gradingCommentIsNotEmpty or question.hasItemGradingAttachment)}">
+            <h:panelGroup>
+                <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+                <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false"
+                    rendered="#{question.gradingCommentIsNotEmpty}" />
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+                <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+                    <h:column>
+                        <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                    </h:column>
+                    <h:column>
+                        <h:outputLink value="#{attach.location}" target="new_window">
+                            <h:outputText value="#{attach.filename}" />
+                        </h:outputLink>
+                    </h:column>
+                    <h:column>
+                        <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})"
+                            rendered="#{!attach.isLink}" />
+                    </h:column>
+                </h:dataTable>
+            </h:panelGroup>
+        </h:panelGrid>
+    </h:panelGroup>
+
+</ui:composition>

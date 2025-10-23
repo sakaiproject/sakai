@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <script src="/library/webjars/jquery-blockui/2.65/jquery.blockUI.js"></script>
+
+    <h:outputScript target="head">
+        //<![CDATA[
+        var portal = window.portal || { locale: "#{delivery.localeString}" };
+        portal.locale = portal.locale || "#{delivery.localeString}";
+        var honorPledgeIsChecked = true;
+        var understandPledgeIsChecked = true;
+        var button_ok = "#{deliveryMessages.button_ok} ";
+        var please_wait = "#{deliveryMessages.please_wait} ";
+        var beginButtonIds = ["takeAssessmentForm:beginAssessment1", "takeAssessmentForm:beginAssessment2", "takeAssessmentForm:beginAssessment3"];
+        var continueButtonIds = ["takeAssessmentForm:continueAssessment1", "takeAssessmentForm:continueAssessment2"];
+        var allAssessmentButtonIds = beginButtonIds.concat(continueButtonIds);
+        var selector = null;
+
+        function enableDisableSubmitButton() {
+            var honourPledgeRequired = $('#takeAssessmentForm\\:honor_pledge').length > 0;
+            var understandPledgeRequired = $("#takeAssessmentForm\\:understand_pledge").length > 0;
+
+            if (honourPledgeRequired) {
+                honorPledgeIsChecked = $('#takeAssessmentForm\\:honor_pledge').prop('checked');
+            }
+            if (understandPledgeRequired) {
+                understandPledgeIsChecked = $("#takeAssessmentForm\\:understand_pledge").prop('checked');
+            }
+
+            var enable = false;
+            if ((honourPledgeRequired && understandPledgeRequired && honorPledgeIsChecked && understandPledgeIsChecked) ||
+                (honourPledgeRequired && honorPledgeIsChecked && !understandPledgeRequired) ||
+                (!honourPledgeRequired && understandPledgeRequired && understandPledgeIsChecked)) {
+                enable = true;
+            }
+
+            allAssessmentButtonIds.forEach(function(buttonId) {
+                var $button = $('#' + buttonId.replace(/:/g, '\\:'));
+                if ($button.length > 0) {
+                    if (enable) {
+                        $button.addClass('active');
+                        $button.removeAttr('disabled');
+                    } else {
+                        $button.removeClass('active');
+                        $button.attr('disabled', 'disabled');
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function(){
+
+            var timerSave = false;
+
+            var availableButtons = [];
+            allAssessmentButtonIds.forEach(function(buttonId) {
+                var $button = $('#' + buttonId.replace(/:/g, '\\:'));
+                if ($button.length > 0) {
+                    availableButtons.push(buttonId);
+                }
+            });
+
+            $('form').attr('autocomplete', 'off');
+
+            if($('#takeAssessmentForm\\:honor_pledge').length > 0) {
+                honorPledgeIsChecked = false;
+                $('#takeAssessmentForm\\:honor_pledge').change(enableDisableSubmitButton);
+            }
+
+            if($("#takeAssessmentForm\\:understand_pledge").length > 0) {
+                understandPledgeIsChecked = false;
+                $("#takeAssessmentForm\\:understand_pledge").change(enableDisableSubmitButton);
+            }
+
+            $("input.active[type='submit'][class!='noActionButton']").click(function() {
+                if (allAssessmentButtonIds.includes($(this).attr('id'))) {
+                    var invalid = false;
+                    if (!honorPledgeIsChecked) {
+                        $('#takeAssessmentForm\\:honorPledgeRequired').show();
+                        invalid = true;
+                    } else {
+                        $('#takeAssessmentForm\\:honorPledgeRequired').hide();
+                    }
+                    if (!understandPledgeIsChecked) {
+                        $('#takeAssessmentForm\\:understandPledgeRequired').show();
+                        invalid = true;
+                    } else {
+                        $('#takeAssessmentForm\\:understandPledgeRequired').hide();
+                    }
+
+                    if (invalid) {
+                        return false;
+                    }
+                }
+                if (!timerSave) {
+                    $.blockUI({
+                        message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>',
+                        overlayCSS: { backgroundColor: '#ccc', opacity: 0.25 }
+                    });
+                }
+            });
+
+            if($('#takeAssessmentForm\\:honor_pledge').length > 0 || $("#takeAssessmentForm\\:understand_pledge").length > 0) {
+                allAssessmentButtonIds.forEach(function(buttonId) {
+                    var $button = $('#' + buttonId.replace(/:/g, '\\:'));
+                    if ($button.length > 0) {
+                        $button.removeClass('active');
+                        $button.attr('disabled', 'disabled');
+                    }
+                });
+            }
+
+            disableBackButton("#{deliveryMessages.use_form_navigation}");
+
+            if($('#submittedForm\\:renderTimeoutMessage').length > 0){
+                showTimerExpiredWarning(function() { ($('#timer-expired-warning').parent()).css('display', 'none');});
+            }
+        });
+        //]]>
+    </h:outputScript>
+
+</ui:composition>

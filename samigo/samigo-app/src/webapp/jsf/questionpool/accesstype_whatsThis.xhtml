@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{questionPoolMessages.whatsThis_body}" escape="false" />
+            </title>
+        </h:head>
+
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="container-fluid p-3">
+                <h2 class="western">
+                    <h:outputText value="#{questionPoolMessages.whatsThis_body}" />
+                </h2>
+
+                <p class="mb-3">
+                    <h:outputText value="#{questionPoolMessages.whatsThis_p1}" />
+                </p>
+                <p class="mb-3">
+                    <h:outputText value="#{questionPoolMessages.whatsThis_p2}" />
+                </p>
+                <p class="mb-3">
+                    <h:outputText value="#{questionPoolMessages.whatsThis_p3}" />
+                </p>
+
+                <ul>
+                    <li>
+                        <p class="mb-3">
+                            <i><b>
+                                <h:outputText value="#{questionPoolMessages.whatsThis_admin}" />
+                            </b></i>
+                            <h:outputText value="#{questionPoolMessages.whatsThis_admin_p1}" />
+                        </p>
+                    </li>
+                    <li>
+                        <p class="mb-3">
+                            <i><b>
+                                <h:outputText value="#{questionPoolMessages.whatsThis_rw}" />
+                            </b></i>
+                            <h:outputText value="#{questionPoolMessages.whatsThis_rw_p1}" />
+                        </p>
+                        <ul>
+                            <li>
+                                <p class="mb-3">
+                                    <h:outputText value="#{questionPoolMessages.whatsThis_rw_p2}" />
+                                </p>
+                            </li>
+                            <li>
+                                <p class="mb-3">
+                                    <h:outputText value="#{questionPoolMessages.whatsThis_rw_p3}" />
+                                </p>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p class="mb-3">
+                            <i><b>
+                                <h:outputText value="#{questionPoolMessages.whatsThis_up}" />
+                            </b></i>
+                            <h:outputText value="#{questionPoolMessages.whatsThis_up_p1}" />
+                        </p>
+                        <ul>
+                            <li>
+                                <p class="mb-3">
+                                    <h:outputText value="#{questionPoolMessages.whatsThis_up_p2}" />
+                                </p>
+                            </li>
+                            <li>
+                                <p class="mb-3">
+                                    <h:outputText value="#{questionPoolMessages.whatsThis_up_p3}" />
+                                </p>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p class="mb-3">
+                            <i><b>
+                                <h:outputText value="#{questionPoolMessages.whatsThis_rd}" />
+                            </b></i>
+                            <h:outputText value="#{questionPoolMessages.whatsThis_rd_p1}" />
+                        </p>
+                        <ul>
+                            <li>
+                                <p class="mb-3">
+                                    <h:outputText value="#{questionPoolMessages.whatsThis_rd_p2}" />
+                                </p>
+                            </li>
+                            <li>
+                                <p class="mb-3">
+                                    <h:outputText value="#{questionPoolMessages.whatsThis_rd_p3}" />
+                                </p>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p class="mb-3">
+                    <h:outputText value="#{questionPoolMessages.whatsThis_p4}" />
+                </p>
+
+                <input id="close" type="button" onclick="window.close();" onkeypress="window.close();"
+                    value="#{authorMessages.button_close}" name="close" />
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

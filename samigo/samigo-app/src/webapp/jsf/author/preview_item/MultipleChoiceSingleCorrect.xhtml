@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputText escape="false" value="#{question.itemData.text}" />
+
+    <ui:include src="/jsf/author/preview_item/attachment.xhtml" />
+
+    <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText" width="100%">
+        <h:column>
+            <h:dataTable value="#{itemText.answerArraySorted}" var="answer" width="100%">
+                <h:column>
+                    <h:panelGroup rendered="#{answer.text != null and answer.text != ''}">
+                        <h:panelGroup id="image1" rendered="#{answer.isCorrect}" styleClass="samigo-inline-radio fa fa-circle" />
+                        <h:panelGroup id="image2" rendered="#{!answer.isCorrect}" styleClass="samigo-inline-radio fa fa-circle-o" />
+                        <h:outputText escape="false" value="#{answer.label}. " />
+                        <h:outputText escape="false" value="#{answer.text}" styleClass="mcAnswerText" />
+                    </h:panelGroup>
+                </h:column>
+                <h:column>
+                    <h:panelGroup rendered="#{answer.text != null and answer.text != '' and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '1' and answer.generalAnswerFbIsNotEmpty}">
+                        <h:outputLabel value="#{commonMessages.feedback}:  " />
+                        <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" />
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{answer.text != null and answer.text != '' and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '1' and answer.generalAnswerFbIsNotEmpty}">
+                        <h:outputLabel value="#{commonMessages.feedback}:  " />
+                        <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" />
+                    </h:panelGroup>
+                </h:column>
+            </h:dataTable>
+        </h:column>
+    </h:dataTable>
+
+    <h:panelGroup>
+        <h:outputLabel value="#{authorMessages.answerKey}: " />
+        <h:outputText escape="false" value="#{question.itemData.answerKey}" />
+        <br />
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.correctItemFeedback}: " />
+        <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
+        <br />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: " />
+        <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.correctItemFeedback}: " />
+        <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
+        <br />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: " />
+        <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+    </h:panelGroup>
+
+    <ui:include src="/jsf/author/preview_item/tags.xhtml" />
+
+</ui:composition>

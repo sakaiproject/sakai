@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputText value="#{question.text}" escape="false" />
+    <br />
+
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <h:dataTable value="#{question.mediaArray}" var="media">
+        <h:column>
+            <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+            <h:outputLink title="#{evaluationMessages.t_fileUpload}"
+                value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
+                <h:outputText value="#{media.filename}" />
+            </h:outputLink>
+        </h:column>
+        <h:column>
+            <h:outputText value="#{evaluationMessages.open_bracket}" />
+            <h:outputText value="#{media.fileSizeKBFormat} #{generalMessages.kb}" />
+            <h:outputText value="#{evaluationMessages.close_bracket}" />
+        </h:column>
+    </h:dataTable>
+
+    <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
+        <h:panelGroup>
+            <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
+                value="#{commonMessages.feedback}: " />
+            <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+        </h:panelGroup>
+        <h:outputText value=" " />
+    </h:panelGrid>
+
+</ui:composition>

@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+    <ui:include src="/jsf/questionpool/tagFilter.xhtml" />
+
+    <h:panelGroup rendered="#{questionpool.poolCount eq 0}" styleClass="sak-banner-info" layout="block">
+        <h:outputText rendered="#{questionpool.showTagFilter}" value="#{questionPoolMessages.no_pools_for_filter}" />
+        <h:outputText rendered="#{!questionpool.showTagFilter}" value="#{questionPoolMessages.no_pools_for_you}" />
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{questionpool.poolCount gt 0}" styleClass="table-responsive" layout="block">
+        <h:dataTable styleClass="table table-bordered table-striped" id="TreeTable"
+            value="#{questionpool.qpools}" var="pool">
+
+            <h:column id="col1">
+                <f:facet name="header">
+                    <h:panelGroup>
+                        <h:commandLink title="#{questionPoolMessages.t_sortTitle}" id="sortByTitle"
+                            immediate="true" rendered="#{questionpool.sortProperty ne 'title'}"
+                            action="#{questionpool.sortByColumnHeader}">
+                            <f:param name="orderBy" value="title" />
+                            <f:param name="ascending" value="true" />
+                            <h:outputText value="#{questionPoolMessages.p_name}" />
+                        </h:commandLink>
+
+                        <h:commandLink title="#{questionPoolMessages.t_sortTitle}" immediate="true"
+                            rendered="#{questionpool.sortProperty eq 'title' and questionpool.sortAscending}"
+                            action="#{questionpool.sortByColumnHeader}">
+                            <h:outputText value="#{questionPoolMessages.p_name}" styleClass="currentSort" />
+                            <f:param name="orderBy" value="title" />
+                            <f:param name="ascending" value="false" />
+                            <h:graphicImage alt="#{questionPoolMessages.alt_sortTitleDescending}"
+                                rendered="#{questionpool.sortAscending}" url="/images/sortascending.gif" />
+                        </h:commandLink>
+
+                        <h:commandLink title="#{questionPoolMessages.t_sortTitle}" immediate="true"
+                            rendered="#{questionpool.sortProperty eq 'title' and !questionpool.sortAscending}"
+                            action="#{questionpool.sortByColumnHeader}">
+                            <h:outputText value="#{questionPoolMessages.p_name}" styleClass="currentSort" />
+                            <f:param name="orderBy" value="title" />
+                            <f:param name="ascending" value="true" />
+                            <h:graphicImage alt="#{questionPoolMessages.alt_sortTitleAscending}"
+                                rendered="#{!questionpool.sortAscending}" url="/images/sortdescending.gif" />
+                        </h:commandLink>
+                    </h:panelGroup>
+                </f:facet>
+
+                <h:panelGroup styleClass="tier#{questionpool.tree.currentLevel}" id="firstcolumn">
+                    <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}" />
+
+                    <h:outputLink title="#{questionPoolMessages.t_toggletree}" id="parenttogglelink"
+                        onclick="toggleRows(this)" onkeypress="toggleRows(this)" value="#"
+                        styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}">
+                        <h:graphicImage id="spacer_for_mozilla" style="border:0" height="14" width="5"
+                            value="/images/delivery/spacer.gif" />
+                    </h:outputLink>
+
+                    <h:panelGroup styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}">
+                        <h:graphicImage id="spacer_for_mozilla1" style="border:0" width="5" height="14"
+                            value="/images/delivery/spacer.gif" />
+                    </h:panelGroup>
+
+                    <h:commandLink title="#{questionPoolMessages.t_editPool}" id="editlink"
+                        immediate="true" action="#{questionpool.editPool}"
+                        rendered="#{authorization.editOwnQuestionPool}">
+                        <h:outputText id="poolnametext" value="#{pool.displayName}" escape="false" />
+                        <f:param name="qpid" value="#{pool.questionPoolId}" />
+                        <f:param name="orderBy" value="text" />
+                        <f:param name="ascending" value="true" />
+                        <f:param name="getItems" value="false" />
+                        <f:param name="outCome" value="editPool" />
+                        <f:actionListener
+                            type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
+                    </h:commandLink>
+
+                    <h:panelGroup rendered="#{!authorization.editOwnQuestionPool}" styleClass="pool-display-name">
+                        <h:outputText id="poolnametext2" value="#{pool.displayName}" escape="false" />
+                    </h:panelGroup>
+
+                    <br />
+                    <h:graphicImage id="spacer" style="border:0" width="30" height="14"
+                        value="/images/delivery/spacer.gif" />
+                    <span class="itemAction">
+                        <h:panelGroup rendered="#{questionpool.importToAuthoring eq false}">
+                            <h:commandLink title="#{questionPoolMessages.t_addSubpool}"
+                                rendered="#{pool.canAddPools}" id="addlink" immediate="true"
+                                action="#{questionpool.addPool}">
+                                <h:outputText id="add" value="#{questionPoolMessages.t_addSubpool}" />
+                                <f:param name="qpid" value="#{pool.questionPoolId}" />
+                                <f:param name="outCome" value="editPool" />
+                            </h:commandLink>
+
+                            <h:outputText
+                                rendered="#{pool.canCopyPools and pool.canAddPools}"
+                                value=" #{questionPoolMessages.separator} " />
+
+                            <h:commandLink title="#{questionPoolMessages.t_copyPool}"
+                                rendered="#{pool.canCopyPools}" id="copylink" immediate="true"
+                                action="#{questionpool.startCopyPool}">
+                                <h:outputText id="copy" value="#{questionPoolMessages.copy}" />
+                                <f:param name="qpid" value="#{pool.questionPoolId}" />
+                                <f:param name="outCome" value="editPool" />
+                            </h:commandLink>
+
+                            <h:outputText rendered="#{pool.canMovePools}"
+                                value=" #{questionPoolMessages.separator} " />
+
+                            <h:commandLink title="#{questionPoolMessages.t_movePool}"
+                                rendered="#{pool.canMovePools}" id="movelink" immediate="true"
+                                action="#{questionpool.startMovePool}">
+                                <h:outputText id="move" value="#{questionPoolMessages.move}" />
+                                <f:param name="qpid" value="#{pool.questionPoolId}" />
+                                <f:param name="outCome" value="editPool" />
+                            </h:commandLink>
+
+                            <h:outputText rendered="#{pool.canMovePools}"
+                                value=" #{questionPoolMessages.separator} " />
+
+                            <h:commandLink title="#{questionPoolMessages.t_transferPool}"
+                                rendered="#{pool.canMovePools}" id="transferlink" immediate="true"
+                                action="#{questionpool.startTransferPool}">
+                                <h:outputText id="transfer" value="#{questionPoolMessages.transfer_pool_ownership}" />
+                                <f:param name="qpid" value="#{pool.questionPoolId}" />
+                                <f:param name="outCome" value="editPool" />
+                            </h:commandLink>
+
+                            <h:outputText rendered="#{pool.canMovePools}"
+                                value=" #{questionPoolMessages.separator} " />
+
+                            <h:commandLink title="#{questionPoolMessages.t_removePool}"
+                                rendered="#{questionpool.canDeleteQuestions}"
+                                id="removePoolLink" immediate="true"
+                                action="#{questionpool.startRemovePool}">
+                                <h:outputText id="removePool"
+                                    value="#{questionPoolMessages.remove_pool}" />
+                                <f:param name="qpid" value="#{pool.questionPoolId}" />
+                                <f:param name="outCome" value="editPool" />
+                            </h:commandLink>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{questionpool.importToAuthoring eq true}">
+                            <h:commandLink title="#{questionPoolMessages.t_copyToAuthoring}"
+                                id="copyToAuthoring" immediate="true"
+                                action="#{questionpool.copyPoolToAssessment}">
+                                <h:outputText value="#{questionPoolMessages.copyToAuthoring}" />
+                                <f:param name="qpid" value="#{pool.questionPoolId}" />
+                                <f:param name="outCome" value="poolList" />
+                            </h:commandLink>
+                        </h:panelGroup>
+                    </span>
+                </h:panelGroup>
+            </h:column>
+
+            <h:column id="colTags" rendered="#{questionpool.showTags}">
+                <f:facet name="header">
+                    <h:outputText value="#{questionPoolMessages.t_tags}" />
+                </f:facet>
+                <t:dataList layout="orderedList" styleClass="noListStyle" value="#{pool.tags}" var="tag">
+                    <h:outputText styleClass="badge bg-info" value="#{tag.tagLabel}"
+                        title="#{tag.tagLabel} (#{tag.tagCollectionName})" />
+                </t:dataList>
+                <br />
+            </h:column>
+
+            <h:column id="col4">
+                <f:facet name="header">
+                    <h:panelGroup>
+                        <h:commandLink title="#{questionPoolMessages.t_sortNumQuestions}" id="sortByQuestion"
+                            immediate="true" rendered="#{questionpool.sortProperty ne 'questionSize'}"
+                            action="#{questionpool.sortByColumnHeader}">
+                            <f:param name="orderBy" value="questionSize" />
+                            <f:param name="ascending" value="true" />
+                            <h:outputText value="#{questionPoolMessages.qs}" />
+                        </h:commandLink>
+
+                        <h:commandLink title="#{questionPoolMessages.t_sortNumQuestions}" immediate="true"
+                            rendered="#{questionpool.sortProperty eq 'questionSize' and questionpool.sortAscending}"
+                            action="#{questionpool.sortByColumnHeader}">
+                            <h:outputText value="#{questionPoolMessages.qs}" styleClass="currentSort" />
+                            <f:param name="orderBy" value="questionSize" />
+                            <f:param name="ascending" value="false" />
+                            <h:graphicImage alt="#{questionPoolMessages.alt_sortNumQuestionsDescending}"
+                                rendered="#{questionpool.sortAscending}" url="/images/sortascending.gif" />
+                        </h:commandLink>
+
+                        <h:commandLink title="#{questionPoolMessages.t_sortNumQuestions}" immediate="true"
+                            rendered="#{questionpool.sortProperty eq 'questionSize' and !questionpool.sortAscending}"
+                            action="#{questionpool.sortByColumnHeader}">
+                            <h:outputText value="#{questionPoolMessages.qs}" styleClass="currentSort" />
+                            <f:param name="orderBy" value="questionSize" />
+                            <f:param name="ascending" value="true" />
+                            <h:graphicImage alt="#{questionPoolMessages.alt_sortNumQuestionsAscending}"
+                                rendered="#{!questionpool.sortAscending}" url="/images/sortdescending.gif" />
+                        </h:commandLink>
+                    </h:panelGroup>
+                </f:facet>
+                <h:panelGroup id="fourthcolumn">
+                    <h:outputText value="#{pool.data.questionPoolItemSize}" />
+                </h:panelGroup>
+            </h:column>
+
+            <h:column id="col5">
+                <f:facet name="header">
+                    <h:panelGroup>
+                        <h:commandLink title="#{questionPoolMessages.t_sortNumSubpools}" id="sortBySubPool"
+                            immediate="true" rendered="#{questionpool.sortProperty ne 'subPoolSize'}"
+                            action="#{questionpool.sortByColumnHeader}">
+                            <f:param name="orderBy" value="subPoolSize" />
+                            <f:param name="ascending" value="true" />
+                            <h:outputText value="#{questionPoolMessages.subps}" />
+                        </h:commandLink>
+
+                        <h:commandLink title="#{questionPoolMessages.t_sortNumSubpools}" immediate="true"
+                            rendered="#{questionpool.sortProperty eq 'subPoolSize' and questionpool.sortAscending}"
+                            action="#{questionpool.sortByColumnHeader}">
+                            <h:outputText value="#{questionPoolMessages.subps}" styleClass="currentSort" />
+                            <f:param name="orderBy" value="subPoolSize" />
+                            <f:param name="ascending" value="false" />
+                            <h:graphicImage alt="#{questionPoolMessages.alt_sortNumSubpoolsDescending}"
+                                rendered="#{questionpool.sortAscending}" url="/images/sortascending.gif" />
+                        </h:commandLink>
+
+                        <h:commandLink title="#{questionPoolMessages.t_sortNumSubpools}" immediate="true"
+                            rendered="#{questionpool.sortProperty eq 'subPoolSize' and !questionpool.sortAscending}"
+                            action="#{questionpool.sortByColumnHeader}">
+                            <h:outputText value="#{questionPoolMessages.subps}" styleClass="currentSort" />
+                            <f:param name="orderBy" value="subPoolSize" />
+                            <f:param name="ascending" value="true" />
+                            <h:graphicImage alt="#{questionPoolMessages.alt_sortNumSubpoolsAscending}"
+                                rendered="#{!questionpool.sortAscending}" url="/images/sortdescending.gif" />
+                        </h:commandLink>
+                    </h:panelGroup>
+                </f:facet>
+                <h:panelGroup id="fifthcolumn">
+                    <h:outputText value="#{pool.subPoolSize}" />
+                </h:panelGroup>
+            </h:column>
+
+            <h:column id="col6" rendered="#{questionpool.importToAuthoring eq false}">
+                <f:facet name="header">
+                    <h:outputText value="#{questionPoolMessages.remove_chbox}" />
+                </f:facet>
+                <h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox"
+                    value="#{questionpool.destPools}" rendered="#{pool.ownerId eq questionpool.agentId}"
+                    styleClass="checkboxTable">
+                    <f:selectItem itemValue="#{pool.questionPoolId}" itemLabel="" />
+                </h:selectManyCheckbox>
+            </h:column>
+
+        </h:dataTable>
+    </h:panelGroup>
+
+    <ui:include src="/jsf/questionpool/statisticsModal.xhtml" />
+</ui:composition>

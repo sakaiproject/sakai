@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{questionPoolMessages.add_title}" />
+            </title>
+            <script>
+                function textCounter(field, maxlimit) {
+                    if (field.value.length > maxlimit) {
+                        field.value = field.value.substring(0, maxlimit);
+                    }
+                }
+            </script>
+            <ui:fragment rendered="#{questionpool.showTags and questionpool.canManageTags}">
+                <script>
+                    window.addEventListener("load", () => {
+                        window.syncTagSelectorInput("tag-selector", "questionpool:questionPoolTags");
+                    });
+                </script>
+            </ui:fragment>
+        </h:head>
+
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+                <h:form id="questionpool">
+                    <ui:include src="/jsf/questionpool/questionpoolHeadings.xhtml" />
+                    <br />
+
+                    <h3 class="insColor insBak insBor">
+                        <h:outputText value="#{questionPoolMessages.add_p}" />
+                    </h3>
+
+                    <h:messages styleClass="sak-banner-error"
+                        rendered="#{facesContext.maximumSeverity ne null}" layout="table" />
+
+                    <p>
+                        <h:outputText value="#{questionPoolMessages.add_p_required}" />
+                    </p>
+
+                    <div class="form-group row">
+                        <h:outputLabel for="namefield"
+                            value="#{questionPoolMessages.p_name}#{questionPoolMessages.star}"
+                            styleClass="form-label col-md-2" />
+                        <div class="col-md-6">
+                            <h:inputText id="namefield" maxlength="255" size="30"
+                                value="#{questionpool.currentPool.displayName}"
+                                styleClass="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}"
+                            styleClass="form-label col-md-2" />
+                        <div class="col-md-6">
+                            <h:outputText id="ownerfield"
+                                value="#{questionpool.currentPool.owner}" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <h:outputLabel for="orgfield" value="#{questionPoolMessages.dept} "
+                            styleClass="form-label col-md-2" />
+                        <div class="col-md-6">
+                            <h:inputText id="orgfield" maxlength="255" size="30"
+                                value="#{questionpool.currentPool.organizationName}"
+                                styleClass="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <h:outputLabel for="descfield" value="#{questionPoolMessages.desc}"
+                            styleClass="form-label col-md-2" />
+                        <div class="col-md-10">
+                            <h:inputTextarea id="descfield"
+                                value="#{questionpool.currentPool.description}" cols="40"
+                                rows="6" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <h:outputLabel for="objfield" value="#{questionPoolMessages.obj} "
+                            styleClass="form-label col-md-2" />
+                        <div class="col-md-6">
+                            <h:inputText id="objfield" maxlength="255" size="30"
+                                value="#{questionpool.currentPool.objectives}"
+                                styleClass="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <h:outputLabel for="keyfield"
+                            value="#{questionPoolMessages.keywords} "
+                            styleClass="form-label col-md-2" />
+                        <div class="col-md-6">
+                            <h:inputText id="keyfield" maxlength="255" size="30"
+                                value="#{questionpool.currentPool.keywords}"
+                                styleClass="form-control" />
+                        </div>
+                    </div>
+
+                    <h:panelGroup rendered="#{questionpool.showTags and questionpool.canManageTags}"
+                        layout="block" styleClass="form-group row">
+                        <label for="tag-selector" class="col-sm-2 form-label">
+                            <h:outputText value="#{questionPoolMessages.t_tags}" />
+                        </label>
+                        <div class="col-sm-6">
+                            <sakai-tag-selector id="tag-selector" class="b5 flex-grow-1"
+                                selected-temp="#{questionpool.currentPool.tags.tagIdsCsv}"
+                                collection-id="#{questionpool.currentPool.ownerId}"
+                                site-id="#{author.currentSiteId}" add-new="true">
+                            </sakai-tag-selector>
+                            <h:inputHidden id="questionPoolTags"
+                                value="#{questionpool.currentPool.tags.tagIdsCsv}" />
+                        </div>
+                    </h:panelGroup>
+
+                    <p class="act">
+                        <h:commandButton id="submit" action="#{questionpool.doit}"
+                            value="#{questionPoolMessages.save}" styleClass="active">
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
+                            <f:attribute name="addsource" value="editpool" />
+                        </h:commandButton>
+                        <h:commandButton value="#{commonMessages.cancel_action}"
+                            action="#{questionpool.cancelPool}" immediate="true">
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+                            <f:attribute name="returnToParentPool" value="true" />
+                        </h:commandButton>
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

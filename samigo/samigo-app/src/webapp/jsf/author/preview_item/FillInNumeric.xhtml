@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <h:outputText escape="false" value="#{question.itemData.text}" />
+
+    <ui:include src="/jsf/author/preview_item/attachment.xhtml" />
+
+    <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
+        <h:column />
+    </h:dataTable>
+
+    <h:panelGrid columns="2" styleClass="longtext">
+        <h:outputLabel value="#{authorMessages.answerKey}: " />
+        <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
+            <h:column>
+                <samigo:dataLine value="#{itemText.answerArraySorted}" var="answer"
+                    separator=", " first="0" rows="100">
+                    <h:column>
+                        <h:outputText escape="false" value="#{answer.text}" />
+                    </h:column>
+                </samigo:dataLine>
+            </h:column>
+        </h:dataTable>
+
+        <h:outputLabel rendered="#{answer.text != null and answer.text ne ''}" value="#{authorMessages.preview_model_short_answer}: " />
+        <h:outputText rendered="#{answer.text != null and answer.text ne ''}" escape="false" value="#{answer.text}" />
+
+        <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null and question.itemData.correctItemFeedback ne '' and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.correctItemFeedback}: " />
+        <h:outputText rendered="#{question.itemData.correctItemFeedback != null and question.itemData.correctItemFeedback ne '' and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}"
+            value="#{question.itemData.correctItemFeedback}" escape="false" />
+
+        <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null and question.itemData.inCorrectItemFeedback ne '' and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.incorrectItemFeedback}: " />
+        <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null and question.itemData.inCorrectItemFeedback ne '' and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}"
+            value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+
+        <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null and question.itemData.correctItemFeedback ne '' and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.correctItemFeedback}: " />
+        <h:outputText rendered="#{question.itemData.correctItemFeedback != null and question.itemData.correctItemFeedback ne '' and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}"
+            value="#{question.itemData.correctItemFeedback}" escape="false" />
+
+        <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null and question.itemData.inCorrectItemFeedback ne '' and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}" value="#{authorMessages.incorrectItemFeedback}: " />
+        <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null and question.itemData.inCorrectItemFeedback ne '' and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}"
+            value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
+    </h:panelGrid>
+
+    <ui:include src="/jsf/author/preview_item/tags.xhtml" />
+
+</ui:composition>

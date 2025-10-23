@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <div class="form-group row">
+        <div class="col-sm-12">
+            <sakai-rubric-association
+                site-id="#{itemauthor.currentItem.siteId}"
+                dont-associate-label="#{assessmentSettingsMessages.dont_associate_label}"
+                associate-label="#{assessmentSettingsMessages.associate_label}"
+                associate-label-dyn="#{assessmentSettingsMessages.associate_label_dyn}"
+                show-dynamic="true"
+                tool-id="sakai.samigo"
+                entity-id="#{assessmentBean.assessment['class'].simpleName == 'AssessmentFacade' and itemauthor.itemId != '' ? assessmentBean.assessmentId.concat('.').concat(itemauthor.itemId) : assessmentBean.assessment['class'].simpleName == 'PublishedAssessmentFacade' and itemauthor.itemId != '' ? 'pub.'.concat(assessmentBean.assessmentId).concat('.').concat(itemauthor.itemId) : null}"
+                state-details="#{itemauthor.rubricStateDetails != '' ? itemauthor.rubricStateDetails : null}"
+                fine-tune-points="#{assessmentSettingsMessages.option_pointsoverride}"
+                hide-student-preview="#{assessmentSettingsMessages.option_studentpreview}" />
+        </div>
+    </div>
+
+</ui:composition>

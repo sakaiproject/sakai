@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{deliveryMessages.submission}" />
+            </title>
+            <ui:include src="/jsf/delivery/deliveryjQuery.xhtml" />
+            <script type="text/javascript">
+                //<![CDATA[
+                function reviewAssessment(field) {
+                    var insertlinkid = field.id.replace("reviewAssessment", "hiddenlink");
+                    var newindex = 0;
+                    for (var i = 0; i < document.links.length; i++) {
+                        if (document.links[i].id === insertlinkid) {
+                            newindex = i;
+                            break;
+                        }
+                    }
+                    document.links[newindex].onclick();
+                }
+                function closeWindow() {
+                    self.opener = this;
+                    self.close();
+                }
+                //]]>
+            </script>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <h:outputText value="#{delivery.secureDeliveryHTMLFragment}" escape="false" />
+
+            <div class="portletBody container-fluid">
+                <div id="delivAssessmentWrapper" style="#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}">
+                    <div class="page-header">
+                        <h1>
+                            <h:outputText value="#{deliveryMessages.submission}" />
+                            <small>
+                                <h:outputText value="#{delivery.assessmentTitle} " escape="false" />
+                            </small>
+                        </h1>
+                    </div>
+
+                    <div id="timer-expired-warning" style="display:none;">
+                        <h3>
+                            <h:outputText value="#{deliveryMessages.time_expired1}" />
+                        </h3>
+                        <p>
+                            <h:outputText value="#{deliveryMessages.time_expired3}" />
+                        </p>
+                        <div id="squaresWaveG">
+                            <div id="squaresWaveG_1" class="squaresWaveG"></div>
+                            <div id="squaresWaveG_2" class="squaresWaveG"></div>
+                            <div id="squaresWaveG_3" class="squaresWaveG"></div>
+                            <div id="squaresWaveG_4" class="squaresWaveG"></div>
+                            <div id="squaresWaveG_5" class="squaresWaveG"></div>
+                            <div id="squaresWaveG_6" class="squaresWaveG"></div>
+                            <div id="squaresWaveG_7" class="squaresWaveG"></div>
+                            <div id="squaresWaveG_8" class="squaresWaveG"></div>
+                        </div>
+                    </div>
+
+                    <h:form id="submittedForm">
+                        <div class="table">
+                            <h:outputText id="renderTimeoutMessage" styleClass="sak-banner-error"
+                                value="#{deliveryMessages.timeOutSubmission}"
+                                rendered="#{delivery.timeOutSubmission=='true'}" />
+
+                            <h:messages styleClass="sak-banner-error"
+                                rendered="#{not empty facesContext.maximumSeverity}"
+                                layout="table" />
+
+                            <h:outputText value="#{deliveryMessages.submission_confirmation_message_1}"
+                                rendered="#{delivery.actionString!='takeAssessmentViaUrl'}" />
+                            <h:outputText value="#{deliveryMessages.submission_confirmation_message_4}"
+                                rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" />
+                            <h:outputText value="&lt;br /&gt;&lt;br /&gt; #{delivery.submissionMessage}"
+                                escape="false" />
+
+                            <h:panelGrid columns="2" styleClass="table table-striped"
+                                columnClasses="submissionInfoCol1, submissionInfoCol2">
+                                <h:outputLabel value="#{deliveryMessages.course_name}" />
+                                <h:outputText value="#{delivery.courseName}" />
+
+                                <h:outputLabel value="#{deliveryMessages.creator}" />
+                                <h:outputText value="#{delivery.creatorName}" />
+
+                                <h:outputLabel value="#{deliveryMessages.assessment_title}" />
+                                <h:outputText value="#{delivery.assessmentTitle}" escape="false" />
+
+                                <h:outputLabel value="#{deliveryMessages.number_of_sub_remain}" />
+                                <h:panelGroup>
+                                    <h:outputText
+                                        value="#{delivery.submissionsRemaining} #{deliveryMessages.text_out_of} #{delivery.settings.maxAttempts}"
+                                        rendered="#{!delivery.settings.unlimitedAttempts}" />
+                                    <h:outputText value="#{deliveryMessages.unlimited_}"
+                                        rendered="#{delivery.settings.unlimitedAttempts}" />
+                                </h:panelGroup>
+
+                                <h:outputLabel value="#{deliveryMessages.conf_num}" />
+                                <h:outputText value="#{delivery.confirmation}" />
+
+                                <h:outputLabel value="#{deliveryMessages.submission_dttm}" />
+                                <h:outputText value="#{delivery.submissionDate}">
+                                    <f:convertDateTime dateStyle="medium" timeStyle="short"
+                                        timeZone="#{delivery.userTimeZone}" />
+                                </h:outputText>
+
+                                <h:outputLabel rendered="#{delivery.submissionFiles.values().size() > 0}"
+                                    value="#{deliveryMessages.submission_files}" />
+                                <h:dataTable rendered="#{delivery.submissionFiles.values().size() > 0}"
+                                    value="#{delivery.submissionFiles.values()}" var="media">
+                                    <h:column>
+                                        <h:outputLink title="#{evaluationMessages.t_fileUpload}"
+                                            value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}"
+                                            target="new_window">
+                                            <h:outputText value="#{media.filename} " />
+                                        </h:outputLink>
+                                    </h:column>
+                                    <h:column>
+                                        <h:outputText
+                                            value=" #{evaluationMessages.open_bracket} #{media.fileSizeKBFormat} #{generalMessages.kb} #{evaluationMessages.close_bracket}" />
+                                    </h:column>
+                                </h:dataTable>
+
+                                <h:outputLabel value="#{deliveryMessages.final_page}"
+                                    rendered="#{delivery.url!=null and delivery.url!=''}" />
+                                <h:outputLink title="#{deliveryMessages.t_url}" value="#"
+                                    rendered="#{delivery.url!=null and delivery.url!=''}"
+                                    onclick="window.open('#{delivery.url}','new_window');"
+                                    onkeypress="window.open('#{delivery.url}','new_window');">
+                                    <h:outputText value="#{delivery.url}" escape="false" />
+                                </h:outputLink>
+
+                                <h:outputLabel value="#{deliveryMessages.anonymousScore}"
+                                    rendered="#{delivery.actionString=='takeAssessmentViaUrl'
+                                        and delivery.anonymousLogin
+                                        and (delivery.feedbackComponent.showImmediate
+                                            or delivery.feedbackComponent.showOnSubmission
+                                            or delivery.feedbackOnDate)
+                                        and delivery.feedbackComponentOption=='1'}" />
+                                <h:outputText value="&lt;b&gt;#{delivery.roundedRawScoreViaURL}&lt;/b&gt;"
+                                    escape="false"
+                                    rendered="#{delivery.actionString=='takeAssessmentViaUrl'
+                                        and delivery.anonymousLogin
+                                        and (delivery.feedbackComponent.showImmediate
+                                            or delivery.feedbackComponent.showOnSubmission
+                                            or delivery.feedbackOnDate)
+                                        and delivery.feedbackComponentOption=='1'}" />
+                            </h:panelGrid>
+                        </div>
+
+                        <p>
+                            <h:outputText rendered="#{!delivery.anonymousLogin}"
+                                value="#{delivery.receiptEmailSetting} #{deliveryMessages.receiptEmail_changeSetting}"
+                                escape="false" />
+                        </p>
+
+                        <div class="tier1">
+                            <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
+                                <h:commandButton type="submit"
+                                    value="#{deliveryMessages.button_continue}"
+                                    onclick="return returnToHostUrl('#{delivery.selectURL}');"
+                                    rendered="#{(delivery.actionString=='takeAssessment'
+                                        or delivery.actionString=='takeAssessmentViaUrl')
+                                        and !delivery.sebActive}" />
+
+                                <h:commandButton value="#{deliveryMessages.review_results}"
+                                    type="button" id="reviewAssessment"
+                                    rendered="#{delivery.actionString=='takeAssessmentViaUrl'
+                                        and (delivery.anonymousLogin or delivery.accessByUrlAndAuthorized)
+                                        and (delivery.feedbackComponent.showImmediate
+                                            or delivery.feedbackComponent.showOnSubmission
+                                            or delivery.feedbackOnDate)
+                                        and delivery.feedbackComponentOption=='2'
+                                        and !delivery.sebActive}"
+                                    style="act" onclick="reviewAssessment(this);"
+                                    onkeypress="reviewAssessment(this);" />
+
+                                <h:commandLink id="hiddenlink" action="takeAssessment"
+                                    rendered="#{delivery.actionString=='takeAssessmentViaUrl'
+                                        and (delivery.anonymousLogin or delivery.accessByUrlAndAuthorized)
+                                        and (delivery.feedbackComponent.showImmediate
+                                            or delivery.feedbackComponent.showOnSubmission
+                                            or delivery.feedbackOnDate)
+                                        and delivery.feedbackComponentOption=='2'
+                                        and !delivery.sebActive}">
+                                    <f:param name="publishedId" value="#{delivery.assessmentId}" />
+                                    <f:param name="nofeedback" value="false" />
+                                    <f:param name="actionString" value="reviewAssessment" />
+                                    <f:actionListener
+                                        type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
+                                    <f:actionListener
+                                        type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+                                </h:commandLink>
+
+                                <h:commandButton type="button"
+                                    value="#{deliveryMessages.seb_quit_browser}"
+                                    onclick="quitSeb()" rendered="#{delivery.sebActive}" />
+                            </h:panelGrid>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

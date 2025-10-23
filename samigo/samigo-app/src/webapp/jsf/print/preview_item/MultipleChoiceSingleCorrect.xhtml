@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:outputText styleClass="questionBlock" escape="false" value="#{question.itemData.text}" />
+    <br />
+    <br />
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText" width="100%">
+        <h:column>
+            <h:dataTable value="#{itemText.answerArraySorted}" var="answer" width="100%">
+                <h:column>
+                    <h:panelGroup rendered="#{not empty answer.text}" styleClass="inputBlock">
+                        <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o" />
+                        <h:outputText escape="false" value="#{answer.label}. " />
+                        <h:outputText escape="false" value="#{answer.text}" styleClass="mcAnswerText" />
+                    </h:panelGroup>
+                </h:column>
+                <h:column>
+                    <h:panelGroup styleClass="feedbackBlock" rendered="#{printSettings.showKeysFeedback and not empty answer.text}">
+                        <h:outputLabel value="#{commonMessages.feedback}: " />
+                        <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" rendered="#{not empty answer.generalAnswerFeedback and answer.generalAnswerFeedback ne '&#160;'}" />
+                        <h:outputText escape="false" value="--------" rendered="#{empty answer.generalAnswerFeedback or answer.generalAnswerFeedback eq '&#160;'}" />
+                    </h:panelGroup>
+                </h:column>
+            </h:dataTable>
+        </h:column>
+    </h:dataTable>
+
+    <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys or printSettings.showKeysFeedback}">
+        <h:outputLabel value="#{printMessages.answer_point}: " />
+        <h:outputText value="#{question.itemData.score}">
+            <f:convertNumber maxFractionDigits="2" groupingUsed="false" />
+        </h:outputText>
+        <h:outputText escape="false" value=" #{authorMessages.points_lower_case}" />
+        <br />
+        <h:outputLabel value="#{printMessages.answer_key}: " />
+        <h:outputText escape="false" value="#{question.key}" />
+        <br />
+    </h:panelGroup>
+
+    <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
+        <h:outputLabel value="#{printMessages.correct_feedback}: " />
+        <h:outputText escape="false" value="#{question.itemData.correctItemFeedback}" rendered="#{not empty question.itemData.correctItemFeedback and question.itemData.correctItemFeedback ne '&#160;'}" />
+        <h:outputText escape="false" value="--------" rendered="#{empty question.itemData.correctItemFeedback or question.itemData.correctItemFeedback eq '&#160;'}" />
+        <br />
+        <h:outputLabel value="#{printMessages.incorrect_feedback}: " />
+        <h:outputText escape="false" value="#{question.itemData.inCorrectItemFeedback}" rendered="#{not empty question.itemData.inCorrectItemFeedback and question.itemData.inCorrectItemFeedback ne '&#160;'}" />
+        <h:outputText escape="false" value="--------" rendered="#{empty question.itemData.inCorrectItemFeedback or question.itemData.inCorrectItemFeedback eq '&#160;'}" />
+        <br />
+    </h:panelGroup>
+
+</ui:composition>

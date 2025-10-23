@@ -16,7 +16,7 @@
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
-* limitations under the License. 
+* limitations under the License.
 *
 **********************************************************************************/
 --%>
@@ -30,13 +30,11 @@
     <h:outputText value="#{deliveryMessages.qprogress}" />
 </h2>
 
-
 <f:verbatim><p class="progressItem"></f:verbatim>
         <h:graphicImage alt="unanswered icon" url="#{delivery.questionProgressUnansweredPath}" /><h:outputText value=" #{deliveryMessages.unans_q}" /><br/>
         <h:graphicImage alt="answered icon" url="#{delivery.questionProgressAnsweredPath}" /><h:outputText value=" #{deliveryMessages.ans_q}" escape="false" /><br/>
         <h:graphicImage alt="marked for review icon" url="#{delivery.questionProgressMardPath}" rendered="#{delivery.displayMardForReview}" /><h:outputText value=" #{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}"/>
 <f:verbatim></p></f:verbatim>
-
 
 </div>
 <br />

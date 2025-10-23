@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:fragment>
+        <script>includeWebjarLibrary('select2');</script>
+        <script src="/library/webjars/select2/4.0.13/js/i18n/#{empty itemauthor.language ? 'en' : itemauthor.language}.js"></script>
+    </ui:fragment>
+
+    <h:outputScript target="body">
+        //<![CDATA[
+        (function() {
+            const language = "#{empty itemauthor.language ? 'en' : itemauthor.language}";
+            const deleteAllowed = #{itemauthor.deleteTagsAllowed ? 'true' : 'false'};
+            const existingTags = #{itemauthor.tagsListToJson};
+            const tempTags = #{itemauthor.tagsTempListToJson};
+
+            function formatRepo(repo) {
+                var text = repo.text;
+                var collection = repo.collection ? ' <span class="collection">(' + repo.collection + ')</span>' : '';
+                return $('<span>' + text + collection + '</span>');
+            }
+
+            function formatRepoSelection(repo) {
+                if (repo.collection) {
+                    return $('<span>' + repo.text + ' <span class="collection">(' + repo.collection + ')</span></span>');
+                }
+
+                var option = $('.tag_selector option[value=' + repo.id + ']');
+                var collection = option.attr('title');
+                if (collection) {
+                    return $('<span>' + repo.text + ' <span class="collection">(' + collection + ')</span></span>');
+                }
+                return $('<span>' + repo.text + '</span>');
+            }
+
+            function formatRepoSelectionPrevious(repo) {
+                if (repo.collection) {
+                    return $('<span>' + repo.text + ' <span class="collection">(' + repo.collection + ')</span></span>');
+                }
+                return $('<span>' + repo.text + '</span>');
+            }
+
+            $(document).ready(function () {
+                const selectOptions = {
+                    width: '50%',
+                    language: language,
+                    closeOnSelect: false,
+                    ajax: {
+                        url: '/direct/tagservice/getTagsPaginatedByPrefixInLabel.json',
+                        dataType: 'json',
+                        delay: 500,
+                        data: function (params) {
+                            return {
+                                prefix: params.term,
+                                page: params.page
+                            };
+                        },
+                        processResults: function (data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: $.map(data.data.tags, function (item) {
+                                    return {
+                                        text: item.tagLabel,
+                                        description: item.tagDescription,
+                                        id: item.tagId,
+                                        collection: item.collectionName
+                                    };
+                                }),
+                                pagination: { more: (params.page * 30) < data.data.total }
+                            };
+                        },
+                        cache: true
+                    },
+                    escapeMarkup: function (markup) { return markup; },
+                    minimumInputLength: 1,
+                    templateResult: formatRepo,
+                    templateSelection: formatRepoSelection
+                };
+
+                $('.tag_selector').select2(selectOptions);
+
+                if (!deleteAllowed) {
+                    $('.tag_selector_previous').select2({
+                        width: '50%',
+                        language: language,
+                        disabled: true,
+                        escapeMarkup: function (markup) { return markup; },
+                        templateResult: formatRepo,
+                        templateSelection: formatRepoSelectionPrevious
+                    });
+                }
+
+                function seedOptions(selector, tags) {
+                    for (var i = 0; i < tags.length; i += 1) {
+                        var tag = tags[i];
+                        var option = new Option(tag.tagLabel, tag.tagId, true, true);
+                        selector.append(option);
+                        selector.find('option[value=' + tag.tagId + ']').attr('title', tag.tagCollectionName);
+                    }
+                    selector.trigger('change');
+                }
+
+                if (Array.isArray(existingTags)) {
+                    if (deleteAllowed) {
+                        seedOptions($('.tag_selector'), existingTags);
+                    } else {
+                        seedOptions($('.tag_selector_previous'), existingTags);
+                    }
+                }
+
+                if (!deleteAllowed && Array.isArray(tempTags)) {
+                    seedOptions($('.tag_selector'), tempTags);
+                }
+
+                if (deleteAllowed) {
+                    $('.tag_selector').on('select2:unselect', function (e) {
+                        $('.tag_selector option').each(function () {
+                            if ($(this).val() === e.params.data.id) {
+                                $(this).remove();
+                            }
+                        });
+                    }).trigger('change');
+                }
+            });
+        })();
+        //]]>
+    </h:outputScript>
+
+    <div class="longtext" id="tags_div" style="#{itemauthor.showTagsStyle}">
+        <h:outputLabel value="#{authorMessages.tag_question}" />
+        <br />
+
+        <h:panelGroup rendered="#{!itemauthor.deleteTagsAllowed}">
+            <select class="tag_selector_previous" name="tag_selector_previous[]" id="tag_selector_previous" multiple="multiple"></select>
+        </h:panelGroup>
+
+        <select class="tag_selector" name="tag_selector[]" id="tag_selector" multiple="multiple"></select>
+
+        <h:panelGroup rendered="#{itemauthor.multiTagsSingleQuestionCheck}">
+            <div class="form-check mt-2">
+                <h:selectBooleanCheckbox id="multiTagsSingleCheck" value="#{itemauthor.multiTagsSingleQuestion}" styleClass="form-check-input" />
+                <h:outputLabel for="multiTagsSingleCheck" styleClass="form-check-label">
+                    <h:outputText value="#{itemauthor.multiTagsSingleQuestion ? authorMessages.tag_multitag_singlequestion_all : authorMessages.tag_multitag_singlequestion}" />
+                </h:outputLabel>
+            </div>
+        </h:panelGroup>
+    </div>
+
+</ui:composition>

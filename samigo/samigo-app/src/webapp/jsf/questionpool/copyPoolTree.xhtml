@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:panelGrid rendered="#{questionpool.actionType eq 'pool'}" columns="2"
+        columnClasses="align-top,align-top" styleClass="mb-3">
+        <h:selectManyCheckbox id="checkboxes" layout="pageDirection" value="#{questionpool.destPools}"
+            onclick="updateButtonStatusOnCheck(document.getElementById('copyPool:copypoolsubmit'), document.getElementById('copyPool'));"
+            onchange="updateButtonStatusOnCheck(document.getElementById('copyPool:copypoolsubmit'), document.getElementById('copyPool'));">
+            <f:selectItem itemValue="0" itemLabel="" />
+        </h:selectManyCheckbox>
+        <h:outputText value="#{questionPoolMessages.q_mgr}" />
+    </h:panelGrid>
+
+    <h:dataTable id="TreeTable" value="#{questionpool.copyQpools}" var="pool"
+        styleClass="table table-bordered table-striped align-middle">
+        <h:column id="radiocol">
+            <f:facet name="header">
+                <h:outputText value="" />
+            </f:facet>
+
+            <h:selectManyCheckbox id="checkboxes"
+                rendered="#{!(questionpool.selfOrDescendant and questionpool.actionType eq 'pool')}"
+                layout="pageDirection" value="#{questionpool.destPools}"
+                onclick="updateButtonStatusesOnCheck([document.getElementById('copyPool:copypoolsubmit'), document.getElementById('copyPool:copyitemsubmit')], document.getElementById('copyPool'));"
+                onchange="updateButtonStatusesOnCheck([document.getElementById('copyPool:copypoolsubmit'), document.getElementById('copyPool:copyitemsubmit')], document.getElementById('copyPool'));">
+                <f:selectItem itemValue="#{pool.questionPoolId}" itemLabel="" />
+            </h:selectManyCheckbox>
+        </h:column>
+
+        <h:column id="col1">
+            <f:facet name="header">
+                <h:panelGroup>
+                    <h:commandLink title="#{questionPoolMessages.t_sortTitle}" id="sortByTitle"
+                        immediate="true" rendered="#{questionpool.sortCopyPoolProperty ne 'title'}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <f:param name="copyPoolOrderBy" value="title" />
+                        <f:param name="copyPoolAscending" value="true" />
+                        <h:outputText value="#{questionPoolMessages.p_name}" />
+                    </h:commandLink>
+
+                    <h:commandLink title="#{questionPoolMessages.t_sortTitle}" immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty eq 'title' and questionpool.sortCopyPoolAscending}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <h:outputText value="#{questionPoolMessages.p_name}" styleClass="currentSort" />
+                        <f:param name="copyPoolOrderBy" value="title" />
+                        <f:param name="copyPoolAscending" value="false" />
+                        <h:graphicImage alt="#{questionPoolMessages.alt_sortTitleDescending}"
+                            rendered="#{questionpool.sortCopyPoolAscending}" url="/images/sortascending.gif" />
+                    </h:commandLink>
+
+                    <h:commandLink title="#{questionPoolMessages.t_sortTitle}" immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty eq 'title' and !questionpool.sortCopyPoolAscending}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <h:outputText value="#{questionPoolMessages.p_name}" styleClass="currentSort" />
+                        <f:param name="copyPoolOrderBy" value="title" />
+                        <f:param name="copyPoolAscending" value="true" />
+                        <h:graphicImage alt="#{questionPoolMessages.alt_sortTitleAscending}"
+                            rendered="#{!questionpool.sortCopyPoolAscending}" url="/images/sortdescending.gif" />
+                    </h:commandLink>
+                </h:panelGroup>
+            </f:facet>
+
+            <h:panelGroup id="firstcolumn"
+                rendered="#{!(questionpool.selfOrDescendant and questionpool.actionType eq 'pool')}"
+                styleClass="tier#{questionpool.tree.currentLevel}">
+                <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}" />
+
+                <h:outputLink id="parenttogglelink" value="#" styleClass="treefolder"
+                    rendered="#{questionpool.tree.hasChildList}" onclick="toggleRowsForSelectList(this);"
+                    onkeypress="toggleRowsForSelectList(this);">
+                    <h:graphicImage id="spacer_for_mozilla" alt="#{questionPoolMessages.alt_togglelink}"
+                        style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
+                </h:outputLink>
+
+                <h:outputLink id="togglelink" value="#" styleClass="treedoc"
+                    rendered="#{questionpool.tree.hasNoChildList}">
+                    <h:graphicImage id="spacer_for_mozilla1"
+                        alt="#{questionPoolMessages.alt_togglelink}" style="border:0" height="14"
+                        width="30" value="/images/delivery/spacer.gif" />
+                </h:outputLink>
+
+                <h:outputText id="poolnametext" value="#{pool.displayName}" escape="false" />
+            </h:panelGroup>
+        </h:column>
+
+        <h:column id="col2">
+            <f:facet name="header">
+                <h:panelGroup>
+                    <h:commandLink title="#{questionPoolMessages.t_sortCreator}" id="sortByOwner"
+                        immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty ne 'ownerDisplayName'}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <f:param name="copyPoolOrderBy" value="ownerDisplayName" />
+                        <f:param name="copyPoolAscending" value="true" />
+                        <h:outputText value="#{questionPoolMessages.creator}" />
+                    </h:commandLink>
+
+                    <h:commandLink title="#{questionPoolMessages.t_sortCreator}" immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty eq 'ownerDisplayName' and questionpool.sortCopyPoolAscending}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <h:outputText value="#{questionPoolMessages.creator}" styleClass="currentSort" />
+                        <f:param name="copyPoolOrderBy" value="ownerDisplayName" />
+                        <f:param name="copyPoolAscending" value="false" />
+                        <h:graphicImage alt="#{questionPoolMessages.alt_sortCreatorDescending}"
+                            rendered="#{questionpool.sortCopyPoolAscending}" url="/images/sortascending.gif" />
+                    </h:commandLink>
+
+                    <h:commandLink title="#{questionPoolMessages.t_sortCreator}" immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty eq 'ownerDisplayName' and !questionpool.sortCopyPoolAscending}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <h:outputText value="#{questionPoolMessages.creator}" styleClass="currentSort" />
+                        <f:param name="copyPoolOrderBy" value="ownerDisplayName" />
+                        <f:param name="copyPoolAscending" value="true" />
+                        <h:graphicImage alt="#{questionPoolMessages.alt_sortCreatorAscending}"
+                            rendered="#{!questionpool.sortCopyPoolAscending}" url="/images/sortdescending.gif" />
+                    </h:commandLink>
+                </h:panelGroup>
+            </f:facet>
+
+            <h:panelGroup id="secondcolumn"
+                rendered="#{!(questionpool.selfOrDescendant and questionpool.actionType eq 'pool')}">
+                <h:outputText value="#{pool.ownerDisplayName}" />
+            </h:panelGroup>
+        </h:column>
+
+        <h:column id="col3">
+            <f:facet name="header">
+                <h:panelGroup>
+                    <h:commandLink title="#{questionPoolMessages.t_sortLastModified}" id="sortByLastModified"
+                        immediate="true" rendered="#{questionpool.sortCopyPoolProperty ne 'lastModified'}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <f:param name="copyPoolOrderBy" value="lastModified" />
+                        <f:param name="copyPoolAscending" value="true" />
+                        <h:outputText value="#{questionPoolMessages.last_mod}" />
+                    </h:commandLink>
+
+                    <h:commandLink title="#{questionPoolMessages.t_sortLastModified}" immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty eq 'lastModified' and questionpool.sortCopyPoolAscending}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <h:outputText value="#{questionPoolMessages.last_mod}" styleClass="currentSort" />
+                        <f:param name="copyPoolOrderBy" value="lastModified" />
+                        <f:param name="copyPoolAscending" value="false" />
+                        <h:graphicImage alt="#{questionPoolMessages.alt_sortLastModifiedDescending}"
+                            rendered="#{questionpool.sortCopyPoolAscending}" url="/images/sortascending.gif" />
+                    </h:commandLink>
+
+                    <h:commandLink title="#{questionPoolMessages.t_sortLastModified}" immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty eq 'lastModified' and !questionpool.sortCopyPoolAscending}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <h:outputText value="#{questionPoolMessages.last_mod}" styleClass="currentSort" />
+                        <f:param name="copyPoolOrderBy" value="lastModified" />
+                        <f:param name="copyPoolAscending" value="true" />
+                        <h:graphicImage alt="#{questionPoolMessages.alt_sortLastModifiedAscending}"
+                            rendered="#{!questionpool.sortCopyPoolAscending}" url="/images/sortdescending.gif" />
+                    </h:commandLink>
+                </h:panelGroup>
+            </f:facet>
+
+            <h:panelGroup id="thirdcolumn"
+                rendered="#{!(questionpool.selfOrDescendant and questionpool.actionType eq 'pool')}">
+                <h:outputText value="#{pool.lastModified}">
+                    <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                </h:outputText>
+            </h:panelGroup>
+        </h:column>
+
+        <h:column id="col4">
+            <f:facet name="header">
+                <h:panelGroup>
+                    <h:commandLink title="#{questionPoolMessages.t_sortNumQuestions}" id="sortByQuestion"
+                        immediate="true" rendered="#{questionpool.sortCopyPoolProperty ne 'questionSize'}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <f:param name="copyPoolOrderBy" value="questionSize" />
+                        <f:param name="copyPoolAscending" value="true" />
+                        <h:outputText value="#{questionPoolMessages.qs}" />
+                    </h:commandLink>
+
+                    <h:commandLink title="#{questionPoolMessages.t_sortNumQuestions}" immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty eq 'questionSize' and questionpool.sortCopyPoolAscending}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <h:outputText value="#{questionPoolMessages.qs}" styleClass="currentSort" />
+                        <f:param name="copyPoolOrderBy" value="questionSize" />
+                        <f:param name="copyPoolAscending" value="false" />
+                        <h:graphicImage alt="#{questionPoolMessages.alt_sortNumQuestionsDescending}"
+                            rendered="#{questionpool.sortCopyPoolAscending}" url="/images/sortascending.gif" />
+                    </h:commandLink>
+
+                    <h:commandLink title="#{questionPoolMessages.t_sortNumQuestions}" immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty eq 'questionSize' and !questionpool.sortCopyPoolAscending}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <h:outputText value="#{questionPoolMessages.qs}" styleClass="currentSort" />
+                        <f:param name="copyPoolOrderBy" value="questionSize" />
+                        <f:param name="copyPoolAscending" value="true" />
+                        <h:graphicImage alt="#{questionPoolMessages.alt_sortNumQuestionsAscending}"
+                            rendered="#{!questionpool.sortCopyPoolAscending}" url="/images/sortdescending.gif" />
+                    </h:commandLink>
+                </h:panelGroup>
+            </f:facet>
+
+            <h:panelGroup id="fourthcolumn"
+                rendered="#{!(questionpool.selfOrDescendant and questionpool.actionType eq 'pool')}">
+                <h:outputText value="#{pool.data.questionPoolItemSize}" />
+            </h:panelGroup>
+        </h:column>
+
+        <h:column id="col5">
+            <f:facet name="header">
+                <h:panelGroup>
+                    <h:commandLink title="#{questionPoolMessages.t_sortNumSubpools}" id="sortBySubPool"
+                        immediate="true" rendered="#{questionpool.sortCopyPoolProperty ne 'subPoolSize'}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <f:param name="copyPoolOrderBy" value="subPoolSize" />
+                        <f:param name="copyPoolAscending" value="true" />
+                        <h:outputText value="#{questionPoolMessages.subps}" />
+                    </h:commandLink>
+
+                    <h:commandLink title="#{questionPoolMessages.t_sortNumSubpools}" immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty eq 'subPoolSize' and questionpool.sortCopyPoolAscending}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <h:outputText value="#{questionPoolMessages.subps}" styleClass="currentSort" />
+                        <f:param name="copyPoolOrderBy" value="subPoolSize" />
+                        <f:param name="copyPoolAscending" value="false" />
+                        <h:graphicImage alt="#{questionPoolMessages.alt_sortNumSubpoolsDescending}"
+                            rendered="#{questionpool.sortCopyPoolAscending}" url="/images/sortascending.gif" />
+                    </h:commandLink>
+
+                    <h:commandLink title="#{questionPoolMessages.t_sortNumSubpools}" immediate="true"
+                        rendered="#{questionpool.sortCopyPoolProperty eq 'subPoolSize' and !questionpool.sortCopyPoolAscending}"
+                        action="#{questionpool.sortCopyPoolByColumnHeader}">
+                        <h:outputText value="#{questionPoolMessages.subps}" styleClass="currentSort" />
+                        <f:param name="copyPoolOrderBy" value="subPoolSize" />
+                        <f:param name="copyPoolAscending" value="true" />
+                        <h:graphicImage alt="#{questionPoolMessages.alt_sortNumSubpoolsAscending}"
+                            rendered="#{!questionpool.sortCopyPoolAscending}" url="/images/sortdescending.gif" />
+                    </h:commandLink>
+                </h:panelGroup>
+            </f:facet>
+
+            <h:panelGroup id="fifthcolumn"
+                rendered="#{!(questionpool.selfOrDescendant and questionpool.actionType eq 'pool')}">
+                <h:outputText value="#{pool.subPoolSize}" />
+            </h:panelGroup>
+        </h:column>
+    </h:dataTable>
+
+</ui:composition>

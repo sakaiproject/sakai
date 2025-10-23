@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.item_display_author}" />
+            </title>
+            <script type="text/javascript" src="/samigo-app/js/jsf.js"></script>
+        </h:head>
+        <h:body onload="#{requestScope['html.body.onload']}">
+            <div class="portletBody">
+<!-- content... -->
+<!-- FORM -->
+<h:form id="itemForm">
+
+<h:inputHidden id="assessmentID" value="#{item.assessmentID}"/>
+<h:inputHidden id="assessTitle" value="#{item.assessTitle}" />
+<h:inputHidden id="ItemIdent" value="#{item.ItemIdent}"/>
+<h:inputHidden id="ItemIdent" value="#{item.itemNo}"/>
+<h:inputHidden id="currentSection" value="#{item.currentSection}"/>
+<h:inputHidden id="insertPosition" value="#{item.insertPosition}"/>
+
+
+<!-- HEADING -->
+<ui:include src="/jsf/author/item/itemHeadings.xhtml" />
+  <!-- QUESTION PROPERTIES -->
+
+<!-- TODO:
+This will have all the other files in ./item included here.
+We need to find a strategy for doing this.
+
+something like if type true false render include true false etc.
+-->
+<h:panelGrid columns="2" cellpadding="3" cellspacing="3">
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="editAssessment">
+    <f:actionListener
+      type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorQuestionListener" />
+  </h:commandButton>
+  <h:commandButton type="submit" value="#{commonMessages.cancel_action}" action="editAssessment">
+    <f:actionListener
+      type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorQuestionListener" />
+  </h:commandButton>
+</h:panelGrid>
+
+</h:form>
+<!-- end content -->
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

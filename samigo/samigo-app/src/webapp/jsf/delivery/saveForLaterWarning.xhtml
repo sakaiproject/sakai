@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{deliveryMessages.save_for_later_title}" />
+            </title>
+            <ui:include src="/jsf/delivery/deliveryjQuery.xhtml" />
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <h:form id="saveForLater">
+                <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
+                    <div class="sak-banner-info">
+                        <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
+                        <h:commandButton value="#{deliveryMessages.exit_preview}"
+                            styleClass="exitPreviewButton"
+                            action="#{person.cleanResourceIdListInPreview}" type="submit"
+                            onclick="return returnToHostUrl('#{delivery.selectURL}');" />
+                    </div>
+                </h:panelGroup>
+
+                <div class="portletBody">
+                    <h3 class="insColor insBak">
+                        <h:outputText value="#{deliveryMessages.assessment_exit_warning_title}" />
+                    </h3>
+                    <br />
+
+                    <div class="sak-banner-warn">
+                        <h:panelGrid border="0">
+                            <h:outputText value="#{deliveryMessages.save_for_later_warning_1}" escape="false" />
+                            <h:outputText value="#{deliveryMessages.save_for_later_warning_2}" escape="false" />
+                            <h:outputText value="#{deliveryMessages.save_for_later_warning_3}" escape="false" />
+                        </h:panelGrid>
+                    </div>
+
+                    <p class="act">
+                        <h:commandButton id="returnToAssessment"
+                            value="#{deliveryMessages.button_return_to_assessment}"
+                            action="#{delivery.validate}" type="submit" styleClass="active">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+                        </h:commandButton>
+
+                        <h:commandButton id="continue" value="#{deliveryMessages.button_continue}"
+                            type="submit" action="select" disabled="#{delivery.actionString=='previewAssessment'}" />
+                    </p>
+                </div>
+
+                <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
+                    <h:commandButton value="#{deliveryMessages.exit_preview}"
+                        action="#{person.cleanResourceIdListInPreview}" type="submit"
+                        onclick="return returnToHostUrl('#{delivery.selectURL}');" />
+                </h:panelGroup>
+            </h:form>
+        </h:body>
+    </f:view>
+</ui:composition>

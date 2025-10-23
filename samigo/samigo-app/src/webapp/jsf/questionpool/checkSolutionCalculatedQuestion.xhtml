@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <ui:include src="/jsf/author/preview_item/attachment.xhtml" />
+
+    <div class="sr-only">
+        <h:outputFormat value="#{deliveryMessages.calcq_sr_explanation}" escape="false">
+            <f:param value="#{question.finArray.size() - 1}" />
+        </h:outputFormat>
+    </div>
+
+    <samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0"
+        rows="100">
+        <h:column>
+            <h:outputText id="calcq-question-text" styleClass="calcq-question-text"
+                value="#{answer.text} " escape="false">
+                <f:converter
+                    converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+            </h:outputText>
+            <h:outputText value="&#160;" escape="false" />
+            <h:panelGroup styleClass="si si-check-lg" id="image" rendered="#{answer.isCorrect}" />
+            <h:outputText style="text-decoration: underline" value="#{answer.response}" />
+        </h:column>
+    </samigo:dataLine>
+
+    <br />
+
+    <h:panelGroup layout="block">
+        <br />
+        <h:panelGroup layout="block">
+            <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel"
+                value="#{deliveryMessages.ans_key}: " />
+            <h:outputText id="answerKeyMC" value="#{question.key}" escape="false" />
+        </h:panelGroup>
+        <h:panelGroup layout="block">
+            <br />
+            <h:panelGroup styleClass="si si-check-lg" id="imageCheck" />
+            <strong>
+                <h:outputLabel for="feedSC"
+                    value="#{authorMessages.correctItemFeedback}#{deliveryMessages.column} " />
+            </strong>
+            <h:outputText id="feedSC"
+                value="#{question.itemData.correctItemFeedbackValue}" escape="false" />
+            <br />
+            <h:panelGroup styleClass="si si-remove feedBackCross" id="imageCross" />
+            <strong>
+                <h:outputLabel for="feedSCI"
+                    value="#{authorMessages.incorrectItemFeedback}#{deliveryMessages.column} " />
+            </strong>
+            <h:outputText id="feedSCI"
+                value="#{question.itemData.inCorrectItemFeedbackValue}" escape="false" />
+        </h:panelGroup>
+    </h:panelGroup>
+
+</ui:composition>

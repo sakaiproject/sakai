@@ -79,7 +79,7 @@
 
     <f:verbatim><span><a href="/portal/tool/</f:verbatim>
 <h:outputText value="#{requestScope['sakai.tool.placement.id']}" />
-<f:verbatim>/jsf/author/searchPreview.faces?idString=</f:verbatim><h:outputText value="#{item_search_result.value.idString}" />
+<f:verbatim>/jsf/author/searchPreview.xhtml?idString=</f:verbatim><h:outputText value="#{item_search_result.value.idString}" />
 <f:verbatim>&typeId=</f:verbatim><h:outputText value="#{item_search_result.value.typeId}" />
 <f:verbatim>" class="uimodal" loading="</f:verbatim><h:outputText value="#{authorMessages.loading}" /><f:verbatim>" title="</f:verbatim><h:outputText value="#{authorMessages.preview}" /><f:verbatim>"   ><i class="fa fa-eye" aria-hidden="true"></i></a></f:verbatim>
 

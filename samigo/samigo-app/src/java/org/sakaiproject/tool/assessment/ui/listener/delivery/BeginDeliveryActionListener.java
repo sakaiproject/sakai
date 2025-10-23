@@ -186,7 +186,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setTimeStamp((new Date()).getTime());
     delivery.setRedrawAnchorName("");
     
-    // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
+    // protocol = http://servername:8080/; deliverAudioRecording.xhtml needs it
     delivery.setProtocol(ContextUtil.getProtocol());
 
     ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);

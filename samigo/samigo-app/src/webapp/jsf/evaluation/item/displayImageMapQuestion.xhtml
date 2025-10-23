@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/samigo-app/js/selection.author.preview.js"></script>
+    <script src="/samigo-app/js/selection.student.preview.js"></script>
+    <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css" />
+    <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.student.css" />
+
+    <h:outputScript target="body">
+//<![CDATA[
+jQuery(window).on('load', function () {
+    $("input:hidden[id^='hiddenSerializedCoords_']").each(function () {
+        var matches = /hiddenSerializedCoords_(\d+)_(\d+)/.exec(this.id);
+        if (!matches) {
+            return;
+        }
+        var label = matches[2];
+        var sel = new selectionAuthor({ selectionClass: 'selectiondiv', textClass: 'textContainer' }, 'imageMapContainer');
+        try {
+            sel.setCoords(jQuery.parseJSON(this.value));
+            sel.setText(label);
+        } catch (err) {
+            // ignore malformed entries
+        }
+    });
+});
+
+var selectionList = [];
+function loadAnswer(answerString) {
+    for (var i = 0; i < selectionList.length; i++) {
+        selectionList[i].remove();
+    }
+    selectionList = [];
+
+    var tokens = answerString.split('<br/>');
+    for (var i = 0; i < tokens.length; i++) {
+        try {
+            var label = tokens[i].substring(0, tokens[i].indexOf(':'));
+            var coords = tokens[i].substring(tokens[i].indexOf(':') + 1);
+            var newSelection = new selectionStudent('pointerClass', 'imageMapContainer');
+            newSelection.setCoords(jQuery.parseJSON(coords));
+            newSelection.setText(label);
+            selectionList.push(newSelection);
+        } catch (err) {
+            // ignore malformed entries
+        }
+    }
+}
+//]]>
+    </h:outputScript>
+
+    <h:outputText value="#{question.text}" escape="false" />
+
+    <h:dataTable value="#{question.itemTextArraySorted}" var="itemText">
+        <h:column>
+            <h:outputText value="#{itemText.sequence}#{evaluationMessages.dot} #{itemText.text}"
+                escape="false" />
+            <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
+                <h:column>
+                    <input type="hidden"
+                        id="hiddenSerializedCoords_#{question.sequence}_#{itemText.sequence}"
+                        value="#{answer.text}" />
+                </h:column>
+            </h:dataTable>
+        </h:column>
+    </h:dataTable>
+
+    <div id="imageMapContainer" class="authorImageContainer">
+        <img id="img" src="#{question.imageMapSrc}" alt="#{question.imageMapAltText}" />
+    </div>
+
+    <ui:include src="/jsf/evaluation/item/displayTags.xhtml" />
+
+</ui:composition>

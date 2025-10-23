@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:outputText styleClass="questionBlock" escape="false" value="#{question.itemData.text}" />
+    <br />
+    <br />
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys or printSettings.showKeysFeedback}">
+        <h:outputLabel value="#{printMessages.answer_point}: " />
+        <h:outputText value="#{question.itemData.score}">
+            <f:convertNumber maxFractionDigits="2" groupingUsed="false" />
+        </h:outputText>
+        <h:outputText escape="false" value=" #{authorMessages.points_lower_case}" />
+        <br />
+        <h:outputLabel value="#{printMessages.answer_model}: " />
+        <h:outputText rendered="#{not empty question.key and question.key ne 'null'}" escape="false" value="#{question.key}" />
+        <h:outputText rendered="#{empty question.key or question.key eq 'null'}" escape="false" value="--------" />
+        <br />
+    </h:panelGroup>
+
+    <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
+        <h:outputLabel value="#{commonMessages.feedback}: " />
+        <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" rendered="#{not empty question.itemData.generalItemFeedback}" />
+        <h:outputText escape="false" value="--------" rendered="#{empty question.itemData.generalItemFeedback}" />
+    </h:panelGroup>
+
+</ui:composition>

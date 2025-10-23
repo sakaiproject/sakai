@@ -116,4 +116,3 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
   </h:panelGrid>
 
 <%@ include file="/jsf/delivery/assessmentDeliveryTimer.jsp" %>
-

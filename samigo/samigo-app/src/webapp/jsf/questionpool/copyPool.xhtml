@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{questionPoolMessages.copy_p}" />
+            </title>
+
+            <script src="/samigo-app/js/samigotree.js"></script>
+            <script src="/library/js/spinner.js"></script>
+            <script>
+                function initPage() {
+                    collapseAllRowsForSelectList();
+                    var poolSubmitButton = document.getElementById('copyPool:copypoolsubmit');
+                    if (poolSubmitButton !== null) {
+                        poolSubmitButton.disabled = true;
+                    }
+                    var itemSubmitButton = document.getElementById('copyPool:copyitemsubmit');
+                    if (itemSubmitButton !== null) {
+                        itemSubmitButton.disabled = true;
+                    }
+                }
+                window.onload = initPage;
+            </script>
+        </h:head>
+
+        <h:body
+            onload="collapseAllRowsForSelectList();#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']};">
+            <div class="portletBody container-fluid">
+                <h:form id="copyPool">
+                    <ui:include src="/jsf/questionpool/questionpoolHeadings.xhtml" />
+                    <br />
+
+                    <h:messages styleClass="sak-banner-error"
+                        rendered="#{facesContext.maximumSeverity ne null}" layout="table" />
+
+                    <h3>
+                        <h:outputText rendered="#{questionpool.actionType eq 'pool'}"
+                            value="#{questionPoolMessages.copy_p}" />
+                        <h:outputText rendered="#{questionpool.actionType eq 'item'}"
+                            value="#{questionPoolMessages.copy_q}" />
+                    </h3>
+
+                    <div class="tier1">
+                        <h:outputText value="#{questionPoolMessages.sel_dest_copy} " />
+                        <h:outputText rendered="#{questionpool.actionType eq 'pool'}"
+                            value="#{questionpool.currentPool.displayName}" />
+                        <h:outputText
+                            rendered="#{questionpool.actionType eq 'item' and questionpool.currentItems[1] eq null}"
+                            escape="false" value="#{questionpool.currentItems[0].text}" />
+
+                        <h:dataTable
+                            rendered="#{questionpool.actionType eq 'item' and questionpool.currentItems[1] ne null}"
+                            id="questions" value="#{questionpool.currentItems}" var="curItem"
+                            styleClass="table table-bordered">
+                            <h:column>
+                                <h:outputText escape="false" value="#{curItem.text}" />
+                            </h:column>
+                        </h:dataTable>
+                    </div>
+
+                    <div class="longtext tier2">
+                        <ui:include src="/jsf/questionpool/copyPoolTree.xhtml" />
+                    </div>
+
+                    <p class="act">
+                        <h:commandButton id="copypoolsubmit" immediate="true"
+                            value="#{questionPoolMessages.copy}" action="#{questionpool.copyPool}"
+                            styleClass="active" rendered="#{questionpool.actionType eq 'pool'}"
+                            onclick="SPNR.disableControlsAndSpin(this, null);" />
+
+                        <h:commandButton id="copyitemsubmit" immediate="true"
+                            value="#{questionPoolMessages.copy}" action="#{questionpool.copyQuestion}"
+                            styleClass="active" rendered="#{questionpool.actionType eq 'item'}"
+                            onclick="SPNR.disableControlsAndSpin(this, null);" />
+
+                        <h:commandButton id="cancel" value="#{commonMessages.cancel_action}"
+                            action="#{questionpool.cancelPool}" immediate="true"
+                            rendered="#{questionpool.actionType eq 'pool'}"
+                            onclick="SPNR.disableControlsAndSpin(this, null);">
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+                            <f:attribute name="returnToParentPool" value="true" />
+                        </h:commandButton>
+
+                        <h:commandButton id="cancelItem"
+                            value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}"
+                            immediate="true" rendered="#{questionpool.actionType eq 'item'}"
+                            onclick="SPNR.disableControlsAndSpin(this, null);">
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+                            <f:attribute name="returnToParentPool" value="false" />
+                        </h:commandButton>
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

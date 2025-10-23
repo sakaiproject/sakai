@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{questionPoolMessages.sol_q}" />
+            </title>
+            <script src="/library/js/spinner.js"></script>
+        </h:head>
+
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <h:form id="solution">
+                <ui:include src="/jsf/questionpool/questionpoolHeadings.xhtml" />
+                <br />
+
+                <div class="tier2">
+                    <div class="page-header">
+                        <h4 class="part-header">
+                            <h:outputText
+                                value="#{questionPoolMessages.solution_calculated_question}" />
+                        </h4>
+                    </div>
+
+                    <t:dataList value="#{questionpool.itemsBean}" var="question"
+                        itemStyleClass="page-header question-box" styleClass="question-wrapper"
+                        layout="unorderedList">
+
+                        <h:panelGroup layout="block" styleClass="row #{delivery.actionString}">
+                            <h:panelGroup layout="block" styleClass="col-sm-6">
+                                <h:panelGroup layout="block" styleClass="row">
+                                    <h:panelGroup layout="block"
+                                        styleClass="col-sm-12 input-group">
+                                        <p class="input-group-addon m-0">
+                                            <h:outputText
+                                                value="#{deliveryMessages.q} 1 #{deliveryMessages.of} " />
+                                            <h:outputText value="1" />
+                                        </p>
+                                        <h:inputText readonly="true"
+                                            styleClass="form-control adjustedScore#{studentScores.assessmentGradingId}.#{question.itemData.itemId}"
+                                            id="adjustedScore" value="#{question.pointsForEdit}" />
+                                    </h:panelGroup>
+
+                                    <h:panelGroup layout="block"
+                                        styleClass="col-sm-12 input-group">
+                                        <p class="samigo-input-group-addon">
+                                            <h:outputText
+                                                value=" #{deliveryMessages.splash} #{question.roundedMaxPointsToDisplay} " />
+                                            <h:outputText value="#{deliveryMessages.pt}" />
+                                            <h:message for="adjustedScore"
+                                                styleClass="sak-banner-error" />
+                                            <h:outputText styleClass="extraCreditLabel"
+                                                rendered="#{question.itemData.isExtraCredit}"
+                                                value=" #{deliveryMessages.extra_credit_preview}" />
+                                        </p>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </h:panelGroup>
+                        </h:panelGroup>
+
+                        <h:panelGroup layout="block"
+                            rendered="#{question.itemData.typeId eq 15}">
+                            <div class="samigo-question-callout">
+                                <ui:include
+                                    src="/jsf/questionpool/checkSolutionCalculatedQuestion.xhtml" />
+                            </div>
+                        </h:panelGroup>
+
+                        <p class="act">
+                            <h:commandButton id="anotherSolution" styleClass="active"
+                                value="#{questionPoolMessages.another_solution}"
+                                action="#{questionpool.checkSolution}">
+                                <f:param name="itemid" value="#{question.itemData.itemId}" />
+                                <f:param name="outCome" value="editPool" />
+                            </h:commandButton>
+                        </p>
+                    </t:dataList>
+
+                    <h:commandButton value="#{commonMessages.cancel_action}"
+                        action="#{questionpool.cancelPool}"
+                        onclick="SPNR.disableControlsAndSpin(this, null);">
+                        <f:actionListener
+                            type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+                        <f:attribute name="returnToParentPool" value="false" />
+                    </h:commandButton>
+                </div>
+            </h:form>
+        </h:body>
+    </f:view>
+</ui:composition>

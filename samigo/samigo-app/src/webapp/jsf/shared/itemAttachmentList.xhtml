@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <h:outputText value="#{printMessages.attachments} " escape="false" rendered="#{not empty itemAttachmentList and delivery.fromPrint}" />
+
+    <h:dataTable value="#{itemAttachmentList}" var="attach" border="0">
+        <h:column>
+            <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+
+            <ui:fragment rendered="#{attach.isInlineVideo and not delivery.fromPrint}">
+                <embed src="#{delivery.protocol}/samigo-app/servlet/ShowAttachmentMedia?resourceId=#{attach.encodedResourceId}&amp;mimeType=#{attach.mimeType}&amp;filename=#{attach.filename}" volume="50" height="350" width="400" autostart="false" />
+            </ui:fragment>
+            <h:outputText value="#{attach.filename}" rendered="#{attach.isInlineVideo and delivery.fromPrint}" />
+
+            <ui:fragment rendered="#{attach.isInlineImage}">
+                <img src="#{delivery.protocol}/samigo-app/servlet/ShowAttachmentMedia?resourceId=#{attach.encodedResourceId}&amp;mimeType=#{attach.mimeType}&amp;filename=#{attach.filename}" alt="#{attach.filename}" />
+            </ui:fragment>
+
+            <h:panelGrid rendered="#{not attach.isMedia and not delivery.fromPrint}" border="0" columns="2">
+                <h:column>
+                    <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                    <h:outputText value="&#160;&#160;" escape="false" />
+                    <h:outputLink value="#{attach.location}" target="new_window">
+                        <h:outputText value="#{attach.filename}" />
+                    </h:outputLink>
+                </h:column>
+                <h:column>
+                    <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                    <h:outputText value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{not attach.isLink}" escape="false" />
+                </h:column>
+            </h:panelGrid>
+
+            <h:outputText value="#{attach.filename}" rendered="#{not attach.isMedia and delivery.fromPrint}" />
+        </h:column>
+    </h:dataTable>
+
+</ui:composition>

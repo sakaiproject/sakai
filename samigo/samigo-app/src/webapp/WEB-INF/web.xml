@@ -20,6 +20,17 @@
     <param-name>com.sun.faces.validateXml</param-name>
     <param-value>false</param-value>
   </context-param>
+
+  <context-param>
+    <param-name>javax.faces.FACELETS_LIBRARIES</param-name>
+    <param-value>/WEB-INF/samigo-facelets.taglib.xml</param-value>
+  </context-param>
+
+  <context-param>
+    <description>Samigo loads Mojarra's client script from a static path.</description>
+    <param-name>javax.faces.AUTOMATIC_JSF_JS</param-name>
+    <param-value>false</param-value>
+  </context-param>
    
 	<!-- begin SAMIGO RSF context params --> 
  	<context-param>
@@ -92,7 +103,7 @@
     <servlet-class>org.sakaiproject.jsf.util.SamigoJsfTool</servlet-class>
     <init-param>
       <param-name>default</param-name>
-      <param-value>jsf/index/mainIndex</param-value>
+      <param-value>jsf/index/mainIndex.xhtml</param-value>
     </init-param>
     <init-param>
       <param-name>path</param-name>
@@ -278,6 +289,16 @@
   <servlet-mapping>
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>*.jsf</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.jsp</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.xhtml</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

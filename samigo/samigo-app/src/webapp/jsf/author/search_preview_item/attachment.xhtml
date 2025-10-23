@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:panelGroup rendered="#{not empty item.itemAttachmentList}">
+        <br />
+        <h:outputLabel value="#{authorMessages.attachments}" />
+        <h:dataTable value="#{item.itemAttachmentList}" var="attach">
+            <h:column>
+                <ui:include src="/jsf/shared/mimeicon.xhtml" />
+            </h:column>
+            <h:column>
+                <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                <h:outputLink value="#{attach.location}" target="new_window">
+                    <h:outputText value="#{attach.filename}" />
+                </h:outputLink>
+            </h:column>
+            <h:column>
+                <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                <h:outputText value="#{attach.fileSize} #{generalMessages.kb}" escape="false"
+                    rendered="#{!attach.isLink}" />
+            </h:column>
+        </h:dataTable>
+        <br />
+    </h:panelGroup>
+
+</ui:composition>

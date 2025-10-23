@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="Quiz: #{pdfAssessmentBean.title}" />
+            </title>
+            <link rel="stylesheet" type="text/css" href="/samigo-app/css/print/print.css" />
+            <link rel="stylesheet" type="text/css" href="/samigo-app/css/imageQuestion.author.css" />
+            <ui:include src="/jsf/delivery/deliveryjQuery.xhtml" />
+            <script src="/samigo-app/js/selection.author.preview.js"></script>
+        </h:head>
+        <h:body id="qb_print" styleClass="view_student">
+            <h:form id="assessmentForm">
+                <h:commandLink styleClass="printReturnLink" action="#{pdfAssessment.getActionString}">
+                    <h:outputText value="#{printMessages.back_to_assessmt}" rendered="#{pdfAssessment.actionString == 'editAssessment'}" escape="false" />
+                    <h:outputText value="#{printMessages.back_to_landingpage}" rendered="#{pdfAssessment.actionString != 'editAssessment'}" escape="false" />
+                </h:commandLink>
+
+                <h:messages />
+
+                <div class="container mt-3">
+                    <div class="navModeAction">
+                        <div class="vstack gap-2">
+                            <div class="form-check">
+                                <h:selectBooleanCheckbox id="showKeys" value="#{printSettings.showKeys}" styleClass="form-check-input" />
+                                <h:outputLabel for="showKeys" styleClass="form-check-label">
+                                    <h:outputText value="#{printMessages.show_answer_key}" />
+                                </h:outputLabel>
+                            </div>
+
+                            <div class="form-check">
+                                <h:selectBooleanCheckbox id="showFeedback" value="#{printSettings.showKeysFeedback}" styleClass="form-check-input" />
+                                <h:outputLabel for="showFeedback" styleClass="form-check-label">
+                                    <h:outputText value="#{printMessages.show_answer_feedback}" />
+                                </h:outputLabel>
+                            </div>
+
+                            <div class="form-check">
+                                <h:selectBooleanCheckbox id="showPartIntros" value="#{printSettings.showPartIntros}" styleClass="form-check-input" />
+                                <h:outputLabel for="showPartIntros" styleClass="form-check-label">
+                                    <h:outputText value="#{printMessages.show_intros_titles}" />
+                                </h:outputLabel>
+                            </div>
+
+                            <div class="form-check">
+                                <h:selectBooleanCheckbox id="showSamePage" value="#{printSettings.showSamePage}" styleClass="form-check-input" />
+                                <h:outputLabel for="showSamePage" styleClass="form-check-label">
+                                    <h:outputText value="#{printMessages.show_same_page}" />
+                                </h:outputLabel>
+                            </div>
+
+                            <div class="form-check">
+                                <h:selectBooleanCheckbox id="showSequence" value="#{printSettings.showSequence}" styleClass="form-check-input" />
+                                <h:outputLabel for="showSequence" styleClass="form-check-label">
+                                    <h:outputText value="#{printMessages.show_answer_sequence}" />
+                                </h:outputLabel>
+                            </div>
+
+                            <div class="mb-3 col-md-3">
+                                <h:outputLabel for="fontSize" styleClass="form-label">
+                                    <h:outputText value="#{printMessages.font_size}:" />
+                                </h:outputLabel>
+                                <h:selectOneMenu id="fontSize" value="#{printSettings.fontSize}" styleClass="form-select">
+                                    <f:selectItem itemLabel="#{printMessages.size_xsmall}" itemValue="1" />
+                                    <f:selectItem itemLabel="#{printMessages.size_small}" itemValue="2" />
+                                    <f:selectItem itemLabel="#{printMessages.size_medium}" itemValue="3" />
+                                    <f:selectItem itemLabel="#{printMessages.size_large}" itemValue="4" />
+                                    <f:selectItem itemLabel="#{printMessages.size_xlarge}" itemValue="5" />
+                                </h:selectOneMenu>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <h:commandButton action="#{pdfAssessment.prepDocumentPDF}" value="#{printMessages.apply_settings}" styleClass="btn btn-primary d-none auto-apply-settings" />
+                                <h:commandButton onclick="print();" value="#{printMessages.print_html}" type="button" styleClass="btn btn-secondary" />
+                                <h:commandButton action="#{pdfAssessment.getPDFAttachment}" value="#{printMessages.print_pdf}" styleClass="btn btn-secondary" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quizWrapper" style="font-size: #{printSettings.fontSize eq '1' ? '10px' : printSettings.fontSize eq '2' ? '13px' : printSettings.fontSize eq '3' ? '16px' : printSettings.fontSize eq '4' ? '21px' : '26px'};">
+                    <div id="assessmentForm:meta" class="assessment_meta">
+                        <p>
+                            <h:outputText value="#{printMessages.print_name_form}" />
+                            <br />
+                            <h:outputText value="#{printMessages.print_score_form}" />
+                            <br />
+                        </p>
+                    </div>
+
+                    <div id="assessmentForm:title" class="assessment_title">
+                        <h:outputText value="#{pdfAssessment.title}" escape="false" />
+                    </div>
+
+                    <div class="assessment_intro quiz">
+                        <h:outputText id="assessmentIntro" value="#{delivery.instructorMessage}" escape="false" rendered="#{printSettings.showPartIntros and not empty delivery.instructorMessage}" />
+                    </div>
+
+                    <h:panelGrid columns="2" border="0" rendered="#{printSettings.showPartIntros and delivery.hasAttachment}">
+                        <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                        <ui:include src="/jsf/delivery/assessment_attachment.xhtml" />
+                    </h:panelGrid>
+
+                    <h:dataTable id="parts" width="100%" value="#{pdfAssessment.deliveryParts}" var="part" border="0">
+                        <h:column>
+                            <h:panelGroup id="fullTitle">
+                                <h:panelGroup id="partIntro" rendered="#{pdfAssessment.sizeDeliveryParts >= 1}">
+                                    <h:panelGrid border="0">
+                                        <h:panelGroup>
+                                            <h:outputText id="number" value="#{authorMessages.p} #{part.number}" escape="false" styleClass="part_title_text" />
+                                            <h:outputText id="title" value=": #{part.title}" escape="false" styleClass="part_title" rendered="#{printSettings.showPartIntros and part.title ne 'Default' and part.title ne 'default'}" />
+                                        </h:panelGroup>
+                                        <h:outputText value="&#160;" escape="false" />
+                                        <h:outputText id="description" value="#{part.description}" escape="false" styleClass="part_info" rendered="#{printSettings.showPartIntros and not empty part.description}" />
+                                    </h:panelGrid>
+                                </h:panelGroup>
+                            </h:panelGroup>
+
+                            <h:panelGrid columns="2" border="0" rendered="#{printSettings.showPartIntros and part.hasAttachment}">
+                                <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                                <ui:include src="/jsf/delivery/part_attachment.xhtml" />
+                            </h:panelGrid>
+
+                            <h:dataTable id="items" width="100%" headerClass="regHeading" value="#{part.itemContents}" var="question" columnClasses="col-printQNum, col-printQues" rowClasses="item" border="0">
+                                <h:column>
+                                    <ui:fragment rendered="#{printSettings.showSequence}">
+                                        <h3 class="question_number">
+                                            <h:outputText value="#{question.sequence}" escape="false" />
+                                        </h3>
+                                    </ui:fragment>
+                                </h:column>
+
+                                <h:column>
+                                    <h:panelGroup id="fullText">
+                                        <h:panelGroup layout="block" styleClass="question type-#{question.itemData.typeId}">
+                                            <ui:fragment rendered="#{question.itemData.typeId == 9}">
+                                                <ui:include src="/jsf/print/preview_item/Matching.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 8}">
+                                                <ui:include src="/jsf/print/preview_item/FillInTheBlank.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 11}">
+                                                <ui:include src="/jsf/print/preview_item/FillInNumeric.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 7}">
+                                                <ui:include src="/jsf/print/preview_item/AudioRecording.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 6}">
+                                                <ui:include src="/jsf/print/preview_item/FileUpload.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 5}">
+                                                <ui:include src="/jsf/print/preview_item/ShortAnswer.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 4}">
+                                                <ui:include src="/jsf/print/preview_item/TrueFalse.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 3}">
+                                                <ui:include src="/jsf/print/preview_item/MultipleChoiceSurvey.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 2}">
+                                                <ui:include src="/jsf/print/preview_item/MultipleChoiceMultipleCorrect.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 1 or question.itemData.typeId == 12}">
+                                                <ui:include src="/jsf/print/preview_item/MultipleChoiceSingleCorrect.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 13}">
+                                                <ui:include src="/jsf/print/preview_item/MatrixChoicesSurvey.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 16}">
+                                                <ui:include src="/jsf/print/preview_item/ImageMapQuestion.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 14}">
+                                                <ui:include src="/jsf/print/preview_item/ExtendedMatchingItems.xhtml" />
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{question.itemData.typeId == 15}">
+                                                <ui:include src="/jsf/print/preview_item/CalculatedQuestion.xhtml" />
+                                            </ui:fragment>
+
+                                            <ui:fragment rendered="#{not (part.number == pdfAssessment.sizeDeliveryParts and question.number == pdfAssessment.totalQuestions) and (printSettings.showKeys or printSettings.showKeysFeedback)}">
+                                                <hr />
+                                            </ui:fragment>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                </h:column>
+                            </h:dataTable>
+                        </h:column>
+                    </h:dataTable>
+                </div>
+            </h:form>
+
+            <h:outputScript target="body">
+                //<![CDATA[
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.querySelectorAll('.form-check-input, .form-select').forEach(function(control) {
+                        control.addEventListener('change', function() {
+                            var applyButton = document.querySelector('.auto-apply-settings');
+                            if (applyButton) {
+                                applyButton.click();
+                            }
+                        });
+                    });
+
+                    document.querySelectorAll("input[type='hidden'][id^='hiddenSerializedCoords_']").forEach(function(hiddenInput) {
+                        var matches = /hiddenSerializedCoords_(\d+_\d+)_(\d+)/.exec(hiddenInput.id);
+                        if (!matches) {
+                            return;
+                        }
+
+                        var sequence = matches[1];
+                        var label = parseInt(matches[2], 10) + 1;
+                        var sel = new selectionAuthor({ selectionClass: 'selectiondiv', textClass: 'textContainer' }, 'answerImageMapContainer_' + sequence);
+
+                        try {
+                            sel.setCoords(jQuery.parseJSON(hiddenInput.value));
+                            sel.setText(label);
+                        } catch (err) {
+                            // ignore invalid serialized coordinates
+                        }
+                    });
+                });
+
+                window.clickInsertLink = function(field) {
+                    var insertLinkId = field.id.replace('changeQType', 'hiddenlink');
+                    var targetIndex = 0;
+
+                    for (var i = 0; i < document.links.length; i++) {
+                        if (document.links[i].id === insertLinkId) {
+                            targetIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (document.links[targetIndex]) {
+                        document.links[targetIndex].onclick();
+                    }
+                };
+                //]]>
+            </h:outputScript>
+        </h:body>
+    </f:view>
+
+</ui:composition>

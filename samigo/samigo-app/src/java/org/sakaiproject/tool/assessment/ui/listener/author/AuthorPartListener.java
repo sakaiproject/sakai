@@ -59,7 +59,7 @@ public class AuthorPartListener implements ActionListener
     sectionBean.setSectionId("");
     sectionBean.setSection(null);
 
-    // #1b. goto editPart.jsp
+    // #1b. goto editPart.xhtml
     //sectionBean.setPoolsAvailable(itemauthorbean.getPoolSelectList());
     sectionBean.setHideRandom(false);
     sectionBean.setNumberSelected("");

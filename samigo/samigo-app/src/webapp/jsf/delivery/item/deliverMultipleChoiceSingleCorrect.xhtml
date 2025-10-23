@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+    <h:outputScript target="body">
+        //<![CDATA[
+        var selectedRadioButton#{question.itemData.itemId};
+        function uncheckRadioButtons#{question.itemData.itemId}(radioButton) {
+          if (selectedRadioButton#{question.itemData.itemId} != null) {
+            selectedRadioButton#{question.itemData.itemId}.checked = false;
+          }
+          selectedRadioButton#{question.itemData.itemId} = radioButton;
+          selectedRadioButton#{question.itemData.itemId}.checked = true;
+        }
+        //]]>
+    </h:outputScript>
+
+    <fieldset>
+        <h:outputText value="#{question.text}" escape="false">
+            <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+        </h:outputText>
+
+        <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+        <h:panelGroup layout="block" styleClass="mcscFixUp mcscFixUpClassForSelector-#{question.itemData.itemId}">
+            <h:panelGroup layout="block" styleClass="mcscFixUpSource">
+                <h:selectOneRadio id="samigo-mc-select-one" required="false" value="#{question.responseId}" layout="pagedirection"
+                    disabled="#{delivery.actionString == 'reviewAssessment' or delivery.actionString == 'gradeAssessment'}">
+                    <f:selectItems value="#{question.selectItemPartsMC}" />
+                </h:selectOneRadio>
+            </h:panelGroup>
+
+            <t:dataList layout="unorderedList" styleClass="samigo-question" itemStyleClass="samigo-question-answer"
+                value="#{question.selectionArray}" var="selection">
+                <h:panelGroup rendered="#{delivery.feedback eq 'true' and delivery.feedbackComponent.showCorrectResponse and delivery.noFeedback != 'true' and question.itemData.typeId != 3}">
+                    <h:panelGroup id="image"
+                        rendered="#{(selection.answer.isCorrect eq 'true' or (question.itemData.partialCreditFlag and selection.answer.partialCredit gt 0)) and selection.response}"
+                        styleClass="si si-check-lg imageClassForSelector" />
+                    <h:panelGroup id="image2"
+                        rendered="#{((question.itemData.partialCreditFlag and (selection.answer.partialCredit le 0 or selection.answer.partialCredit == null)) or (selection.answer.isCorrect != null and !selection.answer.isCorrect)) and selection.response}"
+                        styleClass="si si-remove feedBackCross imageClassForSelector" />
+                    <h:panelGroup id="noimage"
+                        rendered="#{!selection.response}"
+                        styleClass="icon-sakai--check feedBackNone imageClassForSelector" />
+                </h:panelGroup>
+                <h:panelGroup layout="block" styleClass="mcscFixUpTarget" />
+                <h:panelGroup styleClass="mcAnswerText">
+                    <span class="samigo-answer-label strong" aria-hidden="true">
+                        <h:outputText value=" #{selection.answer.label}" escape="false" />
+                        <h:outputText value="#{deliveryMessages.dot} " rendered="#{selection.answer.label ne ''}" />
+                    </span>
+                    <h:outputText styleClass="samigo-answer-text" value="#{selection.answer.text}" escape="false"
+                        rendered="#{question.itemData.typeId == 3}">
+                        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+                    </h:outputText>
+                    <h:outputText styleClass="samigo-answer-text" value="#{selection.answer.text}" escape="false"
+                        rendered="#{question.itemData.typeId != 3}">
+                        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+                    </h:outputText>
+                </h:panelGroup>
+
+                <h:panelGroup rendered="#{delivery.feedback eq 'true'
+                    and delivery.feedbackComponent.showSelectionLevel
+                    and question.itemData.typeId != 3
+                    and selection.answer.generalAnswerFeedback != 'null'
+                    and selection.answer.generalAnswerFeedback != null
+                    and selection.answer.generalAnswerFeedback != ''
+                    and selection.response}">
+                    <div class="feedbackComment">
+                        <h:outputText value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+                        <h:outputText value="#{selection.answer.generalAnswerFeedback}" escape="false">
+                            <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+                        </h:outputText>
+                    </div>
+                </h:panelGroup>
+
+                <h:panelGroup rendered="#{delivery.feedback eq 'true'
+                    and question.itemData.partialCreditFlag
+                    and selection.response
+                    and selection.answer.partialCredit gt 0
+                    and delivery.feedbackComponent.showCorrectResponse}">
+                    <div class="feedbackComment">
+                        <h:outputText value="#{deliveryMessages.partial_credit}#{deliveryMessages.column} #{selection.answer.partialCredit}" />
+                    </div>
+                </h:panelGroup>
+            </t:dataList>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{question.itemData.hasRationale and question.itemData.typeId != 3}">
+            <br />
+            <br />
+            <h:outputLabel for="rationale" value="#{deliveryMessages.rationale}" />
+            <br />
+            <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40"
+                rendered="#{delivery.actionString != 'reviewAssessment' and delivery.actionString != 'gradeAssessment'}" />
+            <h:outputText id="rationale2" value="#{question.rationaleForDisplay}"
+                rendered="#{delivery.actionString == 'reviewAssessment' or delivery.actionString == 'gradeAssessment'}" escape="false" />
+        </h:panelGroup>
+
+        <br />
+        <br />
+
+        <h:panelGroup rendered="#{(delivery.actionString == 'previewAssessment'
+                or delivery.actionString == 'takeAssessment'
+                or delivery.actionString == 'takeAssessmentViaUrl')
+            and delivery.navigation ne '1'
+            and delivery.displayMardForReview}">
+            <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
+            <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
+            <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#"
+                onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();">
+                <h:outputText value=" #{assessmentSettingsMessages.whats_this_link}" />
+            </h:outputLink>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
+            <h:panelGrid
+                rendered="#{(delivery.feedbackComponent.showCorrectResponse and delivery.feedbackComponent.showCorrection and delivery.noFeedback != 'true' and question.itemData.typeId != 3)
+                    or delivery.actionString == 'gradeAssessment'}">
+                <h:panelGroup>
+                    <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel"
+                        value="#{deliveryMessages.ans_key}#{deliveryMessages.column} " />
+                    <h:outputText id="answerKeyMC" value="#{question.key}" escape="false" />
+                </h:panelGroup>
+                <h:outputText value=" " />
+            </h:panelGrid>
+
+            <h:panelGrid
+                rendered="#{delivery.feedbackComponent.showItemLevel and delivery.noFeedback != 'true' and question.feedbackIsNotEmpty}">
+                <h:panelGroup>
+                    <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
+                        value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+                    <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+                </h:panelGroup>
+                <h:outputText value=" " />
+            </h:panelGrid>
+
+            <h:panelGrid columns="1" border="0"
+                rendered="#{delivery.actionString != 'gradeAssessment'
+                    and delivery.feedbackComponent.showGraderComment
+                    and delivery.noFeedback != 'true'
+                    and (question.gradingCommentIsNotEmpty or question.hasItemGradingAttachment)}">
+                <h:panelGroup>
+                    <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel"
+                        value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+                    <h:outputText id="commentSC" value="#{question.gradingComment}"
+                        escape="false" rendered="#{question.gradingCommentIsNotEmpty}" />
+                </h:panelGroup>
+
+                <h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+                    <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+                        <h:column>
+                            <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                        </h:column>
+                        <h:column>
+                            <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                            <h:outputLink value="#{attach.location}" target="new_window">
+                                <h:outputText value="#{attach.filename}" />
+                            </h:outputLink>
+                        </h:column>
+                        <h:column>
+                            <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                            <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})"
+                                rendered="#{!attach.isLink}" />
+                        </h:column>
+                    </h:dataTable>
+                </h:panelGroup>
+            </h:panelGrid>
+        </h:panelGroup>
+    </fieldset>
+
+</ui:composition>

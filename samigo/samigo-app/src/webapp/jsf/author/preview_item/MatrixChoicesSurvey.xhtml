@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:outputText escape="false" value="#{question.itemData.text}" />
+    <br />
+
+    <ui:include src="/jsf/author/preview_item/attachment.xhtml" />
+    <br />
+
+    <t:dataTable id="table1"
+        value="#{question.itemData.rowChoices}"
+        var="row"
+        rowIndexVar="rowIndex"
+        columnClasses="matrixColumn"
+        rowClasses=""
+        frame="border"
+        rules="rows"
+        styleClass="matrixTable">
+        <t:column headerstyle="#{question.itemData.relativeWidthStyle}" style="text-align:right;padding-left:0.3em">
+            <f:facet name="header">
+                <t:outputText value="                " />
+            </f:facet>
+            <h:outputText value="#{row}" />
+        </t:column>
+
+        <t:columns value="#{question.itemData.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center matrixSurvey">
+            <f:facet name="header">
+                <t:outputText value="#{question.itemData.columnChoices[colIndex]}" />
+            </f:facet>
+            <div style="text-align: center;">
+                <h:panelGroup id="image2" styleClass="samigo-inline-radio fa fa-circle-o" />
+            </div>
+        </t:columns>
+    </t:dataTable>
+    <br />
+
+    <h:panelGrid rendered="#{question.itemData.addCommentFlag}">
+        <h:outputText value="#{question.itemData.commentField}" />
+    </h:panelGrid>
+
+    <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{commonMessages.feedback}: " />
+        <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
+    </h:panelGroup>
+
+    <ui:include src="/jsf/author/preview_item/tags.xhtml" />
+
+</ui:composition>

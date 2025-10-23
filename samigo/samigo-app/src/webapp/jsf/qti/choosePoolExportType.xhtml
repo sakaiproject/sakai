@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:param name="placementId" value="#{requestScope['sakai.tool.placement.id']}" />
+    <ui:param name="poolId"
+        value="#{empty questionpool.questionPoolId ? param.questionPoolId : questionpool.questionPoolId}" />
+    <ui:param name="currentItems"
+        value="#{empty questionpool.currentItemIdsString ? param.currentItemIdsString : questionpool.currentItemIdsString}" />
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorImportExport.export_pool} #{authorImportExport.dash} #{questionpool.name}" />
+            </title>
+            <script src="/library/js/spinner.js"></script>
+            <script>
+                //<![CDATA[
+                function getSelectedType(button) {
+                    const qtiRadio = document.getElementById("exportQuestionPoolForm:exportType:1");
+                    const qtiUrl = button.dataset.qtiUrl;
+                    const cpUrl = button.dataset.cpUrl;
+                    const mtUrl = button.dataset.mtUrl;
+                    const allowMarkup = button.dataset.allowMarkup === "true";
+                    const confirmMessage = button.dataset.confirm;
+
+                    if (qtiRadio && qtiRadio.checked) {
+                        window.open(qtiUrl, "_qti_export",
+                            "toolbar=yes,menubar=yes,personalbar=no,width=600,height=500,scrollbars=yes,resizable=yes");
+                    } else {
+                        const markupRadio = document.getElementById("exportQuestionPoolForm:exportType:2");
+                        if (markupRadio && markupRadio.checked) {
+                            if (!allowMarkup && confirmMessage && !window.confirm(confirmMessage)) {
+                                return;
+                            }
+                            window.location = mtUrl;
+                        } else {
+                            window.location = cpUrl;
+                        }
+                    }
+                }
+                //]]>
+            </script>
+        </h:head>
+
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+                <h:form id="exportQuestionPoolForm">
+                    <h:inputHidden id="questionPoolId" value="#{poolId}" />
+                    <h:inputHidden id="currentItemIdsString" value="#{currentItems}" />
+                    <h1>
+                        <h:outputText value="#{authorImportExport.export_pool}" escape="false" />
+                        <small>
+                            <h:outputText value="#{authorImportExport.dash} #{questionpool.name}" escape="false" />
+                        </small>
+                    </h1>
+
+                    <div class="form_label">
+                        <h:messages styleClass="sak-banner-error"
+                            rendered="#{facesContext.maximumSeverity ne null}" layout="table" />
+                        <p>
+                            <h:outputText value="#{authorImportExport.choose_type_1}" />
+                            <h:outputText value="&#160;" escape="false" />
+                            <h:outputLink value="#" onclick="window.open('http://www.imsglobal.org/question/')"
+                                onkeypress="window.open('http://www.imsglobal.org/question/')">
+                                <h:outputText value="#{authorImportExport.ims_qti}" />
+                            </h:outputLink>
+                            <h:outputText value="&#160;,&#160;" escape="false" />
+                            <h:outputLink value="#" onclick="window.open('http://www.imsglobal.org/content/packaging/')"
+                                onkeypress="window.open('http://www.imsglobal.org/content/packaging/')">
+                                <h:outputText value="#{authorImportExport.ims_cp}" />
+                            </h:outputLink>
+                            <h:outputText value=" #{authorImportExport.choose_type_2} " />
+                            <h:outputText value="#{authorImportExport.markup_text}" />
+                            <h:outputText value="#{authorImportExport.choose_type_3}" />
+                            <h:outputText value="#{authorImportExport.markup_text_note}" />
+                        </p>
+                        <p>
+                            <h:outputText value="#{authorImportExport.importExport_warningHeader}" escape="false" />
+                        </p>
+                        <p class="sak-banner-warn">
+                            <h:outputText value="#{authorImportExport.importExport_warning1}" escape="false" />
+                        </p>
+                        <p class="sak-banner-warn">
+                            <h:outputText value="#{authorImportExport.importExport_pool_warning2}" escape="false" />
+                        </p>
+                        <p class="sak-banner-warn">
+                            <h:outputText value="#{authorImportExport.cp_pool_message}" />
+                        </p>
+                    </div>
+
+                    <h:panelGroup layout="block">
+                        <h:outputLabel value="#{authorImportExport.choose_export_type}" for="exportType" />
+                        <t:selectOneRadio id="exportType" layout="spread" value="2">
+                            <f:selectItem itemLabel="#{authorImportExport.content_packaging}" itemValue="2" />
+                            <f:selectItem itemLabel="#{authorImportExport.qti12}" itemValue="1" />
+                            <f:selectItem itemLabel="#{authorImportExport.markup_text}" itemValue="3" />
+                        </t:selectOneRadio>
+                        <h:panelGrid>
+                            <t:radio renderLogicalId="true" for="exportType" index="0" />
+                            <t:radio renderLogicalId="true" for="exportType" index="1" />
+                            <t:radio renderLogicalId="true" for="exportType" index="2" />
+                        </h:panelGrid>
+                    </h:panelGroup>
+
+                    <p class="act">
+                        <button type="button" class="active"
+                            data-qti-url="/portal/tool/#{placementId}/jsf/qti/exportPool.xhtml?questionPoolId=#{poolId}&amp;currentItemIdsString=#{currentItems}"
+                            data-cp-url="/samigo-app/servlet/DownloadCP?questionPoolId=#{poolId}&amp;currentItemIdsString=#{currentItems}"
+                            data-mt-url="/samigo-app/servlet/ExportMarkupText?questionPoolId=#{poolId}&amp;currentItemIdsString=#{currentItems}"
+                            data-allow-markup="#{questionpool.exportable2MarkupText}"
+                            data-confirm="#{authorImportExport.export_confirm}"
+                            onclick="getSelectedType(this);">
+                            <h:outputText value="#{authorImportExport.export}" />
+                        </button>
+
+                        <h:commandButton value="#{commonMessages.cancel_action}"
+                            action="#{questionpool.cancelPool}"
+                            onclick="SPNR.disableControlsAndSpin(this, null);">
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+                            <f:attribute name="returnToParentPool" value="false" />
+                        </h:commandButton>
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputScript target="body">
+//<![CDATA[
+function addAttachments(event, field){
+  event.preventDefault();
+  const insertlinkid = field.id.replace('addAttachments', 'hiddenlink');
+  for (let i = 0; i < document.links.length; i++) {
+    if (document.links[i].id === insertlinkid) {
+      document.links[i].click();
+      break;
+    }
+  }
+}
+
+function addRemoveAttachments(event, field){
+  event.preventDefault();
+  const insertlinkid = field.id.replace('addRemoveAttachments', 'hiddenlink');
+  for (let i = 0; i < document.links.length; i++) {
+    if (document.links[i].id === insertlinkid) {
+      document.links[i].click();
+      break;
+    }
+  }
+}
+//]]>
+    </h:outputScript>
+
+    <h:panelGrid columns="1" border="0" styleClass="longtext">
+        <h:outputLabel value="#{assessmentSettingsMessages.attachments}" />
+
+        <h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+            <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+                <h:column>
+                    <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                </h:column>
+                <h:column>
+                    <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                    <h:outputLink value="#{attach.location}" target="new_window">
+                        <h:outputText value="#{attach.filename}" />
+                    </h:outputLink>
+                </h:column>
+                <h:column>
+                    <h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+                    <h:outputText escape="false"
+                        value="(#{attach.fileSize} #{generalMessages.kb})"
+                        rendered="#{!attach.isLink}" />
+                </h:column>
+            </h:dataTable>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{!question.hasItemGradingAttachment}">
+            <h:outputText escape="false" value="#{assessmentSettingsMessages.no_attachments}" />
+        </h:panelGroup>
+
+        <h:commandButton tabindex="-1" value="#{assessmentSettingsMessages.add_attachments}"
+            type="button" id="addAttachments" rendered="#{!question.hasItemGradingAttachment}"
+            style="act" onclick="addAttachments(event, this);" onkeypress="addAttachments(event, this);" />
+
+        <h:commandButton tabindex="-1" value="#{assessmentSettingsMessages.add_remove_attachments}"
+            type="button" id="addRemoveAttachments" rendered="#{question.hasItemGradingAttachment}"
+            style="act" onclick="addRemoveAttachments(event, this);"
+            onkeypress="addRemoveAttachments(event, this);" />
+
+        <h:commandLink tabindex="-1" id="hiddenlink" action="#{studentScores.addAttachmentsRedirect}">
+            <f:param name="itemGradingId" value="#{question.itemGradingIdForFilePicker}" />
+            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreAttachmentListener" />
+        </h:commandLink>
+    </h:panelGrid>
+
+</ui:composition>

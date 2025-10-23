@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputText escape="false" value="#{question.itemData.text}" />
+
+    <ui:include src="/jsf/author/preview_item/attachment.xhtml" />
+
+    <br />&#160;&#160;&#160;&#160;
+    <h:outputText escape="false" value="#{authorMessages.time_allowed_seconds} #{question.itemData.duration}" />
+    <br />&#160;&#160;&#160;&#160;
+
+    <h:outputText escape="false" value="#{authorMessages.number_of_tries}: " />
+    <h:panelGroup rendered="#{question.itemData.triesAllowed gt 10}">
+        <h:outputText escape="false" value="#{authorMessages.unlimited}" />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{question.itemData.triesAllowed le 10}">
+        <h:outputText escape="false" value="#{question.itemData.triesAllowed}" />
+    </h:panelGroup>
+
+    <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
+        <h:column>
+            <h:dataTable value="#{itemText.answerArray}" var="answer">
+                <h:column>
+                    <h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{authorMessages.preview_model_short_answer}" />
+                    <h:outputText escape="false" value="#{answer.text}" />
+                </h:column>
+            </h:dataTable>
+        </h:column>
+    </h:dataTable>
+
+    <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{commonMessages.feedback}: " />
+        <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" />
+    </h:panelGroup>
+    <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+        <h:outputLabel value="#{commonMessages.feedback}: " />
+        <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" />
+    </h:panelGroup>
+
+    <ui:include src="/jsf/author/preview_item/tags.xhtml" />
+
+</ui:composition>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputText escape="false"
+        value="&lt;param name='localeLanguage' value='#{person.localeLanguage}' /&gt;" />
+    <h:outputText escape="false"
+        value="&lt;param name='localeCountry' value='#{person.localeCountry}' /&gt;" />
+    <h:outputText escape="false"
+        value="&lt;param name='agentId' value='#{person.id}' /&gt;" />
+    <h:outputText escape="false"
+        value="&lt;param name='maxSeconds' value='#{param.duration}' /&gt;" />
+    <h:outputText escape="false"
+        value="&lt;param name='attemptsAllowed' value='#{param.triesAllowed}' /&gt;" />
+    <h:outputText escape="false"
+        value="&lt;param name='attemptsRemaining' value='#{param.attemptsRemaining}' /&gt;" />
+    <h:outputText escape="false"
+        value="&lt;param name='questionId' value='#{param.questionId}' /&gt;" />
+    <h:outputText escape="false"
+        value="&lt;param name='assessmentGrading' value='#{delivery.assessmentGrading.assessmentGradingId}' /&gt;" />
+
+</ui:composition>

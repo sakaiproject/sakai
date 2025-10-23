@@ -3413,6 +3413,9 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 
     public boolean isCanAddPools() {
+        if (this.currentPool == null || this.currentPool.getId() == null) {
+            return false;
+        }
         String agentId = getAgentId();
         Long poolId = this.currentPool.getId();
         QuestionPoolService service = new QuestionPoolService();
@@ -3421,6 +3424,9 @@ String poolId = ContextUtil.lookupParam("qpid");
     }
 
     public boolean isCanCopyPools() {
+        if (this.currentPool == null || this.currentPool.getId() == null) {
+            return false;
+        }
         String agentId = getAgentId();
         Long poolId = this.currentPool.getId();
         QuestionPoolService service = new QuestionPoolService();
@@ -3430,6 +3436,9 @@ String poolId = ContextUtil.lookupParam("qpid");
    }
 
     public boolean isCanMovePools() {
+        if (this.currentPool == null || this.currentPool.getId() == null) {
+            return false;
+        }
         String agentId = getAgentId();
         Long poolId = this.currentPool.getId();
         QuestionPoolService service = new QuestionPoolService();
@@ -3442,6 +3451,9 @@ String poolId = ContextUtil.lookupParam("qpid");
     }
 
     public boolean isCanEditQuestions() {
+        if (this.currentPool == null || this.currentPool.getId() == null) {
+            return false;
+        }
         String agentId = getAgentId();
         Long poolId = this.currentPool.getId();
         QuestionPoolService service = new QuestionPoolService();

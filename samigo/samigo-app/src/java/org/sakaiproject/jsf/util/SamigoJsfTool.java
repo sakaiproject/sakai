@@ -72,6 +72,28 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
  */
   @Slf4j
   public class SamigoJsfTool extends JsfTool {
+    @Override
+    protected String redirectRequestedTarget(String target)
+    {
+        if (target != null) {
+            if (target.startsWith("/*/")) {
+                return target.substring(2);
+            }
+
+            if (target.endsWith(".jsp")) {
+                String candidate = target.substring(0, target.length() - 4) + ".xhtml";
+                try {
+                    if (getServletContext().getResource(candidate) != null) {
+                        return candidate;
+                    }
+                } catch (Exception e) {
+                    log.debug("Unable to resolve candidate Facelets view {}", candidate, e);
+                }
+            }
+        }
+        return super.redirectRequestedTarget(target);
+    }
+
     private static final String HELPER_EXT = ".helper";
     private static final String HELPER_SESSION_PREFIX = "session.";
     private static final String HELPER_RETURN_NOTIFICATION = "/returnToCaller";
@@ -104,6 +126,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
 		// THESE LINES OF CODE IS THE ONLY REASON THIS CLASS EXISTS!
 		if (ext.equals(".jsf")) return false;
 		if (ext.equals(".faces")) return false;
+        if (ext.equals(".jsp") || ext.equals(".xhtml") || ext.equals(".jspx")) return false;
 		if (path.startsWith("/faces/")) return false;
                 if (path.indexOf(".helper") > -1) return false;
 		
@@ -118,6 +141,9 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       // build up the target that will be dispatched to
       String target = req.getPathInfo();
       log.debug("***0. dispatch, target ="+target);
+      if (target != null && target.startsWith("/*/")) {
+        target = target.substring(2);
+      }
       
       //To avoid lessons collide url
       Session ses = SessionManager.getCurrentSession();
@@ -172,7 +198,16 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       }
 
       if (isResourceRequest) {
-        // get a dispatcher to the path
+        // JSF runtime emits /javax.faces.resource/jsf.js even when the portal injects "/*/".
+        // Serve our static copy directly so we don't rely on Mojarra's ResourceServlet.
+        if ("/javax.faces.resource/jsf.js".equals(target) || target.startsWith("/javax.faces.resource/jsf.js")) {
+            RequestDispatcher resourceDispatcher = getServletContext().getRequestDispatcher("/js/jsf.js");
+            if (resourceDispatcher != null) {
+                resourceDispatcher.forward(req, res);
+                return;
+            }
+        }
+
         RequestDispatcher resourceDispatcher = getServletContext().getRequestDispatcher(target);
         if (resourceDispatcher != null)  {
           resourceDispatcher.forward(req, res);
@@ -246,7 +281,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
               log.debug("***4c. dispatch, authorization error : path="+target);
               target = computeDefaultTarget(false);
       }
-      //based on assessmentHeadings.jsp, "event" and "section-activity" paths are based on questionpool permissions
+      //based on assessmentHeadings.xhtml, "event" and "section-activity" paths are based on questionpool permissions
       //TODO : create custom permissions for event and section-activity
       if ((target.indexOf("/jsf/questionpool/") > -1 || target.indexOf("/jsf/event/") > -1 || target.indexOf("/jsf/section-activity/") > -1)  && 
           !authBean.getAdminPrivilege() &&
@@ -260,7 +295,26 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
       }
      
       // add the configured folder root and extension (if missing)
-      target = m_path + target;
+      if (!target.startsWith("/")) {
+          target = "/" + target;
+      }
+
+      StringBuilder combinedPath = new StringBuilder();
+      if (m_path != null && !m_path.isEmpty()) {
+          combinedPath.append(m_path);
+          if (!m_path.endsWith("/") && !target.startsWith("/")) {
+              combinedPath.append('/');
+          }
+      }
+      combinedPath.append(target);
+
+      String normalizedTarget = combinedPath.toString();
+      while (normalizedTarget.contains("//")) {
+          normalizedTarget = normalizedTarget.replace("//", "/");
+      }
+      target = normalizedTarget;
+          log.warn("Samigo dispatch normalized target: uri={}, servletPath={}, pathInfo={}, query={}, target={}",
+                  req.getRequestURI(), req.getServletPath(), req.getPathInfo(), req.getQueryString(), target);
 
       // add the default JSF extension (if we have no extension)
       int lastSlash = target.lastIndexOf("/");
@@ -271,7 +325,7 @@ import org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionNavList
      
       // set the information that can be removed from return URLs
       req.setAttribute(URL_PATH, m_path);
-      req.setAttribute(URL_EXT, ".jsp");
+      req.setAttribute(URL_EXT, ".xhtml");
 
       // set the sakai request object wrappers to provide the native, not Sakai set up, URL information
       // - this assures that the FacesServlet can dispatch to the proper view based on the path info

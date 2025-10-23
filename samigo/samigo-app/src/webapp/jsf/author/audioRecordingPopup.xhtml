@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputScript target="body">
+        //<![CDATA[
+        $(document).ready(function() {
+            var localeLanguage = "#{person.localeLanguage}";
+            var localeCountry = "#{person.localeCountry}";
+            var unlimitedString = "#{deliveryMessages.unlimited}";
+            var agentId = "#{person.id}";
+            var maxSeconds = parseInt("#{question.duration}");
+            var attemptsAllowed = "#{question.triesAllowed}";
+            var attemptsRemaining = parseInt("#{question.attemptsRemaining}");
+            var paramSeq = "#{param.sequence}";
+            var questionId = "#{question.itemData.itemId}";
+            var questionNumber = "#{question.number}";
+            var questionTotal = "#{part.questions}";
+            var assessmentGrading = "#{delivery.assessmentGrading.assessmentGradingId}";
+            var postUrl = "#{delivery.protocol}/samigo-app/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}_#{question.itemData.itemId}";
+            var deliveryProtocol = "#{delivery.protocol}";
+            var messagesSecs = "#{deliveryMessages.secs}";
+            var recordedOn = "#{deliveryMessages.recorded_on}";
+
+            var $elem = $(".audioRecordingPopup-" + questionId);
+            var sakaiRecorder = new SakaiRecorder($elem);
+            sakaiRecorder.init({
+                localeLanguage: localeLanguage,
+                localeCountry: localeCountry,
+                unlimitedString: unlimitedString,
+                agentId: agentId,
+                maxSeconds: maxSeconds,
+                attemptsAllowed: attemptsAllowed,
+                attemptsRemaining: attemptsRemaining,
+                paramSeq: paramSeq,
+                questionId: questionId,
+                questionNumber: questionNumber,
+                questionTotal: questionTotal,
+                assessmentGrading: assessmentGrading,
+                postUrl: postUrl,
+                deliveryProtocol: deliveryProtocol,
+                messagesSecs: messagesSecs,
+                recordedOn: recordedOn
+            });
+        });
+        //]]>
+    </h:outputScript>
+
+    <h:outputText escape="false"
+        value="&lt;input type='hidden' name='mediaLocation_#{question.itemData.itemId}' value='jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}.au'/&gt;" />
+
+    <ui:include src="/jsf/delivery/item/audioObject.xhtml" />
+
+</ui:composition>

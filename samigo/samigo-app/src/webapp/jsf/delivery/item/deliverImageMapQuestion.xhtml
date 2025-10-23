@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <br />
+    <h:outputText value="#{question.text}" escape="false">
+        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.SecureContentWrapper" />
+    </h:outputText>
+
+    <ui:include src="/jsf/delivery/item/attachment.xhtml" />
+
+    <h:outputText escape="false" value="&lt;hr style='border:none;border-top:solid black 1px'/&gt;" />
+    <h4 class="imagemap_legend">
+        <h:outputText value="#{deliveryMessages.imagemap_legend1}" escape="false" />
+    </h4>
+
+    <div id="sectionImageMap_#{part.number}_#{question.sequence}">
+        <h:inputHidden id="serializedImageMap" value="#{question.serializedImageMap}" />
+
+        <div id="imageMapTemplate_#{part.number}_#{question.sequence}" style="display:none">
+            <input type="hidden" name="id_" />
+            <span name="position_"></span>
+            <span id="btnSelect_"></span>
+            <span name="value_" />
+        </div>
+
+        <h:panelGroup rendered="#{delivery.actionString == 'previewAssessment'
+                or delivery.actionString == 'takeAssessment'
+                or delivery.actionString == 'takeAssessmentViaUrl'}">
+            <div class="resetButtonContainer">
+                <input type="button" id="btnReset_#{part.number}_#{question.sequence}"
+                    value="#{deliveryMessages.reset_selection}"
+                    onclick="resetImageMap(this.id.replace('btnReset_', ''))" />
+                <span class="imagemap_legend">
+                    <h:outputText value="#{deliveryMessages.imagemap_legend2}" escape="false" />
+                </span>
+            </div>
+        </h:panelGroup>
+    </div>
+
+    <div id="imageMapContainer_#{part.number}_#{question.sequence}" class="studentImageContainer">
+        <img id="img" src="#{question.imageSrc}" alt="#{question.imageAltText}" />
+    </div>
+    <br />
+
+    <h:panelGroup rendered="#{(delivery.actionString == 'previewAssessment'
+            or delivery.actionString == 'takeAssessment'
+            or delivery.actionString == 'takeAssessmentViaUrl')
+        and delivery.navigation ne '1'
+        and delivery.displayMardForReview}">
+        <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
+        <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
+        <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#"
+            onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();">
+            <h:outputText value=" #{assessmentSettingsMessages.whats_this_link}" />
+        </h:outputLink>
+    </h:panelGroup>
+
+    <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
+        <h:panelGrid
+            rendered="#{(delivery.feedbackComponent.showCorrectResponse and delivery.feedbackComponent.showCorrection and delivery.noFeedback != 'true')
+                or delivery.actionString == 'gradeAssessment'}">
+            <h:outputLabel styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
+
+            <h:dataTable value="#{question.matchingArray}" var="matching">
+                <h:column>
+                    <h:panelGroup id="image" rendered="#{matching.isCorrect}" styleClass="si si-check-lg" />
+                    <h:panelGroup id="ximage" rendered="#{!matching.isCorrect}" styleClass="si si-remove feedBackCross" />
+                    <h:graphicImage id="spacer" width="16" height="16" alt="#{deliveryMessages.alt_incorrect}" url="/images/delivery/spacer.gif" />
+                </h:column>
+                <h:column>
+                    <h:outputText value="#{matching.text}" escape="false" />
+                </h:column>
+            </h:dataTable>
+
+            <h:panelGroup>
+                <h:dataTable value="#{question.answers}" var="answer" binding="#{table}">
+                    <h:column>
+                        <h:outputText escape="false"
+                            value="&lt;input type='hidden' id='hiddenSerializedCoords_#{part.number}_#{question.sequence}_#{table.rowIndex}' value='#{answer}' /&gt;" />
+                    </h:column>
+                </h:dataTable>
+                <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrection}">
+                    <div id="answerImageMapContainer_#{part.number}_#{question.sequence}" class="authorImageContainer">
+                        <img id="img" src="#{question.imageSrc}" alt="#{question.imageAltText}" />
+                    </div>
+                </h:panelGroup>
+            </h:panelGroup>
+            <h:outputText value=" " />
+        </h:panelGrid>
+
+        <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel and delivery.noFeedback != 'true' and question.feedbackIsNotEmpty}">
+            <h:panelGroup>
+                <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{commonMessages.feedback}: " />
+                <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+            </h:panelGroup>
+            <h:outputText value=" " />
+        </h:panelGrid>
+
+        <h:panelGrid columns="1" border="0"
+            rendered="#{delivery.actionString != 'gradeAssessment'
+                and delivery.feedbackComponent.showGraderComment
+                and delivery.noFeedback != 'true'
+                and (question.gradingCommentIsNotEmpty or question.hasItemGradingAttachment)}">
+            <h:panelGroup>
+                <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+                <h:outputText id="commentSC" styleClass="answerkeyFeedbackCommentLabel"
+                    value="#{question.gradingComment}" escape="false"
+                    rendered="#{question.gradingCommentIsNotEmpty}" />
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+                <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+                    <h:column>
+                        <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                    </h:column>
+                    <h:column>
+                        <h:outputLink value="#{attach.location}" target="new_window">
+                            <h:outputText escape="false" value="#{attach.filename}" />
+                        </h:outputLink>
+                    </h:column>
+                    <h:column>
+                        <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})"
+                            rendered="#{!attach.isLink}" />
+                    </h:column>
+                </h:dataTable>
+            </h:panelGroup>
+        </h:panelGrid>
+    </h:panelGroup>
+
+</ui:composition>

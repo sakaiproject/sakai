@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputLabel escape="false" value="#{authorMessages.image_map_question}" />
+    <br />
+
+    <h:dataTable value="#{searchQuestionBean.getData(param.idString)}" var="item" width="100%">
+        <h:column>
+            <ui:include src="/jsf/author/search_preview_item/attachment.xhtml">
+                <ui:param name="item" value="#{item}" />
+            </ui:include>
+
+            <h:outputText escape="false" value="#{item.instruction}" />
+
+            <h:dataTable value="#{item.itemTextArraySorted}" var="itemText">
+                <h:column>
+                    <h:panelGrid columns="1">
+                        <h:outputText escape="false" value="#{itemText.sequence}. #{itemText.text}" />
+                    </h:panelGrid>
+                </h:column>
+                <h:column>
+                    <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
+                        <h:column>
+                            <h:outputText escape="false" value="&lt;input type='hidden' id='hiddenSerializedCoords_#{itemText.sequence}' value='#{answer.text}' /&gt;" />
+                        </h:column>
+                    </h:dataTable>
+                </h:column>
+            </h:dataTable>
+
+            <h:panelGroup>
+                <h:outputLabel value="#{authorMessages.answerKey}: " />
+                <div id="imageMapContainer_#{param.idString}" class="authorImageContainer">
+                    <img id="img" src="#{item.imageMapSrc}" alt="#{item.imageMapAltText}" />
+                </div>
+                <br />
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{item.correctItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.correct}:" />
+                <h:outputText value="#{item.correctItemFeedback}" escape="false" />
+                <br />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{item.incorrectItemFbIsNotEmpty and author.isEditPendingAssessmentFlow and assessmentSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.incorrect}:" />
+                <h:outputText value="#{item.inCorrectItemFeedback}" escape="false" />
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{item.correctItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.correct}:" />
+                <h:outputText value="#{item.correctItemFeedback}" escape="false" />
+                <br />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{item.incorrectItemFbIsNotEmpty and !author.isEditPendingAssessmentFlow and publishedSettings.feedbackAuthoring ne '2'}">
+                <h:outputLabel value="#{authorMessages.incorrect}:" />
+                <h:outputText value="#{item.inCorrectItemFeedback}" escape="false" />
+            </h:panelGroup>
+
+            <ui:include src="/jsf/author/search_preview_item/tags.xhtml">
+                <ui:param name="itemValue" value="#{item}" />
+            </ui:include>
+        </h:column>
+    </h:dataTable>
+
+</ui:composition>
