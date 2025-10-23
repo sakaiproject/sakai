@@ -19,4 +19,8 @@
         </p>
     </form>
 
+        <p>
+        $tlang.getString("tool.site.delete.note")
+        </p>
+
 </div>
