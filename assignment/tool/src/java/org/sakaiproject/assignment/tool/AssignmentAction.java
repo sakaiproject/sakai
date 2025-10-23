@@ -1663,14 +1663,14 @@ public class AssignmentAction extends PagedResourceActionII {
         if (context == null) {
             return;
         }
-        context.remove("plagiarismNote");
-        context.remove("plagiarismFileTypes");
-        context.remove("plagiarismProviderInfo");
-        context.remove("plagiarismStudentPreview");
-        context.remove("plagiarismEULALink");
-        context.remove("name_plagiarism_eula_agreement");
-        context.remove("value_plagiarism_eula_agreement");
-        context.remove("name_check_plagiarism_eula_agreement");
+        context.put("plagiarismNote", null);
+        context.put("plagiarismFileTypes", null);
+        context.put("plagiarismProviderInfo", null);
+        context.put("plagiarismStudentPreview", null);
+        context.put("plagiarismEULALink", null);
+        context.put("name_plagiarism_eula_agreement", null);
+        context.put("value_plagiarism_eula_agreement", null);
+        context.put("name_check_plagiarism_eula_agreement", null);
     }
 
     private void clearContentReviewSubmissionState(SessionState state) {
