@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{evaluationMessages.title_stat}" />
+            </title>
+            <h:outputScript target="body">
+//<![CDATA[
+document.addEventListener('DOMContentLoaded', function () {
+    var currentLink = document.getElementById('histogram:detailedStatisticsMenuLink');
+    if (!currentLink) {
+        return;
+    }
+    currentLink.classList.add('current');
+    var anchor = currentLink.querySelector('a');
+    if (anchor) {
+        currentLink.textContent = anchor.textContent;
+    }
+});
+//]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+                <h:form id="histogram">
+                    <h:inputHidden id="publishedId" value="#{histogramScores.publishedId}" />
+                    <h:inputHidden id="itemId" value="#{histogramScores.itemId}" />
+
+                    <ui:include src="/jsf/evaluation/evaluationHeadings.xhtml" />
+                    <h:panelGroup layout="block" styleClass="page-header">
+                        <h1>
+                            <h:outputText value="#{evaluationMessages.item_analysis}#{evaluationMessages.column} "
+                                escape="false" />
+                            <small>
+                                <h:outputText value="#{histogramScores.assessmentName} " escape="false" />
+                            </small>
+                        </h1>
+                    </h:panelGroup>
+
+                    <ui:include src="/jsf/evaluation/evaluationSubmenu.xhtml" />
+
+                    <h:messages styleClass="sak-banner-error"
+                        rendered="#{! empty facesContext.maximumSeverity}" layout="table" />
+
+                    <div class="b5 d-flex justify-content-between my-2">
+                        <div>
+                            <h:panelGroup rendered="#{histogramScores.hasNav == null or histogramScores.hasNav == 'true'}">
+                                <h:outputText value="#{evaluationMessages.view} " />
+
+                                <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsL"
+                                    required="true" onchange="document.forms[0].submit();"
+                                    rendered="#{totalScores.scoringOption eq '2'}">
+                                    <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}" />
+                                    <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+                                    <f:valueChangeListener
+                                        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
+                                </h:selectOneMenu>
+
+                                <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsH"
+                                    required="true" onchange="document.forms[0].submit();"
+                                    rendered="#{totalScores.scoringOption eq '1'}">
+                                    <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}" />
+                                    <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+                                    <f:valueChangeListener
+                                        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
+                                </h:selectOneMenu>
+
+                                <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsA"
+                                    required="true" onchange="document.forms[0].submit();"
+                                    rendered="#{totalScores.scoringOption eq '4'}">
+                                    <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+                                    <f:valueChangeListener
+                                        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
+                                </h:selectOneMenu>
+                            </h:panelGroup>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-link dropdown-toggle" name="Export Button" type="button"
+                                data-bs-toggle="dropdown">
+                                <h:outputText value="#{evaluationMessages.export}" />
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu row">
+                                <li>
+                                    <h:outputLink value="#{histogramScores.exportItemAnalysisPdf}" styleClass="d-block"
+                                        title="#{evaluationMessages.export_as_pdf}" target="_blank">
+                                        <h:outputText value="#{evaluationMessages.export_pdf}" />
+                                    </h:outputLink>
+                                </li>
+                                <li>
+                                    <h:outputLink value="#{histogramScores.exportItemAnalysisXlsx}" styleClass="d-block"
+                                        title="#{evaluationMessages.export_as_xlsx}" target="_blank">
+                                        <h:outputText value="#{evaluationMessages.export_xlsx}" />
+                                    </h:outputLink>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <h:dataTable value="#{histogramScores.detailedStatistics}" var="item"
+                            styleClass="table table-bordered table-striped">
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="#{evaluationMessages.question}" />
+                                </f:facet>
+                                <h:outputText value="#{item.questionLabel}" escape="false" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.randomType == 'false'}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="N" />
+                                </f:facet>
+                                <h:outputText value="#{item.numResponses}" escape="false" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.randomType == 'true'}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="N(#{histogramScores.numResponses})" />
+                                </f:facet>
+                                <h:outputText value="#{item.numResponses}" escape="false" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputText escape="false"
+                                        value="#{evaluationMessages.pct_correct_of}<br/>#{evaluationMessages.whole_group}" />
+                                </f:facet>
+                                <h:outputText value="#{item.percentCorrect}" escape="false"
+                                    rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.showDiscriminationColumn == 'true'}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false"
+                                        value="#{evaluationMessages.pct_correct_of}<br/>#{evaluationMessages.upper_pct}" />
+                                </f:facet>
+                                <h:outputText value="#{item.percentCorrectFromUpperQuartileStudents}" escape="false"
+                                    rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.showDiscriminationColumn == 'true'}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false"
+                                        value="#{evaluationMessages.pct_correct_of}<br/>#{evaluationMessages.lower_pct}" />
+                                </f:facet>
+                                <h:outputText value="#{item.percentCorrectFromLowerQuartileStudents}" escape="false"
+                                    rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.showDiscriminationColumn == 'true'}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="#{evaluationMessages.discrim_abbrev}" />
+                                </f:facet>
+                                <h:outputText value="#{item.discrimination}" escape="false"
+                                    rendered="#{item.showPercentageCorrectAndDiscriminationFigures}" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="#{evaluationMessages.difficulty}" />
+                                </f:facet>
+                                <h:outputText value="#{item.difficulty}" escape="false" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="#{evaluationMessages.total_correct}" />
+                                </f:facet>
+                                <h:outputText value="#{item.numberOfStudentsWithCorrectAnswers}" escape="false" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="#{evaluationMessages.total_incorrect}" />
+                                </f:facet>
+                                <h:outputText value="#{item.numberOfStudentsWithIncorrectAnswers}" escape="false" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="#{evaluationMessages.no_answer}" />
+                                </f:facet>
+                                <h:outputText value="#{item.numberOfStudentsWithZeroAnswers}" escape="false" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.showObjectivesColumn == 'true'}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="#{evaluationMessages.obj}" />
+                                </f:facet>
+                                <h:outputText value="#{item.objectives}" escape="false" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.showObjectivesColumn == 'true'}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="#{evaluationMessages.keywords}" />
+                                </f:facet>
+                                <h:outputText value="#{item.keywords}" escape="false" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 0}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="A" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[0].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[0].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[0].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[0].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 1}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="B" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[1].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[1].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[1].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[1].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 2}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="C" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[2].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[2].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[2].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[2].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 3}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="D" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[3].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[3].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[3].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[3].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 4}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="E" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[4].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[4].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[4].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[4].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 5}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="F" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[5].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[5].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[5].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[5].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 6}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="G" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[6].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[6].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[6].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[6].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 7}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="H" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[7].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[7].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[7].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[7].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 8}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="I" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[8].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[8].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[8].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[8].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 9}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="J" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[9].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[9].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[9].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[9].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 10}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="K" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[10].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[10].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[10].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[10].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 11}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false" value="L" />
+                                </f:facet>
+                                <h:outputText value="#{item.histogramBars[11].numStudents}" escape="false"
+                                    rendered="#{!item.histogramBars[11].isCorrect and item.showIndividualAnswersInDetailedStatistics}" />
+                                <h:outputText value="#{item.histogramBars[11].numStudents}" escape="false"
+                                    rendered="#{item.histogramBars[11].isCorrect and item.showIndividualAnswersInDetailedStatistics}"
+                                    styleClass="detailedStatsCorrectAnswerText" />
+                            </h:column>
+
+                            <h:column rendered="#{histogramScores.maxNumberOfAnswers > 12}">
+                                <f:facet name="header">
+                                    <h:outputText escape="false"
+                                        value="#{histogramScores.undisplayedStudentResponseInItemAnalysisColumnHeader}" />
+                                </f:facet>
+                                <h:outputText
+                                    value="#{item.sumOfStudentResponsesInUndisplayedItemAnalysisColumns}" escape="false"
+                                    rendered="#{item.histogramBars[12] != null}"
+                                    title="#{item.studentResponsesInUndisplayedItemAnalysisColumns}" />
+                            </h:column>
+                        </h:dataTable>
+
+                        <h:commandButton value="#{evaluationMessages.return_s}" action="select" type="submit"
+                            rendered="#{histogramScores.hasNav == 'false'}" />
+                    </div>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

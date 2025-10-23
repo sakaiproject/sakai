@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view contentType="text/xml">
+        <f:event type="preRenderView" listener="#{xmlController.preparePoolExport}" />
+        <h:outputText value="#{xml.xml}" escape="false" />
+    </f:view>
+</ui:composition>

@@ -444,11 +444,15 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>choosePoolExportType</from-outcome>
-      <to-view-id>/jsf/qti/choosePoolExportType.jsp</to-view-id>
+      <to-view-id>/jsf/qti/choosePoolExportType.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>exportDenied</from-outcome>
-      <to-view-id>/jsf/qti/exportDenied.jsp</to-view-id>
+      <to-view-id>/jsf/qti/exportDenied.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>xmlPoolDisplay</from-outcome>
+      <to-view-id>/jsf/qti/xmlPoolDisplay.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>editAssessmentSettings</from-outcome>
@@ -591,7 +595,7 @@
     <!-- RESTORE PUBLISHED ASSESSMENTS -->
     <navigation-case>
       <from-outcome>restoreAssessments</from-outcome>
-      <to-view-id>/jsf/author/restoreAssessments.jsp</to-view-id>
+      <to-view-id>/jsf/author/restoreAssessments.xhtml</to-view-id>
     </navigation-case>
 
   <!-- ITEM AUTHORING -->
@@ -651,50 +655,50 @@
   <!-- QUESTION POOL	 -->
     <navigation-case>
       <from-outcome>poolList</from-outcome>
-      <to-view-id>/jsf/questionpool/poolList.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/poolList.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>addPool</from-outcome>
-      <to-view-id>/jsf/questionpool/addPool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/addPool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>editPool</from-outcome>
-      <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/editPool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>copyPool</from-outcome>
-      <to-view-id>/jsf/questionpool/copyPool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/copyPool.xhtml</to-view-id>
     </navigation-case>
     
     <!-- SAM-2049 -->
      <navigation-case>
       <from-outcome>transferPoolInputUser</from-outcome>
-      <to-view-id>/jsf/questionpool/transferPoolInputUser.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/transferPoolInputUser.xhtml</to-view-id>
     </navigation-case>
      <navigation-case>
       <from-outcome>transferPool</from-outcome>
-      <to-view-id>/jsf/questionpool/transferPool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/transferPool.xhtml</to-view-id>
     </navigation-case>
       <navigation-case>
       <from-outcome>transferPoolConfirm</from-outcome>
-      <to-view-id>/jsf/questionpool/transferPoolConfirm.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/transferPoolConfirm.xhtml</to-view-id>
     </navigation-case>
     
     <navigation-case>
       <from-outcome>movePool</from-outcome>
-      <to-view-id>/jsf/questionpool/movePool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/movePool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>removePool</from-outcome>
-      <to-view-id>/jsf/questionpool/removePool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/removePool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>unsharePool</from-outcome>
-      <to-view-id>/jsf/questionpool/unsharePool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/unsharePool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>sharePool</from-outcome>
-      <to-view-id>/jsf/questionpool/sharePool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/sharePool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>previewPool</from-outcome>
@@ -706,31 +710,31 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>importPool</from-outcome>
-      <to-view-id>/jsf/qti/importPool.jsp</to-view-id>
+      <to-view-id>/jsf/qti/importPool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>exportPool</from-outcome>
-      <to-view-id>/jsf/questionpool/exportPool.jsp</to-view-id>
+      <to-view-id>/jsf/qti/exportPool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>importQuestion</from-outcome>
-      <to-view-id>/jsf/questionpool/importQuestion.jsp</to-view-id>
+      <to-view-id>/jsf/qti/importPool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>exportQuestion</from-outcome>
-      <to-view-id>/jsf/questionpool/exportQuestion.jsp</to-view-id>
+      <to-view-id>/jsf/qti/choosePoolExportType.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>selectQuestionType</from-outcome>
-      <to-view-id>/jsf/questionpool/selectQuestionType.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/selectQuestionType.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeQuestionFromPool</from-outcome>
-      <to-view-id>/jsf/questionpool/removeQuestion.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/removeQuestion.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>solution</from-outcome>
-      <to-view-id>/jsf/questionpool/solution.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/solution.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>debug</from-outcome>
@@ -774,14 +778,14 @@
     <!-- EVENT LOG -->
     <navigation-case>
       <from-outcome>eventLog</from-outcome>
-      <to-view-id>/jsf/event/eventLog.jsp</to-view-id>
+      <to-view-id>/jsf/event/eventLog.xhtml</to-view-id>
     </navigation-case>
     
      <!-- USER ACTIVITY REPORT -->
-	<navigation-case>
-		<from-outcome>sectionActivity</from-outcome>
-		<to-view-id>/jsf/section-activity/sectionActivity.jsp</to-view-id>
-	</navigation-case>
+    <navigation-case>
+      <from-outcome>sectionActivity</from-outcome>
+      <to-view-id>/jsf/section-activity/sectionActivity.xhtml</to-view-id>
+    </navigation-case>
 
   <!-- EVALUATION -->
     <navigation-case>
@@ -790,7 +794,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>totalScores</from-outcome>
-      <to-view-id>/jsf/evaluation/totalScores.jsp</to-view-id>
+      <to-view-id>/jsf/evaluation/totalScores.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>questionScores</from-outcome>
@@ -856,7 +860,7 @@
     </navigation-case>
      <navigation-case>
       <from-outcome>MCPoolAddSuccess</from-outcome>
-      <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/editPool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>MCPoolAddFailure</from-outcome>
@@ -876,7 +880,7 @@
     </navigation-case>
      <navigation-case>
       <from-outcome>FIBPoolSuccess</from-outcome>
-      <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/editPool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>FIBPoolFailure</from-outcome>
@@ -897,7 +901,7 @@
     </navigation-case>
      <navigation-case>
       <from-outcome>FINPoolSuccess</from-outcome>
-      <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+      <to-view-id>/jsf/questionpool/editPool.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>FINPoolFailure</from-outcome>

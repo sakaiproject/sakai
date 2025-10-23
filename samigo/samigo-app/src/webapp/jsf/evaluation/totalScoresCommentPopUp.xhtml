@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+ <f:view>
+    <h:head>
+      <ui:fragment rendered="#{not empty requestScope['html.head']}">
+        <h:outputText value="#{requestScope['html.head']}" escape="false" />
+      </ui:fragment>
+      <title><h:outputText value="#{evaluationMessages.comment_for_student}" /></title>
+    </h:head>
+    <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+      <h:form>
+            <h:panelGrid columns="1" border="0">
+              <h:panelGrid columns="1" border="0">
+                <h:panelGroup>
+                  <strong><h:outputText value="#{evaluationMessages.what}" /></strong>
+                </h:panelGroup>
+                <h:outputText value="#{evaluationMessages.what_content_1}"/>
+                <h:outputText value=" "/>
+                <h:outputText value="#{evaluationMessages.what_content_2}"/>
+                <h:outputText value=" "/>
+                <h:panelGroup>
+                  <em><h:outputText value="#{evaluationMessages.what_content_3}" /></em>
+                </h:panelGroup>
+
+              </h:panelGrid>
+
+              <h:panelGrid columns="1" border="0">
+                <h:panelGroup>
+                  <strong><h:outputText value="#{evaluationMessages.where}" /></strong>
+                </h:panelGroup>
+                <h:outputText value="#{evaluationMessages.where_content_1}"/>
+                <h:outputText value=" "/>
+                <h:panelGroup>
+                  <em><h:outputText value="#{evaluationMessages.where_content_2}" /></em>
+                </h:panelGroup>
+              </h:panelGrid>
+
+              <h:panelGrid columns="1" border="0">
+                <h:panelGroup>
+                  <strong><h:outputText value="#{evaluationMessages.how}" /></strong>
+                </h:panelGroup>
+                <h:outputText value="#{evaluationMessages.how_content_1}"/>
+              </h:panelGrid>
+
+              <h:panelGrid columns="1" border="0">
+                  <h:outputText value="#{evaluationMessages.how_content_2}" escape="false"/>
+                  <h:outputText value="#{evaluationMessages.how_content_3}" escape="false"/>
+                  <h:outputText value="#{evaluationMessages.how_content_4}" escape="false"/>
+                  <h:outputText value="#{evaluationMessages.how_content_5}" escape="false"/>
+              </h:panelGrid>
+
+              <br />
+
+              <h:commandButton id="close" onclick="window.close();" onkeypress="window.close();" value="#{evaluationMessages.close}"/>
+            </h:panelGrid>
+      </h:form>
+    </h:body>
+ </f:view>
+</ui:composition>

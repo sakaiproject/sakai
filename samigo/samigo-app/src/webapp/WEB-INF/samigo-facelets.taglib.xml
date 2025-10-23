@@ -22,4 +22,20 @@
         </component>
     </tag>
 
+    <tag>
+        <tag-name>timerBar</tag-name>
+        <component>
+            <component-type>javax.faces.Output</component-type>
+            <renderer-type>TimerBar</renderer-type>
+        </component>
+    </tag>
+
+    <tag>
+        <tag-name>hideDivision</tag-name>
+        <component>
+            <component-type>javax.faces.Output</component-type>
+            <renderer-type>HideDivision</renderer-type>
+        </component>
+    </tag>
+
 </facelet-taglib>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{commonMessages.export_action}" />
+            </title>
+            <h:outputScript target="body">
+//<![CDATA[
+document.addEventListener('DOMContentLoaded', function () {
+    var currentLink = document.getElementById('editTotalResults:exportResponsesMenuLink');
+    if (currentLink) {
+        currentLink.classList.add('current');
+        var anchor = currentLink.querySelector('a');
+        if (anchor) {
+            currentLink.textContent = anchor.textContent;
+        }
+    }
+});
+//]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody">
+                <h:form id="editTotalResults">
+                    <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
+                    <h:inputHidden id="itemId" value="#{totalScores.firstItem}" />
+
+                    <ui:include src="/jsf/evaluation/evaluationHeadings.xhtml" />
+                    <h:panelGroup layout="block" styleClass="page-header">
+                        <h1>
+                            <h:outputText value="#{commonMessages.export_action}#{evaluationMessages.column} "
+                                escape="false" />
+                            <small>
+                                <h:outputText value="#{exportResponses.assessmentName} " escape="false" />
+                            </small>
+                        </h1>
+                    </h:panelGroup>
+
+                    <ui:include src="/jsf/evaluation/evaluationSubmenu.xhtml" />
+
+                    <div class="tier1">
+                        <h:panelGrid columns="1">
+                            <h:panelGroup>
+                                <h:outputText value="#{evaluationMessages.export_msg}" />
+                            </h:panelGroup>
+                            <h:outputText value=" " />
+                            <h:outputText value=" " />
+                            <h:panelGroup>
+                                <h:commandButton actionListener="#{exportResponses.exportExcel}"
+                                    value="#{commonMessages.export_action}" id="exportButton" />
+                            </h:panelGroup>
+                        </h:panelGrid>
+                    </div>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:param name="exception" value="#{requestScope['javax.servlet.error.exception']}" />
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+            <title>Error page index</title>
+        </h:head>
+
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}"
+            style="background-color:#ffffff;">
+            <h1>Error page index</h1>
+            <p>
+                <h:outputText value="An error occurred in the bean. Error Message is: " />
+                <h:outputText value="#{exception ne null ? exception.message : 'Unknown error'}" />
+            </p>
+            <h:panelGroup rendered="#{exception ne null}">
+                <p>Stack Trace:</p>
+                <pre style="color:red;">
+<ui:repeat value="#{exception.stackTrace}" var="traceElement">
+<h:outputText value="#{traceElement}" />
+<h:outputText value="&#10;" escape="false" />
+</ui:repeat>
+                </pre>
+            </h:panelGroup>
+        </h:body>
+    </f:view>
+</ui:composition>

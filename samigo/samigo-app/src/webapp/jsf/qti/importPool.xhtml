@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorImportExport.import_qp}" />
+            </title>
+        </h:head>
+
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody">
+                <h:form id="importPoolForm" enctype="multipart/form-data">
+                    <ui:include src="/jsf/author/editAssessmentHeadings.xhtml" />
+
+                    <h:inputHidden value="#{xmlImport.importType}" />
+
+                    <h3>
+                        <h:outputText value="#{authorImportExport.import_qp}" />
+                    </h3>
+
+                    <div class="tier1">
+                        <div class="tier2">
+                            <div class="form_label">
+                                <h:messages styleClass="sak-banner-error"
+                                    rendered="#{facesContext.maximumSeverity ne null}" layout="table" />
+                                <h:outputText value="#{authorImportExport.import_instructions}" escape="false" />
+                            </div>
+
+                            <br />
+
+                            <h:panelGroup layout="block">
+                                <h:outputLabel styleClass="form_label" value="#{authorImportExport.choose_file}" />
+                                <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}"
+                                    valueChangeListener="#{xmlImport.importPool}" />
+                            </h:panelGroup>
+
+                            <h:outputText value="#{authorImportExport.file_is}" />
+
+                            <h:panelGroup layout="block">
+                                <h:selectOneRadio id="sourceType" layout="pageDirection" value="1"
+                                    styleClass="samigo-inline-form">
+                                    <f:selectItem itemLabel="#{authorImportExport.from_samigo}" itemValue="1" />
+                                    <f:selectItem itemLabel="#{authorImportExport.from_respondus}" itemValue="2" />
+                                </h:selectOneRadio>
+                            </h:panelGroup>
+                        </div>
+
+                        <br />
+
+                        <h:outputText value="#{authorImportExport.importExport_warning2}" escape="false" />
+
+                        <br /><br />
+
+                        <h:commandButton id="questionPoolLink" value="#{authorImportExport.import_action}"
+                            type="submit" action="poolList" styleClass="active">
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
+                        </h:commandButton>
+
+                        <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="poolList"
+                            immediate="true" styleClass="act" />
+                    </div>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

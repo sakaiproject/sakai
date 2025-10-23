@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputText value="#{question.text}" escape="false" />
+    <h:dataTable value="#{question.itemTextArraySorted}" var="itemText">
+        <h:column>
+            <h:outputText value="#{itemText.sequence}#{evaluationMessages.dot} #{itemText.text}"
+                escape="false" />
+            <h:dataTable value="#{itemText.answerArrayWithDistractorSorted}" var="answer">
+                <h:column>
+                    <h:outputText value="" rendered="#{answer.isCorrect}"
+                        title="#{evaluationMessages.alt_correct}" styleClass="si si-check-lg" />
+                    <h:outputText value="" rendered="#{!answer.isCorrect}"
+                        title="#{evaluationMessages.alt_incorrect}" styleClass="si si-remove feedBackCross" />
+                </h:column>
+                <h:column>
+                    <h:outputText value="#{evaluationMessages.none_above}"
+                        rendered="#{answer.text eq 'none_above'}" />
+                    <h:outputText value="#{answer.text}" escape="false"
+                        rendered="#{answer.text ne 'none_above'}" />
+                </h:column>
+            </h:dataTable>
+        </h:column>
+    </h:dataTable>
+
+    <ui:include src="/jsf/evaluation/item/displayTags.xhtml" />
+
+</ui:composition>

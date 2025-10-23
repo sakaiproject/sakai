@@ -25,9 +25,11 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.StringTokenizer;
 
-import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
@@ -323,6 +325,18 @@ public class XMLController implements Serializable {
     xmlBean.setName(documentType); // get from document later
     InputStream is = getAuthoringXml().getTemplateInputStream(documentType);
     setUpXmlNoDecl(getAuthoringXml().getTemplateAsString(is));
+  }
+
+  public void preparePoolExport()
+  {
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+    if (facesContext == null) {
+      return;
+    }
+    ExternalContext externalContext = facesContext.getExternalContext();
+    externalContext.setResponseHeader("Cache-Control", "private");
+    externalContext.setResponseHeader("Pragma", "cache");
+    externalContext.setResponseHeader("Content-Disposition", "attachment; filename=exportPool.xml");
   }
 
 //  /**

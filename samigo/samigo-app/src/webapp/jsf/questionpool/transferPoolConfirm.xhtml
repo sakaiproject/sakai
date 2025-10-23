@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{questionPoolMessages.transfer_pool_confirmation}" />
+            </title>
+
+            <script src="/samigo-app/js/samigotree.js"></script>
+            <script src="/library/js/spinner.js"></script>
+        </h:head>
+
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+                <h:form id="transferPoolConfirm">
+                    <ui:include src="/jsf/questionpool/questionpoolHeadings.xhtml" />
+                    <br />
+
+                    <h:messages infoClass="validation" warnClass="validation" errorClass="validation"
+                        fatalClass="validation" />
+
+                    <h3>
+                        <h:outputText value="#{questionPoolMessages.transfer_pool_ownership}" />
+                    </h3>
+
+                    <div class="mb-3">
+                        <h:outputText value="#{questionpool.confirmMessage}" />
+                    </div>
+
+                    <h:dataTable id="TreeTable" value="#{questionpool.transferSelectedQpools}" var="pool"
+                        styleClass="table table-bordered table-striped align-middle">
+                        <h:column id="col1">
+                            <f:facet name="header">
+                                <h:outputText value="#{questionPoolMessages.p_name}" />
+                            </f:facet>
+                            <h:panelGroup styleClass="tier#{questionpool.tree.currentLevel}"
+                                id="firstcolumn">
+                                <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}" />
+                                <h:outputText id="poolnametext" value="#{pool.displayName}" escape="false" />
+                            </h:panelGroup>
+                        </h:column>
+
+                        <h:column id="col2">
+                            <f:facet name="header">
+                                <h:outputText value="#{questionPoolMessages.creator}" />
+                            </f:facet>
+                            <h:panelGroup id="secondcolumn">
+                                <h:outputText value="#{pool.ownerDisplayName}" />
+                            </h:panelGroup>
+                        </h:column>
+
+                        <h:column id="col3">
+                            <f:facet name="header">
+                                <h:outputText value="#{questionPoolMessages.last_mod}" />
+                            </f:facet>
+                            <h:panelGroup id="thirdcolumn">
+                                <h:outputText value="#{pool.lastModified}">
+                                    <f:convertDateTime dateStyle="medium" timeStyle="short"
+                                        timeZone="#{author.userTimeZone}" />
+                                </h:outputText>
+                            </h:panelGroup>
+                        </h:column>
+
+                        <h:column id="col4">
+                            <f:facet name="header">
+                                <h:outputText value="#{questionPoolMessages.qs}" />
+                            </f:facet>
+                            <h:panelGroup id="fourthcolumn">
+                                <h:outputText value="#{pool.data.questionPoolItemSize}" />
+                            </h:panelGroup>
+                        </h:column>
+
+                        <h:column id="col5">
+                            <f:facet name="header">
+                                <h:outputText value="#{questionPoolMessages.subps}" />
+                            </f:facet>
+                            <h:panelGroup id="fifthcolumn">
+                                <h:outputText value="#{pool.subPoolSize}" />
+                            </h:panelGroup>
+                        </h:column>
+                    </h:dataTable>
+
+                    <p class="act">
+                        <h:commandButton accesskey="#{questionPoolMessages.a_transfer}"
+                            id="transferpoolSubmit" immediate="true"
+                            value="#{questionPoolMessages.transfer_pool_ownership}"
+                            action="#{questionpool.transferPoolOwnership}" styleClass="active"
+                            onclick="SPNR.disableControlsAndSpin(this, null);" />
+
+                        <h:commandButton accesskey="#{questionPoolMessages.a_transfer_back}"
+                            id="transferpoolSubmit2" immediate="true"
+                            value="#{questionPoolMessages.transfer_pool_back}"
+                            action="#{questionpool.transferPoolConfirmBack}" styleClass="active"
+                            onclick="SPNR.disableControlsAndSpin(this, null);" />
+
+                        <h:commandButton accesskey="#{questionPoolMessages.a_cancel}"
+                            id="transferpoolCancel" value="#{questionPoolMessages.transfer_pool_cancel}"
+                            action="#{questionpool.cancelTransferPool}" immediate="true"
+                            onclick="SPNR.disableControlsAndSpin(this, null);" />
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

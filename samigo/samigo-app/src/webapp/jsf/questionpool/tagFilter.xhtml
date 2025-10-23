@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <ui:fragment rendered="#{questionpool.showTagFilter}">
+        <script src="/samigo-app/js/questionpoolTagFilter.js"></script>
+    </ui:fragment>
+
+    <h:panelGroup rendered="#{questionpool.showTagFilter}" layout="block"
+        styleClass="b5 mb-2 d-flex gap-1 flex-column align-items-stretch flex-sm-row align-items-sm-start">
+        <sakai-tag-selector
+            id="tag-search"
+            class="b5 flex-grow-1"
+            selected-temp="#{questionpool.filterTags.tagIdsCsv}"
+            collection-id="#{questionpool.ownerId}"
+            site-id="#{author.currentSiteId}"
+            add-new="false">
+        </sakai-tag-selector>
+        <h:inputHidden id="selectedTags" value="#{questionpool.filterTags.tagIdsCsv}" />
+
+        <!-- TODO Master merge: me-0 can probably removed entirely as it's just overriding a margin-right, else just remove b5 class -->
+        <h:commandButton id="searchByTags" styleClass="b5 me-0" action="questionpool.filterByTags"
+            value="#{questionPoolMessages.tags_search}">
+            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.FilterByTagsListener" />
+        </h:commandButton>
+        <h:commandButton id="clearTagFilter" styleClass="b5 me-0"
+            value="#{questionPoolMessages.tags_search_clear}">
+            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ClearSelectedTagsListener" />
+        </h:commandButton>
+    </h:panelGroup>
+
+</ui:composition>

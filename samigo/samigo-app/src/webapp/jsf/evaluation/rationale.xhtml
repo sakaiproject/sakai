@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{evaluationMessages.title_question}" />
+            </title>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <h:dataTable cellpadding="0" cellspacing="0" id="questionScoreTable"
+                value="#{questionScores.agents}" var="description" styleClass="listHier tier2"
+                columnClasses="textTable">
+                <h:column>
+                    <h:outputText rendered="#{param.idString eq description.assessmentGradingId}"
+                        escape="false" value="#{description.rationale}" />
+                </h:column>
+            </h:dataTable>
+        </h:body>
+    </f:view>
+
+</ui:composition>

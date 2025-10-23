@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{questionPoolMessages.us_p}" />
+            </title>
+        </h:head>
+
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+                <h:form id="removePoolForm">
+                    <ui:include src="/jsf/questionpool/questionpoolHeadings.xhtml" />
+                    <br />
+
+                    <h3 class="insColor insBak">
+                        <h:outputText value="#{questionPoolMessages.us_p_confirm}" />
+                    </h3>
+
+                    <div class="sak-banner-warn">
+                        <h:outputText value="#{questionPoolMessages.unshare_sure_p}" />
+                    </div>
+
+                    <div class="tier1">
+                        <h3>
+                            <h:outputText value="#{questionPoolMessages.p_name}" />
+                        </h3>
+                        <h:dataTable id="table" value="#{questionpool.poolToUnshare}" var="pool"
+                            styleClass="table table-bordered">
+                            <h:column>
+                                <h:outputText styleClass="fw-bold" escape="false"
+                                    value="#{pool.displayName}" />
+                            </h:column>
+                        </h:dataTable>
+                    </div>
+
+                    <p class="act">
+                        <h:commandButton type="submit" immediate="true" id="Submit"
+                            value="#{commonMessages.unshare_action}"
+                            action="#{questionpool.unsharePool}" styleClass="active" />
+
+                        <h:commandButton id="cancel" value="#{commonMessages.cancel_action}"
+                            action="poolList">
+                            <f:actionListener
+                                type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
+                        </h:commandButton>
+                    </p>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:panelGrid border="0">
+        <h:panelGroup rendered="#{description.hasAssessmentGradingAttachment}">
+            <h:dataTable value="#{description.assessmentGradingAttachmentList}" var="attach">
+                <h:column>
+                    <ui:include src="/jsf/shared/mimeicon.xhtml" />
+                </h:column>
+                <h:column>
+                    <h:outputLink value="#{attach.location}" target="new_window">
+                        <h:outputText value="#{attach.filename}" />
+                    </h:outputLink>
+                </h:column>
+                <h:column>
+                    <h:outputText value="(#{attach.fileSize} #{generalMessages.kb})"
+                        rendered="#{!attach.isLink}" />
+                </h:column>
+            </h:dataTable>
+        </h:panelGroup>
+
+        <h:commandButton rendered="#{!description.hasAssessmentGradingAttachment}"
+            value="#{assessmentSettingsMessages.add_attachments}"
+            action="#{description.addAssessmentAttachmentsRedirect}" />
+
+        <h:commandButton rendered="#{description.hasAssessmentGradingAttachment}"
+            value="#{assessmentSettingsMessages.add_remove_attachments}"
+            action="#{description.addAssessmentAttachmentsRedirect}" />
+    </h:panelGrid>
+
+</ui:composition>

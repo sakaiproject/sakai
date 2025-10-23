@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputScript target="body">
+//<![CDATA[
+includeWebjarLibrary('select2');
+document.addEventListener('DOMContentLoaded', function () {
+    const itemId = '#{question.itemId}';
+    const selector = '.tag_selector_' + itemId;
+    const tagDivSelector = '.tag_div_' + itemId;
+    const temporalHideSelector = '.temporalhide_' + itemId;
+
+    const formatRepo = function (repo) {
+        return $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+    };
+
+    const formatRepoSelection = function (repo) {
+        if (typeof repo.collection !== 'undefined') {
+            return $("<span>" + repo.text + " <span class='collection'>(" + repo.collection + ")</span></span>");
+        }
+
+        const collection = $('.tag_selector_' + itemId + " option[value='" + repo.id + "']").attr('title');
+        if (typeof collection !== 'undefined') {
+            return $("<span>" + repo.text + " <span class='collection'>(" + collection + ")</span></span>");
+        }
+        return $("<span>" + repo.text + "</span>");
+    };
+
+    $(selector).select2({
+        width: '50%',
+        disabled: true,
+        escapeMarkup: function (markup) {
+            return markup;
+        },
+        templateResult: formatRepo,
+        templateSelection: formatRepoSelection
+    });
+
+    const tags = #{question.tagListToJsonString};
+    const tagArray = Array.isArray(tags) ? tags : [];
+    if (tagArray.length < 1) {
+        $(tagDivSelector).hide();
+    }
+    tagArray.forEach(function (obj) {
+        const newOption = new Option(obj.tagLabel, obj.tagId, true, true);
+        $(selector).append(newOption);
+        $('.tag_selector_' + itemId + " option[value='" + obj.tagId + "']").attr('title', obj.tagCollectionName);
+    });
+    $(selector).trigger('change');
+    $(temporalHideSelector).show();
+});
+//]]>
+    </h:outputScript>
+
+    <div class="temporalhide_#{question.itemId}" style="display:none">
+        <div class="longtext tag_div_#{question.itemId}" style="#{questionScores.showTagsInEvaluationStyle}">
+            <h:outputLabel value="#{authorMessages.tag_title}" />
+            <br />
+            <h:panelGroup>
+                <select class="tag_selector_#{question.itemId}"
+                    name="tag_selector_#{question.itemId}[]"
+                    id="tag_selector_#{question.itemId}" multiple="multiple">
+                </select>
+            </h:panelGroup>
+        </div>
+    </div>
+
+</ui:composition>

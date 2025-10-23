@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.restore_assessments}" />
+            </title>
+            <script>
+                includeWebjarLibrary('datatables');
+            </script>
+            <script src="/samigo-app/js/naturalSort.js"></script>
+            <script src="/samigo-app/js/sortHelper.js"></script>
+        </h:head>
+
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+                <h:outputText id="restore-view-all-label" value="#{authorFrontDoorMessages.assessment_view_all}"
+                    styleClass="d-none" />
+                <h:outputText id="restore-search-label" value="#{dataTablesMessages.search}"
+                    styleClass="d-none" />
+                <h:outputText id="restore-length-label" value="#{authorFrontDoorMessages.datatables_lengthMenu}"
+                    styleClass="d-none" escape="false" />
+                <h:outputText id="restore-zero-label" value="#{authorFrontDoorMessages.datatables_zeroRecords}"
+                    styleClass="d-none" />
+                <h:outputText id="restore-info-label" value="#{dataTablesMessages.info}"
+                    styleClass="d-none" />
+                <h:outputText id="restore-info-empty-label" value="#{authorFrontDoorMessages.datatables_infoEmpty}"
+                    styleClass="d-none" />
+                <h:outputText id="restore-info-filtered-label" value="#{authorFrontDoorMessages.datatables_infoFiltered}"
+                    styleClass="d-none" />
+                <h:outputText id="restore-empty-table-label" value="#{dataTablesMessages.infoEmpty}"
+                    styleClass="d-none" />
+                <h:outputText id="restore-next-label" value="#{dataTablesMessages.paginate_next}"
+                    styleClass="d-none" />
+                <h:outputText id="restore-prev-label" value="#{dataTablesMessages.paginate_previous}"
+                    styleClass="d-none" />
+                <h:outputText id="restore-sort-asc-label" value="#{dataTablesMessages.aria_sortAscending}"
+                    styleClass="d-none" />
+                <h:outputText id="restore-sort-desc-label" value="#{dataTablesMessages.aria_sortDescending}"
+                    styleClass="d-none" />
+
+                <script>
+                    //<![CDATA[
+                    document.addEventListener("DOMContentLoaded", () => {
+                        const table = $("#restoreAssessmentsForm\\:deletedAssessmentsTable");
+                        const notEmptyCells = table.find("td:not(:empty)").length;
+
+                        const labels = {
+                            viewAll: document.getElementById("restore-view-all-label").textContent,
+                            search: document.getElementById("restore-search-label").textContent,
+                            lengthMenu: document.getElementById("restore-length-label").textContent,
+                            zeroRecords: document.getElementById("restore-zero-label").textContent,
+                            info: document.getElementById("restore-info-label").textContent,
+                            infoEmpty: document.getElementById("restore-info-empty-label").textContent,
+                            infoFiltered: document.getElementById("restore-info-filtered-label").textContent,
+                            emptyTable: document.getElementById("restore-empty-table-label").textContent,
+                            next: document.getElementById("restore-next-label").textContent,
+                            previous: document.getElementById("restore-prev-label").textContent,
+                            sortAsc: document.getElementById("restore-sort-asc-label").textContent,
+                            sortDesc: document.getElementById("restore-sort-desc-label").textContent
+                        };
+
+                        if (notEmptyCells > 0) {
+                            table.DataTable({
+                                paging: true,
+                                lengthMenu: [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, labels.viewAll]],
+                                pageLength: 20,
+                                aaSorting: [[0, "desc"]],
+                                columns: [
+                                    { bSortable: true, bSearchable: true, type: "span" },
+                                    { bSortable: true, bSearchable: true },
+                                    { bSortable: true, bSearchable: true, type: "numeric" },
+                                    { bSortable: false, bSearchable: false }
+                                ],
+                                language: {
+                                    search: labels.search,
+                                    lengthMenu: labels.lengthMenu,
+                                    zeroRecords: labels.zeroRecords,
+                                    info: labels.info,
+                                    infoEmpty: labels.infoEmpty,
+                                    infoFiltered: labels.infoFiltered,
+                                    emptyTable: labels.emptyTable,
+                                    paginate: {
+                                        next: labels.next,
+                                        previous: labels.previous
+                                    },
+                                    aria: {
+                                        sortAscending: labels.sortAsc,
+                                        sortDescending: labels.sortDesc
+                                    }
+                                },
+                                fnDrawCallback: () => {
+                                    $(".select-checkbox").prop("checked", false);
+                                    updateRestoreButton();
+                                }
+                            });
+                        }
+
+                        table.on("change", ".select-checkbox", updateRestoreButton);
+                        updateRestoreButton();
+
+                        function updateRestoreButton() {
+                            const selected = $(".select-checkbox:checked").length;
+                            const restoreButton = $("#restoreAssessmentsForm\\:restore-selected");
+                            if (selected > 0) {
+                                restoreButton.removeClass("disabled").addClass("active").prop("disabled", false);
+                            } else {
+                                restoreButton.removeClass("active").addClass("disabled").prop("disabled", true);
+                            }
+                        }
+                    });
+                    //]]>
+                </script>
+
+                <div class="samigo-container">
+                    <h:form id="restoreAssessmentsForm">
+                        <ui:include src="/jsf/author/restoreAssessmentsHeading.xhtml" />
+
+                        <div class="page-header">
+                            <h1>
+                                <h:outputText value="#{authorMessages.restore_assessments}" />
+                            </h1>
+                        </div>
+
+                        <h:outputText value="#{authorMessages.restore_assessments_empty}"
+                            rendered="#{restoreAssessmentsBean.deletedAssessmentList.isEmpty()}"
+                            escape="false" styleClass="sak-banner-info" />
+
+                        <h:dataTable cellpadding="0" cellspacing="0" id="deletedAssessmentsTable"
+                            value="#{restoreAssessmentsBean.deletedAssessmentList}" var="deletedAssessment"
+                            styleClass="table table-bordered table-striped"
+                            rendered="#{!restoreAssessmentsBean.deletedAssessmentList.isEmpty()}">
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputText value="#{authorFrontDoorMessages.assessment_title}" />
+                                </f:facet>
+                                <div>
+                                    <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - "
+                                        styleClass="highlight" rendered="#{deletedAssessment.draft}" />
+                                    <h:outputText styleClass="spanValue" value="#{deletedAssessment.title}" />
+                                </div>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputText value="#{eventLogMessages.id}" />
+                                </f:facet>
+                                <h:outputText value="#{deletedAssessment.id}" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputText value="#{authorMessages.restore_assessments_deleted_on}" />
+                                </f:facet>
+                                <div>
+                                    <h:outputText value="#{deletedAssessment.lastModifiedDate}">
+                                        <f:convertDateTime dateStyle="medium" timeStyle="short"
+                                            timeZone="#{author.userTimeZone}" />
+                                    </h:outputText>
+                                    <h:outputText value="#{deletedAssessment.lastModifiedDate}"
+                                        styleClass="d-none spanValue">
+                                        <f:convertDateTime pattern="yyyyMMddHHmmss" />
+                                    </h:outputText>
+                                </div>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputText value="#{authorMessages.restore_assessments_select}" />
+                                </f:facet>
+                                <h:selectBooleanCheckbox value="#{deletedAssessment.selected}"
+                                    styleClass="select-checkbox" />
+                            </h:column>
+                        </h:dataTable>
+
+                        <div class="clearfix"></div>
+                        <p class="act">
+                            <h:commandButton id="restore-selected"
+                                value="#{authorMessages.restore_assessments_restore}" type="submit"
+                                action="#{restoreAssessmentsBean.restoreAssessments}"
+                                styleClass="disabled" disabled="true" />
+                            <h:commandButton value="#{authorMessages.button_cancel}" type="submit"
+                                action="#{restoreAssessmentsBean.cancel}" />
+                        </p>
+                    </h:form>
+                </div>
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

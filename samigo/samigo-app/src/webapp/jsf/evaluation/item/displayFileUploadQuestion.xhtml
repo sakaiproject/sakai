@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:outputText value="#{question.text} " escape="false" />
+    <br />
+    <h:panelGroup>
+        <h:outputText value="#{evaluationMessages.file}#{evaluationMessages.column} " />
+        <h:inputText size="50" />
+        <h:outputText value="&#160;&#160;" escape="false" />
+        <h:commandButton value="#{evaluationMessages.browse}" type="button" />
+        <h:outputText value="&#160;&#160;" escape="false" />
+        <h:commandButton value="#{evaluationMessages.upload}" type="button" />
+        <ui:include src="/jsf/evaluation/item/displayTags.xhtml" />
+    </h:panelGroup>
+    <br />
+
+</ui:composition>

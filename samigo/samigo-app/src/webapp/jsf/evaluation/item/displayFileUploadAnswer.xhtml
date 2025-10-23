@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:dataTable value="#{description.itemGradingArrayList}" var="itemGradingArrayList">
+        <h:column>
+            <h:outputText value="#{description.answer}" escape="false"
+                rendered="#{itemGradingArrayList.mediaArray.size() == 0}" />
+            <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
+                <h:column>
+                    <h:outputLink title="#{evaluationMessages.t_fileUpload}"
+                        value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
+                        <h:outputText value="#{media.filename}" />
+                    </h:outputLink>
+                </h:column>
+                <h:column>
+                    <h:outputText value="#{evaluationMessages.open_bracket}" />
+                    <h:outputText value="#{media.fileSizeKBFormat} #{generalMessages.kb}" />
+                    <h:outputText value="#{evaluationMessages.close_bracket}" />
+                </h:column>
+            </h:dataTable>
+        </h:column>
+    </h:dataTable>
+
+</ui:composition>

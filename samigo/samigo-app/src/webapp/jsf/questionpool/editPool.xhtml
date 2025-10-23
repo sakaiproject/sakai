@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:samigo="http://www.sakaiproject.org/samigo">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{questionPoolMessages.edit_p}" />
+            </title>
+
+            <script src="/samigo-app/js/delivery.js"></script>
+            <script src="/samigo-app/js/samigotree.js"></script>
+            <script src="/samigo-app/js/authoring.js"></script>
+
+            <script>
+                function textCounter(field, maxlimit) {
+                    if (field.value.length > maxlimit) {
+                        field.value = field.value.substring(0, maxlimit);
+                    }
+                }
+            </script>
+
+            <ui:fragment rendered="#{questionpool.showTags and questionpool.canManageTags}">
+                <script>
+                    window.addEventListener("load", () => {
+                        window.syncTagSelectorInput("tag-selector", "editform:questionPoolTags");
+                    });
+                </script>
+            </ui:fragment>
+
+            <script src="/library/js/spinner.js"></script>
+            <script>
+                function flagFolders() {
+                    collapseRowsByLevel(<h:outputText value="#{questionpool.htmlIdLevel}" />);
+                }
+                function initPage() {
+                    checkUpdate();
+                    var importButton = document.getElementById('editform:import');
+                    if (importButton !== null) {
+                        importButton.disabled = true;
+                    }
+                    flagFolders();
+                }
+                window.onload = initPage;
+            </script>
+        </h:head>
+
+        <h:body
+            onload="checkUpdate();collapseRowsByLevel(#{questionpool.htmlIdLevel});#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']};">
+            <div class="portletBody container-fluid">
+                <h:form id="editform">
+                    <ui:include src="/jsf/questionpool/questionpoolHeadings.xhtml" />
+
+                    <br />
+
+                    <h:panelGroup rendered="#{questionpool.currentPool.showParentPools}" layout="block">
+                        <nav class="samigo-breadcrumb" aria-label="breadcrumb">
+                            <ol class="breadcrumb m-0">
+                                <li class="breadcrumb-item">
+                                    <h:outputText value="#{authorMessages.global_nav_pools}" />
+                                </li>
+                                <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent"
+                                    separator="" first="0" rows="100">
+                                    <h:column>
+                                        <li class="breadcrumb-item">
+                                            <h:commandLink action="#{questionpool.editPool}" immediate="true">
+                                                <h:outputText value="#{parent.displayName}" escape="false" />
+                                                <f:param name="qpid" value="#{parent.questionPoolId}" />
+                                            </h:commandLink>
+                                        </li>
+                                    </h:column>
+                                </samigo:dataLine>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    <h:outputText value="#{questionpool.currentPool.displayName}" />
+                                </li>
+                            </ol>
+                        </nav>
+                    </h:panelGroup>
+
+                    <div class="page-header">
+                        <h1>
+                            <h:outputText
+                                value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}" />
+                        </h1>
+                    </div>
+
+                    <h:messages styleClass="sak-banner-error"
+                        rendered="#{facesContext.maximumSeverity ne null}" layout="table" />
+
+                    <h:outputText rendered="#{questionpool.importToAuthoring}"
+                        value="#{questionPoolMessages.msg_imp_editpool}" />
+
+                    <div class="form-group row">
+                        <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}"
+                            styleClass="col-sm-2 form-label" />
+                        <div class="col-sm-6">
+                            <h:inputText
+                                readonly="#{questionpool.importToAuthoring or questionpool.owner ne questionpool.currentPool.owner}"
+                                id="namefield" size="30" maxlength="255"
+                                value="#{questionpool.currentPool.displayName}" styleClass="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}"
+                            styleClass="col-sm-2 form-label" />
+                        <div class="col-sm-6">
+                            <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}" />
+                        </div>
+                    </div>
+
+                    <h:panelGroup layout="block" styleClass="form-group row">
+                        <h:outputLabel for="orgfield" value="#{questionPoolMessages.dept}"
+                            styleClass="col-sm-2 form-label" />
+                        <div class="col-sm-6">
+                            <h:inputText
+                                readonly="#{questionpool.importToAuthoring or questionpool.owner ne questionpool.currentPool.owner}"
+                                id="orgfield" size="30" maxlength="255"
+                                value="#{questionpool.currentPool.organizationName}" styleClass="form-control" />
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup layout="block" styleClass="form-group row">
+                        <h:outputLabel for="descfield" value="#{questionPoolMessages.desc}"
+                            styleClass="col-sm-2 form-label" />
+                        <div class="col-sm-6">
+                            <h:inputTextarea
+                                readonly="#{questionpool.importToAuthoring or questionpool.owner ne questionpool.currentPool.owner}"
+                                onchange="inIt();" id="descfield"
+                                value="#{questionpool.currentPool.description}" cols="40" rows="6" />
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup layout="block" styleClass="form-group row">
+                        <h:outputLabel for="objfield" value="#{questionPoolMessages.obj}"
+                            styleClass="col-sm-2 form-label" />
+                        <div class="col-sm-6">
+                            <h:inputText
+                                readonly="#{questionpool.importToAuthoring or questionpool.owner ne questionpool.currentPool.owner}"
+                                id="objfield" size="30" maxlength="255"
+                                value="#{questionpool.currentPool.objectives}" styleClass="form-control" />
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup layout="block" styleClass="form-group row">
+                        <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords}"
+                            styleClass="col-sm-2 form-label" />
+                        <div class="col-sm-6">
+                            <h:inputText
+                                readonly="#{questionpool.importToAuthoring or questionpool.owner ne questionpool.currentPool.owner}"
+                                id="keyfield" size="30" maxlength="255"
+                                value="#{questionpool.currentPool.keywords}" styleClass="form-control" />
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{questionpool.showTags and questionpool.canManageTags}"
+                        layout="block" styleClass="form-group row">
+                        <label for="tag-selector" class="col-sm-2 form-label">
+                            <h:outputText value="#{questionPoolMessages.t_tags}" />
+                        </label>
+                        <div class="col-sm-6">
+                            <sakai-tag-selector id="tag-selector" class="b5 flex-grow-1"
+                                selected-temp="#{questionpool.currentPool.tags.tagIdsCsv}"
+                                collection-id="#{questionpool.currentPool.ownerId}"
+                                site-id="#{author.currentSiteId}" add-new="true">
+                            </sakai-tag-selector>
+                            <h:inputHidden id="questionPoolTags"
+                                value="#{questionpool.currentPool.tags.tagIdsCsv}" />
+                        </div>
+                    </h:panelGroup>
+
+                    <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
+                        <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss" />
+                    </h:inputHidden>
+
+                    <div class="tier1">
+                        <h4>
+                            <h:panelGrid width="100%" columns="2" columnClasses="h3text,navList">
+                                <h:panelGroup>
+                                    <h:outputText value="#{questionpool.currentPool.numberOfSubpools}" />
+                                    <h:outputText rendered="#{questionpool.currentPool.numberOfSubpools gt 1}"
+                                        value=" #{questionPoolMessages.subps}" />
+                                    <h:outputText rendered="#{questionpool.currentPool.numberOfSubpools eq 1}"
+                                        value=" #{questionPoolMessages.subp}" />
+                                    <h:outputText rendered="#{questionpool.currentPool.numberOfSubpools eq 0}"
+                                        value=" #{questionPoolMessages.subps}" />
+                                </h:panelGroup>
+                                <h:panelGroup>
+                                    <h:commandLink title="#{questionPoolMessages.t_addSubpool}"
+                                        rendered="#{questionpool.importToAuthoring eq false and questionpool.canAddPools}"
+                                        id="addlink" immediate="true" action="#{questionpool.addPool}">
+                                        <h:outputText id="add" value="#{questionPoolMessages.t_addSubpool}" />
+                                        <f:param name="qpid" value="#{questionpool.currentPool.id}" />
+                                        <f:param name="outCome" value="editPool" />
+                                    </h:commandLink>
+
+                                    <h:outputText
+                                        rendered="#{questionpool.importToAuthoring eq false and questionpool.canAddPools}"
+                                        value=" #{questionPoolMessages.separator} " />
+
+                                    <h:commandLink title="#{questionPoolMessages.preview}"
+                                        rendered="#{questionpool.importToAuthoring eq false}" id="previewlink"
+                                        immediate="true" action="#{questionpool.startPreviewPool}">
+                                        <h:outputText id="previewq" value="#{questionPoolMessages.preview}" />
+                                        <f:param name="qpid" value="#{questionpool.currentPool.id}" />
+                                    </h:commandLink>
+
+                                    <h:outputText rendered="#{questionpool.importToAuthoring eq false}"
+                                        value=" #{questionPoolMessages.separator} " />
+
+                                    <h:commandLink title="#{questionPoolMessages.t_exportPool}"
+                                        rendered="#{questionpool.importToAuthoring eq false}"
+                                        action="#{questionpool.startExportPool}">
+                                        <h:outputText id="export" value="#{questionPoolMessages.t_exportPool}" />
+                                        <f:param name="action" value="exportPool" />
+                                    </h:commandLink>
+                                </h:panelGroup>
+                            </h:panelGrid>
+                        </h4>
+
+                        <ui:include src="/jsf/questionpool/subpoolsTreeTable.xhtml" />
+                    </div>
+
+                    <div class="tier1">
+                        <h4>
+                            <h:panelGrid width="100%" columns="2" columnClasses="h3text,navList">
+                                <h:panelGroup>
+                                    <h:outputText value="#{questionpool.currentPool.numberOfQuestions}" />
+                                    <h:outputText rendered="#{questionpool.currentPool.numberOfQuestions eq 1}"
+                                        value=" #{questionPoolMessages.q}" />
+                                    <h:outputText rendered="#{questionpool.currentPool.numberOfQuestions ne 1}"
+                                        value=" #{questionPoolMessages.qs}" />
+                                </h:panelGroup>
+                                <h:panelGroup styleClass="d-flex gap-2 flex-wrap">
+                                    <h:commandLink id="import" rendered="#{questionpool.importToAuthoring}"
+                                        action="importPool" value="#{questionPoolMessages['import']}"
+                                        styleClass="btn btn-link p-0" />
+                                    <h:commandLink id="exportQuestion"
+                                        rendered="#{questionpool.importToAuthoring eq false}"
+                                        action="#{questionpool.startExportQuestions}"
+                                        value="#{questionPoolMessages.export_questions}"
+                                        styleClass="btn btn-link p-0">
+                                        <f:param name="action" value="exportQuestion" />
+                                    </h:commandLink>
+                                </h:panelGroup>
+                            </h:panelGrid>
+                        </h4>
+
+                        <ui:include src="/jsf/questionpool/questionTreeTable.xhtml" />
+                    </div>
+
+                    <div class="act">
+                        <h:commandButton id="save" value="#{commonMessages.action_save}"
+                            rendered="#{questionpool.importToAuthoring eq false and questionpool.owner eq questionpool.currentPool.owner}"
+                            action="#{questionpool.savePool}" styleClass="active btn btn-primary" />
+                        <h:commandButton id="cancel" value="#{commonMessages.cancel_action}"
+                            action="#{questionpool.cancelEdit}" styleClass="btn btn-secondary" />
+                        <h:commandButton id="delete" value="#{questionPoolMessages.delete}"
+                            rendered="#{questionpool.importToAuthoring eq false and questionpool.canDeleteQuestions}"
+                            action="#{questionpool.startRemovePool}" styleClass="btn btn-danger" />
+                        <h:commandButton id="import"
+                            rendered="#{questionpool.importToAuthoring}"
+                            value="#{questionPoolMessages.import_to_assessment}"
+                            action="#{questionpool.copyItemsToAssessment}" styleClass="btn btn-primary" />
+                    </div>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+</ui:composition>

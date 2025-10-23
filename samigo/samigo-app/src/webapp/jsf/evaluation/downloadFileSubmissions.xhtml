@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:sakai="http://sakaiproject.org/jsf2/sakai">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{evaluationMessages.title_download_file_submissions}" />
+            </title>
+            <style type="text/css">
+.disabled {
+    background-color: #f1f1f1;
+}
+            </style>
+            <script src="/samigo-app/js/delivery.js"></script>
+            <h:outputScript target="body">
+//<![CDATA[
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.allSections').forEach(function (element) {
+        element.style.display = 'none';
+    });
+
+    var currentLink = document.getElementById('downloadFileSubmissions:downloadFileSubmissionsMenuLink');
+    if (currentLink) {
+        currentLink.classList.add('current');
+        var anchor = currentLink.querySelector('a');
+        if (anchor) {
+            currentLink.textContent = anchor.textContent;
+        }
+    }
+});
+
+function toggleChecked() {
+    document.querySelectorAll("input[type='checkbox']").forEach(function (checkbox) {
+        if (checkbox.name && checkbox.name.indexOf('downloadFileSubmissions') !== -1
+            && checkbox.name.indexOf('questionCheckbox') !== -1) {
+            checkbox.checked = true;
+        }
+    });
+}
+
+function showHideReleaseSections() {
+    var selected = document.querySelector("input[name='downloadFileSubmissions:siteSection']:checked");
+    var showSections = selected && selected.value === 'sections';
+    document.querySelectorAll('.allSections').forEach(function (element) {
+        element.style.display = showSections ? '' : 'none';
+    });
+}
+//]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody">
+                <h:form id="downloadFileSubmissions">
+                    <h:inputHidden id="publishedId" value="#{downloadFileSubmissions.publishedAssessmentId}" />
+                    <h:inputHidden id="itemId" value="#{totalScores.firstItem}" />
+
+                    <ui:include src="/jsf/evaluation/evaluationHeadings.xhtml" />
+                    <h:panelGroup layout="block" styleClass="page-header">
+                        <h1>
+                            <h:outputText
+                                value="#{evaluationMessages.title_download_file_submissions}#{evaluationMessages.column} "
+                                escape="false" />
+                            <small>
+                                <h:outputText value="(#{totalScores.assessmentName}) " escape="false" />
+                            </small>
+                        </h1>
+                    </h:panelGroup>
+
+                    <ui:include src="/jsf/evaluation/evaluationSubmenu.xhtml" />
+
+                    <div class="tier1">
+                        <h:messages infoClass="sak-banner-info" warnClass="sak-banner-warn"
+                            errorClass="sak-banner-error" fatalClass="sak-banner-error" />
+                        <h:outputText value="#{evaluationMessages.download_responses_to}" escape="false" />
+                    </div>
+
+                    <div style="margin-left:30px;">
+                        <h:panelGrid columns="1">
+                            <h:outputLink title="#{evaluationMessages.select_all}" onclick="toggleChecked()" value="#"
+                                rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 1}">
+                                <h:outputText value="#{evaluationMessages.select_all}" />
+                            </h:outputLink>
+                        </h:panelGrid>
+                    </div>
+
+                    <div style="margin-left:24px;">
+                        <h:dataTable value="#{downloadFileSubmissions.fileUploadQuestionList}" var="question"
+                            columnClasses="downloanQuestionCheckbox,downloanQuestionDescription">
+                            <h:column>
+                                <h:selectManyCheckbox value="" id="questionCheckbox"
+                                    rendered="#{downloadFileSubmissions.fileUploadQuestionListSize > 1}">
+                                    <f:selectItem itemValue="#{question.itemIdString}" />
+                                </h:selectManyCheckbox>
+                            </h:column>
+                            <h:column>
+                                <h:panelGrid columnClasses="samLeftNav," border="0">
+                                    <h:outputText
+                                        value="<b>#{evaluationMessages.part} #{question.section.sequence}: #{evaluationMessages.question} #{question.sequence}</b> - #{evaluationMessages.q_fu}"
+                                        escape="false" />
+                                    <h:outputText value="#{question.text}" escape="false" />
+                                </h:panelGrid>
+                            </h:column>
+                        </h:dataTable>
+                    </div>
+
+                    <div style="margin-left:2px;">
+                        <h:panelGrid border="0">
+                            <h:selectOneRadio id="siteSection" layout="pagedirection"
+                                value="#{downloadFileSubmissions.firstTargetSelected}" onclick="showHideReleaseSections();"
+                                required="true" rendered="#{downloadFileSubmissions.availableSectionSize > 0}">
+                                <f:selectItems value="#{downloadFileSubmissions.siteSectionItems}" />
+                            </h:selectOneRadio>
+                        </h:panelGrid>
+                    </div>
+
+                    <div class="allSections" style="margin-left:24px;">
+                        <h:selectManyCheckbox id="sectionsForSite" layout="pagedirection"
+                            value="#{downloadFileSubmissions.sectionsSelected}"
+                            rendered="#{downloadFileSubmissions.availableSectionSize > 1}">
+                            <f:selectItems value="#{downloadFileSubmissions.availableSectionItems}" />
+                        </h:selectManyCheckbox>
+                    </div>
+
+                    <div class="tier1">
+                        <p class="act">
+                            <h:commandButton value="#{evaluationMessages.download}"
+                                actionListener="#{downloadFileSubmissions.downloadFiles}" styleClass="active" />
+                        </p>
+                    </div>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>
