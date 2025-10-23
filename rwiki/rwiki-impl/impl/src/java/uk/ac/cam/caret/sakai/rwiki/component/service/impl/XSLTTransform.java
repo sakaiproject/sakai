@@ -21,8 +21,6 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
-import java.util.Properties;
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Templates;
@@ -33,9 +31,6 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import org.apache.xml.serializer.Serializer;
-import org.apache.xml.serializer.SerializerFactory;
-
 /**
  * Manages a TraxTransform using templates to make it fast to get hold of.
  * 
@@ -43,21 +38,15 @@ import org.apache.xml.serializer.SerializerFactory;
  */
 public class XSLTTransform {
 
-	private ClassLoader classLoader;
-	private SAXParserFactory parserFactory;
-	private SAXTransformerFactory transformerFactory;
-	private Templates templates;
+        private final SAXParserFactory parserFactory;
+        private final SAXTransformerFactory transformerFactory;
+        private Templates templates;
 
 
-	public XSLTTransform() {
-		classLoader = this.getClass().getClassLoader();
-		transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance(
-				"org.apache.xalan.processor.TransformerFactoryImpl",
-				classLoader);
-		parserFactory = SAXParserFactory.newInstance(
-				"org.apache.xerces.jaxp.SAXParserFactoryImpl",
-				classLoader);
-	}
+        public XSLTTransform() {
+                transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+                parserFactory = SAXParserFactory.newInstance();
+        }
 
 	/**
 	 * Set the xslt template to use during the transform.
@@ -91,20 +80,4 @@ public class XSLTTransform {
 		return transformerFactory.newTransformerHandler(templates);
 	}
 
-	/**
-	 * Get the specified serializer for the output method that is specified by the value of the
-	 * property associated with the "method" key in the format.
-	 *
-	 * @param format
-	 *        the output format, must set the method property minimally
-	 * @return a serializer for the specified output method
-	 */
-	public Serializer getSerializer(Properties format) {
-		Thread currentThread = Thread.currentThread();
-		ClassLoader savedLoader = currentThread.getContextClassLoader();
-		currentThread.setContextClassLoader(classLoader);
-		Serializer serializer = SerializerFactory.getSerializer(format);
-		currentThread.setContextClassLoader(savedLoader);
-		return serializer;
-	}
 }

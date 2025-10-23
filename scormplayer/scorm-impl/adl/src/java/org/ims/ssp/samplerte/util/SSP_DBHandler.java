@@ -27,7 +27,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Provides database connection utility functions to the shared global
@@ -59,59 +59,43 @@ import org.adl.util.debug.DebugIndicator;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class SSP_DBHandler {
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
+    /**
+     * Default constructor for the SSP_DBHandler class
+     */
+    public SSP_DBHandler() {
+    }
 
-	/**
-	 * Initializes the database connection.
-	 *
-	 * @return A connection to the DB or <code>null</code> if the connection can
-	 *         not be established.
-	 */
-	public static Connection getConnection() {
-		Connection conn = null;
-		try {
-			if (_Debug) {
-				System.out.println("  ::--> Connecting to the SSP DB");
-			}
+    /**
+     * Initializes the database connection.
+     *
+     * @return A connection to the DB or <code>null</code> if the connection can
+     *         not be established.
+     */
+    public static Connection getConnection() {
+        Connection conn = null;
+        try {
+            log.debug("  ::--> Connecting to the SSP DB");
 
-			String driverName = "sun.jdbc.odbc.JdbcOdbcDriver";
-			String connectionURL = "jdbc:odbc:SCORM3RDSSP10";
+            String driverName = "sun.jdbc.odbc.JdbcOdbcDriver";
+            String connectionURL = "jdbc:odbc:SCORM3RDSSP10";
 
-			java.util.Properties prop = new java.util.Properties();
-			prop.put("charSet", "utf-8");
+            java.util.Properties prop = new java.util.Properties();
+            prop.put("charSet", "utf-8");
 
-			Class.forName(driverName).newInstance();
-			conn = DriverManager.getConnection(connectionURL, prop);
+            Class.forName(driverName).newInstance();
+            conn = DriverManager.getConnection(connectionURL, prop);
+            log.debug("  ::--> Connection successful");
+        } catch (SQLException sqle) {
+            log.debug("  ::--> ERROR:  Could not connect to SSP DB\n  ::-->  {}", sqle.getSQLState());
+            log.warn("Could not get a connection to persistence (SQL)", sqle);
+        } catch (Exception e) {
+            log.debug("  ::--> ERROR:  Unexpected exception");
+            log.warn("Could not get a connection to persistence", e);
+        }
+        return conn;
+    }
 
-			if (_Debug) {
-				System.out.println("  ::--> Connection successful");
-			}
-		} catch (SQLException ex) {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR:  Could not connect to SSP DB");
-				System.out.println("  ::-->  " + ex.getSQLState());
-			}
-			ex.printStackTrace();
-		} catch (Exception e) {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR:  Unexpected exception");
-			}
-			e.printStackTrace();
-		}
-
-		return conn;
-	}
-
-	/**
-	 * Default constructor for the SSP_DBHandler class
-	 */
-	public SSP_DBHandler() {
-		//Default Constructor.
-	}
-
-} // SSP_DBHandler
+}

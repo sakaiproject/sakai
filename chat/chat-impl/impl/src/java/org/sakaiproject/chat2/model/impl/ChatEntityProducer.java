@@ -23,11 +23,13 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -50,6 +52,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.sakaiproject.chat2.model.ChatChannel;
+import org.sakaiproject.chat2.model.ChatFunctions;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -112,7 +115,12 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       String[] toolIds = { ChatManager.CHAT_TOOL_ID };
       return toolIds;
    }
-   
+
+   @Override
+   public Optional<List<String>> getTransferOptions() {
+      return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
+   }
+
    /**
     * Get the service name for this class
     * @return
@@ -636,7 +644,12 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
         return chatManager.getContextChannels(fromContext, true).stream()
             .map(cc -> Map.of("id", cc.getId(), "title", cc.getTitle())).collect(Collectors.toList());
     }
-   
+
+    @Override
+    public String getToolPermissionsPrefix() {
+        return ChatFunctions.CHAT_FUNCTION_PREFIX;
+    }
+
    /**
     * TODO: link the old placement id to the new placement id instead of passing null in line:
     * ChatChannel newChannel = chatManager.createNewChannel(toContext, oldChannel.getTitle(), false, false, null);

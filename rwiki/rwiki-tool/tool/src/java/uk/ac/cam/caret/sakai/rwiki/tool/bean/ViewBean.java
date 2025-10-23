@@ -145,16 +145,6 @@ public class ViewBean
 	 * 
 	 * @return
 	 */
-	public String getExportUrl()
-	{
-		return getPageUrl(pageName, WikiPageAction.EXPORT_ACTION.getName());
-	}
-
-	/**
-	 * Returns a public view URL with no breadcrumbs
-	 * 
-	 * @return
-	 */
 	public String getPublicViewUrl()
 	{
 		return getPublicViewUrl(false);
@@ -606,15 +596,11 @@ public class ViewBean
 
 	public String getBaseAccessUrl()
 	{
-		// /wiki 
+		// /wiki
 		return RWikiObjectService.REFERENCE_ROOT + pageName + ".";
 
 	}
-	public String getRssAccessUrl()
-	{
-		// /wiki 
-		return RWikiObjectService.REFERENCE_ROOT + getPageSpace() + "/.20.rss";
- 	}
+
 	public String getPreferencesUrl()
 	{
 		return this.getPageUrl(getPageName(), WikiPageAction.PREFERENCES_ACTION
