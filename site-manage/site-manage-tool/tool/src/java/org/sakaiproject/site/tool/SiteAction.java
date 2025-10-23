@@ -5619,7 +5619,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		state.setAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS, toolOptions);
 
-		return anyToolSelected;
+		return anyToolSelected || toolOptions.size() > 0;
 	} // select_import_tools
 
 	/**

@@ -207,9 +207,11 @@ public interface GradingService extends EntityProducer {
      * @param gradebookInformation GradebookInformation to copy
      * @param assignments list of Assignments to copy
      * @param toGradebookUid target gradebook uid
+     * @param fromContext source context identifier (site id)
+     * @param options list of options to control the transfer behavior (e.g., COPY_SETTINGS_OPTION)
      */
     public Map<String,String> transferGradebook(GradebookInformation gradebookInformation, List<Assignment> assignments,
-            String toGradebookUid, String fromContext);
+            String toGradebookUid, String fromContext, List<String> options);
 
     /**
      *
