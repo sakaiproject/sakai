@@ -63,8 +63,6 @@ import java.util.UUID;
 import net.fortuna.ical4j.model.component.VEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.sakaiproject.signup.api.Permission;
@@ -84,7 +82,6 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "signup_meetings")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class SignupMeeting implements MeetingTypes, SignupMessageTypes, PersistableEntity<Long> {
 
     @Id
@@ -166,14 +163,12 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 50)
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OrderColumn(name = "list_index") @JoinColumn(name = "meeting_id", nullable = false)
     private List<SignupTimeslot> signupTimeSlots = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 50)
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OrderColumn(name = "list_index") @JoinColumn(name = "meeting_id", nullable = false)
     private List<SignupSite> signupSites = new ArrayList<>();
 

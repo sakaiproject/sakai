@@ -56,8 +56,6 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 
 import net.fortuna.ical4j.model.component.VEvent;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -73,7 +71,6 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 @Entity
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "signup_ts")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class SignupTimeslot implements PersistableEntity<Long> {
 
     // a constants maximum number for attendees
