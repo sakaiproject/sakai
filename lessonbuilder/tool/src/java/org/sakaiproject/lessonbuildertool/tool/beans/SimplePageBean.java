@@ -6532,7 +6532,7 @@ public class SimplePageBean {
 	public String getCollectionId(boolean urls) {
 		String siteId = getCurrentPage().getSiteId();
 		String baseDir = ServerConfigurationService.getString("lessonbuilder.basefolder", null);
-		boolean hiddenWithAccessDir = ServerConfigurationService.getBoolean("lessonbuilder.folder.hidden.withaccess",false);
+		boolean hiddenWithAccessDir = ServerConfigurationService.getBoolean("lessonbuilder.folder.hidden.withaccess", true);
 		String pageOwner = getCurrentPage().getOwner();
 		String collectionId;
 		String folder;
