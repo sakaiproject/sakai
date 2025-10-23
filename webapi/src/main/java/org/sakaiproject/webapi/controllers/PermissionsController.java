@@ -78,6 +78,7 @@ public class PermissionsController extends AbstractSakaiApiController {
         final String siteRef = siteService.siteReference(siteId);
 
         if (!authzGroupService.allowUpdate(siteRef)) {
+            log.warn("User {} is forbidden from retrieving permissions for site {}", session.getUserId(), siteRef);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to update permissions for this site");
         }
 
@@ -202,6 +203,7 @@ public class PermissionsController extends AbstractSakaiApiController {
         Site site = getSiteById(siteId);
 
         if (!authzGroupService.allowUpdate(site.getReference())) {
+            log.warn("User {} is forbidden from updating permissions for site {}", session.getUserId(), site.getReference());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to update permissions for this site");
         }
 
@@ -222,6 +224,7 @@ public class PermissionsController extends AbstractSakaiApiController {
             } catch (GroupAlreadyDefinedException ex) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add duplicate realm for ref " + ref);
             } catch (AuthzPermissionException ex) {
+                log.warn("User {} is forbidden from creating realm {}", session.getUserId(), ref);
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The permissions for this site cannot be updated by the current user");
             }
         }
@@ -251,6 +254,7 @@ public class PermissionsController extends AbstractSakaiApiController {
                         role.disallowFunction(function);
                     }
                 } else {
+                    log.warn("User {} attempted to update non user-mutable function {} in site {}", session.getUserId(), function, site.getReference());
                     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The function " + function + " cannot be updated by the current user");
                 }
                 changed = true;
@@ -260,6 +264,7 @@ public class PermissionsController extends AbstractSakaiApiController {
                 try {
                     authzGroupService.save(authzGroup);
                 } catch (AuthzPermissionException ape) {
+                    log.warn("User {} is forbidden from saving permissions for realm {}", session.getUserId(), ref);
                     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The permissions for this site cannot be updated by the current user");
                 }
             }
