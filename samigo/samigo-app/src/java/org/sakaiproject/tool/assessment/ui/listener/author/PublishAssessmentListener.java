@@ -404,6 +404,24 @@ public class PublishAssessmentListener
         throw new AbortProcessingException(e);
     }
 
+    // Add ALIAS if it doesn't exist
+    String settingsAlias = assessmentSettings.getAlias();
+    if (StringUtils.isBlank(pub.getData().getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS))) {
+      String aliasToUse;
+      if (StringUtils.isNotBlank(settingsAlias)) {
+        aliasToUse = settingsAlias;
+      } else {
+        log.warn("Alias was not set before publishing assessment {}; generating fallback UUID", assessment.getAssessmentId());
+        // Generate a new unique alias
+        aliasToUse = UUID.randomUUID().toString();
+      }
+      PublishedMetaData meta = new PublishedMetaData(pub.getData(), AssessmentMetaDataIfc.ALIAS, aliasToUse);
+      publishedAssessmentService.saveOrUpdateMetaData(meta);
+
+      // Refresh the published assessment to ensure metadata is current
+      pub = publishedAssessmentService.getPublishedAssessment(pub.getPublishedAssessmentId().toString());
+    }
+
     // Execute ASSESSMENT_PUBLISH pre-delivery phase for secure delivery module if available
     SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
     PublishedAssessmentIfc publishedAssessment = pub.getData();
@@ -428,21 +446,6 @@ public class PublishAssessmentListener
                         + " failed for module [" + moduleId + "] when trying to publish assessment");
             }
         }
-    }
-
-    // Add ALIAS if it doesn't exist
-    String settingsAlias = assessmentSettings.getAlias();
-    if (StringUtils.isBlank(pub.getData().getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS))) {
-      String aliasToUse;
-      if (StringUtils.isNotBlank(settingsAlias)) {
-        aliasToUse = settingsAlias;
-      } else {
-        log.warn("Alias was not set before publishing assessment {}; generating fallback UUID", assessment.getAssessmentId());
-        // Generate a new unique alias
-        aliasToUse = UUID.randomUUID().toString();
-      }
-      PublishedMetaData meta = new PublishedMetaData(pub.getData(), AssessmentMetaDataIfc.ALIAS, aliasToUse);
-      publishedAssessmentService.saveOrUpdateMetaData(meta);
     }
 
     // Now that everything is updated schedule an open notification email
