@@ -18,13 +18,13 @@ export class SakaiPermissions extends SakaiElement {
     roles: { state: true },
     groups: { state: true },
     error: { state: true },
-    errorMessage: { state: true },
+    _errorMessage: { state: true },
   };
 
   constructor() {
 
     super();
-    this.errorMessage = "";
+    this._errorMessage = "";
 
     this.loadTranslations("permissions-wc").then(i18n => {
 
@@ -212,7 +212,7 @@ export class SakaiPermissions extends SakaiElement {
         </div>
       `;
     } else if (this.error) {
-      return html`<div class="sak-banner-error">${this.errorMessage || this._i18n.alert_permission}</div>`;
+      return html`<div class="sak-banner-error">${this._errorMessage || this._i18n.alert_permission}</div>`;
     }
 
     return html`<div class="sak-banner-info">${this._i18n.waiting_for_permissions}</div>`;
@@ -227,7 +227,7 @@ export class SakaiPermissions extends SakaiElement {
         if (!res.ok) {
           const message = (await res.text())?.trim();
           const fallbackMessage = this._i18n ? this._i18n.alert_permission : "Unable to load permissions.";
-          this.errorMessage = message || fallbackMessage;
+          this._errorMessage = message || fallbackMessage;
           this.error = true;
           throw new Error(`Permissions fetch failed with status ${res.status}${message ? `: ${message}` : ""}`);
         } else {
