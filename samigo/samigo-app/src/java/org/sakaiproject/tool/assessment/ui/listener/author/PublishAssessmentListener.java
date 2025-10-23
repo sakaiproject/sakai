@@ -22,9 +22,11 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +41,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup.RealmLockMode;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.InvalidCategoryException;
@@ -55,6 +60,7 @@ import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -93,6 +99,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -255,6 +262,7 @@ public class PublishAssessmentListener
 	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
     boolean sendEmailNotification = false;
+    String prePopulateTextFormatted = "";
 
     try {
       assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
@@ -292,6 +300,8 @@ public class PublishAssessmentListener
       // The notification message will be used by the calendar event
       PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
       sendEmailNotification = publishRepublishNotification.isSendNotification();
+      prePopulateTextFormatted=getPrePopulateTextFormatted(publishRepublishNotification);
+      String subject = publishRepublishNotification.getNotificationSubject();
       String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(),
                                                             assessmentSettings.getStartDateInClientTimezoneString(), assessmentSettings.getPublishedUrl(),
                                                             assessmentSettings.getDueDateInClientTimezoneString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(),
@@ -299,6 +309,10 @@ public class PublishAssessmentListener
                                                             assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateInClientTimezoneString(),
                                                             assessmentSettings.getFeedbackEndDateInClientTimezoneString(), assessmentSettings.getFeedbackScoreThreshold(),
                                                             assessmentSettings.getAutoSubmit(), assessmentSettings.getLateHandling(), assessmentSettings.getRetractDateString());
+
+      if (sendEmailNotification && !prePopulateTextFormatted.isBlank()) {
+          sendNotification(pub, publishedAssessmentService, subject, notificationMessage, assessmentSettings.getReleaseTo());
+        }
 
       ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
       extendedTimeFacade.copyEntriesToPub(pub.getData(), assessmentSettings.getExtendedTimes());
@@ -443,7 +457,7 @@ public class PublishAssessmentListener
     }  
 
     // Now that everything is updated schedule an open notification email
-    if (sendEmailNotification) samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId()));
+    if (sendEmailNotification && prePopulateTextFormatted.isBlank()) { samigoAvailableNotificationService.scheduleAssessmentAvailableNotification(String.valueOf(pub.getPublishedAssessmentId())); }
   }
 
   private boolean checkTitle(AssessmentFacade assessment){
@@ -486,6 +500,71 @@ public class PublishAssessmentListener
     return error;
   }
 
+  public void sendNotification(PublishedAssessmentFacade pub, PublishedAssessmentService service, String subject, String message,
+		  String releaseTo) {
+	  TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+
+	  boolean groupRelease = AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(releaseTo);
+	  if (groupRelease) {
+		  totalScoresBean.setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
+	  }
+	  else {
+		  totalScoresBean.setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
+	  }
+
+	  totalScoresBean.setPublishedId(pub.getPublishedAssessmentId().toString());
+	  Map<String, EnrollmentRecord> useridMap = totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_NOTIFICATION_LISTENER, AgentFacade.getCurrentSiteId()); 
+	  AgentFacade agent = null;
+
+	  AgentFacade instructor = new AgentFacade();
+	  List<InternetAddress> toIAList = new ArrayList<>();
+	  try {
+		  toIAList.add(new InternetAddress(instructor.getEmail())); // send one copy to instructor
+	  } catch (AddressException e) {
+		  log.warn("AddressException encountered when constructing instructor's email.");
+	  }
+	  Iterator<String> iter = useridMap.keySet().iterator();
+
+	  while (iter.hasNext()) {
+		  String userUid = (String) iter.next();
+		  agent = new AgentFacade(userUid);
+		  InternetAddress ia = null;
+		  try {
+			  ia = new InternetAddress(agent.getEmail());
+		  } catch (AddressException e) {
+			  log.warn("AddressException encountered when constructing toIAList email. userUid = {}", userUid);
+		  }
+		  if (ia != null) {
+			  toIAList.add(ia);
+		  }
+	  }
+
+	  if (!toIAList.isEmpty()) {
+		  InternetAddress[] toIA = new InternetAddress[toIAList.size()];
+		  int count = 0;
+		  Iterator iter2 = toIAList.iterator();
+		  while (iter2.hasNext()) {
+			  toIA[count++] = (InternetAddress) iter2.next();
+		  }
+
+		  String noReplyEmaillAddress =  ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
+	      InternetAddress[] noReply = new InternetAddress[1];
+	      InternetAddress from = null;
+	      try {
+	          from = new InternetAddress(noReplyEmaillAddress);
+	          noReply[0] = from;
+	      } catch (AddressException e) {
+	          log.warn("AddressException encountered when constructing no_reply@serverName email.");
+	      }
+
+		  List<String> headers = new  ArrayList<String>();
+		  headers.add("Content-Type: text/html");
+		  EmailService.sendMail(from, toIA, subject, message, noReply, noReply, headers);
+	  } else {
+		  log.info("sendNotification is not possible, the toIAList is empty.");
+	  }
+  }
+
     public String getNotificationMessage(PublishRepublishNotificationBean publishRepublishNotification, String title, String releaseTo, String startDateString, String publishedURL, String dueDateString,
 										Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed, String scoringType, String feedbackDelivery,
 										String feedbackDateString, String feedbackEndDateString, String feedbackScoreThreshold, boolean autoSubmitEnabled, String lateHandling,
@@ -504,6 +583,13 @@ public class PublishAssessmentListener
 	  String bold_open = "<b>";
 	  String bold_close = "</b>";
 	  StringBuilder message = new StringBuilder();
+
+	  String prePopulateTextFormatted=getPrePopulateTextFormatted(publishRepublishNotification);
+	  if (!prePopulateTextFormatted.isBlank()) {
+		  message.append(prePopulateTextFormatted);
+		  message.append(newline);
+		  message.append(newline);
+	  }
 
 	  message.append("\"");
 	  message.append(bold_open);
@@ -646,4 +732,14 @@ public class PublishAssessmentListener
 	  
 	  return message.toString();
   }
+
+    protected String getPrePopulateTextFormatted(PublishRepublishNotificationBean publishRepublishNotification) {
+        String prePopulateText = publishRepublishNotification.getPrePopulateText();
+        return (prePopulateText != null && !prePopulateText.trim().equals("") &&
+            (!prePopulateText.trim().equals(rl.getString("pre_populate_text_publish")) &&
+            !prePopulateText.trim().equals(rl.getString("pre_populate_text_republish")) &&
+            !prePopulateText.trim().equals(rl.getString("pre_populate_text_regrade_republish")))) ?
+            TextFormat.convertPlaintextToFormattedTextNoHighUnicode(prePopulateText) : "";
+    }
+
 }

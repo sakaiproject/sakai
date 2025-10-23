@@ -141,6 +141,9 @@
 <h:panelGrid columns="1" border="0">
   <h:outputText value="#{assessmentSettingsMessages.notification}" styleClass="notification" rendered="#{publishRepublishNotification.sendNotification}" escape="false"/>
   <h:outputText value="#{assessmentSettingsMessages.subject} #{publishRepublishNotification.notificationSubject}" rendered="#{publishRepublishNotification.sendNotification}"/>
+
+  <h:inputTextarea id="message1" value="#{publishRepublishNotification.prePopulateText}" styleClass='text-muted' onmousedown="clearText1()" rows="2" cols="70" rendered="#{publishRepublishNotification.sendNotification && author.isEditPendingAssessmentFlow}"/>
+  <h:inputTextarea id="message2" value="#{publishRepublishNotification.prePopulateText}" styleClass='text-muted' onmousedown="clearText2()" rows="2" cols="70" rendered="#{publishRepublishNotification.sendNotification && !author.isEditPendingAssessmentFlow}"/>
 </h:panelGrid>
 
 <h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{author.isEditPendingAssessmentFlow}" border="0">
@@ -372,7 +375,25 @@
 function showRepublishWarning (obj) {
 	const objwarn = document.getElementById('publishAssessmentForm:updateMostCurrentSubmissionCheckboxWarning');
 	objwarn.style.visibility = obj.checked ? 'visible' : 'hidden';
-}  
+}
+
+var entered = 'false';
+function clearText1(){
+  if (entered == 'false'){
+    document.forms[0].elements['publishAssessmentForm:message1'].value='';
+	document.forms[0].elements['publishAssessmentForm:message1'].className='simple_text_area';
+	document.forms[0].elements['publishAssessmentForm:message1'].focus();
+    entered = 'true'
+  }
+}
+function clearText2(){
+  if (entered == 'false'){
+    document.forms[0].elements['publishAssessmentForm:message2'].value='';
+	document.forms[0].elements['publishAssessmentForm:message2'].className='simple_text_area';
+	document.forms[0].elements['publishAssessmentForm:message2'].focus();
+    entered = 'true'
+  }
+}
 </script>
 
 <p>&nbsp;</p>
