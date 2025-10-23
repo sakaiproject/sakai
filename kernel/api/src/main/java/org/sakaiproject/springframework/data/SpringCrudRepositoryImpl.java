@@ -174,9 +174,10 @@ public abstract class SpringCrudRepositoryImpl<T extends PersistableEntity<ID>, 
         CriteriaQuery<T> query = cb.createQuery(domainClass);
         Root<T> root = query.from(domainClass);
         EntityType<T> entityType = sessionFactory.getMetamodel().entity(domainClass);
+        String idField = entityType.getId(entityType.getIdType().getJavaType()).getName();
 
         query.select(root)
-                .where(root.get(entityType.getId(domainClass)).in(ids));
+                .where(root.get(idField).in(ids));
 
         return sessionFactory.getCurrentSession()
                 .createQuery(query)

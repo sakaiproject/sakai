@@ -53,6 +53,11 @@
             <artifactId>jsf2-app</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.jsf2</groupId>
+            <artifactId>jsf2-widgets-sun-depend</artifactId>
+            <type>pom</type>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.portal</groupId>
             <artifactId>sakai-portal-util</artifactId>
         </dependency>
