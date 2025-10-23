@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
@@ -510,7 +511,7 @@ public class ConfirmPublishAssessmentListener
     String releaseTo = assessment.getAssessmentAccessControl().getReleaseTo();
     if (releaseTo != null) {
       // generate an alias to the pub assessment
-      String alias = AgentFacade.getAgentString() + (new Date()).getTime();
+      String alias = UUID.randomUUID().toString();
       assessmentSettings.setAlias(alias);
 
       String server = ( (javax.servlet.http.HttpServletRequest) extContext.
