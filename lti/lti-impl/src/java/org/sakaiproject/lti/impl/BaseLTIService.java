@@ -766,6 +766,7 @@ public abstract class BaseLTIService implements LTIService {
 
 	protected Object insertToolContentDao(String id, String toolId, Properties reqProps, String siteId, boolean isAdminRole, boolean isMaintainRole)
 	{
+		log.debug("insertToolContentDao id={} toolId={} siteId={} isAdminRole={} isMaintainRole={}", id, toolId, siteId, isAdminRole, isMaintainRole);
 		Object retval = null;
 		if ( ! isMaintainRole ) {
 			retval = rb.getString("error.maintain.edit");
@@ -785,6 +786,35 @@ public abstract class BaseLTIService implements LTIService {
 		if ( tool == null ) {
 			retval = rb.getString("error.tool.not.found");
 			return retval;
+		}
+
+		// Check if the tool is stealth and not yet deployed to the site
+		// If the tool is not deployed and the current user is an administrator, add the site to the list of deployed sites.
+		// If the tool is not deployed and the current user is not an administrator, return an error message.
+		Long visible = LTIUtil.toLong(tool.get(LTIService.LTI_VISIBLE));
+		String contentSite = (String) reqProps.get(LTIService.LTI_SITE_ID);
+		log.debug("checking if tool {} is stealth and about to deploy to site {}, visible={}", toolKey, contentSite, visible);
+		if ( contentSite != null && visible != null && visible.equals(LTIService.LTI_VISIBLE_STEALTH) ) {
+			boolean isDeployed = toolDeployed(toolKey, contentSite);
+			if ( isDeployed ) {
+				// The tool is already deployed to the site, our work is done
+			} else if ( isAdminRole ) {
+				log.debug("tool {} is not deployed, adding site {} to list of deployed sites", toolKey, contentSite);
+				Properties props = new Properties();
+				props.setProperty(LTIService.LTI_TOOL_ID, toolKey.toString());
+				props.setProperty(LTIService.LTI_SITE_ID, contentSite);
+				props.setProperty("notes", rb.getString("tool.added.by.insert.content"));
+				Object insertResult = insertToolSiteDao(props, contentSite, isAdminRole, isMaintainRole);
+				if (insertResult instanceof String) {
+					// insertToolSiteDao returned an error message
+					retval = insertResult;
+					return retval;
+				}
+			} else {
+				// The tool is NOT deployed and the current user is not an administrator
+				retval = rb.getString("error.tool.not.available");
+				return retval;
+			}
 		}
 
 		// Make sure any missing required bits are inherited from the tool.
@@ -853,13 +883,9 @@ public abstract class BaseLTIService implements LTIService {
 		}
 
 		Map<String, Object> ltiTool = null;
-		Object objToolId = content.get(LTI_TOOL_ID);
+		Long toolId = LTIUtil.toLongNull(content.get(LTI_TOOL_ID));
 
-		// In MySQL this is stored as an integer of 1/0 (true/false), however in Oracle it returns a BigDecimal.
-		// Both Integer and BigDecimal extend from Number, and Number has an abstract .longValue().
-		// So we check for instanceof Number here for compatibility with both MySQL and Oracle.
-		if (objToolId != null && objToolId instanceof Number) {
-			Long toolId = ((Number)objToolId).longValue();
+		if (toolId != null) {
 			ltiTool = getToolDao(toolId, siteId);
 		}
 
