@@ -25,6 +25,9 @@ package org.sakaiproject.lessonbuildertool;
 
 import java.util.Date;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class SimplePageImpl implements SimplePage {
 	private long pageId;
 	private String toolId;
@@ -37,6 +40,8 @@ public class SimplePageImpl implements SimplePage {
 	private Long parent;
 	private Long topParent;
 	private boolean hidden;
+	@Getter @Setter
+	private boolean hiddenFromNavigation;
 	private Date releaseDate;
 	private Double gradebookPoints;
 	
@@ -60,6 +65,7 @@ public class SimplePageImpl implements SimplePage {
 		this.parent = parent;
 		this.topParent = topParent;
 		hidden = false;
+		hiddenFromNavigation = false;
 	}
 
 	public long getPageId() {
