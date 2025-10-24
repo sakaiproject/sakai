@@ -137,6 +137,7 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		HiddenField cc = new HiddenField(callname); 
 		form.add(cc);
 		cc.setMarkupId(callname);
+		cc.setVersioned(false);
 		cc.add(call);
 		return cc;
 	}
@@ -173,6 +174,10 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args)
 		{
 			String result = super.callMethod(scoBean, target, args);
+			if (target != null)
+			{
+				target.add(SjaxContainer.this);
+			}
 			if (log.isDebugEnabled())
 			{
 				String methodName = getEvent();

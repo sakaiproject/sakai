@@ -21,12 +21,14 @@ package org.sakaiproject.wicket.ajax.markup.html.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationIncrementLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.FormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.IPageable;
@@ -115,26 +117,28 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator
             }
         });
 
-        pageSizeSelector.add(new FormComponentUpdatingBehavior()
+        pageSizeSelector.setVersioned(false);
+        pageSizeSelector.add(new AjaxFormComponentUpdatingBehavior("change")
         {
             @Override
-            protected void onUpdate()
+            protected void onUpdate(AjaxRequestTarget target)
             {
                 // Tell the PageableListView which page to print next
                 pageable.setCurrentPage(0);
 
-                // We do need to redirect, else refresh refresh will go to next, next
-                //setRedirect(true);
+                if (pageable instanceof Component component)
+                {
+                    component.setOutputMarkupId(true);
+                    if (target != null)
+                    {
+                        target.add(component);
+                    }
+                }
 
-                // Return the current page.
-                setResponsePage(getPage());
-                super.onUpdate();
-            }
-
-            @Override
-            protected void onError(RuntimeException ex)
-            {
-                super.onError(ex);
+                if (target != null)
+                {
+                    target.add(pageSizeSelector);
+                }
             }
         });
 

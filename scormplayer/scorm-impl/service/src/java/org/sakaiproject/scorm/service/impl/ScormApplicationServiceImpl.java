@@ -368,6 +368,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		if (dmErrorCode == APIErrorCodes.NO_ERROR)
 		{
 			result = dmInfo.mValue;
+			if (StringUtils.isBlank(result))
+			{
+				if ("cmi.completion_status".equals(iDataModelElement) || "cmi.success_status".equals(iDataModelElement))
+				{
+					result = "unknown";
+				}
+			}
 		}
 		else
 		{
@@ -417,6 +424,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			if (dmErrorCode == APIErrorCodes.NO_ERROR)
 			{
 				result = dmInfo.mValue;
+				if (StringUtils.isBlank(result))
+				{
+					if ("cmi.completion_status".equals(parameter) || "cmi.success_status".equals(parameter))
+					{
+						result = "unknown";
+					}
+				}
 			}
 			else
 			{
@@ -642,13 +656,14 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		{
 			errorManager.setCurrentErrorCode(DMErrorCodes.GEN_ARGUMENT_ERROR);
 		}
-		else if (scoBean.isInitialized())
-		{
-			// If the SCO is already initialized set the appropriate error code
-			errorManager.setCurrentErrorCode(APIErrorCodes.ALREADY_INITIALIZED);
-		}
 		else
 		{
+			if (scoBean.isInitialized())
+			{
+				log.debug("SCO {} requested re-initialization; resetting runtime state before Initialize().", scoBean.getScoId());
+				scoBean.clearState();
+			}
+
 			sessionBean.setSuspended(false);
 			IDataManager dm = initialize(sessionBean, scoBean);
 			if (dm != null)
@@ -1088,9 +1103,9 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			{
 				scoBeans.put(scoId, scoBean);
 			}
-
-			sessionBean.setDisplayingSco(scoBean);
 		}
+
+		sessionBean.setDisplayingSco(scoBean);
 
 		log.debug("SCO is {}", scoId);
 		return scoBean;

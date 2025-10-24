@@ -20,6 +20,13 @@ import lombok.Setter;
 
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.ContentPackageResourceReference;
+import org.apache.wicket.core.request.handler.EmptyAjaxRequestHandler;
+import org.apache.wicket.core.request.mapper.StalePageException;
+import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.cycle.IRequestCycleListener;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.settings.RequestCycleSettings.RenderStrategy;
+
 import org.sakaiproject.scorm.ui.player.pages.ScormCompletionPage;
 import org.sakaiproject.scorm.ui.player.pages.ScormPlayerPage;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
@@ -33,11 +40,26 @@ public abstract class ScormWebApplication extends SakaiWebApplication
     private ScormResourceService resourceService;
 
     @Override
-    public void init()
-    {
-        super.init();
-        mountPage( "scormPlayerPage", ScormPlayerPage.class );
-        mountPage( "scormCompletionPage", ScormCompletionPage.class );
-        mountResource( "/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}", new ContentPackageResourceReference() );
-    }
+	public void init()
+	{
+		super.init();
+		getPageSettings().setVersionPagesByDefault(false);
+		getRequestCycleSettings().setRenderStrategy(RenderStrategy.ONE_PASS_RENDER);
+		getRequestCycleSettings().setBufferResponse(false);
+		getRequestCycleListeners().add(new IRequestCycleListener()
+		{
+			@Override
+			public IRequestHandler onException(RequestCycle cycle, Exception ex)
+			{
+				if (ex instanceof StalePageException)
+				{
+					return EmptyAjaxRequestHandler.getInstance();
+				}
+				return null;
+			}
+		});
+		mountPage( "scormPlayerPage", ScormPlayerPage.class );
+		mountPage( "scormCompletionPage", ScormCompletionPage.class );
+		mountResource( "/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}", new ContentPackageResourceReference() );
+	}
 }
