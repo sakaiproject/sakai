@@ -647,14 +647,20 @@ public class HistogramListener
 				  if (showObjectivesColumn) {
 					  // Get the percentage correct by objective
 					  String obj = questionScores.getObjectives();
-					  if (obj != null && !"".equals(obj)) {
-						  String[] objs = obj.split(",");
-						  for (int i=0; i < objs.length; i++) {
+                                          if (obj != null && !"".equals(obj)) {
+                                                  String[] objs = obj.split(",");
+                                                  for (int i=0; i < objs.length; i++) {
+                                                          if (objs[i] != null) {
+                                                                  objs[i] = objs[i].trim();
+                                                          }
+                                                          if (objs[i] == null || "".equals(objs[i])) {
+                                                                  continue;
+                                                          }
 
-							  // SAM-2508 set a default value to avoid the NumberFormatException issues
-							  Double pctCorrect = 0.0d;
-							  Double newAvg = 0.0d;
-							  int divisor = 1;
+                                                          // SAM-2508 set a default value to avoid the NumberFormatException issues
+                                                          Double pctCorrect = 0.0d;
+                                                          Double newAvg = 0.0d;
+                                                          int divisor = 1;
 
 							  try {
 								  if (questionScores.getPercentCorrect() != null && !"N/A".equalsIgnoreCase(questionScores.getPercentCorrect())) {
@@ -675,26 +681,32 @@ public class HistogramListener
 								  newAvg = new BigDecimal(pctCorrect).setScale(2, RoundingMode.HALF_UP).doubleValue();
 							  }
 
-							  objectivesCounter.put(objs[i], divisor);
-							  objectivesCorrect.put(objs[i], newAvg);
-						  }
-					  }
-				                                                                   
-					  // Get the percentage correct by keyword
-					  String key = questionScores.getKeywords();
-					  if (key != null && !"".equals(key)) {
-						  String [] keys = key.split(",");
-						  for (int i=0; i < keys.length; i++) {
-							  if (keywordsCorrect.get(keys[i]) != null) {
-								  int divisor = keywordsCounter.get(keys[i]) + 1;
-								  Double newAvg = keywordsCorrect.get(keys[i]) + (
-								  (Double.parseDouble(questionScores.getPercentCorrect()) - keywordsCorrect.get(keys[i])
-								  ) / divisor);
-                              
-								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                              
-								  keywordsCounter.put(keys[i], divisor);
-								  keywordsCorrect.put(keys[i], newAvg);
+                                                          objectivesCounter.put(objs[i], divisor);
+                                                          objectivesCorrect.put(objs[i], newAvg);
+                                                  }
+                                          }
+
+                                          // Get the percentage correct by keyword
+                                          String key = questionScores.getKeywords();
+                                          if (key != null && !"".equals(key)) {
+                                                  String [] keys = key.split(",");
+                                                  for (int i=0; i < keys.length; i++) {
+                                                          if (keys[i] != null) {
+                                                                  keys[i] = keys[i].trim();
+                                                          }
+                                                          if (keys[i] == null || "".equals(keys[i])) {
+                                                                  continue;
+                                                          }
+                                                          if (keywordsCorrect.get(keys[i]) != null) {
+                                                                  int divisor = keywordsCounter.get(keys[i]) + 1;
+                                                                  Double newAvg = keywordsCorrect.get(keys[i]) + (
+                                                                  (Double.parseDouble(questionScores.getPercentCorrect()) - keywordsCorrect.get(keys[i])
+                                                                  ) / divisor);
+
+                                                                  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
+
+                                                                  keywordsCounter.put(keys[i], divisor);
+                                                                  keywordsCorrect.put(keys[i], newAvg);
 							  } else {
 								  Double newAvg = Double.parseDouble(questionScores.getPercentCorrect());
 								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
