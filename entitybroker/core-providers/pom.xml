@@ -35,10 +35,6 @@
             <artifactId>profile2-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>reflectutils</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.edu-services.course-management</groupId>
             <artifactId>coursemanagement-api</artifactId>
         </dependency>
