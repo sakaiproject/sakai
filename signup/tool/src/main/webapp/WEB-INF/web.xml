@@ -6,10 +6,6 @@
 		xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 		version="3.0">
 	
-<!-- web-app xmlns="http://java.sun.com/xml/ns/j2ee"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-	version="2.4" -->
 	<display-name>sakai-signup</display-name>
 	<description>Sakai Sign-up</description>
 
@@ -18,13 +14,23 @@
 		<param-value>false</param-value>
 	</context-param>
 
-	<listener>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/applicationContext.xml</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>
+            org.sakaiproject.util.SakaiContextLoaderListener
+        </listener-class>
+    </listener>
+
+    <listener>
 		<listener-class>
 			org.sakaiproject.util.ToolListener
 		</listener-class>
 	</listener>
 
-	
 	<!-- Tool Servlet -->
 	<servlet>
 		<!-- servlet name must match tool.id in tools xml file -->
@@ -112,13 +118,5 @@
 		<filter-name>MyFacesExtensionsFilter</filter-name>
 		<url-pattern>/faces/myFacesExtensionResource/*</url-pattern>
 	</filter-mapping>
-
-	<!-- Sakai listeners -->
-	
-	<listener>
-		<listener-class>
-			org.sakaiproject.util.SakaiContextLoaderListener
-		</listener-class>
-	</listener>
 
 </web-app>

@@ -24,12 +24,13 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,9 +46,7 @@ import org.sakaiproject.signup.tool.jsf.organizer.OrganizerSignupMBean;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.util.api.FormattedText;
 
 import static org.sakaiproject.signup.api.SignupConstants.*;
 
@@ -67,29 +66,31 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 public class SignupMeetingsBean implements SignupBeanConstants {
 
-    @Setter protected FormattedText formattedText;
     @Setter protected SakaiFacade sakaiFacade;
     @Setter protected SignupMeetingService signupMeetingService;
 
-	protected String viewDateRang = ALL_FUTURE; // default setting
-	protected UIData meetingTable;
-	protected List<SignupMeetingWrapper> signupMeetings;
-	protected AttendeeSignupMBean attendeeSignupMBean;
-	protected OrganizerSignupMBean organizerSignupMBean;
-	protected AttendanceSignupBean attendanceSignupBean;
-	private NewSignupMeetingBean newSignupMeetingBean;
-	protected SignupSorter signupSorter = new SignupSorter();
+    @Getter @Setter protected String categoryFilter = CATERGORY_FILER_ALL; // default setting
+    @Setter @Getter protected String viewDateRang = ALL_FUTURE; // default setting
+    @Setter @Getter protected UIData meetingTable;
+    @Setter protected List<SignupMeetingWrapper> signupMeetings;
+    @Setter @Getter protected AttendeeSignupMBean attendeeSignupMBean;
+    @Setter @Getter protected OrganizerSignupMBean organizerSignupMBean;
+	@Getter @Setter protected AttendanceSignupBean attendanceSignupBean;
+    @Setter @Getter private NewSignupMeetingBean newSignupMeetingBean;
+    @Setter @Getter protected SignupSorter signupSorter = new SignupSorter();
 	protected Boolean showAllRecurMeetings = null;
-	protected boolean enableExpandOption = false;
+    @Setter @Getter protected boolean enableExpandOption = false;
 	protected List<SelectItem> viewDropDownList;
 	protected final String disabledSelectView = "none";
 	protected String meetingUnavailableMessages;
 	protected Boolean categoriesExist = null;
 	protected Boolean locationsExist = null;
-	
-	
-	@Getter @Setter
-	protected String categoryFilter = CATERGORY_FILER_ALL; // default setting is blank, which means all categories
+    private long lastUpdatedLocTime = 0;
+    private List<SelectItem> allLocations = null;
+    private long lastUpdatedCatTime = 0;
+    private List<SelectItem> allCategories = null;
+    @Getter private CreateSitesGroups createSitesGroups = null;
+    private boolean userLoggedInStatus = false;
 
 	public String getCurrentUserDisplayName() {
 		return sakaiFacade.getUserDisplayName(sakaiFacade.getCurrentUserId());
@@ -113,7 +114,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * @return an action outcome string.
 	 */
 	public String removeMeetings() {
-		Set<SignupMeeting> meetingsSet = new HashSet<SignupMeeting>();
+		Set<SignupMeeting> meetingsSet = new HashSet<>();
 
 		try {
 			for (SignupMeetingWrapper mWrapper : getSignupMeetings()) {
@@ -134,20 +135,16 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 				}
 			}
 			
-			List<SignupMeeting> meetings = new ArrayList<SignupMeeting>(meetingsSet);
+			List<SignupMeeting> meetings = new ArrayList<>(meetingsSet);
 			
 			signupMeetingService.removeMeetings(meetings);
 			/* record the logs of the removed meetings */
 			for (SignupMeeting meeting : meetings) {
-				log.info("Meeting Name:"
-						+ meeting.getTitle()
-						+ " - UserId:"
-						+ sakaiFacade.getCurrentUserId()
-						+ " - has removed the meeting at meeting startTime:"
-						+ sakaiFacade.getTimeService().newTime(meeting.getStartTime().getTime())
-								.toStringLocalFull());
-
-				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_REMOVE, ToolManager.getCurrentPlacement().getContext(),
+                log.info("Meeting Name: {} - UserId: {} - has removed the meeting at meeting startTime: {}",
+                        meeting.getTitle(),
+                        sakaiFacade.getCurrentUserId(),
+                        sakaiFacade.getTimeService().newTime(meeting.getStartTime().getTime()).toStringLocalFull());
+				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_MTNG_REMOVE, sakaiFacade.getToolManager().getCurrentPlacement().getContext(),
 						meeting.getId(), meeting.getTitle(), "at startTime:" + sakaiFacade.getTimeService().newTime(meeting.getStartTime().getTime())
 						.toStringLocalFull());
 
@@ -156,10 +153,10 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			try {
 				signupMeetingService.removeCalendarEvents(meetings);
 			} catch (Exception e) {
+				log.error("{}, {}", Utilities.rb.getString("error.calendarEvent.removal_failed"), e.toString());
 				Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.removal_failed"));
-				log.error(Utilities.rb.getString("error.calendarEvent.removal_failed") + " - " + e.getMessage());
 			}
-			/*cleanup attachments in contentHS*/
+			// cleanup attachments in contentHS
 			for (SignupMeeting m : meetings) {
 				List<SignupAttachment> attachs= m.getSignupAttachments();
 				if(attachs !=null){
@@ -170,7 +167,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			}
 
 		} catch (Exception e) {
-			log.error(Utilities.rb.getString("Failed.remove.event") + " - " + e.getMessage());
+			log.error("{}, {}", Utilities.rb.getString("Failed.remove.event"), e.toString());
 			Utilities.addErrorMessage(Utilities.rb.getString("Failed.remove.event"));
 		}
 		signupMeetings = null;// TODO:do it more efficiently
@@ -178,88 +175,67 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		return MAIN_EVENTS_LIST_PAGE_URL;
 	}
 
-	/**
-	 * Get a list of locations for the UI. Unfiltered. 
-	 * @return
-	 */
-	private long lastUpdatedLocTime = 0;
-	private List<SelectItem> allLocations = null;
-	public List<SelectItem> getAllLocations(){
-		long curr_time=(new Date()).getTime();
-		//avoid multiple calls for one page loading : not refresh within one second
-		if(allLocations == null || curr_time - lastUpdatedLocTime > 1000){
-			//Set<String> set = new HashSet<String>();
-			List<SelectItem> locations= new ArrayList<SelectItem>();
-			//List<SignupMeetingWrapper> allMeetings = getMeetingWrappers(VIEW_ALL, null);
-			List<String> allLocs = null;
-			try {
-				allLocs = signupMeetingService.getAllLocations(sakaiFacade.getCurrentLocationId());
-			} catch (Exception e) {
-				//do nothing
-				allLocs=null;
-			}
-			if(allLocs !=null){
-				for(String lc : allLocs) {
-					if(StringUtils.isNotBlank(lc)) {
-						locations.add(new SelectItem(lc));
-					}
-				}
-			}			
-		
-			if(!locations.isEmpty()){
-				//avoid multiple call later
-				this.locationsExist = new Boolean(true);
-			}
-			else{
-				this.locationsExist = new Boolean(false);
-			}
-			
-			lastUpdatedLocTime = curr_time;
-			allLocations = locations;
-		}
-		
-		return allLocations;
-		
-	}
-	
-	private long lastUpdatedCatTime = 0;
-	private List<SelectItem> allCategories = null;
-	public List<SelectItem> getAllCategories(){
-		
-		long curr_time=(new Date()).getTime();
-		//avoid multiple calls for one page loading : not refresh within one second
-		if(allCategories == null || curr_time - lastUpdatedCatTime > 1000){			
-			List<SelectItem> categories = new ArrayList<SelectItem>();		
-			List<String> allCats = null;
-			try {
-				allCats = signupMeetingService.getAllCategories(sakaiFacade.getCurrentLocationId());
-			} catch (Exception e) {
-				//do nothing
-				allCats=null;
-			}
-			if(allCats !=null){
-				for(String c : allCats) {
-					if(StringUtils.isNotBlank(c)) {
-						categories.add(new SelectItem(c));
-					}
-				}
-			}
-			
-			if(!categories.isEmpty()){
-				//avoid multiple call later
-				this.categoriesExist = new Boolean(true);
-			}
-			else{
-				this.categoriesExist = new Boolean(false);
-			}
-			
-			lastUpdatedCatTime = curr_time;
-			categories.add(0, new SelectItem(CATERGORY_FILER_ALL, Utilities.rb.getString("filter_categories_top")));
-			allCategories = categories;
-		}
-		
-		return allCategories;
-	}
+    public List<SelectItem> getAllLocations() {
+        long currentTime = Instant.now().toEpochMilli();
+
+        // Use optional to better handle null cases and avoid null checks
+        if (allLocations == null || currentTime - lastUpdatedLocTime > 1000) {
+            List<SelectItem> locations = new ArrayList<>();
+
+            // Use Optional to handle potential null result
+            Optional<List<String>> allLocsOptional = Optional.ofNullable(signupMeetingService.getAllLocations(sakaiFacade.getCurrentLocationId()));
+
+            // Process locations if present using streams
+            allLocsOptional.ifPresent(allLocs ->
+                    locations.addAll(
+                            allLocs.stream()
+                                    .filter(StringUtils::isNotBlank)
+                                    .map(SelectItem::new)
+                                    .toList()
+                    )
+            );
+
+            // Use boolean primitives instead of Boolean objects
+            locationsExist = !locations.isEmpty();
+
+            lastUpdatedLocTime = currentTime;
+            allLocations = locations;
+        }
+    
+        return allLocations;
+    }
+
+    public List<SelectItem> getAllCategories() {
+        long currentTime = Instant.now().toEpochMilli();
+
+        // Use optional to better handle null cases and avoid null checks
+        if (allCategories == null || currentTime - lastUpdatedCatTime > 1000) {
+            List<SelectItem> categories = new ArrayList<>();
+
+            // Use Optional to handle potential null result 
+            Optional<List<String>> allCatsOptional = Optional.ofNullable(
+                    signupMeetingService.getAllCategories(sakaiFacade.getCurrentLocationId()));
+
+            // Process categories if present using streams
+            allCatsOptional.ifPresent(allCats ->
+                    categories.addAll(
+                            allCats.stream()
+                                    .filter(StringUtils::isNotBlank)
+                                    .map(SelectItem::new)
+                                    .toList()
+                    )
+            );
+
+            // Use boolean primitive instead of Boolean object
+            this.categoriesExist = !categories.isEmpty();
+
+            lastUpdatedCatTime = currentTime;
+            categories.add(0, new SelectItem(CATERGORY_FILER_ALL, Utilities.rb.getString("filter_categories_top")));
+            allCategories = categories;
+        }
+
+        return allCategories;
+    }
 
 	/**
 	 * This is a JSF action call method by UI to navigate to view the specific
@@ -271,7 +247,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		// TODO ??? need to check if we have covered the case for people, who
 		// have only view permission; we need
 		// to disable everything in that page
-		SignupMeetingWrapper meetingWrapper=null;
+		SignupMeetingWrapper meetingWrapper;
 		try{
 			meetingWrapper = (SignupMeetingWrapper) meetingTable.getRowData();
 		}
@@ -354,7 +330,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 */
 	public String processExpandAllRcurEvents(ValueChangeEvent vce) {
 		Boolean expandAllEvents = (Boolean) vce.getNewValue();
-		setShowAllRecurMeetings(expandAllEvents.booleanValue());
+		setShowAllRecurMeetings(expandAllEvents);
 		List<SignupMeetingWrapper> smWrappers = getSignupMeetings();
 		if (smWrappers != null) {
 			if (isShowAllRecurMeetings()) {
@@ -388,7 +364,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			}			
 
 		} catch (Exception e) {
-			log.error(Utilities.rb.getString("failed.fetch_allEvents_from_db") + " - " + e.getMessage());
+            log.error("{}  - {}", Utilities.rb.getString("failed.fetch_allEvents_from_db"), e.toString());
 			Utilities.addErrorMessage(Utilities.rb.getString("failed.fetch_allEvents_from_db"));
 		}
 		return signupMeetings;
@@ -404,16 +380,18 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		try {
 			loadMeetings(VIEW_ALL, null);
 		} catch (Exception e) {
-			log.error(Utilities.rb.getString("failed.fetch_allEvents_from_db") + " - " + e.getMessage());
+            log.error("{}: {}", Utilities.rb.getString("failed.fetch_allEvents_from_db"), e.toString());
 			Utilities.addErrorMessage(Utilities.rb.getString("failed.fetch_allEvents_from_db"));
 		}
 		return signupMeetings;
 	}
 
-	/**
-	 * Loads the signup meetings and updates the bean state
-	 * @param viewRange
-	 * @param categoryFilter
+    /**
+     * Loads signup meetings based on the specified view range and category filter and updates the bean state.
+     * The meetings are filtered according to user permissions and view preferences.
+     *
+     * @param viewRange The time range filter to apply when retrieving meetings ("all", "future", etc)
+     * @param categoryFilter Optional category name to filter meetings by. If null or empty, no category filtering is applied
 	 */
 	private void loadMeetings(String viewRange, String categoryFilter) {
 				
@@ -425,20 +403,19 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	}
 
 	private void markingRecurMeetings(List<SignupMeetingWrapper> smList) {
-		if (smList == null || smList.size() == 0)
-			return;
+		if (smList == null || smList.isEmpty()) return;
 
 		/*
 		 * Assume that the list is already sorted by Date (default Date sorting
 		 * by sql-query)
 		 */
 		for (int i = 0; i < smList.size(); i++) {
-			SignupMeetingWrapper smWrapper = (SignupMeetingWrapper) smList.get(i);
+			SignupMeetingWrapper smWrapper = smList.get(i);
 			Long firstRecurId = smWrapper.getMeeting().getRecurrenceId();
-			if (firstRecurId != null && firstRecurId.longValue() >= 0 && !smWrapper.isSubRecurringMeeting()) {
+			if (firstRecurId != null && firstRecurId >= 0 && !smWrapper.isSubRecurringMeeting()) {
 				int index = 0;
 				for (int j = i + 1; j < smList.size(); j++) {
-					SignupMeetingWrapper nextOne = (SignupMeetingWrapper) smList.get(j);
+					SignupMeetingWrapper nextOne = smList.get(j);
 					if (nextOne.getMeeting().getRecurrenceId() != null
 							&& nextOne.getMeeting().getRecurrenceId().longValue() == firstRecurId.longValue()) {
 						nextOne.setSubRecurringMeeting(true);
@@ -458,7 +435,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			return null;
 		}
 		
-		List<SignupMeeting> signupMeetings = null;
+		List<SignupMeeting> signupMeetings;
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
 
@@ -478,7 +455,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 			signupMeetings = signupMeetingService.getSignupMeetings(sakaiFacade.getCurrentLocationId(), currentUserId, calendar.getTime(), Utilities.getUserDefinedDate(Integer.parseInt(searchDateStr)));
 
-		} else if (OLD_DAYS.equals(viewRange)) {
+		} else {
 			// calendar.add(Calendar.HOUR, 1 * 24);//exluding today for search
 			signupMeetings = signupMeetingService.getSignupMeetings(sakaiFacade.getCurrentLocationId(), currentUserId, calendar.getTime());
 		}
@@ -489,7 +466,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		
 		//SIGNUP-173 filter list by categoryFilter 
 		//if no category, add them all
-		List<SignupMeeting> filteredCategorySignupMeetings = new ArrayList<SignupMeeting>();
+		List<SignupMeeting> filteredCategorySignupMeetings = new ArrayList<>();
 		if(StringUtils.isNotBlank(categoryFilter) && !StringUtils.equals(CATERGORY_FILER_ALL,categoryFilter)) {
 			for(SignupMeeting s: signupMeetings) {
 				if(StringUtils.equals(s.getCategory(), categoryFilter)) {
@@ -500,7 +477,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			filteredCategorySignupMeetings.addAll(signupMeetings);
 		}
 
-		List<SignupMeetingWrapper> wrappers = new ArrayList<SignupMeetingWrapper>();
+		List<SignupMeetingWrapper> wrappers = new ArrayList<>();
 		for (SignupMeeting meeting : filteredCategorySignupMeetings) {
 			SignupMeetingWrapper wrapper = new SignupMeetingWrapper(meeting, sakaiFacade.getUserDisplayName(meeting
 					.getCreatorUserId()), sakaiFacade.getCurrentUserId(), sakaiFacade);
@@ -590,13 +567,8 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 *       
 	 */
 	public boolean isCategoriesAvailable() {
-		//getSignupMeetings();
-		if(this.categoriesExist == null){	
-			//initialization first
-			getAllCategories();			
-		}
-		
-		return this.categoriesExist.booleanValue();
+		if (this.categoriesExist == null) getAllCategories();
+		return this.categoriesExist;
 	}
 	
 	/**
@@ -606,13 +578,8 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 *       
 	 */
 	public boolean isLocationsAvailable() {
-		//getSignupMeetings();
-		if(this.locationsExist == null){	
-			//initialization first
-			getAllLocations();			
-		}
-		
-		return this.locationsExist.booleanValue();
+		if (this.locationsExist == null) getAllLocations();
+		return this.locationsExist;
 	}
 
 	/**
@@ -621,10 +588,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * @return true if user has select 'all future meetings' or 'all' for view
 	 */
 	public boolean isSelectedViewFutureMeetings() {
-		boolean t = false;
-		if (getViewDateRang().equals(ALL_FUTURE))
-			t = true;
-		return t;
+        return getViewDateRang().equals(ALL_FUTURE);
 	}
 
 	/**
@@ -633,10 +597,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * @return true if user has select 'all meetings' or 'all' for view
 	 */
 	public boolean isSelectedViewAllMeetings() {
-		boolean t = false;
-		if (getViewDateRang().equals(VIEW_ALL))
-			t = true;
-		return t;
+        return getViewDateRang().equals(VIEW_ALL);
 	}
 
 	/**
@@ -645,8 +606,6 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * @return true if atleast one of the meeting has create permission for the
 	 *         current user.
 	 */
-	private CreateSitesGroups createSitesGroups = null;
-
 	public boolean isAllowedToCreate() {
 		boolean allowed = signupMeetingService.isAllowedToCreateAnyInSite(sakaiFacade.getCurrentUserId(), sakaiFacade
 				.getCurrentLocationId());
@@ -662,146 +621,25 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		return allowed;
 	}
 
-	/*
-	 * provide a way to let other bean to access this same object (temporary
-	 * fixing Authz code problem)
-	 */
-	public CreateSitesGroups getCreateSitesGroups() {
-		return createSitesGroups;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param signupMeetings
-	 *            a list of SignupMeetingWrapper objects.
-	 */
-	public void setSignupMeetings(List<SignupMeetingWrapper> signupMeetings) {
-		this.signupMeetings = signupMeetings;
-	}
-
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return an UIData object.
-	 */
-	public UIData getMeetingTable() {
-		return meetingTable;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param meetingTable
-	 *            an UIData object.
-	 */
-	public void setMeetingTable(UIData meetingTable) {
-		this.meetingTable = meetingTable;
-	}
-
-	/**
-	 * This is a getter method.
-	 * 
-	 * @return an AttendeeSginupMBean object.
-	 */
-	public AttendeeSignupMBean getAttendeeSignupMBean() {
-		return attendeeSignupMBean;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param attendeeSignupMBean
-	 *            an AttendeeSignupMBean object.
-	 */
-	public void setAttendeeSignupMBean(AttendeeSignupMBean attendeeSignupMBean) {
-		this.attendeeSignupMBean = attendeeSignupMBean;
-	}
-
-	/**
-	 * This is a getter method.
-	 * 
-	 * @return an OrganizerSignupMBean object
-	 */
-	public OrganizerSignupMBean getOrganizerSignupMBean() {
-		return organizerSignupMBean;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param organizerSignupMBean
-	 *            an OrganizerSignupMBean object
-	 */
-	public void setOrganizerSignupMBean(OrganizerSignupMBean organizerSignupMBean) {
-		this.organizerSignupMBean = organizerSignupMBean;
-	}
-
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return a string value.
-	 */
-	public String getViewDateRang() {
-		return viewDateRang;
-	}
-
-	/**
-	 * This is a setter for UI.
-	 * 
-	 * @param viewDateRang
-	 *            a string value.
-	 */
-	public void setViewDateRang(String viewDateRang) {
-		this.viewDateRang = viewDateRang;
-	}
-
-	/* The following methods provide data auto-refresh for current page */
+    /* The following methods provide data auto-refresh for current page */
 	private long lastUpdatedTime = new Date().getTime();
 
 	private boolean isRefresh() {
-		if ((new Date()).getTime() - lastUpdatedTime > dataRefreshInterval)
-			return true;
-
-		return false;
-	}
+        return Instant.now().toEpochMilli() - lastUpdatedTime > dataRefreshInterval;
+    }
 
 	private void setLastUpdatedTime(long lastUpdatedTime) {
 		this.lastUpdatedTime = lastUpdatedTime;
 	}
 
-	/**
-	 * This is a getter to obtain the SignupSorter object.
-	 * 
-	 * @return A SignupSorter object.
-	 */
-	public SignupSorter getSignupSorter() {
-		return signupSorter;
-	}
-
-	/**
-	 * This is a setter.
-	 * 
-	 * @param signupSorter
-	 *            A SignupSorter object.
-	 */
-	public void setSignupSorter(SignupSorter signupSorter) {
-		this.signupSorter = signupSorter;
-	}
-
-	/**
+    /**
 	 * This is a getter method for UI.
 	 * 
 	 * @return a boolean value
 	 */
 	public boolean isShowAllRecurMeetings() {
 		if (showAllRecurMeetings == null) {
-			if (sakaiFacade.getServerConfigurationService().getBoolean("signup.showAllRecurMeetings.default", false)) {
-				showAllRecurMeetings = true;
-			}
-			else {
-				showAllRecurMeetings = false;
-			}
+            showAllRecurMeetings = sakaiFacade.getServerConfigurationService().getBoolean("signup.showAllRecurMeetings.default", false);
 		}
 		return showAllRecurMeetings;
 	}
@@ -816,8 +654,6 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		this.showAllRecurMeetings = showAllRecurMeetings;
 	}
 
-	private String iframeId = "";
-
 	/**
 	 * This is a getter method which provide current Iframe id for refresh
 	 * IFrame purpose.
@@ -825,32 +661,11 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * @return a String
 	 */
 	public String getIframeId() {
-		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-				.getRequest();
-		String iFrameId = (String) request.getAttribute("sakai.tool.placement.id");
-		return iFrameId;
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        return (String) request.getAttribute("sakai.tool.placement.id");
 	}
 
-	/**
-	 * This is a getter method for UI.
-	 * 
-	 * @return a boolean value
-	 */
-	public boolean isEnableExpandOption() {
-		return enableExpandOption;
-	}
-
-	/**
-	 * This is a setter method for UI.
-	 * 
-	 * @param enableExpandOption
-	 *            a boolean value
-	 */
-	public void setEnableExpandOption(boolean enableExpandOption) {
-		this.enableExpandOption = enableExpandOption;
-	}
-
-	/**
+    /**
 	 * This is a getter method.
 	 * 
 	 * @return a list of SelectItem which provide user's choices for view
@@ -863,7 +678,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	}
 
 	private void initViewDropDownList() {
-		List<SelectItem> viewDrpDwnList = new ArrayList<SelectItem>();
+		List<SelectItem> viewDrpDwnList = new ArrayList<>();
 
 		viewDrpDwnList.add(new SelectItem(THIRTY_DAYS, Utilities.rb.getString("view_current_month")));
 		viewDrpDwnList.add(new SelectItem(NINTY_DAYS, Utilities.rb.getString("view_current_three_months")));
@@ -913,136 +728,87 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	}
 
 	public boolean isSelectedViewImmediateAvail() {
-		boolean t = false;
-		if (getViewDateRang().equals(VIEW_IMMEDIATE_AVAIL))
-			t = true;
-		return t;
+        return getViewDateRang().equals(VIEW_IMMEDIATE_AVAIL);
 	}
 
 	public boolean isSelectedViewMySignedUp() {
-		boolean t = false;
-		if (getViewDateRang().equals(VIEW_MY_SIGNED_UP))
-			t = true;
-		return t;
+        return getViewDateRang().equals(VIEW_MY_SIGNED_UP);
 	}
 
 	private void setMeetingUnavailableMessages(String meetingUnavailableMessages) {
 		this.meetingUnavailableMessages = meetingUnavailableMessages;
 	}
 
-	/**
-	 * It's getter method for JSF bean
-	 * 
-	 * @return a NewSignupMeetingBean object
-	 */
-	public NewSignupMeetingBean getNewSignupMeetingBean() {
-		return newSignupMeetingBean;
-	}
-
-	/**
-	 * It's a setter method for JSF bean.
-	 * 
-	 * @param newSignupMeetingBean
-	 *            a NewSignupMeetingBean object
-	 */
-	public void setNewSignupMeetingBean(NewSignupMeetingBean newSignupMeetingBean) {
-		this.newSignupMeetingBean = newSignupMeetingBean;
-	}
-	
-	public AttendanceSignupBean getAttendanceSignupBean() {
-		return attendanceSignupBean;
-	}
-
-	public void setAttendanceSignupBean(AttendanceSignupBean attendanceSignupBean) {
-		this.attendanceSignupBean = attendanceSignupBean;
-	}
-
-	/**
+    /**
 	 * For UI, it will switch the time-column accordingly
 	 * 
 	 * @return a boolean value
 	 */
 	public boolean isShowMyAppointmentTime() {
-		if (VIEW_MY_SIGNED_UP.equals(this.viewDateRang))
-			return true;
+        return VIEW_MY_SIGNED_UP.equals(this.viewDateRang);
+    }
 
-		return false;
-	}
-	
-	
-	private boolean userLoggedInStatus = false;
-	public boolean isUserLoggedInStatus(){
-		if(!userLoggedInStatus){
-			if(sakaiFacade.getCurrentUserId()!=null)
-				this.userLoggedInStatus=true;
-			else{
-				return false;
-			}
-		}
-		return userLoggedInStatus;
-	}
+    public boolean isUserLoggedInStatus() {
+        if (!userLoggedInStatus) {
+            userLoggedInStatus = sakaiFacade.getCurrentUserId() != null;
+            return userLoggedInStatus;
+        }
+        return true;
+    }
 
-	
-	/**
+    /**
 	 * @return true if sakai property signup.enableAttendance is true, else will return false
 	 */
 	public boolean isAttendanceOn() {
-			
-		if (sakaiFacade.getServerConfigurationService().getBoolean("signup.enableAttendance", true)) {
-			return true;
-		}
-		else{
-			return false;
-		}
+        return sakaiFacade.getServerConfigurationService().getBoolean("signup.enableAttendance", true);
 	}
-	
-	/**
-	 * Get a list of instructors, defined as those with a given permission. Format it as a SelectItem list with the
-	 * current instructor, if any, at the top
-	 * @return
-	 */
-	public List<SelectItem> getInstructors(SignupMeeting meeting) {
-		List<User> users = sakaiFacade.getUsersWithPermission(SIGNUP_CREATE_SITE);
-		
-		List<SelectItem> instructors= new ArrayList<SelectItem>();
-		
-		//do we have a meeting set?
-		//if so get the user and set to top of the list, then remove from the rest of the instructors
-		//otherwise, put the current user at the top of the list
-		if(meeting != null && StringUtils.isNotBlank(meeting.getCreatorUserId())) {
-			User currentInstructor = sakaiFacade.getUser(meeting.getCreatorUserId());
-			instructors.add(new SelectItem(currentInstructor.getId(), currentInstructor.getDisplayName() + " (" + currentInstructor.getEid() + ")"));
-			users.remove(currentInstructor);
-		} else {
-			User currentUser = sakaiFacade.getUser(sakaiFacade.getCurrentUserId());
-			instructors.add(new SelectItem(currentUser.getId(), currentUser.getDisplayName() + " (" + currentUser.getEid() + ")"));
-			users.remove(currentUser);
-		}
 
-		//format remaining list of instructors
-		for(User u : users) {
-			instructors.add(new SelectItem (u.getId(), u.getDisplayName() + " (" + u.getDisplayId() + ")"));
-		}
-		
-		Collections.sort(instructors, SignupSorter.sortSelectItemComparator);
-		
-		return instructors;
-	}
-	
-	/**
-	 * Get the name of the user (instructor) for the given userId. This really just formats a name
-	 * @param userId
-	 * @return
+    /**
+     * Gets a formatted list of instructors who have site-level signup creation permission.
+     * The list is sorted alphabetically and formatted as SelectItems for use in UI dropdowns.
+     *
+     * @param meeting The SignupMeeting object used to determine the current instructor. 
+     *               If null, the current user will be used as the default instructor.
+     * @return A List of SelectItems where:
+     *         - The first item is either the meeting's creator or current user
+     *         - Remaining items are all other users with signup creation permission
+     *         - Each item contains the user's ID as value and "displayName (eid)" as label
+     *         - The list is sorted alphabetically (excluding first item)
 	 */
-	public String getInstructorName(String userId) {
-		
-		User u = sakaiFacade.getUser(userId);
-		if(u == null) {
-			return null;
-		}
-		
-		return u.getDisplayName() + " (" + u.getEid() + ")";
-	}
+    public List<SelectItem> getInstructors(SignupMeeting meeting) {
+        List<User> users = sakaiFacade.getUsersWithPermission(SIGNUP_CREATE_SITE);
+        List<SelectItem> instructors = new ArrayList<>();
+
+        // Get appropriate instructor based on meeting or current user
+        User primaryInstructor = Optional.ofNullable(meeting)
+                .filter(m -> StringUtils.isNotBlank(m.getCreatorUserId()))
+                .map(m -> sakaiFacade.getUser(m.getCreatorUserId()))
+                .orElseGet(() -> sakaiFacade.getUser(sakaiFacade.getCurrentUserId()));
+
+        // Add primary instructor at the top
+        instructors.add(new SelectItem(primaryInstructor.getId(), getFormattedName(primaryInstructor)));
+        users.remove(primaryInstructor);
+
+        // Add remaining instructors
+        instructors.addAll(users.stream()
+                .map(u -> new SelectItem(u.getId(), getFormattedName(u)))
+                .sorted(SignupSorter.sortSelectItemComparator)
+                .toList());
+
+        return instructors;
+    }
+
+    /**
+     * Gets a formatted display name for a given user ID (instructor). 
+     * The name is formatted as "displayName (eid)".
+     *
+     * @param user The user whose display name is to be formatted.
+     * @return Formatted string containing user's display name and EID in parentheses,
+     *         or null if the user cannot be found
+   */
+	public String getFormattedName(User user) {
+        return user == null ? null : String.format("%s (%s)", user.getDisplayName(), user.getEid());
+    }
 	
 	/**
 	 * Is CSV export enabled?
@@ -1051,18 +817,18 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	public boolean isCsvExportEnabled() {
 		return sakaiFacade.isCsvExportEnabled();
 	}
-	
-	/**
-	 * Is the current user allowed to update the site? Used for some permission checks
-	 * @return
+
+    /**
+     * Checks if the current user has site-level update permissions for doing certain operations.
+     *
+     * @return true if the current user has either site-level signup update permission (signup.site.update) 
+     *         or site-level signup create permission (signup.site.create), false otherwise
 	 */
 	public boolean isCurrentUserAllowedUpdateSite() {
 		String currentUserId = sakaiFacade.getCurrentUserId();
 		String currentSiteId = sakaiFacade.getCurrentLocationId();
-		boolean isAllowedUpdateSite = (sakaiFacade.isAllowedSite(currentUserId, SIGNUP_UPDATE_SITE, currentSiteId)
-				|| sakaiFacade.isAllowedSite(currentUserId, SIGNUP_CREATE_SITE, currentSiteId));
-
-		return isAllowedUpdateSite;
+        return sakaiFacade.isAllowedSite(currentUserId, SIGNUP_UPDATE_SITE, currentSiteId)
+                || sakaiFacade.isAllowedSite(currentUserId, SIGNUP_CREATE_SITE, currentSiteId);
 	}
 	
 	/**
@@ -1072,8 +838,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
  	 * @return list of categories
  	 */
  	public List<SelectItem> getAllCategoriesForFilter(){
- 		List<SelectItem> categories = getAllCategories();
- 		return categories;
+        return getAllCategories();
  	}
  	
  	/**
@@ -1092,6 +857,4 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		
 		return "";
 	}
-	
-	
 }

@@ -110,12 +110,11 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 	/**
      * Constructor
      *
-     * @param formattedText
-     * @param sakaiFacade   -
-     *                      a SakaiFacade Object
+     * @param sakaiFacade -
+     *                    a SakaiFacade Object
      */
-	public EventWorksheet(FormattedText formattedText, SakaiFacade sakaiFacade, SignupMeetingService signupMeetingService) {
-        this.formattedText = formattedText;
+	public EventWorksheet(SakaiFacade sakaiFacade, SignupMeetingService signupMeetingService) {
+        this.formattedText = sakaiFacade.getFormattedText();
         this.sakaiFacade = sakaiFacade;
 		this.signupMeetingService = signupMeetingService;
 

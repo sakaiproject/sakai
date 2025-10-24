@@ -190,7 +190,7 @@ public class DownloadEventBean extends SignupMeetingsBean {
 			switch(type) {
 			case 1: downloadExcelSpreadsheet(wrappers, downloadVersion, DOWNLOAD_EVENT_DETAILS_XLS_FILE_NAME); break;
 			case 2: downloadCsvSpreadsheet(wrappers, DOWNLOAD_EVENT_DETAILS_CSV_FILE_NAME); break;
-			default: log.error("Invalid download type ("+type+"). Download aborted."); break;
+			default: log.warn("Invalid download type ({}). Download aborted.", type); break;
 
 			}
 			// clear up
@@ -216,7 +216,7 @@ public class DownloadEventBean extends SignupMeetingsBean {
 
 			out.flush();
 		} catch (Exception ex) {
-			log.warn("Error generating XLS spreadsheet for download event:" + ex.getMessage());
+			log.warn("Error generating XLS spreadsheet for download event: {}", ex.toString());
 		} finally {
 			if (out != null)
 				closeStream(out);
@@ -237,7 +237,7 @@ public class DownloadEventBean extends SignupMeetingsBean {
 
 			out.flush();
 		} catch (IOException ex) {
-			log.warn("Error generating CSV spreadsheet for download event:" + ex.getMessage());
+			log.warn("Error generating CSV spreadsheet for download event: {}", ex.toString());
 		} finally {
 			if (out != null)
 				closeStream(out);
@@ -287,7 +287,7 @@ public class DownloadEventBean extends SignupMeetingsBean {
 
 
 	private void excelSpreadsheet(OutputStream os, List<SignupMeetingWrapper> meetingWrappers, String downloadType) throws IOException {
-		EventWorksheet worksheet = new EventWorksheet(formattedText, sakaiFacade, signupMeetingService);
+		EventWorksheet worksheet = new EventWorksheet(sakaiFacade, signupMeetingService);
 		Workbook wb = worksheet.getEventWorkbook(meetingWrappers, downloadType);
 		wb.write(os);
 	}
@@ -336,7 +336,7 @@ public class DownloadEventBean extends SignupMeetingsBean {
 		try {
 			out.close();
 		} catch (IOException e) {
-			log.warn("Error closing the output stream: " +e.getMessage());
+			log.warn("Error closing the output stream: {}", e.toString());
 		}
 	}
 

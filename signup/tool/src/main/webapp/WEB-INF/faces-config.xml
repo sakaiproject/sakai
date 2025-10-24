@@ -215,11 +215,12 @@
 	</navigation-rule>
 
 	<navigation-rule>
-		<navigation-case>
-			<from-outcome>listMeetings</from-outcome>
-			<to-view-id>/signup/signupMeetings.jsp</to-view-id>
-			<redirect/>
-		</navigation-case>
+        <from-view-id>/signup/signupMeetings.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>listMeetings</from-outcome>
+            <to-view-id>/signup/signupMeetings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
 		<navigation-case>
 			<from-outcome>*</from-outcome>
 			<to-view-id>/signup/signupMeetings.jsp</to-view-id>
@@ -555,14 +556,10 @@
     </managed-bean>
 
     <managed-bean>
-        <description>
-            JSF Portal Object
-        </description>
         <managed-bean-name>Portal</managed-bean-name>
         <managed-bean-class>org.sakaiproject.portal.util.PortalBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
         <managed-property>
-            <description>Caller</description>
             <property-name>caller</property-name>
             <value>signup-tool</value>
         </managed-property>

@@ -119,19 +119,19 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
     public void init() {
         // register Sakai permissions for this tool
-        functionManager.registerFunction(SIGNUP_VIEW);
-        functionManager.registerFunction(SIGNUP_VIEW_ALL);
-        functionManager.registerFunction(SIGNUP_ATTEND);
-        functionManager.registerFunction(SIGNUP_ATTEND_ALL);
-        functionManager.registerFunction(SIGNUP_CREATE_SITE);
-        functionManager.registerFunction(SIGNUP_CREATE_GROUP);
-        functionManager.registerFunction(SIGNUP_CREATE_GROUP_ALL);
-        functionManager.registerFunction(SIGNUP_DELETE_SITE);
-        functionManager.registerFunction(SIGNUP_DELETE_GROUP);
-        functionManager.registerFunction(SIGNUP_DELETE_GROUP_ALL);
-        functionManager.registerFunction(SIGNUP_UPDATE_SITE);
-        functionManager.registerFunction(SIGNUP_UPDATE_GROUP);
-        functionManager.registerFunction(SIGNUP_UPDATE_GROUP_ALL);
+        functionManager.registerFunction(SIGNUP_VIEW, true);
+        functionManager.registerFunction(SIGNUP_VIEW_ALL, true);
+        functionManager.registerFunction(SIGNUP_ATTEND, true);
+        functionManager.registerFunction(SIGNUP_ATTEND_ALL, true);
+        functionManager.registerFunction(SIGNUP_CREATE_SITE, true);
+        functionManager.registerFunction(SIGNUP_CREATE_GROUP, true);
+        functionManager.registerFunction(SIGNUP_CREATE_GROUP_ALL, true);
+        functionManager.registerFunction(SIGNUP_DELETE_SITE, true);
+        functionManager.registerFunction(SIGNUP_DELETE_GROUP, true);
+        functionManager.registerFunction(SIGNUP_DELETE_GROUP_ALL, true);
+        functionManager.registerFunction(SIGNUP_UPDATE_SITE, true);
+        functionManager.registerFunction(SIGNUP_UPDATE_GROUP, true);
+        functionManager.registerFunction(SIGNUP_UPDATE_GROUP_ALL, true);
     }
 
     @Override
@@ -296,11 +296,11 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         SignupSite site = currentSite(meeting, siteId);
         if (site != null) {
             if (site.isSiteScope()) { // GroupList is null or empty case
-                return securityService.unlock(userId, SIGNUP_DELETE_SITE, site.getSiteId());
+                return securityService.unlock(userId, SIGNUP_DELETE_SITE, siteService.siteReference(site.getSiteId()));
             }
 
             // it's group scoped
-            if (securityService.unlock(userId, SIGNUP_DELETE_GROUP_ALL, site.getSiteId()) || securityService.unlock(userId, SIGNUP_DELETE_SITE, site.getSiteId()))
+            if (securityService.unlock(userId, SIGNUP_DELETE_GROUP_ALL, site.getSiteId()) || securityService.unlock(userId, SIGNUP_DELETE_SITE, siteService.siteReference(site.getSiteId())))
                 return true;
 
             // organizer has to have permission to delete every group in the list, otherwise can't delete
@@ -333,12 +333,12 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         SignupSite site = currentSite(meeting, siteId);
         if (site != null) {
             if (site.isSiteScope()) {
-                if (securityService.unlock(userId, SIGNUP_UPDATE_SITE, site.getSiteId())) return true;
+                if (securityService.unlock(userId, SIGNUP_UPDATE_SITE, siteService.siteReference(site.getSiteId()))) return true;
             }
             /* Do we allow people with a group.all permission to update the meeting with a site scope?
              * currently we allow them to update
              */
-            if (securityService.unlock(userId, SIGNUP_UPDATE_GROUP_ALL, site.getSiteId()) || securityService.unlock(userId, SIGNUP_UPDATE_SITE, site.getSiteId()))
+            if (securityService.unlock(userId, SIGNUP_UPDATE_GROUP_ALL, site.getSiteId()) || securityService.unlock(userId, SIGNUP_UPDATE_SITE, siteService.siteReference(site.getSiteId())))
                 return true;
 
             List<SignupGroup> signupGroups = site.getSignupGroups();
@@ -368,11 +368,11 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
     private boolean isAllowToAttend(String userId, String siteId, SignupMeeting meeting) {
         if (securityService.isSuperUser(userId)) return true;
 
-        if (securityService.unlock(userId, SIGNUP_ATTEND_ALL, siteId)) return true;
+        if (securityService.unlock(userId, SIGNUP_ATTEND_ALL, siteService.siteReference(siteId))) return true;
 
         SignupSite site = currentSite(meeting, siteId);
         if (site != null) {
-            if (site.isSiteScope()) return securityService.unlock(userId, SIGNUP_ATTEND, siteId);
+            if (site.isSiteScope()) return securityService.unlock(userId, SIGNUP_ATTEND, siteService.siteReference(site.getSiteId()));
 
             List<SignupGroup> signupGroups = site.getSignupGroups();
             for (SignupGroup group : signupGroups) {
@@ -395,11 +395,11 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
      */
     private boolean isAllowedToView(SignupMeeting meeting, String userId, String siteId) {
         if (securityService.isSuperUser(userId)) return true;
-        if (securityService.unlock(userId, SIGNUP_VIEW_ALL, siteId)) return true;
+        if (securityService.unlock(userId, SIGNUP_VIEW_ALL, siteService.siteReference(siteId))) return true;
 
         SignupSite site = currentSite(meeting, siteId);
         if (site != null) {
-            if (site.isSiteScope()) return securityService.unlock(userId, SIGNUP_VIEW, siteId);
+            if (site.isSiteScope()) return securityService.unlock(userId, SIGNUP_VIEW, siteService.siteReference(siteId));
 
             List<SignupGroup> signupGroups = site.getSignupGroups();
             for (SignupGroup group : signupGroups) {
@@ -464,11 +464,12 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         List<SignupSite> signupSites = signupMeeting.getSignupSites();
         for (SignupSite site : signupSites) {
             if (site.isSiteScope()) {
-                if (!securityService.unlock(userId, SIGNUP_CREATE_SITE, site.getSiteId())) {
+                if (!securityService.unlock(userId, SIGNUP_CREATE_SITE, siteService.siteReference(site.getSiteId()))) {
                     return false;
                 }
             } else {
-                if (securityService.unlock(userId, SIGNUP_CREATE_SITE, site.getSiteId()) || securityService.unlock(userId, SIGNUP_CREATE_GROUP_ALL, site.getSiteId())) {
+                if (securityService.unlock(userId, SIGNUP_CREATE_SITE, siteService.siteReference(site.getSiteId()))
+                        || securityService.unlock(userId, SIGNUP_CREATE_GROUP_ALL, siteService.siteReference(site.getSiteId()))) {
                     continue;
                 }
 
@@ -486,19 +487,20 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
     @Override
     public boolean isAllowedToCreateinGroup(String userId, String siteId, String groupId) {
-        return securityService.unlock(userId, SIGNUP_CREATE_GROUP_ALL, siteId) || securityService.unlock(userId, SIGNUP_CREATE_GROUP, siteService.siteGroupReference(siteId, groupId));
+        return securityService.unlock(userId, SIGNUP_CREATE_GROUP_ALL, siteService.siteReference(siteId))
+                || securityService.unlock(userId, SIGNUP_CREATE_GROUP, siteService.siteGroupReference(siteId, groupId));
     }
 
     @Override
     public boolean isAllowedToCreateinSite(String userId, String siteId) {
-        return securityService.unlock(userId, SIGNUP_CREATE_SITE, siteId);
+        return securityService.unlock(userId, SIGNUP_CREATE_SITE, siteService.siteReference(siteId));
     }
 
     @Override
     public boolean isAllowedToCreateAnyInSite(String userId, String siteId) {
         if (securityService.isSuperUser(userId)) return true;
 
-        if (securityService.unlock(userId, SIGNUP_CREATE_SITE, siteId)) return true;
+        if (securityService.unlock(userId, SIGNUP_CREATE_SITE, siteService.siteReference(siteId))) return true;
 
         // check groups
         Site site;
@@ -958,10 +960,10 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
     // If not, we use the Sakai calendar tool by default.
     private Calendar chooseCalendar(SignupSite site) throws PermissionException {
         Calendar calendar = null;
-//                sakaiFacade.getAdditionalCalendar(site.getSiteId());
+        // TODO          sakaiFacade.getAdditionalCalendar(site.getSiteId());
         if (calendar == null) {
             try {
-                calendar = calendarService.getCalendar(site.getSiteId());
+                calendar = calendarService.getCalendar(siteService.siteReference(site.getSiteId()));
             } catch (IdUnusedException e) {
                 log.warn("Could not find calendar for site: {}", site.getSiteId());
             }

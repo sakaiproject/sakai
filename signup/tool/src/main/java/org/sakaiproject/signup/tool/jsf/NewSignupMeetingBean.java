@@ -1289,7 +1289,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
      * Get the instructor name attached to the value currently set for the instructor
      */
     public String getInstructorName() {
-        return Utilities.getSignupMeetingsBean().getInstructorName(creatorUserId);
+        return Utilities.getSignupMeetingsBean().getFormattedName(sakaiFacade.getUser(creatorUserId));
     }
 
     /**
