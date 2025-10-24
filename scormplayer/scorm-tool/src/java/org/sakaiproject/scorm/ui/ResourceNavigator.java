@@ -55,7 +55,12 @@ public abstract class ResourceNavigator implements INavigable, Serializable
 			return;
 		}
 
-		if (sessionBean.isEnded() && target != null)
+		boolean shouldRedirectToCompletion = sessionBean.isEnded()
+				&& !sessionBean.isSuspended()
+				&& target != null
+				&& StringUtils.isNotBlank(sessionBean.getCompletionUrl());
+
+		if (shouldRedirectToCompletion)
 		{
 			((AjaxRequestTarget) target).appendJavaScript("window.location.href='" + sessionBean.getCompletionUrl() + "';initResizing();");
 		}
