@@ -1,395 +1,308 @@
 package coza.opencollab.sakai.cloudcontent;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.jclouds.ContextBuilder;
-import org.jclouds.aws.s3.AWSS3ProviderMetadata;
-import org.jclouds.blobstore.BlobStore;
-import org.jclouds.blobstore.BlobStoreContext;
-import org.jclouds.blobstore.domain.Blob;
-import org.jclouds.blobstore.domain.StorageMetadata;
-import org.jclouds.http.HttpRequest;
-import org.jclouds.io.Payload;
-import org.jclouds.io.Payloads;
-import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
-import org.jclouds.openstack.swift.v1.SwiftApiMetadata;
-import org.jclouds.osgi.ApiRegistry;
-import org.jclouds.osgi.ProviderRegistry;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FileSystemHandler;
-import org.springframework.util.FileCopyUtils;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.io.Closeables;
-import com.google.inject.Module;
-
+import io.minio.GetObjectArgs;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import io.minio.StatObjectArgs;
+import io.minio.StatObjectResponse;
+import io.minio.http.Method;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * The jclouds BlobStore implementation of FileSystemHandler.
- * <p/>
- * This class read and write files to and from a BlobStore provider.
- *
- * @author OpenCollab
- * @author botimer
+ * MinIO-backed implementation of {@link FileSystemHandler} using the legacy
+ * BlobStore configuration keys for drop-in compatibility with the former
+ * jclouds handler.
  */
 @Setter
+@Slf4j
 public class BlobStoreFileSystemHandler implements FileSystemHandler {
 
-    /**
-     * The BlobStore context (connection).
-     */
-    private BlobStoreContext context;
-
-    /**
-     * ServerConfigurationService injected via components.xml
-     */
     private ServerConfigurationService serverConfigurationService;
 
-    /**
-     * The jclouds BlobStore provider name to use.
-     *
-     * The provider must be packaged with the component and registered with
-     * the ServiceLoader or ProviderRegistry. By default, these are only
-     * aws-s3 and openstack-swift.
-     */
-    private String provider = "aws-s3";
-
-    /**
-     * The connection endpoint to the s3-compatible storage.
-     */
-    private String endpoint = "https://s3.amazonaws.com";
-
-    /**
-     * The identity/user to connect to the BlobStore.
-     */
+    private String endpoint;
+    // Retain legacy property names: identity/credential instead of access/secret key
     private String identity;
-
-    /**
-     * The credential for the identity/user.
-     */
     private String credential;
-
-    /**
-     * The base container/bucket to use.
-     *
-     * Default is not set, but it is required for e.g., S3.
-     */
     private String baseContainer;
-
-    /**
-     * Whether to delete empty containers after a resource delete and there
-     * is no more resources in the container.
-     *
-     * The Default is false.
-     */
-    private boolean deleteEmptyContainers = false;
-
-    /**
-     * Whether to use the id for the resource path.
-     *
-     * The default is false, so the filePath will be used.
-     */
     private boolean useIdForPath = false;
-
-    /**
-     * The regular expression for all the characters that is not valid 
-     * for container and resource names.
-     * Default is null.
-     */
     private String invalidCharactersRegex = "[:*?<|>]";
 
-    /**
-     * The maximum buffer size, which dictates the maximum file upload.
-     *
-     * Because services like S3 require a known size at the beginning of an
-     * upload, we buffer the InputStream to get its size. This is not
-     * the default size of the buffer, but the maximum. The
-     * content.upload.ceiling property is almost certainly lower than the 1GB
-     * set here, meaning that the buffer should be bounded on it instead.
-     */
-    private static final int MAX_UPLOAD_BYTES = 1024 * 1024 * 1024;
+    private MinioClient client;
 
-    /**
-     * This is how long we want the signed URL to be valid for.
-     */
-    private static final int SIGNED_URL_VALIDITY_SECONDS = 10 * 60;
+    private long maxBlobStreamSize;
+    private int partSize;
+    private int signedUrlExpiry;
 
-    /**
-     * The largest a blob can be before we write it to temp file to avoid OOMing Tomcat
-     */
-    private static long maxBlobStreamSize = 1024 * 1024 * 100;
-    
-    /** 
-     * A preferred directory to write temporary blobs. Maybe a large, temporary partition?
-     */
-    private static String temporaryBlobDirectory;
-
-    /**
-     * Default constructor.
-     */
-    public BlobStoreFileSystemHandler() {
+    // Allow new-style property names for completeness
+    public void setAccessKey(String accessKey) {
+        this.identity = accessKey;
     }
 
-    /**
-     * Initializes the BlobStore context.
-     */
+    public void setSecretKey(String secretKey) {
+        this.credential = secretKey;
+    }
+
     public void init() {
-        Iterable<Module> modules = ImmutableSet.<Module>of(new SLF4JLoggingModule());
-
-        // The metadata must be registered because the ServiceLoader does not detect
-        // the META-INF/services in each api JAR under Tomcat/Spring. Fortunately,
-        // the registry is static and is not really OSGi specific for this use.
-        ApiRegistry.registerApi(new SwiftApiMetadata());
-        ProviderRegistry.registerProvider(new AWSS3ProviderMetadata());
-
-        context = ContextBuilder.newBuilder(provider)
-                .endpoint(endpoint)
-                .credentials(identity, credential)
-                .modules(modules)
-                .buildView(BlobStoreContext.class);
-
-        // There are some oddities with streaming larger files to the user,
-        // so download to a temp file first. For now, call 100MB the threshold.
-        maxBlobStreamSize = (long) serverConfigurationService.getInt("cloud.content.maxblobstream.size", 1024 * 1024 * 100);
-        temporaryBlobDirectory = serverConfigurationService.getString("cloud.content.temporary.directory", null);
-        
-        if (temporaryBlobDirectory != null) {
-            File baseDir = new File(temporaryBlobDirectory);
-            if (!baseDir.exists()) {
-                try {
-                    // Can't write into the preferred temp dir
-                    if (!baseDir.mkdirs()) {
-                        temporaryBlobDirectory = null;
-                    }
-                }
-                catch (SecurityException se) {
-                    // JVM security hasn't whitelisted this dir
-                    temporaryBlobDirectory = null;
-                }
+        // Back-compat: if endpoint not set, try derive from legacy provider key
+        if (endpoint == null || endpoint.trim().isEmpty()) {
+            String derived = resolveEndpointFromLegacyProvider();
+            if (derived != null) {
+                endpoint = derived;
+                log.info("Derived S3 endpoint '{}' from legacy provider=aws-s3; consider setting endpoint@{} explicitly.", endpoint, LEGACY_BEAN_ID);
             }
         }
-    }
-    
-    /**
-     * Destroy/close the BlobStore context/connection.
-     */
-    public void destroy() throws IOException{
-        Closeables.close(context, false);
+        // Validate required credentials before constructing the client
+        if (endpoint == null || endpoint.trim().isEmpty()) {
+            String msg = "Missing required configuration 'endpoint' for bean 'org.sakaiproject.content.api.FileSystemHandler.blobstore' (key: endpoint@org.sakaiproject.content.api.FileSystemHandler.blobstore)";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        if (identity == null || identity.trim().isEmpty()) {
+            String msg = "Missing required configuration 'identity' (aka accessKey) for bean 'org.sakaiproject.content.api.FileSystemHandler.blobstore' (key: identity@org.sakaiproject.content.api.FileSystemHandler.blobstore)";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        if (credential == null || credential.trim().isEmpty()) {
+            String msg = "Missing required configuration 'credential' (aka secretKey) for bean 'org.sakaiproject.content.api.FileSystemHandler.blobstore' (key: credential@org.sakaiproject.content.api.FileSystemHandler.blobstore)";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+
+        // Validate numeric configuration with sensible defaults / fail fast
+        long defaultMaxBlobStreamSize = 104857600L; // 100 MiB
+        long configuredMaxBlobStreamSize = serverConfigurationService.getLong("cloud.content.maxblobstream.size", defaultMaxBlobStreamSize);
+        if (configuredMaxBlobStreamSize <= 0) {
+            String msg = "Invalid 'cloud.content.maxblobstream.size' (" + configuredMaxBlobStreamSize + "): must be a positive integer";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        this.maxBlobStreamSize = configuredMaxBlobStreamSize;
+
+        int configuredSignedUrlExpiry = serverConfigurationService.getInt("cloud.content.signedurl.expiry", 600);
+        if (configuredSignedUrlExpiry <= 0) {
+            String msg = "Invalid 'cloud.content.signedurl.expiry' (" + configuredSignedUrlExpiry + "): must be a positive integer (seconds)";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        this.signedUrlExpiry = configuredSignedUrlExpiry;
+
+        int configuredPartSizeMb = serverConfigurationService.getInt("cloud.content.multipart.partsize.mb", 10);
+        if (configuredPartSizeMb <= 0) {
+            String msg = "Invalid 'cloud.content.multipart.partsize.mb' (" + configuredPartSizeMb + "): must be a positive integer (MiB)";
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        // Enforce minimum 5 MiB per S3/MinIO multipart rules and compute safely
+        long partSizeBytes = Math.max(5, configuredPartSizeMb) * 1024L * 1024L;
+        if (partSizeBytes > Integer.MAX_VALUE) {
+            // Cap to Integer.MAX_VALUE to satisfy MinIO client API (int)
+            log.warn("'cloud.content.multipart.partsize.mb' too large ({} MiB). Capping to {} bytes.", configuredPartSizeMb, Integer.MAX_VALUE);
+            this.partSize = Integer.MAX_VALUE;
+        } else {
+            this.partSize = (int) partSizeBytes;
+        }
+
+        // All checks passed; construct the MinIO client last
+        this.client = MinioClient.builder()
+                .endpoint(endpoint)
+                .credentials(identity, credential)
+                .build();
     }
 
+    private static final String LEGACY_BEAN_ID = "org.sakaiproject.content.api.FileSystemHandler.blobstore";
+
     /**
-     * {@inheritDoc}
+     * Legacy compatibility: if old jclouds config used provider=aws-s3 without an explicit endpoint,
+     * infer a reasonable AWS S3 endpoint (optionally using region@... if present).
+     * Returns null if no inference can be made.
      */
+    private String resolveEndpointFromLegacyProvider() {
+        try {
+            String provider = serverConfigurationService.getString("provider@" + LEGACY_BEAN_ID);
+            if (provider != null) provider = provider.trim();
+            if (provider == null || provider.isEmpty()) {
+                return null;
+            }
+            if ("aws-s3".equalsIgnoreCase(provider) || "s3".equalsIgnoreCase(provider)) {
+                String region = serverConfigurationService.getString("region@" + LEGACY_BEAN_ID);
+                region = (region == null ? null : region.trim());
+                if (region == null || region.isEmpty()) {
+                    return "https://s3.amazonaws.com";
+                } else {
+                    return "https://s3." + region + ".amazonaws.com";
+                }
+            }
+        } catch (RuntimeException e) {
+            log.warn("Unable to resolve endpoint from legacy provider setting", e);
+        }
+        return null;
+    }
+
+    public void destroy() {
+        // nothing to destroy
+    }
+
     @Override
     public URI getAssetDirectLink(String id, String root, String filePath) throws IOException {
         ContainerAndName can = getContainerAndName(id, root, filePath);
-        HttpRequest hr = context.getSigner().signGetBlob(can.container, can.name, SIGNED_URL_VALIDITY_SECONDS);
-        if (hr == null) {
-            throw new IOException("No object found to creat signed url " + id);
+        try {
+            String url = client.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .bucket(can.container)
+                            .object(can.name)
+                            .method(Method.GET)
+                            .expiry(signedUrlExpiry, TimeUnit.SECONDS)
+                            .build());
+            return URI.create(url);
+        } catch (Exception e) {
+            throw new IOException("Unable to get presigned URL", e);
         }
-
-        return hr.getEndpoint();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public InputStream getInputStream(String id, String root, String filePath) throws IOException {
         ContainerAndName can = getContainerAndName(id, root, filePath);
-        Blob blob = getBlobStore().getBlob(can.container, can.name);
-        if (blob == null){
-            throw new IOException("No object found for " + id);
-        }
-
-        StorageMetadata metadata = blob.getMetadata();
-        Long size = metadata.getSize();
-
-        if (size != null && size.longValue() > maxBlobStreamSize) {
-            return streamFromTempFile(blob, size);
-        } else {
-            // SAK-30325: why can't we just send the stream straight back: blob.getPayload().openStream() ?
-            // Good question, but it doesn't work properly unless the stream is fully copied and re-streamed....
-            return new ByteArrayInputStream(FileCopyUtils.copyToByteArray(blob.getPayload().openStream()));
+        try {
+            StatObjectResponse stat = client.statObject(
+                    StatObjectArgs.builder().bucket(can.container).object(can.name).build());
+            long size = stat.size();
+            InputStream in = client.getObject(
+                    GetObjectArgs.builder().bucket(can.container).object(can.name).build());
+            if (size > maxBlobStreamSize) {
+                File tmp = File.createTempFile("minio", ".tmp");
+                // Guard against process crashes; still delete explicitly on close
+                tmp.deleteOnExit();
+                try (FileOutputStream fos = new FileOutputStream(tmp)) {
+                    byte[] buffer = new byte[8192];
+                    int read;
+                    while ((read = in.read(buffer)) != -1) {
+                        fos.write(buffer, 0, read);
+                    }
+                } finally {
+                    in.close();
+                }
+                final File toDelete = tmp;
+                final FileInputStream fis = new FileInputStream(toDelete);
+                return new FilterInputStream(fis) {
+                    @Override
+                    public void close() throws IOException {
+                        IOException closeEx = null;
+                        try {
+                            super.close();
+                        } catch (IOException e) {
+                            closeEx = e;
+                        } finally {
+                            try {
+                                if (!toDelete.delete() && toDelete.exists()) {
+                                    log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
+                                }
+                            } catch (Exception delEx) {
+                                log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), delEx);
+                            }
+                            if (closeEx != null) {
+                                throw closeEx;
+                            }
+                        }
+                    }
+                };
+            } else {
+                return in;
+            }
+        } catch (Exception e) {
+            throw new IOException("Unable to read object", e);
         }
     }
 
-    // Hacky implementation of downloading Blobs to temp files...
-    // This should probably happen in a specified location and use
-    // hashing to be sure of contents before reusing.
-    private InputStream streamFromTempFile(Blob blob, Long filesize) {
-        StorageMetadata metadata = blob.getMetadata();
-        String name = metadata.getName();
-        String filename = name + "-" + filesize;
-        filename = DigestUtils.md5Hex(filename);
-        FileInputStream stream = null;
-
-        // See if the temp file already exists
-        File check;
-        if (temporaryBlobDirectory != null) {
-            check = new File(temporaryBlobDirectory, filename);
-        }
-        else {
-            check = new File(System.getProperty("java.io.tmpdir"), filename);
-        }
-
-        if (check.exists()) {
-            try {
-                stream = new FileInputStream(check);
-            } catch (FileNotFoundException e) {
-                stream = null;
-            }
-        } else {
-            try {
-                FileOutputStream fos = new FileOutputStream(check);
-                FileCopyUtils.copy(blob.getPayload().openStream(), fos);
-                stream = new FileInputStream(check);
-            } catch (IOException e) {
-                stream = null;
-            }
-        }
-
-        return stream;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
-        public long saveInputStream(String id, String root, String filePath, InputStream stream) throws IOException {
-            if(stream == null){
-                return 0L;
-            }
-            ContainerAndName can = getContainerAndName(id, root, filePath);
-            createContainerIfNotExist(can.container);
-
-            InputStream in = markableInputStream(stream);
-            long size = markableStreamLength(in);
-
-            Payload payload = Payloads.newInputStreamPayload(in);
-
-            try {
-                BlobStore store = getBlobStore();
-                String asciiID = Base64.encodeBase64String(id.getBytes("UTF8"));
-
-                Blob blob = store.blobBuilder(can.name)
-                    .payload(payload)
-                    .contentLength(size)
-                    .userMetadata(ImmutableMap.of("id", asciiID, "path", filePath))
-                    .build();
-                store.putBlob(can.container, blob);
-            } finally {
-                payload.release();
-                Closeables.close(stream, true);
-                Closeables.close(in, true);
-            }
-
-            return size;
+    public long saveInputStream(String id, String root, String filePath, InputStream stream) throws IOException {
+        if (stream == null) {
+            return 0L;
         }
 
-    /**
-     * Get a markable version of an InputStream, wrapping it if necessary.
-     *
-     * This method will return the passed stream if it is already markable,
-     * otherwise wrapping it in a BufferedInputStream to support mark/reset
-     * for computing length and rereading.
-     */
-    private InputStream markableInputStream(InputStream stream) {
-        if (stream.markSupported()) {
-            return stream;
-        } else {
-            return new BufferedInputStream(stream);
+        ContainerAndName can = getContainerAndName(id, root, filePath);
+        createContainerIfNotExist(can.container);
+
+        try (CountingInputStream cis = new CountingInputStream(stream)) {
+            Map<String, String> headers = new HashMap<>();
+            headers.put("x-amz-meta-id", Base64.encodeBase64String(id.getBytes(StandardCharsets.UTF_8)));
+            headers.put("x-amz-meta-path", filePath);
+
+            client.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(can.container)
+                            .object(can.name)
+                            .stream(cis, -1, partSize)
+                            .headers(headers)
+                            .build());
+
+            return cis.getCount();
+        } catch (Exception e) {
+            throw new IOException("Unable to save object", e);
         }
     }
 
-    /**
-     * Get the length of a markable InputStream.
-     */
-    private long markableStreamLength(InputStream stream) throws IOException {
-        long size = 0;
-        stream.mark(MAX_UPLOAD_BYTES);
-        while (stream.read() != -1) {
-            size += 1;
-        }
-        stream.reset();
-        return size;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean delete(String id, String root, String filePath) {
         ContainerAndName can = getContainerAndName(id, root, filePath);
-
-        BlobStore store = getBlobStore();
-        if (!store.blobExists(can.container, can.name)) {
-            return false;
-        } else {
-            store.removeBlob(can.container, can.name);
-            deleteContainerIfEmpty(can.container);
+        try {
+            client.removeObject(
+                    RemoveObjectArgs.builder().bucket(can.container).object(can.name).build());
             return true;
-        }
-    }
-    
-    /**
-     * Make sure the container exists.
-     */
-    private void createContainerIfNotExist(String container) {
-        getBlobStore().createContainerInLocation(null, container);
-    }
-    
-    /**
-     * Delete the container if it is empty.
-     */
-    private void deleteContainerIfEmpty(String container){
-        if(deleteEmptyContainers) {
-            getBlobStore().deleteContainerIfEmpty(container);
+        } catch (Exception e) {
+            log.warn("Failed to delete object {}/{}: {}", can.container, can.name, e.getMessage(), e);
+            return false;
         }
     }
 
-    private BlobStore getBlobStore() {
-        return context.getBlobStore();
+    private void createContainerIfNotExist(String container) throws IOException {
+        try {
+            boolean exists = client.bucketExists(BucketExistsArgs.builder().bucket(container).build());
+            if (!exists) {
+                client.makeBucket(MakeBucketArgs.builder().bucket(container).build());
+            }
+        } catch (Exception e) {
+            throw new IOException("Unable to ensure bucket exists: " + container, e);
+        }
     }
-    
-    /**
-     * This method set the container and file name.
-     * It will first validate the parameters and ensure that they 
-     * contain valid characters.
-     * If the parameters aren't valid this method will throw 
-     * a IllegalArgumentException.
-     */
-    private ContainerAndName getContainerAndName(String id, String root, String filePath) throws IllegalArgumentException {
-        if (id == null || id.trim().length() == 0) {
+
+    private ContainerAndName getContainerAndName(String id, String root, String filePath) {
+        if (id == null || id.trim().isEmpty()) {
             throw new IllegalArgumentException("The id cannot be null or empty!");
         }
-        if (filePath == null || filePath.trim().length() == 0) {
+        if (filePath == null || filePath.trim().isEmpty()) {
             throw new IllegalArgumentException("The path cannot be null or empty!");
         }
-        String path = (useIdForPath?id:filePath);
-        path = (root==null?"":root) + (path.startsWith("/")?"":"/") + path;
-        //fix double slash and starting slash
-        //The multi slash is a major problem for swift, so making sure her we get it out.
+
+        String path = (useIdForPath ? id : filePath);
+        path = (root == null ? "" : root) + (path.startsWith("/") ? "" : "/") + path;
         path = path.replace("///", "/");
         path = path.replace("//", "/");
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
-        //fix invalid chars
         path = path.replaceAll(invalidCharactersRegex, "");
-        
+
         ContainerAndName can = new ContainerAndName();
         if (baseContainer == null) {
             int index = path.indexOf("/");
@@ -407,11 +320,40 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     }
 
     /**
-     * Just a containing class for the container name and file path and name.
+     * Simple counting InputStream.
      */
-    class ContainerAndName {
+    private static class CountingInputStream extends FilterInputStream {
+        private long count = 0;
+
+        protected CountingInputStream(InputStream in) {
+            super(in);
+        }
+
+        @Override
+        public int read() throws IOException {
+            int b = in.read();
+            if (b != -1) {
+                count++;
+            }
+            return b;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            int n = in.read(b, off, len);
+            if (n != -1) {
+                count += n;
+            }
+            return n;
+        }
+
+        public long getCount() {
+            return count;
+        }
+    }
+
+    private static class ContainerAndName {
         String container;
         String name;
     }
-
 }
