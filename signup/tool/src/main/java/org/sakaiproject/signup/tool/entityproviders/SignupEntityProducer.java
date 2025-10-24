@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
+
+import org.sakaiproject.signup.api.SignupConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -250,7 +252,7 @@ public class SignupEntityProducer implements MeetingTypes, EntityProducer, Entit
 
 	@Override
 	public String getToolPermissionsPrefix() {
-		return SakaiFacade.SIGNUP_PERMISSION_PREFIX;
+		return SignupConstants.SIGNUP_PERMISSION_PREFIX;
 	}
 
 	@Override
@@ -260,7 +262,7 @@ public class SignupEntityProducer implements MeetingTypes, EntityProducer, Entit
 
 	@Override
 	public Optional<List<String>> getTransferOptions() {
-		return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
+		return Optional.of(List.of(EntityTransferrer.COPY_PERMISSIONS_OPTION));
 	}
 
 	@Override

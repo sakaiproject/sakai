@@ -1,6 +1,7 @@
 package org.sakaiproject.signup.api;
 
 public class SignupConstants {
+    public static final String SIGNUP_PERMISSION_PREFIX = "signup";
     public static final String SIGNUP_VIEW = "signup.view";
     public static final String SIGNUP_VIEW_ALL = "signup.view.all";
     public static final String SIGNUP_ATTEND = "signup.attend";
