@@ -97,6 +97,10 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             log.error(msg);
             throw new IllegalArgumentException(msg);
         }
+        if (configuredMaxBlobStreamSize > Integer.MAX_VALUE) {
+            log.warn("'cloud.content.maxblobstream.size' ({}) exceeds Integer.MAX_VALUE; capping to {} bytes.", configuredMaxBlobStreamSize, Integer.MAX_VALUE);
+            configuredMaxBlobStreamSize = Integer.MAX_VALUE;
+        }
         this.maxBlobStreamSize = configuredMaxBlobStreamSize;
 
         int configuredSignedUrlExpiry = serverConfigurationService.getInt("cloud.content.signedurl.expiry", 600);
@@ -236,7 +240,19 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                         throw close;
                     }
                     final File toDelete = tmp;
-                    final FileInputStream fis = new FileInputStream(toDelete);
+                    final FileInputStream fis;
+                    try {
+                        fis = new FileInputStream(toDelete);
+                    } catch (IOException openEx) {
+                        try {
+                            if (toDelete.exists() && !toDelete.delete()) {
+                                log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
+                            }
+                        } catch (Exception delEx) {
+                            log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), delEx);
+                        }
+                        throw openEx;
+                    }
                     return new FilterInputStream(fis) {
                         @Override
                         public void close() throws IOException {
