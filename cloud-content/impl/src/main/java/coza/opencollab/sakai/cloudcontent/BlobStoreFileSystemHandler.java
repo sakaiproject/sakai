@@ -1,5 +1,7 @@
 package coza.opencollab.sakai.cloudcontent;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,8 +25,6 @@ import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
-import io.minio.StatObjectArgs;
-import io.minio.StatObjectResponse;
 import io.minio.http.Method;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -96,6 +96,10 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             String msg = "Invalid 'cloud.content.maxblobstream.size' (" + configuredMaxBlobStreamSize + "): must be a positive integer";
             log.error(msg);
             throw new IllegalArgumentException(msg);
+        }
+        if (configuredMaxBlobStreamSize > Integer.MAX_VALUE) {
+            log.warn("'cloud.content.maxblobstream.size' ({}) exceeds Integer.MAX_VALUE; capping to {} bytes.", configuredMaxBlobStreamSize, Integer.MAX_VALUE);
+            configuredMaxBlobStreamSize = Integer.MAX_VALUE;
         }
         this.maxBlobStreamSize = configuredMaxBlobStreamSize;
 
@@ -184,50 +188,93 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     public InputStream getInputStream(String id, String root, String filePath) throws IOException {
         ContainerAndName can = getContainerAndName(id, root, filePath);
         try {
-            StatObjectResponse stat = client.statObject(
-                    StatObjectArgs.builder().bucket(can.container).object(can.name).build());
-            long size = stat.size();
-            InputStream in = client.getObject(
-                    GetObjectArgs.builder().bucket(can.container).object(can.name).build());
-            if (size > maxBlobStreamSize) {
-                File tmp = File.createTempFile("minio", ".tmp");
-                // Guard against process crashes; still delete explicitly on close
-                tmp.deleteOnExit();
-                try (FileOutputStream fos = new FileOutputStream(tmp)) {
-                    byte[] buffer = new byte[8192];
-                    int read;
-                    while ((read = in.read(buffer)) != -1) {
-                        fos.write(buffer, 0, read);
+            // Always drain/close the underlying HTTP response because Spring may never read it
+            // (e.g. when returning 304 from a cached request), leading OkHttp to log leaked bodies.
+            try (InputStream responseStream = client.getObject(
+                    GetObjectArgs.builder().bucket(can.container).object(can.name).build())) {
+                // Accumulate in memory until we overshoot the threshold; only then spill to disk.
+                int initial = (int) Math.min(maxBlobStreamSize, 4L * 1024 * 1024); // up to 4 MiB
+                ByteArrayOutputStream memory = new ByteArrayOutputStream(initial);
+                File tmp = null;
+                FileOutputStream fos = null;
+                boolean spooledToDisk = false;
+                byte[] buffer = new byte[8192];
+                int read;
+                try {
+                    while ((read = responseStream.read(buffer)) != -1) {
+                        if (!spooledToDisk && ((long) memory.size() + read > maxBlobStreamSize)) {
+                            spooledToDisk = true;
+                            tmp = File.createTempFile("minio", ".tmp");
+                            fos = new FileOutputStream(tmp);
+                            // On the first overflow, flush everything buffered so far to disk.
+                            memory.writeTo(fos);
+                            memory = null; // allow GC to reclaim the in-memory buffer early
+                        }
+                        if (spooledToDisk) {
+                            fos.write(buffer, 0, read);
+                        } else {
+                            memory.write(buffer, 0, read);
+                        }
                     }
-                } finally {
-                    in.close();
-                }
-                final File toDelete = tmp;
-                final FileInputStream fis = new FileInputStream(toDelete);
-                return new FilterInputStream(fis) {
-                    @Override
-                    public void close() throws IOException {
-                        IOException closeEx = null;
+                } catch (IOException e) {
+                    if (fos != null) {
                         try {
-                            super.close();
-                        } catch (IOException e) {
-                            closeEx = e;
-                        } finally {
+                            fos.close();
+                        } catch (IOException close) {
+                            e.addSuppressed(close);
+                        }
+                    }
+                    if (tmp != null && tmp.exists() && !tmp.delete()) {
+                        log.warn("Failed to delete temporary blob file {}", tmp.getAbsolutePath());
+                    }
+                    throw e;
+                }
+
+                if (spooledToDisk) {
+                    try {
+                        fos.close();
+                    } catch (IOException close) {
+                        if (tmp != null && tmp.exists() && !tmp.delete()) {
+                            log.warn("Failed to delete temporary blob file {}", tmp.getAbsolutePath());
+                        }
+                        throw close;
+                    }
+                    final File toDelete = tmp;
+                    final FileInputStream fis;
+                    try {
+                        fis = new FileInputStream(toDelete);
+                    } catch (IOException openEx) {
+                        try {
+                            if (toDelete.exists() && !toDelete.delete()) {
+                                log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
+                            }
+                        } catch (Exception delEx) {
+                            log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), delEx);
+                        }
+                        throw openEx;
+                    }
+                    return new FilterInputStream(fis) {
+                        @Override
+                        public void close() throws IOException {
+                            IOException closeEx = null;
                             try {
+                                super.close();
+                            } catch (IOException e) {
+                                closeEx = e;
+                            } finally {
                                 if (!toDelete.delete() && toDelete.exists()) {
                                     log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
                                 }
-                            } catch (Exception delEx) {
-                                log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), delEx);
-                            }
-                            if (closeEx != null) {
-                                throw closeEx;
+                                if (closeEx != null) {
+                                    throw closeEx;
+                                }
                             }
                         }
-                    }
-                };
-            } else {
-                return in;
+                    };
+                } else {
+                    // Smaller payloads stay in-memory so downstream code can reread safely.
+                    return new ByteArrayInputStream(memory.toByteArray());
+                }
             }
         } catch (Exception e) {
             throw new IOException("Unable to read object", e);
@@ -356,4 +403,5 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         String container;
         String name;
     }
+
 }
