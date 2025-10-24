@@ -552,6 +552,13 @@ public class EntitySite implements Site {
         }
         throw new UnsupportedOperationException();
     }
+
+    public void setCreatedBy(String userId) {
+        owner = userId;
+        if (site != null) {
+            site.setCreatedBy(userId);
+        }
+    }
     public Date getCreatedDate() {
         if (site != null) {
             return noAccess() ? null : site.getCreatedDate();

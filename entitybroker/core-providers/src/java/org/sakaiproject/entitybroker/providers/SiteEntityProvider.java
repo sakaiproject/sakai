@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.entitybroker.providers;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -89,7 +88,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
-import org.springframework.util.ReflectionUtils;
 
 
 /**
@@ -119,19 +117,6 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 
     public String getEntityPrefix() {
         return PREFIX;
-    }
-
-    private void setCreatedUserId(Site site, String ownerId) {
-        Field field = ReflectionUtils.findField(site.getClass(), "m_createdUserId");
-        if (field == null) {
-            throw new IllegalStateException("Unable to locate the site owner field");
-        }
-        ReflectionUtils.makeAccessible(field);
-        try {
-            ReflectionUtils.setField(field, site, ownerId);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("Unable to set the site owner field", e);
-        }
     }
 
     private static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
@@ -868,7 +853,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 if (ownerID == null) {
                     throw new IllegalArgumentException("Invalid userId supplied for owner of site: " + ownerID);
                 }
-                setCreatedUserId(s, ownerID);
+                s.setCreatedBy(ownerID);
             }
 
             // attempt to set provider ID as requested. rules are:
@@ -1106,7 +1091,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                     throw new IllegalArgumentException(
                             "Invalid userId supplied for owner of site: " + site.getOwner());
                 }
-                setCreatedUserId(s, ownerUserId);
+                s.setCreatedBy(ownerUserId);
             }
 
             // new publish status
