@@ -22,50 +22,84 @@
 if( typeof (ScormSjax) == "undefined" )
 	ScormSjax = {};
 
+ScormSjax.replaceComponentMarkup = function replaceComponentMarkup( element, text )
+{
+	if( !element )
+	{
+		return;
+	}
+
+	Wicket.DOM.replace( element, text );
+};
+
 ScormSjax.sjaxCall = function sjaxCall( prefix, arg1, arg2, successHandler, failureHandler, precondition, channel )
 {
-	var url = prefix + '&arg1=' + encodeURIComponent( arg1 ) + '&arg2=' + encodeURIComponent( arg2 ) + '&callNumber=' + encodeURIComponent( call_number );
-
-	var transport = null;
-
-	if( window.ActiveXObject )
+	var url;
+	if( typeof (URLSearchParams) != "undefined" )
 	{
-		transport = new ActiveXObject( "Microsoft.XMLHTTP" );
+		var params = new URLSearchParams();
+		params.append( "arg1", typeof (arg1) === "undefined" ? "" : arg1 );
+		params.append( "arg2", typeof (arg2) === "undefined" ? "" : arg2 );
+		params.append( "callNumber", call_number );
+		var separator = prefix.indexOf( "?" ) === -1 ? "?" : "&";
+		url = prefix + separator + params.toString();
 	}
-	else if( window.XMLHttpRequest )
+	else
 	{
-		transport = new XMLHttpRequest();
+		var arg1Value = typeof (arg1) === "undefined" ? "" : arg1;
+		var arg2Value = typeof (arg2) === "undefined" ? "" : arg2;
+		url = prefix + '&arg1=' + encodeURIComponent( arg1Value ) + '&arg2=' + encodeURIComponent( arg2Value ) + '&callNumber=' + encodeURIComponent( call_number );
 	}
 
-	if( transport == null )
+	if( typeof (XMLHttpRequest) === "undefined" )
 	{
+		Wicket.Log.error( "SCORM: XMLHttpRequest is not available in this browser. Unable to perform SJAX call." );
 		alert( "Could not locate ajax transport. Your browser does not support the required XMLHttpRequest object or the Scorm Player could not gain access to it." );
+		return "";
 	}
 
-	transport.open( "GET", url, false );
-	transport.onreadystatechange = function() { };
-	transport.setRequestHeader( "Wicket-Ajax", "true" );
-	transport.setRequestHeader( "Wicket-Ajax-BaseURL", prefix );
-	transport.setRequestHeader( "Accept", "text/xml" );
-	transport.send( null );
+	var transport = new XMLHttpRequest();
+
+	try
+	{
+		transport.open( "GET", url, false );
+		transport.setRequestHeader( "Wicket-Ajax", "true" );
+		transport.setRequestHeader( "Wicket-Ajax-BaseURL", prefix );
+		transport.setRequestHeader( "Accept", "text/xml" );
+		transport.send( null );
+	}
+	catch( e )
+	{
+		Wicket.Log.error( "SCORM: Failed SJAX request: " + e );
+		return "";
+	}
 
 	var responseAsText = "";
 	var resultValue = "";
+	var status = transport.status;
 
-	if( transport.status == 200 || transport.status == "" )
+	// Some browsers report 0 for file:// or cached GET responses
+	if( status == 200 || status == 0 )
 	{
 		responseAsText = transport.responseText;
 
 		var envelope;
-		if( typeof (window.XMLHttpRequest) != "undefined" && typeof (DOMParser) != "undefined" )
+		if( typeof (DOMParser) != "undefined" )
 		{
 			var parser = new DOMParser();
 			envelope = parser.parseFromString( responseAsText, "text/xml" );
 		}
-		else if( window.ActiveXObject )
+		else
 		{
 			envelope = transport.responseXML;
 		}
+
+		if( !envelope )
+		{
+			Wicket.Log.error( "SCORM: Could not parse SJAX response." );
+			return "";
+		}
+
 		var root = envelope.getElementsByTagName( "ajax-response" )[0];
 
 		// the root element must be <ajax-response	
@@ -119,8 +153,7 @@ ScormSjax.sjaxCall = function sjaxCall( prefix, arg1, arg2, successHandler, fail
 				else
 				{
 					Wicket.Log.info( "Sjax: Replace " + text );
-					// replace the component
-					Wicket.replaceOuterHtml( element, text );
+					ScormSjax.replaceComponentMarkup( element, text );
 				}
 				//var call = new Wicket.Ajax.Call();
 				//call.processComponent(steps, node);
@@ -136,6 +169,25 @@ ScormSjax.sjaxCall = function sjaxCall( prefix, arg1, arg2, successHandler, fail
 				{
 					text = Wicket.decode( encoding, text );
 				}
+
+		if (text && text.trim().indexOf("<head") === 0)
+		{
+			var match = text.match(/scormresult\s*=\s*([^;]+);/);
+			if (match && match[1])
+			{
+				var rawValue = match[1].trim();
+				if ((rawValue.startsWith("\"") && rawValue.endsWith("\"")) || (rawValue.startsWith("'") && rawValue.endsWith("'")))
+				{
+					var unquoted = rawValue.substring(1, rawValue.length - 1);
+					resultValue = unquoted.replace(/\\"/g, '"').replace(/\\'/g, "'");
+				}
+				else
+				{
+					resultValue = rawValue;
+				}
+			}
+			continue;
+		}
 
 				// Wicket 8 now returns something like "(function(){scormresult=true;})();"
 				var scormresult = text.match( new RegExp( "^\\(function\\(\\)\\{scormresult=(.*);\\}\\)\\(\\);$" ) );
@@ -167,7 +219,7 @@ ScormSjax.sjaxCall = function sjaxCall( prefix, arg1, arg2, successHandler, fail
 						}
 						catch( exception )
 						{
-							Wicket.Log.error( "Exception evaluating javascript: " + exception );
+							Wicket.Log.error( "Exception evaluating javascript: " + exception + " script: " + text );
 						}
 
 					}
@@ -181,145 +233,33 @@ ScormSjax.sjaxCall = function sjaxCall( prefix, arg1, arg2, successHandler, fail
 						}
 						catch( exception )
 						{
-							Wicket.Log.error( "Exception evaluating javascript: " + exception );
+							Wicket.Log.error( "Exception evaluating javascript: " + exception + " script: " + text );
 						}
 					}
 				}
 			}
-			else if( node.tagName == "header-contribution" )
-			{
-				var c = new Wicket.Head.Contributor();
-				c.processContribution( steps, node );
+		else if( node.tagName == "header-contribution" )
+		{
+				if (Wicket.Head && Wicket.Head.Contributor && typeof Wicket.Head.Contributor.processContribution === "function")
+				{
+					Wicket.Head.Contributor.processContribution({ steps: steps }, node);
+				}
 			}
 		}
 	}
 
 	transport.abort();
-	return resultValue;
-};
-
-ScormSjax.xyzsjaxCall = function xyzsjaxCall( prefix, arg1, arg2, successHandler, failureHandler, precondition, channel )
-{
-	var url = prefix + '&arg1=' + encodeURIComponent( arg1 ) + '&arg2=' + encodeURIComponent( arg2 ) + '&callNumber=' + encodeURIComponent( call_number );
-	var t = Wicket.Ajax.getTransport();
-
-	Wicket.Log.info( "GET " + url );
-
-	//Wicket.Ajax.invokePreCallHandlers();
-
-	if( t != null )
+	if( resultValue && resultValue.indexOf("__REDIRECT__") === 0 )
 	{
-		t.open( "GET", url, false );
-		//t.onreadystatechange = this.stateChangeCallback.bind(this);
-		// set a special flag to allow server distinguish between ajax and non-ajax requests
-		t.setRequestHeader( "Wicket-Ajax", "true" );
-		transport.setRequestHeader( "Wicket-Ajax-BaseURL", prefix );
-		t.setRequestHeader( "Accept", "text/xml" );
-		t.send( null );
-
-		if( t.status == 200 || t.status == "" )
-		{ // as stupid as it seems, IE7 sets status to "" on ok
-			// response came without error
-			var responseAsText = t.responseText;
-			var parseResponse = true;
-
-			// first try to get the redirect header
-			var redirectUrl;
-			try
-			{
-				redirectUrl = t.getResponseHeader( 'Ajax-Location' );
-			}
-			catch( ignore )
-			{ // might happen in older mozilla
-			}
-
-			// the redirect header was set, go to new url
-			if( typeof (redirectUrl) != "undefined" && redirectUrl != null && redirectUrl != "" )
-			{
-				t.onreadystatechange = Wicket.emptyFunction;
-
-				// support/check for non-relative redirectUrl like as provided and needed in a portlet context
-				if( redirectUrl.charAt( 0 ) == ('/') || redirectUrl.match( "^http://" ) == "http://" || redirectUrl.match( "^https://" ) == "https://" )
-				{
-					window.location = redirectUrl;
-				}
-				else
-				{
-					var urlDepth = 0;
-					while( redirectUrl.substring( 0, 3 ) == "../" )
-					{
-						urlDepth++;
-						redirectUrl = redirectUrl.substring( 3 );
-					}
-					// Make this a string.
-					var calculatedRedirect = window.location.pathname;
-					while( urlDepth > -1 )
-					{
-						urlDepth--;
-						i = calculatedRedirect.lastIndexOf( "/" );
-						if( i > -1 )
-						{
-							calculatedRedirect = calculatedRedirect.substring( 0, i );
-						}
-					}
-					calculatedRedirect += "/" + redirectUrl;
-					window.location = calculatedRedirect;
-				}
-			}
-			else
-			{
-				// no redirect, just regular response
-				var log = Wicket.Log.info;
-				log( "Received ajax response (" + responseAsText.length + " characters)" );
-				if( this.debugContent != false )
-				{
-					log( "\n" + responseAsText );
-				}
-
-				// parse the response if the callback needs a DOM tree
-				if( parseResponse == true )
-				{
-					var xmldoc;
-					if( typeof (window.XMLHttpRequest) != "undefined" && typeof (DOMParser) != "undefined" )
-					{
-						var parser = new DOMParser();
-						xmldoc = parser.parseFromString( responseAsText, "text/xml" );
-					}
-					else if( window.ActiveXObject )
-					{
-						xmldoc = t.responseXML;
-					}
-					// invoke the loaded callback with an xml document
-					ScormSjax.loadedCallback( xmldoc );
-				}
-				else
-				{
-					// invoke the loaded callback with raw string
-					ScormSjax.loadedCallback( responseAsText );
-				}
-			}
-		}
-		else
+		var redirectUrl = resultValue.substring("__REDIRECT__".length);
+		if( redirectUrl )
 		{
-			// when an error happened
-			var log = Wicket.Log.error;
-			log( "Received Ajax response with code: " + status );
-			if( status == 500 )
-			{
-				log( "500 error had text: " + t.responseText );
-			}
+			window.location.href = redirectUrl;
 		}
-		t.onreadystatechange = Wicket.emptyFunction;
-		t.abort();
+		return "true";
 	}
-
-	//Wicket.Log.info("sjaxCall resultCode = " + resultCode);
-	var resultValue = api_result[call_number];
-	//Wicket.Log.info("sjaxCall resultValue = " + resultValue);
-	call_number++;
 	return resultValue;
 };
-
 ScormSjax.loadedCallback = function loadedCallback( envelope )
 {
 	// To process the response, we go through the xml document and add a function for every action (step).
@@ -350,7 +290,9 @@ ScormSjax.loadedCallback = function loadedCallback( envelope )
 			window.setTimeout( notify, 2 );
 		}.bind( this ) );
 
-		if( Wicket.Browser.isKHTML() )
+		var isKHTML = Wicket.Browser && typeof Wicket.Browser.isKHTML === "function" && Wicket.Browser.isKHTML();
+
+		if( isKHTML )
 		{
 			// there's a nasty bug in KHTML that makes the browser crash
 			// when the methods are delayed. Therefore we have to fire it
@@ -379,25 +321,37 @@ ScormSjax.loadedCallback = function loadedCallback( envelope )
 			}
 			else if( node.tagName == "header-contribution" )
 			{
-				ScormSjax.processHeaderContribution( steps, node );
+				if (Wicket.Head && Wicket.Head.Contributor && typeof Wicket.Head.Contributor.processContribution === "function")
+				{
+					Wicket.Head.Contributor.processContribution({ steps: steps }, node);
+				}
 			}
 		}
 
 		// add the last step, which should trigger the success call the done method on request
 		Wicket.Log.info( "Response processed successfully." );
-		Wicket.Ajax.invokePostCallHandlers();
+		if (Wicket.Ajax && typeof Wicket.Ajax.invokePostCallHandlers === "function")
+		{
+			Wicket.Ajax.invokePostCallHandlers();
+		}
 		// retach the events to the new components (a bit blunt method...)
 		// This should be changed for IE See comments in wicket-event.js add (attachEvent/detachEvent)
 		// IE this will cause double events for everything.. (mostly because of the Function.prototype.bind(element))
-		Wicket.Focus.attachFocusEvent();
+		if (Wicket.Focus && typeof Wicket.Focus.attachFocusEvent === "function")
+		{
+			Wicket.Focus.attachFocusEvent();
+		}
 
 		// set the focus to the last component
-		setTimeout( "Wicket.Focus.requestFocus();", 0 );
+		if (Wicket.Focus && typeof Wicket.Focus.requestFocus === "function")
+		{
+			setTimeout( "Wicket.Focus.requestFocus();", 0 );
+		}
 
 		// continue to next step (which should make the processing stop, as success should be the final step)		
 		notify();
 
-		if( Wicket.Browser.isKHTML() == false )
+		if( !isKHTML )
 		{
 			Wicket.Log.info( "Response parsed. Now invoking steps..." );
 			var executer = new Wicket.FunctionsExecuter( steps );
@@ -441,8 +395,7 @@ ScormSjax.processComponent = function processComponent( steps, node )
 		}
 		else
 		{
-			// replace the component
-			Wicket.replaceOuterHtml( element, text );
+			ScormSjax.replaceComponentMarkup( element, text );
 		}
 		// continue to next step
 		notify();
@@ -505,56 +458,11 @@ ScormSjax.processEvaluation = function processEvaluation( steps, node )
 // Adds a closure that processes a header contribution
 ScormSjax.processHeaderContribution = function processHeaderContribution( steps, node )
 {
-	var c = new Wicket.Head.Contributor();
-	c.processContribution( steps, node );
-};
-
-ScormSjax.xsjaxCall = function xsjaxCall( url, arg1, arg2, successHandler, failureHandler, precondition, channel )
-{
-	Wicket.Log.info( "Calling sjaxCall with url: " + url + " sco: " + scoId + " arg1: " + arg1 + " arg2: " + arg2 );
-
-	var call = new Wicket.Ajax.Call( url + '&arg1=' + encodeURIComponent( arg1 ) + '&arg2=' + encodeURIComponent( arg2 ) + '&callNumber=' + encodeURIComponent( call_number ),
-										function() {}, function() {}, null );
-
-	if( typeof (precondition) != "undefined" && precondition != null )
+	if (Wicket.Head && Wicket.Head.Contributor && typeof Wicket.Head.Contributor.processContribution === "function")
 	{
-		call.request.precondition = precondition;
+		Wicket.Head.Contributor.processContribution({ steps: steps }, node);
 	}
-
-	call.request.async = false;
-	var resultCode = call.call();
-
-	ScormSjax.pausecomp( call_number, call );
-
-	//Wicket.Log.info("sjaxCall resultCode = " + resultCode);
-	var resultValue = api_result[call_number];
-	//Wicket.Log.info("sjaxCall resultValue = " + resultValue);
-	call_number++;
-	return resultValue;
 };
-
-ScormSjax.pausecomp = function pausecomp( call_number, call )
-{
-	//Wicket.Log.info("URL is: " + call.request.url);
-	var startDate = new Date();
-	var curDate = null;
-
-	var intervalId = setInterval( "ScormSjax.lookForResponse(call.request)", 30 );
-	do
-	{
-		curDate = new Date();
-		//Wicket.Log.info("api result: " + api_result[call_number]);
-		var diff = curDate - startDate;
-		//Wicket.Log.info("diff: " + diff);
-		if( diff > 500 )
-		{
-			//Wicket.Log.info("Timed out--unable to get result: " + api_result[call_number] + " for " + call_number);
-			clearInterval( intervalId );
-			break;
-		}
-	} while( api_result[call_number] == undefined );
-	clearInterval( intervalId );
-}
 
 ScormSjax.lookForResponse = function lookForResponse( request )
 {

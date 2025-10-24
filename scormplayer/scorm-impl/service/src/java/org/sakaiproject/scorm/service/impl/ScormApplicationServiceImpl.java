@@ -368,6 +368,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		if (dmErrorCode == APIErrorCodes.NO_ERROR)
 		{
 			result = dmInfo.mValue;
+			if (StringUtils.isBlank(result))
+			{
+				if ("cmi.completion_status".equals(iDataModelElement) || "cmi.success_status".equals(iDataModelElement))
+				{
+					result = "unknown";
+				}
+			}
 		}
 		else
 		{
@@ -417,6 +424,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			if (dmErrorCode == APIErrorCodes.NO_ERROR)
 			{
 				result = dmInfo.mValue;
+				if (StringUtils.isBlank(result))
+				{
+					if ("cmi.completion_status".equals(parameter) || "cmi.success_status".equals(parameter))
+					{
+						result = "unknown";
+					}
+				}
 			}
 			else
 			{

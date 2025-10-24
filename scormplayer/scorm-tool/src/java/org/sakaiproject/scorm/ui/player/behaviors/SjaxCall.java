@@ -26,6 +26,10 @@ import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.util.string.StringValue;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
 import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
@@ -203,10 +207,59 @@ public abstract class SjaxCall extends AjaxEventBehavior
 				args[i] = this.getComponent().getRequest().getRequestParameters().getParameterValue(paramName);
 			}
 
-			String resultValue = callMethod(scoBean, target, args);
-			String result = new StringBuffer().append("scormresult=").append(resultValue).append(";").toString();
+		String resultValue = callMethod(scoBean, target, args);
+		if ("Terminate".equals(event) && "true".equalsIgnoreCase(resultValue))
+		{
+			SessionBean bean = getSessionBean();
+			if (bean != null && bean.isCloseOnNextTerminate() && StringUtils.isNotBlank(bean.getCompletionUrl()))
+			{
+				resultValue = "__REDIRECT__" + bean.getCompletionUrl();
+				bean.setCloseOnNextTerminate(false);
+			}
+		}
 
-			target.appendJavaScript(result);
+		String jsValue;
+		if (StringUtils.isBlank(resultValue))
+		{
+			jsValue = "''";
+		}
+		else if ("true".equals(resultValue) || "false".equals(resultValue))
+		{
+			jsValue = resultValue;
+		}
+		else if (NumberUtils.isCreatable(resultValue))
+		{
+			jsValue = resultValue;
+		}
+		else
+		{
+			jsValue = "'" + StringEscapeUtils.escapeEcmaScript(resultValue) + "'";
+		}
+
+		String result = new StringBuffer().append("scormresult=").append(jsValue).append(";").toString();
+
+		target.appendJavaScript(result);
+
+		if ("Terminate".equals(event) && "true".equalsIgnoreCase(resultValue))
+		{
+			SessionBean bean = getSessionBean();
+			if (bean != null && bean.isCloseOnNextTerminate())
+			{
+				if (StringUtils.isNotBlank(bean.getCompletionUrl()))
+				{
+					String redirectUrl = bean.getCompletionUrl();
+					String escaped = StringEscapeUtils.escapeEcmaScript(redirectUrl);
+					target.appendJavaScript("console.log('SCORM: redirecting to completion URL: :+escaped+'); window.location.href='+escaped+';");
+				}
+				else
+				{
+					target.appendJavaScript("console.log('SCORM: closing SCO window'); window.close();");
+				}
+				bean.setCloseOnNextTerminate(false);
+			}
+		}
+
+
 		}
 		catch (Exception e)
 		{

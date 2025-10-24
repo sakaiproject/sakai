@@ -66,6 +66,7 @@ public class ScormPlayerPage extends BaseToolPage
 	public ScormPlayerPage(final PageParameters pageParams)
 	{
 		super();
+		setVersioned(false);
 
 		long contentPackageId = pageParams.get("contentPackageId").toLong();
 		int userNavRequest = pageParams.get("navRequest").toInt(-1);
