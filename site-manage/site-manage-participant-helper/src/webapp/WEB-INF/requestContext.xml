@@ -6,6 +6,7 @@
     <bean id="siteAddParticipantHandler"
           class="org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler"
           init-method="init">
+        <property name="accountValidationService" ref="org.sakaiproject.accountvalidator.service.AccountValidationService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="messageLocator" ref="messageLocator"/>
@@ -18,7 +19,6 @@
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userAuditRegistration" ref="org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-        <property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
     </bean>
 
     <bean id="AddProducer"

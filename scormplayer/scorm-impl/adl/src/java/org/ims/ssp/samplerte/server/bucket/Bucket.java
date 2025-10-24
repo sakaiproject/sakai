@@ -23,6 +23,8 @@
 *******************************************************************************/
 package org.ims.ssp.samplerte.server.bucket;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
@@ -56,6 +58,7 @@ import java.io.UnsupportedEncodingException;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class Bucket implements Serializable {
 	/**
 	  * 
@@ -174,8 +177,7 @@ public class Bucket implements Serializable {
 			mData = empty.getBytes(CHARSET);
 		} catch (UnsupportedEncodingException uee) {
 			mData = empty.getBytes();
-
-			System.out.println("UnsupportedEncodingException: " + CHARSET + " is not a supported encoding.  The default " + "encoding is being used");
+			log.warn("{} is not a supported encoding. The default encoding is being used", CHARSET);
 		}
 	}
 

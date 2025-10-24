@@ -75,7 +75,6 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.model.Gradebook;
-import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.portal.util.CSSUtils;
@@ -294,13 +293,6 @@ public class SakaiLTIUtil {
 			log.debug("Sakai properties={}", config);
 			String launch_url = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_LAUNCH, placement));
 			setProperty(info, "launch_url", launch_url);
-			if (launch_url == null) {
-				String xml = StringUtils.trimToNull(getCorrectProperty(config, "xml", placement));
-				if (xml == null) {
-					return false;
-				}
-				LTIUtil.parseDescriptor(info, launch, xml);
-			}
 
 			String secret = getCorrectProperty(config, LTIService.LTI_SECRET, placement);
 
@@ -966,43 +958,6 @@ public class SakaiLTIUtil {
 				}
 
 			}
-
-			// Send along the deprecated LinkTool encrypted session if requested
-			String sendsession = StringUtils.trimToNull(getCorrectProperty(config, "ext_sakai_session", placement));
-			if ("true".equals(sendsession)) {
-				Session s = SessionManager.getCurrentSession();
-				if (s != null) {
-					String sessionid = s.getId();
-					if (sessionid != null) {
-						sessionid = LinkToolUtil.encrypt(sessionid);
-						setProperty(props, "ext_sakai_session", sessionid);
-					}
-				}
-			}
-
-			// Send along the SAK-28125 encrypted session if requested
-			String encryptsession = StringUtils.trimToNull(getCorrectProperty(config, "ext_sakai_encrypted_session", placement));
-			String secret = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_SECRET, placement));
-			String key = StringUtils.trimToNull(getCorrectProperty(config, LTI_PORTLET_KEY, placement));
-			if (secret != null && key != null && "true".equals(encryptsession)
-					&& !SecurityService.isSuperUser()) {
-
-				secret = decryptSecret(secret);
-				// sha1secret is 160-bits hex the sha1 for "secret" is
-				// e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4
-				String sha1Secret = PortableShaUtil.sha1Hash(secret);
-				Session s = SessionManager.getCurrentSession();
-				if (s != null) {
-					String sessionid = s.getId();
-					if (sessionid != null) {
-						sessionid = BlowFish.encrypt(sha1Secret, sessionid);
-						setProperty(props, "ext_sakai_encrypted_session", sessionid);
-						// Don't just change this as it will break existing connections
-						// Especially to LTI tools written in Java with the default JCE
-						setProperty(props, "ext_sakai_blowfish_length", "128");
-					}
-				}
-			}
 		}
 
 		// Send along the content link
@@ -1112,28 +1067,6 @@ public class SakaiLTIUtil {
 		setProperty(props, "ext_sakai_serverid", serverId);
 		setProperty(props, "ext_sakai_server", getOurServerUrl());
 	}
-
-		// Gnerate HTML from a descriptor and properties from
-		public static String[] postLaunchHTML(String descriptor, String contextId, String resourceId, ResourceProperties props, ResourceLoader rb) {
-			if (descriptor == null || contextId == null || resourceId == null) {
-				return postError("<p>" + getRB(rb, "error.descriptor", "Error, missing contextId, resourceid or descriptor") + "</p>");
-			}
-
-			// Add user, course, etc to the launch parameters
-			Properties launch = new Properties();
-			if (!sakaiInfo(launch, contextId, resourceId, rb)) {
-				return postError("<p>" + getRB(rb, "error.info.resource",
-						"Error, cannot load Sakai information for resource=") + resourceId + ".</p>");
-			}
-
-			Properties info = new Properties();
-			if (!LTIUtil.parseDescriptor(info, launch, descriptor)) {
-				return postError("<p>" + getRB(rb, "error.badxml.resource",
-						"Error, cannot parse descriptor for resource=") + resourceId + ".</p>");
-			}
-
-			return postLaunchHTML(info, launch, rb);
-		}
 
 		// This must return an HTML message as the [0] in the array
 		// If things are successful - the launch URL is in [1]
@@ -3538,16 +3471,16 @@ public class SakaiLTIUtil {
 	}
 
 	/**
-	 * POJO overload for findBestToolMatch
+	 * Bean overload for findBestToolMatch
 	 */
-	public static org.sakaiproject.lti.beans.LtiToolBean findBestToolMatchPojo(String launchUrl, String toolCheckSum, List<org.sakaiproject.lti.beans.LtiToolBean> tools)
+	public static org.sakaiproject.lti.beans.LtiToolBean findBestToolMatchBean(String launchUrl, String toolCheckSum, List<org.sakaiproject.lti.beans.LtiToolBean> tools)
 	{
 		// Guard against null tools parameter
 		if (tools == null) {
 			return null;
 		}
 		
-		// Convert POJOs to maps for the existing logic
+		// Convert Beans to maps for the existing logic
 		List<Map<String,Object>> toolMaps = new ArrayList<>();
 		for (org.sakaiproject.lti.beans.LtiToolBean tool : tools) {
 			if (tool != null) {
