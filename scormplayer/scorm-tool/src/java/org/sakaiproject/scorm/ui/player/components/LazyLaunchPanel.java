@@ -59,7 +59,6 @@ public class LazyLaunchPanel extends LazyLoadPanel
 	@SpringBean(name = "org.sakaiproject.scorm.service.api.LearningManagementSystem")
 	LearningManagementSystem learningManagementSystem;
 
-	private ScormPlayerPage view;
 	@Getter private LaunchPanel launchPanel;
 	private final LocalResourceNavigator navigator;
 	private final int userNavRequest;
@@ -67,12 +66,17 @@ public class LazyLaunchPanel extends LazyLoadPanel
 	private static final String NAV_RESULT_INVALID_REQ = "_INVALIDNAVREQ_";
 	private static final String NAV_RESULT_END_SESSION = "_ENDSESSION_";
 
-	public LazyLaunchPanel(String id, SessionBean sessionBean, int userNavRequest, ScormPlayerPage view)
+    public LazyLaunchPanel(String id, SessionBean sessionBean, int userNavRequest, ScormPlayerPage view)
+    {
+        super(id, new Model(sessionBean), view.getPageParameters());
+        this.navigator = new LocalResourceNavigator();
+        this.userNavRequest = userNavRequest;
+    }
+
+	@Override
+	protected boolean loadImmediately()
 	{
-		super(id, new Model(sessionBean), view.getPageParameters());
-		this.navigator = new LocalResourceNavigator();
-		this.userNavRequest = userNavRequest;
-		this.view = view;
+		return true;
 	}
 
 	@Override
@@ -172,12 +176,34 @@ public class LazyLaunchPanel extends LazyLoadPanel
 
 			if (result == null || result.contains(NAV_RESULT_TOC))
 			{
-				launchPanel = new LaunchPanel(lazyId, sessionBean, view);
+				ScormPlayerPage currentView = findParent(ScormPlayerPage.class);
+				if (currentView == null)
+				{
+					try
+					{
+						if (getPage() instanceof ScormPlayerPage)
+						{
+							currentView = (ScormPlayerPage) getPage();
+						}
+					}
+					catch (IllegalStateException e)
+					{
+						log.debug("LazyLaunchPanel page not attached yet; continuing without page reference");
+					}
+				}
+				if (currentView == null)
+				{
+					log.warn("LazyLaunchPanel cannot locate ScormPlayerPage; continuing without synchronizing state yet");
+				}
+				launchPanel = new LaunchPanel(lazyId, sessionBean, currentView);
 				loadSharedResources(sessionBean.getContentPackage().getResourceId());
 
 				log.debug("PlayerPage sco is {}", sessionBean.getScoId());
 
-				view.synchronizeState(sessionBean, target);
+				if (currentView != null)
+				{
+					currentView.synchronizeState(sessionBean, target);
+				}
 
 				navigator.displayResource(sessionBean, null);
 				return launchPanel;
@@ -203,7 +229,7 @@ public class LazyLaunchPanel extends LazyLoadPanel
 		{
 			String resourceName = cpResource.getPath();
 
-			ContentPackageWebResource resource = (ContentPackageWebResource) getApplication().getSharedResources().get(ScormPlayerPage.class, resourceName, null, null, null, true);
+			ContentPackageWebResource resource = (ContentPackageWebResource) getApplication().getSharedResources().get(ScormPlayerPage.class, resourceName, null, null, null, false);
 			if (resource == null || resource.lastModifiedTime().toEpochMilli() != cpResource.getLastModified())
 			{
 				ContentPackageWebResource webResource = new ContentPackageWebResource(cpResource);

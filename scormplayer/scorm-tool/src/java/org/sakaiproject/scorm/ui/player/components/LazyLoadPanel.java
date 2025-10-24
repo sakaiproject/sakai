@@ -83,42 +83,47 @@ public abstract class LazyLoadPanel extends Panel
 	private static final long serialVersionUID = 1L;
 
 	private boolean loading = true;
+	private final boolean loadImmediately;
 
 	public LazyLoadPanel(String id, IModel model, PageParameters params)
 	{
 		super(id, model);
 		setOutputMarkupId(true);
 		setOutputMarkupPlaceholderTag(true);
+		loadImmediately = loadImmediately();
 		final Component loadingComponent = getLoadingComponent("content", params);
 		add(loadingComponent.setRenderBodyOnly(true));
 
+	if (!loadImmediately)
+	{
 		add(new AbstractDefaultAjaxBehavior()
 		{
-			private static final long serialVersionUID = 1L;
+				private static final long serialVersionUID = 1L;
 
-			@Override
-			protected void respond(AjaxRequestTarget target) {
-				if (!loading) {
-					return;
+				@Override
+				protected void respond(AjaxRequestTarget target) {
+					if (!loading) {
+						return;
+					}
+					Component component = getLazyLoadComponent("content", target);
+					LazyLoadPanel.this.replace(component.setRenderBodyOnly(true));
+					loading = false;
+					target.add(LazyLoadPanel.this);
 				}
-				Component component = getLazyLoadComponent("content", target);
-				LazyLoadPanel.this.replace(component.setRenderBodyOnly(true));
-				loading = false;
-				target.add(LazyLoadPanel.this);
-			}
 
-			@Override
-			public void renderHead(Component component, IHeaderResponse response)
-			{
-				super.renderHead(component, response);
-				response.render(OnDomReadyHeaderItem.forScript(getCallbackScript().toString()));
-			}
+				@Override
+				public void renderHead(Component component, IHeaderResponse response)
+				{
+					super.renderHead(component, response);
+					response.render(OnDomReadyHeaderItem.forScript(getCallbackScript().toString()));
+				}
 
-			@Override
-			public boolean isEnabled(Component component) {
-				return true;
-			}
-		});
+				@Override
+				public boolean isEnabled(Component component) {
+					return true;
+				}
+			});
+		}
 	}
 
 	/**
@@ -134,5 +139,22 @@ public abstract class LazyLoadPanel extends Panel
 	public Component getLoadingComponent(String markupId, PageParameters params)
 	{
 		return new Label(markupId, "<img src=\"" + RequestCycle.get().urlFor(AbstractDefaultAjaxBehavior.INDICATOR, params) + "\"/>").setEscapeModelStrings(false);
+	}
+
+	protected boolean loadImmediately()
+	{
+		return false;
+	}
+
+	@Override
+	protected void onInitialize()
+	{
+		super.onInitialize();
+		if (loadImmediately && loading)
+		{
+			Component component = getLazyLoadComponent("content", null);
+			LazyLoadPanel.this.replace(component.setRenderBodyOnly(true));
+			loading = false;
+		}
 	}
 }
