@@ -4089,12 +4089,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         realName = candidateName;
                         done.put(candidateName, 1);
                     } else {
-                        String fileName = FilenameUtils.removeExtension(candidateName);
+                        String fileName = org.springframework.util.StringUtils.stripFilenameExtension(candidateName);
                         String fileExt = org.springframework.util.StringUtils.getFilenameExtension(candidateName);
-                        if (!"".equals(fileExt.trim())) {
-                            fileExt = "." + fileExt;
-                        }
-                        realName = fileName + "+" + already + fileExt;
+                        realName = org.springframework.util.StringUtils.hasText(fileExt)
+                                ?  fileName + "+" + already + "." + fileExt
+                                :  fileName + "+" + already;
                         done.put(candidateName, already + 1);
                     }
 
@@ -4274,7 +4273,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Optional<List<String>> getTransferOptions() {
-        return Optional.of(Arrays.asList(new String[] { EntityTransferrer.PUBLISH_OPTION }));
+        return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION, EntityTransferrer.PUBLISH_OPTION }));
     }
 
     @Override
@@ -4749,6 +4748,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         return getAssignmentsForContext(fromContext).stream()
             .map(ass -> Map.of("id", ass.getId(), "title", ass.getTitle())).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getToolPermissionsPrefix() {
+        return AssignmentServiceConstants.SECURE_PERMISSION_PREFIX;
     }
 
     private String transferAttachment(String fromContext, String toContext, String oAttachmentId, MergeConfig mcx) {

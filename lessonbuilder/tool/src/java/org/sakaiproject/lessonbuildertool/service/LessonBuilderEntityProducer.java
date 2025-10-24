@@ -334,6 +334,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		return toolList;
 	}
 
+	@Override
+	public Optional<List<String>> getTransferOptions() {
+		return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
+	}
+
 	/**
 	 * Get the service name for this class
 	 * @return
@@ -1997,6 +2002,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			log.warn("Could not find site {}: {}", fromContext, e);
 			return Collections.emptyList();
 		}
+	}
+
+	@Override
+	public String getToolPermissionsPrefix() {
+		return SimplePage.PERMISSION_LESSONBUILDER_PREFIX;
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
