@@ -25,6 +25,7 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -77,6 +78,7 @@ public class ContentHosting extends AbstractWebService {
 	private static final String RESOURCE_TYPE_RESOURCE = "resource";
 	private static final String RESOURCE_TYPE_ATTACHMENT = "attachment";
 	private static Base64 base64 = new Base64();
+	private static final String HIDDEN_ACCESSIBLE_PROPERTY = "SAKAI:hidden_accessible_content";
 	
 	/**
 	 *	Get the collection id for the root collection associated with this site context.
@@ -895,5 +897,69 @@ public class ContentHosting extends AbstractWebService {
 		}
 
 		return "success";
+	}
+
+	/**
+	 * Adds or updates a collection property while ensuring the collection is available when hidden access is required.
+	 * Typical usage sets the {@code SAKAI:hidden_accessible_content=true} property so authorized users can still view the
+	 * collection contents when the collection itself is hidden.
+	 *
+	 * When the property name is {@code SAKAI:hidden_accessible_content} and the collection is hidden, the service will default
+	 * to making the collection visible unless the {@code hidden} parameter is explicitly supplied.
+	 *
+	 * @param sessionId a valid session id
+	 * @param collectionId the id of the collection to modify
+	 * @param propertyName the property name to set, for example {@code SAKAI:hidden_accessible_content}
+	 * @param propertyValue the property value to set, for example {@code true}
+	 * @param hidden optional flag to set collection availability; {@code true} hides it and {@code false} makes it visible
+	 * @return "success" if the operation completed, "failure" otherwise
+	 *
+	 * @see <a href="https://jira.sakaiproject.org/browse/SAK-52071">SAK-52071</a>
+	 * @see <a href="https://jira.sakaiproject.org/browse/SAK-50993">SAK-50993</a>
+	 */
+	@WebMethod
+	@Path("/setCollectionProperty")
+	@Produces("text/plain")
+	@POST
+	public String setCollectionProperty(
+			@WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+			@WebParam(name = "collectionId", partName = "collectionId") @QueryParam("collectionId") String collectionId,
+			@WebParam(name = "propertyName", partName = "propertyName") @QueryParam("propertyName") String propertyName,
+			@WebParam(name = "propertyValue", partName = "propertyValue") @QueryParam("propertyValue") String propertyValue,
+			@WebParam(name = "hidden", partName = "hidden") @QueryParam("hidden") Boolean hidden) {
+
+		// Validate inputs
+		if (StringUtils.isBlank(sessionId) || StringUtils.isBlank(collectionId)
+				|| StringUtils.isBlank(propertyName) || StringUtils.isBlank(propertyValue)) {
+			log.warn("setCollectionProperty: sessionId, collectionId, propertyName and propertyValue are required");
+			return "failure";
+		}
+
+		Session session = establishSession(sessionId);
+		log.info("setCollectionProperty: begin for collection {}, property {}={}, hidden param={}", collectionId, propertyName, propertyValue, hidden);
+
+		ContentCollectionEdit collection = null;
+		boolean success = false;
+		try {
+			collection = contentHostingService.editCollection(collectionId);
+			if (hidden != null) {
+				collection.setAvailability(hidden.booleanValue(), null, null);
+			} else if (HIDDEN_ACCESSIBLE_PROPERTY.equals(propertyName) && collection.isHidden()) {
+				// Default to making the collection visible for hidden-accessible property to be effective.
+				collection.setAvailability(false, null, null);
+			}
+			collection.getPropertiesEdit().addProperty(propertyName, propertyValue);
+			contentHostingService.commitCollection(collection);
+			log.info("setCollectionProperty: collection {} property {} set to {}", collectionId, propertyName, propertyValue);
+			success = true;
+		} catch (Exception e) {
+			log.warn("Error in collection: {}. Error: {}", collectionId, e.getMessage(), e);
+			if (collection != null) {
+				contentHostingService.cancelCollection(collection);
+			}
+		}
+		log.info("setCollectionProperty: end for collection {}", collectionId);
+
+		return success ? "success" : "failure";
 	}
 }
