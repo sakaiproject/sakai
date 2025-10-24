@@ -1,11 +1,14 @@
 package coza.opencollab.sakai.cloudcontent;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -187,47 +190,47 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             StatObjectResponse stat = client.statObject(
                     StatObjectArgs.builder().bucket(can.container).object(can.name).build());
             long size = stat.size();
-            InputStream in = client.getObject(
-                    GetObjectArgs.builder().bucket(can.container).object(can.name).build());
-            if (size > maxBlobStreamSize) {
-                File tmp = File.createTempFile("minio", ".tmp");
-                // Guard against process crashes; still delete explicitly on close
-                tmp.deleteOnExit();
-                try (FileOutputStream fos = new FileOutputStream(tmp)) {
-                    byte[] buffer = new byte[8192];
-                    int read;
-                    while ((read = in.read(buffer)) != -1) {
-                        fos.write(buffer, 0, read);
+            // Always drain/close the underlying HTTP response because Spring may never read it
+            // (e.g. when returning 304 from a cached request), leading OkHttp to log leaked bodies.
+            try (InputStream responseStream = client.getObject(
+                    GetObjectArgs.builder().bucket(can.container).object(can.name).build())) {
+                if (size > maxBlobStreamSize) {
+                    File tmp = File.createTempFile("minio", ".tmp");
+                    // Guard against process crashes; still delete explicitly on close
+                    tmp.deleteOnExit();
+                    try (FileOutputStream fos = new FileOutputStream(tmp)) {
+                        // Drain the response while copying so the HTTP body is freed immediately.
+                        copy(responseStream, fos);
                     }
-                } finally {
-                    in.close();
-                }
-                final File toDelete = tmp;
-                final FileInputStream fis = new FileInputStream(toDelete);
-                return new FilterInputStream(fis) {
-                    @Override
-                    public void close() throws IOException {
-                        IOException closeEx = null;
-                        try {
-                            super.close();
-                        } catch (IOException e) {
-                            closeEx = e;
-                        } finally {
+                    final File toDelete = tmp;
+                    final FileInputStream fis = new FileInputStream(toDelete);
+                    return new FilterInputStream(fis) {
+                        @Override
+                        public void close() throws IOException {
+                            IOException closeEx = null;
                             try {
-                                if (!toDelete.delete() && toDelete.exists()) {
-                                    log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
+                                super.close();
+                            } catch (IOException e) {
+                                closeEx = e;
+                            } finally {
+                                try {
+                                    if (!toDelete.delete() && toDelete.exists()) {
+                                        log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
+                                    }
+                                } catch (Exception delEx) {
+                                    log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), delEx);
                                 }
-                            } catch (Exception delEx) {
-                                log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), delEx);
-                            }
-                            if (closeEx != null) {
-                                throw closeEx;
+                                if (closeEx != null) {
+                                    throw closeEx;
+                                }
                             }
                         }
-                    }
-                };
-            } else {
-                return in;
+                    };
+                } else {
+                    // Smaller payloads get buffered so downstream code can re-read without holding the HTTP body.
+                    byte[] data = toByteArray(responseStream, size);
+                    return new ByteArrayInputStream(data);
+                }
             }
         } catch (Exception e) {
             throw new IOException("Unable to read object", e);
@@ -355,5 +358,24 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     private static class ContainerAndName {
         String container;
         String name;
+    }
+
+    // Shared copy utility so every code path fully consumes the response stream before returning.
+    private static void copy(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[8192];
+        int read;
+        while ((read = in.read(buffer)) != -1) {
+            out.write(buffer, 0, read);
+        }
+    }
+
+    private static byte[] toByteArray(InputStream in, long size) throws IOException {
+        int initialSize = 8192;
+        if (size > 0 && size <= Integer.MAX_VALUE) {
+            initialSize = (int) size;
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(initialSize);
+        copy(in, baos);
+        return baos.toByteArray();
     }
 }
