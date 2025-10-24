@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.entitybroker.providers;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,7 +49,6 @@ import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Entity Provider for users
@@ -372,73 +370,6 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         }
     }
 
-    /*
-     * This ugliness is needed because of the edge case where people are using identical ID/EIDs,
-     * this is a really really bad hack to attempt to get the server to tell us if the eid==id for users
-     */
-    private Boolean usesSeparateIdEid = null;
-    private boolean isUsingSameIdEid() {
-        if (usesSeparateIdEid == null) {
-            String config = developerHelperService.getConfigurationSetting("separateIdEid@org.sakaiproject.user.api.UserDirectoryService", (String)null);
-            if (config != null) {
-                try {
-                    usesSeparateIdEid = parseBoolean(config);
-                } catch (IllegalArgumentException e) {
-                    // oh well
-                    usesSeparateIdEid = null;
-                }
-            }
-            if (usesSeparateIdEid == null) {
-                // could not get the stupid setting so attempt to check the service itself
-                try {
-                    usesSeparateIdEid = readBooleanField(userDirectoryService, "m_separateIdEid");
-                } catch (RuntimeException e) {
-                    // no luck here
-                    usesSeparateIdEid = null;
-                }
-            }
-            if (usesSeparateIdEid == null) usesSeparateIdEid = Boolean.FALSE;
-        }
-        return ! usesSeparateIdEid.booleanValue();
-    }
-
-    private Boolean readBooleanField(Object target, String fieldName) {
-        Field field = ReflectionUtils.findField(target.getClass(), fieldName);
-        if (field == null) {
-            return null;
-        }
-        ReflectionUtils.makeAccessible(field);
-        try {
-            Object value = ReflectionUtils.getField(field, target);
-            if (value instanceof Boolean) {
-                return (Boolean) value;
-            }
-            if (value instanceof String) {
-                return parseBoolean((String) value);
-            }
-            return (value != null) ? Boolean.valueOf(value.toString()) : null;
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    private Boolean parseBoolean(String value) {
-        if (value == null) {
-            return null;
-        }
-        String normalized = value.trim();
-        if (normalized.isEmpty()) {
-            return null;
-        }
-        if ("true".equalsIgnoreCase(normalized)) {
-            return Boolean.TRUE;
-        }
-        if ("false".equalsIgnoreCase(normalized)) {
-            return Boolean.FALSE;
-        }
-        throw new IllegalArgumentException("Value is not a boolean: " + value);
-    }
-
     /**
      * Will check that a userId/eid is valid and will produce a valid userId from the check
      *
@@ -460,50 +391,37 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
 
             // try to get userId from eid
             currentUserEid = removePrefix(currentUserEid);
-            if (isUsingSameIdEid()) {
-                // have to actually fetch the user
-                User u;
-                try {
-                    u = getUserByIdEid(currentUserEid);
-                    if (u != null) {
+            if (userIdExplicitOnly()) {
+                // only check ID or EID
+                if (currentUserEid.length() > ID_PREFIX.length() && currentUserEid.startsWith(ID_PREFIX) ) {
+                    // strip the id marker out
+                    currentUserEid = currentUserEid.substring(ID_PREFIX.length());
+                    // check EID, do not attempt to check by ID as well
+                    try {
+                        User u = userDirectoryService.getUserByAid(currentUserEid);
                         userId = u.getId();
-                    }
-                } catch (IllegalArgumentException e) {
-                    userId = null;
-                }
-            } else {
-                if (userIdExplicitOnly()) {
-                    // only check ID or EID
-                    if (currentUserEid.length() > ID_PREFIX.length() && currentUserEid.startsWith(ID_PREFIX) ) {
-                        // strip the id marker out
-                        currentUserEid = currentUserEid.substring(ID_PREFIX.length());
-                        // check EID, do not attempt to check by ID as well
-                        try {
-                            User u = userDirectoryService.getUserByAid(currentUserEid);
-                            userId = u.getId();
-                        } catch (UserNotDefinedException e2) {
-                            userId = null;
-                        }
-                    } else {
-                        // check by ID
-                        try {
-                            userDirectoryService.getUserEid(currentUserEid); // simply here to throw an exception or not
-                            userId = currentUserEid;
-                        } catch (UserNotDefinedException e2) {
-                            userId = null;
-                        }
+                    } catch (UserNotDefinedException e2) {
+                        userId = null;
                     }
                 } else {
-                    // check for EID and then ID
+                    // check by ID
                     try {
-                        userId = userDirectoryService.getUserId(currentUserEid);
-                    } catch (UserNotDefinedException e) {
-                        try {
-                            userDirectoryService.getUserEid(currentUserEid); // simply here to throw an exception or not
-                            userId = currentUserEid;
-                        } catch (UserNotDefinedException e2) {
-                            userId = null;
-                        }
+                        userDirectoryService.getUserEid(currentUserEid); // simply here to throw an exception or not
+                        userId = currentUserEid;
+                    } catch (UserNotDefinedException e2) {
+                        userId = null;
+                    }
+                }
+            } else {
+                // check for EID and then ID
+                try {
+                    userId = userDirectoryService.getUserId(currentUserEid);
+                } catch (UserNotDefinedException e) {
+                    try {
+                        userDirectoryService.getUserEid(currentUserEid); // simply here to throw an exception or not
+                        userId = currentUserEid;
+                    } catch (UserNotDefinedException e2) {
+                        userId = null;
                     }
                 }
             }
@@ -513,41 +431,29 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             currentUserId = removePrefix(currentUserId);
 
             // verify the userId is valid
-            if (isUsingSameIdEid()) {
-                // have to actually fetch the user
+            if (userIdExplicitOnly()) {
+                if (currentUserId.length() > ID_PREFIX.length() && currentUserId.startsWith(ID_PREFIX) ) {
+                    // strip the id marker out
+                    currentUserId = currentUserId.substring(ID_PREFIX.length());
+                }
+                // check ID, do not attempt to check by AID/EID as well
                 try {
-                    User u = getUserByIdEid(currentUserId);
-                    if (u != null) {
-                        userId = u.getId();
-                    }
-                } catch (IllegalArgumentException e) {
+                    userDirectoryService.getUserEid(currentUserId); // simply here to throw an exception or not
+                    userId = currentUserId;
+                } catch (UserNotDefinedException e2) {
                     userId = null;
                 }
             } else {
-                if (userIdExplicitOnly()) {
-                    if (currentUserId.length() > ID_PREFIX.length() && currentUserId.startsWith(ID_PREFIX) ) {
-                        // strip the id marker out
-                        currentUserId = currentUserId.substring(ID_PREFIX.length());
-                    }
-                    // check ID, do not attempt to check by AID/EID as well
+                // check for ID and then AID/EID
+                try {
+                    userDirectoryService.getUserEid(currentUserId); // simply here to throw an exception or not
+                    userId = currentUserId;
+                } catch (UserNotDefinedException e) {
                     try {
-                        userDirectoryService.getUserEid(currentUserId); // simply here to throw an exception or not
-                        userId = currentUserId;
+                        User u = userDirectoryService.getUserByAid(currentUserId);
+                        userId = u.getId();
                     } catch (UserNotDefinedException e2) {
                         userId = null;
-                    }
-                } else {
-                    // check for ID and then AID/EID
-                    try {
-                        userDirectoryService.getUserEid(currentUserId); // simply here to throw an exception or not
-                        userId = currentUserId;
-                    } catch (UserNotDefinedException e) {
-                        try {
-                            User u = userDirectoryService.getUserByAid(currentUserId);
-                            userId = u.getId();
-                        } catch (UserNotDefinedException e2) {
-                            userId = null;
-                        }
                     }
                 }
             }
