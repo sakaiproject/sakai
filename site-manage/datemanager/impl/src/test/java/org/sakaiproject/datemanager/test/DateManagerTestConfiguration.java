@@ -19,16 +19,14 @@ import org.mockito.Mockito;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
-import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.samigo.api.SamigoAvailableNotificationService;
-import org.sakaiproject.signup.logic.SignupMeetingService;
+import org.sakaiproject.signup.api.SignupMeetingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -111,7 +109,7 @@ public class DateManagerTestConfiguration {
         return Mockito.mock(SessionManager.class);
     }
 
-    @Bean(name = "org.sakaiproject.signup.logic.SignupMeetingService")
+    @Bean(name = "org.sakaiproject.signup.api.SignupMeetingService")
     public SignupMeetingService signupMeetingService() {
         return Mockito.mock(SignupMeetingService.class);
     }

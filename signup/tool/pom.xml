@@ -53,18 +53,14 @@
             <artifactId>jsf2-app</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.portal</groupId>
-            <artifactId>sakai-portal-util</artifactId>
-        </dependency>
-        <!-- remove the default api/imp 1.1_02 version from JSF prject with new 1.2 version  -->
-        <dependency>
             <groupId>org.sakaiproject.jsf2</groupId>
             <artifactId>jsf2-widgets-sun-depend</artifactId>
             <type>pom</type>
         </dependency>
-		<!-- end of JSF related version issue -->
-		
-        <!-- third party dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -72,12 +68,18 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${sakai.spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <version>${sakai.spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -97,14 +99,17 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
+            <version>${sakai.poi.version}</version>
         </dependency>
         <dependency>
            <groupId>org.apache.poi</groupId>
            <artifactId>poi-ooxml</artifactId>
+            <version>${sakai.poi.version}</version>
         </dependency>
         <dependency>
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
+            <version>1.1.2</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
@@ -117,6 +122,7 @@
         <dependency>
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
+            <version>2.0.8</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -144,27 +150,23 @@
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
             <version>${sakai.jakarta.jstl-api.version}</version>
         </dependency>
-        <!-- test dependencies -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>${basedir}/src/test</directory>
-            </testResource>
-        </testResources>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

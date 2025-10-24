@@ -93,6 +93,16 @@ public interface SpringCrudRepository<T extends PersistableEntity<ID>, ID extend
     Iterable<T> findAllById(Iterable<ID> ids);
 
     /**
+     * Returns all instances of the type T with the given IDs.
+     * This method is optimized for batch loading using a single query with IN clause,
+     * avoiding N+1 query problems. Entities are loaded from/into 2nd level cache when available.
+     *
+     * @param ids list of IDs to load
+     * @return list of entities (may contain fewer items than ids if some don't exist)
+     */
+    List<T> findAllByIds(List<ID> ids);
+
+    /**
      * Retrieves an entity by its id.
      *
      * @param id must not be {@literal null}.
