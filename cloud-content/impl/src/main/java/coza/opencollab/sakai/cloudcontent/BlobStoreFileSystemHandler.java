@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -26,8 +25,6 @@ import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
-import io.minio.StatObjectArgs;
-import io.minio.StatObjectResponse;
 import io.minio.http.Method;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -187,20 +184,54 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     public InputStream getInputStream(String id, String root, String filePath) throws IOException {
         ContainerAndName can = getContainerAndName(id, root, filePath);
         try {
-            StatObjectResponse stat = client.statObject(
-                    StatObjectArgs.builder().bucket(can.container).object(can.name).build());
-            long size = stat.size();
             // Always drain/close the underlying HTTP response because Spring may never read it
             // (e.g. when returning 304 from a cached request), leading OkHttp to log leaked bodies.
             try (InputStream responseStream = client.getObject(
                     GetObjectArgs.builder().bucket(can.container).object(can.name).build())) {
-                if (size > maxBlobStreamSize) {
-                    File tmp = File.createTempFile("minio", ".tmp");
-                    // Guard against process crashes; still delete explicitly on close
-                    tmp.deleteOnExit();
-                    try (FileOutputStream fos = new FileOutputStream(tmp)) {
-                        // Drain the response while copying so the HTTP body is freed immediately.
-                        copy(responseStream, fos);
+                // Accumulate in memory until we overshoot the threshold; only then spill to disk.
+                ByteArrayOutputStream memory = new ByteArrayOutputStream();
+                File tmp = null;
+                FileOutputStream fos = null;
+                boolean spooledToDisk = false;
+                byte[] buffer = new byte[8192];
+                int read;
+                try {
+                    while ((read = responseStream.read(buffer)) != -1) {
+                        if (!spooledToDisk && ((long) memory.size() + read > maxBlobStreamSize)) {
+                            spooledToDisk = true;
+                            tmp = File.createTempFile("minio", ".tmp");
+                            fos = new FileOutputStream(tmp);
+                            // On the first overflow, flush everything buffered so far to disk.
+                            memory.writeTo(fos);
+                        }
+                        if (spooledToDisk) {
+                            fos.write(buffer, 0, read);
+                        } else {
+                            memory.write(buffer, 0, read);
+                        }
+                    }
+                } catch (IOException e) {
+                    if (fos != null) {
+                        try {
+                            fos.close();
+                        } catch (IOException close) {
+                            e.addSuppressed(close);
+                        }
+                    }
+                    if (tmp != null && tmp.exists() && !tmp.delete()) {
+                        log.warn("Failed to delete temporary blob file {}", tmp.getAbsolutePath());
+                    }
+                    throw e;
+                }
+
+                if (spooledToDisk) {
+                    try {
+                        fos.close();
+                    } catch (IOException close) {
+                        if (tmp != null && tmp.exists() && !tmp.delete()) {
+                            log.warn("Failed to delete temporary blob file {}", tmp.getAbsolutePath());
+                        }
+                        throw close;
                     }
                     final File toDelete = tmp;
                     final FileInputStream fis = new FileInputStream(toDelete);
@@ -213,12 +244,8 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                             } catch (IOException e) {
                                 closeEx = e;
                             } finally {
-                                try {
-                                    if (!toDelete.delete() && toDelete.exists()) {
-                                        log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
-                                    }
-                                } catch (Exception delEx) {
-                                    log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), delEx);
+                                if (!toDelete.delete() && toDelete.exists()) {
+                                    log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
                                 }
                                 if (closeEx != null) {
                                     throw closeEx;
@@ -227,9 +254,8 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                         }
                     };
                 } else {
-                    // Smaller payloads get buffered so downstream code can re-read without holding the HTTP body.
-                    byte[] data = toByteArray(responseStream, size);
-                    return new ByteArrayInputStream(data);
+                    // Smaller payloads stay in-memory so downstream code can reread safely.
+                    return new ByteArrayInputStream(memory.toByteArray());
                 }
             }
         } catch (Exception e) {
@@ -360,22 +386,4 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         String name;
     }
 
-    // Shared copy utility so every code path fully consumes the response stream before returning.
-    private static void copy(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[8192];
-        int read;
-        while ((read = in.read(buffer)) != -1) {
-            out.write(buffer, 0, read);
-        }
-    }
-
-    private static byte[] toByteArray(InputStream in, long size) throws IOException {
-        int initialSize = 8192;
-        if (size > 0 && size <= Integer.MAX_VALUE) {
-            initialSize = (int) size;
-        }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(initialSize);
-        copy(in, baos);
-        return baos.toByteArray();
-    }
 }
