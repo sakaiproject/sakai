@@ -192,7 +192,11 @@ public abstract class SjaxCall extends AjaxEventBehavior
 		try
 		{
 			String callNumber = this.getComponent().getRequest().getRequestParameters().getParameterValue("callNumber").toString();
-			final ScoBean scoBean = getSessionBean().getDisplayingSco();
+			ScoBean scoBean = getSessionBean().getDisplayingSco();
+			if (scoBean == null)
+			{
+				scoBean = applicationService().produceScoBean("undefined", getSessionBean());
+			}
 
 			log.debug("Processing {}", callNumber);
 			if (scoBean != null)
