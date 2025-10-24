@@ -290,25 +290,10 @@ ScormSjax.loadedCallback = function loadedCallback( envelope )
 			window.setTimeout( notify, 2 );
 		}.bind( this ) );
 
-		var isKHTML = Wicket.Browser && typeof Wicket.Browser.isKHTML === "function" && Wicket.Browser.isKHTML();
-
-		if( isKHTML )
-		{
-			// there's a nasty bug in KHTML that makes the browser crash
-			// when the methods are delayed. Therefore we have to fire it
-			// ASAP. The javascripts that would cause dependency problems are
-			// loaded synchronously in konqueror.
-			steps.push = function( method )
-			{
-				method( function()
-				{ } );
-			}
-		}
-
-		// go through the ajax response and for every action (component, js evaluation, header contribution)
-		// ad the proper closure to steps
-		for( var i = 0; i < root.childNodes.length; ++i )
-		{
+                // go through the ajax response and for every action (component, js evaluation, header contribution)
+                // ad the proper closure to steps
+                for( var i = 0; i < root.childNodes.length; ++i )
+                {
 			var node = root.childNodes[i];
 
 			if( node.tagName == "component" )
@@ -348,19 +333,16 @@ ScormSjax.loadedCallback = function loadedCallback( envelope )
 			setTimeout( "Wicket.Focus.requestFocus();", 0 );
 		}
 
-		// continue to next step (which should make the processing stop, as success should be the final step)		
-		notify();
+                // continue to next step (which should make the processing stop, as success should be the final step)
+                notify();
 
-		if( !isKHTML )
-		{
-			Wicket.Log.info( "Response parsed. Now invoking steps..." );
-			var executer = new Wicket.FunctionsExecuter( steps );
-			executer.start();
-		}
-	}
-	catch( e )
-	{
-		Wicket.Log.error( e.message );
+                Wicket.Log.info( "Response parsed. Now invoking steps..." );
+                var executer = new Wicket.FunctionsExecuter( steps );
+                executer.start();
+        }
+        catch( e )
+        {
+                Wicket.Log.error( e.message );
 	}
 }
 
