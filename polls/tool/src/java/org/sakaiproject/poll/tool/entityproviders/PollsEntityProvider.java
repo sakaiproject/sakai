@@ -23,6 +23,7 @@ package org.sakaiproject.poll.tool.entityproviders;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -354,8 +355,8 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		copyParamsToObject(params, poll);
 
 		poll.setCreationDate(new Date());
-		if (poll.getId() == null) {
-			poll.setId(UUID.randomUUID().toString());
+		if (poll.getUuid() == null) {
+			poll.setUuid(UUID.randomUUID().toString());
 		}
 		if (poll.getOwner() == null) {
 			poll.setOwner(developerHelperService.getCurrentUserId());
@@ -413,7 +414,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("Current user (" + userReference
 					+ ") cannot update polls in location (" + location + ")");
 		}
-		developerHelperService.copyBean(poll, current, 0, new String[] { "id",
+		developerHelperService.copyBean(poll, current, 0, new String[] { "uuid",
 				"pollId", "owner", "siteId", "creationDate", "reference",
 				"url", "properties" }, true);
 		pollListManager.savePoll(current);
@@ -761,7 +762,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			}
 		}
 		// set default vote values
-		vote.setVoteDate(new Date());
+		vote.setVoteDate(Instant.now());
 		vote.setUserId(userId);
 		if (vote.getSubmissionId() == null) {
 			String sid = userId + ":" + UUID.randomUUID();
@@ -974,7 +975,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		for (Option option : options.values()) {
 			Vote vote = new Vote();
 
-			vote.setVoteDate(new Date());
+			vote.setVoteDate(Instant.now());
 			vote.setUserId(userId);
 			vote.setPollId(poll.getPollId());
 			vote.setPollOption(option.getOptionId());

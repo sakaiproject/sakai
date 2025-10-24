@@ -21,8 +21,10 @@
 
 package org.sakaiproject.poll.service.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,23 +32,28 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
 
-import org.sakaiproject.genericdao.api.search.Restriction;
-import org.sakaiproject.genericdao.api.search.Search;
-import org.sakaiproject.poll.dao.PollDao;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.repository.PollRepository;
+import org.sakaiproject.poll.repository.VoteRepository;
 
 @Slf4j
 @Setter
 public class PollVoteManagerImpl implements PollVoteManager {
 
+    private static final String DEFAULT_IP_ADDRESS = "Nothing";
+
 	private ExternalLogic externalLogic;    
-	private PollDao dao;
+	private VoteRepository voteRepository;
+	private PollRepository pollRepository;
 	private PollListManager pollListManager;
+	private UsageSessionService usageSessionService;
 
 	public void saveVoteList(List<Vote> votes) {
 		Long pollId = null;
@@ -58,72 +65,76 @@ public class PollVoteManagerImpl implements PollVoteManager {
 		}
 	}
 
+	public Vote createVote(Poll poll, Option option, String submissionId) {
+		if (poll == null) {
+			throw new IllegalArgumentException("poll cannot be null when creating a vote");
+		}
+		if (option == null) {
+			throw new IllegalArgumentException("option cannot be null when creating a vote");
+		}
+		if (submissionId == null) {
+			throw new IllegalArgumentException("submissionId cannot be null when creating a vote");
+		}
+
+		String userId = externalLogic.getCurrentUserId();
+		if (userId == null) {
+			throw new IllegalStateException("Unable to determine current user id while creating vote");
+		}
+
+		String ip = DEFAULT_IP_ADDRESS;
+		if (usageSessionService != null) {
+			UsageSession usageSession = usageSessionService.getSession();
+			if (usageSession != null && usageSession.getIpAddress() != null && !usageSession.getIpAddress().trim().isEmpty()) {
+				ip = usageSession.getIpAddress();
+			}
+		}
+
+			return new Vote(poll, option, submissionId, Instant.now(), userId, ip);
+	}
+
 	public boolean saveVote(Vote vote)  {
-		dao.save(vote);
+		voteRepository.save(vote);
 		log.debug(" Vote  " + vote.getId() + " successfuly saved");
 		return true;
 	}
 
 	public List<Vote> getAllVotesForPoll(Poll poll) {
-		Search search = new Search();
-		search.addRestriction(new Restriction("pollId",poll.getPollId()));
-		List<Vote> votes = dao.findBySearch(Vote.class, search); 
-		return votes;
+		return voteRepository.findByPollId(poll.getPollId());
 	}
 
 	public List<Vote> getAllVotesForOption(Option option) {
 
-		Search search = new Search();
-		search.addRestriction(new Restriction("pollId",option.getPollId()));
-		search.addRestriction(new Restriction("pollOption", option.getOptionId()));
-		List<Vote> votes = dao.findBySearch(Vote.class, search);
-
-		return votes;
+		return voteRepository.findByPollIdAndPollOption(option.getPollId(), option.getOptionId());
 	}
 
 	public Map<Long, List<Vote>> getVotesForUser(String userId, Long[] pollIds) {
 		if (userId == null) {
 			throw new IllegalArgumentException("userId cannot be null");
 		}
-		Search search = new Search();
-		search.addRestriction(new Restriction("userId",userId));
 
-		if (pollIds != null) {
-			if (pollIds.length > 0) {
-				search.addRestriction(new Restriction("pollId",pollIds) );
-			} else {
-				// no polls to search so EXIT here
-				return new HashMap<Long, List<Vote>>();
-			}
+		List<Vote> votes;
+		if (pollIds == null) {
+			votes = voteRepository.findByUserId(userId);
+		} else if (pollIds.length > 0) {
+			votes = voteRepository.findByUserIdAndPollIds(userId, Arrays.asList(pollIds));
+		} else {
+			return new HashMap<>();
 		}
-		Map<Long, List<Vote>> map = new HashMap<Long, List<Vote>>();
-		if (pollIds != null && pollIds.length > 0) {
-			List<Vote> votes = dao.findBySearch(Vote.class, search);
-			// put the list of votes into a map
-			for (Vote vote : votes) {
-				Long pollId = vote.getPollId();
-				if (! map.containsKey(pollId)) {
-					map.put(pollId, new ArrayList<Vote>() );
-				}
-				map.get(pollId).add(vote);
-			}
+
+		Map<Long, List<Vote>> map = new HashMap<>();
+		for (Vote vote : votes) {
+			Long pollId = vote.getPollId();
+			map.computeIfAbsent(pollId, key -> new ArrayList<>()).add(vote);
 		}
 		return map;
 	}
 
 	public int getDisctinctVotersForPoll(Poll poll) {
-		return dao.getDisctinctVotersForPoll(poll);
+		return voteRepository.countDistinctSubmissionIds(poll.getPollId());
 	}
 
 	public boolean userHasVoted(Long pollid, String userID) {
-		Search search = new Search();
-		search.addRestriction(new Restriction("userId",userID));
-		search.addRestriction(new Restriction("pollId",pollid));
-		List<Vote> votes = dao.findBySearch(Vote.class, search);		
-		if (votes.size() > 0)
-			return true;
-		else
-			return false;
+		return voteRepository.existsByPollIdAndUserId(pollid, userID);
 	}
 
 	public boolean userHasVoted(Long pollId) {
@@ -135,16 +146,13 @@ public class PollVoteManagerImpl implements PollVoteManager {
 		if (voteId == null) {
 			throw new IllegalArgumentException("voteId cannot be null when getting vote");
 		}
-		Search search = new Search(new Restriction("id", voteId));
-		Vote vote = (Vote) dao.findOneBySearch(Vote.class, search);
-		return vote;
+		return voteRepository.findById(voteId).orElse(null);
 	}
 
 	public boolean isUserAllowedVote(String userId, Long pollId, boolean ignoreVoted) {
 		boolean allowed = false;
 		//pollId
-		Search search = new Search(new Restriction("pollId", pollId));
-		Poll poll =  dao.findOneBySearch(Poll.class, search);
+		Poll poll =  pollRepository.findById(pollId).orElse(null);
 		if (poll == null) {
 			throw new IllegalArgumentException("Invalid poll id ("+pollId+") when checking user can vote");
 		}
@@ -202,7 +210,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 
 		if (pollAfterOpen && pollBeforeClose)
 		{
-			if (poll.getLimitVoting() && userHasVoted(poll.getPollId())) {
+			if (poll.isLimitVoting() && userHasVoted(poll.getPollId())) {
 				return false;
 			}
 			//the user hasn't voted do they have permission to vote?'
@@ -214,7 +222,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 			}
 			
 			//SAK-18855 individual public polls
-			if(poll.getIsPublic()) {
+			if(poll.isPublic()) {
 				log.debug("this poll is votable because it is public, " + poll.getText());
 				return true;
 			}
@@ -224,12 +232,10 @@ public class PollVoteManagerImpl implements PollVoteManager {
 	}
 
 	public void deleteVote(Vote vote) {
-		dao.delete(vote);
+		voteRepository.delete(vote);
 	}
 
     public void deleteAll(List<Vote> votes) {
-        for (Vote vote : votes) {
-            deleteVote(vote);
-        }
+        voteRepository.deleteAll(votes);
     }
 }
