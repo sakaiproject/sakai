@@ -215,7 +215,7 @@
 	</navigation-rule>
 
 	<navigation-rule>
-        <from-view-id>/signup/signupMeetings.jsp</from-view-id>
+        <from-view-id>*</from-view-id>
         <navigation-case>
             <from-outcome>listMeetings</from-outcome>
             <to-view-id>/signup/signupMeetings.jsp</to-view-id>
