@@ -9,7 +9,6 @@
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
 		</style>
 		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script src="/library/js/lang-datepicker/lang-datepicker.js${Portal.CDNQuery}"></script>
@@ -177,11 +176,11 @@
 											<h:outputText value="&nbsp;" escape="false"/>
 									</f:facet>
 										<h:commandLink action="#{UserDefineTimeslotBean.deleteTSblock}" rendered="#{tsWrapper.newlyAddedTS || UserDefineTimeslotBean.placeOrderBean == UserDefineTimeslotBean.copyBeanOrderName}" actionListener="#{UserDefineTimeslotBean.validateTimeslots}">
-											<h:graphicImage value="/images/new.png" alt="New time slot" title="#{msgs.title_tip_delete_this_ts}" styleClass="openCloseImageIcon" rendered="#{tsWrapper.newTimeslotBlock && UserDefineTimeslotBean.placeOrderBean != UserDefineTimeslotBean.newMeetingBeanOrderName}"/>
-							        		<h:graphicImage value="/images/ts_delete.png" alt="delete slot" title="#{msgs.title_tip_delete_this_ts}" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon"/>
+											<i class="bi bi-plus-circle-fill" aria-label="new"></i>
+							        		<i class="bi bi-trash" aria-label="delete"></i>
 							        	</h:commandLink>
 							        	<h:commandLink action="#{UserDefineTimeslotBean.deleteTSblock}" rendered="#{!tsWrapper.newlyAddedTS && UserDefineTimeslotBean.placeOrderBean != UserDefineTimeslotBean.copyBeanOrderName }" actionListener="#{UserDefineTimeslotBean.validateTimeslots}" onclick="return confirm('#{msgs.confirm_cancel}');">
-							        		<h:graphicImage value="/images/ts_delete.png" alt="delete slot" title="#{msgs.title_tip_delete_this_ts}" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" />
+							        		<i class="bi bi-trash" aria-label="delete"></i>
 							        	</h:commandLink>
 								</t:column>
 						    	<t:column rendered="#{!tsWrapper.deleted}">

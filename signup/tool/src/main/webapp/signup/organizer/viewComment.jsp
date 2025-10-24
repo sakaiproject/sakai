@@ -8,12 +8,6 @@
 	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
-			<style type="text/css">
-				@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
-			</style>
-			<style type="text/css" media="print">
-				@import url("/sakai-signup-tool/css/print.css${Portal.CDNQuery}");
-			</style>
 		
 			<h:form id="viewComment">
 				<sakai:tool_bar>

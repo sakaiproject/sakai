@@ -9,10 +9,6 @@
 	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
     <sakai:view_container title="Signup Tool">
-        <style type="text/css">
-            @import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
-        </style>
-
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
         <script src="/library/js/lang-datepicker/lang-datepicker.js${Portal.CDNQuery}"></script>
         <script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
@@ -463,7 +459,7 @@
                             </h:panelGroup>
                             <h:panelGroup id="createEditTS" style="display:none;padding-left:35px;">
                                 <h:commandLink id="createTS" action="#{NewSignupMeetingBean.createUserDefTimeSlots}" rendered="#{!NewSignupMeetingBean.userDefineTimeslotBean.userEverCreateCTS}">
-                                    <h:graphicImage value="/images/cal.gif" alt="" style="border:none;cursor:pointer; padding-right:5px;" styleClass="openCloseImageIcon" />
+                                    <i class="bi bi-calendar-plus openCloseImageIcon" style="border:none;cursor:pointer; padding-right:5px;" aria-label="Calendar"></i>
                                     <h:outputText value="#{msgs.label_create_timeslots}" escape="false" styleClass="activeTag"/>
                                 </h:commandLink>
                                 <h:panelGroup rendered="#{NewSignupMeetingBean.userDefineTimeslotBean.userEverCreateCTS}">

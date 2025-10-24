@@ -8,10 +8,6 @@
 	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
-		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
-		</style>	
-	
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 	  <script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 	  <script>
@@ -91,7 +87,7 @@
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block">
 							<h:panelGroup>
 								<h:panelGroup rendered="#{NewSignupMeetingBean.recurrence}">
-									<h:graphicImage title="#{msgs.event_tool_tips_recurrence}" value="/images/recurrence.gif" alt="recurrence" style="border:none" />
+									<h:outputText value="<i class='bi bi-arrow-repeat' title='#{msgs.event_tool_tips_recurrence}' style='border:none' aria-label='recurrence'></i>" escape="false"/>
 									<h:outputText value="&nbsp;" escape="false"/>
 								</h:panelGroup>
 								<h:outputText value="#{NewSignupMeetingBean.signupMeeting.title}" styleClass="longtext" escape="false"/>
@@ -290,11 +286,11 @@
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block" rendered="#{NewSignupMeetingBean.customTimeslotType}">
 							<h:panelGroup>
 								<h:outputLabel  id="imageOpen_schedule" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_schedule','meeting:imageClose_schedule','meeting:scheduleDetail');">
-									<h:graphicImage value="/images/open.gif" alt="#{msgs.title_tip_click_hide_schedule}" title="#{msgs.title_tip_click_hide_schedule}" style="border:none;" styleClass="openCloseImageIcon"/>
+									<h:outputText value="<i class='bi bi-chevron-down openCloseImageIcon' title='#{msgs.title_tip_click_hide_schedule}' style='border:none;' aria-label='#{msgs.title_tip_click_hide_schedule}'></i>" escape="false"/>
 									<h:outputText value="#{msgs.event_hide_custom_ts}" escape="false" style="vertical-align: top;"/>
 								</h:outputLabel>
 								<h:outputLabel id="imageClose_schedule" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_schedule','meeting:imageClose_schedule','meeting:scheduleDetail');">
-									<h:graphicImage value="/images/closed.gif" alt="#{msgs.title_tip_click_show_schedule}" title="#{msgs.title_tip_click_show_schedule}" style="border:none;vertical-align:top;" styleClass="openCloseImageIcon"/>
+									<h:outputText value="<i class='bi bi-chevron-right openCloseImageIcon' title='#{msgs.title_tip_click_show_schedule}' style='border:none;vertical-align:top;' aria-label='#{msgs.title_tip_click_show_schedule}'></i>" escape="false"/>
 									<h:outputText value="#{msgs.event_show_custom_ts}" escape="false" style="vertical-align: top;"/>
 								</h:outputLabel>
 							</h:panelGroup>
@@ -498,11 +494,11 @@
 						<h:panelGroup styleClass="col-xs-12 col-md-9 valueColumn" layout="block" rendered="#{!NewSignupMeetingBean.announcementType}">
 							<h:panelGroup>
 								<h:panelGroup id="imageOpen_otherSetting" style="display:none" styleClass="activeTag">
-									<h:graphicImage value="/images/open.gif" alt="open" title="Click to hide details." style="border:none;vertical-align: middle;" styleClass="openCloseImageIcon"/>
+									<i class="bi bi-chevron-down openCloseImageIcon" title="Click to hide details." style="border:none;vertical-align: middle;" aria-label="open"></i>
 									<h:outputText value="#{msgs.event_close_other_default_setting}" escape="false" style="vertical-align: middle;"/>
 								</h:panelGroup>
 								<h:panelGroup id="imageClose_otherSetting" styleClass="activeTag">
-									<h:graphicImage value="/images/closed.gif" alt="close" title="Click to show details." style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
+									<i class="bi bi-chevron-right openCloseImageIcon" title="Click to show details." style="border:none;vertical-align:middle;" aria-label="close"></i>
 									<h:outputText value="#{msgs.event_show_other_default_setting}" escape="false" style="vertical-align: middle;"/>
 								</h:panelGroup>
 							</h:panelGroup>

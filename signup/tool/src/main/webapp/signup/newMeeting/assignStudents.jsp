@@ -8,9 +8,6 @@
 	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
-		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
-		</style>
 		<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 		<script>
@@ -143,7 +140,7 @@
 							<h:dataTable id="attendees" value="#{timeSlot.attendeeWrappers}" var="attendeeWrapper" columnClasses="noWrapCol">
 								<h:column>
 									<h:commandLink id="deleteAttendee" title="#{msgs.event_tool_tips_delete}" action="#{NewSignupMeetingBean.removeAttendee}" >
-										<h:graphicImage value="/images/delete.png" alt="delete" title="#{msgs.event_tool_tips_delete}" style="border:none" styleClass="openCloseImageIcon" />
+										<h:outputText value="<i class='bi bi-trash openCloseImageIcon' style='border:none' aria-label='delete' title='#{msgs.event_tool_tips_delete}'></i>" escape="false"/>
 					   						<f:param id="deletAttendeeUserId" name="#{NewSignupMeetingBean.attendeeUserId}" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"/>
 					   				</h:commandLink>
 					   				<h:outputText value="&nbsp;" escape="false" />

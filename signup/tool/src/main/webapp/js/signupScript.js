@@ -435,19 +435,22 @@
 	function replaceCalendarImageIcon(){
 		if (window.ActiveXObject)//no IE browser
 			return;
-		
+
 		var inputTags = document.getElementsByTagName("input");
 		if (!inputTags)
 			return;
-			
+
 		for(i=0; i<inputTags.length;i++){
 			if(inputTags[i].type=='button' && inputTags[i].value == '...'){
-			inputTags[i].type ="image";
-			inputTags[i].src="/sakai-signup-tool/images/cal.gif";
-			inputTags[i].setAttribute("onclick", inputTags[i].getAttribute("onclick") + ";return false;");
-			inputTags[i].className="calendarImageIcon";
+				// Replace input with button containing Bootstrap icon
+				var button = document.createElement('button');
+				button.type = 'button';
+				button.className = 'calendarImageIcon btn btn-sm';
+				button.innerHTML = '<i class="bi bi-calendar-plus" aria-label="Calendar"></i>';
+				button.setAttribute("onclick", inputTags[i].getAttribute("onclick") + ";return false;");
+				inputTags[i].parentNode.replaceChild(button, inputTags[i]);
 			}
-				
+
 		}
 	}
 	

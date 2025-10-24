@@ -9,12 +9,6 @@
 	   <jsp:setProperty name="msgs" property="baseName" value="signup"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
-		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
-		</style>
-		<style type="text/css" media="print">
-				@import url("/sakai-signup-tool/css/print.css${Portal.CDNQuery}");
-		</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
 		
@@ -91,7 +85,7 @@
 							<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
 								<h:panelGroup>
 									<h:panelGroup rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.recurrenceId !=null}">
-										<h:graphicImage title="#{msgs.event_tool_tips_recurrence}" value="/images/recurrence.gif" alt="recurrence" style="border:none" />
+										<i class="bi bi-arrow-repeat" aria-label="recurrence"></i>
 										<h:outputText value="&nbsp;" escape="false"/>
 									</h:panelGroup>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.title}" styleClass="longtext"/>
@@ -104,7 +98,7 @@
 							<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
 							<h:panelGroup>
 								<h:panelGroup rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.recurrenceId !=null}">
-									<h:graphicImage title="#{msgs.event_tool_tips_recurrence}" value="/images/recurrence.gif" alt="recurrence" style="border:none" />
+									<h:outputText value="<i class='bi bi-arrow-repeat' title='#{msgs.event_tool_tips_recurrence}' aria-label='recurrence'></i>" escape="false"/>
 									<h:outputText value="&nbsp;" escape="false"/>
 								</h:panelGroup>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.title}" styleClass="longtext" />
@@ -154,7 +148,7 @@
 							<!-- iCalendar link, only rendered for attendees if it is a 'no signup required/announcement' meeting -->
 							<h:outputText value="#{msgs.event_icalendar_link}" styleClass="titleText" escape="false" rendered="#{AttendeeSignupMBean.icsEnabled && AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}"/>
 							<h:commandLink id="mICS" action="#{AttendeeSignupMBean.downloadICSForMeeting}" rendered="#{AttendeeSignupMBean.icsEnabled && AttendeeSignupMBean.meetingWrapper.meeting.meetingType =='announcement'}">
-								<h:graphicImage value="/images/calendar_add.png" alt="#{msgs.label_download_ics_meeting}" title="#{msgs.label_download_ics_meeting}" style="margin-right: 5px;" />
+								<i class="bi bi-calendar-plus" aria-label="calendar"></i>
 								<h:outputText value="#{msgs.event_icalendar_label}"/>
 							</h:commandLink>
 		
@@ -194,11 +188,11 @@
 								<h:panelGrid columns="1" styleClass="published_siteGroupTable">
 										<h:panelGroup >	
 						   	    				<h:outputLabel  id="imageOpen_publishedSiteGroup" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_publishedSiteGroup','meeting:imageClose_publishedSiteGroup','meeting:publishedSiteGroups');">
-							   	    				<h:graphicImage value="/images/open.gif" alt="open" style="border:none" />
+							   	    				<i class="bi bi-chevron-down" aria-label="open"></i>
 							   	    				<h:outputText value="#{msgs.event_hide_site_group_detail}" escape="false" />
 						   	    				</h:outputLabel>
 						   	    				<h:outputLabel id="imageClose_publishedSiteGroup" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_publishedSiteGroup','meeting:imageClose_publishedSiteGroup','meeting:publishedSiteGroups');">
-						   	    					<h:graphicImage value="/images/closed.gif" alt="close" style="border:none" />
+						   	    					<i class="bi bi-chevron-right" aria-label="close"></i>
 						   	    					<h:outputText value="#{msgs.event_show_site_group_detail}" escape="false" />
 						   	    				</h:outputLabel>
 							            </h:panelGroup>
@@ -251,11 +245,11 @@
 				<h:panelGrid id="noAnnouncement197" columns="1" rendered="#{!AttendeeSignupMBean.announcementType}" columnClasses="alignRightColumn" styleClass="emailTable">																		
 						<h:panelGroup>	
 		   	    				<h:outputLabel  id="imageOpen_meetingInfoDetail"  styleClass="activeTag" onclick="showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail','meeting:meetingInfoDetails');setMeetingCollapseInfo(true);">
-			   	    				<h:graphicImage value="/images/openTop.gif" alt="open" title="#{msgs.event_tool_tips_hide_details}" style="border:none; vertical-align: bottom;" styleClass="openCloseImageIcon" />
+			   	    				<i class="bi bi-chevron-down" aria-label="open"></i>
 			   	    				<h:outputText value="#{msgs.event_hide_meetingIfo_detail}" escape="false" />
 		   	    				</h:outputLabel>
 		   	    				<h:outputLabel id="imageClose_meetingInfoDetail" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail','meeting:meetingInfoDetails');setMeetingCollapseInfo(false);">
-		   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="#{msgs.event_tool_tips_show_details}" style="border:none" styleClass="openCloseImageIcon" />
+		   	    					<i class="bi bi-chevron-right" aria-label="close"></i>
 		   	    					<h:outputText value="#{msgs.event_show_meetingIfo_detail}" escape="false" />
 		   	    				</h:outputLabel>
 		   	    				<h:inputHidden id="meetingInfoCollapseExpand" value="#{AttendeeSignupMBean.collapsedMeetingInfo}"/>
@@ -277,9 +271,9 @@
 							<h:outputText value="#{msgs.tab_time_slot}" />
 						</f:facet>
 						<h:panelGroup>
-							<h:graphicImage value="/images/spacer.gif" width="15" height="13" alt="" style="border:none" rendered="#{!timeSlotWrapper.timeSlot.locked && !timeSlotWrapper.timeSlot.canceled && AttendeeSignupMBean.meetingWrapper.atleastOneTimeslotLockedOrCanceled}"/>
-							<h:graphicImage value="/images/lock.gif" alt="#{msgs.event_tool_tip_ts_locked}" title="#{msgs.event_tool_tip_ts_locked}" style="border:none" rendered="#{timeSlotWrapper.timeSlot.locked && !timeSlotWrapper.timeSlot.canceled}"/>
-							<h:graphicImage value="/images/cancelled.gif" alt="#{msgs.event_tool_tip_ts_cancelled}" title="#{msgs.event_tool_tip_ts_cancelled}" style="border:none" rendered="#{timeSlotWrapper.timeSlot.canceled}"/>
+							
+							<i class="bi bi-lock-fill" aria-label="locked"></i>
+							<i class="bi bi-x-circle-fill" aria-label="cancelled"></i>
 							<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}"
 								styleClass="longtext">
 								<f:convertDateTime pattern="#{UserLocale.localizedTimeFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
@@ -362,13 +356,13 @@
 								title="#{msgs.event_tool_tip_you_signed_up}"
 								styleClass="attendee_status" />
 							<h:commandLink id="tsICS" action="#{AttendeeSignupMBean.downloadICSForTimeslot}" rendered="#{AttendeeSignupMBean.icsEnabled}">
-								<h:graphicImage value="/images/calendar_add.png" alt="#{msgs.label_ics}" title="#{msgs.label_download_ics_timeslot}" style="margin-left: 5px;" />
+								<i class="bi bi-calendar-plus" aria-label="calendar"></i>
 							</h:commandLink>
 							<h:panelGroup>
 								<h:commandLink action="#{AttendeeSignupMBean.editAttendeeComment}">
 									<f:param id="timeslotId" name="timeslotId" value="#{timeSlotWrapper.timeSlot.id}"/>				   										   								
 									<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
-									<h:graphicImage title="#{msgs.label_view_edit_comment}" value="/images/comment.gif" width="18" height="18" alt="#{msgs.label_view_add_comment}" style="border:none" styleClass="openCloseImageIcon" rendered="#{timeSlotWrapper.currentUserSignedUp && timeSlotWrapper.comment}"/>
+									<i class="bi bi-chat-dots" aria-label="comment"></i>
 								</h:commandLink>
 							</h:panelGroup>
 						</h:panelGroup>

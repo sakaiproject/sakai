@@ -171,5 +171,52 @@ div.portletBody {
     page-break-inside: avoid;
     page-break-after:auto;
   }
-  
+
+}
+
+.#{$namespace}sakai-signup {
+  // Hide non-printable elements
+  img,
+  .addAttendee,
+  .addWaiter,
+  .disabledAddAttendee,
+  .instruction,
+  .emailTable,
+  input[type="submit"],
+  a.button,
+  #modifyMeeting\:print {
+    display: none !important;
+  }
+
+  // Format signup table for print
+  table.signupTable {
+    border: solid;
+    border-width: thin;
+  }
+
+  // Hide expand/collapse controls
+  label#meeting\:imageOpen_publishedSiteGroup,
+  label#meeting\:imageClose_publishedSiteGroup {
+    display: none !important;
+  }
+
+  // Show published site groups
+  #meeting\:publishedSiteGroups {
+    display: inline-block !important;
+  }
+
+  // Show attendees lists for time slots
+  span[id^="meeting:timeslots:"][id$=":editAttendeesList"] {
+    display: block !important;
+  }
+
+  // Hide email all participants link
+  a[title="Email all participants"] {
+    display: none;
+  }
+
+  // Hidden print class support
+  .hidden-print {
+    display: none !important;
+  }
 }

@@ -9,9 +9,6 @@
 		<jsp:setProperty name="msgs" property="baseName" value="signup" />
 	</jsp:useBean>
 	<sakai:view_container title="#{msgs.attend_view_title} #{AttendanceSignupBean.meetingWrapper.meeting.title}">
-		<style type="text/css">
-			@import url("/sakai-signup-tool/css/signupStyle.css${Portal.CDNQuery}");
-		</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript"
 			src="/sakai-signup-tool/js/signupScript.js${Portal.CDNQuery}"></script>
