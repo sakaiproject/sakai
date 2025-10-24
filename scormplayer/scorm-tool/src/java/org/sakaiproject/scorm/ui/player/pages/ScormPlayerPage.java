@@ -15,15 +15,19 @@
  */
 package org.sakaiproject.scorm.ui.player.pages;
 
+import java.text.MessageFormat;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.Getter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.AppendingStringBuffer;
@@ -57,6 +61,8 @@ public class ScormPlayerPage extends BaseToolPage
 	private LazyLaunchPanel lazyLaunchPanel;
 	private ActivityAjaxEventBehavior closeWindowBehavior;
 	@Getter private ButtonForm buttonForm;
+	private WebMarkupContainer statusContainer;
+	private Label statusMessage;
 
 	public ScormPlayerPage()
 	{
@@ -84,6 +90,16 @@ public class ScormPlayerPage extends BaseToolPage
 		buttonForm = new ButtonForm("buttonForm", sessionBean, this);
 		container.add(buttonForm);
 		add(container);
+
+		statusContainer = new WebMarkupContainer("statusContainer");
+		statusContainer.setOutputMarkupId(true);
+		statusContainer.setOutputMarkupPlaceholderTag(true);
+		statusContainer.setVisible(false);
+		statusMessage = new Label("statusMessage", Model.of(""));
+		statusMessage.setOutputMarkupId(true);
+		statusContainer.add(statusMessage);
+		add(statusContainer);
+
 		add(lazyLaunchPanel = new LazyLaunchPanel("actionPanel", sessionBean, userNavRequest, this));
 
 		closeWindowBehavior = new CloseWindowBehavior(sessionBean, lms.canUseRelativeUrls());
@@ -108,9 +124,43 @@ public class ScormPlayerPage extends BaseToolPage
 		return url.toString();
 	}
 
+	private void updateStatus(SessionBean sessionBean, AjaxRequestTarget target)
+	{
+		String message = null;
+
+		if (sessionBean != null)
+		{
+			String packageTitle = sessionBean.getContentPackage() != null ? sessionBean.getContentPackage().getTitle() : null;
+			String resolvedTitle = StringUtils.defaultIfBlank(packageTitle, getString("scorm.status.untitled", null, "this lesson"));
+
+			if (sessionBean.isSuspended())
+			{
+				String template = getString("scorm.status.suspended", null,
+						"Progress saved for \"{0}\". You can close this window and resume later from your last location.");
+				message = MessageFormat.format(template, resolvedTitle);
+			}
+			else if (sessionBean.isEnded())
+			{
+				String template = getString("scorm.status.completed", null,
+						"You finished \"{0}\". You can close this window or relaunch to review.");
+				message = MessageFormat.format(template, resolvedTitle);
+			}
+		}
+
+		boolean hasMessage = StringUtils.isNotBlank(message);
+		statusContainer.setVisible(hasMessage);
+		statusMessage.setDefaultModelObject(StringUtils.defaultString(message));
+
+		if (target != null)
+		{
+			target.add(statusContainer);
+		}
+	}
+
 	public void synchronizeState(SessionBean sessionBean, AjaxRequestTarget target)
 	{
 		buttonForm.synchronizeState(sessionBean, target);
+		updateStatus(sessionBean, target);
 	}
 
 	@Override
