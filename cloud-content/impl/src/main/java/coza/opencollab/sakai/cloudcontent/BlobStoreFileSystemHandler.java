@@ -189,7 +189,8 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             try (InputStream responseStream = client.getObject(
                     GetObjectArgs.builder().bucket(can.container).object(can.name).build())) {
                 // Accumulate in memory until we overshoot the threshold; only then spill to disk.
-                ByteArrayOutputStream memory = new ByteArrayOutputStream();
+                int initial = (int) Math.min(maxBlobStreamSize, 4L * 1024 * 1024); // up to 4 MiB
+                ByteArrayOutputStream memory = new ByteArrayOutputStream(initial);
                 File tmp = null;
                 FileOutputStream fos = null;
                 boolean spooledToDisk = false;
@@ -203,6 +204,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                             fos = new FileOutputStream(tmp);
                             // On the first overflow, flush everything buffered so far to disk.
                             memory.writeTo(fos);
+                            memory = null; // allow GC to reclaim the in-memory buffer early
                         }
                         if (spooledToDisk) {
                             fos.write(buffer, 0, read);
