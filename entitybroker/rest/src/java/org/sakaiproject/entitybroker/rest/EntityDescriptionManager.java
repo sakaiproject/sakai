@@ -1008,51 +1008,56 @@ public class EntityDescriptionManager {
         boolean allFormats = false;
         LinkedHashSet<String> collected = new LinkedHashSet<String>();
         try {
-            if (output) {
-                Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
-                if (outputable != null) {
-                    String[] providerFormats = outputable.getHandledOutputFormats();
-                    if (providerFormats != null) {
-                        hasFormats = true;
-                        if (providerFormats.length == 0) {
-                            allFormats = true;
-                        } else {
-                            collected.addAll(Arrays.asList(providerFormats));
+            if (entityProviderManager != null) {
+                if (output) {
+                    Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
+                    if (outputable != null) {
+                        String[] providerFormats = outputable.getHandledOutputFormats();
+                        if (providerFormats != null) {
+                            hasFormats = true;
+                            if (providerFormats.length == 0) {
+                                allFormats = true;
+                            } else {
+                                collected.addAll(Arrays.asList(providerFormats));
+                            }
                         }
                     }
-                }
-            } else {
-                Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
-                if (inputable != null) {
-                    String[] providerFormats = inputable.getHandledInputFormats();
-                    if (providerFormats != null) {
-                        hasFormats = true;
-                        if (providerFormats.length == 0) {
-                            allFormats = true;
-                        } else {
-                            for (String format : providerFormats) {
-                                if (!Objects.equals(format, Formats.FORM)) {
-                                    collected.add(format);
+                } else {
+                    Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
+                    if (inputable != null) {
+                        String[] providerFormats = inputable.getHandledInputFormats();
+                        if (providerFormats != null) {
+                            hasFormats = true;
+                            if (providerFormats.length == 0) {
+                                allFormats = true;
+                            } else {
+                                for (String format : providerFormats) {
+                                    if (!Objects.equals(format, Formats.FORM)) {
+                                        collected.add(format);
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        } catch (NullPointerException e) {
-            // ignore, maintain previous behaviour of returning null
+        } catch (RuntimeException e) {
+            log.debug("Error retrieving formats for prefix {}: {}", prefix, e.getMessage());
         }
-        EntityViewAccessProvider evap = entityViewAccessProviderManager.getProvider(prefix);
-        if (evap != null && AccessFormats.class.isAssignableFrom(evap.getClass())) {
-            String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
-            if (accessFormats != null) {
-                hasFormats = true;
-                if (accessFormats.length == 0) {
-                    allFormats = true;
-                } else {
-                    for (String format : accessFormats) {
-                        if (format != null) {
-                            collected.add(format);
+        EntityViewAccessProviderManager accessProviderManager = entityViewAccessProviderManager;
+        if (accessProviderManager != null) {
+            EntityViewAccessProvider evap = accessProviderManager.getProvider(prefix);
+            if (evap != null && AccessFormats.class.isAssignableFrom(evap.getClass())) {
+                String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
+                if (accessFormats != null) {
+                    hasFormats = true;
+                    if (accessFormats.length == 0) {
+                        allFormats = true;
+                    } else {
+                        for (String format : accessFormats) {
+                            if (format != null) {
+                                collected.add(format);
+                            }
                         }
                     }
                 }
