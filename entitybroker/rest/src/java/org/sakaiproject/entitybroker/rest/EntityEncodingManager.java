@@ -62,6 +62,7 @@ import com.fasterxml.jackson.core.util.Separators;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
@@ -150,7 +151,11 @@ public class EntityEncodingManager {
             .enableOutputXML11()
             .disableFailOnEmptyBeans()
             .build();
-    private static final ObjectWriter XML_WRITER = XML_MAPPER.writer();
+    static {
+        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, false);
+    }
+    private static final ObjectWriter XML_WRITER = XML_MAPPER.writer()
+            .withoutFeatures(ToXmlGenerator.Feature.WRITE_XML_DECLARATION);
 
     protected static final String XML_HEADER_PREFIX = "<?";
     protected static final String XML_HEADER_SUFFIX = "?>";
@@ -1071,6 +1076,28 @@ public class EntityEncodingManager {
         return merged;
     }
 
+    private String stripXmlDeclaration(String xml) {
+        if (xml == null || xml.isEmpty()) {
+            return xml;
+        }
+        int offset = 0;
+        int length = xml.length();
+        while (offset < length && Character.isWhitespace(xml.charAt(offset))) {
+            offset++;
+        }
+        if (offset < length && xml.startsWith("<?xml", offset)) {
+            int endDecl = xml.indexOf("?>", offset);
+            if (endDecl != -1) {
+                offset = endDecl + 2;
+                while (offset < length && Character.isWhitespace(xml.charAt(offset))) {
+                    offset++;
+                }
+                return xml.substring(offset);
+            }
+        }
+        return xml;
+    }
+
     private String encodeJson(Object data, String name, Map<String, Object> properties, boolean isEntityData) throws JsonProcessingException {
         Object envelope = mergeProperties(data, properties);
         // Don't add name wrapper if data is EntityData (it already has entity metadata)
@@ -1088,7 +1115,8 @@ public class EntityEncodingManager {
         if (name != null && !name.isEmpty()) {
             writer = writer.withRootName(name);
         }
-        return writer.writeValueAsString(envelope);
+        String xml = writer.writeValueAsString(envelope);
+        return stripXmlDeclaration(xml);
     }
 
     private String encodeHtml(Object data, Map<String, Object> properties) throws JsonProcessingException {

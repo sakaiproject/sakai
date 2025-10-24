@@ -42,6 +42,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -330,52 +332,52 @@ public class EntityDescriptionManager {
             // XML available in case someone wants to parse this in javascript or whatever
             String describePrefixUrl = servletUrl + "/" + prefix + SLASH_DESCRIBE;
             sb.append("    <prefix>\n");
-            sb.append("      <prefix>" + prefix + "</prefix>\n");
-            sb.append("      <describeURL>" + describePrefixUrl + "</describeURL>\n");
+            sb.append("      <prefix>" + escapeXml(prefix) + "</prefix>\n");
+            sb.append("      <describeURL>" + escapeXml(describePrefixUrl) + "</describeURL>\n");
             String summary = getEntityDescription(prefix, null, locale);
             if (summary != null) {
-                sb.append("      <summary>" + summary + "</summary>\n");            
+                sb.append("      <summary>" + escapeXml(summary) + "</summary>\n");
             }
             String description = getEntityDescription(prefix, "description", locale);
             if (description != null) {
-                sb.append("      <description>" + description + "</description>\n");            
+                sb.append("      <description>" + escapeXml(description) + "</description>\n");
             }
             if (extra) {
                 // URLs
                 EntityView ev = entityBrokerManager.makeEntityView(new EntityReference(prefix, id), null, null);
                 if (caps.contains(CollectionResolvable.class)) {
-                    sb.append("      <collectionURL>" + ev.getEntityURL(EntityView.VIEW_LIST, null) + "</collectionURL>\n");
+                    sb.append("      <collectionURL>" + escapeXml(ev.getEntityURL(EntityView.VIEW_LIST, null)) + "</collectionURL>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST, locale);
                     if (viewDesc != null) {
-                        sb.append("      <collectionDescription>"+viewDesc+"</collectionDescription>\n");
+                        sb.append("      <collectionDescription>"+escapeXml(viewDesc)+"</collectionDescription>\n");
                     }
                 }
                 if (caps.contains(Createable.class)) {
-                    sb.append("      <createURL>" + ev.getEntityURL(EntityView.VIEW_NEW, null) + "</createURL>\n");
+                    sb.append("      <createURL>" + escapeXml(ev.getEntityURL(EntityView.VIEW_NEW, null)) + "</createURL>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW, locale);
                     if (viewDesc != null) {
-                        sb.append("      <createDescription>"+viewDesc+"</createDescription>\n");
+                        sb.append("      <createDescription>"+escapeXml(viewDesc)+"</createDescription>\n");
                     }
                 }
                 if (caps.contains(CoreEntityProvider.class) || caps.contains(Resolvable.class)) {
-                    sb.append("      <showURL>" + ev.getEntityURL(EntityView.VIEW_SHOW, null) + "</showURL>\n");
+                    sb.append("      <showURL>" + escapeXml(ev.getEntityURL(EntityView.VIEW_SHOW, null)) + "</showURL>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
                     if (viewDesc != null) {
-                        sb.append("      <showDescription>"+viewDesc+"</showDescription>\n");
+                        sb.append("      <showDescription>"+escapeXml(viewDesc)+"</showDescription>\n");
                     }
                 }
                 if (caps.contains(Updateable.class)) {
-                    sb.append("      <updateURL>" + ev.getEntityURL(EntityView.VIEW_EDIT, null) + "</updateURL>\n");
+                    sb.append("      <updateURL>" + escapeXml(ev.getEntityURL(EntityView.VIEW_EDIT, null)) + "</updateURL>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
                     if (viewDesc != null) {
-                        sb.append("      <updateDescription>"+viewDesc+"</updateDescription>\n");
+                        sb.append("      <updateDescription>"+escapeXml(viewDesc)+"</updateDescription>\n");
                     }
                 }
                 if (caps.contains(Deleteable.class)) {
-                    sb.append("      <deleteURL>" + ev.getEntityURL(EntityView.VIEW_DELETE, null) + "</deleteURL>\n");
+                    sb.append("      <deleteURL>" + escapeXml(ev.getEntityURL(EntityView.VIEW_DELETE, null)) + "</deleteURL>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
                     if (viewDesc != null) {
-                        sb.append("      <deleteDescription>"+viewDesc+"</deleteDescription>\n");
+                        sb.append("      <deleteDescription>"+escapeXml(viewDesc)+"</deleteDescription>\n");
                     }
                 }
                 // Custom Actions
@@ -384,21 +386,21 @@ public class EntityDescriptionManager {
                     for (CustomAction customAction : customActions) {
                         sb.append("      <customActions>\n");
                         sb.append("        <customAction>\n");
-                        sb.append("          <action>"+customAction.action+"</action>\n");
-                        sb.append("          <url>"+servletUrl+makeActionURL(ev, customAction)+"</url>\n");
+                        sb.append("          <action>"+escapeXml(customAction.action)+"</action>\n");
+                        sb.append("          <url>"+escapeXml(servletUrl+makeActionURL(ev, customAction))+"</url>\n");
                         if (customAction.viewKey == null || "".equals(customAction.viewKey)) {
                             sb.append("          <method/>\n");
                             sb.append("          <viewKey/>\n");
                         } else {
-                            sb.append("          <method>"+EntityView.translateViewKeyToMethod(customAction.viewKey)+"</method>\n");
-                            sb.append("          <viewKey>"+customAction.viewKey+"</viewKey>\n");
+                            sb.append("          <method>"+escapeXml(EntityView.translateViewKeyToMethod(customAction.viewKey))+"</method>\n");
+                            sb.append("          <viewKey>"+escapeXml(customAction.viewKey)+"</viewKey>\n");
                         }
                         String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action, locale);
                         if (actionDesc != null) {
-                            sb.append("          <description>"+actionDesc+"</description>\n");
+                            sb.append("          <description>"+escapeXml(actionDesc)+"</description>\n");
                         }
                         sb.append("        </customAction>\n");
-                        sb.append("      </customActions>\n");               
+                        sb.append("      </customActions>\n");
                     }
                 }
 
@@ -411,13 +413,13 @@ public class EntityDescriptionManager {
                         sb.append("        <format>*</format>\n");
                     } else {
                         for (int i = 0; i < outputFormats.length; i++) {
-                            sb.append("        <format>"+outputFormats[i]+"</format>\n");
+                            sb.append("        <format>"+escapeXml(outputFormats[i])+"</format>\n");
                         }
                     }
                 }
                 String outputDesc = getEntityDescription(prefix, OUTPUT_DESCRIBE_KEY, locale);
                 if (outputDesc != null) {
-                    sb.append("          <description>"+outputDesc+"</description>\n");
+                    sb.append("          <description>"+escapeXml(outputDesc)+"</description>\n");
                 }
                 sb.append("       </outputFormats>\n");
 
@@ -428,13 +430,13 @@ public class EntityDescriptionManager {
                         sb.append("        <format>*</format>\n");
                     } else {
                         for (int i = 0; i < inputFormats.length; i++) {
-                            sb.append("        <format>"+inputFormats[i]+"</format>\n");
+                            sb.append("        <format>"+escapeXml(inputFormats[i])+"</format>\n");
                         }
                     }
                 }
                 String intputDesc = getEntityDescription(prefix, INPUT_DESCRIBE_KEY, locale);
                 if (intputDesc != null) {
-                    sb.append("          <description>"+intputDesc+"</description>\n");
+                    sb.append("          <description>"+escapeXml(intputDesc)+"</description>\n");
                 }
                 sb.append("       </inputFormats>\n");
 
@@ -444,8 +446,8 @@ public class EntityDescriptionManager {
                 if (evap != null || hsap != null) {
                     sb.append("      <accessProvider>\n");
                     if (evap != null) {
-                        sb.append("        <type>" + EntityViewAccessProvider.class.getSimpleName() + "</type>\n");
-                        sb.append("        <implementor>" + evap.getClass().getName() + "</implementor>\n");
+                        sb.append("        <type>" + escapeXml(EntityViewAccessProvider.class.getSimpleName()) + "</type>\n");
+                        sb.append("        <implementor>" + escapeXml(evap.getClass().getName()) + "</implementor>\n");
                         if (AccessFormats.class.isAssignableFrom(evap.getClass())) {
                             String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
                             sb.append("        <accessFormats>\n");
@@ -454,15 +456,15 @@ public class EntityDescriptionManager {
                                     sb.append("          <format>*</format>\n");
                                 } else {
                                     for (int i = 0; i < accessFormats.length; i++) {
-                                        sb.append("          <format>"+accessFormats[i]+"</format>\n");
+                                        sb.append("          <format>"+escapeXml(accessFormats[i])+"</format>\n");
                                     }
                                 }
                             }
                             sb.append("        </accessFormats>\n");
                         }
                     } else {
-                        sb.append("        <type>" + HttpServletAccessProvider.class.getSimpleName() + "</type>\n");
-                        sb.append("        <implementor>" + hsap.getClass().getName() + "</implementor>\n");
+                        sb.append("        <type>" + escapeXml(HttpServletAccessProvider.class.getSimpleName()) + "</type>\n");
+                        sb.append("        <implementor>" + escapeXml(hsap.getClass().getName()) + "</implementor>\n");
                     }
                     sb.append("      </accessProvider>\n");
                 }
@@ -472,7 +474,7 @@ public class EntityDescriptionManager {
                 if (entity != null) {
                     Class<?> entityType = entity.getClass();
                     sb.append("      <entityClass>\n");
-                    sb.append("        <class>"+ entityType.getName() +"</class>\n");
+                    sb.append("        <class>"+ escapeXml(entityType.getName()) +"</class>\n");
                     if (isSimpleType(entityType)) {
                         sb.append("        <type>simple</type>\n");
                     } else if (isCollectionType(entityType)) {
@@ -480,15 +482,15 @@ public class EntityDescriptionManager {
                     } else if (isArrayType(entityType)) {
                         sb.append("        <type>array</type>\n");
                         Class<?> componentType = getArrayComponentType(entityType);
-                        sb.append("        <componentType>"+(componentType != null ? componentType.getName() : Object.class.getName())+"</componentType>\n");
+                        sb.append("        <componentType>"+escapeXml(componentType != null ? componentType.getName() : Object.class.getName())+"</componentType>\n");
                     } else if (isMapType(entityType)) {
                         sb.append("        <type>map</type>\n");
                         // get the types of the map keys if possible
                         Map m = (Map) entity;
                         if (m.size() > 0) {
                             Entry entry = (Entry) m.entrySet().iterator().next();
-                            sb.append("        <keyType>"+(entry.getKey()==null?Object.class.getName():entry.getKey().getClass().getName())+"</keyType>\n");
-                            sb.append("        <valueType>"+(entry.getValue()==null?Object.class.getName():entry.getValue().getClass().getName())+"</valueType>\n");
+                            sb.append("        <keyType>"+escapeXml(entry.getKey()==null?Object.class.getName():entry.getKey().getClass().getName())+"</keyType>\n");
+                            sb.append("        <valueType>"+escapeXml(entry.getValue()==null?Object.class.getName():entry.getValue().getClass().getName())+"</valueType>\n");
                         }
                     } else {
                         sb.append("        <type>bean</type>\n");
@@ -504,13 +506,13 @@ public class EntityDescriptionManager {
                         for (String key : keys) {
                             Class<?> type = entityTypes.get(key);
                             sb.append("          <field>\n");
-                            sb.append("            <name>"+ key +"</name>\n");
-                            sb.append("            <type>"+ type.getName() +"</type>\n");
+                            sb.append("            <name>"+ escapeXml(key) +"</name>\n");
+                            sb.append("            <type>"+ escapeXml(type.getName()) +"</type>\n");
                             sb.append("            <readable>"+ readTypes.containsKey(key) +"</readable>\n");
                             sb.append("            <writeable>"+ writeTypes.containsKey(key) +"</writeable>\n");
                             String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key, locale);
                             if (fieldDesc != null) {
-                                sb.append("            <description>"+ fieldDesc +"</description>\n");
+                                sb.append("            <description>"+ escapeXml(fieldDesc) +"</description>\n");
                             }
                             sb.append("          </field>\n");
                         }
@@ -526,16 +528,16 @@ public class EntityDescriptionManager {
                     for (int i = 0; i < redirects.size(); i++) {
                         URLRedirect redirect = redirects.get(i);
                         sb.append("        <redirect>\n");
-                        sb.append("          <template>"+redirect.template+"</template>\n");
+                        sb.append("          <template>"+escapeXml(redirect.template)+"</template>\n");
                         if (redirect.outgoingTemplate != null) {
-                            sb.append("          <outgoingTemplate>"+redirect.outgoingTemplate+"</outgoingTemplate>\n");
+                            sb.append("          <outgoingTemplate>"+escapeXml(redirect.outgoingTemplate)+"</outgoingTemplate>\n");
                         }
                         if (redirect.methodName != null) {
-                            sb.append("          <methodName>"+redirect.methodName+"</methodName>\n");
+                            sb.append("          <methodName>"+escapeXml(redirect.methodName)+"</methodName>\n");
                         }
                         String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template, locale);
                         if (redirectDesc != null) {
-                            sb.append("          <description>"+redirectDesc+"</description>\n");
+                            sb.append("          <description>"+escapeXml(redirectDesc)+"</description>\n");
                         }
                         sb.append("          <controllable>"+redirect.controllable+"</controllable>\n");
                         sb.append("          <order>"+i+"</order>\n");
@@ -548,12 +550,12 @@ public class EntityDescriptionManager {
             sb.append("      <capabilities>\n");
             for (Class<? extends EntityProvider> class1 : caps) {
                 sb.append("        <capability>\n");
-                sb.append("          <name>"+class1.getSimpleName()+"</name>\n");
-                sb.append("          <type>"+class1.getName()+"</type>\n");
+                sb.append("          <name>"+escapeXml(class1.getSimpleName())+"</name>\n");
+                sb.append("          <type>"+escapeXml(class1.getName())+"</type>\n");
                 if (extra) {
                     String capabilityDescription = getEntityDescription(prefix, class1.getSimpleName(), locale);
                     if (capabilityDescription != null) {
-                        sb.append("          <description>" + capabilityDescription + "</description>\n");                  
+                        sb.append("          <description>" + escapeXml(capabilityDescription) + "</description>\n");
                     }
                 }
                 sb.append("        </capability>\n");
@@ -886,6 +888,13 @@ public class EntityDescriptionManager {
             }
         }
         return sb.toString();
+    }
+
+    private String escapeXml(Object value) {
+        if (value == null) {
+            return "";
+        }
+        return StringEscapeUtils.escapeXml11(String.valueOf(value));
     }
 
     /**

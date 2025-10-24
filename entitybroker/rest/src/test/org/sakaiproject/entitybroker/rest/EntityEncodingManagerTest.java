@@ -23,6 +23,7 @@ package org.sakaiproject.entitybroker.rest;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -142,6 +143,42 @@ public class EntityEncodingManagerTest extends TestCase {
         assertTrue(encoded.contains("A"));
         assertTrue(encoded.contains("B"));
 
+    }
+
+    public void testEncodeEntityXmlDoesNotContainDeclaration() {
+        EntityData entityData = new EntityData(new EntityReference(TestData.REF4), "Aaron Title", TestData.entity4);
+        String encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, entityData, null);
+
+        assertNotNull(encoded);
+        assertFalse("XML fragments returned from encodeEntity should not contain an XML declaration", encoded.contains("<?xml"));
+        assertTrue("XML fragment should start with the prefixed element", encoded.trim().startsWith("<" + TestData.PREFIX4));
+    }
+
+    public void testInternalOutputFormatterProducesSingleDeclaration() throws Exception {
+        EntityReference listRef = new EntityReference(TestData.PREFIX4, "");
+        List<EntityData> entities = new ArrayList<EntityData>();
+        entities.add(new EntityData(new EntityReference(TestData.REF4), "Aaron Title", TestData.entity4));
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        entityEncodingManager.internalOutputFormatter(listRef, Formats.XML, entities, null, output, null);
+
+        String rendered = output.toString(StandardCharsets.UTF_8);
+        assertTrue("Rendered XML should begin with the standard XML header", rendered.startsWith(EntityEncodingManager.XML_HEADER));
+        int first = rendered.indexOf("<?xml");
+        int last = rendered.lastIndexOf("<?xml");
+        assertTrue("XML header should be present at least once", first >= 0);
+        assertEquals("XML output should contain a single XML declaration", first, last);
+    }
+
+    public void testXmlEscapesAmpersands() {
+        Map<String, Object> payload = new LinkedHashMap<String, Object>();
+        payload.put("text", "query ?first=0&last=10&order=title");
+        EntityData entityData = new EntityData(new EntityReference(TestData.REF4), "Ampersand Test", payload);
+
+        String encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, entityData, null);
+        assertNotNull(encoded);
+        assertFalse("XML fragment should not contain raw ampersands", encoded.contains("&last=10"));
+        assertTrue("XML fragment should escape ampersands", encoded.contains("&amp;last=10"));
     }
 
     public void testEncodeEntityJsonWithoutRootWrapper() {
