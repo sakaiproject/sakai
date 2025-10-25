@@ -80,7 +80,11 @@ public class ButtonForm extends Form
 		setPrevButtonVisible(isPreviousEnabled, target);
 		setStartButtonVisible(isStartEnabled, target);
 		setSuspendButtonVisible(isSuspendEnabled, target);
-		setQuitButtonVisible(isContinueExitEnabled, target);
+		// Quit button should be enabled whenever there's an active session OR when session has ended
+		// This allows users to exit gracefully after completing a SCORM package
+		// ExitAll is not controlled by flow sequencing like ContinueExit is
+		boolean isQuitEnabled = isSuspendEnabled || sessionBean.isEnded();
+		setQuitButtonVisible(isQuitEnabled, target);
 	}
 
 	public void setPrevButtonVisible(boolean isVisible, AjaxRequestTarget target)
