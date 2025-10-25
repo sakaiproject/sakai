@@ -93,7 +93,9 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	public boolean isContinueEnabled(SessionBean sessionBean)
 	{
 		IValidRequests state = sessionBean.getNavigationState();
-		return null != state && state.isContinueEnabled() && isControlModeFlow(sessionBean);
+		boolean result = null != state && state.isContinueEnabled() && isControlModeFlow(sessionBean);
+
+		return result;
 	}
 
 	@Override
@@ -135,8 +137,26 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	{
 		ISeqActivity activity = getActivity(sessionBean);
 
+		// Check the current activity first
+		if (activity != null && activity.getControlModeFlow())
+		{
+			return true;
+		}
+
+		// If current activity doesn't have flow enabled, check parent
+		// This is needed because SCOs often don't have flow set, but their parent organization does
+		// This aligns with SCORM 2004 specification where control mode can be inherited from parent activities
+		if (activity instanceof org.adl.sequencer.SeqActivity)
+		{
+			org.adl.sequencer.SeqActivity seqActivity = (org.adl.sequencer.SeqActivity) activity;
+			if (seqActivity.getParent() != null && seqActivity.getParent().getControlModeFlow())
+			{
+				return true;
+			}
+		}
+
 		// Default value from spec
-		return activity == null ? false : activity.getControlModeFlow();
+		return false;
 	}
 
 	@Override
