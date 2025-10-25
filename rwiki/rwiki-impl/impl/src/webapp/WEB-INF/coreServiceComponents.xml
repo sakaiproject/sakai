@@ -125,7 +125,6 @@
         <entry key="omit-xml-declaration"><value>yes</value></entry>
         <entry key="indent"><value>yes</value></entry>
         <entry key="encoding"><value>UTF-8</value></entry>
-        <entry key="version"><value>4.0</value></entry>
         <entry key="media-type"><value>text/html; charset=UTF-8</value></entry>
         <entry key="doctype-public"><value>-//W3C//DTD XHTML 1.0 Transitional//EN</value></entry>
         <entry key="doctype-system"><value>http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd</value></entry>

@@ -703,7 +703,16 @@
 		    </tr>
 		    </c:if>
 		    <tr>
-		    	<th><c:out value="${rlb.jsp_owner}"/><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'ownerhelp'); return false;"
+		    	<th><c:out value="${rlb.jsp_feeds}"/></th>
+	        <td colspan="6">
+	          <c:set var="publicViewUrl" value="${realmBean.baseAccessUrl}html" />
+	          <a href="${fn:escapeXml(publicViewUrl)}" target="publicview">
+	            <c:out value="${rlb.jsp_public}"/> <c:out value="${rlb.jsp_view}"/>
+	          </a>
+	        </td>
+		    </tr>
+		    <tr>
+	    	<th><c:out value="${rlb.jsp_owner}"/><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'ownerhelp'); return false;"
 		    		onMouseOut="hidePopup('ownerhelp');" >?</a></th>
 		      <td colspan="6">
 		      	<rwiki:formatDisplayName name="${(currentRWikiObject.owner)}"/>
