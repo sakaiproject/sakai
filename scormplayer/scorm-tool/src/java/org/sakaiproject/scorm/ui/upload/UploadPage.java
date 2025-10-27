@@ -287,23 +287,21 @@ public class UploadPage extends ConsoleBasePage
             String errorMessage = MessageFormat.format( getString( "upload.fileTooBig" ), maxFileSizeMB );
             String escapedMessage = StringEscapeUtils.escapeEcmaScript( errorMessage );
 
-            String script = String.format(
-                "const fileInput = document.getElementById('fileInput');" +
-                "const btnUpload = document.getElementById('btnUpload');" +
-                "btnUpload.disabled = true;" +
-                "fileInput.addEventListener('change', () => {" +
-                "  const file = fileInput.files[0];" +
-                "  if (file && file.size / (1024 * 1024) > %d) {" +
-                "    alert('%s');" +
-                "    fileInput.value = '';" +
-                "    btnUpload.disabled = true;" +
-                "  } else {" +
-                "    btnUpload.disabled = !file;" +
-                "  }" +
-                "});",
-                maxFileSizeMB,
-                escapedMessage
-            );
+            String script = """
+                const fileInput = document.getElementById('fileInput');
+                const btnUpload = document.getElementById('btnUpload');
+                btnUpload.disabled = true;
+                fileInput.addEventListener('change', () => {
+                    const file = fileInput.files[0];
+                    if (file && file.size / (1024 * 1024) > %d) {
+                        alert('%s');
+                        fileInput.value = '';
+                        btnUpload.disabled = true;
+                    } else {
+                        btnUpload.disabled = !file;
+                    }
+                });
+                """.formatted( maxFileSizeMB, escapedMessage );
 
             response.render( OnDomReadyHeaderItem.forScript( script ) );
         }
