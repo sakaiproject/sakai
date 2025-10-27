@@ -712,6 +712,7 @@ public class HistogramListener
 							  }
 						  }
 					  }
+				  }
 				  //i.e. for EMI questions we add detailed stats for the whole
 				  //question as well as for the sub-questions
 				  if (questionScores.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString()) 
