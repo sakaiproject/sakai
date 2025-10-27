@@ -182,7 +182,29 @@ public class JsfTool extends HttpServlet
 		}
 
 		// add the configured folder root and extension (if missing)
-		target = m_path + target;
+        if (!target.startsWith("/")) {
+            target = "/" + target;
+        }
+
+        StringBuilder combinedPath = new StringBuilder();
+        if (m_path != null && !m_path.isEmpty()) {
+            combinedPath.append(m_path);
+            if (!m_path.endsWith("/") && !target.startsWith("/")) {
+                combinedPath.append('/');
+            }
+        }
+        combinedPath.append(target);
+
+        String normalizedTarget = combinedPath.toString();
+        while (normalizedTarget.contains("//")) {
+            normalizedTarget = normalizedTarget.replace("//", "/");
+        }
+        target = normalizedTarget;
+
+        if (log.isWarnEnabled()) {
+            log.warn("JSF2 dispatch normalized target: uri={}, servletPath={}, pathInfo={}, query={}, target={}",
+                    req.getRequestURI(), req.getServletPath(), req.getPathInfo(), req.getQueryString(), target);
+        }
 		
 		// add the default JSF extension (if we have no extension)
 		int lastSlash = target.lastIndexOf("/");
@@ -298,8 +320,8 @@ public class JsfTool extends HttpServlet
 		String ext = path.substring(pos);
 		if (ext.indexOf("/") != -1) return false;
 
-		// we need the ext to not be the JSF_EXT
-		if (ext.equals(JSF_EXT)) return false;
+        // we need the ext to not be the JSF_EXT or a Facelets/JSP view extension
+        if (ext.equals(JSF_EXT) || ext.equals(".jsp") || ext.equals(".xhtml") || ext.equals(".jspx")) return false;
 
 		// ok, it's a resource request
 		return true;
