@@ -8,6 +8,25 @@
     <head>
         <wicket:head>
             <title><wicket:message key="page.title"/></title>
+            <script>
+                function validateUploadFileSize(maxSizeMB, errorMessage) {
+                    const fileInput = document.getElementById('fileInput');
+                    const btnUpload = document.getElementById('btnUpload');
+
+                    btnUpload.disabled = true;
+
+                    fileInput.addEventListener('change', () => {
+                        const file = fileInput.files[0];
+                        if (file && file.size / (1024 * 1024) > maxSizeMB) {
+                            alert(errorMessage);
+                            fileInput.value = '';
+                            btnUpload.disabled = true;
+                        } else {
+                            btnUpload.disabled = !file;
+                        }
+                    });
+                }
+            </script>
         </wicket:head>
     </head>
     <body>

@@ -22,13 +22,11 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
@@ -84,8 +82,13 @@ public class UploadPage extends ConsoleBasePage
     public void renderHead( IHeaderResponse response )
     {
         super.renderHead( response );
-        String javascript = "document.getElementById( \"btnUpload\" ).disabled = true;";
-        response.render( OnDomReadyHeaderItem.forScript( javascript ) );
+
+        // Initialize client-side file size validation to prevent nginx 413 errors
+        int maxFileSizeInMB = resourceService.getMaximumUploadFileSize();
+        String errorMessage = MessageFormat.format( getString( "upload.fileTooBig" ), maxFileSizeInMB ).replace( "'", "\\'" );
+
+        String initScript = String.format( "validateUploadFileSize(%d, '%s');", maxFileSizeInMB, errorMessage );
+        response.render( OnDomReadyHeaderItem.forScript( initScript ) );
     }
 
     public class FileUploadForm extends Form<Void>
@@ -108,9 +111,6 @@ public class UploadPage extends ConsoleBasePage
             setMultiPart( true );
 
             fileUploadField = new FileUploadField( "fileInput" );
-
-            // Add JavaScript to enable the submit button only when there is a file selected (this cannot be done via Wicket/Java code)
-            fileUploadField.add( new AttributeAppender( "onchange", new Model( "document.getElementById( \"btnUpload\" ).disabled = this.value === '';" ), ";" ) );
             add( fileUploadField );
 
             // SCO-98 - disable buttons on submit, add spinner
@@ -143,15 +143,8 @@ public class UploadPage extends ConsoleBasePage
                             String resourceId = "";
                             try
                             {
-                                // Check if file size exceeds allowed threshold - defined in sakai.properties as "content.upload.max", measured in megabytes
-                                int maxFileSizeInMB = resourceService.getMaximumUploadFileSize();
-                                if( Bytes.bytes( upload.getSize() ).megabytes() > maxFileSizeInMB )
-                                {
-                                    error( MessageFormat.format( getString( "upload.fileTooBig" ), maxFileSizeInMB ) );
-                                    onError( target );
-                                    return;
-                                }
-
+                                // File size is validated client-side to prevent nginx 413 errors
+                                // Server-side validation focuses on quota and other runtime constraints
                                 resourceId = resourceService.putArchive( upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), false, NotificationService.NOTI_NONE );
                                 int status = contentService.storeAndValidate( resourceId, false, serverConfigurationService.getString( "scorm.zip.encoding", "UTF-8" ) );
 
