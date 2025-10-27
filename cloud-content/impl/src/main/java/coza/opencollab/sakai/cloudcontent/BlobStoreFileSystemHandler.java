@@ -275,9 +275,9 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                                     if (!toDelete.delete() && toDelete.exists()) {
                                         log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
                                     }
-                                } catch (IOException e) {
+                                } catch (SecurityException e) {
                                     log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), e);
-                                    deletionIoEx = e;
+                                    deletionIoEx = new IOException("Error deleting temporary blob file " + toDelete.getAbsolutePath(), e);
                                 } catch (RuntimeException e) {
                                     log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), e);
                                     deletionRtEx = e;
