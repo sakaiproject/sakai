@@ -262,11 +262,33 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                             } catch (IOException e) {
                                 closeEx = e;
                             } finally {
-                                if (!toDelete.delete() && toDelete.exists()) {
-                                    log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
+                                IOException deletionIoEx = null;
+                                RuntimeException deletionRtEx = null;
+                                try {
+                                    if (!toDelete.delete() && toDelete.exists()) {
+                                        log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
+                                    }
+                                } catch (IOException e) {
+                                    log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), e);
+                                    deletionIoEx = e;
+                                } catch (RuntimeException e) {
+                                    log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), e);
+                                    deletionRtEx = e;
                                 }
                                 if (closeEx != null) {
+                                    if (deletionIoEx != null) {
+                                        closeEx.addSuppressed(deletionIoEx);
+                                    }
+                                    if (deletionRtEx != null) {
+                                        closeEx.addSuppressed(deletionRtEx);
+                                    }
                                     throw closeEx;
+                                }
+                                if (deletionIoEx != null) {
+                                    throw deletionIoEx;
+                                }
+                                if (deletionRtEx != null) {
+                                    throw deletionRtEx;
                                 }
                             }
                         }
