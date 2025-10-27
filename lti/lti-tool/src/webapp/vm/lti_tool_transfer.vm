@@ -9,7 +9,7 @@
 		$formOutput
 		Uses: $tool_count uses in $tool_unique_site_count sites
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-                <input type="hidden" name="id" value="$tool.get("id")" />
+                <input type="hidden" name="id" value="$toolBean.id" />
 <p>
 #if ($tools && $tools.size() > 0)
         <p style="clear:all;">
@@ -19,10 +19,10 @@
             </label>
    <select id="new_tool_id" name="new_tool_id">
       <option value="">$tlang.getString("content.select.one")</option>
-    #foreach ($tool in $tools)
-        #if ( $tool_id && $tool_id.toString().equals($tool.get("id").toString()))
+    #foreach ($toolBean in $tools)
+        #if ( $tool_id && $tool_id.toString().equals($toolBean.id.toString()))
         #else
-            <option value="$tool.get("id")"> $tool.get("title")</option>
+            <option value="$toolBean.id"> $toolBean.title</option>
         #end
     #end
    </select>

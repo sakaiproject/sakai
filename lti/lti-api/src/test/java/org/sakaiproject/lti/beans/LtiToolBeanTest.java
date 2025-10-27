@@ -32,7 +32,7 @@ import java.util.Map;
 import org.sakaiproject.lti.beans.LtiToolBean;
 
 /**
- * Unit tests for LtiToolBean POJO conversion methods.
+ * Unit tests for LtiToolBean Bean conversion methods.
  */
 public class LtiToolBeanTest {
 
@@ -53,40 +53,41 @@ public class LtiToolBeanTest {
         testMap.put("visible", "visible");
         testMap.put("deployment_id", 789L);
         testMap.put("launch", "https://example.com/tool/launch");
-        testMap.put("newpage", 1); // LTI_TOOL_NEWPAGE_ON
-        testMap.put("frameheight", 800);
+        testMap.put("newpage", Integer.valueOf(1)); // LTI_TOOL_NEWPAGE_ON
+        testMap.put("frameheight", Integer.valueOf(800));
         testMap.put("fa_icon", "fa-tool");
         
         // Message Types (pl_ prefix for backwards compatibility)
-        testMap.put("pl_launch", true);
-        testMap.put("pl_linkselection", false);
-        testMap.put("pl_contextlaunch", true);
+        // Note: These are stored as Integer (1/0) in the database, not Boolean
+        testMap.put("pl_launch", Integer.valueOf(1));
+        testMap.put("pl_linkselection", Integer.valueOf(0));
+        testMap.put("pl_contextlaunch", Integer.valueOf(1));
         
         // Placements
-        testMap.put("pl_lessonsselection", false);
-        testMap.put("pl_contenteditor", true);
-        testMap.put("pl_assessmentselection", true);
-        testMap.put("pl_coursenav", false);
-        testMap.put("pl_importitem", true);
-        testMap.put("pl_fileitem", false);
+        testMap.put("pl_lessonsselection", Integer.valueOf(0));
+        testMap.put("pl_contenteditor", Integer.valueOf(1));
+        testMap.put("pl_assessmentselection", Integer.valueOf(1));
+        testMap.put("pl_coursenav", Integer.valueOf(0));
+        testMap.put("pl_importitem", Integer.valueOf(1));
+        testMap.put("pl_fileitem", Integer.valueOf(0));
         
         // Privacy
-        testMap.put("sendname", true);
-        testMap.put("sendemailaddr", false);
-        testMap.put("pl_privacy", true);
+        testMap.put("sendname", Integer.valueOf(1));
+        testMap.put("sendemailaddr", Integer.valueOf(0));
+        testMap.put("pl_privacy", Integer.valueOf(1));
         
         // Services
-        testMap.put("allowoutcomes", true);
-        testMap.put("allowlineitems", false);
-        testMap.put("allowroster", true);
+        testMap.put("allowoutcomes", Integer.valueOf(1));
+        testMap.put("allowlineitems", Integer.valueOf(0));
+        testMap.put("allowroster", Integer.valueOf(1));
         
         // Configuration
-        testMap.put("debug", 1); // LTI_TOOL_DEBUG_ON
+        testMap.put("debug", Integer.valueOf(1)); // LTI_TOOL_DEBUG_ON
         testMap.put("siteinfoconfig", "config");
         testMap.put("splash", "Welcome to the tool!");
         testMap.put("custom", "custom1=value1\ncustom2=value2");
         testMap.put("rolemap", "Instructor=Teacher");
-        testMap.put("lti13", 1); // LTI13_LTI13
+        testMap.put("lti13", Integer.valueOf(1)); // LTI13_LTI13
         
         // LTI 1.3 security values from the tool
         testMap.put("lti13_tool_keyset", "https://tool.com/keyset");
@@ -106,13 +107,17 @@ public class LtiToolBeanTest {
         testMap.put("secret", "secret456");
         testMap.put("xmlimport", "<tool>xml</tool>");
         testMap.put("lti13_auto_token", "token789");
-        testMap.put("lti13_auto_state", 1);
+        testMap.put("lti13_auto_state", Integer.valueOf(1));
         testMap.put("lti13_auto_registration", "{\"auto\":\"reg\"}");
         testMap.put("sakai_tool_checksum", "checksum123");
         
         // Timestamps
         testMap.put("created_at", testDate);
         testMap.put("updated_at", testDate);
+        
+        // Live attributes - computed fields that may be present in Map data
+        testMap.put("lti_content_count", 42L);
+        testMap.put("lti_site_count", 7L);
     }
 
     @Test
@@ -204,6 +209,10 @@ public class LtiToolBeanTest {
         // Timestamps
         assertEquals(testDate, tool.getCreatedAt());
         assertEquals(testDate, tool.getUpdatedAt());
+        
+        // Live attributes
+        assertEquals(Long.valueOf(42L), tool.getLtiContentCount());
+        assertEquals(Long.valueOf(7L), tool.getLtiSiteCount());
     }
 
     @Test
@@ -270,6 +279,10 @@ public class LtiToolBeanTest {
         
         tool.setCreatedAt(testDate);
         tool.setUpdatedAt(testDate);
+        
+        // Live attributes
+        tool.setLtiContentCount(99L);
+        tool.setLtiSiteCount(15L);
         
         Map<String, Object> result = tool.asMap();
         
@@ -344,40 +357,30 @@ public class LtiToolBeanTest {
         // Timestamps
         assertEquals(testDate, result.get("created_at"));
         assertEquals(testDate, result.get("updated_at"));
+        
+        // Live attributes
+        assertEquals(Long.valueOf(99L), result.get("lti_content_count"));
+        assertEquals(Long.valueOf(15L), result.get("lti_site_count"));
     }
 
     @Test
     public void testRoundTripConversion() {
-        // Convert Map to POJO
+        // Convert Map to Bean
         LtiToolBean originalTool = LtiToolBean.of(testMap);
         assertNotNull(originalTool);
         
-        // Convert POJO back to Map
+        // Convert Bean back to Map
         Map<String, Object> convertedMap = originalTool.asMap();
         assertNotNull(convertedMap);
         
-        // Verify all original values are preserved (with Boolean-to-Integer conversion)
+        // Verify all original values are preserved
+        // All boolean fields in the map are Integer (1/0), so they should round-trip perfectly
         for (Map.Entry<String, Object> entry : testMap.entrySet()) {
             String key = entry.getKey();
             Object originalValue = entry.getValue();
             Object convertedValue = convertedMap.get(key);
             
-            // Handle Boolean-to-Integer conversion for Boolean fields
-            if (key.equals("pl_launch") || key.equals("pl_linkselection") || key.equals("pl_contextlaunch") ||
-                key.equals("pl_lessonsselection") || key.equals("pl_contenteditor") || key.equals("pl_assessmentselection") ||
-                key.equals("pl_coursenav") || key.equals("pl_importitem") || key.equals("pl_fileitem") ||
-                key.equals("sendname") || key.equals("sendemailaddr") || key.equals("pl_privacy") ||
-                key.equals("allowoutcomes") || key.equals("allowlineitems") || key.equals("allowroster")) {
-                if (originalValue instanceof Boolean) {
-                    Boolean boolValue = (Boolean) originalValue;
-                    Integer expectedValue = boolValue ? 1 : 0;
-                    assertEquals("Round-trip conversion failed for Boolean key: " + key, expectedValue, convertedValue);
-                } else {
-                    assertEquals("Round-trip conversion failed for key: " + key, originalValue, convertedValue);
-                }
-            } else {
-                assertEquals("Round-trip conversion failed for key: " + key, originalValue, convertedValue);
-            }
+            assertEquals("Round-trip conversion failed for key: " + key, originalValue, convertedValue);
         }
         
         // Verify no extra fields were added
@@ -395,7 +398,7 @@ public class LtiToolBeanTest {
         mapWithNulls.put("pl_launch", null);
         mapWithNulls.put("created_at", null);
         
-        // Convert Map to POJO
+        // Convert Map to Bean
         LtiToolBean tool = LtiToolBean.of(mapWithNulls);
         assertNotNull(tool);
         assertEquals(Long.valueOf(999L), tool.getId());
@@ -406,7 +409,7 @@ public class LtiToolBeanTest {
         assertNull(tool.getPlLaunch());
         assertNull(tool.getCreatedAt());
         
-        // Convert POJO back to Map
+        // Convert Bean back to Map
         Map<String, Object> convertedMap = tool.asMap();
         assertNotNull(convertedMap);
         
@@ -425,14 +428,14 @@ public class LtiToolBeanTest {
         Map<String, Object> mapWithVariousTypes = new HashMap<>();
         
         // Test different number types
-        mapWithVariousTypes.put("id", 123); // Integer instead of Long
+        mapWithVariousTypes.put("id", Integer.valueOf(123)); // Integer instead of Long
         mapWithVariousTypes.put("deployment_id", "456"); // String instead of Long
         mapWithVariousTypes.put("frameheight", 600L); // Long instead of Integer
         mapWithVariousTypes.put("lti13_auto_state", "2"); // String instead of Integer
         
         // Test different boolean representations
         mapWithVariousTypes.put("pl_launch", "true"); // String instead of Boolean
-        mapWithVariousTypes.put("sendname", 1); // Integer instead of Boolean
+        mapWithVariousTypes.put("sendname", Integer.valueOf(1)); // Integer instead of Boolean
         mapWithVariousTypes.put("allowoutcomes", "yes"); // String "yes" instead of Boolean
         
         // Test timestamp as Long
@@ -552,5 +555,126 @@ public class LtiToolBeanTest {
         assertEquals("BigDecimal 111.45 should truncate to 111", Long.valueOf(111L), tool.getId());
         assertEquals("BigDecimal 222 should convert to 222", Long.valueOf(222L), tool.getDeploymentId());
         assertEquals("BigDecimal 333.99 should truncate to 333", Integer.valueOf(333), tool.getFrameheight());
+    }
+
+    @Test
+    public void testLiveAttributesConversion() {
+        // Test with live attributes present
+        Map<String, Object> mapWithLiveAttributes = new HashMap<>();
+        mapWithLiveAttributes.put("id", 123L);
+        mapWithLiveAttributes.put("title", "Test Tool");
+        mapWithLiveAttributes.put("lti_content_count", 25L);
+        mapWithLiveAttributes.put("lti_site_count", 3L);
+        
+        LtiToolBean tool = LtiToolBean.of(mapWithLiveAttributes);
+        assertNotNull(tool);
+        assertEquals(Long.valueOf(123L), tool.getId());
+        assertEquals("Test Tool", tool.getTitle());
+        assertEquals(Long.valueOf(25L), tool.getLtiContentCount());
+        assertEquals(Long.valueOf(3L), tool.getLtiSiteCount());
+        
+        // Convert back to Map
+        Map<String, Object> result = tool.asMap();
+        assertEquals(Long.valueOf(25L), result.get("lti_content_count"));
+        assertEquals(Long.valueOf(3L), result.get("lti_site_count"));
+        
+        // Test with live attributes absent (should be null)
+        Map<String, Object> mapWithoutLiveAttributes = new HashMap<>();
+        mapWithoutLiveAttributes.put("id", 456L);
+        mapWithoutLiveAttributes.put("title", "Another Tool");
+        // No lti_content_count or lti_site_count
+        
+        LtiToolBean tool2 = LtiToolBean.of(mapWithoutLiveAttributes);
+        assertNotNull(tool2);
+        assertEquals(Long.valueOf(456L), tool2.getId());
+        assertEquals("Another Tool", tool2.getTitle());
+        assertNull("ltiContentCount should be null when not present", tool2.getLtiContentCount());
+        assertNull("ltiSiteCount should be null when not present", tool2.getLtiSiteCount());
+        
+        // Convert back to Map - live attributes should not be present
+        Map<String, Object> result2 = tool2.asMap();
+        assertFalse("lti_content_count should not be in map when null", result2.containsKey("lti_content_count"));
+        assertFalse("lti_site_count should not be in map when null", result2.containsKey("lti_site_count"));
+    }
+
+    @Test
+    public void testLiveAttributesTypeConversion() {
+        Map<String, Object> mapWithVariousTypes = new HashMap<>();
+        mapWithVariousTypes.put("id", 789L);
+        mapWithVariousTypes.put("title", "Type Test Tool");
+        
+        // Test different number types for live attributes
+        mapWithVariousTypes.put("lti_content_count", Integer.valueOf(100)); // Integer instead of Long
+        mapWithVariousTypes.put("lti_site_count", "50"); // String instead of Long
+        mapWithVariousTypes.put("lti_content_count", Double.valueOf(75.0)); // Double instead of Long
+        
+        LtiToolBean tool = LtiToolBean.of(mapWithVariousTypes);
+        assertNotNull(tool);
+        assertEquals(Long.valueOf(789L), tool.getId());
+        assertEquals("Type Test Tool", tool.getTitle());
+        assertEquals(Long.valueOf(75L), tool.getLtiContentCount()); // Should use the last value (Double)
+        assertEquals(Long.valueOf(50L), tool.getLtiSiteCount()); // String should convert to Long
+    }
+
+    @Test
+    public void testMissingBooleanFieldsStayNull() {
+        // Test that missing boolean fields remain null in the bean
+        // and do not appear in the map after conversion
+        Map<String, Object> mapWithMissingBooleans = new HashMap<>();
+        mapWithMissingBooleans.put("id", 999L);
+        mapWithMissingBooleans.put("title", "Test Tool with Missing Booleans");
+        
+        // Deliberately omit all boolean fields to test null handling
+        // No pl_launch, pl_linkselection, pl_contextlaunch, etc.
+        // No sendname, sendemailaddr, pl_privacy
+        // No allowoutcomes, allowlineitems, allowroster
+        
+        LtiToolBean tool = LtiToolBean.of(mapWithMissingBooleans);
+        assertNotNull(tool);
+        assertEquals(Long.valueOf(999L), tool.getId());
+        assertEquals("Test Tool with Missing Booleans", tool.getTitle());
+        
+        // Verify all boolean fields are null in the bean
+        assertNull("pl_launch should be null", tool.getPlLaunch());
+        assertNull("pl_linkselection should be null", tool.getPlLinkselection());
+        assertNull("pl_contextlaunch should be null", tool.getPlContextlaunch());
+        assertNull("pl_lessonsselection should be null", tool.getPlLessonsselection());
+        assertNull("pl_contenteditor should be null", tool.getPlContenteditor());
+        assertNull("pl_assessmentselection should be null", tool.getPlAssessmentselection());
+        assertNull("pl_coursenav should be null", tool.getPlCoursenav());
+        assertNull("pl_importitem should be null", tool.getPlImportitem());
+        assertNull("pl_fileitem should be null", tool.getPlFileitem());
+        assertNull("sendname should be null", tool.getSendname());
+        assertNull("sendemailaddr should be null", tool.getSendemailaddr());
+        assertNull("pl_privacy should be null", tool.getPlPrivacy());
+        assertNull("allowoutcomes should be null", tool.getAllowoutcomes());
+        assertNull("allowlineitems should be null", tool.getAllowlineitems());
+        assertNull("allowroster should be null", tool.getAllowroster());
+        
+        // Convert Bean back to Map
+        Map<String, Object> convertedMap = tool.asMap();
+        assertNotNull(convertedMap);
+        
+        // Verify null boolean fields do NOT appear in the converted map
+        assertFalse("pl_launch should not be in map", convertedMap.containsKey("pl_launch"));
+        assertFalse("pl_linkselection should not be in map", convertedMap.containsKey("pl_linkselection"));
+        assertFalse("pl_contextlaunch should not be in map", convertedMap.containsKey("pl_contextlaunch"));
+        assertFalse("pl_lessonsselection should not be in map", convertedMap.containsKey("pl_lessonsselection"));
+        assertFalse("pl_contenteditor should not be in map", convertedMap.containsKey("pl_contenteditor"));
+        assertFalse("pl_assessmentselection should not be in map", convertedMap.containsKey("pl_assessmentselection"));
+        assertFalse("pl_coursenav should not be in map", convertedMap.containsKey("pl_coursenav"));
+        assertFalse("pl_importitem should not be in map", convertedMap.containsKey("pl_importitem"));
+        assertFalse("pl_fileitem should not be in map", convertedMap.containsKey("pl_fileitem"));
+        assertFalse("sendname should not be in map", convertedMap.containsKey("sendname"));
+        assertFalse("sendemailaddr should not be in map", convertedMap.containsKey("sendemailaddr"));
+        assertFalse("pl_privacy should not be in map", convertedMap.containsKey("pl_privacy"));
+        assertFalse("allowoutcomes should not be in map", convertedMap.containsKey("allowoutcomes"));
+        assertFalse("allowlineitems should not be in map", convertedMap.containsKey("allowlineitems"));
+        assertFalse("allowroster should not be in map", convertedMap.containsKey("allowroster"));
+        
+        // Verify only the fields we set are in the map
+        assertEquals("Only id and title should be in map", 2, convertedMap.size());
+        assertEquals(Long.valueOf(999L), convertedMap.get("id"));
+        assertEquals("Test Tool with Missing Booleans", convertedMap.get("title"));
     }
 }

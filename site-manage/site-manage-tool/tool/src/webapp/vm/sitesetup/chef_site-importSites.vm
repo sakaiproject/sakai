@@ -36,7 +36,7 @@
 	<p id="gradebook-warning" class="sak-banner-info d-none">
 		$tlang.getString("import.gradebook")
 	</p>
-	<p class="instruction">
+	<p class="sak-banner-info">
 	$tlang.getString("import.choose")
 	</p>
 	
@@ -46,6 +46,7 @@
 	
 	
 	<form name="importSitesForm" action="#toolForm("$action")" method="post">
+		<input type="hidden" id="import-type" name="import-type" value="merge">
 		<div class="table">
 			<table class ="table table-bordered table-hover table-striped align-middle"  summary="$tlang.getString("import.choose.list.summary")" >
 				<tr>
@@ -67,7 +68,7 @@
 				#foreach ($toolId in $selectedTools)
 					#set($selectedSites = $!importSitesTools.get($toolId))
 					#if ($importSupportedTools.contains($toolId))
-					<tr>
+					<tr class="tool-row">
 						<td>
 							<button type="button"
 									class="btn btn-icon tool-items-button"
@@ -120,7 +121,9 @@
 								#end
 
 								#if ($toolFound)
-									<input type="checkbox"
+								        <span class="d-block d-md-inline-block m-2 mx-md-0">
+									    <label for="toolSite-${toolId}-${site.Id}" class="d-inline">
+									    <input type="checkbox"
 										id="toolSite-${toolId}-${site.Id}"
 										class="siteimport-tool-checkbox"
 										data-site-id="$site.id"
@@ -135,27 +138,22 @@
 										#if ($!selectedSites.contains($site.Id))
 										checked="checked"
 										#end />
+									    $tlang.getString("import.copy.tool.content")</label>
+									</span>
 									#if ($importOptions.get(${toolId}).isPresent())
-									<a id="${toolId}-${site.id}-options-link"
-											href="javascript:;"
-											class="siteimport-options-link fw-bold ms-1 d-none"
-											data-options-id="${toolId}-${site.Id}-options"
-											title="$tlang.getString('import.options.title')">
-										<span title="$tlang.getString('import.options.title')">$tlang.getString('import.options.title').toLowerCase()</span>
-									</a>
-									<div id="${toolId}-${site.Id}-options" class="siteimport-options mt-3 ps-4 d-none">
+									<span id="${toolId}-${site.Id}-options" class="siteimport-options">
 										#foreach ($option in $importOptions.get(${toolId}).get())
 										#set ($optionPropKey = "import.options." + ${option})
 										#set ($optionPropHelpKey = "import.options." + ${option} + ".help")
-										<div>
+										<span class="d-block d-md-inline-block m-2 mx-md-0">
 											<label>
 												<input type="checkbox" class="siteimport-option" name="${toolId}$${site.id}-import-option-${option}" value="true"/>
 												$tlang.getString(${optionPropKey})
 											</label>
-											<span class="import-option-help si si-question-circle" data-bs-toggle="popover" data-bs-content="$tlang.getString(${optionPropHelpKey})"/>
-										</div>
+											<span class="import-option-help si si-sakai-help" data-bs-toggle="popover" data-bs-content="$tlang.getString(${optionPropHelpKey})"></span>
+										</span>
 										#end
-									</div>
+									</span>
 									#end
 								#else
 									<input type="checkbox" id="toolSite-${toolId}-${site.Id}" name="$toolId" value="$site.Id" disabled="disabled" />

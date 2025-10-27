@@ -1,22 +1,25 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <name>Sakai AccountValidator API</name>
-   <groupId>org.sakaiproject.accountvalidator</groupId>
-   <artifactId>accountvalidator-api</artifactId>
-   <description>Account Validator API</description>
-   <packaging>jar</packaging>
-   <properties>
-      <deploy.target>shared</deploy.target>
-   </properties>
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 
-   <!-- the base is parent -->
-   <parent>
-     <groupId>org.sakaiproject.reset-pass</groupId>
-	<artifactId>reset-pass</artifactId>
-	<version>26-SNAPSHOT</version>
-   </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <name>Sakai AccountValidator API</name>
+    <groupId>org.sakaiproject.accountvalidator</groupId>
+    <artifactId>accountvalidator-api</artifactId>
+    <description>Account Validator API</description>
+    <packaging>jar</packaging>
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
 
-   <dependencies>
+    <parent>
+        <groupId>org.sakaiproject.reset-pass</groupId>
+        <artifactId>reset-pass</artifactId>
+        <version>26-SNAPSHOT</version>
+    </parent>
+
+    <dependencies>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -24,8 +27,7 @@
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
-      </dependency>
-      <!-- jackson -->
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -42,18 +44,18 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
         </dependency>
-   </dependencies>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+        </dependency>
+    </dependencies>
 
-   <build>
-      <resources>
-         <resource>
-            <directory>${basedir}/src/java</directory>
-            <includes>
-               <include>**/*.xml</include>
-            </includes>
-            <filtering>false</filtering>
-         </resource>
-     </resources>
-   </build>
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+    </build>
 
 </project>

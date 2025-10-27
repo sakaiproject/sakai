@@ -29,6 +29,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlOptions;
 import org.imsglobal.xsd.imsQtiasiv1P2.AssessfeedbackType;
 import org.imsglobal.xsd.imsQtiasiv1P2.AssessmentType;
@@ -79,6 +81,10 @@ import org.sakaiproject.util.ResourceLoader;
 @Slf4j
 public class SamLiteServiceImpl implements SamLiteService {
 	public static final String DEFAULT_CHARSET = "UTF-8";
+	// Ensure the QTI schema type system is available when instantiating documents with xmlbeans 5+
+	private static final SchemaTypeLoader QTI_TYPE_LOADER = XmlBeans.typeLoaderUnion(
+			new SchemaTypeLoader[] { QuestestinteropDocument.type.getTypeSystem(), XmlBeans.getBuiltinTypeSystem() }
+	);
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLitePatternMessages");
 	
 	private Pattern justQuestionPattern, startOfQuestionPattern, correctAnswerPattern;
@@ -423,7 +429,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 	
 	public QuestestinteropDocument createQTIDocument(QuestionGroup questionGroup) {
 		// Create a new instance of the document object
-		QuestestinteropDocument doc = (QuestestinteropDocument) QuestestinteropDocument.Factory.newInstance();
+		QuestestinteropDocument doc = (QuestestinteropDocument) QTI_TYPE_LOADER.newInstance(QuestestinteropDocument.type, null);
 		// Add a Questestinterop object
 		doc.addNewQuestestinterop();
 		// Add an assessment object

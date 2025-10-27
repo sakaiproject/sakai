@@ -32,7 +32,7 @@ import java.util.Map;
 import org.sakaiproject.lti.beans.LtiToolSiteBean;
 
 /**
- * Unit tests for LtiToolSiteBean POJO conversion methods.
+ * Unit tests for LtiToolSiteBean Bean conversion methods.
  */
 public class LtiToolSiteBeanTest {
 
@@ -104,11 +104,11 @@ public class LtiToolSiteBeanTest {
 
     @Test
     public void testRoundTripConversion() {
-        // Convert Map to POJO
+        // Convert Map to Bean
         LtiToolSiteBean originalToolSite = LtiToolSiteBean.of(testMap);
         assertNotNull(originalToolSite);
         
-        // Convert POJO back to Map
+        // Convert Bean back to Map
         Map<String, Object> convertedMap = originalToolSite.asMap();
         assertNotNull(convertedMap);
         
@@ -135,7 +135,7 @@ public class LtiToolSiteBeanTest {
         mapWithNulls.put("created_at", null);
         mapWithNulls.put("updated_at", testDate);
         
-        // Convert Map to POJO
+        // Convert Map to Bean
         LtiToolSiteBean toolSite = LtiToolSiteBean.of(mapWithNulls);
         assertNotNull(toolSite);
         assertEquals(Long.valueOf(999L), toolSite.getId());
@@ -145,7 +145,7 @@ public class LtiToolSiteBeanTest {
         assertNull(toolSite.getCreatedAt());
         assertEquals(testDate, toolSite.getUpdatedAt());
         
-        // Convert POJO back to Map
+        // Convert Bean back to Map
         Map<String, Object> convertedMap = toolSite.asMap();
         assertNotNull(convertedMap);
         

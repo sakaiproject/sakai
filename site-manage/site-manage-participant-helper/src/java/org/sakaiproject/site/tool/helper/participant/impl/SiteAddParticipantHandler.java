@@ -29,7 +29,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.sakaiproject.accountvalidator.logic.ValidationLogic;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -109,7 +109,7 @@ public class SiteAddParticipantHandler {
     @Setter @Getter public String statusChoice = "active";
     // the user selected
     public List<UserRoleEntry> userRoleEntries = new ArrayList<>();
-    @Setter public ValidationLogic validationLogic;
+    @Setter public AccountValidationService accountValidationService;
     private SiteTypeUtil siteTypeUtil;
 
 	public boolean canAddParticipant() {
@@ -590,7 +590,7 @@ public class SiteAddParticipantHandler {
 
 		// finally send any account validations
 		for( String userId : validationUsers ) {
-			validationLogic.createValidationAccount(userId, true);
+			accountValidationService.createValidationAccount(userId, true);
 		}
 		
 		

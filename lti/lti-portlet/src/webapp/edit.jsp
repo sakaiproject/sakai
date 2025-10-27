@@ -60,7 +60,7 @@ Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 <portlet:defineObjects/>
 <div class="portletBody">
 <% 
-    if ( allow(sp,"launch") || allow(sp,"xml") ||
+    if ( allow(sp,"launch") ||
 		allow(sp,"secret") || allow(sp,"key") || 
         allow(sp,"frameheight") || allow(sp, "debug") ||
         allow(sp, "releasename") || allow(sp,"releaseemail")  ||
@@ -94,40 +94,9 @@ Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 </ul>
 
 <form method="post" action="<%=launchURL.toString()%>">
-<% if ( allow(sp,"launch") || allow(sp,"xml") || allow(sp,"key") || allow(sp,"secret") ) { %>
+<% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") ) { %>
 
 <h3><%=rb.getString("required.information") %></h3>
-<% if ( allow(sp,"launch") && allow(sp,"xml") ) { %>
-<script type="text/javascript">
-function switchui()
-{
-  var x=document.getElementById("UISwitcher");
-  if ( x.selectedIndex == 0 ) {
-    document.getElementById("xml.paste").style.display = "none";
-    document.getElementById("url.input").style.display = "block";
-  } else {
-    document.getElementById("url.input").style.display = "none";
-    document.getElementById("xml.paste").style.display = "block";
-  }
-}
-</script>
-<select id="UISwitcher" name="imsti.type" onchange="switchui(); return false;">
-  <option value="URL"><%=rb.getString("select.url") %></option>
-<% if ( ov.getProperty("imsti.xml",null) != null ) { %>
-  <option selected="selected" value="XML"><%=rb.getString("select.xml") %></option>
-<% } else { %>
-  <option value="XML"><%=rb.getString("select.xml")%></option>
-<% } %>
-</select>
-<% } %>
-<% if ( allow(sp,"xml") ) { %>
-<div id="xml.paste">
-<textarea rows="20" cols="60" class="form-control" name="imsti.xml" >
-<%=ov.getProperty("imsti.xml","")%>
-</textarea>
-<%=rb.getString("tool.xml.detail") %>
-</div>
-<% } %>
 <% if ( allow(sp,"launch") ) { %>
 <p id="url.input" class="shorttext">
 <span class="reqStar">*</span><label for="imsti.launch"><%=rb.getString("tool.url") %></label><br/>
