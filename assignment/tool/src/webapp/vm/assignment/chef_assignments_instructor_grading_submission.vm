@@ -408,6 +408,7 @@
                 #else
                     evaluated-item-owner-id="$submitterId"
                 #end
+                defer-save
             ></sakai-rubric-grading>
         </div>
         </div>

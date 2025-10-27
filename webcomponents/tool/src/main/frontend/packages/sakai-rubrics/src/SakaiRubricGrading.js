@@ -4,6 +4,7 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "../sakai-rubric-grading-comment.js";
 import "../sakai-rubric-pdf.js";
 import "../sakai-rubric-summary.js";
+import "@sakai-ui/sakai-icon";
 import { getUserId } from "@sakai-ui/sakai-portal-utils";
 import { rubricsApiMixin } from "./SakaiRubricsApiMixin.js";
 import { GRADING_RUBRIC, CRITERIA_SUMMARY, STUDENT_SUMMARY } from "./sakai-rubrics-constants.js";
@@ -22,6 +23,7 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     group: { type: Boolean },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
     totalAsPercentage: { attribute: "total-as-percentage", type: Boolean },
+    deferSave: { attribute: "defer-save", type: Boolean },
 
     _evaluation: { state: true },
     _totalPoints: { state: true },
@@ -41,6 +43,13 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
     this._currentView = GRADING_RUBRIC;
 
     this.instanceSalt = Math.floor(Math.random() * Date.now());
+
+    // Flag to track if auto-save should be deferred
+    this._deferAutoSave = false;
+    // Store pending changes when auto-save is deferred
+    this._pendingChanges = null;
+    this._savingPromise = null;
+    this._saveAgain = false;
   }
 
   set entityId(value) {
@@ -62,10 +71,23 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
   set toolId(value) {
 
     this._toolId = value;
+    this._updateDeferSaveMode();
     this._getAssociation();
   }
 
   get toolId() { return this._toolId; }
+
+  set deferSave(value) {
+    this._deferSave = value;
+    this._updateDeferSaveMode();
+  }
+
+  get deferSave() { return this._deferSave; }
+
+  _updateDeferSaveMode() {
+    // Auto-save is deferred when deferSave is explicitly set to true
+    this._deferAutoSave = this.deferSave === true;
+  }
 
   _viewSelected(e) {
 
@@ -122,13 +144,14 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
         ` : nothing}
 
         <div id="rubric-grading-or-preview-${this.instanceSalt}" class="rubric-tab-content rubrics-visible mt-1">
-          ${this._evaluation && this._evaluation.status === "DRAFT" && !this.isPeerOrSelf ? html`
+          ${this._evaluation && (this._evaluation.status === "DRAFT" || (this._deferAutoSave && this._pendingChanges)) && !this.isPeerOrSelf ? html`
           <div class="sak-banner-warn">
             ${this.tr("draft_evaluation", [ this.tr(`draft_evaluation_${this.toolId}`) ])}
           </div>
-          ` : html`
+          ` : nothing}
+          ${!this._evaluation?.status && !this._pendingChanges ? html`
             <div class="mb-3"></div>
-          `}
+          ` : nothing}
           <div class="criterion grading style-scope sakai-rubric-criteria-grading">
           ${this._criteria.map(c => html`
             <div id="criterion_row_${c.id}" class="criterion-row">
@@ -256,15 +279,104 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   release() {
 
-    if (this._evaluation.criterionOutcomes.length) {
+    if (this._evaluation.criterionOutcomes.length || this._pendingChanges) {
       // We only want to inform the enclosing tool about ratings changes
-      // for an existing evaluation
+      // for an existing evaluation or pending changes
       this.dispatchRatingChanged(this._criteria, 2);
     }
   }
 
   save() {
     this.dispatchRatingChanged(this._criteria, 1);
+    if (this._deferAutoSave && this._pendingChanges) {
+      // Force save pending changes with DRAFT status
+      return this._savePendingChanges(1);
+    }
+
+  }
+
+  /**
+   * Force save any pending changes.
+   * @param {number} status - The status to save with (1 = DRAFT, 2 = COMPLETE)
+   * @returns {Promise} - Promise that resolves when save is complete
+   */
+  forceSave(status = 1) {
+    if (this._deferAutoSave && this._pendingChanges) {
+      return this._savePendingChanges(status);
+    }
+    return this.dispatchRatingChanged(this._criteria, status);
+
+  }
+
+  /**
+   * Check if there are unsaved changes when defer-save is enabled
+   * @returns {boolean} - True if there are pending changes
+   */
+  hasPendingChanges() {
+    return this._deferAutoSave && this._pendingChanges !== null;
+  }
+
+  _savePendingChanges(status) {
+    if (this._savingPromise) {
+      this._saveAgain = true;
+      return this._savingPromise;
+    }
+
+    if (!this._pendingChanges) {
+      return Promise.resolve();
+    }
+
+    // Update status if provided
+    if (status) {
+      this._pendingChanges.status = status;
+    }
+
+    if (this._evaluation?.id && !this._pendingChanges.id) {
+      this._pendingChanges.id = this._evaluation.id;
+    }
+    if (this._evaluation?.metadata && !this._pendingChanges.metadata) {
+      this._pendingChanges.metadata = this._evaluation.metadata;
+    }
+    if (!this._pendingChanges.associationId) {
+      this._pendingChanges.associationId = this._evaluation?.associationId || this.association?.id;
+    }
+
+    let url = `/api/sites/${this.siteId}/rubric-evaluations`;
+    if (this._pendingChanges.id) url += `/${this._pendingChanges.id}`;
+
+    this._savingPromise = fetch(url, {
+      body: JSON.stringify(this._pendingChanges),
+      headers: { "Content-Type": "application/json" },
+      method: this._pendingChanges.id ? "PUT" : "POST",
+    })
+    .then(r => {
+
+      if (r.ok) {
+        return r.json();
+      }
+
+      throw new Error("Server error while saving rubric evaluation");
+    })
+    .then(data => {
+      this._evaluation = data;
+      this._pendingChanges = null;
+      this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
+    })
+    .catch(error => {
+      console.error(error);
+    })
+    .finally(async () => {
+      this._savingPromise = null;
+
+      if (this._saveAgain && this._pendingChanges) {
+        this._saveAgain = false;
+        await this._savePendingChanges(1);
+      } else {
+        this._saveAgain = false;
+      }
+    });
+
+    return this._savingPromise;
   }
 
   decorateCriteria() {
@@ -371,6 +483,18 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
       evaluation.metadata = this._evaluation.metadata;
     }
 
+    // If defer-save is enabled, store the changes locally instead of saving immediately
+    if (this._deferAutoSave && status === 1) {
+      this._pendingChanges = evaluation;
+      if (this._savingPromise) {
+        this._saveAgain = true;
+      }
+
+      this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
+      return Promise.resolve(evaluation);
+    }
+
+    // Normal behavior: save immediately to server
     let url = `/api/sites/${this.siteId}/rubric-evaluations`;
     if (this._evaluation?.id) url += `/${this._evaluation.id}`;
     fetch(url, {
@@ -390,6 +514,8 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
       this.dispatchEvent(new CustomEvent("rubric-ratings-changed", { bubbles: true }));
       this._evaluation = data;
+      // Clear pending changes since we've saved successfully
+      this._pendingChanges = null;
       return Promise.resolve(this._evaluation);
     })
     .catch(error => console.error(error));
@@ -507,6 +633,30 @@ export class SakaiRubricGrading extends rubricsApiMixin(RubricsElement) {
 
   cancel() {
 
+    // In defer-save mode, just clear pending changes and restore state
+    if (this._deferAutoSave) {
+      this._pendingChanges = null;
+      // Clear any ratings and restore original state
+      this._criteria.forEach(c => {
+        c.ratings.forEach(r => r.selected = false);
+        c.selectedvalue = 0;
+        c.selectedRatingId = 0;
+        c.pointoverride = "";
+        c.comments = "";
+      });
+
+      // If we have an existing evaluation, restore its values
+      if (this._evaluation && this._evaluation.criterionOutcomes) {
+        this.decorateCriteria();
+      }
+
+      this.updateTotalPoints();
+      this.querySelectorAll("sakai-rubric-grading-comment").forEach(gc => gc.requestUpdate());
+      this.requestUpdate();
+      return Promise.resolve();
+    }
+
+    // Original behavior for auto-save mode
     if (this._evaluation.status !== "DRAFT") return;
 
     const url = `/api/sites/${this.siteId}/rubric-evaluations/${this._evaluation.id}/cancel`;
