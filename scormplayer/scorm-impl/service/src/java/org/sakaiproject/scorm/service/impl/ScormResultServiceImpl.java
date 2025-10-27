@@ -294,7 +294,7 @@ public abstract class ScormResultServiceImpl implements ScormResultService
 		list.add(new CMIField(CMI_OBJECTIVES_COUNT, "Objective count"));
 		list.add(new CMIField(CMI_INTERACTIONS_COUNT, "Interaction count"));
 
-		CMIField objectives = new CMIField("cmi.objectives", "Objectives");
+		CMIField objectives = new CMIField(CMI_OBJECTIVES, "Objectives");
 		objectives.addChild(new CMIField("id", "Objective Id"));
 
 		objectives.addChild(new CMIField("score.scaled", "Scaled Score"));

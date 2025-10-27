@@ -40,6 +40,7 @@ public class ScormConstants
 	public static final int GRADED = 3;
 
 	public final static String CMI_OBJECTIVES_ROOT = "cmi.objectives.";
+	public final static String CMI_OBJECTIVES = "cmi.objectives";
 
     public final static String CMI_OBJECTIVES_COUNT = CMI_OBJECTIVES_ROOT + "_count";
 
@@ -94,6 +95,11 @@ public class ScormConstants
     public final static String CMI_SCORE_MAX = "cmi.score.max";
 
 	public final static String CMI_SESSION_TIME = "cmi.session_time";
+	public final static String CMI_LEARNER_PREFERENCE_ROOT = "cmi.learner_preference.";
+	public final static String CMI_LEARNER_PREFERENCE_AUDIO_LEVEL = CMI_LEARNER_PREFERENCE_ROOT + "audio_level";
+	public final static String CMI_LEARNER_PREFERENCE_AUDIO_CAPTIONING = CMI_LEARNER_PREFERENCE_ROOT + "audio_captioning";
+	public final static String CMI_LEARNER_PREFERENCE_DELIVERY_SPEED = CMI_LEARNER_PREFERENCE_ROOT + "delivery_speed";
+	public final static String CMI_LEARNER_PREFERENCE_LANGUAGE = CMI_LEARNER_PREFERENCE_ROOT + "language";
 
 	public static final String DEFAULT_USER_AUDIO_LEVEL = "1";
 

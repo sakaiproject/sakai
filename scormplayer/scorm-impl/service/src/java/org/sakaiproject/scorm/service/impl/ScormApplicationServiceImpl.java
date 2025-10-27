@@ -370,7 +370,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			result = dmInfo.mValue;
 			if (StringUtils.isBlank(result))
 			{
-				if ("cmi.completion_status".equals(iDataModelElement) || "cmi.success_status".equals(iDataModelElement))
+				if (CMI_COMPLETION_STATUS.equals(iDataModelElement) || CMI_SUCCESS_STATUS.equals(iDataModelElement))
 				{
 					result = "unknown";
 				}
@@ -426,7 +426,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				result = dmInfo.mValue;
 				if (StringUtils.isBlank(result))
 				{
-					if ("cmi.completion_status".equals(parameter) || "cmi.success_status".equals(parameter))
+					if (CMI_COMPLETION_STATUS.equals(parameter) || CMI_SUCCESS_STATUS.equals(parameter))
 					{
 						result = "unknown";
 					}
@@ -790,19 +790,19 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			// learner profile information
 
 			// audio_level
-			element = "cmi.learner_preference.audio_level";
+			element = CMI_LEARNER_PREFERENCE_AUDIO_LEVEL;
 			DMInterface.processSetValue(element, audLev, true, ioSCOData, validatorFactory);
 
 			// audio_captioning
-			element = "cmi.learner_preference.audio_captioning";
+			element = CMI_LEARNER_PREFERENCE_AUDIO_CAPTIONING;
 			DMInterface.processSetValue(element, audCap, true, ioSCOData, validatorFactory);
 
 			// delivery_speed
-			element = "cmi.learner_preference.delivery_speed";
+			element = CMI_LEARNER_PREFERENCE_DELIVERY_SPEED;
 			DMInterface.processSetValue(element, delSpd, true, ioSCOData, validatorFactory);
 
 			// language
-			element = "cmi.learner_preference.language";
+			element = CMI_LEARNER_PREFERENCE_LANGUAGE;
 			DMInterface.processSetValue(element, lang, true, ioSCOData, validatorFactory);
 
 		}
