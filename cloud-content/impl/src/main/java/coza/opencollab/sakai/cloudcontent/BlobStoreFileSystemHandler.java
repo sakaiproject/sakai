@@ -241,8 +241,17 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                     try {
                         fos.close();
                     } catch (IOException close) {
-                        if (tmp != null && tmp.exists() && !tmp.delete()) {
-                            log.warn("Failed to delete temporary blob file {}", tmp.getAbsolutePath());
+                        Exception deletionEx = null;
+                        try {
+                            if (tmp != null && tmp.exists() && !tmp.delete()) {
+                                log.warn("Failed to delete temporary blob file {}", tmp.getAbsolutePath());
+                            }
+                        } catch (Exception delEx) {
+                            log.warn("Error deleting temporary blob file {}", tmp.getAbsolutePath(), delEx);
+                            deletionEx = delEx;
+                        }
+                        if (deletionEx != null) {
+                            close.addSuppressed(deletionEx);
                         }
                         throw close;
                     }
@@ -269,33 +278,23 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                             } catch (IOException e) {
                                 closeEx = e;
                             } finally {
-                                IOException deletionIoEx = null;
-                                RuntimeException deletionRtEx = null;
+                                IOException deletionEx = null;
                                 try {
                                     if (!toDelete.delete() && toDelete.exists()) {
                                         log.warn("Failed to delete temporary blob file {}", toDelete.getAbsolutePath());
                                     }
-                                } catch (SecurityException e) {
+                                } catch (Exception e) { // SecurityException, etc.
                                     log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), e);
-                                    deletionIoEx = new IOException("Error deleting temporary blob file " + toDelete.getAbsolutePath(), e);
-                                } catch (RuntimeException e) {
-                                    log.warn("Error deleting temporary blob file {}", toDelete.getAbsolutePath(), e);
-                                    deletionRtEx = e;
+                                    deletionEx = new IOException("Error deleting temporary blob file " + toDelete.getAbsolutePath(), e);
                                 }
                                 if (closeEx != null) {
-                                    if (deletionIoEx != null) {
-                                        closeEx.addSuppressed(deletionIoEx);
-                                    }
-                                    if (deletionRtEx != null) {
-                                        closeEx.addSuppressed(deletionRtEx);
+                                    if (deletionEx != null) {
+                                        closeEx.addSuppressed(deletionEx);
                                     }
                                     throw closeEx;
                                 }
-                                if (deletionIoEx != null) {
-                                    throw deletionIoEx;
-                                }
-                                if (deletionRtEx != null) {
-                                    throw deletionRtEx;
+                                if (deletionEx != null) {
+                                    throw deletionEx;
                                 }
                             }
                         }
