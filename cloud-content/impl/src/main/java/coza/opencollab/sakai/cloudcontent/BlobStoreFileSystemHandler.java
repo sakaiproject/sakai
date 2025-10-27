@@ -204,7 +204,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                     while ((read = responseStream.read(buffer)) != -1) {
                         if (!spooledToDisk && ((long) memory.size() + read > maxBlobStreamSize)) {
                             spooledToDisk = true;
-                            tmp = File.createTempFile("minio", ".tmp");
+                            tmp = File.createTempFile("s3-blob-", ".tmp");
                             fos = new FileOutputStream(tmp);
                             // On the first overflow, flush everything buffered so far to disk.
                             memory.writeTo(fos);
@@ -224,8 +224,15 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
                             e.addSuppressed(close);
                         }
                     }
-                    if (tmp != null && tmp.exists() && !tmp.delete()) {
-                        log.warn("Failed to delete temporary blob file {}", tmp.getAbsolutePath());
+                    if (tmp != null) {
+                        try {
+                            if (tmp.exists() && !tmp.delete()) {
+                                log.warn("Failed to delete temporary blob file {}", tmp.getAbsolutePath());
+                            }
+                        } catch (Exception delEx) {
+                            log.warn("Error deleting temporary blob file {}", tmp.getAbsolutePath(), delEx);
+                            e.addSuppressed(delEx);
+                        }
                     }
                     throw e;
                 }
