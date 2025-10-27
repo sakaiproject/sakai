@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -282,7 +283,9 @@ public class UploadPage extends ConsoleBasePage
         {
             super.renderHead( component, response );
 
-            String errorMessage = MessageFormat.format( getString( "upload.fileTooBig" ), maxFileSizeMB ).replace( "'", "\\'" );
+            // Properly escape error message for JavaScript context to prevent XSS
+            String errorMessage = MessageFormat.format( getString( "upload.fileTooBig" ), maxFileSizeMB );
+            String escapedMessage = StringEscapeUtils.escapeEcmaScript( errorMessage );
 
             String script = String.format(
                 "const fileInput = document.getElementById('fileInput');" +
@@ -299,7 +302,7 @@ public class UploadPage extends ConsoleBasePage
                 "  }" +
                 "});",
                 maxFileSizeMB,
-                errorMessage
+                escapedMessage
             );
 
             response.render( OnDomReadyHeaderItem.forScript( script ) );
