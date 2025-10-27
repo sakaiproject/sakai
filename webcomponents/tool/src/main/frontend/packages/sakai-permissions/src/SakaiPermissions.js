@@ -18,11 +18,13 @@ export class SakaiPermissions extends SakaiElement {
     roles: { state: true },
     groups: { state: true },
     error: { state: true },
+    _errorMessage: { state: true },
   };
 
   constructor() {
 
     super();
+    this._errorMessage = "";
 
     this.loadTranslations("permissions-wc").then(i18n => {
 
@@ -210,7 +212,9 @@ export class SakaiPermissions extends SakaiElement {
         </div>
       `;
     } else if (this.error) {
-      return html`<div class="sak-banner-error">${this._i18n.alert_permission}</div>`;
+      return html`<div class="sak-banner-error" role="alert" aria-live="polite">
+        ${this._errorMessage || this._i18n.alert_permission}
+      </div>`;
     }
 
     return html`<div class="sak-banner-info">${this._i18n.waiting_for_permissions}</div>`;
@@ -220,11 +224,14 @@ export class SakaiPermissions extends SakaiElement {
 
     const url = `/api/sites/${portal.siteId}/permissions/${this.tool}?ref=${encodeURIComponent(this.reference)}${this.overrideReference ? `&overrideRef=${encodeURIComponent(this.overrideReference)}` : ""}`;
     fetch(url, { cache: "no-cache" })
-      .then(res => {
+      .then(async res => {
 
-        if (res.status === 403 || res.status === 400) {
+        if (!res.ok) {
+          const message = (await res.text())?.trim();
+          const fallbackMessage = this._i18n?.alert_permission || "";
+          this._errorMessage = message || fallbackMessage;
           this.error = true;
-          throw new Error("400 or a 403 error");
+          throw new Error(`Permissions fetch failed with status ${res.status}${message ? `: ${message}` : ""}`);
         } else {
           this.error = false;
           return res.json();
@@ -260,17 +267,27 @@ export class SakaiPermissions extends SakaiElement {
       body: params,
       timeout: 30000
     })
-    .then(res => {
+    .then(async res => {
 
       if (res.ok) {
         this._completePermissions();
       } else {
-        throw new Error("Network response was not ok.");
+        const failureMessage = document.querySelector(`#${this.tool.replace(".", "\\.")}-failure-message`);
+        const message = (await res.text())?.trim();
+        if (failureMessage) {
+          const fallbackMessage = this._i18n?.["per.error.save"] || "";
+          failureMessage.textContent = message || fallbackMessage;
+          failureMessage.style.display = "inline-block";
+        }
+        throw new Error(`Permissions save failed with status ${res.status}${message ? `: ${message}` : ""}`);
       }
     })
     .catch(error => {
 
-      document.querySelector(`#${this.tool.replace(".", "\\.")}-failure-message`).style.display = "inline-block";
+      const failureMessage = document.querySelector(`#${this.tool.replace(".", "\\.")}-failure-message`);
+      if (failureMessage && failureMessage.style.display !== "inline-block") {
+        failureMessage.style.display = "inline-block";
+      }
       console.error(`Failed to save permissions for tool ${this.tool}`, error);
     })
     .finally(() => document.body.style.cursor = "default");
