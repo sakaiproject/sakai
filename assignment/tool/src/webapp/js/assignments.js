@@ -742,6 +742,9 @@ ASN.enableSubmitUnlessNoFile = function(checkForFile)
 
 ASN.submitForm = function( formID, option, submissionID, view, focusId )
 {
+    // Handle rubric defer-save before form submission
+    ASN.handleRubricSaveBeforeSubmit(option);
+
     // Get the form
     var form = document.getElementById( formID );
     if( form !== null )
@@ -1157,6 +1160,37 @@ ASN.cancelGradeSubmission = function () {
   SPNR.disableControlsAndSpin( this, null );
   ASN.submitForm( 'gradeForm', 'cancelgrade', null, null );
   return false;
+};
+
+/**
+ * Handle rubric defer-save before form submission
+ */
+ASN.handleRubricSaveBeforeSubmit = function(option) {
+  const rubricGradingElements = document.getElementsByTagName("sakai-rubric-grading");
+
+  for (let i = 0; i < rubricGradingElements.length; i++) {
+    const rubric = rubricGradingElements[i];
+
+    // Check if this rubric has defer-save enabled
+    if (rubric.hasAttribute('defer-save')) {
+
+      if (option === 'returngrade') {
+        // For return grade (release), publish the rubric
+        if (rubric.release) {
+          rubric.release();
+        }
+      } else {
+        // For save grade, force save as DRAFT if there are pending changes
+        if (rubric.hasPendingChanges && rubric.hasPendingChanges()) {
+          if (rubric.forceSave) {
+            rubric.forceSave(1); // Save as DRAFT
+          }
+        } else if (rubric.save) {
+          rubric.save();
+        }
+      }
+    }
+  }
 };
 
 // SAK-43911 (grab_cursor for reordering items)
