@@ -211,59 +211,57 @@ public abstract class SjaxCall extends AjaxEventBehavior
 				args[i] = this.getComponent().getRequest().getRequestParameters().getParameterValue(paramName);
 			}
 
-		String resultValue = callMethod(scoBean, target, args);
-		if ("Terminate".equals(event) && "true".equalsIgnoreCase(resultValue))
-		{
-			SessionBean bean = getSessionBean();
-			if (bean != null && bean.isCloseOnNextTerminate() && StringUtils.isNotBlank(bean.getCompletionUrl()))
+			String resultValue = callMethod(scoBean, target, args);
+			if ("Terminate".equals(event) && "true".equalsIgnoreCase(resultValue))
 			{
-				resultValue = "__REDIRECT__" + bean.getCompletionUrl();
-				bean.setCloseOnNextTerminate(false);
+				SessionBean bean = getSessionBean();
+				if (bean != null && bean.isCloseOnNextTerminate() && StringUtils.isNotBlank(bean.getCompletionUrl()))
+				{
+					resultValue = "__REDIRECT__" + bean.getCompletionUrl();
+					bean.setCloseOnNextTerminate(false);
+				}
 			}
-		}
 
-		String jsValue;
-		if (StringUtils.isBlank(resultValue))
-		{
-			jsValue = "''";
-		}
-		else if ("true".equals(resultValue) || "false".equals(resultValue))
-		{
-			jsValue = resultValue;
-		}
-		else if (NumberUtils.isCreatable(resultValue))
-		{
-			jsValue = resultValue;
-		}
-		else
-		{
-			jsValue = "'" + StringEscapeUtils.escapeEcmaScript(resultValue) + "'";
-		}
-
-		String result = new StringBuffer().append("scormresult=").append(jsValue).append(";").toString();
-
-		target.appendJavaScript(result);
-
-		if ("Terminate".equals(event) && "true".equalsIgnoreCase(resultValue))
-		{
-			SessionBean bean = getSessionBean();
-			if (bean != null && bean.isCloseOnNextTerminate())
+			String jsValue;
+			if (StringUtils.isBlank(resultValue))
 			{
-				if (StringUtils.isNotBlank(bean.getCompletionUrl()))
-				{
-					String redirectUrl = bean.getCompletionUrl();
-					String escaped = StringEscapeUtils.escapeEcmaScript(redirectUrl);
-					target.appendJavaScript("console.log('SCORM: redirecting to completion URL: :+escaped+'); window.location.href='+escaped+';");
-				}
-				else
-				{
-					target.appendJavaScript("console.log('SCORM: closing SCO window'); window.close();");
-				}
-				bean.setCloseOnNextTerminate(false);
+				jsValue = "''";
 			}
-		}
+			else if ("true".equals(resultValue) || "false".equals(resultValue))
+			{
+				jsValue = resultValue;
+			}
+			else if (NumberUtils.isCreatable(resultValue))
+			{
+				jsValue = resultValue;
+			}
+			else
+			{
+				jsValue = "'" + StringEscapeUtils.escapeEcmaScript(resultValue) + "'";
+			}
+	
+			String result = new StringBuffer().append("scormresult=").append(jsValue).append(";").toString();
 
+			target.appendJavaScript(result);
 
+			if ("Terminate".equals(event) && "true".equalsIgnoreCase(resultValue))
+			{
+				SessionBean bean = getSessionBean();
+				if (bean != null && bean.isCloseOnNextTerminate())
+				{
+					if (StringUtils.isNotBlank(bean.getCompletionUrl()))
+					{
+						String redirectUrl = bean.getCompletionUrl();
+						String escaped = StringEscapeUtils.escapeEcmaScript(redirectUrl);
+						target.appendJavaScript("console.log('SCORM: redirecting to completion URL: :+escaped+'); window.location.href='+escaped+';");
+					}
+					else
+					{
+						target.appendJavaScript("console.log('SCORM: closing SCO window'); window.close();");
+					}
+					bean.setCloseOnNextTerminate(false);
+				}
+			}
 		}
 		catch (Exception e)
 		{
@@ -283,6 +281,7 @@ public abstract class SjaxCall extends AjaxEventBehavior
 		attributes.getAjaxCallListeners().add(new AjaxCallListener().onAfter(getCallbackScript()));
 	}
 
+	@Override
 	public String getCallbackScript()
 	{
 		StringBuilder buffer = new StringBuilder();
