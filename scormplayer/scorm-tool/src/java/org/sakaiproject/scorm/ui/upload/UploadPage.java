@@ -21,7 +21,9 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.form.Form;
@@ -76,20 +78,6 @@ public class UploadPage extends ConsoleBasePage
         add( new FileUploadForm( "uploadForm" ) );
     }
 
-    // SCO-124 - this is needed becasue we can't disable the button in Java and enable it in JavaScript, because Wicket will throw a runtime exception.
-    // So we have to both enable and disable the button via JavaScript.
-    @Override
-    public void renderHead( IHeaderResponse response )
-    {
-        super.renderHead( response );
-
-        // Initialize client-side file size validation to prevent nginx 413 errors
-        int maxFileSizeInMB = resourceService.getMaximumUploadFileSize();
-        String errorMessage = MessageFormat.format( getString( "upload.fileTooBig" ), maxFileSizeInMB ).replace( "'", "\\'" );
-
-        String initScript = String.format( "validateUploadFileSize(%d, '%s');", maxFileSizeInMB, errorMessage );
-        response.render( OnDomReadyHeaderItem.forScript( initScript ) );
-    }
 
     public class FileUploadForm extends Form<Void>
     {
@@ -111,6 +99,10 @@ public class UploadPage extends ConsoleBasePage
             setMultiPart( true );
 
             fileUploadField = new FileUploadField( "fileInput" );
+
+            // Add client-side file size validation behavior to prevent nginx 413 errors
+            fileUploadField.add( new FileSizeValidationBehavior( resourceService.getMaximumUploadFileSize() ) );
+
             add( fileUploadField );
 
             // SCO-98 - disable buttons on submit, add spinner
@@ -143,8 +135,18 @@ public class UploadPage extends ConsoleBasePage
                             String resourceId = "";
                             try
                             {
-                                // File size is validated client-side to prevent nginx 413 errors
-                                // Server-side validation focuses on quota and other runtime constraints
+                                // Server-side file size validation - prevents bypassing client-side checks
+                                int maxFileSizeInMB = resourceService.getMaximumUploadFileSize();
+                                long maxFileSizeBytes = Bytes.megabytes( maxFileSizeInMB ).bytes();
+
+                                if( upload.getSize() > maxFileSizeBytes )
+                                {
+                                    log.warn( "Upload rejected: file size {} bytes exceeds maximum {} MB", upload.getSize(), maxFileSizeInMB );
+                                    error( MessageFormat.format( getString( "upload.fileTooBig" ), maxFileSizeInMB ) );
+                                    onError( target );
+                                    continue;
+                                }
+
                                 resourceId = resourceService.putArchive( upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), false, NotificationService.NOTI_NONE );
                                 int status = contentService.storeAndValidate( resourceId, false, serverConfigurationService.getString( "scorm.zip.encoding", "UTF-8" ) );
 
@@ -258,6 +260,49 @@ public class UploadPage extends ConsoleBasePage
                 return "validate.missing.files";
             default:
                 return "upload.failed";
+        }
+    }
+
+    /**
+     * Wicket behavior that adds client-side file size validation to prevent nginx 413 errors.
+     * Validates file size before upload and provides user feedback.
+     */
+    private class FileSizeValidationBehavior extends Behavior
+    {
+        private static final long serialVersionUID = 1L;
+        private final int maxFileSizeMB;
+
+        public FileSizeValidationBehavior( int maxFileSizeMB )
+        {
+            this.maxFileSizeMB = maxFileSizeMB;
+        }
+
+        @Override
+        public void renderHead( Component component, IHeaderResponse response )
+        {
+            super.renderHead( component, response );
+
+            String errorMessage = MessageFormat.format( getString( "upload.fileTooBig" ), maxFileSizeMB ).replace( "'", "\\'" );
+
+            String script = String.format(
+                "const fileInput = document.getElementById('fileInput');" +
+                "const btnUpload = document.getElementById('btnUpload');" +
+                "btnUpload.disabled = true;" +
+                "fileInput.addEventListener('change', () => {" +
+                "  const file = fileInput.files[0];" +
+                "  if (file && file.size / (1024 * 1024) > %d) {" +
+                "    alert('%s');" +
+                "    fileInput.value = '';" +
+                "    btnUpload.disabled = true;" +
+                "  } else {" +
+                "    btnUpload.disabled = !file;" +
+                "  }" +
+                "});",
+                maxFileSizeMB,
+                errorMessage
+            );
+
+            response.render( OnDomReadyHeaderItem.forScript( script ) );
         }
     }
 }
