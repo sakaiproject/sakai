@@ -647,20 +647,18 @@ public class HistogramListener
 				  if (showObjectivesColumn) {
 					  // Get the percentage correct by objective
 					  String obj = questionScores.getObjectives();
-                                          if (obj != null && !"".equals(obj)) {
-                                                  String[] objs = obj.split(",");
-                                                  for (int i=0; i < objs.length; i++) {
-                                                          if (objs[i] != null) {
-                                                                  objs[i] = objs[i].trim();
-                                                          }
-                                                          if (objs[i] == null || "".equals(objs[i])) {
-                                                                  continue;
-                                                          }
+					  if (StringUtils.isNotBlank(obj)) {
+						  String[] objs = obj.split(",");
+						  for (int i = 0; i < objs.length; i++) {
+							  String objective = StringUtils.trimToNull(objs[i]);
+							  if (objective == null) {
+								  continue;
+							  }
 
-                                                          // SAM-2508 set a default value to avoid the NumberFormatException issues
-                                                          Double pctCorrect = 0.0d;
-                                                          Double newAvg = 0.0d;
-                                                          int divisor = 1;
+							  // SAM-2508 set a default value to avoid the NumberFormatException issues
+							  Double pctCorrect = 0.0d;
+							  Double newAvg = 0.0d;
+							  int divisor = 1;
 
 							  try {
 								  if (questionScores.getPercentCorrect() != null && !"N/A".equalsIgnoreCase(questionScores.getPercentCorrect())) {
@@ -671,8 +669,8 @@ public class HistogramListener
 								  log.error("NFE when looking at metadata and objectives", nfe);
 							  }
 
-							  if (objectivesCorrect.get(objs[i]) != null) {
-								  Double objCorrect = objectivesCorrect.get(objs[i]);
+							  if (objectivesCorrect.get(objective) != null) {
+								  Double objCorrect = objectivesCorrect.get(objective);
 								  divisor = objCorrect.intValue() + 1;
 
 								  newAvg = objCorrect + ((pctCorrect - objCorrect) / divisor);
@@ -681,43 +679,39 @@ public class HistogramListener
 								  newAvg = new BigDecimal(pctCorrect).setScale(2, RoundingMode.HALF_UP).doubleValue();
 							  }
 
-                                                          objectivesCounter.put(objs[i], divisor);
-                                                          objectivesCorrect.put(objs[i], newAvg);
-                                                  }
-                                          }
+							  objectivesCounter.put(objective, divisor);
+							  objectivesCorrect.put(objective, newAvg);
+						  }
+					  }
 
-                                          // Get the percentage correct by keyword
-                                          String key = questionScores.getKeywords();
-                                          if (key != null && !"".equals(key)) {
-                                                  String [] keys = key.split(",");
-                                                  for (int i=0; i < keys.length; i++) {
-                                                          if (keys[i] != null) {
-                                                                  keys[i] = keys[i].trim();
-                                                          }
-                                                          if (keys[i] == null || "".equals(keys[i])) {
-                                                                  continue;
-                                                          }
-                                                          if (keywordsCorrect.get(keys[i]) != null) {
-                                                                  int divisor = keywordsCounter.get(keys[i]) + 1;
-                                                                  Double newAvg = keywordsCorrect.get(keys[i]) + (
-                                                                  (Double.parseDouble(questionScores.getPercentCorrect()) - keywordsCorrect.get(keys[i])
-                                                                  ) / divisor);
+					  // Get the percentage correct by keyword
+					  String key = questionScores.getKeywords();
+					  if (StringUtils.isNotBlank(key)) {
+						  String [] keys = key.split(",");
+						  for (int i = 0; i < keys.length; i++) {
+							  String keyword = StringUtils.trimToNull(keys[i]);
+							  if (keyword == null) {
+								  continue;
+							  }
+							  if (keywordsCorrect.get(keyword) != null) {
+								  int divisor = keywordsCounter.get(keyword) + 1;
+								  Double newAvg = keywordsCorrect.get(keyword) + (
+									  (Double.parseDouble(questionScores.getPercentCorrect()) - keywordsCorrect.get(keyword)
+									  ) / divisor);
 
-                                                                  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
+								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
 
-                                                                  keywordsCounter.put(keys[i], divisor);
-                                                                  keywordsCorrect.put(keys[i], newAvg);
+								  keywordsCounter.put(keyword, divisor);
+								  keywordsCorrect.put(keyword, newAvg);
 							  } else {
 								  Double newAvg = Double.parseDouble(questionScores.getPercentCorrect());
 								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                              
-								  keywordsCounter.put(keys[i], 1);
-								  keywordsCorrect.put(keys[i], newAvg);
+
+								  keywordsCounter.put(keyword, 1);
+								  keywordsCorrect.put(keyword, newAvg);
 							  }
 						  }
 					  }
-				  }
-				  
 				  //i.e. for EMI questions we add detailed stats for the whole
 				  //question as well as for the sub-questions
 				  if (questionScores.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString()) 
