@@ -38,6 +38,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.signup.api.SakaiFacade;
 import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.api.model.SignupTimeslot;
@@ -123,12 +125,13 @@ public class AttendeeSignupOwnEmail extends AttendeeEmailBase {
 		}
 		
 		// attendee's comment
-        if (timeslot.getAttendee(attendee.getId()) != null
-                && timeslot.getAttendee(attendee.getId()).getComments() != null
-                && !timeslot.getAttendee(attendee.getId()).getComments().isEmpty()
-                && !"&nbsp;".equals(timeslot.getAttendee(attendee.getId()).getComments())) {
-            message.append(NEWLINE).append(NEWLINE).append(
-                    MessageFormat.format(rb.getString("body.ownComment"), timeslot.getAttendee(attendee.getId()).getComments()));
+        if (timeslot.getAttendee(attendee.getId()) != null) {
+            String comments = StringUtils.trimToEmpty(timeslot.getAttendee(attendee.getId()).getComments());
+            if (StringUtils.isNotBlank(comments) && !comments.equals("&nbsp;")) {
+                message.append(NEWLINE)
+                        .append(NEWLINE)
+                        .append(StringEscapeUtils.escapeHtml4(MessageFormat.format(rb.getString("body.ownComment"), comments)));
+            }
         }
 
         // footer

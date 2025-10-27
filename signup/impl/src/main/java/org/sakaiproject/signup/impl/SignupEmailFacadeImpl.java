@@ -294,7 +294,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
                             email = new PromoteAttendeeEmail(participant, item, signupEventTrackingInfo.getMeeting(), sakaiFacade);
                     default -> {
                         log.warn("For attendee(Eid): {} - No such message type: {} was found and no email was able to send away", participant.getEid(), item.getMessageType());
-                        return;
+                        continue;
                     }
                 }
 				// send email out

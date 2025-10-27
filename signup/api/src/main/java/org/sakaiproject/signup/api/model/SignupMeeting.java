@@ -71,6 +71,7 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * <p>
@@ -164,12 +165,14 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 50)
     @OrderColumn(name = "list_index") @JoinColumn(name = "meeting_id", nullable = false)
+    @ToString.Exclude
     private List<SignupTimeslot> signupTimeSlots = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 50)
     @OrderColumn(name = "list_index") @JoinColumn(name = "meeting_id", nullable = false)
+    @ToString.Exclude
     private List<SignupSite> signupSites = new ArrayList<>();
 
     @ElementCollection
@@ -177,6 +180,7 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 50)
     @OrderColumn(name = "list_index")
+    @ToString.Exclude
     private List<SignupAttachment> signupAttachments = new ArrayList<>();
 
     @Column(name = "allow_attendance")
@@ -197,7 +201,6 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
     @Transient private boolean applyToAllRecurMeetings;
     @Transient private String currentSiteId; // For RESTful case to pass siteId for email
     @Transient private Date repeatUntil;
-    @Transient private Calendar cal = Calendar.getInstance();
     @Transient private boolean inMultipleCalendarBlocks = false;
     @Transient private VEvent vevent; // ICS VEvent created for this meeting
 
@@ -336,11 +339,12 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes, Persista
      * @return true if the event/meeting is cross days
      */
     public boolean isMeetingCrossDays() {
-        cal.setTime(getStartTime());
-        int startingDay = cal.get(Calendar.DAY_OF_YEAR);
-        cal.setTime(getEndTime());
-        int endingDay = cal.get(Calendar.DAY_OF_YEAR);
-        return (startingDay != endingDay);
+        return !startTime.toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDate()
+                .equals(endTime.toInstant()
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDate());
     }
 
     /**

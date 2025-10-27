@@ -110,53 +110,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 				.getResultList();
 	}
 
-	@Override
-	public List<SignupMeeting> findInSiteByDateRange(String siteId, Date startDate, Date endDate) {
-		if (siteId == null || startDate == null || endDate == null) return List.of();
-
-		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
-		CriteriaQuery<SignupMeeting> query = cb.createQuery(SignupMeeting.class);
-		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
-
-        List<Predicate> predicates = List.of(
-                cb.equal(join.get("siteId"), siteId),
-                cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
-                cb.lessThan(root.get("startTime"), endDate));
-
-		query.select(root)
-                .distinct(true)
-				.where(cb.and(predicates.toArray(new Predicate[0])))
-				.orderBy(cb.asc(root.get("startTime")));
-
-		return sessionFactory.getCurrentSession()
-				.createQuery(query)
-				.getResultList();
-	}
-
-	@Override
-	public List<SignupMeeting> findInSitesByDateRange(List<String> siteIds, Date startDate, Date endDate) {
-		if (siteIds == null || siteIds.isEmpty() || startDate == null || endDate == null) return List.of();
-
-		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
-		CriteriaQuery<SignupMeeting> query = cb.createQuery(SignupMeeting.class);
-		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
-
-        List<Predicate> predicates = List.of(
-                join.get("siteId").in(siteIds),
-                cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
-                cb.lessThan(root.get("startTime"), endDate));
-
-		query.select(root)
-                .distinct(true)
-				.where(cb.and(predicates.toArray(new Predicate[0])))
-				.orderBy(cb.asc(root.get("startTime")));
-
-		return sessionFactory.getCurrentSession()
-				.createQuery(query)
-				.getResultList();
-	}
 
 	@Override
 	public List<SignupMeeting> findRecurringMeetings(String siteId, Long recurrenceId, Date currentTime) {
@@ -320,31 +273,6 @@ public class SignupMeetingRepositoryImpl extends SpringCrudRepositoryImpl<Signup
 				.getResultList();
 
 		return locations != null && !locations.isEmpty() ? locations : List.of();
-	}
-
-	@Override
-	public List<Long> findIdsBySiteIdAndDateRange(String siteId, Date startDate, Date endDate) {
-		if (siteId == null || startDate == null || endDate == null) return List.of();
-
-		CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
-		CriteriaQuery<Long> query = cb.createQuery(Long.class);
-		Root<SignupMeeting> root = query.from(SignupMeeting.class);
-		Join<SignupMeeting, SignupSite> join = root.join("signupSites");
-
-        List<Predicate> predicates = List.of(
-                cb.equal(join.get("siteId"), siteId),
-                cb.greaterThanOrEqualTo(root.get("endTime"), startDate),
-                cb.lessThan(root.get("startTime"), endDate));
-
-        query.select(root.get("id"))
-                .distinct(true)
-				.where(cb.and(predicates.toArray(new Predicate[0])))
-				.orderBy(cb.asc(root.get("id")));
-
-		return sessionFactory.getCurrentSession()
-				.createQuery(query)
-				.setCacheable(true)
-				.getResultList();
 	}
 
 	@Override

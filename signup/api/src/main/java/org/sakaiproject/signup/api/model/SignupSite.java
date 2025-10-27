@@ -52,6 +52,7 @@ import javax.persistence.Version;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -95,6 +96,7 @@ public class SignupSite implements PersistableEntity<Long> {
     @ElementCollection
 	@CollectionTable(name = "signup_site_groups", joinColumns = @JoinColumn(name = "signup_site_id", nullable = false))
 	@OrderColumn(name = "list_index")
+    @ToString.Exclude
 	private List<SignupGroup> signupGroups;
 
     /**

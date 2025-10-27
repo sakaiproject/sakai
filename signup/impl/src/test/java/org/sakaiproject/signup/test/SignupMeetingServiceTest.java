@@ -92,15 +92,16 @@ public class SignupMeetingServiceTest {
     private void setupResourceLoader() {
         resourceLoader = Mockito.mock(ResourceLoader.class);
         Mockito.when(resourceLoader.getLocale()).thenReturn(Locale.getDefault());
-        when(resourceLoader.getString("body.footer.text.no.access.link")).thenReturn("No access link");
+        when(resourceLoader.getString("body.footer.text.no.access.link")).thenReturn("This automatic notification message was sent by {0} from the {1} site.");
+        when(resourceLoader.getString("body.footer.text")).thenReturn("This automatic notification message was sent by {0} ({1}) from the {2} site. {3}You can access this site to check the latest sign-up status by clicking the link above.");
         when(resourceLoader.getString("body.meeting.crossdays.timeslot.timeframe")).thenReturn("{0}, {1} - {2}, {3} ({4})");
-        when(resourceLoader.getString("body.meetingTopic.part")).thenReturn("Meeting Topic");
+        when(resourceLoader.getString("body.meetingTopic.part")).thenReturn("Meeting Title: {0}");
         when(resourceLoader.getString("body.timeslot")).thenReturn("Time slot:");
-        when(resourceLoader.getString("body.attendee.cancel.own")).thenReturn("Cancel own");
-        when(resourceLoader.getString("body.top.greeting.part")).thenReturn("Hello");
-        when(resourceLoader.getString("subject.attendee.cancel.own.field")).thenReturn("Cancel own field");
-        when(resourceLoader.getString("signup.event.currentattendees")).thenReturn("Current attendees");
-        when(resourceLoader.getString("signup.event.attendeestitle")).thenReturn("Attendees");
+        when(resourceLoader.getString("body.attendee.cancel.own")).thenReturn("You have cancelled your appointment for the following meeting in the {0} site on {1}:");
+        when(resourceLoader.getString("body.top.greeting.part")).thenReturn("Dear {0},");
+        when(resourceLoader.getString("subject.attendee.cancel.own.field")).thenReturn("You have cancelled your appointment for the meeting \"{0}\" in {1}");
+        when(resourceLoader.getString("signup.event.currentattendees")).thenReturn("Currently, {0} attendees have been signed up.");
+        when(resourceLoader.getString("signup.event.attendeestitle")).thenReturn("{0} attendees");
         ((SignupMeetingServiceImpl) AopTestUtils.getTargetObject(service)).setResourceLoader(resourceLoader);
         ((SignupEmailFacadeImpl) AopTestUtils.getTargetObject(signupEmailFacade)).setResourceLoader(resourceLoader);
     }
@@ -294,35 +295,6 @@ public class SignupMeetingServiceTest {
         Date endDate = Date.from(Instant.now().plus(10, ChronoUnit.DAYS));
 
         List<SignupMeeting> meetings = service.getSignupMeetings(TEST_SITE_ID, TEST_USER_ID, startDate, endDate);
-
-        assertNotNull(meetings);
-        assertTrue("Should find the meeting", meetings.size() >= 1);
-    }
-
-    @Test
-    public void testGetSignupMeetingsInSite() throws PermissionException {
-        SignupMeeting meeting = createTestMeeting("Site Meeting");
-        service.saveMeeting(meeting, TEST_USER_ID);
-
-        Date startDate = new Date();
-        Date endDate = Date.from(Instant.now().plus(10, ChronoUnit.DAYS));
-
-        List<SignupMeeting> meetings = service.getSignupMeetingsInSite(TEST_SITE_ID, startDate, endDate);
-
-        assertNotNull(meetings);
-        assertTrue("Should find the meeting", meetings.size() >= 1);
-    }
-
-    @Test
-    public void testGetSignupMeetingsInSites() throws PermissionException {
-        SignupMeeting meeting = createTestMeeting("Multi-Site Meeting");
-        service.saveMeeting(meeting, TEST_USER_ID);
-
-        Date startDate = new Date();
-        Date endDate = Date.from(Instant.now().plus(10, ChronoUnit.DAYS));
-        List<String> siteIds = Arrays.asList(TEST_SITE_ID);
-
-        List<SignupMeeting> meetings = service.getSignupMeetingsInSites(siteIds, startDate, endDate);
 
         assertNotNull(meetings);
         assertTrue("Should find the meeting", meetings.size() >= 1);

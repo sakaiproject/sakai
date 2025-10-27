@@ -105,34 +105,6 @@ public interface SignupMeetingService {
 	List<SignupMeeting> getSignupMeetings(String currentSiteId, String userId, Date startDate, Date endDate);
 
 	/**
-	 * This returns a subset list of SignupMeeting from startDate to endDate for
-	 * the site.
-	 * 
-	 * @param siteId
-	 *            unique id which represents the multiple sites
-	 * @param startDate
-	 *            date,which constraints the search starting date.
-	 * @param endDate
-	 *            end date ,which constraints the search ending date.
-	 * @return a list of SignupMeeting objects
-	 */
-	List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate, Date endDate);	
-	
-	/**
-	 * This returns a subset list of SignupMeeting from startDate to endDate for
-	 * the sites
-	 *
-	 * @param siteIds
-	 *            a collection of unique ids which represents the multiple sites
-	 * @param startDate
-	 *            date,which constraints the search starting date.
-	 * @param endDate
-	 *            endDate ,which constraints the search ending date.
-	 * @return a list of SignupMeeting objects
-	 */
-	List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate);
-
-	/**
 	 * This returns a subset list of SignupMeeting from startDate to calculated endDate for the sites.
 	 * This is a convenience method that calculates endDate as startDate + timeFrameInDays.
 	 *

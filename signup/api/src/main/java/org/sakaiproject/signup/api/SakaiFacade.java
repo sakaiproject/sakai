@@ -406,7 +406,7 @@ public interface SakaiFacade {
 	 * @param siteId		site to create this group in
 	 * @param title			group title
 	 * @param description	group description
-	 * @param userIds		list of users to populate the group with, optional.
+	 * @param userUuids		list of users to populate the group with, optional.
 	 * @return The groupId
 	 */
 	public String createGroup(String siteId, String title, String description, List<String> userUuids);
@@ -467,5 +467,4 @@ public interface SakaiFacade {
 	 */
 	public String getToolResetUrl();
 
-    public SignupMeetingService getSignupMeetingService();
 }

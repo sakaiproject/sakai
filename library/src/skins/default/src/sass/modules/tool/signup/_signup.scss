@@ -58,7 +58,7 @@
 		text-align: left;
 
 		td {
-			padding: 0em 0em;
+			padding: 0 0;
 
 			&.attName {
 				padding: 0 0.1em;
@@ -67,25 +67,25 @@
 	}
 
 	table.organizer td {
-		padding: .15em 0em 0em 1em;
+		padding: .15em 0 0 1em;
 		text-align: left;
 		white-space: nowrap;
 	}
 
 	table.sitegroup td {
-		padding: .1em 0em 0em 0em;
+		padding: .1em 0 0 0;
 		text-align: left;
 		white-space: nowrap;
 	}
 
 	table.published_sitegroup td {
-		padding: 3px 0px 3px 20px;
+		padding: 3px 0 3px 20px;
 		text-align: left;
 		white-space: nowrap;
 	}
 
 	table.preSignTable td {
-		padding: .15em 0em 0em 1em;
+		padding: .15em 0 0 1em;
 		text-align: left;
 		white-space: nowrap;
 	}
@@ -123,7 +123,7 @@
 
 		td.valueColumn {
 			text-align: left;
-			padding-left: 0px;
+			padding-left: 0;
 		}
 	}
 
@@ -238,7 +238,7 @@
 
 	// Action buttons and controls
 	.actButton {
-		padding: .2em 1;
+		padding: .2em 1em;
 		text-align: center;
 	}
 
@@ -282,7 +282,7 @@
 
 	// Status styles
 	.organizer_canceled {
-		padding: .15em 0em 0em 1.8em;
+		padding: .15em 0 0 1.8em;
 		font-weight: bold;
 		color: red;
 	}
@@ -308,7 +308,7 @@
 	}
 
 	.untilCalendar {
-		margin-left: 0px;
+		margin-left: 0;
 	}
 
 	.mi {
@@ -323,7 +323,7 @@
 		width: 350px;
 		color: #A3A3A3;
 
-		input, longtext_red {
+		input, .longtext_red {
 			color: #A3A3A3;
 		}
 	}
@@ -415,19 +415,19 @@
 	}
 
 	.sitetitle {
-		margin: .1em 0em;
+		margin: .1em 0;
 		border: 1px solid #fff;
 		line-height: 100%;
 	}
 
 	.published_grouptitle {
-		margin: 5px 0px;
+		margin: 5px 0;
 		line-height: 90%;
 		font-size: 85%;
 	}
 
 	.published_sitetitle {
-		margin: 10px 0px;
+		margin: 10px 0;
 		line-height: 100%;
 		word-wrap: break-word;
 		white-space: normal;

@@ -40,7 +40,7 @@ public interface SignupMeetingRepository extends SpringCrudRepository<SignupMeet
 	List<SignupMeeting> findAllBySiteId(String siteId);
 
 	/**
-	 * Returns a subset list of SignupMeetings from Now to searchEndDate for the site
+	 * Returns SignupMeetings for the site where the start time is before the specified date
 	 *
 	 * @param siteId a unique id which represents the current site
 	 * @param searchEndDate date which constraints the search ending date
@@ -57,26 +57,6 @@ public interface SignupMeetingRepository extends SpringCrudRepository<SignupMeet
 	 * @return a list of SignupMeeting objects
 	 */
 	List<SignupMeeting> findBySiteIdAndDateRange(String siteId, Date startDate, Date endDate);
-
-	/**
-	 * Returns a subset list of SignupMeetings from startDate to endDate for the defined site
-	 *
-	 * @param siteId a unique id which represents the site
-	 * @param startDate date which constraints the search starting date
-	 * @param endDate date which constraints the search ending date
-	 * @return a list of SignupMeeting objects
-	 */
-	List<SignupMeeting> findInSiteByDateRange(String siteId, Date startDate, Date endDate);
-
-	/**
-	 * Returns a subset list of SignupMeetings from startDate to endDate for the defined sites
-	 *
-	 * @param siteIds a collection of unique ids which represents multiple sites
-	 * @param startDate date which constraints the search starting date
-	 * @param endDate date which constraints the search ending date
-	 * @return a list of SignupMeeting objects
-	 */
-	List<SignupMeeting> findInSitesByDateRange(List<String> siteIds, Date startDate, Date endDate);
 
 	/**
 	 * Returns a subset list of SignupMeetings with the same recurrenceId from a starting Date
@@ -137,17 +117,6 @@ public interface SignupMeetingRepository extends SpringCrudRepository<SignupMeet
 	 * @return a list of Locations in a site
 	 */
 	List<String> findAllLocationsBySiteId(String siteId);
-
-	/**
-	 * Returns IDs of SignupMeetings from startDate to endDate for the defined site
-	 * This method uses query cache to return only IDs for improved caching performance
-	 *
-	 * @param siteId a unique id which represents the site
-	 * @param startDate date which constraints the search starting date
-	 * @param endDate date which constraints the search ending date
-	 * @return a list of SignupMeeting IDs
-	 */
-	List<Long> findIdsBySiteIdAndDateRange(String siteId, Date startDate, Date endDate);
 
 	/**
 	 * Returns IDs of SignupMeetings from startDate to endDate for the defined sites

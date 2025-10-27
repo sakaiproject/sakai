@@ -85,9 +85,9 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	protected String getFooter(String newline) {
         // tag the message - HTML version
         if (this.meeting.getCurrentSiteId() == null) {
-            return getFooterWithAccessUrl(newline);
-        } else {
             return getFooterWithNoAccessUrl(newline);
+        } else {
+            return getFooterWithAccessUrl(newline);
         }
 	}
 

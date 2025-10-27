@@ -65,7 +65,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.api.SakaiFacade;
-import org.sakaiproject.signup.api.SignupMeetingService;
 import org.sakaiproject.signup.api.SignupUser;
 import org.sakaiproject.signup.api.model.SignupGroup;
 import org.sakaiproject.signup.api.model.SignupMeeting;
@@ -117,7 +116,6 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	private TimeService timeService;
 	private ContentHostingService contentHostingService;
     private Optional<CalendarService> additionalCalendarService;
-    private SignupMeetingService signupMeetingService;
 
 	// Returns Google calendar if the calendar has been created in Google
 	public Calendar getAdditionalCalendar(String siteId) throws PermissionException {

@@ -46,6 +46,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -172,16 +173,6 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         meetings.sort(Comparator.comparing(SignupMeeting::getStartTime));
 
         return meetings;
-    }
-
-    @Override
-    public List<SignupMeeting> getSignupMeetingsInSite(String siteId, Date startDate, Date endDate) {
-        return repository.findInSiteByDateRange(siteId, startDate, endDate);
-    }
-
-    @Override
-    public List<SignupMeeting> getSignupMeetingsInSites(List<String> siteIds, Date startDate, Date endDate) {
-        return repository.findInSitesByDateRange(siteIds, startDate, endDate);
     }
 
     @Override
@@ -603,11 +594,9 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
     @Override
     public SignupMeeting loadSignupMeeting(Long meetingId, String userId, String siteId) {
-        SignupMeeting meeting = repository.findById(meetingId).orElse(null);
-        List<SignupMeeting> temp = new ArrayList<>();
-        temp.add(meeting);
-        updatePermissions(userId, siteId, temp);
-        return meeting;
+        Optional<SignupMeeting> meeting = repository.findById(meetingId);
+        meeting.ifPresent(m -> updatePermissions(userId, siteId, List.of(m)));
+        return meeting.orElse(null);
     }
 
     @Override
@@ -755,7 +744,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
             calBlock++;
         }
         if (saveMeeting) {
-            updateMeetingWithVersionHandling(meeting);
+            updateSignupMeeting(meeting, true);
         }
     }
 
@@ -787,11 +776,10 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
                 if (ts.isDisplayAttendees() && !ts.getAttendees().isEmpty()) {
                     // privacy issue
                     for (SignupAttendee attendee : ts.getAttendees()) {
-                        userDirectoryService.getOptionalUser(attendee.getAttendeeUserId()).ifPresent(u -> {
-                            attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>")
-                                .append(u.getDisplayName())
-                                .append("</i></span><br />");
-                        });
+                        userDirectoryService.getOptionalUser(attendee.getAttendeeUserId()).ifPresent(u ->
+                                attendeeNamesMarkup.append("<span style=\"font-weight: italic\"><i>")
+                                        .append(u.getDisplayName())
+                                        .append("</i></span><br />"));
                     }
                 }
             }
@@ -996,7 +984,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
                         }
                     }
                 }
-                updateMeetingWithVersionHandling(sm);
+                updateSignupMeeting(sm, true);
             }
         } catch (Exception e) {
             log.warn("Exception for removal of calendar and calendar info may not be removed from events objects: {}", e.toString());
@@ -1015,22 +1003,6 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
             addEvent.setGroupAccess(groups, true);
         }
         return addEvent;
-    }
-
-    /**
-     * Main purpose is to update the calendarId and eventId into the related
-     * meeting site/groups
-     */
-    private void updateMeetingWithVersionHandling(SignupMeeting meeting) throws Exception {
-        for (int i = 0; i < MAX_NUMBER_OF_RETRY; i++) {
-            try {
-                updateSignupMeeting(meeting, true);
-                return;
-            } catch (OptimisticLockingFailureException e) {
-                // nothing
-            }
-        }
-        throw new SignupUserActionException("Some one updated the meeting before your update. Please try again.");
     }
 
     /**
