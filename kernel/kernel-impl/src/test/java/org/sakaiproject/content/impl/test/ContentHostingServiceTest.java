@@ -349,17 +349,7 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
                 Assert.fail();
             }
             try {
-                statement.execute("select XML from CONTENT_RESOURCE where RESOURCE_ID = 'does-not-exist' ");
-            } catch ( Exception ex ) {
-                Assert.fail();
-            }
-            try {
                 statement.execute("select BINARY_ENTITY from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' " );
-            } catch ( Exception ex ) {
-                Assert.fail();
-            }
-            try {
-                statement.execute("select XML from CONTENT_RESOURCE_DELETE where RESOURCE_ID = 'does-not-exist' ");
             } catch ( Exception ex ) {
                 Assert.fail();
             }

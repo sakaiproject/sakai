@@ -27,7 +27,7 @@ package org.adl.sequencer;
 import java.io.Serializable;
 import java.util.List;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Encapsulates one rollup rule.<br><br>
@@ -60,6 +60,7 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqRollupRule implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -195,12 +196,7 @@ public class SeqRollupRule implements Serializable {
 	 */
 	public static String ROLLUP_SET_ATLEASTPERCENT = "atLeastPercent";
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * This describes the rollup rule action (element 5.4)
 	 */
 	public int mAction = SeqRollupRule.ROLLUP_ACTION_SATISFIED;
@@ -243,23 +239,22 @@ public class SeqRollupRule implements Serializable {
 	 * diagnostic purposes.
 	 */
 	public void dumpState() {
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRule  --> BEGIN - dumpState");
+        log.debug("""
+                    :: SeqRollupRule  --> BEGIN - dumpState
+                    ::--> Action      : {}
+                    ::--> Set         : {}
+                    ::--> minCount    : {}
+                    ::--> minPercent  : {}
+                    -------------------
+                  """, mAction, mChildActivitySet, mMinCount, mMinPercent);
 
-			System.out.println("  ::--> Action      : " + mAction);
-			System.out.println("  ::--> Set         : " + mChildActivitySet);
-			System.out.println("  ::--> minCount    : " + mMinCount);
-			System.out.println("  ::--> minPercent  : " + mMinPercent);
-			System.out.println("  ------------------- ");
-
-			if (mConditions != null) {
-				mConditions.dumpState();
-			} else {
-				System.out.println("  ::--> NULL conditions");
-			}
-
-			System.out.println("  :: SeqRollupRule  --> END   - dumpState");
+		if (mConditions != null) {
+			mConditions.dumpState();
+        } else {
+            log.debug("  ::--> NULL conditions");
 		}
+
+        log.debug("  :: SeqRollupRule  --> END   - dumpState");
 	}
 
 	@Override
@@ -291,10 +286,7 @@ public class SeqRollupRule implements Serializable {
 	 *         enumeration.
 	 */
 	public int evaluate(List<SeqActivity> iChildren) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRule  --> BEGIN - evaluate");
-		}
+        log.debug("  :: SeqRollupRule  --> BEGIN - evaluate");
 
 		// Evaluate 'this' rollup rule, using the activity's children
 		boolean result = false;
@@ -316,11 +308,8 @@ public class SeqRollupRule implements Serializable {
 		if (result) {
 			action = mAction;
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + action);
-			System.out.println("  :: SeqRollupRule  --> END - evaluate");
-		}
+        log.debug("  ::-->  {}", action);
+		log.debug("  :: SeqRollupRule  --> END - evaluate");
 
 		return action;
 	}
@@ -336,10 +325,8 @@ public class SeqRollupRule implements Serializable {
 	 *         otherwise <code>false</code>.
 	 */
 	private boolean evaluateAll(List<SeqActivity> iChildren) {
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRule  --> BEGIN - evaluateAll");
-		}
-
+        log.debug("  :: SeqRollupRule  --> BEGIN - evaluateAll");
+		
 		boolean result = true;
 		SeqActivity tempActivity = null;
 
@@ -355,12 +342,8 @@ public class SeqRollupRule implements Serializable {
 
 			i++;
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + result);
-			System.out.println("  :: SeqRollupRule  --> END   - evaluateAll");
-		}
-
+        log.debug("  ::-->  {}", result);
+		log.debug("  :: SeqRollupRule  --> END   - evaluateAll");
 		return result;
 	}
 
@@ -375,9 +358,7 @@ public class SeqRollupRule implements Serializable {
 	 *         otherwise <code>false</code>.
 	 */
 	private boolean evaluateAny(List<SeqActivity> iChildren) {
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRule  --> BEGIN - evaluateAny");
-		}
+        log.debug("  :: SeqRollupRule  --> BEGIN - evaluateAny");
 
 		boolean result = false;
 		SeqActivity tempActivity = null;
@@ -394,12 +375,8 @@ public class SeqRollupRule implements Serializable {
 
 			i++;
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + result);
-			System.out.println("  :: SeqRollupRule  --> END   - evaluateAny");
-		}
-
+        log.debug("  ::-->  {}", result);
+		log.debug("  :: SeqRollupRule  --> END   - evaluateAny");
 		return result;
 	}
 
@@ -415,10 +392,7 @@ public class SeqRollupRule implements Serializable {
 	 *         otherwise <code>false</code>.
 	 */
 	private boolean evaluateMinCount(List<SeqActivity> iChildren) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRule  --> BEGIN - evaluateMinSize");
-		}
+        log.debug("  :: SeqRollupRule  --> BEGIN - evaluateMinSize");
 
 		long count = 0;
 		SeqActivity tempActivity = null;
@@ -439,12 +413,8 @@ public class SeqRollupRule implements Serializable {
 		}
 
 		boolean result = (count >= mMinCount);
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + result);
-			System.out.println("  :: SeqRollupRule  --> END   - evaluateMinSize");
-		}
-
+        log.debug("  ::-->  {}", result);
+		log.debug("  :: SeqRollupRule  --> END   - evaluateMinSize");
 		return result;
 	}
 
@@ -460,9 +430,7 @@ public class SeqRollupRule implements Serializable {
 	 *         otherwise <code>false</code>.
 	 */
 	private boolean evaluateMinPercent(List<SeqActivity> iChildren) {
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRule  --> BEGIN - " + "evaluateMinPercent");
-		}
+        log.debug("  :: SeqRollupRule  --> BEGIN - evaluateMinPercent");
 
 		long countAll = 0;
 		long count = 0;
@@ -486,11 +454,8 @@ public class SeqRollupRule implements Serializable {
 		}
 
 		boolean result = (count >= (long) ((mMinPercent * countAll) + 0.5));
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + result);
-			System.out.println("  :: SeqRollupRule  --> END   - " + "evaluateMinPercent");
-		}
+        log.debug("  ::-->  {}", result);
+		log.debug("  :: SeqRollupRule  --> END   - evaluateMinPercent");
 		return result;
 	}
 
@@ -505,10 +470,8 @@ public class SeqRollupRule implements Serializable {
 	 *         otherwise <code>false</code>.
 	 */
 	private boolean evaluateNone(List<SeqActivity> iChildren) {
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRule  --> BEGIN - evaluateNone");
-		}
-
+        log.debug("  :: SeqRollupRule  --> BEGIN - evaluateNone");
+		
 		boolean result = true;
 		SeqActivity tempActivity = null;
 
@@ -526,12 +489,8 @@ public class SeqRollupRule implements Serializable {
 
 			i++;
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + result);
-			System.out.println("  :: SeqRollupRule  --> END   - evaluateNone");
-		}
-
+        log.debug("  ::-->  {}", result);
+		log.debug("  :: SeqRollupRule  --> END   - evaluateNone");
 		return result;
 	}
 
@@ -562,11 +521,8 @@ public class SeqRollupRule implements Serializable {
 	 *         evaluation of its parent's rollup, otherwise <code>false</code>.
 	 */
 	private boolean isIncluded(SeqActivity iActivity) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRule  --> BEGIN - isIncluded");
-			System.out.println("  ::-->  " + iActivity.getID());
-		}
+        log.debug("  :: SeqRollupRule  --> BEGIN - isIncluded");
+		log.debug("  ::-->  {}", iActivity.getID());
 
 		// Assume all children are included in rollup
 		boolean include = true;
@@ -617,33 +573,23 @@ public class SeqRollupRule implements Serializable {
 			default:
 
 				include = false;
-
-				if (_Debug) {
-					System.out.println("  ::--> ERROR :: Invalid rollup " + "action");
-				}
+                log.debug("  ::--> ERROR :: Invalid rollup action");
 			}
 
 			if (consider != null) {
 				if (consider.equals(SeqRollupRule.ROLLUP_CONSIDER_NOTSUSPENDED)) {
-					if (_Debug) {
-						System.out.println("  ::--> Looking At Not Suspended");
-					}
+                    log.debug("  ::--> Looking At Not Suspended");
 
 					if (iActivity.getActivityAttempted() && iActivity.getIsSuspended()) {
 						include = false;
 					}
 
 				} else if (consider.equals(SeqRollupRule.ROLLUP_CONSIDER_ATTEMPTED)) {
-					if (_Debug) {
-						System.out.println("  ::--> Looking At Attempted");
-					}
-
+                    log.debug("  ::--> Looking At Attempted");
 					include = iActivity.getActivityAttempted();
 
 				} else if (consider.equals(SeqRollupRule.ROLLUP_CONSIDER_NOTSKIPPED)) {
-					if (_Debug) {
-						System.out.println("  ::--> Looking At Not Skipped");
-					}
+                    log.debug("  ::--> Looking At Not Skipped");
 
 					// Check if the activity should be 'skipped'.
 
@@ -661,21 +607,14 @@ public class SeqRollupRule implements Serializable {
 						include = false;
 					}
 				} else {
-					if (_Debug) {
-						System.out.println("  ::--> Looking At Always");
-					}
-
+                    log.debug("  ::--> Looking At Always");
 					include = true;
 				}
 
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + include);
-			System.out.println("  :: SeqRollupRule  --> END   - isIncluded");
-		}
-
+        log.debug("  ::-->  {}", include);
+		log.debug("  :: SeqRollupRule  --> END   - isIncluded");
 		return include;
 	}
 
@@ -687,11 +626,8 @@ public class SeqRollupRule implements Serializable {
 	    *                action.
 	    */
 	public void setRollupAction(String iAction) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRule  --> BEGIN - " + "setRollupAction");
-			System.out.println("  :: " + iAction);
-		}
+        log.debug("  :: SeqRollupRule  --> BEGIN - setRollupAction");
+		log.debug("  :: {}", iAction);
 
 		if (iAction.equals("satisfied")) {
 			mAction = SeqRollupRule.ROLLUP_ACTION_SATISFIED;
@@ -702,13 +638,9 @@ public class SeqRollupRule implements Serializable {
 		} else if (iAction.equals("incomplete")) {
 			mAction = SeqRollupRule.ROLLUP_ACTION_INCOMPLETE;
 		} else {
-			if (_Debug) {
-				System.out.println("  ::--> ERROR : Invalid Action");
-			}
+            log.debug("  ::--> ERROR : Invalid Action");
 		}
-
-		if (_Debug) {
-			System.out.println("  :: SeqRollupRule  --> END   - " + "setRollupAction");
-		}
+        log.debug("  :: SeqRollupRule  --> END   - setRollupAction");
 	}
-} // end SeqRollupRule
+
+}

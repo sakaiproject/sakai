@@ -54,6 +54,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
@@ -117,6 +118,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.plus.api.PlusService;
 import org.sakaiproject.grading.api.GradingAuthz;
+import org.sakaiproject.util.NumberUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.lang.Nullable;
 import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
@@ -616,29 +618,32 @@ public class GradingServiceImpl implements GradingService {
 
     @Override
     public Map<String,String> transferGradebook(final GradebookInformation gradebookInformation,
-            final List<Assignment> assignments, final String toGradebookUid, final String fromContext) {
+            final List<Assignment> assignments, final String toGradebookUid, final String fromContext, final List<String> options) {
 
+        boolean copySettings = (options != null && options.contains(EntityTransferrer.COPY_SETTINGS_OPTION));
+        boolean copyOnlySettings = (options != null && options.contains(EntityTransferrer.COPY_ONLY_SETTINGS_PSEUDO_OPTION)); // do not copy any gb items if true
         final Map<String, String> transversalMap = new HashMap<>();
 
         final Gradebook gradebook = getGradebook(toGradebookUid);
+        if (copySettings) {
+            gradebook.setCategoryType(gradebookInformation.getCategoryType());
+            gradebook.setGradeType(gradebookInformation.getGradeType());
+            gradebook.setAssignmentStatsDisplayed(gradebookInformation.getAssignmentStatsDisplayed());
+            gradebook.setCourseGradeStatsDisplayed(gradebookInformation.getCourseGradeStatsDisplayed());
+            gradebook.setAssignmentsDisplayed(gradebookInformation.getDisplayReleasedGradeItemsToStudents());
+            gradebook.setCourseGradeDisplayed(gradebookInformation.getCourseGradeDisplayed());
+            gradebook.setAllowStudentsToCompareGrades(gradebookInformation.getAllowStudentsToCompareGrades());
+            gradebook.setComparingDisplayStudentNames(gradebookInformation.getComparingDisplayStudentNames());
+            gradebook.setComparingDisplayStudentSurnames(gradebookInformation.getComparingDisplayStudentSurnames());
+            gradebook.setComparingDisplayTeacherComments(gradebookInformation.getComparingDisplayTeacherComments());
+            gradebook.setComparingIncludeAllGrades(gradebookInformation.getComparingIncludeAllGrades());
+            gradebook.setComparingRandomizeDisplayedData(gradebookInformation.getComparingRandomizeDisplayedData());
+            gradebook.setCourseLetterGradeDisplayed(gradebookInformation.getCourseLetterGradeDisplayed());
+            gradebook.setCoursePointsDisplayed(gradebookInformation.getCoursePointsDisplayed());
+            gradebook.setCourseAverageDisplayed(gradebookInformation.getCourseAverageDisplayed());
 
-        gradebook.setCategoryType(gradebookInformation.getCategoryType());
-        gradebook.setGradeType(gradebookInformation.getGradeType());
-        gradebook.setAssignmentStatsDisplayed(gradebookInformation.getAssignmentStatsDisplayed());
-        gradebook.setCourseGradeStatsDisplayed(gradebookInformation.getCourseGradeStatsDisplayed());
-        gradebook.setAssignmentsDisplayed(gradebookInformation.getDisplayReleasedGradeItemsToStudents());
-        gradebook.setCourseGradeDisplayed(gradebookInformation.getCourseGradeDisplayed());
-        gradebook.setAllowStudentsToCompareGrades(gradebookInformation.getAllowStudentsToCompareGrades());
-        gradebook.setComparingDisplayStudentNames(gradebookInformation.getComparingDisplayStudentNames());
-        gradebook.setComparingDisplayStudentSurnames(gradebookInformation.getComparingDisplayStudentSurnames());
-        gradebook.setComparingDisplayTeacherComments(gradebookInformation.getComparingDisplayTeacherComments());
-        gradebook.setComparingIncludeAllGrades(gradebookInformation.getComparingIncludeAllGrades());
-        gradebook.setComparingRandomizeDisplayedData(gradebookInformation.getComparingRandomizeDisplayedData());
-        gradebook.setCourseLetterGradeDisplayed(gradebookInformation.getCourseLetterGradeDisplayed());
-        gradebook.setCoursePointsDisplayed(gradebookInformation.getCoursePointsDisplayed());
-        gradebook.setCourseAverageDisplayed(gradebookInformation.getCourseAverageDisplayed());
-
-        updateGradebook(gradebook, toGradebookUid);
+            updateGradebook(gradebook, toGradebookUid);
+        }
 
         // all categories that we need to end up with
         final List<CategoryDefinition> categories = gradebookInformation.getCategories();
@@ -654,21 +659,28 @@ public class GradingServiceImpl implements GradingService {
 
         if (!categories.isEmpty() && !Objects.equals(gradebookInformation.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY)) {
 
-            // migrate the categories with assignments
+            Integer toCategoryType = gradebook.getCategoryType();
+
+            // conditionally migrate the categories with assignments
             categories.forEach(c -> {
 
                 assignments.forEach(a -> {
-                    String taskName = isGradebookGroupEnabled(fromContext)
-                            ? a.getName().substring(a.getName().indexOf('-') + 1)
+                    int dash = a.getName().lastIndexOf('-');
+                    String taskName = isGradebookGroupEnabled(fromContext) && dash >= 0
+                            ? a.getName().substring(dash + 1)
                             : a.getName();
 
-                    if (StringUtils.equals(c.getName(), a.getCategoryName())) {
+                    if (copySettings && StringUtils.equals(c.getName(), a.getCategoryName())
+                        && !Objects.equals(toCategoryType, GradingConstants.CATEGORY_TYPE_NO_CATEGORY)) {
 
                         if (!categoriesCreated.containsKey(c.getName())) {
                             // create category
                             Long categoryId = null;
                             try {
-                                categoryId = createCategory(gradebook.getId(), c.getName(), c.getWeight(), c.getDropLowest(),
+				Double weight = Objects.equals(toCategoryType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)
+					 ? (c.getWeight() != null ? c.getWeight() : Double.valueOf(0.0))
+					 : Double.valueOf(0.0);
+                                categoryId = createCategory(gradebook.getId(), c.getName(), weight, c.getDropLowest(),
                                         c.getDropHighest(), c.getKeepHighest(), c.getExtraCredit(), c.getEqualWeight(), c.getCategoryOrder());
                             } catch (final ConflictingCategoryNameException e) {
                                 // category already exists. Could be from a merge.
@@ -683,94 +695,110 @@ public class GradingServiceImpl implements GradingService {
                             }
                             // record that we have created this category
                             categoriesCreated.put(c.getName(), categoryId);
-
                         }
 
-                        // create the assignment for the current category
-                        try {
-                            Long newId = createAssignmentForCategory(gradebook.getId(), categoriesCreated.get(c.getName()), taskName, a.getPoints(),
-                                    a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getCategorizedSortOrder(), null);
-                            transversalMap.put("gb/"+a.getId(),"gb/"+newId);
-                        } catch (final ConflictingAssignmentNameException e) {
-                            // assignment already exists. Could be from a merge.
-                            log.info("GradebookAssignment: {} already exists in target site. Skipping creation.", taskName);
-                        } catch (final Exception ex) {
-                            log.warn("GradebookAssignment: exception {} trying to create {} in target site. Skipping creation.", ex.getMessage(), taskName);
-                        }
+			if (!copyOnlySettings) {
+				// create the assignment for the current category
+				try {
+					Long newId = createAssignmentForCategory(gradebook.getId(), categoriesCreated.get(c.getName()), taskName, a.getPoints(),
+										 a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getCategorizedSortOrder(), null);
+					transversalMap.put("gb/"+a.getId(),"gb/"+newId);
+				} catch (final ConflictingAssignmentNameException e) {
+					// assignment already exists. Could be from a merge.
+					log.info("GradebookAssignment: {} already exists in target site. Skipping creation.", taskName);
+				} catch (final Exception ex) {
+					log.warn("GradebookAssignment: exception {} trying to create {} in target site. Skipping creation.", ex.getMessage(), taskName);
+				}
 
-                        // record that we have created this assignment
-                        assignmentsCreated.add(taskName);
+				// record that we have created this assignment
+				assignmentsCreated.add(taskName);
+			}
                     }
                 });
             });
 
             // create any remaining categories that have no assignments
-            categories.removeIf(c -> categoriesCreated.containsKey(c.getName()));
-            categories.forEach(c -> {
-                try {
-                    createCategory(gradebook.getId(), c.getName(), c.getWeight(), c.getDropLowest(), c.getDropHighest(), c.getKeepHighest(),
-                            c.getExtraCredit(), c.getEqualWeight(), c.getCategoryOrder());
-                } catch (final ConflictingCategoryNameException e) {
-                    // category already exists. Could be from a merge.
-                    log.info("Category: {} already exists in target site. Skipping creation.", c.getName());
-                }
-            });
+            if (copySettings && !Objects.equals(toCategoryType, GradingConstants.CATEGORY_TYPE_NO_CATEGORY)) {
+                categories.removeIf(c -> categoriesCreated.containsKey(c.getName()));
+                categories.forEach(c -> {
+                    try {
+			    Double weight = Objects.equals(toCategoryType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)
+					 ? c.getWeight()
+					 : Double.valueOf(0.0);
+                        createCategory(gradebook.getId(), c.getName(), weight, c.getDropLowest(), c.getDropHighest(), c.getKeepHighest(),
+                                c.getExtraCredit(), c.getEqualWeight(), c.getCategoryOrder());
+                    } catch (final ConflictingCategoryNameException e) {
+                        // category already exists. Could be from a merge.
+                        log.info("Category: {} already exists in target site. Skipping creation.", c.getName());
+                    }
+                });
+            }
         }
 
-        // create any remaining assignments that have no categories
-        assignments.removeIf(a -> {
-            String taskName = isGradebookGroupEnabled(fromContext)
-                    ? (a.getName().contains("-") ? a.getName().substring(a.getName().indexOf('-') + 1) : a.getName())
-                    : a.getName();
+	if (!copyOnlySettings) {
+		// create any remaining assignments that have no categories
+		assignments.removeIf(a -> {
+				String taskName;
+				if (isGradebookGroupEnabled(fromContext)) {
+					final int dash = a.getName().lastIndexOf('-');
+					taskName = (dash >= 0) ? a.getName().substring(dash + 1) : a.getName();
+				} else {
+					taskName = a.getName();
+				}
 
-            return assignmentsCreated.contains(taskName);
-        });
-        assignments.forEach(a -> {
-            String taskName = isGradebookGroupEnabled(fromContext)
-                    ? a.getName().substring(a.getName().indexOf('-') + 1)
-                    : a.getName();
+				return assignmentsCreated.contains(taskName);
+			});
+		assignments.forEach(a -> {
+				int dash = a.getName().lastIndexOf('-');
+				String taskName = isGradebookGroupEnabled(fromContext) && dash >= 0
+					? a.getName().substring(dash + 1)
+					: a.getName();
 
-            try {
-                Long newId = createAssignment(gradebook.getId(), taskName, a.getPoints(), a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getSortOrder(), null);
-                transversalMap.put("gb/"+a.getId(),"gb/"+newId);
-            } catch (final ConflictingAssignmentNameException e) {
-                // assignment already exists. Could be from a merge.
-                log.info("GradebookAssignment: {} already exists in target site. Skipping creation.", taskName);
-            } catch (final Exception ex) {
-                log.warn("GradebookAssignment: exception {} trying to create {} in target site. Skipping creation.", ex.getMessage(), taskName);
-            }
-        });
+				try {
+					Long newId = createAssignment(gradebook.getId(), taskName, a.getPoints(), a.getDueDate(), !a.getCounted(), a.getReleased(), a.getExtraCredit(), a.getSortOrder(), null);
+					transversalMap.put("gb/"+a.getId(),"gb/"+newId);
+				} catch (final ConflictingAssignmentNameException e) {
+					// assignment already exists. Could be from a merge.
+					log.info("GradebookAssignment: {} already exists in target site. Skipping creation.", taskName);
+				} catch (final Exception ex) {
+					log.warn("GradebookAssignment: exception {} trying to create {} in target site. Skipping creation.", ex.getMessage(), taskName);
+				}
+			});
+	}
 
-        // Carry over the old gradebook's selected grading scheme if possible.
-        final String fromGradingScaleUid = gradebookInformation.getSelectedGradingScaleUid();
+        if (copySettings) {
+            // Carry over the old gradebook's selected grading scheme if possible.
+            final String fromGradingScaleUid = gradebookInformation.getSelectedGradingScaleUid();
 
-        MERGE_GRADE_MAPPING: if (!StringUtils.isEmpty(fromGradingScaleUid)) {
-            for (final GradeMapping gradeMapping : gradebook.getGradeMappings()) {
-                if (gradeMapping.getGradingScale().getUid().equals(fromGradingScaleUid)) {
-                    // We have a match. Now make sure that the grades are as expected.
-                    final Map<String, Double> inputGradePercents = gradebookInformation.getSelectedGradingScaleBottomPercents();
-                    final Set<String> gradeCodes = inputGradePercents.keySet();
+            MERGE_GRADE_MAPPING: if (!StringUtils.isEmpty(fromGradingScaleUid)) {
+                for (final GradeMapping gradeMapping : gradebook.getGradeMappings()) {
+                    if (gradeMapping.getGradingScale().getUid().equals(fromGradingScaleUid)) {
+                        // We have a match. Now make sure that the grades are as expected.
+                        final Map<String, Double> inputGradePercents = gradebookInformation.getSelectedGradingScaleBottomPercents();
+                        final Set<String> gradeCodes = inputGradePercents.keySet();
 
-                    // If the grades dont map one-to-one, clear out the destination site's existing map
-                    if (!gradeCodes.containsAll(gradeMapping.getGradeMap().keySet())) {
-                        gradeMapping.getGradeMap().clear();
+                        // If the grades dont map one-to-one, clear out the destination site's existing map
+                        if (!gradeCodes.containsAll(gradeMapping.getGradeMap().keySet())) {
+                            gradeMapping.getGradeMap().clear();
+                        }
+
+                        // Modify the existing grade-to-percentage map.
+                        for (String gradeCode : gradeCodes) {
+                            gradeMapping.getGradeMap().put(gradeCode, inputGradePercents.get(gradeCode));
+                        }
+                        gradebook.setSelectedGradeMapping(gradeMapping);
+                        updateGradebook(gradebook, toGradebookUid);
+                        log.debug("Merge to gradebook {} updated grade mapping", toGradebookUid);
+
+                        break MERGE_GRADE_MAPPING;
                     }
-
-                    // Modify the existing grade-to-percentage map.
-                    for (String gradeCode : gradeCodes) {
-                        gradeMapping.getGradeMap().put(gradeCode, inputGradePercents.get(gradeCode));
-                    }
-                    gradebook.setSelectedGradeMapping(gradeMapping);
-                    updateGradebook(gradebook, toGradebookUid);
-                    log.info("Merge to gradebook {} updated grade mapping", toGradebookUid);
-
-                    break MERGE_GRADE_MAPPING;
                 }
+                // Did not find a matching grading scale.
+                log.info("Merge to gradebook {} skipped grade mapping change because grading scale {} is not defined", toGradebookUid,
+                        fromGradingScaleUid);
             }
-            // Did not find a matching grading scale.
-            log.info("Merge to gradebook {} skipped grade mapping change because grading scale {} is not defined", toGradebookUid,
-                    fromGradingScaleUid);
         }
+
         return transversalMap;
     }
 
@@ -2716,7 +2744,6 @@ public class GradingServiceImpl implements GradingService {
      *
      * @param doubleAsString
      * @return a locale-aware Double value representation of the given String
-     * @throws ParseException
      */
     public Double convertStringToDouble(final String doubleAsString) {
 
@@ -2724,15 +2751,12 @@ public class GradingServiceImpl implements GradingService {
             return null;
         }
 
-        Double scoreAsDouble = null;
-        try {
-            NumberFormat numberFormat = NumberFormat.getInstance(resourceLoader.getLocale());
-            Number numericScore = numberFormat.parse(doubleAsString.trim());
-            return numericScore.doubleValue();
-        } catch (final ParseException e) {
-            log.error("Failed to convert {}: {}", doubleAsString, e.toString());
+        final Double scoreAsDouble = NumberUtil.parseLocaleDouble(doubleAsString, resourceLoader.getLocale());
+        if (scoreAsDouble == null || !Double.isFinite(scoreAsDouble)) {
+            log.warn("Failed to convert score for locale {}: '{}'", resourceLoader.getLocale(), doubleAsString);
             return null;
         }
+        return scoreAsDouble;
     }
 
     /**
@@ -5760,7 +5784,7 @@ public class GradingServiceImpl implements GradingService {
                     boolean isCategoryInGradebook = false;
 
                     for (String groupId : groupList) {
-                        List<CategoryDefinition> categoryDefinitionList = getCategoryDefinitions(groupId, groupId);
+                        List<CategoryDefinition> categoryDefinitionList = getCategoryDefinitions(groupId, siteId);
 
                         boolean foundCategory = categoryDefinitionList.stream()
                             .anyMatch(category -> category.getId().equals(Long.parseLong(categoryId)));

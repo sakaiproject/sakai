@@ -17,13 +17,10 @@ package org.sakaiproject.tool.assessment.services.qti;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -31,49 +28,51 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.ExtractionHelper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ComponentManager.class})
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
+@RunWith(MockitoJUnitRunner.class)
 public class QTIServiceTest {
 
-	@Before
-	public void setUp() {
-        PowerMockito.mockStatic(ComponentManager.class);
-        // A mock component manager.
-        when(ComponentManager.get(any(Class.class))).then(new Answer<Object>() {
-            private Map<Class, Object> mocks = new HashMap<>();
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Class classToMock = (Class) invocation.getArguments()[0];
-                return mocks.computeIfAbsent(classToMock, k -> mock(classToMock));
-            }
-        });
-	}
+    private MockedStatic<ComponentManager> componentManagerMock;
 
-	@Ignore("jdk 11 module illegal access")
+    @Mock private FormattedText formattedText;
+
+    @Before
+    public void setUp() throws Exception {
+        componentManagerMock = Mockito.mockStatic(ComponentManager.class);
+        componentManagerMock.when(() -> ComponentManager.get(FormattedText.class)).thenReturn(formattedText);
+        Mockito.when(formattedText.processFormattedText(ArgumentMatchers.anyString(), (StringBuilder) ArgumentMatchers.any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+    }
+
+    @After
+    public void tearDown() {
+        if (componentManagerMock != null) {
+            componentManagerMock.close();
+        }
+    }
+
 	@Test
 	public void testImportExport() throws Exception {
 		Document document = getDocument("exportAssessment.xml");
 		ItemFacade item = extractItem(document);
-//		String output = PrintUtil.printItem(item);
 		assertEquals("Extended Matching Items", item.getDescription());
 		assertEquals("Grading A", item.getThemeText());
 		assertEquals("The Leadin Text.", item.getLeadInText());
@@ -83,17 +82,15 @@ public class QTIServiceTest {
 		assertEquals("ABCDEF", item.getEmiAnswerOptionLabels());
 	}
 
-	@Ignore("jdk 11 module illegal access")
 	@Test
 	public void testCogneroXmlFormat() throws Exception {
 		Document document = getDocument("SAK-34033.xml");
-		ItemFacade item = extractItem(document);
+        ItemFacade item = extractItem(document);
 		assertTrue(item.getDescription().contains("database systems"));
 		assertEquals(Double.valueOf(5.0), item.getScore());
 		assertEquals(Double.valueOf(0.0), item.getDiscount());
 	}
 
-	@Ignore("jdk 11 module illegal access")
 	@Test
 	public void testOnlyOneCorrectScoreIsFound() throws Exception {
 		Document document = getDocument("SAK-42728.xml");

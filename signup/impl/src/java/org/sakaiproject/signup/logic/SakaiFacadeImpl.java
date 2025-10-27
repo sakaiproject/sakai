@@ -139,19 +139,19 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	public void init() {
 		log.debug("init");
 		// register Sakai permissions for this tool
-		functionManager.registerFunction(SIGNUP_VIEW);
-		functionManager.registerFunction(SIGNUP_VIEW_ALL);
-		functionManager.registerFunction(SIGNUP_ATTEND);
-		functionManager.registerFunction(SIGNUP_ATTEND_ALL);
-		functionManager.registerFunction(SIGNUP_CREATE_SITE);
-		functionManager.registerFunction(SIGNUP_CREATE_GROUP);
-		functionManager.registerFunction(SIGNUP_CREATE_GROUP_ALL);
-		functionManager.registerFunction(SIGNUP_DELETE_SITE);
-		functionManager.registerFunction(SIGNUP_DELETE_GROUP);
-		functionManager.registerFunction(SIGNUP_DELETE_GROUP_ALL);
-		functionManager.registerFunction(SIGNUP_UPDATE_SITE);
-		functionManager.registerFunction(SIGNUP_UPDATE_GROUP);
-		functionManager.registerFunction(SIGNUP_UPDATE_GROUP_ALL);
+		functionManager.registerFunction(SIGNUP_VIEW, true);
+		functionManager.registerFunction(SIGNUP_VIEW_ALL, true);
+		functionManager.registerFunction(SIGNUP_ATTEND, true);
+		functionManager.registerFunction(SIGNUP_ATTEND_ALL, true);
+		functionManager.registerFunction(SIGNUP_CREATE_SITE, true);
+		functionManager.registerFunction(SIGNUP_CREATE_GROUP, true);
+		functionManager.registerFunction(SIGNUP_CREATE_GROUP_ALL, true);
+		functionManager.registerFunction(SIGNUP_DELETE_SITE, true);
+		functionManager.registerFunction(SIGNUP_DELETE_GROUP, true);
+		functionManager.registerFunction(SIGNUP_DELETE_GROUP_ALL, true);
+		functionManager.registerFunction(SIGNUP_UPDATE_SITE, true);
+		functionManager.registerFunction(SIGNUP_UPDATE_GROUP, true);
+		functionManager.registerFunction(SIGNUP_UPDATE_GROUP_ALL, true);
 	}
 
 	@Override

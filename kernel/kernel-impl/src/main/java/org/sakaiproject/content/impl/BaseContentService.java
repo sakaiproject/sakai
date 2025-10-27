@@ -12378,8 +12378,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 				return;
 			}
 
+			// Prefer stream content over any previously set byte[] body and clear stale digest.
+			boolean wasUpdated = m_bodyUpdated;
+			m_body = null;
 			m_contentStream = stream;
-			// m_contentLength = 
+			m_contentLength = 0;
+			m_contentSha256 = null;
+			m_bodyUpdated = true;
+			log.debug("setContent(stream): filePath={} (wasUpdatedBefore={}, nowUpdated={})",
+					  m_filePath, wasUpdated, m_bodyUpdated);
 		}
 
 

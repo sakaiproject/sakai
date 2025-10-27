@@ -859,6 +859,7 @@ public class SiteAction extends PagedResourceActionII {
 	private UserNotificationProvider userNotificationProvider;
 	private UserTimeService userTimeService;
 	private GradingService gradingService;
+	private SiteTypeUtil siteTypeUtil;
 
 	public SiteAction() {
 		affiliatedSectionProvider = ComponentManager.get(AffiliatedSectionProvider.class);
@@ -898,6 +899,8 @@ public class SiteAction extends PagedResourceActionII {
 		userNotificationProvider = ComponentManager.get(UserNotificationProvider.class);
 		userTimeService = ComponentManager.get(UserTimeService.class);
 		gradingService = ComponentManager.get(GradingService.class);
+
+		siteTypeUtil = new SiteTypeUtil(siteService, serverConfigurationService);
 
 		importService = org.sakaiproject.importer.cover.ImportService.getInstance();
 		comparator_locale = rb.getLocale();
@@ -1954,7 +1957,7 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (SiteTypeUtil.isCourseSite(siteType)) {
+			if (siteTypeUtil.isCourseSite(siteType)) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("disableCourseSelection", serverConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
 				context.put("isProjectSite", Boolean.FALSE);
@@ -1985,7 +1988,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
-				if (SiteTypeUtil.isProjectSite(siteType)) {
+				if (siteTypeUtil.isProjectSite(siteType)) {
 					context.put("isProjectSite", Boolean.TRUE);
 				}
 
@@ -2080,7 +2083,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("allowUpdateSiteMembership", allowUpdateSiteMembership);
 			context.put("isMyWorkspace", isMyWorkspace);
 			context.put("siteTitle", site.getTitle());
-			context.put("isCourseSite", SiteTypeUtil.isCourseSite(site.getType()));
+			context.put("isCourseSite", siteTypeUtil.isCourseSite(site.getType()));
 
 			// Set participant list
 			if (allowUpdateSite || allowViewRoster || allowUpdateSiteMembership) {
@@ -2256,7 +2259,7 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("contactEmail", contactEmail);
 				}
 				
-				if (SiteTypeUtil.isCourseSite(siteType)) {
+				if (siteTypeUtil.isCourseSite(siteType)) {
 					context.put("isCourseSite", Boolean.TRUE);
 					
 					coursesIntoContext(state, context, site);
@@ -2449,7 +2452,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, siteType)));
 			context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
 
-			if (SiteTypeUtil.isCourseSite(siteType)) {
+			if (siteTypeUtil.isCourseSite(siteType)) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("isProjectSite", Boolean.FALSE);
 
@@ -2524,13 +2527,13 @@ public class SiteAction extends PagedResourceActionII {
 				
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
-				if (SiteTypeUtil.isProjectSite(siteType)) {
+				if (siteTypeUtil.isProjectSite(siteType)) {
 					context.put("isProjectSite", Boolean.TRUE);
 				}
 			}
 
 			// about skin and icon selection
-			skinIconSelection(context, state, SiteTypeUtil.isCourseSite(siteType), site, siteInfo);
+			skinIconSelection(context, state, siteTypeUtil.isCourseSite(siteType), site, siteInfo);
 
 			// those manual inputs
 			context.put("form_requiredFields", sectionFieldProvider.getRequiredFields());
@@ -2576,14 +2579,14 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 			context.put("displaySiteAlias", Boolean.valueOf(displaySiteAlias()));
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			if (SiteTypeUtil.isCourseSite(siteType)) {
+			if (siteTypeUtil.isCourseSite(siteType)) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("siteTerm", siteInfo.term);
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
 			}
 			// about skin and icon selection
-			skinIconSelection(context, state, SiteTypeUtil.isCourseSite(siteType), site, siteInfo);
+			skinIconSelection(context, state, siteTypeUtil.isCourseSite(siteType), site, siteInfo);
 			
 			context.put("oTitle", site.getTitle());
 			context.put("title", siteInfo.title);
@@ -2809,7 +2812,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("include", Boolean.valueOf(siteInfo.getInclude()));
 
 				// If this site is a course site, publish if we're inside the term dates
-				if (siteInfo.site_type != null && SiteTypeUtil.isCourseSite(siteInfo.site_type) && templateSite == null) {
+				if (siteInfo.site_type != null && siteTypeUtil.isCourseSite(siteInfo.site_type) && templateSite == null) {
 					AcademicSession academicSession = courseManagementService.getAcademicSession(siteInfo.term);
 					if (Instant.now().isAfter(new Date(academicSession.getStartDate().getTime()).toInstant())
 						&& Instant.now().isBefore(new Date(academicSession.getEndDate().getTime()).toInstant())) {
@@ -3353,7 +3356,7 @@ public class SiteAction extends PagedResourceActionII {
 			
 
 			String sType = site.getType();
-			if (sType != null && SiteTypeUtil.isCourseSite(sType)) {
+			if (sType != null && siteTypeUtil.isCourseSite(sType)) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("currentTermId", site.getProperties().getProperty(
 						Site.PROP_SITE_TERM));
@@ -3898,7 +3901,7 @@ public class SiteAction extends PagedResourceActionII {
 			//this will be all widgets available to use on overview page.
 			List<Tool> widgets;
 			if(state.getAttribute("allWidgets") == null){
-				widgets = (List<Tool>) findWidgets();
+				widgets = findWidgets();
 			}else {
 				widgets = (List<Tool>) state.getAttribute("allWidgets");
 			}
@@ -5619,7 +5622,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		state.setAttribute(STATE_IMPORT_SITE_TOOL_OPTIONS, toolOptions);
 
-		return anyToolSelected;
+		return anyToolSelected || toolOptions.size() > 0;
 	} // select_import_tools
 
 	/**
@@ -6000,12 +6003,12 @@ public class SiteAction extends PagedResourceActionII {
 		} else {
 			state.setAttribute(STATE_TYPE_SELECTED, type);
 			setNewSiteType(state, type);
-			if (SiteTypeUtil.isCourseSite(type)) { // UMICH-1035
+			if (siteTypeUtil.isCourseSite(type)) { // UMICH-1035
 				// redirect
 				redirectCourseCreation(params, state, "selectTerm");
-			} else if (SiteTypeUtil.isProjectSite(type)) { // UMICH-1035
+			} else if (siteTypeUtil.isProjectSite(type)) { // UMICH-1035
 				state.setAttribute(STATE_TEMPLATE_INDEX, "13");
-			} else if (pSiteTypes != null && pSiteTypes.contains(SiteTypeUtil.getTargetSiteType(type))) {  // UMICH-1035
+			} else if (pSiteTypes != null && pSiteTypes.contains(siteTypeUtil.getTargetSiteType(type))) {  // UMICH-1035
 				// if of customized type site use pre-defined site info and exclude
 				// from public listing
 				SiteInfo siteInfo = new SiteInfo();
@@ -6489,12 +6492,12 @@ public class SiteAction extends PagedResourceActionII {
 	 * @return	courseSiteType	type of 'course'
 	 */	
 	private void setTypeIntoContext(Context context, String type) {
-		if (type != null && SiteTypeUtil.isCourseSite(type)) {
+		if (type != null && siteTypeUtil.isCourseSite(type)) {
 			context.put("isCourseSite", Boolean.TRUE);
 			context.put("isProjectSite", Boolean.FALSE);
 		} else {
 			context.put("isCourseSite", Boolean.FALSE);
-			if (type != null && SiteTypeUtil.isProjectSite(type)) {
+			if (type != null && siteTypeUtil.isProjectSite(type)) {
 				context.put("isProjectSite", Boolean.TRUE);
 			}
 		}
@@ -6524,7 +6527,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		toolGroup.put(defaultGroupName, getOrderedToolList(state, defaultGroupName, type, checkHome));
 	} else {	
 		// get all the groups that are available for this site type
-		List<String> groups = serverConfigurationService.getCategoryGroups(SiteTypeUtil.getTargetSiteType(type));
+		List<String> groups = serverConfigurationService.getCategoryGroups(siteTypeUtil.getTargetSiteType(type));
 		for (String groupId : groups) {
 			String groupName = getGroupName(groupId);
 			List<MyTool> toolList = getGroupedToolList(groupId, groupName, type, checkHome, moreInfoDir);
@@ -6585,10 +6588,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List<String> stealthedToolIds = serverConfigurationService.getStringList("stealthTools@org.sakaiproject.tool.api.ActiveToolManager", Collections.emptyList());
 
 		// mark the required tools
-		List requiredTools = serverConfigurationService.getToolsRequired(SiteTypeUtil.getTargetSiteType(type));
+		List requiredTools = serverConfigurationService.getToolsRequired(siteTypeUtil.getTargetSiteType(type));
 		
 		// mark the default tools
-		List defaultTools = serverConfigurationService.getDefaultTools(SiteTypeUtil.getTargetSiteType(type));
+		List defaultTools = serverConfigurationService.getDefaultTools(siteTypeUtil.getTargetSiteType(type));
 		
 		// add Home tool only once
 		boolean hasHomeTool = false;
@@ -6659,7 +6662,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 						if (tr != null) 
 						{
 								String toolId = tr.getId();
-								if (isSiteTypeInToolCategory(SiteTypeUtil.getTargetSiteType(type), tr) && !toolManager.isStealthed(toolId) ) // SAK 23808
+								if (isSiteTypeInToolCategory(siteTypeUtil.getTargetSiteType(type), tr) && !toolManager.isStealthed(toolId) ) // SAK 23808
 								{
 									newTool = new MyTool();
 									newTool.title = tr.getTitle();
@@ -7287,7 +7290,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 			// for course sites
 			String siteType = site.getType();
-			if (SiteTypeUtil.isCourseSite(siteType)) {
+			if (siteTypeUtil.isCourseSite(siteType)) {
 				AcademicSession term = null;
 				if (state.getAttribute(STATE_TERM_SELECTED) != null) {
 					term = (AcademicSession) state
@@ -7885,7 +7888,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * 
 	 */
 	private void sendSiteNotification(SessionState state, Site site, List notifySites) {
-		boolean courseSite = SiteTypeUtil.isCourseSite(site.getType());
+		boolean courseSite = siteTypeUtil.isCourseSite(site.getType());
 		
 		String term_name = "";
 		if (state.getAttribute(STATE_TERM_SELECTED) != null) {
@@ -8803,7 +8806,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		String site_type = (String) state.getAttribute(STATE_SITE_TYPE);
 		SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 
-		if (siteTitleEditable(state, SiteTypeUtil.getTargetSiteType(site_type))) 
+		if (siteTitleEditable(state, siteTypeUtil.getTargetSiteType(site_type))) 
 		{
 			Site.setTitle(siteInfo.title);
 		}
@@ -8994,7 +8997,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				if (courseManagementService == null)
 				{
 					// if there is no CourseManagementService, disable the process of creating course site
-					List<String> courseTypes = SiteTypeUtil.getCourseSiteTypes();
+					List<String> courseTypes = siteTypeUtil.getCourseSiteTypes();
 					types.remove(courseTypes);
 				}
 					
@@ -10546,7 +10549,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 										}
 
 										String siteType = site.getType();
-										if (SiteTypeUtil.isCourseSite(siteType)) {
+										if (siteTypeUtil.isCourseSite(siteType)) {
 											// for course site, need to
 											// read in the input for
 											// term information
@@ -11909,6 +11912,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					break;
 				}
 			}
+			ResourcePropertiesEdit siteProperties = site.getPropertiesEdit();
+			if (siteProperties.getProperty(Site.PROP_CUSTOM_OVERVIEW) != null) {
+				siteProperties.removeProperty(Site.PROP_CUSTOM_OVERVIEW);
+				customOverview = false;
+			}
 		}
 
 		// declare flags used in making decisions about whether to add, remove,
@@ -12248,7 +12256,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 		Set<String> categories = new HashSet<>();
 		// UMICH 1035
-		categories.add(SiteTypeUtil.getTargetSiteType(siteType));
+		categories.add(siteTypeUtil.getTargetSiteType(siteType));
 		Set<Tool> toolRegistrationSet = toolManager.findTools(categories, null, includeStealthed);
 		if ((toolRegistrationSet == null || toolRegistrationSet.size() == 0)
 				&& state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null)
@@ -12256,7 +12264,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			// use default site type and try getting tools again
 			String type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
 			categories.clear();
-			categories.add(SiteTypeUtil.getTargetSiteType(type));
+			categories.add(siteTypeUtil.getTargetSiteType(type));
 			toolRegistrationSet = toolManager.findTools(categories, null, includeStealthed);
 		}
 		return toolRegistrationSet;
@@ -12638,7 +12646,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				if (templateSite != null) {
 					site = siteService.addSite(id, templateSite);
 					// set site type
-					site.setType(SiteTypeUtil.getTargetSiteType(templateSite.getType()));
+					site.setType(siteTypeUtil.getTargetSiteType(templateSite.getType()));
 				} else {
 					site = siteService.addSite(id, siteInfo.site_type);
 				}
@@ -13126,7 +13134,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
 		}
 		if (type != null && toolIdList != null) {
-			List<String> orderedToolIds = serverConfigurationService.getToolOrder(SiteTypeUtil.getTargetSiteType(type)); // UMICH-1035  
+			List<String> orderedToolIds = serverConfigurationService.getToolOrder(siteTypeUtil.getTargetSiteType(type)); // UMICH-1035  
 			for (String tool_id : orderedToolIds) {
 				for (String toolId : toolIdList) {
 					String rToolId = originalToolId(toolId, tool_id);
@@ -14113,7 +14121,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				try {
 					edit = siteService.addSite(id, template);
 					// set site type
-					edit.setType(SiteTypeUtil.getTargetSiteType(template.getType()));
+					edit.setType(siteTypeUtil.getTargetSiteType(template.getType()));
 				} catch (Exception e) {
 					log.error(this + ".addSiteTypeFeatures:" + " add/edit site id=" + id, e);
 				}
@@ -16576,11 +16584,17 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Site site = (Site) state.getAttribute("site");
 		if (readPageForm(data, state))
 		{
+		SitePage page = (SitePage) state.getAttribute("overview");
+		if (!validateMinWidget(page, state))
+		{
+			return;
+		}
+
+		List<ToolConfiguration> tools = page.getTools();
+
 			try
 			{
-				SitePage page = (SitePage) state.getAttribute("overview");
 				SitePage savedPage = site.getPage(page.getId()); //old page, will update tool list.
-				List<ToolConfiguration> tools = page.getTools();
 
 				savedPage.setTools(tools);
 				savedPage.setLayout(page.getLayout());
@@ -16681,18 +16695,15 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		return true;
 	}
 
-	private List findWidgets() {
-		// get the helpers
-		Set categories = new HashSet();
+	private List<Tool> findWidgets() {
+		Set<String> categories = new HashSet<>();
 		categories.add("widget");
-		Set widgets = toolManager.findTools(categories, null);
 
-		// make a list for sorting
-		List features = new Vector();
-		features.addAll(widgets);
-		//Collections.sort(features);
-		Collections.sort(features, new ToolTitleComparator());
-		return features;
+		Set<Tool> widgets = toolManager.findTools(categories, null, false);
+
+		List<Tool> features = new ArrayList<>(widgets);
+		features.sort(new ToolTitleComparator());
+		return Collections.unmodifiableList(features);
 	}
 
 	public void doAdd_widget(RunData data){
@@ -16700,13 +16711,26 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		ParameterParser params = data.getParameters();
 
 		String id = params.getString("id");
+		if (StringUtils.isBlank(id)) {
+			return;
+		}
 		// make the tool so we have the id
 		SitePage page = (SitePage) state.getAttribute("overview");
+		if (page == null) {
+			return;
+		}
 		ToolConfiguration tool = page.addTool(id);
 		tool.setLayoutHints("0,0"); //assume top left, it will be sorted later-- val just cant be null
 
 		List<Tool> widgets = (List<Tool>) state.getAttribute("allWidgets");
+		if (widgets == null) {
+			widgets = findWidgets();
+			state.setAttribute("allWidgets", widgets);
+		}
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+		if (tools == null) {
+			tools = new ArrayList<>(page.getTools());
+		}
 
 		for(Tool widget: widgets){
 			if(widget.getId().equals(id)){
@@ -16729,6 +16753,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
 		if ( tools == null ) return;
 
+		if (tools.size() <= 1 || !validateMinWidget(page, state)) {
+			return;
+		}
+
 		List<ToolConfiguration> removedTools = (List<ToolConfiguration>) state.getAttribute("removedTools");
 		if(removedTools == null){
 			removedTools = new ArrayList<>();
@@ -16745,7 +16773,16 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		state.setAttribute("tools", tools);
 	}
-	
+
+	private boolean validateMinWidget(SitePage page, SessionState state) {
+		if (page == null || CollectionUtils.isEmpty(page.getTools())) {
+			addAlert(state, rb.getString("manover.minwidget"));
+			return false;
+		}
+
+		return true;
+	}
+
 	private String getDateFormat(Date date) {
 		String f = userTimeService.shortPreciseLocalizedTimestamp(date.toInstant(), userTimeService.getLocalTimeZone(), comparator_locale);
 		return f;

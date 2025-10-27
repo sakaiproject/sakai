@@ -1377,39 +1377,56 @@ function setupImportSitesForm(form) {
   document.querySelectorAll(".import-option-help")
     .forEach(element => new bootstrap.Popover(element));
 
+  const importType = document.getElementById(`import-type`)?.value;
+  if (importType === 'merge') {
+    // For each tool row, ensure that only one Copy permissions checkbox can be selected
+    const toolRows = document.querySelectorAll(".tool-row");
+    for (const toolRow of toolRows) {
+      const copyPermissionControls = toolRow.querySelectorAll(`input[name$="-import-option-copy.permissions"]`);
+      copyPermissionControls?.forEach(element => {
+        element.addEventListener('click', (event) => {
+          copyPermissionControls.forEach(el => {
+            el.disabled = event.target.checked;
+          });
+
+          event.currentTarget.disabled = false;
+        });
+      });
+
+      const copySettingsControls = toolRow.querySelectorAll(`input[name$="-import-option-copy.settings"]`);
+      copySettingsControls?.forEach(element => {
+        element.addEventListener('click', (event) => {
+          copySettingsControls.forEach(el => {
+            el.disabled = event.target.checked;
+          });
+
+          event.currentTarget.disabled = false;
+        });
+      });
+    }
+  }
+
   // Handle tool checkbox clicks
   document.querySelectorAll(".siteimport-tool-checkbox").forEach(checkbox => {
     checkbox.addEventListener("click", e => {
       const { toolId, siteId, optionsId } = e.target.dataset;
-      const optionsLink = document.getElementById(`${toolId}-${siteId}-options-link`);
-      
-      if (optionsLink) {
-        const hasCheckedItems = !!document.querySelectorAll(
-          `.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]:checked`
-        ).length;
-        
-        optionsLink.classList.toggle("d-none", !(e.target.checked || hasCheckedItems));
-      }
+      // The tool checkbox always functions as a 'select/deselect all' checkbox vis-a-vis tool items (entities)
+      document.querySelectorAll(
+        `.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`
+      ).forEach(el => el.checked = e.target.checked);
 
-      if (!e.target.checked) {
-        const optionsEl = document.getElementById(optionsId);
-        if (optionsEl) {
-          optionsEl.querySelector("input[type='checkbox']").checked = false;
-          optionsEl.classList.add("d-none");
-        }
-      } else {
+      // For 'replace' imports, select the copying of permissions only for tools
+      // the instructor selects. This approach avoids cases where the instructor
+      // would have to deselect several checkboxes to prevent the copying of permissions
+      // for tools not selected.
+      if (e.target.checked && importType === 'replace') {
         document.querySelectorAll(
-          `.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`
+          `[name="${toolId}$${siteId}-import-option-copy.permissions"]`
+        ).forEach(el => el.checked = true);
+        document.querySelectorAll(
+          `[name="${toolId}$${siteId}-import-option-copy.settings"]`
         ).forEach(el => el.checked = true);
       }
-    });
-  });
-
-  // Handle options link clicks 
-  document.querySelectorAll(".siteimport-options-link").forEach(link => {
-    link.addEventListener("click", e => {
-      const optionsEl = document.getElementById(e.currentTarget.dataset.optionsId);
-      optionsEl?.classList.toggle("d-none");
     });
   });
 

@@ -6,6 +6,11 @@ CREATE TABLE CONTENT_COLLECTION
 (
     COLLECTION_ID VARCHAR2 (255) NOT NULL,
 	IN_COLLECTION VARCHAR2 (255),
+    -- SAK-51949 XML is still needed to bootstrap entries in this script
+    -- At first server start after this script runs, the XML from this script
+    -- is re-serialized to BINARY_ENTITY and XML is set to NULL
+    -- Other than first start when this script is run, the XML column is
+    --- forever NULL
     XML LONG,
     BINARY_ENTITY BLOB
 );
@@ -133,8 +138,10 @@ CREATE TABLE CONTENT_RESOURCE
 	FILE_PATH VARCHAR2 (128),
 	FILE_SIZE NUMBER(18),
 	RESOURCE_TYPE_ID VARCHAR2 (255),
-    XML CLOB,
+    --- SAK-51949 XML is no longer needed except for collections
+    --- XML CLOB,
     BINARY_ENTITY BLOB
+    
 -- for BLOB body, add BODY BLOB -- and drop the content_resource_body_binary tables -ggolden
 );
 

@@ -186,6 +186,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${criterionId}/ratings/default?position=${ratingPos}`;
     fetch(url, {
+      method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     })
@@ -276,6 +277,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/${e.currentTarget.dataset.criterionId}/copy`;
     fetch(url, {
+      method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     })
@@ -332,6 +334,7 @@ export class SakaiRubricCriteria extends RubricsElement {
 
     const url = `/api/sites/${this.siteId}/rubrics/${this.rubricId}/criteria/default${empty ? "Empty" : ""}`;
     fetch(url, {
+      method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     })

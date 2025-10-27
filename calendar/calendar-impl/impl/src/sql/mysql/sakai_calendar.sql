@@ -48,3 +48,13 @@ CREATE INDEX CALENDAR_EVENT_REND ON CALENDAR_EVENT
 (
 	RANGE_END
 );
+
+-- Composite index to support overlap filtering within a calendar and
+-- improve ordering by EVENT_START for the filtered subset.
+CREATE INDEX CALENDAR_EVENT_CID_RSTART_REND_ESTART ON CALENDAR_EVENT
+(
+	CALENDAR_ID,
+	RANGE_START,
+	RANGE_END,
+	EVENT_START
+);
