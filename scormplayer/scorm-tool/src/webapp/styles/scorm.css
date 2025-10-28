@@ -4,6 +4,10 @@ body, div {
     padding: 0px;
 }
 
+html, body {
+    height: 100%;
+}
+
 div.my-tree div.wicket-tree {
     height: auto;
     width: 100%;
@@ -106,4 +110,21 @@ div.my-tree div.wicket-tree {
 
 span.tree-content a.selected {
     font-weight: bold;
+}
+
+.scorm-rest-launcher {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.scorm-rest-launcher__frame {
+    flex: 1 1 auto;
+    width: 100%;
+    border: 0;
+    min-height: 600px;
+}
+
+.scorm-rest-launcher__message {
+    margin-top: 1rem;
 }
