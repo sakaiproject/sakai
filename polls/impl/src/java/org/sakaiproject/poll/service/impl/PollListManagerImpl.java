@@ -142,11 +142,8 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         
         if (t.getPollId() == null) {
             newPoll = true;
-            String generatedUuid = null;
-            if (idManager != null) {
-                generatedUuid = idManager.createUuid();
-            }
-            if (generatedUuid == null || generatedUuid.trim().isEmpty()) {
+            String generatedUuid = idManager.createUuid();
+            if (StringUtils.isBlank(generatedUuid)) {
                 generatedUuid = UUID.randomUUID().toString();
             }
             t.setUuid(generatedUuid);
@@ -291,10 +288,17 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public Option getOptionById(Long optionId) {
-        Option option = optionRepository.findById(optionId).orElse(null);
-        if (option != null && option.getUuid() == null) {
+        return optionRepository.findById(optionId).orElse(null);
+    }
+
+    public Option ensureOptionUuidAndSave(Option option) {
+        if (option == null) {
+            return null;
+        }
+        if (StringUtils.isBlank(option.getUuid())) {
             option.setUuid(UUID.randomUUID().toString());
-            saveOption(option);
+            option = optionRepository.save(option);
+            log.debug("Option id {} assigned UUID {}", option.getOptionId(), option.getUuid());
         }
         return option;
     }
@@ -315,12 +319,17 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public boolean saveOption(Option t) {
-        if (t.getUuid() == null || t.getUuid().trim().isEmpty()) {
-            t.setUuid( UUID.randomUUID().toString() );
+        if (t == null) {
+            throw new IllegalArgumentException("Option cannot be null when saving");
         }
 
-        optionRepository.save(t);
-        log.debug("Option {} successfully saved", t.toString());
+        Option persisted;
+        if (StringUtils.isBlank(t.getUuid())) {
+            persisted = ensureOptionUuidAndSave(t);
+        } else {
+            persisted = optionRepository.save(t);
+        }
+        log.debug("Option {} successfully saved", persisted);
         return true;
     }
 
@@ -384,6 +393,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 List<Option> options = getVisibleOptionsForPoll(poll.getPollId());
 
                 for (Option option : options) {
+                    option = ensureOptionUuidAndSave(option);
                     Element el2 = PollUtil.optionToXml(option, doc, stack);
                     el.appendChild(el2);
                 }

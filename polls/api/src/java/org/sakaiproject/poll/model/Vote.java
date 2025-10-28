@@ -96,6 +96,20 @@ public class Vote implements PersistableEntity<Long> {
     }
 
     public Vote(Poll poll, Option option, String subId, Instant voteDate, String userId, String ip) {
+        if (poll == null) {
+            throw new IllegalArgumentException("Poll must not be null when creating a vote");
+        }
+        if (option == null) {
+            throw new IllegalArgumentException("Option must not be null when creating a vote");
+        }
+        Long pollIdValue = poll.getPollId();
+        Long optionPollId = option.getPollId();
+        if (optionPollId == null && option.getPoll() != null) {
+            optionPollId = option.getPoll().getPollId();
+        }
+        if (pollIdValue != null && optionPollId != null && !pollIdValue.equals(optionPollId)) {
+            throw new IllegalArgumentException(String.format("Option %s does not belong to poll %s", String.valueOf(option.getOptionId()), String.valueOf(pollIdValue)));
+        }
         this.pollId = poll.getPollId();
         this.pollOption = option.getOptionId();
         this.poll = poll;
