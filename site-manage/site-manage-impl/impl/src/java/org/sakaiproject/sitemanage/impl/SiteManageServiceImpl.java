@@ -445,7 +445,10 @@ public class SiteManageServiceImpl implements SiteManageService {
 			}
 
 			if (MapUtils.isNotEmpty(toolOptions)) {
-				toolIds.addAll(toolOptions.keySet());
+				Set<String> uniqueToolIds = new LinkedHashSet<>(toolIds);
+				uniqueToolIds.addAll(toolOptions.keySet());
+				toolIds.clear();
+				toolIds.addAll(uniqueToolIds);
 			}
 		}
 
