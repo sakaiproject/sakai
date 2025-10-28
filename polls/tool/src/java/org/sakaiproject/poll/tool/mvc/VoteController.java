@@ -66,7 +66,7 @@ public class VoteController {
             return "redirect:/faces/votePolls";
         }
         if (poll == null) {
-            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
             return "redirect:/faces/votePolls";
         }
         if (!pollVoteManager.pollIsVotable(poll)) {
@@ -93,13 +93,23 @@ public class VoteController {
     public String submitVote(@ModelAttribute VoteForm voteForm,
                              RedirectAttributes redirectAttributes,
                              Locale locale) {
-        Poll poll = pollListManager.getPollById(voteForm.getPollId());
-        if (poll == null) {
+        Poll poll;
+        try {
+            poll = pollListManager.getPollById(voteForm.getPollId());
+        } catch (SecurityException e) {
+            log.debug("User lacks permission to view poll {}", voteForm.getPollId(), e);
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
             return "redirect:/faces/votePolls";
         }
+        if (poll == null) {
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
+            return "redirect:/faces/votePolls";
+        }
         try {
-            VoteCollection voteCollection = pollsUiService.submitVote(voteForm.getPollId(), new ArrayList<>(voteForm.getSelectedOptionIds()));
+            List<Long> optionIds = voteForm.getSelectedOptionIds() != null
+                    ? new ArrayList<>(voteForm.getSelectedOptionIds())
+                    : new ArrayList<>();
+            VoteCollection voteCollection = pollsUiService.submitVote(voteForm.getPollId(), optionIds);
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("thanks_msg", null, locale));
             return "redirect:/faces/voteThanks?voteRef=" + voteCollection.getId();
         } catch (PollValidationException ex) {

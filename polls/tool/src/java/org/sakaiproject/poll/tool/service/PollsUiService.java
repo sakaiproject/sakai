@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -225,6 +226,21 @@ public class PollsUiService {
 
         if (votesToProcess.isEmpty() && poll.getMinOptions() == 0) {
             votesToProcess.add(0L);
+        }
+
+        // Validate option membership and uniqueness (ignore sentinel 0L for zero-min polls)
+        if (!(votesToProcess.size() == 1 && votesToProcess.get(0) == 0L)) {
+            Set<Long> uniqueIds = new TreeSet<>(votesToProcess);
+            if (uniqueIds.size() != votesToProcess.size()) {
+                throw new PollValidationException("invalid_option_selection");
+            }
+            List<Option> allowedOptions = pollListManager.getVisibleOptionsForPoll(pollId);
+            Set<Long> allowedIds = allowedOptions.stream()
+                    .map(Option::getOptionId)
+                    .collect(Collectors.toSet());
+            if (!allowedIds.containsAll(votesToProcess)) {
+                throw new PollValidationException("invalid_option_selection");
+            }
         }
 
         validateVoteSelection(poll, votesToProcess);

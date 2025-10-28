@@ -121,7 +121,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		String[] siteIds = new String[] { siteId };
 
 		if (log.isDebugEnabled()) {
-			log.debug("poll for site " + siteId);
+			log.debug("poll for site {}", siteId);
 		}
 
 
@@ -271,7 +271,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 	@EntityCustomAction(action = "poll-view", viewKey = EntityView.VIEW_SHOW)
 	public Poll getPollEntity(EntityView view, EntityReference ref) {
 		String id = ref.getId();
-		log.debug(id);
+		log.debug("poll id: {}", id);
 
 		if (StringUtils.isBlank(id)) {
 			log.warn("Poll id is not exist. Returning an empty poll object.");
@@ -311,7 +311,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			}
 		}
 
-		log.debug("requestStorage" , requestStorage);
+		log.debug("requestStorage: {}", requestStorage);
 		Boolean includeVotes = requestStorage.getStoredValueAsType(
 				Boolean.class, "includeVotes");
 		if (includeVotes == null) {
@@ -434,7 +434,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		}
 		try {
 			pollListManager.deletePoll(poll);
-			return String.format("Poll id %d removed", id);
+			return String.format("Poll id %s removed", id);
 		} catch (SecurityException e) {
 			throw new SecurityException("The current user ("
 					+ developerHelperService.getCurrentUserReference()
@@ -459,7 +459,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		Long pollId = null;
 		try {
 			pollId = Long.parseLong(id);
-		} catch (UnsupportedOperationException e) {
+		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException(
 					"Invalid: pollId must be a long number: " + e.getMessage(),
 					e);
@@ -561,7 +561,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalStateException("Unable to save option (" + option
 					+ ") for user (" + userReference + "): " + ref);
 		}
-		return option.getId() + "";
+		return option.getOptionId() + "";
 	}
 
 	/**
@@ -634,7 +634,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 
 		checkOptionPermission(userReference, current);
 		developerHelperService.copyBean(option, current, 0, new String[] {
-				"id", "pollId", "UUId" }, true);
+			"id", "pollId", "uuid" }, true);
 		boolean saved = pollListManager.saveOption(current);
 		if (!saved) {
 			throw new IllegalStateException("Unable to update option ("
@@ -715,7 +715,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		Vote vote = new Vote();
 		copyParamsToObject(params, vote);
 
-		log.debug("got vote: " + vote.toString());
+		log.debug("got vote: {}", vote);
 
 		Long pollId = null;
 		try {
@@ -785,7 +785,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 	public Object getVoteEntity(EntityReference ref) {
 		String id = ref.getId();
 		String currentUser = developerHelperService.getCurrentUserReference();
-		log.debug("current user is: " + currentUser);
+		log.debug("current user is: {}", currentUser);
 		if (currentUser == null || currentUser.length() == 0) {
 			throw new EntityException(
 					"Anonymous users cannot view specific votes", ref.getId(),

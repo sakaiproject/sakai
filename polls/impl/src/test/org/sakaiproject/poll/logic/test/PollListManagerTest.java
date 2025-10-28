@@ -149,13 +149,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		//we should not be able to save empty polls
 		
 		//a user needs privileges to save the poll
-		try {
-			pollListManager.savePoll(null);
-			Assert.fail();
-		}
-		catch (IllegalArgumentException e) {
-			log.debug("Expected illegal argument when saving null poll", e);
-		}
+		Assert.assertThrows(IllegalArgumentException.class, () -> pollListManager.savePoll(null));
 		
 		
 		//a user needs privileges to save the poll
