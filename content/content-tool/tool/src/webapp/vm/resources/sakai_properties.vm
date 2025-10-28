@@ -322,7 +322,7 @@ button.btn.btn-default.multiselect-clear-filter{
 						<div class="form-inline">
 							<div class="col-lg-12">
 								<label class="form-check-label" for="hidden_false${DOT}$i">
-									<input type="radio" name="hidden${DOT}$i" id="hidden_false${DOT}$i" value="false" #if(!$model.isHidden())checked="checked" #end/>
+									<input type="radio" name="hidden${DOT}$i" id="hidden_false${DOT}$i" value="false" #if(!$model.isHidden() && (!$model.isCollection() || !$model.isHiddenWithAccessibleContent()))checked="checked" #end/>
 									#if($model.isCollection())
 										$tlang.getString("avail.show2")
 									#else
@@ -405,28 +405,25 @@ button.btn.btn-default.multiselect-clear-filter{
 							</div>
 						</div>
 					</div>
+					#if($model.isCollection())
 					<div class="row">
 						<div class="col-lg-12">
-							#if($model.isCollection())
-							<input type="radio" name="hidden${DOT}$i" id="hidden_with_accessible_content_true${DOT}$i" value="hidden_with_accessible_content" #if($model.isHiddenWithAccessibleContent())checked #end/>
-								<label class="form-check-label"for="hidden_with_accessible_content_true${DOT}$i">
-									$tlang.getString("avail.hide30")
-								</label>
-							#end
+							<input type="radio" name="hidden${DOT}$i" id="hidden_with_accessible_content_true${DOT}$i" value="hidden_with_accessible_content" #if($model.isHiddenWithAccessibleContent())checked="checked" #end/>
+							<label class="form-check-label"for="hidden_with_accessible_content_true${DOT}$i">
+								$tlang.getString("avail.hide30")
+							</label>
 						</div>
 					</div>
+					#else
 					<div class="row">
 						<div class="col-lg-12">
 							<input type="radio" name="hidden${DOT}$i" id="hidden_true${DOT}$i" value="true" #if($model.isHidden())checked #end/>
 							<label class="form-check-label" for="hidden_true${DOT}$i">
-								#if($model.isCollection())
-									$tlang.getString("avail.hide20")
-								#else
-									$tlang.getString("avail.hide10")
-								#end
+								$tlang.getString("avail.hide10")
 							</label>
 						</div>
 					</div>
+					#end
 					#if($conditions_enabled)
 						<div class="form-group">
 							#if($resourceSelections.size() == 0)
