@@ -1,0 +1,44 @@
+name: 'Close Stale PRs'
+
+on:
+  schedule:
+    # Run daily at 1:00 AM UTC
+    - cron: '0 1 * * *'
+  workflow_dispatch: # Allows manual triggering
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          # Only affect PRs, not issues
+          days-before-issue-stale: -1
+          days-before-issue-close: -1
+          
+          # Mark PR as stale after 10 days of inactivity
+          days-before-pr-stale: 10
+          
+          # Close PR 4 days after marking as stale (14 days total)
+          days-before-pr-close: 4
+          
+          # Messages
+          stale-pr-message: 'This PR has been automatically marked as stale due to 10 days of inactivity. It will be closed in 4 days unless there is new activity.'
+          close-pr-message: 'This PR has been automatically closed due to inactivity after being marked as stale. You may simply reopen it and continue working on it.'
+          
+          # Labels
+          stale-pr-label: 'stale'
+          
+          # Optional: Exempt PRs with certain labels from being closed
+          exempt-pr-labels: 'do-not-close'
+          
+          # Don't mark as stale if there are recent comments
+          exempt-all-pr-assignees: true
+          
+          # IMPORTANT: Ignore the bot's own comments when checking for activity
+          # This prevents stale warnings from resetting the inactivity timer
+          exempt-stale-pr-updates: true
