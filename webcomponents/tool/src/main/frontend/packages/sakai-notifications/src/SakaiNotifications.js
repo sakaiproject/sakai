@@ -99,6 +99,12 @@ export class SakaiNotifications extends SakaiElement {
     })
     .then(notifications => {
 
+      this.notifications = [];
+      notifications.forEach(noti => {
+        if (!noti._rawTitle) {
+          noti._rawTitle = noti.title;
+        }
+      });
       this.notifications = notifications;
       this._filterIntoToolNotifications();
       this._fireLoadedEvent();
@@ -119,6 +125,9 @@ export class SakaiNotifications extends SakaiElement {
 
       registerPushCallback("notifications", message => {
 
+        if (!message._rawTitle) {
+          message._rawTitle = message.title;
+        }
         this.notifications.unshift(message);
         this._fireLoadedEvent();
         this._decorateNotification(message);
@@ -188,16 +197,16 @@ export class SakaiNotifications extends SakaiElement {
   _decorateAssignmentNotification(noti) {
 
     if (noti.event === "asn.new.assignment" || noti.event === "asn.revise.access") {
-      noti.title = this._i18n.assignment_created.replace("{0}", noti.title).replace("{1}", noti.siteTitle);
+      noti.title = this._i18n.assignment_created.replace("{0}", noti._rawTitle).replace("{1}", noti.siteTitle);
     } else if (noti.event === "asn.grade.submission") {
-      noti.title = this._i18n.assignment_submission_graded.replace("{0}", noti.title).replace("{1}", noti.siteTitle);
+      noti.title = this._i18n.assignment_submission_graded.replace("{0}", noti._rawTitle).replace("{1}", noti.siteTitle);
     }
   }
 
   _decorateAnnouncementNotification(noti) {
 
     if (noti.event === "annc.new" || noti.event === "annc.available.announcement") {
-      noti.title = this._i18n.announcement.replace("{0}", noti.title).replace("{1}", noti.siteTitle);
+      noti.title = this._i18n.announcement.replace("{0}", noti._rawTitle).replace("{1}", noti.siteTitle);
     }
   }
 
@@ -208,14 +217,14 @@ export class SakaiNotifications extends SakaiElement {
   _decorateSamigoNotification(noti) {
 
     if (noti.event === "sam.assessment.available" || noti.event === "sam.assessment.update.available") {
-      noti.title = this._i18n.samigoCreated.replace("{0}", noti.title).replace("{1}", noti.siteTitle);
+      noti.title = this._i18n.samigoCreated.replace("{0}", noti._rawTitle).replace("{1}", noti.siteTitle);
     }
   }
 
   _decorateMessageNotification(noti) {
 
     if (noti.event === "message.read.receipt") {
-      noti.title = this._i18n.message_read.replace("{0}", noti.title).replace("{1}", noti.siteTitle);
+      noti.title = this._i18n.message_read.replace("{0}", noti._rawTitle).replace("{1}", noti.siteTitle);
     }
   }
 
