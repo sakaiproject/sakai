@@ -39,6 +39,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -97,6 +100,7 @@ public class SiteManageServiceImpl implements SiteManageService {
     @Setter private ThreadLocalManager threadLocalManager;
     @Setter private ToolManager toolManager;
     @Setter private FunctionManager functionManager;
+    @Setter private AuthzGroupService authzGroupService;
     @Setter private TransactionTemplate transactionTemplate;
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private UserNotificationProvider userNotificationProvider;
@@ -925,28 +929,25 @@ public class SiteManageServiceImpl implements SiteManageService {
             log.debug("Starting tool permissions copy from site {} to site {}", fromSiteId, toSiteId);
             Site fromSite = siteService.getSite(fromSiteId);
             // Get the destination site
-            Site toSite = siteService.getSite(toSiteId);
+            AuthzGroup toRealm = authzGroupService.getAuthzGroup(siteService.siteReference(toSiteId));
             boolean copyEverything = (permissionCandidatesForCopying == null);
-            
+            // Precompute permissions to copy once
+            Set<String> permissionsToCopy = copyEverything
+		    ? new HashSet<>(functionManager.getRegisteredFunctions())
+		    : new HashSet<>(permissionCandidatesForCopying);
+
             // Copy all role permissions from source site to destination site
             Set<Role> fromRoles = fromSite.getRoles();
             log.debug("Found {} roles in source site", fromRoles.size());
             
             for (Role fromRole : fromRoles) {
                 String roleName = fromRole.getId();
-                try {
-                    // Get the corresponding role in the destination site
-                    Role toRole = toSite.getRole(roleName);
-                    if (toRole != null) {
-                        // Get all possible permissions so that permissions could be allowed or disallowed
-                        // in the toRole based on permission settings in the fromRole
-                        Set<String> allPermissions = new HashSet<>(functionManager.getRegisteredFunctions());
-                        if (! copyEverything) {
-                            allPermissions.retainAll(permissionCandidatesForCopying); // filter permissions to copy based on user selection
-                        }
-                        log.debug("Copying {} permissions for role {}", allPermissions, roleName);
+                // Get the corresponding role in the destination site
+                Role toRole = toRealm.getRole(roleName);
+                if (toRole != null) {
+                        log.debug("Copying {} permissions for role {}", permissionsToCopy, roleName);
                         
-                        for (String permission : allPermissions) {
+                        for (String permission : permissionsToCopy) {
                             // If the source role has this permission, add it to the destination role
                             if (fromRole.isAllowed(permission)) {
                                 toRole.allowFunction(permission);
@@ -957,22 +958,19 @@ public class SiteManageServiceImpl implements SiteManageService {
                                 log.debug("Disallowing permission {} for role {}", permission, roleName);
                             }
                         }
-                    } else {
-                        log.warn("Role {} not found in destination site {}", roleName, toSiteId);
-                    }
-                } catch (Exception e) {
-                    log.warn("Could not find role {} in destination site {}, {}", roleName, toSiteId, e.toString());
+                } else {
+			log.warn("Role {} not found in destination site {}", roleName, toSiteId);
                 }
             }
             
-            // Save the destination site with the updated permissions
-            siteService.save(toSite);
+            // Save the destination site's updated permissions
+            authzGroupService.save(toRealm);
             log.debug("Successfully copied all tool permissions from site {} to site {}", fromSiteId, toSiteId);
             
-        } catch (IdUnusedException e) {
-            log.warn("Could not find site when copying permissions: {}", e.toString());
+        } catch (IdUnusedException | GroupNotDefinedException e) {
+            log.warn("Could not find site realm when copying permissions from {} to {}.", fromSiteId, toSiteId, e);
         } catch (Exception e) {
-            log.error("Could not copy tool permissions from site {} to site {}", fromSiteId, toSiteId, e.toString());
+            log.error("Could not copy tool permissions from site {} to site {}", fromSiteId, toSiteId, e);
         }
     }
 }
