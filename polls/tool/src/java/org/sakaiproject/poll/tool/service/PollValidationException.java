@@ -18,10 +18,16 @@ package org.sakaiproject.poll.tool.service;
 
 public class PollValidationException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
     private final Object[] args;
 
     public PollValidationException(String messageKey, Object... args) {
         super(messageKey);
+        this.args = args;
+    }
+
+    public PollValidationException(String messageKey, Throwable cause, Object... args) {
+        super(messageKey, cause);
         this.args = args;
     }
 

@@ -23,6 +23,8 @@ import lombok.Data;
 
 @Data
 public class VoteForm {
+
     private Long pollId;
+
     private List<Long> selectedOptionIds = new ArrayList<>();
 }

@@ -30,7 +30,7 @@
         <label class="form-label" for="batch-file" th:text="#{new_poll_option_batch_info}">Upload instructions</label>
         <input class="form-control"
                th:classappend="${#fields.hasErrors('file')}? ' is-invalid'"
-               type="file" id="batch-file" name="file" accept=".csv,.xls,.xlsx,.txt" required />
+               type="file" id="batch-file" th:field="*{file}" accept=".csv,.xls,.xlsx,.txt" required />
         <div class="invalid-feedback" th:if="${#fields.hasErrors('file')}" th:errors="*{file}">Provide a valid file</div>
       </div>
       <div class="d-flex gap-2">
