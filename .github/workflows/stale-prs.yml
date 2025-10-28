@@ -36,8 +36,8 @@ jobs:
           # Optional: Exempt PRs with certain labels from being closed
           exempt-pr-labels: 'do-not-close'
           
-          # Don't mark as stale if there are recent comments
-          exempt-all-pr-assignees: true
+          # Remove stale label when PR is updated
+          remove-pr-stale-when-updated: true
           
           # IMPORTANT: Ignore the bot's own comments when checking for activity
           # This prevents stale warnings from resetting the inactivity timer
