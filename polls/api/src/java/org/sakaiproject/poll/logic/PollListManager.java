@@ -102,6 +102,14 @@ public interface PollListManager extends EntityProducer {
     public Option getOptionById(Long optionId);
 
     /**
+     * Populate and persist a UUID for the supplied option when one is missing.
+     *
+     * @param option the option to update; may be {@code null}
+     * @return the same option instance after ensuring a UUID
+     */
+    public Option ensureOptionUuidAndSave(Option option);
+
+    /**
      * Get all options for a specific poll
      * @param pollId the id for a poll
      * @return all options OR empty if there are no options for this poll

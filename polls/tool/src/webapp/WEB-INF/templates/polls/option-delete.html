@@ -25,6 +25,7 @@
     </div>
 
     <form th:action="@{/faces/pollOptionDelete}" method="post">
+      <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <input type="hidden" name="optionId" th:value="${option.optionId}" />
 
       <div class="mb-3" th:if="${hasVotes}">

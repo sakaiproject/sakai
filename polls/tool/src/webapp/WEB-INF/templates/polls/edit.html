@@ -24,6 +24,7 @@
     <h1 class="h3 mb-3" th:text="${isNew} ? #{new_poll_title} : #{new_poll_title_edit}">Poll</h1>
 
     <form th:action="@{/faces/voteAdd}" th:object="${pollForm}" method="post" class="needs-validation" novalidate>
+      <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <input type="hidden" th:field="*{pollId}" />
 
       <div class="mb-3">

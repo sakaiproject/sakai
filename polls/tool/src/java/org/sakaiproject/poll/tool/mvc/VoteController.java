@@ -58,7 +58,13 @@ public class VoteController {
                            Model model,
                            Locale locale,
                            RedirectAttributes redirectAttributes) {
-        Poll poll = pollListManager.getPollById(pollId);
+        Poll poll;
+        try {
+            poll = pollListManager.getPollById(pollId);
+        } catch (SecurityException e) {
+            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
+            return "redirect:/faces/votePolls";
+        }
         if (poll == null) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
             return "redirect:/faces/votePolls";
