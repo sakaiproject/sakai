@@ -1219,7 +1219,12 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 		if ("normal".equals(mode) && "completed".equals(completionStatus) && "credit".equals(credit))
 		{
-			String context = lms().currentContext();
+			String context = sessionBean.getContentPackage() != null ? sessionBean.getContentPackage().getContext() : null;
+			if (StringUtils.isBlank(context))
+			{
+				log.warn("Cannot synchronize gradebook: no context available for content package {}", sessionBean.getContentPackage() != null ? sessionBean.getContentPackage().getContentPackageId() : "unknown");
+				return;
+			}
 			String learnerID = sessionBean.getLearnerId();
 			String assessmentExternalId = "" + sessionBean.getContentPackage().getContentPackageId() + ":" + dataManager.getScoId();
 
