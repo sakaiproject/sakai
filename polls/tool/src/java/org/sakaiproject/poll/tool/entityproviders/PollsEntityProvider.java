@@ -794,7 +794,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 
 		// is this a new object?
 		if (ref.getId() == null) {
-			new Vote();
+			return new Vote();
 		}
 
 		Vote vote = getVoteById(id);

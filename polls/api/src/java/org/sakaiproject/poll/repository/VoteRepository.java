@@ -9,7 +9,7 @@ public interface VoteRepository extends SpringCrudRepository<Vote, Long> {
 
     List<Vote> findByPollId(Long pollId);
 
-    List<Vote> findByPollIdAndPollOption(Long pollId, Long pollOption);
+    List<Vote> findByPollIdAndPollOption(Long pollId, Long optionId);
 
     List<Vote> findByUserId(String userId);
 
