@@ -78,4 +78,21 @@
 			</props>
 		</property>
 	</bean>
+
+	<bean id="org.sakaiproject.scorm.service.launch.ScormLaunchSessionRegistry"
+	    class="org.sakaiproject.scorm.service.impl.ScormLaunchSessionRegistry">
+		<property name="entryTtl" value="PT2H" />
+	</bean>
+
+	<bean id="org.sakaiproject.scorm.service.api.ScormLaunchService"
+	    class="org.sakaiproject.scorm.service.impl.ScormLaunchServiceImpl">
+		<property name="sessionRegistry" ref="org.sakaiproject.scorm.service.launch.ScormLaunchSessionRegistry" />
+		<property name="sequencingService" ref="org.sakaiproject.scorm.service.api.ScormSequencingService" />
+		<property name="resultService" ref="org.sakaiproject.scorm.service.api.ScormResultService" />
+		<property name="scormContentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
+		<property name="resourceService" ref="org.sakaiproject.scorm.service.api.ScormResourceService" />
+		<property name="scormApplicationService" ref="org.sakaiproject.scorm.service.api.ScormApplicationService" />
+		<property name="learningManagementSystem" ref="org.sakaiproject.scorm.service.api.LearningManagementSystem" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
 </beans>
