@@ -83,12 +83,16 @@ public class ScoResultsPage extends BaseResultsPage
 		boolean canViewResults = lms.canViewResults( context );
 		Label heading = new Label( "heading2", new ResourceModel( "page.heading.notAllowed" ) );
 		add( heading );
+        Label emptyState = new Label("emptyState", new ResourceModel("no_data"));
+        emptyState.setVisible(false);
+        add(emptyState);
 		if( !canViewResults )
 		{
 			heading.setVisibilityAllowed( true );
 			add( new WebMarkupContainer( "scorePanel" ) );
 			add( new WebMarkupContainer( "progressPanel" ) );
 			add( new WebMarkupContainer( "interactionPresenter" ) );
+			emptyState.setVisible(false);
 		}
 		else
 		{
@@ -111,15 +115,21 @@ public class ScoResultsPage extends BaseResultsPage
 				add(new ProgressPanel("progressPanel", report.getProgress()));
 
 				interactions = report.getInteractions();
+				emptyState.setVisible(interactions == null || interactions.isEmpty());
 			}
 			else
 			{
 				addBreadcrumb(new Model("[no module]"), ScoResultsPage.class, pageParams, false);
 
-				add(new ScorePanel("scorePanel", new Score()));
-				add(new ProgressPanel("progressPanel", new Progress()));
+				ScorePanel scorePanel = new ScorePanel("scorePanel", new Score());
+				scorePanel.setVisible(false);
+				add(scorePanel);
+				ProgressPanel progressPanel = new ProgressPanel("progressPanel", new Progress());
+				progressPanel.setVisible(false);
+				add(progressPanel);
 
 				interactions = new ArrayList<>();
+				emptyState.setVisible(true);
 			}
 
 			InteractionProvider dataProvider = new InteractionProvider(interactions);
