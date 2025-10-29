@@ -703,30 +703,16 @@
 		    </tr>
 		    </c:if>
 		    <tr>
-		    	<th><c:out value="${rlb.jsp_feeds}"/><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'feedshelp'); return false;"
-		    		onMouseOut="hidePopup('feedshelp');" >?</a></th>
-		      <td colspan="6">
-			  <ul id="feedsLinks">
-			  <li>
-		    	      <jsp:element name="a"><!--
-		--><jsp:attribute name="href"><c:out value="${realmBean.publicViewUrl}"/></jsp:attribute><!--
-		--><jsp:attribute name="target">publicview</jsp:attribute><!--
-		--><c:out value="${rlb.jsp_public}"/><!--
-		--></jsp:element>
-			</li>
-			<c:set var="feedsLinks"
-			  value="${referencesBean.feedsLinks }" />
-			<c:if test="${fn:length(feedsLinks) gt 0}">
-			    <c:forEach var="item" items="${feedsLinks }">
-			      <li><c:out value="${item }" escapeXml="false" /></li>
-			    </c:forEach>
-			</c:if>
-			  </ul>
-		      </td>
+		    	<th><c:out value="${rlb.jsp_feeds}"/></th>
+	        <td colspan="6">
+	          <c:set var="publicViewUrl" value="${realmBean.baseAccessUrl}html" />
+	          <a href="${fn:escapeXml(publicViewUrl)}" target="publicview">
+	            <c:out value="${rlb.jsp_public}"/> <c:out value="${rlb.jsp_view}"/>
+	          </a>
+	        </td>
 		    </tr>
-		    
 		    <tr>
-		    	<th><c:out value="${rlb.jsp_owner}"/><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'ownerhelp'); return false;"
+	    	<th><c:out value="${rlb.jsp_owner}"/><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'ownerhelp'); return false;"
 		    		onMouseOut="hidePopup('ownerhelp');" >?</a></th>
 		      <td colspan="6">
 		      	<rwiki:formatDisplayName name="${(currentRWikiObject.owner)}"/>

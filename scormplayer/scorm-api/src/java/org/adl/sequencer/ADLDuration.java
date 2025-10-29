@@ -46,9 +46,9 @@ public class ADLDuration implements Serializable, IDuration {
     private long id;
 
     /**
-	 * The duration being tracked in milliseconds
-	 */
-	public long mDuration = 0;
+         * The duration being tracked in seconds to match persisted data
+         */
+        public long mDuration = 0;
 
 	/**
 	 * Default constructor for the <code>ADLDuration</code> class.  Sets the 
@@ -85,7 +85,7 @@ public class ADLDuration implements Serializable, IDuration {
                     log.warn("  Invalid Format ::  {} // {}", iFormat, iValue);
                 }
 
-                mDuration = (long) (secs * 1000.0);
+                mDuration = Math.round(secs);
                 break;
 
             }
@@ -121,8 +121,8 @@ public class ADLDuration implements Serializable, IDuration {
                         totalSeconds += Long.parseLong(sec);
                     }
 
-                    // store internally as milliseconds
-                    mDuration = totalSeconds * 1000;
+                    // store internally as seconds to align with persisted data
+                    mDuration = totalSeconds;
                 } else {
                     log.debug(" ERROR : Invalid format  --> {}", iValue);
                 }
@@ -217,7 +217,7 @@ public class ADLDuration implements Serializable, IDuration {
         switch (iFormat) {
 
             case FORMAT_SECONDS: {
-                double sec = mDuration / 1000.0;
+                double sec = mDuration;
                 out = Double.valueOf(sec).toString();
                 break;
             }
@@ -228,7 +228,7 @@ public class ADLDuration implements Serializable, IDuration {
                 countMin = 0;
                 countSec = 0;
 
-                temp = mDuration / 1000;
+                temp = mDuration;
 
                 // Compute hours, minutes, seconds for any non-negative duration
                 if (temp >= 3600) {

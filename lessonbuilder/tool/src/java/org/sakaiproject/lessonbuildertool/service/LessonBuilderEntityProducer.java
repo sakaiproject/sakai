@@ -334,6 +334,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		return toolList;
 	}
 
+	@Override
+	public Optional<List<String>> getTransferOptions() {
+		return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
+	}
+
 	/**
 	 * Get the service name for this class
 	 * @return
@@ -1676,8 +1681,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 				// Carry over the custom CSS sheet if present. These are of the form
 				// "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
-				String cssSheet = pageElement.getAttribute("csssheet");
-				if (StringUtils.isNotEmpty(cssSheet)) page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
+                String cssSheet = pageElement.getAttribute("csssheet");
+                if (StringUtils.isNotEmpty(cssSheet)) {
+                    String newCss = cssSheet.replace("/group/" + fromSiteId + "/", "/group/" + siteId + "/");
+                    page.setCssSheet(newCss);
+                }
 
 				// Save or update the page
 				if ( reused ) {
@@ -1996,6 +2004,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 	}
 
+	@Override
+	public String getToolPermissionsPrefix() {
+		return SimplePage.PERMISSION_LESSONBUILDER_PREFIX;
+	}
+
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
 		return transferCopyEntitiesImpl(fromContext, toContext, ids, false);
 	}
@@ -2117,11 +2130,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	// map has entities for all objects. Look for all entities that look like /ref/lessonbuilder.
 	// this is mapping from LB item id to underlying object in old site.
 	// find the object in the new site and fix up the item id
-	public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+    public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
 
-		migrateEmbeddedLinks(toContext, transversalMap);
-		// update lessonbuilder_ref property of groups and kill bogus groups
-		Map<String,String> mapGroups = new HashMap<String,String>();
+        migrateEmbeddedLinks(toContext, transversalMap);
+        // update lessonbuilder_ref property of groups and kill bogus groups
+        Map<String,String> mapGroups = new HashMap<String,String>();
 		for (Map.Entry<String,String> entry: transversalMap.entrySet()) {
 			String entityid = entry.getKey();
 			String objectid = entry.getValue();
@@ -2170,6 +2183,39 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 
 		simplePageToolDao.setNeedsGroupFixup(toContext, 1);
+
+		// Also remap any per-page custom CSS selections using the transversalMap produced by
+		// the overall site copy. When Resources renames files (e.g., to avoid collisions), the
+		// CSS file path saved on the page can point to the old ID and the UI will fall back to
+		// default CSS. If we find a mapping for the CSS resource, update the page to the new ID.
+		try {
+				if (transversalMap != null && !transversalMap.isEmpty()) {
+						List<SimplePage> pages = simplePageToolDao.getSitePages(toContext);
+						if (pages != null && !pages.isEmpty()) {
+								for (SimplePage page : pages) {
+										String css = page.getCssSheet();
+										if (css == null || css.isEmpty()) continue;
+
+										// transversalMap keys use ContentHostingService resource IDs (e.g., "/group/...").
+										String keyGroup = css; // e.g., /group/SITEID/LB-CSS/custom.css
+
+										String mapped = transversalMap.get(keyGroup);
+										if (mapped != null && !mapped.isEmpty()) {
+												// Ensure we store a CHS resource ID (strip leading "/content" if present)
+												String newId = mapped.startsWith("/content") ? mapped.substring("/content".length()) : mapped;
+
+												if (!newId.equals(css)) {
+														page.setCssSheet(newId);
+														simplePageToolDao.quickUpdate(page);
+														log.debug("Remapped Lessons CSS for page {} from {} to {}", page.getPageId(), css, newId);
+												}
+										}
+								}
+						}
+				}
+		} catch (Exception e) {
+				log.warn("Problem remapping Lessons CSS selections during site copy: {}", e);
+		}
 
 	}
 

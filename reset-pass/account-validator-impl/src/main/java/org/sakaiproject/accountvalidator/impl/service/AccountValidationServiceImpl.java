@@ -140,7 +140,7 @@ public class AccountValidationServiceImpl implements AccountValidationService {
 
         if (va.getValidationReceived() == null) {
             if (va.getValidationSent() != null) {
-                Instant validationDeadline = Instant.now().minus(VALIDATION_PERIOD_MONTHS, ChronoUnit.DAYS); // 36 months ago
+                Instant validationDeadline = Instant.now().minus(VALIDATION_PERIOD_MONTHS, ChronoUnit.MONTHS); // 36 months ago
                 if (va.getValidationSent().isBefore(validationDeadline)) {
                     log.debug("validation sent but expired - no reply received within {} months", Math.abs(VALIDATION_PERIOD_MONTHS));
                 } else {

@@ -100,11 +100,11 @@
 		 <div class="row">
 		 	<div class="col-md-6">
 
-		 		<div>
+		 		<div class="my-2">
 					<%-- immediate=true bypasses the valueChangeListener --%>
 					<h:commandButton value="#{samLiteMessages.samlite_cancel}" type="submit" action="author" immediate="true"/>
 					<%-- activates the valueChangeListener --%>
-					<h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active" action="#{samLiteBean.getOutcome}">
+					<h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active ms-1" action="#{samLiteBean.getOutcome}">
 						<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.ParserListener" />
 		 			</h:commandButton>
 		 		</div>
@@ -118,11 +118,11 @@
 				<h:inputHidden value="#{samLiteBean.data}" id="data_value"/>
 				<h:inputTextarea id="data" value="#{samLiteBean.data}" rows="15" cols="75" />
 
-		 		<div>
+		 		<div class="my-2">
 					<%-- immediate=true bypasses the valueChangeListener --%>
 					<h:commandButton value="#{samLiteMessages.samlite_cancel}" type="submit" action="author" immediate="true"/>
 					<%-- activates the valueChangeListener --%>
-					<h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active" action="#{samLiteBean.getOutcome}">
+					<h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active ms-1" action="#{samLiteBean.getOutcome}">
 						<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.ParserListener" />
 		 			</h:commandButton>
 		 		</div>
@@ -265,6 +265,7 @@
 							toolbar_Basic: [
 								['Bold','Italic','Underline','-','TextColor','BGColor','-','Subscript','Superscript','-','Image','Link','Unlink'],
 							],
+							resize_dir: 'vertical',
 						}
 				}
 				
