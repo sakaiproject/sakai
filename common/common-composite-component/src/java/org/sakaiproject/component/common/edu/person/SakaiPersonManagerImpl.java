@@ -27,7 +27,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -46,18 +48,16 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.common.manager.PersistableHelper;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
@@ -80,9 +80,11 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 	private static final String HQL_FIND_SAKAI_PERSONS_BY_AGENTS_AND_TYPE = "findEduPersonsByAgentsAndType";
 	private static final String HQL_FIND_SAKAI_PERSON_BY_UID = "findSakaiPersonByUid";
 	private static final int MAX_QUERY_COLLECTION_SIZE = 1000;
-	
-	@Setter private TypeManager typeManager; // dep inj
-	@Setter private PersistableHelper persistableHelper; // dep inj
+
+	@Setter private PersistableHelper persistableHelper;
+    @Setter private SecurityService securityService;
+    @Setter private SessionManager sessionManager;
+	@Setter private TypeManager typeManager;
 
 	private Type systemMutableType;
 	private Type userMutableType;
@@ -104,8 +106,6 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
             "User Mutable SakaiPerson"
     };
 
-	
-	
 	@Setter private ServerConfigurationService serverConfigurationService;
 	@Setter private UserDirectoryService userDirectoryService;
 	@Setter private EventTrackingService eventTrackingService;
@@ -149,11 +149,11 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 	}
 
     @Override
-    public SakaiPerson create(String userId, Type recordType) {
+    public Optional<SakaiPerson> create(String userId, Type recordType) {
         log.debug("Create a SakaiPerson for userId [{}], type [{}]", userId, recordType);
         if (StringUtils.isBlank(userId) || !isSupportedType(recordType)) {
             log.warn("Invalid userId [{}] or recordType [{}] argument", userId, recordType);
-            return null;
+            return Optional.empty();
         }
 
         SakaiPersonImpl spi;
@@ -178,18 +178,18 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
             getHibernateTemplate().persist(spi);
         } catch (Exception e) {
             log.warn("Could not create SakaiPerson for userId [{}], type [{}]", userId, recordType, e);
-            return null;
+            return Optional.empty();
         }
 
         // post event
         eventTrackingService.post(eventTrackingService.newEvent("profile.new", getReference(spi), true));
 
-        return spi;
+        return Optional.of(spi);
     }
 
     @Override
-	public SakaiPerson getSakaiPerson(Type recordType) {
-        String userId = SessionManager.getCurrentSessionUserId();
+	public Optional<SakaiPerson> getSakaiPerson(Type recordType) {
+        String userId = sessionManager.getCurrentSessionUserId();
         log.debug("Retrieve SakaiPerson for current user: {}, type: {}", userId, recordType);
 		return getSakaiPerson(userId, recordType);
 	}
@@ -204,38 +204,23 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		return new SakaiPersonImpl();
 	}
 
-	/**
-	 * @see org.sakaiproject.api.common.edu.person.SakaiPersonManager#findSakaiPersonByUid(java.lang.String)
-	 */
-	public List findSakaiPersonByUid(final String uid)
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("findSakaiPersonByUid(String {})", uid);
-		}
-		if (uid == null || uid.length() < 1) throw new IllegalArgumentException("Illegal uid argument passed!");
+    @Override
+    public List<SakaiPerson> findSakaiPersonByUid(final String uid) {
+        log.debug("Find SakaiPerson with uid: {}", uid);
+        if (StringUtils.isBlank(uid)) return List.of();
 
-		final HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException
-			{
-				final Query q = session.getNamedQuery(HQL_FIND_SAKAI_PERSON_BY_UID);
-				q.setParameter(UID, uid, StringType.INSTANCE);
-				// q.setCacheable(cacheFindSakaiPersonByUid);
-				return q.list();
-			}
-		};
+        final HibernateCallback<List<SakaiPerson>> hcb = session -> {
+            final Query<SakaiPerson> q = session.getNamedQuery(HQL_FIND_SAKAI_PERSON_BY_UID);
+            q.setParameter(UID, uid, StringType.INSTANCE);
+            return q.list();
+        };
 
-		log.debug("return getHibernateTemplate().executeFind(hcb);");
-		List hb = (List) getHibernateTemplate().execute(hcb);
-		if (photoService.overRidesDefault()) {
-			return this.getDiskPhotosForList(hb);
-		} else {
-			return hb;
-		}
-	}
+        List<SakaiPerson> results = getHibernateTemplate().execute(hcb);
 
-	/**
+        return photoService.overRidesDefault() ? getDiskPhotosForList(results) : results;
+    }
+
+    /**
 	 * @see SakaiPersonManager#save(SakaiPerson)
 	 */
 	public void save(SakaiPerson sakaiPerson)
@@ -250,19 +235,19 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
 		// AuthZ
 		// Only superusers can update system records
-		if (getSystemMutableType().getUuid().equals(sakaiPerson.getTypeUuid()) && !SecurityService.isSuperUser())
+		if (getSystemMutableType().getUuid().equals(sakaiPerson.getTypeUuid()) && !securityService.isSuperUser())
 		{
 			throw new IllegalAccessError("System mutable records cannot be updated.");
 		}
 
 		// if it is a user mutable record, ensure the user is updating their own record
 		// this can be overriden with a security advisor so the admin user to allow access
-		if(!SecurityService.unlock(UserDirectoryService.ADMIN_ID, SakaiPerson.PROFILE_SAVE_PERMISSION, sakaiPerson.getAgentUuid())) {
+		if(!securityService.unlock(UserDirectoryService.ADMIN_ID, SakaiPerson.PROFILE_SAVE_PERMISSION, sakaiPerson.getAgentUuid())) {
 		
-			if (!StringUtils.equals(SessionManager.getCurrentSessionUserId(), sakaiPerson.getAgentUuid()) && !SecurityService.isSuperUser())
+			if (!StringUtils.equals(sessionManager.getCurrentSessionUserId(), sakaiPerson.getAgentUuid()) && !securityService.isSuperUser())
 			{
 				// AuthZ - Ensure the current user is updating their own record
-				if (!StringUtils.equals(SessionManager.getCurrentSessionUserId(), sakaiPerson.getAgentUuid())) {
+				if (!StringUtils.equals(sessionManager.getCurrentSessionUserId(), sakaiPerson.getAgentUuid())) {
 				throw new IllegalAccessError("You do not have permissions to update this record!");
 				}
 			}
@@ -318,9 +303,6 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 					log.error(e.getMessage(), e);
 				}
 			}
-			
-			
-			
 		}
 	}
 
@@ -333,32 +315,32 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 	}
 
     @Override
-    public SakaiPerson getSakaiPerson(final String agentUuid, final Type recordType) {
+    public Optional<SakaiPerson> getSakaiPerson(final String agentUuid, final Type recordType) {
         log.debug("getSakaiPerson(String {}, Type {})", agentUuid, recordType);
 
         // Input validation
         if (StringUtils.isBlank(agentUuid) || (recordType == null || !isSupportedType(recordType))) {
             log.warn("Invalid agentUuid [{}] or recordType [{}] argument", agentUuid, recordType);
-            return null;
+            return Optional.empty();
         }
 
-        SakaiPerson sakaiPerson = getHibernateTemplate().execute(session -> {
-            Query<?> query = session.getNamedQuery(HQL_FIND_SAKAI_PERSON_BY_AGENT_AND_TYPE);
+        Optional<SakaiPerson> sakaiPerson = getHibernateTemplate().execute(session -> {
+            Query<SakaiPerson> query = session.getNamedQuery(HQL_FIND_SAKAI_PERSON_BY_AGENT_AND_TYPE);
             query.setParameter(AGENT_UUID, agentUuid, StringType.INSTANCE);
             query.setParameter(TYPE_UUID, recordType.getUuid(), StringType.INSTANCE);
-            return (SakaiPerson) query.uniqueResult();
+            return Optional.ofNullable(query.uniqueResult());
         });
 
-        if (sakaiPerson == null) {
+        if (!sakaiPerson.isPresent()) {
             log.debug("No SakaiPerson found for agentUuid {} and type {}", agentUuid, recordType);
             sakaiPerson = create(agentUuid, recordType);
         }
 
         // If photo service overrides default and this is a system profile, get photo from disk
-        if (sakaiPerson != null
+        if (sakaiPerson.isPresent()
                 && photoService.overRidesDefault()
-                && systemMutableType.getUuid().equals(sakaiPerson.getTypeUuid())) {
-            sakaiPerson.setJpegPhoto(photoService.getPhotoAsByteArray(sakaiPerson.getAgentUuid()));
+                && systemMutableType.getUuid().equals(sakaiPerson.get().getTypeUuid())) {
+            sakaiPerson.get().setJpegPhoto(photoService.getPhotoAsByteArray(sakaiPerson.get().getAgentUuid()));
         }
 
         return sakaiPerson;
@@ -542,13 +524,12 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		
 		String ref =  getReference(sakaiPerson);
 		
-		//only someone with the appropriate permissions can delete
-		if(!SecurityService.unlock("user.del", ref)){
-			throw new SecurityException("You do not have permission to delete this sakaiPerson.");
-		}
-		
-		
-		// First merge to handle potentially detached instances
+		// only someone with the appropriate permissions can delete
+        if (!securityService.unlock("user.del", ref)) {
+            throw new SecurityException("You do not have permission to delete this sakaiPerson.");
+        }
+
+        // First merge to handle potentially detached instances
 		SakaiPerson mergedPerson = getHibernateTemplate().merge(sakaiPerson);
 		log.debug("Deleted SakaiPerson [{}]", mergedPerson.toString());
 		getHibernateTemplate().delete(mergedPerson);
@@ -566,40 +547,6 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
         return typeUuid != null && (userMutableType.getUuid().equals(typeUuid) || systemMutableType.getUuid().equals(typeUuid));
     }
     
-	/**
-	 * @param cacheFindSakaiPersonStringType
-	 *        The cacheFindSakaiPersonStringType to set.
-	 */
-	// public void setCacheFindSakaiPersonStringType(
-	// boolean cacheFindSakaiPersonStringType)
-	// {
-	// this.cacheFindSakaiPersonStringType = cacheFindSakaiPersonStringType;
-	// }
-	/**
-	 * @param cacheFindSakaiPersonString
-	 *        The cacheFindSakaiPersonString to set.
-	 */
-	// public void setCacheFindSakaiPersonString(boolean cacheFindSakaiPersonString)
-	// {
-	// this.cacheFindSakaiPersonString = cacheFindSakaiPersonString;
-	// }
-	/**
-	 * @param cacheFindSakaiPersonSakaiPerson
-	 *        The cacheFindSakaiPersonSakaiPerson to set.
-	 */
-	// public void setCacheFindSakaiPersonSakaiPerson(
-	// boolean cacheFindSakaiPersonSakaiPerson)
-	// {
-	// this.cacheFindSakaiPersonSakaiPerson = cacheFindSakaiPersonSakaiPerson;
-	// }
-	/**
-	 * @param cacheFindSakaiPersonByUid
-	 *        The cacheFindSakaiPersonByUid to set.
-	 */
-	// public void setCacheFindSakaiPersonByUid(boolean cacheFindSakaiPersonByUid)
-	// {
-	// this.cacheFindSakaiPersonByUid = cacheFindSakaiPersonByUid;
-	// }
 
 	public List isFerpaEnabled(final Collection agentUuids)
 	{
@@ -640,41 +587,17 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		};
 		return (List) getHibernateTemplate().execute(hcb);
 	}
-	
 
-	
-	
-	
-	
-	private List getDiskPhotosForList(List listIn) {
-		
-		List listOut = new ArrayList();
-		
-		for (int i = 0; i < listIn.size(); i++) {
-			SakaiPerson sp = (SakaiPerson)listIn.get(i);
-			if (sp.getAgentUuid() != null && sp.getTypeUuid().equals(this.getSystemMutableType().getUuid())) {
-				sp.setJpegPhoto(photoService.getPhotoAsByteArray(sp.getAgentUuid()));
-			}
-			listOut.add(sp);
-			
-		}
-		
-		
-		return listOut;
+    private List<SakaiPerson> getDiskPhotosForList(List<SakaiPerson> listIn) {
+        return listIn.stream()
+                .map(sp -> {
+                    if (sp.getAgentUuid() != null &&
+                            sp.getTypeUuid().equals(systemMutableType.getUuid())) {
+                        sp.setJpegPhoto(photoService.getPhotoAsByteArray(sp.getAgentUuid()));
+                    }
+                    return sp;
+                })
+                .collect(Collectors.toList());
 	}
-	
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }

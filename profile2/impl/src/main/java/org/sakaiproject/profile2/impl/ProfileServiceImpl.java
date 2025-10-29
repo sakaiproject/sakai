@@ -817,13 +817,13 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         p.canEdit = StringUtils.equals(currentUserId, userId) || sakaiProxy.isSuperUser();
         p.canEditNameAndEmail = sakaiProxy.isSuperUser();
 
-        SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-        if (sakaiPerson != null) {
-            p.nickname = sakaiPerson.getNickname();
-            p.phoneticPronunciation = sakaiPerson.getPhoneticPronunciation();
-            p.pronouns = sakaiPerson.getPronouns();
-            p.mobile = sakaiPerson.getMobile();
-        }
+        Optional<SakaiPerson> sakaiPerson = sakaiProxy.getSakaiPerson(userId);
+        sakaiPerson.ifPresent(sp -> {
+            p.nickname = sp.getNickname();
+            p.phoneticPronunciation = sp.getPhoneticPronunciation();
+            p.pronouns = sp.getPronouns();
+            p.mobile = sp.getMobile();
+        });
 
         dao.getSocialNetworkingInfo(userId).ifPresent(socialInfo -> {
             p.facebookUrl = socialInfo.getFacebookUrl();
@@ -853,11 +853,13 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
     @Transactional
     public boolean saveUserProfile(ProfileTransferBean profileBean) {
 
-        SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(profileBean.id);
-        sakaiPerson.setNickname(profileBean.nickname);
-        sakaiPerson.setPronouns(profileBean.pronouns);
-        sakaiPerson.setPhoneticPronunciation(profileBean.phoneticPronunciation);
-        sakaiPerson.setMobile(profileBean.mobile);
+        Optional<SakaiPerson> sakaiPerson = sakaiProxy.getSakaiPerson(profileBean.id);
+        sakaiPerson.ifPresent(sp -> {
+            sp.setNickname(profileBean.nickname);
+            sp.setPronouns(profileBean.pronouns);
+            sp.setPhoneticPronunciation(profileBean.phoneticPronunciation);
+            sp.setMobile(profileBean.mobile);
+        });
 
         SocialNetworkingInfo socialInfo
           = dao.getSocialNetworkingInfo(profileBean.id).orElseGet(() -> new SocialNetworkingInfo(profileBean.id));
@@ -879,12 +881,11 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
             }
         }
 
-        if (sakaiProxy.updateSakaiPerson(sakaiPerson)) {
-            sendProfileChangeEmailNotification(sakaiPerson.getAgentUuid());
-            return true;
-        }
-
-        return false;
+        return sakaiPerson.map(sp -> {
+            boolean updated = sakaiProxy.updateSakaiPerson(sp);
+            if (updated) sendProfileChangeEmailNotification(sp.getAgentUuid());
+            return updated;
+        }).orElse(false);
     }
 
     public boolean removePronunciationRecording(String userId) {

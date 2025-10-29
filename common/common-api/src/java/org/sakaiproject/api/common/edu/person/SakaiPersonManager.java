@@ -24,6 +24,7 @@ package org.sakaiproject.api.common.edu.person;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.sakaiproject.api.common.type.Type;
@@ -39,12 +40,12 @@ public interface SakaiPersonManager
     /**
      * Creates a persistent SakaiPerson record.
      *
-     * @param userId The user ID (must not be blank)
+     * @param agentUuid The user ID (must not be blank)
      * @param recordType The type of record to create - must be either
      *        {@link #getSystemMutableType()} for system-managed records or
      *        {@link #getUserMutableType()} for user-managed records
-     * @return A newly created and persisted SakaiPerson instance, or null if:
-     *         <p>- userId is blank
+     * @return Optional containing the newly created and persisted SakaiPerson instance, or empty Optional when:
+     *         <p>- agentUuid is blank
      *         <p>- recordType is null or not supported
      *         <p>- the user does not exist in the system
      *         <p>- any error occurs during creation
@@ -52,7 +53,7 @@ public interface SakaiPersonManager
      *         and if updateUserProfile is enabled and recordType is userMutable,
      *         will be populated with the user's first name, last name, and email
      */
-    SakaiPerson create(String userId, Type recordType);
+    Optional<SakaiPerson> create(String agentUuid, Type recordType);
 
 	/**
 	 * Get a new instantiation of an empty SakaiPerson object (has no persistent state). For example, useful if you query-by-example finder method.
@@ -79,24 +80,27 @@ public interface SakaiPersonManager
 	 */
 	public List<SakaiPerson> findSakaiPerson(SakaiPerson queryByExample);
 
-	/**
-	 * Assumes current user. If you would like to specify the user, see {@link #findSakaiPerson(String, Type)}.
-	 * 
-	 * @param recordType
-	 *        See {@link #getSystemMutableType()} or {@link #getUserMutableType()}.
-	 * @return
+    /**
+     * Gets the SakaiPerson record for the current user with the specified record type.
+     * This method uses the currently logged-in user's ID. For retrieving records for
+     * a specific user, use {@link #getSakaiPerson(String, Type)} instead.
+     *
+     * @param recordType The type of record to retrieve - must be either 
+     *                  {@link #getSystemMutableType()} for system-managed records or
+     *                  {@link #getUserMutableType()} for user-managed records
+     * @return Optional containing the matching SakaiPerson record if found, or empty Optional
+     *         if no matching record exists or if the record type is invalid
 	 */
-	public SakaiPerson getSakaiPerson(Type recordType);
+    Optional<SakaiPerson> getSakaiPerson(Type recordType);
 
-	/**
-	 * Find all SakaiPerson objects with specified type. Types should be obtained through the Type constant getter methods.
-	 * 
-	 * @param agent
-	 * @param recordType
-	 *        See {@link #getSystemMutableType()} or {@link #getUserMutableType()}.
-	 * @return
+    /**
+     * Find all SakaiPerson objects with specified type. Types should be obtained through the Type constant getter methods.
+     *
+     * @param agentUuid The unique identifier for the user/agent
+     * @param recordType The type of SakaiPerson record to retrieve - must be either {@link #getSystemMutableType()} or {@link #getUserMutableType()}
+     * @return Optional containing the matching SakaiPerson record if found, or empty Optional if no matching record exists or if the record type is invalid
 	 */
-	public SakaiPerson getSakaiPerson(String agentUuid, Type recordType);
+	Optional<SakaiPerson> getSakaiPerson(String agentUuid, Type recordType);
 
 	/**
 	 * Finds all SakaiPerson objects with the specified type, whos IDs are contained

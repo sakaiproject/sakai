@@ -1,124 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <!-- Base Hibernate SessionFactory -->
-  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.common"
-    class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.common"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 
-    <property name="mappingResources">
-      <list>
-        <value>
-          org/sakaiproject/component/common/type/TypeImpl.hbm.xml
-        </value>
-        <value>
-          org/sakaiproject/component/common/edu/person/SakaiPersonImpl.hbm.xml
-        </value>
-      </list>
-    </property>
-
-  </bean>
-
-  <bean id="org.sakaiproject.api.common.type.TypeManager"
-    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-    <property name="transactionManager">
-      <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-    </property>
-    <property name="target">
-      <bean
-        class="org.sakaiproject.component.common.type.TypeManagerImpl">
-        <property name="sessionFactory">
-          <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+        <property name="mappingResources">
+            <list>
+                <value>org/sakaiproject/component/common/type/TypeImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/common/edu/person/SakaiPersonImpl.hbm.xml</value>
+            </list>
         </property>
-        <property name="persistableHelper">
-          <ref
-            bean="org.sakaiproject.component.common.manager.PersistableHelper" />
+    </bean>
+
+    <bean id="org.sakaiproject.api.common.type.TypeManager"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        <property name="target">
+            <bean class="org.sakaiproject.component.common.type.TypeManagerImpl">
+                <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                <property name="persistableHelper" ref="org.sakaiproject.component.common.manager.PersistableHelper"/>
+                <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
+            </bean>
         </property>
-        <property name="idManager">
-          <ref bean="org.sakaiproject.id.api.IdManager" />
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
         </property>
-      </bean>
-    </property>
-    <property name="transactionAttributes">
-      <props>
-        <prop key="*">PROPAGATION_REQUIRED</prop>
-      </props>
-    </property>
-  </bean>
+    </bean>
 
 
-
-  <bean id="org.sakaiproject.api.common.edu.person.SakaiPersonManager"
-    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-    <property name="transactionManager">
-      <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-    </property>
-    <property name="target">
-      <bean
-        class="org.sakaiproject.component.common.edu.person.SakaiPersonManagerImpl"
-        init-method="init">
-        <property name="sessionFactory">
-          <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    <bean id="org.sakaiproject.api.common.edu.person.SakaiPersonManager"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        <property name="target">
+            <bean class="org.sakaiproject.component.common.edu.person.SakaiPersonManagerImpl"
+                  init-method="init">
+                <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+                <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
+                <property name="persistableHelper" ref="org.sakaiproject.component.common.manager.PersistableHelper"/>
+                <property name="photoService" ref="org.sakaiproject.api.common.edu.person.PhotoService"/>
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+                <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+                <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+                <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                <property name="typeManager" ref="org.sakaiproject.api.common.type.TypeManager"/>
+                <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+            </bean>
         </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.component.common.manager.PersistableHelper"
+          class="org.sakaiproject.component.common.manager.PersistableHelper">
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.common.edu.person.PhotoService"
+          class="org.sakaiproject.component.common.edu.person.SakaiPersonPhotoService">
+   </bean>
+
+    <bean class="org.sakaiproject.component.common.edu.person.SakaiPersonObserver"
+          init-method="init">
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-        <property name="typeManager">
-          <ref bean="org.sakaiproject.api.common.type.TypeManager" />
-        </property>
-        <property name="persistableHelper">
-          <ref
-            bean="org.sakaiproject.component.common.manager.PersistableHelper" />
-        </property>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-        <property name="userDirectoryService">
-       <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
-    </property>
-      <property name="photoService">
-        <ref bean="org.sakaiproject.api.common.edu.person.PhotoService"/>
-      </property>
-         <property name="idManager">
-          <ref bean="org.sakaiproject.id.api.IdManager" />
-        </property>
-      </bean>
-    </property>
-
-    <property name="transactionAttributes">
-      <props>
-        <prop key="*">PROPAGATION_REQUIRED</prop>
-      </props>
-    </property>
-  </bean>
-
-  <bean id="org.sakaiproject.component.common.manager.PersistableHelper"
-    class="org.sakaiproject.component.common.manager.PersistableHelper">
-    <property name="sessionManager">
-      <ref bean="org.sakaiproject.tool.api.SessionManager" />
-    </property>
-  </bean>
-  
-   
-  <bean id="org.sakaiproject.api.common.edu.person.PhotoService" 
-    class="org.sakaiproject.component.common.edu.person.SakaiPersonPhotoService">
-   </bean>
-   
-   <!-- <bean id="org.sakaiproject.api.common.edu.person.PhotoService" 
-     class="org.sakaiproject.component.common.edu.person.FileSystemPhotoService" init-method="init">
-       <property name="serverConfigurationService">
-          <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
-        </property>
-        <property name="userDirectoryService">
-       <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
-    </property>
-     </bean>-->
-   
-   <bean class="org.sakaiproject.component.common.edu.person.SakaiPersonObserver" init-method="init">
-     <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-     <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-     <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/>
-     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-   </bean>
-  
-
-  
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
 
 </beans>

@@ -1897,9 +1897,9 @@ public class TurnitinReviewServiceImpl extends BaseContentReviewService {
 		// Lookup system profile email address if necessary
 		String profile_email = null;
 		if (account_email == null || preferSystemProfileEmail) {
-			SakaiPerson sp = sakaiPersonManager.getSakaiPerson(user.getId(), sakaiPersonManager.getSystemMutableType());
-			if (sp != null && isValidEmail(sp.getMail())) {
-				profile_email = sp.getMail().trim();
+			Optional<SakaiPerson> sp = sakaiPersonManager.getSakaiPerson(user.getId(), sakaiPersonManager.getSystemMutableType());
+			if (sp.isPresent() && isValidEmail(sp.get().getMail())) {
+				profile_email = sp.get().getMail().trim();
 			}
 		}
 
