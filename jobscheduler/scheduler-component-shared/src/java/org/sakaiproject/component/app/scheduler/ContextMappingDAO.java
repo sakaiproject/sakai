@@ -55,7 +55,14 @@ public class ContextMappingDAO {
     public Collection<String> find(String componentId, String contextId) {
         Criteria criteria = sessionFactory.getCurrentSession().createCriteria(ContextMapping.class);
         if (contextId != null) {
-                criteria.add(Restrictions.eq("contextId", contextId));
+            // in case with prePopulateTextFormatted Scheduled search a json contains publishedId
+            String search = "\"publishedId\":\""+contextId+"\"";
+            criteria.add(
+                Restrictions.or(
+                    Restrictions.eq("contextId", contextId),
+                    Restrictions.like("contextId", "%" + search + "%")
+                )
+            );
         }
         if (componentId != null) {
             criteria.add(Restrictions.eq("componentId", componentId));
