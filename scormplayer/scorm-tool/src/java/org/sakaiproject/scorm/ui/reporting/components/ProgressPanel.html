@@ -20,7 +20,11 @@
 				<dt class="col-sm-6 fw-semibold"><wicket:message key="success.status.label"/></dt>
 				<dd class="col-sm-6 text-sm-end mb-2"><span wicket:id="successStatus"></span></dd>
 				<dt class="col-sm-6 fw-semibold"><wicket:message key="completion.status.label"/></dt>
-				<dd class="col-sm-6 text-sm-end"><span wicket:id="completionStatus"></span></dd>
+				<dd class="col-sm-6 text-sm-end mb-2"><span wicket:id="completionStatus"></span></dd>
+				<wicket:enclosure child="totalTime">
+					<dt class="col-sm-6 fw-semibold"><wicket:message key="total.time.label"/></dt>
+					<dd class="col-sm-6 text-sm-end"><span wicket:id="totalTime"></span></dd>
+				</wicket:enclosure>
 			</dl>
 		</div>
 	</div>

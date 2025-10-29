@@ -19,14 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.wicket.request.HttpHeaderCollection;
-import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.AbstractResource.WriteCallback;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.PartWriterCallback;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -118,7 +116,7 @@ public class ContentPackageResourceReference extends ResourceReference
                         resourceResponse.setWriteCallback(NO_OP_WRITE_CALLBACK);
 
                         if (serverConfigurationService.getBoolean("cloud.content.sendfile", false)) {
-                            int hostLength = new String(directLink.getScheme() + "://" + directLink.getHost()).length();
+                            int hostLength = (directLink.getScheme() + "://" + directLink.getHost()).length();
                             String redirectPath = "/sendfile" + directLink.toString().substring(hostLength);
                             log.debug("Serving SCORM asset via sendfile path [{}]", redirectPath);
                             resourceResponse.getHeaders().addHeader("X-Accel-Redirect", redirectPath);

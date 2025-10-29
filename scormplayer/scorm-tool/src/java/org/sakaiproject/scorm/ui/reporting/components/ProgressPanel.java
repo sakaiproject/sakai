@@ -25,6 +25,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 
 import org.sakaiproject.scorm.model.api.Progress;
+import org.sakaiproject.scorm.ui.reporting.util.ScormDurationFormatter;
 
 public class ProgressPanel extends Panel
 {
@@ -68,5 +69,11 @@ public class ProgressPanel extends Panel
 		completionLabel.setVisible(progress.getCompletionStatus() != null && progress.getCompletionStatus().trim().length() != 0);
 		add(successLabel);
 		add(completionLabel);
+
+		String totalTime = progress.getTotalSessionSeconds();
+		String formattedTotalTime = ScormDurationFormatter.formatOrNull(totalTime, getLocale());
+		Label totalTimeLabel = new Label("totalTime", Model.of(formattedTotalTime != null ? formattedTotalTime : ""));
+		totalTimeLabel.setVisible(formattedTotalTime != null);
+		add(totalTimeLabel);
 	}
 }
