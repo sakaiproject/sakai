@@ -118,6 +118,21 @@ span.tree-content a.selected {
     height: 100%;
 }
 
+.scorm-rest-launcher__body {
+    display: flex;
+    gap: 1.5rem;
+    align-items: stretch;
+    flex: 1 1 auto;
+    min-height: 100%;
+}
+
+.scorm-rest-launcher__content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
 .scorm-rest-launcher__frame {
     flex: 1 1 auto;
     width: 100%;
@@ -127,4 +142,77 @@ span.tree-content a.selected {
 
 .scorm-rest-launcher__message {
     margin-top: 1rem;
+}
+
+.scorm-rest-launcher__toc {
+    flex: 0 0 260px;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #e0e0e0;
+    padding-right: 1rem;
+    overflow-y: auto;
+}
+
+.scorm-rest-launcher__toc[hidden] {
+    display: none !important;
+}
+
+.scorm-rest-launcher__toc-header {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    color: #495057;
+}
+
+.scorm-rest-launcher__toc-list {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.scorm-rest-launcher__toc-node {
+    margin: 0;
+}
+
+.scorm-rest-launcher__toc-children {
+    list-style: none;
+    margin: 0;
+    padding-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.scorm-rest-launcher__toc-button {
+    width: 100%;
+    text-align: left;
+    border: 0;
+    background: none;
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+.scorm-rest-launcher__toc-button:hover,
+.scorm-rest-launcher__toc-button:focus {
+    background-color: #f1f3f5;
+    outline: 2px solid #0d6efd;
+    outline-offset: 1px;
+}
+
+.scorm-rest-launcher__toc-button--current {
+    font-weight: 600;
+    background-color: #e7f1ff;
+}
+
+.scorm-rest-launcher__toc-button:disabled {
+    cursor: default;
+    opacity: 0.6;
 }

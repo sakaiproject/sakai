@@ -15,11 +15,14 @@
  */
 package org.sakaiproject.scorm.service.api.launch;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Singular;
 
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.SessionBean;
@@ -52,11 +55,24 @@ public class ScormLaunchContext
     @NonNull
     private final ContentPackage contentPackage;
 
-    /** Indicates whether a Table of Contents should be rendered. */
+    /**
+     * Indicates whether a Table of Contents should be rendered. The launcher may force the TOC
+     * when sequencing requires learner choice even if the package configuration disables it.
+     */
     private final boolean showToc;
 
     /** Indicates whether the legacy SCORM button bar should be displayed. */
     private final boolean showLegacyControls;
+
+    /** Flattened representation of the sequencing tree for frontend navigation, when available. */
+    @Singular("tocEntry")
+    private final List<ScormTocEntry> tocEntries;
+
+    /** Identifier of the activity currently in focus, when available. */
+    private final String currentActivityId;
+
+    /** Identifier of the SCO currently being delivered, when available. */
+    private final String currentScoId;
 
     /** Overall launch state for callers to interpret. */
     @NonNull

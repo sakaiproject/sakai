@@ -34,6 +34,7 @@ import org.sakaiproject.scorm.service.api.launch.ScormLaunchState;
 import org.sakaiproject.scorm.service.api.launch.ScormNavigationRequest;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeInvocation;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeResult;
+import org.sakaiproject.scorm.service.api.launch.ScormTocEntry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -172,6 +173,9 @@ public class ScormController extends AbstractSakaiApiController
             .state(context.getState())
             .message(context.getMessage())
             .navigation(navigationState)
+            .toc(context.getTocEntries())
+            .currentActivityId(context.getCurrentActivityId())
+            .currentScoId(context.getCurrentScoId())
             .build();
     }
 
@@ -260,6 +264,9 @@ public class ScormController extends AbstractSakaiApiController
         private final ScormLaunchState state;
         private final String message;
         private final NavigationState navigation;
+        private final List<ScormTocEntry> toc;
+        private final String currentActivityId;
+        private final String currentScoId;
     }
 
     private record ScormRuntimeResponse(String value, String errorCode, String diagnostic, String launchPath, boolean sessionEnded) { }

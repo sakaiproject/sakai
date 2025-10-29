@@ -29,10 +29,16 @@ import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.scorm.service.impl.ScormLaunchServiceImpl;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @DirtiesContext
 @ContextConfiguration( locations = {
@@ -61,6 +67,12 @@ public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4S
 		scormSequencingService = (ScormSequencingService) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormSequencingService");
 		scormContentService = (ScormContentService) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormContentService");
 		scormResourceService = (ScormResourceService) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormResourceService");
+        ScormLaunchServiceImpl scormLaunchService = (ScormLaunchServiceImpl) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormLaunchService");
+        SessionManager sessionManager = mock(SessionManager.class);
+        Session session = mock(Session.class);
+        when(sessionManager.getCurrentSession()).thenReturn(session);
+        when(session.getUserId()).thenReturn("scorm-test-user");
+        scormLaunchService.setSessionManager(sessionManager);
 
 		resourceId = scormResourceService.putArchive(getClass()
 				.getResourceAsStream("SCORM2004.3.PITE.1.1.zip"),
@@ -115,4 +127,5 @@ public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4S
 			}
 		};
 	}
+
 }

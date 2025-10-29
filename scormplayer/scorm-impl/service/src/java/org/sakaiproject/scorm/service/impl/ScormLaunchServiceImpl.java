@@ -15,9 +15,16 @@
  */
 package org.sakaiproject.scorm.service.impl;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import lombok.Getter;
@@ -25,9 +32,14 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.adl.sequencer.IValidRequests;
+import org.adl.sequencer.SeqActivity;
 import org.adl.sequencer.SeqNavRequests;
 
 import org.apache.commons.lang3.StringUtils;
+
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -47,6 +59,7 @@ import org.sakaiproject.scorm.service.api.launch.ScormLaunchState;
 import org.sakaiproject.scorm.service.api.launch.ScormNavigationRequest;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeInvocation;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeResult;
+import org.sakaiproject.scorm.service.api.launch.ScormTocEntry;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -79,8 +92,12 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
     @Setter
     private LearningManagementSystem learningManagementSystem;
 
-    @Setter
     private SessionManager sessionManager;
+
+    public void setSessionManager(SessionManager sessionManager)
+    {
+        this.sessionManager = sessionManager;
+    }
 
     @Override
     public ScormLaunchContext openSession(long contentPackageId, Optional<ScormNavigationRequest> navigationRequest, Optional<String> completionUrl)
@@ -88,8 +105,11 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
         Session sakaiSession = requireSession();
         String userId = sakaiSession.getUserId();
 
-        ContentPackage contentPackage = Objects.requireNonNull(scormContentService.getContentPackage(contentPackageId),
-            () -> "No SCORM content package for id " + contentPackageId);
+        ContentPackage contentPackage = scormContentService.getContentPackage(contentPackageId);
+        if (contentPackage == null)
+        {
+            throw new IllegalArgumentException("No SCORM content package for id " + contentPackageId);
+        }
 
         SessionBean sessionBean = sequencingService.newSessionBean(contentPackage);
         completionUrl.ifPresent(sessionBean::setCompletionUrl);
@@ -335,6 +355,11 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
 
     private Session requireSession()
     {
+        if (sessionManager == null)
+        {
+            throw new IllegalStateException("SessionManager is not available; configure a SessionManager bean before invoking SCORM launch services.");
+        }
+
         Session session = sessionManager.getCurrentSession();
         if (session == null || StringUtils.isBlank(session.getUserId()))
         {
@@ -559,13 +584,20 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
     private ScormLaunchContext buildContext(String sessionId, SessionBean sessionBean, ContentPackage contentPackage, String launchPath, ScormLaunchState state, String message)
     {
         String effectiveMessage = resolveMessage(state, message);
+        List<ScormTocEntry> tocEntries = buildTocEntries(sessionBean);
+        boolean hasMultipleLaunchables = hasMultipleLaunchableEntries(tocEntries);
+        boolean showToc = shouldShowToc(contentPackage, state, hasMultipleLaunchables);
+        List<ScormTocEntry> effectiveToc = showToc ? tocEntries : Collections.emptyList();
         return ScormLaunchContext.builder()
             .sessionId(sessionId)
             .sessionBean(sessionBean)
             .launchPath(launchPath)
             .contentPackage(contentPackage)
-            .showToc(contentPackage.isShowTOC())
+            .showToc(showToc)
             .showLegacyControls(contentPackage.isShowNavBar())
+            .tocEntries(effectiveToc)
+            .currentActivityId(StringUtils.trimToNull(sessionBean.getActivityId()))
+            .currentScoId(StringUtils.trimToNull(sessionBean.getScoId()))
             .state(state)
             .message(effectiveMessage)
             .build();
@@ -587,6 +619,125 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
 		}
 		return message;
 	}
+
+    private boolean shouldShowToc(ContentPackage contentPackage, ScormLaunchState state, boolean hasMultipleLaunchables)
+    {
+        if (contentPackage != null && contentPackage.isShowTOC())
+        {
+            return true;
+        }
+
+        if (state == ScormLaunchState.CHOICE_REQUIRED)
+        {
+            return true;
+        }
+
+        return hasMultipleLaunchables;
+    }
+
+    private List<ScormTocEntry> buildTocEntries(SessionBean sessionBean)
+    {
+        if (sessionBean == null)
+        {
+            return Collections.emptyList();
+        }
+
+        TreeModel treeModel = sequencingService.getTreeModel(sessionBean);
+        if (treeModel == null)
+        {
+            return Collections.emptyList();
+        }
+
+        Object root = treeModel.getRoot();
+        if (!(root instanceof DefaultMutableTreeNode))
+        {
+            return Collections.emptyList();
+        }
+
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) root;
+        String currentActivityId = StringUtils.trimToNull(sessionBean.getActivityId());
+        ScormTocEntry rootEntry = toTocEntry(rootNode, currentActivityId);
+
+        if (StringUtils.isBlank(rootEntry.getActivityId()) && rootEntry.getChildren() != null && !rootEntry.getChildren().isEmpty())
+        {
+            return new ArrayList<>(rootEntry.getChildren());
+        }
+
+        return Collections.singletonList(rootEntry);
+    }
+
+    private boolean hasMultipleLaunchableEntries(List<ScormTocEntry> entries)
+    {
+        return countLaunchableEntries(entries) > 1;
+    }
+
+    private int countLaunchableEntries(List<ScormTocEntry> entries)
+    {
+        if (entries == null || entries.isEmpty())
+        {
+            return 0;
+        }
+        int count = 0;
+        for (ScormTocEntry entry : entries)
+        {
+            if (entry == null)
+            {
+                continue;
+            }
+            if (entry.isLeaf() && StringUtils.isNotBlank(entry.getActivityId()))
+            {
+                count++;
+            }
+            count += countLaunchableEntries(entry.getChildren());
+        }
+        return count;
+    }
+
+    private ScormTocEntry toTocEntry(DefaultMutableTreeNode node, String currentActivityId)
+    {
+        SeqActivity activity = node != null && node.getUserObject() instanceof SeqActivity ? (SeqActivity) node.getUserObject() : null;
+        String activityId = activity != null ? StringUtils.trimToNull(activity.getID()) : null;
+        String title = activity != null ? decodeTitle(activity.getTitle()) : null;
+        boolean isLeaf = node != null && node.isLeaf();
+
+        ScormTocEntry.ScormTocEntryBuilder builder = ScormTocEntry.builder()
+            .activityId(activityId)
+            .title(StringUtils.defaultIfBlank(title, activityId != null ? activityId : "(Untitled activity)"))
+            .leaf(isLeaf)
+            .current(activityId != null && activityId.equals(currentActivityId));
+
+        if (node != null)
+        {
+            Enumeration<TreeNode> children = node.children();
+            while (children.hasMoreElements())
+            {
+                Object next = children.nextElement();
+                if (next instanceof DefaultMutableTreeNode)
+                {
+                    builder.child(toTocEntry((DefaultMutableTreeNode) next, currentActivityId));
+                }
+            }
+        }
+
+        return builder.build();
+    }
+
+    private String decodeTitle(String encodedTitle)
+    {
+        if (encodedTitle == null)
+        {
+            return null;
+        }
+        try
+        {
+            return URLDecoder.decode(encodedTitle, StandardCharsets.UTF_8);
+        }
+        catch (IllegalArgumentException e)
+        {
+            log.debug("Unable to decode SCORM activity title [{}]", encodedTitle, e);
+            return encodedTitle;
+        }
+    }
 
 	private ReentrantLock requireSessionLock(String sessionId)
 	{
@@ -628,4 +779,5 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
             lastLaunchPath = resolveLaunchPath(sessionBean).orElse(null);
         }
     }
+
 }

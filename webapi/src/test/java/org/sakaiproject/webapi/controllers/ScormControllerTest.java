@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Collections;
+
 import org.adl.sequencer.IValidRequests;
 
 import org.junit.Before;
@@ -24,6 +26,7 @@ import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.ScormLaunchService;
 import org.sakaiproject.scorm.service.api.launch.ScormLaunchContext;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeResult;
+import org.sakaiproject.scorm.service.api.launch.ScormTocEntry;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -116,6 +119,8 @@ public class ScormControllerTest
         SessionBean sessionBean = new SessionBean();
         sessionBean.setAttemptNumber(1L);
         sessionBean.setCompletionUrl("/complete");
+        sessionBean.setActivityId("sco-1");
+        sessionBean.setScoId("sco-1");
 
         IValidRequests validRequests = mock(IValidRequests.class);
         when(validRequests.isStartEnabled()).thenReturn(true);
@@ -139,6 +144,14 @@ public class ScormControllerTest
             .contentPackage(contentPackage)
             .showLegacyControls(true)
             .showToc(true)
+            .currentActivityId("sco-1")
+            .currentScoId("sco-1")
+            .tocEntries(Collections.singletonList(ScormTocEntry.builder()
+                .activityId("sco-1")
+                .title("Activity One")
+                .leaf(true)
+                .current(true)
+                .build()))
             .build();
     }
 }

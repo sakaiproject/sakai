@@ -5,7 +5,17 @@
 </head>
 <wicket:extend>
 	<div wicket:id="restLauncherContainer" class="scorm-rest-launcher">
-	<iframe class="scorm-rest-launcher__frame" title="SCORM content" scrolling="auto"></iframe>
-		<div class="scorm-rest-launcher__message" role="alert" hidden></div>
+		<div class="scorm-rest-launcher__body">
+			<nav class="scorm-rest-launcher__toc" aria-label="SCORM table of contents" hidden>
+				<div class="scorm-rest-launcher__toc-header">
+					<span class="scorm-rest-launcher__toc-title">Contents</span>
+				</div>
+				<ul class="scorm-rest-launcher__toc-list"></ul>
+			</nav>
+			<div class="scorm-rest-launcher__content">
+				<iframe class="scorm-rest-launcher__frame" title="SCORM content" scrolling="auto"></iframe>
+				<div class="scorm-rest-launcher__message" role="alert" hidden></div>
+			</div>
+		</div>
 	</div>
 	</wicket:extend>

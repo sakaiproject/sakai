@@ -24,11 +24,13 @@
 
         const completionUrl = root.dataset.completionUrl || '';
         const contextPath = (root.dataset.contextPath || '').replace(/\/$/, '');
-        const apiBase = root.dataset.apiBase || '/api/scorm';
+        const apiBase = normaliseApiBase(root.dataset.apiBase, contextPath);
         const navRequest = root.dataset.navRequest ? Number.parseInt(root.dataset.navRequest, 10) : null;
 
         const frame = root.querySelector('.scorm-rest-launcher__frame');
         const message = root.querySelector('.scorm-rest-launcher__message');
+        const tocContainer = root.querySelector('.scorm-rest-launcher__toc');
+        const tocList = tocContainer ? tocContainer.querySelector('.scorm-rest-launcher__toc-list') : null;
 
         const state = {
             sessionId: null,
@@ -36,6 +38,11 @@
             apiBase,
             contextPath,
             contentPackageId,
+            navigation: null,
+            showToc: false,
+            toc: [],
+            currentActivityId: null,
+            runtimeInstalled: false,
         };
 
         root.dataset.initialized = 'true';
@@ -53,9 +60,33 @@
             }
         }
 
+        function normaliseApiBase(baseValue, ctxPath) {
+            const raw = (baseValue || '/api/scorm').trim();
+            if (/^https?:\/\//i.test(raw)) {
+                return raw.replace(/\/+$/, '');
+            }
+            const withoutLeading = raw.replace(/^\/+/, '');
+            if (raw.startsWith('/')) {
+                return `/${withoutLeading}`.replace(/\/+$/, '');
+            }
+            const prefix = (ctxPath || '').replace(/\/$/, '');
+            if (prefix) {
+                return `${prefix}/${withoutLeading}`.replace(/\/+$/, '');
+            }
+            return `/${withoutLeading}`.replace(/\/+$/, '');
+        }
+
         function resolveUrl(path) {
             const normalised = path.startsWith('/') ? path.substring(1) : path;
             return `${state.contextPath}/${normalised}`;
+        }
+
+        function apiUrl(path) {
+            const target = path.startsWith('/') ? path : `/${path}`;
+            if (/^https?:\/\//i.test(state.apiBase)) {
+                return `${state.apiBase}${target}`;
+            }
+            return `${state.apiBase}${target}`;
         }
 
         function safeParse(text) {
@@ -89,9 +120,16 @@
         }
 
         async function requestJson(url, payload) {
+            const headers = { 'Content-Type': 'application/json' };
+            const csrfToken = getCsrfToken();
+            if (csrfToken) {
+                headers['X-CSRF-Token'] = csrfToken;
+                headers['sakai_csrf_token'] = csrfToken;
+            }
+
             const response = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 credentials: 'same-origin',
                 body: JSON.stringify(payload),
             });
@@ -111,6 +149,141 @@
             return data;
         }
 
+        function renderToc() {
+            if (!tocContainer || !tocList) {
+                return;
+            }
+            if (!state.showToc || !Array.isArray(state.toc) || state.toc.length === 0) {
+                tocContainer.hidden = true;
+                while (tocList.firstChild) {
+                    tocList.removeChild(tocList.firstChild);
+                }
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            state.toc.forEach((entry) => {
+                fragment.appendChild(createTocNode(entry));
+            });
+            tocContainer.hidden = false;
+            while (tocList.firstChild) {
+                tocList.removeChild(tocList.firstChild);
+            }
+            tocList.appendChild(fragment);
+        }
+
+        function createTocNode(entry) {
+            const li = document.createElement('li');
+            li.className = 'scorm-rest-launcher__toc-node';
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'scorm-rest-launcher__toc-button';
+            button.textContent = entry.title || entry.activityId || 'Untitled activity';
+
+            if (!entry.activityId) {
+                button.disabled = true;
+            } else {
+                button.addEventListener('click', () => handleTocSelect(entry.activityId));
+            }
+
+            const isCurrent = Boolean(entry.current) || (entry.activityId && entry.activityId === state.currentActivityId);
+            if (isCurrent) {
+                button.classList.add('scorm-rest-launcher__toc-button--current');
+            }
+
+            li.appendChild(button);
+
+            if (Array.isArray(entry.children) && entry.children.length > 0) {
+                const childList = document.createElement('ul');
+                childList.className = 'scorm-rest-launcher__toc-children';
+                entry.children.forEach((child) => {
+                    childList.appendChild(createTocNode(child));
+                });
+                li.appendChild(childList);
+            }
+
+            return li;
+        }
+
+        async function handleTocSelect(activityId) {
+            if (!activityId || activityId === state.currentActivityId || !state.sessionId) {
+                return;
+            }
+
+            try {
+                const response = await requestJson(apiUrl(`/sessions/${state.sessionId}/nav`), { choiceActivityId: activityId });
+                applySessionResponse(response, { keepMessage: true });
+            } catch (err) {
+                console.error('[SCORM REST] navigation error', err);
+                showMessage(err.message || 'Unable to navigate to the selected activity.');
+            }
+        }
+
+        async function refreshSessionState() {
+            if (!state.sessionId) {
+                return;
+            }
+            try {
+                const response = await fetch(apiUrl(`/sessions/${state.sessionId}`), {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin',
+                });
+                if (!response.ok) {
+                    return;
+                }
+                const text = await response.text();
+                const data = text ? safeParse(text) : null;
+                if (data) {
+                    applySessionResponse(data, { keepMessage: true });
+                }
+            } catch (err) {
+                console.debug('[SCORM REST] session refresh failed', err);
+            }
+        }
+
+        function applySessionResponse(response, options = {}) {
+            if (!response) {
+                return false;
+            }
+
+            const responseState = response.state || 'READY';
+            if (response.sessionId) {
+                state.sessionId = response.sessionId;
+            }
+
+            state.navigation = response.navigation || null;
+            state.showToc = Boolean(response.showToc);
+            state.toc = Array.isArray(response.toc) ? response.toc : [];
+            state.currentActivityId = response.currentActivityId || null;
+
+        let launchUpdated = false;
+        if (response.launchPath) {
+            launchUpdated = updateLaunchFrame(response.launchPath);
+            if (launchUpdated) {
+                refreshSessionState();
+            }
+        }
+
+            renderToc();
+
+            if (responseState === 'DENIED' || responseState === 'ERROR') {
+                showMessage(response.message || (responseState === 'DENIED' ? 'Unable to launch this SCORM package.' : 'Unable to continue this SCORM session.'));
+                return false;
+            }
+
+            if (responseState === 'CHOICE_REQUIRED') {
+                showMessage(response.message || 'Select an activity to continue.');
+            } else if (response.message) {
+                showMessage(response.message);
+            } else if (!options.keepMessage) {
+                showMessage('');
+            }
+
+            return true;
+        }
+
         async function openSession() {
             const payload = {
                 contentPackageId: state.contentPackageId,
@@ -123,19 +296,14 @@
             }
 
             try {
-                const response = await requestJson(`${state.apiBase}/sessions`, payload);
+                const response = await requestJson(apiUrl('/sessions'), payload);
                 console.debug('[SCORM REST] openSession response', response);
-
-                if (response.state && response.state !== 'READY') {
-                    showMessage(response.message || 'Unable to launch this SCORM package.');
-                    return false;
+                const ok = applySessionResponse(response);
+                if (ok && !state.runtimeInstalled) {
+                    installRuntimeApi();
+                    state.runtimeInstalled = true;
                 }
-
-                state.sessionId = response.sessionId;
-                updateLaunchFrame(response.launchPath);
-                showMessage('');
-                installRuntimeApi();
-                return true;
+                return ok;
             } catch (err) {
                 console.error('[SCORM REST] openSession error', err);
                 showMessage(err.message || 'Unable to start SCORM session.');
@@ -145,16 +313,17 @@
 
         function updateLaunchFrame(launchPath) {
             if (!frame || !launchPath) {
-                return;
+                return false;
             }
             const target = resolveUrl(launchPath);
             const current = frame.dataset.currentSrc || frame.src;
             if (current === target) {
-                return;
+                return false;
             }
             frame.dataset.currentSrc = target;
             frame.src = target;
             adjustFrameHeight();
+            return true;
         }
 
         function ensureSession() {
@@ -162,7 +331,7 @@
         }
 
         function sendRuntimeRequestSync(payload) {
-            const url = `${state.apiBase}/sessions/${state.sessionId}/runtime`;
+            const url = apiUrl(`/sessions/${state.sessionId}/runtime`);
             console.debug('[SCORM REST] runtime request', payload);
 
             const xhr = new XMLHttpRequest();
@@ -226,6 +395,9 @@
             if (response.sessionEnded && completionUrl) {
                 window.location.href = completionUrl;
             }
+            else if (response.sessionEnded) {
+                refreshSessionState();
+            }
 
             return typeof response.value === 'string' ? response.value : '';
         }
@@ -247,7 +419,7 @@
         }
 
         const started = await openSession();
-        if (!started) {
+        if (!started && (!message || message.hidden || message.textContent === '')) {
             showMessage('Failed to start SCORM session.');
         }
 
