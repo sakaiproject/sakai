@@ -105,6 +105,9 @@ public class PollsUiService {
 
         if (poll.getPollId() != null) {
             Poll existing = pollListManager.getPollById(poll.getPollId(), false);
+            if (existing == null) {
+                throw new PollValidationException("poll_not_found");
+            }
             if (poll.getCreationDate() == null) {
                 poll.setCreationDate(existing.getCreationDate());
             }
@@ -181,6 +184,9 @@ public class PollsUiService {
         }
 
         Poll poll = pollListManager.getPollById(option.getPollId());
+        if (poll == null) {
+            throw new PollValidationException("poll_not_found");
+        }
         List<Vote> votes = pollVoteManager.getAllVotesForOption(option);
 
         if (votes != null && !votes.isEmpty()) {

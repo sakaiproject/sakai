@@ -37,8 +37,8 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
     }
 
     @Override
-    public List<Vote> findByPollIdAndPollOption(Long pollId, Long pollOption) {
-        if (pollId == null || pollOption == null) {
+    public List<Vote> findByPollIdAndPollOption(Long pollId, Long optionId) {
+        if (pollId == null || optionId == null) {
             return Collections.emptyList();
         }
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
@@ -48,7 +48,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         Join<Vote, Option> optionJoin = root.join("option");
 
         Predicate pollPredicate = cb.equal(pollJoin.get("pollId"), pollId);
-        Predicate optionPredicate = cb.equal(optionJoin.get("optionId"), pollOption);
+        Predicate optionPredicate = cb.equal(optionJoin.get("optionId"), optionId);
 
         query.select(root)
                 .where(cb.and(pollPredicate, optionPredicate));
@@ -60,7 +60,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
 
     @Override
     public List<Vote> findByUserId(String userId) {
-        if (userId == null) {
+        if (userId == null || userId.trim().isEmpty()) {
             return Collections.emptyList();
         }
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
@@ -98,7 +98,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
 
     @Override
     public boolean existsByPollIdAndUserId(Long pollId, String userId) {
-        if (pollId == null || userId == null) {
+        if (pollId == null || userId == null || userId.trim().isEmpty()) {
             return false;
         }
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
@@ -114,9 +114,9 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
 
         Long count = sessionFactory.getCurrentSession()
                 .createQuery(query)
-                .uniqueResult();
+                .getSingleResult();
 
-        return count != null && count > 0;
+        return count > 0;
     }
 
     @Override
@@ -134,8 +134,8 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
 
         Long count = sessionFactory.getCurrentSession()
                 .createQuery(query)
-                .uniqueResult();
+                .getSingleResult();
 
-        return count == null ? 0 : count.intValue();
+        return Math.toIntExact(count);
     }
 }
