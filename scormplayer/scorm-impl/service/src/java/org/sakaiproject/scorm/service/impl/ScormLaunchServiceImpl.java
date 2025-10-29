@@ -215,12 +215,29 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
 
 			String result = "";
 			ScoAwareRuntimeContext runtimeContext = prepareSco(sessionBean, methodName);
+			ScoBean originalSco = runtimeContext.previousSco;
+			String originalScoId = sessionBean.getScoId();
+			ScoBean targetSco = selectScoBean(sessionBean, invocation.getScoId(), originalSco);
+			boolean swappedSco = targetSco != null && targetSco != originalSco;
+			if (swappedSco)
+			{
+				sessionBean.setDisplayingSco(targetSco);
+				if (StringUtils.isNotBlank(targetSco.getScoId()))
+				{
+					sessionBean.setScoId(targetSco.getScoId());
+				}
+			}
 			try
 			{
 				result = executeRuntimeCall(sessionBean, navigator, methodName, args);
 			}
 			finally
 			{
+				if (swappedSco)
+				{
+					sessionBean.setDisplayingSco(originalSco);
+					sessionBean.setScoId(originalScoId);
+				}
 				finalizeSco(sessionBean, methodName, runtimeContext);
 			}
 
@@ -530,12 +547,12 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
         return new LaunchResult(null, ScormLaunchState.ERROR, "Unable to launch SCORM session: " + result);
     }
 
-    private Optional<String> resolveLaunchPath(SessionBean sessionBean)
-    {
-        if (sessionBean == null || sessionBean.getLaunchData() == null)
-        {
-            return Optional.empty();
-        }
+	private Optional<String> resolveLaunchPath(SessionBean sessionBean)
+	{
+		if (sessionBean == null || sessionBean.getLaunchData() == null)
+		{
+			return Optional.empty();
+		}
 
         String resourceId = sessionBean.getContentPackage().getResourceId();
         String launchLine = sessionBean.getLaunchData().getLaunchLine();
@@ -557,7 +574,36 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
         resourcePath = StringUtils.removeStart(resourcePath, "/");
 
         return Optional.of("contentpackages/resourceName/" + resourcePath);
-    }
+	}
+
+	private ScoBean selectScoBean(SessionBean sessionBean, String requestedScoId, ScoBean fallbackSco)
+	{
+		if (StringUtils.isBlank(requestedScoId))
+		{
+			return fallbackSco;
+		}
+
+		Map<String, ScoBean> scoBeans = sessionBean.getScoBeans();
+		ScoBean existing = scoBeans != null ? scoBeans.get(requestedScoId) : null;
+		if (existing != null)
+		{
+			if (existing.isTerminated())
+			{
+				log.debug("Discarding terminated ScoBean {} before reinitialization", requestedScoId);
+				if (scoBeans != null)
+				{
+					scoBeans.remove(requestedScoId);
+				}
+				existing = null;
+			}
+			else
+			{
+			return existing;
+		}
+		}
+
+		return scormApplicationService.produceScoBean(requestedScoId, sessionBean);
+	}
 
 	private ScoAwareRuntimeContext prepareSco(SessionBean sessionBean, String methodName)
 	{

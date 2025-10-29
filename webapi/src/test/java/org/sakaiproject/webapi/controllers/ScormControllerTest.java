@@ -18,6 +18,7 @@ import org.adl.sequencer.IValidRequests;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import org.sakaiproject.portal.api.PortalService;
@@ -25,6 +26,7 @@ import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.ScormLaunchService;
 import org.sakaiproject.scorm.service.api.launch.ScormLaunchContext;
+import org.sakaiproject.scorm.service.api.launch.ScormRuntimeInvocation;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeResult;
 import org.sakaiproject.scorm.service.api.launch.ScormTocEntry;
 import org.sakaiproject.site.api.SiteService;
@@ -35,6 +37,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import static org.junit.Assert.assertEquals;
 
 public class ScormControllerTest
 {
@@ -80,7 +84,9 @@ public class ScormControllerTest
     @Test
     public void runtimeInvocationReturnsPayload() throws Exception
     {
-        when(scormLaunchService.runtime(eq("session-123"), any())).thenReturn(ScormRuntimeResult.builder()
+        ArgumentCaptor<ScormRuntimeInvocation> invocationCaptor = ArgumentCaptor.forClass(ScormRuntimeInvocation.class);
+
+        when(scormLaunchService.runtime(eq("session-123"), invocationCaptor.capture())).thenReturn(ScormRuntimeResult.builder()
             .value("true")
             .errorCode("0")
             .diagnostic(null)
@@ -90,12 +96,15 @@ public class ScormControllerTest
 
         mockMvc.perform(post("/scorm/sessions/session-123/runtime")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"method\":\"Initialize\",\"arguments\":[\"\"]}"))
+                .content("{\"method\":\"Initialize\",\"arguments\":[\"\"],\"scoId\":\"sco-1\"}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.value").value("true"))
             .andExpect(jsonPath("$.errorCode").value("0"))
             .andExpect(jsonPath("$.launchPath").doesNotExist())
             .andExpect(jsonPath("$.sessionEnded").value(false));
+
+        ScormRuntimeInvocation captured = invocationCaptor.getValue();
+        assertEquals("sco-1", captured.getScoId());
     }
 
     @Test

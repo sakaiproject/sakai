@@ -42,6 +42,9 @@
             showToc: false,
             toc: [],
             currentActivityId: null,
+            currentScoId: null,
+            activeScoId: null,
+            pendingScoId: null,
             runtimeInstalled: false,
         };
 
@@ -253,18 +256,43 @@
                 state.sessionId = response.sessionId;
             }
 
+            const previousScoId = state.currentScoId;
+            const nextScoId = response.currentScoId || null;
+
             state.navigation = response.navigation || null;
             state.showToc = Boolean(response.showToc);
             state.toc = Array.isArray(response.toc) ? response.toc : [];
             state.currentActivityId = response.currentActivityId || null;
-
-        let launchUpdated = false;
-        if (response.launchPath) {
-            launchUpdated = updateLaunchFrame(response.launchPath);
-            if (launchUpdated) {
-                refreshSessionState();
+            state.currentScoId = nextScoId;
+            let launchUpdated = false;
+            if (response.launchPath) {
+                launchUpdated = updateLaunchFrame(response.launchPath);
+                if (launchUpdated) {
+                    refreshSessionState();
+                }
             }
-        }
+
+            if (!state.runtimeInstalled && nextScoId && !state.activeScoId) {
+                state.activeScoId = nextScoId;
+            }
+
+            if (launchUpdated) {
+                if (previousScoId && nextScoId && previousScoId !== nextScoId) {
+                    state.pendingScoId = nextScoId;
+                } else if (!previousScoId && nextScoId) {
+                    state.activeScoId = nextScoId;
+                    state.pendingScoId = null;
+                }
+            } else if (nextScoId && nextScoId !== state.activeScoId && !state.pendingScoId) {
+                state.activeScoId = nextScoId;
+            }
+
+            if (!nextScoId) {
+                state.pendingScoId = null;
+                if (!launchUpdated) {
+                    state.activeScoId = null;
+                }
+            }
 
             renderToc();
 
@@ -330,32 +358,51 @@
             return !!state.sessionId;
         }
 
-        function sendRuntimeRequestSync(payload) {
-            const url = apiUrl(`/sessions/${state.sessionId}/runtime`);
-            console.debug('[SCORM REST] runtime request', payload);
-
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', url, false);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.setRequestHeader('Accept', 'application/json');
-            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        function buildRuntimeHeaders() {
+            const headers = {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            };
             const csrfToken = getCsrfToken();
             if (csrfToken) {
-                xhr.setRequestHeader('X-CSRF-Token', csrfToken);
-                xhr.setRequestHeader('sakai_csrf_token', csrfToken);
+                headers['X-CSRF-Token'] = csrfToken;
+                headers.sakai_csrf_token = csrfToken;
             }
+            return headers;
+        }
+
+        function createRuntimeRequest(payload) {
+            return {
+                url: apiUrl(`/sessions/${state.sessionId}/runtime`),
+                headers: buildRuntimeHeaders(),
+                body: JSON.stringify(payload),
+                payload,
+            };
+        }
+
+        function sendRuntimeRequestSync(request) {
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', request.url, false);
+            Object.entries(request.headers).forEach(([name, value]) => {
+                if (typeof value === 'string') {
+                    xhr.setRequestHeader(name, value);
+                }
+            });
             xhr.withCredentials = true;
+
             try {
-                xhr.send(JSON.stringify(payload));
-            } catch (e) {
+                xhr.send(request.body);
+            } catch (err) {
+                console.error('[SCORM REST] runtime network exception (XHR)', err);
                 showMessage('Unable to reach SCORM service.');
                 return null;
             }
 
             if (xhr.status === 0) {
-                showMessage('SCORM service did not respond. Please check your connection.');
-                console.error('[SCORM REST] runtime network error (XHR)', xhr);
-                return null;
+                console.warn(`[SCORM REST] runtime request aborted by browser (${request.payload.method})`);
+                return { aborted: true, data: null, request };
             }
 
             if (xhr.status >= 200 && xhr.status < 300) {
@@ -365,7 +412,7 @@
                     return null;
                 }
                 console.debug('[SCORM REST] runtime response (XHR)', data);
-                return data;
+                return { aborted: false, data, request };
             }
 
             const detail = xhr.responseText ? safeParse(xhr.responseText) : null;
@@ -379,27 +426,174 @@
                 return 'false';
             }
 
-            const response = sendRuntimeRequestSync({
-                method,
-                arguments: args,
-            });
+            const scoId = resolveRuntimeScoId(method);
+            const payload = { method, arguments: args };
+            if (scoId) {
+                payload.scoId = scoId;
+            }
 
-            if (!response) {
+            const request = createRuntimeRequest(payload);
+            console.debug('[SCORM REST] runtime request', payload);
+
+            if (method === 'Terminate') {
+                const dispatched = dispatchTerminateRequest(request, scoId);
+                if (dispatched) {
+                    console.debug('[SCORM REST] runtime terminate dispatched asynchronously');
+                    markTerminateComplete(scoId, { refreshAfter: 750 });
+                    return 'true';
+                }
+
+                const fallback = sendRuntimeRequestSync(request);
+                if (!fallback) {
+                    console.warn('[SCORM REST] runtime terminate sync fallback failed');
+                    markTerminateComplete(scoId, { refreshAfter: 1000 });
+                    return 'true';
+                }
+
+                if (fallback.aborted) {
+                    console.warn('[SCORM REST] runtime terminate sync aborted; attempting keepalive');
+                    const keepalive = dispatchTerminateKeepalive(request, scoId);
+                    markTerminateComplete(scoId, { refreshAfter: keepalive ? 750 : 1200 });
+                    return 'true';
+                }
+
+                const terminateResponse = fallback.data || {};
+                processRuntimeResponse(method, terminateResponse, scoId);
+                return 'true';
+            }
+
+            const result = sendRuntimeRequestSync(request);
+            if (!result) {
                 return 'false';
             }
 
+            if (result.aborted) {
+                showMessage('SCORM service did not respond. Please check your connection.');
+                return 'false';
+            }
+
+            const response = result.data || {};
+            processRuntimeResponse(method, response, scoId);
+            return typeof response.value === 'string' ? response.value : '';
+        }
+
+        function resolveRuntimeScoId(method) {
+            if (method === 'Initialize') {
+                return state.pendingScoId || state.currentScoId || state.activeScoId || null;
+            }
+            return state.activeScoId || state.currentScoId || null;
+        }
+
+        function dispatchTerminateKeepalive(request, scoId) {
+            try {
+                return dispatchTerminateRequest(request, scoId);
+            } catch (err) {
+                console.warn('[SCORM REST] terminate keepalive dispatch failed', err);
+                return false;
+            }
+        }
+
+        function dispatchTerminateRequest(request, scoId) {
+            if (!request) {
+                return false;
+            }
+
+            if (typeof fetch !== 'function') {
+                console.warn('[SCORM REST] terminate keepalive not supported (fetch unavailable)');
+                return false;
+            }
+
+            try {
+                const headers = new Headers();
+                Object.entries(request.headers).forEach(([name, value]) => {
+                    if (typeof value === 'string') {
+                        headers.append(name, value);
+                    }
+                });
+
+                fetch(request.url, {
+                    method: 'POST',
+                    headers,
+                    credentials: 'same-origin',
+                    body: request.body,
+                    keepalive: true,
+                })
+                    .then(async (response) => {
+                        const text = await response.text().catch(() => '');
+                        const data = text ? safeParse(text) : {};
+                        if (!response.ok || data === null) {
+                            console.warn('[SCORM REST] terminate keepalive response not OK', response.status);
+                            afterRuntimeCall('Terminate', { value: 'true' }, scoId, { refreshAfter: 750 });
+                            return;
+                        }
+                        processRuntimeResponse('Terminate', data || {}, scoId);
+                    })
+                    .catch((err) => {
+                        console.warn('[SCORM REST] terminate keepalive rejected', err);
+                        window.setTimeout(() => {
+                            if (ensureSession()) {
+                                refreshSessionState();
+                            }
+                        }, 750);
+                    });
+
+                console.debug('[SCORM REST] terminate keepalive dispatched (fetch)');
+
+                return true;
+            } catch (err) {
+                console.warn('[SCORM REST] terminate keepalive fetch error', err);
+                return false;
+            }
+        }
+
+        function processRuntimeResponse(method, response, scoId) {
+            console.debug('[SCORM REST] runtime response', response);
+
+            let launchChanged = false;
             if (response.launchPath) {
-                updateLaunchFrame(response.launchPath);
+                launchChanged = updateLaunchFrame(response.launchPath);
             }
 
             if (response.sessionEnded && completionUrl) {
                 window.location.href = completionUrl;
-            }
-            else if (response.sessionEnded) {
+                return;
+            } else if (response.sessionEnded) {
                 refreshSessionState();
             }
 
-            return typeof response.value === 'string' ? response.value : '';
+            if (launchChanged) {
+                refreshSessionState();
+            }
+
+            afterRuntimeCall(method, response, scoId);
+        }
+
+        function markTerminateComplete(scoId, options = {}) {
+            afterRuntimeCall('Terminate', { value: 'true' }, scoId, options);
+        }
+
+        function afterRuntimeCall(method, response, scoId, options = {}) {
+            const value = response && typeof response.value === 'string' ? response.value : '';
+
+            if (method === 'Initialize' && value === 'true') {
+                const resolvedId = scoId || state.currentScoId;
+                if (resolvedId) {
+                    state.activeScoId = resolvedId;
+                }
+                state.pendingScoId = null;
+            }
+
+            if (method === 'Terminate' && value === 'true') {
+                state.activeScoId = null;
+            }
+
+            if (options.refreshAfter) {
+                window.setTimeout(() => {
+                    if (ensureSession()) {
+                        refreshSessionState();
+                    }
+                }, options.refreshAfter);
+            }
         }
 
         function installRuntimeApi() {

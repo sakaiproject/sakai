@@ -20,16 +20,13 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Singular;
 
 /**
  * Descriptor for a SCORM runtime API invocation.
  */
 @Getter
-@Builder
 public class ScormRuntimeInvocation
 {
     /** Runtime API method name (e.g. Initialize, GetValue, SetValue). */
@@ -38,15 +35,19 @@ public class ScormRuntimeInvocation
 
     /** Ordered list of string arguments passed to the runtime method. */
     @NonNull
-    @Singular
     private final List<String> arguments;
+
+    /** SCO identifier to target for this runtime call (optional). */
+    private final String scoId;
 
     @JsonCreator
     public ScormRuntimeInvocation(
         @JsonProperty("method") @NonNull String method,
-        @JsonProperty("arguments") @NonNull List<String> arguments)
+        @JsonProperty("arguments") @NonNull List<String> arguments,
+        @JsonProperty("scoId") String scoId)
     {
         this.method = method;
-        this.arguments = arguments;
+        this.arguments = List.copyOf(arguments);
+        this.scoId = scoId;
     }
 }

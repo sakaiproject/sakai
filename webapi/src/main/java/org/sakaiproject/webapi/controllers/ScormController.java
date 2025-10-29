@@ -124,10 +124,10 @@ public class ScormController extends AbstractSakaiApiController
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Runtime method is required");
         }
 
-        ScormRuntimeInvocation invocation = ScormRuntimeInvocation.builder()
-            .method(payload.getMethod())
-            .arguments(Optional.ofNullable(payload.getArguments()).orElse(List.of()))
-            .build();
+        ScormRuntimeInvocation invocation = new ScormRuntimeInvocation(
+            payload.getMethod(),
+            Optional.ofNullable(payload.getArguments()).orElse(List.of()),
+            payload.getScoId());
 
         try
         {
@@ -234,6 +234,7 @@ public class ScormController extends AbstractSakaiApiController
     {
         private String method;
         private List<String> arguments;
+        private String scoId;
     }
 
     @Data
