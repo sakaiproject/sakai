@@ -33,7 +33,6 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
-import org.sakaiproject.scorm.ui.player.components.LaunchPanel;
 
 public class ScormPlayerPage extends BaseToolPage
 {
@@ -115,8 +114,8 @@ public class ScormPlayerPage extends BaseToolPage
 		response.render(JavaScriptHeaderItem.forUrl("scripts/scorm-rest-launcher.js"));
 	}
 
-	public LaunchPanel getLaunchPanel()
-	{
-		return null;
-	}
+    public Object getLaunchPanel()
+    {
+        return null;
+    }
 }

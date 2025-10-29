@@ -2,7 +2,7 @@
 
 ## Scope
 - Keep existing Wicket flows for SCORM package upload, configuration, and reporting (`scormplayer/scorm-tool/ui/console` and `.../ui/reporting`).
-- Replace the launch experience managed by `ScormPlayerPage`, `LazyLaunchPanel`, `LaunchPanel`, and the SJAX layer (`SjaxContainer`, `scorm-sjax.js`).
+- Replace the launch experience managed by `ScormPlayerPage`, `LazyLaunchPanel`, `LaunchPanel`, and the SJAX layer (`SjaxContainer`, `scorm-sjax.js`). ✅
 - Preserve SCORM 2004 compliance using the current service implementations (`ScormApplicationService`, `ScormSequencingService`, `ScormResultService`, `LearningManagementSystem`).
 
 ## Target Architecture
@@ -36,7 +36,7 @@
 - **Phase 1 – Services**: Implement session registry and REST controller, with Spring MVC tests validating each endpoint against mocked services and existing `SCORM13APITest` expectations.
 - **Phase 2 – Frontend shell**: Build `<scorm-launcher>` (or equivalent) in `webcomponents/tool/src/main/frontend`, wiring to the new endpoints; provide a single ES module implementation bundled via `npm run bundle`.
 - **Phase 3 – Replace launch view**: Update the Wicket launch page to render only the new component, removing the legacy SJAX scaffolding from `ScormPlayerPage`.
-- **Phase 4 – Cleanup**: Delete obsolete Wicket components (`LaunchPanel`, `SjaxContainer`, etc.), remove `scorm-sjax.js`, and prune unused Spring beans once rest-based launch is fully deployed.
+- **Phase 4 – Cleanup**: Delete obsolete Wicket components (`LaunchPanel`, `SjaxContainer`, etc.), remove `scorm-sjax.js`, and prune unused Spring beans once rest-based launch is fully deployed. ✅
 
 ## Testing & Compliance
 - Extend existing automated tests (`scormplayer/scorm-tool/src/test/.../SCORM13APITest.java`) to call the REST endpoints, verifying Initialize/Terminate flows, suspend/resume, and error reporting.
