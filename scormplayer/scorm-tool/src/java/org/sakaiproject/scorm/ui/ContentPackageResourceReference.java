@@ -27,13 +27,12 @@ import org.apache.wicket.request.resource.PartWriterCallback;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
-import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.scorm.service.sakai.impl.ContentPackageSakaiResource;
 import org.sakaiproject.scorm.ui.player.util.CompressingContentPackageResourceStream;
 import org.sakaiproject.scorm.ui.player.util.ContentPackageWebResource;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
@@ -52,16 +51,17 @@ import static org.sakaiproject.scorm.api.ScormConstants.ROOT_DIRECTORY;
 @Slf4j
 public class ContentPackageResourceReference extends ResourceReference
 {
-    private static final ServerConfigurationService serverConfigurationService =
-        Objects.requireNonNull(ComponentManager.get(ServerConfigurationService.class),
-            "ServerConfigurationService must be available");
-    private static final ContentHostingService contentHostingService =
-        Objects.requireNonNull(ComponentManager.get(ContentHostingService.class),
-            "ContentHostingService must be available");
+    private final ServerConfigurationService serverConfigurationService;
+    private final ContentHostingService contentHostingService;
 
-    public ContentPackageResourceReference()
+    public ContentPackageResourceReference(ServerConfigurationService serverConfigurationService,
+                                           ContentHostingService contentHostingService)
     {
-        super( ContentPackageResourceReference.class, "contentPackages" );
+        super(ContentPackageResourceReference.class, "contentPackages");
+        this.serverConfigurationService = Objects.requireNonNull(serverConfigurationService,
+            "ServerConfigurationService must be available");
+        this.contentHostingService = Objects.requireNonNull(contentHostingService,
+            "ContentHostingService must be available");
     }
 
     @Override
