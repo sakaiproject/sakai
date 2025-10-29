@@ -240,20 +240,16 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			throw new IllegalAccessError("System mutable records cannot be updated.");
 		}
 
-		// if it is a user mutable record, ensure the user is updating their own record
-		// this can be overriden with a security advisor so the admin user to allow access
-		if(!securityService.unlock(UserDirectoryService.ADMIN_ID, SakaiPerson.PROFILE_SAVE_PERMISSION, sakaiPerson.getAgentUuid())) {
-		
-			if (!StringUtils.equals(sessionManager.getCurrentSessionUserId(), sakaiPerson.getAgentUuid()) && !securityService.isSuperUser())
-			{
-				// AuthZ - Ensure the current user is updating their own record
-				if (!StringUtils.equals(sessionManager.getCurrentSessionUserId(), sakaiPerson.getAgentUuid())) {
-				throw new IllegalAccessError("You do not have permissions to update this record!");
-				}
-			}
-		}
+        // if it is a user mutable record, ensure the user is updating their own record
+        // this can be overridden with a security advisor or the admin permission
+        if (!securityService.unlock(UserDirectoryService.ADMIN_ID, SakaiPerson.PROFILE_SAVE_PERMISSION, sakaiPerson.getAgentUuid())) {
+            if (!StringUtils.equals(sessionManager.getCurrentSessionUserId(), sakaiPerson.getAgentUuid())
+                    && !securityService.isSuperUser()) {
+                throw new IllegalAccessError("You do not have permissions to update this record!");
+            }
+        }
 
-		// store record
+        // store record
 		if (!(sakaiPerson instanceof SakaiPersonImpl))
 		{
 			// TODO support alternate implementations of SakaiPerson
