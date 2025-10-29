@@ -525,68 +525,7 @@
       font-weight: bold;
       color: var(--sakai-text-color-2);
   }
-  /* **************************************************************** *
-   *                      Gradebook Grade comparison styles           *
-   * **************************************************************** */
-   
-  #studentGradesComparison-ModalContent .studentGradesComparison-Header {
-    margin: 0 0 15px 3px;
-  }
 
-  #studentGradesComparison-ModalContent .studentGradesComparison-Header span {
-    color: var(--sakai-primary-color-1);
-    font-weight: 600;
-  }
-
-  #studentGradesComparison-ModalContent .studentGradesComparison-TableContainer .table .comparing-current-user-row {
-    background-color: var(--sakai-active-color-1);
-  }
-
-  #studentGradesComparison-ModalContent .studentGradesComparison-TableContainer .table .comparing-current-user-row td {
-    font-weight: bold;
-    background: none;
-  }
-
-  #settingsGradeRelease .grade-comparison .grade-comparison-options input[disabled] {
-    background-color: var(--sakai-text-color-disabled);
-  }
-
-  #settingsGradeRelease .grade-comparison .grade-comparison-options > span, #settingsGradeRelease .grade-comparison .grade-comparison-options > label {
-    margin-right: 8px;
-  }
-
-  #settingsGradeRelease .checkbox {
-    margin-bottom: 12px;
-  }
-
-  #gradeSummaryTable .gb-summary-assignments-tbody .compare-grades-link {
-    float: right;
-    margin-right: 10px;
-  }
-
-  #gradeSummaryTable .gb-summary-assignments-tbody .gb-summary-grade-flags + .compare-grades-link {
-    margin-right: -6px !important;
-  }
-
-
-  #loading-grade-summary{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: #ffffffa8;
-    z-index: 5;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-content: center;
-    justify-content: center;
-  }
-
-  #loading-grade-summary img{
-    height: 20px;
-    width: 20px;
-    margin: auto;
-  }
   /* **************************************************************** *
    *                      Gradebook Grades styles                     *
    * **************************************************************** */
@@ -1447,6 +1386,16 @@ div.wicket-mask-transparent, div.wicket-mask-dark {
   z-index: 998 !important;
 }
 
+/* Placing Grade Rubric modal */
+.gb-rubric-grading-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 1100px;
+}
+
 .gb-input {
   padding-top: 0;
   padding-bottom: 1px
@@ -1670,3 +1619,66 @@ max-height:100px;
 .tabulator-range-active {
   display: none;
 }
+
+/* **************************************************************** *
+ *                      Gradebook Grade comparison styles           *
+ * **************************************************************** */
+
+div.wicket-modal #studentGradesComparison-ModalContent .studentGradesComparison-Header {
+  margin: 0 0 15px 3px;
+}
+
+div.wicket-modal #studentGradesComparison-ModalContent .studentGradesComparison-Header span {
+  color: var(--sakai-primary-color-1);
+  font-weight: 600;
+}
+
+div.wicket-modal #studentGradesComparison-ModalContent .studentGradesComparison-TableContainer .table .comparing-current-user-row {
+  background-color: var(--sakai-active-color-1);
+}
+
+div.wicket-modal #studentGradesComparison-ModalContent .studentGradesComparison-TableContainer .table .comparing-current-user-row td {
+  font-weight: bold;
+  background: none;
+}
+
+#settingsGradeRelease .grade-comparison .grade-comparison-options input[disabled] {
+  background-color: var(--sakai-text-color-disabled);
+}
+
+#settingsGradeRelease .grade-comparison .grade-comparison-options > span, #settingsGradeRelease .grade-comparison .grade-comparison-options > label {
+  margin-right: 8px;
+}
+
+#settingsGradeRelease .checkbox {
+  margin-bottom: 12px;
+}
+
+#gradeSummaryTable .gb-summary-assignments-tbody .compare-grades-link {
+  float: right;
+  margin-right: 10px;
+}
+
+#gradeSummaryTable .gb-summary-assignments-tbody .gb-summary-grade-flags + .compare-grades-link {
+  margin-right: -6px !important;
+}
+
+#loading-grade-summary{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #ffffffa8;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
+#loading-grade-summary img{
+  height: 20px;
+  width: 20px;
+  margin: auto;
+}
+/* **************************************************************** */

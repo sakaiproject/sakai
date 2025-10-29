@@ -82,7 +82,6 @@ import org.jdom2.filter.ElementFilter;
 import org.jdom2.filter.Filters;
 import org.jdom2.output.DOMOutputter;
 import org.jdom2.output.XMLOutputter;
-import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
 import org.jsoup.Jsoup;
@@ -107,6 +106,9 @@ import org.sakaiproject.lessonbuildertool.service.ForumInterface;
 import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.QuizEntity;
+import org.sakaiproject.api.app.syllabus.SyllabusManager;
+import org.sakaiproject.api.app.syllabus.SyllabusItem;
+import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -156,6 +158,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String QUESTIONS="questestinterop";
   private static final String ASSESSMENT="assessment";
   private static final String ASSIGNMENT="assignment";
+  private static final String CANVAS_ASSIGNMENT="canvas_assignment";
   private static final String QUESTION_BANK="question-bank";
   private static final String CART_LTI_LINK="cartridge_basiclti_link";
   private static final String BLTI="basiclti";
@@ -180,6 +183,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private LessonEntity topictool = null;
   private LessonEntity bltitool = null;
   private LessonEntity assigntool = null;
+  private SyllabusManager syllabusManager = null;
   private Set<String>roles = null;
   boolean usesRole = false;
   boolean usesPatternMatch = false;
@@ -190,11 +194,13 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   Element canvasModuleMeta = null;
   boolean forceInline;
 
-    // this is the CC file name for all files added
+  // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
-    // This keeps track of what files are added to what (possibly truncated) name, this is pre-populated
+  // Track files that are part of Canvas entities and should not be imported as resources
+  private Set<String> canvasEntityFiles = new HashSet<String>();
+  // This keeps track of what files are added to what (possibly truncated) name, this is pre-populated
   private Map<String,String> fileNames = new HashMap<String,String>();
-    // this is the CC file name (of the XML file) -> Sakaiid for non-file items
+  // this is the CC file name (of the XML file) -> Sakaiid for non-file items
   private Map<String,String> itemsAdded = new HashMap<String,String>();
   private Map<String, Map<String, String>> itemsMetaDataAdded = new HashMap<>();
   private Map<String,String> assignsAdded = new HashMap<String,String>();
@@ -234,6 +240,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
     	  this.assigntool = a;
     	  this.assigntool.setSimplePageBean(bean);
       }
+      // Initialize Syllabus and Forum services
+      this.syllabusManager = (SyllabusManager) ComponentManager.get("org.sakaiproject.api.app.syllabus.SyllabusManager");
       this.importtop = itop;
 	  this.forceInline = ServerConfigurationService.getBoolean("lessonbuilder.cc.import.forceinline", false);
   }
@@ -381,6 +389,337 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  return file.getAttributeValue(HREF);
 	  }
 	  return href;
+  }
+
+  /**
+   * Check if a resource represents a Canvas assignment
+   */
+  private boolean isCanvasAssignment(Element resource) {
+      // Check if this is a Canvas learning application resource that contains assignment_settings.xml
+      List<Element> files = resource.getChildren(FILE, ns.getNs());
+      for (Element file : files) {
+          String fileHref = file.getAttributeValue(HREF);
+          if (fileHref != null && fileHref.endsWith("assignment_settings.xml")) {
+              return true;
+          }
+      }
+      return false;
+  }
+  
+  /**
+   * Check if a resource represents a Canvas QTI assessment or question bank
+   */
+  private boolean isCanvasQTI(Element resource) {
+      // Check if this is a Canvas learning application resource that contains .xml.qti files
+      List<Element> files = resource.getChildren(FILE, ns.getNs());
+      for (Element file : files) {
+          String fileHref = file.getAttributeValue(HREF);
+          if (fileHref != null && fileHref.endsWith(".xml.qti")) {
+              return true;
+          }
+      }
+      return false;
+  }
+  
+  /**
+   * Check if a resource represents a Canvas syllabus
+   */
+  private boolean isCanvasSyllabus(Element resource) {
+      // Check if this is a Canvas learning application resource with intendeduse="syllabus"
+      String intendedUse = resource.getAttributeValue(INTENDEDUSE);
+      return intendedUse != null && "syllabus".equals(intendedUse.toLowerCase());
+  }
+
+  /**
+   * Handle Canvas QTI files from learning-application-resource types
+   */
+  private void handleCanvasQTI(Element resourceXml, SimplePage page, int seq, List<Integer> sequences, int top, boolean noPage, Set<String> roles) {
+      try {
+          // Find the .xml.qti file in this resource
+          String qtiFileName = null;
+          List<Element> files = resourceXml.getChildren(FILE, ns.getNs());
+          for (Element file : files) {
+              String fileHref = file.getAttributeValue(HREF);
+              if (fileHref != null && fileHref.endsWith(".xml.qti")) {
+                  qtiFileName = fileHref;
+                  break;
+              }
+          }
+          
+          if (qtiFileName == null) {
+              log.warn("Canvas QTI resource has no .xml.qti file");
+              return;
+          }
+          
+          String sakaiId = null;
+          String base = baseUrl;
+          boolean isBank = false;
+          
+          // Check if already added
+          if (itemsAdded.get(qtiFileName) == null) {
+              itemsAdded.put(qtiFileName, SimplePageItem.DUMMY); // don't add the same test more than once
+              
+              File qtitemp = null;
+              try {
+                  base = baseUrl + qtiFileName;
+                  int slash = base.lastIndexOf("/");
+                  if (slash >= 0) base = base.substring(0, slash + 1); // include trailing slash
+                  
+                  // Determine if this is a question bank or assessment by examining the QTI structure
+                  try (InputStream instream = utils.getFile(qtiFileName)) {
+                      if (instream != null) {
+                          isBank = isQTIQuestionBank(instream);
+                      }
+                  }
+                  
+                  qtitemp = File.createTempFile("ccqti", "txt");
+                  
+                  // Process the QTI file
+                  try (InputStream instream = utils.getFile(qtiFileName);
+                       PrintWriter outwriter = new PrintWriter(qtitemp)) {
+                      
+                      if (instream != null) {
+                          QtiImport imp = new QtiImport();
+                          try {
+                              boolean thisUsesPattern = imp.mainproc(instream, outwriter, isBank, base, siteId, simplePageBean, null);
+                              if (thisUsesPattern) usesPatternMatch = true;
+                              if (imp.getUsesCurriculum()) usesCurriculum = true;
+                          } catch (Exception e) {
+                              log.error("Error processing Canvas QTI file: {}", qtiFileName, e);
+                          }
+                      }
+                  }
+                  
+                  // Parse the processed QTI
+                  try (InputStream inputStream = new FileInputStream(qtitemp)) {
+                      DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+                      builderFactory.setNamespaceAware(true);
+                      builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                      builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                      DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+                      org.w3c.dom.Document document = documentBuilder.parse(inputStream);
+                      
+                      QuizEntity q = (QuizEntity) quiztool;
+                      sakaiId = q.importObject(document, isBank, siteId, noPage);
+                      if (sakaiId == null) sakaiId = SimplePageItem.DUMMY;
+                      
+                      itemsAdded.put(qtiFileName, sakaiId); // Update with actual sakaiId
+                  } catch (Exception e) {
+                      log.warn("Canvas QTI import could not create or parse QTI file: {}", qtiFileName, e);
+                      simplePageBean.setErrKey("simplepage.create.object.failed", e.toString());
+                  }
+                  
+              } finally {
+                  // Clean up temp file
+                  if (qtitemp != null) {
+                      qtitemp.delete();
+                  }
+              }
+          } else {
+              sakaiId = itemsAdded.get(qtiFileName);
+              // Need to determine isBank for existing items too
+              try (InputStream instream = utils.getFile(qtiFileName)) {
+                  if (instream != null) {
+                      isBank = isQTIQuestionBank(instream);
+                  }
+              }
+          }
+          
+          // Question banks don't appear on the page, only assessments do
+          if (!isBank && !noPage) {
+              String title = getQTITitle(resourceXml, qtiFileName);
+              SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSESSMENT, 
+                  (sakaiId == null ? SimplePageItem.DUMMY : sakaiId), title);
+              simplePageBean.saveItem(item);
+              if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[roles.size()]));
+              sequences.set(top, seq + 1);
+          }
+          
+      } catch (Exception e) {
+          log.error("Error handling Canvas QTI resource", e);
+      }
+  }
+  
+  /**
+   * Determine if a QTI file represents a question bank (objectbank) or an assessment
+   */
+  private boolean isQTIQuestionBank(InputStream qtiStream) {
+      try {
+          DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+          factory.setNamespaceAware(true);
+          DocumentBuilder builder = factory.newDocumentBuilder();
+          org.w3c.dom.Document doc = builder.parse(qtiStream);
+          
+          // Check for objectbank element - Canvas exports question banks as objectbank
+          org.w3c.dom.NodeList objectbanks = doc.getElementsByTagName("objectbank");
+          return objectbanks.getLength() > 0;
+          
+      } catch (Exception e) {
+          log.warn("Error determining QTI type, assuming assessment", e);
+          return false; // Default to assessment
+      }
+  }
+  
+  /**
+   * Extract title from QTI file or resource metadata
+   */
+  private String getQTITitle(Element resourceXml, String qtiFileName) {
+      try {
+          // Try to get title from QTI file itself
+          try (InputStream qtiStream = utils.getFile(qtiFileName)) {
+              if (qtiStream == null) {
+                  log.debug("Could not get QTI file stream for: " + qtiFileName);
+              } else {
+                  DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                  factory.setNamespaceAware(true);
+                  DocumentBuilder builder = factory.newDocumentBuilder();
+                  org.w3c.dom.Document doc = builder.parse(qtiStream);
+                  
+                  // Look for bank_title in QTI metadata
+                  org.w3c.dom.NodeList metadataFields = doc.getElementsByTagName("qtimetadatafield");
+                  for (int i = 0; i < metadataFields.getLength(); i++) {
+                      org.w3c.dom.Element field = (org.w3c.dom.Element) metadataFields.item(i);
+                      org.w3c.dom.NodeList labels = field.getElementsByTagName("fieldlabel");
+                      org.w3c.dom.NodeList entries = field.getElementsByTagName("fieldentry");
+                      
+                      if (labels.getLength() > 0 && entries.getLength() > 0) {
+                          String label = labels.item(0).getTextContent().trim();
+                          if ("bank_title".equals(label)) {
+                              return entries.item(0).getTextContent().trim();
+                          }
+                      }
+                  }
+                  
+                  // Look for assessment title
+                  org.w3c.dom.NodeList assessments = doc.getElementsByTagName("assessment");
+                  if (assessments.getLength() > 0) {
+                      org.w3c.dom.Element assessment = (org.w3c.dom.Element) assessments.item(0);
+                      String title = assessment.getAttribute("title");
+                      if (title != null && !title.isEmpty()) {
+                          return title;
+                      }
+                  }
+              }
+          }
+      } catch (Exception e) {
+          log.debug("Could not extract title from QTI file", e);
+      }
+      
+      // Fallback to filename
+      String title = qtiFileName;
+      if (title.contains("/")) {
+          title = title.substring(title.lastIndexOf("/") + 1);
+      }
+      if (title.endsWith(".xml.qti")) {
+          title = title.substring(0, title.length() - 8);
+      }
+      return title;
+  }
+
+  /**
+   * Identify Canvas entity files early in the process so they can be excluded from resource processing
+   */
+  private void identifyCanvasEntityFiles(Element manifest) {
+      try {
+          Element resourcesElement = manifest.getChild(RESOURCES, ns.cc_ns());
+          if (resourcesElement != null) {
+              List<Element> resources = resourcesElement.getChildren(RESOURCE, ns.cc_ns());
+
+              // First pass: collect all discussion dependency resource IDs
+              Set<String> discussionDependencies = new HashSet<String>();
+              for (Element resource : resources) {
+                  String resourceType = resource.getAttributeValue("type");
+                  if (resourceType != null && resourceType.startsWith("imsdt_xmlv1p")) {
+                      // This is a Canvas discussion - find its dependencies
+                      List<Element> dependencies = resource.getChildren("dependency", ns.cc_ns());
+                      for (Element dependency : dependencies) {
+                          String dependencyId = dependency.getAttributeValue("identifierref");
+                          if (dependencyId != null) {
+                              discussionDependencies.add(dependencyId);
+                              log.debug("Found discussion dependency: {}", dependencyId);
+                          }
+                      }
+                  }
+              }
+
+              // Second pass: mark Canvas entities for exclusion
+              for (Element resource : resources) {
+                  String resourceType = resource.getAttributeValue("type");
+                  String intendedUse = resource.getAttributeValue("intendeduse");
+                  String resourceId = resource.getAttributeValue("identifier");
+
+                  boolean isCanvasEntity = false;
+
+                  // Check for Canvas assignments (learning-application-resource with Canvas files)
+                  if (resourceType != null && resourceType.contains("learning-application-resource")) {
+                      List<Element> files = resource.getChildren("file", manifest.getNamespace());
+                      for (Element file : files) {
+                          String fileHref = file.getAttributeValue("href");
+                          if (fileHref != null && isCanvasEntityFile(fileHref)) {
+                              isCanvasEntity = true;
+                              break;
+                          }
+                      }
+                  }
+
+                  // Check for Canvas syllabus (intendeduse="syllabus")
+                  if (intendedUse != null && intendedUse.equals("syllabus")) {
+                      isCanvasEntity = true;
+                  }
+
+                  // Check for Canvas wiki content (webcontent with wiki_content/)
+                  String href = resource.getAttributeValue(HREF);
+                  if (href != null && href.contains("wiki_content/")) {
+                      isCanvasEntity = true;
+                      log.debug("Marking Canvas wiki content as entity: {}", href);
+                  }
+
+                  // Check for Canvas discussion dependencies
+                  if (resourceId != null && discussionDependencies.contains(resourceId)) {
+                      isCanvasEntity = true;
+                      log.debug("Marking discussion dependency as Canvas entity: {}", resourceId);
+                  }
+
+                  // Check for Canvas discussions (imsdt_xmlv1p1) - exclude XML files from Resources
+                  if (resourceType != null && resourceType.startsWith("imsdt_xmlv1p")) {
+                      isCanvasEntity = true;
+                      log.debug("Marking Canvas discussion as entity: {}", resourceId);
+                  }
+
+                  // If this is a Canvas entity resource, mark all its files for exclusion
+                  if (isCanvasEntity) {
+                      List<Element> files = resource.getChildren(FILE, ns.cc_ns());
+                      for (Element file : files) {
+                          String fileHref = file.getAttributeValue(HREF);
+                          if (fileHref != null) {
+                              canvasEntityFiles.add(fileHref);
+                              log.debug("Marking Canvas entity file for exclusion: {}", fileHref);
+                          }
+                      }
+                  }
+              }
+          }
+      } catch (Exception e) {
+          log.warn("Error identifying Canvas entity files", e);
+      }
+  }
+
+  /**
+   * Check if a file is a Canvas entity file that should not be imported as a resource
+   */
+  private boolean isCanvasEntityFile(String fileHref) {
+      return fileHref.endsWith("assignment_settings.xml") ||
+             fileHref.endsWith("course_settings.xml") ||
+             fileHref.endsWith("assignment_groups.xml") ||
+             fileHref.endsWith("files_meta.xml") ||
+             fileHref.endsWith("late_policy.xml") ||
+             fileHref.endsWith("context.xml") ||
+             fileHref.endsWith("media_tracks.xml") ||
+             fileHref.endsWith("canvas_export.txt") ||
+             fileHref.endsWith("module_meta.xml") ||
+             fileHref.contains("discussion_settings.xml") ||
+             fileHref.contains("assessment_settings.xml") ||
+             fileHref.contains("quiz_settings.xml");
   }
 
   public String getGroupForRole(String role) {
@@ -713,6 +1052,110 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       String atitle = simplePageBean.getMessageLocator().getMessage("simplepage.importcc-assigntitle").replace("{}", (assignmentNumber++).toString());
                       String assignmentId = a.importObject(atitle, sakaiId, mime, true); // sakaiid for assignment
                   }
+              } else if ("syllabus".equals(intendedUse)) {
+                  // Handle Canvas syllabus import
+                  if (syllabusManager != null) {
+                      try {
+                          String syllabusResourceId = resourceXml.getAttributeValue(IDENTIFIER);
+                          String syllabusTitle = itemXml != null ? itemXml.getChildText(CC_ITEM_TITLE, ns.getNs()) : "Canvas Syllabus";
+                          if (syllabusTitle == null) syllabusTitle = "Canvas Syllabus";
+                          
+                          // Find HTML file in resource
+                          String syllabusContent = "";
+                          List<Element> files = resourceXml.getChildren(FILE, ns.getNs());
+                          for (Element file : files) {
+                              String fileHref = file.getAttributeValue(HREF);
+                              if (fileHref != null && fileHref.endsWith(".html")) {
+                                  try (InputStream htmlStream = loader.getFile(fileHref)) {
+                                      if (htmlStream != null) {
+                                          byte[] buffer = new byte[8096];
+                                          StringBuilder sb = new StringBuilder();
+                                          int n;
+                                          while ((n = htmlStream.read(buffer)) > 0) {
+                                              sb.append(new String(buffer, 0, n, StandardCharsets.UTF_8));
+                                          }
+                                          syllabusContent = sb.toString();
+                                          break;
+                                      }
+                                  } catch (Exception e) {
+                                      log.warn("Failed to load syllabus HTML: {}", fileHref, e);
+                                  }
+                              }
+                          }
+                          
+                          // Create or get syllabus item for site
+                          SyllabusItem syllabusItem = syllabusManager.getSyllabusItemByContextId(siteId);
+                          if (syllabusItem == null) {
+                              syllabusItem = syllabusManager.createSyllabusItem(simplePageBean.getCurrentUserId(), siteId, null);
+                          }
+                          
+                          // Create syllabus data entry
+                          int position = syllabusManager.findLargestSyllabusPosition(syllabusItem) + 1;
+                          syllabusManager.createSyllabusDataObject(syllabusTitle, position,
+                                  syllabusContent, "yes", SyllabusData.ITEM_POSTED, "none", null, null, false, null, null, syllabusItem);
+                          
+                          log.debug("Created Canvas syllabus entry: {}", syllabusTitle);
+                          
+                      } catch (Exception e) {
+                          log.warn("Failed to import Canvas syllabus: {}", e.getMessage(), e);
+                      }
+                  }
+              } else {
+                  // Handle Canvas wiki content import as Lessons pages
+                  String href = resourceXml.getAttributeValue(HREF);
+                  log.debug("Canvas webcontent handler: href={}, noPage={}", href, noPage);
+                  if (href != null && href.contains("wiki_content/")) {
+                      log.debug("Processing Canvas wiki content import for: {}", href);
+                      try {
+                          // Extract page title from href (remove wiki_content/ prefix and .html suffix)
+                          String pageTitle = href.substring(href.lastIndexOf("/") + 1);
+                          if (pageTitle.endsWith(".html")) {
+                              pageTitle = pageTitle.substring(0, pageTitle.length() - 5);
+                          }
+                          // Convert filename to readable title
+                          pageTitle = pageTitle.replace("-", " ").replace("_", " ");
+                          // Capitalize first letter of each word
+                          StringBuilder titleBuilder = new StringBuilder();
+                          boolean capitalizeNext = true;
+                          for (char c : pageTitle.toCharArray()) {
+                              if (Character.isWhitespace(c)) {
+                                  capitalizeNext = true;
+                                  titleBuilder.append(c);
+                              } else if (capitalizeNext) {
+                                  titleBuilder.append(Character.toUpperCase(c));
+                                  capitalizeNext = false;
+                              } else {
+                                  titleBuilder.append(c);
+                              }
+                          }
+                          pageTitle = titleBuilder.toString();
+                          
+                          // Load HTML content
+                          String wikiContent = "";
+                          try (InputStream htmlStream = loader.getFile(href)) {
+                              if (htmlStream != null) {
+                                  wikiContent = new String(htmlStream.readAllBytes(), StandardCharsets.UTF_8);
+                              }
+                          } catch (Exception e) {
+                              log.warn("Failed to load Canvas wiki content: {}", href, e);
+                          }
+                          
+                          if (!wikiContent.isEmpty()) {
+                              // Create a new Lessons page for this wiki content
+                              SimplePage wikiPage = simplePageBean.addPage(pageTitle, false);
+                              
+                              // Add the HTML content as a text item on the page
+                              SimplePageItem textItem = simplePageToolDao.makeItem(wikiPage.getPageId(), 1, SimplePageItem.TEXT, null, pageTitle);
+                              textItem.setHtml(wikiContent);
+                              simplePageBean.saveItem(textItem);
+
+                              log.debug("Created Canvas wiki page: {}", pageTitle);
+                          }
+                          
+                      } catch (Exception e) {
+                          log.warn("Failed to import Canvas wiki content: {}", e.getMessage(), e);
+                      }
+                  }
               }
           } else if (resourceType.equals(WEBLINK)) {
               Element linkXml = null;
@@ -736,7 +1179,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                   ContentResourceEdit edit = ContentHostingService.addResource(sakaiId);
                   edit.setContentType("text/url");
                   edit.setResourceType("org.sakaiproject.content.types.urlResource");
-                  edit.setContent(url.getBytes("UTF-8"));
+                  edit.setContent(url.getBytes(StandardCharsets.UTF_8));
                   edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, Validator.escapeResourceName(filename));
                   ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
                   filesAdded.add(filename);
@@ -976,6 +1419,126 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                       log.warn("failure importing LTI resource [{}]", bltiTitle);
                   }
               }
+          } else if (resourceType.equals(LAR) && isCanvasQTI(resourceXml)) {
+              // Handle Canvas QTI files (learning-application-resource containing .xml.qti files)
+              if (quiztool != null) {
+                  handleCanvasQTI(resourceXml, page, seq, sequences, top, noPage, roles);
+              }
+          } else if (resourceType.equals(LAR) && isCanvasAssignment(resourceXml)) {
+              // Handle Canvas assignments (learning-application-resource containing assignment_settings.xml)
+              // Handle Canvas learning application resources with assignment_settings.xml
+              if (assigntool != null) {
+                  String canvasResourceId = resourceXml.getAttributeValue(IDENTIFIER);
+                  String canvasAssignmentId = assignsAdded.get(canvasResourceId);
+                  
+                  if (canvasAssignmentId == null) {
+                      try {
+                          // Find assignment_settings.xml file in this resource
+                          String assignmentSettingsFile = null;
+                          String instructionsFile = null;
+                          
+                          List<Element> files = resourceXml.getChildren(FILE, ns.getNs());
+                          for (Element file : files) {
+                              String fileHref = file.getAttributeValue(HREF);
+                              if (fileHref != null) {
+                                  if (fileHref.endsWith("assignment_settings.xml")) {
+                                      assignmentSettingsFile = fileHref;
+                                  } else if (fileHref.endsWith(".html")) {
+                                      instructionsFile = fileHref;
+                                  }
+                              }
+                          }
+                          
+                          if (assignmentSettingsFile != null) {
+                              // Load the Canvas assignment XML
+                              Element canvasAssignmentXml = parser.getXML(loader, assignmentSettingsFile);
+                              
+                              // Load instructions from HTML file if available
+                              String instructions = "";
+                              if (instructionsFile != null) {
+                                  try (InputStream instructionsStream = loader.getFile(instructionsFile)) {
+                                      if (instructionsStream != null) {
+                                          instructions = new String(instructionsStream.readAllBytes(), StandardCharsets.UTF_8);
+                                      }
+                                  } catch (Exception e) {
+                                      log.warn("Failed to load Canvas assignment instructions: {}", instructionsFile);
+                                  }
+                              }
+                              
+                              AssignmentInterface a = (AssignmentInterface) assigntool;
+                              canvasAssignmentId = a.importCanvasAssignment(canvasAssignmentXml, instructions, noPage);
+                              if (canvasAssignmentId != null) {
+                                  assignsAdded.put(canvasResourceId, canvasAssignmentId);
+                                  log.debug("Created Canvas assignment from resource: {}", canvasResourceId);
+                              }
+                          }
+                      } catch (Exception e) {
+                          log.warn("Failed to process Canvas assignment resource: {}", canvasResourceId, e);
+                      }
+                  }
+                  
+                  if (canvasAssignmentId != null && !noPage) {
+                      String canvasTitle = itemXml != null ? itemXml.getChildText(CC_ITEM_TITLE, ns.getNs()) : "Canvas Assignment";
+                      if (canvasTitle == null) {
+                          // Try to get title from the main HTML file name
+                          String href = resourceXml.getAttributeValue(HREF);
+                          if (href != null && href.contains("/")) {
+                              canvasTitle = href.substring(href.lastIndexOf("/") + 1);
+                              if (canvasTitle.endsWith(".html")) {
+                                  canvasTitle = canvasTitle.substring(0, canvasTitle.length() - 5);
+                              }
+                              canvasTitle = canvasTitle.replace("-", " ").replace("_", " ");
+                          }
+                      }
+                      if (canvasTitle == null) canvasTitle = "Canvas Assignment";
+                      
+                      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, canvasAssignmentId, canvasTitle);
+                      simplePageBean.saveItem(item);
+                      if (!roles.isEmpty()) simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+                      sequences.set(top, seq + 1);
+                  }
+              }
+          } else if (resourceType.equals(LAR) && isCanvasSyllabus(resourceXml)) {
+              // Handle Canvas syllabus (learning-application-resource with intendeduse="syllabus")  
+              if (syllabusManager != null) {
+                  try {
+                      String syllabusTitle = itemXml != null ? itemXml.getChildText(CC_ITEM_TITLE, ns.getNs()) : null;
+                      if (syllabusTitle == null) syllabusTitle = "Canvas Syllabus";
+                      
+                      // Find HTML file in resource
+                      String syllabusContent = "";
+                      List<Element> files = resourceXml.getChildren(FILE, ns.getNs());
+                      for (Element file : files) {
+                          String fileHref = file.getAttributeValue(HREF);
+                          if (fileHref != null && fileHref.endsWith(".html")) {
+                              try (InputStream htmlStream = loader.getFile(fileHref)) {
+                                  if (htmlStream != null) {
+                                      syllabusContent = new String(htmlStream.readAllBytes(), StandardCharsets.UTF_8);
+                                      break;
+                                  }
+                              } catch (Exception e) {
+                                  log.warn("Failed to load Canvas syllabus HTML: {}", fileHref, e);
+                              }
+                          }
+                      }
+                      
+                      // Create or get syllabus item for site
+                      SyllabusItem syllabusItem = syllabusManager.getSyllabusItemByContextId(siteId);
+                      if (syllabusItem == null) {
+                          syllabusItem = syllabusManager.createSyllabusItem(simplePageBean.getCurrentUserId(), siteId, null);
+                      }
+                      
+                      // Create syllabus data entry
+                      int position = syllabusManager.findLargestSyllabusPosition(syllabusItem) + 1;
+                      syllabusManager.createSyllabusDataObject(syllabusTitle, position,
+                              syllabusContent, "yes", SyllabusData.ITEM_POSTED, "none", null, null, false, null, null, syllabusItem);
+                      
+                      log.debug("Created Canvas syllabus entry: {}", syllabusTitle);
+                      
+                  } catch (Exception e) {
+                      log.warn("Failed to import Canvas syllabus: {}", e.getMessage(), e);
+                  }
+              }
           } else if (resourceType.equals(ASSIGNMENT)) {
               Element assignXml = null;
               String filename = getFileName(resourceXml);
@@ -1121,12 +1684,16 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public void setManifestXml(Element the_xml) {
       manifestXml = the_xml;
       log.debug("manifest xml: {}", the_xml);
+
+      // Identify Canvas entity files early so they can be excluded from resource processing
+      identifyCanvasEntityFiles(the_xml);
   }
 
   public void setCanvasModuleMetaXml(Element the_xml) {
       canvasModuleMeta = the_xml;
       log.debug("canvas_meta_module xml: {}", the_xml);
   }
+
 
   public void endManifest() {
 	  log.debug("end manifest");
@@ -1211,6 +1778,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
       if (filesAdded.contains(the_file_id))
 	  return;
+      
+      // Skip files that are part of Canvas entities - they should not be imported as resources
+      if (canvasEntityFiles.contains(the_file_id)) {
+          log.debug("Skipping Canvas entity file from resource import: {}", the_file_id);
+          return;
+      }
 
       InputStream infile = null;
       for (int tries = 1; tries < 3; tries++) {
@@ -1226,15 +1799,13 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  //Now the new truncated name from the map
 	  if (fileNames.containsKey(the_file_id)) {
 		  the_file_id = fileNames.get(the_file_id);
-		  log.debug("Found " + the_file_id + " in pre-load map");
+          log.debug("Found {} in pre-load map", the_file_id);
 	  }
 	  else {
-		  log.info("Could not find " + the_file_id + " in preload map, File may not work.");
+          log.info("Could not find {} in preload map, File may not work.", the_file_id);
 	  }
 
-	  log.debug("Preparing to add file" + baseName + the_file_id);
-	  log.debug("Length of baseName is:" + baseName.length());
-	  log.debug("Length of the_file_id is:" + the_file_id.length());
+	  log.debug("Preparing to add file '{}' (length: {}) with ID '{}' (length: {})", baseName, baseName.length(), the_file_id, the_file_id.length());
 	  
 	  ContentResourceEdit edit = ContentHostingService.addResource(baseName + the_file_id);
 

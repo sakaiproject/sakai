@@ -5,6 +5,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+        <link rel="manifest" href="/manifest.json">
 
         <script>
             var portal = {
@@ -62,7 +63,7 @@
         <script src="/library/js/modernizr.js$!{portalCDNQuery}"></script>
         <script src="/library/js/BreakpointManager.js$!{portalCDNQuery}"></script>
         <script src="/library/js/sakai-lti-advantage.js$!{portalCDNQuery}"></script>
-        <script src="${pageWebjarsPath}momentjs/2.29.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}momentjs/2.29.4/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}popper.js/2.9.3/umd/popper.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}bootstrap/5.2.0/js/bootstrap.min.js$!{portalCDNQuery}"></script>
         <script src="${pageWebjarsPath}dompurify/2.3.6/dist/purify.min.js$!{portalCDNQuery}"></script>

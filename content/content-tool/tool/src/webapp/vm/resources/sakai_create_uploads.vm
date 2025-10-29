@@ -7,11 +7,16 @@
     #contentMenu("resources")
     <h3>$tlang.getString("create.uploads")</h3>
     <ol class="breadcrumb">
-        <li><span>$tlang.getString("gen.location")</span></li>
-        ##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
+        <li><span>$tlang.getString("gen.location")</span>
+        #set($folderIndex = 0)
         #foreach ($folder in $model.collectionPath)
-            <li><span>$formattedText.escapeHtml($folder.name)</span></li>
+            #set($folderIndex = $folderIndex + 1)
+            #if ($folderIndex > 1)
+                <span> &gt; </span>
+            #end
+            <span>$formattedText.escapeHtml($folder.name)</span>
         #end
+        </li>
     </ol>
     #if ($itemAlertMessage)
         <div  id="resourceAlert" class="sak-banner-success">$itemAlertMessage</div>

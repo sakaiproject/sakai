@@ -37,7 +37,6 @@
 #helppopup( "lastedithelp"  ${rlb.jsp_last_edited} ${rlb.jsp_last_edited_help})
 #helppopup( "digesthelp" ${rlb.jsp_sha1_digest} ${rlb.jsp_sha1_digest_help})
 #helppopup( "preferenceshelp"  ${rlb.jsp_notification_preferences} ${rlb.jsp_notification_preferences_help})
-#helppopup( "feedshelp"  ${rlb.jsp_feeds} ${rlb.jsp_notification_feeds_help})
 
 <div id="rwiki_container">
   <div class="portletBody">
@@ -489,34 +488,26 @@
 		   </tr>
 		   
 		   <!-- NOTIFICATION SUPPORT, wiki.notifications to enable -->
-			  #if (${requestScope.withnotification})
-		   <tr>
-		      <th><a href="#" class="rwiki_help_popup_link" name="preferenceshelp" >${rlb.jsp_notification_preferences}</a></th>
-		      <td colspan="7">
-			       <a href="${util.escapeHtml(${realmBean.preferencesUrl})}">${rlb.jsp_edit_notification_preferences}${realmBean.pageSpace}</a>
-		      </td>
-		   </tr>
-		   #end
-		   <tr>
-		    	<th><a href="#" class="rwiki_help_popup_link" name="feedshelp" >${rlb.jsp_feeds}</a></th>
-		     <td colspan="6">
-			      <ul id="feedsLinks">
-##			       <li>
-##			        <a href="${util.escapeHtml(${realmBean.publicViewUrl})}" target="publicview" >${rlb.jsp_public}</a>
-##			       </li>
-			       #set( $feedsLinks = ${referencesBean.feedsLinks} )
-			       #if ($feedsLinks && $feedsLinks.size() > 0)
-			        #foreach( $item in ${feedsLinks})
-			         <li>${item}</li>
-			        #end
-			       #end
-			      </ul>
-		     </td>
-		   </tr>
-		    
-		   <tr>
-		    	<th><a href="#" class="rwiki_help_popup_link" name="ownerhelp">${rlb.jsp_owner}</a></th>
-		     <td colspan="6">
+	   #if (${requestScope.withnotification})
+	   <tr>
+	      <th><a href="#" class="rwiki_help_popup_link" name="preferenceshelp" >${rlb.jsp_notification_preferences}</a></th>
+	      <td colspan="7">
+		       <a href="${util.escapeHtml(${realmBean.preferencesUrl})}">${rlb.jsp_edit_notification_preferences}${realmBean.pageSpace}</a>
+	      </td>
+	   </tr>
+	   #end
+   #set( $publicViewUrl = "${realmBean.baseAccessUrl}html" )
+   #set( $publicViewUrl = $util.escapeHtml($publicViewUrl) )
+   <tr>
+     <th>${rlb.jsp_feeds}</th>
+     <td colspan="6">
+       <a href="$publicViewUrl" target="publicview">${rlb.jsp_public} ${rlb.jsp_view}</a>
+     </td>
+   </tr>
+	   	    	    
+	   <tr>
+	     	<th><a href="#" class="rwiki_help_popup_link" name="ownerhelp">${rlb.jsp_owner}</a></th>
+	     <td colspan="6">
 		      	#formatDisplayName($currentRWikiObject.owner)
 		     </td>
 		   </tr>
@@ -567,6 +558,3 @@
   </div>
 </div>
 #footer()
-
-
-

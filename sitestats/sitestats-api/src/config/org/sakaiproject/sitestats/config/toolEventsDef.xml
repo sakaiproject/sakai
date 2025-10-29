@@ -542,9 +542,9 @@
         <event eventId="sitestats.track" selected="false"/>
         <eventParserTip for="contextId" separator="/" index="2"/>
     </tool>
-    <!-- profile 2 -->
-    <tool 
-        toolId="sakai.profile2"
+    <!-- account/profile -->
+    <tool
+        toolId="sakai.profile"
         selected="false">
         <event eventId="profile.view.own" selected="false"/>
         <event eventId="profile.view.other" selected="false"/>

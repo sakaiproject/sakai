@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -67,6 +68,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ContentExistsAware;
@@ -741,8 +743,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		String[] toolIds = { "sakai.announcements" };
 		return toolIds;
 	}
-	
-	
+
+	@Override
+	public Optional<List<String>> getTransferOptions() {
+		return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
+	}
+
 	/**
 	 ** Generate RSS Item element for specified assignment
 	 **/
@@ -1685,6 +1691,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		return Collections.EMPTY_LIST;
 	}
 
+
+	@Override
+	public String getToolPermissionsPrefix() {
+		return SECURE_ANNC_ROOT;
+	}
+
 	@Override
 	public boolean hasContent(String siteId) {
 
@@ -2206,7 +2218,10 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			super(msg, el);
 
 			// extract the subject
-			m_subject = el.getAttribute("subject");
+			String encodedSubject = el.getAttribute("subject");
+			m_subject = StringUtils.isEmpty(encodedSubject)
+					? encodedSubject
+					: formattedText.decodeNumericCharacterReferences(encodedSubject);
 
 		} // BaseAnnouncementMessageHeaderEdit
 
@@ -2267,7 +2282,8 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			Element header = super.toXml(doc, stack);
 
 			// add draft, subject
-			header.setAttribute("subject", getSubject());
+			String encodedSubject = formattedText.encodeUnicode(getSubject());
+			header.setAttribute("subject", encodedSubject);
 			header.setAttribute("draft", new Boolean(getDraft()).toString());
 
 			return header;
@@ -2392,7 +2408,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					String messageSiteId = entityManager.newReference(msg.getReference()).getContext();
 					try {
 						Site msgSite = siteService.getSite(messageSiteId);
-						String userRole = msgSite.getMember(currentUserId).getRole().getId();
+						Member member = msgSite.getMember(currentUserId);
+						if (member == null) {
+							log.warn("User {} is not a member of site {}", currentUserId, messageSiteId);
+							return false;
+						}
+						String userRole = member.getRole().getId();
 						return selectedRoles.contains(userRole);
 					} catch (IdUnusedException idue) {
 						log.warn("No site found with id {}", messageSiteId);

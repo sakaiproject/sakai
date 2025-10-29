@@ -46,13 +46,16 @@
 <div class="portletBody container-fluid">
 	#if ($isOnWorkspaceTab.equals("false"))
 		#if($menu && $EnabledMenuItemExists)
-			#if ($toolId == "sakai.synoptic.announcement")
-				<ul class="navIntraTool actionToolBar" role="menu">
-					<li class="firstToolBarItem" role="menuitem"><span><a href="#" title="$tlang.getString("gen.recopt")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
-						$tlang.getString("custom.options")
-						<span class="skip">$toolTitle</span>
-					</a></span></li>
-				</ul>
+			#set($isSynopticTool = $toolId == "sakai.synoptic.announcement")
+			#if ($isSynopticTool)
+				#if ($showOptionsButton)
+					<ul class="navIntraTool actionToolBar" role="menu">
+						<li class="firstToolBarItem" role="menuitem"><span><a href="#" title="$tlang.getString("gen.recopt")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
+							$tlang.getString("custom.options")
+							<span class="skip">$toolTitle</span>
+						</a></span></li>
+					</ul>
+				#end
 			#else
 				#toolbar($menu)
 			#end
@@ -245,7 +248,6 @@
 								</th>									
 							#end
 						</tr>
-						#if ($!view == "view.all")
 						#set ($rowCount=0)
 						#foreach ($ann_item in $showMessagesList)
 							#set ($rowCount =$rowCount + 1)
@@ -337,7 +339,6 @@
 					</div>
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
-			#end
 		#else
 			</div> ##end navPanel						
 			<div class="instruction clear">

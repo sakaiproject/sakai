@@ -50,11 +50,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-portal-util</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>jtidy</groupId>
                 <artifactId>jtidy</artifactId>
                 <version>r938</version>

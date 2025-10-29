@@ -480,7 +480,14 @@ public class ElasticSearchTest {
 
         elasticSearchIndexBuilder.refreshIndex();
 
-        assertTrue(elasticSearchService.getNDocs() == 106);
+        long actualDocs = elasticSearchService.getNDocs();
+        int retries = 10;
+        while (actualDocs != 106 && retries-- > 0) {
+            wait(50);
+            actualDocs = elasticSearchService.getNDocs();
+        }
+        log.info("testRefreshSite: actual docs = {}, expecting 106", actualDocs);
+        assertTrue("The number of docs is " + actualDocs + " expecting 106.", actualDocs == 106);
 
         elasticSearchService.refreshSite(siteId);
 

@@ -27,6 +27,8 @@ public class LearnerExperience implements Serializable
 
 	@Setter @Getter private String learnerName;
 	@Setter @Getter private String learnerId;
+	@Setter @Getter private String sortName;
+	@Setter @Getter private String displayId;
 	@Setter @Getter private String progress;
 	@Setter @Getter private String score;
 	@Setter @Getter private String previousLearnerIds;
@@ -38,9 +40,13 @@ public class LearnerExperience implements Serializable
 
 	public LearnerExperience(Learner learner, long contentPackageId)
 	{
-		this.learnerName = new StringBuilder(learner.getDisplayName()).append(" (").append(learner.getDisplayId()).append(")").toString();
+		// Display learner as "Surname, Firstname (displayId)" to match other tools
+		this.learnerName = new StringBuilder(learner.getSortName()).append(" (").append(learner.getDisplayId()).append(")").toString();
 		this.learnerId = learner.getId();
+		this.sortName = learner.getSortName();
+		this.displayId = learner.getDisplayId();
 		this.contentPackageId = contentPackageId;
 		this.numberOfAttempts = 0;
 	}
+
 }

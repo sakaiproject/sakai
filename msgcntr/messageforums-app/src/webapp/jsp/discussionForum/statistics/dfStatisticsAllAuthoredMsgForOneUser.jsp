@@ -114,13 +114,14 @@
 
 			</script>
 
-  	       	<script>includeLatestJQuery("msgcntr");</script>
+			<script>includeLatestJQuery("msgcntr");</script>
 			<script src="/messageforums-tool/js/sak-10625.js"></script>
 			<script src="/messageforums-tool/js/forum.js"></script>
 			<script src="/messageforums-tool/js/messages.js"></script>
+			<script>includeWebjarLibrary('bootstrap')</script>
 			<script src="/messageforums-tool/js/dialog.js"></script>
-  			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
-  			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
+			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
+			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
 
 			<script>
 				$(document).ready(function() {
@@ -138,8 +139,7 @@
 				});
 
 				function dialogLinkClick(link){
-					var position =  $(link).position();
-					dialogutil.openDialog('dialogDiv', 'dialogFrame', position.top);
+					dialogutil.openDialog('dialogDiv', 'dialogFrame');
 				}
 			</script>
 
@@ -196,9 +196,27 @@
 			  	<h:outputText value="#{msgs.cdfm_grade_successful}"/>
 			  </div>
 
-			  <div id="dialogDiv" title="Grade Messages" style="display:none">
-			    <iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
-			  </div>
+			<div class="modal fade" id="dialogDiv" data-dialog-frame="dialogFrame" tabindex="-1" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="dialogDivLabel">
+				<div class="modal-dialog modal-xl modal-dialog-centered">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="dialogDivLabel">
+								<h:outputText value="#{msgs.cdfm_grade_msg}" />
+							</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal">
+								<span class="visually-hidden">
+									<h:outputText value="#{msgs.close_window}" />
+								</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<f:verbatim>
+								<iframe id="dialogFrame" name="dialogFrame" class="grade-modal-frame" title="</f:verbatim><h:outputText value="#{msgs.cdfm_grade_msg}" /><f:verbatim>"></iframe>
+							</f:verbatim>
+						</div>
+					</div>
+				</div>
+			</div>
 
 			  <div style="font-weight:bold;" styleClass="specialLink">
 					<h:commandLink action="#{mfStatisticsBean.toggleTopicTitleSort3}" title=" #{msgs.stat_sort_by_topic}">

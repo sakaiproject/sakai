@@ -4089,12 +4089,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                         realName = candidateName;
                         done.put(candidateName, 1);
                     } else {
-                        String fileName = FilenameUtils.removeExtension(candidateName);
+                        String fileName = org.springframework.util.StringUtils.stripFilenameExtension(candidateName);
                         String fileExt = org.springframework.util.StringUtils.getFilenameExtension(candidateName);
-                        if (!"".equals(fileExt.trim())) {
-                            fileExt = "." + fileExt;
-                        }
-                        realName = fileName + "+" + already + fileExt;
+                        realName = org.springframework.util.StringUtils.hasText(fileExt)
+                                ?  fileName + "+" + already + "." + fileExt
+                                :  fileName + "+" + already;
                         done.put(candidateName, already + 1);
                     }
 
@@ -4274,7 +4273,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public Optional<List<String>> getTransferOptions() {
-        return Optional.of(Arrays.asList(new String[] { EntityTransferrer.PUBLISH_OPTION }));
+        return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION, EntityTransferrer.PUBLISH_OPTION }));
     }
 
     @Override
@@ -4537,7 +4536,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
                                 } else {
                                     if (newGbAssignment != null) {
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbAssignment.getId().toString());
+                                        if (StringUtils.isNotBlank(newGbAssignment.getId().toString())) {
+                                            nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbAssignment.getId().toString());
+                                        }
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
                                     } else {
                                         nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
@@ -4567,7 +4568,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                             false,
                                             categoryId,
                                             null);
-                                    nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                    if (StringUtils.isNotBlank(nAssignmentRef)) {
+                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                    }
                                     nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
                                 } else {
                                     // internal gradebook items should have already been created and are linked using a Long or a title
@@ -4578,7 +4581,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
                                     } else {
                                         // gb item found just link it
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbAssignment.getId().toString());
+                                        if (StringUtils.isNotBlank(newGbAssignment.getId().toString())) {
+                                            nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newGbAssignment.getId().toString());
+                                        }
                                         nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
                                     }
                                 }
@@ -4743,6 +4748,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
         return getAssignmentsForContext(fromContext).stream()
             .map(ass -> Map.of("id", ass.getId(), "title", ass.getTitle())).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getToolPermissionsPrefix() {
+        return AssignmentServiceConstants.SECURE_PERMISSION_PREFIX;
     }
 
     private String transferAttachment(String fromContext, String toContext, String oAttachmentId, MergeConfig mcx) {

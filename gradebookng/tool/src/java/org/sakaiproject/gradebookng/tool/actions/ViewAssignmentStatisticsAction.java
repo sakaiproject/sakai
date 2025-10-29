@@ -41,7 +41,6 @@ public class ViewAssignmentStatisticsAction extends InjectableAction implements 
 		AssignmentStatisticsPanel content = new AssignmentStatisticsPanel(window.getContentId(),
 				Model.of(Long.valueOf(assignmentId)),
 				window);
-		content.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		window.setContent(content);
 		window.show(target);
 

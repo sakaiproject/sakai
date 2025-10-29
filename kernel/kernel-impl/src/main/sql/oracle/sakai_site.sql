@@ -353,8 +353,6 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!user-120', '!user-100', '!user', 'sakai.ifr
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-130', '!user-100', '!user', 'sakai.summary.calendar', 2, 'Calendar', '0,1' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-140', '!user-100', '!user', 'sakai.synoptic.announcement', 2, 'Recent Announcements', '1,1' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-145', '!user-100', '!user', 'sakai.synoptic.messagecenter', 2, 'Unread Messages and Forums', '1,1' );
-INSERT INTO SAKAI_SITE_PAGE VALUES('!user-150', '!user', 'Profile', '0', 2, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!user-165', '!user-150', '!user', 'sakai.profile2', 1, 'Profile', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-200', '!user', 'Membership', '0', 3, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-210', '!user-200', '!user', 'sakai.membership', 1, 'Membership', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-300', '!user', 'Calendar', '0', 4, '0' );

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,11 +27,13 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.json.simple.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.Period;
 
+import org.sakaiproject.serialization.MapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -42,8 +45,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-import org.sakaiproject.accountvalidator.logic.ValidationLogic;
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.model.ValidationAccount;
+import org.sakaiproject.accountvalidator.api.service.AccountValidationService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
@@ -57,6 +60,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.site.api.SiteService;
 
 @Slf4j
 @Controller
@@ -84,7 +88,7 @@ public class MainController {
     private EventTrackingService eventService;
 
     @Autowired
-    private ValidationLogic validationLogic;
+    private AccountValidationService avService;
 
     @Autowired
     private UserDirectoryService userDirectoryService;
@@ -92,7 +96,9 @@ public class MainController {
     @Autowired
     private SecurityService securityService;
 
-    private Locale userLocale;
+    @Autowired
+    private SiteService siteService;
+
     private static final String SECURE_UPDATE_USER_ANY = org.sakaiproject.user.api.UserDirectoryService.SECURE_UPDATE_USER_ANY;
     private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
     private static final int MAX_PASSWORD_RESET_MINUTES_DEFAULT = 60;
@@ -101,7 +107,14 @@ public class MainController {
     private Locale localeResolver(HttpServletRequest request, HttpServletResponse response) {
 
         String userId = sessionManager.getCurrentSessionUserId();
-        final Locale loc = StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault();
+        Placement placement = toolManager.getCurrentPlacement();
+        String context = placement != null ? placement.getContext() : null;
+
+        Locale loc = Optional.ofNullable(context)
+                .filter(StringUtils::isNotBlank)
+                .flatMap(c -> siteService.getSiteLocale(c))
+                .orElseGet(() -> StringUtils.isNotBlank(userId) ? preferencesService.getLocale(userId) : Locale.getDefault());
+
         LocaleResolver localeResolver = RequestContextUtils.getLocaleResolver(request);
         localeResolver.setLocale(request, response, loc);
 
@@ -111,10 +124,10 @@ public class MainController {
     @RequestMapping(value = "/")
     public String showIndex(Model model, HttpServletRequest req, HttpServletResponse response) {
         
-        userLocale = localeResolver(req, response);
+        Locale locale = localeResolver(req, response);
         
         int totalMinutes = serverConfigurationService.getInt(MAX_PASSWORD_RESET_MINUTES, MAX_PASSWORD_RESET_MINUTES_DEFAULT);
-        String explanation = messageSource.getMessage("explanation", new String[]{getFormattedMinutes(totalMinutes)}, userLocale);
+        String explanation = messageSource.getMessage("explanation", new String[]{getFormattedMinutes(totalMinutes, locale)}, locale);
         model.addAttribute("explanation", explanation);
         
         Placement placement = toolManager.getCurrentPlacement();
@@ -131,16 +144,18 @@ public class MainController {
     public @ResponseBody
     String resetPass(HttpServletRequest req, HttpServletResponse response, Model model, @RequestBody String requestString) {
 
-        userLocale = localeResolver(req, response);
-        JSONObject jsonResponse = new JSONObject();
+        Locale locale = localeResolver(req, response);
+
+        ObjectMapper objectMapper = MapperFactory.createDefaultJsonMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
 
         boolean validatingAccounts = serverConfigurationService.getBoolean("siteManage.validateNewUsers", true);
         String emailSentMessage = null;
 
         if (validatingAccounts) {
-            emailSentMessage = messageSource.getMessage("confirm.validate", new String[]{serverConfigurationService.getString("ui.service", "Sakai"), requestString}, userLocale);
+            emailSentMessage = messageSource.getMessage("confirm.validate", new String[]{serverConfigurationService.getString("ui.service", "Sakai"), requestString}, locale);
         } else {
-            emailSentMessage = messageSource.getMessage("confirm", new String[]{requestString}, userLocale);
+            emailSentMessage = messageSource.getMessage("confirm", new String[]{requestString}, locale);
         }
 
         Placement placement = toolManager.getCurrentPlacement();
@@ -152,17 +167,17 @@ public class MainController {
             supportMessage = supportInstructions;
 
         } else if (serverConfigurationService.getString("mail.support", null) != null) {
-            supportMessage = messageSource.getMessage("supportMessage", null, userLocale);
+            supportMessage = messageSource.getMessage("supportMessage", null, locale);
             supportEmail = serverConfigurationService.getString("mail.support", "");
         }
 
-        String exceptionMessage = messageSource.getMessage("confirm.validate", new String[]{serverConfigurationService.getString("ui.service", "Sakai"), requestString}, userLocale);
-        String errorMsg = this.validateErrors(requestString);
+        String exceptionMessage = messageSource.getMessage("confirm.validate", new String[]{serverConfigurationService.getString("ui.service", "Sakai"), requestString}, locale);
+        String errorMsg = this.validateErrors(requestString, locale);
         boolean exceptionMsg = this.validateExceptions(requestString);
 
         if (errorMsg == null && !exceptionMsg) {
             jsonResponse.put("email_sent_msg", emailSentMessage);
-            processAction(requestString);
+            processAction(requestString, locale);
             
             if (supportMessage != null){
                 jsonResponse.put("support_msg", supportMessage);
@@ -181,60 +196,64 @@ public class MainController {
             jsonResponse.put("error_msg", errorMsg);
         }
 
-        return jsonResponse.toJSONString();
+        return jsonResponse.toString();
     }
 
-    private void processAction(String email) {
+    private void processAction(String email, Locale locale) {
         //siteManage.validateNewUsers = false use the classic method:
         boolean validatingAccounts = serverConfigurationService.getBoolean("siteManage.validateNewUsers", true);
         if (!validatingAccounts) {
-            resetPassClassic(email);
+            resetPassClassic(email, locale);
         } else {
-            // SAK-26189 record event in similar way to resetPassClassic()
+            // record event in a similar way to resetPassClassic()
             Collection<User> users = userDirectoryService.findUsersByEmail(email);
-            User user = (User) users.iterator().next();
-            String userId = user.getId();
-            eventService.post(eventService.newEvent("user.resetpass", user.getReference() , true));
+            if (!users.isEmpty()) {
+                User user = users.iterator().next();
+                String userId = user.getId();
+                eventService.post(eventService.newEvent("user.resetpass", user.getReference(), true));
 
-            if (!validationLogic.isAccountValidated(userId)) {
-                log.debug("account is not validated");
-                //its possible that the user has an outstanding Validation
-                ValidationAccount va = validationLogic.getVaLidationAcountByUserId(userId);
-                if (va == null) {
-                    //we need to validate the account.
-                    log.debug("This is a legacy user to validate!");
-                    validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+                if (!avService.isAccountValidated(userId)) {
+                    log.debug("account is not validated");
+                    // it is possible that the user has an outstanding Validation
+                    ValidationAccount va = avService.getValidationAccountByUserId(userId);
+                    if (va == null) {
+                        //we need to validate the account.
+                        log.debug("This is a legacy user to validate!");
+                        avService.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+                    } else {
+                        log.debug("resending validation");
+                        avService.resendValidation(va.getValidationToken());
+                    }
+
                 } else {
-                    log.debug("resending validation");
-                    validationLogic.resendValidation(va.getValidationToken());
-                }
+                    //there may be a pending VA that needs to be verified
+                    ValidationAccount va = avService.getValidationAccountByUserId(userId);
 
+                    if (va == null) {
+                        // the account is validated need to send a password reset
+                        log.info("no account found!");
+                        avService.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+                    } else if (va.getValidationReceived() == null) {
+                        log.debug("no response on validation!");
+                        avService.resendValidation(va.getValidationToken());
+                    } else {
+                        log.debug("creating a new validation for password reset");
+                        avService.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
+                    }
+                }
             } else {
-                //there may be a pending VA that needs to be verified
-                ValidationAccount va = validationLogic.getVaLidationAcountByUserId(userId);
-
-                if (va == null ) {
-                    //the account is validated we need to send a password reset
-                    log.info("no account found!");
-                    validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-                } else if (va.getValidationReceived() == null) {
-                    log.debug("no response on validation!");
-                    validationLogic.resendValidation(va.getValidationToken());
-                } else {
-                    log.debug("creating a new validation for password reset");
-                    validationLogic.createValidationAccount(userId, ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET);
-                }
+                log.warn("user not found, no such email [{}]", email);
             }
         }
     }
 
     /*
      * The classic method that mails a new password
-     * template is constructed from strings in resource bundle
+     * template is constructed from strings in the resource bundle
      */
-    private void resetPassClassic(String email) {
+    private void resetPassClassic(String email, Locale locale) {
 
-        log.info("getting password for " + email);
+        log.debug("getting password for {}", email);
         String from = serverConfigurationService.getSmtpFrom();
 
         //now we need to reset the password
@@ -248,44 +267,46 @@ public class MainController {
         try {
             securityService.pushAdvisor(sa);
             Collection<User> users = userDirectoryService.findUsersByEmail(email);
-            User user = (User) users.iterator().next();
-            UserEdit userE = userDirectoryService.editUser(user.getId());
-            String pass = getRandPass();
-            userE.setPassword(pass);
-            userDirectoryService.commitEdit(userE);
+            if (!users.isEmpty()) {
+                User user = users.iterator().next();
+                UserEdit userE = userDirectoryService.editUser(user.getId());
+                String pass = getRandPass();
+                userE.setPassword(pass);
+                userDirectoryService.commitEdit(userE);
 
-            //securityService.popAdvisor(sa);
-            String productionSiteName = serverConfigurationService.getString("reset-pass.productionSiteName", "");
+                String productionSiteName = serverConfigurationService.getString("reset-pass.productionSiteName", "");
 
-            if(productionSiteName == null || "".equals(productionSiteName)){
-                productionSiteName = serverConfigurationService.getString("ui.service", "");
+                if (productionSiteName == null || productionSiteName.isEmpty()) {
+                    productionSiteName = serverConfigurationService.getString("ui.service", "Sakai");
+                }
+
+                StringBuilder buff = new StringBuilder();
+                buff.setLength(0);
+                buff.append(messageSource.getMessage("mailBodyPre", new String[]{userE.getDisplayName()}, locale));
+                buff.append(messageSource.getMessage("mailBody1", new String[]{productionSiteName, serverConfigurationService.getPortalUrl()}, locale));
+                buff.append(messageSource.getMessage("mailBody2", new String[]{userE.getEid()}, locale));
+                buff.append(messageSource.getMessage("mailBody3", new String[]{pass}, locale));
+
+                if (serverConfigurationService.getString("mail.support", null) != null) {
+                    buff.append(messageSource.getMessage("mailBody4", new String[]{serverConfigurationService.getString("mail.support")}, locale));
+                }
+
+                log.debug(messageSource.getMessage("mailBody1", new String[]{productionSiteName}, locale));
+                buff.append(messageSource.getMessage("mailBodySalut", null, locale));
+                buff.append(messageSource.getMessage("mailBodySalut1", new String[]{productionSiteName}, locale));
+
+                String body = buff.toString();
+
+                List<String> headers = new ArrayList<>();
+                headers.add("Precedence: bulk");
+
+                emailService.send(from, email, "mailSubject", body, email, null, headers);
+
+                log.info("New password emailed to: {} ({})", userE.getEid(), userE.getId());
+                eventService.post(eventService.newEvent("user.resetpass", userE.getReference(), true));
+            } else {
+                log.warn("user not found, no such email [{}]", email);
             }
-
-            StringBuffer buff = new StringBuffer();
-            buff.setLength(0);
-            buff.append(messageSource.getMessage("mailBodyPre",new String[]{userE.getDisplayName()}, userLocale));
-            buff.append(messageSource.getMessage("mailBody1",new String[]{productionSiteName, serverConfigurationService.getPortalUrl()}, userLocale));
-            buff.append(messageSource.getMessage("mailBody2",new String[]{userE.getEid()}, userLocale));
-            buff.append(messageSource.getMessage("mailBody3",new String[]{pass}, userLocale));
-
-            if (serverConfigurationService.getString("mail.support", null) != null ){
-                buff.append(messageSource.getMessage("mailBody4",new String[]{serverConfigurationService.getString("mail.support")}, userLocale));
-            }
-
-            log.debug(messageSource.getMessage("mailBody1",new String[]{productionSiteName}, userLocale));
-            buff.append(messageSource.getMessage("mailBodySalut", null, userLocale));
-            buff.append(messageSource.getMessage("mailBodySalut1",new String[]{productionSiteName}, userLocale));
-
-            String body = buff.toString();
-
-            List<String> headers = new ArrayList<String>();
-            headers.add("Precedence: bulk");
-
-            emailService.send(from,email,"mailSubject", body, email, null, headers);
-
-            log.info("New password emailed to: " + userE.getEid() + " (" + userE.getId() + ")");
-            eventService.post(eventService.newEvent("user.resetpass", userE.getReference() , true));
-
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         } finally {
@@ -294,39 +315,36 @@ public class MainController {
     }
 
     private String getRandPass() {
-            // set password to a random positive number
-            Random generator = new Random(System.currentTimeMillis());
-            Integer num = generator.nextInt(Integer.MAX_VALUE);
-            if (num < 0) num = num * -1;
-            return num.toString();
+        // set the password to a random positive number
+        return Integer.toString(new Random(System.currentTimeMillis()).nextInt(Integer.MAX_VALUE));
     }
 
-    private String getFormattedMinutes(int totalMinutes) {
+    private String getFormattedMinutes(int totalMinutes, Locale locale) {
         // Create a joda time period (takes milliseconds)
-        Period period = new Period(totalMinutes*60*1000);
+        Period period = new Period(totalMinutes * 60 * 1000L);
         // format the period for the locale
         /* 
          * Covers English, Danish, Dutch, French, German, Japanese, Portuguese, and Spanish.
          * To translate into others, see http://joda-time.sourceforge.net/apidocs/org/joda/time/format/PeriodFormat.html#wordBased(java.util.Locale)
          * (ie. put the properties mentioned in http://joda-time.sourceforge.net/apidocs/src-html/org/joda/time/format/PeriodFormat.html#line.94 into the classpath resource bundle)
          */
-        PeriodFormatter periodFormatter = PeriodFormat.wordBased(userLocale);
+        PeriodFormatter periodFormatter = PeriodFormat.wordBased(locale);
         return periodFormatter.print(period);
     }
 
-    private String validateErrors(String email) {
+    private String validateErrors(String email, Locale locale) {
 
         String errorMsgs = null;
-        log.debug("validating user " + email);
+        log.debug("validating user {}", email);
 
         if (StringUtils.isBlank(email)) {
             log.debug("no email provided");
-            errorMsgs = messageSource.getMessage("noemailprovided", null, userLocale);
+            errorMsgs = messageSource.getMessage("noemailprovided", null, locale);
         }
 
         // Short circuit: domain provided not allowed
         List<String> invalidDomains = serverConfigurationService.getStringList(SAK_PROP_INVALID_EMAIL_DOMAINS, new ArrayList<>());
-        String wrongtype = messageSource.getMessage("wrongtype", null, userLocale);
+        String wrongtype = messageSource.getMessage("wrongtype", null, locale);
 
         if (invalidDomains.stream().anyMatch(d -> email.toLowerCase().contains(d.toLowerCase()))) {
             Placement placement = toolManager.getCurrentPlacement();
@@ -347,7 +365,7 @@ public class MainController {
 
         boolean exceptionMsg = false;
 
-        // User doesn't exist, null out the user and transfer to next page
+        // User doesn't exist, null out the user and transfer to the next page
         Collection<User> c = this.userDirectoryService.findUsersByEmail(email.trim());
 
         if (CollectionUtils.isEmpty(c) && StringUtils.isNotBlank(email)) {
@@ -360,12 +378,12 @@ public class MainController {
             exceptionMsg = true;
         }
 
-        // Email belongs to super user, null out the user and transfer to next page
+        // email belongs to the superuser, null out the user then transfer to the next page
         if (CollectionUtils.isNotEmpty(c)) {
-            User user = (User) c.iterator().next();
+            User user = c.iterator().next();
 
             if (securityService.isSuperUser(user.getId())) {
-                log.warn("tryng to change superuser password");
+                log.warn("attempting to change superuser password");
                 exceptionMsg = true;
             }
         }

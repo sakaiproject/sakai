@@ -85,6 +85,9 @@ public final class AssignmentServiceConstants {
      * Security function giving the user permission to share drafts within his/her role for a given site
      */
     public static final String SECURE_SHARE_DRAFTS = "asn.share.drafts";
+
+    public static final String SECURE_PERMISSION_PREFIX = "asn";
+
     /**
      * The Reference type for an assignment.
      */

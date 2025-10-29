@@ -38,9 +38,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Setter
 @RestController
 public class CalendarController extends AbstractSakaiApiController {
 

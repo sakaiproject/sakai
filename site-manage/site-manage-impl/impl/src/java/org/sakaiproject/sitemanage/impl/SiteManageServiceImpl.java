@@ -39,6 +39,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -95,6 +99,8 @@ public class SiteManageServiceImpl implements SiteManageService {
     @Setter private SiteService siteService;
     @Setter private ThreadLocalManager threadLocalManager;
     @Setter private ToolManager toolManager;
+    @Setter private FunctionManager functionManager;
+    @Setter private AuthzGroupService authzGroupService;
     @Setter private TransactionTemplate transactionTemplate;
     @Setter private UserDirectoryService userDirectoryService;
     @Setter private UserNotificationProvider userNotificationProvider;
@@ -398,7 +404,9 @@ public class SiteManageServiceImpl implements SiteManageService {
     @Override
     public void importToolsIntoSite(Site site, List<String> toolIds, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, boolean cleanup) {
 
-		if (MapUtils.isEmpty(importTools) && MapUtils.isEmpty(toolItemMap)) {
+		log.debug("toolIds={}, importTools={}, toolItemMap={}, toolOptions={}", toolIds, importTools, toolItemMap, toolOptions);
+
+		if (MapUtils.isEmpty(importTools) && MapUtils.isEmpty(toolItemMap) && MapUtils.isEmpty(toolOptions)) {
 			return;
 		}
 
@@ -408,6 +416,8 @@ public class SiteManageServiceImpl implements SiteManageService {
 			//add the toolId lists into a set to remove dupes
 			Set<String> toolsToProcess = new HashSet<>(toolIds);
 			toolsToProcess.addAll(importTools.keySet());
+			toolsToProcess.addAll(toolItemMap.keySet());
+			toolsToProcess.addAll(toolOptions.keySet());
 
 			//now compare what we have to what we need to add
 			final List<String> selectedTools = new ArrayList<>(toolsToProcess);
@@ -423,7 +433,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 				saveSite(site);
 			}
 
-			//now update toolIds to match importTools so that the content is imported
+			//now update toolIds so that selected content and options are imported
 			toolIds.clear();
 
 			if (MapUtils.isNotEmpty(importTools)) {
@@ -432,6 +442,13 @@ public class SiteManageServiceImpl implements SiteManageService {
 
 			if (MapUtils.isNotEmpty(toolItemMap)) {
 				toolIds.addAll(toolItemMap.keySet());
+			}
+
+			if (MapUtils.isNotEmpty(toolOptions)) {
+				Set<String> uniqueToolIds = new LinkedHashSet<>(toolIds);
+				uniqueToolIds.addAll(toolOptions.keySet());
+				toolIds.clear();
+				toolIds.addAll(uniqueToolIds);
 			}
 		}
 
@@ -452,6 +469,16 @@ public class SiteManageServiceImpl implements SiteManageService {
 		Set<String> siteIds = new LinkedHashSet<>();
 		Map<String, String> transversalMap = new HashMap<>();
 		final String toSiteId = site.getId();
+
+		// Begin populating siteIds from toolOptions because the user might only be copying tool permissions, Gradebook Settings, etc.
+		if (MapUtils.isNotEmpty(toolOptions)) {
+			for (String toolId : toolOptions.keySet()) {
+				Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
+				for (String fromSiteId : siteOptions.keySet()) {
+					siteIds.add(fromSiteId);
+				}
+			}
+		}
 
 		// import resources first
 		boolean resourcesImported = false;
@@ -501,14 +528,39 @@ public class SiteManageServiceImpl implements SiteManageService {
 		for (String toolId : toolIds) {
 			if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID)) {
 				Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
+				Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
 
 				List<String> fullyImportedSiteIds = importTools.getOrDefault(toolId, Collections.EMPTY_LIST);
 				for (String fromSiteId : fullyImportedSiteIds) {
-					doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, Collections.EMPTY_MAP, cleanup, false);
+					doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
 				}
 
-				for (String fromSiteId : siteItems.keySet()) {
-					doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, Collections.EMPTY_MAP, cleanup, false);
+				// Gradebook is a special case for importing because of its Copy Settings option.
+				// The instructor could have decided to copy settings without any other content from the tool.
+				Set<String> sIds = new HashSet<>();
+				if (siteItems != null) {
+					sIds.addAll(siteItems.keySet());
+				}
+				if (siteOptions != null) {
+					sIds.addAll(siteOptions.keySet());
+				}
+
+				for (String fromSiteId : sIds) {
+					if (!fullyImportedSiteIds.contains(fromSiteId)) { // There's no need to doImport if a full import already ran.
+						if (siteItems == null || !siteItems.containsKey(fromSiteId)) {
+							// Inject this pseudo-option to notify Gradebook logic that we only want to copy settings.
+							// Without this flag, transferGradebook will copy all items, which is not what the user selected.
+							if (siteOptions != null) {
+								List<String> options = siteOptions.get(fromSiteId);
+								if (options != null) {
+									List<String> mutableOptions = new ArrayList<>(options);
+									mutableOptions.add(EntityTransferrer.COPY_ONLY_SETTINGS_PSEUDO_OPTION);
+									siteOptions.put(fromSiteId, mutableOptions);
+								}
+							}
+						}
+						doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
+					}
 				}
 			}
 		}
@@ -517,8 +569,10 @@ public class SiteManageServiceImpl implements SiteManageService {
 		for (String toolId : toolIds) {
 			if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID) && importTools.containsKey(toolId)) {
 				Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
+				Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
+
 				for (String fromSiteId : importTools.get(toolId)) {
-					doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, Collections.EMPTY_MAP, cleanup, false);
+					doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
 				}
 			}
 		}
@@ -552,8 +606,9 @@ public class SiteManageServiceImpl implements SiteManageService {
 
 		// Copy permissions from source sites to destination site
 		for (String fromSiteId : siteIds) {
-			log.debug("Copying permissions from site {} to site {}", fromSiteId, toSiteId);
-			copyToolPermissions(fromSiteId, toSiteId);
+			Set<String> toolPermissions = getToolPermissionCandidatesToCopy(fromSiteId, importTools, toolOptions);
+			log.debug("Copying permissions from site {} to site {} out of this possible set {}", fromSiteId, toSiteId, toolPermissions);
+			copyToolPermissions(fromSiteId, toSiteId, toolPermissions);
 		}
 
 		// Handle the Context.id.history
@@ -697,6 +752,55 @@ public class SiteManageServiceImpl implements SiteManageService {
         return transversalMap;
     }
 
+    private Set<String> getToolPermissionCandidatesToCopy(String siteId, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolOptions) {
+
+		Set<String> toolIds = new HashSet<>();
+		if (importTools != null) {
+			toolIds.addAll(importTools.keySet());
+		}
+		if (toolOptions != null) {
+			toolIds.addAll(toolOptions.keySet()); // the instructor might want to copy permissions without any other content from the tool
+		}
+
+		Set<String> toolPermissions = new HashSet<>();
+		for (String toolId : toolIds) {
+
+			// set copyPermissionsSelected to true if a copy permissions option is selected
+			boolean copyPermissionsSelected = false;
+			Map<String, List<String>> options = (toolOptions != null) ? toolOptions.get(toolId) : null;
+			if (options != null) {
+				List<String> siteOptions = options.get(siteId);
+				copyPermissionsSelected = siteOptions != null && siteOptions.contains(EntityTransferrer.COPY_PERMISSIONS_OPTION);
+			}
+
+			for (EntityProducer ep : entityManager.getEntityProducers()) {
+				if (ep instanceof EntityTransferrer) {
+					try {
+						EntityTransferrer et = (EntityTransferrer) ep;
+						// if this producer claims this tool id
+						if (ArrayUtil.contains(et.myToolIds(), toolId)) {
+							// if the copy permission option was explicitly selected
+							// or the tool does not have a relevant Permissions panel configurable by an instructor
+							if (copyPermissionsSelected || !et.supportsTransferOption(EntityTransferrer.COPY_PERMISSIONS_OPTION)) {
+								String prefix = et.getToolPermissionsPrefix();
+								if (prefix != null) { // Only fetch registered functions that are tool specific
+									List<String> perms = functionManager.getRegisteredFunctions(et.getToolPermissionsPrefix());
+									if (perms != null && ! perms.isEmpty()) {
+										toolPermissions.addAll(perms);
+									}
+								}
+							}
+							break;
+						}
+					} catch (Exception e) {
+						log.error("Could not copy permissions encountered", e);
+					}
+				}
+			}
+		}
+		return toolPermissions;
+    }
+
     private Map<String, String> getDirectToolUrlEntityReferences(String toolId, String fromSiteId, String toSiteId) {
 
         Map<String, String> transversalMap = new HashMap<>();
@@ -813,29 +917,40 @@ public class SiteManageServiceImpl implements SiteManageService {
      * @param toSiteId The destination site ID
      */
     private void copyToolPermissions(String fromSiteId, String toSiteId) {
+	    copyToolPermissions(fromSiteId, toSiteId, null);
+    }
+
+    /**
+     * Copy tool permissions from source site to destination site
+     * @param fromSiteId The source site ID
+     * @param toSiteId The destination site ID
+     * @param permissionCandidatesForCopying A set of permissions to allow for copying. If null, copy everything.
+     */
+    private void copyToolPermissions(String fromSiteId, String toSiteId, Set<String> permissionCandidatesForCopying) {
         try {
             // Get the source site
             log.debug("Starting tool permissions copy from site {} to site {}", fromSiteId, toSiteId);
             Site fromSite = siteService.getSite(fromSiteId);
             // Get the destination site
-            Site toSite = siteService.getSite(toSiteId);
-            
+            AuthzGroup toRealm = authzGroupService.getAuthzGroup(siteService.siteReference(toSiteId));
+            boolean copyEverything = (permissionCandidatesForCopying == null);
+            // Precompute permissions to copy once
+            Set<String> permissionsToCopy = copyEverything
+		    ? new HashSet<>(functionManager.getRegisteredFunctions())
+		    : new HashSet<>(permissionCandidatesForCopying);
+
             // Copy all role permissions from source site to destination site
             Set<Role> fromRoles = fromSite.getRoles();
             log.debug("Found {} roles in source site", fromRoles.size());
             
             for (Role fromRole : fromRoles) {
                 String roleName = fromRole.getId();
-                try {
-                    // Get the corresponding role in the destination site
-                    Role toRole = toSite.getRole(roleName);
-                    if (toRole != null) {
-                        // Get all permissions from the source role
-                        Set<String> allPermissions = fromRole.getAllowedFunctions();
-                        log.debug("Copying {} permissions for role {}", allPermissions.size(), roleName);
+                // Get the corresponding role in the destination site
+                Role toRole = toRealm.getRole(roleName);
+                if (toRole != null) {
+                        log.debug("Copying {} permissions for role {}", permissionsToCopy, roleName);
                         
-                        // Copy all permissions (don't filter by tool)
-                        for (String permission : allPermissions) {
+                        for (String permission : permissionsToCopy) {
                             // If the source role has this permission, add it to the destination role
                             if (fromRole.isAllowed(permission)) {
                                 toRole.allowFunction(permission);
@@ -846,22 +961,19 @@ public class SiteManageServiceImpl implements SiteManageService {
                                 log.debug("Disallowing permission {} for role {}", permission, roleName);
                             }
                         }
-                    } else {
-                        log.warn("Role {} not found in destination site {}", roleName, toSiteId);
-                    }
-                } catch (Exception e) {
-                    log.warn("Could not find role {} in destination site {}, {}", roleName, toSiteId, e.toString());
+                } else {
+			log.warn("Role {} not found in destination site {}", roleName, toSiteId);
                 }
             }
             
-            // Save the destination site with the updated permissions
-            siteService.save(toSite);
+            // Save the destination site's updated permissions
+            authzGroupService.save(toRealm);
             log.debug("Successfully copied all tool permissions from site {} to site {}", fromSiteId, toSiteId);
             
-        } catch (IdUnusedException e) {
-            log.warn("Could not find site when copying permissions: {}", e.toString());
+        } catch (IdUnusedException | GroupNotDefinedException e) {
+            log.warn("Could not find site realm when copying permissions from {} to {}.", fromSiteId, toSiteId, e);
         } catch (Exception e) {
-            log.error("Could not copy tool permissions from site {} to site {}", fromSiteId, toSiteId, e.toString());
+            log.error("Could not copy tool permissions from site {} to site {}", fromSiteId, toSiteId, e);
         }
     }
 }

@@ -74,7 +74,7 @@ public class ContentPackageResourceStream implements IResourceStream
 		}
 		catch (ResourceNotFoundException rnfe)
 		{
-			log.error("Could not return input stream for resource: {}", resource.getPath());
+			log.debug("Could not return input stream for resource [{}]", resource.getPath(), rnfe.toString());
 			throw new ResourceStreamNotFoundException("The requested resource was not found: " + resource.getPath());
 		}
 
@@ -108,7 +108,7 @@ public class ContentPackageResourceStream implements IResourceStream
 	@Override
 	public Bytes length()
 	{
-		return Bytes.bytes(resource.getLength());
+		return Bytes.bytes(Math.max(0, resource.getLength()));
 	}
 
 	@Override

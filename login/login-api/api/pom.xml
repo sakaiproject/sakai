@@ -8,7 +8,6 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-login-api</name>
-  <groupId>org.sakaiproject.login</groupId>
   <artifactId>login-api</artifactId>
   <packaging>jar</packaging>
   <properties>

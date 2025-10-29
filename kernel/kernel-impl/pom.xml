@@ -224,10 +224,6 @@
             <artifactId>jakarta.mail</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
@@ -383,6 +379,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+           <groupId>org.mockito</groupId>
+           <artifactId>mockito-junit-jupiter</artifactId>
+           <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>3.23.1</version>
@@ -414,10 +415,6 @@
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>2.3.34</version>
-        </dependency>
-        <dependency>
-            <groupId>org.simpleframework</groupId>
-            <artifactId>simple-xml</artifactId>
         </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>

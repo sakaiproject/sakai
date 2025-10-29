@@ -8,7 +8,6 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-login-tool</name>
-  <groupId>org.sakaiproject.login</groupId>
   <artifactId>sakai-login-tool</artifactId>
   <packaging>war</packaging>
   <dependencies>
@@ -87,7 +86,6 @@
       <dependency>
           <groupId>org.springframework.security</groupId>
           <artifactId>spring-security-core</artifactId>
-          <version>${sakai.spring.security.version}</version>
           <exclusions>
               <exclusion>
                   <groupId>org.springframework</groupId>
@@ -124,7 +122,6 @@
       <dependency>
 	      <groupId>aopalliance</groupId>
 	      <artifactId>aopalliance</artifactId>
-	      <version>1.0</version>
 	      <scope>provided</scope>
       </dependency>
       <dependency>
@@ -134,7 +131,6 @@
       <dependency>
           <groupId>commons-httpclient</groupId>
           <artifactId>commons-httpclient</artifactId>
-          <version>3.1</version>
           <scope>compile</scope>
       </dependency>
   </dependencies>

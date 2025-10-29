@@ -1,17 +1,24 @@
-# sakai-widgets
+# @sakai-ui/sakai-widgets
+
+The Sakai widgets component.
+
+## Description
+
+This component provides a panel for displaying widgets in Sakai, such as announcements, calendar, forums, etc.
 
 ## Installation
 
 ```bash
-npm i @sakai-ui/sakai-widgets
+npm install @sakai-ui/sakai-widgets
 ```
 
 ## Usage
 
-```html
+```javascript
+import '@sakai-ui/sakai-widgets/sakai-widget-panel.js';
 
-<sakai-widgets></sakai-widgets>
-
+// In your HTML
+<sakai-widget-panel></sakai-widget-panel>
 ```
 
 ## Linting and formatting
@@ -19,8 +26,8 @@ npm i @sakai-ui/sakai-widgets
 To scan the project for linting and formatting errors, run
 
 ```bash
-npm run lint
-
+npm run lint:fix
+```
 
 ## Testing with Web Test Runner
 
@@ -29,3 +36,7 @@ To execute a single test run:
 ```bash
 npm run test
 ```
+
+## License
+
+ECL-2.0

@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.tool.messageforums.entityproviders;
 
+import java.time.format.FormatStyle;
 import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,12 +31,15 @@ import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -80,6 +84,15 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 
 	@Setter
 	private SecurityService securityService;
+
+	@Setter
+	private AnonymousManager anonymousManager;
+
+	@Setter
+	private UserTimeService userTimeService;
+
+	@Setter
+	private MessageForumsMessageManager messageManager;
 
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
@@ -512,21 +525,39 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		}
 		//For given 'topicIds' fetch recently updated threads
 		for(Message fm : (List<Message>) forumManager.getRecentDiscussionForumThreadsByTopicIds(topicIds, numberOfMessages)) {
-			//message has user_Id set in the 'modifiedBy' field, setting it to 'displayId' for display purpose
-			try {
-				String createdByDisplayName =  userDirectoryService.getUser(fm.getCreatedBy()).getDisplayName();
-				fm.setCreatedBy(createdByDisplayName);
-			} catch (UserNotDefinedException e) {
-				log.debug("User not defined for id '{}'.", fm.getCreatedBy());
-			}
-			try {
-				String modifiedByDisplayName =  userDirectoryService.getUser(fm.getModifiedBy()).getDisplayName();
-				fm.setModifiedBy(modifiedByDisplayName);
-			} catch (UserNotDefinedException e) {
-				log.debug("User not defined for id '{}'.", fm.getModifiedBy());
-			}
-			SparseMessage sm = new SparseMessage(fm,/* readStatus =*/ false,/* addAttachments =*/ true, developerHelperService.getServerURL());
 			Topic topic = fm.getTopic();
+			DiscussionForum discussionForum = null;
+			if (topic != null && topic.getBaseForum() instanceof DiscussionForum) {
+				discussionForum = (DiscussionForum) topic.getBaseForum();
+			}
+			String createdById = fm.getCreatedBy();
+			boolean skipMessage = false;
+			DiscussionTopic discussionTopic = null;
+			if (topic instanceof DiscussionTopic) {
+				discussionTopic = (DiscussionTopic) topic;
+				if (Boolean.TRUE.equals(discussionTopic.getModerated()) && !Boolean.TRUE.equals(fm.getApproved())) {
+					boolean canModerate = discussionForum != null && uiPermissionsManager.isModeratePostings(discussionTopic, discussionForum, userId, siteId);
+					boolean isAuthor = createdById != null && createdById.equals(userId);
+					if (!canModerate && !isAuthor) {
+						skipMessage = true;
+					}
+				}
+				if (!skipMessage && mustPostBeforeViewing(discussionTopic, discussionForum, userId, siteId)) {
+					skipMessage = true;
+				}
+			}
+			if (skipMessage) {
+				continue;
+			}
+			// Resolve author labels respecting anonymous topics without mutating the entity
+			String createdByDisplay = resolveAuthorLabel(createdById, discussionTopic, siteId);
+			String modifiedById = fm.getModifiedBy();
+			String modifiedByDisplay = resolveAuthorLabel(modifiedById, discussionTopic, siteId);
+			SparseMessage sm = new SparseMessage(fm,/* readStatus =*/ false,/* addAttachments =*/ true, developerHelperService.getServerURL());
+			sm.setCreatedBy(createdByDisplay);
+			sm.setModifiedBy(modifiedByDisplay);
+			Date last = fm.getModified() != null ? fm.getModified() : fm.getCreated();
+			sm.setLastModifiedDisplay(formatLastModified(last));
 			//setting forumId for the sparse message
 			if(topic != null && topic.getBaseForum() != null) {
 				sm.setForumId(topic.getBaseForum().getId());
@@ -534,5 +565,67 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 			messages.add(sm);
 		}
 		return messages;
+	}
+
+    private String formatLastModified(Date modifiedDate) {
+		if (modifiedDate == null || userTimeService == null) {
+			return "";
+		}
+
+		return userTimeService.dateTimeFormat(modifiedDate.toInstant(), FormatStyle.MEDIUM, FormatStyle.SHORT);
+	}
+
+	private boolean mustPostBeforeViewing(DiscussionTopic topic, DiscussionForum forum, String userId, String siteId) {
+		if (topic == null || !Boolean.TRUE.equals(topic.getPostFirst()) || userId == null) {
+			return false;
+		}
+
+		boolean hasOverride = forum != null && uiPermissionsManager.isModeratePostings(topic, forum, userId, siteId);
+		if (hasOverride || messageManager == null) {
+			return false;
+		}
+
+		int authoredCount = messageManager.findAuhtoredMessageCountByTopicIdByUserId(topic.getId(), userId);
+		return authoredCount == 0;
+	}
+
+	private String resolveAuthorLabel(String userId, DiscussionTopic topic, String siteId) {
+		if (userId == null) {
+			return "";
+		}
+
+		boolean showRealName = true;
+		if (anonymousManager != null && anonymousManager.isAnonymousEnabled() && topic != null && Boolean.TRUE.equals(topic.getPostAnonymous())) {
+			boolean revealIdsToRoles = Boolean.TRUE.equals(topic.getRevealIDsToRoles());
+			boolean canIdentify = false;
+			if (revealIdsToRoles && uiPermissionsManager != null) {
+				try {
+					if (toolManager != null && toolManager.getCurrentPlacement() != null) {
+						canIdentify = uiPermissionsManager.isIdentifyAnonAuthors(topic);
+					}
+				} catch (RuntimeException e) {
+					log.debug("Unable to evaluate identify-anon permission in Lessons context", e);
+				}
+			}
+			if (!canIdentify) {
+				showRealName = false;
+				if (siteId != null && !siteId.isEmpty()) {
+					String anonId = anonymousManager.getOrCreateAnonId(siteId, userId);
+					if (anonId != null) {
+						return anonId;
+					}
+				}
+			}
+		}
+
+		if (showRealName) {
+			try {
+				return userDirectoryService.getUser(userId).getDisplayName();
+			} catch (UserNotDefinedException e) {
+				log.debug("User not defined for id '{}'.", userId);
+			}
+		}
+
+		return userId;
 	}
 }

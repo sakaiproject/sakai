@@ -452,8 +452,6 @@ public class PrivateMessagesTool {
 
   @Getter
   private boolean showProfileInfoMsg = false;
-  @Getter
-  private boolean showProfileLink = false;
 
   private final DraftRecipientsDelegate drDelegate;
   
@@ -470,7 +468,6 @@ public class PrivateMessagesTool {
   public PrivateMessagesTool()
   {    
 	  showProfileInfoMsg = ServerConfigurationService.getBoolean("msgcntr.messages.showProfileInfo", true);
-	  showProfileLink = showProfileInfoMsg && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
 	  drDelegate = new DraftRecipientsDelegate();
 	  PrivateMessageSchedulerService = ComponentManager.get(PrivateMessageSchedulerService.class);
   }
@@ -1163,12 +1160,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
   public String calculateColumnClass() {
 	String columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,addressee,priority,taglist hidden-xs";
-	if (selectedTopic.getTopic().getTitle().equals("pvt_received")) {
-		columnClasses = "check,attach,reply,specialLink,date,created,priority,taglist hidden-xs";
-	} else if (selectedTopic.getTopic().getTitle().equals("pvt_sent")) {
-		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,addressee,priority,taglist hidden-xs";
-	} else if (selectedTopic.getTopic().getTitle().equals("pvt_drafts") || selectedTopic.getTopic().getTitle().equals("pvt_deleted") || selectedTopic.getTopic().getTitle().equals("pvt_scheduler")) {
-		columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,priority,taglist hidden-xs";
+	if (selectedTopic != null && selectedTopic.getTopic() != null) {
+		final String topicTitle = selectedTopic.getTopic().getTitle();
+		if (PVTMSG_MODE_RECEIVED.equals(topicTitle)) {
+			columnClasses = "check,attach,reply,specialLink,date,created,priority,taglist hidden-xs";
+		} else if (PVTMSG_MODE_SENT.equals(topicTitle)) {
+			columnClasses = "check,attach,reply,specialLink,date,dateScheduler,addressee,priority,taglist hidden-xs";
+		} else if (PVTMSG_MODE_DRAFT.equals(topicTitle) || PVTMSG_MODE_DELETE.equals(topicTitle) || PVTMSG_MODE_SCHEDULER.equals(topicTitle)) {
+			columnClasses = "check,attach,reply,specialLink,date,dateScheduler,created,priority,taglist hidden-xs";
+		}
 	}
 	return columnClasses;
   }
@@ -2484,6 +2484,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			    return null;
 		    }
 	    }
+	    rrepMsg.setExternalEmail(booleanEmailOut);
 	    rrepMsg.setScheduler(booleanSchedulerSend);
 
 	    Map<User, Boolean> recipients = getRecipients();
@@ -2876,6 +2877,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			    return;
 		    }
 	    }
+	    rrepMsg.setExternalEmail(booleanEmailOut);
 	    rrepMsg.setScheduler(booleanSchedulerSend);
 
 	    Map<User, Boolean> recipients = getRecipients();
@@ -3184,6 +3186,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	            return null;
 	        }
 		  }
+		    rrepMsg.setExternalEmail(booleanEmailOut);
 		    rrepMsg.setScheduler(booleanSchedulerSend);
 
 	        if(booleanSchedulerSend && !rrepMsg.getDraft()) {
