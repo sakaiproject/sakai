@@ -18,6 +18,7 @@ package org.sakaiproject.scorm.service.api;
 import java.util.Optional;
 
 import org.sakaiproject.scorm.service.api.launch.ScormLaunchContext;
+import org.sakaiproject.scorm.service.api.launch.ScormLaunchState;
 import org.sakaiproject.scorm.service.api.launch.ScormNavigationRequest;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeInvocation;
 import org.sakaiproject.scorm.service.api.launch.ScormRuntimeResult;
@@ -31,6 +32,13 @@ public interface ScormLaunchService
 {
     /**
      * Create or resume a SCORM launch session for the current user.
+     *
+     * <p>The resulting context includes a {@code sessionId} only when a session has been registered. When
+     * {@link ScormLaunchContext#getState()} returns {@link ScormLaunchState#READY} (or {@link ScormLaunchState#CHOICE_REQUIRED})
+     * the caller may proceed with runtime and navigation requests using the provided identifier. For
+     * {@link ScormLaunchState#DENIED} or {@link ScormLaunchState#ERROR}, no session is registered and the identifier will be null.
+     * Active sessions are automatically expired by the {@link org.sakaiproject.scorm.service.impl.ScormLaunchSessionRegistry}
+     * after its configured time-to-live (two hours by default) or can be removed eagerly via {@link #closeSession(String)}.
      *
      * @param contentPackageId the numeric identifier of the content package
      * @param request optional launch navigation override (e.g., force start/resume)

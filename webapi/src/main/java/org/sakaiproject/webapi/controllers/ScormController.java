@@ -47,6 +47,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 @RestController
 @RequestMapping(path = "/scorm", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ScormController extends AbstractSakaiApiController
@@ -58,6 +61,10 @@ public class ScormController extends AbstractSakaiApiController
     public ScormSessionResponse createSession(@RequestBody ScormSessionRequest request)
     {
         checkSakaiSession();
+        if (request.getContentPackageId() <= 0)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "contentPackageId must be positive");
+        }
 
         Optional<ScormNavigationRequest> navRequest = request.navigationRequest()
             .map(ScormNavigationRequest::ofRequest);
@@ -239,6 +246,7 @@ public class ScormController extends AbstractSakaiApiController
 
     @Data
     @Builder
+    @JsonInclude(Include.NON_NULL)
     private static class ScormSessionResponse
     {
         private final String sessionId;

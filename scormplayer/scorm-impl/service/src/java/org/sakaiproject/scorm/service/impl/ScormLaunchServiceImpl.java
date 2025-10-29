@@ -18,6 +18,7 @@ package org.sakaiproject.scorm.service.impl;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -113,9 +114,14 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
             launchPath = outcome.launchPath;
         }
 
-        String sessionId = sessionRegistry.register(sessionBean, contentPackage, userId);
+        String effectiveMessage = resolveMessage(state, message);
+        String sessionId = null;
+        if (state != ScormLaunchState.DENIED && state != ScormLaunchState.ERROR)
+        {
+            sessionId = sessionRegistry.register(sessionBean, contentPackage, userId, state, effectiveMessage);
+        }
 
-        return buildContext(sessionId, sessionBean, contentPackage, launchPath, state, message);
+        return buildContext(sessionId, sessionBean, contentPackage, launchPath, state, effectiveMessage);
     }
 
     @Override
@@ -123,83 +129,107 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
     {
         return sessionRegistry.lookup(sessionId)
             .filter(entry -> StringUtils.equals(requireSession().getUserId(), entry.getUserId()))
-            .map(entry -> buildContext(sessionId, entry.getSessionBean(), entry.getContentPackage(), resolveLaunchPath(entry.getSessionBean()).orElse(null), ScormLaunchState.READY, null));
+            .map(entry -> buildContext(sessionId, entry.getSessionBean(), entry.getContentPackage(), resolveLaunchPath(entry.getSessionBean()).orElse(null), entry.getState(), resolveMessage(entry.getState(), entry.getMessage())));
     }
 
-    @Override
-    public ScormLaunchContext navigate(String sessionId, ScormNavigationRequest request)
-    {
-        ScormLaunchSessionRegistry.Entry entry = getOwnedEntry(sessionId);
-        SessionBean sessionBean = entry.getSessionBean();
+	@Override
+	public ScormLaunchContext navigate(String sessionId, ScormNavigationRequest request)
+	{
+		ReentrantLock lock = requireSessionLock(sessionId);
+		lock.lock();
+		try
+		{
+			ScormLaunchSessionRegistry.Entry entry = getOwnedEntry(sessionId);
+			SessionBean sessionBean = entry.getSessionBean();
 
-        RestResourceNavigator navigator = new RestResourceNavigator();
-        ScormLaunchState state = ScormLaunchState.READY;
-        String message = null;
-        String launchPath = null;
+			RestResourceNavigator navigator = new RestResourceNavigator();
+			ScormLaunchState state = ScormLaunchState.READY;
+			String message = null;
+			String launchPath = null;
 
-        if (request.navigationRequest().isPresent())
-        {
-            LaunchResult outcome = performNavigation(sessionBean, request.navigationRequest().get(), navigator);
-            state = outcome.state;
-            message = outcome.message;
-            launchPath = outcome.launchPath;
-        }
-        request.choiceActivityId().ifPresent(choice -> sequencingService.navigate(choice, sessionBean, navigator, null));
-        request.targetActivityId().ifPresent(target -> sequencingService.navigateToActivity(target, sessionBean, navigator, null));
+			if (request.navigationRequest().isPresent())
+			{
+				LaunchResult outcome = performNavigation(sessionBean, request.navigationRequest().get(), navigator);
+				state = outcome.state;
+				message = outcome.message;
+				launchPath = outcome.launchPath;
+			}
+			request.choiceActivityId().ifPresent(choice -> sequencingService.navigate(choice, sessionBean, navigator, null));
+			request.targetActivityId().ifPresent(target -> sequencingService.navigateToActivity(target, sessionBean, navigator, null));
 
-        if (launchPath == null)
-        {
-            launchPath = Optional.ofNullable(navigator.getLastLaunchPath()).orElseGet(() -> resolveLaunchPath(sessionBean).orElse(null));
-        }
-        if (launchPath == null && state == ScormLaunchState.READY)
-        {
-            state = ScormLaunchState.CHOICE_REQUIRED;
-            if (message == null)
-            {
-                message = "Select an activity to continue.";
-            }
-        }
-        return buildContext(sessionId, sessionBean, entry.getContentPackage(), launchPath, state, message);
-    }
+			if (launchPath == null)
+			{
+				launchPath = Optional.ofNullable(navigator.getLastLaunchPath()).orElseGet(() -> resolveLaunchPath(sessionBean).orElse(null));
+			}
+			if (launchPath == null && state == ScormLaunchState.READY)
+			{
+				state = ScormLaunchState.CHOICE_REQUIRED;
+				if (message == null)
+				{
+					message = "Select an activity to continue.";
+				}
+			}
+			String effectiveMessage = resolveMessage(state, message);
+			sessionRegistry.updateState(sessionId, state, effectiveMessage);
+			return buildContext(sessionId, sessionBean, entry.getContentPackage(), launchPath, state, effectiveMessage);
+		}
+		finally
+		{
+			lock.unlock();
+		}
+	}
 
-    @Override
-    public ScormRuntimeResult runtime(String sessionId, ScormRuntimeInvocation invocation)
-    {
-        ScormLaunchSessionRegistry.Entry entry = getOwnedEntry(sessionId);
-        SessionBean sessionBean = entry.getSessionBean();
-        RestResourceNavigator navigator = new RestResourceNavigator();
+	@Override
+	public ScormRuntimeResult runtime(String sessionId, ScormRuntimeInvocation invocation)
+	{
+		ReentrantLock lock = requireSessionLock(sessionId);
+		lock.lock();
+		try
+		{
+			ScormLaunchSessionRegistry.Entry entry = getOwnedEntry(sessionId);
+			SessionBean sessionBean = entry.getSessionBean();
+			RestResourceNavigator navigator = new RestResourceNavigator();
 
-        String methodName = invocation.getMethod();
-        List<String> args = invocation.getArguments();
+			String methodName = invocation.getMethod();
+			List<String> args = invocation.getArguments();
 
-        String result = "";
-        ScoAwareRuntimeContext runtimeContext = prepareSco(sessionBean, methodName);
-        try
-        {
-            result = executeRuntimeCall(sessionBean, navigator, methodName, args);
-        }
-        finally
-        {
-            finalizeSco(sessionBean, methodName, runtimeContext);
-        }
+			String result = "";
+			ScoAwareRuntimeContext runtimeContext = prepareSco(sessionBean, methodName);
+			try
+			{
+				result = executeRuntimeCall(sessionBean, navigator, methodName, args);
+			}
+			finally
+			{
+				finalizeSco(sessionBean, methodName, runtimeContext);
+			}
 
-        String errorCode = scormApplicationService.getLastError(sessionBean);
-        String diagnostic = errorCode != null ? scormApplicationService.getDiagnostic(errorCode, sessionBean) : null;
-        String launchPath = navigator.getLastLaunchPath();
+			String errorCode = scormApplicationService.getLastError(sessionBean);
+			String diagnostic = errorCode != null ? scormApplicationService.getDiagnostic(errorCode, sessionBean) : null;
+			String launchPath = navigator.getLastLaunchPath();
 
-        if (launchPath == null)
-        {
-            launchPath = resolveLaunchPath(sessionBean).orElse(null);
-        }
+			if (launchPath == null)
+			{
+				launchPath = resolveLaunchPath(sessionBean).orElse(null);
+			}
 
-        return ScormRuntimeResult.builder()
-            .value(result)
-            .errorCode(errorCode)
-            .diagnostic(diagnostic)
-            .launchPath(launchPath)
-            .sessionEnded(sessionBean.isEnded())
-            .build();
-    }
+			ScormLaunchState persistedState = sessionBean.isEnded() ? ScormLaunchState.ERROR : ScormLaunchState.READY;
+			String persistedMessage = sessionBean.isEnded() ? "Session has ended." : null;
+			sessionRegistry.updateState(sessionId, persistedState, persistedMessage);
+
+			return ScormRuntimeResult.builder()
+				.value(result)
+				.errorCode(errorCode)
+				.diagnostic(diagnostic)
+				.launchPath(launchPath)
+				.sessionEnded(sessionBean.isEnded())
+				.build();
+		}
+		finally
+		{
+			lock.unlock();
+		}
+	}
 
     private String executeRuntimeCall(SessionBean sessionBean, RestResourceNavigator navigator, String methodName, List<String> args)
     {
@@ -268,24 +298,40 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
                 return diagnostic != null ? diagnostic : "";
             }
             default:
+                log.warn("Unsupported SCORM runtime method: {}", methodName);
                 throw new IllegalArgumentException("Unsupported SCORM runtime method: " + methodName);
         }
     }
 
-    @Override
-    public void closeSession(String sessionId)
-    {
-        ScormLaunchSessionRegistry.Entry entry = sessionRegistry.lookup(sessionId)
-            .filter(e -> StringUtils.equals(requireSession().getUserId(), e.getUserId()))
-            .orElse(null);
+	@Override
+	public void closeSession(String sessionId)
+	{
+		ReentrantLock lock = sessionRegistry.getLock(sessionId);
+		if (lock != null)
+		{
+			lock.lock();
+		}
+		try
+		{
+			ScormLaunchSessionRegistry.Entry entry = sessionRegistry.lookup(sessionId)
+				.filter(e -> StringUtils.equals(requireSession().getUserId(), e.getUserId()))
+				.orElse(null);
 
-        if (entry != null)
-        {
-            Optional.ofNullable(entry.getSessionBean().getDisplayingSco())
-                .ifPresent(scoBean -> scormApplicationService.discardScoBean(scoBean.getScoId(), entry.getSessionBean(), new RestResourceNavigator()));
-            sessionRegistry.remove(sessionId);
-        }
-    }
+			if (entry != null)
+			{
+				Optional.ofNullable(entry.getSessionBean().getDisplayingSco())
+					.ifPresent(scoBean -> scormApplicationService.discardScoBean(scoBean.getScoId(), entry.getSessionBean(), new RestResourceNavigator()));
+			}
+			sessionRegistry.remove(sessionId);
+		}
+		finally
+		{
+			if (lock != null)
+			{
+				lock.unlock();
+			}
+		}
+	}
 
     private Session requireSession()
     {
@@ -373,6 +419,10 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
     {
         RestResourceNavigator agent = navigator != null ? navigator : new RestResourceNavigator();
         String result = sequencingService.navigate(navRequest, sessionBean, agent, null);
+        if (log.isDebugEnabled())
+        {
+            log.debug("Navigation outcome for request {}: {}", navRequest, result);
+        }
 
         if (result == null || StringUtils.contains(result, NAV_RESULT_TOC))
         {
@@ -484,18 +534,19 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
         return Optional.of("contentpackages/resourceName/" + resourcePath);
     }
 
-    private ScoAwareRuntimeContext prepareSco(SessionBean sessionBean, String methodName)
-    {
-        ScoAwareRuntimeContext context = new ScoAwareRuntimeContext();
-        context.previousSco = sessionBean.getDisplayingSco();
+	private ScoAwareRuntimeContext prepareSco(SessionBean sessionBean, String methodName)
+	{
+		ScoAwareRuntimeContext context = new ScoAwareRuntimeContext();
+		context.previousSco = sessionBean.getDisplayingSco();
 
-        if (StringUtils.equalsIgnoreCase("Initialize", methodName))
-        {
-            scormApplicationService.produceScoBean("undefined", sessionBean);
-        }
+		if (StringUtils.equalsIgnoreCase("Initialize", methodName))
+		{
+			// Ensure the current SCO bean exists before initialization without creating placeholders.
+			scormApplicationService.produceScoBean(sessionBean.getScoId(), sessionBean);
+		}
 
-        return context;
-    }
+		return context;
+	}
 
     private void finalizeSco(SessionBean sessionBean, String methodName, ScoAwareRuntimeContext context)
     {
@@ -507,14 +558,7 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
 
     private ScormLaunchContext buildContext(String sessionId, SessionBean sessionBean, ContentPackage contentPackage, String launchPath, ScormLaunchState state, String message)
     {
-        if (state == ScormLaunchState.DENIED && message == null)
-        {
-            message = "Access denied. You may have exhausted the allowed attempts.";
-        }
-        else if (state == ScormLaunchState.CHOICE_REQUIRED && message == null)
-        {
-            message = "Select an activity to continue.";
-        }
+        String effectiveMessage = resolveMessage(state, message);
         return ScormLaunchContext.builder()
             .sessionId(sessionId)
             .sessionBean(sessionBean)
@@ -523,9 +567,36 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
             .showToc(contentPackage.isShowTOC())
             .showLegacyControls(contentPackage.isShowNavBar())
             .state(state)
-            .message(message)
+            .message(effectiveMessage)
             .build();
     }
+
+	private String resolveMessage(ScormLaunchState state, String message)
+	{
+		if (state == null)
+		{
+			return message;
+		}
+		if (state == ScormLaunchState.DENIED && message == null)
+		{
+			return "Access denied. You may have exhausted the allowed attempts.";
+		}
+		if (state == ScormLaunchState.CHOICE_REQUIRED && message == null)
+		{
+			return "Select an activity to continue.";
+		}
+		return message;
+	}
+
+	private ReentrantLock requireSessionLock(String sessionId)
+	{
+		ReentrantLock lock = sessionRegistry.getLock(sessionId);
+		if (lock == null)
+		{
+			throw new IllegalArgumentException("Unknown or expired SCORM session: " + sessionId);
+		}
+		return lock;
+	}
 
     private static final class LaunchResult
     {

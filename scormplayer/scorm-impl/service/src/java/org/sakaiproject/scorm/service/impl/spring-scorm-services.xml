@@ -80,7 +80,9 @@
 	</bean>
 
 	<bean id="org.sakaiproject.scorm.service.launch.ScormLaunchSessionRegistry"
-	    class="org.sakaiproject.scorm.service.impl.ScormLaunchSessionRegistry" />
+	    class="org.sakaiproject.scorm.service.impl.ScormLaunchSessionRegistry">
+		<property name="entryTtl" value="PT2H" />
+	</bean>
 
 	<bean id="org.sakaiproject.scorm.service.api.ScormLaunchService"
 	    class="org.sakaiproject.scorm.service.impl.ScormLaunchServiceImpl">

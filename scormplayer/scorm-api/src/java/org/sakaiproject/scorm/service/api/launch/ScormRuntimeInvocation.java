@@ -17,9 +17,13 @@ package org.sakaiproject.scorm.service.api.launch;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Singular;
 
 /**
  * Descriptor for a SCORM runtime API invocation.
@@ -34,5 +38,15 @@ public class ScormRuntimeInvocation
 
     /** Ordered list of string arguments passed to the runtime method. */
     @NonNull
+    @Singular
     private final List<String> arguments;
+
+    @JsonCreator
+    public ScormRuntimeInvocation(
+        @JsonProperty("method") @NonNull String method,
+        @JsonProperty("arguments") @NonNull List<String> arguments)
+    {
+        this.method = method;
+        this.arguments = arguments;
+    }
 }

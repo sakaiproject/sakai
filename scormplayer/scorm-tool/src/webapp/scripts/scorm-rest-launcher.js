@@ -1,8 +1,6 @@
 (function () {
     const launchers = [];
-    const supportsBlockingFetch = typeof SharedArrayBuffer !== 'undefined'
-        && typeof crossOriginIsolated !== 'undefined'
-        && crossOriginIsolated === true;
+    // Blocking fetch via Atomics.wait is not permitted on the main thread; always fall back to synchronous XHR.
 
     async function bootstrap() {
         const nodes = document.querySelectorAll('.scorm-rest-launcher[data-content-package-id]');
@@ -66,6 +64,28 @@
             } catch (e) {
                 return null;
             }
+        }
+
+        function getCsrfToken() {
+            const meta = document.querySelector('meta[name="csrf-token"], meta[name="_csrf"]');
+            if (meta && meta.content) {
+                return meta.content;
+            }
+            const bodyToken = document.body && document.body.dataset ? (document.body.dataset.csrfToken || document.body.dataset.csrf) : null;
+            if (bodyToken) {
+                return bodyToken;
+            }
+            if (window.portal && window.portal.csrfToken) {
+                return window.portal.csrfToken;
+            }
+            if (window._portal && window._portal.csrfToken) {
+                return window._portal.csrfToken;
+            }
+            const hiddenInput = document.querySelector('input[name="sakai_csrf_token"]');
+            if (hiddenInput && hiddenInput.value) {
+                return hiddenInput.value;
+            }
+            return null;
         }
 
         async function requestJson(url, payload) {
@@ -145,23 +165,27 @@
             const url = `${state.apiBase}/sessions/${state.sessionId}/runtime`;
             console.debug('[SCORM REST] runtime request', payload);
 
-            if (supportsBlockingFetch) {
-                try {
-                    return fetchRuntimeSync(url, payload);
-                } catch (err) {
-                    console.error('[SCORM REST] blocking fetch runtime error', err);
-                    showMessage(err.message || 'Unable to reach SCORM service.');
-                    return null;
-                }
-            }
-
             const xhr = new XMLHttpRequest();
             xhr.open('POST', url, false);
             xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            const csrfToken = getCsrfToken();
+            if (csrfToken) {
+                xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+                xhr.setRequestHeader('sakai_csrf_token', csrfToken);
+            }
+            xhr.withCredentials = true;
             try {
                 xhr.send(JSON.stringify(payload));
             } catch (e) {
                 showMessage('Unable to reach SCORM service.');
+                return null;
+            }
+
+            if (xhr.status === 0) {
+                showMessage('SCORM service did not respond. Please check your connection.');
+                console.error('[SCORM REST] runtime network error (XHR)', xhr);
                 return null;
             }
 
@@ -179,46 +203,6 @@
             console.error('[SCORM REST] runtime error (XHR)', xhr.status, detail);
             showMessage(detail && detail.message ? detail.message : `SCORM service error (${xhr.status})`);
             return null;
-        }
-
-        function fetchRuntimeSync(url, payload) {
-            const sab = new SharedArrayBuffer(4);
-            const view = new Int32Array(sab);
-            let responseData = null;
-            let responseError = null;
-
-            (async () => {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'same-origin',
-                        body: JSON.stringify(payload),
-                    });
-                    const text = await response.text();
-                    if (!response.ok) {
-                        const detail = text ? safeParse(text) : null;
-                        throw new Error(detail && detail.message ? detail.message : `SCORM service error (${response.status})`);
-                    }
-                    responseData = text ? safeParse(text) : {};
-                    if (responseData === null) {
-                        throw new Error('Invalid response from SCORM service.');
-                    }
-                    console.debug('[SCORM REST] runtime response (blocking fetch)', responseData);
-                } catch (err) {
-                    responseError = err;
-                } finally {
-                    Atomics.store(view, 0, 1);
-                    Atomics.notify(view, 0);
-                }
-            })();
-
-            Atomics.wait(view, 0, 0);
-
-            if (responseError) {
-                throw responseError;
-            }
-            return responseData;
         }
 
         function runtimeCall(method, args) {
@@ -258,8 +242,8 @@
                 GetDiagnostic: (code) => runtimeCall('GetDiagnostic', [code]),
             };
 
-            window.API_1484_11 = api;
-            window.APIAdapter = api;
+            if (!window.API_1484_11) window.API_1484_11 = api;
+            if (!window.APIAdapter) window.APIAdapter = api;
         }
 
         const started = await openSession();

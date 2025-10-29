@@ -71,12 +71,12 @@ public class ScormPlayerPage extends BaseToolPage
 		restLauncherContainer.setOutputMarkupId(true);
 		restLauncherContainer.add(new AttributeModifier("data-content-package-id", String.valueOf(contentPackageId)));
 		restLauncherContainer.add(new AttributeModifier("data-completion-url", sessionBean.getCompletionUrl()));
-		restLauncherContainer.add(new AttributeModifier("data-api-base", "/api/scorm"));
 		if (userNavRequest >= 0)
 		{
 			restLauncherContainer.add(new AttributeModifier("data-nav-request", String.valueOf(userNavRequest)));
 		}
 		HttpServletRequest servletRequest = (HttpServletRequest) getRequest().getContainerRequest();
+		restLauncherContainer.add(new AttributeModifier("data-api-base", "/api/scorm"));
 		restLauncherContainer.add(new AttributeModifier("data-context-path", servletRequest.getContextPath()));
 		add(restLauncherContainer);
 	}
@@ -93,6 +93,10 @@ public class ScormPlayerPage extends BaseToolPage
 		}
 
 		String completionUrl = getRequestCycle().urlFor(pageClass, null).toString();
+		if (completionUrl.startsWith("/"))
+		{
+			completionUrl = completionUrl.substring(1);
+		}
 		AppendingStringBuffer url = new AppendingStringBuffer();
 		url.append(toolUrl).append("/").append(completionUrl);
 

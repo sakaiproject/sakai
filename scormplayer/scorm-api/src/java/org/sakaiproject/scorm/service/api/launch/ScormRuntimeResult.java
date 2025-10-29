@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.scorm.service.api.launch;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -24,6 +26,7 @@ import lombok.NonNull;
  */
 @Getter
 @Builder
+@JsonInclude(Include.NON_NULL)
 public class ScormRuntimeResult
 {
     /** Raw return value from the runtime method invocation. */

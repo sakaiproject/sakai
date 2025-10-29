@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.scorm.service.api.launch;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -27,10 +29,13 @@ import org.sakaiproject.scorm.model.api.SessionBean;
  */
 @Getter
 @Builder
+@JsonInclude(Include.NON_NULL)
 public class ScormLaunchContext
 {
-    /** Opaque identifier for the launch session. */
-    @NonNull
+    /**
+     * Opaque identifier for the launch session when one has been established.
+     * Absent when launch access is denied or an unrecoverable error occurs.
+     */
     private final String sessionId;
 
     /** Current SCORM session bean backing sequencing and runtime state. */

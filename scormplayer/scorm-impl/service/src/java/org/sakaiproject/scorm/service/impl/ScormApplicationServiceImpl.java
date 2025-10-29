@@ -1118,7 +1118,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			case DMErrorCodes.DOES_NOT_HAVE_COUNT:
 				if (!iRequest.endsWith("._count"))
 				{
-					log.info("Strange error -- 'Does not have count' for data element " + iRequest);
+					log.info("Strange error -- 'Does not have count' for data element {}", iRequest);
 				}
 
 				break;

@@ -24,7 +24,7 @@
 - Endpoints (no explicit versioning to match current webapi conventions):
   - `POST /api/scorm/sessions` → create or resume a session via `ScormSequencingService.newSessionBean`; compute attempt/resume logic mirroring `LazyLaunchPanel`.
   - `POST /api/scorm/sessions/{sessionId}/nav` → process navigation requests (`SeqNavRequests` enums) and return updated session state + next SCO URL.
-  - `POST /api/scorm/sessions/{sessionId}/runtime` → accept `{ "method": "Initialize", "args": [...] }` payloads, delegate to `ScormApplicationService`, respond with SCORM result + error metadata.
+  - `POST /api/scorm/sessions/{sessionId}/runtime` → accept `{ "method": "Initialize", "arguments": [...] }` payloads, delegate to `ScormApplicationService`, respond with SCORM result + error metadata.
   - `GET /api/scorm/sessions/{sessionId}/resource` → return signed or tokenized launch URLs for the current SCO via `ScormResourceService`.
   - `DELETE /api/scorm/sessions/{sessionId}` → finalize session cleanup after `Terminate`, ensuring Gradebook synchronization.
 - Introduce a `ScormLaunchSessionRegistry` bean (likely in `scormplayer/scorm-impl/service`) to store active `SessionBean`s keyed by secure random tokens, expiring via `SessionManager`.

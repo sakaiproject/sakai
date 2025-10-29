@@ -90,6 +90,8 @@ public class ScormControllerTest
                 .content("{\"method\":\"Initialize\",\"arguments\":[\"\"]}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.value").value("true"))
+            .andExpect(jsonPath("$.errorCode").value("0"))
+            .andExpect(jsonPath("$.launchPath").doesNotExist())
             .andExpect(jsonPath("$.sessionEnded").value(false));
     }
 

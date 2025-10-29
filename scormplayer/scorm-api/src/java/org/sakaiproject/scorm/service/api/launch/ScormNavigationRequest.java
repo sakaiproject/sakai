@@ -17,6 +17,9 @@ package org.sakaiproject.scorm.service.api.launch;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,6 +55,36 @@ public class ScormNavigationRequest
     public static ScormNavigationRequest ofTarget(String targetActivityId)
     {
         return new ScormNavigationRequest(null, null, targetActivityId);
+    }
+
+    @JsonCreator
+    public static ScormNavigationRequest fromJson(
+        @JsonProperty("navigationRequest") Integer navigationRequest,
+        @JsonProperty("choiceActivityId") String choiceActivityId,
+        @JsonProperty("targetActivityId") String targetActivityId)
+    {
+        int nonNullCount = 0;
+        if (navigationRequest != null)
+        {
+            nonNullCount++;
+        }
+        if (choiceActivityId != null)
+        {
+            nonNullCount++;
+        }
+        if (targetActivityId != null)
+        {
+            nonNullCount++;
+        }
+        if (nonNullCount == 0)
+        {
+            throw new IllegalArgumentException("At least one navigation attribute must be provided");
+        }
+        if (nonNullCount > 1)
+        {
+            throw new IllegalArgumentException("Only one navigation attribute may be provided");
+        }
+        return new ScormNavigationRequest(navigationRequest, choiceActivityId, targetActivityId);
     }
 
     public Optional<Integer> navigationRequest()
