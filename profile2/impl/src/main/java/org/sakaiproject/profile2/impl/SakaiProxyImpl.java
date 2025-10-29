@@ -202,17 +202,6 @@ public class SakaiProxyImpl implements SakaiProxy {
     }
 
     @Override
-    public SakaiPerson createSakaiPerson(String userId) {
-
-        try {
-            return sakaiPersonManager.create(userId, this.sakaiPersonManager.getUserMutableType());
-        } catch (Exception e) {
-            log.error("SakaiProxy.createSakaiPerson(): Couldn't create SakaiPerson: {}", e.toString());
-        }
-        return null;
-    }
-
-    @Override
     public boolean updateSakaiPerson(SakaiPerson sakaiPerson) {
         // the save is void, so unless it throws an exception, its ok (?)
         // I'd prefer a return value from sakaiPersonManager. this wraps it.

@@ -36,15 +36,23 @@ public interface SakaiPersonManager
 	public static final String PROFILE_UPDATE = "profile.update";
 	public static final String PROFILE_DELETE = "profile.delete";
 
-	/**
-	 * Creates a persistent SakaiPerson record.
-	 * 
-	 * @param agentUuid
-	 * @param recordType
-	 *        {@link #getSystemMutableType()} or {@link #getUserMutableType()}
-	 * @return
-	 */
-	public SakaiPerson create(String agentUuid, Type recordType);
+    /**
+     * Creates a persistent SakaiPerson record.
+     *
+     * @param userId The user ID (must not be blank)
+     * @param recordType The type of record to create - must be either
+     *        {@link #getSystemMutableType()} for system-managed records or
+     *        {@link #getUserMutableType()} for user-managed records
+     * @return A newly created and persisted SakaiPerson instance, or null if:
+     *         <p>- userId is blank
+     *         <p>- recordType is null or not supported
+     *         <p>- the user does not exist in the system
+     *         <p>- any error occurs during creation
+     *         <p>The returned object will have its locked status set to false,
+     *         and if updateUserProfile is enabled and recordType is userMutable,
+     *         will be populated with the user's first name, last name, and email
+     */
+    SakaiPerson create(String userId, Type recordType);
 
 	/**
 	 * Get a new instantiation of an empty SakaiPerson object (has no persistent state). For example, useful if you query-by-example finder method.
