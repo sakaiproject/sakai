@@ -26,7 +26,7 @@ public class ScormDurationFormatterTest
     public void formatsIsoDurationWithFractions()
     {
         String formatted = ScormDurationFormatter.format("PT1M4.79S", Locale.US);
-        Assert.assertEquals("1 min, 4.79 s", formatted);
+        Assert.assertEquals("1m 4.79s", formatted);
     }
 
     @Test
