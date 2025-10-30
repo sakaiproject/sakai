@@ -50,17 +50,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- dependencies versions -->
         <oauth.version>20100527</oauth.version>
-        <wicket.version>9.20.0</wicket.version>
+        <wicket.version>9.21.0</wicket.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <!-- Internal dependencies -->
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>oauth-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>oauth-impl</artifactId>

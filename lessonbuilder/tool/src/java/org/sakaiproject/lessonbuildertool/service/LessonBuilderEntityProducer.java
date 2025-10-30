@@ -54,14 +54,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -317,13 +320,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		log.info("destroy()");
 	}
 
-	// lessonbuilder allows new tools to be created that use lessonbuilder. They will have
-	// different tool ID's. The best way to find them seems to be to look
-	// for all tools that set "linktool" as a keyword. Perhaps I should cache
-	// this value. However in theory it would be possible to dynamically add
-	// tools. Note that the tools are loaded when LinkTool.class is loaded. That's
-	// often after this class, so at init time these lists would be empty.
-
 	@Override
 	public String[] myToolIds()
 	{
@@ -336,6 +332,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		List<String> toolList = new ArrayList<String>();
 		toolList.add(LessonBuilderConstants.TOOL_ID);
 		return toolList;
+	}
+
+	@Override
+	public Optional<List<String>> getTransferOptions() {
+		return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
 	}
 
 	/**
@@ -563,12 +564,31 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	@Override
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
-		//prepare the buffer for the results log
+		return archive(siteId, doc, stack, archivePath, attachments, null);
+	}
+
+	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments, List<String> selectedIds)
+	{
+		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
 		// Orphaned pages need not apply!
 		SimplePageBean simplePageBean = makeSimplePageBean(siteId);
 		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
+
+		Set<Long> selectedPageIds = new HashSet<>();
+		boolean hasSelection = selectedIds != null && !selectedIds.isEmpty();
+		if (hasSelection) {
+			for (String idStr : selectedIds) {
+				try {
+					selectedPageIds.add(Long.valueOf(idStr));
+				} catch (NumberFormatException e) {
+					log.warn("Invalid page Id: {}", idStr);
+				}
+			}
+			// Expand selection to include all descendant pages
+			selectedPageIds = expandSelectionToIncludeDescendants(selectedPageIds, siteId);
+		}
 
 		try
 		{
@@ -582,56 +602,86 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			Element lessonbuilder = doc.createElement(LESSONBUILDER);
 
 			int orphansSkipped = 0;
+			int selectionSkipped = 0;
 
 			List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
 			if (sitePages != null && !sitePages.isEmpty()) {
 				for (SimplePage page: sitePages) {
-					if (!orphanFinder.isOrphan(page.getPageId())) {
-						addPage(doc, lessonbuilder, page, site, attachments);
-					} else {
+					if (orphanFinder.isOrphan(page.getPageId())) {
 						orphansSkipped++;
+						continue;
+					}
+					if (hasSelection && !selectedPageIds.contains(Long.valueOf(page.getPageId()))) {
+						selectionSkipped++;
+						continue;
+					}
+					addPage(doc, lessonbuilder, page, site, attachments);
+				}
+			}
+
+			log.info("Skipped {} orphaned pages and {} non-selected pages while archiving site {}", orphansSkipped, selectionSkipped, siteId);
+
+			int count = 0;
+			if (hasSelection) {
+				Set<Long> topLevelSelectedPages = findTopLevelSelectedPages(selectedPageIds, siteId);
+				// Filter out top-level selections that are orphans (not exported as pages)
+				List<Long> orderedTopLevelPages = new ArrayList<>();
+				for (Long id : topLevelSelectedPages) {
+					if (orphanFinder.isOrphan(id)) {
+						selectionSkipped++;
+						continue;
+					}
+					orderedTopLevelPages.add(id);
+				}
+				// Ensure deterministic ordering of placements
+				Collections.sort(orderedTopLevelPages);
+
+				for (Long topLevelPageId : orderedTopLevelPages) {
+					SimplePage topLevelPage = simplePageToolDao.getPage(topLevelPageId);
+					if (topLevelPage != null) {
+						element = doc.createElement(LESSONBUILDER);
+						addAttr(doc, element, "toolid", topLevelPageId.toString());
+						addAttr(doc, element, "name", topLevelPage.getTitle());
+						addAttr(doc, element, "pagePosition", String.valueOf(count));
+						addAttr(doc, element, "functions.require", "");
+						addAttr(doc, element, "pageVisibility", "true");
+						addAttr(doc, element, "pageId", Long.toString(topLevelPageId));
+
+						lessonbuilder.appendChild(element);
+						count++;
+					}
+				}
+			} else {
+				Collection<ToolConfiguration> tools = site.getTools(myToolIds());
+				if (tools != null && !tools.isEmpty())
+				{
+					for (ToolConfiguration config: tools) {
+						element = doc.createElement(LESSONBUILDER);
+
+						addAttr(doc, element, "toolid", config.getPageId());
+						addAttr(doc, element, "name" , config.getContainingPage().getTitle());
+						addAttr(doc, element, "pagePosition" , config.getContainingPage().getPosition() + "");
+
+						Properties props = config.getPlacementConfig();
+						String roleList = StringUtils.trimToEmpty(props.getProperty("functions.require"));
+						String pageVisibility = StringUtils.trimToEmpty(props.getProperty(ToolManager.PORTAL_VISIBLE));
+
+						addAttr(doc, element, "functions.require", roleList);
+						addAttr(doc, element, "pageVisibility" , pageVisibility);
+
+						// should be impossible for these nulls, but we've seen it
+						if (simplePageToolDao.getTopLevelPageId(config.getPageId()) != null)
+							addAttr(doc, element, "pageId", Long.toString(simplePageToolDao.getTopLevelPageId(config.getPageId())));
+						else
+							log.warn("archive site {} tool page {} null lesson", siteId, config.getPageId());
+
+						lessonbuilder.appendChild(element);
+						count++;
 					}
 				}
 			}
 
-			log.info("Skipped over {} orphaned pages while archiving site {} ", orphansSkipped, siteId);
-
-			Collection<ToolConfiguration> tools = site.getTools(myToolIds());
-			int count = 0;
-			if (tools != null && !tools.isEmpty())
-			{
-				for (ToolConfiguration config: tools) {
-					element = doc.createElement(LESSONBUILDER);
-
-					addAttr(doc, element, "toolid", config.getPageId());
-					addAttr(doc, element, "name" , config.getContainingPage().getTitle());
-					addAttr(doc, element, "pagePosition" , config.getContainingPage().getPosition() + "");
-
-					Properties props = config.getPlacementConfig();
-					String roleList = StringUtils.trimToEmpty(props.getProperty("functions.require"));
-					String pageVisibility = StringUtils.trimToEmpty(props.getProperty(ToolManager.PORTAL_VISIBLE));
-
-					addAttr(doc, element, "functions.require", roleList);
-					addAttr(doc, element, "pageVisibility" , pageVisibility);
-
-					// should be impossible for these nulls, but we've seen it
-					if (simplePageToolDao.getTopLevelPageId(config.getPageId()) != null)
-						addAttr(doc, element, "pageId", Long.toString(simplePageToolDao.getTopLevelPageId(config.getPageId())));
-					else
-						log.warn("archive site {} tool page {} null lesson", siteId, config.getPageId());
-					// addPage(doc, element,  simplePageToolDao.getTopLevelPageId(config.getPageId()));
-
-					lessonbuilder.appendChild(element);
-					count++;
-				}
-
-				results.append("archiving " + count + " LessonBuilder instances.\n");
-
-			}
-			else
-			{
-				results.append("archiving no LessonBuilder instances.\n");
-			}
+			results.append("archiving " + count + " LessonBuilder instances.\n");
 
 			((Element) stack.peek()).appendChild(lessonbuilder);
 			stack.push(lessonbuilder);
@@ -646,6 +696,65 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		stack.pop();
 
 		return results.toString();
+	}
+
+	/**
+	 * Expands the selected page IDs to include all descendant pages
+	 */
+	private Set<Long> expandSelectionToIncludeDescendants(Set<Long> selectedPageIds, String siteId) {
+		if (selectedPageIds.isEmpty()) return selectedPageIds;
+
+		Set<Long> expandedIds = new HashSet<>(selectedPageIds);
+		List<SimplePage> allPages = simplePageToolDao.getSitePages(siteId);
+
+		if (allPages == null || allPages.isEmpty()) return expandedIds;
+
+		Map<Long, List<Long>> parentToChildren = new HashMap<>();
+		for (SimplePage page : allPages) {
+			Long parentId = page.getParent();
+			if (parentId != null) {
+				parentToChildren.computeIfAbsent(parentId, k -> new ArrayList<>())
+					.add(page.getPageId());
+			}
+		}
+
+		Queue<Long> toProcess = new LinkedList<>(selectedPageIds);
+
+		while (!toProcess.isEmpty()) {
+			Long currentPageId = toProcess.poll();
+			List<Long> children = parentToChildren.get(currentPageId);
+
+			if (children != null) {
+				for (Long childId : children) {
+					if (!expandedIds.contains(childId)) {
+						expandedIds.add(childId);
+						toProcess.offer(childId);
+					}
+				}
+			}
+		}
+
+		return expandedIds;
+	}
+
+	/**
+	 * Finds the top-level pages that should become new Lessons from the selected pages
+	 */
+	private Set<Long> findTopLevelSelectedPages(Set<Long> selectedPageIds, String siteId) {
+		Set<Long> topLevelPages = new HashSet<>();
+
+		for (Long pageId : selectedPageIds) {
+			SimplePage page = simplePageToolDao.getPage(pageId);
+			if (page == null) continue;
+
+			// If this page has no parent or its parent is not selected, it's a top-level page
+			Long parentId = page.getParent();
+			if (parentId == null || !selectedPageIds.contains(parentId)) {
+				topLevelPages.add(pageId);
+			}
+		}
+
+		return topLevelPages;
 	}
 
 	@Override
@@ -813,6 +922,35 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				String html = itemElement.getAttribute("html");
 				explanation = ltiService.fixLtiLaunchUrls(html, siteId, mcx);
 				explanation = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, explanation);
+				Pattern idPattern = Pattern.compile("(https?://[^/]+/access/(?:basic)?lti/site)/" + Pattern.quote(oldSiteId) + "/content:([0-9]+)");
+				Matcher matcher = idPattern.matcher(html);
+				StringBuffer sb = new StringBuffer();
+				boolean foundLtiLink = false;
+				while(matcher.find()) {
+					String urlFirstPart = matcher.group(1);
+					Long ltiContentId = Long.valueOf(matcher.group(2));
+					log.debug("Updating reference: {}", matcher.group(0));
+					foundLtiLink = true;
+					try {
+						Map<String, Object> ltiContent = ltiService.getContentDao(ltiContentId, oldSiteId, securityService.isSuperUser());
+						String newSakaiId = copyLTIContent(ltiContent, siteId, oldSiteId);
+						if ( newSakaiId != null ) sakaiId = newSakaiId;
+						String[] bltiId = sakaiId.split("/");
+						ltiContentId = Long.valueOf(bltiId[2]);
+					} catch (Exception e) {
+						log.warn("Failed to import LTI tool [contentId: {}, fromSite: {}, toSite: {}]: {}. Tool will be skipped.", ltiContentId, oldSiteId, siteId, e.toString());
+					} finally {
+						String updatedReference = urlFirstPart + "/" + siteId + "/content:" + ltiContentId;
+						log.debug("New reference: {}", updatedReference);
+						matcher.appendReplacement(sb, Matcher.quoteReplacement(updatedReference));
+					}
+				}
+
+				if(foundLtiLink) {
+					matcher.appendTail(sb);
+					explanation = sb.toString();
+					log.debug("Updated at least one LTI reference lesson HTML");
+				}
 			} else if (type == SimplePageItem.PAGE) {
 				// sakaiId should be the new page ID
 				Long newPageId = pageMap.get(Long.valueOf(sakaiId));
@@ -1543,8 +1681,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 				// Carry over the custom CSS sheet if present. These are of the form
 				// "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
-				String cssSheet = pageElement.getAttribute("csssheet");
-				if (StringUtils.isNotEmpty(cssSheet)) page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
+                String cssSheet = pageElement.getAttribute("csssheet");
+                if (StringUtils.isNotEmpty(cssSheet)) {
+                    String newCss = cssSheet.replace("/group/" + fromSiteId + "/", "/group/" + siteId + "/");
+                    page.setCssSheet(newCss);
+                }
 
 				// Save or update the page
 				if ( reused ) {
@@ -1722,10 +1863,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				if (StringUtils.isNotEmpty(pageAttribute)) {
 					item.setPrerequisite(Boolean.valueOf(pageAttribute));
 				}
-				if ( itemExists ) {
-					log.debug("saving vestigial item: {}", item.getId());
-					simplePageToolDao.quickSaveItem(item);
-				} else {
+
+				log.debug("saving vestigial item: {}", item.getId());
+				simplePageToolDao.quickSaveItem(item);
+				if (!itemExists) {
 					List<String>elist = new ArrayList<>();
 					boolean requiresEditPermission = true;
 					simplePageToolDao.update(item, elist, messageLocator.getMessage("simplepage.nowrite"), requiresEditPermission);
@@ -1844,9 +1985,28 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	@Override
 	public List<Map<String, String>> getEntityMap(String fromContext) {
+		try {
+			Set<String> navigationToolIds = siteService.getSite(fromContext).getOrderedPages()
+				.stream().map(SitePage::getId).collect(Collectors.toSet());
+			
+			List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
+			if (sitePages == null || sitePages.isEmpty()) {
+				return Collections.emptyList();
+			}
+			
+			return sitePages.stream()
+				.filter(page -> navigationToolIds.contains(page.getToolId()))
+				.map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle()))
+				.collect(Collectors.toList());
+		} catch (IdUnusedException e) {
+			log.warn("Could not find site {}: {}", fromContext, e);
+			return Collections.emptyList();
+		}
+	}
 
-		return simplePageToolDao.getSitePages(fromContext).stream()
-			.map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle())).collect(Collectors.toList());
+	@Override
+	public String getToolPermissionsPrefix() {
+		return SimplePage.PERMISSION_LESSONBUILDER_PREFIX;
 	}
 
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options) {
@@ -1914,7 +2074,15 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			stack.push(root);
 
-			archive(fromContext, doc, stack, "/tmp/archive", null);
+			if (ids != null && !ids.isEmpty()) {
+				List<String> stringIds = new ArrayList<>();
+				for (Object id : ids) {
+					stringIds.add(id.toString());
+				}
+				archive(fromContext, doc, stack, "/tmp/archive", null, stringIds);
+			} else {
+				archive(fromContext, doc, stack, "/tmp/archive", null);
+			}
 
 			stack.pop();
 
@@ -1962,11 +2130,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	// map has entities for all objects. Look for all entities that look like /ref/lessonbuilder.
 	// this is mapping from LB item id to underlying object in old site.
 	// find the object in the new site and fix up the item id
-	public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+    public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
 
-		migrateEmbeddedLinks(toContext, transversalMap);
-		// update lessonbuilder_ref property of groups and kill bogus groups
-		Map<String,String> mapGroups = new HashMap<String,String>();
+        migrateEmbeddedLinks(toContext, transversalMap);
+        // update lessonbuilder_ref property of groups and kill bogus groups
+        Map<String,String> mapGroups = new HashMap<String,String>();
 		for (Map.Entry<String,String> entry: transversalMap.entrySet()) {
 			String entityid = entry.getKey();
 			String objectid = entry.getValue();
@@ -2016,6 +2184,39 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		simplePageToolDao.setNeedsGroupFixup(toContext, 1);
 
+		// Also remap any per-page custom CSS selections using the transversalMap produced by
+		// the overall site copy. When Resources renames files (e.g., to avoid collisions), the
+		// CSS file path saved on the page can point to the old ID and the UI will fall back to
+		// default CSS. If we find a mapping for the CSS resource, update the page to the new ID.
+		try {
+				if (transversalMap != null && !transversalMap.isEmpty()) {
+						List<SimplePage> pages = simplePageToolDao.getSitePages(toContext);
+						if (pages != null && !pages.isEmpty()) {
+								for (SimplePage page : pages) {
+										String css = page.getCssSheet();
+										if (css == null || css.isEmpty()) continue;
+
+										// transversalMap keys use ContentHostingService resource IDs (e.g., "/group/...").
+										String keyGroup = css; // e.g., /group/SITEID/LB-CSS/custom.css
+
+										String mapped = transversalMap.get(keyGroup);
+										if (mapped != null && !mapped.isEmpty()) {
+												// Ensure we store a CHS resource ID (strip leading "/content" if present)
+												String newId = mapped.startsWith("/content") ? mapped.substring("/content".length()) : mapped;
+
+												if (!newId.equals(css)) {
+														page.setCssSheet(newId);
+														simplePageToolDao.quickUpdate(page);
+														log.debug("Remapped Lessons CSS for page {} from {} to {}", page.getPageId(), css, newId);
+												}
+										}
+								}
+						}
+				}
+		} catch (Exception e) {
+				log.warn("Problem remapping Lessons CSS selections during site copy: {}", e);
+		}
+
 	}
 
 	private void migrateEmbeddedLinks(String toContext, Map<String, String> transversalMap){
@@ -2029,13 +2230,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		List<SimplePageItem> items = simplePageToolDao.findTextItemsInSite(toContext);
 		for (SimplePageItem item: items) {
 			String msgBody = item.getHtml();
+			if (msgBody == null) {
+				continue;
+			}
 			try {
 				String newBody = linkMigrationHelper.migrateAllLinks(entrySet, msgBody);
 
 				if (!msgBody.equals(newBody)) {
 					// items in findTextItemsInSite don't come from hibernate, so we have to get a real one
 					SimplePageItem i = simplePageToolDao.findItem(item.getId());
-					if (item != null) {
+					if (i != null) {
 						i.setHtml(newBody);
 						log.debug("html - (post mod): {}", msgBody);
 						simplePageToolDao.quickUpdate(i);

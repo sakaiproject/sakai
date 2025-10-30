@@ -40,7 +40,9 @@ describe("sakai-grader tests", () => {
     const submissions = Array.from({ length: 10 }, () => generateSubmission());
 
     const selectedSubmission = submissions[0];
-    selectedSubmission.dateSubmitted = faker.date.past().getTime();
+    const past = faker.date.past();
+    selectedSubmission.dateSubmittedEpochSeconds = past.getTime() / 1000;
+    selectedSubmission.dateSubmitted = past.toDateString();
     selectedSubmission.submittedText = faker.lorem.paragraph(4);
     selectedSubmission.submitted = true;
     const firstSubmitterId = selectedSubmission.submitters[0].id;
@@ -189,5 +191,130 @@ describe("sakai-grader tests", () => {
     await expect(el).to.be.accessible();
     expect(el._submittedOnly).to.be.false;
     expect(el.querySelector("#grader-filter-warning")).to.not.exist;
+  });
+
+  it ("updates grade input field when navigating between students", async () => {
+
+    // This test verifies that the grade input field correctly updates when switching
+    // between students, especially after user interaction with the field.
+
+    // Create 3 submissions with different grades
+    const submissions = Array.from({ length: 3 }, () => generateSubmission());
+
+    // Set different grades for each submission
+    submissions[0].grade = "85";
+    submissions[0].submitted = true;
+    submissions[0].graded = true;
+
+    submissions[1].grade = "92";
+    submissions[1].submitted = true;
+    submissions[1].graded = true;
+
+    submissions[2].grade = "78";
+    submissions[2].submitted = true;
+    submissions[2].graded = true;
+
+    const gradingData = { ...data.gradableData, submissions, totalSubmissions: submissions.length };
+    const selectedSubmissionId = submissions[0].id;
+
+    const url = `/direct/assignment/gradable.json?gradableId=${gradingData.gradable.id}&submissionId=${selectedSubmissionId}`;
+    fetchMock.get(url, gradingData);
+
+    const el = await fixture(html`
+      <sakai-grader gradable-id="${gradingData.gradable.id}"
+          submission-id="${selectedSubmissionId}">
+      </sakai-grader>
+    `);
+
+    await waitUntil(() => !el._loadingData);
+    await elementUpdated(el);
+
+    const gradeInput = el.querySelector("#score-grade-input");
+    expect(gradeInput).to.exist;
+
+    // Verify initial grade is displayed
+    expect(gradeInput.value).to.equal("85");
+
+    // Simulate user interaction: type in the field and then navigate away
+    gradeInput.focus();
+    gradeInput.value = "88"; // User types a different value
+    gradeInput.dispatchEvent(new Event("keyup", { bubbles: true }));
+
+    // This modifies the current submission's grade to "88"
+    expect(el._submission.grade).to.equal("88");
+
+    // Mock the confirm dialog to return true (user wants to proceed without saving)
+    const originalConfirm = window.confirm;
+    window.confirm = () => true;
+
+    // Now navigate to the second student
+    const submitterSelect = el.querySelector("#grader-submitter-select");
+    submitterSelect.value = submissions[1].id;
+    submitterSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    await elementUpdated(el);
+
+    // Restore original confirm
+    window.confirm = originalConfirm;
+
+    // The grade input should now show the second student's grade, not the user's typed value
+    expect(gradeInput.value).to.equal("92");
+    expect(el._submission.grade).to.equal("92");
+
+    // Navigate back to the first student - with save confirmation, the user's typed value should persist
+    // until they explicitly save or cancel
+    submitterSelect.value = submissions[0].id;
+    submitterSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+    await elementUpdated(el);
+
+    // With save confirmation approach: after discarding changes with _cancel(), 
+    // the original grade should be restored
+    expect(gradeInput.value).to.equal("85");
+    expect(el._submission.grade).to.equal("85");
+  });
+
+  it ("does not show grade overrides for anonymous group grading", async () => {
+
+    const gradingData = JSON.parse(JSON.stringify(data.gradableData));
+    gradingData.gradable.anonymousGrading = true;
+    gradingData.gradable.access = "GROUP";
+
+    // Create a simple group and a group submission
+    const group = { id: "g1", title: "Group 1", users: [ "u1", "u2" ] };
+    gradingData.groups = [ group ];
+
+    const submission = {
+      id: "sub1",
+      hydrated: true,
+      visible: true,
+      submitted: true,
+      dateSubmittedEpochSeconds: Math.floor(Date.now() / 1000),
+      dateSubmitted: new Date().toDateString(),
+      groupId: group.id,
+      // Submitters are anonymised in this mode server-side; details are irrelevant here
+      submitters: [
+        { id: "u1", displayId: null, sortName: "Anon One", displayName: "anonymous" },
+        { id: "u2", displayId: null, sortName: "Anon Two", displayName: "anonymous" },
+      ],
+    };
+
+    gradingData.submissions = [ submission ];
+    gradingData.totalSubmissions = 1;
+
+    const url = `/direct/assignment/gradable.json?gradableId=${gradingData.gradable.id}&submissionId=${submission.id}`;
+    fetchMock.get(url, gradingData);
+
+    const el = await fixture(html`
+      <sakai-grader gradable-id="${gradingData.gradable.id}"
+          submission-id="${submission.id}">
+      </sakai-grader>
+    `);
+
+    await waitUntil(() => !el._loadingData);
+    await elementUpdated(el);
+
+    // The Assign Grade Overrides UI must not be present when anonymousGrading is true
+    expect(el.querySelector("#grader-overrides-wrapper")).to.not.exist;
   });
 });

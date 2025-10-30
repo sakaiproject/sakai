@@ -1,5 +1,11 @@
 sakai-grader {
 
+  .grader--visible {
+    @extend .d-block;
+    @extend .rounded-3;
+    @extend .mt-2;
+  }
+
   .grader-title {
     font-weight: bold;
   }
@@ -135,33 +141,29 @@ sakai-grader {
       margin-top: 5px;
       color: var(--successBanner-color);
     }
+
+    .draft-submission {
+      display: block;
+      margin-top: 5px;
+      color: var(--errorBanner-color);
+    }
+  }
+
+  .grader-photo {
+    min-width: 48px;
+    width: 48px;
+    height: 48px;
+    background-position: 50%;
+    background-size: auto 100%;
   }
 
   #grader {
 
     background-color: var(--sakai-title-bar-bg-color);
 
-    .offcanvas-title {
-      font-size: 14px;
-      margin-right: auto;
-      margin-left: 1rem;
-    }
-
-    .grader-photo {
-      min-width: 48px;
-      width: 48px;
-      height: 48px;
-      background-position: 50%;
-      background-size: auto 100%;
-    }
-
-    #grader-rubric-block {
+    #grader-rubric-block,
+    #student-rubric-block {
       container-type: inline-size; /* Force the rubrics to display in rows */
-    }
-
-    .draft-submission {
-        margin-left: 8px;
-        color: var(--errorBanner-color);
     }
 
     .rubric-active {
@@ -178,7 +180,8 @@ sakai-grader {
         position: relative;
         max-height: 100px;
         overflow: hidden;
-        
+        &:has(.fade-overlay.d-none) { max-height: unset }
+
         &::after {
           content: "";
           position: absolute;
@@ -545,36 +548,17 @@ sakai-grader {
     }
   } //media tablet
 
-  @include media-breakpoint-up(xl) {
+  @include media-breakpoint-up(lg) {
     /* Desktop layout */
     #grader {
       position: sticky;
       top: 0;
-      visibility: visible !important;
       width: 400px;
-      transform: none !important;
-      z-index: unset;
-      right: auto;
-      float: none;
-      flex: 0 0 400px;
-      margin: $standard-spacing 0 0 $standard-spacing;
-    }
-
-    /* Ensure the offcanvas body scrolls properly */
-    #grader .offcanvas-body {
       height: calc(100vh - 160px); /* Subtract header height */
       overflow-y: auto;
       padding-bottom: 20px;
     }
 
-    #grader .offcanvas-header {
-      justify-content: unset;
-
-      sakai-user-photo {
-        margin-right: 10px;
-      }
-    }
-    
     /* Fix the flex layout for desktop */
     .d-flex.flex-column.flex-lg-row {
       display: flex;
@@ -582,14 +566,13 @@ sakai-grader {
       width: 100%;
       flex-wrap: nowrap;
       align-items: flex-start;
-      height: calc(100vh - 60px); /* Set a height for the container to enable scrolling */
+      height: 100vh;
     }
     
     /* Ensure the gradable container takes appropriate space and shows scrollbars */
     #grader-gradable-container {
       flex: 1;
       height: 100%;
-      max-width: calc(100% - 400px - $standard-spacing);
       overflow-y: scroll;
     }
     

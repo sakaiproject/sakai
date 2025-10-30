@@ -42,7 +42,6 @@ public class OverrideCourseGradeAction extends InjectableAction implements Seria
 		CourseGradeOverridePanel cgop = new CourseGradeOverridePanel(window.getContentId(),
 				Model.of(studentUuid),
 				window);
-		cgop.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		window.setContent(cgop);
 		window.showUnloadConfirmation(false);
 		window.show(target);

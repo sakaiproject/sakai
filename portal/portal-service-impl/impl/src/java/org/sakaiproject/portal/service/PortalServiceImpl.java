@@ -125,6 +125,8 @@ public class PortalServiceImpl implements PortalService, Observer
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<>();
 	private Collection<PortalSubPageNavProvider> portalSubPageNavProviders;
 
+	public static final int DEFAULT_MAX_RECENT_SITES = 3;
+
 	public void init() {
 		try {
 			// configure the parser for castor, before anything else get a chance
@@ -895,15 +897,31 @@ public class PortalServiceImpl implements PortalService, Observer
 	public void reorderPinnedSites(String userId, List<String> siteIds) {
 		if (StringUtils.isBlank(userId)) return;
 
-		pinnedSiteRepository.deleteByUserId(userId);
+		if(!serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
+			pinnedSiteRepository.deleteByUserId(userId);
 
-		for (int i = 0; i < siteIds.size(); i++) {
+			for (int i = 0; i < siteIds.size(); i++) {
 
-			PinnedSite pin = new PinnedSite();
-			pin.setUserId(userId);
-			pin.setSiteId(siteIds.get(i));
-			pin.setPosition(i);
-			pinnedSiteRepository.save(pin);
+				PinnedSite pin = new PinnedSite();
+				pin.setUserId(userId);
+				pin.setSiteId(siteIds.get(i));
+				pin.setPosition(i);
+				pinnedSiteRepository.save(pin);
+			}
+		} else {
+			List<String> reversedSiteIds = new ArrayList<>(siteIds);
+			Collections.reverse(reversedSiteIds);
+
+			pinnedSiteRepository.deleteByUserId(userId);
+
+			for (int i = 0; i < reversedSiteIds.size(); i++) {
+
+				PinnedSite pin = new PinnedSite();
+				pin.setUserId(userId);
+				pin.setSiteId(reversedSiteIds.get(i));
+				pin.setPosition(i);
+				pinnedSiteRepository.save(pin);
+			}
 		}
 	}
 
@@ -917,9 +935,15 @@ public class PortalServiceImpl implements PortalService, Observer
 	public List<String> getPinnedSites(String userId) {
 		if (StringUtils.isBlank(userId)) return Collections.emptyList();
 
-		return pinnedSiteRepository.findByUserIdOrderByPosition(userId).stream()
+		List<String> pinned = pinnedSiteRepository
+				.findByUserIdAndHasBeenUnpinnedOrderByPosition(userId, false)
+				.stream()
 				.map(PinnedSite::getSiteId)
-				.collect(Collectors.toUnmodifiableList());
+				.collect(Collectors.toList());
+		if (serverConfigurationService.getBoolean("portal.new.pinned.sites.top", false)) {
+			Collections.reverse(pinned);
+		}
+		return Collections.unmodifiableList(pinned);
 	}
 
 	@Override
@@ -958,11 +982,13 @@ public class PortalServiceImpl implements PortalService, Observer
 
 		recentSiteRepository.deleteByUserIdAndSiteId(userId, siteId);
 
-		List<String> current = getRecentSites(userId);
+		List<String> current = new ArrayList<>(getRecentSites(userId));
 
-		if (current.size() == 3) {
-			// Oldest is last
-			String last = current.toArray(new String[] {})[current.size() - 1];
+		int maxRecentSites = serverConfigurationService.getInt("portal.max.recent.sites", DEFAULT_MAX_RECENT_SITES);
+		// Clean up excess sites if user has more than the limit
+		while (current.size() >= maxRecentSites && !current.isEmpty()) {
+			// Remove oldest entry (last in the list)
+			String last = current.remove(current.size() - 1);
 			recentSiteRepository.deleteByUserIdAndSiteId(userId, last);
 		}
 

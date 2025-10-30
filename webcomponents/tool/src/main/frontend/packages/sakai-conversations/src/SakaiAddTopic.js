@@ -77,7 +77,6 @@ export class SakaiAddTopic extends SakaiElement {
     this.topic.lockDateMillis = this.topic.lockDate ? this.topic.lockDate * 1000 : nowMillis;
     this.topic.hideDateMillis = this.topic.hideDate ? this.topic.hideDate * 1000 : nowMillis;
     this.topic.dueDateMillis = this.topic.dueDate ? this.topic.dueDate * 1000 : nowMillis;
-    this.topic.acceptUntilDateMillis = this.topic.acceptUntilDate ? this.topic.acceptUntilDate * 1000 : nowMillis;
 
     this.new = !value.id;
     this.requestUpdate();
@@ -110,10 +109,10 @@ export class SakaiAddTopic extends SakaiElement {
       return;
     }
 
-    if (this.topic.dueDate && this.topic.lockDate && this.topic.lockDate < this.topic.dueDate) {
+    if (this._computeLockDateInvalid()) {
       this._lockDateInvalid = true;
       this.updateComplete.then(() => {
-        document.querySelector(".portal-main-container").scrollTo({ top: 0, behaviour: "smooth" });
+        document.querySelector(".portal-main-container")?.scrollTo({ top: 0, behavior: "smooth" });
       });
       return;
     }
@@ -123,18 +122,27 @@ export class SakaiAddTopic extends SakaiElement {
     const lightTopic = { ...this.topic, posts: [] };
 
     const itemAssociation = this.querySelector("sakai-grading-item-association");
-    lightTopic.graded = itemAssociation?.useGrading;
-    if (itemAssociation?.useGrading) {
+    const useGrading = !!itemAssociation?.useGrading;
+    lightTopic.graded = useGrading;
+    if (useGrading) {
       lightTopic.createGradingItem = !!itemAssociation.createGradingItem;
-      lightTopic.gradingCategory = itemAssociation.category ? Number(itemAssociation.category) : -1;
-      lightTopic.gradingItemId = itemAssociation.gradingItemId ? Number(itemAssociation.gradingItemId) : -1;
-      lightTopic.gradingPoints = itemAssociation.points ? Number(itemAssociation.points) : -1;
+      lightTopic.gradingCategory = itemAssociation.category == null ? -1 : Number(itemAssociation.category);
+      lightTopic.gradingItemId = itemAssociation.gradingItemId == null ? -1 : Number(itemAssociation.gradingItemId);
+      const points = Number(itemAssociation.points);
 
-      if (lightTopic.createGradingItem && lightTopic.gradingPoints === -1) {
-        console.warn("No grading points specified");
+      if (!(Number.isFinite(points) && points > 0)) {
+        console.warn("Grading points must be a positive number");
         itemAssociation.focusPoints();
         return;
       }
+
+      lightTopic.gradingPoints = points;
+    } else {
+      lightTopic.gradingPoints = undefined;
+      // Clear any stale association when grading is off
+      lightTopic.createGradingItem = false;
+      lightTopic.gradingCategory = -1;
+      lightTopic.gradingItemId = -1;
     }
 
     fetch(this.topic.url, {
@@ -235,13 +243,47 @@ export class SakaiAddTopic extends SakaiElement {
   _toggleShowDue(e) {
 
     this._showDue = e.target.checked;
-    this.topic.dueDate = this._showDue ? Date.now() / 1000 : undefined;
+    if (this._showDue) {
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      const fallbackSeconds = this.topic.dueDate ?? nowSeconds;
+      this.topic.dueDate = fallbackSeconds;
+      this.topic.dueDateMillis = fallbackSeconds * 1000;
+      this._dueDateInPast = fallbackSeconds < nowSeconds;
+      this._lockDateInvalid = this._computeLockDateInvalid();
+      this._validateShowDate();
+      this._validateHideDate();
+    } else {
+      this.topic.dueDate = undefined;
+      this.topic.dueDateMillis = undefined;
+      this._showAcceptUntil = false;
+      this.topic.lockDate = undefined;
+      this.topic.lockDateMillis = undefined;
+      this._dueDateInPast = false;
+      this._showDateAfterDueDate = false;
+      this._hideDateBeforeDueDate = false;
+      this._lockDateInvalid = false;
+    }
+    this._saveWip();
   }
 
   _toggleShowAcceptUntil(e) {
 
     this._showAcceptUntil = e.target.checked;
-    this.topic.acceptUntilDate = this._showAcceptUntil ? Date.now() : undefined;
+
+    if (this._showAcceptUntil) {
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      const fallbackSeconds = this.topic.lockDate
+        ?? (this.topic.dueDate != null ? Math.max(this.topic.dueDate, nowSeconds) : nowSeconds);
+      this.topic.lockDate = fallbackSeconds;
+      this.topic.lockDateMillis = fallbackSeconds * 1000;
+      this._lockDateInvalid = this._computeLockDateInvalid();
+    } else {
+      this.topic.lockDate = undefined;
+      this.topic.lockDateMillis = undefined;
+      this._lockDateInvalid = false;
+    }
+
+    this._saveWip();
   }
 
   _setVisibility(e) {
@@ -273,9 +315,23 @@ export class SakaiAddTopic extends SakaiElement {
                                     && this.topic.dueDate > this.topic.hideDate;
   }
 
+  _computeLockDateInvalid() {
+
+    const { dueDate, lockDate } = this.topic;
+
+    if (dueDate == null || lockDate == null || dueDate === "" || lockDate === "") {
+      return false;
+    }
+
+    const due = Number(dueDate);
+    const lock = Number(lockDate);
+    return Number.isFinite(due) && Number.isFinite(lock) && lock < due;
+  }
+
   _setLockDate(e) {
 
     this.topic.lockDate = e.detail.epochSeconds;
+    this._lockDateInvalid = this._computeLockDateInvalid();
     this._saveWip();
   }
 
@@ -438,12 +494,13 @@ export class SakaiAddTopic extends SakaiElement {
         `}
 
         <div class="add-topic-block">
-          <div id="summary-label" class="add-topic-label">${this._i18n.summary} *</div>
+          <div id="summary-label" class="add-topic-label required">${this._i18n.summary}</div>
           <input id="summary"
             @change=${this._updateSummary}
             aria-labelledby="summary-label"
-            .value="${this.topic.title}" />
-          <div class="required">
+            .value="${this.topic.title}"
+            required />
+          <div class="required-info">
             <span>* ${this._i18n.required}</span>
             <span>(${this._i18n.min_title_characters_info})</span>
           </div>
@@ -654,7 +711,7 @@ export class SakaiAddTopic extends SakaiElement {
             gradable-type="Topic"
             .gradingItemId=${this.topic.gradingItemId}
             gradable-ref="${this.topic.reference}"
-            ?use-grading=${this.topic.gradingItemId}>
+            .useGrading=${this.topic.graded ?? (Number(this.topic.gradingItemId) > 0)}>
         </sakai-grading-item-association>
         ` : nothing}
 

@@ -44,12 +44,6 @@
 
 		<property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
         <property name="resourceSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"/></property>
-        <!--
-        If you want to use the new serializers you have to let them migrate the data, set to true
-        so that they can write the new format when they update an item.
-        
-        -->
-        <property name="migrateData"><value>true</value></property>
 
 
         <property name="collectionTableName">       <value>CONTENT_COLLECTION</value>           </property>
@@ -72,6 +66,7 @@
               <entry key="oracle" ><ref bean="org.sakaiproject.content.impl.ContentServiceSqlOracle" /></entry>
            </map>
         </property>
+        <property name="fileSystemHandler"><ref bean="org.sakaiproject.content.api.FileSystemHandler"/></property>
     </bean>
 
     <bean id="org.sakaiproject.content.api.FileSystemHandler.file" class="org.sakaiproject.content.impl.DefaultFileSystemHandler">

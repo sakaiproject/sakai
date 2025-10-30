@@ -1252,8 +1252,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       action: "viewStatistics",
       assignmentId: cellElement.data("assignment-id"),
     });
-  })
-  .on("click", ".gb-dropdown-menu .gb-course-grade-override", function () {
+  }).
+  on("click", ".gb-dropdown-menu .gb-course-grade-override", function () {
     const cellElement = $(this).closest(".tabulator-cell, .tabulator-col");
 
     GbGradeTable.ajax({
@@ -1370,8 +1370,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     });
   })
   .on("click", ".gb-dropdown-menu .gb-hide-column", function (event) {
-    const cellElement = $(this).closest(".tabulator-cell, .tabulator-col");
+    event.preventDefault();
 
+    const cellElement = $(this).closest(".tabulator-cell, .tabulator-col");
     const $togglePanel = $("#gradeItemsTogglePanel");
     const assignmentId = cellElement.data("assignment-id");
     const categoryId = cellElement.data("category-id");
@@ -1381,11 +1382,21 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         .find(`.gb-item-filter :checkbox[value='${assignmentId}']`)
         .trigger("click");
     } else if (categoryId) {
-      const colIndex = GbGradeTable.colForCategoryScore(categoryId);
-      const col = GbGradeTable.instance.getColumns()[colIndex].getDefinition();
+      let column;
+
+      try {
+        column = GbGradeTable.colModelForCategoryId(categoryId);
+      } catch (error) {
+        return;
+      }
+
+      if (!column || !column.categoryName) {
+        return;
+      }
+
       $togglePanel
         .find(
-          `.gb-item-category-score-filter :checkbox[value="${col.categoryName}"]`
+          `.gb-item-category-score-filter :checkbox[value="${CSS.escape(column.categoryName)}"]`
         )
         .trigger("click");
     }
@@ -1407,6 +1418,22 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     GbGradeTable.ajax({
       action: "viewCourseGradeBreakdown",
       siteId: GbGradeTable.container.dataset.siteId,
+    });
+  })
+  .on("click", ".gb-dropdown-menu .gb-rubric-export", function () {
+    const cellElement = $(this).closest(".tabulator-cell, .tabulator-col");
+
+    let userIds = document.getElementsByClassName("userIds");
+
+    let userIdsSt = "";
+    for (let index = 0; index < userIds.length; index++) {
+      userIdsSt = ((index != 0) ? userIdsSt + "," : "") + userIds[index].value;
+    }
+
+    GbGradeTable.ajax({
+      action: "exportRubricAssignmentAction",
+      assignmentId: cellElement.data("assignment-id"),
+      userIds: userIdsSt
     });
   });
   
@@ -2395,6 +2422,13 @@ GbGradeTable.setupDragAndDrop = function () {
 
     const sourceAssignmentId = column.getElement().dataset.assignmentId;
     const sourceCategoryId = column.getElement().dataset.categoryId;
+    const columnType = column.getElement().dataset.columnType;
+
+    // Only process assignment columns, not category columns
+    if (columnType !== "assignment" || !sourceAssignmentId) {
+      console.debug("Skipping drag and drop for non-assignment column");
+      return;
+    }
 
     let newIndex = columns.findIndex(c => c._column.field === column._column.field) - GbGradeTable.FIXED_COLUMN_OFFSET;
 
@@ -3319,4 +3353,3 @@ GradebookAPI._POST = function(url, data, onSuccess, onError) {
   .then(r => onSuccess())
   .catch (() => onError());
 };
-

@@ -1,5 +1,5 @@
 import { SakaiElement } from "@sakai-ui/sakai-element";
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 export class SakaiSearch extends SakaiElement {
@@ -28,6 +28,7 @@ export class SakaiSearch extends SakaiElement {
       "lessons": "si si-sakai-lessonbuildertool",
       "commons": "si si-sakai-commons",
       "content": "si si-sakai-resources",
+      "syllabus": "si si-sakai-syllabus",
       "wiki": "si si-sakai-rwiki"
     };
 
@@ -43,6 +44,7 @@ export class SakaiSearch extends SakaiElement {
         "lessons": this._i18n.toolname_lesson,
         "commons": this._i18n.toolname_commons,
         "content": this._i18n.toolname_resources,
+        "syllabus": this._i18n.toolname_syllabus,
         "wiki": this._i18n.toolname_wiki
       };
     });
@@ -151,16 +153,16 @@ export class SakaiSearch extends SakaiElement {
           value=${this.searchTerms}
           aria-label="${this._i18n.search_placeholder}"
         />
-        <button class="btn btn-primary" type="submit" id="sakai-search-button">
-          Search Sakai
+        <button class="btn btn-primary ms-1" type="submit" id="sakai-search-button">
+          ${this._i18n.search}
         </button>
       </form>
       ${this.noResults ? html`
-        <div class="list-group-item d-flex justify-content-between align-items-start">
-           <span class="no-results">No results found :(</span>
+        <div class="list-group-item d-flex justify-content-between align-items-start mt-2 fw-bold">
+          ${this._i18n.no_results}
         </div>
-      ` : ""}
-      ${this._results && this._results.length > 0 ? html`
+      ` : nothing}
+      ${this._results?.length > 0 ? html`
         <div class="d-flex justify-content-end">
           <button type="button"
               class="btn icon-button mt-2 mb-1 fs-3 p-0"
@@ -193,7 +195,7 @@ export class SakaiSearch extends SakaiElement {
             </a>
           `)}
         </div>
-      ` : ""}
+      ` : nothing}
     `;
   }
 }

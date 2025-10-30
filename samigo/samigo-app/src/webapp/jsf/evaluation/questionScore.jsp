@@ -504,7 +504,7 @@ $Id$
        </h:commandLink>
 	   <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{description.email != null && description.email != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -544,7 +544,7 @@ $Id$
        </h:commandLink>
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{description.email != null && description.email != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -588,7 +588,7 @@ $Id$
        </h:commandLink>
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{description.email != null && description.email != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -1334,6 +1334,10 @@ $Id$
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+   </h:commandButton>
+   <h:commandButton id="downloadRubrics" styleClass="active" value="#{evaluationMessages.rubrics_button_download}" action="questionScores" type="submit" rendered="#{questionScores.hasAssociatedRubric}">
+      <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportRubrics" />
    </h:commandButton>
    <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="totalScores" immediate="true"/>
 </p>

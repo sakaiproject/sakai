@@ -99,15 +99,12 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		
 		processMySites();
 
-		String profileToolId = serverConfigurationService.getString("portal.profiletool","sakai.profile2");
 		String calendarToolId = serverConfigurationService.getString("portal.calendartool","sakai.schedule");
 		String preferencesToolId = serverConfigurationService.getString("portal.preferencestool","sakai.preferences");
 		String worksiteToolId = serverConfigurationService.getString("portal.worksitetool","sakai.sitesetup");
 
- 		String profileToolUrl = null;
 		String calendarToolUrl = null;
  		String worksiteToolUrl = null;
- 		String mrphs_profileToolUrl = null;
  		String mrphs_worksiteToolUrl = null;
  		String mrphs_worksiteUrl = null;
         if ( myWorkspaceSiteId != null ) {
@@ -118,10 +115,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
                     for (SitePage p : pages) {
                         List<ToolConfiguration> pTools = p.getTools();
                         for (ToolConfiguration placement : pTools) {
-                            if ( profileToolId.equals(placement.getToolId()) ) {
-                                profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
-                                mrphs_profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
-                            } else if ( calendarToolId.equals(placement.getToolId()) ) {
+                            if ( calendarToolId.equals(placement.getToolId()) ) {
                                 calendarToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                             } else if ( worksiteToolId.equals(placement.getToolId()) ) {
                                 worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
@@ -136,10 +130,6 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		if ( mrphs_worksiteUrl != null ) {
 			renderContextMap.put("mrphs_worksiteUrl", mrphs_worksiteUrl);
         }
-		if ( profileToolUrl != null ) {
-			renderContextMap.put("profileToolUrl", profileToolUrl);
-			renderContextMap.put("mrphs_profileToolUrl", mrphs_profileToolUrl);
-		}
 		if ( calendarToolUrl != null ) {
 			renderContextMap.put("calendarToolUrl", calendarToolUrl);
 		}

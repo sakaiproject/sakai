@@ -170,8 +170,7 @@ roster.switchState = function (state, args) {
   }
 
   // don't show card game tab if user doesn't have permission to view all members or official photos
-  if (roster.currentUserPermissions && 
-      (!roster.currentUserPermissions.viewAllMembers || !roster.currentUserPermissions.viewOfficialPhoto)) {
+  if (roster.currentUserPermissions && !roster.currentUserPermissions.viewAllMembers) {
 
     $('#navbar_card_game_link').hide();
 
@@ -567,19 +566,14 @@ roster.search = function (query) {
 
   if (query && query !== roster.i18n.roster_search_text) {
     const regex = new RegExp(query, 'i');
-    const userIds = [];
-    roster.searchIndexValues.forEach((displayName, i) => {
-
-      if (regex.test(displayName)) {
-        userIds.push(roster.searchIndexKeys[i]);
-      }
-    });
+    let userIds = roster.searchIndex.filter(u => regex.test(u.displayName) || regex.test(u.eid)).map(u => u.id);
     //if query string is too short, show 20 users as much
     if (query.length < 3 && userIds.length > 20) {
       userIds = userIds.slice(0, 20);
     }
 
-    if (userIds.length > 0) {
+    if (userIds.length) {
+      roster.noParticipants = false;
       roster.userIds = userIds;
       roster.renderMembership({ replace: true });
     } else {
@@ -593,7 +587,7 @@ roster.search = function (query) {
 
 roster.readySearchButton = function () {
 
-  let button = $('#roster-search-button');
+  const button = $('#roster-search-button');
   button.prop("disabled", true);
 
   this.searchIndexPromise.then(() => {
@@ -622,10 +616,10 @@ roster.readySearchField = function () {
     });
 
     field.autocomplete({
-      source: roster.searchIndexValues,
+      source: roster.searchSource,
       select: function (e, ui) {
 
-        if (e.originalEvent && e.originalEvent.originalEvent && e.originalEvent.originalEvent.type === "click") {
+        if (e.originalEvent?.originalEvent?.type === "click") {
           roster.search(ui.item.value);
         }
       }
@@ -684,14 +678,14 @@ roster.getRoleFragments = function (roleCounts) {
 
   return Object.keys(roleCounts).sort().map(function (key) {
 
-    var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
-    return frag.replace(/\{1\}/, '<span class="role">' + key + '</span>');
+    const frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
+    return frag.replace(/\{1\}/, `<span class="role">${key}</span>`);
   }).join(", ");
 };
 
 roster.addExportHandler = function () {
 
-  var button = $('#roster-export-button');
+  const button = $('#roster-export-button');
 
   if (!roster.currentUserPermissions.rosterExport) {
     button.hide();
@@ -700,16 +694,10 @@ roster.addExportHandler = function () {
 
       e.preventDefault();
 
-      var baseUrl = "/direct/roster-export/" + roster.siteId +
-        "/export-to-excel?viewType=" + roster.currentState;
+      let baseUrl = `/direct/roster-export/${roster.siteId}/export-to-excel?viewType=${roster.currentState}`;
 
       if (roster.STATE_OVERVIEW === roster.currentState) {
-        var groupId = null;
-        if (null !== roster.groupToView) {
-          groupId = roster.groupToView;
-        } else {
-          groupId = roster.DEFAULT_GROUP_ID;
-        }
+        const groupId = roster.groupToView || roster.DEFAULT_GROUP_ID;
 
         if (null !== roster.roleToView) {
           baseUrl += "&roleId=" + roster.roleToView;
@@ -742,9 +730,7 @@ roster.clickViewCardRadio = function (render) {
   roster.currentLayout = "cards";
 
   // Re-render table with dynamic page size for card view
-  if (render) {
-    roster.renderMembership({ replace: true });
-  }
+  render && roster.renderMembership({ replace: true });
 };
 
 roster.clickViewSpreadsheetRadio = function() {
@@ -803,10 +789,10 @@ Handlebars.registerHelper('translate', function (key) {
 });
 
 Handlebars.registerHelper('getName', function (firstNameLastName) {
-  return (firstNameLastName) ? this.displayName : this.sortName;
+  return firstNameLastName ? this.displayName : this.lastName + ", <wbr />" + this.firstName;
 });
 
-Handlebars.registerHelper('ifCond', function(v1, v2, options) {
+Handlebars.registerHelper('ifCond', function (v1, v2, options) {
   if(v1 === v2) {
     return options.fn(this);
   }
@@ -857,9 +843,8 @@ roster.init = function () {
     async: false,
     success: function (data) {
 
-      roster.searchIndex = data.data;
-      roster.searchIndexKeys = Object.keys(data.data);
-      roster.searchIndexValues = roster.searchIndexKeys.map(function (k) { return data.data[k] });
+      roster.searchIndex = data;
+      roster.searchSource = [ ...data.map(u => u.displayName), ...data.map(u => u.eid) ];
     },
     error: () => console.error("failure retrieving search index data")
   });
@@ -892,7 +877,7 @@ roster.initNavBar = function() {
 roster.loadSiteDataAndInit = function () {
 
   $.ajax({
-    url: "/direct/roster-membership/" + roster.siteId + "/get-site.json",
+    url: `/direct/roster-membership/${roster.siteId}/get-site.json`,
     dataType: "json",
     cache: false,
     success: function (data) {

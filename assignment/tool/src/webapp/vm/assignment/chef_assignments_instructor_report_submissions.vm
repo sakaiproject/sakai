@@ -10,38 +10,37 @@
 		</h1>
 	</div>
 
+	<div class="sakai-table-toolBar">
+		<div class="sakai-table-filterContainer">
+		#if (!$hasAtLeastOneAnonAssignment)
+			#if ($!groups.hasNext())
+				#define($viewSelectOptions)
+					#if (!$showSubmissionByFilterSearchOnly)
+						<option value="all" #if($!viewString.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+					#else
+						<option value="" >$tlang.getString('please_select_group')</option>
+					#end
+					#foreach($aGroup in $groups)
+						<option value="$!aGroup.Reference" #if($!viewString.equals($!aGroup.Reference))selected="selected"#end >$formattedText.escapeHtml($aGroup.Title)</option>
+					#end
+				#end
+				#viewFilterPanel("viewFilterForm", "viewgroup", $viewSelectOptions, "doChange_submission_list_option")
+			#end
+
+			#searchFilterPanel("$form_search", $searchString, "doView_submission_list_search", "doView_submission_list_search_clear")
+		#end
+		</div>
+		<div class="sakai-table-toolBar-centre">
+			<a href="$accessPointUrl" title="$!tlang.getString('downspr')" id="downloadAll">$!tlang.getString('downspr')</a> - 
+			<a href="$accessPointUrlByColumns" title="$!tlang.getString('downsprByColumns')" id="downloadAllByColumns">$!tlang.getString('downsprByColumns')</a>
+		</div>
+		<div class="sakai-table-pagerContainer">
+			#pagerPanel("pager1")
+		</div>
+	</div>
 	#if ($!submissions.size() == 0)
 		<p class="instruction">$tlang.getString("gen.theare2")</p>
 	#else
-		<div class="sakai-table-toolBar">
-			<div class="sakai-table-filterContainer">
-			#if (!$hasAtLeastOneAnonAssignment)
-				#if ($!groups.hasNext())
-					#define($viewSelectOptions)
-						#if (!$showSubmissionByFilterSearchOnly)
-							<option value="all" #if($!viewString.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
-						#else
-							<option value="" >$tlang.getString('please_select_group')</option>
-						#end
-						#foreach($aGroup in $groups)
-							<option value="$!aGroup.Reference" #if($!viewString.equals($!aGroup.Reference))selected="selected"#end >$formattedText.escapeHtml($aGroup.Title)</option>
-						#end
-					#end
-					#viewFilterPanel("viewFilterForm", "viewgroup", $viewSelectOptions, "doChange_submission_list_option")
-				#end
-
-				#searchFilterPanel("$form_search", $searchString, "doView_submission_list_search", "doView_submission_list_search_clear")
-			#end
-			</div>
-			<div class="sakai-table-toolBar-centre">
-				<a href="$accessPointUrl" title="$!tlang.getString('downspr')" id="downloadAll">$!tlang.getString('downspr')</a> - 
-				<a href="$accessPointUrlByColumns" title="$!tlang.getString('downsprByColumns')" id="downloadAllByColumns">$!tlang.getString('downsprByColumns')</a>
-			</div>
-			<div class="sakai-table-pagerContainer">
-				#pagerPanel("pager1")
-			</div>
-		</div>
-
 		<form name="reportForm" action="#toolForm("AssignmentAction")" method="post">
 			#if ($submissions.size()==0)
 				<p class="instruction">

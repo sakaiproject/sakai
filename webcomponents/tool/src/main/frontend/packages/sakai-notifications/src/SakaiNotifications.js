@@ -2,9 +2,9 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-user-photo/sakai-user-photo.js";
-import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback } from "@sakai-ui/sakai-push-utils";
+import { callSubscribeIfPermitted, NOT_PUSH_CAPABLE, pushSetupComplete, registerPushCallback, PUSH_PERMISSION_STATES } from "@sakai-ui/sakai-push-utils";
 import { getServiceName } from "@sakai-ui/sakai-portal-utils";
-import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO } from "./states.js";
+import { NOTIFICATIONS, PUSH_DENIED_INFO, PUSH_INTRO, PUSH_SETUP_INFO, PWA_INSTALL_INFO } from "./states.js";
 import { markNotificationsViewed } from "./utils.js";
 
 export class SakaiNotifications extends SakaiElement {
@@ -19,16 +19,46 @@ export class SakaiNotifications extends SakaiElement {
     _state: { state: true },
     _highlightTestButton: { state: true },
     _browserInfoUrl: { state: true },
+    _pushEnabled: { state: true },
   };
 
   constructor() {
 
     super();
 
+    /*
+      Polyfill for Notification in unsupported environments.
+      The Notification object can be undefined when browsing inside an iOS or Android webview.
+      See: https://developer.mozilla.org/en-US/docs/Web/API/Notifications_API
+    */
+    if (typeof window.Notification === "undefined") {
+      window.Notification = function() {};
+      window.Notification.permission = "denied";
+      window.Notification.requestPermission = function(cb) {
+        if (cb) cb("denied");
+        return Promise.resolve("denied");
+      };
+    }
+
+    /*
+      Polyfill for navigator.setAppBadge in unsupported environments.
+      This API may be undefined in several environments
+      See: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/setAppBadge
+    */
+    if (typeof navigator.setAppBadge === "undefined") {
+      navigator.setAppBadge = function() {
+        return Promise.resolve();
+      };
+      navigator.clearAppBadge = function() {
+        return Promise.resolve();
+      };
+    }
+
     window.addEventListener("online", () => this._online = true );
 
     this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
+    this._pushEnabled = false; // Default to false, will be set in _registerForNotifications
   }
 
   connectedCallback() {
@@ -83,45 +113,50 @@ export class SakaiNotifications extends SakaiElement {
 
     pushSetupComplete.then(() => {
 
+      this._pushEnabled = true;
+
       if (Notification.permission !== "granted") return;
 
       registerPushCallback("notifications", message => {
 
         this.notifications.unshift(message);
         this._fireLoadedEvent();
-        this._decorateNotification(message);
-        this._filterIntoToolNotifications(false);
+        this._filterIntoToolNotifications();
       });
     })
     .catch(error => {
 
+      this._pushEnabled = false;
+
       if (error === NOT_PUSH_CAPABLE) {
         this._state = PUSH_SETUP_INFO;
+      } else if (error === PUSH_PERMISSION_STATES.PWA_REQUIRED) {
+        this._state = PWA_INSTALL_INFO;
       }
     });
   }
 
-  _filterIntoToolNotifications(decorate = true) {
+  _filterIntoToolNotifications() {
 
     this._filteredNotifications.clear();
 
     this.notifications.forEach(noti => {
 
-      decorate && this._decorateNotification(noti);
-
-      // Grab the first section of the event. This is the tool event prefix.
-      const toolEventPrefix = noti.event.substring(0, noti.event.indexOf("."));
+      const decorated = this._decorateNotification(noti);
+      const dot = decorated.event.indexOf(".");
+      const toolEventPrefix = dot === -1 ? decorated.event : decorated.event.slice(0, dot);
 
       if (!this._filteredNotifications.has(toolEventPrefix)) {
         this._filteredNotifications.set(toolEventPrefix, []);
       }
 
-      this._filteredNotifications.get(toolEventPrefix).push(noti);
+      this._filteredNotifications.get(toolEventPrefix).push(decorated);
     });
 
     // Make sure the motd bundle is at the top.
-    const newMap = Array.from(this._filteredNotifications).sort(a => a === "motd" ? 1 : -1);
-    this._filteredNotifications = new Map(newMap);
+    const entries = Array.from(this._filteredNotifications.entries());
+    entries.sort((a, b) => (a[0] === "motd" ? -1 : b[0] === "motd" ? 1 : 0));
+    this._filteredNotifications = new Map(entries);
 
     this._state = NOTIFICATIONS;
     this.requestUpdate();
@@ -129,24 +164,27 @@ export class SakaiNotifications extends SakaiElement {
 
   _decorateNotification(noti) {
 
-    // Grab the first section of the event. This is the tool event prefix.
-    const toolEventPrefix = noti.event.substring(0, noti.event.indexOf("."));
+    const decorated = { ...noti };
+    const dot = decorated.event.indexOf(".");
+    const toolEventPrefix = dot === -1 ? decorated.event : decorated.event.slice(0, dot);
 
     if (toolEventPrefix === "asn") {
-      this._decorateAssignmentNotification(noti);
+      this._decorateAssignmentNotification(decorated);
     } else if (toolEventPrefix === "annc") {
-      this._decorateAnnouncementNotification(noti);
+      this._decorateAnnouncementNotification(decorated);
     } else if (toolEventPrefix === "commons") {
-      this._decorateCommonsNotification(noti);
+      this._decorateCommonsNotification(decorated);
     } else if (toolEventPrefix === "sam") {
-      this._decorateSamigoNotification(noti);
+      this._decorateSamigoNotification(decorated);
     } else if (toolEventPrefix === "message") {
-      this._decorateMessageNotification(noti);
+      this._decorateMessageNotification(decorated);
     } else if (toolEventPrefix === "lessonbuilder") {
-      this._decorateLessonsCommentNotification(noti);
+      this._decorateLessonsCommentNotification(decorated);
     } else if (toolEventPrefix === "test") {
-      this._decorateTestNotification(noti);
+      this._decorateTestNotification(decorated);
     }
+
+    return decorated;
   }
 
   _decorateAssignmentNotification(noti) {
@@ -166,6 +204,7 @@ export class SakaiNotifications extends SakaiElement {
   }
 
   _decorateCommonsNotification(noti) {
+
     noti.title = this._i18n.academic_comment_graded.replace("{0}", noti.siteTitle);
   }
 
@@ -184,6 +223,7 @@ export class SakaiNotifications extends SakaiElement {
   }
 
   _decorateLessonsCommentNotification(noti) {
+
     noti.title = this._i18n.lessons_comment_posted.replace("{0}", noti.siteTitle);
   }
 
@@ -197,7 +237,7 @@ export class SakaiNotifications extends SakaiElement {
 
     const unviewed = this.notifications.filter(n => !n.viewed).length;
     this.dispatchEvent(new CustomEvent("notifications-loaded", { detail: { count: unviewed }, bubbles: true }));
-    navigator.setAppBadge && navigator.setAppBadge(unviewed);
+    navigator.setAppBadge(unviewed);
   }
 
   _clearNotification(e) {
@@ -212,7 +252,7 @@ export class SakaiNotifications extends SakaiElement {
           const index = this.notifications.findIndex(a => a.id == notificationId);
           this.notifications.splice(index, 1);
           this._fireLoadedEvent();
-          this._filterIntoToolNotifications(false);
+          this._filterIntoToolNotifications();
         } else {
           throw new Error(`Network error while clearing notification at ${url}`);
         }
@@ -319,15 +359,22 @@ export class SakaiNotifications extends SakaiElement {
 
     this._highlightTestButton = false;
 
+    console.debug("Sending test notification...");
+
     const url = "/api/users/me/notifications/test";
     fetch(url, { method: "POST" })
     .then(r => {
 
       if (!r.ok) {
+        console.error(`Test notification request failed with status ${r.status}: ${r.statusText}`);
         throw Error(`Network error while sending test notification at ${url}`);
       }
+
+      console.debug("Test notification request sent successfully");
     })
-    .catch(error => console.error(error));
+    .catch(error => {
+      console.error("Test notification error:", error);
+    });
   }
 
   shouldUpdate() {
@@ -438,6 +485,15 @@ export class SakaiNotifications extends SakaiElement {
         </div>
       ` : nothing}
 
+      ${this._state === PWA_INSTALL_INFO ? html`
+        <div class="sak-banner-info sakai-notifications__banner-info mb-3">
+          <div>
+            <div class="fw-bold mb-2">${this._i18n.pwa_install_title}</div>
+            <div class="mb-1">${this._i18n.pwa_install_instructions}</div>
+          </div>
+        </div>
+      ` : nothing}
+
       ${this._state === PUSH_INTRO ? html`
         <div class="sak-banner-info sakai-notifications__banner-info">
           <div>
@@ -450,13 +506,13 @@ export class SakaiNotifications extends SakaiElement {
         </div>
       ` : nothing}
 
-      ${this._state === NOTIFICATIONS ? html`
-        ${Notification.permission !== "granted" && this._online && this.pushEnabled ? html`
+      ${this._state === NOTIFICATIONS || this._state === PWA_INSTALL_INFO ? html`
+        ${Notification.permission !== "granted" && this._online && this._pushEnabled ? html`
           <div class="alert alert-warning">
             <span class="me-1">${this._i18n.push_not_enabled}</span>
             <button type="button"
                 class="btn btn-secondary btn-sm"
-                aria-label="${this._i18n_enable_push_label}"
+                aria-label="${this._i18n.enable_push_label}"
                 @click=${this._enablePush}>
               ${this._i18n.enable_push}
             </button>
@@ -476,7 +532,7 @@ export class SakaiNotifications extends SakaiElement {
         ` : nothing}
 
         <div class="d-flex justify-content-between my-2">
-          ${this._online && Notification.permission === "granted" ? html`
+          ${this._online && this._pushEnabled && Notification.permission === "granted" ? html`
             <div>
               <button class="btn ${this._highlightTestButton ? "btn-primary" : "btn-secondary"} btn-sm"
                   @click=${this._sendTestNotification}>

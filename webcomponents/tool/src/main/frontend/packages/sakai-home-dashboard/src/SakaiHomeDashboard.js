@@ -105,8 +105,8 @@ export class SakaiHomeDashboard extends SakaiElement {
     return html`
 
       <div>
-        <div class="d-lg-flex flex-wrap align-items-center justify-content-between">
-          <div class="fs-2">${this._i18n.welcome} ${this._data.givenName}</div>
+        <div class="d-lg-flex flex-wrap align-items-center justify-content-between mb-4">
+          <h2 class="my-2">${this._i18n.welcome} ${this._data.givenName}</h2>
           <div class="d-flex mb-2 mb-lg-0">
           ${this._editing ? html`
             <div class="me-1">
@@ -116,22 +116,22 @@ export class SakaiHomeDashboard extends SakaiElement {
               <sakai-button @click=${this.cancel} title="${this._i18n.cancel_tooltip}" aria-label="${this._i18n.cancel_tooltip}">${this._i18n.cancel}</sakai-button>
             </div>
           ` : html`
+            ${this._data.worksiteSetupUrl ? html`
+              <div class="me-1">
+                <sakai-button href="${this._data.worksiteSetupUrl}" title="${this._i18n.worksite_setup_tooltip}" aria-label="${this._i18n.worksite_setup_tooltip}">
+                  <div class="d-flex justify-content-between text-center">
+                    <div><sakai-icon type="add" size="small" class="me-3"></sakai-icon></div>
+                    <div>${this._i18n.worksite_setup}</div>
+                  </div>
+                </sakai-button>
+              </div>
+            ` : nothing}
             <div>
               <sakai-button slot="invoker" @click=${this.edit} title="${this._i18n.edit_tooltip}" arial-label="${this._i18n.edit_tooltip}">${this._i18n.edit}</sakai-button>
             </div>
           `}
           </div>
         </div>
-        ${this._data.worksiteSetupUrl ? html`
-          <div class="d-flex justify-content-end mt-4">
-            <sakai-button href="${this._data.worksiteSetupUrl}" title="${this._i18n.worksite_setup_tooltip}" aria-label="${this._i18n.worksite_setup_tooltip}">
-              <div class="d-flex justify-content-between text-center">
-                <div><sakai-icon type="add" size="small" class="me-3"></sakai-icon></div>
-                <div>${this._i18n.worksite_setup}</div>
-              </div>
-            </sakai-button>
-          </div>
-        ` : nothing}
         ${this._data.motd ? html`
           <div class="p-3 mt-2 mb-3 border border-1 rounded-1 fs-5 fw-normal">
             <div class="d-flex mb-4 align-items-center" @click=${this._toggleMotd}>
@@ -149,7 +149,7 @@ export class SakaiHomeDashboard extends SakaiElement {
         ` : nothing}
         <div class="d-lg-flex">
           ${this.showSites ? html`
-            <div class="me-lg-3 mb-4 mb-lg-0">
+            <div class="me-lg-3 pe-lg-3 mb-4 mb-lg-0 sakai-course-list">
               <sakai-course-list user-id="${this.userId}"></sakai-course-list>
             </div>
           ` : nothing}

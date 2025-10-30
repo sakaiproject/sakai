@@ -94,6 +94,10 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
 
         categoryRepository.deleteAll(categoryRepository.findByGradebook_Uid(gradebookUid));
 
+        gradebookRepository.deleteSpreadsheetsForGradebook(gradebook.getId());
+
+        permissionRepository.deleteAll(permissionRepository.findByGradebookId(gradebook.getId()));
+
         gradeMappingRepository.deleteAll(gradeMappingRepository.findByGradebook_Uid(gradebookUid));
 
         gradebookRepository.delete(gradebook);
@@ -248,6 +252,27 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
         return categoryRepository.findByGradebook_IdAndRemoved(gradebookId, false);
     }
 
+    public List<Category> getCategoriesWithAssignmentsForGradebook(Long gradebookId) {
+        List<Category> categories = categoryRepository.findByGradebook_IdAndRemoved(gradebookId, false);
+
+        if (!categories.isEmpty()) {
+            List<GradebookAssignment> allAssignments = gradebookAssignmentRepository
+                .findByGradebook_IdAndRemoved(gradebookId, false);
+
+            java.util.Map<Long, List<GradebookAssignment>> assignmentsByCategory = allAssignments.stream()
+                .filter(assignment -> assignment.getCategory() != null)
+                .collect(java.util.stream.Collectors.groupingBy(assignment -> assignment.getCategory().getId()));
+
+            categories.forEach(category -> {
+                List<GradebookAssignment> categoryAssignments = assignmentsByCategory.getOrDefault(
+                    category.getId(), java.util.Collections.emptyList());
+                category.setAssignmentList(categoryAssignments);
+            });
+        }
+
+        return categories;
+    }
+
     public boolean isCategoryDefined(String name, Gradebook gradebook) {
         return categoryRepository.existsByNameAndGradebookAndRemoved(name, gradebook, false);
     }
@@ -393,4 +418,5 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
     public GradebookProperty saveGradebookProperty(GradebookProperty property) {
         return gradebookPropertyRepository.save(property);
     }
+
 }

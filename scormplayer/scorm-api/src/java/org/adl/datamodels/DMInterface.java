@@ -26,9 +26,8 @@ package org.adl.datamodels;
 
 import java.util.NoSuchElementException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.datamodels.ieee.IValidatorFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * <strong>Filename:</strong>DMInterface.java<br><br>
@@ -50,9 +49,8 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class DMInterface {
-
-	private static Log log = LogFactory.getLog(DMInterface.class);
 
 	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 	
@@ -87,15 +85,9 @@ public class DMInterface {
 
 				// Process the Equals() request
 				result = ioSCOData.equals(request);
-			} catch (NullPointerException npe) {
+			} catch (NullPointerException | NumberFormatException | NoSuchElementException e) {
 				result = DMErrorCodes.INVALID_REQUEST;
-				log.debug("NullPointerException in processEquals -> result is INVALID_REQUEST.", npe);
-			} catch (NumberFormatException nfe) {
-				result = DMErrorCodes.INVALID_REQUEST;
-				log.debug("NumberFormatException in processEquals -> result is INVALID_REQUEST.", nfe);
-			} catch (NoSuchElementException nee) {
-				result = DMErrorCodes.INVALID_REQUEST;
-				log.debug("NoSuchElementException in processEquals -> result is INVALID_REQUEST.", nee);
+				log.debug("processEquals -> result is INVALID_REQUEST, {}", e.toString());
 			}
 		} else {
 			result = DMErrorCodes.ELEMENT_NOT_SPECIFIED;
@@ -140,12 +132,9 @@ public class DMInterface {
 
 				// Process the GetValue() request
 				result = ioSCOData.getValue(request, oInfo);
-			} catch (NullPointerException npe) {
+			} catch (NullPointerException | NumberFormatException e) {
 				result = DMErrorCodes.INVALID_REQUEST;
-				log.debug("NullPointerException in processGetValue -> result is INVALID_REQUEST.", npe);
-			} catch (NumberFormatException nfe) {
-				result = DMErrorCodes.INVALID_REQUEST;
-				log.debug("NumberFormatException in processGetValue -> result is INVALID_REQUEST.", nfe);
+				log.debug("processGetValue -> result is INVALID_REQUEST, {}", e.toString());
 			}
 		} else {
 			result = DMErrorCodes.ELEMENT_NOT_SPECIFIED;
@@ -209,12 +198,9 @@ public class DMInterface {
 
 					// Process the SetValue() request
 					result = ioSCOData.setValue(request, validatorFactory);
-				} catch (NullPointerException npe) {
+				} catch (NullPointerException | NumberFormatException e) {
 					result = DMErrorCodes.INVALID_REQUEST;
-					log.debug("NullPointerException in processSetValue -> result is INVALID_REQUEST.", npe);
-				} catch (NumberFormatException nfe) {
-					result = DMErrorCodes.INVALID_REQUEST;
-					log.debug("NumberFormatException in processSetValue -> result is INVALID_REQUEST.", nfe);
+                    log.debug("processSetValue -> result is INVALID_REQUEST, {}", e.toString());
 				}
 			} else {
 				// No second parameter defined
@@ -254,12 +240,9 @@ public class DMInterface {
 
 				// Process the Equals() request
 				result = ioSCOData.validate(request);
-			} catch (NullPointerException npe) {
+			} catch (NullPointerException | NumberFormatException e) {
 				result = DMErrorCodes.INVALID_REQUEST;
-				log.debug("NullPointerException in processValidate -> result is INVALID_REQUEST.", npe);
-			} catch (NumberFormatException nfe) {
-				result = DMErrorCodes.INVALID_REQUEST;
-				log.debug("NumberFormatException in processValidate -> result is INVALID_REQUEST.", nfe);
+                log.debug("processValidate -> result is INVALID_REQUEST, {}", e.toString());
 			}
 		} else {
 			result = DMErrorCodes.ELEMENT_NOT_SPECIFIED;

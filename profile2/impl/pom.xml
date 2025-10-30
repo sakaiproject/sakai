@@ -10,13 +10,14 @@
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>26-SNAPSHOT</version>
-	</parent>
+    <version>26-SNAPSHOT</version>
+  </parent>
+
 	<properties>
 		<deploy.target>components</deploy.target>
 	</properties>
   	
-  	<dependencies>
+  <dependencies>
 		<dependency>
 			<groupId>org.sakaiproject.profile2</groupId>
 			<artifactId>profile2-api</artifactId>
@@ -25,110 +26,90 @@
 			<groupId>org.sakaiproject.profile2</groupId>
 			<artifactId>profile2-util</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-        </dependency>
-        <dependency>
-			<groupId>org.quartz-scheduler</groupId>
-			<artifactId>quartz</artifactId>
-		</dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+    </dependency>
 		<dependency>
-      		<groupId>org.apache.commons</groupId>
-      		<artifactId>commons-lang3</artifactId>
-   		</dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-        </dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
 		<dependency>
-			<groupId>org.sakaiproject.genericdao</groupId>
-			<artifactId>generic-dao</artifactId>
-		</dependency>
-		<dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-		<dependency>
-			<groupId>com.opencsv</groupId>
-			<artifactId>opencsv</artifactId>
-		</dependency>
-  		<dependency>
-  			<groupId>commons-io</groupId>
-  			<artifactId>commons-io</artifactId>
-  			<scope>provided</scope>
-  		</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject.common</groupId>
-			<artifactId>sakai-common-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-	    <dependency>
-      		<groupId>org.sakaiproject.entitybroker</groupId>
-      		<artifactId>entitybroker-api</artifactId>
-      		<scope>provided</scope>
-   		</dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>sakai-common-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.entitybroker</groupId>
+      <artifactId>entitybroker-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
 		<dependency>
 			<groupId>org.sakaiproject.search</groupId>
-            <artifactId>search-api</artifactId>
-      		<scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-        <dependency>
+      <artifactId>search-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
-  			<artifactId>sakai-kernel-util</artifactId>
+      <artifactId>sakai-kernel-util</artifactId>
 		</dependency>
-
-  	</dependencies>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-test</artifactId>
+    </dependency>
+  </dependencies>
   	
 	<build>
-		<resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
-	
-	
-		<!-- unit testing -->
-        <testResources>
-            <testResource>
-                <directory>${basedir}/../pack/src/webapp/WEB-INF</directory>
-                <includes>
-                    <include>components.xml</include>
-                </includes>
-            </testResource>
-            <testResource>
-                <directory>${basedir}/src/test</directory>
-                <includes>
-                    <include>hibernate-test.xml</include>
-                    <include>hibernate.properties</include>
-                </includes>
-            </testResource>
-        </testResources>
+    <plugins>
+      <plugin>
+        <groupId>org.sakaiproject.maven.plugins</groupId>
+        <artifactId>sakai</artifactId>
+        <configuration>
+          <warSourceDirectory>src/main/webapp</warSourceDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+    <testResources>
+      <testResource>
+        <directory>${basedir}/src/main/webapp</directory>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/src/test/resources</directory>
+      </testResource>
+    </testResources>
 	</build>
 	
 </project>
-

@@ -30,6 +30,7 @@ import org.sakaiproject.rubrics.api.beans.CriterionTransferBean;
 import org.sakaiproject.rubrics.api.beans.EvaluationTransferBean;
 import org.sakaiproject.rubrics.api.beans.RatingTransferBean;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
+import org.sakaiproject.serialization.MapperFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -55,9 +56,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +70,15 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @Slf4j
 public class RubricsRestController extends AbstractSakaiApiController {
+
+    private ObjectMapper jsonMapper;
+
+    public RubricsRestController() {
+        jsonMapper = MapperFactory.jsonBuilder()
+                .includeEmpty()
+                .registerJavaTimeModule()
+                .build();
+    }
 
     @Autowired
     private RubricsService rubricsService;
@@ -92,8 +99,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return rubricsService.getSharedRubrics().stream().map(b -> entityModelForRubricBean(b)).collect(Collectors.toList());
     }
 
-    @GetMapping(value = "/sites/{siteId}/rubrics/default", produces = MediaType.APPLICATION_JSON_VALUE)
-    EntityModel<RubricTransferBean> getDefaultRubric(@PathVariable String siteId) {
+    @PostMapping(value = "/sites/{siteId}/rubrics/default", produces = MediaType.APPLICATION_JSON_VALUE)
+    EntityModel<RubricTransferBean> createDefaultRubric(@PathVariable String siteId) {
 
         checkSakaiSession();
 
@@ -132,43 +139,82 @@ public class RubricsRestController extends AbstractSakaiApiController {
     @PostMapping(value = "/sites/{siteId}/rubrics/adhoc", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<RubricTransferBean> updateRubricAdhoc(@PathVariable String siteId, @RequestBody RubricTransferBean bean, @RequestParam(defaultValue = "false") Boolean pointsUpdated) throws Exception {
 
-        log.debug("Get old criteria from database");
-        List<CriterionTransferBean> oldCriteria = rubricsService.getRubric(bean.getId()).orElse(null).getCriteria();
-        oldCriteria.stream().forEach(c -> log.debug(c.toString()));
+        if (bean == null) {
+            log.warn("updateRubricAdhoc called with null rubric bean (siteId={})", siteId);
+            return ResponseEntity.badRequest().build();
+        }
+
+        Long rubricId = bean.getId();
+        if (rubricId == null) {
+            log.warn("updateRubricAdhoc called without rubric id (siteId={})", siteId);
+            return ResponseEntity.badRequest().build();
+        }
+        if (bean.getTitle() == null) {
+            log.warn("updateRubricAdhoc called without rubric title (siteId={}, rubricId={})", siteId, rubricId);
+            return ResponseEntity.badRequest().build();
+        }
+
+        log.debug("Loading existing criteria for rubric {}", rubricId);
+        List<CriterionTransferBean> oldCriteria = rubricsService.getRubric(rubricId)
+                .map(RubricTransferBean::getCriteria)
+                .orElseGet(java.util.Collections::emptyList);
+        log.debug("Loaded {} existing criteria", oldCriteria.size());
         // confirm rubric changes on database
         RubricTransferBean saved = rubricsService.saveRubric(bean);
-        log.debug("Get new criteria after saving");
-        List<CriterionTransferBean> newCriteria = saved.getCriteria();
-        newCriteria.stream().forEach(c -> log.debug(c.toString()));
-        if (pointsUpdated) {
-            List<CriterionTransferBean> toAdd = new ArrayList<>(newCriteria);
-            toAdd.removeAll(oldCriteria);
-            List<CriterionTransferBean> toRemove = new ArrayList<>(oldCriteria);
-            toRemove.removeAll(newCriteria);
-            List<CriterionTransferBean> toUpdate = new ArrayList<>(newCriteria);
-            toUpdate.retainAll(oldCriteria);
+        if (saved == null) {
+            log.error("Rubric save returned null for rubric {}", rubricId);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        List<CriterionTransferBean> newCriteria = java.util.Optional.ofNullable(saved.getCriteria())
+                .orElseGet(java.util.Collections::emptyList);
+        log.debug("Rubric now has {} criteria after save", newCriteria.size());
+        if (Boolean.TRUE.equals(pointsUpdated)) {
+            Map<Long, CriterionTransferBean> oldCriteriaById = oldCriteria.stream()
+                    .filter(c -> c.getId() != null)
+                    .collect(Collectors.toMap(CriterionTransferBean::getId, c -> c, (existing, replacement) -> existing));
+            Map<Long, CriterionTransferBean> newCriteriaById = newCriteria.stream()
+                    .filter(c -> c.getId() != null)
+                    .collect(Collectors.toMap(CriterionTransferBean::getId, c -> c, (existing, replacement) -> replacement));
 
-            log.debug("Criterions to update");
-            toUpdate.stream().forEach(c -> log.debug(c.toString()));
-            log.debug("Criterions to add");
-            toAdd.stream().forEach(c -> log.debug(c.toString()));
-            log.debug("Criterions to remove");
-            toRemove.stream().forEach(c -> log.debug(c.toString()));
+            List<CriterionTransferBean> toRemove = oldCriteria.stream()
+                    .filter(c -> c.getId() == null || !newCriteriaById.containsKey(c.getId()))
+                    .filter(c -> c.getRatings() != null && !c.getRatings().isEmpty())
+                    .collect(Collectors.toList());
+            List<CriterionTransferBean> toUpdate = newCriteria.stream()
+                    .filter(c -> c.getId() != null && oldCriteriaById.containsKey(c.getId()))
+                    .filter(c -> c.getRatings() != null && !c.getRatings().isEmpty())
+                    .collect(Collectors.toList());
+
+            if (log.isDebugEnabled()) {
+                log.debug("Criteria to update: {}", toUpdate.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
+                log.debug("Criteria to add: {}", newCriteria.stream()
+                        .filter(c -> c.getId() == null || !oldCriteriaById.containsKey(c.getId()))
+                        .map(CriterionTransferBean::getId)
+                        .collect(Collectors.toList()));
+                log.debug("Criteria to remove: {}", toRemove.stream().map(CriterionTransferBean::getId).collect(Collectors.toList()));
+            }
 
             List<CriterionOutcomeTransferBean> toAddOutcome = new ArrayList<>();
-            for (CriterionTransferBean c : toAdd) {
+            java.util.Set<Long> addedIds = new java.util.HashSet<>(newCriteriaById.keySet());
+            addedIds.removeAll(oldCriteriaById.keySet());
+            for (Long id : addedIds) {
                 CriterionOutcomeTransferBean co = new CriterionOutcomeTransferBean();
-                co.setCriterionId(c.getId());
-                co.setPoints(Double.valueOf(0));
+                co.setCriterionId(id);
+                co.setPoints(0.0d);
                 toAddOutcome.add(co);
             }
-            Map<Long, CriterionTransferBean> updateMap = toUpdate.stream().collect(Collectors.toMap(CriterionTransferBean::getId, item -> item));
-            List<Long> removeIds = toRemove.stream().map(CriterionTransferBean::getId).collect(Collectors.toList());
+            Map<Long, CriterionTransferBean> updateMap = toUpdate.stream()
+                    .filter(c -> c.getId() != null)
+                    .collect(Collectors.toMap(CriterionTransferBean::getId, item -> item, (existing, replacement) -> replacement));
+            List<Long> removeIds = toRemove.stream()
+                    .map(CriterionTransferBean::getId)
+                    .filter(java.util.Objects::nonNull)
+                    .collect(Collectors.toList());
                 
             // get assessment, itemgradings and rubric evaluations
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             GradingService gradingService = new GradingService();
-            String samigoData = bean.getTitle().replace("pub.", "");
+            String samigoData = StringUtils.removeStart(bean.getTitle(), "pub.");
             String[] samigoIds = samigoData.split("\\.");
             if (samigoIds.length != 2) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -176,38 +222,53 @@ public class RubricsRestController extends AbstractSakaiApiController {
             Map<Long, List<ItemGradingData>> itemScores = gradingService.getItemScores(Long.valueOf(samigoIds[0]), Long.valueOf(samigoIds[1]), EvaluationModelIfc.ALL_SCORE.toString(), false);
             PublishedAssessmentIfc publishedAssessment = publishedAssessmentService.getPublishedAssessment(samigoIds[0]);
             if (publishedAssessment == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
+            Map<Long, String> ownerIdByAssessment = new java.util.HashMap<>();
             for (Map.Entry<Long, List<ItemGradingData>> entry : itemScores.entrySet()) {
                 List<ItemGradingData> igds = entry.getValue();
-                log.debug("For published item " + entry.getKey());
+                log.debug("For published item {}", entry.getKey());
                 for (ItemGradingData igd : igds) {
+                    Long assessmentGradingId = igd.getAssessmentGradingId();
+                    String ownerId = ownerIdByAssessment.get(assessmentGradingId);
+                    if (!ownerIdByAssessment.containsKey(assessmentGradingId)) {
+                        org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData assessmentGrading = gradingService.load(String.valueOf(assessmentGradingId), false);
+                        ownerId = assessmentGrading != null ? assessmentGrading.getAgentId() : null;
+                        ownerIdByAssessment.put(assessmentGradingId, ownerId);
+                    }
+                    if (ownerId == null) {
+                        log.warn("Unable to resolve owner id for assessment grading {}", assessmentGradingId);
+                        continue;
+                    }
                     Double scoreDifference = igd.getAutoScore();
                     boolean matchesPreviousScore = false;
-                    log.debug("Item grading " + igd.getItemGradingId() + " - assessment grading " + igd.getAssessmentGradingId() + " - autoscore " + igd.getAutoScore());
-                    Optional<EvaluationTransferBean> optBean = rubricsService.getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId("sakai.samigo", "pub."+samigoData, igd.getAssessmentGradingId()+"."+entry.getKey(), gradingService.load(String.valueOf(igd.getAssessmentGradingId()), false).getAgentId(), siteId, false);
+                    log.debug("Item grading {} - assessment grading {} - autoscore {}", igd.getItemGradingId(), igd.getAssessmentGradingId(), igd.getAutoScore());
+                    Optional<EvaluationTransferBean> optBean = rubricsService.getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId("sakai.samigo", "pub."+samigoData, igd.getAssessmentGradingId()+"."+entry.getKey(), ownerId, siteId, false);
                     if (optBean.isPresent()) {
                         EvaluationTransferBean eval = optBean.get();
                         if (igd.getAutoScore() != null && eval.getOverallComment() != null && igd.getAutoScore().equals(Double.valueOf(eval.getOverallComment()))) {
                             matchesPreviousScore = true;
                             log.debug("Previous score matches");
                         }
-                        log.debug("Evaluation before changes " + eval);
+                        log.debug("Evaluation before changes {}", eval);
+                        if (eval.getCriterionOutcomes() == null) {
+                            eval.setCriterionOutcomes(new ArrayList<>());
+                        }
                         for (CriterionOutcomeTransferBean c : eval.getCriterionOutcomes()) {
                             // update points and apply difference
                             if (updateMap.get(c.getCriterionId()) != null && c.getSelectedRatingId() != null) {
                                 Double newPoints = updateMap.get(c.getCriterionId()).getRatings().get(0).getPoints();
                                 Double oldPoints = c.getPoints();
-                                if (matchesPreviousScore && !newPoints.equals(oldPoints)) {
+                                if (matchesPreviousScore && !nearlyEqual(newPoints, oldPoints)) {
                                     c.setPoints(newPoints);
-                                    log.debug("Updated criterion, substracting old " + oldPoints + " and adding new " + newPoints);
+                                    log.debug("Updated criterion, subtracting old {} and adding new {}", oldPoints, newPoints);
                                     scoreDifference -= oldPoints;
                                     scoreDifference += newPoints;
                                 }
-                            // substract points of removed criterions
+                            // subtract points of removed criteria
                             } else if (removeIds.contains(c.getCriterionId()) && c.getSelectedRatingId() != null) {
                                 scoreDifference -= c.getPoints();
-                                log.debug("Deleted criterion, substracting " + c.getPoints());
+                                log.debug("Deleted criterion, subtracting {}", c.getPoints());
                             }
                             // deselect criterions as grade has been modified manually since last rubric evaluation
                             if (!matchesPreviousScore) {
@@ -217,16 +278,16 @@ public class RubricsRestController extends AbstractSakaiApiController {
                         // after updating grade, modify list of criterion outcomes
                         eval.getCriterionOutcomes().removeIf(c -> removeIds.contains(c.getCriterionId()));
                         eval.getCriterionOutcomes().addAll(toAddOutcome);
-                        log.debug("Evaluation after changes " + eval);
+                        log.debug("Evaluation after changes {}", eval);
 
                         if (scoreDifference < 0) {
                             scoreDifference = 0.0;
                         }
-                        log.debug("Score is " + scoreDifference + " and before it was " + igd.getAutoScore());
+                        log.debug("Score is {} and before it was {}", scoreDifference, igd.getAutoScore());
                         eval.setOverallComment(String.valueOf(scoreDifference));
                         rubricsService.saveEvaluation(eval, siteId);
                         log.debug("Rubric evaluation successfully updated");
-                        if(!scoreDifference.equals(igd.getAutoScore())) {
+                        if (!nearlyEqual(scoreDifference, igd.getAutoScore())) {
                             igd.setAutoScore(scoreDifference);
                             gradingService.updateItemScore(igd, 1, publishedAssessment);// if second value is not 0 it will check gb association and update it if necessary    
                             log.debug("Samigo grading successfully updated");
@@ -246,11 +307,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return rubricsService.getRubric(rubricId).map(rubric -> {
 
-            ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-
             try {
-                JsonNode patched = patch.apply(objectMapper.convertValue(rubric, JsonNode.class));
-                RubricTransferBean patchedBean  = objectMapper.treeToValue(patched, RubricTransferBean.class);
+                JsonNode patched = patch.apply(jsonMapper.convertValue(rubric, JsonNode.class));
+                RubricTransferBean patchedBean = jsonMapper.treeToValue(patched, RubricTransferBean.class);
                 rubricsService.saveRubric(patchedBean);
                 return ResponseEntity.ok().build();
             } catch (Exception e) {
@@ -282,8 +341,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
             .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/default", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EntityModel<CriterionTransferBean>> getDefaultCriterion(@PathVariable String siteId, @PathVariable Long rubricId) {
+    @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/default", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<CriterionTransferBean>> createDefaultCriterion(@PathVariable String siteId, @PathVariable Long rubricId) {
 
         checkSakaiSession();
 
@@ -292,8 +351,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
             .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
-    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/defaultEmpty", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EntityModel<CriterionTransferBean>> getDefaultEmptyCriterion(@PathVariable String siteId, @PathVariable Long rubricId) {
+    @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/defaultEmpty", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<CriterionTransferBean>> createDefaultEmptyCriterion(@PathVariable String siteId, @PathVariable Long rubricId) {
 
         checkSakaiSession();
 
@@ -345,12 +404,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return rubricsService.getEvaluation(evaluationId, siteId).map(evaluation -> {
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.registerModule(new JavaTimeModule());
-
             try {
-                JsonNode patched = patch.apply(objectMapper.convertValue(evaluation, JsonNode.class));
-                EvaluationTransferBean patchedBean  = objectMapper.treeToValue(patched, EvaluationTransferBean.class);
+                JsonNode patched = patch.apply(jsonMapper.convertValue(evaluation, JsonNode.class));
+                EvaluationTransferBean patchedBean  = jsonMapper.treeToValue(patched, EvaluationTransferBean.class);
                 return ResponseEntity.ok(rubricsService.saveEvaluation(patchedBean, siteId));
             } catch (Exception e) {
                 log.error("Failed to patch evaluation", e);
@@ -429,6 +485,14 @@ public class RubricsRestController extends AbstractSakaiApiController {
         return entityModelForCriterionBean(rubricsService.copyCriterion(rubricId, sourceId));
     }
 
+    @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{sourceId}/copy", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<CriterionTransferBean>> copyCriterionPost(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long sourceId) {
+
+        checkSakaiSession();
+
+        return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.copyCriterion(rubricId, sourceId)));
+    }
+
     @PatchMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}",
                     consumes = "application/json-patch+json",
                     produces = MediaType.APPLICATION_JSON_VALUE)
@@ -438,11 +502,9 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return rubricsService.getCriterion(criterionId, siteId).map(criterion -> {
 
-            ObjectMapper objectMapper = new ObjectMapper();
-
             try {
-                JsonNode patched = patch.apply(objectMapper.convertValue(criterion, JsonNode.class));
-                CriterionTransferBean patchedBean  = objectMapper.treeToValue(patched, CriterionTransferBean.class);
+                JsonNode patched = patch.apply(jsonMapper.convertValue(criterion, JsonNode.class));
+                CriterionTransferBean patchedBean  = jsonMapper.treeToValue(patched, CriterionTransferBean.class);
                 return ResponseEntity.ok(entityModelForCriterionBean(rubricsService.updateCriterion(patchedBean, siteId)));
             } catch (Exception e) {
                 log.error("Failed to patch criterion", e);
@@ -451,8 +513,8 @@ public class RubricsRestController extends AbstractSakaiApiController {
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/default", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<EntityModel<RatingTransferBean>> getDefaultRating(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long criterionId, @RequestParam Integer position) {
+    @PostMapping(value = "/sites/{siteId}/rubrics/{rubricId}/criteria/{criterionId}/ratings/default", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<EntityModel<RatingTransferBean>> createDefaultRating(@PathVariable String siteId, @PathVariable Long rubricId, @PathVariable Long criterionId, @RequestParam Integer position) {
 
         checkSakaiSession();
 
@@ -495,6 +557,13 @@ public class RubricsRestController extends AbstractSakaiApiController {
 
         return ResponseEntity.ok().headers(h -> h.setContentDisposition(contentDisposition))
                 .body(rubricsService.createPdf(siteId, rubricId, toolId, itemId, evaluatedItemId));
+    }
+
+    private static boolean nearlyEqual(Double a, Double b) {
+        if (a == null || b == null) {
+            return a == null && b == null;
+        }
+        return Math.abs(a - b) < 1e-6;
     }
 
     private EntityModel<RubricTransferBean> entityModelForRubricBean(RubricTransferBean rubricBean) {

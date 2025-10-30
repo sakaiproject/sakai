@@ -1,60 +1,56 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <name>Profile2 UTIL</name>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Profile2 UTIL</name>
+  <groupId>org.sakaiproject.profile2</groupId>
+  <artifactId>profile2-util</artifactId>
+
+  <packaging>jar</packaging>
+  
+  <parent>
     <groupId>org.sakaiproject.profile2</groupId>
-    <artifactId>profile2-util</artifactId>
-
-    <packaging>jar</packaging>
+    <artifactId>profile2</artifactId>
+    <version>26-SNAPSHOT</version>
+  </parent>
     
-    <parent>
-        <groupId>org.sakaiproject.profile2</groupId>
-        <artifactId>profile2</artifactId>
-        <version>26-SNAPSHOT</version>
-    </parent>
-      
-      <dependencies>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-text</artifactId>
-      </dependency>
-           <dependency>
-              <groupId>commons-codec</groupId>
-              <artifactId>commons-codec</artifactId>
-           </dependency>
-           <dependency>
-            <groupId>org.imgscalr</groupId>
-            <artifactId>imgscalr-lib</artifactId>
-        </dependency>
-           <dependency>
-             <groupId>org.sakaiproject.kernel</groupId>
-             <artifactId>sakai-kernel-api</artifactId>
-         </dependency>
-         <dependency>
-             <groupId>org.sakaiproject.kernel</groupId>
-             <artifactId>sakai-kernel-util</artifactId>
-         </dependency>
-        <dependency>
-             <groupId>org.sakaiproject.kernel</groupId>
-             <artifactId>sakai-component-manager</artifactId>
-         </dependency>
-      </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.imgscalr</groupId>
+      <artifactId>imgscalr-lib</artifactId>
+    </dependency>
+    <dependency>
+       <groupId>org.sakaiproject.kernel</groupId>
+       <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+  </dependencies>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
-    </build>
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
+  </build>
     
 </project>
 

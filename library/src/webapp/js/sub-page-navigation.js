@@ -1,6 +1,11 @@
 class SubPageNavigation {
 
   constructor(data) {
+    if (!data) {
+      console.warn('No data provided for SubPageNavigation');
+      return;
+    }
+
     if (!data.hasOwnProperty('pages')) {
       console.warn('No page data for SubPageNavigation');
       return;
@@ -117,7 +122,7 @@ class SubPageNavigation {
     }
 
     // If the current page is not a subpage, then highlight the main page.
-    if (subPageElement && subPageNavToolIdInput) {
+    if (!subPageElement && subPageNavToolIdInput) {
       subPageElement = document.querySelector(`#toolMenu a[href$="/tool-reset/${subPageNavToolIdInput.value}"]`);
     }
 

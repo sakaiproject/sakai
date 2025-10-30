@@ -15,8 +15,8 @@
             <span class="visually-hidden">${rloader.login_show_pw}</span>
         </label>
     </div>
-    <button type="submit" class="btn btn-outline-light p-3 my-1 ">${rloader.login}</button>
+    <button type="submit" class="btn btn-outline p-3 my-1">${rloader.login}</button>
 </form>
-<button id="mobileLoginBtn" class="d-md-none btn btn-outline-light mb-1 my-1 ms-2 me-4">
+<button id="mobileLoginBtn" class="d-md-none btn btn-primary mb-1 my-1 ms-2 me-4">
     ${rloader.login}
 </button>

@@ -8,8 +8,16 @@ class Submission {
       this.id = init.id;
 
       if (init.properties) {
-        this.submissionLog = Object.keys(init.properties).filter(p => p.startsWith("log"))
-          .map(p => init.properties[p]);
+        // Extract log entries and sort them chronologically by their numeric suffix
+        this.submissionLog = Object.keys(init.properties)
+          .filter(p => p.startsWith("log"))
+          .map(p => ({
+            key: p,
+            index: parseInt(p.substring(3)), // Extract numeric part after "log"
+            value: init.properties[p]
+          }))
+          .sort((a, b) => a.index - b.index) // Sort by numeric index to maintain chronological order
+          .map(entry => entry.value);
       } else {
         this.submissionLog = init.submissionLog || [];
       }
@@ -29,14 +37,12 @@ class Submission {
       }
 
       this.peerReviews = init.peerReviews;
-
       this.hasRubricEvaluation = init.hasRubricEvaluation;
-      this.showExtension = true;
+      this.hasSubmittedDate = Boolean(init.dateSubmittedEpochSeconds);
 
-      if (init.dateSubmitted) {
+      if (this.hasSubmittedDate) {
         this.submittedTime = init.dateSubmitted;
         this.submittedText = init.submittedText;
-        this.showExtension = false;
       } else if (init.draft && init.visible) {
         this.submittedTime = i18n.draft_not_submitted;
         this.submittedText = init.submittedText;

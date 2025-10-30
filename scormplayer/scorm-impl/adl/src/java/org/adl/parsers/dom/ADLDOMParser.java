@@ -38,12 +38,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.util.LogMessage;
 import org.adl.util.MessageType;
 import org.adl.util.Messages;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.dom.TextImpl;
 import org.apache.xerces.parsers.DOMParser;
 import org.w3c.dom.Attr;
@@ -68,6 +67,7 @@ import org.xml.sax.SAXParseException;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLDOMParser implements ErrorHandler {
 
 	/**
@@ -143,11 +143,6 @@ public class ADLDOMParser implements ErrorHandler {
 	 * "false" indicates that it is parsing only for well-formedness.
 	 */
 	private boolean mStateIsValidating;
-
-	/**
-	 * Logger object used for debug logging.
-	 */
-	private static Log log = LogFactory.getLog(ADLDOMParser.class);
 
 	/**
 	 * Indicates if the xsi:schemaLocation was declared in the XML instance. The

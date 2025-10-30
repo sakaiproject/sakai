@@ -550,6 +550,30 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		{
 			log.debug("transfer copy mc items by transferCopyEntities");
 
+			// Copy area-level permissions first
+			Area fromArea = areaManager.getAreaByContextIdAndTypeId(fromContext, typeManager.getDiscussionForumType());
+			Area toArea = areaManager.getDiscussionArea(toContext, false);
+			
+			if (fromArea != null && toArea != null) {
+				Set membershipItemSet = fromArea.getMembershipItemSet();
+				List allowedPermNames = getSiteRolesAndGroups(toContext);
+				
+				if (membershipItemSet != null && !membershipItemSet.isEmpty() && allowedPermNames != null && !allowedPermNames.isEmpty()) {
+					Iterator membershipIter = membershipItemSet.iterator();
+					while (membershipIter.hasNext()) {
+						DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
+						if(allowedPermNames.contains(oldItem.getName())) {
+							DBMembershipItem newItem = getMembershipItemCopy(oldItem);
+							if (newItem != null) {
+								newItem = permissionManager.saveDBMembershipItem(newItem);
+								toArea.addMembershipItem(newItem);
+							}
+						}
+					}
+					areaManager.saveArea(toArea);
+				}
+			}
+			
 			List<DiscussionForum> fromDfList = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(fromContext);
 			if (CollectionUtils.isNotEmpty(ids)) {
 				fromDfList = fromDfList.stream().filter(df -> ids.contains(df.getId().toString())).collect(Collectors.toList());
@@ -1033,7 +1057,9 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		}
 
 		final String sortIndex = discussionTopicElement.getAttribute(SORT_INDEX);
-		if (StringUtils.isNotBlank(sortIndex)) {
+		if (StringUtils.isBlank(sortIndex)) {
+			discussionTopic.setSortIndex(null);
+		} else {
 			try {
 				Integer sortIndexAsInt = Integer.valueOf(sortIndex);
 				discussionTopic.setSortIndex(sortIndexAsInt);
@@ -1470,30 +1496,63 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		Map<String, String> transversalMap = new HashMap<>();
 		try
 		{
-			if (cleanup == true)
+			log.debug("transfer copy mc items by transferCopyEntities with cleanup: {}", cleanup);
+			if (cleanup)
 			{
 				try 
 				{
-					List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
-					if (existingForums != null && !existingForums.isEmpty())
+					// Clean up the forums in the site
+					List<DiscussionForum> destForums = dfManager.getDiscussionForumsByContextId(toContext);
+					if (destForums != null && !destForums.isEmpty())
 					{
-						for (int currForum = 0; currForum < existingForums.size(); currForum++) 
+						for (int currForum = 0; currForum < destForums.size(); currForum++) 
 						{
-							DiscussionForum fromForum = (DiscussionForum)existingForums.get(currForum);
-							forumManager.deleteDiscussionForum(fromForum);
+							DiscussionForum dForum = (DiscussionForum) destForums.get(currForum);
+							// clean up all messages
+							List<DiscussionTopic> topics = dForum.getTopics();
+							if (topics != null) {
+								for (DiscussionTopic topic : topics) {
+									List<Message> messages = dfManager.getTopicByIdWithMessagesAndAttachments(topic.getId()).getMessages();
+									if (messages != null) {
+										for (Message message : messages) {
+											dfManager.deleteMessage(message);
+										}
+									}
+								}
+							}
+							// Pass the forum object directly, not just the ID
+							forumManager.deleteDiscussionForum(dForum);
+						}
+					}
+					
+					// Clean up the area-level permissions before copying
+					Area toArea = areaManager.getDiscussionArea(toContext, false);
+					if (toArea != null) {
+						Set membershipItemSet = toArea.getMembershipItemSet();
+						if (membershipItemSet != null && !membershipItemSet.isEmpty()) {
+							// Clone the set to avoid ConcurrentModificationException
+							Set<DBMembershipItem> itemsToRemove = new HashSet<>(membershipItemSet);
+							for (DBMembershipItem item : itemsToRemove) {
+								toArea.removeMembershipItem(item);
+								// Simply remove the item from the area, no need to explicitly delete it
+								// The permissionManager doesn't have a deleteDBMembershipItem method
+							}
+							areaManager.saveArea(toArea);
 						}
 					}
 				}
 				catch (Exception e)
 				{
-					log.debug("Remove Forums from Site Import failed, {}", e.getMessage());
+					log.warn("could not remove existing forums during copy: {}", e.toString());
 				}
 			}
-			transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, null));
+			
+			// Call the regular transferCopyEntities method to do the copying
+			transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, options));
 		}
 		catch(Exception e)
 		{
-			log.debug ("Forums transferCopyEntities failed" + e);
+			log.error("Forums transferCopyEntities with cleanup failed", e);
 		}
 		
 		return transversalMap;

@@ -130,6 +130,7 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 grid-gap: 3px;
                 align-content: start;
+                align-items: center;
                 .roster-card-value {
                     word-wrap: break-word;
                     font-weight: bold;
@@ -220,6 +221,7 @@
     #roster-members-table {
         .roster-name-cell {
             max-width: 130px;
+            word-wrap: break-word;
         }
 
         .roster-mobile-label {
@@ -266,7 +268,6 @@
 
     }
 
-    // S2U-42
     #card-game {
         .act > button {
             margin-bottom: $standard-space;

@@ -135,7 +135,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		tableModel.put("isCategoryWeightEnabled", isCategoryWeightEnabled());
 		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
 		tableModel.put("showingStudentView", false);
-		tableModel.put("gradingType", gradebook.getGradeType());
+		tableModel.put("gradeType", gradebook.getGradeType());
 		tableModel.put("categoriesMap", categoriesMap);
 		tableModel.put("studentUuid", userId);
 
@@ -145,7 +145,6 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 				return tableModel;
 			}
 		});
-		gstp.setCurrentGradebookAndSite(currentGradebookUid, currentSiteId);
 		addOrReplace(gstp);
 
 		// course grade, via the formatter

@@ -106,12 +106,15 @@ public class RecentSiteRepositoryImpl extends SpringCrudRepositoryImpl<RecentSit
 
             Session session = sessionFactory.getCurrentSession();
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<RecentSite> delete = builder.createCriteriaDelete(RecentSite.class);
-            Root<RecentSite> recentSite = delete.from(RecentSite.class);
 
             while (batchStart < siteIds.size()) {
                 List<String> batchIds = siteIds.subList(batchStart, batchEnd);
-                delete.where(builder.and(builder.equal(recentSite.get("userId"), userId), recentSite.get("siteId").in(batchIds)));
+
+                CriteriaDelete<RecentSite> delete = builder.createCriteriaDelete(RecentSite.class);
+                Root<RecentSite> recentSite = delete.from(RecentSite.class);
+                delete.where(builder.and(
+                        builder.equal(recentSite.get("userId"), userId),
+                        recentSite.get("siteId").in(batchIds)));
 
                 rowsDeleted += session.createQuery(delete).executeUpdate();
                 batchStart = batchEnd;

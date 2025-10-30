@@ -47,10 +47,7 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.assignment.tool.AssignmentAction.SubmitterSubmission;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
 import org.sakaiproject.grading.api.AssignmentHasIllegalPointsException;
@@ -59,7 +56,6 @@ import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.grading.api.InvalidGradeItemNameException;
 import org.sakaiproject.grading.api.model.GradebookAssignment;
-import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
@@ -80,22 +76,38 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 public class AssignmentToolUtils {
 
-    private static FormattedText formattedText;
-
-    static {
-        formattedText = ComponentManager.get(FormattedText.class);
-    }
-
-    private SiteService siteService;
     private AssignmentService assignmentService;
-    private UserDirectoryService userDirectoryService;
+    private FormattedText formattedText;
     private GradingService gradingService;
+    private ResourceLoader resourceLoader;
     private RubricsService rubricsService;
+    private SiteService siteService;
     private TimeService timeService;
     private ToolManager toolManager;
-    private LTIService ltiService;
+    private UserDirectoryService userDirectoryService;
 
-    private static ResourceLoader rb = new ResourceLoader("assignment");
+    public AssignmentToolUtils() {
+        this(new ResourceLoader("assignment"));
+    }
+
+    public AssignmentToolUtils(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    /**
+     * Returns {@code true} when per-submitter grade overrides are permitted: the assignment is a group
+     * assignment and anonymous grading is NOT enabled for that assignment.
+     *
+     * @param a the assignment to check
+     * @param assignmentService the AssignmentService used to determine anonymous grading
+     * @return {@code true} if the assignment is a group assignment and anonymous grading is disabled
+     * @throws NullPointerException if {@code a} or {@code assignmentService} is {@code null}
+     */
+    public static boolean allowGroupOverrides(Assignment a, AssignmentService assignmentService) {
+        Objects.requireNonNull(a, "assignment");
+        Objects.requireNonNull(assignmentService, "assignmentService");
+        return a.getIsGroup() && !assignmentService.assignmentUsesAnonymousGrading(a);
+    }
 
     /**
      * scale the point value by "factor" if there is a valid point grade
@@ -175,7 +187,7 @@ public class AssignmentToolUtils {
         if (grade != null && !"".equals(grade)) {
             if (grade.startsWith("-")) {
                 // check for negative sign
-                alerts.add(rb.getString("plesuse3"));
+                alerts.add(resourceLoader.getString("plesuse3"));
             } else {
                 int dec = (int) Math.log10(factor);
                 NumberFormat nbFormat = formattedText.getNumberFormat();
@@ -185,7 +197,7 @@ public class AssignmentToolUtils {
                 if ((",".equals(decSeparator) && grade.contains("."))
                         || (".".equals(decSeparator) && grade.contains(","))
                         || grade.contains(" ")) {
-                    alerts.add(rb.getString("plesuse1"));
+                    alerts.add(resourceLoader.getString("plesuse1"));
                     return alerts;
                 }
 
@@ -198,7 +210,7 @@ public class AssignmentToolUtils {
                     if (!decSeparator.equals(grade)) {
                         if (grade.length() > index + dec + 1) {
                             // if there are more than "factor" decimal points
-                            alerts.add(rb.getFormattedMessage("plesuse2", String.valueOf(dec)));
+                            alerts.add(resourceLoader.getFormattedMessage("plesuse2", String.valueOf(dec)));
                         } else {
                             // decimal points is the only allowed character inside grade
                             // replace it with '1', and try to parse the new String into int
@@ -218,12 +230,12 @@ public class AssignmentToolUtils {
                                 }
                             } catch (ParseException e) {
                                 //log.warn(this + ":validPointGrade " + e.getMessage());
-                                alerts.add(rb.getString("plesuse1"));
+                                alerts.add(resourceLoader.getString("plesuse1"));
                             }
                         }
                     } else {
                         // grade is decSeparator
-                        alerts.add(rb.getString("plesuse1"));
+                        alerts.add(resourceLoader.getString("plesuse1"));
                     }
                 } else {
                     // There is no decimal point; should be int number
@@ -241,7 +253,7 @@ public class AssignmentToolUtils {
                         }
                     } catch (ParseException e) {
                         //log.warn(this + ":validPointGrade " + e.getMessage());
-                        alerts.add(rb.getString("plesuse1"));
+                        alerts.add(resourceLoader.getString("plesuse1"));
                     }
                 }
             }
@@ -267,13 +279,13 @@ public class AssignmentToolUtils {
             }
         }
         if (invalid) {
-            alerts.add(rb.getString("plesuse1"));
+            alerts.add(resourceLoader.getString("plesuse1"));
         } else {
             int dec = (int) Math.log10(factor);
             int maxInt = Integer.MAX_VALUE / factor;
             int maxDec = Integer.MAX_VALUE - maxInt * factor;
             // case 2: Due to our internal scaling, input String is larger than Integer.MAX_VALUE/10
-            alerts.add(rb.getFormattedMessage("plesuse4", grade.substring(0, grade.length() - dec)
+            alerts.add(resourceLoader.getFormattedMessage("plesuse4", grade.substring(0, grade.length() - dec)
                     + decSeparator + grade.substring(grade.length() - dec), maxInt + decSeparator + maxDec));
         }
 
@@ -334,11 +346,12 @@ public class AssignmentToolUtils {
                 }
             }
 
-            if (a.getIsGroup()) {
+            if (allowGroupOverrides(a, assignmentService)) {
                 // group project only set a grade override for submitters
                 for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
                     String submitterGradeOverride = StringUtils.trimToNull((String) options.get(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter()));
-                    if (!StringUtils.equals(submitterGradeOverride, submitter.getGrade())) {
+                    String current = StringUtils.trimToNull(submitter.getGrade());
+                    if (!StringUtils.equals(submitterGradeOverride, current)) {
                         submitter.setGrade(submitterGradeOverride);
                     }
                 }
@@ -559,15 +572,15 @@ public class AssignmentToolUtils {
                             // add assignment to gradebook
                             gradingService.addExternalAssessment(gradebookUid, siteId, assignmentRef, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), assignmentToolId, null, false, category != -1 ? category : null, assignmentRef);
                         } catch (AssignmentHasIllegalPointsException e) {
-                            alerts.add(rb.getString("addtogradebook.illegalPoints"));
+                            alerts.add(resourceLoader.getString("addtogradebook.illegalPoints"));
                             log.warn("integrateGradebook: {}", e.toString());
                         } catch (ConflictingAssignmentNameException e) {
                             // add alert prompting for change assignment title
-                            alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
+                            alerts.add(resourceLoader.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
                             log.warn("integrateGradebook: {}", e.toString());
                         } catch (InvalidGradeItemNameException e) {
                             // add alert prompting for invalid assignment title name
-                            alerts.add(rb.getFormattedMessage("addtogradebook.titleInvalidCharacters", "\"" + newAssignment_title + "\""));
+                            alerts.add(resourceLoader.getFormattedMessage("addtogradebook.titleInvalidCharacters", "\"" + newAssignment_title + "\""));
                             log.warn("integrateGradebook: {}", e.toString());
                         } catch (Exception e) {
                             log.warn("integrateGradebook: {}", e.toString());
@@ -579,8 +592,8 @@ public class AssignmentToolUtils {
                                 // update attributes if the GB assignment was created for the assignment
                                 gradingService.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, null, newAssignment_title, null, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
                             } catch (Exception e) {
-                                alerts.add(rb.getFormattedMessage("cannotfin_assignment", assignmentRef));
-                                log.warn("{}", rb.getFormattedMessage("cannotfin_assignment", assignmentRef));
+                                alerts.add(resourceLoader.getFormattedMessage("cannotfin_assignment", assignmentRef));
+                                log.warn("{}", resourceLoader.getFormattedMessage("cannotfin_assignment", assignmentRef));
                             }
                         }
                     }    // addUpdateRemove != null
@@ -761,7 +774,7 @@ public class AssignmentToolUtils {
         switch (typeOfGrade) {
             case SCORE_GRADE_TYPE:
                 if (!returnGrade.isEmpty() && !"0".equals(returnGrade)) {
-                    int dec = new Double(Math.log10(scaleFactor)).intValue();
+                    int dec = Double.valueOf(Math.log10(scaleFactor)).intValue();
                     String decSeparator = formattedText.getDecimalSeparator();
                     String decimalGradePoint = returnGrade;
                     try {
@@ -800,38 +813,36 @@ public class AssignmentToolUtils {
                 break;
             case UNGRADED_GRADE_TYPE:
                 if (returnGrade.equalsIgnoreCase("gen.nograd")) {
-                    returnGrade = rb.getString("gen.nograd");
+                    returnGrade = resourceLoader.getString("gen.nograd");
                 }
                 break;
             case PASS_FAIL_GRADE_TYPE:
                 if (returnGrade.equalsIgnoreCase("Pass")) {
-                    returnGrade = rb.getString("pass");
+                    returnGrade = resourceLoader.getString("pass");
                 } else if (returnGrade.equalsIgnoreCase("Fail")) {
-                    returnGrade = rb.getString("fail");
+                    returnGrade = resourceLoader.getString("fail");
                 } else {
-                    returnGrade = rb.getString("ungra");
+                    returnGrade = resourceLoader.getString("ungra");
                 }
                 break;
             case CHECK_GRADE_TYPE:
                 if (returnGrade.equalsIgnoreCase("Checked")) {
-                    returnGrade = rb.getString("gen.checked");
+                    returnGrade = resourceLoader.getString("gen.checked");
                 } else {
-                    returnGrade = rb.getString("ungra");
+                    returnGrade = resourceLoader.getString("ungra");
                 }
                 break;
             default:
                 if (returnGrade.isEmpty()) {
-                    returnGrade = rb.getString("ungra");
+                    returnGrade = resourceLoader.getString("ungra");
                 }
         }
         return returnGrade;
     }
 
     public boolean isDraftSubmission(AssignmentSubmission s) {
-
-        return (!s.getSubmitted()
-            && ((s.getSubmittedText() != null && s.getSubmittedText().length() > 0)
-            || (s.getAttachments() != null && s.getAttachments().size() > 0)));
+        return !s.getSubmitted() &&
+                (StringUtils.isNotEmpty(s.getSubmittedText()) || !s.getAttachments().isEmpty());
     }
 
     private String displayGrade(String grade, Integer factor) {

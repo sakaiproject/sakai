@@ -1935,14 +1935,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		final String releaseTo = newAccessControl.getReleaseTo();
 		switch (releaseTo) {
 			case AssessmentAccessControl.ANONYMOUS_USERS:
-				// generate an alias to the pub assessment
-				String alias = AgentFacade.getAgentString() + Instant.now().toEpochMilli();
-				AssessmentMetaData meta = new AssessmentMetaData(newAssessment, "ALIAS", alias);
-				newMetaDataSet.add(meta);
 				break;
-			case AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS:
-				// nothing additional to do for group release
-				break;
+			// case AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS:
 			default:
 				// if not anonymous or group then set releaseTo to the site title
 				if (toContext != null) {

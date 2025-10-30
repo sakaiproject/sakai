@@ -24,9 +24,11 @@
 
 package org.adl.sequencer;
 
+import java.io.Serial;
 import java.io.Serializable;
 
-import org.adl.util.debug.DebugIndicator;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <strong>Filename:</strong> SeqRule.java<br><br>
@@ -58,10 +60,13 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
+@Slf4j
 public class SeqRule implements Serializable, ISeqRule {
-	private static final long serialVersionUID = 1L; //-8090230866628470772L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 
-	private long id;
+	@Getter
+    private long id;
 
 	/**
 	    * Enumeration of possible sequencing rule actions -- 
@@ -180,12 +185,7 @@ public class SeqRule implements Serializable, ISeqRule {
 	 */
 	public static String SEQ_ACTION_EXIT = "exit";
 
-	/**
-	 * This controls display of log messages to the java console
-	 */
-	private static boolean _Debug = DebugIndicator.ON;
-
-	/**
+    /**
 	 * This describes the rollup rule Child Activity Set (element 2.3)
 	 */
 	public String mAction = SeqRule.SEQ_ACTION_IGNORE;
@@ -209,20 +209,17 @@ public class SeqRule implements Serializable, ISeqRule {
 	 */
 	@Override
 	public void dumpState() {
-		if (_Debug) {
-			System.out.println("  :: SeqRule       --> BEGIN - dumpState");
+        log.debug("  :: SeqRule       --> BEGIN - dumpState");
+		log.debug("  ::--> Action      : {}", mAction);
+		log.debug("  ------------------- ");
 
-			System.out.println("  ::--> Action      : " + mAction);
-			System.out.println("  ------------------- ");
-
-			if (mConditions != null) {
-				mConditions.dumpState();
-			} else {
-				System.out.println("  ::-->  NULL conditions");
-			}
-
-			System.out.println("  :: SeqRule       --> END   - dumpState");
+		if (mConditions != null) {
+			mConditions.dumpState();
+        } else {
+            log.debug("  ::-->  NULL conditions");
 		}
+
+        log.debug("  :: SeqRule       --> END   - dumpState");
 	}
 
 	@Override
@@ -237,11 +234,8 @@ public class SeqRule implements Serializable, ISeqRule {
 			return false;
 		}
 		SeqRule other = (SeqRule) obj;
-		if (id != other.id){
-			return false;
-		}
-		return true;
-	}
+        return id == other.id;
+    }
 
 	/**
 	    * Evaluates this sequencing rule using its declared parameters.<br><br>
@@ -260,99 +254,82 @@ public class SeqRule implements Serializable, ISeqRule {
 	    *         the rule evaluated to <code>false</code>.
 	    */
 	String evaluate(int iType, ISeqActivity iThisActivity, boolean iRetry) {
-
-		if (_Debug) {
-			System.out.println("  :: SeqRule      --> BEGIN - evaluate");
-			System.out.println("  ::-->  " + iType);
-		}
+        log.debug("  :: SeqRule      --> BEGIN - evaluate");
+		log.debug("  ::-->  {}", iType);
 
 		String result = SeqRule.SEQ_ACTION_NOACTION;
 		boolean doEvaluation = false;
 
 		// Filter the rule type prior to performing the evaluation.
 		switch (iType) {
-		case SeqRuleset.RULE_TYPE_ANY: {
-			doEvaluation = true;
-			break;
-		}
-		case SeqRuleset.RULE_TYPE_POST: {
-			if (mAction.equals(SeqRule.SEQ_ACTION_EXITPARENT) || mAction.equals(SeqRule.SEQ_ACTION_EXITALL) || mAction.equals(SeqRule.SEQ_ACTION_RETRY)
-			        || mAction.equals(SeqRule.SEQ_ACTION_RETRYALL) || mAction.equals(SeqRule.SEQ_ACTION_CONTINUE)
-			        || mAction.equals(SeqRule.SEQ_ACTION_PREVIOUS)) {
+			case SeqRuleset.RULE_TYPE_ANY: {
 				doEvaluation = true;
+				break;
 			}
-
-			break;
-		}
-		case SeqRuleset.RULE_TYPE_EXIT: {
-			if (mAction.equals(SeqRule.SEQ_ACTION_EXIT)) {
-				doEvaluation = true;
+			case SeqRuleset.RULE_TYPE_POST: {
+				if (mAction.equals(SeqRule.SEQ_ACTION_EXITPARENT)
+                        || mAction.equals(SeqRule.SEQ_ACTION_EXITALL)
+                        || mAction.equals(SeqRule.SEQ_ACTION_RETRY)
+                        || mAction.equals(SeqRule.SEQ_ACTION_RETRYALL)
+                        || mAction.equals(SeqRule.SEQ_ACTION_CONTINUE)
+                        || mAction.equals(SeqRule.SEQ_ACTION_PREVIOUS)) {
+					doEvaluation = true;
+				}
+				break;
 			}
-
-			break;
-		}
-		case SeqRuleset.RULE_TYPE_SKIPPED: {
-			if (mAction.equals(SeqRule.SEQ_ACTION_SKIP)) {
-				doEvaluation = true;
+			case SeqRuleset.RULE_TYPE_EXIT: {
+				if (mAction.equals(SeqRule.SEQ_ACTION_EXIT)) {
+					doEvaluation = true;
+				}
+				break;
 			}
-
-			break;
-		}
-		case SeqRuleset.RULE_TYPE_DISABLED: {
-			if (mAction.equals(SeqRule.SEQ_ACTION_DISABLED)) {
-				doEvaluation = true;
+			case SeqRuleset.RULE_TYPE_SKIPPED: {
+				if (mAction.equals(SeqRule.SEQ_ACTION_SKIP)) {
+					doEvaluation = true;
+				}
+				break;
 			}
-
-			break;
-		}
-		case SeqRuleset.RULE_TYPE_HIDDEN: {
-			if (mAction.equals(SeqRule.SEQ_ACTION_HIDEFROMCHOICE)) {
-				doEvaluation = true;
+			case SeqRuleset.RULE_TYPE_DISABLED: {
+				if (mAction.equals(SeqRule.SEQ_ACTION_DISABLED)) {
+					doEvaluation = true;
+				}
+				break;
 			}
-
-			break;
-		}
-		case SeqRuleset.RULE_TYPE_FORWARDBLOCK: {
-			if (mAction.equals(SeqRule.SEQ_ACTION_FORWARDBLOCK)) {
-				doEvaluation = true;
+			case SeqRuleset.RULE_TYPE_HIDDEN: {
+				if (mAction.equals(SeqRule.SEQ_ACTION_HIDEFROMCHOICE)) {
+					doEvaluation = true;
+				}
+				break;
 			}
-
-			break;
-		}
-		default: {
-			break;
-		}
+			case SeqRuleset.RULE_TYPE_FORWARDBLOCK: {
+				if (mAction.equals(SeqRule.SEQ_ACTION_FORWARDBLOCK)) {
+					doEvaluation = true;
+				}
+				break;
+			}
+			default: {
+				break;
+			}
 		}
 
 		// Make sure the type of the current rule allows it to be evaluated.
 		if (doEvaluation) {
 			// Make sure we have a valid target activity 
 			if (iThisActivity != null) {
-
-				if (_Debug) {
-					System.out.println("  ::-->  Evaluating - " + mAction);
-				}
+                log.debug("  ::-->  Evaluating - {}", mAction);
 
 				if (mConditions.evaluate(iThisActivity, iRetry) == SeqConditionSet.EVALUATE_TRUE) {
 					result = mAction;
 				}
 			}
 		}
-
-		if (_Debug) {
-			System.out.println("  ::-->  " + result);
-			System.out.println("  :: SeqRule      --> END   - evaluate");
-		}
-
+        log.debug("  ::-->  {}", result);
+		log.debug("  :: SeqRule      --> END   - evaluate");
 		return result;
 
 	}
 
-	public long getId() {
-		return id;
-	}
-
-	@Override
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -360,4 +337,4 @@ public class SeqRule implements Serializable, ISeqRule {
 		return result;
 	}
 
-} // end SeqRule
+}

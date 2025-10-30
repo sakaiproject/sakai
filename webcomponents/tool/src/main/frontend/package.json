@@ -8,11 +8,11 @@
   ],
   "scripts": {
     "lint": "eslint \"packages/**/src/*.js\" --max-warnings=0",
+    "lintfix": "eslint \"packages/**/src/*.js\" --max-warnings=0 --fix",
     "bundle": "esbuild \"bundle-entry-points/*.js\" --sourcemap --preserve-symlinks --bundle --splitting --format=esm --outdir=bundles --minify",
     "analyze-bundle": "esbuild \"bundle-entry-points/*.js\" --preserve-symlinks --splitting --bundle --metafile=meta.json --format=esm --outdir=bundles --minify",
     "analyze": "lit-analyzer --strict --quiet --rules.no-complex-attribute-binding=warning --rules.no-incompatible-type-binding=off \"packages/**/src/*.js\"",
-    "test": "playwright install chromium && wtr",
-    "test:dev": "playwright install chromium && lerna run test --concurrency 1 --stream --since master"
+    "test": "playwright install chromium && wtr"
   },
   "keywords": [],
   "author": "",
@@ -22,7 +22,8 @@
     "@eslint/js": "^9.13.0",
     "@faker-js/faker": "^9.6.0",
     "@lion/ui": "^0.11.2",
-    "@open-wc/testing": "^4.0.0",
+    "@open-wc/testing": "^3.0.0-next.5",
+    "@sakai-ui/sakai-account": "^3.0.6",
     "@sakai-ui/sakai-button": "file:packages/sakai-button",
     "@sakai-ui/sakai-calendar": "file:packages/sakai-calendar",
     "@sakai-ui/sakai-conversations": "file:packages/sakai-conversations",

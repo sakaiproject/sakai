@@ -10,6 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>Scoring Service API</name>
     <artifactId>scoring-service-api</artifactId>
     <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
 
@@ -33,6 +34,4 @@
             </resource>
         </resources>
     </build>
-
-
 </project>

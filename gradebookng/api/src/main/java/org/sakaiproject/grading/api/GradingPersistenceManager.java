@@ -82,6 +82,7 @@ public interface GradingPersistenceManager {
 
     Optional<Category> getCategory(Long categoryId);
     List<Category> getCategoriesForGradebook(Long gradebookId);
+    List<Category> getCategoriesWithAssignmentsForGradebook(Long gradebookId);
     boolean isCategoryDefined(String name, Gradebook gradebook);
     boolean existsDuplicateCategory(String name, Gradebook gradebook, Long id);
     Category saveCategory(Category category);
