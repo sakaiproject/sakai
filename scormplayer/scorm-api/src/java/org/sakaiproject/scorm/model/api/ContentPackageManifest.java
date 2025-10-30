@@ -32,10 +32,10 @@ public class ContentPackageManifest implements Serializable
 
 	@EqualsAndHashCode.Include @Getter @Setter private Long id;
 	@Getter @Setter private ISeqActivityTree actTreePrototype;
-	@Getter private List launchDataList;
+	@Getter private List<LaunchData> launchDataList;
 	private HashMap<String, LaunchData> launchDataMap;
 
-	public List getLaunchData()
+	public List<LaunchData> getLaunchData()
 	{
 		return launchDataList;
 	}
@@ -45,14 +45,12 @@ public class ContentPackageManifest implements Serializable
 		return launchDataMap.get(identifier);
 	}
 
-	public void setLaunchData(List launchDataList)
+	public void setLaunchData(List<LaunchData> launchDataList)
 	{
 		launchDataMap = new HashMap<>();
-		for (int i = 0; i < launchDataList.size(); ++i)
-		{
-			LaunchData l = (LaunchData) launchDataList.get(i);
-			launchDataMap.put(l.getItemIdentifier(), l);
-		}
+        for (LaunchData launchData : launchDataList) {
+            launchDataMap.put(launchData.getItemIdentifier(), launchData);
+        }
 
 		this.launchDataList = launchDataList;
 	}

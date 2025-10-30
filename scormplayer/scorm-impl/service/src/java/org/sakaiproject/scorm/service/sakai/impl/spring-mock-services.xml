@@ -42,4 +42,9 @@
 	<bean id="org.sakaiproject.tool.api.SessionManager" class="org.mockito.Mockito" factory-method="mock">
 		<constructor-arg value="org.sakaiproject.tool.api.SessionManager"/>
 	</bean>
+
+	<!-- Mock EntityManager to enable tests to run -->
+	<bean id="org.sakaiproject.entity.api.EntityManager" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="org.sakaiproject.entity.api.EntityManager"/>
+	</bean>
 </beans>
