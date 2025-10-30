@@ -76,6 +76,15 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     private static final String REFERENCE_ROOT = Entity.SEPARATOR + "scorm";
     private static final String DEFAULT_USER = "admin";
     private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
+    private static final Set<String> SCORM_CONTENT_FUNCTIONS = Set.of(
+            ContentHostingService.AUTH_RESOURCE_ADD,
+            ContentHostingService.AUTH_RESOURCE_READ,
+            ContentHostingService.AUTH_RESOURCE_WRITE_ANY,
+            ContentHostingService.AUTH_RESOURCE_WRITE_OWN,
+            ContentHostingService.AUTH_RESOURCE_REMOVE_ANY,
+            ContentHostingService.AUTH_RESOURCE_REMOVE_OWN
+    );
+    private static final String SCORM_REFERENCE_PREFIX = ContentHostingService.REFERENCE_ROOT + ScormConstants.ROOT_DIRECTORY;
 
     private EntityManager entityManager;
     private ScormContentService scormContentService;
@@ -339,13 +348,28 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     }
 
     private <T> T runWithAdvisor(Callable<T> task) throws Exception {
-        SecurityAdvisor advisor = (userId, function, reference) -> SecurityAdvice.ALLOWED;
+        SecurityAdvisor advisor = createScormContentAdvisor();
         securityService.pushAdvisor(advisor);
         try {
             return task.call();
         } finally {
             securityService.popAdvisor(advisor);
         }
+    }
+
+    private SecurityAdvisor createScormContentAdvisor() {
+        return (userId, function, reference) -> {
+            if (function == null || reference == null) {
+                return SecurityAdvice.PASS;
+            }
+            if (!SCORM_CONTENT_FUNCTIONS.contains(function)) {
+                return SecurityAdvice.PASS;
+            }
+            if (reference.startsWith(SCORM_REFERENCE_PREFIX) || reference.startsWith(ScormConstants.ROOT_DIRECTORY)) {
+                return SecurityAdvice.ALLOWED;
+            }
+            return SecurityAdvice.PASS;
+        };
     }
 
     private void cloneCollection(String sourceCollectionId, String targetCollectionId) throws Exception {
@@ -403,7 +427,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
             return;
         }
 
-        SecurityAdvisor advisor = (userId, function, reference) -> SecurityAdvice.ALLOWED;
+        SecurityAdvisor advisor = createScormContentAdvisor();
         securityService.pushAdvisor(advisor);
         try {
             try {
