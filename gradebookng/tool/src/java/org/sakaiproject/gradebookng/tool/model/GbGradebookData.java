@@ -27,6 +27,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.wicket.Component;
@@ -561,32 +562,30 @@ public class GbGradebookData {
 			if (!Objects.equals(this.settings.getCategoryType(), GradingConstants.CATEGORY_TYPE_NO_CATEGORY) && a1.getCategoryId() == null) {
 				counted = false;
 			}
-			result.add(new AssignmentDefinition(a1.getId(),
-					FormatHelper.stripLineBreaks(a1.getName()),
-					a1.getName(),
-					FormatHelper.formatDoubleToDecimal(a1.getPoints()),
-					FormatHelper.formatDate(a1.getDueDate(), getString("label.studentsummary.noduedate")),
+            result.add(new AssignmentDefinition(
+                    a1.getId(),
+                    FormatHelper.stripLineBreaks(a1.getName()),
+                    a1.getName(),
+                    FormatHelper.formatDoubleToDecimal(a1.getPoints()),
+                    FormatHelper.formatDate(a1.getDueDate(), getString("label.studentsummary.noduedate")),
+                    BooleanUtils.toBoolean(a1.getReleased()),
+                    BooleanUtils.toBoolean(counted),
+                    BooleanUtils.toBoolean(a1.getExtraCredit()),
+                    BooleanUtils.toBoolean(a1.getExternallyMaintained()),
+                    BooleanUtils.toBoolean(this.hasAssociatedRubricMap.get(idForRubric)),
+                    a1.getExternalId(),
+                    a1.getExternalAppName(),
+                    a1.getExternalToolTitle(),
+                    getIconCSSForExternalAppName(a1.getExternalAppName()),
+                    nullable(a1.getCategoryId()),
+                    a1.getCategoryName(),
+                    userSettings.getCategoryColor(a1.getCategoryName()),
+                    nullable(categoryWeight),
+                    BooleanUtils.toBoolean(a1.getCategoryExtraCredit()),
+                    BooleanUtils.toBoolean(a1.getCategoryEqualWeight()),
+                    !this.uiSettings.isAssignmentVisible(a1.getId())));
 
-					a1.getReleased(),
-					counted,
-					a1.getExtraCredit(),
-					a1.getExternallyMaintained(),
-					this.hasAssociatedRubricMap.get(idForRubric),
-					a1.getExternalId(),
-					a1.getExternalAppName(),
-					a1.getExternalToolTitle(),
-					getIconCSSForExternalAppName(a1.getExternalAppName()),
-
-					nullable(a1.getCategoryId()),
-					a1.getCategoryName(),
-					userSettings.getCategoryColor(a1.getCategoryName()),
-					nullable(categoryWeight),
-					a1.getCategoryExtraCredit(),
-					a1.getCategoryEqualWeight(),
-
-					!this.uiSettings.isAssignmentVisible(a1.getId())));
-
-			// If we're at the end of the assignment list, or we've just changed
+            // If we're at the end of the assignment list, or we've just changed
 			// categories, put out a total.
 			if (userSettings.isGroupedByCategory()
 					&& !Objects.equals(this.settings.getCategoryType(),GradingConstants.CATEGORY_TYPE_NO_CATEGORY)
@@ -598,8 +597,8 @@ public class GbGradebookData {
 								.getString(),
 						nullable(categoryWeight),
 						getCategoryPoints(a1.getCategoryId()),
-						a1.getCategoryExtraCredit(),
-						a1.getCategoryEqualWeight(),
+						BooleanUtils.toBoolean(a1.getCategoryExtraCredit()),
+						BooleanUtils.toBoolean(a1.getCategoryEqualWeight()),
 						userSettings.getCategoryColor(a1.getCategoryName()),
 						!this.uiSettings.isCategoryScoreVisible(a1.getCategoryName()),
 						FormatHelper.formatCategoryDropInfo(this.categories.stream()
