@@ -1217,15 +1217,14 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		// (completed, incomplete, not_attempted, unknown)
 		String completionStatus = getValueAsString(CMI_COMPLETION_STATUS, dataManager);
 
-		// (passed, failed, unknown)
-		String successStatus = getValueAsString(CMI_SUCCESS_STATUS, dataManager);
-
-		boolean hasScore = false;
-		OptionalDouble score = OptionalDouble.empty();
 		if ("normal".equals(mode) && "credit".equals(credit))
 		{
+			// (passed, failed, unknown)
+			String successStatus = getValueAsString(CMI_SUCCESS_STATUS, dataManager);
+
+			OptionalDouble score = OptionalDouble.empty();
 			score = getRealValue(CMI_SCORE_SCALED, dataManager);
-			hasScore = score.isPresent();
+			boolean hasScore = score.isPresent();
 			boolean hasCompletion = "completed".equals(completionStatus);
 			boolean hasFinalSuccessState = "passed".equals(successStatus) || "failed".equals(successStatus);
 
