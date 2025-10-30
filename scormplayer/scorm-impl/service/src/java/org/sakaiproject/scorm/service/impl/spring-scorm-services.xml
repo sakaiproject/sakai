@@ -95,4 +95,16 @@
 		<property name="learningManagementSystem" ref="org.sakaiproject.scorm.service.api.LearningManagementSystem" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
+
+	<bean id="org.sakaiproject.scorm.service.impl.ScormEntityProducer"
+		class="org.sakaiproject.scorm.service.impl.ScormEntityProducer"
+		init-method="init">
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="scormContentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
+		<property name="contentPackageDao" ref="org.sakaiproject.scorm.dao.api.ContentPackageDao" />
+		<property name="contentPackageManifestDao" ref="org.sakaiproject.scorm.dao.api.ContentPackageManifestDao" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
 </beans>
