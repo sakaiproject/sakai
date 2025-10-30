@@ -489,15 +489,16 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 final String userId = user.getId();
                 final String slash = Entity.SEPARATOR;
                 final StringBuilder path = new StringBuilder();
-                SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(user.getId(), this.sakaiPersonManager.getUserMutableType());
-                String phoneticPronunciation = StringUtils.EMPTY;
-                if (sakaiPerson != null && StringUtils.isNotEmpty(sakaiPerson.getPhoneticPronunciation())) {
-                    //Append the phonetic pronunciation if it's not empty.
-                    phoneticPronunciation = sakaiPerson.getPhoneticPronunciation();
-                    path.append("<span>");
-                    path.append(phoneticPronunciation);
-                    path.append("</span>");
-                }
+                Optional<SakaiPerson> sakaiPerson = sakaiPersonManager.getSakaiPerson(user.getId(), sakaiPersonManager.getUserMutableType());
+                sakaiPerson.ifPresent(sp -> {
+                    if (StringUtils.isNotEmpty(sp.getPhoneticPronunciation())) {
+                        // Append the phonetic pronunciation if it's not empty.
+                        path.append("<span>");
+                        path.append(sp.getPhoneticPronunciation());
+                        path.append("</span>");
+                    }
+                });
+
                 if (profileLogic.getUserNamePronunciation(user.getId()) != null) {
                     path.append("<sakai-pronunciation-player user-id=\"").append(userId).append("\" />");
                 }
@@ -715,11 +716,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         rosterMember.setInstructor(isAllowed(userId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference()));
         rosterMember.setCanViewProfilePicture(true);
 
-        SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
-        if (sakaiPerson != null) {
-            rosterMember.setPronouns(sakaiPerson.getPronouns());
-            rosterMember.setNickname(sakaiPerson.getNickname());
-        }
+        Optional<SakaiPerson> sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
+        sakaiPerson.ifPresent(sp -> {
+            rosterMember.setPronouns(sp.getPronouns());
+            rosterMember.setNickname(sp.getNickname());
+        });
 
         // See if there is a pronunciation available for the user
         String pronunciation = pronounceMap.get(user.getId());

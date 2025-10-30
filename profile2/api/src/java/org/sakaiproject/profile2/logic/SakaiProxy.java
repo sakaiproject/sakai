@@ -225,14 +225,6 @@ public interface SakaiProxy {
 	public SakaiPerson getSakaiPersonPrototype();
 
 	/**
-	 * Create a new persistable SakaiPerson object for a user
-	 *
-	 * @param userId
-	 * @return
-	 */
-	public SakaiPerson createSakaiPerson(String userId);
-
-	/**
 	 * Update a SakaiPerson object in the db.
 	 * <p>
 	 * If you are doing this from the UI you should use the {@link ProfileLogic.updateUserProfile} method instead as it will also handle any

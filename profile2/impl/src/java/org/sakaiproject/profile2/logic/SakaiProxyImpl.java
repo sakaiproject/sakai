@@ -262,34 +262,29 @@ public class SakaiProxyImpl implements SakaiProxy {
 	@Override
 	public SakaiPerson getSakaiPerson(final String userId) {
 
-		SakaiPerson sakaiPerson = null;
-
 		try {
-			sakaiPerson = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getUserMutableType());
+			return this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getUserMutableType()).orElse(null);
 		} catch (Exception e) {
 			log.error("Couldn't get SakaiPerson for userId {}: ", userId, e.toString());
 		}
-		return sakaiPerson;
+		return null;
 	}
 
 	@Override
 	public byte[] getSakaiPersonJpegPhoto(final String userId) {
 
-		SakaiPerson sakaiPerson = null;
 		byte[] image = null;
 
 		try {
 			// try normal user type
-			sakaiPerson = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getUserMutableType());
-			if (sakaiPerson != null) {
-				image = sakaiPerson.getJpegPhoto();
-			}
+			image = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getUserMutableType())
+					.map(SakaiPerson::getJpegPhoto)
+					.orElse(null);
 			// if null try system user type as a profile might have been created with this type
 			if (image == null) {
-				sakaiPerson = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getSystemMutableType());
-				if (sakaiPerson != null) {
-					image = sakaiPerson.getJpegPhoto();
-				}
+				image = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getSystemMutableType())
+						.map(SakaiPerson::getJpegPhoto)
+						.orElse(null);
 			}
 
 		} catch (final Exception e) {
@@ -302,21 +297,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 	@Override
 	public String getSakaiPersonImageUrl(final String userId) {
 
-		SakaiPerson sakaiPerson = null;
 		String url = null;
 
 		try {
 			// try normal user type
-			sakaiPerson = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getUserMutableType());
-			if (sakaiPerson != null) {
-				url = sakaiPerson.getPictureUrl();
-			}
+			url = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getUserMutableType())
+					.map(SakaiPerson::getPictureUrl)
+					.orElse(null);
 			// if null try system user type as a profile might have been created with this type
 			if (StringUtils.isBlank(url)) {
-				sakaiPerson = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getSystemMutableType());
-				if (sakaiPerson != null) {
-					url = sakaiPerson.getPictureUrl();
-				}
+				url = this.sakaiPersonManager.getSakaiPerson(userId, this.sakaiPersonManager.getSystemMutableType())
+						.map(SakaiPerson::getPictureUrl)
+						.orElse(null);
 			}
 
 		} catch (final Exception e) {
@@ -335,19 +327,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			sakaiPerson = this.sakaiPersonManager.getPrototype();
 		} catch (final Exception e) {
 			log.error("SakaiProxy.getSakaiPersonPrototype(): Couldn't get SakaiPerson prototype: " + e.getClass() + " : " + e.getMessage());
-		}
-		return sakaiPerson;
-	}
-
-	@Override
-	public SakaiPerson createSakaiPerson(final String userId) {
-
-		SakaiPerson sakaiPerson = null;
-
-		try {
-			sakaiPerson = this.sakaiPersonManager.create(userId, this.sakaiPersonManager.getUserMutableType());
-		} catch (final Exception e) {
-			log.error("SakaiProxy.createSakaiPerson(): Couldn't create SakaiPerson: " + e.getClass() + " : " + e.getMessage());
 		}
 		return sakaiPerson;
 	}

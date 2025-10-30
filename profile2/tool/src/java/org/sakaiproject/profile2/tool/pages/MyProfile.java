@@ -91,16 +91,9 @@ public class MyProfile extends BasePage {
 
 		//get SakaiPerson for this user
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
-		//if null, create one 
+		//if null, throw exception
 		if(sakaiPerson == null) {
-			log.warn("No SakaiPerson for {}. Creating one.", userUuid);
-			sakaiPerson = sakaiProxy.createSakaiPerson(userUuid);
-			//if its still null, throw exception
-			if(sakaiPerson == null) {
-				throw new ProfileNotDefinedException("Couldn't create a SakaiPerson for " + userUuid);
-			}
-			//post create event
-			sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_NEW, userUuid, true);
+			throw new ProfileNotDefinedException("Couldn't get a SakaiPerson for " + userUuid);
 		} 
 
 		//post view event

@@ -71,15 +71,10 @@ public class ProfileLogicImpl implements ProfileLogic {
 		p.setImageThumbUrl(imageLogic.getProfileImageEntityUrl(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL));
 
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
-		if (sakaiPerson == null) {
-			sakaiPerson = sakaiProxy.createSakaiPerson(userUuid);
-			if (sakaiPerson == null) {
-				return p;
-			}
+		if (sakaiPerson != null) {
+			//transform
+			p = transformSakaiPersonToUserProfile(p, sakaiPerson);
 		}
-
-		//transform
-		p = transformSakaiPersonToUserProfile(p, sakaiPerson);
 
 		if(StringUtils.equals(userUuid, currentUserUuid) || sakaiProxy.isSuperUser()) {
 			p.setEmail(u.getEmail());
