@@ -125,7 +125,7 @@ private List attachmentList;
 @Getter @Setter private String[] fixedQuestionIds;
 @Getter @Setter private String numberSelectedFixed;
 @Getter @Setter private String selectedPoolFixed;  // pool fixed id for the item to be added to
-@Setter @Getter private String[] selectedPoolsMultiple;
+@Setter private String[] selectedPoolsMultiple;
 
   public void setSection(SectionFacade section) {
     try {
@@ -708,6 +708,54 @@ private List attachmentList;
    */
   public void setSelectedPool(String selectedPool) {
     this.selectedPool = selectedPool;
+  }
+
+  /**
+   * get the String array of selected multiple pool ids
+   * This getter loads from section metadata if the field is null
+   * @return String array of selected pool ids
+   */
+  public String[] getSelectedPoolsMultiple() {
+    // If the field is already loaded, return it
+    if (selectedPoolsMultiple != null) {
+      return selectedPoolsMultiple;
+    }
+    
+    // If no section is available, return empty array
+    if (section == null) {
+      return new String[0];
+    }
+    
+    // Load from metadata
+    try {
+      String randomPoolCountStr = section.getSectionMetaDataByLabel(SectionDataIfc.RANDOM_POOL_COUNT);
+      if (randomPoolCountStr != null && !randomPoolCountStr.isEmpty()) {
+        int poolCount = Integer.valueOf(randomPoolCountStr);
+        java.util.List<String> poolIds = new java.util.ArrayList<>();
+        
+        // First pool has no suffix
+        String firstPool = section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
+        if (firstPool != null && !firstPool.isEmpty()) {
+          poolIds.add(firstPool);
+        }
+        
+        // Additional pools have "_1", "_2", etc. suffixes
+        for (int i = 1; i < poolCount; i++) {
+          String poolId = section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW + SectionDataIfc.SEPARATOR_MULTI + i);
+          if (poolId != null && !poolId.isEmpty()) {
+            poolIds.add(poolId);
+          }
+        }
+        
+        selectedPoolsMultiple = poolIds.toArray(new String[0]);
+        return selectedPoolsMultiple;
+      }
+    } catch (Exception e) {
+      log.warn("Error loading selectedPoolsMultiple from metadata: {}", e.getMessage());
+    }
+    
+    // Return empty array if no metadata found or error occurred
+    return new String[0];
   }
 
    /**

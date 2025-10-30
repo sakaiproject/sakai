@@ -70,26 +70,4 @@ public class RenderBeanTest extends TestCase
 		EasyMock.verify(mockToolRenderService, mockObject);
 	}
 
-	/*
-	 * Test method for
-	 * 'uk.ac.cam.caret.sakai.rwiki.tool.bean.RenderBean.renderPage(String,
-	 * String)'
-	 */
-	public void testRenderPageStringString()
-	{
-		return;
-		/*
-		 * try { mockObjectService.getRWikiObject(globalName,user,realm); }
-		 * catch (PermissionException e) { // EMPTY }
-		 * objectServiceControl.setReturnValue(mockObject);
-		 * mockRenderService.renderPage(mockObject,user,otherRealm);
-		 * renderServiceControl.setReturnValue(value);
-		 * objectServiceControl.replay(); rwikiObjectControl.replay();
-		 * renderServiceControl.replay();
-		 * assertTrue(value.equals(rb.renderPage(globalName, otherRealm)));
-		 * objectServiceControl.verify(); renderServiceControl.verify();
-		 * rwikiObjectControl.verify();
-		 */
-	}
-
 }

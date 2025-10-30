@@ -42,9 +42,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.providers.model.EntityUser;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -67,9 +65,9 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     private static final String ID_PREFIX = "id=";
 
     private UserDirectoryService userDirectoryService;
-    private SiteService siteService;
     private DeveloperHelperService developerHelperService;
     private ServerConfigurationService serverConfigurationService;
+    private ProfileService profileService;
 
     public static String PREFIX = "user";
     public String getEntityPrefix() {
@@ -593,18 +591,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
      * @return <code>true</code> if the current user has the profile tool in their My Workspace.
      */
     private boolean hasProfile() {
-        boolean hasProfile = false;
-        String currentUserId = developerHelperService.getCurrentUserId();
-        if (currentUserId != null) {
-            String userSiteId = siteService.getUserSiteId(currentUserId);
-            try {
-                Site userSite = siteService.getSite(userSiteId);
-                hasProfile = userSite.getToolForCommonId("sakai.profile2") != null;
-            } catch (IdUnusedException e) {
-                // Ignore
-            }
-        }
-        return hasProfile;
+        return profileService != null;
     }
 
     /**

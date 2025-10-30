@@ -27,6 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.adl.validator.contentpackage.LaunchData;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -233,7 +234,13 @@ public class PackageConfigurationPage extends ConsoleBasePage
 		form.add(new SakaiDateTimeField("acceptUntilDTF", new PropertyModel(contentPackage, "zonedAcceptUntil"), tz, true));
 		form.add(new DropDownChoice("numberOfTries", new PropertyModel(contentPackage, "numberOfTries"), tryList, new TryChoiceRenderer()));
 		form.add(new CheckBox("showTOC", new PropertyModel(contentPackage, "showTOC")));
-		form.add(new CheckBox("showNavBar", new PropertyModel(contentPackage, "showNavBar")));
+
+		CheckBox showNavBar = new CheckBox("showNavBar", new PropertyModel(contentPackage, "showNavBar"));
+		// Hide the legacy SCORM button bar toggle: the REST launcher ignores it but we keep
+		// the underlying property to avoid breaking existing data and the classic player.
+		showNavBar.setVisible(false);
+		showNavBar.setVisibilityAllowed(false);
+		form.add(showNavBar);
 
 		ListView scos;
 		form.add(scos = new ListView("scos", gradebookSetup.getAssessments())
@@ -299,7 +306,7 @@ public class PackageConfigurationPage extends ConsoleBasePage
 						boolean on = assessmentSetup.isSynchronizeSCOWithGradebook();
 						String assessmentExternalId = getAssessmentExternalId(gradebookSetup, assessmentSetup);
 						boolean has = gradingService.isExternalAssignmentDefined(context, assessmentExternalId);
-						String fixedTitle = getItemTitle(assessmentSetup, context);
+						String fixedTitle = getItemTitle(gradebookSetup, assessmentSetup, context);
 
 						try
 						{
@@ -416,13 +423,19 @@ public class PackageConfigurationPage extends ConsoleBasePage
 		return assessmentExternalId;
 	}
 
-	private String getItemTitle(AssessmentSetup assessmentSetup, String context)
+	private String getItemTitle(GradebookSetup gradebookSetup, AssessmentSetup assessmentSetup, String context)
 	{
-		String fixedTitle = assessmentSetup.getItemTitle();
+		String baseTitle = assessmentSetup.getItemTitle();
+		if (gradebookSetup.getAssessments().size() == 1)
+		{
+			baseTitle = StringUtils.defaultIfBlank(gradebookSetup.getContentPackage().getTitle(), baseTitle);
+		}
+
+		String fixedTitle = baseTitle;
 		int count = 1;
 		while (gradingService.isAssignmentDefined(context, context, fixedTitle))
 		{
-			fixedTitle = assessmentSetup.getItemTitle() + " (" + count++ + ")";
+			fixedTitle = baseTitle + " (" + count++ + ")";
 		}
 
 		return fixedTitle;

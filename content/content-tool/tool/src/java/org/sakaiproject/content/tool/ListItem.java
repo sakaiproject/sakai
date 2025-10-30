@@ -1166,6 +1166,7 @@ public class ListItem
 		}
 		
 		this.hidden = false;
+		this.hiddenWithAccessibleContent = this.collection;
 		this.useReleaseDate = false;
 		this.useRetractDate = false;
 		this.isAvailable = parent.isAvailable();
@@ -1479,8 +1480,20 @@ public class ListItem
 	{
 		// availability
 		String hiddenParam = params.getString("hidden" + index);
-		this.hidden = PROP_HIDDEN_TRUE.equalsIgnoreCase(hiddenParam);
-		this.hiddenWithAccessibleContent = "hidden_with_accessible_content".equals(hiddenParam);
+		boolean hiddenSelected = PROP_HIDDEN_TRUE.equalsIgnoreCase(hiddenParam);
+		boolean hiddenAccessibleSelected = "hidden_with_accessible_content".equals(hiddenParam);
+
+		if (isCollection()) {
+			if (hiddenParam == null) {
+				this.hiddenWithAccessibleContent = true;
+			} else {
+				this.hiddenWithAccessibleContent = hiddenAccessibleSelected || hiddenSelected;
+			}
+			this.hidden = false;
+		} else {
+			this.hidden = hiddenSelected;
+			this.hiddenWithAccessibleContent = false;
+		}
 		boolean use_start_date = params.getBoolean("use_start_date" + index);
 		boolean use_end_date = params.getBoolean("use_end_date" + index);
 		
@@ -4524,4 +4537,3 @@ public class ListItem
     }
 
 }
-

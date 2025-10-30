@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -742,8 +743,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		String[] toolIds = { "sakai.announcements" };
 		return toolIds;
 	}
-	
-	
+
+	@Override
+	public Optional<List<String>> getTransferOptions() {
+		return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_PERMISSIONS_OPTION }));
+	}
+
 	/**
 	 ** Generate RSS Item element for specified assignment
 	 **/
@@ -1684,6 +1689,12 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			log.warn("Failed to get channel for ref {}", e.toString());
 		}
 		return Collections.EMPTY_LIST;
+	}
+
+
+	@Override
+	public String getToolPermissionsPrefix() {
+		return SECURE_ANNC_ROOT;
 	}
 
 	@Override

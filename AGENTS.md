@@ -49,14 +49,12 @@
 - **Responsive Design**: Ensure all UI components work across different screen sizes
 - **Components**: Leverage Bootstrap 5 components for consistent UI/UX
 
-## JavaScript Development
-- **Modern JavaScript**: Use clean, standard modern JavaScript where possible
-- **Legacy Code**: The codebase contains legacy frameworks and libraries that should be gradually modernized
-- **jQuery**: Update jQuery code to modern JavaScript when making changes, if the changes are minimal
-- **ES6+**: Prefer ES6+ features (arrow functions, template literals, destructuring, etc.)
-- **Modular Code**: Write modular, reusable JavaScript components
-- **Avoid Global Scope**: Minimize use of global variables and functions
-- **Lit Component Encapsulation**: When adding reactive state to Lit-based web components, prefix internal-only properties with an underscore (e.g., `_points`) and expose explicit getters if external access is needed.
+- **Modern JavaScript**: Target evergreen browsers; assume ES2022+ features and browser APIs like `fetch` keepalive are present.
+- **Lean Code Paths**: Avoid legacy branches, UA sniffing, or fallbacks unless a specific evergreen gap is documented.
+- **jQuery**: Replace jQuery with modern DOM APIs when touching code; new work should not add jQuery dependencies.
+- **Modular Code**: Compose Lit components, ES modules, and encapsulated helpers; keep state local and explicit.
+- **No Global Side Channels**: Prefer module scope or class fields; expose intentional APIs instead of incidental globals.
+- **Lit Component Encapsulation**: Internal reactive state stays prefixed with `_` and is only surfaced through getters/setters when required.
 
 ## Code Style Guidelines
 - **Commit Messages**: `<issue key> <component> <brief description>` (e.g., `SAK-12345 Assignments add option x`)
@@ -73,38 +71,7 @@
    - Enforced: The build runs a Checkstyle rule during `mvn validate` to fail on `var` usages. To bypass in emergencies only, run with `-Dcheckstyle.skip=true` (not recommended for commits).
 
 ## Push Notifications
-
-### Platform Support
-- **Android**: Full Web Push support through Chrome, Firefox, and Edge browsers
-- **iOS**: Web Push support requires Progressive Web App (PWA) installation (iOS 16.4+)
-- **Desktop**: Full Web Push support across all major browsers
-
-### Implementation Architecture
-- **Backend**: Uses Web Push Protocol with VAPID authentication in `UserMessagingServiceImpl.java`
-- **Frontend**: Browser-specific handling in `sakai-push-utils.js`
-- **Service Worker**: Background push handling in `sakai-service-worker.js`
-
-### Platform-Specific Requirements
-
-#### iOS Safari (iOS 16.4+)
-- **PWA Required**: Users must add site to home screen before push notifications work
-- **Web App Manifest**: Must serve `/manifest.json` with PWA configuration
-- **User Interaction**: Permission requests require direct user interaction
-- **Protocol**: Uses standard Web Push Protocol (no APNs certificate needed)
-
-#### Android Chrome/Firefox
-- **No PWA Required**: Can request push permissions immediately
-- **Background Support**: Full background push notification support
-- **Protocol**: Uses Web Push Protocol with VAPID keys
-- **FCM Integration**: Chrome uses Firebase Cloud Messaging behind the scenes
-
-#### Desktop Browsers
-- **Universal Support**: Chrome, Firefox, Safari, Edge all support Web Push
-- **Standard Implementation**: Uses Web Push Protocol with VAPID authentication
-
-### Development Guidelines
-- **Permission Timing**: Request push permissions after user engagement, not immediately on page load
-- **Progressive Enhancement**: Detect browser capabilities and adjust UX accordingly
-- **Graceful Degradation**: Provide fallbacks for unsupported browsers
-- **Token Management**: Handle subscription updates and expirations properly
-- **Internationalization**: PWA installation messages use `sakai-notifications.properties` for translations
+- **Support Matrix**: Design for current evergreen builds of Chrome, Edge, Safari, and Firefox; no legacy branches.
+- **Protocol**: Use Web Push with VAPID via `UserMessagingServiceImpl.java`; rely on the service worker in `sakai-service-worker.js`.
+- **UX Timing**: Gate permission prompts behind explicit user interaction; avoid auto-prompts.
+- **State Management**: Reconcile subscriptions proactively and keep localization strings in `sakai-notifications.properties`.

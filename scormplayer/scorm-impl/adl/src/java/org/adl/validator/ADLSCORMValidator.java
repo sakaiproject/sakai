@@ -26,8 +26,8 @@ package org.adl.validator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.parsers.dom.ADLDOMParser;
 import org.adl.parsers.dom.DOMTreeUtility;
@@ -59,6 +59,7 @@ import org.w3c.dom.Node;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class ADLSCORMValidator {
 	/**
 	 * The <code>Document</code> object is an electronic representation of the
@@ -149,11 +150,6 @@ public class ADLSCORMValidator {
 	private boolean mIsRootElement;
 
 	/**
-	 * Logger object used for debug logging.
-	 */
-	private Logger mLogger;
-
-	/**
 	 * Describes whether or not full validation occurs.  A <code>true</code> 
 	 * implies that full validation is performed, <code>false</code> implies 
 	 * wellformedness check only.
@@ -185,10 +181,8 @@ public class ADLSCORMValidator {
 	 * </ul>
 	 */
 	public ADLSCORMValidator(String iValidator) {
-		mLogger = Logger.getLogger("org.adl.util.debug.validator");
 
-		mLogger.entering("ADLSCORMValidator", "ADLSCORMValidator()");
-		mLogger.finest("      iValidator coming in is " + iValidator);
+		log.debug("iValidator coming in is {}", iValidator);
 
 		mDocument = null;
 		mIsIMSManifestPresent = true;
@@ -201,8 +195,6 @@ public class ADLSCORMValidator {
 		mIsRootElement = false;
 		mSchemaLocExists = false;
 		mDeclaredNamespaces = new ArrayList<>();
-
-		mLogger.exiting("ADLSCORMValidator", "ADLSCORMValidator()");
 	}
 
 	/**
@@ -229,7 +221,7 @@ public class ADLSCORMValidator {
 				}
 			}
 		} catch (NullPointerException npe) {
-			mLogger.severe(iPath + " did not exist and was not cleaned!!");
+			log.warn("{} did not exist and was not cleaned!!", iPath);
 		}
 	}
 
@@ -243,7 +235,6 @@ public class ADLSCORMValidator {
 	 * @return ADLValidator Object containing the outcome of validation. <br>
 	 */
 	public IValidatorOutcome getADLValidatorOutcome() {
-		mLogger.entering("ADLSCORMValidator", "getADLValidatorOutcome()");
 
 		// create an instance of the ADLValidator object with the current state of
 		// of the ADLSCORMValidator attributes values
@@ -251,7 +242,6 @@ public class ADLSCORMValidator {
 		ADLValidatorOutcome outcome = new ADLValidatorOutcome(getDocument(), getIsIMSManifestPresent(), getIsWellformed(), getIsValidToSchema(),
 		        getIsValidToApplicationProfile(), getIsExtensionsUsed(), getIsRequiredFiles(), getIsRootElement());
 
-		mLogger.exiting("ADLSCORMValidator", "getADLValidatorOutcome()");
 		return outcome;
 	}
 
@@ -410,7 +400,7 @@ public class ADLSCORMValidator {
 			} else {
 				String msgText = Messages.getString("ADLSCORMValidator.24", rootNodeName, rootNodeNamespace, DOMTreeUtility.IMSCP_NAMESPACE);
 
-				mLogger.info("FAILED: " + msgText);
+				log.warn("FAILED: {}", msgText);
 
 				MessageCollection.getInstance().add(new LogMessage(MessageType.FAILED, msgText));
 				// This is the updated logging method invocation        
@@ -422,7 +412,7 @@ public class ADLSCORMValidator {
 			} else {
 				String msgText = Messages.getString("ADLSCORMValidator.30", rootNodeName, rootNodeNamespace, DOMTreeUtility.IEEE_LOM_NAMESPACE);
 
-				mLogger.info("FAILED: " + msgText);
+				log.warn("FAILED: {}", msgText);
 				MessageCollection.getInstance().add(new LogMessage(MessageType.FAILED, msgText));
 				// This is the updated logging method invocation        
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.TERMINATE, msgText));
@@ -443,8 +433,7 @@ public class ADLSCORMValidator {
 	 */
 	protected void performValidatorParse(String iXMLFileName) {
 
-		mLogger.entering("ADLSCORMValidator", "performValidatorParse()");
-		mLogger.finest("   iXMLFileName coming in is " + iXMLFileName);
+		log.debug("iXMLFileName coming in is {}", iXMLFileName);
 
 		// create an adldomparser object
 		ADLDOMParser adldomparser = new ADLDOMParser();
@@ -473,7 +462,7 @@ public class ADLSCORMValidator {
 			}
 		} else {
 			String msgText = Messages.getString("ADLSCORMValidator.18");
-			mLogger.severe("TERMINATE: " + msgText);
+			log.warn("TERMINATE: {}", msgText);
 			MessageCollection.getInstance().add(new LogMessage(MessageType.TERMINATE, msgText));
 			// This is the updated logging method invocation        
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.TERMINATE, msgText));
@@ -487,8 +476,6 @@ public class ADLSCORMValidator {
 
 		// perform garabage cleanup
 		(Runtime.getRuntime()).gc();
-
-		mLogger.exiting("ADLSCORMValidator", "performValidatorParse()");
 	}
 
 	/**
@@ -596,11 +583,9 @@ public class ADLSCORMValidator {
 	  * 
 	  */
 	public void setSchemaLocation(String iSchemaLocation) {
-		mLogger.entering("ADLSCORMValidator", "setSchemaLocation()");
 
 		mSchemaLocation = iSchemaLocation;
 
-		mLogger.finest("mSchemaLocation set to " + mSchemaLocation);
-		mLogger.exiting("ADLSCORMValidator", "setSchemaLocation()");
+		log.debug("mSchemaLocation set to {}", mSchemaLocation);
 	}
 }

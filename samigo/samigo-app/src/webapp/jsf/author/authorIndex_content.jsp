@@ -43,14 +43,15 @@
     <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
     <script>
         $(document).ready(function() {
+            const pageLengthStorageKey = `samigo-pageLength-${portal.user.id}`;
 
             function getPageLength() {
-                const pageLength = localStorage.getItem(`samigo-pageLength-\${portal.user.id}`);
-                return pageLength === null ? 20 : parseInt(pageLength);
+                const pageLength = localStorage.getItem(pageLengthStorageKey);
+                return pageLength === null ? 20 : parseInt(pageLength, 10);
             }
 
             function setPageLength(pageLength) {
-                localStorage.setItem(`samigo-pageLength-\${portal.user.id}`, pageLength);
+                localStorage.setItem(pageLengthStorageKey, pageLength);
             }
 
             const notEmptyTableTd = $("#authorIndexForm\\:coreAssessments td:not(:empty)").length;
