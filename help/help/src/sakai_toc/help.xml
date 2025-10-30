@@ -525,7 +525,10 @@
         <ref bean="howdoImakeanLTI11toolavailabletositeowners"/>
         <ref bean="howdoIviewcurrentlyinstalledLTItoolsinthesystem"/>
         <ref bean="howdoIaddanLTItooltoasiteasanadmin"/>
+        <ref bean="howdoIdeployaStealthedLTItooltoasiteorsites"/>
+        <ref bean="howdoIremoveaStealthedLTItoolfromasite"/>
         <ref bean="howdoIsetupanLTIAdvantagetoolusingdynamicregistration"/>
+        <ref bean="howdoIusetheTransferLTItooloption"/>
       </list>
     </property>
   </bean>
@@ -576,6 +579,28 @@
       <value>/sakai_screensteps_externalToolsAdministratorGuide/howdoIaddanLTItooltoasiteasanadmin.html</value>
     </property>
   </bean>
+  <bean id="howdoIdeployaStealthedLTItooltoasiteorsites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIdeployaStealthedLTItooltoasiteorsites</value>
+    </property>
+    <property name="name">
+      <value>How do I deploy a Stealthed LTI tool to a site or sites?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_externalToolsAdministratorGuide/howdoIdeployaStealthedLTItooltoasiteorsites.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIremoveaStealthedLTItoolfromasite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIremoveaStealthedLTItoolfromasite</value>
+    </property>
+    <property name="name">
+      <value>How do I remove a Stealthed LTI tool from a site?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_externalToolsAdministratorGuide/howdoIremoveaStealthedLTItoolfromasite.html</value>
+    </property>
+  </bean>
   <bean id="howdoIsetupanLTIAdvantagetoolusingdynamicregistration" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
       <value>howdoIsetupanLTIAdvantagetoolusingdynamicregistration</value>
@@ -585,6 +610,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_externalToolsAdministratorGuide/howdoIsetupanLTIAdvantagetoolusingdynamicregistration.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIusetheTransferLTItooloption" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIusetheTransferLTItooloption</value>
+    </property>
+    <property name="name">
+      <value>How do I use the Transfer LTI tool option?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_externalToolsAdministratorGuide/howdoIusetheTransferLTItooloption.html</value>
     </property>
   </bean>
   <bean id="jobSchedulerAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -8316,6 +8352,7 @@
         <ref bean="howdoIwatchorsubscribetoawiki"/>
         <ref bean="howdoIviewwikipagehistory"/>
         <ref bean="howdoIsetwikipermissions"/>
+        <ref bean="howdoImakewikipagesavailabletogroups"/>
       </list>
     </property>
   </bean>
@@ -8441,6 +8478,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_wikiUserGuide/howdoIsetwikipermissions.html</value>
+    </property>
+  </bean>
+  <bean id="howdoImakewikipagesavailabletogroups" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoImakewikipagesavailabletogroups</value>
+    </property>
+    <property name="name">
+      <value>How do I make wiki pages available to groups?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_wikiUserGuide/howdoImakewikipagesavailabletogroups.html</value>
     </property>
   </bean>
 </beans>
