@@ -129,6 +129,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
 
         if (transferOptions != null && transferOptions.contains(EntityTransferrer.COPY_PERMISSIONS_OPTION)) {
+            log.debug("Skipping SCORM content copy because only permissions were requested");
             return new HashMap<>();
         }
 
@@ -177,6 +178,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
 
         if (transferOptions != null && transferOptions.contains(EntityTransferrer.COPY_PERMISSIONS_OPTION)) {
+            log.debug("Skipping SCORM cleanup/copy because only permissions were requested");
             return new HashMap<>();
         }
 
@@ -233,9 +235,13 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
 
         int suffix = 2;
         String candidate = baseTitle + " (" + suffix + ")";
-        while (reservedTitles.contains(candidate)) {
+        while (reservedTitles.contains(candidate) && suffix < MAXIMUM_ATTEMPTS_FOR_UNIQUENESS) {
             suffix++;
             candidate = baseTitle + " (" + suffix + ")";
+        }
+        if (reservedTitles.contains(candidate)) {
+            log.warn("Unable to generate unique title for '{}' after {} attempts", baseTitle, MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+            return candidate;
         }
         return candidate;
     }
@@ -274,13 +280,9 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
             ContentPackageManifest clone = SerializationUtils.clone(manifest);
             clone.setId(null);
 
-            List launchDataList = clone.getLaunchData();
+            List<LaunchData> launchDataList = clone.getLaunchData();
             if (launchDataList != null) {
-                for (Object entry : launchDataList) {
-                    if (entry instanceof LaunchData) {
-                        ((LaunchData) entry).setId(null);
-                    }
-                }
+                launchDataList.forEach(ld -> ld.setId(null));
             }
 
             return contentPackageManifestDao.save(clone);
