@@ -15,70 +15,31 @@
  */
 package org.sakaiproject.profile2.impl.test;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.profile2.api.ProfileService;
-import org.sakaiproject.profile2.api.UserProfile;
 import org.sakaiproject.profile2.api.ProfileTransferBean;
 import org.sakaiproject.profile2.api.repository.SocialNetworkingInfoRepository;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Xml;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.util.AopTestUtils;
-import org.springframework.transaction.annotation.Transactional;
 
-import org.hibernate.SessionFactory;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Stack;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import lombok.extern.slf4j.Slf4j;
-
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -127,7 +88,7 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
         } catch (UserNotDefinedException e) {
         }
 
-        SakaiPerson person = mock(SakaiPerson.class);
+        Optional<SakaiPerson> person = Optional.ofNullable(mock(SakaiPerson.class));
 			  when(sakaiPersonManager.getSakaiPerson(any(), any())).thenReturn(person);
 
         userProfile = profileService.getUserProfile(user1Id);
@@ -155,7 +116,7 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
         ProfileTransferBean userProfile = profileService.getUserProfile(user1Id);
         assertNotNull(userProfile);
 
-        SakaiPerson person = mock(SakaiPerson.class);
+        Optional<SakaiPerson> person = Optional.ofNullable(mock(SakaiPerson.class));
 			  when(sakaiPersonManager.getSakaiPerson(any(), any())).thenReturn(person);
 
         // This is not our profile, and we are not a super user.
@@ -177,7 +138,7 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
         } catch (UserNotDefinedException e) {
         }
 
-        SakaiPerson person = mock(SakaiPerson.class);
+        Optional<SakaiPerson> person = Optional.ofNullable(mock(SakaiPerson.class));
 			  when(sakaiPersonManager.getSakaiPerson(any(), any())).thenReturn(person);
 
         ProfileTransferBean userProfile = profileService.getUserProfile(user1Id);
@@ -198,7 +159,7 @@ public class ProfileServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         profileService.saveUserProfile(userProfile);
 
-        when(person.getNickname()).thenReturn(nickname);
+        when(person.get().getNickname()).thenReturn(nickname);
 
         userProfile = profileService.getUserProfile(user1Id);
 
