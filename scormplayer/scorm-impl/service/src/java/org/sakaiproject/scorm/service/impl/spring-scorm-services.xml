@@ -106,5 +106,6 @@
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="scormResourceService" ref="org.sakaiproject.scorm.service.api.ScormResourceService" />
 	</bean>
 </beans>

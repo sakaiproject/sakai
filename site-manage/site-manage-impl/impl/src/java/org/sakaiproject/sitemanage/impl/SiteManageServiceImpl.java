@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -457,7 +458,12 @@ public class SiteManageServiceImpl implements SiteManageService {
 			log.debug("allToolIds: {}", toolIds);
 			for (String toolId : toolIds) {
 				try {
-					String siteFromId = importTools.get(toolId).get(0);
+					List<String> toolSiteIds = importTools.get(toolId);
+					if (CollectionUtils.isEmpty(toolSiteIds)) {
+						log.debug("Skipping tool title update for {} as no source site was selected for full import", toolId);
+						continue;
+					}
+					String siteFromId = toolSiteIds.get(0);
 					site = setToolTitle(site, siteFromId, toolId);
 					saveSite(site);
 				} catch (Exception e) {

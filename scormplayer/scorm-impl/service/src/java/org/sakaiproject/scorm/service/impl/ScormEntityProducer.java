@@ -38,12 +38,21 @@ import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.adl.validator.contentpackage.LaunchData;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
@@ -52,6 +61,7 @@ import org.sakaiproject.scorm.exceptions.ResourceStorageException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.ScormContentService;
+import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
@@ -62,11 +72,13 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer {
 
     private static final String REFERENCE_ROOT = Entity.SEPARATOR + "scorm";
     private static final String UNKNOWN_USER = "unknown";
+    private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 
     @Setter private EntityManager entityManager;
     @Setter private ScormContentService scormContentService;
     @Setter private ContentPackageDao contentPackageDao;
     @Setter private ContentPackageManifestDao contentPackageManifestDao;
+    @Setter private ScormResourceService scormResourceService;
     @Setter private ContentHostingService contentHostingService;
     @Setter private SecurityService securityService;
     @Setter private SessionManager sessionManager;
@@ -163,11 +175,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer {
             try {
                 List<ContentPackage> existing = scormContentService.getContentPackages(toContext);
                 for (ContentPackage pkg : existing) {
-                    try {
-                        scormContentService.removeContentPackage(pkg.getContentPackageId());
-                    } catch (ResourceNotDeletedException rnfe) {
-                        log.warn("Unable to remove SCORM package {} during cleanup of {}: {}", pkg.getContentPackageId(), toContext, rnfe.getMessage());
-                    }
+                    purgeContentPackage(pkg);
                 }
             } catch (ResourceStorageException e) {
                 log.warn("Unable to cleanup SCORM content in {} prior to import: {}", toContext, e.getMessage());
@@ -224,10 +232,24 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer {
     }
 
     private String copyResourceTree(String sourceResourceId) throws Exception {
-        String sourceCollectionId = buildCollectionPath(sourceResourceId);
-        Callable<String> copyTask = () -> contentHostingService.copyIntoFolder(sourceCollectionId, ScormConstants.ROOT_DIRECTORY);
-        String newCollectionId = runWithAdvisor(copyTask);
-        return extractResourceId(newCollectionId);
+        final String sourceCollectionId = buildCollectionPath(sourceResourceId);
+
+        Callable<String> copyTask = () -> {
+            for (int attempt = 0; attempt < MAXIMUM_ATTEMPTS_FOR_UNIQUENESS; attempt++) {
+                String targetUuid = UUID.randomUUID().toString();
+                String targetCollectionId = buildCollectionPath(targetUuid);
+                try {
+                    cloneCollection(sourceCollectionId, targetCollectionId);
+                    return targetUuid;
+                } catch (IdUsedException e) {
+                    removeCollectionQuietly(targetCollectionId);
+                    log.debug("Collision copying SCORM content package collection {}, retrying (attempt {})", sourceCollectionId, attempt + 1, e);
+                }
+            }
+            throw new ResourceStorageException("Unable to allocate unique destination for SCORM content package copy from " + sourceCollectionId);
+        };
+
+        return runWithAdvisor(copyTask);
     }
 
     private Serializable copyManifest(Serializable manifestId) {
@@ -242,6 +264,16 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer {
             }
             ContentPackageManifest clone = SerializationUtils.clone(manifest);
             clone.setId(null);
+
+            List launchDataList = clone.getLaunchData();
+            if (launchDataList != null) {
+                for (Object entry : launchDataList) {
+                    if (entry instanceof LaunchData) {
+                        ((LaunchData) entry).setId(null);
+                    }
+                }
+            }
+
             return contentPackageManifestDao.save(clone);
         } catch (Exception e) {
             log.warn("Unable to clone manifest {}: {}", manifestId, e.getMessage());
@@ -294,14 +326,87 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer {
     }
 
     private <T> T runWithAdvisor(Callable<T> task) throws Exception {
-        if (securityService == null) {
+        SecurityAdvisor advisor = (userId, function, reference) -> SecurityAdvice.ALLOWED;
+        securityService.pushAdvisor(advisor);
+        try {
             return task.call();
+        } finally {
+            securityService.popAdvisor(advisor);
+        }
+    }
+
+    private void cloneCollection(String sourceCollectionId, String targetCollectionId) throws Exception {
+        ContentCollection sourceCollection = contentHostingService.getCollection(sourceCollectionId);
+        ContentCollectionEdit targetEdit = null;
+        try {
+            targetEdit = contentHostingService.addCollection(targetCollectionId);
+            ResourceProperties sourceProps = sourceCollection.getProperties();
+            ResourcePropertiesEdit targetProps = targetEdit.getPropertiesEdit();
+            targetProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME,
+                    fallbackDisplayName(sourceProps != null ? sourceProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME) : null, targetCollectionId));
+            targetEdit.setAvailability(sourceCollection.isHidden(), sourceCollection.getReleaseDate(), sourceCollection.getRetractDate());
+            contentHostingService.commitCollection(targetEdit);
+        } catch (Exception e) {
+            if (targetEdit != null && targetEdit.isActiveEdit()) {
+                contentHostingService.cancelCollection(targetEdit);
+            }
+            throw e;
+        }
+
+        try {
+            @SuppressWarnings("unchecked")
+            List<ContentEntity> members = (List<ContentEntity>) sourceCollection.getMemberResources();
+            for (ContentEntity member : members) {
+                contentHostingService.copyIntoFolder(member.getId(), targetCollectionId);
+            }
+        } catch (Exception e) {
+            removeCollectionQuietly(targetCollectionId);
+            throw e;
+        }
+    }
+
+    private String getDisplayName(String collectionId) {
+        String trimmed = collectionId.endsWith(Entity.SEPARATOR) ? collectionId.substring(0, collectionId.length() - 1) : collectionId;
+        int lastSeparator = trimmed.lastIndexOf(Entity.SEPARATOR);
+        return lastSeparator == -1 ? trimmed : trimmed.substring(lastSeparator + 1);
+    }
+
+    private String fallbackDisplayName(String displayName, String collectionId) {
+        if (displayName == null || displayName.trim().isEmpty()) {
+            return getDisplayName(collectionId);
+        }
+        return displayName;
+    }
+
+    private void removeCollectionQuietly(String collectionId) {
+        try {
+            contentHostingService.removeCollection(collectionId);
+        } catch (Exception e) {
+            log.debug("Unable to remove temporary SCORM collection {} during copy cleanup", collectionId, e);
+        }
+    }
+
+    private void purgeContentPackage(ContentPackage pkg) {
+        if (pkg == null) {
+            return;
         }
 
         SecurityAdvisor advisor = (userId, function, reference) -> SecurityAdvice.ALLOWED;
         securityService.pushAdvisor(advisor);
         try {
-            return task.call();
+            try {
+                contentPackageDao.remove(pkg);
+            } catch (Exception e) {
+                log.warn("Unable to mark SCORM package {} as deleted: {}", pkg.getContentPackageId(), e.getMessage());
+            }
+
+            try {
+                if (pkg.getResourceId() != null) {
+                    scormResourceService.removeResources(pkg.getResourceId());
+                }
+            } catch (ResourceNotDeletedException e) {
+                log.warn("Unable to remove SCORM resources for {}: {}", pkg.getContentPackageId(), e.getMessage());
+            }
         } finally {
             securityService.popAdvisor(advisor);
         }
