@@ -32,6 +32,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
@@ -68,21 +69,22 @@ import org.sakaiproject.tool.api.SessionManager;
 /**
  * Entity producer enabling Import from Site for SCORM Player.
  */
+@Setter
 @Slf4j
 public class ScormEntityProducer implements EntityProducer, EntityTransferrer, HardDeleteAware {
 
     private static final String REFERENCE_ROOT = Entity.SEPARATOR + "scorm";
-    private static final String UNKNOWN_USER = "unknown";
+    private static final String DEFAULT_USER = "admin";
     private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 
-    @Setter private EntityManager entityManager;
-    @Setter private ScormContentService scormContentService;
-    @Setter private ContentPackageDao contentPackageDao;
-    @Setter private ContentPackageManifestDao contentPackageManifestDao;
-    @Setter private ScormResourceService scormResourceService;
-    @Setter private ContentHostingService contentHostingService;
-    @Setter private SecurityService securityService;
-    @Setter private SessionManager sessionManager;
+    private EntityManager entityManager;
+    private ScormContentService scormContentService;
+    private ContentPackageDao contentPackageDao;
+    private ContentPackageManifestDao contentPackageManifestDao;
+    private ScormResourceService scormResourceService;
+    private ContentHostingService contentHostingService;
+    private SecurityService securityService;
+    private SessionManager sessionManager;
 
     public void init() {
         try {
@@ -217,9 +219,9 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
         copy.setDueOn(source.getDueOn());
         copy.setAcceptUntil(source.getAcceptUntil());
         copy.setCreatedOn(source.getCreatedOn() != null ? source.getCreatedOn() : new Date());
-        copy.setCreatedBy(source.getCreatedBy() != null ? source.getCreatedBy() : resolveUserId());
+        copy.setCreatedBy(StringUtils.defaultIfBlank(source.getCreatedBy(), DEFAULT_USER));
         copy.setModifiedOn(source.getModifiedOn() != null ? source.getModifiedOn() : new Date());
-        copy.setModifiedBy(source.getModifiedBy() != null ? source.getModifiedBy() : resolveUserId());
+        copy.setModifiedBy(StringUtils.defaultIfBlank(source.getModifiedBy(), DEFAULT_USER));
         copy.setNumberOfTries(source.getNumberOfTries());
         copy.setShowTOC(source.isShowTOC());
         copy.setShowNavBar(source.isShowNavBar());
@@ -365,8 +367,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
         }
 
         try {
-            @SuppressWarnings("unchecked")
-            List<ContentEntity> members = (List<ContentEntity>) sourceCollection.getMemberResources();
+            List<ContentEntity> members = sourceCollection.getMemberResources();
             for (ContentEntity member : members) {
                 contentHostingService.copyIntoFolder(member.getId(), targetCollectionId);
             }
@@ -452,12 +453,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
         if (context == null || contentPackageId == null) {
             return null;
         }
-        return new StringBuilder(REFERENCE_ROOT)
-                .append(Entity.SEPARATOR)
-                .append(context)
-                .append(Entity.SEPARATOR)
-                .append(contentPackageId)
-                .toString();
+        return REFERENCE_ROOT + Entity.SEPARATOR + context + Entity.SEPARATOR + contentPackageId;
     }
 
     private String buildResourcePath(String resourceId) {
@@ -466,11 +462,6 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
 
     private String buildCollectionPath(String resourceId) {
         return buildResourcePath(resourceId) + Entity.SEPARATOR;
-    }
-
-    private String resolveUserId() {
-        String userId = sessionManager != null ? sessionManager.getCurrentSessionUserId() : null;
-        return (userId == null || userId.isBlank()) ? UNKNOWN_USER : userId;
     }
 
 }
