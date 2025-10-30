@@ -931,9 +931,9 @@ public class UrkundReviewServiceImpl extends BaseContentReviewService {
 
 		// Lookup system profile email address if necessary
 		if (ret == null) {
-				SakaiPerson sp = sakaiPersonManager.getSakaiPerson(user.getId(), sakaiPersonManager.getSystemMutableType());
-				if (sp != null && isValidEmail(sp.getMail())) {
-				ret = sp.getMail().trim();
+				Optional<SakaiPerson> sp = sakaiPersonManager.getSakaiPerson(user.getId(), sakaiPersonManager.getSystemMutableType());
+				if (sp.isPresent() && isValidEmail(sp.get().getMail())) {
+				ret = sp.get().getMail().trim();
 			}
 		}
 

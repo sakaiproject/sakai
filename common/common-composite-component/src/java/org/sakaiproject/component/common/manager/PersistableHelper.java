@@ -73,55 +73,35 @@ public class PersistableHelper
 		}
 	}
 
-	public void createPersistableFields(Persistable persistable)
-	{
-		Date now = new Date(); // time sensitive
-		if (log.isDebugEnabled())
-		{
-			log.debug("modifyPersistableFields(Persistable " + persistable + ")");
-		}
-		if (persistable == null) throw new IllegalArgumentException("Illegal persistable argument passed!");
-
-		try
-		{
-			String actor = getActor();
-
-			PropertyUtils.setProperty(persistable, LASTMODIFIEDBY, actor);
-			PropertyUtils.setProperty(persistable, LASTMODIFIEDDATE, now);
-			PropertyUtils.setProperty(persistable, CREATEDBY, actor);
-			PropertyUtils.setProperty(persistable, CREATEDDATE, now);
-		}
-		catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
-		{
-			log.error(e.getMessage());
-			throw new RuntimeException(e);
-		}
+	public void createPersistableFields(Persistable persistable) {
+		log.debug("initialize common fields for [{}]", persistable);
+		if (persistable != null) {
+            Date now = new Date();
+            try {
+                String actor = getActor();
+                PropertyUtils.setProperty(persistable, LASTMODIFIEDBY, actor);
+                PropertyUtils.setProperty(persistable, LASTMODIFIEDDATE, now);
+                PropertyUtils.setProperty(persistable, CREATEDBY, actor);
+                PropertyUtils.setProperty(persistable, CREATEDDATE, now);
+            } catch (Exception e) {
+                log.warn("Could not initialize common fields for [{}]", persistable, e);
+            }
+        } else {
+            log.debug("Skip initializing common fields for null");
+        }
 	}
 
-	private String getActor()
-	{
-		log.debug("getActor()");
+    private String getActor() {
+        log.debug("Retrieving actor for current session");
 
-		String actor = null;
-		Session session = sessionManager.getCurrentSession();
-		if (session != null)
-		{
-			actor = session.getUserId();
-		}
-		else
-		{
-			return SYSTEM;
-		}
-		if (actor == null || actor.length() < 1)
-		{
-			return SYSTEM;
-		}
-		else
-		{
-			return actor;
-		}
-	}
+        Session session = sessionManager.getCurrentSession();
+        if (session == null) {
+            return SYSTEM;
+        }
 
+        String actor = session.getUserId();
+        return (actor == null || actor.isEmpty()) ? SYSTEM : actor;
+    }
 	/**
 	 * Dependency injection.
 	 * 
