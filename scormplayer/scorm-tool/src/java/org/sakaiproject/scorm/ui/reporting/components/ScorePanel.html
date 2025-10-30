@@ -1,28 +1,25 @@
 <wicket:panel>
+	<div class="card mb-3">
+		<div class="card-header fw-semibold">
+			<wicket:message key="score.summary.title"/>
+		</div>
+		<div class="card-body">
+			<wicket:enclosure child="scaledScore">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<span class="fw-semibold"><wicket:message key="scaled.score.label"/></span>
+					<span class="badge bg-primary" wicket:id="scaledScore"></span>
+				</div>
+			</wicket:enclosure>
 
-	<div>
-
-		<wicket:enclosure child="scaledScore">
-			<p class="shorttext">
-				<label for="scaledScore">
-					<wicket:message key="scaled.score.label"></wicket:message>
-				</label>					
-				
-				<span wicket:id="scaledScore"></span>			
-			</p>
-		</wicket:enclosure>
-
-		<wicket:enclosure child="rawScore">
-			<p class="shorttext">
-				<label for="rawScore">
-					<wicket:message key="raw.score.label"></wicket:message>
-				</label>					
-				
-				<span wicket:id="rawScore"></span> <span wicket:id="scoreParenthetical"></span>		
-			</p>
-		</wicket:enclosure>
-
-
+			<wicket:enclosure child="rawScore">
+				<div class="d-flex justify-content-between align-items-start">
+					<span class="fw-semibold"><wicket:message key="raw.score.label"/></span>
+					<div class="text-end">
+						<span wicket:id="rawScore"></span>
+						<span class="ms-2 text-secondary small" wicket:id="scoreParenthetical"></span>
+					</div>
+				</div>
+			</wicket:enclosure>
+		</div>
 	</div>
-
 </wicket:panel>

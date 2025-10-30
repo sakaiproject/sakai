@@ -60,12 +60,12 @@
 						<wicket:message key="form.label.show.toc"></wicket:message>
 					</label>
 				</div>
-				<div class="form">
-					<label for="showNavBar" class="form-control-label">
-						<input type="checkbox" wicket:id="showNavBar" id="showNavBar" />
-						<wicket:message key="form.label.show.navBar"></wicket:message>
-					</label>
-				</div>
+			<div class="form" wicket:enclosure="showNavBar">
+				<label for="showNavBar" class="form-control-label">
+					<input type="checkbox" wicket:id="showNavBar" id="showNavBar" />
+					<wicket:message key="form.label.show.navBar"></wicket:message>
+				</label>
+			</div>
 
 				<h2 class="formSectionHeading"><wicket:message key="form.heading.grading"></wicket:message></h2>
 				<table id="gradeSyncTable" class="table table-hover table-striped" cellspacing="0">

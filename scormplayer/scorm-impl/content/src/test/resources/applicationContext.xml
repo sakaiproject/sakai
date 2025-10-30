@@ -7,10 +7,14 @@
 	<!-- SCORM multi-package player tool -->
 	<bean id="toolWicketApplication" class="org.sakaiproject.scorm.ui.player.ScormTool">
 		<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 	</bean>
 
 	<!-- SCORM single-package player tool -->
 	<bean id="scormSinglePackageApplication" class="org.sakaiproject.scorm.ui.player.SingleScormPackageApplication">
 		<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 	</bean>
 </beans>

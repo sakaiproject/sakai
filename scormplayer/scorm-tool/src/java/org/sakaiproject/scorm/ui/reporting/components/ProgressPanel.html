@@ -1,21 +1,31 @@
 <wicket:panel>
+	<div class="card mb-3">
+		<div class="card-header fw-semibold">
+			<wicket:message key="progress.summary.title"/>
+		</div>
+		<div class="card-body">
+			<wicket:enclosure child="percentComplete">
+				<div class="mb-3">
+					<div class="d-flex justify-content-between align-items-center mb-2">
+						<span class="fw-semibold"><wicket:message key="progress.percent.label"/></span>
+						<span class="badge bg-info text-dark" wicket:id="percentComplete"></span>
+					</div>
+					<div class="progress" style="height: 0.5rem;">
+						<div class="progress-bar" wicket:id="percentCompleteBar"></div>
+					</div>
+				</div>
+			</wicket:enclosure>
 
-		<div wicket:id="percentComplete"></div>
-
-		<p class="shorttext">
-			<label for="successStatus">
-				<wicket:message key="success.status.label"></wicket:message>
-			</label>					
-				
-			<span wicket:id="successStatus"></span>			
-		</p>
-		
-		<p class="shorttext">
-			<label for="completionStatus">
-				<wicket:message key="completion.status.label"></wicket:message>
-			</label>					
-				
-			<span wicket:id="completionStatus"></span>			
-		</p>	
-
+			<dl class="row mb-0">
+				<dt class="col-sm-6 fw-semibold"><wicket:message key="success.status.label"/></dt>
+				<dd class="col-sm-6 text-sm-end mb-2"><span wicket:id="successStatus"></span></dd>
+				<dt class="col-sm-6 fw-semibold"><wicket:message key="completion.status.label"/></dt>
+				<dd class="col-sm-6 text-sm-end mb-2"><span wicket:id="completionStatus"></span></dd>
+				<wicket:enclosure child="totalTime">
+					<dt class="col-sm-6 fw-semibold"><wicket:message key="total.time.label"/></dt>
+					<dd class="col-sm-6 text-sm-end"><span wicket:id="totalTime"></span></dd>
+				</wicket:enclosure>
+			</dl>
+		</div>
+	</div>
 </wicket:panel>

@@ -116,8 +116,12 @@ public class ScoResultsPage extends BaseResultsPage
 			{
 				addBreadcrumb(new Model("[no module]"), ScoResultsPage.class, pageParams, false);
 
-				add(new ScorePanel("scorePanel", new Score()));
-				add(new ProgressPanel("progressPanel", new Progress()));
+				ScorePanel scorePanel = new ScorePanel("scorePanel", new Score());
+				scorePanel.setVisible(false);
+				add(scorePanel);
+				ProgressPanel progressPanel = new ProgressPanel("progressPanel", new Progress());
+				progressPanel.setVisible(false);
+				add(progressPanel);
 
 				interactions = new ArrayList<>();
 			}

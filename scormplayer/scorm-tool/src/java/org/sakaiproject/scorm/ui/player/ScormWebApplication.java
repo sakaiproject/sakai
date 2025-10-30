@@ -18,6 +18,10 @@ package org.sakaiproject.scorm.ui.player;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.ContentPackageResourceReference;
 import org.sakaiproject.scorm.ui.player.pages.ScormCompletionPage;
@@ -32,12 +36,22 @@ public abstract class ScormWebApplication extends SakaiWebApplication
     @Getter @Setter
     private ScormResourceService resourceService;
 
+    @Getter @Setter
+    private ServerConfigurationService serverConfigurationService;
+
+    @Getter @Setter
+    private ContentHostingService contentHostingService;
+
     @Override
     public void init()
     {
         super.init();
         mountPage( "scormPlayerPage", ScormPlayerPage.class );
         mountPage( "scormCompletionPage", ScormCompletionPage.class );
-        mountResource( "/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}", new ContentPackageResourceReference() );
+        Objects.requireNonNull(serverConfigurationService, "serverConfigurationService must be set before init()");
+        Objects.requireNonNull(contentHostingService, "contentHostingService must be set before init()");
+
+        mountResource( "/contentpackages/resourceName/private/scorm/${resourceID}/${resourceName}",
+            new ContentPackageResourceReference(serverConfigurationService, contentHostingService) );
     }
 }

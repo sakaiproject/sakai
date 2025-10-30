@@ -234,7 +234,13 @@ public class PackageConfigurationPage extends ConsoleBasePage
 		form.add(new SakaiDateTimeField("acceptUntilDTF", new PropertyModel(contentPackage, "zonedAcceptUntil"), tz, true));
 		form.add(new DropDownChoice("numberOfTries", new PropertyModel(contentPackage, "numberOfTries"), tryList, new TryChoiceRenderer()));
 		form.add(new CheckBox("showTOC", new PropertyModel(contentPackage, "showTOC")));
-		form.add(new CheckBox("showNavBar", new PropertyModel(contentPackage, "showNavBar")));
+
+		CheckBox showNavBar = new CheckBox("showNavBar", new PropertyModel(contentPackage, "showNavBar"));
+		// Hide the legacy SCORM button bar toggle: the REST launcher ignores it but we keep
+		// the underlying property to avoid breaking existing data and the classic player.
+		showNavBar.setVisible(false);
+		showNavBar.setVisibilityAllowed(false);
+		form.add(showNavBar);
 
 		ListView scos;
 		form.add(scos = new ListView("scos", gradebookSetup.getAssessments())

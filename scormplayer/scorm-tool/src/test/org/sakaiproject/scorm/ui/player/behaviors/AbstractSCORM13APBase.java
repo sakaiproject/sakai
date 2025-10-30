@@ -29,19 +29,22 @@ import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.scorm.service.impl.ScormLaunchServiceImpl;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 @DirtiesContext
-@ContextConfiguration( locations = {
-				"/hibernate-test.xml",
-				"classpath*:org/sakaiproject/scorm/**/spring-hibernate-*.xml",
-				"classpath*:org/sakaiproject/scorm/**/spring-scorm-*.xml",
-				"classpath*:org/sakaiproject/scorm/**/spring-adl-*.xml",
-				"classpath*:org/sakaiproject/scorm/**/spring-standalone-*.xml",
-				"classpath*:org/sakaiproject/scorm/**/spring-mock-*.xml"})
+@ContextConfiguration(classes = AbstractSCORM13APBase.TestConfig.class)
 public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4SpringContextTests
 {
 	protected SCORM13API scorm13api;
@@ -61,6 +64,12 @@ public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4S
 		scormSequencingService = (ScormSequencingService) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormSequencingService");
 		scormContentService = (ScormContentService) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormContentService");
 		scormResourceService = (ScormResourceService) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormResourceService");
+		ScormLaunchServiceImpl scormLaunchService = (ScormLaunchServiceImpl) applicationContext.getBean("org.sakaiproject.scorm.service.api.ScormLaunchService");
+		SessionManager sessionManager = applicationContext.getBean(SessionManager.class);
+		Session session = mock(Session.class);
+		when(sessionManager.getCurrentSession()).thenReturn(session);
+		when(session.getUserId()).thenReturn("scorm-test-user");
+		scormLaunchService.setSessionManager(sessionManager);
 
 		resourceId = scormResourceService.putArchive(getClass()
 				.getResourceAsStream("SCORM2004.3.PITE.1.1.zip"),
@@ -114,5 +123,22 @@ public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4S
 				return null;
 			}
 		};
+	}
+
+	@Configuration
+	@ImportResource({
+		"/hibernate-test.xml",
+		"classpath*:org/sakaiproject/scorm/**/spring-hibernate-*.xml",
+		"classpath*:org/sakaiproject/scorm/**/spring-scorm-*.xml",
+		"classpath*:org/sakaiproject/scorm/**/spring-adl-*.xml",
+		"classpath*:org/sakaiproject/scorm/**/spring-standalone-*.xml",
+		"classpath*:org/sakaiproject/scorm/**/spring-mock-*.xml"})
+	static class TestConfig
+	{
+		@Bean(name = "org.sakaiproject.tool.api.SessionManager")
+		public SessionManager sessionManager()
+		{
+			return mock(SessionManager.class);
+		}
 	}
 }
