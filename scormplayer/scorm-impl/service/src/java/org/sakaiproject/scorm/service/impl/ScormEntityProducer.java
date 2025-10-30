@@ -95,7 +95,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
 
     @Override
     public String getLabel() {
-        return "SCORM";
+        return "scorm";
     }
 
     @Override
