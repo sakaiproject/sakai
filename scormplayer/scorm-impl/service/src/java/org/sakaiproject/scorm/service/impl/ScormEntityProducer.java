@@ -47,6 +47,7 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
@@ -68,7 +69,7 @@ import org.sakaiproject.tool.api.SessionManager;
  * Entity producer enabling Import from Site for SCORM Player.
  */
 @Slf4j
-public class ScormEntityProducer implements EntityProducer, EntityTransferrer {
+public class ScormEntityProducer implements EntityProducer, EntityTransferrer, HardDeleteAware {
 
     private static final String REFERENCE_ROOT = Entity.SEPARATOR + "scorm";
     private static final String UNKNOWN_USER = "unknown";
@@ -127,6 +128,10 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer {
     @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions) {
 
+        if (transferOptions != null && transferOptions.contains(EntityTransferrer.COPY_PERMISSIONS_OPTION)) {
+            return new HashMap<>();
+        }
+
         Map<String, String> transversalMap = new HashMap<>();
         Set<String> idFilter = (ids == null || ids.isEmpty()) ? Collections.emptySet() : new HashSet<>(ids);
         Set<String> reservedTitles = new HashSet<>();
@@ -170,6 +175,10 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer {
 
     @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
+
+        if (transferOptions != null && transferOptions.contains(EntityTransferrer.COPY_PERMISSIONS_OPTION)) {
+            return new HashMap<>();
+        }
 
         if (cleanup) {
             try {
@@ -409,6 +418,20 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer {
             }
         } finally {
             securityService.popAdvisor(advisor);
+        }
+    }
+
+    @Override
+    public void hardDelete(String siteId) {
+        if (siteId == null || siteId.isBlank()) {
+            return;
+        }
+
+        try {
+            List<ContentPackage> packages = scormContentService.getContentPackages(siteId);
+            packages.forEach(this::purgeContentPackage);
+        } catch (ResourceStorageException e) {
+            log.warn("Unable to hard delete SCORM content for {}: {}", siteId, e.getMessage());
         }
     }
 
