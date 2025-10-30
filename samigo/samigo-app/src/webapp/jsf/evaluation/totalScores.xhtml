@@ -373,7 +373,7 @@ function showLoadingMessage() {
 
          <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1' or description.forGrade == 'false' or totalScores.allSubmissions eq'4'}" />
          <h:outputText value=", " rendered="#{(description.assessmentGradingId eq '-1' or description.forGrade == 'false') &amp;&amp; description.lastInitial ne 'Anonymous' or totalScores.allSubmissions eq'4'}"/>
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' or description.forGrade == 'false' ortotalScores.allSubmissions eq '4'}" />
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1' or description.forGrade == 'false' or totalScores.allSubmissions eq '4'}" />
          <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous' &amp;&amp; (description.assessmentGradingId eq '-1' or description.forGrade == 'false')}" />
        <h:commandLink title="#{evaluationMessages.t_student}" action="studentScores" immediate="true" 
           rendered="#{description.forGrade == 'true' &amp;&amp; description.assessmentGradingId ne '-1' &amp;&amp;  totalScores.allSubmissions!='4'}" >

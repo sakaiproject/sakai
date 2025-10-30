@@ -240,6 +240,13 @@
             <artifactId>json</artifactId>
             <version>${sakai.org.json.version}</version>
         </dependency>
+        <!-- Test-only: EL implementation for parsing expressions in tests -->
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.el</artifactId>
+            <version>3.0.1-b12</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
 	<build>
