@@ -65,6 +65,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.entity.api.Reference;
@@ -92,7 +93,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DiscussionForumServiceImpl implements DiscussionForumService, EntityTransferrer
+public class DiscussionForumServiceImpl implements DiscussionForumService, EntityTransferrer, HardDeleteAware
 {
 	private static final String CONTENT_GROUP = "/content/group/";
 	private static final String ARCHIVING = "archiving ";
@@ -1491,11 +1492,11 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return newItem;
 	}
 
-	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup)
-	{	
-		Map<String, String> transversalMap = new HashMap<>();
-		try
-		{
+        public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup)
+        {
+                Map<String, String> transversalMap = new HashMap<>();
+                try
+                {
 			log.debug("transfer copy mc items by transferCopyEntities with cleanup: {}", cleanup);
 			if (cleanup)
 			{
@@ -1555,14 +1556,67 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			log.error("Forums transferCopyEntities with cleanup failed", e);
 		}
 		
-		return transversalMap;
-	}
+                return transversalMap;
+        }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
-		if(transversalMap != null && transversalMap.size() > 0){
+        @Override
+        public void hardDelete(String siteId)
+        {
+                if (StringUtils.isBlank(siteId))
+                {
+                        return;
+                }
+
+                List<DiscussionForum> forums = dfManager.getDiscussionForumsByContextId(siteId);
+                if (forums != null && !forums.isEmpty())
+                {
+                        for (DiscussionForum forum : forums)
+                        {
+                                List<DiscussionTopic> topics = forum.getTopics();
+                                if (topics != null && !topics.isEmpty())
+                                {
+                                        for (DiscussionTopic topic : topics)
+                                        {
+                                                DiscussionTopic topicWithMessages = (DiscussionTopic) dfManager.getTopicByIdWithMessagesAndAttachments(topic.getId());
+                                                if (topicWithMessages != null)
+                                                {
+                                                        List<Message> messages = topicWithMessages.getMessages();
+                                                        if (messages != null && !messages.isEmpty())
+                                                        {
+                                                                for (Message message : messages)
+                                                                {
+                                                                        dfManager.deleteMessage(message);
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
+
+                                forumManager.deleteDiscussionForum(forum);
+                        }
+                }
+
+                Area area = areaManager.getDiscussionArea(siteId, false);
+                if (area != null)
+                {
+                        Set<DBMembershipItem> membershipItemSet = area.getMembershipItemSet();
+                        if (membershipItemSet != null && !membershipItemSet.isEmpty())
+                        {
+                                Set<DBMembershipItem> itemsToRemove = new HashSet<>(membershipItemSet);
+                                for (DBMembershipItem item : itemsToRemove)
+                                {
+                                        area.removeMembershipItem(item);
+                                }
+                                areaManager.saveArea(area);
+                        }
+                }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
+                if(transversalMap != null && transversalMap.size() > 0){
 			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
 
 			List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
