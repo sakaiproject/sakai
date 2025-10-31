@@ -21,6 +21,7 @@
 		<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 		<property name="transactionTemplate">
 			<bean class="org.springframework.transaction.support.TransactionTemplate">
 				<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>

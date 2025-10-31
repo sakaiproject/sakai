@@ -19,21 +19,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.wicket.request.HttpHeaderCollection;
-import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
+import org.apache.wicket.request.resource.AbstractResource.WriteCallback;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.PartWriterCallback;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.scorm.service.sakai.impl.ContentPackageSakaiResource;
 import org.sakaiproject.scorm.ui.player.util.CompressingContentPackageResourceStream;
 import org.sakaiproject.scorm.ui.player.util.ContentPackageWebResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -46,9 +51,17 @@ import static org.sakaiproject.scorm.api.ScormConstants.ROOT_DIRECTORY;
 @Slf4j
 public class ContentPackageResourceReference extends ResourceReference
 {
-    public ContentPackageResourceReference()
+    private final ServerConfigurationService serverConfigurationService;
+    private final ContentHostingService contentHostingService;
+
+    public ContentPackageResourceReference(ServerConfigurationService serverConfigurationService,
+                                           ContentHostingService contentHostingService)
     {
-        super( ContentPackageResourceReference.class, "contentPackages" );
+        super(ContentPackageResourceReference.class, "contentPackages");
+        this.serverConfigurationService = Objects.requireNonNull(serverConfigurationService,
+            "ServerConfigurationService must be available");
+        this.contentHostingService = Objects.requireNonNull(contentHostingService,
+            "ContentHostingService must be available");
     }
 
     @Override
@@ -94,44 +107,42 @@ public class ContentPackageResourceReference extends ResourceReference
                             return headers;
                         }
                     };
-                    String contentType = stream.getContentType();
-                    resourceResponse.setContentType(contentType);
-                    if (Strings.CI.startsWith(contentType, "text/")) resourceResponse.setTextEncoding(StandardCharsets.UTF_8.name());
-                    resourceResponse.setAcceptRange(AbstractResource.ContentRangeType.BYTES);
-                    resourceResponse.setFileName(resourceName);
-                    resourceResponse.setLastModified(stream.lastModifiedTime());
+                    URI directLink = resolveDirectLink(cpResource);
+                    if (directLink != null) {
+                        resourceResponse.setAcceptRange(AbstractResource.ContentRangeType.NONE);
+                        resourceResponse.setContentType(stream.getContentType());
+                        resourceResponse.setFileName(resourceName);
+                        resourceResponse.setContentLength(0);
+                        resourceResponse.setWriteCallback(NO_OP_WRITE_CALLBACK);
 
-                    RequestCycle cycle = RequestCycle.get();
-                    Long startbyte = cycle.getMetaData(CONTENT_RANGE_STARTBYTE);
-                    Long endbyte = cycle.getMetaData(CONTENT_RANGE_ENDBYTE);
-
-                    // Normalize range only if a start byte was provided
-                    if (startbyte != null) {
-                        long from = startbyte;
-                        long to = (endbyte == null || endbyte >= size) ? (size - 1) : endbyte;
-
-                        if (from < 0 || from >= size || to < from) {
-                            // Unsatisfiable range 416
-                            resourceResponse.setStatusCode(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
-                            resourceResponse.setContentRange(String.format("bytes */%d", size));
-                            resourceResponse.setContentLength(0);
+                        if (serverConfigurationService.getBoolean("cloud.content.sendfile", false)) {
+                            int hostLength = (directLink.getScheme() + "://" + directLink.getHost()).length();
+                            String redirectPath = "/sendfile" + directLink.toString().substring(hostLength);
+                            log.debug("Serving SCORM asset via sendfile path [{}]", redirectPath);
+                            resourceResponse.getHeaders().addHeader("X-Accel-Redirect", redirectPath);
+                            resourceResponse.getHeaders().addHeader("X-Sendfile", redirectPath);
                             return resourceResponse;
                         }
 
-                        // Partial content 206
-                        resourceResponse.setStatusCode(HttpStatus.PARTIAL_CONTENT.value());
-                        resourceResponse.setContentRange(String.format("bytes %d-%d/%d", from, to, size));
-                        resourceResponse.setContentLength(to - from + 1);
-                        resourceResponse.setWriteCallback(
-                                new PartWriterCallback(stream.getInputStream(), size, from, to).setClose(true)
-                        );
-                    } else {
-                        // Full content 200
-                        resourceResponse.setContentLength(size);
-                        resourceResponse.setWriteCallback(
-                                new PartWriterCallback(stream.getInputStream(), size, null, null).setClose(true)
-                        );
+                        if (serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
+                            log.debug("Redirecting SCORM asset to [{}]", directLink);
+                            resourceResponse.setStatusCode(HttpStatus.TEMPORARY_REDIRECT.value());
+                            resourceResponse.getHeaders().addHeader(HttpHeaders.LOCATION, directLink.toString());
+                            return resourceResponse;
+                        }
                     }
+
+                    String contentType = stream.getContentType();
+                    resourceResponse.setContentType(contentType);
+                    if (Strings.CI.startsWith(contentType, "text/")) resourceResponse.setTextEncoding(StandardCharsets.UTF_8.name());
+                    resourceResponse.setAcceptRange(AbstractResource.ContentRangeType.NONE);
+                    resourceResponse.setFileName(resourceName);
+                    resourceResponse.setLastModified(stream.lastModifiedTime());
+
+                    resourceResponse.setContentLength(size);
+                    resourceResponse.setWriteCallback(
+                            new PartWriterCallback(stream.getInputStream(), size, null, null).setClose(true)
+                    );
                     return resourceResponse;
                 } catch (ResourceStreamNotFoundException rsnfe) {
                     log.debug("Resource not found [{}], {}", path, rsnfe.toString());
@@ -144,6 +155,29 @@ public class ContentPackageResourceReference extends ResourceReference
             ResourceResponse resourceResponse = new ResourceResponse();
             resourceResponse.setError(HttpStatus.NOT_FOUND.value(), "Resource not found");
             return resourceResponse;
+        }
+    }
+
+    private static final WriteCallback NO_OP_WRITE_CALLBACK = new WriteCallback() {
+        @Override
+        public void writeData(IResource.Attributes attributes) {
+            // Intentionally empty; direct-link responses do not stream content from Sakai.
+        }
+    };
+
+    private URI resolveDirectLink(ContentPackageSakaiResource resource) {
+        if (resource == null) {
+            return null;
+        }
+        ContentResource contentResource = resource.getContentResource();
+        if (contentResource == null) {
+            return null;
+        }
+        try {
+            return contentHostingService.getDirectLinkToAsset(contentResource);
+        } catch (Exception e) {
+            log.debug("Unable to obtain direct link for resource [{}]", contentResource.getId(), e);
+            return null;
         }
     }
 }
