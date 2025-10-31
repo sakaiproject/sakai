@@ -1377,39 +1377,56 @@ function setupImportSitesForm(form) {
   document.querySelectorAll(".import-option-help")
     .forEach(element => new bootstrap.Popover(element));
 
+  const importType = document.getElementById(`import-type`)?.value;
+  if (importType === 'merge') {
+    // For each tool row, ensure that only one Copy permissions checkbox can be selected
+    const toolRows = document.querySelectorAll(".tool-row");
+    for (const toolRow of toolRows) {
+      const copyPermissionControls = toolRow.querySelectorAll(`input[name$="-import-option-copy.permissions"]`);
+      copyPermissionControls?.forEach(element => {
+        element.addEventListener('click', (event) => {
+          copyPermissionControls.forEach(el => {
+            el.disabled = event.target.checked;
+          });
+
+          event.currentTarget.disabled = false;
+        });
+      });
+
+      const copySettingsControls = toolRow.querySelectorAll(`input[name$="-import-option-copy.settings"]`);
+      copySettingsControls?.forEach(element => {
+        element.addEventListener('click', (event) => {
+          copySettingsControls.forEach(el => {
+            el.disabled = event.target.checked;
+          });
+
+          event.currentTarget.disabled = false;
+        });
+      });
+    }
+  }
+
   // Handle tool checkbox clicks
   document.querySelectorAll(".siteimport-tool-checkbox").forEach(checkbox => {
     checkbox.addEventListener("click", e => {
       const { toolId, siteId, optionsId } = e.target.dataset;
-      const optionsLink = document.getElementById(`${toolId}-${siteId}-options-link`);
-      
-      if (optionsLink) {
-        const hasCheckedItems = !!document.querySelectorAll(
-          `.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]:checked`
-        ).length;
-        
-        optionsLink.classList.toggle("d-none", !(e.target.checked || hasCheckedItems));
-      }
+      // The tool checkbox always functions as a 'select/deselect all' checkbox vis-a-vis tool items (entities)
+      document.querySelectorAll(
+        `.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`
+      ).forEach(el => el.checked = e.target.checked);
 
-      if (!e.target.checked) {
-        const optionsEl = document.getElementById(optionsId);
-        if (optionsEl) {
-          optionsEl.querySelector("input[type='checkbox']").checked = false;
-          optionsEl.classList.add("d-none");
-        }
-      } else {
+      // For 'replace' imports, select the copying of permissions only for tools
+      // the instructor selects. This approach avoids cases where the instructor
+      // would have to deselect several checkboxes to prevent the copying of permissions
+      // for tools not selected.
+      if (e.target.checked && importType === 'replace') {
         document.querySelectorAll(
-          `.tool-item-checkbox[data-tool-id="${toolId}"][data-site-id="${siteId}"]`
+          `[name="${toolId}$${siteId}-import-option-copy.permissions"]`
+        ).forEach(el => el.checked = true);
+        document.querySelectorAll(
+          `[name="${toolId}$${siteId}-import-option-copy.settings"]`
         ).forEach(el => el.checked = true);
       }
-    });
-  });
-
-  // Handle options link clicks 
-  document.querySelectorAll(".siteimport-options-link").forEach(link => {
-    link.addEventListener("click", e => {
-      const optionsEl = document.getElementById(e.currentTarget.dataset.optionsId);
-      optionsEl?.classList.toggle("d-none");
     });
   });
 
@@ -1449,7 +1466,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll("button.tool-items-button").forEach(btn => {
 
-    const iconEl = btn.querySelector("i");
+    const iconEl = btn.querySelector("span");
+    // Using custom expand/collapse states because the button does not control a conventional panel grouped by a div.
+    // It instead is controlling the display of a set of table rows.
+    const collapseState = btn.getAttribute("data-collapse-state");
+    const expandState = btn.getAttribute("data-expand-state");
 
     btn.addEventListener("click", e => {
 
@@ -1460,11 +1481,15 @@ document.addEventListener('DOMContentLoaded', () => {
         siteManage.toolsCollapsed.set(toolId, true);
         iconEl.classList.remove("bi-caret-down-fill");
         iconEl.classList.add("bi-caret-right-fill");
+        btn.setAttribute("title", expandState);
+        btn.setAttribute("aria-label", expandState);
       } else {
         document.querySelectorAll(`.tool-item-row[data-tool-id="${toolId}"]`).forEach(row => row.classList.remove("d-none"));
         siteManage.toolsCollapsed.set(toolId, false);
         iconEl.classList.remove("bi-caret-right-fill");
         iconEl.classList.add("bi-caret-down-fill");
+        btn.setAttribute("title", collapseState);
+        btn.setAttribute("aria-label", collapseState);
       }
 
       // If we've loaded the item data for this tool already, just return.
@@ -1496,8 +1521,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
           siteManage.toolsLoaded.push(toolId);
 
-          const numberRows = Object.values(sites).reduce((a, v) => v.length > a ? v.length : a, 0);
+          const numberRows = Object.values(sites).reduce((a, v) => v?.length > a ? v?.length : a, 0);
 
+          // Sort items alphabetically by title before listing them in the DOM
+          siteIds.forEach(siteId => {
+              let items = Array.isArray(sites[siteId]) ? sites[siteId] : [];
+              sites[siteId] = items; // normalize
+              items.sort((a, b) => (a?.title ?? '').localeCompare((b?.title ?? ''), undefined, { sensitivity: 'base' }));
+          });
+
+          let insertHtml = ``;
           for (let i = 0; i < numberRows; i++) {
 
             let tr = `
@@ -1511,7 +1544,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const items = sites[siteId];
 
               const toolCheckbox = document.getElementById(`toolSite-${toolId}-${siteId}`);
-
+              const escapedTitle = $('<div>').text(items[i].title).html();
               if (items[i]) {
                 const itemId = items[i].id;
                 tr += `
@@ -1523,7 +1556,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         data-site-id="${siteId}"
                         class="ms-3 tool-item-checkbox"
                         value="${itemId}" ${toolCheckbox.checked ? "checked" : "" } />
-                    <label class="ms-2" for="item-${itemId}">${items[i].title}</label>
+                    <label class="ms-2 d-inline" for="item-${itemId}">${escapedTitle}</label>
                   </td>`;
               } else {
                 tr += `<td>&nbsp;</td>`;
@@ -1532,11 +1565,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             tr += "</tr>";
 
-            currentInsertionRow.insertAdjacentHTML("afterend", tr);
-
-            // Set to the newly inserted tr
-            currentInsertionRow = document.querySelector(`tr[data-tool-id="${toolId}"]`);
+            insertHtml += tr;
           }
+
+          currentInsertionRow.insertAdjacentHTML("afterend", insertHtml);
 
           document.querySelectorAll(".tool-item-checkbox").forEach(cb => {
 

@@ -22,6 +22,7 @@ package org.sakaiproject.component.app.syllabus;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1023,9 +1024,21 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	public List<Map<String, String>> getEntityMap(String fromContext) {
 
 		SyllabusItem item = syllabusManager.getSyllabusItemByContextId(fromContext);
+		Set<SyllabusData> syllabi = (item != null) ? syllabusManager.getSyllabiForSyllabusItem(item) : null;
+		return (item != null && syllabi != null)
+			? syllabi.stream()
+			.filter(d -> d.getSyllabusId() != null)
+			.map(d -> Map.of(
+					 "id", d.getSyllabusId().toString(),
+					 "title", StringUtils.defaultString(d.getTitle())
+					 ))
+			.collect(Collectors.toList())
+			: Collections.emptyList();
+	}
 
-		return syllabusManager.getSyllabiForSyllabusItem(item).stream()
-			.map(d -> Map.of("id", d.getSyllabusId().toString(), "title", d.getTitle())).collect(Collectors.toList());
+	@Override
+	public String getToolPermissionsPrefix() {
+		return SyllabusService.SECURE_PERMISSION_PREFIX;
 	}
 
 	@Transactional

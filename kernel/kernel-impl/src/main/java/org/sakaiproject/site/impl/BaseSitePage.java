@@ -88,7 +88,7 @@ public class BaseSitePage implements SitePage, Identifiable
    
 	private BaseSiteService siteService;
 	
-	protected String[] SAKAI_DEFAULT_EXCEPTION_IDS = {"sakai.iframe","sakai.rutgers.linktool","sakai.news"};
+	protected String[] SAKAI_DEFAULT_EXCEPTION_IDS = {"sakai.iframe","sakai.news"};
 	/** String array of default exception ids to not override the title */
 	protected String[] m_titleExceptionIds;
 
@@ -563,7 +563,7 @@ public class BaseSitePage implements SitePage, Identifiable
 			return Boolean.parseBoolean(custom);
 	}
 
-	/** Checks if this page's tool is a legacy iframe, news or linktool
+	/** Checks if this page's tool is a legacy iframe or news
 	 ** that should assumed to have a custom page title 
 	 ** (assumptions can be disabled with legacyPageTitleCustom = false).
 	 *NOTE: this will not identify any other pages that where customized before

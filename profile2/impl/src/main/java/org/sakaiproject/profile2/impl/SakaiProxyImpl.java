@@ -17,6 +17,7 @@ package org.sakaiproject.profile2.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -178,15 +179,8 @@ public class SakaiProxyImpl implements SakaiProxy {
     }
 
     @Override
-    public SakaiPerson getSakaiPerson(String userId) {
-
-        try {
-            return sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
-        } catch (Exception e) {
-            log.error("Couldn't get SakaiPerson for userId {}: {}", userId, e.toString());
-        }
-
-        return null;
+    public Optional<SakaiPerson> getSakaiPerson(String userId) {
+        return sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
     }
 
     @Override
@@ -198,17 +192,6 @@ public class SakaiProxyImpl implements SakaiProxy {
             log.error("SakaiProxy.getSakaiPersonPrototype(): Couldn't get SakaiPerson prototype: {}", e.toString());
         }
 
-        return null;
-    }
-
-    @Override
-    public SakaiPerson createSakaiPerson(String userId) {
-
-        try {
-            return sakaiPersonManager.create(userId, this.sakaiPersonManager.getUserMutableType());
-        } catch (Exception e) {
-            log.error("SakaiProxy.createSakaiPerson(): Couldn't create SakaiPerson: {}", e.toString());
-        }
         return null;
     }
 
@@ -486,15 +469,10 @@ public class SakaiProxyImpl implements SakaiProxy {
     @Override
     public boolean toggleProfileLocked(String userId, boolean locked) {
 
-        SakaiPerson sp = getSakaiPerson(userId);
-        if (sp == null) {
-            return false;
-        }
-        sp.setLocked(locked);
-        if (updateSakaiPerson(sp)) {
-            return true;
-        }
-        return false;
+        return getSakaiPerson(userId).map(sp -> {
+            sp.setLocked(locked);
+            return updateSakaiPerson(sp);
+        }).orElse(false);
     }
 
     @Override

@@ -99,4 +99,8 @@ public class ContentPackageSakaiResource extends ContentPackageResource {
     public String getMimeType() {
         return contentResource != null ? contentResource.getContentType() : "application/octet-stream";
     }
+
+    public ContentResource getContentResource() {
+        return contentResource;
+    }
 }

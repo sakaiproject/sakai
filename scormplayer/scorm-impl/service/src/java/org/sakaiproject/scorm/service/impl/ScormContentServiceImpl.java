@@ -104,10 +104,39 @@ public abstract class ScormContentServiceImpl implements ScormContentService
 		cp.setModifiedOn(now);
 
 		// Defaults controlled by sakai.properties
-		cp.setShowTOC(serverConfigurationService().getBoolean(SAK_PROP_CONFIG_SHOW_TOC, SAK_PROP_CONFIG_SHOW_TOC_DFLT));
+		boolean showTocDefault = serverConfigurationService().getBoolean(SAK_PROP_CONFIG_SHOW_TOC, SAK_PROP_CONFIG_SHOW_TOC_DFLT);
+		cp.setShowTOC(showTocDefault || hasMultipleLaunchableItems(outcome.getDocument()));
 		cp.setShowNavBar(serverConfigurationService().getBoolean(SAK_PROP_CONFIG_SHOW_NAV_BAR, SAK_PROP_CONFIG_SHOW_NAV_BAR_DFLT));
 		contentPackageDao().save(cp);
 		return cp;
+	}
+
+	private boolean hasMultipleLaunchableItems(Document document)
+	{
+		if (document == null)
+		{
+			return false;
+		}
+		NodeList items = document.getElementsByTagName("item");
+		int launchable = 0;
+		for (int i = 0; i < items.getLength(); i++)
+		{
+			Node node = items.item(i);
+			if (node == null || node.getAttributes() == null)
+			{
+				continue;
+			}
+			Node identifierRef = node.getAttributes().getNamedItem("identifierref");
+			if (identifierRef != null && StringUtils.isNotBlank(identifierRef.getNodeValue()))
+			{
+				launchable++;
+				if (launchable > 1)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private File createFile(InputStream inputStream)

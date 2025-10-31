@@ -489,15 +489,16 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 final String userId = user.getId();
                 final String slash = Entity.SEPARATOR;
                 final StringBuilder path = new StringBuilder();
-                SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(user.getId(), this.sakaiPersonManager.getUserMutableType());
-                String phoneticPronunciation = StringUtils.EMPTY;
-                if (sakaiPerson != null && StringUtils.isNotEmpty(sakaiPerson.getPhoneticPronunciation())) {
-                    //Append the phonetic pronunciation if it's not empty.
-                    phoneticPronunciation = sakaiPerson.getPhoneticPronunciation();
-                    path.append("<span>");
-                    path.append(phoneticPronunciation);
-                    path.append("</span>");
-                }
+                Optional<SakaiPerson> sakaiPerson = sakaiPersonManager.getSakaiPerson(user.getId(), sakaiPersonManager.getUserMutableType());
+                sakaiPerson.ifPresent(sp -> {
+                    if (StringUtils.isNotEmpty(sp.getPhoneticPronunciation())) {
+                        // Append the phonetic pronunciation if it's not empty.
+                        path.append("<span>");
+                        path.append(sp.getPhoneticPronunciation());
+                        path.append("</span>");
+                    }
+                });
+
                 if (profileService.getUserNamePronunciation(user.getId()) != null) {
                     path.append("<sakai-pronunciation-player user-id=\"").append(userId).append("\" />");
                 }
@@ -705,11 +706,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         rosterMember.setInstructor(isAllowed(userId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference()));
         rosterMember.setCanViewProfilePicture(true);
 
-        SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
-        if (sakaiPerson != null) {
-            rosterMember.setPronouns(sakaiPerson.getPronouns());
-            rosterMember.setNickname(sakaiPerson.getNickname());
-        }
+        Optional<SakaiPerson> sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
+        sakaiPerson.ifPresent(sp -> {
+            rosterMember.setPronouns(sp.getPronouns());
+            rosterMember.setNickname(sp.getNickname());
+        });
 
         rosterMember.setHasPronunciationRecording(profileService.hasPronunciationRecording(userId));
 
@@ -1199,14 +1200,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
     @Override
     public String getProfileToolLink(String otherUserId, String siteId) {
-        try {
-            Site site = siteService.getSite(siteService.getUserSiteId(getCurrentUserId()));
-            return Optional.ofNullable(site.getToolForCommonId("sakai.profile2"))
-                    .map(tc -> site.getUrl() + "/tool/" + tc.getId() + (StringUtils.isNotBlank(otherUserId) ? "/viewprofile/" + otherUserId + "?fromSiteId=" + siteId : ""))
-                    .orElse(StringUtils.EMPTY);
-        } catch (Exception e) {
-            log.warn("Could not create profile tool link for site: {}, {}", siteId, e.toString());
-        }
+        log.debug("Profile tool link requested for user {} in site {} but no profile tool is available", otherUserId, siteId);
         return StringUtils.EMPTY;
     }
 

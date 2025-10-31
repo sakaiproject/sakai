@@ -15,12 +15,17 @@
  */
 package org.sakaiproject.scorm.ui.reporting.components;
 
+import java.util.Locale;
+
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 
 import org.sakaiproject.scorm.model.api.Progress;
+import org.sakaiproject.scorm.ui.reporting.util.ScormDurationFormatter;
 
 public class ProgressPanel extends Panel
 {
@@ -32,11 +37,31 @@ public class ProgressPanel extends Panel
 
 		double mark = progress.getProgressMeasure();
 		double scale = progress.getCompletionThreshold();
-		double percentage = 100.0 * mark / scale;
 
-		Label percentCompleteLabel = new Label("percentComplete", new Model("" + percentage));		
-		percentCompleteLabel.setVisible(mark != -1 && scale != -1);
+		Double percentage = null;
+		if (mark >= 0 && scale > 0)
+		{
+			percentage = (mark / scale) * 100.0;
+		}
+
+		String percentageLabelText = percentage != null ? String.format(Locale.US, "%.1f%%", percentage) : "";
+		Label percentCompleteLabel = new Label("percentComplete", Model.of(percentageLabelText));
+		percentCompleteLabel.setVisible(percentage != null);
 		add(percentCompleteLabel);
+
+		WebMarkupContainer percentBar = new WebMarkupContainer("percentCompleteBar");
+		percentBar.add(AttributeModifier.replace("role", "progressbar"));
+		percentBar.add(AttributeModifier.replace("aria-valuemin", "0"));
+		percentBar.add(AttributeModifier.replace("aria-valuemax", "100"));
+		percentBar.setVisible(percentage != null);
+		if (percentage != null)
+		{
+			double clamped = Math.max(0, Math.min(100, percentage));
+			String width = String.format(Locale.US, "%.1f", clamped);
+			percentBar.add(AttributeModifier.replace("style", "width: " + width + "%;"));
+			percentBar.add(AttributeModifier.replace("aria-valuenow", width));
+		}
+		add(percentBar);
 
 		Label successLabel = new Label("successStatus");
 		Label completionLabel = new Label("completionStatus");
@@ -44,5 +69,11 @@ public class ProgressPanel extends Panel
 		completionLabel.setVisible(progress.getCompletionStatus() != null && progress.getCompletionStatus().trim().length() != 0);
 		add(successLabel);
 		add(completionLabel);
+
+		String totalTime = progress.getTotalSessionSeconds();
+		String formattedTotalTime = ScormDurationFormatter.formatOrNull(totalTime, getLocale());
+		Label totalTimeLabel = new Label("totalTime", Model.of(formattedTotalTime != null ? formattedTotalTime : ""));
+		totalTimeLabel.setVisible(formattedTotalTime != null);
+		add(totalTimeLabel);
 	}
 }

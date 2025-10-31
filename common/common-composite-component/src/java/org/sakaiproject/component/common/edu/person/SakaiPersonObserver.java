@@ -23,6 +23,7 @@ package org.sakaiproject.component.common.edu.person;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Optional;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -82,15 +83,11 @@ public class SakaiPersonObserver implements Observer {
 			
 			///TODO we need a security advisor
 			
-			SakaiPerson sp = sakaiPersonManager.getSakaiPerson(refId, sakaiPersonManager.getUserMutableType());
-			if (sp != null) {
-				sakaiPersonManager.delete(sp);
-			}
-			
+			Optional<SakaiPerson> sp = sakaiPersonManager.getSakaiPerson(refId, sakaiPersonManager.getUserMutableType());
+			sp.ifPresent(sakaiPersonManager::delete);
+
 			sp = sakaiPersonManager.getSakaiPerson(refId, sakaiPersonManager.getSystemMutableType());
-			if (sp != null) {
-				sakaiPersonManager.delete(sp);
-			}
+			sp.ifPresent(sakaiPersonManager::delete);
 		}
 	}
 }

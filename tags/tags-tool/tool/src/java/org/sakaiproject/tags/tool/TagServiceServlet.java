@@ -27,7 +27,11 @@ package org.sakaiproject.tags.tool;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
@@ -40,21 +44,27 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tags.api.I18n;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tags.api.TagServiceException;
-import org.sakaiproject.tags.tool.handlers.*;
+import org.sakaiproject.tags.tool.handlers.Handler;
+import org.sakaiproject.tags.tool.handlers.IndexHandler;
+import org.sakaiproject.tags.tool.handlers.TagCollectionsHandler;
+import org.sakaiproject.tags.tool.handlers.TagsHandler;
+import org.sakaiproject.tags.tool.handlers.TagsInTagCollectionsHandler;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.api.FormattedText;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * The entry point for the Tags Service administration tool.  Takes a request,
@@ -65,23 +75,18 @@ public class TagServiceServlet extends HttpServlet {
 
     private static final String FLASH_MESSAGE_KEY = "tags-tool.flash.errors";
 
-    private TagService tagService;
-    private ServerConfigurationService serverConfigurationService = null;
-    private SecurityService securityService = null;
-    private SessionManager sessionManager = null;
-    private ToolManager toolManager = null;
-    private TimeService timeService = null;
+    @Autowired private TagService tagService;
+    @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired private SecurityService securityService;
+    @Autowired private SessionManager sessionManager;
+    @Autowired private ToolManager toolManager;
+    @Autowired private TimeService timeService;
+    @Autowired private FormattedText formattedText;
 
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        tagService = (TagService) ComponentManager.get(TagService.class);
-        serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
-        securityService = (SecurityService) ComponentManager.get(SecurityService.class);
-        sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
-        toolManager = (ToolManager) ComponentManager.get(ToolManager.class);
-        timeService = (TimeService) ComponentManager.get(TimeService.class);
-
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
     }
 
     private Handler handlerForRequest(HttpServletRequest request) {
@@ -96,7 +101,7 @@ public class TagServiceServlet extends HttpServlet {
         } else if (path.contains("/tagcollections/")) {
             return new TagCollectionsHandler(tagService);
         } else if (path.contains("/tags/")) {
-            return new TagsHandler(tagService);
+            return new TagsHandler(tagService, formattedText);
         } else {
             return new IndexHandler(tagService, sessionManager, securityService, toolManager);
         }

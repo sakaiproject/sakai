@@ -44,8 +44,7 @@ public class ExcludeEscapeHtmlReference implements ReferenceInsertionEventHandle
 		ignore.put("previewPage","previewPage");
 		ignore.put("footerScript","footerScript");
 		ignore.put("${request.getAttribute(\"sakai.html.head\")}","1");
-		ignore.put("${util.escapeHtml(${viewBean.rssAccessUrl})}","1");
-	}
+        }
 	/* (non-Javadoc)
 	 * @see org.apache.velocity.app.event.ReferenceInsertionEventHandler#referenceInsert(java.lang.String, java.lang.Object)
 	 */

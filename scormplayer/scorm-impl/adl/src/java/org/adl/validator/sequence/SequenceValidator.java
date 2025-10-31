@@ -28,14 +28,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.adl.logging.DetailedLogMessageCollection;
 import org.adl.parsers.dom.DOMTreeUtility;
 import org.adl.util.LogMessage;
 import org.adl.util.MessageType;
 import org.adl.util.Messages;
 import org.adl.validator.RulesValidator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -53,12 +52,8 @@ import org.w3c.dom.NodeList;
  *
  * @author ADL Technical Team
  */
+@Slf4j
 public class SequenceValidator {
-
-	/**
-	 * Logger object used for debug logging.
-	 */
-	private static Log log = LogFactory.getLog(SequenceValidator.class);
 
 	/**
 	 * RulesValidator object
@@ -117,7 +112,7 @@ public class SequenceValidator {
 
 		NamedNodeMap attrList = iNode.getAttributes();
 		int numAttr = attrList.getLength();
-		log.debug("There are " + numAttr + " attributes of " + iNodeName + " to test");
+		log.debug("There are {} attributes of {} to test", numAttr, iNodeName);
 
 		// SPECIAL CASE: check for mandatory/shall not exist attributes on
 		// sequencingCollection child elements
@@ -127,13 +122,13 @@ public class SequenceValidator {
 			multiplicityUsed = getMultiplicityUsed(attrList, "ID");
 
 			msgText = Messages.getString("SequenceValidator.145");
-			log.debug("INFO: " + msgText);
+			log.debug("INFO: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 			if (multiplicityUsed < 1) {
 
 				msgText = Messages.getString("SequenceValidator.147");
-				log.debug("FAILED: " + msgText);
+				log.warn("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 				result = false;
@@ -141,7 +136,7 @@ public class SequenceValidator {
 			} else {
 				msgText = Messages.getString("SequenceValidator.149");
 
-				log.debug("PASSED: " + msgText);
+				log.debug("PASSED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 				result = true && result;
 			}
@@ -150,7 +145,7 @@ public class SequenceValidator {
 			multiplicityUsed = getMultiplicityUsed(attrList, "IDRef");
 			if (multiplicityUsed >= 1) {
 				msgText = Messages.getString("SequenceValidator.152");
-				log.debug("FAILED: " + msgText);
+				log.warn("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				result = false;
 			}
@@ -174,7 +169,7 @@ public class SequenceValidator {
 			// make sure that this is a SCORM recognized attribute
 			if (!dataType.equalsIgnoreCase("-1")) {
 				msgText = Messages.getString("SequenceValidator.156", currentNodeName);
-				log.debug("INFO: " + msgText);
+				log.debug("INFO: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 				// check for multiplicity if the attribute is not deprecated
@@ -193,11 +188,11 @@ public class SequenceValidator {
 					if ((minRule != -1) || (maxRule != -1)) {
 						if (multiplicityUsed >= minRule && multiplicityUsed <= maxRule) {
 							msgText = Messages.getString("SequenceValidator.162", currentNodeName);
-							log.debug("PASSED: " + msgText);
+							log.debug("PASSED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 						} else {
 							msgText = Messages.getString("SequenceValidator.165", currentNodeName);
-							log.debug("FAILED: " + msgText);
+							log.warn("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 							result = false;
@@ -221,7 +216,7 @@ public class SequenceValidator {
 					// vocab values that exist within the test subject
 
 					msgText = Messages.getString("SequenceValidator.172", currentNodeName);
-					log.debug("INFO: " + msgText);
+					log.debug("INFO: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 					List<String> vocabAttribValues = mRulesValidator.getAttribVocabRuleValues(iNodeName, iPath, currentNodeName);
@@ -232,7 +227,7 @@ public class SequenceValidator {
 				} else if (dataType.equalsIgnoreCase("deprecated")) {
 					// This is a deprecated attribute
 					msgText = Messages.getString("SequenceValidator.176", currentNodeName);
-					log.debug("FAILED: " + msgText);
+					log.warn("FAILED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					result = false;
 				} else if (dataType.equalsIgnoreCase("text")) {
@@ -253,12 +248,12 @@ public class SequenceValidator {
 					//This is a INTEGER data type
 				} else if (dataType.equalsIgnoreCase("duration") || dataType.equalsIgnoreCase("dateTime")) {
 					msgText = Messages.getString("SequenceValidator.185", currentNodeName);
-					log.debug("INFO: " + msgText);
+					log.debug("INFO: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 					// We can assume that the schema validation has validated
 					// the format.
 					msgText = Messages.getString("SequenceValidator.188", currentNodeName);
-					log.debug("PASSED: " + msgText);
+					log.debug("PASSED: {}", msgText);
 					DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 
 					if (currentNodeName.equals("attemptExperiencedDurationLimit") || currentNodeName.equals("activityAbsoluteDurationLimit")
@@ -267,7 +262,7 @@ public class SequenceValidator {
 
 						// this attribute is out of scope of SCORM
 						msgText = Messages.getString("SequenceValidator.196", currentNodeName);
-						log.warn("WARNING: " + msgText);
+						log.warn("WARNING: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 
 					}
@@ -327,7 +322,7 @@ public class SequenceValidator {
 			if (!result) {
 				msgText = Messages.getString("SequenceValidator.84", objectiveID);
 
-				log.debug("FAILED: " + msgText);
+				log.warn("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 			}
 		}
@@ -370,7 +365,7 @@ public class SequenceValidator {
 					}
 					if (!foundMatch) {
 						msgText = Messages.getString("SequenceValidator.197", referencedObjectiveValue);
-						log.debug("FAILED: " + msgText);
+						log.warn("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					}
 				}
@@ -379,7 +374,7 @@ public class SequenceValidator {
 				// objective (primary/objective) identifier values
 				result = false;
 				msgText = Messages.getString("SequenceValidator.198");
-				log.debug("FAILED: " + msgText);
+				log.warn("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 			}
 		}
@@ -424,7 +419,7 @@ public class SequenceValidator {
 			//report an error for not having mandatory sequencing children
 			result = false;
 			msgText = Messages.getString("SequenceValidator.15");
-			log.debug("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 		}
 		return result;
@@ -456,7 +451,7 @@ public class SequenceValidator {
 				} else {
 					msgText = Messages.getString("SequenceValidator.90", iElementName, iSPMRule);
 				}
-				log.debug("WARNING: " + msgText);
+				log.warn("WARNING: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 			} else if (elementValueLength < 1) {
 				if (iAmAnAttribute) {
@@ -465,7 +460,7 @@ public class SequenceValidator {
 					msgText = Messages.getString("SequenceValidator.96", iElementName);
 
 				}
-				log.debug("FAILED: " + msgText);
+				log.warn("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 				result = false;
@@ -475,7 +470,7 @@ public class SequenceValidator {
 				} else {
 					msgText = Messages.getString("SequenceValidator.101", iElementName);
 				}
-				log.debug("PASSED: " + msgText);
+				log.debug("PASSED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 			}
 		} else if (elementValueLength < 1) {
@@ -484,7 +479,7 @@ public class SequenceValidator {
 			} else {
 				msgText = Messages.getString("SequenceValidator.106", iElementName);
 			}
-			log.debug("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 			result = false;
@@ -494,7 +489,7 @@ public class SequenceValidator {
 			} else {
 				msgText = Messages.getString("SequenceValidator.101", iElementName);
 			}
-			log.debug("PASSED: " + msgText);
+			log.debug("PASSED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 		}
 
@@ -548,7 +543,7 @@ public class SequenceValidator {
 				msgText = Messages.getString("SequenceValidator.119", iValue, iName);
 
 			}
-			log.debug("PASSED: " + msgText);
+			log.debug("PASSED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 		} else {
 
@@ -561,7 +556,7 @@ public class SequenceValidator {
 				msgText = Messages.getString("SequenceValidator.126", iValue, iName);
 
 			}
-			log.debug("FAILED: " + msgText);
+			log.warn("FAILED: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 		}
 
@@ -569,7 +564,7 @@ public class SequenceValidator {
 			// this vocabulary token is out of scope of SCORM
 			msgText = Messages.getString("SequenceValidator.133", iValue, iName);
 
-			log.debug("WARNING: " + msgText);
+			log.warn("WARNING: {}", msgText);
 			DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 
 		}
@@ -650,7 +645,7 @@ public class SequenceValidator {
 
 						msgText = Messages.getString("SequenceValidator.8", currentChildName, "sequencing");
 
-						log.debug("FAILED: " + msgText);
+						log.warn("FAILED: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 					}
 
@@ -659,7 +654,7 @@ public class SequenceValidator {
 					// make sure that this is a SCORM recognized attribute
 					if (!dataType.equalsIgnoreCase("-1")) {
 						msgText = Messages.getString("SequenceValidator.30", currentChildName);
-						log.debug("INFO: " + msgText);
+						log.debug("INFO: {}", msgText);
 						DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 						// check for multiplicity if the element is not deprecated
@@ -674,11 +669,11 @@ public class SequenceValidator {
 							if ((minRule != -1) && (maxRule != -1)) {
 								if (multiplicityUsed >= minRule && multiplicityUsed <= maxRule) {
 									msgText = Messages.getString("SequenceValidator.36", currentChildName);
-									log.debug("PASSED: " + msgText);
+									log.debug("PASSED: {}", msgText);
 									DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 								} else {
 									msgText = Messages.getString("SequenceValidator.39", currentChildName);
-									log.debug("FAILED: " + msgText);
+									log.warn("FAILED: {}", msgText);
 									DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 									result = false;
@@ -686,11 +681,11 @@ public class SequenceValidator {
 							} else if ((minRule != -1) && (maxRule == -1)) {
 								if (multiplicityUsed >= minRule) {
 									msgText = Messages.getString("SequenceValidator.36", currentChildName);
-									log.debug("PASSED: " + msgText);
+									log.debug("PASSED: {}", msgText);
 									DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.PASSED, msgText));
 								} else {
 									msgText = Messages.getString("SequenceValidator.39", currentChildName);
-									log.debug("FAILED: " + msgText);
+									log.warn("FAILED: {}", msgText);
 									DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 									result = false;
 								}
@@ -738,7 +733,7 @@ public class SequenceValidator {
 										result = result && false;
 										msgText = Messages.getString("SequenceValidator.55");
 
-										log.debug("FAILED: " + msgText);
+										log.warn("FAILED: {}", msgText);
 										DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 
 									}
@@ -749,7 +744,7 @@ public class SequenceValidator {
 							// special validation for global objectives
 							if (currentChildName.equals("objectives") && path.equals("sequencing")) {
 								msgText = Messages.getString("SequenceValidator.59");
-								log.debug("INFO: " + msgText);
+								log.debug("INFO: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 								mObjectiveInfo.populateObjectiveMap(currentChild);
@@ -760,7 +755,7 @@ public class SequenceValidator {
 							if (currentChildName.equals("auxiliaryResources") && path.equals("sequencing")) {
 								// this element is out of scope of SCORM
 								msgText = Messages.getString("SequenceValidator.63", currentChildName);
-								log.debug("WARNING: " + msgText);
+								log.warn("WARNING: {}", msgText);
 								DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.WARNING, msgText));
 							}
 
@@ -769,7 +764,7 @@ public class SequenceValidator {
 						} else if (dataType.equalsIgnoreCase("deprecated")) {
 							// This is a deprecated element
 							msgText = Messages.getString("SequenceValidator.67", currentChildName);
-							log.debug("FAILED: " + msgText);
+							log.warn("FAILED: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 							result = false;
 						} else if (dataType.equalsIgnoreCase("text")) {
@@ -788,7 +783,7 @@ public class SequenceValidator {
 							// more than one vocabulary token may exist
 
 							msgText = Messages.getString("SequenceValidator.73", currentChildName);
-							log.debug("INFO: " + msgText);
+							log.debug("INFO: {}", msgText);
 							DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.INFO, msgText));
 
 							// retrieve the value of this element
@@ -893,7 +888,7 @@ public class SequenceValidator {
 
 		log.debug("validate()");
 
-		log.debug("      iRootNodeName coming in is " + nodeName);
+		log.debug("iRootNodeName coming in is {}", nodeName);
 
 		mRulesValidator.readInRules("sequence");
 
@@ -903,7 +898,7 @@ public class SequenceValidator {
 		if (nodeName.equals("sequencingCollection")) {
 			if (!parentNodeName.equals("manifest")) {
 				msgText = Messages.getString("SequenceValidator.8", "sequencingCollection", "manifest");
-				log.debug("FAILED: " + msgText);
+				log.warn("FAILED: {}", msgText);
 				DetailedLogMessageCollection.getInstance().addMessage(new LogMessage(MessageType.FAILED, msgText));
 				validateResult = false;
 			}

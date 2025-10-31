@@ -1,13 +1,13 @@
 export const i18nUrl = /.*getI18nProperties.*sakai-notifications.*$/;
 
 export const i18n = `
-academic_comment_graded = Commented on your post, or on a post you commented on, in "{0}"
-accept_notifications = Accept Notifications
+academic_comment_graded=Commented on your post, or on a post you commented on, in "{0}"
+accept_notifications=Accept Notifications
 annc=Announcements
 announcement=Added a new announcement "{0}" in "{1}"
 asn=Assignments
-assignment_created = Created/updated a new assignment "{0}" in "{1}"
-assignment_submission_graded = Graded your submission for assignment "{0}" in "{1}"
+assignment_created=Created/updated a new assignment "{0}" in "{1}"
+assignment_submission_graded=Graded your submission for assignment "{0}" in "{1}"
 browser_info_link_text=Click here for more information
 clear=Clear
 clear_all=Clear All
@@ -39,7 +39,7 @@ push_setup_failure_info_2=You may be browsing in a private window. Push notifica
 push_setup_failure_info_3=You may be using an old browser. You should update it
 push_setup_failure_info_4=Please talk to your {} administrator about resolving these issues. {} \
 relies on push notifications to give you realtime updates on your courses.
-samigoCreated = Created/updated new assessment "{0}" in "{1}"
+samigoCreated=Created/updated new assessment "{0}" in "{1}"
 sam=Tests&Quizzes
 show=Show
 show_notifications=Show Notifications

@@ -34,6 +34,13 @@ import java.util.Optional;
 public interface EntityTransferrer {
 
     public static final String PUBLISH_OPTION = "publish";
+    public static final String COPY_PERMISSIONS_OPTION = "copy.permissions";
+    public static final String COPY_SETTINGS_OPTION = "copy.settings";
+
+    // This pseudo option is NEVER to be represented in the Import from Site UI.
+    // It's only used in Site Info & Gradebook logic for cases where a user has
+    // selected to copy Gradebook settings w/o selecting to copy other Gradebook content.
+    public static final String COPY_ONLY_SETTINGS_PSEUDO_OPTION = "copy.only.settings";
 
     /**
      * transfer a copy of Entities from the source context into the destination context
@@ -90,7 +97,15 @@ public interface EntityTransferrer {
         return Optional.empty();
     }
 
+    default boolean supportsTransferOption(String option) {
+        return getTransferOptions().filter(list -> list.contains(option)).isPresent();
+    }
+
     default List<Map<String, String>> getEntityMap(String fromContext) {
         return Collections.<Map<String, String>>emptyList();
+    }
+
+    default String getToolPermissionsPrefix() {
+        return null;
     }
 }

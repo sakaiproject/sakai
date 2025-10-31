@@ -34,14 +34,16 @@ export class SakaiRubricReadonly extends SakaiRubric {
                 class="fa fa-percent icon-spacer">
               </span>
             ` : nothing }
+          ${this.isSuperUser ? html`
             <span
               tabindex="0"
               role="tooltip"
               title="${this.rubric.title} ${this.tr("is_locked")}"
               aria-label="${this.rubric.title} ${this.tr("is_locked")}"
               class="locked fa fa-lock icon-spacer">
-            </span>`
-          : nothing}
+            </span>
+            ` : nothing}
+          ` : nothing}
 
           ${this.rubric.draft ? html`
             <span

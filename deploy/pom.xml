@@ -594,13 +594,6 @@
             <artifactId>jsoup</artifactId>
             <scope>compile</scope>
         </dependency>
-        <!-- emailtemplateservice and userauditservice -->
-        <dependency>
-            <groupId>org.simpleframework</groupId>
-            <artifactId>simple-xml</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
         <!-- portal -->
         <dependency>
             <groupId>org.codehaus.castor</groupId>
