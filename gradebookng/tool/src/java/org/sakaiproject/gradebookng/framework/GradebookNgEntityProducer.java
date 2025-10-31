@@ -16,6 +16,7 @@
 package org.sakaiproject.gradebookng.framework;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -283,6 +284,11 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	}
 
 	@Override
+	public Optional<List<String>> getTransferOptions() {
+		return Optional.of(Arrays.asList(new String[] { EntityTransferrer.COPY_SETTINGS_OPTION }));
+	}
+
+	@Override
 	public List<Map<String, String>> getEntityMap(String fromContext) {
 
 		List<Map<String, String>> entityList = new ArrayList<>();
@@ -295,11 +301,13 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 				List<Assignment> assignments = this.gradingService.getAssignments(gradebookUid, fromContext, SortType.SORT_BY_NONE);
 
 				assignments.stream()
+						.filter(ass -> !ass.getExternallyMaintained())
 						.map(ass -> Map.of("id", ass.getId().toString(), "title", ass.getName()))
 						.forEach(entityList::add);
 			}
 		} else {
 			return this.gradingService.getAssignments(fromContext, fromContext, SortType.SORT_BY_NONE).stream()
+			.filter(ass -> !ass.getExternallyMaintained())
 			.map(ass -> Map.of("id", ass.getId().toString(), "title", ass.getName())).collect(Collectors.toList());
 		}
 		return entityList;
@@ -314,7 +322,7 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 		final GradebookInformation gradebookInformation = this.gradingService.getGradebookInformation(gradebook.getUid(), fromContext);
 
-		final List<Assignment> assignments = this.gradingService.getAssignments(fromContext, fromContext, SortType.SORT_BY_NONE);
+		List<Assignment> assignments = this.gradingService.getAssignments(fromContext, fromContext, SortType.SORT_BY_NONE);
 
 		if(gradingService.isGradebookGroupEnabled(fromContext)) {
 			try {
@@ -342,12 +350,17 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 							GradebookInformation gradebookInfoFrom = gradingService.getGradebookInformation(gradebookGroupFrom.getUid(), fromContext);
 
 							List<Assignment> assignmentsFrom = gradingService.getAssignments(gradebookGroupFrom.getUid(), fromContext, SortType.SORT_BY_NONE);
+							if (ids != null && !ids.isEmpty()) {
+								assignmentsFrom = assignmentsFrom.stream()
+									.filter(ass -> ids.contains(ass.getId().toString()))
+									.collect(Collectors.toList());
+							}
 
 							assignmentsFrom.forEach(assignment -> {
 								String newAssigmentName = gradebookGroupFrom.getName() + "/" + groupNameFrom + "-" + assignment.getName();
 								assignment.setName(newAssigmentName);
 							});
-							Map<String, String> transfer = gradingService.transferGradebook(gradebookInfoFrom, assignmentsFrom, gradebookGroupTo.getUid(), fromContext);
+							Map<String, String> transfer = gradingService.transferGradebook(gradebookInfoFrom, assignmentsFrom, gradebookGroupTo.getUid(), fromContext, options);
 							resultGradebookTransfer.putAll(transfer);
 						}
 					}
@@ -357,7 +370,12 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 				return new HashMap<>();
 			}
 		} else {
-			Map<String, String> transfer = this.gradingService.transferGradebook(gradebookInformation, assignments, toContext, fromContext);
+			if (ids != null && !ids.isEmpty()) {
+				assignments = assignments.stream()
+				.filter(ass -> ids.contains(ass.getId().toString()))
+				.collect(Collectors.toList());
+			}
+			Map<String, String> transfer = this.gradingService.transferGradebook(gradebookInformation, assignments, toContext, fromContext, options);
 			resultGradebookTransfer.putAll(transfer);
 		}
 		return resultGradebookTransfer;
@@ -366,17 +384,28 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 	@Override
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
 
-		if (cleanup == true) {
+		// Do not delete any gb items if copyOnlySettings is true.
+		// For other tools during a 'replace' import, when an instructor copies only permissions, the tool's content is not deleted.
+		boolean copyOnlySettings = (options != null && options.contains(EntityTransferrer.COPY_ONLY_SETTINGS_PSEUDO_OPTION));
+
+		// Do not delete any gb categories unless copySettings is true.
+		boolean copySettings = (options != null && options.contains(EntityTransferrer.COPY_SETTINGS_OPTION));
+
+		if (cleanup) {
 			if (!gradingService.isGradebookGroupEnabled(fromContext)) {
 				final Gradebook gradebook = (Gradebook) this.gradingService.getGradebook(toContext, toContext);
 
-				// remove assignments in 'to' site
-				final List<Assignment> assignments = this.gradingService.getAssignments(gradebook.getUid(), toContext, SortType.SORT_BY_NONE);
-				assignments.forEach(a -> this.gradingService.removeAssignment(a.getId()));
+				if (!copyOnlySettings) {
+					// remove assignments in 'to' site
+					final List<Assignment> assignments = this.gradingService.getAssignments(gradebook.getUid(), toContext, SortType.SORT_BY_NONE);
+					assignments.forEach(a -> this.gradingService.removeAssignment(a.getId()));
+				}
 
-				// remove categories in 'to' site
-				final List<CategoryDefinition> categories = this.gradingService.getCategoryDefinitions(gradebook.getUid(), toContext);
-				categories.forEach(c -> this.gradingService.removeCategory(c.getId()));
+				if (copySettings) {
+					// remove categories in 'to' site
+					final List<CategoryDefinition> categories = this.gradingService.getCategoryDefinitions(gradebook.getUid(), toContext);
+					categories.forEach(c -> this.gradingService.removeCategory(c.getId()));
+				}
 			} else {
 				try {
 					Site siteFrom = siteService.getSite(fromContext);
@@ -400,11 +429,15 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 							Gradebook gradebookGroupTo = gradingService.getGradebook(groupTo.getId(), toContext);
 
 							if (gradebookGroupTo != null) {
-								List<Assignment> groupAssignmentsTo = gradingService.getAssignments(gradebookGroupTo.getUid(), toContext, SortType.SORT_BY_NONE);
-								groupAssignmentsTo.forEach(a -> this.gradingService.removeAssignment(a.getId()));
+								if (!copyOnlySettings) {
+									List<Assignment> groupAssignmentsTo = gradingService.getAssignments(gradebookGroupTo.getUid(), toContext, SortType.SORT_BY_NONE);
+									groupAssignmentsTo.forEach(a -> this.gradingService.removeAssignment(a.getId()));
+								}
 
-								List<CategoryDefinition> groupCategoriesTo = this.gradingService.getCategoryDefinitions(gradebookGroupTo.getUid(), toContext);
-								groupCategoriesTo.forEach(c -> this.gradingService.removeCategory(c.getId()));
+								if (copySettings) {
+									List<CategoryDefinition> groupCategoriesTo = this.gradingService.getCategoryDefinitions(gradebookGroupTo.getUid(), toContext);
+									groupCategoriesTo.forEach(c -> this.gradingService.removeCategory(c.getId()));
+								}
 							}
 						}
 					});
@@ -415,7 +448,7 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 			}
 		}
 		// now migrate
-		return this.transferCopyEntities(fromContext, toContext, ids, null);
+		return this.transferCopyEntities(fromContext, toContext, ids, options);
 	}
 
 	@Override

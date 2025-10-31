@@ -12,21 +12,13 @@ debugging.
 	or
 	org.sakaiproject.scorm.service.standalone.impl.StandaloneResourceService=DEBUG
 
-	-To see the resources being loaded into Wicket, use:
-	org.sakaiproject.scorm.ui.player.components.LazyLaunchPanel=DEBUG
 
 
-(2) SJAX Communication
+(2) Browser Console
 
-	-To debug Wicket's AJAX communcation inside the browser, turn on these two:
+	-To debug Wicket communication inside the browser, turn on these two:
 	org.sakaiproject.scorm.ui.player.ScormTool=DEBUG
 	org.sakaiproject.wicket.protocol.http.SakaiWebApplication=DEBUG
-
-	-To see high-level output from the SCORM API Communication at the server, turn on:
-	org.sakaiproject.scorm.ui.player.components.SjaxContainer=DEBUG
-
-	-To see more detailed output from the SCORM API Communcation at the server, turn on:
-	org.sakaiproject.scorm.service.impl.ScormApplicationServiceImpl=DEBUG
 
 
 (3) ADL Code problems
@@ -43,7 +35,5 @@ debugging.
 (4) Database/Hibernate issues
 
 	Probably, to debug these, you'll want to turn on the Hibernate debugging. 
-
-
 
 
