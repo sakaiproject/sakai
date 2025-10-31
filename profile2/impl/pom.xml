@@ -90,6 +90,12 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-test</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.opensearch</groupId>
+      <artifactId>opensearch</artifactId>
+      <version>${sakai.opensearch.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   	
 	<build>

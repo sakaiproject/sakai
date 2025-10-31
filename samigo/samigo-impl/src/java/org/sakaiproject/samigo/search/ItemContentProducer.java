@@ -20,7 +20,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,8 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.EntityContentProducerEvents;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.entity.impl.ItemEntityProviderImpl;
@@ -48,21 +49,40 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
 
     @Getter @Setter private EntityManager entityManager = null;
     @Setter EntityProviderManager entityProviderManager;
+    @Setter SearchIndexBuilder searchIndexBuilder;
+    @Setter SearchService searchService;
     AssessmentService assessmentService  = new AssessmentService();
 
-    protected void init() throws Exception {
+    /**
+     * Custom action code for site.upd events.
+     * When this action is returned, QuestionElasticSearchIndexBuilder will delete all
+     * site items if the site was deleted or softly-deleted.
+     * @see org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder#validateIndexAction
+     */
+    public static final Integer ACTION_SITE_DELETE_IF_REMOVED = 100;
+
+    // Map of events to their corresponding search index actions
+    private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+            "sam.assessment.saveitem", SearchBuilderItem.ACTION_ADD,
+            "sam.assessment.item.delete", SearchBuilderItem.ACTION_DELETE,
+            "sam.questionpool.deleteitem", SearchBuilderItem.ACTION_DELETE,
+            "sam.assessment.unindexitem", SearchBuilderItem.ACTION_DELETE,
+            "site.upd", ACTION_SITE_DELETE_IF_REMOVED
+    );
+
+    public void init() {
+        // Register all events with the search service
+        EVENT_ACTIONS.keySet().forEach(searchService::registerFunction);
+        
+        // Register this content producer with the search index builder
+        searchIndexBuilder.registerEntityContentProducer(this);
     }
 
     @Override
     public Set<String> getTriggerFunctions() {
-        Set<String> h = new HashSet<String>();
-        h.add("sam.assessment.saveitem");
-        h.add("sam.assessment.item.delete");
-        h.add("sam.questionpool.deleteitem");
-        h.add("sam.assessment.unindexitem");
-        h.add("site.upd");
-        return h;
+        return EVENT_ACTIONS.keySet();
     }
+
 
     /**
      * Destroy
@@ -94,20 +114,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
      * {@inheritDoc}
      */
     public Integer getAction(Event event) {
-
-        String evt = event.getEvent();
-        if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-        if (evt.equals("sam.assessment.saveitem")) {
-            return SearchBuilderItem.ACTION_ADD;
-        }
-        if (evt.equals("sam.assessment.item.delete")||evt.equals("sam.questionpool.deleteitem")||evt.equals("sam.assessment.unindexitem")) {
-            return SearchBuilderItem.ACTION_DELETE;
-        }
-        if (evt.equals("site.upd")) {
-            //Special code not included in the normal IndexActions
-            return 100;
-        }
-        return SearchBuilderItem.ACTION_UNKNOWN;
+        return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
     }
 
     /**
@@ -403,7 +410,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
      * {@inheritDoc}
      */
     public boolean matches(Event event) {
-        return matches(getReferenceFromEventResource(event.getResource()));
+        return EVENT_ACTIONS.containsKey(event.getEvent());
     }
 
     private String getReferenceFromEventResource(String resource){
