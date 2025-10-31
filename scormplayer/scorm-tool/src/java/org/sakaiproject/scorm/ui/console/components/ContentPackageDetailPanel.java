@@ -18,6 +18,7 @@ package org.sakaiproject.scorm.ui.console.components;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
@@ -37,8 +38,9 @@ public class ContentPackageDetailPanel extends Panel
 	{
 		super(id, new TypeAwareCompoundPropertyModel(contentPackage));
 
-		String createdByName = getString("unknown");
-		String modifiedByName = createdByName;
+		String unknownUser = new ResourceModel("unknown", "unknown").getObject();
+		String createdByName = unknownUser;
+		String modifiedByName = unknownUser;
 		
 		if (contentPackage != null)
 		{
