@@ -19,6 +19,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.signup</groupId>
             <artifactId>signup-api</artifactId>
         </dependency>
@@ -42,11 +46,13 @@
             <groupId>org.sakaiproject.calendaring</groupId>
             <artifactId>external-calendaring-service-api</artifactId>
         </dependency>
-
-        <!-- third party dependencies -->
         <dependency>
-            <groupId>org.sakaiproject.genericdao</groupId>
-            <artifactId>generic-dao</artifactId>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-component-shared</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -55,15 +61,14 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <version>${sakai.spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
@@ -74,12 +79,12 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-validator</groupId>
-            <artifactId>commons-validator</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -90,59 +95,46 @@
             <artifactId>hsqldb</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>
         </dependency>
-        <!-- test dependencies -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-test</artifactId>
+        </dependency>
     </dependencies>
     <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
         <resources>
             <resource>
-                <directory>${basedir}/src/bundle</directory>
+                <directory>src/main/bundle</directory>
                 <includes>
                     <include>**/*.properties</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
                 </includes>
                 <filtering>false</filtering>
             </resource>
         </resources>
         <testResources>
             <testResource>
-                <directory>
-					${basedir}/../pack/src/webapp/WEB-INF
-				</directory>
-                <includes>
-                    <include>spring-hibernate.xml</include>
-                    <include>logic-support.xml</include>
-                </includes>
+                <directory>src/test/resources</directory>
             </testResource>
             <testResource>
-                <directory>${basedir}/src/test</directory>
-                <includes>
-                    <include>hibernate-test.xml</include>
-                    <include>hibernate.properties</include>
-                </includes>
+                <directory>src/main/webapp</directory>
             </testResource>
         </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.sakaiproject.maven.plugins</groupId>
+                <artifactId>sakai</artifactId>
+                <configuration>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

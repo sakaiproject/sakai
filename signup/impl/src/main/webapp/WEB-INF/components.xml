@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <bean id="org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.signupMeeting"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.signup.api.model.SignupAttachment</value>
+                <value>org.sakaiproject.signup.api.model.SignupAttendee</value>
+                <value>org.sakaiproject.signup.api.model.SignupGroup</value>
+                <value>org.sakaiproject.signup.api.model.SignupMeeting</value>
+                <value>org.sakaiproject.signup.api.model.SignupSite</value>
+                <value>org.sakaiproject.signup.api.model.SignupTimeslot</value>
+            </list>
+        </property>
+    </bean>
+
+
+    <!-- Repository configuration -->
+	<bean id="org.sakaiproject.signup.api.repository.SignupMeetingRepository"
+		class="org.sakaiproject.signup.impl.repository.SignupMeetingRepositoryImpl">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean>
+
+	<!--
+		create an external logic bean which abstracts out the Sakai bits
+	-->
+	<bean id="org.sakaiproject.signup.logic.SakaiFacade"
+          class="org.sakaiproject.signup.impl.SakaiFacadeImpl"
+          init-method="init">
+        <!-- TODO Optional Calendar dependency -->
+        <!-- property name="additionalCalendarService" ref="org.sakaiproject.additional.calendar"/ -->
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+	</bean>
+
+	<bean id="org.sakaiproject.signup.api.SignupMeetingService"
+          class="org.sakaiproject.signup.impl.SignupMeetingServiceImpl"
+          init-method="init">
+        <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />
+		<property name="signupEmailFacade" ref="org.sakaiproject.signup.logic.SignupEmailFacade" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+		<property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="resourceLoader">
+			<bean class="org.sakaiproject.util.ResourceLoader">
+				<constructor-arg value="emailMessage"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.signup.logic.SignupCalendarHelper"
+          class="org.sakaiproject.signup.impl.SignupCalendarHelperImpl">
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
+		<property name="externalCalendaringService" ref="org.sakaiproject.calendaring.api.ExternalCalendaringService" />
+		<property name="resourceLoader">
+			<bean class="org.sakaiproject.util.ResourceLoader">
+				<constructor-arg value="emailMessage"/>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.signup.logic.SignupEmailFacade"
+          class="org.sakaiproject.signup.impl.SignupEmailFacadeImpl">
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
+		<property name="calendarHelper" ref="org.sakaiproject.signup.logic.SignupCalendarHelper" />
+		<property name="resourceLoader">
+			<bean class="org.sakaiproject.util.ResourceLoader">
+				<constructor-arg value="emailMessage"/>
+			</bean>
+		</property>
+	</bean>
+
+	<!--
+		Quartz Job auto-remind attendee's next upcoming appointment job
+	-->
+	<bean id="org.sakaiproject.signup.impl.SignupNotifyJob"
+          class="org.sakaiproject.signup.impl.SignupNotifyJob">
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="repository" ref="org.sakaiproject.signup.api.repository.SignupMeetingRepository" />
+		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
+	</bean>
+
+	<bean
+		id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.signupNotifyJob"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		init-method="init">
+		<property name="beanId" value="org.sakaiproject.signup.impl.SignupNotifyJob" />
+		<property name="jobName" value="Sign-up Auto Reminder Notification" />
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+
+</beans>
+

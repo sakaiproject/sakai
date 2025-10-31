@@ -1,5 +1,6 @@
 .#{$namespace}sakai-signup {
 
+	// Alert messages
 	.alertMessageInline {
 		@extend .alert;
 		@extend .alert-danger;
@@ -11,103 +12,604 @@
 		@extend .alert-danger;
 	}
 
+	// Form elements
 	.form-required{
 		&:after{
 			content: "*";
 			color: var(--errorBanner-color);
 			position: relative;
 			top: 3px;
-		}		
+		}
 	}
 
-	.toggleMeetings{
-		cursor:pointer;
-		&.toggleDownload img{
-			vertical-align: baseline;
+	.form-group label {
+		@media #{$phone} {
+			margin-top: 10px;
+			&:first-of-type {
+				margin-top: 0;
+			}
+		}
+	}
+
+	// Tables
+	table.signupTable {
+		text-align: left;
+		margin-top: 20px;
+
+		th {
+			padding: .3em 1em;
+		}
+
+		tr.recurRow {
+			display: table-row;
+		}
+
+		td {
+			padding: .3em 1em;
+
+			&.titleCol {
+				padding: .3em 1em;
+				padding-left: 1.2em;
+			}
+		}
+	}
+
+	table.organizerAction {
+		text-align: left;
+
+		td {
+			padding: 0 0;
+
+			&.attName {
+				padding: 0 0.1em;
+			}
+		}
+	}
+
+	table.organizer td {
+		padding: .15em 0 0 1em;
+		text-align: left;
+		white-space: nowrap;
+	}
+
+	table.sitegroup td {
+		padding: .1em 0 0 0;
+		text-align: left;
+		white-space: nowrap;
+	}
+
+	table.published_sitegroup td {
+		padding: 3px 0 3px 20px;
+		text-align: left;
+		white-space: nowrap;
+	}
+
+	table.preSignTable td {
+		padding: .15em 0 0 1em;
+		text-align: left;
+		white-space: nowrap;
+	}
+
+	table.instruction {
+		td.note {
+			vertical-align: top;
+		}
+		td.desc {
+			padding-left: 13px;
+		}
+	}
+
+	table.orgShowTitleOnly {
+		width: 98%;
+		td.titleColumn {
+			width: 12.3%;
+		}
+	}
+
+	table.emailTable {
+		width: 98%;
+
+		td.alignRightColumn {
+			text-align: right;
+			white-space: nowrap;
+			padding-right: 20px;
+		}
+
+		td.titleColumn {
+			width: 10%;
+			text-align: left;
+			font-weight: bold;
+		}
+
+		td.valueColumn {
+			text-align: left;
+			padding-left: 0;
+		}
+	}
+
+	table.assingAttendeeTable {
+		width: 98%;
+		td.titleColumn {
+			width: 10%;
 		}
 	}
 
 	table#items\:eventlist th input[type="checkbox"] {
 		margin-right: 5px;
 	}
-	
-	#meeting{
-		&\:startTime\.minutes, &\:endTime\.minutes{
+
+	// Form columns and layout
+	.titleColumn {
+		text-align: right;
+		font-weight: bold;
+		padding: 0.2em 1em;
+	}
+
+	.plainTitleColumn {
+		vertical-align: top;
+		padding: 0.2em 1em;
+	}
+
+	.valueColumn {
+		vertical-align: top;
+		padding: 0.2em 1em;
+	}
+
+	#meeting .form, #meetingInfoDetails, #showMeetingTitleOnly {
+		padding: 1px;
+	}
+
+	@media (max-width: 991px) {
+		#meeting .form .titleColumn {
+			text-align: left;
+			margin-top: 10px;
+		}
+		#meetingInfoDetails .titleColumn, #showMeetingTitleOnly .titleColumn {
+			text-align: left;
+			margin-top: 5px;
+		}
+		#meeting .form .valueColumn {
+			margin-bottom: 10px;
+		}
+		#meetingInfoDetails .valueColumn, #showMeetingTitleOnly .valueColumn {
+			margin-bottom: 5px;
+		}
+	}
+
+	// Time slot rows
+	.oddTimeSlotRow {
+		height: 50px;
+	}
+
+	.evenTimeSlotRow {
+		height: 50px;
+		background: rgb(248, 248, 248);
+	}
+
+	// Column widths
+	.timeslotCol {
+		white-space: nowrap;
+		text-align: left;
+		width: 30%;
+	}
+
+	.assignStudentsCol {
+		text-align: left;
+		width: 70%;
+	}
+
+	.noWrapCol {
+		white-space: nowrap;
+	}
+
+	.orgTimeslotCol {
+		width: 26%;
+		white-space: nowrap;
+	}
+
+	.orgMaxAttsCol {
+		width: 10%;
+	}
+
+	.orgSlotStatusCol {
+		width: 32%;
+	}
+
+	.orgWaiterStatusCol {
+		width: 32%;
+	}
+
+	.attendeeSignupTSCol {
+		width: 25%;
+		white-space: nowrap;
+	}
+
+	.attendeeSignupAvailCol {
+		width: 15%;
+	}
+
+	.attendeeSignupCol {
+		width: 20%;
+	}
+
+	.attendeeInfoCol {
+		width: 20%;
+	}
+
+	// Action buttons and controls
+	.actButton {
+		padding: .2em 1em;
+		text-align: center;
+	}
+
+	.downloadSelection {
+		margin-top: 20px;
+	}
+
+	.dwVersionRadioBtn {
+		margin-left: 10px;
+	}
+
+	.downloadBttn {
+		text-align: center;
+	}
+
+	.editAddImages {
+		white-space: nowrap;
+		vertical-align: top;
+	}
+
+	.attendee_status:hover {
+		cursor: help;
+	}
+
+	// List styling
+	.signedUpList {
+		margin: .4em 1em;
+		border: 1px solid #fff;
+		cursor: pointer;
+		line-height: 1.1em;
+		color: darkred;
+	}
+
+	.waitingList {
+		margin: .4em 1em;
+		border: 1px solid #fff;
+		cursor: pointer;
+		line-height: 1.1em;
+		background: rgb(221, 221, 221);
+	}
+
+	// Status styles
+	.organizer_canceled {
+		padding: .15em 0 0 1.8em;
+		font-weight: bold;
+		color: red;
+	}
+
+	.attendee_canceled {
+		font-weight: bold;
+		color: red;
+	}
+
+	// Meeting types and recurrence
+	.meetingTypeTable {
+		margin: 5px 5px 5px 20px;
+	}
+
+	.meetingGpsSitesTable {
+		vertical-align: top;
+		margin-top: 5px;
+		margin-left: 10px;
+	}
+
+	.rs {
+		vertical-align: top;
+	}
+
+	.untilCalendar {
+		margin-left: 0;
+	}
+
+	.mi {
+		vertical-align: top;
+		margin-left: 30px;
+		max-width: 650px;
+	}
+
+	.greyed_mi {
+		vertical-align: top;
+		margin-left: 30px;
+		width: 350px;
+		color: #A3A3A3;
+
+		input, .longtext_red {
+			color: #A3A3A3;
+		}
+	}
+
+	.single-box {
+		vertical-align: top;
+		margin-left: 30px;
+		max-width: 650px;
+	}
+
+	.greyed_si {
+		vertical-align: top;
+		margin-left: 30px;
+		background: #e7eef5;
+		color: #A3A3A3;
+		width: 350px;
+
+		input, label {
+			color: #A3A3A3;
+		}
+	}
+
+	.miCol1, .miCol2 {
+		vertical-align: top;
+	}
+
+	.startTSCol, .endTSCol {
+		vertical-align: top;
+
+		td {
+			white-space: nowrap;
+			text-align: left;
+		}
+	}
+
+	.numAttnTSCol {
+		vertical-align: top;
+		text-align: left;
+		width: 7%;
+	}
+
+	.delTSCol {
+		white-space: nowrap;
+		vertical-align: middle;
+		text-align: right;
+		width: 5%;
+	}
+
+	.meetingRadioBtn {
+		white-space: nowrap;
+	}
+
+	.multiple {
+		background: #eee;
+	}
+
+	.single {
+		background: #e7eef5;
+		background-color: #e7eef5;
+		color: #e7eef5;
+	}
+
+	#multiple.mi .row, #single.single-box .row {
+		margin-top: 5px;
+		&:first-of-type {
+			margin-top: 0;
+		}
+	}
+
+	.displaySites {
+		background: #c12;
+		background-color: #c12;
+	}
+
+	.recurrence {
+		padding: 5px 5px 5px 120px;
+	}
+
+	.meetingMaxAttd {
+		margin: 5px 5px 5px 30px;
+	}
+
+	// Group and site titles
+	.grouptitle {
+		margin: .3em 1em;
+		border: 1px solid #fff;
+		line-height: 90%;
+		font-size: 85%;
+	}
+
+	.sitetitle {
+		margin: .1em 0;
+		border: 1px solid #fff;
+		line-height: 100%;
+	}
+
+	.published_grouptitle {
+		margin: 5px 0;
+		line-height: 90%;
+		font-size: 85%;
+	}
+
+	.published_sitetitle {
+		margin: 10px 0;
+		line-height: 100%;
+		word-wrap: break-word;
+		white-space: normal;
+	}
+
+	.published_siteGroupTable {
+		margin-top: -8px;
+		margin-left: -5px;
+	}
+
+	// Announcements and instructions
+	.annoncement {
+		margin: 3em 5em;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	.timeSelectTab {
+		text-align: left;
+		padding: 4px 3px 4px 20px;
+	}
+
+	.instruction {
+		margin-left: 10px;
+		line-height: 130%;
+		font-size: 90%;
+	}
+
+	.padLeft {
+		margin-left: 30px;
+		text-align: left;
+	}
+
+	// Icons and images
+	.openCloseImageIcon:hover {
+		background: buttonhighlight;
+		filter: alpha(opacity=80); /* for IE */
+		opacity: 0.80; /* CSS3 standard */
+	}
+
+	// Sub-lists and wait lists
+	.subListHeader {
+		background: #eee !important;
+	}
+
+	.waitListed {
+		margin-top: 1em;
+
+		th {
+			background: none !important;
+			border: none;
+			border-bottom: 2px solid #aaa;
+			font-style: italic;
+		}
+	}
+
+	// Toggle button
+	.toggle {
+		position: absolute;
+		right: 5px;
+		top: 50px;
+	}
+
+	.toggleMeetings {
+		cursor: pointer;
+		&.toggleDownload img, &.toggleDownload i {
+			vertical-align: baseline;
+		}
+	}
+
+	// Date picker
+	.dateExact {
+		margin-left: 10px;
+	}
+
+	// Add panel
+	.addPanel {
+		white-space: normal;
+
+		.form-group.row {
+			margin-bottom: 0;
+		}
+	}
+
+	// Meeting form controls
+	#meeting {
+		&\:startTime\.minutes, &\:endTime\.minutes {
 			margin-left: 0.5em;
 		}
-	
-		&\:startTime select, &\:endTime select{
+
+		&\:startTime select, &\:endTime select {
 			margin-right: 0.5em;
 		}
-		
-		&\:startTime, &\:endTime{
-			@media #{$phone}{
-				input,select{
+
+		&\:startTime, &\:endTime {
+			@media #{$phone} {
+				input, select {
 					margin-top: 0.5em;
 				}
 			}
-		}		
-	
-		&\:meeting-participants{
+		}
+
+		&\:meeting-participants {
 			margin-bottom: 0;
-			td{
-				border:none;
+			td {
+				border: none;
 			}
 		}
-		
-		&\:utilCalendar{
-			input{
+
+		&\:utilCalendar {
+			input {
 				margin-top: 0.5em;
 			}
 		}
-		
-		&\:until\.year{
+
+		&\:until\.year {
 			margin-left: 0.5em;
 		}
-		
-		//This is for jsf labels and checkboxes
-		input[type="checkbox"],input[type="radio"]{
-			@media #{$phone}{
-				float:left;
+
+		// This is for jsf labels and checkboxes
+		input[type="checkbox"], input[type="radio"] {
+			@media #{$phone} {
+				float: left;
 				& + label {
-					display:block;
+					display: block;
 				}
 			}
 		}
 	}
 
-	#userdef-add{
-		position:relative;
+	#userdef-add {
+		position: relative;
 	}
 
-	.calendarImageIcon{
+	.calendarImageIcon {
 		vertical-align: middle;
 		margin-left: 3px;
 		margin-right: 7px;
 	}
 
-	#imageOpen_otherSites,#imageClose_otherSites{
+	#imageOpen_otherSites, #imageClose_otherSites {
 		margin-right: 0.3em;
 	}
-	
-	.userDefineTsTable{
-		select{
+
+	.userDefineTsTable {
+		select {
 			margin-right: 1em;
 		}
 
-		input[id*='minutes']{
-				margin-left: 1em;
+		input[id*='minutes'] {
+			margin-left: 1em;
 		}
 	}
-    legend{
-        font-size: inherit;
-    }
 
-	.orgGroupSync > input {
-		width: 100%;					// match the width of the buttons in the same cell
+	legend {
+		font-size: inherit;
 	}
 
-	.orgGroupSync > input + input {
-		margin-top: $standard-space;	// if a button appears on top of another button, add spacing
+	.orgGroupSync > input {
+		width: 100%; // match the width of the buttons in the same cell
+
+		& + input {
+			margin-top: $standard-space; // if a button appears on top of another button, add spacing
+		}
+	}
+
+	// Print styles
+	@media print {
+		.portletBody .navIntraTool,
+		.portletBody #attendanceList thead,
+		.noPrint,
+		.portletBodyPrint input {
+			display: none !important;
+		}
+
+		h4 {
+			width: 100% !important;
+		}
+
+		.selectedSelected {
+			font-weight: bold !important;
+			background: #ccc !important;
+		}
 	}
 }
