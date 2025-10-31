@@ -29,7 +29,7 @@ public class ChatEntityProducerTest {
     }
 
     @Test
-    public void hardDeleteRemovesAllChannelsForSite() {
+    public void hardDeleteRemovesAllChannelsForSite() throws Exception {
         ChatChannel channelOne = new ChatChannel();
         channelOne.setId("channel-1");
         ChatChannel channelTwo = new ChatChannel();
@@ -47,7 +47,7 @@ public class ChatEntityProducerTest {
     }
 
     @Test
-    public void hardDeleteWithEmptyChannelList() {
+    public void hardDeleteWithEmptyChannelList() throws Exception {
         when(chatManager.getContextChannels(SITE_ID, true)).thenReturn(Collections.emptyList());
 
         chatEntityProducer.hardDelete(SITE_ID);
