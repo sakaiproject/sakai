@@ -66,6 +66,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.ResourceRegionHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * This is the entity provider for a user's profile.
@@ -77,6 +78,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 public class ProfileEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, Outputable, Resolvable, Sampleable, Describeable, Redirectable, ActionsExecutable, RequestAware {
 
 	public final static String ENTITY_PREFIX = "profile";
+	public final static String FROM_SITE_ID = "fromSiteId";
 	
 	@Override
 	public String getEntityPrefix() {
@@ -149,8 +151,24 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			log.debug("wantsBlank:" + wantsBlank);
 		}
 		
-		//optional siteid
-		final String siteId = (String)params.get("siteId");
+		//check for fromSiteId in the referer url
+		String referer = (String) params.get("referer");
+		String fromSiteId = null;
+
+		if (StringUtils.isNotBlank(referer)) {
+			try {
+				fromSiteId = UriComponentsBuilder.fromUriString(referer)
+					.build()
+					.getQueryParams()
+					.getFirst(FROM_SITE_ID);
+				log.debug("Extracted fromSiteId from referer: {}", fromSiteId);
+			} catch (IllegalArgumentException e) {
+				log.debug("Could not parse fromSiteId from referer: {}:", referer, e);
+			}
+		}
+
+		final String siteId = StringUtils.defaultIfBlank(fromSiteId, (String) params.get("siteId"));
+
 		if(StringUtils.isNotBlank(siteId) && !sakaiProxy.checkForSite(siteId)){
 			throw new EntityNotFoundException("Invalid siteId: " + siteId, ref.getReference());
 		}

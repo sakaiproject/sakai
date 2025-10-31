@@ -25,6 +25,7 @@ import org.apache.wicket.AttributeModifier;
 
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.tool.components.ProfileImage;
+import org.sakaiproject.profile2.tool.entityprovider.ProfileEntityProvider;
 import org.sakaiproject.profile2.tool.pages.panels.ViewProfilePanel;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.User;
@@ -78,7 +79,7 @@ public class ViewProfile extends BasePage {
 		/* IMAGE */
 		ProfileImage profileImage = new ProfileImage("photo", new Model<String>(userUuid));
 		if (parameters != null) {
-			String fromSiteId = getParamValue(parameters, "fromSiteId");
+			String fromSiteId = getParamValue(parameters, ProfileEntityProvider.FROM_SITE_ID);
 			if (fromSiteId != null) {
 				profileImage.setSiteId(fromSiteId);
 			}
