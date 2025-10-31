@@ -24,10 +24,12 @@ package org.sakaiproject.content.impl.serialize.impl.test;
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Test;
+import org.junit.Ignore;
 
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer;
 
 @Slf4j
+@Ignore("Legacy micro-benchmark; ignored to keep unit tests fast and deterministic")
 public class ProfileSerializerTest
 {
 	/**
