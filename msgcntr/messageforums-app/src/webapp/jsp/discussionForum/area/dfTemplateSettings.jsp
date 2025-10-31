@@ -12,7 +12,7 @@
 	<sakai:view title="#{msgs.cdfm_default_template_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
 	<h:form id="revise">
         <script>includeLatestJQuery("msgcntr");</script>
-		<script src="/messageforums-tool/js/datetimepicker.js"></script>             		             		
+		<script src="/messageforums-tool/js/datetimepicker.js"></script>
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/permissions_header.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
