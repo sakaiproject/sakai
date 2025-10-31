@@ -64,6 +64,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -129,7 +130,7 @@ import org.w3c.dom.ls.LSSerializer;
 @Slf4j
 @Setter
 @Transactional
-public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
+public class RubricsServiceImpl implements RubricsService, EntityTransferrer, HardDeleteAware {
 
     private static final Font BOLD_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD);
     private static final Font NORMAL_FONT = FontFactory.getFont(FontFactory.HELVETICA, 7, Font.NORMAL);
@@ -1792,6 +1793,37 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     @Override
     public boolean parseEntityReference(String reference, Reference ref) {
         return reference.startsWith(REFERENCE_ROOT);
+    }
+
+    @Override
+    public void hardDelete(String siteId) {
+
+        List<Rubric> rubrics = rubricRepository.findByOwnerId(siteId);
+        if (CollectionUtils.isEmpty(rubrics)) {
+            return;
+        }
+
+        rubrics.forEach(rubric -> {
+            List<ToolItemRubricAssociation> associations = associationRepository.findByRubricId(rubric.getId());
+            if (!CollectionUtils.isEmpty(associations)) {
+                associations.forEach(association -> {
+                    List<Evaluation> evaluations = evaluationRepository.findByAssociationId(association.getId());
+                    if (!CollectionUtils.isEmpty(evaluations)) {
+                        evaluations.forEach(evaluation -> returnedEvaluationRepository.deleteByOriginalEvaluationId(evaluation.getId()));
+                        evaluationRepository.deleteAll(evaluations);
+                    }
+                });
+                associationRepository.deleteAll(associations);
+            }
+        });
+
+        List<Evaluation> siteEvaluations = evaluationRepository.findByOwnerId(siteId);
+        if (!CollectionUtils.isEmpty(siteEvaluations)) {
+            siteEvaluations.forEach(evaluation -> returnedEvaluationRepository.deleteByOriginalEvaluationId(evaluation.getId()));
+            evaluationRepository.deleteAll(siteEvaluations);
+        }
+
+        rubricRepository.deleteAll(rubrics);
     }
 
     public void deleteSiteRubrics(String siteId) {
