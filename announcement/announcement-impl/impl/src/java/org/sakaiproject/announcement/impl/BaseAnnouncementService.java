@@ -80,6 +80,7 @@ import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -125,7 +126,7 @@ import org.w3c.dom.NodeList;
  */
 @Slf4j
 public abstract class BaseAnnouncementService extends BaseMessage implements AnnouncementService, ContextObserver,
-		EntityTransferrer, ContentExistsAware, SiteRemovalAdvisor
+                EntityTransferrer, ContentExistsAware, SiteRemovalAdvisor, HardDeleteAware
 {
 	
 	/** Messages, for the http access. */
@@ -2517,11 +2518,11 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	}
 
 	@Override
-	public void removed(Site site){
-		String siteId = site.getId();
+        public void removed(Site site){
+                String siteId = site.getId();
 
-		List<String> ids = getChannelIds(siteId);
-		for (String id : ids){
+                List<String> ids = getChannelIds(siteId);
+                for (String id : ids){
 			String ref = channelReference(siteId, id);
 			try{
 				AnnouncementChannel announcementChannel = getAnnouncementChannel(ref);
@@ -2550,6 +2551,20 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			aliasService.removeTargetAliases("/announcement/announcement/" + siteId);
 		} catch (PermissionException e) {
 			log.error("The current user does not have permission to remove announcementChannel aliases for context: {}", siteId, e);
-		}
-	}
+                }
+        }
+
+        @Override
+        public void hardDelete(String siteId)
+        {
+                try
+                {
+                        Site site = siteService.getSite(siteId);
+                        removed(site);
+                }
+                catch (IdUnusedException e)
+                {
+                        log.warn("No site found for id {} when attempting to hard delete announcements", siteId);
+                }
+        }
 }
