@@ -30,6 +30,7 @@ import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.commons.api.datamodel.PostLike;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.memory.api.Cache;
@@ -40,7 +41,7 @@ import org.sakaiproject.util.api.FormattedText;
  * @author Adrian Fish (adrian.r.fish@gmail.com)
  */
 @Setter @Slf4j
-public class CommonsManagerImpl implements CommonsManager {
+public class CommonsManagerImpl implements CommonsManager, HardDeleteAware {
 
     private CommonsSecurityManager commonsSecurityManager;
     private PersistenceManager persistenceManager;
@@ -405,6 +406,32 @@ public class CommonsManagerImpl implements CommonsManager {
         }
 
         return false;
+    }
+
+    @Override
+    public void hardDelete(String siteId) {
+
+        Set<String> contextIds = new HashSet<>();
+        contextIds.add(siteId);
+
+        try {
+            List<Post> posts = persistenceManager.getAllPost(QueryBean.builder().siteId(siteId).build());
+            if (posts != null) {
+                posts.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(post -> {
+                        String commonsId = post.getCommonsId();
+                        if (commonsId != null && !commonsId.isEmpty()) {
+                            contextIds.add(commonsId);
+                        }
+                        persistenceManager.deletePost(post);
+                    });
+            }
+        } catch (Exception e) {
+            log.warn("Failed to hard delete Commons content for site {}", siteId, e);
+        }
+
+        removeContextIdsFromCache(new ArrayList<>(contextIds));
     }
 
     private void removeContextIdsFromCache(List<String> contextIds) {
