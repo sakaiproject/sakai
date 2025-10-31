@@ -27,7 +27,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -51,7 +50,6 @@ import org.sakaiproject.profile2.api.ProfileImage;
 import org.sakaiproject.profile2.api.ProfileService;
 import org.sakaiproject.profile2.api.ProfileTransferBean;
 import org.sakaiproject.profile2.api.SakaiProxy;
-import org.sakaiproject.profile2.api.UserProfile;
 import org.sakaiproject.profile2.api.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.api.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.api.model.SocialNetworkingInfo;
@@ -76,11 +74,11 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
     @Autowired private SessionManager sessionManager;
 
     private static final String IMAGE_CACHE = "profile2.image.cache";
-    private Cache cache;
+    private Cache<String, ProfileImage> cache;
 
     public void init() {
 
-        cache = memoryService.createCache(IMAGE_CACHE, new SimpleConfiguration(0));
+        cache = memoryService.createCache(IMAGE_CACHE, new SimpleConfiguration<>(0));
         entityManager.registerEntityProducer(this, "/profile/");
     }
 
@@ -174,7 +172,7 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         //if we have a siteId and it's not a my workspace site, check if the current user has permissions to view the image
         if (StringUtils.isNotBlank(siteId)) {
             if (!sakaiProxy.isUserMyWorkspace(siteId)) {
-                log.debug("checking if user: " + currentUserUuid + " has permissions in site: " + siteId);
+                log.debug("checking if user: {} has permissions in site: {}", currentUserUuid, siteId);
                 allowed = sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PHOTO, siteId) ||
                     sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_PROFILE, siteId);
             }
@@ -705,7 +703,7 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
 
         ProfileImage image = null;
         if (cache.containsKey(userUuid)) {
-            image = (ProfileImage) cache.get(userUuid);
+            image = cache.get(userUuid);
             if (image == null) {
                 cache.remove(userUuid);
             }
@@ -802,7 +800,6 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
             return null;
         }
 
-        //setup obj
         ProfileTransferBean p = new ProfileTransferBean();
         p.id = userId;
         p.eid = u.getEid();
@@ -820,21 +817,15 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
         p.canEdit = StringUtils.equals(currentUserId, userId) || sakaiProxy.isSuperUser();
         p.canEditNameAndEmail = sakaiProxy.isSuperUser();
 
-        SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-        if (sakaiPerson == null) {
-            sakaiPerson = sakaiProxy.createSakaiPerson(userId);
-            if (sakaiPerson == null) {
-                return p;
-            }
-        }
-
-        p.nickname = sakaiPerson.getNickname();
-        p.phoneticPronunciation = sakaiPerson.getPhoneticPronunciation();
-        p.pronouns = sakaiPerson.getPronouns();
-        p.mobile = sakaiPerson.getMobile();
+        Optional<SakaiPerson> sakaiPerson = sakaiProxy.getSakaiPerson(userId);
+        sakaiPerson.ifPresent(sp -> {
+            p.nickname = sp.getNickname();
+            p.phoneticPronunciation = sp.getPhoneticPronunciation();
+            p.pronouns = sp.getPronouns();
+            p.mobile = sp.getMobile();
+        });
 
         dao.getSocialNetworkingInfo(userId).ifPresent(socialInfo -> {
-
             p.facebookUrl = socialInfo.getFacebookUrl();
             p.instagramUrl = socialInfo.getInstagramUrl();
             p.linkedinUrl = socialInfo.getLinkedinUrl();
@@ -845,7 +836,7 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
             return p;
         }
 
-        //ADD email if allowed, REMOVE contact info if not
+        // Add email if allowed, remove contact info if not
         if (siteId != null && sakaiProxy.isUserAllowedInSite(currentUserId, ProfileConstants.ROSTER_VIEW_EMAIL, siteId)) {
             p.email = u.getEmail();
         }
@@ -862,11 +853,13 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
     @Transactional
     public boolean saveUserProfile(ProfileTransferBean profileBean) {
 
-        SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(profileBean.id);
-        sakaiPerson.setNickname(profileBean.nickname);
-        sakaiPerson.setPronouns(profileBean.pronouns);
-        sakaiPerson.setPhoneticPronunciation(profileBean.phoneticPronunciation);
-        sakaiPerson.setMobile(profileBean.mobile);
+        Optional<SakaiPerson> sakaiPerson = sakaiProxy.getSakaiPerson(profileBean.id);
+        sakaiPerson.ifPresent(sp -> {
+            sp.setNickname(profileBean.nickname);
+            sp.setPronouns(profileBean.pronouns);
+            sp.setPhoneticPronunciation(profileBean.phoneticPronunciation);
+            sp.setMobile(profileBean.mobile);
+        });
 
         SocialNetworkingInfo socialInfo
           = dao.getSocialNetworkingInfo(profileBean.id).orElseGet(() -> new SocialNetworkingInfo(profileBean.id));
@@ -888,12 +881,11 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
             }
         }
 
-        if (sakaiProxy.updateSakaiPerson(sakaiPerson)) {
-            sendProfileChangeEmailNotification(sakaiPerson.getAgentUuid());
-            return true;
-        }
-
-        return false;
+        return sakaiPerson.map(sp -> {
+            boolean updated = sakaiProxy.updateSakaiPerson(sp);
+            if (updated) sendProfileChangeEmailNotification(sp.getAgentUuid());
+            return updated;
+        }).orElse(false);
     }
 
     public boolean removePronunciationRecording(String userId) {
@@ -908,7 +900,8 @@ public class ProfileServiceImpl implements ProfileService, EntityProducer {
 
     /**
      * Sends an email notification when a user changes their profile, if enabled.
-     * @param toUuid        the uuid of the user who changed their profile
+     *
+     * @param userUuid the uuid of the user who changed their profile
      */
     private void sendProfileChangeEmailNotification(final String userUuid) {
 

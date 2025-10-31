@@ -21,6 +21,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.portal.api.PortalConstants;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.webapi.beans.DashboardRestBean;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -177,16 +178,13 @@ public class DashboardController extends AbstractSakaiApiController implements E
             return bean;
         }
 
-        try {
-            SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(currentUserId, sakaiPersonManager.getUserMutableType());
-            if (sakaiPerson != null && StringUtils.isNotBlank(sakaiPerson.getNickname())) {
-                bean.setGivenName(sakaiPerson.getNickname());
-            } else {
-                bean.setGivenName(userDirectoryService.getUser(currentUserId).getFirstName());
-            }
-        } catch (UserNotDefinedException unde) {
-            log.warn("No user found for id {}", currentUserId);
-        }
+        sakaiPersonManager.getSakaiPerson(currentUserId, sakaiPersonManager.getUserMutableType())
+                .map(SakaiPerson::getNickname)
+                .filter(StringUtils::isNotBlank)
+                .or(() -> userDirectoryService.getOptionalUser(currentUserId)
+                        .map(User::getFirstName)
+                        .filter(StringUtils::isNotBlank))
+                .ifPresent(bean::setGivenName);
 
         try {
             List<AnnouncementMessage> motdMessages = announcementService.getMessages(

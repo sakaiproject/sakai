@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.profile2.api;
 
+import java.util.Optional;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
@@ -125,7 +127,7 @@ public interface SakaiProxy {
 	 * @param userId
 	 * @return
 	 */
-	SakaiPerson getSakaiPerson(String userId);
+	Optional<SakaiPerson> getSakaiPerson(String userId);
 
 	/**
 	 * Get a SakaiPerson prototype if they don't have a profile.
@@ -137,14 +139,6 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	SakaiPerson getSakaiPersonPrototype();
-
-	/**
-	 * Create a new persistable SakaiPerson object for a user
-	 *
-	 * @param userId
-	 * @return
-	 */
-	SakaiPerson createSakaiPerson(String userId);
 
 	/**
 	 * Update a SakaiPerson object in the db.

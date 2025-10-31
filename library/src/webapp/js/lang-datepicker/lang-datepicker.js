@@ -24,27 +24,29 @@ const defaults = {
       
       // Already a Date object - preserve its local time components
       if (value instanceof Date) {
-        const d = new Date();
-        d.setFullYear(value.getFullYear());
-        d.setMonth(value.getMonth());
-        d.setDate(value.getDate());
-        d.setHours(value.getHours());
-        d.setMinutes(value.getMinutes());
-        d.setSeconds(value.getSeconds());
-        d.setMilliseconds(0);
+        const d = new Date(
+          value.getFullYear(),
+          value.getMonth(),
+          value.getDate(),
+          value.getHours(),
+          value.getMinutes(),
+          value.getSeconds(),
+          0
+        );
         return d;
       }
       
       // Our custom date object format - use components directly
       if (typeof value === 'object' && 'year' in value) {
-        const d = new Date();
-        d.setFullYear(value.year);
-        d.setMonth(value.month - 1); // JS months are 0-indexed
-        d.setDate(value.day);
-        d.setHours(value.hours || 0);
-        d.setMinutes(value.minutes || 0);
-        d.setSeconds(value.seconds || 0);
-        d.setMilliseconds(0);
+        const d = new Date(
+          value.year,
+          value.month - 1, // JS months are 0-indexed
+          value.day,
+          value.hours || 0,
+          value.minutes || 0,
+          value.seconds || 0,
+          0
+        );
         return d;
       }
       
@@ -57,14 +59,15 @@ const defaults = {
           const [hours, minutes] = timePart.split(':').map(Number);
           
           if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
-            const d = new Date();
-            d.setFullYear(year);
-            d.setMonth(month - 1);
-            d.setDate(day);
-            d.setHours(hours);
-            d.setMinutes(minutes);
-            d.setSeconds(0);
-            d.setMilliseconds(0);
+            const d = new Date(
+              year,
+              month - 1,
+              day,
+              hours,
+              minutes,
+              0,
+              0
+            );
             return d;
           }
         }
@@ -74,20 +77,35 @@ const defaults = {
           const [datePart, timePart] = value.split('T');
           const [year, month, day] = datePart.split('-').map(Number);
           const timeComponents = timePart.split(':').map(Number);
+          const [hours, minutes] = timeComponents;
+          
+          if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hours) && !isNaN(minutes)) {
+            const d = new Date(
+              year,
+              month - 1,
+              day,
+              hours,
+              minutes,
+              0,
+              0
+            );
+            return d;
+          }
         }
 
         // Handle simple YYYY-MM-DD format
         if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
           const [year, month, day] = value.split('-').map(Number);
           if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-            const d = new Date();
-            d.setFullYear(year);
-            d.setMonth(month - 1); // JS months are 0-indexed
-            d.setDate(day);
-            d.setHours(0); // Explicitly set time to midnight local
-            d.setMinutes(0);
-            d.setSeconds(0);
-            d.setMilliseconds(0);
+            const d = new Date(
+              year,
+              month - 1, // JS months are 0-indexed
+              day,
+              0, // Explicitly set time to midnight local
+              0,
+              0,
+              0
+            );
             return d;
           }
         }
@@ -95,14 +113,15 @@ const defaults = {
         // Try native parsing as last resort, but preserve local time components
         const parsed = new Date(value);
         if (!isNaN(parsed.getTime())) {
-          const d = new Date();
-          d.setFullYear(parsed.getFullYear());
-          d.setMonth(parsed.getMonth());
-          d.setDate(parsed.getDate());
-          d.setHours(parsed.getHours());
-          d.setMinutes(parsed.getMinutes());
-          d.setSeconds(parsed.getSeconds());
-          d.setMilliseconds(0);
+          const d = new Date(
+            parsed.getFullYear(),
+            parsed.getMonth(),
+            parsed.getDate(),
+            parsed.getHours(),
+            parsed.getMinutes(),
+            parsed.getSeconds(),
+            0
+          );
           return d;
         }
       }

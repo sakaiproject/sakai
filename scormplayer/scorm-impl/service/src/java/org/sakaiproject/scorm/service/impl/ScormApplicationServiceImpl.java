@@ -1118,7 +1118,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			case DMErrorCodes.DOES_NOT_HAVE_COUNT:
 				if (!iRequest.endsWith("._count"))
 				{
-					log.info("Strange error -- 'Does not have count' for data element " + iRequest);
+					log.info("Strange error -- 'Does not have count' for data element {}", iRequest);
 				}
 
 				break;
@@ -1217,17 +1217,35 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		// (completed, incomplete, not_attempted, unknown)
 		String completionStatus = getValueAsString(CMI_COMPLETION_STATUS, dataManager);
 
-		if ("normal".equals(mode) && "completed".equals(completionStatus) && "credit".equals(credit))
+		if ("normal".equals(mode) && "credit".equals(credit))
 		{
-			String context = lms().currentContext();
-			String learnerID = sessionBean.getLearnerId();
-			String assessmentExternalId = "" + sessionBean.getContentPackage().getContentPackageId() + ":" + dataManager.getScoId();
+			// (passed, failed, unknown)
+			String successStatus = getValueAsString(CMI_SUCCESS_STATUS, dataManager);
 
-			// A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of -1.0 to +1.0, inclusive.
-			OptionalDouble score = getRealValue(CMI_SCORE_SCALED, dataManager);
+			OptionalDouble score = OptionalDouble.empty();
+			score = getRealValue(CMI_SCORE_SCALED, dataManager);
+			boolean hasScore = score.isPresent();
+			boolean hasCompletion = "completed".equals(completionStatus);
+			boolean hasFinalSuccessState = "passed".equals(successStatus) || "failed".equals(successStatus);
 
-			// Logic to update score and/or comment lives in below method, pass the necessary data
-			updateGradebook(score, context, learnerID, assessmentExternalId);
+			if (hasCompletion || hasFinalSuccessState || hasScore)
+			{
+				// Some packages never flip completion or success to a terminal state before the window closes
+				// (Chrome suppresses unload async work). If we already have a scaled score, push it immediately
+				// rather than waiting for completion metadata that may never arrive.
+				String context = sessionBean.getContentPackage() != null ? sessionBean.getContentPackage().getContext() : null;
+				if (StringUtils.isBlank(context))
+				{
+					log.warn("Cannot synchronize gradebook: no context available for content package {}", sessionBean.getContentPackage() != null ? sessionBean.getContentPackage().getContentPackageId() : "unknown");
+					return;
+				}
+				String learnerID = sessionBean.getLearnerId();
+				String assessmentExternalId = "" + sessionBean.getContentPackage().getContentPackageId() + ":" + dataManager.getScoId();
+
+				// A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of -1.0 to +1.0, inclusive.
+				// Logic to update score and/or comment lives in below method, pass the necessary data
+				updateGradebook(score, context, learnerID, assessmentExternalId);
+			}
 		}
 	}
 
