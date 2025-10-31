@@ -57,6 +57,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.EntityManager;
@@ -100,7 +101,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AssessmentEntityProducer implements EntityTransferrer, EntityProducer {
+public class AssessmentEntityProducer implements EntityTransferrer, EntityProducer, HardDeleteAware {
 
     private static final int QTI_VERSION = 1;
     private static final String ARCHIVED_ELEMENT = "assessment";
@@ -116,6 +117,14 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     @Getter @Setter protected PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
     @Setter protected LinkMigrationHelper linkMigrationHelper;
     @Setter protected LTIService ltiService;
+
+    protected AssessmentService createAssessmentService() {
+        return new AssessmentService();
+    }
+
+    protected PublishedAssessmentService createPublishedAssessmentService() {
+        return new PublishedAssessmentService();
+    }
 
 	public void init() {
 		log.info("init()");
@@ -432,33 +441,53 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
     @Override
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup) {
 
-		try {
-			if (cleanup) {
-				log.debug("deleting assessments from {}", toContext);
-				// Delete all draft assessments
-				AssessmentService service = new AssessmentService();
-				List<AssessmentData> assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
-                log.debug("found {} draft assessments in site: {}", assessmentList.size(), toContext);
-                for (AssessmentData oneassessment : assessmentList) {
-                    log.debug("removing draft assessment id = {}", oneassessment.getAssessmentId());
-                    service.removeAssessment(oneassessment.getAssessmentId().toString());
+                try {
+                        if (cleanup) {
+                                log.debug("deleting assessments from {}", toContext);
+                                removeAssessmentsInSite(toContext);
+                        }
+                } catch (Exception e) {
+                        log.error("attempting to remove assessment data", e);
                 }
-                
-                // Delete all published assessments
-                PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-                List<PublishedAssessmentData> publishedAssessmentList = publishedAssessmentService.getAllPublishedAssessmentsForSite(toContext);
-                log.debug("found {} published assessments in site: {}", publishedAssessmentList.size(), toContext);
-                for (PublishedAssessmentData publishedAssessment : publishedAssessmentList) {
-                    log.debug("removing published assessment id = {}", publishedAssessment.getPublishedAssessmentId());
-                    publishedAssessmentService.removeAssessment(publishedAssessment.getPublishedAssessmentId().toString());
-                }
-			}
-		} catch (Exception e) {
-			log.error("attempting to remove assessment data", e);
-		}
-		
-		return transferCopyEntities(fromContext, toContext, ids, null);
-	}
+
+                return transferCopyEntities(fromContext, toContext, ids, null);
+        }
+
+    @Override
+    public void hardDelete(String siteId) {
+        log.debug("hard deleting assessments for site {}", siteId);
+        removeAssessmentsInSite(siteId);
+    }
+
+    private void removeAssessmentsInSite(String siteId) {
+        AssessmentService assessmentService = createAssessmentService();
+        List<AssessmentData> assessmentList = assessmentService.getAllActiveAssessmentsbyAgent(siteId);
+        if (assessmentList == null) {
+            assessmentList = Collections.emptyList();
+        }
+        log.debug("found {} draft assessments in site: {}", assessmentList.size(), siteId);
+        for (AssessmentData oneAssessment : assessmentList) {
+            Long assessmentId = oneAssessment.getAssessmentId();
+            if (assessmentId != null) {
+                log.debug("removing draft assessment id = {}", assessmentId);
+                assessmentService.removeAssessment(assessmentId.toString());
+            }
+        }
+
+        PublishedAssessmentService publishedAssessmentService = createPublishedAssessmentService();
+        List<PublishedAssessmentData> publishedAssessmentList = publishedAssessmentService.getAllPublishedAssessmentsForSite(siteId);
+        if (publishedAssessmentList == null) {
+            publishedAssessmentList = Collections.emptyList();
+        }
+        log.debug("found {} published assessments in site: {}", publishedAssessmentList.size(), siteId);
+        for (PublishedAssessmentData publishedAssessment : publishedAssessmentList) {
+            Long publishedAssessmentId = publishedAssessment.getPublishedAssessmentId();
+            if (publishedAssessmentId != null) {
+                log.debug("removing published assessment id = {}", publishedAssessmentId);
+                publishedAssessmentService.removeAssessment(publishedAssessmentId.toString());
+            }
+        }
+    }
 
 	@Override
 	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
