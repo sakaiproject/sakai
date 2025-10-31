@@ -80,8 +80,7 @@ export class SakaiNotifications extends SakaiElement {
       this._browserInfoUrl = this.edgeInfoUrl;
     }
 
-    // Load initial notifications on connect
-    this._i18nLoaded.then(() => this._loadInitialNotifications());
+    // Do not auto-load notifications; portal integration triggers loadNotifications() on user interaction
   }
 
   loadNotifications({ force = false } = {}) {
