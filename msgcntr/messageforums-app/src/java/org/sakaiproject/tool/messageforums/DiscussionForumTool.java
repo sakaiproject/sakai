@@ -7104,74 +7104,31 @@ public class DiscussionForumTool {
   	
   }
   
-  public String generatePermissionScript(){
-  	  	    	
-  	PermissionLevel ownerLevel = permissionLevelManager.getDefaultOwnerPermissionLevel();
-  	PermissionLevel authorLevel = permissionLevelManager.getDefaultAuthorPermissionLevel();
-  	PermissionLevel noneditingAuthorLevel = permissionLevelManager.getDefaultNoneditingAuthorPermissionLevel();
-  	PermissionLevel reviewerLevel = permissionLevelManager.getDefaultReviewerPermissionLevel();
-  	PermissionLevel noneLevel = permissionLevelManager.getDefaultNonePermissionLevel();
-  	PermissionLevel contributorLevel = permissionLevelManager.getDefaultContributorPermissionLevel();
-  	  	
-  	StringBuilder sBuffer = new StringBuilder();  	
-  	sBuffer.append("<script>\n");
-  	sBuffer.append("var ownerLevelArray = " + ownerLevel + ";\n");
-  	sBuffer.append("var authorLevelArray = " + authorLevel + ";\n");
-  	sBuffer.append("var noneditingAuthorLevelArray = " + noneditingAuthorLevel + ";\n");
-  	sBuffer.append("var reviewerLevelArray = " + reviewerLevel + ";\n");
-  	sBuffer.append("var noneLevelArray = " + noneLevel + ";\n");
-  	sBuffer.append("var contributorLevelArray = " + contributorLevel + ";\n");
-  	sBuffer.append("var owner = 'Owner';\n");
-  	sBuffer.append("var author = 'Author';\n");
-  	sBuffer.append("var nonEditingAuthor = 'Nonediting Author';\n");
-  	sBuffer.append("var reviewer = 'Reviewer';\n");
-  	sBuffer.append("var none = 'None';\n");
-  	sBuffer.append("var contributor = 'Contributor';\n");  	
-  	sBuffer.append("var custom = 'Custom';\n");
-  	sBuffer.append("var all = 'All';\n");
-  	sBuffer.append("var own = 'Own';\n");  	  	
-  	
-  	sBuffer.append("function checkLevel(selectedLevel){\n" +  			           
-  			           "  var ownerVal = true;\n" +
-  			           "  var authorVal = true;\n" +
-  			           "  var noneditingAuthorVal = true;\n" +
-  			           "  var reviewerVal = true;\n" +
-  			           "  var noneVal = true;\n" +
-  			           "  var contributorVal = true;\n\n" +  			           
-  			           "  for (var i = 0; i < selectedLevel.length; i++){\n" +
-  			           "    if (ownerVal && ownerLevelArray[i] != selectedLevel[i])\n" +
-  	               "      ownerVal = false;\n" +
-  			           "    if (authorVal && authorLevelArray[i] != selectedLevel[i])\n" +
-  	               "      authorVal = false;\n" +
-  	               "    if (noneditingAuthorVal && noneditingAuthorLevelArray[i] != selectedLevel[i])\n" +
-  	               "      noneditingAuthorVal = false;\n" +
-  	               "    if (reviewerVal && reviewerLevelArray[i] != selectedLevel[i])\n" +
-  	               "      reviewerVal = false;\n" +
-  	               "    if (noneVal && noneLevelArray[i] != selectedLevel[i])\n" +
-  	               "      noneVal = false;\n" +
-  	               "    if (contributorVal && contributorLevelArray[i] != selectedLevel[i])\n" +
-  	               "      contributorVal = false;\n" +
-  	               "  }\n\n" +  	  	    
-  	               "  if (ownerVal)\n" +  	               
-  	               "    return 'Owner';\n" +  	               
-  	               "  else if (authorVal)\n" +  	               
-  	               "    return 'Author';\n" +
-  	               "  else if (noneditingAuthorVal)\n" +  	               
-  	               "    return 'Nonediting Author';\n" + 
-  	               "  else if (reviewerVal)\n" +
-  	               "    return 'Reviewer';\n" +
-  	               "  else if (noneVal)\n" +
-  	               "    return 'None';\n" +
-  	               "  else if (contributorVal)\n" +
-  	               "    return 'Contributor';\n" +
-  	               "  else return 'Custom';\n" +
-  	               "}\n"
-  	);
-  			              	
-  	sBuffer.append("</script>");  	
-  	return sBuffer.toString();
+  // Getter methods for permission level arrays (for JSF access)
+  public String getOwnerLevelArray() {
+  	return permissionLevelManager.getDefaultOwnerPermissionLevel().toString();
   }
-  
+
+  public String getAuthorLevelArray() {
+  	return permissionLevelManager.getDefaultAuthorPermissionLevel().toString();
+  }
+
+  public String getNoneditingAuthorLevelArray() {
+  	return permissionLevelManager.getDefaultNoneditingAuthorPermissionLevel().toString();
+  }
+
+  public String getReviewerLevelArray() {
+  	return permissionLevelManager.getDefaultReviewerPermissionLevel().toString();
+  }
+
+  public String getNoneLevelArray() {
+  	return permissionLevelManager.getDefaultNonePermissionLevel().toString();
+  }
+
+  public String getContributorLevelArray() {
+  	return permissionLevelManager.getDefaultContributorPermissionLevel().toString();
+  }
+
   public void setObjectPermissions(Object target){
     if (permissions != null) {
       Area area = null;

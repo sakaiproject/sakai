@@ -1,6 +1,14 @@
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->
 <mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="#{ForumTool.collapsePermissionPanel}">
 <script>
+  // Permission level arrays injected via JSF
+  window.ownerLevelArray = <h:outputText value="#{ForumTool.ownerLevelArray}" escape="false"/>;
+  window.authorLevelArray = <h:outputText value="#{ForumTool.authorLevelArray}" escape="false"/>;
+  window.noneditingAuthorLevelArray = <h:outputText value="#{ForumTool.noneditingAuthorLevelArray}" escape="false"/>;
+  window.reviewerLevelArray = <h:outputText value="#{ForumTool.reviewerLevelArray}" escape="false"/>;
+  window.noneLevelArray = <h:outputText value="#{ForumTool.noneLevelArray}" escape="false"/>;
+  window.contributorLevelArray = <h:outputText value="#{ForumTool.contributorLevelArray}" escape="false"/>;
+
   setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   var isGradebookGroupEnabled = <h:outputText value="#{ForumTool.gradebookGroupEnabled}"/>;
 
