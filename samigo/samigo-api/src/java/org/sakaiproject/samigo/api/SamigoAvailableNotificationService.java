@@ -23,5 +23,7 @@ public interface SamigoAvailableNotificationService extends ScheduledInvocationC
 
     void scheduleAssessmentAvailableNotification(String publishedId);
 
+    void scheduleAssessmentAvailableNotification(String publishedId, String prePopulateTextFormatted);
+
     void removeScheduledAssessmentNotification(String publishedId);
 }
