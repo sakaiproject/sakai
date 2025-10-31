@@ -63,6 +63,7 @@ import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -81,7 +82,7 @@ import org.sakaiproject.util.api.FormattedText;
  *
  */
 @Slf4j
-public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
+public class ChatEntityProducer implements EntityProducer, EntityTransferrer, HardDeleteAware {
    
    @Setter @Getter private EntityManager entityManager;
    @Setter @Getter private ChatManager chatManager;
@@ -695,6 +696,12 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
         }
 
         return transferCopyEntities(fromContext, toContext, ids, transferOptions);
+    }
+
+    @Override
+    public void hardDelete(String siteId) {
+        Streams.failableStream(chatManager.getContextChannels(siteId, true))
+            .forEach(chatManager::deleteChannel);
     }
    
    /**
