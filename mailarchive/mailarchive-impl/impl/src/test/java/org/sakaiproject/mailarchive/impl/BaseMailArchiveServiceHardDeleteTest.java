@@ -134,7 +134,7 @@ public class BaseMailArchiveServiceHardDeleteTest
                 }
 
                 @Override
-                protected void removeChannel(MessageChannelEdit edit)
+                public void removeChannel(MessageChannelEdit edit)
                 {
                         removed.add(edit);
                 }

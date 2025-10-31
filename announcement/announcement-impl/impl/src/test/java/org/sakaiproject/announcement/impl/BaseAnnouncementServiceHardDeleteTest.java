@@ -153,7 +153,7 @@ public class BaseAnnouncementServiceHardDeleteTest
                 }
 
                 @Override
-                protected void removeChannel(MessageChannelEdit edit)
+                public void removeChannel(MessageChannelEdit edit)
                 {
                         removed.add(edit);
                 }
