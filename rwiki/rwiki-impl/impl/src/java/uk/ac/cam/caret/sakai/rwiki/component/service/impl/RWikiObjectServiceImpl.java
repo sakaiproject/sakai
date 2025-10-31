@@ -42,12 +42,13 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -107,7 +108,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 // FIXME: Component
 @Slf4j
-public class RWikiObjectServiceImpl implements RWikiObjectService
+public class RWikiObjectServiceImpl implements RWikiObjectService, HardDeleteAware
 {
 
 	private RWikiCurrentObjectDao cdao;
@@ -149,7 +150,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean autoDdl = false;
 
-	private AliasService aliasService;
+        private AliasService aliasService;
+
+        private SqlService sqlService;
 
 	private UserDirectoryService userDirectoryService;
 	
@@ -187,8 +190,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				ThreadLocalManager.class.getName());
 		timeService = (TimeService) load(cm, TimeService.class.getName());
 		digestService = (DigestService) load(cm, DigestService.class.getName());
-		securityService = (SecurityService) load(cm, SecurityService.class
-				.getName());
+                securityService = (SecurityService) load(cm, SecurityService.class
+                                .getName());
+                sqlService = (SqlService) load(cm, SqlService.class.getName());
 		wikiSecurityService = (RWikiSecurityService) load(cm,
 				RWikiSecurityService.class.getName());
 		renderService = (RenderService) load(cm, RenderService.class.getName());
@@ -221,18 +225,18 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		}
 		
 		
-		try
-		{
-			if (autoDdl)
-			{
-				SqlService.getInstance().ddl(this.getClass().getClassLoader(),
-						"sakai_rwiki");
-			}
-		}
-		catch (Exception ex)
-		{
-			log.error("Perform additional SQL setup", ex);
-		}
+                try
+                {
+                        if (autoDdl && sqlService != null)
+                        {
+                                sqlService.ddl(this.getClass().getClassLoader(),
+                                                "sakai_rwiki");
+                        }
+                }
+                catch (Exception ex)
+                {
+                        log.error("Perform additional SQL setup", ex);
+                }
 		
 		trackReads = ServerConfigurationService.getBoolean("wiki.trackreads", true);
 		maxReferencesStringSize = ServerConfigurationService.getInt("wiki.maxReferences",4000);
@@ -1756,11 +1760,163 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 * 
 	 * @param context
 	 */
-	private void disableWiki(String context)
-	{
+        private void disableWiki(String context)
+        {
 
-		// ? we are not going to delete the content, so do nothing 
-	}
+                // ? we are not going to delete the content, so do nothing
+        }
+
+        @Override
+        public void hardDelete(String siteId)
+        {
+                if (StringUtils.isBlank(siteId))
+                {
+                        log.debug("hardDelete called with empty siteId"); //$NON-NLS-1$
+                        return;
+                }
+
+                if (cdao == null || hdao == null)
+                {
+                        log.warn("hardDelete invoked before DAOs initialised for site {}", siteId); //$NON-NLS-1$
+                        return;
+                }
+
+                String siteSpace = "/site/" + siteId; //$NON-NLS-1$
+                List pages = cdao.findRWikiSubPages(siteSpace);
+                if (pages == null || pages.isEmpty())
+                {
+                        return;
+                }
+
+                List<PageRecord> records = new ArrayList<PageRecord>();
+                for (Iterator i = pages.iterator(); i.hasNext();)
+                {
+                        RWikiObject page = (RWikiObject) i.next();
+                        if (page == null || page.getId() == null)
+                        {
+                                continue;
+                        }
+                        List<String> historyIds = new ArrayList<String>();
+                        List histories = hdao.findRWikiHistoryObjects(page);
+                        if (histories != null)
+                        {
+                                for (Iterator h = histories.iterator(); h.hasNext();)
+                                {
+                                        RWikiHistoryObject history = (RWikiHistoryObject) h.next();
+                                        if (history != null && history.getId() != null)
+                                        {
+                                                historyIds.add(history.getId());
+                                        }
+                                }
+                        }
+                        records.add(new PageRecord(page.getId(), page.getName(), historyIds));
+                }
+
+                if (records.isEmpty())
+                {
+                        return;
+                }
+
+                Runnable purge = new Runnable()
+                {
+                        public void run()
+                        {
+                                for (PageRecord record : records)
+                                {
+                                        deleteHistoryForRecord(record);
+                                        deleteCurrentForRecord(record);
+                                }
+                        }
+                };
+
+                if (sqlService != null)
+                {
+                        sqlService.transact(purge, "rwiki hard delete " + siteId); //$NON-NLS-1$
+                }
+                else
+                {
+                        log.warn("SqlService not available during wiki hard delete for site {}", siteId); //$NON-NLS-1$
+                        purge.run();
+                }
+
+                if (aliasService != null)
+                {
+                        for (PageRecord record : records)
+                        {
+                                if (record.name == null)
+                                {
+                                        continue;
+                                }
+                                String reference = createReference(record.name);
+                                try
+                                {
+                                        aliasService.removeTargetAliases(reference);
+                                }
+                                catch (PermissionException e)
+                                {
+                                        log.warn("Unable to remove wiki alias {} during hard delete for site {}", reference, siteId, e); //$NON-NLS-1$
+                                }
+                        }
+                }
+        }
+
+        private void deleteHistoryForRecord(PageRecord record)
+        {
+                for (Iterator i = record.historyIds.iterator(); i.hasNext();)
+                {
+                        String historyId = (String) i.next();
+                        executeSql("delete from rwikihistorycontent where rwikiid = ?", historyId); //$NON-NLS-1$
+                        executeSql("delete from rwikihistory where id = ?", historyId); //$NON-NLS-1$
+                }
+                executeSql("delete from rwikihistorycontent where rwikiid in (select id from rwikihistory where rwikiobjectid = ?)", record.id); //$NON-NLS-1$
+                executeSql("delete from rwikihistory where rwikiobjectid = ?", record.id); //$NON-NLS-1$
+        }
+
+        private void deleteCurrentForRecord(PageRecord record)
+        {
+                executeSql("delete from rwikicurrentcontent where rwikiid = ?", record.id); //$NON-NLS-1$
+                executeSql("delete from rwikipagegroups where rwikiobjectid = ?", record.id); //$NON-NLS-1$
+                executeSql("delete from rwikiobject where id = ?", record.id); //$NON-NLS-1$
+        }
+
+        private void executeSql(String statement, Object... parameters)
+        {
+                if (sqlService == null)
+                {
+                        return;
+                }
+                try
+                {
+                        if (parameters == null || parameters.length == 0)
+                        {
+                                sqlService.dbWrite(statement);
+                        }
+                        else
+                        {
+                                sqlService.dbWrite(statement, parameters);
+                        }
+                }
+                catch (RuntimeException e)
+                {
+                        log.warn("Failed executing wiki hard delete statement {}", statement, e); //$NON-NLS-1$
+                }
+        }
+
+        private static final class PageRecord
+        {
+                private final String id;
+
+                private final String name;
+
+                private final List<String> historyIds;
+
+                PageRecord(String id, String name, List<String> historyIds)
+                {
+                        this.id = id;
+                        this.name = name;
+                        this.historyIds = historyIds;
+                }
+        }
 
 	/**
 	 * Enable the tool in the site
@@ -1855,10 +2011,20 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/**
 	 * @param aliasService the aliasService to set
 	 */
-	public void setAliasService(AliasService aliasService)
-	{
-		this.aliasService = aliasService;
-	}
+        public void setAliasService(AliasService aliasService)
+        {
+                this.aliasService = aliasService;
+        }
+
+        public SqlService getSqlService()
+        {
+                return sqlService;
+        }
+
+        public void setSqlService(SqlService sqlService)
+        {
+                this.sqlService = sqlService;
+        }
 	
 	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup)
 	{	
