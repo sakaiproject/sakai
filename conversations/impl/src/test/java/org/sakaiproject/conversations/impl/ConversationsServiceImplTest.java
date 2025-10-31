@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.sakaiproject.conversations.api.model.ConversationsPost;
 import org.sakaiproject.conversations.api.model.ConversationsTopic;
@@ -51,7 +51,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-class ConversationsServiceImplTest {
+public class ConversationsServiceImplTest {
 
     private static final String SITE_ID = "site-id";
     private static final String TOPIC_ID = "topic-id";
@@ -72,8 +72,8 @@ class ConversationsServiceImplTest {
     private EventTrackingService eventTrackingService;
     private Cache<String, Map<String, Map<String, Object>>> postsCache;
 
-    @BeforeEach
-    void setUp() {
+    @Before
+    public void setUp() {
         service = new ConversationsServiceImpl();
 
         topicRepository = Mockito.mock(ConversationsTopicRepository.class);
@@ -111,15 +111,15 @@ class ConversationsServiceImplTest {
         when(eventTrackingService.newEvent(anyString(), anyString(), anyString(), anyBoolean(), anyInt())).thenReturn(event);
     }
 
-    @AfterEach
-    void tearDown() {
+    @After
+    public void tearDown() {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.clearSynchronization();
         }
     }
 
     @Test
-    void hardDeleteRemovesTopicsAndRelatedData() {
+    public void hardDeleteRemovesTopicsAndRelatedData() {
         ConversationsTopic topic = new ConversationsTopic();
         topic.setId(TOPIC_ID);
         topic.setSiteId(SITE_ID);
