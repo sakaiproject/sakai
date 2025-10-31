@@ -121,6 +121,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.HardDeleteAware;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -141,7 +142,7 @@ import javax.persistence.PersistenceException;
 @Slf4j
 @Setter
 @Transactional
-public class ConversationsServiceImpl implements ConversationsService, EntityTransferrer, Observer {
+public class ConversationsServiceImpl implements ConversationsService, EntityTransferrer, Observer, HardDeleteAware {
 
     private AuthzGroupService authzGroupService;
 
@@ -2681,6 +2682,18 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
 
         return transferCopyEntities(fromContext, toContext, ids, transferOptions);
+    }
+
+    @Override
+    public void hardDelete(String siteId) {
+
+        topicRepository.findBySiteId(siteId).forEach(topic -> {
+            try {
+                deleteTopic(topic.getId());
+            } catch (ConversationsPermissionsException cpe) {
+                log.warn("No permission to hard delete topic {} in site {}", topic.getId(), siteId);
+            }
+        });
     }
 
     @Override
