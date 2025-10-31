@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title><h:outputText value="#{samLiteMessages.samlite_title}" /></title>
+            <h:outputScript>
+//<![CDATA[
+function toggleLayer(layerId) {
+  var el = document.getElementById(layerId);
+  if (!el) return;
+  el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+}
+//]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody container-fluid">
+                <h:form id="samLiteEntryForm">
+                    <ui:include src="/jsf/author/allHeadings.xhtml" />
+                    <h3><h:outputText value="#{samLiteMessages.samlite_title}"/></h3>
+                    <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+                    <p/>
+                    <h4><h:outputText value="#{samLiteMessages.samlite_step_1_of_2}"/></h4>
+                    <p/>
+                    <div class="instructions"><h:outputText value="#{samLiteMessages.samlite_instructions}"/></div>
+                    <p/>
+                    <div><h4><h:outputText value="#{samLiteMessages.samlite_infogroup}"/></h4></div>
+                    <br/>
+                    <div class="form-group row">
+                        <h:outputLabel for="name" value="#{samLiteMessages.samlite_name}" styleClass="form-label col-md-2"/>
+                        <div class="col-md-8">
+                            <h:inputText id="name" value="#{samLiteBean.name}" size="50" styleClass="form-control"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <h:outputLabel for="description" value="#{samLiteMessages.samlite_description}" styleClass="form-label col-md-2"/>
+                        <div class="col-md-8">
+                            <h:inputTextarea id="description" value="#{samLiteBean.description}" rows="2" cols="40" styleClass="form-control"/>
+                        </div>
+                    </div>
+
+                    <p/>
+                    <div class="navIntraTool"><strong><h:outputText value="#{samLiteMessages.samlite_textgroup}"/></strong></div>
+                    <br/>
+                    <div class="instructions"><h:outputText value="#{samLiteMessages.samlite_textgroup_instructions}"/></div>
+                    <p/>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div>
+                                <h:commandButton value="#{samLiteMessages.samlite_cancel}" type="submit" action="author" immediate="true"/>
+                                <h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active" action="#{samLiteBean.getOutcome}">
+                                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.ParserListener" />
+                                </h:commandButton>
+                            </div>
+
+                            <h:panelGroup layout="block" styleClass="toggle_link_container_for_richtextarea" rendered="#{!samLiteBean.richTextarea}">
+                                <a class="toggle_link" id="samLiteEntryForm:data_toggle" href="javascript:pre_show_editor()">
+                                    <h:outputText value="#{samLiteMessages.rich_text_label}"/>
+                                </a>
+                            </h:panelGroup>
+                            <h:inputHidden value="#{samLiteBean.samigoFrameId}" id="data_textinput_current_status"/>
+                            <h:inputHidden value="#{samLiteBean.data}" id="data_value"/>
+                            <h:inputTextarea id="data" value="#{samLiteBean.data}" rows="15" cols="75" />
+
+                            <div>
+                                <h:commandButton value="#{samLiteMessages.samlite_cancel}" type="submit" action="author" immediate="true"/>
+                                <h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active" action="#{samLiteBean.getOutcome}">
+                                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.ParserListener" />
+                                </h:commandButton>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="samLiteEntryForm:data_richtextfield">
+                                <h:outputLabel for="data2" value="#{samLiteMessages.samlite_question_editor}"/>
+                                <h:inputHidden value="#{samLiteBean.samigoId}" id="data2_question"/>
+                                <h:inputHidden value="#{samLiteBean.samigoFrameId}" id="data2_textinput_current_status"/>
+                                <h:inputHidden value="#{samLiteBean.data}" id="data2_value"/>
+                                <h:inputTextarea id="data2" value="#{samLiteBean.data}" rows="15" cols="75" />
+                            </div>
+                        </div>
+                    </div>
+
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>
+

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title><h:outputText value="#{samLiteMessages.samlite_title}" /></title>
+            <style>
+                .list-column { vertical-align: top; }
+            </style>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <div class="portletBody">
+                <h:form id="samLiteEntryValidation">
+                    <ui:include src="/jsf/author/allHeadings.xhtml" />
+                    <h3><h:outputText value="#{samLiteMessages.samlite_validation_title}"/></h3>
+                    <p/>
+                    <h4><h:outputText value="#{samLiteMessages.samlite_step_2_of_2}"/></h4>
+                    <p/>
+                    <div class="instructions"><h:outputText value="#{samLiteMessages.samlite_validation_instructions}"/></div>
+                    <p/>
+                    <div class="table">
+                        <h:dataTable id="questions"
+                            styleClass="table table-hover table-striped table-bordered"
+                            columnClasses="list-column,list-column,list-column,list-column,list-column,list-column,list-column"
+                            width="100%" value="#{samLiteBean.questions}" var="question">
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="#{samLiteMessages.samlite_number}" /></f:facet>
+                                <h:outputText value="#{question.questionNumber}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="#{samLiteMessages.samlite_question}" /></f:facet>
+                                <h:outputText value="#{question.question}" escape="false" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="#{samLiteMessages.samlite_type}" /></f:facet>
+                                <h:outputText value="#{question.questionTypeAsString}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="#{samLiteMessages.samlite_points}" /></f:facet>
+                                <h:outputText value="#{question.questionPoints}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="#{samLiteMessages.samlite_discount}" /></f:facet>
+                                <h:outputText value="#{question.questionDiscount}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="#{samLiteMessages.samlite_answers}" /></f:facet>
+                                <h:dataTable value="#{question.answers}" var="answer" rendered="#{question.questionType == 10}">
+                                    <h:column>
+                                        <h:outputText id="image1" rendered="#{answer.correct}" styleClass="fa fa-fw fa-check-square" title="#{answer.correct}" />
+                                        <h:outputText id="image2" rendered="#{!answer.correct}" styleClass="fa fa-fw fa-square-o" title="#{samLiteMessages.not_correct}" />
+                                        <h:outputText value="#{answer.id}. #{answer.text}" escape="false" />
+                                    </h:column>
+                                </h:dataTable>
+                                <h:dataTable value="#{question.answers}" var="answer" rendered="#{question.questionType == 15}">
+                                    <h:column>
+                                        <h:outputText id="image1" rendered="#{answer.correct}" styleClass="fa fa-fw fa-check-square" title="#{answer.correct}" />
+                                        <h:outputText id="image2" rendered="#{!answer.correct}" styleClass="fa fa-fw fa-square-o" title="#{samLiteMessages.not_correct}" />
+                                        <h:outputText value="#{answer.id}. #{answer.text}" escape="false"/>
+                                    </h:column>
+                                </h:dataTable>
+                                <h:outputText value="#{question.correctAnswer}" rendered="#{question.questionType == 20}" />
+                                <h:dataTable value="#{question.answers}" var="answer" rendered="#{question.questionType == 30}">
+                                    <h:column>
+                                        <h:outputText id="image1" rendered="#{answer.correct}" styleClass="fa fa-fw fa-check-square" title="#{answer.correct}" />
+                                        <h:outputText id="image2" rendered="#{!answer.correct}" styleClass="fa fa-fw fa-square-o" title="#{samLiteMessages.not_correct}" />
+                                        <h:outputText value="#{answer.text}" />
+                                    </h:column>
+                                </h:dataTable>
+                                <h:outputText value="#{question.correctAnswer}" rendered="#{question.questionType == 40}" />
+                                <h:dataTable value="#{question.answers}" var="answer" rendered="#{question.questionType == 50}">
+                                    <h:column>
+                                        <h:outputText value="#{answer.id}. #{answer.text}" escape="false" />
+                                    </h:column>
+                                </h:dataTable>
+                                <h:outputText value="#{question.correctAnswer}" rendered="#{question.questionType == 60}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="#{samLiteMessages.samlite_feedback}" /></f:facet>
+                                <h:panelGroup rendered="#{question.feedbackOK != null}">
+                                    <b><h:outputText value="#{samLiteMessages.samlite_feedbackOK}:" /></b><br />
+                                    <h:outputText value="#{question.feedbackOK}" escape="false"/>
+                                    <br />
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{question.feedbackNOK != null}">
+                                    <b><h:outputText value="#{samLiteMessages.samlite_feedbackNOK}:" /></b><br />
+                                    <h:outputText value="#{question.feedbackNOK}" escape="false"/>
+                                </h:panelGroup>
+                            </h:column>
+                        </h:dataTable>
+                    </div>
+                    <p/>
+                    <div class="act">
+                        <h:commandButton value="#{samLiteMessages.samlite_back}" type="submit" action="samLiteEntry" immediate="true"/>
+                        <h:commandButton value="#{samLiteMessages.samlite_assessment}" type="submit" styleClass="active" action="author">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.AssessmentListener" />
+                        </h:commandButton>
+                        <h:commandButton value="#{samLiteMessages.samlite_questionpool}" type="submit" styleClass="active" action="poolList">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.QuestionPoolListener" />
+                        </h:commandButton>
+                    </div>
+                </h:form>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>
+

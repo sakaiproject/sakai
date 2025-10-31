@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+    <div class="table">
+
+        <h:panelGroup id="text_searched_results" rendered="#{not empty searchQuestionBean.textToSearch}">
+            <h3><h:outputLabel value="#{authorMessages.results_text}" /></h3>
+        </h:panelGroup>
+
+        <h:panelGroup id="tags_searched_results" rendered="#{not empty searchQuestionBean.tagToSearchLabel}">
+            <h3><h:outputLabel value="#{authorMessages.results_tag}"/></h3>
+        </h:panelGroup>
+        <div class="col-xs-12 col-sm-12 col-md-12 instruction"><h:outputText value="#{authorMessages.preview_tip}" /></div>
+
+        <h:outputScript target="body">
+//<![CDATA[
+$(function() {
+  $('a.uimodal').on('click', function() {
+    var href = $(this).attr('href');
+    var title = $(this).attr('title');
+    var loading = $(this).attr('loading');
+    $('<div id=QuestionPreview>').html(loading).dialog({
+      modal: true,
+      open: function () {
+        $.get(href).done(function(data){
+          $("#QuestionPreview").html(data);
+        });
+      },
+      close: function () {
+        $(this).empty().dialog('destroy');
+      },
+      height: 350,
+      width: 540,
+      title: title
+    });
+    return false;
+  });
+});
+//]]>
+        </h:outputScript>
+
+        <t:dataTable value="#{searchQuestionBean.results.entrySet().toArray()}" var="item_search_result" styleClass="table table-striped tablesorter" id="searchquestions-questions" rowIndexVar="row">
+
+            <h:column>
+                <f:facet name="header">
+                    <h:panelGroup>
+                        <h:outputText value="" />
+                    </h:panelGroup>
+                </f:facet>
+
+                <h:outputLink styleClass="uimodal"
+                              value="#{'/portal/tool/'
+                                .concat(requestScope['sakai.tool.placement.id'])
+                                .concat('/jsf/author/searchPreview.xhtml?idString=')
+                                .concat(item_search_result.value.idString)
+                                .concat('&amp;typeId=')
+                                .concat(item_search_result.value.typeId)}"
+                              title="#{authorMessages.preview}">
+                    <f:passThroughAttribute name="loading" value="#{authorMessages.loading}" />
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                </h:outputLink>
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">
+                    <h:panelGroup>
+                        <h:outputText value="#{questionPoolMessages.q_type}" />
+                    </h:panelGroup>
+                </f:facet>
+                <h:outputText rendered="#{item_search_result.value.typeId== '1'}" value="#{authorMessages.multiple_choice_type}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '2'}" value="#{authorMessages.multiple_choice_type}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '3'}" value="#{authorMessages.multiple_choice_surv}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '4'}" value="#{authorMessages.true_false}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '5'}" value="#{authorMessages.short_answer_essay}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '6'}" value="#{authorMessages.file_upload}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '7'}" value="#{authorMessages.audio_recording}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '8'}" value="#{authorMessages.fill_in_the_blank}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '9'}" value="#{authorMessages.matching}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '11'}" value="#{authorMessages.fill_in_numeric}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '12'}" value="#{authorMessages.multiple_choice_type}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '14'}" value="#{authorMessages.extended_matching_items}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '13'}" value="#{authorMessages.matrix_choice_surv}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '15'}" value="#{authorMessages.calculated_question}"/>
+                <h:outputText rendered="#{item_search_result.value.typeId== '16'}" value="#{authorMessages.image_map_question}"/>
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">
+                    <h:panelGroup>
+                        <h:outputText value="#{questionPoolMessages.q_text}" />
+                    </h:panelGroup>
+                </f:facet>
+                <h:outputText escape="false" value="#{row + 1} : #{item_search_result.value.qText}" />
+            </h:column>
+
+            <h:column rendered="#{searchQuestionBean.showTags == 'true'}" >
+                <f:facet name="header">
+                    <h:panelGroup>
+                        <h:outputText value="#{questionPoolMessages.t_tags}" />
+                    </h:panelGroup>
+                </f:facet>
+                <t:dataList value="#{item_search_result.value.tagSet.toArray()}" var="tag" layout="unorderedList">
+                    <span><h:outputText value="#{tag}"/></span><br/>
+                </t:dataList>
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">
+                    <h:panelGroup>
+                        <h:outputText value="#{authorMessages.origin}" />
+                    </h:panelGroup>
+                </f:facet>
+                <t:dataList value="#{item_search_result.value.origin}" var="origin">
+                    <span><h:outputText value="#{origin}"/></span><br/>
+                </t:dataList>
+            </h:column>
+
+            <h:column id="colimport" >
+                <f:facet name="header">
+                    <h:panelGroup>
+                        <h:outputText value="#{questionPoolMessages.impToAuthor} "/>
+                        <h:outputText value="#{questionPoolMessages.select_all}"/>&#160;
+                        <h:selectBooleanCheckbox id="importSelectAllCheck" onclick="toggleCheckboxes(this,'importCheckbox');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));" />
+                    </h:panelGroup>
+                </f:facet>
+                <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{searchQuestionBean.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));">
+                    <f:selectItem itemValue="#{item_search_result.value.idString}" itemLabel=""/>
+                </h:selectManyCheckbox>
+            </h:column>
+
+        </t:dataTable>
+    </div>
+
+</ui:composition>

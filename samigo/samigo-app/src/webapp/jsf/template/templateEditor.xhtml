@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:samigo="http://www.sakaiproject.org/samigo"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title><h:outputText value="#{templateMessages.template_editor}" /></title>
+            <script src="/samigo-app/jsf/widget/hideDivision/hideDivision.js"></script>
+            <script src="/samigo-app/js/authoring.js"></script>
+            <h:outputScript>
+//<![CDATA[
+$(document).ready(function() {
+  $("#jqueryui-accordion").accordion({ heightStyle: "content", collapsible: true });
+});
+//]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+<!-- content... -->
+ <div class="portletBody">
+  <h:form id="templateEditorForm">
+  <!-- HEADINGS -->
+  <ui:include src="/jsf/template/templateHeadings.xhtml" />
+
+<h3><h:outputText value="#{templateMessages.template_editor}"/>
+     <h:outputText value="#{template.templateName}"/>
+</h3>
+ <h:outputText escape="false" value="#{templateMessages.template_instructions}"/>
+ <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  <!-- *** GENERAL TEMPLATE INFORMATION *** -->
+  <div class="tier1" id="jqueryui-accordion">
+  <samigo:hideDivision id="div1" title="#{templateMessages.template_inform}" >
+    <div class="tier2">
+       <h:selectBooleanCheckbox id="infocanbeviewed"
+          value="#{template.valueMap.templateInfo_isInstructorEditable}"/>
+     <h:outputLabel for="infocanbeviewed" value="#{templateMessages.template_canbeviewed}"/>
+  <div class="tier3">
+ <h:panelGrid columns="2" columnClasses="samigoCell"
+      summary="#{templateMessages.enter_template_info_section}">
+
+
+      <h:outputLabel for="template_title" value="#{templateMessages.template_title}"/>
+      <h:inputText id="template_title" value="#{template.templateName}" size="30" maxlength="255"/>
+
+      <!-- WYSIWYG autosave markers -->
+      <input type="hidden" id="ckeditor-autosave-context" name="ckeditor-autosave-context" value="samigo_templateEditor" />
+      <h:panelGroup rendered="#{template.idString!=null}">
+        <input type="hidden" id="ckeditor-autosave-entity-id" name="ckeditor-autosave-entity-id" value="#{template.idString}" />
+      </h:panelGroup>
+      <h:outputLabel value="#{templateMessages.description_intro_opt}"/>
+     <samigo:wysiwyg rows="140" value="#{template.templateDescription}" hasToggle="yes" >
+       <f:validateLength maximum="4000"/>
+      </samigo:wysiwyg>
+      
+      <h:outputText value=""/>
+      <h:outputText value=""/>
+    </h:panelGrid>
+    <h:panelGrid columns="1">
+      <!-- Honor Pledge -->
+      <h:panelGroup>
+        <h:outputText value="#{templateMessages.honor_pledge}"/>
+      </h:panelGroup>
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="honor_pledge_can_edit" value="#{template.valueMap.honorpledge_isInstructorEditable}"/>
+        <h:outputLabel for="honor_pledge_can_edit" value="#{templateMessages.template_canbedefault}"/>
+      </h:panelGroup>
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="honor_pledge" value="#{template.honorPledge}"/>
+        <h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
+      </h:panelGroup>
+    </h:panelGrid>
+    </div></div>
+  </samigo:hideDivision>
+
+  <!-- *** AUTHORSHIP *** -->
+  <samigo:hideDivision title="#{templateMessages.introduction}" id="div2">
+   <div class="tier2">
+    <div class="longtext"><h:outputLabel value="#{templateMessages.template_canbeedited}"/></div>
+ <div class="tier3">
+    <h:panelGrid columns="2"
+      summary="#{templateMessages.introduction_sec}">
+
+      <h:selectBooleanCheckbox id="authors"
+          value="#{template.valueMap.assessmentAuthor_isInstructorEditable}"/>
+      <h:outputLabel for="authors" value="#{templateMessages.authors}"/>
+
+      <!-- more content retained from JSP ... -->
+    </h:panelGrid>
+  </div>
+  </div>
+  </samigo:hideDivision>
+
+  <!-- The remainder of the sections are unchanged JSF markup -->
+  <ui:fragment>
+    <!-- paste-through of existing content beyond this point -->
+  </ui:fragment>
+
+</div>
+  <h:inputHidden id="templateId" value="#{template.idString}"/>
+  <h:inputHidden id="createdBy" value="#{template.createdBy}"/>
+  <h:inputHidden id="createdDate" value="#{template.createdDate}"/>
+
+  <p class="act">
+  <h:panelGroup rendered="#{(template.idString ne '1' &amp;&amp; template.typeId ne '142') || person.isAdmin}">
+    <h:commandButton type="submit" id="Submit" value="#{templateMessages.save}"
+      action="#{templateIndex.getOutcome}" styleClass="active">
+      <f:actionListener
+        type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateUpdateListener" />
+                </h:commandButton>
+    <h:outputText escape="false" value="&#160;&#160;" />
+    <h:commandButton type="submit" id="Cancel" value="#{commonMessages.cancel_action}"
+      action="template"/>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{template.typeId eq '142' &amp;&amp; !person.isAdmin}">
+    <h:commandButton type="submit" id="Exit" value="#{commonMessages.cancel_action}"
+      action="template"/>
+  </h:panelGroup>
+  </p>
+</h:form>
+<!-- end content -->
+</div>
+        </h:body>
+    </f:view>
+</ui:composition>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title><h:outputText value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}" /></title>
+            <h:outputScript>
+//<![CDATA[
+function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
+  if (document.getElementById('exportAssessmentForm:exportType:1').checked) {
+    window.open(qtiUrl, '_qti_export', 'toolbar=yes,menubar=yes,personalbar=no,width=600,height=500,scrollbars=yes,resizable=yes');
+  } else if (document.getElementById('exportAssessmentForm:exportType:0').checked) {
+    window.location = cpUrl;
+  } else if (e2mt === 'false') {
+    window.location = emtUrl;
+  } else if (confirm('#{authorImportExport.export_confirm}')) {
+    window.location = emtUrl;
+  }
+}
+//]]>
+            </h:outputScript>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+<div class="portletBody container-fluid">
+<!-- content... -->
+<h:form id="exportAssessmentForm">
+  <h:inputHidden id="assessmentBaseId" value="#{assessmentBean.assessmentId}" />
+  <h1>
+    <h:outputText value="#{authorImportExport.export_a}" escape="false" />
+    <small>
+      <h:outputText value="#{authorImportExport.dash} #{assessmentBean.title}" escape="false"/>
+    </small>
+  </h1>
+
+    <div class="form_label">
+      <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+      <p>
+        <h:outputText value="#{authorImportExport.choose_type_1}" />
+        <h:outputText value="&#160;" escape="false" />
+        <h:outputLink value="#" onclick="window.open('http://www.imsglobal.org/question/')" onkeypress="window.open('http://www.imsglobal.org/question/')">
+          <h:outputText value="#{authorImportExport.ims_qti}"/>
+        </h:outputLink>
+        <h:outputText value="&#160;" escape="false" />
+        <h:outputText value="," />
+        <h:outputText value="&#160;" escape="false" />
+        <h:outputLink value="#" onclick="window.open('http://www.imsglobal.org/content/packaging/')" onkeypress="window.open('http://www.imsglobal.org/content/packaging/')">
+          <h:outputText value="#{authorImportExport.ims_cp}"/>
+        </h:outputLink>
+        <h:outputText value=" #{authorImportExport.choose_type_2} " />
+        <h:outputText value="#{authorImportExport.markup_text}" />
+        <h:outputText value="#{authorImportExport.choose_type_3}" />
+        <h:outputText value="#{authorImportExport.markup_text_note}" />
+        <br />
+      </p>
+      <p><h:outputText value="#{authorImportExport.importExport_warningHeader}" escape="false" /></p>
+      <p class="sak-banner-warn"><h:outputText value="#{authorImportExport.importExport_warning1}" escape="false" /></p>
+      <p class="sak-banner-warn"><h:outputText value="#{authorImportExport.importExport_warning2}" escape="false" /></p>
+      <p class="sak-banner-warn"><h:outputText value="#{authorImportExport.cp_message}"/></p>
+    </div>
+    <h:panelGroup layout="block">
+     <h:outputLabel value="#{authorImportExport.choose_export_type}" for="exportType" />
+     <t:selectOneRadio id="exportType" layout="spread" value="2">
+       <f:selectItem itemLabel="#{authorImportExport.content_packaging}" itemValue="2"/>
+       <f:selectItem itemLabel="#{authorImportExport.qti12}" itemValue="1"/>
+       <f:selectItem itemLabel="#{authorImportExport.markup_text}" itemValue="3"/>
+     </t:selectOneRadio>
+     <h:panelGrid>
+        <t:radio renderLogicalId="true" for="exportType" index="0" />
+        <t:radio renderLogicalId="true" for="exportType" index="1" />
+        <t:radio renderLogicalId="true" for="exportType" index="2" />
+     </h:panelGrid>
+    </h:panelGroup>
+    <p class="act">
+     <h:commandButton value="#{authorImportExport.export}" type="submit"
+       styleClass="active"
+       onclick="getSelectedType( '/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}',
+       '/samigo-app/servlet/DownloadCP?&amp;assessmentId=#{assessmentBean.assessmentId}', 
+       '/samigo-app/servlet/ExportMarkupText?&amp;assessmentId=#{assessmentBean.assessmentId}', '#{!assessmentBean.exportable2MarkupText}'); return false;" />
+     <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
+       action="author" immediate="true"/>
+  </p>
+
+ </h:form>
+</div>
+        </h:body>
+    </f:view>
+</ui:composition>
+

@@ -339,6 +339,42 @@ public class XMLController implements Serializable {
     externalContext.setResponseHeader("Content-Disposition", "attachment; filename=exportPool.xml");
   }
 
+  public void prepareAssessmentExport()
+  {
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+    if (facesContext == null) {
+      return;
+    }
+    ExternalContext externalContext = facesContext.getExternalContext();
+    externalContext.setResponseHeader("Cache-Control", "private");
+    externalContext.setResponseHeader("Pragma", "cache");
+    externalContext.setResponseHeader("Content-Disposition", "attachment; filename=exportAssessment.xml");
+  }
+
+  public void preparePublishedExport()
+  {
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+    if (facesContext == null) {
+      return;
+    }
+    ExternalContext externalContext = facesContext.getExternalContext();
+    externalContext.setResponseHeader("Cache-Control", "private");
+    externalContext.setResponseHeader("Pragma", "cache");
+    externalContext.setResponseHeader("Content-Disposition", "attachment; filename=exportPublished.xml");
+  }
+
+  public void prepareTemplatesExport()
+  {
+    FacesContext facesContext = FacesContext.getCurrentInstance();
+    if (facesContext == null) {
+      return;
+    }
+    ExternalContext externalContext = facesContext.getExternalContext();
+    externalContext.setResponseHeader("Cache-Control", "private");
+    externalContext.setResponseHeader("Pragma", "cache");
+    externalContext.setResponseHeader("Content-Disposition", "attachment; filename=exportTemplates.xml");
+  }
+
 //  /**
 //   * derived property, uses String value of qtiVersion
 //   * @return String value of qtiVersion

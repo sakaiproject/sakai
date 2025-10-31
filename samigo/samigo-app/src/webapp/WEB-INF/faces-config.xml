@@ -327,7 +327,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>view</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <to-view-id>/jsf/test/stub.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>author</from-outcome>
@@ -424,23 +424,23 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>importAssessment</from-outcome>
-      <to-view-id>/jsf/qti/importAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/qti/importAssessment.xhtml</to-view-id>
     </navigation-case>
 	<navigation-case>
       <from-outcome>importAssessmentFromRespondus</from-outcome>
-      <to-view-id>/jsf/qti/importAssessmentFromRespondus.jsp</to-view-id>
+      <to-view-id>/jsf/qti/importAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>samLiteEntry</from-outcome>
-      <to-view-id>/jsf/samlite/samLiteEntry.jsp</to-view-id>
+      <to-view-id>/jsf/samlite/samLiteEntry.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>samLiteValidation</from-outcome>
-      <to-view-id>/jsf/samlite/samLiteValidation.jsp</to-view-id>
+      <to-view-id>/jsf/samlite/samLiteValidation.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>chooseExportType</from-outcome>
-      <to-view-id>/jsf/qti/chooseExportType.jsp</to-view-id>
+      <to-view-id>/jsf/qti/chooseExportType.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>choosePoolExportType</from-outcome>
@@ -488,7 +488,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>authorQuestions</from-outcome>
-      <to-view-id>/jsf/author/authorQuestions.jsp</to-view-id>
+      <to-view-id>/jsf/author/authorIndex_container.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>authorSettings</from-outcome>
@@ -496,7 +496,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>editPublishedAssessmentError</from-outcome>
-      <to-view-id>/jsf/author/editPublishedAssessmentError.jsp</to-view-id>
+      <to-view-id>/jsf/author/editPublishedAssessmentError.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmEditPublishedAssessment</from-outcome>
@@ -524,23 +524,23 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>addMatchItem</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <to-view-id>/jsf/test/stub.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>addMatchItemMatch</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <to-view-id>/jsf/test/stub.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>moveQuestionRemovePart</from-outcome>
-      <to-view-id>/jsf/assessment/editAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/editAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>myQuestions</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <to-view-id>/jsf/test/stub.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeAnswer</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <to-view-id>/jsf/test/stub.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeAssessment</from-outcome>
@@ -549,15 +549,15 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>removeMatchItem</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <to-view-id>/jsf/test/stub.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeMatchItemMatch</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <to-view-id>/jsf/test/stub.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeQuestionConfirm</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <to-view-id>/jsf/test/stub.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>saveSettings</from-outcome>
@@ -565,7 +565,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>saveSettingsAndConfirmPublish</from-outcome>
-      <to-view-id>/jsf/author/publishAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/publishAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>publishAssessment</from-outcome>
@@ -649,7 +649,7 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>searchQuestion</from-outcome>
-      <to-view-id>/jsf/author/searchQuestion.jsp</to-view-id>
+      <to-view-id>/jsf/author/searchQuestion.xhtml</to-view-id>
     </navigation-case>
 
   <!-- QUESTION POOL	 -->
@@ -738,41 +738,41 @@
     </navigation-case>
     <navigation-case>
       <from-outcome>debug</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <to-view-id>/jsf/test/stub.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>exit</from-outcome>
-      <to-view-id>/jsf/index/exit.jsp</to-view-id>
+      <to-view-id>/jsf/index/exit.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>index</from-outcome>
-      <to-view-id>/jsf/index/index.jsp</to-view-id>
+      <to-view-id>/jsf/index/index.xhtml</to-view-id>
     </navigation-case>
 
   <!-- TEMPLATE -->
     <navigation-case>
       <from-outcome>template</from-outcome>
-      <to-view-id>/jsf/template/templateIndex.jsp</to-view-id>
+      <to-view-id>/jsf/template/templateIndex.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>template1</from-outcome>
-      <to-view-id>/jsf/template/templateIndex1.jsp</to-view-id>
+      <to-view-id>/jsf/template/templateIndex.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>editTemplate</from-outcome>
-      <to-view-id>/jsf/template/templateEditor.jsp</to-view-id>
+      <to-view-id>/jsf/template/templateEditor.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>newTemplate</from-outcome>
-      <to-view-id>/jsf/template/templateEditor.jsp</to-view-id>
+      <to-view-id>/jsf/template/templateEditor.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmDeleteTemplate</from-outcome>
-      <to-view-id>/jsf/template/confirmTempRemove.jsp</to-view-id>
+      <to-view-id>/jsf/template/confirmTempRemove.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>deleteTemplate</from-outcome>
-      <to-view-id>/jsf/template/templateIndex.jsp</to-view-id>
+      <to-view-id>/jsf/template/templateIndex.xhtml</to-view-id>
     </navigation-case>
     
     <!-- EVENT LOG -->
@@ -826,7 +826,7 @@
     
     <navigation-case>
       <from-outcome>exportZip</from-outcome>
-      <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <to-view-id>/jsf/test/stub.xhtml</to-view-id>
     </navigation-case>
   	<navigation-case>
       <from-outcome>confirmRetake</from-outcome>
@@ -836,15 +836,15 @@
   <!-- XML -->
     <navigation-case>
       <from-outcome>xmlDisplay</from-outcome>
-      <to-view-id>/jsf/qti/xmlDisplay.jsp</to-view-id>
+      <to-view-id>/jsf/qti/xmlDisplay.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>xmlPublished</from-outcome>
-      <to-view-id>/jsf/qti/xmlPublished.jsp</to-view-id>
+      <to-view-id>/jsf/qti/xmlPublished.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>xmlTemplates</from-outcome>
-      <to-view-id>/jsf/qti/xmlTemplates.jsp</to-view-id>
+      <to-view-id>/jsf/qti/xmlTemplates.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
@@ -893,7 +893,7 @@
     <from-view-id>/jsf/author/item/fillInNumeric.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>FINSuccess</from-outcome>
-      <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <to-view-id>/jsf/author/editAssessment.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>FINFailure</from-outcome>
@@ -967,7 +967,7 @@
       <from-view-id>/jsf/upload/uploadFile.jsp</from-view-id>
       <navigation-case>
          <from-outcome>submit</from-outcome>
-         <to-view-id>/jsf/upload/closeWindow.jsp</to-view-id>
+         <to-view-id>/jsf/upload/closeWindow.xhtml</to-view-id>
       </navigation-case>
    </navigation-rule>
 
