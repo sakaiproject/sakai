@@ -414,6 +414,9 @@ public class CommonsManagerImpl implements CommonsManager, HardDeleteAware {
         Set<String> contextIds = new HashSet<>();
         contextIds.add(siteId);
 
+        boolean anyDeleteFailed = false;
+        List<String> failedDeletes = new ArrayList<>();
+
         try {
             List<Post> posts = persistenceManager.getAllPost(QueryBean.builder().siteId(siteId).build());
             if (posts != null) {
@@ -424,11 +427,32 @@ public class CommonsManagerImpl implements CommonsManager, HardDeleteAware {
                         if (commonsId != null && !commonsId.isEmpty()) {
                             contextIds.add(commonsId);
                         }
-                        persistenceManager.deletePost(post);
+                        try {
+                            boolean deleted = persistenceManager.deletePost(post);
+                            if (!deleted) {
+                                failedDeletes.add(String.format("postId=%s, siteId=%s, commonsId=%s, reason=%s",
+                                        post.getId(), siteId, commonsId, "deletePost returned false"));
+                            }
+                        } catch (Exception ex) {
+                            failedDeletes.add(String.format("postId=%s, siteId=%s, commonsId=%s, reason=%s",
+                                    post.getId(), siteId, commonsId, ex.toString()));
+                        }
                     });
             }
         } catch (Exception e) {
-            log.warn("Failed to hard delete Commons content for site {}", siteId, e);
+            // If we can't enumerate posts, treat as a failure and abort cache purge
+            failedDeletes.add(String.format("siteId=%s, reason=%s", siteId, "exception enumerating posts: " + e.toString()));
+        }
+
+        anyDeleteFailed = !failedDeletes.isEmpty();
+
+        if (anyDeleteFailed) {
+            // Log each failure with full context for diagnostics
+            failedDeletes.forEach(fd -> log.warn("Commons hardDelete: failed to delete {}", fd));
+            // Do NOT purge caches to avoid inconsistency
+            String summary = String.format("Commons hardDelete incomplete for site %s: %d delete(s) failed", siteId, failedDeletes.size());
+            log.warn(summary);
+            throw new RuntimeException(summary);
         }
 
         removeContextIdsFromCache(new ArrayList<>(contextIds));

@@ -2537,7 +2537,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				MessageChannelEdit edit = editChannel(ref);
 				removeChannel(edit);
 			} catch (IdUnusedException e1) {
-				log.warn("No AnnouncementChannel found for site: " + siteId);
+				log.warn("No AnnouncementChannel found for site: {}", siteId);
 			} catch (PermissionException e2) {
 				log.error("The current user does not have permission to access AnnouncementChannel for context: {}", siteId, e2);
 			} catch (InUseException e3) {

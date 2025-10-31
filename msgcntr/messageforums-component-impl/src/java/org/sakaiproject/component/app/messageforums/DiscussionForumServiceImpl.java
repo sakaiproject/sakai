@@ -1510,11 +1510,15 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						{
 							DiscussionForum dForum = (DiscussionForum) destForums.get(currForum);
 							// clean up all messages
-							List<DiscussionTopic> topics = dForum.getTopics();
-							if (topics != null) {
-								for (DiscussionTopic topic : topics) {
-									List<Message> messages = dfManager.getTopicByIdWithMessagesAndAttachments(topic.getId()).getMessages();
-									if (messages != null) {
+							// Avoid N+1 topic lookups by batch-loading topics with messages + attachments
+							List<DiscussionTopic> topicsWithData = dfManager.getTopicsByIdWithMessagesAndAttachments(dForum.getId());
+							if (topicsWithData != null && !topicsWithData.isEmpty()) {
+								for (DiscussionTopic topic : topicsWithData) {
+									if (topic == null) {
+										continue;
+									}
+									List<Message> messages = topic.getMessages();
+									if (messages != null && !messages.isEmpty()) {
 										for (Message message : messages) {
 											dfManager.deleteMessage(message);
 										}
@@ -1526,27 +1530,29 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						}
 					}
 					
-					// Clean up the area-level permissions before copying
-					Area toArea = areaManager.getDiscussionArea(toContext, false);
-					if (toArea != null) {
-						Set membershipItemSet = toArea.getMembershipItemSet();
-						if (membershipItemSet != null && !membershipItemSet.isEmpty()) {
-							// Clone the set to avoid ConcurrentModificationException
-							Set<DBMembershipItem> itemsToRemove = new HashSet<>(membershipItemSet);
-							for (DBMembershipItem item : itemsToRemove) {
-								toArea.removeMembershipItem(item);
-								// Simply remove the item from the area, no need to explicitly delete it
-								// The permissionManager doesn't have a deleteDBMembershipItem method
+						// Clean up the area-level permissions before copying
+						Area toArea = areaManager.getDiscussionArea(toContext, false);
+						if (toArea != null) {
+							Set<DBMembershipItem> membershipItemSet = toArea.getMembershipItemSet();
+							if (membershipItemSet != null && !membershipItemSet.isEmpty()) {
+								// Clone the set to avoid ConcurrentModificationException
+								Set<DBMembershipItem> itemsToRemove = new HashSet<>(membershipItemSet);
+								for (DBMembershipItem item : itemsToRemove) {
+									toArea.removeMembershipItem(item);
+									// Simply remove the item from the area, no need to explicitly delete it
+									// The permissionManager doesn't have a deleteDBMembershipItem method
+								}
+								areaManager.saveArea(toArea);
 							}
-							areaManager.saveArea(toArea);
 						}
 					}
+					catch (Exception e)
+					{
+						// Best-effort cleanup: proceed with copy even if cleanup fails
+						// Log full stack trace for troubleshooting instead of only the message
+						log.warn("could not remove existing forums during copy", e);
+					}
 				}
-				catch (Exception e)
-				{
-					log.warn("could not remove existing forums during copy: {}", e.toString());
-				}
-			}
 			
 			// Call the regular transferCopyEntities method to do the copying
 			transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, options));
@@ -1556,68 +1562,68 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			log.error("Forums transferCopyEntities with cleanup failed", e);
 		}
 		
-                return transversalMap;
-        }
+				return transversalMap;
+		}
 
-        @Override
-        public void hardDelete(String siteId)
-        {
-                if (StringUtils.isBlank(siteId))
-                {
-                        return;
-                }
+		@Override
+		public void hardDelete(String siteId)
+		{
+				if (StringUtils.isBlank(siteId))
+				{
+						return;
+				}
 
-                List<DiscussionForum> forums = dfManager.getDiscussionForumsByContextId(siteId);
-                if (forums != null && !forums.isEmpty())
-                {
-                        for (DiscussionForum forum : forums)
-                        {
-                                List<DiscussionTopic> topics = forum.getTopics();
-                                if (topics != null && !topics.isEmpty())
-                                {
-                                        for (DiscussionTopic topic : topics)
-                                        {
-                                                DiscussionTopic topicWithMessages = (DiscussionTopic) dfManager.getTopicByIdWithMessagesAndAttachments(topic.getId());
-                                                if (topicWithMessages != null)
-                                                {
-                                                        List<Message> messages = topicWithMessages.getMessages();
-                                                        if (messages != null && !messages.isEmpty())
-                                                        {
-                                                                for (Message message : messages)
-                                                                {
-                                                                        dfManager.deleteMessage(message);
-                                                                }
-                                                        }
-                                                }
-                                        }
-                                }
+				List<DiscussionForum> forums = dfManager.getDiscussionForumsByContextId(siteId);
+				if (forums != null && !forums.isEmpty())
+				{
+						for (DiscussionForum forum : forums)
+						{
+								List<DiscussionTopic> topics = forum.getTopics();
+								if (topics != null && !topics.isEmpty())
+								{
+										for (DiscussionTopic topic : topics)
+										{
+												DiscussionTopic topicWithMessages = dfManager.getTopicByIdWithMessagesAndAttachments(topic.getId());
+												if (topicWithMessages != null)
+												{
+														List<Message> messages = topicWithMessages.getMessages();
+														if (messages != null && !messages.isEmpty())
+														{
+																for (Message message : messages)
+																{
+																		dfManager.deleteMessage(message);
+																}
+														}
+												}
+										}
+								}
 
-                                forumManager.deleteDiscussionForum(forum);
-                        }
-                }
+								forumManager.deleteDiscussionForum(forum);
+						}
+				}
 
-                Area area = areaManager.getDiscussionArea(siteId, false);
-                if (area != null)
-                {
-                        Set<DBMembershipItem> membershipItemSet = area.getMembershipItemSet();
-                        if (membershipItemSet != null && !membershipItemSet.isEmpty())
-                        {
-                                Set<DBMembershipItem> itemsToRemove = new HashSet<>(membershipItemSet);
-                                for (DBMembershipItem item : itemsToRemove)
-                                {
-                                        area.removeMembershipItem(item);
-                                }
-                                areaManager.saveArea(area);
-                        }
-                }
-        }
+				Area area = areaManager.getDiscussionArea(siteId, false);
+				if (area != null)
+				{
+						Set<DBMembershipItem> membershipItemSet = area.getMembershipItemSet();
+						if (membershipItemSet != null && !membershipItemSet.isEmpty())
+						{
+								Set<DBMembershipItem> itemsToRemove = new HashSet<>(membershipItemSet);
+								for (DBMembershipItem item : itemsToRemove)
+								{
+										area.removeMembershipItem(item);
+								}
+								areaManager.saveArea(area);
+						}
+				}
+		}
 
-        /**
-         * {@inheritDoc}
-         */
-        public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
-                if(transversalMap != null && transversalMap.size() > 0){
-			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+		/**
+		 * {@inheritDoc}
+		 */
+		public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
+				if(transversalMap != null && transversalMap.size() > 0){
+					Set<Entry<String, String>> entrySet = transversalMap.entrySet();
 
 			List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
 			String currentUserId = sessionManager.getCurrentSessionUserId();

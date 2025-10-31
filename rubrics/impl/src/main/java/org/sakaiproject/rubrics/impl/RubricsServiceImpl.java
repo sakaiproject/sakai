@@ -1799,31 +1799,32 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer, Ha
     public void hardDelete(String siteId) {
 
         List<Rubric> rubrics = rubricRepository.findByOwnerId(siteId);
-        if (CollectionUtils.isEmpty(rubrics)) {
-            return;
+
+        // Only cascade-delete associations/evaluations tied to site-owned rubrics if any exist
+        if (!CollectionUtils.isEmpty(rubrics)) {
+            rubrics.forEach(rubric -> {
+                List<ToolItemRubricAssociation> associations = associationRepository.findByRubricId(rubric.getId());
+                if (!CollectionUtils.isEmpty(associations)) {
+                    associations.forEach(association -> {
+                        List<Evaluation> evaluations = evaluationRepository.findByAssociationId(association.getId());
+                        if (!CollectionUtils.isEmpty(evaluations)) {
+                            evaluations.forEach(evaluation -> returnedEvaluationRepository.deleteByOriginalEvaluationId(evaluation.getId()));
+                            evaluationRepository.deleteAll(evaluations);
+                        }
+                    });
+                    associationRepository.deleteAll(associations);
+                }
+            });
+            // Delete site-owned rubrics last
+            rubricRepository.deleteAll(rubrics);
         }
 
-        rubrics.forEach(rubric -> {
-            List<ToolItemRubricAssociation> associations = associationRepository.findByRubricId(rubric.getId());
-            if (!CollectionUtils.isEmpty(associations)) {
-                associations.forEach(association -> {
-                    List<Evaluation> evaluations = evaluationRepository.findByAssociationId(association.getId());
-                    if (!CollectionUtils.isEmpty(evaluations)) {
-                        evaluations.forEach(evaluation -> returnedEvaluationRepository.deleteByOriginalEvaluationId(evaluation.getId()));
-                        evaluationRepository.deleteAll(evaluations);
-                    }
-                });
-                associationRepository.deleteAll(associations);
-            }
-        });
-
+        // Always purge site-owned evaluations (may exist even if only shared rubrics are used)
         List<Evaluation> siteEvaluations = evaluationRepository.findByOwnerId(siteId);
         if (!CollectionUtils.isEmpty(siteEvaluations)) {
             siteEvaluations.forEach(evaluation -> returnedEvaluationRepository.deleteByOriginalEvaluationId(evaluation.getId()));
             evaluationRepository.deleteAll(siteEvaluations);
         }
-
-        rubricRepository.deleteAll(rubrics);
     }
 
     public void deleteSiteRubrics(String siteId) {

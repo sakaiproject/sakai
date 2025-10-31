@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -42,6 +43,16 @@ public class ChatEntityProducerTest {
         verify(chatManager).getContextChannels(SITE_ID, true);
         verify(chatManager).deleteChannel(channelOne);
         verify(chatManager).deleteChannel(channelTwo);
+        verifyNoMoreInteractions(chatManager);
+    }
+
+    @Test
+    public void hardDeleteWithEmptyChannelList() {
+        when(chatManager.getContextChannels(SITE_ID, true)).thenReturn(Collections.emptyList());
+
+        chatEntityProducer.hardDelete(SITE_ID);
+
+        verify(chatManager).getContextChannels(SITE_ID, true);
         verifyNoMoreInteractions(chatManager);
     }
 }

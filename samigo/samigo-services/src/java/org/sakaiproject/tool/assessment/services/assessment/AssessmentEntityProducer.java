@@ -450,7 +450,7 @@ public class AssessmentEntityProducer implements EntityTransferrer, EntityProduc
                         log.error("attempting to remove assessment data", e);
                 }
 
-                return transferCopyEntities(fromContext, toContext, ids, null);
+                return transferCopyEntities(fromContext, toContext, ids, options);
         }
 
     @Override

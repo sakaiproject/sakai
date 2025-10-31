@@ -439,6 +439,48 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
     }
 
     @Test
+    public void hardDeleteRemovesSiteEvaluationsWhenNoSiteRubrics() {
+
+        // Create a rubric owned by a different site (shared rubric scenario)
+        String sharedSiteId = "shared-site";
+        switchToInstructor(sharedSiteId);
+        RubricTransferBean sharedRubric = rubricsService.createDefaultRubric(sharedSiteId);
+
+        // Back to the target site as instructor
+        switchToInstructor();
+
+        String toolId = "sakai.assignment";
+        String toolItemId = "shared-item-1";
+
+        Map<String, String> params = new HashMap<>();
+        params.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        params.put(RubricsConstants.RBCS_LIST, sharedRubric.getId().toString());
+
+        Optional<ToolItemRubricAssociation> optAssoc = rubricsService.saveRubricAssociation(toolId, toolItemId, params);
+        assertTrue(optAssoc.isPresent());
+
+        // Save an evaluation against the shared rubric, owned by the target site
+        EvaluationTransferBean etb = buildEvaluation(optAssoc.get().getId(), sharedRubric, toolItemId);
+        etb.setStatus(EvaluationStatus.RETURNED);
+        etb = rubricsService.saveEvaluation(etb, siteId);
+        Long evaluationId = etb.getId();
+
+        // Sanity: the target site owns evaluations, but has no site rubrics
+        assertTrue(rubricRepository.findByOwnerId(siteId).isEmpty());
+        assertFalse(evaluationRepository.findByOwnerId(siteId).isEmpty());
+        assertTrue(returnedEvaluationRepository.findByOriginalEvaluationId(evaluationId).isPresent());
+
+        // Invoke hard delete; should still purge site evaluations and returned evaluations
+        HardDeleteAware hardDeleteAware = (HardDeleteAware) AopTestUtils.getTargetObject(rubricsService);
+        hardDeleteAware.hardDelete(siteId);
+
+        assertTrue("Site evaluations should be deleted", evaluationRepository.findByOwnerId(siteId).isEmpty());
+        assertFalse("Returned evaluation mirror should be removed", returnedEvaluationRepository.findByOriginalEvaluationId(evaluationId).isPresent());
+        // Site still has no rubrics (by design in this scenario)
+        assertTrue(rubricRepository.findByOwnerId(siteId).isEmpty());
+    }
+
+    @Test
     public void updateCriteria() {
 
         switchToInstructor();

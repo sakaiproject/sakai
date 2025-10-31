@@ -5840,6 +5840,53 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
                         log.warn("Unable to retrieve events for calendar {} during hard delete", calendarRef, e);
                 }
 
+                // Remove any aliases pointing at this calendar to avoid orphaned alias records.
+                // Prefer cascade deletion via AliasService.removeTargetAliases if available; otherwise, fall back to per-alias removal.
+                if (aliasService != null)
+                {
+                        String calRefForAliases = calendar.getReference();
+                        try
+                        {
+                                // Preferred approach: remove all aliases for this target in one call
+                                aliasService.removeTargetAliases(calRefForAliases);
+                        }
+                        catch (PermissionException e)
+                        {
+                                log.warn("Insufficient permission to remove aliases for calendar {}. Falling back to per-alias removal.", calRefForAliases, e);
+                                // Fallback: fetch aliases and remove individually
+                                try
+                                {
+                                        List<Alias> aliases = aliasService.getAliases(calRefForAliases);
+                                        if (aliases != null && !aliases.isEmpty())
+                                        {
+                                                for (Alias a : aliases)
+                                                {
+                                                        if (a == null)
+                                                        {
+                                                                continue;
+                                                        }
+                                                        try
+                                                        {
+                                                                aliasService.removeAlias(a.getId());
+                                                        }
+                                                        catch (IdUnusedException | PermissionException | InUseException ex)
+                                                        {
+                                                                log.warn("Unable to remove alias {} for calendar {} during hard delete", a.getId(), calRefForAliases, ex);
+                                                        }
+                                                }
+                                        }
+                                }
+                                catch (RuntimeException ex)
+                                {
+                                        log.warn("Unable to fetch aliases for calendar {} during hard delete", calRefForAliases, ex);
+                                }
+                        }
+                        catch (RuntimeException e)
+                        {
+                                log.warn("Failed cascading alias removal for calendar {}. Proceeding with calendar deletion.", calRefForAliases, e);
+                        }
+                }
+
                 try
                 {
                         removeCalendar(calendar);
@@ -5911,4 +5958,3 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return serverConfigurationService.getPortalUrl() + "/directtool/" + toolConfig.getId();
 	}
 }
-
