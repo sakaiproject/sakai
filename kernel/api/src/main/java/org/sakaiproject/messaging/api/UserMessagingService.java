@@ -65,6 +65,11 @@ public interface UserMessagingService {
     public List<UserNotification> getNotifications();
 
     /**
+     * @return whether the current user has any notifications
+     */
+    public boolean hasNotifications();
+
+    /**
      * Register a handler for broadcast messages. The first registered handler that
      * handles a given event will receive it exclusively.
      *

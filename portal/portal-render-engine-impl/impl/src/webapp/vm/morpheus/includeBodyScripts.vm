@@ -279,11 +279,16 @@ if ( ! (self == top) ) {
 
   // Listen for notifications-loaded on the body element. This is fired by the sui-notifications
   // component when it has an update to its list of notifications
-  document.body.addEventListener("notifications-loaded", e => {
-
+  const toggleNotificationIndicators = count => {
     document.body.querySelectorAll(".portal-notifications-indicator").forEach(span => {
-      span.classList.toggle("d-none", !e.detail.count);
+      span.classList.toggle("d-none", !count);
     });
+  };
+
+  toggleNotificationIndicators(window.portal?.hasNotifications ? 1 : 0);
+
+  document.body.addEventListener("notifications-loaded", e => {
+    toggleNotificationIndicators(e.detail.count);
   });
 </script>
 

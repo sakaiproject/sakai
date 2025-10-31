@@ -224,8 +224,9 @@ export const subscribeIfPermitted = reg => {
     return Promise.resolve(PUSH_PERMISSION_STATES.NOT_SUPPORTED);
   }
 
-  document.body?.querySelectorAll(".portal-notifications-indicator")
-    .forEach(el => el.classList.remove("d-none"));
+  // Do not toggle the portal notifications indicator here. The indicator should
+  // reflect actual unviewed notification count and is managed by portal scripts
+  // listening for the "notifications-loaded" event.
 
   return new Promise(resolve => {
 
