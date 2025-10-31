@@ -30,8 +30,8 @@ describe("sakai-notifications tests", () => {
       <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
     `);
 
-    await waitUntil(() => el._i18n);
-    await waitUntil(() => el.notifications?.length);
+    // Explicitly load notifications: component no longer auto-loads on connect
+    await el.loadNotifications({ force: true });
 
     await elementUpdated(el);
 
@@ -92,8 +92,8 @@ describe("sakai-notifications tests", () => {
       <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>
     `);
 
-    await waitUntil(() => el._i18n);
-    await waitUntil(() => el.notifications?.length);
+    // Explicitly load notifications: component no longer auto-loads on connect
+    await el.loadNotifications({ force: true });
     await waitUntil(() => el._filteredNotifications.get("asn")?.length);
 
     const decoratedTitle = el._filteredNotifications.get("asn")[0].title;

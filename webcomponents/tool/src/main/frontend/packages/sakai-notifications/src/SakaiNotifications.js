@@ -54,6 +54,8 @@ export class SakaiNotifications extends SakaiElement {
       };
     }
 
+    // Track online status and default sensibly for tests/headless environments
+    this._online = typeof navigator !== "undefined" && typeof navigator.onLine === "boolean" ? navigator.onLine : true;
     window.addEventListener("online", () => this._online = true );
 
     this.notifications = [];
