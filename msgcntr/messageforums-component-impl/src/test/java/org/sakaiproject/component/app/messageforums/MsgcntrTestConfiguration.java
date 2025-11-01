@@ -20,6 +20,7 @@ import org.hsqldb.jdbcDriver;
 import org.mockito.Mockito;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.api.common.type.TypeManager;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -75,6 +76,11 @@ import javax.sql.DataSource;
 import java.io.IOException;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 /**
  * Created by chmaurer on 11/29/20.
@@ -277,7 +283,35 @@ public class MsgcntrTestConfiguration {
 
     @Bean(name = "org.sakaiproject.api.common.type.TypeManager")
     public TypeManager typeManager() {
-        return mock(TypeManager.class);
+        Map<String, Type> typesByKey = new ConcurrentHashMap<>();
+        TypeManager tm = mock(TypeManager.class);
+
+        // createType(authority, domain, keyword, description, displayName)
+        when(tm.createType(anyString(), anyString(), anyString(), anyString(), anyString())).thenAnswer(inv -> {
+            String authority = inv.getArgument(0);
+            String domain = inv.getArgument(1);
+            String keyword = inv.getArgument(2);
+            String desc = inv.getArgument(3);
+            String display = inv.getArgument(4);
+            String key = authority + "|" + domain + "|" + keyword;
+            Type t = mock(Type.class);
+            String uuid = authority + ":" + domain + ":" + keyword;
+            when(t.getUuid()).thenReturn(uuid);
+            // Store by composite key for later retrieval via getType
+            typesByKey.put(key, t);
+            return t;
+        });
+
+        // getType(authority, domain, keyword)
+        when(tm.getType(anyString(), anyString(), anyString())).thenAnswer(inv -> {
+            String authority = inv.getArgument(0);
+            String domain = inv.getArgument(1);
+            String keyword = inv.getArgument(2);
+            String key = authority + "|" + domain + "|" + keyword;
+            return typesByKey.get(key);
+        });
+
+        return tm;
     }
 
     @Bean(name = "org.sakaiproject.db.api.SqlService")

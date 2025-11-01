@@ -1852,7 +1852,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService, HardDeleteAwa
                                 {
                                         aliasService.removeTargetAliases(reference);
                                 }
-                                catch (PermissionException e)
+                                catch (org.sakaiproject.exception.PermissionException e)
                                 {
                                         log.warn("Unable to remove wiki alias {} during hard delete for site {}", reference, siteId, e); //$NON-NLS-1$
                                 }

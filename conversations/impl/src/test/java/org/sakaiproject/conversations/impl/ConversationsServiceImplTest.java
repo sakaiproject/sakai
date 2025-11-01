@@ -46,7 +46,7 @@ import org.sakaiproject.conversations.api.repository.TopicStatusRepository;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.security.api.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;

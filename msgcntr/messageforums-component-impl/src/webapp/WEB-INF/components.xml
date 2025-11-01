@@ -491,6 +491,7 @@
          <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
          <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         </bean>
         
     <bean id="UpdateSynopticMessageCountsJob"

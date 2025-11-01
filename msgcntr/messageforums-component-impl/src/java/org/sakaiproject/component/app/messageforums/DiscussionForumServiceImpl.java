@@ -49,6 +49,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -1583,7 +1584,7 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 								{
 										for (DiscussionTopic topic : topics)
 										{
-												DiscussionTopic topicWithMessages = dfManager.getTopicByIdWithMessagesAndAttachments(topic.getId());
+												Topic topicWithMessages = dfManager.getTopicByIdWithMessagesAndAttachments(topic.getId());
 												if (topicWithMessages != null)
 												{
 														List<Message> messages = topicWithMessages.getMessages();
