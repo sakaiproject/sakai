@@ -260,7 +260,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		}
 		checkValidGradebook(siteId, gradebookUid);
 		checkInstructorOrTA(siteId);
-		return this.businessService.getAssignmentGradeComment(gradebookUid, courseGradeId, studentUuid);
+		return formattedText.escapeHtml(this.businessService.getAssignmentGradeComment(gradebookUid, courseGradeId, studentUuid));
 	}
 
 	private Set<String> getRecipients(Map<String, Object> params) {
