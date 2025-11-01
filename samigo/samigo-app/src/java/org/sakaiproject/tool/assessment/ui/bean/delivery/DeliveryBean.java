@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -2600,6 +2601,8 @@ public class DeliveryBean implements Serializable {
 		  StringBuilder redrawAnchorName = new StringBuilder("p");
 		  String tmpAnchorName = "";
 		  List<SectionContentsBean> parts = this.pageContents.getPartsContents();
+		  GradingService gradingService = new GradingService();
+		  HashSet<ItemGradingData> toDelete = new HashSet<>();
 
         for (SectionContentsBean part : parts) {
           String partSeq = part.getNumber();
@@ -2636,27 +2639,37 @@ public class DeliveryBean implements Serializable {
                 }
               }
 
-              List<ItemGradingData> itemGradingData = new ArrayList<>();
               for (ItemGradingData itemgrading : item.getItemGradingDataArray()) {
                 if (itemgrading.getItemGradingId() != null && itemgrading.getItemGradingId().intValue() > 0) {
-                  itemGradingData.add(itemgrading);
-                  itemgrading.setPublishedAnswerId(null);
+                  toDelete.add(itemgrading);
                 }
               }
-              item.setItemGradingDataArray(itemGradingData);
+              item.setItemGradingDataArray(new ArrayList<>());
             }
 
             if (item.getItemData().getTypeId().longValue() == TypeIfc.TRUE_FALSE.longValue()) {
               item.setResponseId(null);
-              item.getItemGradingDataArray().stream().findAny().ifPresent(d -> d.setPublishedAnswerId(null));
+              for (ItemGradingData itemgrading : item.getItemGradingDataArray()) {
+                  if (itemgrading.getItemGradingId() != null && itemgrading.getItemGradingId().intValue() > 0) {
+                      toDelete.add(itemgrading);
+                  }
+              }
+              item.setItemGradingDataArray(new ArrayList<>());
             }
             item.setReview(false);
             item.setRationale("");
-            
-            for (ItemGradingData itemgrading : item.getItemGradingDataArray()) {
-            	itemgrading.setAttemptDate(item.getAttemptDate());
-            }
+
           }
+        }
+
+        if (!toDelete.isEmpty()) {
+            gradingService.deleteAll(toDelete);
+            if (adata != null) {
+                Set<ItemGradingData> itemGradingSet = adata.getItemGradingSet();
+                if (itemGradingSet != null) {
+                    itemGradingSet.removeAll(toDelete);
+                }
+            }
         }
 
 		  syncTimeElapsedWithServer();
