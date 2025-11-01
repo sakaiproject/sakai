@@ -106,6 +106,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -208,7 +209,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Transactional(readOnly = true)
-public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, ContentExistsAware, ApplicationContextAware {
+public class AssignmentServiceImpl implements AssignmentService, EntityTransferrer, ContentExistsAware, ApplicationContextAware, HardDeleteAware {
 
 	@Setter private AnnouncementService announcementService;
     @Setter private ApplicationContext applicationContext;
@@ -5300,6 +5301,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     /**
      * Implementation of HardDeleteAware to allow content to be fully purged
      */
+    @Override
     public void hardDelete(String siteId) {
         log.info("Hard Delete  of Tool Assignments for context: {}", siteId);
 

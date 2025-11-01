@@ -53,7 +53,7 @@ public class BaseMailArchiveServiceHardDeleteTest
         @Mock private Message message;
 
         @Before
-        public void setUp()
+        public void setUp() throws Exception
         {
                 service = new TestMailArchiveService();
                 service.setAliasService(aliasService);
