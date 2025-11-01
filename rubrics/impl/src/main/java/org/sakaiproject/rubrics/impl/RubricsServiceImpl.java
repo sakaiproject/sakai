@@ -94,6 +94,7 @@ import org.sakaiproject.rubrics.api.repository.RatingRepository;
 import org.sakaiproject.rubrics.api.repository.ReturnedEvaluationRepository;
 import org.sakaiproject.rubrics.api.repository.RubricRepository;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.api.SessionManager;
@@ -345,9 +346,17 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer, Ha
         }
         if (StringUtils.isNotBlank(bean.getOwnerId())) {
             try {
-                bean.setSiteTitle(siteService.getSite(bean.getOwnerId()).getTitle());
+                Site site = siteService.getSite(bean.getOwnerId());
+                if (site != null) {
+                    bean.setSiteTitle(site.getTitle());
+                } else {
+                    // Fallback if SiteService returns null (e.g., in tests with loose mocks)
+                    bean.setSiteTitle(bean.getOwnerId());
+                }
             } catch (IdUnusedException iue) {
+                // Fallback to ownerId when site id is unused or unavailable
                 log.warn("Failed to set the siteTitle on rubric bean: {}", iue.toString());
+                bean.setSiteTitle(bean.getOwnerId());
             }
         }
         for (CriterionTransferBean criterion : bean.getCriteria()) {
@@ -1365,7 +1374,8 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer, Ha
         Paragraph paragraph = new Paragraph(resourceLoader.getFormattedMessage("export_rubric_title", rubric.getTitle() + "\n"), BOLD_FONT);
         paragraph.setAlignment(com.lowagie.text.Element.ALIGN_LEFT);
         try {
-            String siteTitle = siteService.getSite(rubric.getOwnerId()).getTitle();
+            Site site = siteService.getSite(rubric.getOwnerId());
+            String siteTitle = site != null ? site.getTitle() : rubric.getOwnerId();
             paragraph.add(resourceLoader.getFormattedMessage("export_rubric_site", siteTitle));
             paragraph.add(Chunk.NEWLINE);
         } catch (IdUnusedException ex) {
