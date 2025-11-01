@@ -78,7 +78,6 @@
     <jayway.jsonpath.version>2.9.0</jayway.jsonpath.version>
     <sakai.jakarta.jstl-api.version>1.2.5</sakai.jakarta.jstl-api.version>
     <sakai.genericdao.version>0.12.1</sakai.genericdao.version>
-    <reflectutils.version>0.9.21</reflectutils.version>
     <json.simple.version>1.1.1</json.simple.version>
     <handlebars4.version>4.4.0</handlebars4.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
