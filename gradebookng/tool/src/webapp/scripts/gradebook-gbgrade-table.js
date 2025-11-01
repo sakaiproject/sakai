@@ -2738,9 +2738,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
           $cell[0].dataset.assignmentId,
           $cell[0].dataset.studentId,
           function(comment) {
-            // success
-            $metadata.find("blockquote").html(comment).show();
-            $metadata.find("blockquote")[0].innerHTML = comment;
+            $metadata.find("blockquote").text(comment).show();
           },
           function() {
             // error
