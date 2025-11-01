@@ -30,6 +30,7 @@ import org.sakaiproject.commons.api.datamodel.Comment;
 import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.commons.api.datamodel.PostLike;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.memory.api.Cache;
@@ -40,7 +41,7 @@ import org.sakaiproject.util.api.FormattedText;
  * @author Adrian Fish (adrian.r.fish@gmail.com)
  */
 @Setter @Slf4j
-public class CommonsManagerImpl implements CommonsManager {
+public class CommonsManagerImpl implements CommonsManager, HardDeleteAware {
 
     private CommonsSecurityManager commonsSecurityManager;
     private PersistenceManager persistenceManager;
@@ -405,6 +406,56 @@ public class CommonsManagerImpl implements CommonsManager {
         }
 
         return false;
+    }
+
+    @Override
+    public void hardDelete(String siteId) {
+
+        Set<String> contextIds = new HashSet<>();
+        contextIds.add(siteId);
+
+        boolean anyDeleteFailed = false;
+        List<String> failedDeletes = new ArrayList<>();
+
+        try {
+            List<Post> posts = persistenceManager.getAllPost(QueryBean.builder().siteId(siteId).build());
+            if (posts != null) {
+                posts.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(post -> {
+                        String commonsId = post.getCommonsId();
+                        if (commonsId != null && !commonsId.isEmpty()) {
+                            contextIds.add(commonsId);
+                        }
+                        try {
+                            boolean deleted = persistenceManager.deletePost(post);
+                            if (!deleted) {
+                                failedDeletes.add(String.format("postId=%s, siteId=%s, commonsId=%s, reason=%s",
+                                        post.getId(), siteId, commonsId, "deletePost returned false"));
+                            }
+                        } catch (Exception ex) {
+                            failedDeletes.add(String.format("postId=%s, siteId=%s, commonsId=%s, reason=%s",
+                                    post.getId(), siteId, commonsId, ex.toString()));
+                        }
+                    });
+            }
+        } catch (Exception e) {
+            // If we can't enumerate posts, treat as a failure and abort cache purge
+            failedDeletes.add(String.format("siteId=%s, reason=%s", siteId, "exception enumerating posts: " + e.toString()));
+        }
+
+        anyDeleteFailed = !failedDeletes.isEmpty();
+
+        if (anyDeleteFailed) {
+            // Log each failure with full context for diagnostics
+            failedDeletes.forEach(fd -> log.warn("Commons hardDelete: failed to delete {}", fd));
+            // Do NOT purge caches to avoid inconsistency
+            String summary = String.format("Commons hardDelete incomplete for site %s: %d delete(s) failed", siteId, failedDeletes.size());
+            log.warn(summary);
+            throw new RuntimeException(summary);
+        }
+
+        removeContextIdsFromCache(new ArrayList<>(contextIds));
     }
 
     private void removeContextIdsFromCache(List<String> contextIds) {

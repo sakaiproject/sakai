@@ -49,6 +49,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -65,6 +66,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.entity.api.Reference;
@@ -92,7 +94,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DiscussionForumServiceImpl implements DiscussionForumService, EntityTransferrer
+public class DiscussionForumServiceImpl implements DiscussionForumService, EntityTransferrer, HardDeleteAware
 {
 	private static final String CONTENT_GROUP = "/content/group/";
 	private static final String ARCHIVING = "archiving ";
@@ -1491,11 +1493,11 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 		return newItem;
 	}
 
-	public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup)
-	{	
-		Map<String, String> transversalMap = new HashMap<>();
-		try
-		{
+        public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> options, boolean cleanup)
+        {
+                Map<String, String> transversalMap = new HashMap<>();
+                try
+                {
 			log.debug("transfer copy mc items by transferCopyEntities with cleanup: {}", cleanup);
 			if (cleanup)
 			{
@@ -1509,11 +1511,15 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						{
 							DiscussionForum dForum = (DiscussionForum) destForums.get(currForum);
 							// clean up all messages
-							List<DiscussionTopic> topics = dForum.getTopics();
-							if (topics != null) {
-								for (DiscussionTopic topic : topics) {
-									List<Message> messages = dfManager.getTopicByIdWithMessagesAndAttachments(topic.getId()).getMessages();
-									if (messages != null) {
+							// Avoid N+1 topic lookups by batch-loading topics with messages + attachments
+							List<DiscussionTopic> topicsWithData = dfManager.getTopicsByIdWithMessagesAndAttachments(dForum.getId());
+							if (topicsWithData != null && !topicsWithData.isEmpty()) {
+								for (DiscussionTopic topic : topicsWithData) {
+									if (topic == null) {
+										continue;
+									}
+									List<Message> messages = topic.getMessages();
+									if (messages != null && !messages.isEmpty()) {
 										for (Message message : messages) {
 											dfManager.deleteMessage(message);
 										}
@@ -1525,27 +1531,29 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 						}
 					}
 					
-					// Clean up the area-level permissions before copying
-					Area toArea = areaManager.getDiscussionArea(toContext, false);
-					if (toArea != null) {
-						Set membershipItemSet = toArea.getMembershipItemSet();
-						if (membershipItemSet != null && !membershipItemSet.isEmpty()) {
-							// Clone the set to avoid ConcurrentModificationException
-							Set<DBMembershipItem> itemsToRemove = new HashSet<>(membershipItemSet);
-							for (DBMembershipItem item : itemsToRemove) {
-								toArea.removeMembershipItem(item);
-								// Simply remove the item from the area, no need to explicitly delete it
-								// The permissionManager doesn't have a deleteDBMembershipItem method
+						// Clean up the area-level permissions before copying
+						Area toArea = areaManager.getDiscussionArea(toContext, false);
+						if (toArea != null) {
+							Set<DBMembershipItem> membershipItemSet = toArea.getMembershipItemSet();
+							if (membershipItemSet != null && !membershipItemSet.isEmpty()) {
+								// Clone the set to avoid ConcurrentModificationException
+								Set<DBMembershipItem> itemsToRemove = new HashSet<>(membershipItemSet);
+								for (DBMembershipItem item : itemsToRemove) {
+									toArea.removeMembershipItem(item);
+									// Simply remove the item from the area, no need to explicitly delete it
+									// The permissionManager doesn't have a deleteDBMembershipItem method
+								}
+								areaManager.saveArea(toArea);
 							}
-							areaManager.saveArea(toArea);
 						}
 					}
+					catch (Exception e)
+					{
+						// Best-effort cleanup: proceed with copy even if cleanup fails
+						// Log full stack trace for troubleshooting instead of only the message
+						log.warn("could not remove existing forums during copy", e);
+					}
 				}
-				catch (Exception e)
-				{
-					log.warn("could not remove existing forums during copy: {}", e.toString());
-				}
-			}
 			
 			// Call the regular transferCopyEntities method to do the copying
 			transversalMap.putAll(transferCopyEntities(fromContext, toContext, ids, options));
@@ -1555,15 +1563,68 @@ public class DiscussionForumServiceImpl implements DiscussionForumService, Entit
 			log.error("Forums transferCopyEntities with cleanup failed", e);
 		}
 		
-		return transversalMap;
-	}
+				return transversalMap;
+		}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
-		if(transversalMap != null && transversalMap.size() > 0){
-			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+		@Override
+		public void hardDelete(String siteId)
+		{
+				if (StringUtils.isBlank(siteId))
+				{
+						return;
+				}
+
+				List<DiscussionForum> forums = dfManager.getDiscussionForumsByContextId(siteId);
+				if (forums != null && !forums.isEmpty())
+				{
+						for (DiscussionForum forum : forums)
+						{
+								List<DiscussionTopic> topics = forum.getTopics();
+								if (topics != null && !topics.isEmpty())
+								{
+										for (DiscussionTopic topic : topics)
+										{
+												Topic topicWithMessages = dfManager.getTopicByIdWithMessagesAndAttachments(topic.getId());
+												if (topicWithMessages != null)
+												{
+														List<Message> messages = topicWithMessages.getMessages();
+														if (messages != null && !messages.isEmpty())
+														{
+																for (Message message : messages)
+																{
+																		dfManager.deleteMessage(message);
+																}
+														}
+												}
+										}
+								}
+
+								forumManager.deleteDiscussionForum(forum);
+						}
+				}
+
+				Area area = areaManager.getDiscussionArea(siteId, false);
+				if (area != null)
+				{
+						Set<DBMembershipItem> membershipItemSet = area.getMembershipItemSet();
+						if (membershipItemSet != null && !membershipItemSet.isEmpty())
+						{
+								Set<DBMembershipItem> itemsToRemove = new HashSet<>(membershipItemSet);
+								for (DBMembershipItem item : itemsToRemove)
+								{
+										area.removeMembershipItem(item);
+								}
+								areaManager.saveArea(area);
+						}
+				}
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
+				if(transversalMap != null && transversalMap.size() > 0){
+					Set<Entry<String, String>> entrySet = transversalMap.entrySet();
 
 			List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
 			String currentUserId = sessionManager.getCurrentSessionUserId();

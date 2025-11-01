@@ -111,7 +111,7 @@ import org.sakaiproject.util.MergeConfig;
  * </p>
  */
 @Slf4j
-public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, ContextObserver, EntityTransferrer, SAXEntityReader, Observer
+public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, ContextObserver, EntityTransferrer, SAXEntityReader, Observer, HardDeleteAware
 {
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
@@ -5761,11 +5761,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 * @param siteId
 	 * @return
 	 */
-	public List<String> getCalendarReferences(String siteId) {
-		// get merged calendars channel refs
-		String initMergeList = null;
-		try {
-			ToolConfiguration tc = siteService.getSite(siteId).getToolForCommonId("sakai.schedule");
+        public List<String> getCalendarReferences(String siteId) {
+                // get merged calendars channel refs
+                String initMergeList = null;
+                try {
+                        ToolConfiguration tc = siteService.getSite(siteId).getToolForCommonId("sakai.schedule");
 			if (tc != null) {
 				initMergeList = tc.getPlacementConfig().getProperty("mergedCalendarReferences");
 			}
@@ -5782,8 +5782,121 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		Set<ExternalSubscriptionDetails> subscriptionDetailsList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(primaryCalendarReference,referenceList);
         subscriptionDetailsList.stream().forEach(x->referenceList.add(x.getReference()));
 		
-		return referenceList;
-	}
+                return referenceList;
+        }
+
+        @Override
+        public void hardDelete(String siteId)
+        {
+                String calendarRef = calendarReference(siteId, SiteService.MAIN_CONTAINER);
+                CalendarEdit calendar = null;
+
+                try
+                {
+                        calendar = editCalendar(calendarRef);
+                }
+                catch (IdUnusedException e)
+                {
+                        log.debug("No calendar found for site {} during hard delete", siteId);
+                        return;
+                }
+                catch (PermissionException e)
+                {
+                        log.warn("Not permitted to hard delete calendar {}", calendarRef, e);
+                        return;
+                }
+                catch (InUseException e)
+                {
+                        log.warn("Calendar {} is currently in use and cannot be hard deleted", calendarRef, e);
+                        return;
+                }
+
+                try
+                {
+                        List<CalendarEvent> events = calendar.getEvents(null, null);
+                        if (events != null)
+                        {
+                                for (CalendarEvent event : events)
+                                {
+                                        if (event == null)
+                                        {
+                                                continue;
+                                        }
+
+                                        try
+                                        {
+                                                CalendarEventEdit edit = calendar.getEditEvent(event.getId(), CalendarService.EVENT_REMOVE_CALENDAR);
+                                                calendar.removeEvent(edit);
+                                        }
+                                        catch (IdUnusedException | PermissionException | InUseException e)
+                                        {
+                                                log.warn("Unable to remove calendar event {} during hard delete of {}", event.getId(), calendarRef, e);
+                                        }
+                                }
+                        }
+                }
+                catch (PermissionException e)
+                {
+                        log.warn("Unable to retrieve events for calendar {} during hard delete", calendarRef, e);
+                }
+
+                // Remove any aliases pointing at this calendar to avoid orphaned alias records.
+                // Prefer cascade deletion via AliasService.removeTargetAliases if available; otherwise, fall back to per-alias removal.
+                if (aliasService != null)
+                {
+                        String calRefForAliases = calendar.getReference();
+                        try
+                        {
+                                // Preferred approach: remove all aliases for this target in one call
+                                aliasService.removeTargetAliases(calRefForAliases);
+                        }
+                        catch (PermissionException e)
+                        {
+                                log.warn("Insufficient permission to remove aliases for calendar {}. Falling back to per-alias removal.", calRefForAliases, e);
+                                // Fallback: fetch aliases and remove individually
+                                try
+                                {
+                                        List<Alias> aliases = aliasService.getAliases(calRefForAliases);
+                                        if (aliases != null && !aliases.isEmpty())
+                                        {
+                                                for (Alias a : aliases)
+                                                {
+                                                        if (a == null)
+                                                        {
+                                                                continue;
+                                                        }
+                                                        try
+                                                        {
+                                                                aliasService.removeAlias(a.getId());
+                                                        }
+                                                        catch (IdUnusedException | PermissionException | InUseException ex)
+                                                        {
+                                                                log.warn("Unable to remove alias {} for calendar {} during hard delete", a.getId(), calRefForAliases, ex);
+                                                        }
+                                                }
+                                        }
+                                }
+                                catch (RuntimeException ex)
+                                {
+                                        log.warn("Unable to fetch aliases for calendar {} during hard delete", calRefForAliases, ex);
+                                }
+                        }
+                        catch (RuntimeException e)
+                        {
+                                log.warn("Failed cascading alias removal for calendar {}. Proceeding with calendar deletion.", calRefForAliases, e);
+                        }
+                }
+
+                try
+                {
+                        removeCalendar(calendar);
+                }
+                catch (PermissionException e)
+                {
+                        log.warn("Unable to remove calendar {} during hard delete", calendarRef, e);
+                        cancelCalendar(calendar);
+                }
+        }
 	
 	/**
 	 ** loadChannels -- load specified primaryCalendarReference or merged
@@ -5845,4 +5958,3 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return serverConfigurationService.getPortalUrl() + "/directtool/" + toolConfig.getId();
 	}
 }
-

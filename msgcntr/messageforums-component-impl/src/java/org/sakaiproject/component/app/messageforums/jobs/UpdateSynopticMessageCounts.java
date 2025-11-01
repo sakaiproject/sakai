@@ -42,7 +42,7 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.site.api.SiteService;
 
@@ -58,6 +58,7 @@ public class UpdateSynopticMessageCounts implements Job{
 	private SiteService siteService;
 	private SecurityService securityService;
 	private SqlService sqlService;
+	private ServerConfigurationService serverConfigurationService;
 
 	private static final boolean runOracleSQL = false;
 	//this SQL is more generic but also slower
@@ -93,12 +94,25 @@ public class UpdateSynopticMessageCounts implements Job{
 															"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " +
 															"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey";
 	
-	private boolean updateNewMembersOnly = ServerConfigurationService.getBoolean("msgcntr.synoptic.updateMessageCounts.updateNewMembersOnly", false);
+	private boolean updateNewMembersOnly;
 	//by default, this job only updates/adds the counts when the counts for forums or messages isn't 0, this overrides that and forces updates for all items no matter what
-	private boolean addItemsWhenNoUnreadCounts = ServerConfigurationService.getBoolean("msgcntr.synoptic.updateMessageCounts.addItemsWhenNoUnreadCounts", false);
+	private boolean addItemsWhenNoUnreadCounts;
 	
 	public void init() {
-		
+		if (serverConfigurationService != null) {
+			updateNewMembersOnly = serverConfigurationService.getBoolean(
+					"msgcntr.synoptic.updateMessageCounts.updateNewMembersOnly", false);
+			// by default, only update/add counts when non-zero; this allows overriding that behavior
+			addItemsWhenNoUnreadCounts = serverConfigurationService.getBoolean(
+					"msgcntr.synoptic.updateMessageCounts.addItemsWhenNoUnreadCounts", false);
+		} else {
+			updateNewMembersOnly = false;
+			addItemsWhenNoUnreadCounts = false;
+		}
+	}
+
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException
@@ -111,7 +125,9 @@ public class UpdateSynopticMessageCounts implements Job{
 		ResultSet synotpicSitesRS = null;
 		PreparedStatement unreadMessagesbySitePS = null;
 		PreparedStatement findSitesbySitePS = null;		
-		String siteFilter = ServerConfigurationService.getString("msgcntr.synoptic.updateMessageCountsSiteFilter");
+			String siteFilter = serverConfigurationService != null
+				? serverConfigurationService.getString("msgcntr.synoptic.updateMessageCountsSiteFilter")
+				: null;
 		boolean filterSites = siteFilter != null && !"".equals(siteFilter);
 		
 		
@@ -718,6 +734,4 @@ public class UpdateSynopticMessageCounts implements Job{
 		}
 	}
 }
-
-
 

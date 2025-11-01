@@ -63,6 +63,7 @@ import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -81,7 +82,7 @@ import org.sakaiproject.util.api.FormattedText;
  *
  */
 @Slf4j
-public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
+public class ChatEntityProducer implements EntityProducer, EntityTransferrer, HardDeleteAware {
    
    @Setter @Getter private EntityManager entityManager;
    @Setter @Getter private ChatManager chatManager;
@@ -690,11 +691,27 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
     public Map<String, String> transferCopyEntities(String fromContext, String toContext, List<String> ids, List<String> transferOptions, boolean cleanup) {
 
         if (cleanup) {
-            Streams.failableStream(chatManager.getContextChannels(toContext, true))
-                .forEach(chatManager::deleteChannel);
+            deleteAllChannelsForSite(toContext);
         }
 
         return transferCopyEntities(fromContext, toContext, ids, transferOptions);
+    }
+
+    private void deleteAllChannelsForSite(String siteId) {
+        Streams.failableStream(chatManager.getContextChannels(siteId, true))
+            .forEach(chatManager::deleteChannel);
+    }
+
+    /**
+     * Performs a hard delete of all chat channels associated with the specified site.
+     *
+     * @param siteId the ID of the site whose chat channels should be deleted
+     */
+    @Override
+    public void hardDelete(String siteId) {
+        log.info("Hard deleting all chat channels for site: {}", siteId);
+        deleteAllChannelsForSite(siteId);
+        log.info("Completed hard delete for site: {}", siteId);
     }
    
    /**

@@ -121,6 +121,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.CalendarEventType;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.HardDeleteAware;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -141,7 +142,7 @@ import javax.persistence.PersistenceException;
 @Slf4j
 @Setter
 @Transactional
-public class ConversationsServiceImpl implements ConversationsService, EntityTransferrer, Observer {
+public class ConversationsServiceImpl implements ConversationsService, EntityTransferrer, Observer, HardDeleteAware {
 
     private AuthzGroupService authzGroupService;
 
@@ -2681,6 +2682,64 @@ public class ConversationsServiceImpl implements ConversationsService, EntityTra
         }
 
         return transferCopyEntities(fromContext, toContext, ids, transferOptions);
+    }
+
+    @Override
+    public void hardDelete(String siteId) {
+
+        topicRepository.findBySiteId(siteId).forEach(topic -> {
+            deleteTopicBypassPermissions(topic);
+        });
+    }
+
+    private void deleteTopicBypassPermissions(ConversationsTopic topic) {
+        String topicId = topic.getId();
+
+        // Remove comments first
+        commentRepository.deleteByTopicId(topicId);
+
+        // Remove posts and their related records
+        List<ConversationsPost> posts = postRepository.findByTopicId(topicId);
+        if (posts != null && !posts.isEmpty()) {
+            for (ConversationsPost p : posts) {
+                if (p == null) {
+                    continue;
+                }
+                postReactionRepository.deleteByPostId(p.getId());
+                postReactionTotalRepository.deleteByPostId(p.getId());
+                postStatusRepository.deleteByPostId(p.getId());
+                postRepository.deleteById(p.getId());
+            }
+        }
+
+        // Remove topic-related records
+        topicStatusRepository.deleteByTopicId(topicId);
+        topicReactionRepository.deleteByTopicId(topicId);
+        topicReactionTotalRepository.deleteByTopicId(topicId);
+
+        // Finally remove the topic entity itself
+        topicRepository.delete(topic);
+
+        // Cleanup calendar due date event if present
+        if (topic.getDueDateCalendarEventId() != null) {
+            Calendar cal = this.getCalendar(topic.getSiteId());
+            try {
+                cal.removeEvent(cal.getEditEvent(topic.getDueDateCalendarEventId(), CalendarService.EVENT_REMOVE_CALENDAR));
+            } catch (Exception e) {
+                log.error("Failed to remove due date event from calendar: {}", e.toString());
+            }
+        }
+
+        // Cleanup external grading item if one exists
+        String ref = ConversationsReferenceReckoner.reckoner().topic(topic).reckon().getReference();
+        if (topic.getGradingItemId() != null && gradingService.isExternalAssignmentDefined(topic.getSiteId(), ref)) {
+            gradingService.removeExternalAssignment(topic.getSiteId(), ref, null);
+        }
+
+        // Emit event after commit for audit trail
+        afterCommit(() -> {
+            eventTrackingService.post(eventTrackingService.newEvent(ConversationsEvents.TOPIC_DELETED.label, ref, topic.getSiteId(), true, NotificationService.NOTI_OPTIONAL));
+        });
     }
 
     @Override

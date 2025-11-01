@@ -43,6 +43,7 @@ import org.junit.runner.RunWith;
 
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.CriterionOutcomeTransferBean;
@@ -398,6 +399,85 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(0, associationRepository.findAll().size());
         assertEquals(0, evaluationRepository.findAll().size());
         assertEquals(0, rubricsService.getRubricsForSite(siteId).size());
+    }
+
+    @Test
+    public void hardDeleteRemovesSiteArtifacts() {
+
+        switchToInstructor();
+
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+
+        String toolId = "sakai.assignment";
+        String toolItemId = "item1";
+        Map<String, String> params = new HashMap<>();
+        params.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        params.put(RubricsConstants.RBCS_LIST, rubric.getId().toString());
+
+        Optional<ToolItemRubricAssociation> optionalAssociation
+                = rubricsService.saveRubricAssociation(toolId, toolItemId, params);
+        assertTrue(optionalAssociation.isPresent());
+        ToolItemRubricAssociation association = optionalAssociation.get();
+
+        EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, toolItemId);
+        evaluation.setStatus(EvaluationStatus.RETURNED);
+        evaluation = rubricsService.saveEvaluation(evaluation, siteId);
+        Long evaluationId = evaluation.getId();
+
+        assertEquals(1, rubricRepository.findByOwnerId(siteId).size());
+        assertEquals(1, associationRepository.findAll().size());
+        assertEquals(1, evaluationRepository.findByOwnerId(siteId).size());
+        assertTrue(returnedEvaluationRepository.findByOriginalEvaluationId(evaluationId).isPresent());
+
+        HardDeleteAware hardDeleteAware = (HardDeleteAware) AopTestUtils.getTargetObject(rubricsService);
+        hardDeleteAware.hardDelete(siteId);
+
+        assertTrue(rubricRepository.findByOwnerId(siteId).isEmpty());
+        assertTrue(associationRepository.findAll().isEmpty());
+        assertTrue(evaluationRepository.findByOwnerId(siteId).isEmpty());
+        assertFalse(returnedEvaluationRepository.findByOriginalEvaluationId(evaluationId).isPresent());
+    }
+
+    @Test
+    public void hardDeleteRemovesSiteEvaluationsWhenNoSiteRubrics() {
+
+        // Create a rubric owned by a different site (shared rubric scenario)
+        String sharedSiteId = "shared-site";
+        switchToInstructor(sharedSiteId);
+        RubricTransferBean sharedRubric = rubricsService.createDefaultRubric(sharedSiteId);
+
+        // Back to the target site as instructor
+        switchToInstructor();
+
+        String toolId = "sakai.assignment";
+        String toolItemId = "shared-item-1";
+
+        Map<String, String> params = new HashMap<>();
+        params.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        params.put(RubricsConstants.RBCS_LIST, sharedRubric.getId().toString());
+
+        Optional<ToolItemRubricAssociation> optAssoc = rubricsService.saveRubricAssociation(toolId, toolItemId, params);
+        assertTrue(optAssoc.isPresent());
+
+        // Save an evaluation against the shared rubric, owned by the target site
+        EvaluationTransferBean etb = buildEvaluation(optAssoc.get().getId(), sharedRubric, toolItemId);
+        etb.setStatus(EvaluationStatus.RETURNED);
+        etb = rubricsService.saveEvaluation(etb, siteId);
+        Long evaluationId = etb.getId();
+
+        // Sanity: the target site owns evaluations, but has no site rubrics
+        assertTrue(rubricRepository.findByOwnerId(siteId).isEmpty());
+        assertFalse(evaluationRepository.findByOwnerId(siteId).isEmpty());
+        assertTrue(returnedEvaluationRepository.findByOriginalEvaluationId(evaluationId).isPresent());
+
+        // Invoke hard delete; should still purge site evaluations and returned evaluations
+        HardDeleteAware hardDeleteAware = (HardDeleteAware) AopTestUtils.getTargetObject(rubricsService);
+        hardDeleteAware.hardDelete(siteId);
+
+        assertTrue("Site evaluations should be deleted", evaluationRepository.findByOwnerId(siteId).isEmpty());
+        assertFalse("Returned evaluation mirror should be removed", returnedEvaluationRepository.findByOriginalEvaluationId(evaluationId).isPresent());
+        // Site still has no rubrics (by design in this scenario)
+        assertTrue(rubricRepository.findByOwnerId(siteId).isEmpty());
     }
 
     @Test

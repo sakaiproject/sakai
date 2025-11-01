@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.entity.api.ContextObserver;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -75,7 +76,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  */
 @Slf4j
-public abstract class BaseMailArchiveService extends BaseMessage implements MailArchiveService, ContextObserver
+public abstract class BaseMailArchiveService extends BaseMessage implements MailArchiveService, ContextObserver, HardDeleteAware
 {
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -637,14 +638,60 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		}
 
 		// remove any alias
-		try
-		{
-			aliasService.removeTargetAliases(channelRef);
-		}
-		catch (PermissionException e)
-		{
-		}
-	}
+                try
+                {
+                        aliasService.removeTargetAliases(channelRef);
+                }
+                catch (PermissionException e)
+                {
+                }
+        }
+
+        @Override
+        public void hardDelete(String siteId)
+        {
+                String channelRef = channelReference(siteId, siteService.MAIN_CONTAINER);
+
+                try
+                {
+                        MailArchiveChannel channel = getMailArchiveChannel(channelRef);
+                        List<Message> messages = channel.getMessages(null, true, null);
+                        for (Message message : messages)
+                        {
+                                try
+                                {
+                                        channel.removeMessage(message.getId());
+                                }
+                                catch (PermissionException e)
+                                {
+                                        log.error("The current user does not have permission to remove mail message for context: {}", siteId, e);
+                                }
+                        }
+                        MessageChannelEdit edit = editChannel(channelRef);
+                        removeChannel(edit);
+                }
+                catch (IdUnusedException e)
+                {
+                        log.warn("No MailArchiveChannel found for site: {}", siteId);
+                }
+                catch (PermissionException e)
+                {
+                        log.error("The current user does not have permission to access MailArchiveChannel for context: {}", siteId, e);
+                }
+                catch (InUseException e)
+                {
+                        log.error("InUseException exception occurred for mail channel for site: {}", siteId, e);
+                }
+
+                try
+                {
+                        aliasService.removeTargetAliases(channelRef);
+                }
+                catch (PermissionException e)
+                {
+                        log.error("The current user does not have permission to remove mail archive aliases for context: {}", siteId, e);
+                }
+        }
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * MailArchiveService implementation
