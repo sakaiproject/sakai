@@ -92,7 +92,7 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
 
         reset(announcementService);
 
-        var controller = new AnnouncementsController();
+        AnnouncementsController controller = new AnnouncementsController();
 
         var session = mock(Session.class);
         when(session.getUserId()).thenReturn("user3");
