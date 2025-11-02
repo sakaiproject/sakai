@@ -478,6 +478,8 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertFalse("Returned evaluation mirror should be removed", returnedEvaluationRepository.findByOriginalEvaluationId(evaluationId).isPresent());
         // Site still has no rubrics (by design in this scenario)
         assertTrue(rubricRepository.findByOwnerId(siteId).isEmpty());
+        // And the site-level association pointing to the shared rubric is removed
+        assertTrue("Associations for the site should be removed", associationRepository.findAll().isEmpty());
     }
 
     @Test

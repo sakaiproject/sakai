@@ -1835,6 +1835,31 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer, Ha
             siteEvaluations.forEach(evaluation -> returnedEvaluationRepository.deleteByOriginalEvaluationId(evaluation.getId()));
             evaluationRepository.deleteAll(siteEvaluations);
         }
+
+        // Second pass: remove any remaining associations tied to this site regardless of rubric ownership.
+        // Associations don't carry siteId directly, so derive via evaluations' associationIds.
+        // This runs even if no site-owned rubrics exist.
+        if (!CollectionUtils.isEmpty(siteEvaluations)) {
+            List<Long> associationIds = siteEvaluations.stream()
+                    .filter(Objects::nonNull)
+                    .map(Evaluation::getAssociationId)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            for (Long associationId : associationIds) {
+                if (associationId == null) {
+                    continue;
+                }
+                // Clean up any evaluations still linked to this association (defensive in case of out-of-band data)
+                List<Evaluation> assocEvaluations = evaluationRepository.findByAssociationId(associationId);
+                if (!CollectionUtils.isEmpty(assocEvaluations)) {
+                    assocEvaluations.forEach(ev -> returnedEvaluationRepository.deleteByOriginalEvaluationId(ev.getId()));
+                    evaluationRepository.deleteAll(assocEvaluations);
+                }
+                associationRepository.findById(associationId).ifPresent(associationRepository::delete);
+            }
+        }
     }
 
     public void deleteSiteRubrics(String siteId) {
