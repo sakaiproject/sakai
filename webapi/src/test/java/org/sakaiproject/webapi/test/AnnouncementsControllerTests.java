@@ -120,10 +120,10 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
     @Test
     public void testGetUsersAnnouncements() throws Exception {
 
-        var site1Id = UUID.randomUUID().toString();
-        var site1Title = "Site 1";
-        var site2Id = UUID.randomUUID().toString();
-        var site2Title = "Site 2";
+        String site1Id = UUID.randomUUID().toString();
+        String site1Title = "Site 1";
+        String site2Id = UUID.randomUUID().toString();
+        String site2Title = "Site 2";
 
         Site site1 = mock(Site.class);
         when(site1.getId()).thenReturn(site1Id);
