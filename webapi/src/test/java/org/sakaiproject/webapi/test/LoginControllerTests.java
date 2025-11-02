@@ -120,7 +120,7 @@ public class LoginControllerTests extends BaseControllerTests {
             .andDo(document("login", preprocessor))
             .andReturn();
 
-        var sessionId = result.getResponse().getContentAsString();
+        String sessionId = result.getResponse().getContentAsString();
         assertTrue(result.getResponse().getCookies().length == 1);
         assertEquals(sessionId, session.getId());
         verify(sessionManager).setCurrentSession(any());
