@@ -76,8 +76,13 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
     @Transactional
     public void deleteGradebook(String gradebookUid) {
 
-        Gradebook gradebook = gradebookRepository.findByUid(gradebookUid)
-            .orElseThrow(() -> new IllegalArgumentException("No gradebook with uid " + gradebookUid));
+        // Be tolerant: if the gradebook doesn't exist, treat as already deleted.
+        Optional<Gradebook> optGradebook = gradebookRepository.findByUid(gradebookUid);
+        if (!optGradebook.isPresent()) {
+            return;
+        }
+
+        Gradebook gradebook = optGradebook.get();
         Long gradebookId = gradebook.getId();
 
         gradingEventRepository.deleteAll(gradingEventRepository.findByGradableObject_Gradebook_Uid(gradebookUid));
@@ -94,9 +99,9 @@ public class GradingPersistenceManagerImpl implements GradingPersistenceManager 
 
         categoryRepository.deleteAll(categoryRepository.findByGradebook_Uid(gradebookUid));
 
-        gradebookRepository.deleteSpreadsheetsForGradebook(gradebook.getId());
+        gradebookRepository.deleteSpreadsheetsForGradebook(gradebookId);
 
-        permissionRepository.deleteAll(permissionRepository.findByGradebookId(gradebook.getId()));
+        permissionRepository.deleteAll(permissionRepository.findByGradebookId(gradebookId));
 
         gradeMappingRepository.deleteAll(gradeMappingRepository.findByGradebook_Uid(gradebookUid));
 
