@@ -22,6 +22,28 @@ include::{snippets}/login/http-response.adoc[]
 Now get your calendar (you will need to add your cookie jar file to this cUrl command with the -b option):
 include::{snippets}/get-user-calendar/curl-request.adoc[]
 
+=== Announcements API
+
+__See the login api about session cookies__
+
+The user announcements HTTP request:
+include::{snippets}/get-user-announcements/http-request.adoc[]
+
+Request your announcements with curl:
+include::{snippets}/get-user-announcements/curl-request.adoc[]
+
+The user announcements JSON response:
+include::{snippets}/get-user-announcements/response-body.adoc[]
+
+The site announcements HTTP request:
+include::{snippets}/get-site-announcements/http-request.adoc[]
+
+Request a site's announcements with curl:
+include::{snippets}/get-site-announcements/curl-request.adoc[]
+
+The site announcements JSON response:
+include::{snippets}/get-site-announcements/response-body.adoc[]
+
 === Calendar API
 
 __See the login api about session cookies__

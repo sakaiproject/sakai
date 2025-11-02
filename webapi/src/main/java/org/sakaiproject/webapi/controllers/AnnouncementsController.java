@@ -39,10 +39,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
+@Setter
 public class AnnouncementsController extends AbstractSakaiApiController {
 
 	@Autowired
@@ -87,7 +89,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
             log.error("Error getting announcements: {}", ex.toString());
         }
 
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     @GetMapping(value = "/sites/{siteId}/announcements", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -97,7 +99,7 @@ public class AnnouncementsController extends AbstractSakaiApiController {
 
         try {
             Site site = siteService.getSite(siteId);
-            String channelRef = announcementService.channelReference(siteId, "main");
+            String channelRef = announcementService.channelReference(siteId, SiteService.MAIN_CONTAINER);
 
             ToolConfiguration placement = site.getToolForCommonId(AnnouncementService.SAKAI_ANNOUNCEMENT_TOOL_ID);
             String mergedChannels = placement.getPlacementConfig().getProperty(AnnouncementService.PORTLET_CONFIG_PARM_MERGED_CHANNELS);
@@ -115,6 +117,6 @@ public class AnnouncementsController extends AbstractSakaiApiController {
             log.warn("Error getting announcements for this site {}", siteId, ex);
         }
 
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 }
