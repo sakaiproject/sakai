@@ -15,54 +15,8 @@
  */
 package org.sakaiproject.webapi.test;
 
-import static org.mockito.Mockito.mock;
-
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.portal.api.PortalService;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.UserDirectoryService;
 
 @Configuration
 public class WebApiTestConfiguration {
-
-    @Bean(name = "org.sakaiproject.calendar.api.CalendarService")
-    public CalendarService calendarService() {
-        return mock(CalendarService.class);
-    }
-
-    @Bean(name = "org.sakaiproject.content.api.ContentHostingService")
-    public ContentHostingService contentHostingService() {
-        return mock(ContentHostingService.class);
-    }
-
-    @Bean(name = "org.sakaiproject.entity.api.EntityManager")
-    public EntityManager entityManager() {
-        return mock(EntityManager.class);
-    }
-
-    @Bean(name = "org.sakaiproject.portal.api.PortalService")
-    public PortalService portalService() {
-        return mock(PortalService.class);
-    }
-
-    @Bean(name = "org.sakaiproject.tool.api.SessionManager")
-    public SessionManager sessionManager() {
-        return mock(SessionManager.class);
-    }
-
-    @Bean(name = "org.sakaiproject.site.api.SiteService")
-    public SiteService siteService() {
-        return mock(SiteService.class);
-    }
-
-    @Bean(name = "org.sakaiproject.user.api.UserDirectoryService")
-    public UserDirectoryService userDirectoryService() {
-        return mock(UserDirectoryService.class);
-    }
 }
