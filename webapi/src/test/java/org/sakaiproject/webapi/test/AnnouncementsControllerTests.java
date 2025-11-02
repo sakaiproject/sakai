@@ -125,11 +125,11 @@ public class AnnouncementsControllerTests extends BaseControllerTests {
         var site2Id = UUID.randomUUID().toString();
         var site2Title = "Site 2";
 
-        var site1 = mock(Site.class);
+        Site site1 = mock(Site.class);
         when(site1.getId()).thenReturn(site1Id);
         when(site1.getTitle()).thenReturn(site1Title);
         when(siteService.getSite(site1Id)).thenReturn(site1);
-        var site1ChannelRef = "/main/" + site1Id;
+        String site1ChannelRef = "/main/" + site1Id;
         when(announcementService.channelReference(site1Id, SiteService.MAIN_CONTAINER)).thenReturn(site1ChannelRef);
 
         var site2 = mock(Site.class);
