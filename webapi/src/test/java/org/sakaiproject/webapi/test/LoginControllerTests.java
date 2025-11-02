@@ -78,7 +78,7 @@ public class LoginControllerTests extends BaseControllerTests {
 
         reset(sessionManager);
 
-        var controller = new LoginController();
+        LoginController controller = new LoginController();
 
         controller.setUserDirectoryService(userDirectoryService);
 
