@@ -103,35 +103,42 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String migrateAllLinks(Set<Entry<String,String>> entrySet, String msgBody){
-		Iterator<Entry<String, String>> entryItr = entrySet.iterator();
-		while(entryItr.hasNext()) {
-			Entry<String, String> entry = entryItr.next();
-			String fromContextRef = entry.getKey();
-			String targetContextRef = entry.getValue();
-			msgBody =migrateOneLink(fromContextRef, targetContextRef, msgBody);
-		}
-		try {
-			msgBody = bracketAndNullifySelectedLinks(msgBody);
-		} catch (Exception e) {
-			log.debug ("Forums LinkMigrationHelper.editLinks failed" + e);
-		}
-		return msgBody;
-	}
+    public String migrateAllLinks(Set<Entry<String,String>> entrySet, String msgBody){
+        // Tiny guard: nothing to migrate for null/empty content
+        if (StringUtils.isEmpty(msgBody)) {
+            return msgBody;
+        }
+        Iterator<Entry<String, String>> entryItr = entrySet.iterator();
+        while(entryItr.hasNext()) {
+            Entry<String, String> entry = entryItr.next();
+            String fromContextRef = entry.getKey();
+            String targetContextRef = entry.getValue();
+            msgBody =migrateOneLink(fromContextRef, targetContextRef, msgBody);
+        }
+        try {
+            msgBody = bracketAndNullifySelectedLinks(msgBody);
+        } catch (Exception e) {
+            log.debug ("Forums LinkMigrationHelper.editLinks failed" + e);
+        }
+        return msgBody;
+    }
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public String migrateOneLink(String fromContextRef, String targetContextRef, String msgBody){
-		fromContextRef=fromContextRef.replace(" ",ESCAPED_SPACE);
-		targetContextRef = targetContextRef.replace(" ",ESCAPED_SPACE);
-		//Expands all the shortened URLs before replacing the context
-		String expandedMsgBody = this.expandShortenedUrls(msgBody);
-		if(expandedMsgBody.contains(fromContextRef)){
-			expandedMsgBody = expandedMsgBody.replace(fromContextRef, targetContextRef);
-		}
-		return expandedMsgBody;
-	}
+    public String migrateOneLink(String fromContextRef, String targetContextRef, String msgBody){
+        if (StringUtils.isEmpty(msgBody)) {
+            return msgBody;
+        }
+        fromContextRef=fromContextRef.replace(" ",ESCAPED_SPACE);
+        targetContextRef = targetContextRef.replace(" ",ESCAPED_SPACE);
+        //Expands all the shortened URLs before replacing the context
+        String expandedMsgBody = this.expandShortenedUrls(msgBody);
+        if(expandedMsgBody.contains(fromContextRef)){
+            expandedMsgBody = expandedMsgBody.replace(fromContextRef, targetContextRef);
+        }
+        return expandedMsgBody;
+    }
 
     /*
      * Do several transformations to migrate the content links present in a zip import of RTE content
