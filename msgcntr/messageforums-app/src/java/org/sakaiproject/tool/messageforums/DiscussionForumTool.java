@@ -3798,6 +3798,12 @@ public class DiscussionForumTool {
 	        {
 	          Long.parseLong(topicId);
 	          topic = forumManager.getTopicById(Long.valueOf(topicId));
+	          if (topic == null) {
+	            // Topic was not found, likely due to an import/replace or deletion.
+	            log.warn("Topic with id '{}' not found", topicId);
+	            setErrorMessage(getResourceBundleString(TOPIC_WITH_ID) + topicId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
+	            return false;
+	          }
 	        }
 	        catch (NumberFormatException e)
 	        {
