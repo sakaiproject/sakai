@@ -662,8 +662,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						if (itemgrading.getPublishedAnswerId() != null
 							|| itemgrading.getAnswerText() != null
 							|| (itemgrading.getRationale() != null 
-								&& !itemgrading.getRationale().trim().equals(""))
-							|| itemgrading.getAttemptDate() != null) { 
+								&& !itemgrading.getRationale().trim().equals(""))) {
 							// null=> skipping this question
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							verifySubmittedDateInItemGrading(item, itemgrading);
@@ -672,8 +671,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 							}
 							// the rest of the info is collected by
 							// ItemContentsBean via JSF form
-							adds.add(itemgrading);
-						} else {
 							adds.add(itemgrading);
 						}
 					}
