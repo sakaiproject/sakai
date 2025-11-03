@@ -18,8 +18,8 @@
       </li>
     </ul>
 
-    <div th:if="${alert}" class="alert alert-warning" role="alert" th:text="${alert}">Alert</div>
-    <div th:if="${success}" class="alert alert-success" role="status" th:text="${success}">Success</div>
+    <div th:if="${alert}" class="sak-banner-warn" role="alert" th:text="${alert}">Alert</div>
+    <div th:if="${success}" class="sak-banner-success" role="status" th:text="${success}">Success</div>
 
     <h1 class="h4 mb-3" th:text="#{poll_vote_title}">Vote</h1>
     <p class="fw-semibold" th:utext="${poll.text}">Poll question</p>

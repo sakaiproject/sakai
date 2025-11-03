@@ -158,12 +158,12 @@ public class PollController {
             case "delete" -> {
                 pollsUiService.deletePolls(deleteIds);
                 redirectAttributes.addFlashAttribute("success",
-                        messageSource.getMessage("poll_list_delete", null, locale));
+                        messageSource.getMessage("poll_deleted_success", null, locale));
             }
             case "reset" -> {
                 pollsUiService.resetPollVotes(deleteIds);
                 redirectAttributes.addFlashAttribute("success",
-                        messageSource.getMessage("poll_list_reset", null, locale));
+                        messageSource.getMessage("poll_votes_reset_success", null, locale));
             }
             default -> redirectAttributes.addFlashAttribute("alert",
                     messageSource.getMessage("poll_list_delete_tooltip", null, locale));

@@ -118,7 +118,7 @@ public class PollEditorController {
         }
         try {
             Poll saved = pollsUiService.savePoll(poll, locale);
-            redirectAttributes.addFlashAttribute("success", messageSource.getMessage("new_poll_submit", null, locale));
+            redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_saved_success", null, locale));
 
             if ("option".equals(redirectTarget)) {
                 return "redirect:/faces/pollOption?pollId=" + saved.getPollId();

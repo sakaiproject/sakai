@@ -19,15 +19,15 @@
       </li>
     </ul>
 
-    <div th:if="${success}" class="alert alert-success" role="status" th:text="${success}">Success</div>
-    <div th:if="${alert}" class="alert alert-warning" role="alert" th:text="${alert}">Alert</div>
+    <div th:if="${success}" class="sak-banner-success" role="status" th:text="${success}">Success</div>
+    <div th:if="${alert}" class="sak-banner-error" role="alert" th:text="${alert}">Error</div>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0" th:text="#{poll_list_title}">Polls</h1>
       <a class="btn btn-primary" th:if="${canAdd}" th:href="@{/faces/voteAdd}" th:text="#{new_poll_title}">Add poll</a>
     </div>
 
-    <div class="alert alert-info" role="status" th:if="${#lists.isEmpty(polls)}" th:text="#{poll_list_empty}">
+    <div class="sak-banner-info" role="status" th:if="${#lists.isEmpty(polls)}" th:text="#{poll_list_empty}">
       No polls have been created yet.
     </div>
 

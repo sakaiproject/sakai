@@ -114,7 +114,7 @@ public class OptionController {
 
         try {
             pollsUiService.saveOption(option);
-            redirectAttributes.addFlashAttribute("success", messageSource.getMessage("new_poll_option_add", null, locale));
+            redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_added_success", null, locale));
             if ("addAnother".equals(submitAction)) {
                 return "redirect:/faces/pollOption?pollId=" + option.getPollId();
             }
@@ -159,7 +159,7 @@ public class OptionController {
         }
         try {
             pollsUiService.saveOptionsBatch(batchForm.getPollId(), batchForm.getFile());
-            redirectAttributes.addFlashAttribute("success", messageSource.getMessage("new_poll_option_add_batch", null, locale));
+            redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_options_batch_added_success", null, locale));
             return "redirect:/faces/voteAdd?pollId=" + batchForm.getPollId();
         } catch (PollValidationException ex) {
             bindingResult.addError(new FieldError("batchForm", "file", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
@@ -208,7 +208,7 @@ public class OptionController {
         }
 
         Poll poll = pollsUiService.deleteOption(optionId, orphanHandling);
-        redirectAttributes.addFlashAttribute("success", messageSource.getMessage("delete_option_confirm", null, locale));
+        redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_deleted_success", null, locale));
         return "redirect:/faces/voteAdd?pollId=" + poll.getPollId();
     }
 

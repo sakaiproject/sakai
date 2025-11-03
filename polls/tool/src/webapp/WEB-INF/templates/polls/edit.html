@@ -18,8 +18,8 @@
       </li>
     </ul>
 
-    <div th:if="${success}" class="alert alert-success" role="status" th:text="${success}">Saved</div>
-    <div th:if="${alert}" class="alert alert-warning" role="alert" th:text="${alert}">Alert</div>
+    <div th:if="${success}" class="sak-banner-success" role="status" th:text="${success}">Saved</div>
+    <div th:if="${alert}" class="sak-banner-error" role="alert" th:text="${alert}">Alert</div>
 
     <h1 class="h3 mb-3" th:text="${isNew} ? #{new_poll_title} : #{new_poll_title_edit}">Poll</h1>
 
@@ -80,7 +80,7 @@
           </div>
         </div>
 
-        <div class="alert alert-warning" th:if="${hasVotes}" th:text="#{warn_poll_has_votes}">Existing votes warning</div>
+        <div class="sak-banner-warn" th:if="${hasVotes}" th:text="#{warn_poll_has_votes}">Existing votes warning</div>
 
         <div class="table-responsive" th:if="${!options.isEmpty()}">
           <table class="table table-sm table-striped align-middle">
