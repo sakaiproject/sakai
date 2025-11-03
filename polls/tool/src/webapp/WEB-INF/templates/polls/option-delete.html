@@ -6,17 +6,7 @@
 </head>
 <body>
   <div class="portletBody container-fluid">
-    <ul class="nav nav-pills mb-4">
-      <li class="nav-item">
-        <a class="nav-link" th:href="@{/faces/votePolls}" th:text="#{action_main}">Polls</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" th:href="@{/faces/voteAdd(pollId=${poll.pollId})}" th:text="#{action_add_poll}">Add</a>
-      </li>
-      <li class="nav-item" th:if="${isSiteOwner}">
-        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
-      </li>
-    </ul>
+    <div th:replace="~{fragments/menus :: main('add')}"></div>
 
     <h1 class="h4 mb-3" th:text="#{delete_confirm}">Confirm delete</h1>
     <div class="sak-banner-warn">
@@ -24,7 +14,7 @@
       <p class="mb-0" th:if="${hasVotes}" th:text="#{delete_option_has_votes}">Vote handling message</p>
     </div>
 
-    <form th:action="@{/faces/pollOptionDelete}" method="post">
+    <form th:action="@{/pollOptionDelete}" method="post">
       <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <input type="hidden" name="optionId" th:value="${option.optionId}" />
 
@@ -35,9 +25,10 @@
         </div>
       </div>
 
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-danger" th:text="#{delete_option_confirm}">Delete</button>
-        <a class="btn btn-secondary" th:href="@{/faces/voteAdd(pollId=${poll.pollId})}" th:text="#{new_poll_cancel}">Cancel</a>
+      <div class="act">
+        <input type="submit" class="active" th:value="#{delete_option_confirm}" value="Delete" />
+        <input type="button" th:onclick="|location.href='@{/voteAdd(pollId=${poll.pollId})}'|"
+               th:value="#{new_poll_cancel}" value="Cancel" />
       </div>
     </form>
   </div>

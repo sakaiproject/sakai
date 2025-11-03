@@ -6,17 +6,7 @@
 </head>
 <body>
   <div class="portletBody container-fluid">
-    <ul class="nav nav-pills mb-4">
-      <li class="nav-item">
-        <a class="nav-link" th:href="@{/faces/votePolls}" th:text="#{action_main}">Polls</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" th:href="@{/faces/voteAdd}" th:text="#{action_add_poll}">Add</a>
-      </li>
-      <li class="nav-item">
-        <span class="nav-link active" th:text="#{action_set_permissions}">Permissions</span>
-      </li>
-    </ul>
+    <div th:replace="~{fragments/menus :: main('permissions')}"></div>
 
     <h1 class="h4 mb-3" th:text="#{permissions_title}">Permissions</h1>
     <sakai-permissions tool="poll" bundle-key="org.sakaiproject.poll.bundle.Messages" th:attr="on-refresh=${toolUrl}"></sakai-permissions>

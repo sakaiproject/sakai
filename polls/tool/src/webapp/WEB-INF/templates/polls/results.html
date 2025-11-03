@@ -6,17 +6,7 @@
 </head>
 <body>
   <div class="portletBody container-fluid">
-    <ul class="nav nav-pills mb-4">
-      <li class="nav-item">
-        <span class="nav-link active" th:text="#{action_main}">Polls</span>
-      </li>
-      <li class="nav-item" th:if="${canAdd}">
-        <a class="nav-link" th:href="@{/faces/voteAdd}" th:text="#{action_add_poll}">Add</a>
-      </li>
-      <li class="nav-item" th:if="${isSiteOwner}">
-        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
-      </li>
-    </ul>
+    <div th:replace="~{fragments/menus :: main('list')}"></div>
 
     <h1 class="h4 mb-3" th:text="#{results_title}">Results</h1>
     <p class="fw-semibold" th:utext="${poll.text}">Poll question</p>
@@ -52,7 +42,10 @@
       </table>
     </div>
 
-    <a class="btn btn-secondary" th:href="@{/faces/votePolls}" th:text="#{results_cancel}">Back</a>
+    <div class="act">
+      <input type="button" th:onclick="|location.href='@{/votePolls}'|"
+             th:value="#{results_cancel}" value="Back" />
+    </div>
   </div>
 </body>
 </html>

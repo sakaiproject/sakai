@@ -48,7 +48,7 @@ import static org.sakaiproject.poll.tool.service.PollsUiService.HANDLE_DELETE_OP
 import static org.sakaiproject.poll.tool.service.PollsUiService.HANDLE_DELETE_OPTION_RETURN_VOTES;
 
 @Controller
-@RequestMapping("/faces")
+@RequestMapping
 @RequiredArgsConstructor
 @Slf4j
 public class OptionController {
@@ -69,7 +69,7 @@ public class OptionController {
         if (optionId != null) {
             Option option = pollListManager.getOptionById(optionId);
             if (option == null) {
-                return "redirect:/faces/votePolls";
+                return "redirect:/votePolls";
             }
             form.setOptionId(option.getOptionId());
             form.setPollId(option.getPollId());
@@ -77,7 +77,7 @@ public class OptionController {
             poll = pollListManager.getPollById(option.getPollId());
         } else {
             if (pollId == null) {
-                return "redirect:/faces/votePolls";
+                return "redirect:/votePolls";
             }
             form.setPollId(pollId);
             poll = pollListManager.getPollById(pollId);
@@ -116,9 +116,9 @@ public class OptionController {
             pollsUiService.saveOption(option);
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_added_success", null, locale));
             if ("addAnother".equals(submitAction)) {
-                return "redirect:/faces/pollOption?pollId=" + option.getPollId();
+                return "redirect:/pollOption?pollId=" + option.getPollId();
             }
-            return "redirect:/faces/voteAdd?pollId=" + option.getPollId();
+            return "redirect:/voteAdd?pollId=" + option.getPollId();
         } catch (PollValidationException ex) {
             bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
             model.addAttribute("poll", pollListManager.getPollById(optionForm.getPollId()));
@@ -160,7 +160,7 @@ public class OptionController {
         try {
             pollsUiService.saveOptionsBatch(batchForm.getPollId(), batchForm.getFile());
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_options_batch_added_success", null, locale));
-            return "redirect:/faces/voteAdd?pollId=" + batchForm.getPollId();
+            return "redirect:/voteAdd?pollId=" + batchForm.getPollId();
         } catch (PollValidationException ex) {
             bindingResult.addError(new FieldError("batchForm", "file", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
             model.addAttribute("poll", pollListManager.getPollById(batchForm.getPollId()));
@@ -175,7 +175,7 @@ public class OptionController {
                                Model model) {
         Option option = pollListManager.getOptionById(optionId);
         if (option == null) {
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
         Poll poll = pollListManager.getPollById(option.getPollId());
         List<Option> pollOptions = pollListManager.getOptionsForPoll(poll);
@@ -201,7 +201,7 @@ public class OptionController {
                                 Locale locale) {
         if (!isAllowedPollAdd()) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
         if (StringUtils.isBlank(orphanHandling)) {
             orphanHandling = HANDLE_DELETE_OPTION_DO_NOTHING;
@@ -209,7 +209,7 @@ public class OptionController {
 
         Poll poll = pollsUiService.deleteOption(optionId, orphanHandling);
         redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_deleted_success", null, locale));
-        return "redirect:/faces/voteAdd?pollId=" + poll.getPollId();
+        return "redirect:/voteAdd?pollId=" + poll.getPollId();
     }
 
     private boolean isAllowedPollAdd() {

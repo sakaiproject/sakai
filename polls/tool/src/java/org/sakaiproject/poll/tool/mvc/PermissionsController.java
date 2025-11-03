@@ -18,13 +18,14 @@ package org.sakaiproject.poll.tool.mvc;
 
 import lombok.RequiredArgsConstructor;
 import org.sakaiproject.poll.logic.ExternalLogic;
+import org.sakaiproject.poll.logic.PollListManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/faces")
+@RequestMapping
 @RequiredArgsConstructor
 public class PermissionsController {
 
@@ -33,6 +34,16 @@ public class PermissionsController {
     @GetMapping("/votePermissions")
     public String permissions(Model model) {
         model.addAttribute("toolUrl", externalLogic.getCurrentToolURL());
+        model.addAttribute("canAdd", isAllowedPollAdd());
+        model.addAttribute("isSiteOwner", isSiteOwner());
         return "polls/permissions";
+    }
+
+    private boolean isAllowedPollAdd() {
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+    }
+
+    private boolean isSiteOwner() {
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference());
     }
 }

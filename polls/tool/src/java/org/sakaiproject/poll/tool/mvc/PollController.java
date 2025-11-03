@@ -44,7 +44,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.sakaiproject.util.ResourceLoader;
 
 @Controller
-@RequestMapping("/faces")
+@RequestMapping
 @Slf4j
 public class PollController {
 
@@ -151,7 +151,7 @@ public class PollController {
         if (deleteIds == null || deleteIds.isEmpty()) {
             redirectAttributes.addFlashAttribute("alert",
                     messageSource.getMessage("poll_list_delete_tooltip", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
 
         switch (action) {
@@ -168,7 +168,7 @@ public class PollController {
             default -> redirectAttributes.addFlashAttribute("alert",
                     messageSource.getMessage("poll_list_delete_tooltip", null, locale));
         }
-        return "redirect:/faces/votePolls";
+        return "redirect:/votePolls";
     }
 
     private boolean isAllowedPollAdd() {

@@ -6,24 +6,14 @@
 </head>
 <body>
   <div class="portletBody container-fluid">
-    <ul class="nav nav-pills mb-4">
-      <li class="nav-item">
-        <a class="nav-link" th:href="@{/faces/votePolls}" th:text="#{action_main}">Polls</a>
-      </li>
-      <li class="nav-item">
-        <span class="nav-link active" th:text="#{action_add_poll}">Add</span>
-      </li>
-      <li class="nav-item" th:if="${isSiteOwner}">
-        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
-      </li>
-    </ul>
+    <div th:replace="~{fragments/menus :: main('add')}"></div>
 
     <div th:if="${success}" class="sak-banner-success" role="status" th:text="${success}">Saved</div>
     <div th:if="${alert}" class="sak-banner-error" role="alert" th:text="${alert}">Alert</div>
 
     <h1 class="h3 mb-3" th:text="${isNew} ? #{new_poll_title} : #{new_poll_title_edit}">Poll</h1>
 
-    <form th:action="@{/faces/voteAdd}" th:object="${pollForm}" method="post" class="needs-validation" novalidate>
+    <form th:action="@{/voteAdd}" th:object="${pollForm}" method="post" class="needs-validation" novalidate>
       <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <input type="hidden" th:field="*{pollId}" />
 
@@ -94,8 +84,8 @@
             <tr th:each="option : ${options}">
               <td th:utext="${option.text}">Option text</td>
               <td class="text-nowrap d-flex gap-2">
-                <a class="btn btn-outline-secondary btn-sm" th:href="@{'/faces/pollOption'(optionId=${option.optionId})}" th:text="#{new_poll_option_edit}">Edit</a>
-                <a class="btn btn-outline-danger btn-sm" th:href="@{'/faces/pollOptionDelete'(optionId=${option.optionId})}" th:text="#{new_poll_option_delete}">Delete</a>
+                <a class="btn btn-outline-secondary btn-sm" role="button" th:href="@{'/pollOption'(optionId=${option.optionId})}" th:text="#{new_poll_option_edit}">Edit</a>
+                <a class="btn btn-outline-danger btn-sm" role="button" th:href="@{'/pollOptionDelete'(optionId=${option.optionId})}" th:text="#{new_poll_option_delete}">Delete</a>
               </td>
             </tr>
             </tbody>
@@ -147,9 +137,9 @@
         </div>
       </div>
 
-      <div class="mt-4 d-flex gap-2">
-        <button type="submit" class="btn btn-primary" th:text="#{new_poll_submit}">Save</button>
-        <a class="btn btn-secondary" th:href="@{/faces/votePolls}" th:text="#{new_poll_cancel}">Cancel</a>
+      <div class="mt-4 act">
+        <input type="submit" class="active" th:value="#{new_poll_submit}" value="Save" />
+        <input type="button" th:onclick="|location.href='@{/votePolls}'|" th:value="#{new_poll_cancel}" value="Cancel" />
       </div>
     </form>
 

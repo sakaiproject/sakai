@@ -7,31 +7,21 @@
 </head>
 <body>
   <div class="portletBody container-fluid">
-    <ul class="nav nav-pills mb-4">
-      <li class="nav-item">
-        <span class="nav-link active" th:text="#{action_main}">Polls</span>
-      </li>
-      <li class="nav-item" th:if="${canAdd}">
-        <a class="nav-link" th:href="@{/faces/voteAdd}" th:text="#{action_add_poll}">Add</a>
-      </li>
-      <li class="nav-item" th:if="${isSiteOwner}">
-        <a class="nav-link" th:href="@{/faces/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
-      </li>
-    </ul>
+    <div th:replace="~{fragments/menus :: main('list')}"></div>
 
     <div th:if="${success}" class="sak-banner-success" role="status" th:text="${success}">Success</div>
     <div th:if="${alert}" class="sak-banner-error" role="alert" th:text="${alert}">Error</div>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0" th:text="#{poll_list_title}">Polls</h1>
-      <a class="btn btn-primary" th:if="${canAdd}" th:href="@{/faces/voteAdd}" th:text="#{new_poll_title}">Add poll</a>
+      <a class="btn btn-primary" role="button" th:if="${canAdd}" th:href="@{/voteAdd}" th:text="#{new_poll_title}">Add poll</a>
     </div>
 
     <div class="sak-banner-info" role="status" th:if="${#lists.isEmpty(polls)}" th:text="#{poll_list_empty}">
       No polls have been created yet.
     </div>
 
-    <form th:if="${!#lists.isEmpty(polls)}" method="post" th:action="@{/faces/polls/bulk}">
+    <form th:if="${!#lists.isEmpty(polls)}" method="post" th:action="@{/polls/bulk}">
       <input type="hidden" name="siteId" th:value="${siteId}" />
 
       <div class="table-responsive">
@@ -61,14 +51,14 @@
             <tr th:each="poll : ${polls}">
               <td>
                 <div class="d-flex flex-column gap-1">
-                  <a th:if="${poll.votable}" class="fw-semibold" th:href="@{'/faces/voteQuestion'(pollId=${poll.id})}" th:text="${poll.text}">
+                  <a th:if="${poll.votable}" class="fw-semibold" th:href="@{'/voteQuestion'(pollId=${poll.id})}" th:text="${poll.text}">
                     Poll question
                   </a>
                   <span th:if="${!poll.votable}" th:text="${poll.optionCount == 0 ? poll.text + ' (' + #messages.msgOrNull('poll_no_options') + ')' : poll.text}">
                     Poll question
                   </span>
                   <div class="d-flex flex-wrap gap-2">
-                    <a th:if="${poll.editable}" class="btn btn-outline-secondary btn-sm" th:href="@{'/faces/voteAdd'(pollId=${poll.id})}" th:text="#{action_revise_poll}">
+                    <a th:if="${poll.editable}" class="btn btn-outline-secondary btn-sm" role="button" th:href="@{'/voteAdd'(pollId=${poll.id})}" th:text="#{action_revise_poll}">
                       Edit
                     </a>
                   </div>
@@ -83,7 +73,7 @@
                 <span th:if="${poll.voteCloseDisplay == null}">&nbsp;</span>
               </td>
               <td>
-                <a th:if="${poll.resultsVisible}" th:href="@{'/faces/voteResults'(pollId=${poll.id})}" th:text="#{action_view_results}">Results</a>
+                <a th:if="${poll.resultsVisible}" th:href="@{'/voteResults'(pollId=${poll.id})}" th:text="#{action_view_results}">Results</a>
               </td>
               <td>
                 <div class="form-check" th:if="${poll.deletable}">

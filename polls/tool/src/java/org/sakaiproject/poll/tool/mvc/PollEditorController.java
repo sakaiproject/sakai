@@ -48,7 +48,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/faces")
+@RequestMapping
 @RequiredArgsConstructor
 @Slf4j
 public class PollEditorController {
@@ -69,12 +69,12 @@ public class PollEditorController {
 
         if (resolvedId != null && poll == null) {
             model.addAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
 
         if (resolvedId != null && !canEditPoll(poll)) {
             model.addAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
 
         ZoneId zoneId = getUserZoneId();
@@ -114,22 +114,22 @@ public class PollEditorController {
         Poll poll = preparePollEntity(pollForm);
         if (poll == null) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
         try {
             Poll saved = pollsUiService.savePoll(poll, locale);
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_saved_success", null, locale));
 
             if ("option".equals(redirectTarget)) {
-                return "redirect:/faces/pollOption?pollId=" + saved.getPollId();
+                return "redirect:/pollOption?pollId=" + saved.getPollId();
             }
             if ("optionBatch".equals(redirectTarget)) {
-                return "redirect:/faces/pollOptionBatch?pollId=" + saved.getPollId();
+                return "redirect:/pollOptionBatch?pollId=" + saved.getPollId();
             }
             if (pollListManager.getOptionsForPoll(saved).isEmpty()) {
-                return "redirect:/faces/pollOption?pollId=" + saved.getPollId();
+                return "redirect:/pollOption?pollId=" + saved.getPollId();
             }
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         } catch (PollValidationException ex) {
             String field = switch (ex.getMessage()) {
                 case "close_before_open" -> "closeDate";
@@ -145,7 +145,7 @@ public class PollEditorController {
             Poll contextPoll = pollForm.getPollId() != null ? pollListManager.getPollById(pollForm.getPollId()) : poll;
             if (contextPoll == null) {
                 redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-                return "redirect:/faces/votePolls";
+                return "redirect:/votePolls";
             }
             model.addAttribute("poll", contextPoll);
             model.addAttribute("options", contextPoll.getPollId() != null ? pollListManager.getVisibleOptionsForPoll(contextPoll.getPollId()) : List.of());

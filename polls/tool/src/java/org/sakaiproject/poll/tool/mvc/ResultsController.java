@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/faces")
+@RequestMapping
 @Slf4j
 public class ResultsController {
 
@@ -68,7 +68,7 @@ public class ResultsController {
         Poll poll = pollListManager.getPollById(pollId);
         if (!pollListManager.isAllowedViewResults(poll, externalLogic.getCurrentUserId())) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll.noviewresult", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
 
         List<Option> options = new ArrayList<>(pollListManager.getOptionsForPoll(poll));

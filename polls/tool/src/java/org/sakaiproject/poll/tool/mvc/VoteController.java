@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/faces")
+@RequestMapping
 @RequiredArgsConstructor
 @Slf4j
 public class VoteController {
@@ -63,15 +63,15 @@ public class VoteController {
             poll = pollListManager.getPollById(pollId);
         } catch (SecurityException e) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
         if (poll == null) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
         if (!pollVoteManager.pollIsVotable(poll)) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
 
         boolean multipleChoice = poll.getMaxOptions() > 1;
@@ -99,11 +99,11 @@ public class VoteController {
         } catch (SecurityException e) {
             log.debug("User lacks permission to view poll {}", voteForm.getPollId(), e);
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
         if (poll == null) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-            return "redirect:/faces/votePolls";
+            return "redirect:/votePolls";
         }
         try {
             List<Long> optionIds = voteForm.getSelectedOptionIds() != null
@@ -111,10 +111,10 @@ public class VoteController {
                     : new ArrayList<>();
             VoteCollection voteCollection = pollsUiService.submitVote(voteForm.getPollId(), optionIds);
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("thanks_msg", null, locale));
-            return "redirect:/faces/voteThanks?voteRef=" + voteCollection.getId();
+            return "redirect:/voteThanks?voteRef=" + voteCollection.getId();
         } catch (PollValidationException ex) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale));
-            return "redirect:/faces/voteQuestion?pollId=" + poll.getPollId();
+            return "redirect:/voteQuestion?pollId=" + poll.getPollId();
         }
     }
 

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <div th:fragment="main (current)">
+    <ul class="navIntraTool">
+      <li>
+        <span th:class="${current}=='list' ? 'current'">
+          <span th:if="${current}=='list'" th:text="#{action_main}">Polls</span>
+          <a th:unless="${current}=='list'" th:href="@{/votePolls}" th:text="#{action_main}">Polls</a>
+        </span>
+      </li>
+      <li th:if="${canAdd}">
+        <span th:class="${current}=='add' ? 'current'">
+          <span th:if="${current}=='add'" th:text="#{action_add_poll}">Add</span>
+          <a th:unless="${current}=='add'" th:href="@{/voteAdd}" th:text="#{action_add_poll}">Add</a>
+        </span>
+      </li>
+      <li th:if="${isSiteOwner}">
+        <span th:class="${current}=='permissions' ? 'current'">
+          <span th:if="${current}=='permissions'" th:text="#{action_set_permissions}">Permissions</span>
+          <a th:unless="${current}=='permissions'" th:href="@{/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
+        </span>
+      </li>
+    </ul>
+  </div>
+</body>
+</html>
