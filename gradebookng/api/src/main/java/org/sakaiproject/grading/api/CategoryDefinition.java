@@ -63,6 +63,28 @@ public class CategoryDefinition implements Serializable {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
+    /**
+     * Null-safe getter for equalWeight. Some import paths may produce
+     * CategoryDefinition instances with a null {@code equalWeight} value
+     * when gradebook settings are not imported. Default to {@code false}
+     * to avoid autounboxing NPEs in callers that expect a non-null Boolean.
+     *
+     * @return {@code Boolean.FALSE} when unset, otherwise the stored value
+     */
+    public Boolean getEqualWeight() {
+        return Boolean.TRUE.equals(this.equalWeight) ? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    /**
+     * Null-safe getter for dropKeepEnabled. Default to {@code false} when unset
+     * to prevent autounboxing NPEs during category calculations.
+     *
+     * @return {@code Boolean.FALSE} when unset, otherwise the stored value
+     */
+    public Boolean getDropKeepEnabled() {
+        return Boolean.TRUE.equals(this.dropKeepEnabled) ? Boolean.TRUE : Boolean.FALSE;
+    }
+
     static {
         orderComparator = new Comparator<CategoryDefinition>() {
             @Override
