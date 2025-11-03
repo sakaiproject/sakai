@@ -118,6 +118,7 @@ import org.sakaiproject.contentreview.dao.ContentReviewConstants;
 import org.sakaiproject.contentreview.dao.ContentReviewItem;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.service.ContentReviewService;
+import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
@@ -4289,11 +4290,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     String peerBodyMigrated = linkMigrationHelper.migrateAllLinks(transversalMap.entrySet(), peerBody);
 
                     try {
-                        if (!msgBody.equals(msgBodyMigrated)) {
+                        if (!Objects.equals(msgBody, msgBodyMigrated)) {
                             assignment.setInstructions(msgBodyMigrated);
                             updateAssignment(assignment);
                         }
-                        if (!peerBody.equals(peerBodyMigrated)) {
+                        if (!Objects.equals(peerBody, peerBodyMigrated)) {
                             assignment.setPeerAssessmentInstructions(peerBodyMigrated);
                             updateAssignment(assignment);
                         }
@@ -5132,11 +5133,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     private Optional<Long> createCategoryForGbAssignmentIfNecessary(
-            org.sakaiproject.grading.api.Assignment gbAssignment, String fromGradebookId
-                , String toGradebookId) {
+            org.sakaiproject.grading.api.Assignment gbAssignment, String fromGradebookId,
+            String toGradebookId) {
 
         String categoryName = gbAssignment.getCategoryName();
         if (!StringUtils.isBlank(categoryName)) {
+            GradebookInformation toGbInformation = gradingService.getGradebookInformation(toGradebookId, toGradebookId);
+            Integer destCategoryType = toGbInformation.getCategoryType();
+
+            // Respect destination Gradebook configuration during assignment-only imports.
+            // - If destination has no categories, do not create categories implicitly (leave uncategorized).
+            if (Objects.equals(destCategoryType, GradingConstants.CATEGORY_TYPE_NO_CATEGORY)) {
+                log.info("Assignment import: destination gradebook has no categories; skipping creation for category '{}'.", categoryName);
+                return Optional.empty();
+            }
+
             List<CategoryDefinition> toCategoryDefinitions
                 = gradingService.getCategoryDefinitions(toGradebookId, toGradebookId);
             if (toCategoryDefinitions == null) {
@@ -5145,26 +5156,35 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
             if (!toCategoryDefinitions.stream().anyMatch(cd -> cd.getName().equals(categoryName))) {
                 // The category doesn't exist yet
-                CategoryDefinition fromCategoryDefinition
-                    = gradingService.getCategoryDefinitions(fromGradebookId, fromGradebookId)
-                        .stream()
-                        .filter(cd -> cd.getName().equals(categoryName))
-                            .findAny().get();
+                Optional<CategoryDefinition> maybeFrom = gradingService.getCategoryDefinitions(fromGradebookId, fromGradebookId)
+                    .stream()
+                    .filter(cd -> cd.getName().equals(categoryName))
+                    .findAny();
+                if (!maybeFrom.isPresent()) {
+                    return Optional.empty();
+                }
+                CategoryDefinition fromCategoryDefinition = maybeFrom.get();
                 CategoryDefinition toCategoryDefinition = new CategoryDefinition();
                 toCategoryDefinition.setName(fromCategoryDefinition.getName());
                 toCategoryDefinition.setAssignmentList(
                     Arrays.asList(new org.sakaiproject.grading.api.Assignment[] { gbAssignment }));
                 toCategoryDefinition.setExtraCredit(fromCategoryDefinition.getExtraCredit());
-                toCategoryDefinition.setWeight(fromCategoryDefinition.getWeight());
+                // For categories-only destinations, ignore source weight; set safe default 0.0.
+                // For weighted destinations, create with 0.0 so total weight remains 100% until instructor adjusts.
+                Double safeWeight = 0.0d;
+                toCategoryDefinition.setWeight(safeWeight);
                 toCategoryDefinition.setDropHighest(fromCategoryDefinition.getDropHighest());
                 toCategoryDefinition.setDropLowest(fromCategoryDefinition.getDropLowest());
                 toCategoryDefinition.setKeepHighest(fromCategoryDefinition.getKeepHighest());
-                GradebookInformation toGbInformation = gradingService.getGradebookInformation(toGradebookId, toGradebookId);
-                GradebookInformation fromGbInformation = gradingService.getGradebookInformation(fromGradebookId, fromGradebookId);
-                toGbInformation.setCategoryType(fromGbInformation.getCategoryType());
+                // Add new category and persist without changing destination category type
                 List<CategoryDefinition> categories = toGbInformation.getCategories();
                 categories.add(toCategoryDefinition);
                 gradingService.updateGradebookSettings(toGradebookId, toGradebookId, toGbInformation);
+                if (Objects.equals(destCategoryType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)) {
+                    log.info("Assignment import: created new weighted category '{}' in site {} with weight 0.0; instructor should adjust weights to include it.", categoryName, toGradebookId);
+                } else {
+                    log.info("Assignment import: created new category '{}' in site {}.", categoryName, toGradebookId);
+                }
             }
 
             // A new category may have been added in the previous block. Pull them again, just to be sure. This will
