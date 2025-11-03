@@ -32,26 +32,26 @@
     <h:panelGroup layout="block">
         <br />
         <h:panelGroup layout="block">
-            <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel"
+            <h:outputLabel styleClass="answerkeyFeedbackCommentLabel"
                 value="#{deliveryMessages.ans_key}: " />
-            <h:outputText id="answerKeyMC" value="#{question.key}" escape="false" />
+            <h:outputText id="answerKeyMC_#{question.itemData.itemId}" value="#{question.key}" escape="false" />
         </h:panelGroup>
         <h:panelGroup layout="block">
             <br />
             <h:panelGroup styleClass="si si-check-lg" id="imageCheck" />
             <strong>
-                <h:outputLabel for="feedSC"
+                <h:outputLabel
                     value="#{authorMessages.correctItemFeedback}#{deliveryMessages.column} " />
             </strong>
-            <h:outputText id="feedSC"
+            <h:outputText
                 value="#{question.itemData.correctItemFeedbackValue}" escape="false" />
             <br />
             <h:panelGroup styleClass="si si-remove feedBackCross" id="imageCross" />
             <strong>
-                <h:outputLabel for="feedSCI"
+                <h:outputLabel
                     value="#{authorMessages.incorrectItemFeedback}#{deliveryMessages.column} " />
             </strong>
-            <h:outputText id="feedSCI"
+            <h:outputText
                 value="#{question.itemData.inCorrectItemFeedbackValue}" escape="false" />
         </h:panelGroup>
     </h:panelGroup>

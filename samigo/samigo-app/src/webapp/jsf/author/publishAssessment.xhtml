@@ -83,11 +83,17 @@
 
   <h:panelGrid>
     <h:panelGroup>
+        <!-- Initial publish (draft -> published) -->
+        <h:commandButton  value="#{commonMessages.publish_action}" type="submit" styleClass="active" rendered="#{author.isEditPendingAssessmentFlow}" action="publishAssessment" onclick="SPNR.disableControlsAndSpin(this, null);">
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
+        </h:commandButton>
+
+        <!-- Republish flows -->
         <h:commandButton  value="#{authorMessages.button_republish_and_regrade}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow &amp;&amp; author.isRepublishAndRegrade}" action="publishAssessment" onclick="SPNR.disableControlsAndSpin(this, null);">
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorPublishedAssessmentListener" />
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
         </h:commandButton>
         <h:commandButton  value="#{authorMessages.button_republish}" type="submit" styleClass="active" rendered="#{!author.isEditPendingAssessmentFlow &amp;&amp; !author.isRepublishAndRegrade}" action="publishAssessment" onclick="SPNR.disableControlsAndSpin(this, null);">
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorPublishedAssessmentListener" />
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
         </h:commandButton>
         <h:commandButton value="#{commonMessages.cancel_action}" type="submit" styleClass="active" action="author" onclick="SPNR.disableControlsAndSpin(this, null);">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
@@ -100,7 +106,7 @@
       <b><h:outputText value="#{assessmentSettingsMessages.published_assessment}"/></b>
     </h:panelGroup>
     <h:panelGroup>
-      <h:outputText value="#{publishedSettings.assessmentTitle}" />
+      <h:outputText value="#{publishedSettings.title}" />
     </h:panelGroup>
 
     <h:panelGroup>
@@ -116,7 +122,6 @@
       <h:panelGroup  rendered="#{publishedSettings.releaseTo ne 'Anonymous Users'}" > 
         <h:panelGroup>
           <h:outputText value=" #{assessmentSettingsMessages.available} " />
-          <h:outputText value=" #{assessmentSettingsMessages.class} " />
           <h:outputFormat value=" #{assessmentSettingsMessages.available_class_at}" escape="false" rendered="#{publishedSettings.releaseTo ne 'Anonymous Users' &amp;&amp; publishedSettings.releaseTo ne 'Selected Groups'}">
             <f:param value="#{assessmentSettings.startDateInClientTimezoneString}" />
           </h:outputFormat>

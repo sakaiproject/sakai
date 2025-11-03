@@ -32,7 +32,9 @@
 
      <h:panelGroup>
        <h:outputLabel  styleClass="form_label" value="#{authorImportExport.choose_file} "/>
-       <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}" valueChangeListener="#{xmlImport.importAssessment}"/>
+       <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}">
+         <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.bean.qti.ImportAssessmentValueChangeListener" />
+       </corejsf:upload>
      </h:panelGroup>
      <h:outputText value="&#160;" escape="false"/>
        <h:outputText value="#{authorImportExport.file_is}"/>
@@ -59,4 +61,3 @@
     </f:view>
     
 </ui:composition>
-

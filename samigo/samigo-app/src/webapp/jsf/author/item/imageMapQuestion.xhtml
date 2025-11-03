@@ -179,8 +179,9 @@
         <h:outputLabel for="upl" value="#{authorMessages.image_map_src}" styleClass="col-md-2 form-label"/>
         <div class="col-md-10">
             <corejsf:upload
-                target="jsf/upload_tmp/assessment#{assessmentBean.assessmentId}/question#{itemauthor.currentItem.itemId}/#{person.eid}"
-                valueChangeListener="#{itemauthor.addImageToQuestion}" />
+                target="jsf/upload_tmp/assessment#{assessmentBean.assessmentId}/question#{itemauthor.currentItem.itemId}/#{person.eid}">
+                <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.AddImageToQuestionValueChangeListener" />
+            </corejsf:upload>
             <h:commandButton id="upl" action="imageMapItem" value="#{deliveryMessages.upload}" onclick='resetList()'/>
         </div>
         <h:outputLabel value="#{authorMessages.image_map_alt}" styleClass="col-md-2 form-label"/>

@@ -31,13 +31,13 @@
 
     <br />
 
-    <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
+    <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review_#{question.itemData.itemId}"
         rendered="#{(delivery.actionString == 'previewAssessment'
                 or delivery.actionString == 'takeAssessment'
                 or delivery.actionString == 'takeAssessmentViaUrl')
             and delivery.navigation ne '1'}" />
 
-    <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}"
+    <h:outputLabel for="mark_for_review_#{question.itemData.itemId}" value="#{deliveryMessages.mark}"
         rendered="#{(delivery.actionString == 'previewAssessment'
                 or delivery.actionString == 'takeAssessment'
                 or delivery.actionString == 'takeAssessmentViaUrl')
@@ -48,7 +48,7 @@
             rendered="#{((delivery.feedbackComponent.showCorrectResponse and delivery.feedbackComponent.showCorrection and delivery.noFeedback != 'true')
                 or delivery.actionString == 'gradeAssessment') and question.modelAnswerIsNotEmpty}">
             <h:panelGroup>
-                <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel"
+                <h:outputLabel styleClass="answerkeyFeedbackCommentLabel"
                     value="#{deliveryMessages.model} " />
                 <h:outputText value="#{question.key}" escape="false" />
             </h:panelGroup>
@@ -57,9 +57,9 @@
 
         <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel and delivery.noFeedback != 'true' and question.feedbackIsNotEmpty}">
             <h:panelGroup>
-                <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
+                <h:outputLabel styleClass="answerkeyFeedbackCommentLabel"
                     value="#{commonMessages.feedback}#{deliveryMessages.column} " />
-                <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+                <h:outputText value="#{question.feedback}" escape="false" />
             </h:panelGroup>
             <h:outputText value=" " />
         </h:panelGrid>
@@ -70,9 +70,9 @@
                 and delivery.noFeedback != 'true'
                 and (question.gradingCommentIsNotEmpty or question.hasItemGradingAttachment)}">
             <h:panelGroup>
-                <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel"
+                <h:outputLabel for="commentSC_#{question.itemData.itemId}" styleClass="answerkeyFeedbackCommentLabel"
                     value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
-                <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false"
+                <h:outputText id="commentSC_#{question.itemData.itemId}" value="#{question.gradingComment}" escape="false"
                     rendered="#{question.gradingCommentIsNotEmpty}" />
             </h:panelGroup>
 

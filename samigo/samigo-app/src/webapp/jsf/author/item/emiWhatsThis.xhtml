@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.example_emi_question}" />
+            </title>
+            <script>
+                $(function(){ $('#closeBut').on('click', function(){ window.close(); }); });
+            </script>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <h3 style="text-align:center">
+                <h:outputText value="#{authorMessages.example_emi_question}" />
+            </h3>
+            <br />
+            <table style="width:95%" align="center" border="0" cellspacing="5" class="act greyBox">
+                <tr style="background-color: #{param.item eq 'point' ? 'lightgrey' : 'white'}">
+                    <td style="width:30%" align="center" valign="top"><b>
+                        <a name="point"><h:outputText value="#{authorMessages.emi_whats_answer_point_title}" /></a>
+                    </b></td>
+                    <td>
+                        <h:outputText value="#{authorMessages.emi_whats_answer_point}" escape="false" />
+                    </td>
+                </tr>
+                <tr style="background-color: #{param.item eq 'theme' ? 'lightgrey' : 'white'}">
+                    <td align="center" valign="top"><b>
+                        <a name="theme"><h:outputText value="#{authorMessages.emi_whats_theme_title}" /></a>
+                    </b></td>
+                    <td>
+                        <h:outputText value="#{authorMessages.emi_whats_theme}" escape="false" />
+                    </td>
+                </tr>
+                <tr style="background-color: #{param.item eq 'options' ? 'lightgrey' : 'white'}">
+                    <td align="center" valign="top"><b>
+                        <a name="options"><h:outputText value="#{authorMessages.emi_whats_options_title}" /></a>
+                    </b></td>
+                    <td>
+                        <h:outputText value="#{authorMessages.emi_whats_options}" escape="false" />
+                    </td>
+                </tr>
+                <tr style="background-color: #{param.item eq 'leadin' ? 'lightgrey' : 'white'}">
+                    <td align="center" valign="top"><b>
+                        <a name="leadin"><h:outputText value="#{authorMessages.emi_whats_leadin_title}" /></a>
+                    </b></td>
+                    <td>
+                        <h:outputText value="#{authorMessages.emi_whats_leadin}" escape="false" />
+                    </td>
+                </tr>
+                <tr style="background-color: #{param.item eq 'items' ? 'lightgrey' : 'white'}">
+                    <td align="center" valign="top"><b>
+                        <a name="items"><h:outputText value="#{authorMessages.emi_whats_items_title}" /></a>
+                    </b></td>
+                    <td>
+                        <h:outputText value="#{authorMessages.emi_whats_items}" escape="false" />
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <div style="text-align:center">
+                <h:commandButton id="closeBut" value="#{authorMessages.button_close}" styleClass="active" />
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>
+

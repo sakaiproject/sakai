@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.multiple_choice_type}" />
+            </title>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <h:form>
+                <h:panelGrid columns="1" border="0">
+                    <h:outputText value="#{authorMessages.mc_whats_this_main_text}" escape="false" />
+                    <h:outputText value="&#160;" />
+
+                    <h:panelGroup>
+                        <b><h:outputText value="#{commonMessages.multiple_choice_sin}" escape="false" /></b>
+                    </h:panelGroup>
+
+                    <h:outputText value="#{authorMessages.mcsc_whats_this_text}" escape="false"
+                                   rendered="#{itemauthor.currentItem.partialCreditEnabled==true}" />
+                    <h:outputText value=" #{authorMessages.mcsc_whats_this_text_no_partial_credit}" escape="false"
+                                   rendered="#{itemauthor.currentItem.partialCreditEnabled!=true}" />
+                    <h:outputText value="&#160;"
+                                   rendered="#{itemauthor.currentItem.partialCreditEnabled!=true}" />
+
+                    <h:panelGroup rendered="#{itemauthor.currentItem.partialCreditEnabled==true}">
+                        <ul>
+                            <li>
+                                <b><h:outputText value="#{authorMessages.enable_nagative_marking}: " /></b>
+                                <h:outputText value="#{authorMessages.enable_negative_makrinkg_text}" escape="false" />
+                            </li>
+                            <li>
+                                <b><h:outputText value="#{authorMessages.enable_partial_credit}: " /></b>
+                                <h:outputText value="#{authorMessages.enable_partial_credit_text}" escape="false" />
+                            </li>
+                            <li>
+                                <b><h:outputText value="#{authorMessages.reset_grading_logic}: " /></b>
+                                <h:outputText value="#{authorMessages.reset_to_default_grading_logic_text}" escape="false" />
+                            </li>
+                        </ul>
+                    </h:panelGroup>
+
+                    <h:panelGroup>
+                        <b><h:outputText value="#{commonMessages.multipl_mc_ss}" escape="false" /></b>
+                    </h:panelGroup>
+                    <h:outputText value="#{authorMessages.mcss_whats_this_text}" escape="false" />
+
+                    <h:outputText value="&#160;" />
+
+                    <h:panelGroup>
+                        <b><h:outputText value="#{commonMessages.multipl_mc_ms}" escape="false" /></b>
+                    </h:panelGroup>
+                    <h:outputText value="#{authorMessages.mcms_whats_this_text}" escape="false" />
+                    <h:outputText value="#{authorMessages.mcms_whats_this_partial_text}" escape="false" />
+                    <h:outputText value="#{authorMessages.mcms_whats_this_partial_note}" escape="false" />
+                    <h:outputText value="#{authorMessages.mcms_whats_this_full_text}" escape="false" />
+
+                    <h:outputText value="&#160;" />
+
+                    <h:commandButton id="close" onclick="window.close();" onkeypress="window.close();"
+                                     value="#{authorMessages.button_close}" />
+                </h:panelGrid>
+            </h:form>
+        </h:body>
+    </f:view>
+
+</ui:composition>

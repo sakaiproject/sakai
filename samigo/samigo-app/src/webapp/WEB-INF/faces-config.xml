@@ -964,7 +964,7 @@
 
 
    <navigation-rule>
-      <from-view-id>/jsf/upload/uploadFile.jsp</from-view-id>
+      <from-view-id>/jsf/upload/uploadFile.xhtml</from-view-id>
       <navigation-case>
          <from-outcome>submit</from-outcome>
          <to-view-id>/jsf/upload/closeWindow.xhtml</to-view-id>

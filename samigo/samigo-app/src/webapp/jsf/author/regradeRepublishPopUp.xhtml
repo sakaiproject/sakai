@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>
+                <h:outputText value="#{authorMessages.regrade_republish}" />
+            </title>
+        </h:head>
+        <h:body onload="#{empty requestScope['html.body.onload'] ? '' : requestScope['html.body.onload']}">
+            <h:panelGrid columns="1" border="0">
+                <h:panelGroup>
+                    <h:outputText value="#{authorMessages.what_is_republish_1}" />
+                    <b><h:outputText value=" #{authorMessages.what_is_republish_2} " /></b>
+                    <h:outputText value="#{authorMessages.what_is_republish_3}" />
+                </h:panelGroup>
+
+                <h:outputText value="&lt;br /&gt;" escape="false" />
+
+                <h:panelGroup>
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_1}" />
+                    <b><h:outputText value=" #{authorMessages.what_is_regrade_republish_2} " /></b>
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_3}" />
+                </h:panelGroup>
+
+                <h:panelGrid columns="1" border="0">
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_4}" />
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_5}" />
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_6}" />
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_7}" />
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_8}" />
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_9}" />
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_10}" />
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_11}" />
+                    <h:outputText value=" " />
+                    <h:outputText value="#{authorMessages.what_is_regrade_republish_12}" />
+                </h:panelGrid>
+
+                <h:outputText value="&lt;br /&gt;" escape="false" />
+
+                <h:commandButton id="close" onclick="window.close();" onkeypress="window.close();"
+                                 value="#{authorMessages.button_close}" />
+            </h:panelGrid>
+        </h:body>
+    </f:view>
+
+</ui:composition>

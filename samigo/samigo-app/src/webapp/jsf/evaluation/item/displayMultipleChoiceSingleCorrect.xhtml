@@ -40,10 +40,9 @@
 
     <h:panelGroup rendered="#{question.partialCreditFlag}">
         <strong>
-            <h:outputLabel for="answerKeyMC"
-                value="#{deliveryMessages.ans_key}#{deliveryMessages.column} " />
+            <h:outputLabel value="#{deliveryMessages.ans_key}#{deliveryMessages.column} " />
         </strong>
-        <h:outputText id="answerKeyMC" value="#{question.answerKey}" escape="false" />
+        <h:outputText value="#{question.answerKey}" escape="false" />
     </h:panelGroup>
 
     <ui:include src="/jsf/evaluation/item/displayTags.xhtml" />

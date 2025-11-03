@@ -105,8 +105,8 @@
             or delivery.actionString == 'takeAssessmentViaUrl')
         and delivery.navigation ne '1'
         and delivery.displayMardForReview}">
-        <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
-        <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
+        <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review_#{question.itemData.itemId}" />
+        <h:outputLabel for="mark_for_review_#{question.itemData.itemId}" value="#{deliveryMessages.mark}" />
         <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#"
             onclick="javascript:window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/author/markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');event.preventDefault();">
             <h:outputText value=" #{assessmentSettingsMessages.whats_this_link}" />
@@ -116,9 +116,9 @@
     <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
         <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel and question.feedbackIsNotEmpty}">
             <h:panelGroup>
-                <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
+                <h:outputLabel styleClass="answerkeyFeedbackCommentLabel"
                     value="#{commonMessages.feedback}#{deliveryMessages.column} " />
-                <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+                <h:outputText value="#{question.feedback}" escape="false" />
             </h:panelGroup>
             <h:outputText value=" " />
         </h:panelGrid>
@@ -129,9 +129,9 @@
                 and delivery.noFeedback != 'true'
                 and (question.gradingCommentIsNotEmpty or question.hasItemGradingAttachment)}">
             <h:panelGroup>
-                <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel"
+                <h:outputLabel for="commentSC_#{question.itemData.itemId}" styleClass="answerkeyFeedbackCommentLabel"
                     value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
-                <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false"
+                <h:outputText id="commentSC_#{question.itemData.itemId}" value="#{question.gradingComment}" escape="false"
                     rendered="#{question.gradingCommentIsNotEmpty}" />
             </h:panelGroup>
 

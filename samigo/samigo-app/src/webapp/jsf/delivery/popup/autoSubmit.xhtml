@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title><h:outputText value="#{authorMessages.auto_submit}" /></title>
+        </h:head>
+        <h:body>
+            <div class="portletBody">
+                <h3><h:outputText value="#{authorMessages.auto_submit}" /></h3>
+                <div class="tier1">
+                    <h:panelGroup styleClass="insColor insBak" rendered="true">
+                        <h3><h:outputText value="#{authorMessages.time_exp}" /></h3>
+                    </h:panelGroup>
+                    <h:form id="ok">
+                        <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table" />
+                        <h:commandButton value="#{authorMessages.button_ok}" type="submit" styleClass="active" action="select" />
+                    </h:form>
+                </div>
+            </div>
+        </h:body>
+    </f:view>
+
+</ui:composition>
+

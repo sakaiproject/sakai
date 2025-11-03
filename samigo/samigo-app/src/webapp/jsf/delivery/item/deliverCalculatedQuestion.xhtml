@@ -48,8 +48,8 @@
             or delivery.actionString == 'takeAssessmentViaUrl')
         and delivery.navigation ne '1'
         and delivery.displayMardForReview}">
-        <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
-        <h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
+        <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review_#{question.itemData.itemId}" />
+        <h:outputLabel for="mark_for_review_#{question.itemData.itemId}" value="#{deliveryMessages.mark}" />
         <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#"
             onclick="javascript:window.open('/samigo-app/jsf/author/markForReviewPopUp.faces','MarkForReview','width=350,height=280,scrollbars=yes, resizable=yes');event.preventDefault();">
             <h:outputText value=" #{assessmentSettingsMessages.whats_this_link}" />
@@ -61,17 +61,17 @@
         <h:panelGroup rendered="#{(delivery.feedbackComponent.showCorrectResponse and delivery.feedbackComponent.showCorrection and delivery.noFeedback != 'true')
                 or delivery.actionString == 'gradeAssessment'}">
             <strong>
-                <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel"
+                <h:outputLabel styleClass="answerkeyFeedbackCommentLabel"
                     value="#{deliveryMessages.ans_key}: " />
             </strong>
-            <h:outputText id="answerKeyMC" value="#{question.key}" escape="false" />
+            <h:outputText id="answerKeyMC_#{question.itemData.itemId}" value="#{question.key}" escape="false" />
         </h:panelGroup>
         <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel and delivery.noFeedback != 'true' and question.feedbackIsNotEmpty}">
             <br />
             <strong>
-                <h:outputLabel for="feedSC" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+                <h:outputLabel value="#{commonMessages.feedback}#{deliveryMessages.column} " />
             </strong>
-            <h:outputText id="feedSC" value="#{question.feedbackValue}" escape="false" />
+            <h:outputText value="#{question.feedbackValue}" escape="false" />
         </h:panelGroup>
         <h:panelGroup rendered="#{delivery.actionString != 'gradeAssessment'
                 and delivery.feedbackComponent.showGraderComment
@@ -79,9 +79,9 @@
                 and question.gradingCommentIsNotEmpty}">
             <br />
             <strong>
-                <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+                <h:outputLabel for="commentSC_#{question.itemData.itemId}" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
             </strong>
-            <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" />
+            <h:outputText id="commentSC_#{question.itemData.itemId}" value="#{question.gradingComment}" escape="false" />
         </h:panelGroup>
     </h:panelGroup>
 

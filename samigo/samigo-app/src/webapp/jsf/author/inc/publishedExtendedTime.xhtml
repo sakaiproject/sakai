@@ -83,7 +83,7 @@
             </h:panelGroup>
             <h:panelGroup styleClass="form-group row" layout="block">
                 <h:panelGroup styleClass="col-md-6" layout="block">
-                    <h:commandButton value="#{assessmentSettingsMessages.button_submit}" action="#{publishedSettings.saveExtendedTime}">
+                    <h:commandButton value="#{assessmentSettingsMessages.button_save_settings}" action="#{publishedSettings.saveExtendedTime}">
                         <f:param name="addExtendedTime" value="true" />
                     </h:commandButton>
                 </h:panelGroup>
@@ -96,7 +96,7 @@
             <t:dataTable id="exceptionList"
                          styleClass="table table-striped table-bordered mt-4 extendedTimeTable"
                          rowClasses="list-row-even,list-row-odd"
-                         value="#{publishedSettings.extendedTimeSortedEntrySet}"
+                         value="#{publishedSettings.extendedTimes}"
                          var="entry"
                          rendered="#{publishedSettings.extendedTimesSize > 0}">
                 <h:column headerClass="extendedTime-user">

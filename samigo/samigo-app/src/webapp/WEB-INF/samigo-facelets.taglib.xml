@@ -38,4 +38,13 @@
         </component>
     </tag>
 
+    <!-- Custom radio button component used by matrix choices survey -->
+    <tag>
+        <tag-name>radioButton</tag-name>
+        <component>
+            <component-type>CustomSelectOneRadio</component-type>
+            <renderer-type>CustomSelectOneRadio</renderer-type>
+        </component>
+    </tag>
+
 </facelet-taglib>

@@ -61,9 +61,9 @@
                     and (delivery.graderComment ne '' or delivery.hasAssessmentGradingAttachment)}"
         columns="1" border="0">
         <h:panelGroup>
-            <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel"
+            <h:outputLabel for="commentSC_#{delivery.assessmentId}" styleClass="answerkeyFeedbackCommentLabel"
                 value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
-            <h:outputText id="commentSC" value="#{delivery.graderComment}" escape="false"
+            <h:outputText id="commentSC_#{delivery.assessmentId}" value="#{delivery.graderComment}" escape="false"
                 rendered="#{delivery.graderComment ne ''}" />
         </h:panelGroup>
 

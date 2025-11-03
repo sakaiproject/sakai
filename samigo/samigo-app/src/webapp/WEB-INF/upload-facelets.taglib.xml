@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<facelet-taglib xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facelettaglibrary_2_2.xsd"
+    version="2.2">
+
+    <namespace>http://java.sun.com/upload</namespace>
+
+    <tag>
+        <tag-name>upload</tag-name>
+        <component>
+            <component-type>com.corejsf.Upload</component-type>
+            <renderer-type>com.corejsf.Upload</renderer-type>
+        </component>
+    </tag>
+
+</facelet-taglib>
+

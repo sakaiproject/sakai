@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:corejsf="http://java.sun.com/upload"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <f:view>
+        <f:event type="preRenderView" listener="#{portalHeaderConfigurator.configure}" />
+        <h:head>
+            <ui:fragment rendered="#{not empty requestScope['html.head']}">
+                <h:outputText value="#{requestScope['html.head']}" escape="false" />
+            </ui:fragment>
+            <title>A file upload test</title>
+        </h:head>
+        <h:body>
+            <h:form enctype="multipart/form-data">
+                Upload a file:
+                <corejsf:upload target="assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/" />
+                <h:commandButton value="Upload" action="submit" />
+            </h:form>
+        </h:body>
+    </f:view>
+
+</ui:composition>
+

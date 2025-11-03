@@ -36,9 +36,9 @@
 
     <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel and question.feedbackIsNotEmpty}">
         <h:panelGroup>
-            <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel"
+            <h:outputLabel styleClass="answerkeyFeedbackCommentLabel"
                 value="#{commonMessages.feedback}: " />
-            <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+            <h:outputText value="#{question.feedback}" escape="false" />
         </h:panelGroup>
         <h:outputText value=" " />
     </h:panelGrid>
