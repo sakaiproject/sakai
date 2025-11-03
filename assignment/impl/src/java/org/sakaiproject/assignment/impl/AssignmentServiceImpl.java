@@ -5178,6 +5178,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 toCategoryDefinition.setKeepHighest(fromCategoryDefinition.getKeepHighest());
                 // Add new category and persist without changing destination category type
                 List<CategoryDefinition> categories = toGbInformation.getCategories();
+                if (categories == null) {
+                    categories = new ArrayList<>();
+                    toGbInformation.setCategories(categories);
+                }
                 categories.add(toCategoryDefinition);
                 gradingService.updateGradebookSettings(toGradebookId, toGradebookId, toGbInformation);
                 if (Objects.equals(destCategoryType, GradingConstants.CATEGORY_TYPE_WEIGHTED_CATEGORY)) {
