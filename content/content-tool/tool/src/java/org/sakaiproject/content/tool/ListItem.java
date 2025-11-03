@@ -1166,7 +1166,7 @@ public class ListItem
 		}
 		
 		this.hidden = false;
-		this.hiddenWithAccessibleContent = this.collection;
+		this.hiddenWithAccessibleContent = false;
 		this.useReleaseDate = false;
 		this.useRetractDate = false;
 		this.isAvailable = parent.isAvailable();
@@ -1485,7 +1485,7 @@ public class ListItem
 
 		if (isCollection()) {
 			if (hiddenParam == null) {
-				this.hiddenWithAccessibleContent = true;
+				this.hiddenWithAccessibleContent = false;
 			} else {
 				this.hiddenWithAccessibleContent = hiddenAccessibleSelected || hiddenSelected;
 			}
