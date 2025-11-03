@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
@@ -680,8 +681,8 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             return true;
         }
 
-        //the owner can view the results
-        return poll.getOwner().equals(userId) && !externalLogic.userIsViewingAsRole();
+        // the owner can view the results (null-safe comparison)
+        return Objects.equals(poll.getOwner(), userId) && !externalLogic.userIsViewingAsRole();
     }
 
     public boolean isPollPublic(Poll poll) {

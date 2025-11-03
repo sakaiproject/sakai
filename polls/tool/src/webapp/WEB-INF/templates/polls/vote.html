@@ -23,7 +23,8 @@
                  class="me-2"
                  name="selectedOptionIds"
                  th:id="${'option-' + option.optionId}"
-                 th:value="${option.optionId}" />
+                 th:value="${option.optionId}"
+                 th:checked="${#lists.contains(voteForm.selectedOptionIds, option.optionId)}" />
           <span class="flex-grow-1" th:utext="${option.text}">Option text</span>
         </label>
       </div>

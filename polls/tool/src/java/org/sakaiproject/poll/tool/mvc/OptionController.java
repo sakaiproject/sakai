@@ -64,6 +64,9 @@ public class OptionController {
                              @RequestParam(value = "pollId", required = false) Long pollId,
                              Model model,
                              Locale locale) {
+        if (!isAllowedPollAdd()) {
+            return "redirect:/votePolls";
+        }
         OptionForm form = new OptionForm();
         Poll poll;
         if (optionId != null) {
@@ -173,6 +176,9 @@ public class OptionController {
     @GetMapping("/pollOptionDelete")
     public String deleteOption(@RequestParam("optionId") Long optionId,
                                Model model) {
+        if (!isAllowedPollAdd()) {
+            return "redirect:/votePolls";
+        }
         Option option = pollListManager.getOptionById(optionId);
         if (option == null) {
             return "redirect:/votePolls";

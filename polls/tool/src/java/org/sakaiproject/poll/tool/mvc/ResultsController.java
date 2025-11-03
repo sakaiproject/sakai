@@ -113,7 +113,7 @@ public class ResultsController {
                 .divide(new BigDecimal(potentialVoters), 4, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100));
 
-        String pollSizeDetails = String.format("%d / %d (%.02f %%)", distinctVoters, potentialVoters, voterPercent.setScale(2, RoundingMode.HALF_UP));
+        String pollSizeDetails = String.format(locale, "%d / %d (%.02f %%)", distinctVoters, potentialVoters, voterPercent.setScale(2, RoundingMode.HALF_UP));
         String pollSizeMessage = messageSource.getMessage("results_poll_size",
                 new Object[]{pollSizeDetails}, locale);
 
