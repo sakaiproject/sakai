@@ -5154,11 +5154,11 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 toCategoryDefinitions = new ArrayList<>();
             }
 
-            if (!toCategoryDefinitions.stream().anyMatch(cd -> cd.getName().equals(categoryName))) {
+            if (toCategoryDefinitions.stream().noneMatch(cd -> Objects.equals(cd.getName(), categoryName))) {
                 // The category doesn't exist yet
                 Optional<CategoryDefinition> maybeFrom = gradingService.getCategoryDefinitions(fromGradebookId, fromGradebookId)
                     .stream()
-                    .filter(cd -> cd.getName().equals(categoryName))
+                    .filter(cd -> Objects.equals(cd.getName(), categoryName))
                     .findAny();
                 if (!maybeFrom.isPresent()) {
                     return Optional.empty();
@@ -5166,8 +5166,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 CategoryDefinition fromCategoryDefinition = maybeFrom.get();
                 CategoryDefinition toCategoryDefinition = new CategoryDefinition();
                 toCategoryDefinition.setName(fromCategoryDefinition.getName());
-                toCategoryDefinition.setAssignmentList(
-                    Arrays.asList(new org.sakaiproject.grading.api.Assignment[] { gbAssignment }));
+                // Do not seed destination category with source-site assignments. Leave empty; the
+                // external gradebook link will be established later via addExternalAssessment(categoryId).
+                toCategoryDefinition.setAssignmentList(Collections.emptyList());
                 toCategoryDefinition.setExtraCredit(fromCategoryDefinition.getExtraCredit());
                 // For categories-only destinations, ignore source weight; set safe default 0.0.
                 // For weighted destinations, create with 0.0 so total weight remains 100% until instructor adjusts.
