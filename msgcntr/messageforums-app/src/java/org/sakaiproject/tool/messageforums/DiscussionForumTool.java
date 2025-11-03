@@ -1017,6 +1017,8 @@ public class DiscussionForumTool {
     if (getDecoratedForum() == null)
     {
       log.error("Forum not found");
+      // Clear cached state so main view rebuilds after import/replace
+      reset();
       return gotoMain();
     }
     return FORUM_DETAILS;
@@ -3847,8 +3849,10 @@ public class DiscussionForumTool {
         Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_READ, getEventReference(selectedTopic.getTopic()), null, true, NotificationService.NOTI_OPTIONAL, statement);
         eventTrackingService.post(event);
 
-    	return ALL_MESSAGES;
+	return ALL_MESSAGES;
     } else {
+        // Clear cached state so main view rebuilds after import/replace
+        reset();
     	return gotoMain();
     }
   }
