@@ -229,8 +229,10 @@
 
                    const parentDiv = document.querySelector('#row-container');
 
-                   parentDiv.addEventListener('click', handleButtonClick);
-                   parentDiv.addEventListener('keypress', handleButtonClick);
+                   if (parentDiv) {
+                       parentDiv.addEventListener('click', handleButtonClick);
+                       parentDiv.addEventListener('keypress', handleButtonClick);
+                   }
 		</script>
 	</div>
 </body>
