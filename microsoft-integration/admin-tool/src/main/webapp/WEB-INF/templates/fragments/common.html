@@ -11,6 +11,7 @@
 
 <div th:fragment="bootstrap">
 	<script>includeLatestJQuery('microsoft-admin');</script>
+	<script>includeWebjarLibrary('bootstrap');</script>
 	<script th:inline="javascript">
 		(function() {
 			const toolId = /*[[${#httpServletRequest.getAttribute('sakai.tool.placement.id')}]]*/'toolId';
