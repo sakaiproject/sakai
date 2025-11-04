@@ -36,6 +36,10 @@ To build from source use these steps:
           REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
           sakai        latest    ac16fc4db9dd   About a minute ago   1.86GB
 
+You can choose a repository and branch as follows:
+
+ 1. Execute `docker build --build-arg repository=https://github.com/csev/sakai --build-arg release=master -t sakai -f ./Dockerfile.source .` 
+
 # Running this image
 
 ## Starting MariaDB/MySQL

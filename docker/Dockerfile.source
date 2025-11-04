@@ -1,12 +1,13 @@
 FROM markhobson/maven-chrome:jdk-17 as build
 
 ARG release=master
+ARG repository=https://github.com/sakaiproject/sakai.git
 
 ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 COPY maven/settings.xml /usr/share/maven/conf/settings.xml
 RUN mkdir /deploy
 WORKDIR /deploy
-RUN git clone --depth 1 https://github.com/sakaiproject/sakai.git
+RUN git clone --depth 1 ${repository}
 WORKDIR /deploy/sakai
 RUN git checkout ${release} && mvn clean install --no-transfer-progress -T 1C sakai:deploy-exploded -Dmaven.test.skip=true 
 RUN mvn clean && rm -rf /root/.m2/repository 
