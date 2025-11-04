@@ -1016,7 +1016,7 @@ public class DiscussionForumTool {
     forumClickCount++;
     if (getDecoratedForum() == null)
     {
-      log.error("Forum not found");
+      log.warn("Forum not found for id {}", getExternalParameterByKey(FORUM_ID));
       // Clear cached state so main view rebuilds after import/replace
       reset();
       return gotoMain();
@@ -3863,6 +3863,8 @@ public class DiscussionForumTool {
     this.selectedForum = null;
     this.selectedTopic = null;
     this.selectedMessage = null;
+    this.selectedThreadHead = null;
+    this.selectedThread = new ArrayList();
 //    this.templateControlPermissions = null;
 //    this.templateMessagePermissions = null;
     this.permissions=null;
