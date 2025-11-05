@@ -1824,12 +1824,9 @@ public class GradingServiceImpl implements GradingService {
         // Build comprehensive comment map: assignmentId -> studentId -> commentText
         final Map<Long, Map<String, String>> allCommentsMap = new HashMap<>();
         for (final Long assignmentId : gradableObjectIds) {
-            GradebookAssignment assignment = null;
-            if (recordsByAssignment.containsKey(assignmentId)) {
-                assignment = (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject();
-            } else {
-                assignment = getAssignmentWithoutStatsByID(gradebookUid, assignmentId);
-            }
+            final GradebookAssignment assignment = recordsByAssignment.containsKey(assignmentId) ?
+                    (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject() :
+                    getAssignmentWithoutStatsByID(gradebookUid, assignmentId);
 
             if (assignment != null) {
                 final List<Comment> commentRecs = getComments(assignment, studentIds);
