@@ -1823,21 +1823,28 @@ public class GradingServiceImpl implements GradingService {
 
         // Build comprehensive comment map: assignmentId -> studentId -> commentText
         final Map<Long, Map<String, String>> allCommentsMap = new HashMap<>();
-        for (final Long assignmentId : recordsByAssignment.keySet()) {
-            // Get assignment from first grade record (they all have same assignment)
-            final GradebookAssignment assignment = (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject();
+        for (final Long assignmentId : gradableObjectIds) {
+            // Get assignment - either from grade records or fetch directly
+            GradebookAssignment assignment = null;
+            if (recordsByAssignment.containsKey(assignmentId)) {
+                assignment = (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject();
+            } else {
+                assignment = getAssignmentWithoutStatsByID(gradebookUid, assignmentId);
+            }
 
-            // Get comments for this assignment and all students
-            final List<Comment> commentRecs = getComments(assignment, studentIds);
-            final Map<String, String> studentCommentMap = new HashMap<>();
-            if (commentRecs != null) {
-                for (final Comment comment : commentRecs) {
-                    if (comment != null) {
-                        studentCommentMap.put(comment.getStudentId(), comment.getCommentText());
+            if (assignment != null) {
+                // Get comments for this assignment and all students
+                final List<Comment> commentRecs = getComments(assignment, studentIds);
+                final Map<String, String> studentCommentMap = new HashMap<>();
+                if (commentRecs != null) {
+                    for (final Comment comment : commentRecs) {
+                        if (comment != null) {
+                            studentCommentMap.put(comment.getStudentId(), comment.getCommentText());
+                        }
                     }
                 }
+                allCommentsMap.put(assignmentId, studentCommentMap);
             }
-            allCommentsMap.put(assignmentId, studentCommentMap);
         }
 
         // Process grade records and add to results map
