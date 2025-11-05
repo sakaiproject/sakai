@@ -23,7 +23,6 @@ import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.service.impl.PollListManagerImpl;
-import org.sakaiproject.poll.repository.OptionRepository;
 import org.sakaiproject.poll.repository.PollRepository;
 import org.sakaiproject.poll.repository.VoteRepository;
 
@@ -43,13 +42,11 @@ public class PollListManagerImplTest {
     public void testGetPollForUserCorrectSites() {
         ExternalLogic externalLogic = Mockito.mock(ExternalLogic.class);
         PollRepository pollRepository = Mockito.mock(PollRepository.class);
-        OptionRepository optionRepository = Mockito.mock(OptionRepository.class);
         VoteRepository voteRepository = Mockito.mock(VoteRepository.class);
 
         PollListManagerImpl impl = new PollListManagerImpl();
         impl.setExternalLogic(externalLogic);
         impl.setPollRepository(pollRepository);
-        impl.setOptionRepository(optionRepository);
         impl.setVoteRepository(voteRepository);
 
         // User can see 3 sites.

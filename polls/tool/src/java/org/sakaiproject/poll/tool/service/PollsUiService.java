@@ -57,8 +57,8 @@ public class PollsUiService {
     private final PollVoteManager pollVoteManager;
     private final ExternalLogic externalLogic;
 
-    public void deletePolls(Collection<Long> pollIds) {
-        for (Long pollId : pollIds) {
+    public void deletePolls(Collection<String> pollIds) {
+        for (String pollId : pollIds) {
             Poll poll = pollListManager.getPollById(pollId);
             if (poll == null) {
                 log.warn("Poll {} not found during bulk delete", pollId);
@@ -72,8 +72,8 @@ public class PollsUiService {
         }
     }
 
-    public void resetPollVotes(Collection<Long> pollIds) {
-        for (Long pollId : pollIds) {
+    public void resetPollVotes(Collection<String> pollIds) {
+        for (String pollId : pollIds) {
             Poll poll = pollListManager.getPollById(pollId);
             if (poll == null) {
                 log.warn("Poll {} not found during bulk vote reset", pollId);
@@ -103,8 +103,8 @@ public class PollsUiService {
             throw new PollValidationException("min_greater_than_max");
         }
 
-        if (poll.getPollId() != null) {
-            Poll existing = pollListManager.getPollById(poll.getPollId(), false);
+        if (poll.getId() != null) {
+            Poll existing = pollListManager.getPollById(poll.getId(), false);
             if (existing == null) {
                 throw new PollValidationException("poll_not_found");
             }
@@ -117,7 +117,7 @@ public class PollsUiService {
 
         poll.setDetails(PollUtils.cleanupHtmlPtags(externalLogic.processFormattedText(poll.getDetails(), new StringBuilder())));
 
-        boolean isNew = poll.getPollId() == null;
+        boolean isNew = poll.getId() == null;
         pollListManager.savePoll(poll);
 
         if (!isNew) {
@@ -135,20 +135,25 @@ public class PollsUiService {
         }
 
         if (option.getOptionId() == null) {
-            option.setOptionOrder(pollListManager.getOptionsForPoll(option.getPollId()).size());
+            // New option - poll relationship should already be set
+            Poll poll = option.getPoll();
+            if (poll == null) {
+                throw new IllegalArgumentException("Poll must be set for new option");
+            }
+            option.setOptionOrder(pollListManager.getOptionsForPoll(poll.getId()).size());
         } else {
             Option existing = pollListManager.getOptionById(option.getOptionId());
             if (existing == null) {
                 throw new IllegalArgumentException("Option not found");
             }
             option.setOptionOrder(existing.getOptionOrder());
-            option.setPollId(existing.getPollId());
+            option.setPoll(existing.getPoll());
         }
         pollListManager.saveOption(option);
         return option;
     }
 
-    public void saveOptionsBatch(Long pollId, MultipartFile file) {
+    public void saveOptionsBatch(String pollId, MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new PollValidationException("error_batch_options");
         }
@@ -158,10 +163,14 @@ public class PollsUiService {
             throw new PollValidationException("error_batch_options");
         }
 
+        Poll poll = pollListManager.getPollById(pollId);
+        if (poll == null) {
+            throw new IllegalArgumentException("Poll not found: " + pollId);
+        }
         int nextOrder = pollListManager.getOptionsForPoll(pollId).size();
         for (String optionText : optionTexts) {
             Option option = new Option();
-            option.setPollId(pollId);
+            option.setPoll(poll);
             option.setText(PollUtils.cleanupHtmlPtags(optionText));
             option.setOptionOrder(nextOrder++);
             pollListManager.saveOption(option);
@@ -183,7 +192,10 @@ public class PollsUiService {
             throw new IllegalArgumentException("Option not found");
         }
 
-        Poll poll = pollListManager.getPollById(option.getPollId());
+        Poll poll = option.getPoll();
+        if (poll == null) {
+            throw new IllegalArgumentException("Option has no associated poll");
+        }
         if (poll == null) {
             throw new PollValidationException("poll_not_found");
         }
@@ -211,10 +223,10 @@ public class PollsUiService {
             pollListManager.deleteOption(option);
         }
 
-        return pollListManager.getPollById(option.getPollId());
+        return option.getPoll();
     }
 
-    public VoteCollection submitVote(Long pollId, List<Long> selectedOptionIds) {
+    public VoteCollection submitVote(String pollId, List<Long> selectedOptionIds) {
         Poll poll = pollListManager.getPollById(pollId);
 
         if (!pollVoteManager.pollIsVotable(poll)) {

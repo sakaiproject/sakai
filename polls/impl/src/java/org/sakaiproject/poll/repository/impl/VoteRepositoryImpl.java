@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
 public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> implements VoteRepository {
 
     @Override
-    public List<Vote> findByPollId(Long pollId) {
+    public List<Vote> findByPollId(String pollId) {
         if (pollId == null) {
             return Collections.emptyList();
         }
@@ -29,7 +29,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         Join<Vote, Poll> pollJoin = root.join("poll");
 
         query.select(root)
-                .where(cb.equal(pollJoin.get("pollId"), pollId));
+                .where(cb.equal(pollJoin.get("id"), pollId));
 
         return sessionFactory.getCurrentSession()
                 .createQuery(query)
@@ -37,7 +37,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
     }
 
     @Override
-    public List<Vote> findByPollIdAndPollOption(Long pollId, Long optionId) {
+    public List<Vote> findByPollIdAndPollOption(String pollId, Long optionId) {
         if (pollId == null || optionId == null) {
             return Collections.emptyList();
         }
@@ -47,7 +47,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         Join<Vote, Poll> pollJoin = root.join("poll");
         Join<Vote, Option> optionJoin = root.join("option");
 
-        Predicate pollPredicate = cb.equal(pollJoin.get("pollId"), pollId);
+        Predicate pollPredicate = cb.equal(pollJoin.get("id"), pollId);
         Predicate optionPredicate = cb.equal(optionJoin.get("optionId"), optionId);
 
         query.select(root)
@@ -76,7 +76,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
     }
 
     @Override
-    public List<Vote> findByUserIdAndPollIds(String userId, List<Long> pollIds) {
+    public List<Vote> findByUserIdAndPollIds(String userId, List<String> pollIds) {
         if (userId == null || pollIds == null || pollIds.isEmpty()) {
             return Collections.emptyList();
         }
@@ -86,7 +86,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         Join<Vote, Poll> pollJoin = root.join("poll");
 
         Predicate userPredicate = cb.equal(root.get("userId"), userId);
-        Predicate pollsPredicate = pollJoin.get("pollId").in(pollIds);
+        Predicate pollsPredicate = pollJoin.get("id").in(pollIds);
 
         query.select(root)
                 .where(cb.and(userPredicate, pollsPredicate));
@@ -97,7 +97,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
     }
 
     @Override
-    public boolean existsByPollIdAndUserId(Long pollId, String userId) {
+    public boolean existsByPollIdAndUserId(String pollId, String userId) {
         if (pollId == null || userId == null || userId.trim().isEmpty()) {
             return false;
         }
@@ -106,7 +106,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         Root<Vote> root = query.from(Vote.class);
         Join<Vote, Poll> pollJoin = root.join("poll");
 
-        Predicate pollPredicate = cb.equal(pollJoin.get("pollId"), pollId);
+        Predicate pollPredicate = cb.equal(pollJoin.get("id"), pollId);
         Predicate userPredicate = cb.equal(root.get("userId"), userId);
 
         query.select(cb.count(root))
@@ -120,7 +120,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
     }
 
     @Override
-    public int countDistinctSubmissionIds(Long pollId) {
+    public int countDistinctSubmissionIds(String pollId) {
         if (pollId == null) {
             return 0;
         }
@@ -130,7 +130,7 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         Join<Vote, Poll> pollJoin = root.join("poll");
 
         query.select(cb.countDistinct(root.get("submissionId")))
-                .where(cb.equal(pollJoin.get("pollId"), pollId));
+                .where(cb.equal(pollJoin.get("id"), pollId));
 
         Long count = sessionFactory.getCurrentSession()
                 .createQuery(query)

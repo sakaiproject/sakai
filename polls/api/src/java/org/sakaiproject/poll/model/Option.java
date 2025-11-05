@@ -35,12 +35,13 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-@Getter
-@Setter
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "POLL_OPTION")
 public class Option implements PersistableEntity<Long> {
@@ -49,14 +50,8 @@ public class Option implements PersistableEntity<Long> {
     @SequenceGenerator(name = "poll_option_id_sequence", sequenceName = "POLL_OPTION_ID_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "poll_option_id_sequence")
     @Column(name = "OPTION_ID")
+    @EqualsAndHashCode.Include
     private Long optionId;
-
-    /**
-     * Foreign key column for {@code OPTION_POLL_ID}. Set this identifier when creating or updating an Option;
-     * JPA uses it for persistence while the {@link #poll} relationship remains read-only.
-     */
-    @Column(name = "OPTION_POLL_ID", nullable = false)
-    private Long pollId;
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
@@ -76,11 +71,12 @@ public class Option implements PersistableEntity<Long> {
     private Integer optionOrder;
 
     /**
-     * Read-only relationship for navigation. JPA populates this association when the entity is reloaded; updates
-     * must be performed via {@link #pollId}.
+     * Bidirectional relationship to parent Poll. JPA manages the foreign key through this relationship.
+     * Use {@link Poll#addOption(Option)} or {@link Poll#removeOption(Option)} to maintain both sides of the relationship.
      */
-    @ManyToOne
-    @JoinColumn(name = "OPTION_POLL_ID", nullable = false, insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "OPTION_POLL_ID", nullable = false)
+    @ToString.Exclude
     private Poll poll;
 
     public Option() {

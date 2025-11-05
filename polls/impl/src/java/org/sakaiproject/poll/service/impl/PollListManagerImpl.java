@@ -60,16 +60,17 @@ import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.poll.repository.OptionRepository;
 import org.sakaiproject.poll.repository.PollRepository;
 import org.sakaiproject.poll.repository.VoteRepository;
 import org.sakaiproject.poll.util.PollUtil;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.sakaiproject.util.MergeConfig;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Data
+@Transactional
 public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "poll";
@@ -77,9 +78,8 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     private EntityManager entityManager;
     private IdManager idManager;
     private PollRepository pollRepository;
-    private OptionRepository optionRepository;
     private VoteRepository voteRepository;
-    private PollVoteManager pollVoteManager;    
+    private PollVoteManager pollVoteManager;
     private ExternalLogic externalLogic;
     @Setter private LTIService ltiService;
     @Setter private LinkMigrationHelper linkMigrationHelper;
@@ -141,7 +141,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             throw new SecurityException();
         }
         
-        if (t.getPollId() == null) {
+        if (t.getId() == null) {
             newPoll = true;
             String generatedUuid = idManager.createUuid();
             if (StringUtils.isBlank(generatedUuid)) {
@@ -154,8 +154,8 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
 
         try {
-           if(!newPoll && t.getPollId() != null) {
-                Poll poll = getPollById(t.getPollId());
+           if(!newPoll && t.getId() != null) {
+                Poll poll = getPollById(t.getId());
                 if(poll != null && !t.getOwner().equals(poll.getOwner())) {
                    t.setOwner(poll.getOwner());
                 }
@@ -167,7 +167,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             return false;
         }
         log.debug("Poll {} successfully saved", t.toString());
-        externalLogic.registerStatement(t.getText(), newPoll, t.getPollId().toString());
+        externalLogic.registerStatement(t.getText(), newPoll, t.getId());
 
         return true;
     }
@@ -177,7 +177,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             throw new IllegalArgumentException("Poll can't be null");
         }
 
-        if (t.getPollId() == null) {
+        if (t.getId() == null) {
             throw new IllegalArgumentException("Poll id can't be null");
         }
 
@@ -185,27 +185,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't delete poll: " + t.getUuid());
         }
 
-        //Delete the Votes
-        List<Vote> vote = t.getVotes();
+        // Delete the Votes manually (Vote is a separate aggregate)
+        List<Vote> votes = pollVoteManager.getAllVotesForPoll(t);
+        log.debug("Deleting {} votes for poll {}", votes.size(), t.getUuid());
+        voteRepository.deleteAll(votes);
 
-        //We could have a partially populate item
-        if (vote == null || vote.isEmpty()) {
-            log.debug("getting votes as they where null");
-            vote = pollVoteManager.getAllVotesForPoll(t);
-            log.debug("got {} vote", vote.size());
-        }
-
-        voteRepository.deleteAll(vote);
-
-        //Delete the Options
-        List<Option> options = t.getOptions();
-        //as above we could have a partialy populate item
-        if (options ==  null || options.isEmpty()) {
-            options = getOptionsForPoll(t);
-        }
- 
-        optionRepository.deleteAll(options);
-
+        // Delete poll - cascade will automatically delete options
         pollRepository.delete(t);
 
         log.debug("Poll id {} deleted", t.getUuid());
@@ -233,12 +218,13 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return new ArrayList<>(pollRepository.findBySiteIdOrderByCreationDateDesc(siteId));
     }
 
-    public Poll getPollById(Long pollId) throws SecurityException {
- 
+    public Poll getPollById(String pollId) throws SecurityException {
+
        return getPollById(pollId, true);
     }
 
-    public Poll getPollById(Long pollId, boolean includeOptions) throws SecurityException {
+    @Transactional(readOnly = true)
+    public Poll getPollById(String pollId, boolean includeOptions) throws SecurityException {
         Poll poll = pollRepository.findById(pollId).orElse(null);
 
         if (poll == null) {
@@ -246,11 +232,11 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
 
         if (includeOptions) {
-            List<Option> optionList = getOptionsForPoll(poll);
-            poll.setOptions(optionList);
+            // Force initialization of lazy-loaded options collection within transaction
+            poll.getOptions().size();
         }
 
-      //user needs at least site visit to read a poll
+        // User needs at least site visit to read a poll
         if (!externalLogic.isAllowedInLocation("site.visit", externalLogic.getSiteRefFromId(poll.getSiteId()), externalLogic.getCurrentuserReference()) && !externalLogic.isUserAdmin()) {
             throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't read poll " + pollId);
         }
@@ -261,21 +247,31 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     // OPTIONS
 
+    @Transactional(readOnly = true)
     public List<Option> getOptionsForPoll(Poll poll) {
         if (poll == null) {
             throw new IllegalArgumentException("Poll cannot be null when retrieving options");
         }
-        return getOptionsForPoll(poll.getPollId());
+        return getOptionsForPoll(poll.getId());
     }
 
-    public List<Option> getOptionsForPoll(Long pollId) {
+    @Transactional(readOnly = true)
+    public List<Option> getOptionsForPoll(String pollId) {
         if (pollId == null) {
             throw new IllegalArgumentException("Poll id cannot be null when retrieving options");
         }
-        return optionRepository.findByPollIdOrderByOptionOrder(pollId);
+        // Load poll from database to access its options via cascade
+        Poll poll = pollRepository.findById(pollId).orElse(null);
+        if (poll == null) {
+            return new ArrayList<>();
+        }
+        // Force initialization of lazy-loaded options and return them
+        List<Option> options = poll.getOptions();
+        options.size(); // Trigger lazy load within transaction
+        return options;
     }
 
-    public List<Option> getVisibleOptionsForPoll(Long pollId) {
+    public List<Option> getVisibleOptionsForPoll(String pollId) {
         List<Option> options = getOptionsForPoll(pollId);
  
         //iterate and remove deleted options
@@ -284,12 +280,27 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return options;
     }
 
-    public Poll getPollWithVotes(Long pollId) {
+    @Transactional(readOnly = true)
+    public Poll getPollWithVotes(String pollId) {
         return pollRepository.findById(pollId).orElse(null);
     }
 
+    @Transactional(readOnly = true)
     public Option getOptionById(Long optionId) {
-        return optionRepository.findById(optionId).orElse(null);
+        if (optionId == null) {
+            return null;
+        }
+        // In aggregate pattern, find option through its parent poll
+        // This is less efficient but maintains aggregate integrity
+        List<Poll> allPolls = pollRepository.findAll();
+        for (Poll poll : allPolls) {
+            for (Option option : poll.getOptions()) {
+                if (option.getOptionId().equals(optionId)) {
+                    return option;
+                }
+            }
+        }
+        return null;
     }
 
     public Option ensureOptionUuidAndSave(Option option) {
@@ -298,15 +309,26 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         if (StringUtils.isBlank(option.getUuid())) {
             option.setUuid(UUID.randomUUID().toString());
-            option = optionRepository.save(option);
-            log.debug("Option id {} assigned UUID {}", option.getOptionId(), option.getUuid());
+            // Save through poll aggregate
+            Poll poll = option.getPoll();
+            if (poll != null) {
+                pollRepository.save(poll);
+                log.debug("Option id {} assigned UUID {}", option.getOptionId(), option.getUuid());
+            }
         }
         return option;
     }
 
     public void deleteOption(Option option) {
-        optionRepository.delete(option);
-        log.debug("Option id {} deleted", option.getOptionId());
+        if (option == null) {
+            return;
+        }
+        Poll poll = option.getPoll();
+        if (poll != null) {
+            poll.removeOption(option);
+            pollRepository.save(poll);  // orphanRemoval will handle deletion
+            log.debug("Option id {} deleted", option.getOptionId());
+        }
     }
 
     public void deleteOption(Option option, boolean soft) {
@@ -314,8 +336,11 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             deleteOption(option);
         } else {
             option.setDeleted(true);
-            optionRepository.save(option);
-            log.debug("Option id {} soft deleted.", option.getOptionId());
+            Poll poll = option.getPoll();
+            if (poll != null) {
+                pollRepository.save(poll);
+                log.debug("Option id {} soft deleted.", option.getOptionId());
+            }
         }
     }
 
@@ -324,14 +349,21 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             throw new IllegalArgumentException("Option cannot be null when saving");
         }
 
-        Option persisted;
+        // Ensure UUID
         if (StringUtils.isBlank(t.getUuid())) {
-            persisted = ensureOptionUuidAndSave(t);
-        } else {
-            persisted = optionRepository.save(t);
+            t.setUuid(UUID.randomUUID().toString());
         }
-        log.debug("Option {} successfully saved", persisted);
-        return true;
+
+        // Save through poll aggregate
+        Poll poll = t.getPoll();
+        if (poll != null) {
+            pollRepository.save(poll);
+            log.debug("Option {} successfully saved", t);
+            return true;
+        }
+
+        log.warn("Cannot save option {} without associated poll", t.getOptionId());
+        return false;
     }
 
     
@@ -391,7 +423,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
                 // since we aren't archiving votes too, don't worry about archiving the
                 // soft-deleted options -- only "visible".
-                List<Option> options = getVisibleOptionsForPoll(poll.getPollId());
+                List<Option> options = getVisibleOptionsForPoll(poll.getId());
 
                 for (Option option : options) {
                     option = ensureOptionUuidAndSave(option);
@@ -442,14 +474,15 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 Option option = PollUtil.xmlToOption(optionElement);
                 option.setOptionId(null);  // To force insert
                 option.setUuid(UUID.randomUUID().toString());
-                option.setPollId(poll.getPollId());
                 String text = option.getText();
                 text = ltiService.fixLtiLaunchUrls(text, siteId, mcx);
                 text = linkMigrationHelper.migrateLinksInMergedRTE(siteId, mcx, text);
                 option.setText(text);
-                saveOption(option);
+                // Use poll aggregate pattern - addOption sets bidirectional relationship
                 poll.addOption(option);
             }
+            // Save poll once with all options added
+            savePoll(poll);
         }
         return null;
     }
@@ -580,7 +613,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         Map<String, String> transversalMap = new HashMap<>();
         try {
             for (Poll fromPoll : findAllPolls(fromContext)) {
-                Poll fromPollV = getPollWithVotes(fromPoll.getPollId());
+                Poll fromPollV = getPollWithVotes(fromPoll.getId());
                 Poll toPoll = new Poll();
                 toPoll.setOwner(fromPollV.getOwner());
                 toPoll.setSiteId(toContext);
@@ -605,7 +638,6 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                     for (Option fromOption : options) {
                         Option toOption = new Option();
                         toOption.setStatus(fromOption.getStatus());
-                        toOption.setPollId(toPoll.getPollId());
                         toOption.setDeleted(fromOption.getDeleted());
                         toOption.setOptionOrder(fromOption.getOptionOrder());
 
@@ -613,8 +645,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                         text = ltiService.fixLtiLaunchUrls(text, fromContext, toContext, transversalMap);
                         toOption.setText(text);
 
-                        saveOption(toOption);
- 
+                        // Use poll aggregate pattern - addOption sets bidirectional relationship
                         toPoll.addOption(toOption);
                     }
                 }
@@ -671,7 +702,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
         if (poll.getDisplayResult().equals("afterVoting")) {
 
-            boolean voted = voteRepository.existsByPollIdAndUserId(poll.getPollId(), userId);
+            boolean voted = voteRepository.existsByPollIdAndUserId(poll.getId(), userId);
             if (voted) {
                 return true;
             }

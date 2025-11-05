@@ -42,9 +42,11 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.repository.PollRepository;
 import org.sakaiproject.poll.repository.VoteRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Setter
+@Transactional
 public class PollVoteManagerImpl implements PollVoteManager {
 
     private static final String DEFAULT_IP_ADDRESS = "Nothing";
@@ -56,7 +58,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 	private UsageSessionService usageSessionService;
 
 	public void saveVoteList(List<Vote> votes) {
-		Long pollId = null;
+		String pollId = null;
 		for (int i =0; i < votes.size(); i ++) {
 			Vote vote = (Vote)votes.get(i);
 			pollId = vote.getPollId();
@@ -98,16 +100,22 @@ public class PollVoteManagerImpl implements PollVoteManager {
 		return true;
 	}
 
+	@Transactional(readOnly = true)
 	public List<Vote> getAllVotesForPoll(Poll poll) {
-		return voteRepository.findByPollId(poll.getPollId());
+		return voteRepository.findByPollId(poll.getId());
 	}
 
+	@Transactional(readOnly = true)
 	public List<Vote> getAllVotesForOption(Option option) {
-
-		return voteRepository.findByPollIdAndPollOption(option.getPollId(), option.getOptionId());
+		Poll poll = option.getPoll();
+		if (poll == null) {
+			throw new IllegalArgumentException("option must have associated poll when retrieving votes");
+		}
+		return voteRepository.findByPollIdAndPollOption(poll.getId(), option.getOptionId());
 	}
 
-	public Map<Long, List<Vote>> getVotesForUser(String userId, Long[] pollIds) {
+	@Transactional(readOnly = true)
+	public Map<String, List<Vote>> getVotesForUser(String userId, String[] pollIds) {
 		if (userId == null) {
 			throw new IllegalArgumentException("userId cannot be null");
 		}
@@ -121,27 +129,31 @@ public class PollVoteManagerImpl implements PollVoteManager {
 			return new HashMap<>();
 		}
 
-		Map<Long, List<Vote>> map = new HashMap<>();
+		Map<String, List<Vote>> map = new HashMap<>();
 		for (Vote vote : votes) {
-			Long pollId = vote.getPollId();
+			String pollId = vote.getPollId();
 			map.computeIfAbsent(pollId, key -> new ArrayList<>()).add(vote);
 		}
 		return map;
 	}
 
+	@Transactional(readOnly = true)
 	public int getDisctinctVotersForPoll(Poll poll) {
-		return voteRepository.countDistinctSubmissionIds(poll.getPollId());
+		return voteRepository.countDistinctSubmissionIds(poll.getId());
 	}
 
-	public boolean userHasVoted(Long pollid, String userID) {
+	@Transactional(readOnly = true)
+	public boolean userHasVoted(String pollid, String userID) {
 		return voteRepository.existsByPollIdAndUserId(pollid, userID);
 	}
 
-	public boolean userHasVoted(Long pollId) {
+	@Transactional(readOnly = true)
+	public boolean userHasVoted(String pollId) {
 
 		return userHasVoted(pollId, externalLogic.getCurrentUserId());
 	}
 
+	@Transactional(readOnly = true)
 	public Vote getVoteById(Long voteId) {
 		if (voteId == null) {
 			throw new IllegalArgumentException("voteId cannot be null when getting vote");
@@ -149,7 +161,8 @@ public class PollVoteManagerImpl implements PollVoteManager {
 		return voteRepository.findById(voteId).orElse(null);
 	}
 
-	public boolean isUserAllowedVote(String userId, Long pollId, boolean ignoreVoted) {
+	@Transactional(readOnly = true)
+	public boolean isUserAllowedVote(String userId, String pollId, boolean ignoreVoted) {
 		boolean allowed = false;
 		//pollId
 		Poll poll =  pollRepository.findById(pollId).orElse(null);
@@ -164,7 +177,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 				if (ignoreVoted) {
 					allowed = true;
 				} else {
-					Map<Long, List<Vote>> m = getVotesForUser(userId, new Long[] {pollId});
+					Map<String, List<Vote>> m = getVotesForUser(userId, new String[] {pollId});
 					if (m.isEmpty()) {
 						allowed = true;
 					}
@@ -175,6 +188,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 	}
 
 
+	@Transactional(readOnly = true)
 	public boolean pollIsVotable(Poll poll)
 	{
 		//POLL-148 this could be null
@@ -184,7 +198,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 		
 		//poll must have options to be votable
 
-		List<Option> votableOptions = pollListManager.getVisibleOptionsForPoll(poll.getPollId());
+		List<Option> votableOptions = pollListManager.getVisibleOptionsForPoll(poll.getId());
 		if (votableOptions == null || votableOptions.size() == 0) {
 			log.debug("poll has no options");
 			return false;
@@ -210,7 +224,7 @@ public class PollVoteManagerImpl implements PollVoteManager {
 
 		if (pollAfterOpen && pollBeforeClose)
 		{
-			if (poll.isLimitVoting() && userHasVoted(poll.getPollId())) {
+			if (poll.isLimitVoting() && userHasVoted(poll.getId())) {
 				return false;
 			}
 			//the user hasn't voted do they have permission to vote?'

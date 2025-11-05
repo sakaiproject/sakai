@@ -77,8 +77,9 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
         }
         Option option = (Option) entity;
         // check minimum settings
-        if (option.getPollId() == null) {
-            throw new IllegalArgumentException("Poll ID must be set to create an option");
+        Poll poll = option.getPoll();
+        if (poll == null || poll.getId() == null) {
+            throw new IllegalArgumentException("Poll must be set to create an option");
         }
         // check minimum settings
         if (option.getText() == null) {
@@ -168,12 +169,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
         if (pollRes == null || pollRes.getSingleValue() == null) {
             throw new IllegalArgumentException("Must include a non-null pollId in order to retreive a list of votes");
         }
-        Long pollId = null;
-        try {
-            pollId = developerHelperService.convert(pollRes.getSingleValue(), Long.class);
-        } catch (UnsupportedOperationException e) {
-            throw new IllegalArgumentException("Invalid: pollId must be a long number: " + e.getMessage(), e);
-        }
+        String pollId = developerHelperService.convert(pollRes.getSingleValue(), String.class);
         // get the poll
         Poll poll = pollListManager.getPollById(pollId);
         if (poll == null) {
@@ -215,10 +211,11 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
      */
     @Deprecated
     private void checkOptionPermission(String userRef, Option option) {
-        if (option.getPollId() == null) {
-            throw new IllegalArgumentException("Poll Id must be set in the option to check permissions: " + option);
+        Poll optionPoll = option.getPoll();
+        if (optionPoll == null || optionPoll.getId() == null) {
+            throw new IllegalArgumentException("Poll must be set in the option to check permissions: " + option);
         }
-        Long pollId = option.getPollId();
+        String pollId = optionPoll.getId();
         // validate poll exists
         Poll poll = pollListManager.getPollById(pollId, false);
         if (poll == null) {

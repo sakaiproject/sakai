@@ -61,7 +61,7 @@ public class ResultsController {
     }
 
     @GetMapping("/voteResults")
-    public String showResults(@RequestParam("pollId") Long pollId,
+    public String showResults(@RequestParam("pollId") String pollId,
                               Model model,
                               Locale locale,
                               RedirectAttributes redirectAttributes) {
@@ -75,7 +75,7 @@ public class ResultsController {
         if (poll.getMinOptions() == 0) {
             Option noVote = new Option(0L);
             noVote.setText(messageSource.getMessage("result_novote", null, locale));
-            noVote.setPollId(pollId);
+            noVote.setPoll(poll);
             options.add(noVote);
         }
 

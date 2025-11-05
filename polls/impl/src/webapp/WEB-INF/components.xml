@@ -22,11 +22,6 @@
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
 
-	<bean id="org.sakaiproject.poll.repository.OptionRepository"
-		class="org.sakaiproject.poll.repository.impl.OptionRepositoryImpl">
-		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-	</bean>
-
 	<bean id="org.sakaiproject.poll.repository.VoteRepository"
 		class="org.sakaiproject.poll.repository.impl.VoteRepositoryImpl">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
@@ -37,7 +32,6 @@
 		class="org.sakaiproject.poll.service.impl.PollListManagerImpl"
 		lazy-init="true" init-method="init">
 		<property name="pollRepository" ref="org.sakaiproject.poll.repository.PollRepository"/>
-		<property name="optionRepository" ref="org.sakaiproject.poll.repository.OptionRepository"/>
 		<property name="voteRepository" ref="org.sakaiproject.poll.repository.VoteRepository"/>
 		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />

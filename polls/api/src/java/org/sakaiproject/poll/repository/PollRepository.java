@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
-public interface PollRepository extends SpringCrudRepository<Poll, Long> {
+public interface PollRepository extends SpringCrudRepository<Poll, String> {
 
     List<Poll> findBySiteIdOrderByCreationDateDesc(String siteId);
 

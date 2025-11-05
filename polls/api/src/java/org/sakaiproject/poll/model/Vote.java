@@ -33,12 +33,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-@Getter
-@Setter
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "POLL_VOTE")
 public class Vote implements PersistableEntity<Long> {
@@ -47,6 +48,7 @@ public class Vote implements PersistableEntity<Long> {
     @SequenceGenerator(name = "poll_vote_id_sequence", sequenceName = "POLL_VOTE_ID_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "poll_vote_id_sequence")
     @Column(name = "VOTE_ID")
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "USER_ID", nullable = false, length = 99)
@@ -56,18 +58,11 @@ public class Vote implements PersistableEntity<Long> {
     private String ip;
 
     /**
-     * Foreign key column for {@code VOTE_POLL_ID}. Persist changes by setting this identifier directly; the
-     * {@link #poll} relationship is maintained by JPA but is not writeable.
-     */
-    @Column(name = "VOTE_POLL_ID", nullable = false)
-    private Long pollId;
-
-    /**
-     * Read-only relationship for navigating to the parent poll. Refresh or reload the entity to populate this field;
-     * it is not persisted because {@link #pollId} controls database writes.
+     * Relationship for navigating to the parent poll. This relationship manages the foreign key column.
      */
     @ManyToOne
-    @JoinColumn(name = "VOTE_POLL_ID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "VOTE_POLL_ID", nullable = false)
+    @ToString.Exclude
     private Poll poll;
 
     @Column(name = "VOTE_DATE", nullable = false)
@@ -86,6 +81,7 @@ public class Vote implements PersistableEntity<Long> {
      */
     @ManyToOne
     @JoinColumn(name = "VOTE_OPTION", insertable = false, updatable = false)
+    @ToString.Exclude
     private Option option;
 
     @Column(name = "VOTE_SUBMISSION_ID", nullable = false, length = 99)
@@ -102,17 +98,17 @@ public class Vote implements PersistableEntity<Long> {
         if (option == null) {
             throw new IllegalArgumentException("Option must not be null when creating a vote");
         }
-        Long pollIdValue = poll.getPollId();
-        Long optionPollId = option.getPollId();
-        if (optionPollId == null && option.getPoll() != null) {
-            optionPollId = option.getPoll().getPollId();
+        String pollIdValue = poll.getId();
+        // Get option's poll ID through relationship
+        String optionPollId = null;
+        if (option.getPoll() != null) {
+            optionPollId = option.getPoll().getId();
         }
         if (pollIdValue != null && optionPollId != null && !pollIdValue.equals(optionPollId)) {
-            throw new IllegalArgumentException(String.format("Option %s does not belong to poll %s", String.valueOf(option.getOptionId()), String.valueOf(pollIdValue)));
+            throw new IllegalArgumentException(String.format("Option %s does not belong to poll %s", option.getOptionId(), pollIdValue));
         }
-        this.pollId = poll.getPollId();
-        this.pollOption = option.getOptionId();
         this.poll = poll;
+        this.pollOption = option.getOptionId();
         this.option = option;
         this.submissionId = subId;
         this.voteDate = voteDate;
@@ -123,10 +119,6 @@ public class Vote implements PersistableEntity<Long> {
     @Override
     public Long getId() {
         return id;
-    }
-
-    public String toString() {
-        return this.pollId + ":" + this.userId + ":" + this.ip + ":" + this.pollOption;
     }
 
 }

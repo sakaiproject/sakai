@@ -13,9 +13,11 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.repository.PollRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, Long> implements PollRepository {
+@Transactional
+public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, String> implements PollRepository {
 
     @Override
     public List<Poll> findBySiteIdOrderByCreationDateDesc(String siteId) {
@@ -85,7 +87,7 @@ public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, Long> imp
         Root<Poll> root = query.from(Poll.class);
 
         query.select(root)
-                .where(cb.equal(root.get("uuid"), uuid));
+                .where(cb.equal(root.get("id"), uuid));
 
         return sessionFactory.getCurrentSession()
                 .createQuery(query)

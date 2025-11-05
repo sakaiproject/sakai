@@ -7,15 +7,15 @@ import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface VoteRepository extends SpringCrudRepository<Vote, Long> {
 
-    List<Vote> findByPollId(Long pollId);
+    List<Vote> findByPollId(String pollId);
 
-    List<Vote> findByPollIdAndPollOption(Long pollId, Long optionId);
+    List<Vote> findByPollIdAndPollOption(String pollId, Long optionId);
 
     List<Vote> findByUserId(String userId);
 
-    List<Vote> findByUserIdAndPollIds(String userId, List<Long> pollIds);
+    List<Vote> findByUserIdAndPollIds(String userId, List<String> pollIds);
 
-    boolean existsByPollIdAndUserId(Long pollId, String userId);
+    boolean existsByPollIdAndUserId(String pollId, String userId);
 
-    int countDistinctSubmissionIds(Long pollId);
+    int countDistinctSubmissionIds(String pollId);
 }

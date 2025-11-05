@@ -61,7 +61,7 @@ public class OptionController {
 
     @GetMapping("/pollOption")
     public String editOption(@RequestParam(value = "optionId", required = false) Long optionId,
-                             @RequestParam(value = "pollId", required = false) Long pollId,
+                             @RequestParam(value = "pollId", required = false) String pollId,
                              Model model,
                              Locale locale) {
         if (!isAllowedPollAdd()) {
@@ -75,9 +75,13 @@ public class OptionController {
                 return "redirect:/votePolls";
             }
             form.setOptionId(option.getOptionId());
-            form.setPollId(option.getPollId());
+            Poll optionPoll = option.getPoll();
+            if (optionPoll == null) {
+                return "redirect:/votePolls";
+            }
+            form.setPollId(optionPoll.getId());
             form.setText(option.getText());
-            poll = pollListManager.getPollById(option.getPollId());
+            poll = optionPoll;
         } else {
             if (pollId == null) {
                 return "redirect:/votePolls";
@@ -112,16 +116,27 @@ public class OptionController {
 
         Option option = new Option();
         option.setOptionId(optionForm.getOptionId());
-        option.setPollId(optionForm.getPollId());
         option.setText(optionForm.getText());
+
+        // Load poll and set relationship
+        Poll poll = pollListManager.getPollById(optionForm.getPollId());
+        if (poll == null) {
+            bindingResult.addError(new FieldError("optionForm", "text", "Poll not found"));
+            model.addAttribute("poll", null);
+            model.addAttribute("isNew", optionForm.getOptionId() == null);
+            model.addAttribute("canAdd", isAllowedPollAdd());
+            model.addAttribute("isSiteOwner", isSiteOwner());
+            return "polls/option-edit";
+        }
+        option.setPoll(poll);
 
         try {
             pollsUiService.saveOption(option);
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_added_success", null, locale));
             if ("addAnother".equals(submitAction)) {
-                return "redirect:/pollOption?pollId=" + option.getPollId();
+                return "redirect:/pollOption?pollId=" + poll.getId();
             }
-            return "redirect:/voteAdd?pollId=" + option.getPollId();
+            return "redirect:/voteAdd?pollId=" + poll.getId();
         } catch (PollValidationException ex) {
             bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
             model.addAttribute("poll", pollListManager.getPollById(optionForm.getPollId()));
@@ -133,7 +148,7 @@ public class OptionController {
     }
 
     @GetMapping("/pollOptionBatch")
-    public String batchOption(@RequestParam("pollId") Long pollId,
+    public String batchOption(@RequestParam("pollId") String pollId,
                               Model model) {
         Poll poll = pollListManager.getPollById(pollId);
         OptionBatchForm form = new OptionBatchForm();
@@ -183,7 +198,10 @@ public class OptionController {
         if (option == null) {
             return "redirect:/votePolls";
         }
-        Poll poll = pollListManager.getPollById(option.getPollId());
+        Poll poll = option.getPoll();
+        if (poll == null) {
+            return "redirect:/votePolls";
+        }
         List<Option> pollOptions = pollListManager.getOptionsForPoll(poll);
         boolean hasVotes = !pollVoteManager.getAllVotesForOption(option).isEmpty();
 
@@ -215,7 +233,7 @@ public class OptionController {
 
         Poll poll = pollsUiService.deleteOption(optionId, orphanHandling);
         redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_deleted_success", null, locale));
-        return "redirect:/voteAdd?pollId=" + poll.getPollId();
+        return "redirect:/voteAdd?pollId=" + poll.getId();
     }
 
     private boolean isAllowedPollAdd() {

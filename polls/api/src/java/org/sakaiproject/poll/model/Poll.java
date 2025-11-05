@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Stack;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -38,17 +39,18 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -57,19 +59,20 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 @Slf4j
-@Getter
-@Setter
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "POLL_POLL")
-public class Poll implements PersistableEntity<Long> {
+public class Poll implements PersistableEntity<String> {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     @Id
-    @SequenceGenerator(name = "poll_poll_id_sequence", sequenceName = "POLL_POLL_ID_SEQ", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "poll_poll_id_sequence")
-    @Column(name = "POLL_ID")
-    private Long pollId;
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(name = "POLL_ID", nullable = false, length = 36)
+    @EqualsAndHashCode.Include
+    private String id;
 
     @Column(name = "POLL_OWNER", nullable = false, length = 99)
     private String owner;
@@ -105,7 +108,8 @@ public class Poll implements PersistableEntity<Long> {
     @Column(name = "POLL_VOTE_CLOSE", nullable = false)
     private Date voteClose;
 
-    @Transient
+    @OneToMany(mappedBy = "poll", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Vote> votes = new ArrayList<>();
 
     @Column(name = "POLL_DISPLAY_RESULT", nullable = false, length = 99)
@@ -117,16 +121,12 @@ public class Poll implements PersistableEntity<Long> {
     @Transient
     private boolean currentUserVoted = false;
 
-    @Transient
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Option> options = new ArrayList<>();
 
     @Column(name = "POLL_IS_PUBLIC", nullable = false)
     private boolean isPublic = false;
-
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
-    @Column(name = "POLL_UUID", nullable = false, length = 99)
-    private String uuid;
 
     public Poll() {
         this.text = "";
@@ -144,16 +144,8 @@ public class Poll implements PersistableEntity<Long> {
     }
 
     @Override
-    public Long getId() {
-        return pollId;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public String getId() {
+        return id;
     }
 
     public void setVoteOpenStr(String value) {
@@ -187,16 +179,43 @@ public class Poll implements PersistableEntity<Long> {
     }
 
     /**
-     * Attach a vote to the list of votes for this poll.
+     * Add a vote to this poll and maintain bidirectional relationship.
      *
      * @param vote the vote to add
      */
     public void addVote(Vote vote) {
         votes.add(vote);
+        vote.setPoll(this);  // Maintain bidirectional sync
     }
 
+    /**
+     * Remove a vote from this poll and maintain bidirectional relationship.
+     *
+     * @param vote the vote to remove
+     */
+    public void removeVote(Vote vote) {
+        votes.remove(vote);
+        vote.setPoll(null);  // Maintain bidirectional sync
+    }
+
+    /**
+     * Add an option to this poll and maintain bidirectional relationship.
+     *
+     * @param option the option to add
+     */
     public void addOption(Option option) {
         options.add(option);
+        option.setPoll(this);  // Maintain bidirectional sync
+    }
+
+    /**
+     * Remove an option from this poll and maintain bidirectional relationship.
+     *
+     * @param option the option to remove
+     */
+    public void removeOption(Option option) {
+        options.remove(option);
+        option.setPoll(null);  // Maintain bidirectional sync
     }
 
     public void setDetails(String value){
@@ -206,30 +225,13 @@ public class Poll implements PersistableEntity<Long> {
         return this.description;
     }
 
-    /*
-     * Basic comparison functions for objects
-     * Uses commons-lang to make it so we can be sure about comparisons as long
-     * as the data in the object is the same
-     */
-
-
-    public String toString() {
-        return new ToStringBuilder(this)
-        .append(this.uuid)
-        .append(this.owner)
-        .append(this.siteId)
-        .append(this.creationDate)
-        .append(this.text)
-        .toString();
-    }
-
     public String getUrl() {
-        return ServerConfigurationService.getAccessUrl() + "/poll/" + this.getUuid();
+        return ServerConfigurationService.getAccessUrl() + "/poll/" + this.getId();
     }
 
     public String getReference() {
 
-        return ServerConfigurationService.getAccessUrl() + "/poll/" + org.sakaiproject.entity.api.Entity.SEPARATOR + this.getUuid();
+        return ServerConfigurationService.getAccessUrl() + "/poll/" + org.sakaiproject.entity.api.Entity.SEPARATOR + this.getId();
     }
 
     public String getUrl(String arg0) {
@@ -277,9 +279,9 @@ public class Poll implements PersistableEntity<Long> {
 
         stack.push(poll);
 
-        poll.setAttribute(ID, getUuid());
-        if (getPollId() != null) {
-            poll.setAttribute(POLL_ID, getPollId().toString());
+        poll.setAttribute(ID, getId());
+        if (getId() != null) {
+            poll.setAttribute(POLL_ID, getId());
         }
         poll.setAttribute(POLL_TEXT, getText());
         poll.setAttribute(MIN_OPTIONS, Integer.toString(getMinOptions()));
@@ -306,7 +308,7 @@ public class Poll implements PersistableEntity<Long> {
 
     public static Poll fromXML(Element element) {
         Poll poll = new Poll();
-        poll.setUuid(element.getAttribute(ID));
+        poll.setId(element.getAttribute(ID));
         poll.setText(element.getAttribute(POLL_TEXT));
         poll.setDisplayResult(element.getAttribute(DISPLAY_RESULT));
         poll.setDetails(element.getAttribute(DESCRIPTION));

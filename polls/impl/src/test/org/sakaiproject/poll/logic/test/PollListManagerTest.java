@@ -40,7 +40,6 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.service.impl.PollListManagerImpl;
 import org.sakaiproject.poll.service.impl.PollVoteManagerImpl;
-import org.sakaiproject.poll.repository.impl.OptionRepositoryImpl;
 import org.sakaiproject.poll.repository.impl.PollRepositoryImpl;
 import org.sakaiproject.poll.repository.impl.VoteRepositoryImpl;
 import org.hibernate.SessionFactory;
@@ -60,37 +59,34 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		SessionFactory sessionFactory = (SessionFactory) applicationContext.getBean("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory");
 		PollRepositoryImpl pollRepository = new PollRepositoryImpl();
 		pollRepository.setSessionFactory(sessionFactory);
-		OptionRepositoryImpl optionRepository = new OptionRepositoryImpl();
-		optionRepository.setSessionFactory(sessionFactory);
 		VoteRepositoryImpl voteRepository = new VoteRepositoryImpl();
 		voteRepository.setSessionFactory(sessionFactory);
 
 		pollListManager = new PollListManagerImpl();
 		pollListManager.setPollRepository(pollRepository);
-		pollListManager.setOptionRepository(optionRepository);
 		pollListManager.setVoteRepository(voteRepository);
-		
+
 		pollVoteManager = new PollVoteManagerImpl();
 		pollVoteManager.setVoteRepository(voteRepository);
 		pollVoteManager.setPollRepository(pollRepository);
-		
-		
+
+
 		externalLogicStubb = new ExternalLogicStubb();
 		pollListManager.setExternalLogic(externalLogicStubb);
 		pollVoteManager.setExternalLogic(externalLogicStubb);
 		pollListManager.setPollVoteManager(pollVoteManager);
 		pollListManager.setIdManager(mock(IdManager.class));
-		
+
 		// preload testData
-		tdp.preloadTestData(pollRepository, optionRepository);
+		tdp.preloadTestData(pollRepository);
 	}
 	
 	@Test
     public void testGetPollById() {
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
-    	
+
     	//we shouldNot find this poll
-    	Poll pollFail = pollListManager.getPollById(Long.valueOf(9999999));
+    	Poll pollFail = pollListManager.getPollById("non-existent-uuid");
     	Assert.assertNull(pollFail);
 
     	//this one should exist -- the preload saves one poll and remembers its ID
@@ -127,20 +123,20 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		
 		poll1.setSiteId(TestDataPreload.LOCATION1_ID);
 		
-		
+
 		//If this has a value something is wrong without POJO
-		Assert.assertNull(poll1.getPollId());
+		Assert.assertNull(poll1.getId());
 		try {
 			pollListManager.savePoll(poll1);
 		}
 		catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
-		
+
 		//if this is null we have a problem
-		Assert.assertNotNull(poll1.getPollId());
-		
-		Poll poll2 = pollListManager.getPollById(poll1.getPollId());
+		Assert.assertNotNull(poll1.getId());
+
+		Poll poll2 = pollListManager.getPollById(poll1.getId());
 		Assert.assertNotNull(poll2);
 		Assert.assertEquals(poll1.getText(), poll2.getText());
 		
@@ -209,21 +205,21 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		}
 		
 	    Option option1 = new Option();
-	    option1.setPollId(poll1.getPollId());
 	    option1.setText("asdgasd");
 	    option1.setOptionOrder(0);
+        poll1.addOption(option1);
 
 	    Option option2 = new Option();
-	    option2.setPollId(poll1.getPollId());
 	    option2.setText("zsdbsdfb");
 	    option2.setOptionOrder(1);
+        poll1.addOption(option2);
 	    
 	    pollListManager.saveOption(option2);
 	    pollListManager.saveOption(option1);
 	    
 	    Vote vote = new Vote();
 	    vote.setIp("Localhost");
-	    vote.setPollId(poll1.getPollId());
+	    vote.setPoll(poll1);
 	    vote.setPollOption(option1.getOptionId());
 	    vote.setUserId(TestDataPreload.USER_UPDATE);
 	    vote.setVoteDate(Instant.now());

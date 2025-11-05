@@ -26,7 +26,6 @@ import java.util.UUID;
 
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.repository.OptionRepository;
 import org.sakaiproject.poll.repository.PollRepository;
 
 public class TestDataPreload {
@@ -82,23 +81,22 @@ public class TestDataPreload {
 	public final static String LOCATION1_CONTACT_EMAIL = "sitecontact@site.com";
 
 	public final static Long POLL_1_POLL1D = Long.valueOf(1);
-	
+
 	//used for poll read
 	public final static String PERM_SITE_VISIT = "site.visit";
 
-	private Long firstPollId = null;
+	private String firstPollId = null;
 
-	public Long getFirstPollId() {
+	public String getFirstPollId() {
 		return firstPollId;
 	}
 	
 	/**
 	 * Preload a bunch of test data into the database
-	 * 
+	 *
      * @param pollRepository poll repository
-     * @param optionRepository option repository
      */
-    public void preloadTestData(PollRepository pollRepository, OptionRepository optionRepository) {
+    public void preloadTestData(PollRepository pollRepository) {
 
         Poll poll1 = new Poll();
         poll1.setCreationDate(new Date());
@@ -108,26 +106,24 @@ public class TestDataPreload {
         poll1.setText("something");
         poll1.setOwner(USER_UPDATE);
         poll1.setSiteId(LOCATION1_ID);
-        poll1.setUuid(UUID.randomUUID().toString());
-        pollRepository.save(poll1);
 
-		firstPollId = poll1.getPollId();
-		
-		//add some options
-		Option option1 = new Option();
+        // Add options using poll aggregate pattern
+        Option option1 = new Option();
         option1.setText("Option 1");
-        option1.setPollId(poll1.getPollId());
         option1.setUuid(UUID.randomUUID().toString());
         option1.setOptionOrder(0);
-        optionRepository.save(option1);
-		
-		Option option2 = new Option();
+        poll1.addOption(option1);  // Sets bidirectional relationship
+
+        Option option2 = new Option();
         option2.setText("Option 2");
-        option2.setPollId(poll1.getPollId());
         option2.setUuid(UUID.randomUUID().toString());
         option2.setOptionOrder(1);
-        optionRepository.save(option2);
+        poll1.addOption(option2);  // Sets bidirectional relationship
 
+        // Save poll once - cascade handles options
+        pollRepository.save(poll1);
+
+        firstPollId = poll1.getId();
     }
 
 }
