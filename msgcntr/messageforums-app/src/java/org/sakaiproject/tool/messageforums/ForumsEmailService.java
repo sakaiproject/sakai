@@ -253,7 +253,7 @@ public class ForumsEmailService {
 					Iterator<Attachment> iter = attachmentList.iterator();
 					while (iter.hasNext()) {
 						sbPrefixedPath = new StringBuilder(prefixedPath);
-						sbPrefixedPath.append("/email_tmp/");
+						sbPrefixedPath.append("email_tmp");
 						a = (Attachment) iter.next();
 						deleteAttachedFile(sbPrefixedPath.append(
 								a.getAttachmentId()).toString());
@@ -271,7 +271,7 @@ public class ForumsEmailService {
 		byte[] data = cr.getContent();
 		StringBuilder sbPrefixedPath = new StringBuilder(prefixedPath);
 		sbPrefixedPath.append("/email_tmp/");
-		sbPrefixedPath.append(resourceId);
+		sbPrefixedPath.append(resourceId.replace('\\', '/'));
 		String filename = sbPrefixedPath.toString().replace(" ", "");
 		String path = filename.substring(0, filename.lastIndexOf("/"));
 		File dir = new File(path);
