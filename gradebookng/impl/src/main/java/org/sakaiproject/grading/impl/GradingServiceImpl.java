@@ -1828,9 +1828,9 @@ public class GradingServiceImpl implements GradingService {
                     (GradebookAssignment) recordsByAssignment.get(assignmentId).get(0).getGradableObject() :
                     getAssignmentWithoutStatsByID(gradebookUid, assignmentId);
 
+            final Map<String, String> studentCommentMap = new HashMap<>();
             if (assignment != null) {
                 final List<Comment> commentRecs = getComments(assignment, studentIds);
-                final Map<String, String> studentCommentMap = new HashMap<>();
                 if (commentRecs != null) {
                     for (final Comment comment : commentRecs) {
                         if (comment != null) {
@@ -1838,8 +1838,8 @@ public class GradingServiceImpl implements GradingService {
                         }
                     }
                 }
-                allCommentsMap.put(assignmentId, studentCommentMap);
             }
+            allCommentsMap.put(assignmentId, studentCommentMap);
         }
 
         // Process grade records and add to results map
@@ -1852,7 +1852,7 @@ public class GradingServiceImpl implements GradingService {
             }
 
             // Get comment for this specific student and assignment
-            final String commentText = allCommentsMap.get(gboId).get(gradeRecord.getStudentId());
+            final String commentText = allCommentsMap.getOrDefault(gboId, Collections.emptyMap()).get(gradeRecord.getStudentId());
             final GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(gradeRecord, gbo, gradebook, commentText);
 
             List<GradeDefinition> gradeList = gradesMap.computeIfAbsent(gboId, k -> new ArrayList<>());
