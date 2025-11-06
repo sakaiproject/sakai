@@ -125,10 +125,8 @@
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" th:aria-label="#{close}">
-							<span aria-hidden="true">&times;</span>
-						</button>
 						<h4 class="modal-title" id="filter-label" th:text="'Filtrar'"></h4>
+						<button type="button" class="btn btn-close" data-bs-dismiss="modal" th:aria-label="#{close}"></button>
 					</div>
 
 					<div id="filter-body-container" class="modal-body gap-2">
@@ -171,7 +169,7 @@
 					<div id="filter-footer" class="modal-footer act">
 						<button type="button" class="active" data-bs-dismiss="modal" onclick="loadBody('filter')" th:text="#{confirm}"></button>
 						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{back}"></button>
-						<button type="button" class="btn btn-secondary" onclick="clearFilters()" data-dismiss="modal" th:text="#{clean_filters}"></button>
+						<button type="button" class="btn btn-secondary" onclick="clearFilters()" data-bs-dismiss="modal" th:text="#{clean_filters}"></button>
 					</div>
 				</div>
 			</div>
