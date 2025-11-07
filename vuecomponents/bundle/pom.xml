@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>vuecomponents-parent</artifactId>
-        <version>25.1</version>
+        <version>25-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Vue Components Bundle</name>

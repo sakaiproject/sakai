@@ -19,7 +19,7 @@
 	<parent>
 		<artifactId>mailsender</artifactId>
 		<groupId>org.sakaiproject.mailsender</groupId>
-		<version>25.1</version><!-- ProjectVersion -->
+		<version>25-SNAPSHOT</version><!-- ProjectVersion -->
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<name>Sakai Mail Sender Tool</name>

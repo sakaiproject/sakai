@@ -11,10 +11,10 @@
   <name>Sakai Master</name>
   <url>https://www.sakailms.org/</url>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
-  <version>25.1</version>
+  <version>25-SNAPSHOT</version>
 
   <properties>
-    <sakai.version>25.1</sakai.version>
+    <sakai.version>25-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
     <sakai.commons-io.version>2.19.0</sakai.commons-io.version>
@@ -95,7 +95,7 @@
     <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
 
     <!-- Reproducible builds: UTC ISO-8601 timestamp or use SOURCE_DATE_EPOCH -->
-    <project.build.outputTimestamp>2025-11-07T17:01:35Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>${maven.build.timestamp}</project.build.outputTimestamp>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
     <!-- Default empty unless profile activation -->
