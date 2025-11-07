@@ -7,7 +7,7 @@
     "css-watch": "sass --watch --style=expanded --load-path=node_modules src/sass:target",
     "css-lint": "stylelint src/sass/ --config config/.stylelintrc.json",
     "css-prefix": "postcss --config config/postcss.config.js --replace  target/*.css",
-    "css-clean": "rimraf ../../target/library-25-SNAPSHOT/skin/trinity",
+    "css-clean": "rimraf ../../target/library-25.1/skin/trinity",
     "watch": "nodemon -e scss -x \"npm run css-compile\"",
     "watch-clean": "nodemon -e scss -x \"npm-run-all css-clean css-reload \"",
     "watch-sass": "nodemon -e html,scss -x \"npm run css-compile src/$npm_config_source/sass:$npm_config_targetDir/library/skin/$npm_config_target\"",

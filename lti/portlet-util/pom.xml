@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.lti</groupId>
         <artifactId>lti</artifactId>
-        <version>25-SNAPSHOT</version>
+        <version>25.1</version>
     </parent>
 
     <name>Portlet utilities (portlet-util)</name>

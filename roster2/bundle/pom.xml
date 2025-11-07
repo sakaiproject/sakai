@@ -10,7 +10,7 @@
     <parent>
         <artifactId>sakai-roster2-base</artifactId>
         <groupId>org.sakaiproject.roster2</groupId>
-        <version>25-SNAPSHOT</version>
+        <version>25.1</version>
     </parent>
 
     <packaging>jar</packaging>
