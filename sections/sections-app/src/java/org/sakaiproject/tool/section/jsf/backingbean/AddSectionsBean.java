@@ -203,11 +203,10 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 			}
 		}
 
-		getSectionManager().addSections(courseUuid, sections);
+		Collection<CourseSection> sectionsCreated = getSectionManager().addSections(courseUuid, sections);
 
 		//SAK-47873 - When a group is created on Section Info, the user who has created should be assigned TA automatically
-		List sectionsInCategory = getSectionManager().getSectionsInCategory(getSiteContext(), category);
-		for(Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
+		for(Iterator iter = sectionsCreated.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
 			try {
 				getSectionManager().addSectionMembership(getUserUid(), Role.TA, section.getUuid());
