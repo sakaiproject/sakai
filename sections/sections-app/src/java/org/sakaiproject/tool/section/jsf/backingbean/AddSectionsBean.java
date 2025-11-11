@@ -42,6 +42,9 @@ import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.exception.MembershipException;
+import org.sakaiproject.section.api.exception.RoleConfigurationException;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -201,6 +204,18 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 		}
 
 		getSectionManager().addSections(courseUuid, sections);
+
+		//SAK-47873 - When a group is created on Section Info, the user who has created should be assigned TA automatically
+		List sectionsInCategory = getSectionManager().getSectionsInCategory(getSiteContext(), category);
+		for(Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
+			CourseSection section = (CourseSection)iter.next();
+			try {
+				getSectionManager().addSectionMembership(getUserUid(), Role.TA, section.getUuid());
+			} catch (MembershipException | RoleConfigurationException ex) {
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+				return null;
+			}
+		}
 
 		String[] params = new String[3];
 		params[0] = titles.toString();
