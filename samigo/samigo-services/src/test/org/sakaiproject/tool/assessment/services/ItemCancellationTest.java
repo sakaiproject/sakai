@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -212,6 +213,11 @@ public class ItemCancellationTest {
 
         // Convert "saved" items to array
         ItemDataIfc[] savedItems = savedItemList.toArray(new ItemDataIfc[savedItemList.size()]);
+        
+        // Ensure deterministic order before comparing
+        Comparator<ItemDataIfc> byId = Comparator.comparing(ItemDataIfc::getItemId);
+        Arrays.sort(savedItems, byId);
+        Arrays.sort(cancelledTestItems, byId);
 
         // Test if we have same number of items
         Assert.assertEquals(cancelledTestItems.length, savedItems.length);
