@@ -5476,4 +5476,21 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     public FormattedText getFormattedText() {
         return formattedText;
     }
+
+    @Override
+    public List<AssignmentRepository.SimpleAssignmentAutoSubmit> getAutoSubmitAssignmentsForContext(String context) {
+        if (StringUtils.isBlank(context)) return List.of();
+        return assignmentRepository.findAutoSubmitAssignmentsBySite(context, java.time.Instant.now());
+    }
+
+    @Override
+    public List<AssignmentRepository.SimpleSubmissionDraft> getDraftSubmissionsForAssignment(String assignmentId) {
+        if (StringUtils.isBlank(assignmentId)) return List.of();
+        return assignmentRepository.findDraftSubmissionsForAssignment(assignmentId);
+    }
+
+    @Override
+    public List<AssignmentRepository.SimpleSubmissionDraft> getAllEligibleDraftSubmissions() {
+        return assignmentRepository.findAllEligibleDraftSubmissions();
+    }
 }

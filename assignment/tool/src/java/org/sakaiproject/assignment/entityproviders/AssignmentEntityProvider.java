@@ -852,6 +852,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                     }
                 }
             }
+
+            // Add auto submit indicator
+            submission.put("autoSubmitted", as.getProperties().getOrDefault("auto_submitted", "false"));
+
             submission.putAll(getOriginalityProperties(as));
         }
 

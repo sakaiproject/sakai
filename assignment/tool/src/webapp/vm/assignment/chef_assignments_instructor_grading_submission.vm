@@ -171,6 +171,14 @@
                 </th>
                 <td>
                     $!submissionStatus
+
+                    #if ($!submission && $submission.properties.get("auto_submitted").equalsIgnoreCase("true"))
+                        <br/>
+                        <span class="badge bg-info" title="$tlang.getString('auto.submit.indicator.label')">
+                            <span class="bi bi-clock-history me-1" aria-hidden="true"></span>
+                            $tlang.getString("auto.submit.indicator.label")
+                        </span>
+                    #end
                 </td>
             </tr>
 
