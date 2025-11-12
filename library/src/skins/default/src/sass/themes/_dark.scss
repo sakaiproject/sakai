@@ -349,6 +349,6 @@
     }
 
     .poweredby__image {
-        filter: invert(1);
+        filter: invert(1) hue-rotate(180deg);
     }
 }
