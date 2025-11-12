@@ -64,13 +64,18 @@ public final class HibernateCriterionUtils {
      *
      * @param cb the CriteriaBuilder
      * @param expression the expression to use in the IN clause (e.g., root.get("propertyName"))
-     * @param values the collection of values to use in the IN clause
+     * @param values the collection of values to use in the IN clause, if values is null or empty,
+     *               an empty predicate is returned
      * @return a Predicate that uses OR to combine multiple IN predicates with chunked values
      */
     public static <T> Predicate PredicateInSplitter(CriteriaBuilder cb, Expression<T> expression, Collection<T> values) {
         Objects.requireNonNull(cb);
         Objects.requireNonNull(expression);
-        Objects.requireNonNull(values);
+
+        // Return false predicate (no matches) for null or empty collections
+        if (values == null || values.isEmpty()) {
+            return cb.disjunction();
+        }
 
         List<T> list = new ArrayList<>(values);
         int listSize = list.size();

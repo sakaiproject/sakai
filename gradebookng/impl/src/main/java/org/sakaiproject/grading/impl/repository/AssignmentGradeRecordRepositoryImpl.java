@@ -133,7 +133,7 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
 
         Predicate studentIdPredicate = HibernateCriterionUtils.PredicateInSplitter(cb, agr.get("studentId"), studentIds);
 
-        query.where(cb.and(cb.equal(gb.get("id"), gradebookId), cb.equal(go.get("removed"), false), studentIdPredicate));
+        query.where(cb.and(cb.equal(gb.get("id"), gradebookId), cb.equal(go.get("removed"), removed), studentIdPredicate));
         return session.createQuery(query).list();
     }
 
