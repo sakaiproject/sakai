@@ -34,7 +34,7 @@ public class CardGameUserRestBean {
 
     public static CardGameUserRestBean of(@NonNull User user, CardGameStatItem statItem) {
         // If passed statItem is null create one with defaults
-        CardGameStatItem userStatItem = statItem != null ? statItem : CardGameStatItem.builderWithDefaults().build();
+        CardGameStatItem userStatItem = statItem != null ? statItem : CardGameStatItem.builder().build();
 
         return CardGameUserRestBean.builder()
                 .id(user.getId())

@@ -274,7 +274,7 @@ public class MainController {
 					MicrosoftTeam team = microsoftCommonService.getTeam(ss.getTeamId());
 					
 					if(team != null) {
-						collaborativeDocumentsSessionBean.getItemsByTeam().put(ss.getTeamId(), MicrosoftTeamWrapper.builder(team).build());
+						collaborativeDocumentsSessionBean.getItemsByTeam().put(ss.getTeamId(), MicrosoftTeamWrapper.builder().team(team).build());
 					}
 				}
 				//first Team will be expanded by default, so we need to load it
