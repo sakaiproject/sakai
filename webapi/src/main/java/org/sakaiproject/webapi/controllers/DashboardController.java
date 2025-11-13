@@ -283,17 +283,24 @@ public class DashboardController extends AbstractSakaiApiController implements E
             bean.setProgramme(site.getShortDescription());
             bean.setOverview(site.getDescription());
             String dashboardConfigJson = site.getProperties().getProperty("dashboard-config");
+            int defaultCourseLayout = serverConfigurationService.getInt("dashoard.course.layout", 2);
             if (dashboardConfigJson == null) {
-                int defaultCourseLayout = serverConfigurationService.getInt("dashoard.course.layout", 2);
                 bean.setWidgetLayout(defaultWidgetLayouts.get(Integer.toString(defaultCourseLayout)));
                 bean.setTemplate(defaultCourseLayout);
             } else {
                 Map<String, Object> dashboardConfig = (new ObjectMapper()).readValue(dashboardConfigJson, HashMap.class);
                 List<String> widgetLayout = (List<String>) dashboardConfig.get("widgetLayout");
-                if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false))  {
-                    widgetLayout.remove("tasks");
+                if (widgetLayout == null) {
+                    widgetLayout = (List<String>) dashboardConfig.get("layout");
                 }
-                bean.setWidgetLayout(widgetLayout);
+                if (widgetLayout != null) {
+                    if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false)) {
+                        widgetLayout.remove("tasks");
+                    }
+                    bean.setWidgetLayout(widgetLayout);
+                } else {
+                    bean.setWidgetLayout(defaultWidgetLayouts.get(Integer.toString(defaultCourseLayout)));
+                }
                 bean.setTemplate((Integer) dashboardConfig.get("template"));
             }
             bean.setEditable(securityService.isSuperUser() || securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()));
