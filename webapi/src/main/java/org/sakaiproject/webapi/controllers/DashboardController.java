@@ -263,6 +263,8 @@ public class DashboardController extends AbstractSakaiApiController implements E
                 String widgetLayoutJson = (new ObjectMapper()).writeValueAsString(bean.getWidgetLayout());
                 props.addProperty("widgetLayout", widgetLayoutJson);
                 props.addProperty("template", Integer.toString(bean.getTemplate()));
+                // Remove the legacy layout property
+                props.removeProperty("layout");
             } catch (JsonProcessingException jpe) {
                 log.warn("Could not save dashboard config for user [{}], {}", userId, jpe.toString());
             }
