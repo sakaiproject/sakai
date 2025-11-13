@@ -2292,7 +2292,7 @@ public class DeliveryBean implements Serializable {
 	  verifyExtendedTimeDeliveryService();
 	  if (extendedTimeDeliveryService.hasExtendedTime()) {
 		  //Accept it if it's not retracted on the extended time entry
-		  acceptLateSubmission = (extendedTimeDeliveryService.getRetractDate() != null) ? !isRetracted(false) : false;
+		  acceptLateSubmission = (extendedTimeDeliveryService.getRetractDate() != null) ? !isRetracted(false) : true;
 	  }
 	  return acceptLateSubmission;
   }
