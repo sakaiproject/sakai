@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Builder(builderMethodName = "hiddenBuilder")
+@Builder
 public class MicrosoftTeamWrapper {
 	private MicrosoftTeam team;
 	@Builder.Default
@@ -37,7 +37,7 @@ public class MicrosoftTeamWrapper {
 	public void addItem(MicrosoftDriveItem item) {
 		if(item != null) {
 			if(items == null) {
-				items = new ArrayList<MicrosoftDriveItem>();
+				items = new ArrayList<>();
 			}
 			items.add(item);
 		}
@@ -48,10 +48,6 @@ public class MicrosoftTeamWrapper {
 	}
 	
 	public boolean hasItems() {
-        return items != null && items.size() > 0;
+        return items != null && !items.isEmpty();
     }
-	
-	public static MicrosoftTeamWrapperBuilder builder(MicrosoftTeam team){
-		return hiddenBuilder().team(team);
-	}
 }

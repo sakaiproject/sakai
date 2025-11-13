@@ -21,7 +21,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.webapi.beans.TimerBean;
-import org.sakaiproject.webapi.beans.TimerBean.TimerBeanBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,7 +45,7 @@ public class SamigoController extends AbstractSakaiApiController {
 		
 		log.debug("Get Timer info: currentUserId={}, type={}, itemId={}, assessmentGradingId={}", currentUserId, type, itemId, assessmentGradingId);
 
-		TimerBeanBuilder ret = TimerBean.builder();
+		TimerBean.TimerBeanBuilder ret = TimerBean.builder();
 		GradingService gradingService = new GradingService();
 		try {
 			Date start;
