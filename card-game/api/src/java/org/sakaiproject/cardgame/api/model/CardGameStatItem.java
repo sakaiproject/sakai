@@ -40,7 +40,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = "id")
 public class CardGameStatItem {
 
-
     @Id
     @Column(name = "ID", nullable = false, length = 36)
     @GeneratedValue(generator = "uuid")
@@ -53,26 +52,15 @@ public class CardGameStatItem {
     @Column(name = "USER_ID", nullable = false)
     private String userId;
 
+    @Builder.Default
     @Column(name = "HITS", nullable = false)
-    private Integer hits;
+    private Integer hits = 0;
 
+    @Builder.Default
     @Column(name = "MISSES", nullable = false)
-    private Integer misses;
+    private Integer misses = 0;
 
+    @Builder.Default
     @Column(name = "MARKED_AS_LEARNED", nullable = false)
-    private Boolean markedAsLearned;
-
-
-    public static final Integer HITS_DEFAULT = 0;
-    public static final Integer MISSES_DEFAULT = 0;
-    public static final Boolean MARKED_AS_LEARNED_DEFAULT = false;
-
-
-    public static CardGameStatItemBuilder builderWithDefaults() {
-        return CardGameStatItem.builder()
-                .hits(HITS_DEFAULT)
-                .misses(MISSES_DEFAULT)
-                .markedAsLearned(MARKED_AS_LEARNED_DEFAULT);
-    }
-
+    private Boolean markedAsLearned = false;
 }

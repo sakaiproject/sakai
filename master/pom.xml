@@ -176,7 +176,7 @@
               <version>1.7.2</version>
               <inherited>true</inherited>
               <configuration>
-                <updatePomFile>false</updatePomFile>
+                <updatePomFile>true</updatePomFile>
                 <flattenMode>ossrh</flattenMode>
                 <pomElements>
                   <parent>expand</parent>
@@ -2536,7 +2536,7 @@
           <configuration>
             <source>${sakai.jdk.version}</source>
             <links>
-              <link>https://docs.oracle.com/en/java/javase/17/</link>
+              <link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>
               <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
               <link>https://commons.apache.org/proper/commons-collections/apidocs/</link>
               <link>https://commons.apache.org/proper/commons-io/javadocs/api-release/</link>
@@ -2553,24 +2553,6 @@
               <additionalOption>--add-modules</additionalOption>
               <additionalOption>java.xml</additionalOption>
             </additionalOptions>
-            <additionalDependencies>
-              <!-- these wicket dependencies can be removed once this version of wicket is no longer needed (delegatedaccess) -->
-              <additionalDependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-core</artifactId>
-                <version>6.30.0</version>
-              </additionalDependency>
-              <additionalDependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-extensions</artifactId>
-                <version>6.30.0</version>
-              </additionalDependency>
-              <additionalDependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-util</artifactId>
-                <version>6.30.0</version>
-              </additionalDependency>
-            </additionalDependencies>
           </configuration>
         </plugin>
         <plugin>
