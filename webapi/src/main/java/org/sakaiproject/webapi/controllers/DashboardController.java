@@ -215,6 +215,9 @@ public class DashboardController extends AbstractSakaiApiController implements E
             try {
                 String widgetLayoutJson = props.getProperty("widgetLayout");
                 if (widgetLayoutJson == null) {
+                    widgetLayoutJson = props.getProperty("layout");
+                }
+                if (widgetLayoutJson == null) {
                     bean.setWidgetLayout(defaultHomeLayout);
                 } else {
                     List<String> widgetLayout = (List<String>) new ObjectMapper().readValue(widgetLayoutJson, List.class);
