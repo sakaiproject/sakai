@@ -160,13 +160,9 @@ public class SakaiKeySetUtilTest {
         assertEquals(priv4, priv5);
 
         String keySetJSON = SakaiKeySetUtil.getKeySet();
-        assertNotNull(keySetJSON);
-        
+        assertTrue(keySetJSON.contains(",\"alg\":\"RS256\""));
         JSONObject ks_json = LTIUtil.parseJSONObject(keySetJSON);
-        assertNotNull(ks_json);
-
         JSONArray keys = (JSONArray) ks_json.get("keys");
-        assertNotNull(keys);
         assertEquals(keys.size(), 3);
 
         for(int i=0; i< keys.size(); i++) {
@@ -175,7 +171,6 @@ public class SakaiKeySetUtilTest {
             assertNotNull(key.get("kid"));
             assertNotNull(key.get("n"));
             assertNotNull(key.get("kty"));
-            assertNotNull(key.get("alg"));
         }
 
         // Test the expiration of the previous key
@@ -186,13 +181,9 @@ public class SakaiKeySetUtilTest {
         assertEquals(pairs.length, 2);
 
         keySetJSON = SakaiKeySetUtil.getKeySet();
-        assertNotNull(keySetJSON);
-
-        ks_json = LTIUtil.parseJSONObject(keySetJSON);
-        assertNotNull(ks_json);
-        
+        assertTrue(keySetJSON.contains(",\"alg\":\"RS256\""));
+        ks_json = LTIUtil.parseJSONObject(keySetJSON);      
         keys = (JSONArray) ks_json.get("keys");
-        assertNotNull(keys);
         assertEquals(keys.size(), 2);
 
         for(int i=0; i< keys.size(); i++) {
@@ -201,7 +192,6 @@ public class SakaiKeySetUtilTest {
             assertNotNull(key.get("kid"));
             assertNotNull(key.get("n"));
             assertNotNull(key.get("kty"));
-            assertNotNull(key.get("alg"));
         }
     }
 

@@ -244,9 +244,7 @@ public class LTI13ObjectTest {
         ObjectMapper mapper = JacksonUtil.getLaxObjectMapper();
         OpenIDClientRegistration ocr1 = mapper.readValue(first, OpenIDClientRegistration.class);
         OpenIDClientRegistration ocr2 = mapper.readValue(second, OpenIDClientRegistration.class);
-		
 		assertTrue(ocr1.prettyPrintLog().contains("a@b.com"));
-
         JsonNode expected = mapper.readTree(ocr1.prettyPrintLog());
         JsonNode actual = mapper.readTree(ocr2.prettyPrintLog());
         assertEquals(expected, actual);
