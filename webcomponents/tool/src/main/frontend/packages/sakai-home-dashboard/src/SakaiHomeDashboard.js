@@ -166,7 +166,7 @@ export class SakaiHomeDashboard extends SakaiElement {
                   class="btn btn-secondary"
                   @click=${this.edit}
                   title="${this._i18n.edit_tooltip}"
-                  arial-label="${this._i18n.edit_tooltip}">
+                  aria-label="${this._i18n.edit_tooltip}">
                 <span>${this._i18n.edit}</span>
               </button>
             </div>
