@@ -13412,7 +13412,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(TAG_SELECTOR);
         state.removeAttribute(GB_SELECTOR);
 
-        if (!serverConfigurationService.getBoolean("gradebookng.category.keepLastUsed", true)) {
+        if (serverConfigurationService.getBoolean("gradebookng.category.reset", false)) {
             state.removeAttribute(NEW_ASSIGNMENT_CATEGORY);
         }
     } // resetAssignment
