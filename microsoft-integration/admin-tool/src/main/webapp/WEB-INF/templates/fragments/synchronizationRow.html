@@ -86,7 +86,7 @@
 		<i class="run-button-disabled fa fa-play" th:classappend="(${today.isAfter(row.syncDateFrom)} and ${today.isBefore(row.syncDateTo)}) ? 'hidden'" th:title="#{index.run.disabled}"></i>
 		<!-- Sync -->
 		<a href="#" onclick="refreshSite(this)">
-			<i class="fa fa-refresh"></i>
+			<i class="fa fa-refresh" th:title="#{index.refresh}"></i>
 		</a>
 		<!-- Edit Groups -->
 		<a th:href="@{/editGroupSynchronization/{id}(id=${row.id})}" th:title="#{index.edit_groups}" th:classappend="${teamsMap[row.teamId]} == null ? 'hidden'" >
