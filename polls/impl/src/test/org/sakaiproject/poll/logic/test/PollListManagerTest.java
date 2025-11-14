@@ -21,6 +21,7 @@
 
 package org.sakaiproject.poll.logic.test;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -30,41 +31,48 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import org.sakaiproject.id.api.IdManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.logic.test.stubs.ExternalLogicStubb;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.service.impl.PollListManagerImpl;
 import org.sakaiproject.poll.service.impl.PollVoteManagerImpl;
+import org.sakaiproject.poll.repository.impl.OptionRepositoryImpl;
+import org.sakaiproject.poll.repository.impl.PollRepositoryImpl;
+import org.sakaiproject.poll.repository.impl.VoteRepositoryImpl;
+import org.hibernate.SessionFactory;
 
 @ContextConfiguration(locations={
-		"/hibernate-test.xml",
-		"classpath:org/sakaiproject/poll/spring-hibernate.xml" })
+		"/hibernate-test.xml" })
 @Slf4j
 public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	private TestDataPreload tdp = new TestDataPreload();
-
-	@Autowired
-	@Qualifier("org.sakaiproject.poll.dao.impl.PollDaoTarget")
-	private PollDao dao;
 	private PollListManagerImpl pollListManager;
 	private PollVoteManagerImpl pollVoteManager;
 	private ExternalLogicStubb externalLogicStubb;
-	
+
 	@Before
 	public void onSetUp() {
+		SessionFactory sessionFactory = (SessionFactory) applicationContext.getBean("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory");
+		PollRepositoryImpl pollRepository = new PollRepositoryImpl();
+		pollRepository.setSessionFactory(sessionFactory);
+		OptionRepositoryImpl optionRepository = new OptionRepositoryImpl();
+		optionRepository.setSessionFactory(sessionFactory);
+		VoteRepositoryImpl voteRepository = new VoteRepositoryImpl();
+		voteRepository.setSessionFactory(sessionFactory);
+
 		pollListManager = new PollListManagerImpl();
-		pollListManager.setDao(dao);
+		pollListManager.setPollRepository(pollRepository);
+		pollListManager.setOptionRepository(optionRepository);
+		pollListManager.setVoteRepository(voteRepository);
 		
 		pollVoteManager = new PollVoteManagerImpl();
-		pollVoteManager.setDao(dao);
+		pollVoteManager.setVoteRepository(voteRepository);
+		pollVoteManager.setPollRepository(pollRepository);
 		
 		
 		externalLogicStubb = new ExternalLogicStubb();
@@ -74,7 +82,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		pollListManager.setIdManager(mock(IdManager.class));
 		
 		// preload testData
-		tdp.preloadTestData(dao);
+		tdp.preloadTestData(pollRepository, optionRepository);
 	}
 	
 	@Test
@@ -101,7 +109,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 			Assert.fail("should not be allowed to read this poll");
 		} 
 		catch (SecurityException e) {
-			log.error(e.getMessage(), e);
+			log.debug("Expected security exception when reading poll without access", e);
 		}
     }
 
@@ -141,13 +149,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		//we should not be able to save empty polls
 		
 		//a user needs privileges to save the poll
-		try {
-			pollListManager.savePoll(null);
-			Assert.fail();
-		}
-		catch (IllegalArgumentException e) {
-			log.error(e.getMessage(), e);
-		}
+		Assert.assertThrows(IllegalArgumentException.class, () -> pollListManager.savePoll(null));
 		
 		
 		//a user needs privileges to save the poll
@@ -158,7 +160,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
-			log.error(e.getMessage(), e);
+			log.debug("Expected illegal argument when saving incomplete poll", e);
 		}
 		
 		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
@@ -167,10 +169,10 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
-			log.error(e.getMessage(), e);
+			log.debug("Expected illegal argument when unauthorized user saves poll", e);
 		}
 		catch (SecurityException se) {
-			log.error(se.getMessage(), se);
+			log.debug("Expected security exception when unauthorized user saves poll", se);
 		}
 
     }
@@ -193,7 +195,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 			pollListManager.deletePoll(poll1);
 			Assert.fail();
 		} catch (SecurityException e) {
-			log.error(e.getMessage(), e);
+			log.debug("Expected security exception when deleting unsaved poll", e);
 		} 
 		catch (IllegalArgumentException e) {
 			// Successful tests should be quiet. IllegalArgumentException is actually expected on a null ID.
@@ -224,7 +226,7 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 	    vote.setPollId(poll1.getPollId());
 	    vote.setPollOption(option1.getOptionId());
 	    vote.setUserId(TestDataPreload.USER_UPDATE);
-	    vote.setVoteDate(new Date());
+	    vote.setVoteDate(Instant.now());
 	    vote.setSubmissionId(TestDataPreload.USER_UPDATE + ":" + UUID.randomUUID());
 
 	    pollVoteManager.saveVote(vote);
