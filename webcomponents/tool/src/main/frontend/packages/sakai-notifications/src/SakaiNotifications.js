@@ -54,10 +54,15 @@ export class SakaiNotifications extends SakaiElement {
       };
     }
 
+    // Track online status and default sensibly for tests/headless environments
+    this._online = typeof navigator !== "undefined" && typeof navigator.onLine === "boolean" ? navigator.onLine : true;
     window.addEventListener("online", () => this._online = true );
 
+    this.notifications = [];
     this._filteredNotifications = new Map();
     this._i18nLoaded = this.loadTranslations("sakai-notifications");
+    this._initialNotificationsLoaded = false;
+    this._loadingNotifications = null;
     this._pushEnabled = false; // Default to false, will be set in _registerForNotifications
   }
 
@@ -77,34 +82,78 @@ export class SakaiNotifications extends SakaiElement {
       this._browserInfoUrl = this.edgeInfoUrl;
     }
 
-    this._i18nLoaded.then(() => this._loadInitialNotifications());
+    // Do not auto-load notifications; portal integration triggers loadNotifications() on user interaction
   }
 
-  _loadInitialNotifications(register = true) {
+  loadNotifications({ force = false } = {}) {
+
+    return this._i18nLoaded.then(() => {
+
+      if (!force) {
+
+        if (this._initialNotificationsLoaded) {
+          this._fireLoadedEvent();
+          return true;
+        }
+
+        if (this._loadingNotifications) {
+          return this._loadingNotifications;
+        }
+      }
+
+      const shouldRegister = !this._initialNotificationsLoaded;
+      const loadPromise = this._loadInitialNotifications(shouldRegister)
+        .then(success => {
+          if (success) {
+            this._initialNotificationsLoaded = true;
+          }
+          return success;
+        })
+        .finally(() => {
+          if (this._loadingNotifications === loadPromise) {
+            this._loadingNotifications = null;
+          }
+        });
+
+      this._loadingNotifications = loadPromise;
+      return loadPromise;
+    });
+  }
+
+  // Removed localStorage caching. Always fetch fresh notifications.
+
+  async _loadInitialNotifications(register = true) {
 
     console.debug("_loadInitialNotifications");
 
-    fetch(this.url, {
-      credentials: "include",
-      cache: "no-cache",
-      headers: { "Content-Type": "application/json" },
-    })
-    .then(r => {
+    // No local caching: always fetch from the server.
 
-      if (r.ok) {
-        return r.json();
+    try {
+      const response = await fetch(this.url, {
+        credentials: "include",
+        cache: "no-cache",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Network error while retrieving notifications from ${this.url}`);
       }
 
-      throw new Error(`Network error while retrieving notifications from ${this.url}`);
-    })
-    .then(notifications => {
+      const notifications = await response.json();
 
       this.notifications = notifications;
+
+      // No local caching
+
       this._filterIntoToolNotifications();
       this._fireLoadedEvent();
       register && this._registerForNotifications();
-    })
-    .catch(error => console.error(error));
+      return true;
+    } catch (error) {
+      console.error(error);
+    }
+
+    return false;
   }
 
   _registerForNotifications() {
@@ -337,7 +386,7 @@ export class SakaiNotifications extends SakaiElement {
           this._state = PUSH_DENIED_INFO;
           break;
         case "granted":
-          this._loadInitialNotifications(true);
+          this.loadNotifications({ force: true });
           this._highlightTestButton = true;
           break;
       }
@@ -545,7 +594,7 @@ export class SakaiNotifications extends SakaiElement {
 
             ${Notification.permission !== "granted" && this._online ? html`
               <button class="btn btn-secondary btn-sm me-2"
-                  @click=${this._loadInitialNotifications}>
+                  @click=${() => this.loadNotifications({ force: true })}>
                 ${this._i18n.update}
               </button>
             ` : nothing}
