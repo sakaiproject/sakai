@@ -2249,7 +2249,9 @@ return topicTypeUuid;
 	  if (StringUtils.isBlank(msg.getSubject())) {
 		  rrepMsg.setTitle("[" + getResourceBundleString("pvt_no_subject") + "]");
 	  } else {
-		  rrepMsg.setTitle(msg.getSubject());
+		  String subject = msg.getSubject();
+		  String truncatedSubject = StringUtils.truncate(subject, 252) + (subject.length() > 255 ? "..." : "");
+		  rrepMsg.setTitle(truncatedSubject);
 	  }
 	  try {
 		  rrepMsg.setCreatedBy(userDirectoryService.getUserByEid(from).getId());
