@@ -184,25 +184,9 @@
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
+            <artifactId>ehcache</artifactId>
             <version>${sakai.ehcache.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.terracotta</groupId>
-            <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-terracotta</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
