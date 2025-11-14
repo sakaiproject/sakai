@@ -84,7 +84,6 @@
         {
 			document.getElementById('External_Tool_Fieldset').style.display = 'block';
 			document.getElementById('ltiSubmissionResubmitNote').style.display = 'block';
-			document.getElementById('site').checked = true;
 			document.getElementById('notificationOptions').style.display = 'none';
 			#if ($allowReviewService && ($reviewServiceProviderId == $turnitinProviderId || $reviewServiceProviderId == $turnitinOCProviderId))
 				document.getElementById('contentReviewServiceOptions').style.display = 'none';
