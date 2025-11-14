@@ -20,10 +20,9 @@
 
 package org.sakaiproject.entitybroker.util.access;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
-
-import org.azeckoski.reflectutils.refmap.ReferenceMap;
-import org.azeckoski.reflectutils.refmap.ReferenceType;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A common generic implementation class for managers of different kinds of access providers.
@@ -33,23 +32,47 @@ import org.azeckoski.reflectutils.refmap.ReferenceType;
  */
 public class AccessProviderManagerImpl<T> {
 
-   private Map<String, T> prefixMap = new ReferenceMap<String, T>(ReferenceType.STRONG, ReferenceType.WEAK);
-   // replaced with a reference map
-   //private Map<String, WeakReference<T>> prefixMap = new ConcurrentHashMap<String, WeakReference<T>>();
+   private final Map<String, WeakReference<T>> prefixMap = new ConcurrentHashMap<String, WeakReference<T>>();
 
    public void registerProvider(String prefix, T provider) {
-      prefixMap.put(prefix, provider);
+      if (prefix == null || provider == null) {
+         throw new IllegalArgumentException("prefix and provider must be non-null");
+      }
+      prefixMap.put(prefix, new WeakReference<T>(provider));
    }
 
    public void unregisterProvider(String prefix, T provider) {
-      prefixMap.remove(prefix);
+      if (prefix == null) {
+         return;
+      }
+      WeakReference<T> current = prefixMap.get(prefix);
+      if (current != null) {
+         T existing = current.get();
+         if (existing == null || existing == provider) {
+            // Atomically remove only if mapping is unchanged to avoid racing with re-registration
+            prefixMap.remove(prefix, current);
+         }
+      }
    }
 
    public void unregisterProvider(String prefix) {
-      prefixMap.remove(prefix);
+      if (prefix != null) {
+         prefixMap.remove(prefix);
+      }
    }
 
    public T getProvider(String prefix) {
-      return prefixMap.get(prefix);
+      if (prefix == null) {
+         return null;
+      }
+      WeakReference<T> reference = prefixMap.get(prefix);
+      if (reference == null) {
+         return null;
+      }
+      T provider = reference.get();
+      if (provider == null) {
+         prefixMap.remove(prefix, reference);
+      }
+      return provider;
    }
 }

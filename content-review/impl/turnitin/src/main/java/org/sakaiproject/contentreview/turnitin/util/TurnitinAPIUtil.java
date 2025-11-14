@@ -34,12 +34,13 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.Map.Entry;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -50,11 +51,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.io.IOUtils;
-
-import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
-
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.exception.SubmissionException;
@@ -177,24 +177,12 @@ public class TurnitinAPIUtil {
 		return md5;
 	}
 
-	public static Map callTurnitinReturnMap(String apiURL, Map<String,Object> parameters, 
-			String secretKey, int timeout, Proxy proxy) throws TransientSubmissionException, SubmissionException 
-	{
-		XMLTranscoder xmlt = new XMLTranscoder();
-
-		try (InputStream inputStream = callTurnitinReturnInputStream(apiURL, parameters, secretKey, timeout, proxy, false)) {
-			Map togo = xmlt.decode(IOUtils.toString(inputStream));
-			log.debug("Turnitin Result Payload: " + togo);
-			return togo;
-		} catch (Exception t) {
-			// Could be 'java.lang.IllegalArgumentException: xml cannot be null or empty' from IO errors
-			throw new TransientSubmissionException ("Cannot parse Turnitin response. Assuming call was unsuccessful", t);
-		}
-	}
-
-	public static Document callTurnitinReturnDocument(String apiURL, Map<String,Object> parameters, 
+	public static Map<String, Object>  callTurnitinReturnMap(String apiURL, Map<String,Object> parameters,
 			String secretKey, int timeout, Proxy proxy) throws TransientSubmissionException, SubmissionException {
-		return callTurnitinReturnDocument(apiURL, parameters, secretKey, timeout, proxy, false);
+		Document document = callTurnitinReturnDocument(apiURL, parameters, secretKey, timeout, proxy, false);
+		Map<String, Object> togo = flattenResponse(document);
+		log.debug("Turnitin Result Payload: {}", togo);
+		return togo;
 	}
 	
 	public static String buildTurnitinURL(String apiURL, Map<String,Object> parameters, String secretKey) {
@@ -257,35 +245,89 @@ public class TurnitinAPIUtil {
 		return sb.toString();
 	}
 
-	public static Document callTurnitinReturnDocument(String apiURL, Map<String,Object> parameters, 
-			String secretKey, int timeout, Proxy proxy, boolean isMultipart) throws TransientSubmissionException, SubmissionException {
-		InputStream inputStream = callTurnitinReturnInputStream(apiURL, parameters, secretKey, timeout, proxy, isMultipart);
+        public static Document callTurnitinReturnDocument(String apiURL, Map<String,Object> parameters,
+                        String secretKey, int timeout, Proxy proxy, boolean isMultipart) throws TransientSubmissionException, SubmissionException {
+                InputStream inputStream = callTurnitinReturnInputStream(apiURL, parameters, secretKey, timeout, proxy, isMultipart);
 
-		BufferedReader in;
-		in = new BufferedReader(new InputStreamReader(inputStream));
 		Document document = null;
-		try {   
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(inputStream))) {
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder  parser = documentBuilderFactory.newDocumentBuilder();
+			DocumentBuilder parser = documentBuilderFactory.newDocumentBuilder();
 			document = parser.parse(new org.xml.sax.InputSource(in));
-		}
-		catch (ParserConfigurationException pce){
+		} catch (ParserConfigurationException pce) {
 			log.error("parser configuration error: " + pce.getMessage());
-			throw new TransientSubmissionException ("Parser configuration error", pce);
+			throw new TransientSubmissionException("Parser configuration error", pce);
 		} catch (Exception t) {
-			throw new TransientSubmissionException ("Cannot parse Turnitin response. Assuming call was unsuccessful", t);
+			throw new TransientSubmissionException("Cannot parse Turnitin response. Assuming call was unsuccessful", t);
 		}
 		
-		if (log.isDebugEnabled()) {
-			log.debug(" Result from call: " + Xml.writeDocumentToString(document));
+			log.debug("Result from call: {}", Xml.writeDocumentToString(document));
+
+			return document;
 		}
 
-		return document;
-	}
+		private static Map<String, Object> flattenResponse(Document document) {
+				Map<String, Object> response = new LinkedHashMap<>();
+				if (document == null) {
+						return response;
+				}
+				Element root = document.getDocumentElement();
+				if (root == null) {
+						return response;
+				}
+				NodeList children = root.getChildNodes();
+				for (int i = 0; i < children.getLength(); i++) {
+						Node node = children.item(i);
+						if (node.getNodeType() != Node.ELEMENT_NODE) {
+								continue;
+						}
+						Element element = (Element) node;
+						mergeValue(response, element.getNodeName(), extractValue(element));
+				}
+				return response;
+		}
 
-	public static InputStream callTurnitinReturnInputStream(String apiURL, Map<String,Object> parameters, 
-			String secretKey, int timeout, Proxy proxy, boolean isMultipart) throws TransientSubmissionException, SubmissionException {
-		InputStream togo = null;
+		private static Object extractValue(Element element) {
+				NodeList childNodes = element.getChildNodes();
+				List<Element> elementChildren = new ArrayList<>();
+				for (int i = 0; i < childNodes.getLength(); i++) {
+						Node node = childNodes.item(i);
+						if (node.getNodeType() == Node.ELEMENT_NODE) {
+								elementChildren.add((Element) node);
+						}
+				}
+				if (elementChildren.isEmpty()) {
+						String text = element.getTextContent();
+						return text == null ? "" : text.trim();
+				}
+				Map<String, Object> nested = new LinkedHashMap<>();
+				for (Element child : elementChildren) {
+						mergeValue(nested, child.getNodeName(), extractValue(child));
+				}
+				return nested;
+		}
+
+		private static void mergeValue(Map<String, Object> target, String key, Object value) {
+				if (target.containsKey(key)) {
+						Object existing = target.get(key);
+						if (existing instanceof List) {
+								@SuppressWarnings("unchecked")
+								List<Object> list = (List<Object>) existing;
+								list.add(value);
+						} else {
+								List<Object> list = new ArrayList<>();
+								list.add(existing);
+								list.add(value);
+								target.put(key, list);
+						}
+				} else {
+						target.put(key, value);
+				}
+		}
+
+		public static InputStream callTurnitinReturnInputStream(String apiURL, Map<String,Object> parameters,
+						String secretKey, int timeout, Proxy proxy, boolean isMultipart) throws TransientSubmissionException, SubmissionException {
+				InputStream togo = null;
 		
 		StringBuilder apiDebugSB = new StringBuilder();
 
