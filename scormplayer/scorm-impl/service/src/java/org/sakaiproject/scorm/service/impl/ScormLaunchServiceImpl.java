@@ -421,7 +421,6 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
                 }
                 else if (latestAttempt.isNotExited())
                 {
-                    // Server crash or unclean exit - continue with the same attempt
                     attemptNumber = latestAttempt.getAttemptNumber();
                     sessionBean.setAttempt(latestAttempt);
                 }
