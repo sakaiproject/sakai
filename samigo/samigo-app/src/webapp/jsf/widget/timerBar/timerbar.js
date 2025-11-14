@@ -362,7 +362,7 @@
           }
           lastAid = data[2];
 
-          if (totalTime === elapsedTime) {
+          if (parseInt(totalTime, 10) <= parseInt(elapsedTime, 10)) {
               timerBlock.hide();
               timeoutDialog.dialog("open");
               timeoutDialog.siblings(".ui-dialog-buttonpane").find("button").eq(0).hide();
@@ -392,7 +392,7 @@
                     elapsedTime = data[1];
                   }
                   lastAid = data[2];
-                  if (totalTime === elapsedTime) {
+                  if (parseInt(totalTime, 10) <= parseInt(elapsedTime, 10)) {
                       clearInterval(localCount);
                       clearInterval(ajaxCount);
                       $("[id$=\\:submitNoCheck]")[0].click();
