@@ -28,6 +28,8 @@ import lombok.ToString;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.EnumType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -40,6 +42,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -89,7 +92,7 @@ public class Gradebook implements PersistableEntity<Long>, Serializable {
     private Boolean courseGradeDisplayed = Boolean.FALSE;
 
     @Column(name = "COURSE_LETTER_GRADE_DISPLAYED", nullable = false)
-    private Boolean courseLetterGradeDisplayed = Boolean.FALSE;
+    private Boolean courseLetterGradeDisplayed = Boolean.TRUE;
 
     @Column(name = "COURSE_POINTS_DISPLAYED", nullable = false)
     private Boolean coursePointsDisplayed = Boolean.FALSE;
@@ -98,7 +101,7 @@ public class Gradebook implements PersistableEntity<Long>, Serializable {
     private Boolean totalPointsDisplayed = Boolean.FALSE;
 
     @Column(name = "COURSE_AVERAGE_DISPLAYED", nullable = false)
-    private Boolean courseAverageDisplayed = Boolean.FALSE;
+    private Boolean courseAverageDisplayed = Boolean.TRUE;
 
     @Column(name = "ALL_ASSIGNMENTS_ENTERED", nullable = false)
     private Boolean allAssignmentsEntered = Boolean.FALSE;
@@ -107,7 +110,8 @@ public class Gradebook implements PersistableEntity<Long>, Serializable {
     private Boolean locked = Boolean.FALSE;
 
     @Column(name = "GRADE_TYPE", nullable = false)
-    private Integer gradeType = GradingConstants.GRADE_TYPE_POINTS;
+    @Enumerated(EnumType.STRING)
+    private GradeType gradeType = GradeType.POINTS;
 
     @Column(name = "CATEGORY_TYPE", nullable = false)
     private Integer categoryType = GradingConstants.CATEGORY_TYPE_NO_CATEGORY;

@@ -25,9 +25,6 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 public interface GradingConstants {
-    Integer GRADE_TYPE_POINTS = 1;
-    Integer GRADE_TYPE_PERCENTAGE = 2;
-    Integer GRADE_TYPE_LETTER = 3;
 
     Integer CATEGORY_TYPE_NO_CATEGORY = 1;
     Integer CATEGORY_TYPE_ONLY_CATEGORY = 2;
