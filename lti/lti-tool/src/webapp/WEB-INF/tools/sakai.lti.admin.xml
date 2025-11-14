@@ -8,6 +8,7 @@
 			description="This tool manages external tools launchable via IMS LTI.">
 
 		<configuration name="reset.button" value="true"/>
+		<configuration name="help.id" value="sakai.basiclti" />
 
 		<category name="admin" />
 
