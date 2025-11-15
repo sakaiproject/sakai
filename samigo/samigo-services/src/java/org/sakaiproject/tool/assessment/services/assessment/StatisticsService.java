@@ -486,12 +486,12 @@ public class StatisticsService {
         Map<Long, ItemTextIfc> itemTextMap = item.getItemTextSet().stream()
                 .collect(Collectors.toMap(ItemTextIfc::getId, Function.identity()));
 
-        long requiredOptionsCount = 0;
         long correctResponses = 0;
         long incorrectResponses = 0;
         long blankResponses = 0;
 
         for (Map<Long, Set<ItemGradingData>> submissionItemGradingData : groupedGradingData.values()) {
+            long requiredOptionsCount = 0;
             int correctOptions = 0;
             boolean isBlank = false;
 
