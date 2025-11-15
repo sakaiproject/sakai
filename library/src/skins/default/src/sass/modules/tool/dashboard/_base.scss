@@ -56,6 +56,11 @@ html {
   display: inline-block;
 }
 
+#dashboard-motd-title-block {
+  background-color: var(--sakai-title-bar-bg-color, rgb(244, 244, 244));
+  font-weight: var(--sakai-title-bar-font-weight, bold);
+}
+
 sakai-editor div {
   padding: 0 0 20px 0;
 }

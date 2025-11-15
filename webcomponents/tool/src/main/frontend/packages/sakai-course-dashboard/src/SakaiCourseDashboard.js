@@ -47,7 +47,7 @@ export class SakaiCourseDashboard extends SakaiElement {
   }
 
   widgetLayoutChanged(e) {
-    this.data.layout = e.detail.layout;
+    this.data.widgetLayout = e.detail.layout;
   }
 
   overviewChanged(e) {
@@ -62,7 +62,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     this.imageBackup = this.data.image;
     this.overviewBackup = this.data.overview;
     this.programmeBackup = this.data.programme;
-    this.layoutBackup = [ ...this.data.layout ];
+    this.widgetLayoutBackup = [ ...this.data.widgetLayout ];
     this.templateBackup = this.data.template;
   }
 
@@ -72,7 +72,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     this.data.overview = this.overviewBackup;
     this.data.programme = this.programmeBackup;
     document.getElementById("course-dashboard-programme").innerHTML = this.data.programme;
-    this.data.layout = [ ...this.layoutBackup ];
+    this.data.widgetLayout = [ ...this.widgetLayoutBackup ];
     this.data.template = this.templateBackup;
     URL.revokeObjectURL(this.image);
     this.data.image = this.imageBackup;
@@ -91,7 +91,6 @@ export class SakaiCourseDashboard extends SakaiElement {
       const imageUrl = `/api/sites/${this.siteId}/image`;
       fetch(imageUrl, {
         method: "POST",
-        credentials: "include",
         body: fd,
       }).then(r => {
 
@@ -112,7 +111,7 @@ export class SakaiCourseDashboard extends SakaiElement {
     }
 
     const data = {
-      layout: this.data.layout,
+      widgetLayout: this.data.widgetLayout,
       overview: this.data.overview,
       programme: this.data.programme,
       template: this.data.template,
@@ -171,7 +170,7 @@ export class SakaiCourseDashboard extends SakaiElement {
             ${this.editing ? html`
               <div id="course-dashboard-layout">
                 <button type="button"
-                    class="btn btn-secondary"
+                    class="btn btn-secondary me-3"
                     data-bs-toggle="modal"
                     data-bs-target="#course-dashboard-template-picker">
                   ${this._i18n.layout}
@@ -219,7 +218,7 @@ export class SakaiCourseDashboard extends SakaiElement {
         id="course-dashboard-widget-grid"
         @changed=${this.widgetLayoutChanged}
         .widgetIds=${this.data.widgets}
-        .layout=${this.data.layout}
+        .layout=${this.data.widgetLayout}
         site-id="${this.siteId}"
         user-id="${this.userId}"
         columns=${columns}
@@ -303,19 +302,19 @@ export class SakaiCourseDashboard extends SakaiElement {
               <div id="course-dashboard-template-picker-template-block">
                 <div class=${this.data.template === 1 ? "course-dashboard-template-picker-selected" : ""}>
                   <a href="javascript:;" @click=${this.templateSelected} data-template="1">
-                    <img data-template="1" src="${this.data.layout1ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout1_alt}" />
+                    <img data-template="1" src="${this.data.courseTemplate1ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout1_alt}" />
                   </a>
                   <h2>${this._i18n.option1}</h2>
                 </div>
                 <div class=${this.data.template === 2 ? "course-dashboard-template-picker-selected" : ""}>
                   <a href="javascript:;" @click=${this.templateSelected} data-template="2">
-                    <img data-template="2" src="${this.data.layout2ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout2_alt}" />
+                    <img data-template="2" src="${this.data.courseTemplate2ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout2_alt}" />
                   </a>
                   <h2>${this._i18n.option2}</h2>
                 </div>
                 <div class=${this.data.template === 3 ? "course-dashboard-template-picker-selected" : ""}>
                   <a href="javascript:;" @click=${this.templateSelected} data-template="3">
-                    <img data-template="3" src="${this.data.layout3ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout3_alt}" />
+                    <img data-template="3" src="${this.data.courseTemplate3ThumbnailUrl}" class="thumbnail" alt="${this._i18n.layout3_alt}" />
                   </a>
                   <h2>${this._i18n.option3}</h2>
                 </div>
