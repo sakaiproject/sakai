@@ -5069,8 +5069,12 @@ public class SimplePageBean {
 
 		tool.setTitle(title);
 		
-		SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
-		saveItem(item);
+		// Does the top-level page item already exist, as in the case of adding a pre-existing page? If so, don't create another item.
+		SimplePageItem existingTop = simplePageToolDao.findTopLevelPageItemBySakaiId(Long.toString(page.getPageId()));
+		if (existingTop == null) {
+			SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
+			saveItem(item);
+		}
 
 		sitePage.setTitle(title);
 		sitePage.setTitleCustom(true);
