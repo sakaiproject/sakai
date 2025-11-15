@@ -22,15 +22,17 @@ ul.jqueryFileTree li:before{
 }
 
 ul.jqueryFileTree a {
-  color: #333;
+  color: var(--sakai-text-color-2);
   text-decoration: none;
   display: block;
-  padding: 3px;
+  margin: 3px 0;
+  padding-left: 6px;
   overflow: hidden;
 }
 
 ul.jqueryFileTree a:hover {
-  background: #BDF;
+  background: var(--sakai-background-color-3);
+  color: var(--sakai-text-color-2);
 }
 
 /* folder-listing */
@@ -100,9 +102,6 @@ ul.jqueryFileTree a:hover {
 }
 .jqueryFileTree li.active > a {
   font-weight: bold !important;
-}
-.jqueryFileTree li.active  {
-  background-color: var(--sakai-background-color-3);
 }
 .jqueryFileTree li.inactive, .jqueryFileTree li.inactive > span  {
   opacity: 0.5 !important;
