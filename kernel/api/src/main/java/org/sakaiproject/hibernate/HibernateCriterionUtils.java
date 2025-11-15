@@ -17,9 +17,12 @@ package org.sakaiproject.hibernate;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
 
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -54,5 +57,38 @@ public final class HibernateCriterionUtils {
             }
         }
         return criterion;
+    }
+
+    /**
+     * Splits a JPA Criteria API IN predicate into multiple OR predicates to avoid Oracle's parameter limit.
+     *
+     * @param cb the CriteriaBuilder
+     * @param expression the expression to use in the IN clause (e.g., root.get("propertyName"))
+     * @param values the collection of values to use in the IN clause, if values is null or empty,
+     *               an empty predicate is returned
+     * @return a Predicate that uses OR to combine multiple IN predicates with chunked values
+     */
+    public static <T> Predicate PredicateInSplitter(CriteriaBuilder cb, Expression<T> expression, Collection<T> values) {
+        Objects.requireNonNull(cb);
+        Objects.requireNonNull(expression);
+
+        // Return false predicate (no matches) for null or empty collections
+        if (values == null || values.isEmpty()) {
+            return cb.disjunction();
+        }
+
+        List<T> list = new ArrayList<>(values);
+        int listSize = list.size();
+        List<Predicate> orPredicates = new ArrayList<>();
+
+        for (int i = 0; i < listSize; i += MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+            int end = Math.min(i + MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST, listSize);
+            List<T> chunk = list.subList(i, end);
+            orPredicates.add(expression.in(chunk));
+        }
+
+        return orPredicates.size() == 1
+            ? orPredicates.get(0)
+            : cb.or(orPredicates.toArray(new Predicate[0]));
     }
 }
