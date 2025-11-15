@@ -19,12 +19,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -72,18 +72,11 @@ public class GradingEventRepositoryImpl extends SpringCrudRepositoryImpl<Grading
         CriteriaQuery<GradingEvent> query = cb.createQuery(GradingEvent.class);
         Root<GradingEvent> ge = query.from(GradingEvent.class);
         Join<GradingEvent, GradableObject> go = ge.join("gradableObject");
-        query.where(cb.and(cb.greaterThanOrEqualTo(ge.get("dateGraded"), since), go.get("id").in(assignmentIds)));
-        return session.createQuery(query).list();
 
-        /*
-        return (List<GradingEvent>) sessionFactory.getCurrentSession()
-            .createCriteria(GradingEvent.class)
-            .createAlias("gradableObject", "go")
-            .add(Restrictions.and(
-                Restrictions.ge("dateGraded", since),
-                HibernateCriterionUtils.CriterionInRestrictionSplitter("go.id", assignmentIds)))
-            .list();
-            */
+        Predicate assignmentIdPredicate = HibernateCriterionUtils.PredicateInSplitter(cb, go.get("id"), assignmentIds);
+
+        query.where(cb.and(cb.greaterThanOrEqualTo(ge.get("dateGraded"), since), assignmentIdPredicate));
+        return session.createQuery(query).list();
     }
 
     @Transactional
