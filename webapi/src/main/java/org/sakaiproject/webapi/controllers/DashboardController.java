@@ -36,12 +36,12 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
@@ -74,8 +74,6 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- */
 @Slf4j
 @RestController
 public class DashboardController extends AbstractSakaiApiController implements EntityProducer, EntityTransferrer {
@@ -204,37 +202,48 @@ public class DashboardController extends AbstractSakaiApiController implements E
             log.warn("Failed to set the MOTD for {}", userId, e);
         }
 
-        if (securityService.isSuperUser()) {
-            try {
-                Site site = siteService.getSite("~" + session.getUserId());
-                ToolConfiguration tc = site.getToolForCommonId("sakai.sitesetup");
-                bean.setWorksiteSetupUrl("/portal/directtool/" + tc.getId() + "?panel=Shortcut&sakai_action=doNew_site");
-            } catch (IdUnusedException idue) {
-                log.warn("No home site found for user {}", session.getUserId());
-            } catch (Exception e) {
-                log.warn("Failed to find the worksite setup tool for {}", userId, e);
-            }
-        }
-
         bean.setWidgets(homeWidgets);
 
         // Get the widget layout preference
         Preferences prefs = preferencesService.getPreferences(session.getUserId());
-        String layoutJson = (String) prefs.getProperties("dashboard-config").get("layout");
+        ResourceProperties props = prefs.getProperties("dashboard-config");
 
-        if (layoutJson == null) {
-            bean.setLayout(defaultHomeLayout);
+        if (props == null) {
+            bean.setWidgetLayout(defaultHomeLayout);
+            bean.setTemplate(1);
         } else {
             try {
-                List<String> layout = (new ObjectMapper()).readValue(layoutJson, ArrayList.class);
-                if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false))  {
-                    layout.remove("tasks");
+                String widgetLayoutJson = props.getProperty("widgetLayout");
+                if (widgetLayoutJson == null) {
+                    widgetLayoutJson = props.getProperty("layout");
                 }
-                bean.setLayout(layout);
+                if (widgetLayoutJson == null) {
+                    bean.setWidgetLayout(defaultHomeLayout);
+                } else {
+                    List<String> widgetLayout = (List<String>) new ObjectMapper().readValue(widgetLayoutJson, List.class);
+                    if (widgetLayout == null) {
+                        bean.setWidgetLayout(defaultHomeLayout);
+                    } else {
+                        if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false))  {
+                            widgetLayout.remove("tasks");
+                        }
+                        bean.setWidgetLayout(widgetLayout);
+                    }
+                }
+                try {
+                    int template = (int) props.getLongProperty("template");
+                    bean.setTemplate(template);
+                } catch (Exception e) {
+                    bean.setTemplate(1);
+                }
             } catch (Exception e) {
-                log.warn("Failed to deserialise widget layout from {}", layoutJson);
+                log.warn("Failed to deserialise user dashboard config: {}", e.toString());
             }
         }
+
+        bean.setHomeTemplate1ThumbnailUrl("/webcomponents/images/home_template1.png");
+        bean.setHomeTemplate2ThumbnailUrl("/webcomponents/images/home_template2.png");
+        bean.setHomeTemplate3ThumbnailUrl("/webcomponents/images/home_template3.png");
 
         return bean;
     }
@@ -251,7 +260,11 @@ public class DashboardController extends AbstractSakaiApiController implements E
         preferencesService.applyEditWithAutoCommit(userId, edit -> {
             ResourcePropertiesEdit props = edit.getPropertiesEdit("dashboard-config");
             try {
-                props.addProperty("layout", (new ObjectMapper()).writeValueAsString(bean.getLayout()));
+                String widgetLayoutJson = (new ObjectMapper()).writeValueAsString(bean.getWidgetLayout());
+                props.addProperty("widgetLayout", widgetLayoutJson);
+                props.addProperty("template", Integer.toString(bean.getTemplate()));
+                // Remove the legacy layout property
+                props.removeProperty("layout");
             } catch (JsonProcessingException jpe) {
                 log.warn("Could not save dashboard config for user [{}], {}", userId, jpe.toString());
             }
@@ -272,17 +285,24 @@ public class DashboardController extends AbstractSakaiApiController implements E
             bean.setProgramme(site.getShortDescription());
             bean.setOverview(site.getDescription());
             String dashboardConfigJson = site.getProperties().getProperty("dashboard-config");
+            int defaultCourseLayout = serverConfigurationService.getInt("dashoard.course.layout", 2);
             if (dashboardConfigJson == null) {
-                int defaultCourseLayout = serverConfigurationService.getInt("dashoard.course.layout", 2);
-                bean.setLayout(defaultWidgetLayouts.get(Integer.toString(defaultCourseLayout)));
+                bean.setWidgetLayout(defaultWidgetLayouts.get(Integer.toString(defaultCourseLayout)));
                 bean.setTemplate(defaultCourseLayout);
             } else {
                 Map<String, Object> dashboardConfig = (new ObjectMapper()).readValue(dashboardConfigJson, HashMap.class);
-                List<String> layout = (List<String>) dashboardConfig.get("layout");
-                if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false))  {
-                    layout.remove("tasks");
+                List<String> widgetLayout = (List<String>) dashboardConfig.get("widgetLayout");
+                if (widgetLayout == null) {
+                    widgetLayout = (List<String>) dashboardConfig.get("layout");
                 }
-                bean.setLayout(layout);
+                if (widgetLayout != null) {
+                    if (!serverConfigurationService.getBoolean(PortalConstants.PROP_DASHBOARD_TASKS_ENABLED, false)) {
+                        widgetLayout.remove("tasks");
+                    }
+                    bean.setWidgetLayout(widgetLayout);
+                } else {
+                    bean.setWidgetLayout(defaultWidgetLayouts.get(Integer.toString(defaultCourseLayout)));
+                }
                 bean.setTemplate((Integer) dashboardConfig.get("template"));
             }
             bean.setEditable(securityService.isSuperUser() || securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()));
@@ -291,9 +311,9 @@ public class DashboardController extends AbstractSakaiApiController implements E
                 imageUrl = "/webcomponents/images/central_park_lamp.jpg";
             }
             bean.setImage(imageUrl);
-            bean.setLayout1ThumbnailUrl("/webcomponents/images/layout1.png");
-            bean.setLayout2ThumbnailUrl("/webcomponents/images/layout2.png");
-            bean.setLayout3ThumbnailUrl("/webcomponents/images/layout3.png");
+            bean.setCourseTemplate1ThumbnailUrl("/webcomponents/images/course_template1.png");
+            bean.setCourseTemplate2ThumbnailUrl("/webcomponents/images/course_template2.png");
+            bean.setCourseTemplate3ThumbnailUrl("/webcomponents/images/course_template3.png");
         } catch (IdUnusedException idue) {
             log.error("No site found for {}", siteId);
         } catch (Exception e) {
@@ -313,7 +333,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
             site.setDescription(bean.getOverview());
             site.setShortDescription(bean.getProgramme());
             String configJson = (new ObjectMapper())
-                .writeValueAsString(Map.of("layout", bean.getLayout(), "template", bean.getTemplate()));
+                .writeValueAsString(Map.of("widgetLayout", bean.getWidgetLayout(), "template", bean.getTemplate()));
             site.getProperties().addProperty("dashboard-config", configJson);
             siteService.save(site);
         } catch (Exception e) {

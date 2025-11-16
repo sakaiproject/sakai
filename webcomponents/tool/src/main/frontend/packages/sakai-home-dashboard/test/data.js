@@ -14,7 +14,7 @@ export const dashboardData = {
   programme: "XYZ Programme",
   overview: "XYZ Overview",
   widgets: ["widget1", "widget2", "widget3"],
-  layout: [
+  widgetLayout: [
     ["widget1", "widget2", "widget3"],
   ],
   template: 1,

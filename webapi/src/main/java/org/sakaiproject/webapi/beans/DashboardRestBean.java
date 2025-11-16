@@ -23,15 +23,17 @@ public class DashboardRestBean {
     private String givenName;
     private String motd;
     private String title;
-    private String worksiteSetupUrl;
     private List<String> widgets;
     private Boolean editable;
-    private List<String> layout;
+    private List<String> widgetLayout;
     private String overview;
     private String programme;
-    private Integer template;
+    private Integer template = 1;
     private String image;
-    private String layout1ThumbnailUrl;
-    private String layout2ThumbnailUrl;
-    private String layout3ThumbnailUrl;
+    private String courseTemplate1ThumbnailUrl;
+    private String courseTemplate2ThumbnailUrl;
+    private String courseTemplate3ThumbnailUrl;
+    private String homeTemplate1ThumbnailUrl;
+    private String homeTemplate2ThumbnailUrl;
+    private String homeTemplate3ThumbnailUrl;
 }
