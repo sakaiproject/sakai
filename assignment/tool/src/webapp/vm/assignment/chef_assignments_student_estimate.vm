@@ -139,7 +139,6 @@
                                 <button name="btnTimesheetAdd" id="btnTimesheetAdd" class="btn btn-primary" onclick="ASN.addTimeSheet(this);">$!tlang.getString("ts.modal.btn.save")</button>
                             </div>
                         #end
-                    </div>
                 </div>
             </div>
         </div>
