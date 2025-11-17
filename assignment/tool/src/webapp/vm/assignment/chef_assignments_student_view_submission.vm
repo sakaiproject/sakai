@@ -1093,15 +1093,23 @@ $(document).ready(function(){
 									onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 							#end
 
-                            #if ($submitted && $!isUserSubmission && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
-                                <span class="sak-banner-info">$tlang.getString("stuviewsubm.modifytoresubmit")</span>
-                            #elseif ($submissionType == 5)
-                                <span class="sak-banner-warn">$tlang.getString("stuviewsubm.reminder")</span>
-                            #elseif ($submissionType == 7)
-                                <span class="sak-banner-warn">$tlang.getString("stuviewsubm.submitvideoreminder")</span>
-                            #else
-                                <span class="sak-banner-warn">$tlang.getString("stuviewsubm.submitreminder")</span>
-                            #end
+							<div class="w-100">
+								<div>
+									#if ($submitted && $!isUserSubmission && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
+										<span class="sak-banner-info">$tlang.getString("stuviewsubm.modifytoresubmit")</span>
+									#elseif ($submissionType == 5)
+										<span class="sak-banner-warn">$tlang.getString("stuviewsubm.reminder")</span>
+									#elseif ($submissionType == 7)
+										<span class="sak-banner-warn">$tlang.getString("stuviewsubm.submitvideoreminder")</span>
+									#else
+										<span class="sak-banner-warn">$tlang.getString("stuviewsubm.submitreminder")</span>
+									#end
+
+									#if ($!assignment && $assignment.Properties.get("auto_submit_enabled").equalsIgnoreCase("true"))
+										<span class="sak-banner-warn">$tlang.getString("auto.submit.warning.message")</span>
+									#end
+								</div>
+							</div>
 					#end
 			</div>
 			#end

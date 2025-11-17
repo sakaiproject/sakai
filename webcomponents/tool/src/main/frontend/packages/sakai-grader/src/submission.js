@@ -122,6 +122,9 @@ class Submission {
       this.hydrated = init.hydrated;
       this.submitted = init.submitted;
       this.hasNonInlineAttachments = this.submittedAttachments.filter(r => r.type !== "text/html").length > 0;
+
+      // Auto-submit indicator
+      this.autoSubmitted = init.autoSubmitted === "true";
     } else {
       this.id = "dummy";
       this.submittedAttachments = [];

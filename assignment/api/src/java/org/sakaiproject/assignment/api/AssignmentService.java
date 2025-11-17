@@ -32,6 +32,8 @@ import java.util.Set;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.assignment.api.persistence.AssignmentRepository.SimpleAssignmentAutoSubmit;
+import org.sakaiproject.assignment.api.persistence.AssignmentRepository.SimpleSubmissionDraft;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -897,4 +899,20 @@ public interface AssignmentService extends EntityProducer {
      * Returns true if the submission contains instructor feedback, whether as comment text (inline) or attachments.
      */
     public boolean doesSubmissionHaveInstructorFeedback(AssignmentSubmission submission);
+
+    /**
+     * Get the list of assignments that have auto-submit enabled for a given context.
+     */
+    List<SimpleAssignmentAutoSubmit> getAutoSubmitAssignmentsForContext(String context);
+
+    /**
+     * Get the list of draft submissions for a given assignment.
+     */
+    List<SimpleSubmissionDraft> getDraftSubmissionsForAssignment(String assignmentId);
+
+    /**
+     * Get all draft submissions that are eligible for auto-submit across all sites.
+     * OPTIMIZED METHOD: Returns all eligible submissions in one query to improve performance.
+     */
+    List<SimpleSubmissionDraft> getAllEligibleDraftSubmissions();
 }
