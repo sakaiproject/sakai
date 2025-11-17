@@ -51,18 +51,12 @@ public class Option implements PersistableEntity<Long> {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "poll_option_id_sequence")
     @Column(name = "OPTION_ID")
     @EqualsAndHashCode.Include
-    private Long optionId;
+    private Long id;
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
     @Column(name = "OPTION_TEXT", nullable = false)
     private String text;
-
-    @Transient
-    private String status;
-
-    @Column(name = "OPTION_UUID", nullable = false, length = 99)
-    private String uuid;
 
     @Column(name = "DELETED", nullable = false)
     private Boolean deleted = Boolean.FALSE;
@@ -70,25 +64,12 @@ public class Option implements PersistableEntity<Long> {
     @Column(name = "OPTION_ORDER", nullable = false)
     private Integer optionOrder;
 
-    /**
-     * Bidirectional relationship to parent Poll. JPA manages the foreign key through this relationship.
-     * Use {@link Poll#addOption(Option)} or {@link Poll#removeOption(Option)} to maintain both sides of the relationship.
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "OPTION_POLL_ID", nullable = false)
     @ToString.Exclude
     private Poll poll;
 
-    public Option() {
-        // default constructor
-    }
+    @Transient
+    private String status;
 
-    public Option(Long optionId) {
-        this.optionId = optionId;
-    }
-
-    @Override
-    public Long getId() {
-        return optionId;
-    }
 }

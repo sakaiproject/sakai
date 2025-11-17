@@ -21,17 +21,16 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.poll.logic.ExternalLogic;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.logic.PollVoteManager;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.tool.model.PollForm;
 import org.sakaiproject.poll.tool.service.PollValidationException;
 import org.sakaiproject.poll.tool.service.PollsUiService;
@@ -47,43 +46,44 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static org.sakaiproject.poll.api.PollConstants.*;
+
 @Controller
 @RequestMapping
 @RequiredArgsConstructor
 @Slf4j
 public class PollEditorController {
 
-    private final PollListManager pollListManager;
-    private final PollVoteManager pollVoteManager;
+    private final PollsService pollsService;
     private final ExternalLogic externalLogic;
     private final PollsUiService pollsUiService;
     private final MessageSource messageSource;
 
     @GetMapping("/voteAdd")
-    public String editPoll(@RequestParam(value = "pollId", required = false) Long pollId,
+    public String editPoll(@RequestParam(value = "pollId", required = false) String pollId,
                            @RequestParam(value = "id", required = false) Long legacyId,
                            Model model,
                            Locale locale) {
-        Long resolvedId = pollId != null ? pollId : legacyId;
-        Poll poll = resolvedId != null ? pollListManager.getPollById(resolvedId) : new Poll();
+        String resolvedId = pollId != null ? pollId : legacyId.toString();
+        Optional<Poll> poll = pollsService.getPollById(resolvedId);
 
-        if (resolvedId != null && poll == null) {
+        if (poll.isEmpty()) {
             model.addAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
             return "redirect:/votePolls";
         }
 
-        if (resolvedId != null && !canEditPoll(poll)) {
+        if (!canEditPoll(poll.get())) {
             model.addAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
             return "redirect:/votePolls";
         }
 
         ZoneId zoneId = getUserZoneId();
-        PollForm form = toForm(poll, zoneId);
+        PollForm form = toForm(poll.get(), zoneId);
 
         model.addAttribute("pollForm", form);
-        model.addAttribute("isNew", resolvedId == null);
-        model.addAttribute("options", poll.getPollId() != null ? pollListManager.getVisibleOptionsForPoll(poll.getPollId()) : List.of());
-        model.addAttribute("hasVotes", poll.getPollId() != null && !pollVoteManager.getAllVotesForPoll(poll).isEmpty());
+        model.addAttribute("isNew", false);
+        model.addAttribute("options", poll.get().getId() != null ? pollsService.getVisibleOptionsForPoll(poll.get().getId()) : List.of());
+        model.addAttribute("hasVotes", poll.get().getId() != null && !pollsService.getAllVotesForPoll(poll.get().getId()).isEmpty());
         model.addAttribute("displayResultChoices", List.of(
                 new DisplayOption("open", "new_poll_open"),
                 new DisplayOption("afterVoting", "new_poll_aftervoting"),
@@ -121,13 +121,13 @@ public class PollEditorController {
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_saved_success", null, locale));
 
             if ("option".equals(redirectTarget)) {
-                return "redirect:/pollOption?pollId=" + saved.getPollId();
+                return "redirect:/pollOption?pollId=" + saved.getId();
             }
             if ("optionBatch".equals(redirectTarget)) {
-                return "redirect:/pollOptionBatch?pollId=" + saved.getPollId();
+                return "redirect:/pollOptionBatch?pollId=" + saved.getId();
             }
-            if (pollListManager.getOptionsForPoll(saved).isEmpty()) {
-                return "redirect:/pollOption?pollId=" + saved.getPollId();
+            if (pollsService.getOptionsForPoll(saved).isEmpty()) {
+                return "redirect:/pollOption?pollId=" + saved.getId();
             }
             return "redirect:/votePolls";
         } catch (PollValidationException ex) {
@@ -142,14 +142,14 @@ public class PollEditorController {
             } else {
                 bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
             }
-            Poll contextPoll = pollForm.getPollId() != null ? pollListManager.getPollById(pollForm.getPollId()) : poll;
+            Poll contextPoll = pollForm.getPollId() != null ? pollsService.getPollById(pollForm.getPollId()).orElse(null) : poll;
             if (contextPoll == null) {
                 redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
                 return "redirect:/votePolls";
             }
             model.addAttribute("poll", contextPoll);
-            model.addAttribute("options", contextPoll.getPollId() != null ? pollListManager.getVisibleOptionsForPoll(contextPoll.getPollId()) : List.of());
-            model.addAttribute("hasVotes", contextPoll.getPollId() != null && !pollVoteManager.getAllVotesForPoll(contextPoll).isEmpty());
+            model.addAttribute("options", contextPoll.getId() != null ? pollsService.getVisibleOptionsForPoll(contextPoll.getId()) : List.of());
+            model.addAttribute("hasVotes", contextPoll.getId() != null && !pollsService.getAllVotesForPoll(contextPoll.getId()).isEmpty());
             model.addAttribute("displayResultChoices", List.of(
                     new DisplayOption("open", "new_poll_open"),
                     new DisplayOption("afterVoting", "new_poll_aftervoting"),
@@ -166,12 +166,12 @@ public class PollEditorController {
     }
 
     private Poll preparePollEntity(PollForm form) {
-        Poll poll = form.getPollId() != null ? pollListManager.getPollById(form.getPollId()) : new Poll();
+        Poll poll = form.getPollId() != null ? pollsService.getPollById(form.getPollId()).orElse(null) : new Poll();
         if (poll == null) {
             return null;
         }
         poll.setText(StringUtils.trimToEmpty(form.getText()));
-        poll.setDetails(form.getDetails());
+        poll.setDescription(form.getDetails());
         poll.setPublic(form.isPublic());
         poll.setMinOptions(form.getMinOptions());
         poll.setMaxOptions(form.getMaxOptions());
@@ -189,9 +189,9 @@ public class PollEditorController {
 
     private PollForm toForm(Poll poll, ZoneId zoneId) {
         PollForm form = new PollForm();
-        form.setPollId(poll.getPollId());
+        form.setPollId(poll.getId());
         form.setText(poll.getText());
-        form.setDetails(poll.getDetails());
+        form.setDetails(poll.getDescription());
         form.setPublic(poll.isPublic());
         form.setMinOptions(poll.getMinOptions());
         form.setMaxOptions(poll.getMaxOptions());
@@ -202,7 +202,7 @@ public class PollEditorController {
     }
 
     private boolean isAllowedPollAdd() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PERMISSION_ADD, externalLogic.getCurrentLocationReference());
     }
 
     private boolean isSiteOwner() {
@@ -213,10 +213,10 @@ public class PollEditorController {
         if (externalLogic.isUserAdmin()) {
             return true;
         }
-        if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_EDIT_ANY, externalLogic.getCurrentLocationReference())) {
+        if (externalLogic.isAllowedInLocation(PERMISSION_EDIT_ANY, externalLogic.getCurrentLocationReference())) {
             return true;
         }
-        return externalLogic.isAllowedInLocation(PollListManager.PERMISSION_EDIT_OWN, externalLogic.getCurrentLocationReference())
+        return externalLogic.isAllowedInLocation(PERMISSION_EDIT_OWN, externalLogic.getCurrentLocationReference())
                 && StringUtils.equals(poll.getOwner(), externalLogic.getCurrentUserId());
     }
 

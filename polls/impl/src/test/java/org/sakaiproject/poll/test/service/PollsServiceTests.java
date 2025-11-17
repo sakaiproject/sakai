@@ -19,39 +19,46 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.poll.test.logic;
+package org.sakaiproject.poll.test.service;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import org.sakaiproject.id.api.IdManager;
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_VOTE;
+
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.poll.api.repository.PollRepository;
+import org.sakaiproject.poll.api.repository.VoteRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-import org.sakaiproject.poll.logic.test.stubs.ExternalLogicStubb;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.Vote;
-import org.sakaiproject.poll.service.impl.PollListManagerImpl;
-import org.sakaiproject.poll.service.impl.PollVoteManagerImpl;
-import org.sakaiproject.poll.repository.impl.PollRepositoryImpl;
-import org.sakaiproject.poll.repository.impl.VoteRepositoryImpl;
+import org.sakaiproject.poll.test.service.stubs.ExternalLogicStubb;
+import org.sakaiproject.poll.api.model.Option;
+import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.model.Vote;
+import org.sakaiproject.poll.impl.service.PollsServiceImpl;
+import org.sakaiproject.poll.impl.repository.PollRepositoryImpl;
+import org.sakaiproject.poll.impl.repository.VoteRepositoryImpl;
 import org.hibernate.SessionFactory;
 
 @ContextConfiguration(locations={
 		"/hibernate-test.xml" })
 @Slf4j
-public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
+public class PollsServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
 	private TestDataPreload tdp = new TestDataPreload();
-	private PollListManagerImpl pollListManager;
-	private PollVoteManagerImpl pollVoteManager;
+	private PollsServiceImpl pollsService;
 	private ExternalLogicStubb externalLogicStubb;
 
 	@Before
@@ -62,20 +69,12 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		VoteRepositoryImpl voteRepository = new VoteRepositoryImpl();
 		voteRepository.setSessionFactory(sessionFactory);
 
-		pollListManager = new PollListManagerImpl();
-		pollListManager.setPollRepository(pollRepository);
-		pollListManager.setVoteRepository(voteRepository);
-
-		pollVoteManager = new PollVoteManagerImpl();
-		pollVoteManager.setVoteRepository(voteRepository);
-		pollVoteManager.setPollRepository(pollRepository);
-
+		pollsService = new PollsServiceImpl();
+		pollsService.setPollRepository(pollRepository);
+		pollsService.setVoteRepository(voteRepository);
 
 		externalLogicStubb = new ExternalLogicStubb();
-		pollListManager.setExternalLogic(externalLogicStubb);
-		pollVoteManager.setExternalLogic(externalLogicStubb);
-		pollListManager.setPollVoteManager(pollVoteManager);
-		pollListManager.setIdManager(mock(IdManager.class));
+		pollsService.setExternalLogic(externalLogicStubb);
 
 		// preload testData
 		tdp.preloadTestData(pollRepository);
@@ -86,27 +85,21 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
 
     	//we shouldNot find this poll
-    	Poll pollFail = pollListManager.getPollById("non-existent-uuid");
-    	Assert.assertNull(pollFail);
+    	Optional<Poll> pollFail = pollsService.getPollById("non-existent-uuid");
+    	Assert.assertTrue(pollFail.isEmpty());
 
     	//this one should exist -- the preload saves one poll and remembers its ID
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
-    	Poll poll1 = pollListManager.getPollById(tdp.getFirstPollId());
-    	Assert.assertNotNull(poll1);
+    	Optional<Poll> poll1 = pollsService.getPollById(tdp.getFirstPollId());
+    	Assert.assertTrue(poll1.isPresent());
 
     	//it should have options
-    	Assert.assertNotNull(poll1.getOptions());
-    	Assert.assertTrue(poll1.getOptions().size() > 0);
+    	Assert.assertNotNull(poll1.get().getOptions());
+        Assert.assertFalse(poll1.get().getOptions().isEmpty());
 
     	//we expect this one to fails
 		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
-		try {
-			Poll poll2 = pollListManager.getPollById(tdp.getFirstPollId());
-			Assert.fail("should not be allowed to read this poll");
-		} 
-		catch (SecurityException e) {
-			log.debug("Expected security exception when reading poll without access", e);
-		}
+        Assert.assertThrows(SecurityException.class, () -> pollsService.getPollById(tdp.getFirstPollId()));
     }
 
 	@Test
@@ -120,48 +113,22 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 		poll1.setDescription("this is some text");
 		poll1.setText("something");
 		poll1.setOwner(TestDataPreload.USER_UPDATE);
-		
 		poll1.setSiteId(TestDataPreload.LOCATION1_ID);
 		
+        Poll savedPoll1 = pollsService.savePoll(poll1);
+        Assert.assertNotNull(savedPoll1);
+		Assert.assertNotNull(savedPoll1.getId());
+		Assert.assertEquals(poll1.getText(), savedPoll1.getText());
+		
+		Assert.assertThrows(IllegalArgumentException.class, () -> pollsService.savePoll(null));
+		
+        Poll poll = new Poll();
+        poll.setText("sdfgsdf");
+        Assert.assertThrows(IllegalArgumentException.class, () -> pollsService.savePoll(poll));
 
-		//If this has a value something is wrong without POJO
-		Assert.assertNull(poll1.getId());
-		try {
-			pollListManager.savePoll(poll1);
-		}
-		catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
-
-		//if this is null we have a problem
-		Assert.assertNotNull(poll1.getId());
-
-		Poll poll2 = pollListManager.getPollById(poll1.getId());
-		Assert.assertNotNull(poll2);
-		Assert.assertEquals(poll1.getText(), poll2.getText());
-		
-		//TODO add failure cases - null parameters
-		
-		//we should not be able to save empty polls
-		
-		//a user needs privileges to save the poll
-		Assert.assertThrows(IllegalArgumentException.class, () -> pollListManager.savePoll(null));
-		
-		
-		//a user needs privileges to save the poll
-		try {
-			Poll poll = new Poll();
-			poll.setText("sdfgsdf");
-			pollListManager.savePoll(poll);
-			Assert.fail();
-		}
-		catch (IllegalArgumentException e) {
-			log.debug("Expected illegal argument when saving incomplete poll", e);
-		}
-		
 		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
 		try {
-			pollListManager.savePoll(poll1);
+			pollsService.savePoll(poll1);
 			Assert.fail();
 		}
 		catch (IllegalArgumentException e) {
@@ -188,22 +155,14 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 
 		//we should not be able to delete a poll that hasn't been saved
 		try {
-			pollListManager.deletePoll(poll1);
+			pollsService.deletePoll(poll1);
 			Assert.fail();
 		} catch (SecurityException e) {
-			log.debug("Expected security exception when deleting unsaved poll", e);
-		} 
-		catch (IllegalArgumentException e) {
-			// Successful tests should be quiet. IllegalArgumentException is actually expected on a null ID.
-			//log.error(e.getMessage(), e);
+			log.debug("Expected security exception when deleting unsaved poll");
+		} catch (IllegalArgumentException e) {
+            log.debug("Expected illegal argument when deleting poll with no id");
 		}
-		try {
-			pollListManager.savePoll(poll1);
-		}
-		catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
-		
+
 	    Option option1 = new Option();
 	    option1.setText("asdgasd");
 	    option1.setOptionOrder(0);
@@ -214,51 +173,57 @@ public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContex
 	    option2.setOptionOrder(1);
         poll1.addOption(option2);
 	    
-	    pollListManager.saveOption(option2);
-	    pollListManager.saveOption(option1);
-	    
 	    Vote vote = new Vote();
 	    vote.setIp("Localhost");
-	    vote.setPoll(poll1);
-	    vote.setPollOption(option1.getOptionId());
 	    vote.setUserId(TestDataPreload.USER_UPDATE);
 	    vote.setVoteDate(Instant.now());
 	    vote.setSubmissionId(TestDataPreload.USER_UPDATE + ":" + UUID.randomUUID());
+	    vote.setOption(option1);
 
-	    pollVoteManager.saveVote(vote);
-	    
-	    Long option1Id = option1.getOptionId();
-	    Long option2Id = option2.getOptionId();
-	    Long voteId = vote.getId();
-	    
-	    
+        Poll savedPoll = pollsService.savePoll(poll1);
+        List<Vote> votes = pollsService.getAllVotesForPoll(savedPoll.getId());
+
+        Assert.assertEquals(2, savedPoll.getOptions().size());
+        Assert.assertEquals(1, votes.size());
+        savedPoll.getOptions().forEach(o -> Assert.assertNotNull(o.getId()));
+        votes.forEach(v -> Assert.assertNotNull(v.getId()));
+
 		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
-		
-    	try {
-			pollListManager.deletePoll(poll1);
-			Assert.fail();
-		} catch (SecurityException e) {
-			// Successful tests should be quiet. SecurityException is expected here.
-			//log.error(e.getMessage(), e);
-		}
-		
+
+        Assert.assertThrows(SecurityException.class, () -> pollsService.deletePoll(savedPoll));
+
 		
 		externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
     	try {
-			pollListManager.deletePoll(poll1);
+			pollsService.deletePoll(savedPoll);
 		} catch (SecurityException e) {
-			log.error(e.getMessage(), e);
+			log.error(e.toString());
 			Assert.fail();
 		}
-		
-		
-		//check that child options are deteled
-		Vote v1 = pollVoteManager.getVoteById(voteId);
-		Assert.assertNull(v1);
-		
-		Option o1 = pollListManager.getOptionById(option1Id);
-		Option o2 = pollListManager.getOptionById(option2Id);
-		Assert.assertNull(o1);
-		Assert.assertNull(o2);
+
+        Optional<Poll> deletedPoll = pollsService.getPollById(savedPoll.getId());
+        Assert.assertTrue(deletedPoll.isEmpty());
     }
+
+    @Test
+    public void testGetPollForUserCorrectSites() {
+        ExternalLogic externalLogic = Mockito.mock(ExternalLogic.class);
+        PollRepository pollRepository = Mockito.mock(PollRepository.class);
+        VoteRepository voteRepository = Mockito.mock(VoteRepository.class);
+
+        PollsServiceImpl impl = new PollsServiceImpl();
+        impl.setExternalLogic(externalLogic);
+        impl.setPollRepository(pollRepository);
+        impl.setVoteRepository(voteRepository);
+
+        // User can see 3 sites.
+        List<String> userSites = new ArrayList<>(Arrays.asList("site1", "site2", "site3"));
+        Mockito.when(externalLogic.getSitesForUser("userId", PERMISSION_VOTE)).thenReturn(userSites);
+        // Find the polls in just one site.
+        impl.findAllPollsForUserAndSitesAndPermission("userId", new String[]{"site3"}, PERMISSION_VOTE);
+        ArgumentCaptor<List<String>> siteCaptor = ArgumentCaptor.forClass(List.class);
+        Mockito.verify(pollRepository).findOpenPollsBySiteIds(siteCaptor.capture(), Mockito.any());
+        Assert.assertEquals(List.of("site3"), siteCaptor.getValue());
+    }
+
 }

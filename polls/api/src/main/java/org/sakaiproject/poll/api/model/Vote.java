@@ -25,6 +25,7 @@ import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,13 +36,15 @@ import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "POLL_VOTE")
+@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Vote implements PersistableEntity<Long> {
 
     @Id
@@ -57,68 +60,21 @@ public class Vote implements PersistableEntity<Long> {
     @Column(name = "VOTE_IP", nullable = false, length = 99)
     private String ip;
 
-    /**
-     * Relationship for navigating to the parent poll. This relationship manages the foreign key column.
-     */
-    @ManyToOne
-    @JoinColumn(name = "VOTE_POLL_ID", nullable = false)
-    @ToString.Exclude
-    private Poll poll;
-
     @Column(name = "VOTE_DATE", nullable = false)
     private Instant voteDate;
 
-    /**
-     * Foreign key column for {@code VOTE_OPTION}. Set this identifier to persist the selected option; the
-     * {@link #option} relationship is read-only.
-     */
-    @Column(name = "VOTE_OPTION", nullable = false)
-    private Long pollOption;
-
-    /**
-     * Read-only relationship for the selected {@link Option}. JPA populates this when the entity is reloaded; writes
-     * must go through {@link #pollOption}.
-     */
-    @ManyToOne
-    @JoinColumn(name = "VOTE_OPTION", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "VOTE_OPTION", nullable = false)
     @ToString.Exclude
     private Option option;
 
     @Column(name = "VOTE_SUBMISSION_ID", nullable = false, length = 99)
     private String submissionId;
 
-    public Vote() {
-        // JPA requires a no-arg constructor
-    }
-
-    public Vote(Poll poll, Option option, String subId, Instant voteDate, String userId, String ip) {
-        if (poll == null) {
-            throw new IllegalArgumentException("Poll must not be null when creating a vote");
-        }
-        if (option == null) {
-            throw new IllegalArgumentException("Option must not be null when creating a vote");
-        }
-        String pollIdValue = poll.getId();
-        // Get option's poll ID through relationship
-        String optionPollId = null;
-        if (option.getPoll() != null) {
-            optionPollId = option.getPoll().getId();
-        }
-        if (pollIdValue != null && optionPollId != null && !pollIdValue.equals(optionPollId)) {
-            throw new IllegalArgumentException(String.format("Option %s does not belong to poll %s", option.getOptionId(), pollIdValue));
-        }
-        this.poll = poll;
-        this.pollOption = option.getOptionId();
-        this.option = option;
+    public Vote(String subId, Instant voteDate, String userId, String ip) {
         this.submissionId = subId;
         this.voteDate = voteDate;
         this.userId = userId;
         this.ip = ip;
     }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
 }

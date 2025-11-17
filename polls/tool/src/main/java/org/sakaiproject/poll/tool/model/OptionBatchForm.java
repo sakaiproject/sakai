@@ -21,6 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class OptionBatchForm {
-    private Long pollId;
+    private String pollId;
     private MultipartFile file;
 }

@@ -1,29 +1,27 @@
 package org.sakaiproject.poll.impl.repository;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.repository.PollRepository;
+import org.sakaiproject.poll.api.model.Option;
+import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.repository.PollRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 @Transactional
 public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, String> implements PollRepository {
 
     @Override
     public List<Poll> findBySiteIdOrderByCreationDateDesc(String siteId) {
-        if (siteId == null) {
-            return Collections.emptyList();
-        }
+        if (siteId == null) return Collections.emptyList();
+
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<Poll> query = cb.createQuery(Poll.class);
         Root<Poll> root = query.from(Poll.class);
@@ -57,9 +55,8 @@ public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, String> i
 
     @Override
     public List<Poll> findOpenPollsBySiteIds(List<String> siteIds, Date now) {
-        if (siteIds == null || siteIds.isEmpty() || now == null) {
-            return Collections.emptyList();
-        }
+        if (siteIds == null || siteIds.isEmpty() || now == null) return Collections.emptyList();
+
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<Poll> query = cb.createQuery(Poll.class);
         Root<Poll> root = query.from(Poll.class);
@@ -78,19 +75,13 @@ public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, String> i
     }
 
     @Override
-    public Optional<Poll> findByUuid(String uuid) {
-        if (uuid == null) {
-            return Optional.empty();
-        }
-        CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
-        CriteriaQuery<Poll> query = cb.createQuery(Poll.class);
-        Root<Poll> root = query.from(Poll.class);
+    public List<Option> findOptionsByPollId(String pollId) {
+        return findById(pollId).map(Poll::getOptions).orElse(Collections.emptyList());
+    }
 
-        query.select(root)
-                .where(cb.equal(root.get("id"), uuid));
-
-        return sessionFactory.getCurrentSession()
-                .createQuery(query)
-                .uniqueResultOptional();
+    @Override
+    public Optional<Option> findOptionByOptionId(Long optionId) {
+        if (optionId == null) return Optional.empty();
+        return Optional.ofNullable(sessionFactory.getCurrentSession().get(Option.class, optionId));
     }
 }

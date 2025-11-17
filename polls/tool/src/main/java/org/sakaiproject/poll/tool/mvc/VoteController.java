@@ -19,15 +19,15 @@ package org.sakaiproject.poll.tool.mvc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.poll.logic.ExternalLogic;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.logic.PollVoteManager;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.VoteCollection;
+import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.api.model.Option;
+import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.tool.model.VoteForm;
 import org.sakaiproject.poll.tool.service.PollValidationException;
 import org.sakaiproject.poll.tool.service.PollsUiService;
@@ -41,41 +41,42 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+
 @Controller
 @RequestMapping
 @RequiredArgsConstructor
 @Slf4j
 public class VoteController {
 
-    private final PollListManager pollListManager;
-    private final PollVoteManager pollVoteManager;
+    private final PollsService pollsService;
     private final ExternalLogic externalLogic;
     private final PollsUiService pollsUiService;
     private final MessageSource messageSource;
 
     @GetMapping("/voteQuestion")
-    public String showVote(@RequestParam("pollId") Long pollId,
+    public String showVote(@RequestParam("pollId") String pollId,
                            Model model,
                            Locale locale,
                            RedirectAttributes redirectAttributes) {
-        Poll poll;
+        Optional<Poll> poll;
         try {
-            poll = pollListManager.getPollById(pollId);
+            poll = pollsService.getPollById(pollId);
         } catch (SecurityException e) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
             return "redirect:/votePolls";
         }
-        if (poll == null) {
+        if (poll.isEmpty()) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
             return "redirect:/votePolls";
         }
-        if (!pollVoteManager.pollIsVotable(poll)) {
+        if (!pollsService.pollIsVotable(poll.get())) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
             return "redirect:/votePolls";
         }
 
-        boolean multipleChoice = poll.getMaxOptions() > 1;
-        List<Option> options = pollListManager.getVisibleOptionsForPoll(pollId);
+        boolean multipleChoice = poll.get().getMaxOptions() > 1;
+        List<Option> options = pollsService.getVisibleOptionsForPoll(pollId);
 
         VoteForm voteForm = new VoteForm();
         voteForm.setPollId(pollId);
@@ -93,15 +94,15 @@ public class VoteController {
     public String submitVote(@ModelAttribute VoteForm voteForm,
                              RedirectAttributes redirectAttributes,
                              Locale locale) {
-        Poll poll;
+        Optional<Poll> poll;
         try {
-            poll = pollListManager.getPollById(voteForm.getPollId());
+            poll = pollsService.getPollById(voteForm.getPollId());
         } catch (SecurityException e) {
             log.debug("User lacks permission to view poll {}", voteForm.getPollId(), e);
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("vote_noperm.voteCollection", null, locale));
             return "redirect:/votePolls";
         }
-        if (poll == null) {
+        if (poll.isEmpty()) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
             return "redirect:/votePolls";
         }
@@ -114,7 +115,7 @@ public class VoteController {
             return "redirect:/voteThanks?voteRef=" + voteCollection.getId();
         } catch (PollValidationException ex) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale));
-            return "redirect:/voteQuestion?pollId=" + poll.getPollId();
+            return "redirect:/voteQuestion?pollId=" + poll.get().getId();
         }
     }
 
@@ -128,7 +129,7 @@ public class VoteController {
     }
 
     private boolean isAllowedPollAdd() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PERMISSION_ADD, externalLogic.getCurrentLocationReference());
     }
 
     private boolean isSiteOwner() {

@@ -23,7 +23,6 @@ package org.sakaiproject.poll.api.model;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -36,7 +35,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
@@ -54,18 +52,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
-@Slf4j
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
+@Slf4j
 @Table(name = "POLL_POLL")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Poll implements PersistableEntity<String> {
-
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -108,18 +103,11 @@ public class Poll implements PersistableEntity<String> {
     @Column(name = "POLL_VOTE_CLOSE", nullable = false)
     private Date voteClose;
 
-    @OneToMany(mappedBy = "poll", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<Vote> votes = new ArrayList<>();
-
     @Column(name = "POLL_DISPLAY_RESULT", nullable = false, length = 99)
     private String displayResult = "open";
 
     @Column(name = "POLL_LIMIT_VOTE", nullable = false)
     private boolean limitVoting = true;
-
-    @Transient
-    private boolean currentUserVoted = false;
 
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
@@ -127,6 +115,9 @@ public class Poll implements PersistableEntity<String> {
 
     @Column(name = "POLL_IS_PUBLIC", nullable = false)
     private boolean isPublic = false;
+
+    @Transient
+    private boolean currentUserVoted = false;
 
     public Poll() {
         this.text = "";
@@ -141,61 +132,6 @@ public class Poll implements PersistableEntity<String> {
         cal.add(Calendar.DAY_OF_MONTH, 7);
         this.voteClose = cal.getTime();
         this.displayResult = "open";
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public void setVoteOpenStr(String value) {
-        try {
-            Date parsedDate = DATE_FORMAT.parse(value);
-            if (parsedDate != null) {
-                voteOpen = parsedDate;
-            }
-        } catch (ParseException e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-
-    public String getVoteOpenStr() {
-        return DATE_FORMAT.format(voteOpen);
-    }
-
-    public void setVoteCloseStr(String value) {
-        try {
-            Date parsedDate = DATE_FORMAT.parse(value);
-            if (parsedDate != null) {
-                voteClose = parsedDate;
-            }
-        } catch (ParseException e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-
-    public String getVoteCloseStr() {
-        return DATE_FORMAT.format(voteClose);
-    }
-
-    /**
-     * Add a vote to this poll and maintain bidirectional relationship.
-     *
-     * @param vote the vote to add
-     */
-    public void addVote(Vote vote) {
-        votes.add(vote);
-        vote.setPoll(this);  // Maintain bidirectional sync
-    }
-
-    /**
-     * Remove a vote from this poll and maintain bidirectional relationship.
-     *
-     * @param vote the vote to remove
-     */
-    public void removeVote(Vote vote) {
-        votes.remove(vote);
-        vote.setPoll(null);  // Maintain bidirectional sync
     }
 
     /**
@@ -218,37 +154,6 @@ public class Poll implements PersistableEntity<String> {
         option.setPoll(null);  // Maintain bidirectional sync
     }
 
-    public void setDetails(String value){
-        this.description = value;
-    }
-    public String getDetails(){
-        return this.description;
-    }
-
-    public String getUrl() {
-        return ServerConfigurationService.getAccessUrl() + "/poll/" + this.getId();
-    }
-
-    public String getReference() {
-
-        return ServerConfigurationService.getAccessUrl() + "/poll/" + org.sakaiproject.entity.api.Entity.SEPARATOR + this.getId();
-    }
-
-    public String getUrl(String arg0) {
-
-        return getUrl();
-    }
-
-    public String getReference(String arg0) {
-
-        return getReference();
-    }
-
-	public ResourceProperties getProperties() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     /* Constants used for conversion to and from XML */
     private static final String ID = "id";
     private static final String POLL_ID = "pollid";
@@ -261,58 +166,13 @@ public class Poll implements PersistableEntity<String> {
     private static final String MAX_OPTIONS = "max-options";
     private static final String DISPLAY_RESULT = "display-result";
 
-    private static DateFormat getDateFormatForXML() {
-        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-    }
-
-    public Element toXml(Document doc, Stack stack) {
-        Element poll = doc.createElement("poll");
-
-        if (stack.isEmpty())
-        {
-            doc.appendChild(poll);
-        }
-        else
-        {
-            ((Element) stack.peek()).appendChild(poll);
-        }
-
-        stack.push(poll);
-
-        poll.setAttribute(ID, getId());
-        if (getId() != null) {
-            poll.setAttribute(POLL_ID, getId());
-        }
-        poll.setAttribute(POLL_TEXT, getText());
-        poll.setAttribute(MIN_OPTIONS, Integer.toString(getMinOptions()));
-        poll.setAttribute(MAX_OPTIONS, Integer.toString(getMaxOptions()));
-
-        if (description != null) {
-            poll.setAttribute(DESCRIPTION, description);
-        }
-
-        DateFormat dformat  = getDateFormatForXML();
-        poll.setAttribute(VOTE_OPEN, dformat.format(this.voteOpen));
-        poll.setAttribute(VOTE_CLOSE, dformat.format(this.voteClose));
-        poll.setAttribute(LIMIT_VOTING, Boolean.toString(limitVoting));
-        poll.setAttribute(DISPLAY_RESULT, this.displayResult);
-
-        // properties
-        //getProperties().toXml(doc, stack);
-        //append the options as children
-
-        stack.pop();
-
-        return poll;
-    }
-
     public static Poll fromXML(Element element) {
         Poll poll = new Poll();
         poll.setId(element.getAttribute(ID));
         poll.setText(element.getAttribute(POLL_TEXT));
         poll.setDisplayResult(element.getAttribute(DISPLAY_RESULT));
-        poll.setDetails(element.getAttribute(DESCRIPTION));
-        DateFormat dformat  = getDateFormatForXML();
+        poll.setDescription(element.getAttribute(DESCRIPTION));
+        DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
         if (!"".equals(element.getAttribute(VOTE_OPEN))) {
             try {
                 poll.setVoteOpen(dformat.parse(element.getAttribute(VOTE_OPEN)));
@@ -342,6 +202,44 @@ public class Poll implements PersistableEntity<String> {
             }
         }
         poll.setLimitVoting(Boolean.parseBoolean(element.getAttribute(LIMIT_VOTING)));
+        return poll;
+    }
+
+    public Element toXml(Document doc, Stack stack) {
+        Element poll = doc.createElement("poll");
+
+        if (stack.isEmpty()) {
+            doc.appendChild(poll);
+        } else {
+            ((Element) stack.peek()).appendChild(poll);
+        }
+
+        stack.push(poll);
+
+        poll.setAttribute(ID, getId());
+        if (getId() != null) {
+            poll.setAttribute(POLL_ID, getId());
+        }
+        poll.setAttribute(POLL_TEXT, getText());
+        poll.setAttribute(MIN_OPTIONS, Integer.toString(getMinOptions()));
+        poll.setAttribute(MAX_OPTIONS, Integer.toString(getMaxOptions()));
+
+        if (description != null) {
+            poll.setAttribute(DESCRIPTION, description);
+        }
+
+        DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+        poll.setAttribute(VOTE_OPEN, dformat.format(this.voteOpen));
+        poll.setAttribute(VOTE_CLOSE, dformat.format(this.voteClose));
+        poll.setAttribute(LIMIT_VOTING, Boolean.toString(limitVoting));
+        poll.setAttribute(DISPLAY_RESULT, this.displayResult);
+
+        // properties
+        //getProperties().toXml(doc, stack);
+        //append the options as children
+
+        stack.pop();
+
         return poll;
     }
 }

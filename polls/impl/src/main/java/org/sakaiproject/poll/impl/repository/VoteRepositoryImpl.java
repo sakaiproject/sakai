@@ -8,10 +8,10 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.Vote;
-import org.sakaiproject.poll.repository.VoteRepository;
+import org.sakaiproject.poll.api.model.Option;
+import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.model.Vote;
+import org.sakaiproject.poll.api.repository.VoteRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
 import org.springframework.stereotype.Repository;
 
@@ -26,7 +26,8 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<Vote> query = cb.createQuery(Vote.class);
         Root<Vote> root = query.from(Vote.class);
-        Join<Vote, Poll> pollJoin = root.join("poll");
+        Join<Vote, Option> optionJoin = root.join("option");
+        Join<Option, Poll> pollJoin = optionJoin.join("poll");
 
         query.select(root)
                 .where(cb.equal(pollJoin.get("id"), pollId));
@@ -44,8 +45,8 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<Vote> query = cb.createQuery(Vote.class);
         Root<Vote> root = query.from(Vote.class);
-        Join<Vote, Poll> pollJoin = root.join("poll");
         Join<Vote, Option> optionJoin = root.join("option");
+        Join<Option, Poll> pollJoin = optionJoin.join("poll");
 
         Predicate pollPredicate = cb.equal(pollJoin.get("id"), pollId);
         Predicate optionPredicate = cb.equal(optionJoin.get("optionId"), optionId);
@@ -104,7 +105,8 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<Vote> root = query.from(Vote.class);
-        Join<Vote, Poll> pollJoin = root.join("poll");
+        Join<Vote, Option> optionJoin = root.join("option");
+        Join<Option, Poll> pollJoin = optionJoin.join("poll");
 
         Predicate pollPredicate = cb.equal(pollJoin.get("id"), pollId);
         Predicate userPredicate = cb.equal(root.get("userId"), userId);
@@ -127,7 +129,8 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<Vote> root = query.from(Vote.class);
-        Join<Vote, Poll> pollJoin = root.join("poll");
+        Join<Vote, Option> optionJoin = root.join("option");
+        Join<Option, Poll> pollJoin = optionJoin.join("poll");
 
         query.select(cb.countDistinct(root.get("submissionId")))
                 .where(cb.equal(pollJoin.get("id"), pollId));

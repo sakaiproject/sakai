@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.poll.logic.test.stubs;
+package org.sakaiproject.poll.test.service.stubs;
 
 
 
@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.sakaiproject.poll.logic.ExternalLogic;
-import org.sakaiproject.poll.logic.test.TestDataPreload;
-import org.sakaiproject.poll.model.PollRolePerms;
-import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.poll.test.service.TestDataPreload;
+import org.sakaiproject.poll.api.model.PollRolePerms;
+import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.tool.api.ToolSession;
 
 public class ExternalLogicStubb implements ExternalLogic {

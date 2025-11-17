@@ -2,7 +2,7 @@ package org.sakaiproject.poll.api.repository;
 
 import java.util.List;
 
-import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.springframework.data.SpringCrudRepository;
 
 public interface VoteRepository extends SpringCrudRepository<Vote, Long> {

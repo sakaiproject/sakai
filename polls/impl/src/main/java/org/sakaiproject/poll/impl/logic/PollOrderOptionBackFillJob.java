@@ -29,13 +29,10 @@ import org.quartz.JobExecutionException;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.site.api.Site;
+import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.api.model.Option;
+import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.SiteService.SelectionType;
-import org.sakaiproject.site.api.SiteService.SortType;
 
 /**
  * This Quartz job is responsible for back-filling the 'order' attribute of all existing Poll options.
@@ -54,7 +51,7 @@ public class PollOrderOptionBackFillJob implements Job
     // APIs
     @Getter @Setter private SiteService     siteService;
     @Getter @Setter private SecurityService securityService;
-    @Getter @Setter private PollListManager pollService;
+    @Getter @Setter private PollsService pollService;
 
     private static final SecurityAdvisor YES_MAN = (String userId, String function, String reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
 
@@ -70,17 +67,18 @@ public class PollOrderOptionBackFillJob implements Job
         log.info( "Attempting to back-fill all existing Poll option orders..." );
         int modifiedCount = 0;
 
-        List<Poll> pollsForSite = pollService.findAllPolls();
-        if( pollsForSite != null && !pollsForSite.isEmpty() )
+        // TODO this call is dangerous and should be replaced by a batching mechanism
+        List<Poll> allPolls = pollService.findAllPolls();
+        if( allPolls != null && !allPolls.isEmpty() )
         {
             // Iterate over the polls for the site...
-            for( Poll poll : pollsForSite )
+            for( Poll poll : allPolls )
             {
                 try
                 {
                     // Iterate over Options in the poll...
                     securityService.pushAdvisor( YES_MAN );
-                    List<Option> pollOptions = pollService.getOptionsForPoll( poll );
+                    List<Option> pollOptions = poll.getOptions();
                     if( pollOptions != null && !pollOptions.isEmpty() )
                     {
                         // Check if any options have a null order
@@ -97,10 +95,10 @@ public class PollOrderOptionBackFillJob implements Job
                         // If any of the option's order is null, we need to back-fill them
                         if( hasNullOptionOrder )
                         {
-                            log.info( "Poll ID {} has options with null order, processing...", poll.getPollId() );
+                            log.info( "Poll ID {} has options with null order, processing...", poll.getId() );
 
                             // Order the list by ID
-                            pollOptions.sort( Comparator.comparingLong( Option::getOptionId ) );
+                            pollOptions.sort( Comparator.comparingLong( Option::getId ) );
 
                             // Iterate over the list
                             for( int i = 0; i < pollOptions.size(); i++ )
@@ -108,10 +106,10 @@ public class PollOrderOptionBackFillJob implements Job
                                 // Add order based on ID
                                 Option option = pollOptions.get( i );
                                 option.setOptionOrder(i);
-                                pollService.saveOption( option );
                                 modifiedCount++;
-                                log.info( "Option {} ---> new order == {}", option.getOptionId(), i );
+                                log.info( "Option {} ---> new order == {}", option.getId(), i );
                             }
+                            pollService.savePoll(poll);
                         }
                     }
                 }

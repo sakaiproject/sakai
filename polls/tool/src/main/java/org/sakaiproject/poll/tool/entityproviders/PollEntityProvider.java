@@ -23,7 +23,7 @@ package org.sakaiproject.poll.tool.entityproviders;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,11 +40,13 @@ import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.logic.PollVoteManager;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.api.PollConstants;
+import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.api.model.Option;
+import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.model.Vote;
+
+import static org.sakaiproject.poll.api.PollConstants.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,14 +60,9 @@ import lombok.extern.slf4j.Slf4j;
 public class PollEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, 
         RequestStorable, RedirectDefinable {
 
-    private PollListManager pollListManager;
-    public void setPollListManager(PollListManager pollListManager) {
-        this.pollListManager = pollListManager;
-    }
-
-    private PollVoteManager pollVoteManager;
-    public void setPollVoteManager(PollVoteManager pollVoteManager) {
-        this.pollVoteManager = pollVoteManager;
+    private PollsService pollsService;
+    public void setPollListManager(PollsService pollsService) {
+        this.pollsService = pollsService;
     }
 
     public static final String PREFIX = "poll";
@@ -92,9 +89,8 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if ("".equals(id)) {
             return true;
         }
-        Poll poll = getPollById(id);
-        boolean exists = (poll != null);
-        return exists;
+        Optional<Poll> poll = getPollById(id);
+        return poll.isPresent();
     }
 
     /**
@@ -102,15 +98,8 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
      * @return
      */
     @Deprecated
-    private Poll getPollById(String id) {
-        Long pollId;
-        try {
-            pollId = Long.valueOf(id);
-        } catch (NumberFormatException e) {
-            throw new EntityException("Invalid identifier provided for poll id", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
-        }
-        Poll poll = pollListManager.getPollById(pollId, false);
-        return poll;
+    private Optional<Poll> getPollById(String id) {
+        return pollsService.getPollById(id);
     }
 
     /**
@@ -120,9 +109,6 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         Poll poll = (Poll) entity;
         poll.setCreationDate(new Date());
-        if (poll.getUuid() == null) {
-            poll.setUuid( UUID.randomUUID().toString() );
-        }
         if (poll.getOwner() == null) {
             poll.setOwner( developerHelperService.getCurrentUserId() );
         }
@@ -134,12 +120,12 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         String userReference = developerHelperService.getCurrentUserReference();
         String location = "/site/" + siteId;
-        boolean allowed = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_ADD, location);
+        boolean allowed = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_ADD, location);
         if (!allowed) {
             throw new SecurityException("Current user ("+userReference+") cannot create polls in location ("+location+")");
         }
-        pollListManager.savePoll(poll);
-        return poll.getPollId()+"";
+        pollsService.savePoll(poll);
+        return poll.getId();
     }
 
     public Object getSampleEntity() {
@@ -156,8 +142,8 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if (userReference == null) {
             throw new SecurityException("anonymous user cannot update poll: " + ref);
         }
-        Poll current = getPollById(id);
-        if (current == null) {
+        Optional<Poll> current = getPollById(id);
+        if (current.isEmpty()) {
             throw new IllegalArgumentException("No poll found to update for the given reference: " + ref);
         }
         Poll poll = (Poll) entity;
@@ -169,12 +155,12 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         String location = "/site/" + siteId;
         // should this check a different permission?
-        boolean allowed = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_ADD, location);
+        boolean allowed = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_ADD, location);
         if (!allowed) {
             throw new SecurityException("Current user ("+userReference+") cannot update polls in location ("+location+")");
         }
         developerHelperService.copyBean(poll, current, 0, new String[] {"uuid", "pollId", "owner","siteId","creationDate","reference","url","properties"}, true);
-        pollListManager.savePoll(current);
+        pollsService.savePoll(current.get());
     }
 
     @Deprecated
@@ -183,23 +169,23 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if (id == null) {
             return new Poll();
         }
-        Poll poll = getPollById(id);
-        if (poll == null) {
+        Optional<Poll> poll = getPollById(id);
+        if (poll.isEmpty()) {
             throw new IllegalArgumentException("No poll found for the given reference: " + ref);
         }
-        Long pollId = poll.getPollId();
+        String pollId = poll.get().getId();
         String currentUserId = developerHelperService.getCurrentUserId();
         
         boolean allowedManage = false;
         if (! developerHelperService.isEntityRequestInternal(ref+"")) {
-            if (!pollListManager.isPollPublic(poll)) {
+            if (!pollsService.isPollPublic(poll.get())) {
                 //this is not a public poll? (ie .anon role has poll.vote)
                 String userReference = developerHelperService.getCurrentUserReference();
                 if(userReference == null) {
                     throw new EntityException("User must be logged in in order to access poll data", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
                 }
-                allowedManage = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_ADD, "/site/" + poll.getSiteId());
-                boolean allowedVote = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_VOTE, "/site/" + poll.getSiteId());
+                allowedManage = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_ADD, "/site/" + poll.get().getSiteId());
+                boolean allowedVote = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_VOTE, "/site/" + poll.get().getSiteId());
                 if (!allowedManage && !allowedVote) {
                     throw new SecurityException("User ("+userReference+") not allowed to access poll data: " + ref);
                 }
@@ -209,23 +195,23 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         Boolean includeVotes = requestStorage.getStoredValueAsType(Boolean.class, "includeVotes");
         if (includeVotes == null) { includeVotes = false; }
         if (includeVotes) {
-            List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
+            List<Vote> votes = pollsService.getAllVotesForPoll(poll.get().getId());
             poll.setVotes(votes);
         }
         Boolean includeOptions = requestStorage.getStoredValueAsType(Boolean.class, "includeOptions");
         if (includeOptions == null) { includeOptions = false; }
         if (includeOptions) {
-            List<Option> options = pollListManager.getOptionsForPoll(poll);
+            List<Option> options = pollsService.getOptionsForPoll(poll.get());
             poll.setOptions(options);
         }
         // add in the indicator that this user has replied
         if (currentUserId != null) {
-            Map<Long, List<Vote>> voteMap = pollVoteManager.getVotesForUser(currentUserId, new Long[] {pollId});
+            Map<String, List<Vote>> voteMap = pollsService.getVotesForUser(currentUserId, new String[] {pollId});
             List<Vote> l = voteMap.get(pollId);
             if (l != null) {
-                poll.setCurrentUserVoted(true);
+                poll.get().setCurrentUserVoted(true);
             } else {
-                poll.setCurrentUserVoted(false);
+                poll.get().setCurrentUserVoted(false);
             }
         }
         return poll;
@@ -237,12 +223,12 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if (id == null) {
             throw new IllegalArgumentException("The reference must include an id for deletes (id is currently null)");
         }
-        Poll poll = getPollById(id);
-        if (poll == null) {
+        Optional<Poll> poll = getPollById(id);
+        if (poll.isEmpty()) {
             throw new IllegalArgumentException("No poll found for the given reference: " + ref);
         }
         try {
-            pollListManager.deletePoll(poll);
+            pollsService.deletePoll(poll.get());
         } catch (SecurityException e) {
             throw new SecurityException("The current user ("+developerHelperService.getCurrentUserReference()
                     +") is not allowed to delete this poll: " + ref);
@@ -285,26 +271,26 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
                 throw new EntityException("No user is currently logged in so no polls data can be retrieved", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
             }
         }
-        String perm = PollListManager.PERMISSION_VOTE;
+        String perm = PERMISSION_VOTE;
         if (adminControl) {
-            perm = PollListManager.PERMISSION_ADD;
+            perm = PERMISSION_ADD;
         }
-        List<Poll> polls = pollListManager.findAllPollsForUserAndSitesAndPermission(userId, siteIds, perm);
+        List<Poll> polls = pollsService.findAllPollsForUserAndSitesAndPermission(userId, siteIds, perm);
         if (adminControl) {
             // add in options
             for (Poll p : polls) {
-                List<Option> options = pollListManager.getOptionsForPoll(p.getPollId());
+                List<Option> options = pollsService.getOptionsForPoll(p);
                 p.setOptions(options);
             }
         } else {
             // add in the indicators that this user has replied
-            Long[] pollIds = new Long[polls.size()];
+            String[] pollIds = new String[polls.size()];
             for (int i = 0; i < polls.size(); i++) {
-                pollIds[i] = polls.get(i).getPollId();
+                pollIds[i] = polls.get(i).getId();
             }
-            Map<Long, List<Vote>> voteMap = pollVoteManager.getVotesForUser(userId, pollIds);
+            Map<String, List<Vote>> voteMap = pollsService.getVotesForUser(userId, pollIds);
             for (Poll poll : polls) {
-                Long pollId = poll.getPollId();
+                String pollId = poll.getId();
                 List<Vote> l = voteMap.get(pollId);
                 if (l != null) {
                     poll.setCurrentUserVoted(true);

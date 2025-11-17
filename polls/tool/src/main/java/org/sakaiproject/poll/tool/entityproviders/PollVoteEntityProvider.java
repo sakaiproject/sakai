@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -52,11 +53,10 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.logic.PollVoteManager;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.api.model.Option;
+import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
@@ -68,14 +68,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
 public class PollVoteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, 
     Createable, CollectionResolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable {
 
-    private PollListManager pollListManager;
-    public void setPollListManager(final PollListManager pollListManager) {
-        this.pollListManager = pollListManager;
-    }
-
-    private PollVoteManager pollVoteManager;
-    public void setPollVoteManager(final PollVoteManager pollVoteManager) {
-        this.pollVoteManager = pollVoteManager;
+    private PollsService pollsService;
+    public void setPollListManager(final PollsService pollsService) {
+        this.pollsService = pollsService;
     }
 
     private UsageSessionService usageSessionService;    
@@ -119,12 +114,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
             throw new IllegalArgumentException("Poll Id must be set to create a vote");
         }
 
-        Poll poll = pollListManager.getPollById(pollId);
-        if (poll == null) {
-            throw new IllegalArgumentException("Invalid poll ID: " + pollId);
-        }
-        vote.setPoll(poll);
-        
+
         Long optionId = null;
         try {
         	optionId = Long.valueOf((String)params.get("pollOption"));
@@ -132,23 +122,23 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         catch (Exception e) {
         	log.warn(e.getMessage());
 		}
-        
+
         if (optionId == null) {
             throw new IllegalArgumentException("Poll Option must be set to create a vote");
         }
-        if (! pollVoteManager.isUserAllowedVote(userId, pollId, false)) {
+        if (! pollsService.isUserAllowedVote(userId, pollId, false)) {
             throw new SecurityException("User ("+userId+") is not allowed to vote in this poll ("+pollId+")");
         }
-        
-        vote.setPollOption(optionId);
+
         // validate option
-        Option option = pollListManager.getOptionById(vote.getPollOption());
-        if (option == null) {
-            throw new IllegalArgumentException("Invalid poll option ("+vote.getPollOption()+") [cannot find option] in vote ("+vote+") for user ("+userId+")");
+        Optional<Option> option = pollsService.getOptionById(optionId);
+        if (option.isEmpty()) {
+            throw new IllegalArgumentException("Invalid poll option ("+optionId+") [cannot find option] in vote ("+vote+") for user ("+userId+")");
         } else {
-            Poll optionPoll = option.getPoll();
+            vote.setOption(option.get());
+            Poll optionPoll = option.get().getPoll();
             if (optionPoll == null || !pollId.equals(optionPoll.getId())) {
-                throw new IllegalArgumentException("Invalid poll option ("+vote.getPollOption()+") [not in poll ("+pollId+")] in vote ("+vote+") for user ("+userId+")");
+                throw new IllegalArgumentException("Invalid poll option ("+optionId+") [not in poll ("+pollId+")] in vote ("+vote+") for user ("+userId+")");
             }
         }
         // set default vote values
@@ -163,7 +153,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         if (usageSession != null) {
             vote.setIp( usageSession.getIpAddress() );
         }
-        boolean saved = pollVoteManager.saveVote(vote);
+        boolean saved = pollsService.saveVote(vote);
         if (!saved) {
             throw new IllegalStateException("Unable to save vote ("+vote+") for user ("+userId+"): " + ref);
         }
@@ -230,15 +220,15 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         } catch (UnsupportedOperationException e) {
             throw new IllegalArgumentException("Invalid: pollId must be a string: " + e.getMessage(), e);
         }
-        Poll poll = pollListManager.getPollById(pollId);
-        if (poll == null) {
+        Optional<Poll> poll = pollsService.getPollById(pollId);
+        if (poll.isEmpty()) {
             throw new IllegalArgumentException("pollId ("+pollId+") is invalid and does not match any known polls");
         }
-        List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
+        List<Vote> votes = pollsService.getAllVotesForPoll(poll.get().getId());
         
         if (developerHelperService.isEntityRequestInternal(ref.toString())) {
             // ok for all internal requests
-        } else if (!pollListManager.isAllowedViewResults(poll, currentUserId)) {
+        } else if (!pollsService.isAllowedViewResults(poll.get(), currentUserId)) {
             // TODO - check vote location and perm?
             // not allowed to view
             throw new SecurityException("User ("+currentUserId+") cannot view vote ("+ref+")");
@@ -258,8 +248,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
     		Vote vote = (Vote)votes.get(i);
     		if (!userId.equals(vote.getUserId())) {
     			Vote newVote = new Vote();
-    			newVote.setPoll(vote.getPoll());
-    			newVote.setPollOption(vote.getPollOption());
+    			newVote.setOption(vote.getOption());
     			newVote.setSubmissionId(vote.getSubmissionId());
     			ret.add(newVote);
     		} else {
@@ -283,13 +272,13 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
 			throw new IllegalArgumentException("No pollId found.");
 		}
 		String userId = userDirectoryService.getCurrentUser().getId();
-		Poll poll = pollListManager.getPollById(pollId, false);
-		if (poll == null) {
+		Optional<Poll> poll = pollsService.getPollById(pollId);
+		if (poll.isEmpty()) {
 			throw new IllegalArgumentException("No poll found to update for the given reference: " + ref);
 		}
-		if (!pollVoteManager.isUserAllowedVote(userId, poll.getId(), false)) {
+		if (!pollsService.isUserAllowedVote(userId, poll.get().getId(), false)) {
 			throw new SecurityException("User (" + userId + ") is not allowed to vote in this poll ("
-					+ poll.getId() + ")");
+					+ poll.get().getId() + ")");
 		}
 
 		Set<String> optionIds = new HashSet<String>();
@@ -323,11 +312,11 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
 		Map<Long, Option> options = new HashMap<Long, Option>();
 		for (String optionId : optionIds) {
 			try {
-				Option option = pollListManager.getOptionById(Long.valueOf(optionId));
-				Poll optionPoll = option.getPoll();
-				if (optionPoll == null || !poll.getId().equals(optionPoll.getId()))
+				Optional<Option> option = pollsService.getOptionById(Long.valueOf(optionId));
+				Poll optionPoll = option.get().getPoll();
+				if (optionPoll == null || !poll.get().getId().equals(optionPoll.getId()))
 					throw new Exception();
-				options.put(option.getOptionId(), option);
+				options.put(option.get().getId(), option.get());
 			} catch (Exception e) {
 				throw new IllegalArgumentException("Invalid pollOption: " + optionId);
 			}
@@ -335,11 +324,11 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
 
 		// Validate that the number of options voted for is within acceptable
 		// bounds.
-		if (options.size() < poll.getMinOptions())
-			throw new IllegalArgumentException("You must provide at least " + poll.getMinOptions() + " options, not "
+		if (options.size() < poll.get().getMinOptions())
+			throw new IllegalArgumentException("You must provide at least " + poll.get().getMinOptions() + " options, not "
 					+ options.size() + ".");
-		if (options.size() > poll.getMaxOptions())
-			throw new IllegalArgumentException("You may provide at most " + poll.getMaxOptions() + " options, not "
+		if (options.size() > poll.get().getMaxOptions())
+			throw new IllegalArgumentException("You may provide at most " + poll.get().getMaxOptions() + " options, not "
 					+ options.size() + ".");
 
 		// Create and save the Vote objects.
@@ -350,8 +339,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
 
 			vote.setVoteDate(Instant.now());
 			vote.setUserId(userId);
-			vote.setPoll(poll);
-			vote.setPollOption(option.getOptionId());
+			vote.setOption(option);
 
 			if (vote.getSubmissionId() == null) {
 				String sid = userId + ":" + UUID.randomUUID();
@@ -361,7 +349,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
 			if (usageSession != null)
 				vote.setIp(usageSession.getIpAddress());
 
-			boolean saved = pollVoteManager.saveVote(vote);
+			boolean saved = pollsService.saveVote(vote);
 			if (!saved) {
 				throw new IllegalStateException("Unable to save vote (" + vote + ") for user (" + userId + "): " + ref);
 			}
@@ -392,7 +380,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
             log.warn("Attempting to load a vote with an invalid id ({}): {}", id, e.toString());
             throw new EntityException("Invalid identifier provided for poll-vote", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
         }
-        Vote vote = pollVoteManager.getVoteById(voteId);
+        Vote vote = pollsService.getVoteById(voteId);
         return vote;
     }
 

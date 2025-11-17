@@ -26,10 +26,9 @@ import java.util.Objects;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.poll.logic.ExternalLogic;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.logic.PollVoteManager;
-import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.tool.service.PollsUiService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,26 +42,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.sakaiproject.util.ResourceLoader;
 
+import static org.sakaiproject.poll.api.PollConstants.*;
+
 @Controller
 @RequestMapping
 @Slf4j
 public class PollController {
 
-    private final PollListManager pollListManager;
-    private final PollVoteManager pollVoteManager;
+    private final PollsService pollsService;
     private final ExternalLogic externalLogic;
     private final PollsUiService pollsUiService;
     private final MessageSource messageSource;
     private final UserTimeService userTimeService;
 
-    public PollController(PollListManager pollListManager,
-                          PollVoteManager pollVoteManager,
+    public PollController(PollsService pollsService,
                           ExternalLogic externalLogic,
                           PollsUiService pollsUiService,
                           MessageSource messageSource,
                           @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService) {
-        this.pollListManager = pollListManager;
-        this.pollVoteManager = pollVoteManager;
+        this.pollsService = pollsService;
         this.externalLogic = externalLogic;
         this.pollsUiService = pollsUiService;
         this.messageSource = messageSource;
@@ -81,7 +79,7 @@ public class PollController {
             return "polls/list";
         }
 
-        List<Poll> polls = new ArrayList<>(pollListManager.findAllPolls(siteId));
+        List<Poll> polls = new ArrayList<>(pollsService.findAllPolls(siteId));
         Locale resourceLocale = new ResourceLoader().getLocale();
         Locale effectiveLocale = normaliseLocale(resourceLocale != null ? resourceLocale
                 : (locale != null ? locale : Locale.getDefault()));
@@ -93,14 +91,14 @@ public class PollController {
         List<PollRow> rows = new ArrayList<>();
         boolean renderDelete = false;
         for (Poll poll : polls) {
-            boolean canVote = pollVoteManager.pollIsVotable(poll);
+            boolean canVote = pollsService.pollIsVotable(poll);
             boolean canEdit = pollCanEdit(poll);
-            boolean canDelete = pollListManager.userCanDeletePoll(poll);
+            boolean canDelete = pollsService.userCanDeletePoll(poll);
             renderDelete = renderDelete || canDelete;
 
             int optionCount = poll.getOptions() != null ? poll.getOptions().size() : 0;
             if (!canVote && optionCount == 0) {
-                optionCount = pollListManager.getOptionsForPoll(poll.getPollId()).size();
+                optionCount = pollsService.getOptionsForPoll(poll).size();
             }
 
             String voteOpenDisplay = null;
@@ -117,9 +115,9 @@ public class PollController {
                 voteCloseSortKey = sortFormatter.format(poll.getVoteClose().toInstant());
             }
 
-            boolean canViewResults = pollListManager.isAllowedViewResults(poll, externalLogic.getCurrentUserId());
+            boolean canViewResults = pollsService.isAllowedViewResults(poll, externalLogic.getCurrentUserId());
             rows.add(new PollRow(
-                    poll.getPollId(),
+                    poll.getId(),
                     poll.getText(),
                     canVote,
                     canEdit,
@@ -144,7 +142,7 @@ public class PollController {
     }
 
     @PostMapping("/polls/bulk")
-    public String handleBulkAction(@RequestParam(name = "deleteIds", required = false) List<Long> deleteIds,
+    public String handleBulkAction(@RequestParam(name = "deleteIds", required = false) List<String> deleteIds,
                                    @RequestParam(name = "action") String action,
                                    RedirectAttributes redirectAttributes,
                                    Locale locale) {
@@ -172,7 +170,7 @@ public class PollController {
     }
 
     private boolean isAllowedPollAdd() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PERMISSION_ADD, externalLogic.getCurrentLocationReference());
     }
 
     private boolean isSiteOwner() {
@@ -183,10 +181,10 @@ public class PollController {
         if (externalLogic.isUserAdmin()) {
             return true;
         }
-        if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_EDIT_ANY, externalLogic.getCurrentLocationReference())) {
+        if (externalLogic.isAllowedInLocation(PERMISSION_EDIT_ANY, externalLogic.getCurrentLocationReference())) {
             return true;
         }
-        return externalLogic.isAllowedInLocation(PollListManager.PERMISSION_EDIT_OWN, externalLogic.getCurrentLocationReference())
+        return externalLogic.isAllowedInLocation(PERMISSION_EDIT_OWN, externalLogic.getCurrentLocationReference())
                 && Objects.equals(poll.getOwner(), externalLogic.getCurrentUserId());
     }
 
@@ -202,7 +200,7 @@ public class PollController {
 
     @Value
     public static class PollRow {
-        Long id;
+        String id;
         String text;
         boolean votable;
         boolean editable;

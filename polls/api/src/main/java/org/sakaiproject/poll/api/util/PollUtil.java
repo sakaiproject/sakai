@@ -23,14 +23,14 @@ package org.sakaiproject.poll.api.util;
 
 import java.util.Stack;
 
-import org.sakaiproject.poll.model.Option;
+import org.sakaiproject.poll.api.model.Option;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class PollUtil {
 
     /** Attribute names **/
-    private static final String UUID = "id";
+    private static final String ID = "id";
     private static final String OPTION_ID = "optionid";
     private static final String TEXT = "text";
     private static final String DELETED = "deleted";
@@ -52,8 +52,8 @@ public class PollUtil {
 
         stack.push(element);
 
-        element.setAttribute(UUID, option.getUuid());
-        element.setAttribute(OPTION_ID, option.getOptionId().toString());
+        element.setAttribute(ID, option.getId().toString());
+        element.setAttribute(OPTION_ID, option.getId().toString());
         element.setAttribute(TEXT, option.getText());
         element.setAttribute(DELETED, option.getDeleted().toString());
         element.setAttribute(STATUS, option.getStatus());
@@ -65,10 +65,14 @@ public class PollUtil {
 
     public static Option xmlToOption(Element element) {
         Option option = new Option();
-        option.setUuid(element.getAttribute(UUID));
-        if (!"".equals(element.getAttribute(OPTION_ID))) {
+        // Try to read from both "id" and "optionid" for backwards compatibility
+        String idStr = element.getAttribute(ID);
+        if ("".equals(idStr)) {
+            idStr = element.getAttribute(OPTION_ID);
+        }
+        if (!"".equals(idStr)) {
             try {
-                option.setOptionId(Long.parseLong(element.getAttribute(OPTION_ID)));
+                option.setId(Long.parseLong(idStr));
             } catch (NumberFormatException e) {
                 //LOG THIS
             }

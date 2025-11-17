@@ -19,14 +19,13 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.poll.test.logic;
+package org.sakaiproject.poll.test.service;
 
 import java.util.Date;
-import java.util.UUID;
 
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.repository.PollRepository;
+import org.sakaiproject.poll.api.model.Option;
+import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.repository.PollRepository;
 
 public class TestDataPreload {
 
@@ -110,13 +109,11 @@ public class TestDataPreload {
         // Add options using poll aggregate pattern
         Option option1 = new Option();
         option1.setText("Option 1");
-        option1.setUuid(UUID.randomUUID().toString());
         option1.setOptionOrder(0);
         poll1.addOption(option1);  // Sets bidirectional relationship
 
         Option option2 = new Option();
         option2.setText("Option 2");
-        option2.setUuid(UUID.randomUUID().toString());
         option2.setOptionOrder(1);
         poll1.addOption(option2);  // Sets bidirectional relationship
 

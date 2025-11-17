@@ -31,7 +31,7 @@ public class VoteCollection {
 
     private String id;
     private List<Vote> votes;
-    private Long pollId;
+    private String pollId;
     private String[] optionsSelected;
     private String option;
     private String submissionStatus;

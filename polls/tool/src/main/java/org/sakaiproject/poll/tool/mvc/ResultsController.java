@@ -22,16 +22,16 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.poll.logic.ExternalLogic;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.logic.PollVoteManager;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.api.model.Option;
+import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.model.Vote;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,22 +40,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
+
 @Controller
 @RequestMapping
 @Slf4j
 public class ResultsController {
 
-    private final PollListManager pollListManager;
-    private final PollVoteManager pollVoteManager;
+    private final PollsService pollsService;
     private final ExternalLogic externalLogic;
     private final MessageSource messageSource;
 
-    public ResultsController(PollListManager pollListManager,
-                             PollVoteManager pollVoteManager,
+    public ResultsController(PollsService pollsService,
                              ExternalLogic externalLogic,
                              MessageSource messageSource) {
-        this.pollListManager = pollListManager;
-        this.pollVoteManager = pollVoteManager;
+        this.pollsService = pollsService;
         this.externalLogic = externalLogic;
         this.messageSource = messageSource;
     }
@@ -65,23 +64,22 @@ public class ResultsController {
                               Model model,
                               Locale locale,
                               RedirectAttributes redirectAttributes) {
-        Poll poll = pollListManager.getPollById(pollId);
-        if (!pollListManager.isAllowedViewResults(poll, externalLogic.getCurrentUserId())) {
+        Optional<Poll> poll = pollsService.getPollById(pollId);
+        if (!pollsService.isAllowedViewResults(poll.get(), externalLogic.getCurrentUserId())) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll.noviewresult", null, locale));
             return "redirect:/votePolls";
         }
 
-        List<Option> options = new ArrayList<>(pollListManager.getOptionsForPoll(poll));
-        if (poll.getMinOptions() == 0) {
-            Option noVote = new Option(0L);
+        List<Option> options = poll.get().getOptions();
+        if (poll.get().getMinOptions() == 0) {
+            Option noVote = new Option();
             noVote.setText(messageSource.getMessage("result_novote", null, locale));
-            noVote.setPoll(poll);
-            options.add(noVote);
+            poll.get().addOption(noVote);
         }
 
-        List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
+        List<Vote> votes = pollsService.getAllVotesForPoll(poll.get().getId());
         int totalVotes = votes.size();
-        int distinctVoters = pollVoteManager.getDisctinctVotersForPoll(poll);
+        int distinctVoters = pollsService.getDisctinctVotersForPoll(poll.get());
         int potentialVoters = externalLogic.getNumberUsersCanVote();
 
         List<ResultRow> rows = new ArrayList<>();
@@ -91,10 +89,10 @@ public class ResultsController {
         for (int i = 0; i < options.size(); i++) {
             Option option = options.get(i);
             long voteCount = votes.stream()
-                    .filter(v -> option.getOptionId().equals(v.getPollOption()))
+                    .filter(v -> option.getId().equals(v.getOption().getId()))
                     .count();
 
-            double percentage = calculatePercentage(poll, voteCount, totalVotes, distinctVoters);
+            double percentage = calculatePercentage(poll.get(), voteCount, totalVotes, distinctVoters);
             rows.add(new ResultRow(
                     i + 1,
                     decorateOptionText(option, locale),
@@ -124,7 +122,7 @@ public class ResultsController {
         model.addAttribute("voterPercent", voterPercent);
         model.addAttribute("pollSizeMessage", pollSizeMessage);
         model.addAttribute("totalPercentageLabel", totalPercentageLabel);
-        model.addAttribute("canAdd", externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference()));
+        model.addAttribute("canAdd", externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PERMISSION_ADD, externalLogic.getCurrentLocationReference()));
         model.addAttribute("isSiteOwner", externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference()));
 
         return "polls/results";

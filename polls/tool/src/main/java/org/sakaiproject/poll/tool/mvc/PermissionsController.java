@@ -17,12 +17,14 @@
 package org.sakaiproject.poll.tool.mvc;
 
 import lombok.RequiredArgsConstructor;
-import org.sakaiproject.poll.logic.ExternalLogic;
-import org.sakaiproject.poll.logic.PollListManager;
+import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
 
 @Controller
 @RequestMapping
@@ -40,7 +42,7 @@ public class PermissionsController {
     }
 
     private boolean isAllowedPollAdd() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PERMISSION_ADD, externalLogic.getCurrentLocationReference());
     }
 
     private boolean isSiteOwner() {

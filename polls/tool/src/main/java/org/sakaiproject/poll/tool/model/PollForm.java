@@ -23,7 +23,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 public class PollForm {
-    private Long pollId;
+    private String pollId;
     private String text;
     private String details;
     private boolean isPublic;

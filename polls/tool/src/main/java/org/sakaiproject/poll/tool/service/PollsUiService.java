@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -33,15 +34,14 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.poll.logic.ExternalLogic;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.logic.PollVoteManager;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.Vote;
-import org.sakaiproject.poll.model.VoteCollection;
+import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.api.model.Option;
+import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.model.Vote;
+import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.tool.util.OptionsFileConverterUtil;
-import org.sakaiproject.poll.util.PollUtils;
+import org.sakaiproject.poll.api.util.PollUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,19 +53,18 @@ public class PollsUiService {
     public static final String HANDLE_DELETE_OPTION_DO_NOTHING = "do-nothing";
     public static final String HANDLE_DELETE_OPTION_RETURN_VOTES = "return-votes";
 
-    private final PollListManager pollListManager;
-    private final PollVoteManager pollVoteManager;
+    private final PollsService pollsService;
     private final ExternalLogic externalLogic;
 
     public void deletePolls(Collection<String> pollIds) {
         for (String pollId : pollIds) {
-            Poll poll = pollListManager.getPollById(pollId);
-            if (poll == null) {
+            Optional<Poll> poll = pollsService.getPollById(pollId);
+            if (poll.isEmpty()) {
                 log.warn("Poll {} not found during bulk delete", pollId);
                 continue;
             }
             try {
-                pollListManager.deletePoll(poll);
+                pollsService.deletePoll(poll.get());
             } catch (SecurityException e) {
                 log.warn("User {} is not permitted to delete poll {}", externalLogic.getCurrentUserId(), pollId);
             }
@@ -74,14 +73,14 @@ public class PollsUiService {
 
     public void resetPollVotes(Collection<String> pollIds) {
         for (String pollId : pollIds) {
-            Poll poll = pollListManager.getPollById(pollId);
-            if (poll == null) {
+            Optional<Poll> poll = pollsService.getPollById(pollId);
+            if (poll.isEmpty()) {
                 log.warn("Poll {} not found during bulk vote reset", pollId);
                 continue;
             }
-            if (pollListManager.userCanDeletePoll(poll)) {
-                List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
-                pollVoteManager.deleteAll(votes);
+            if (pollsService.userCanDeletePoll(poll.get())) {
+                List<Vote> votes = pollsService.getAllVotesForPoll(poll.get().getId());
+                pollsService.deleteAll(votes);
             }
         }
     }
@@ -104,24 +103,24 @@ public class PollsUiService {
         }
 
         if (poll.getId() != null) {
-            Poll existing = pollListManager.getPollById(poll.getId(), false);
-            if (existing == null) {
+            Optional<Poll> existing = pollsService.getPollById(poll.getId());
+            if (existing.isEmpty()) {
                 throw new PollValidationException("poll_not_found");
             }
             if (poll.getCreationDate() == null) {
-                poll.setCreationDate(existing.getCreationDate());
+                poll.setCreationDate(existing.get().getCreationDate());
             }
         } else {
             poll.setCreationDate(new Date());
         }
 
-        poll.setDetails(PollUtils.cleanupHtmlPtags(externalLogic.processFormattedText(poll.getDetails(), new StringBuilder())));
+        poll.setDescription(PollUtils.cleanupHtmlPtags(externalLogic.processFormattedText(poll.getDescription(), new StringBuilder())));
 
         boolean isNew = poll.getId() == null;
-        pollListManager.savePoll(poll);
+        pollsService.savePoll(poll);
 
         if (!isNew) {
-            List<Option> pollOptions = pollListManager.getOptionsForPoll(poll);
+            List<Option> pollOptions = pollsService.getOptionsForPoll(poll);
             poll.setOptions(pollOptions);
         }
 
@@ -134,22 +133,22 @@ public class PollsUiService {
             throw new PollValidationException("option_empty");
         }
 
-        if (option.getOptionId() == null) {
+        if (option.getId() == null) {
             // New option - poll relationship should already be set
             Poll poll = option.getPoll();
             if (poll == null) {
                 throw new IllegalArgumentException("Poll must be set for new option");
             }
-            option.setOptionOrder(pollListManager.getOptionsForPoll(poll.getId()).size());
+            option.setOptionOrder(pollsService.getOptionsForPoll(poll).size());
         } else {
-            Option existing = pollListManager.getOptionById(option.getOptionId());
-            if (existing == null) {
+            Optional<Option> existing = pollsService.getOptionById(option.getId());
+            if (existing.isEmpty()) {
                 throw new IllegalArgumentException("Option not found");
             }
-            option.setOptionOrder(existing.getOptionOrder());
-            option.setPoll(existing.getPoll());
+            option.setOptionOrder(existing.get().getOptionOrder());
+            option.setPoll(existing.get().getPoll());
         }
-        pollListManager.saveOption(option);
+        pollsService.saveOption(option);
         return option;
     }
 
@@ -163,17 +162,17 @@ public class PollsUiService {
             throw new PollValidationException("error_batch_options");
         }
 
-        Poll poll = pollListManager.getPollById(pollId);
-        if (poll == null) {
+        Optional<Poll> poll = pollsService.getPollById(pollId);
+        if (poll.isEmpty()) {
             throw new IllegalArgumentException("Poll not found: " + pollId);
         }
-        int nextOrder = pollListManager.getOptionsForPoll(pollId).size();
+        int nextOrder = pollsService.getOptionsForPoll(poll.get()).size();
         for (String optionText : optionTexts) {
             Option option = new Option();
-            option.setPoll(poll);
+            option.setPoll(poll.get());
             option.setText(PollUtils.cleanupHtmlPtags(optionText));
             option.setOptionOrder(nextOrder++);
-            pollListManager.saveOption(option);
+            pollsService.saveOption(option);
         }
     }
 
@@ -187,24 +186,21 @@ public class PollsUiService {
     }
 
     public Poll deleteOption(Long optionId, String orphanVoteHandling) {
-        Option option = pollListManager.getOptionById(optionId);
-        if (option == null) {
+        Optional<Option> option = pollsService.getOptionById(optionId);
+        if (option.isEmpty()) {
             throw new IllegalArgumentException("Option not found");
         }
 
-        Poll poll = option.getPoll();
+        Poll poll = option.get().getPoll();
         if (poll == null) {
             throw new IllegalArgumentException("Option has no associated poll");
         }
-        if (poll == null) {
-            throw new PollValidationException("poll_not_found");
-        }
-        List<Vote> votes = pollVoteManager.getAllVotesForOption(option);
+        List<Vote> votes = pollsService.getAllVotesForOption(option.get());
 
         if (votes != null && !votes.isEmpty()) {
             if (HANDLE_DELETE_OPTION_RETURN_VOTES.equals(orphanVoteHandling)) {
                 Set<String> userIds = new TreeSet<>();
-                pollListManager.deleteOption(option);
+                pollsService.deleteOption(option.get().getId());
                 for (Vote vote : votes) {
                     if (vote.getUserId() != null) {
                         String userEid = externalLogic.getUserEidFromId(vote.getUserId());
@@ -212,28 +208,28 @@ public class PollsUiService {
                             userIds.add(userEid);
                         }
                     }
-                    pollVoteManager.deleteVote(vote);
+                    pollsService.deleteVote(vote);
                 }
                 externalLogic.notifyDeletedOption(new ArrayList<>(userIds), externalLogic.getSiteTile(poll.getSiteId()), poll.getText());
             } else {
-                Option persistentOption = pollListManager.getOptionById(optionId);
-                pollListManager.deleteOption(persistentOption, true);
+                pollsService.getOptionById(optionId)
+                        .ifPresent(o -> pollsService.deleteOption(o.getId(), true));
             }
         } else {
-            pollListManager.deleteOption(option);
+            pollsService.deleteOption(option.get().getId());
         }
 
-        return option.getPoll();
+        return option.get().getPoll();
     }
 
     public VoteCollection submitVote(String pollId, List<Long> selectedOptionIds) {
-        Poll poll = pollListManager.getPollById(pollId);
+        Optional<Poll> poll = pollsService.getPollById(pollId);
 
-        if (!pollVoteManager.pollIsVotable(poll)) {
+        if (poll.isPresent() && !pollsService.pollIsVotable(poll.get())) {
             throw new PollValidationException("vote_noperm.voteCollection");
         }
 
-        if (poll.isLimitVoting() && pollVoteManager.userHasVoted(pollId)) {
+        if (poll.isPresent() && poll.get().isLimitVoting() && pollsService.userHasVoted(pollId)) {
             throw new PollValidationException("vote_hasvoted.voteCollection");
         }
 
@@ -242,7 +238,7 @@ public class PollsUiService {
             votesToProcess.addAll(selectedOptionIds);
         }
 
-        if (votesToProcess.isEmpty() && poll.getMinOptions() == 0) {
+        if (votesToProcess.isEmpty() && poll.get().getMinOptions() == 0) {
             votesToProcess.add(0L);
         }
 
@@ -252,28 +248,28 @@ public class PollsUiService {
             if (uniqueIds.size() != votesToProcess.size()) {
                 throw new PollValidationException("invalid_option_selection");
             }
-            List<Option> allowedOptions = pollListManager.getVisibleOptionsForPoll(pollId);
+            List<Option> allowedOptions = pollsService.getVisibleOptionsForPoll(pollId);
             Set<Long> allowedIds = allowedOptions.stream()
-                    .map(Option::getOptionId)
+                    .map(Option::getId)
                     .collect(Collectors.toSet());
             if (!allowedIds.containsAll(votesToProcess)) {
                 throw new PollValidationException("invalid_option_selection");
             }
         }
 
-        validateVoteSelection(poll, votesToProcess);
+        validateVoteSelection(poll.get(), votesToProcess);
 
         VoteCollection voteCollection = new VoteCollection();
         voteCollection.setPollId(pollId);
 
         List<Vote> votesToSave = new ArrayList<>();
         for (Long optionId : votesToProcess) {
-            Option option = new Option(optionId);
-            Vote vote = pollVoteManager.createVote(poll, option, voteCollection.getId());
+            Optional<Option> option = pollsService.getOptionById(optionId);
+            Vote vote = pollsService.createVote(poll.get(), option.get(), voteCollection.getId());
             votesToSave.add(vote);
         }
 
-        pollVoteManager.saveVoteList(votesToSave);
+        pollsService.saveVoteList(votesToSave);
         voteCollection.setVotes(votesToSave);
         return voteCollection;
     }

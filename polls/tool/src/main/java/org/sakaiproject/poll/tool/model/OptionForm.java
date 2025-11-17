@@ -21,7 +21,7 @@ import lombok.Data;
 @Data
 public class OptionForm {
     private Long optionId;
-    private Long pollId;
+    private String pollId;
     private String text;
     private boolean addAnother;
 }

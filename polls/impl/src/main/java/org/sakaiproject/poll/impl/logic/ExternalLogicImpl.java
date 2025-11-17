@@ -42,7 +42,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.api.RenderedTemplate;
@@ -59,10 +58,9 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.poll.logic.ExternalLogic;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.model.PollRolePerms;
-import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.poll.api.model.PollRolePerms;
+import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.UserTimeService;
@@ -75,8 +73,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
+import static org.sakaiproject.poll.api.PollConstants.*;
+
 @Slf4j
-@Setter
 public class ExternalLogicImpl implements ExternalLogic {
 	
 	private static final ResourceLoader RB = new ResourceLoader("notifyDeletedOption");
@@ -92,31 +91,24 @@ public class ExternalLogicImpl implements ExternalLogic {
 	 
 	private static final String USER_ENTITY_PREFIX = "/user/";
 	
-	/**
-	 * Injected services
-	 */
-	
-    private LearningResourceStoreService learningResourceStoreService;
-	private DeveloperHelperService developerHelperService;
-    private AuthzGroupService authzGroupService;
-    private EntityManager entityManager;
-    private EmailService emailService;
-    private EmailTemplateService emailTemplateService;
-    private ArrayList<String> emailTemplates;
-    private EventTrackingService eventTrackingService;
-    private FunctionManager functionManager;
-    private SiteService siteService;
-    private SecurityService securityService;
-	private ServerConfigurationService serverConfigurationService;
-	private SessionManager sessionManager;
-	private UserDirectoryService userDirectoryService;
-	private UserTimeService userTimeService;
-	private String replyToEmailAddress;
+    @Setter private LearningResourceStoreService learningResourceStoreService;
+	@Setter private DeveloperHelperService developerHelperService;
+    @Setter private AuthzGroupService authzGroupService;
+    @Setter private EntityManager entityManager;
+    @Setter private EmailService emailService;
+    @Setter private EmailTemplateService emailTemplateService;
+    @Setter private EventTrackingService eventTrackingService;
+    @Setter private FunctionManager functionManager;
+    @Setter private SiteService siteService;
+    @Setter private SecurityService securityService;
+	@Setter private ServerConfigurationService serverConfigurationService;
+	@Setter private SessionManager sessionManager;
+	@Setter private UserDirectoryService userDirectoryService;
+	@Setter private UserTimeService userTimeService;
 	@Setter private FormattedText formattedText;
-	
-	/**
-     * Methods
-     */
+
+    @Setter private ArrayList<String> emailTemplates;
+
 	public String getCurrentLocationId() {
 		return developerHelperService.getCurrentLocationId();
 	}
@@ -291,17 +283,17 @@ public class ExternalLogicImpl implements ExternalLogic {
 			//try {
 			  PollRolePerms rp = (PollRolePerms) entry.getValue();
 			  if (rp.add != null )
-				  setFunc(role,PollListManager.PERMISSION_ADD,rp.add);
+				  setFunc(role, PERMISSION_ADD,rp.add);
 			  if (rp.deleteAny != null )
-				  setFunc(role,PollListManager.PERMISSION_DELETE_ANY, rp.deleteAny);
+				  setFunc(role, PERMISSION_DELETE_ANY, rp.deleteAny);
 			  if (rp.deleteOwn != null )
-				  setFunc(role,PollListManager.PERMISSION_DELETE_OWN,rp.deleteOwn);
+				  setFunc(role, PERMISSION_DELETE_OWN,rp.deleteOwn);
 			  if (rp.editAny != null )
-				  setFunc(role,PollListManager.PERMISSION_EDIT_ANY,rp.editAny);
+				  setFunc(role, PERMISSION_EDIT_ANY,rp.editAny);
 			  if (rp.editOwn != null )
-				  setFunc(role,PollListManager.PERMISSION_EDIT_OWN,rp.editOwn);
+				  setFunc(role, PERMISSION_EDIT_OWN,rp.editOwn);
 			  if (rp.vote != null )
-				  setFunc(role,PollListManager.PERMISSION_VOTE,rp.vote);
+				  setFunc(role, PERMISSION_VOTE,rp.vote);
 			  
 			  log.info(" Key: " + key + " Vote: " + rp.vote + " New: " + rp.add );
 			/*}
@@ -339,12 +331,12 @@ public class ExternalLogicImpl implements ExternalLogic {
 				String name = role.getId();
 				log.debug("Adding element for " + name); 
 				perms.put(name, new PollRolePerms(name, 
-						role.isAllowed(PollListManager.PERMISSION_VOTE),
-						role.isAllowed(PollListManager.PERMISSION_ADD),
-						role.isAllowed(PollListManager.PERMISSION_DELETE_OWN),
-						role.isAllowed(PollListManager.PERMISSION_DELETE_ANY),
-						role.isAllowed(PollListManager.PERMISSION_EDIT_OWN),
-						role.isAllowed(PollListManager.PERMISSION_EDIT_ANY)
+						role.isAllowed(PERMISSION_VOTE),
+						role.isAllowed(PERMISSION_ADD),
+						role.isAllowed(PERMISSION_DELETE_OWN),
+						role.isAllowed(PERMISSION_DELETE_ANY),
+						role.isAllowed(PERMISSION_EDIT_OWN),
+						role.isAllowed(PERMISSION_EDIT_ANY)
 						));
 			}
 		}
@@ -453,12 +445,12 @@ public class ExternalLogicImpl implements ExternalLogic {
 	public List<String> getPermissionKeys() {
 		
 		String[] perms = new String[]{
-				PollListManager.PERMISSION_VOTE,
-			    PollListManager.PERMISSION_ADD,
-			    PollListManager.PERMISSION_EDIT_OWN,
-			    PollListManager.PERMISSION_EDIT_ANY,
-			    PollListManager.PERMISSION_DELETE_OWN,
-			    PollListManager.PERMISSION_DELETE_ANY
+				PERMISSION_VOTE,
+			    PERMISSION_ADD,
+			    PERMISSION_EDIT_OWN,
+			    PERMISSION_EDIT_ANY,
+			    PERMISSION_DELETE_OWN,
+			    PERMISSION_DELETE_ANY
 		}; 
 		List<String> ret = Arrays.asList(perms);
 		return ret;
@@ -473,7 +465,7 @@ public class ExternalLogicImpl implements ExternalLogic {
         nameMap.put("en-US", "User voted in a poll");
         lrsObject.setActivityName(nameMap);
         HashMap<String, String> descMap = new HashMap<String, String>();
-        descMap.put("en-US", "User voted in a poll with text:" + text + "; their vote was option: " + vote.getPollOption());
+        descMap.put("en-US", "User voted in a poll with text:" + text + "; their vote was option: " + vote.getOption().getId());
         lrsObject.setDescription(descMap);
         return new LRS_Statement(student, verb, lrsObject);
     }
@@ -496,21 +488,15 @@ public class ExternalLogicImpl implements ExternalLogic {
         return "poll" + getCurrentLocationReference() + "/poll/" + pollId;
     }
 
-    /**
-     * @see org.sakaiproject.poll.logic.ExternalLogic#registerStatement(java.lang.String, org.sakaiproject.poll.model.Vote)
-     */
     @Override
     public void registerStatement(String pollText, Vote vote) {
         if (null != learningResourceStoreService) {
             LRS_Statement statement = getStatementForUserVotedInPoll(pollText, vote);
-            Event event = eventTrackingService.newEvent("poll.vote", getPollRef(vote.getPollId().toString()), null, true, NotificationService.NOTI_OPTIONAL, statement);
+            Event event = eventTrackingService.newEvent("poll.vote", getPollRef(vote.getOption().getPoll().getId()), null, true, NotificationService.NOTI_OPTIONAL, statement);
             eventTrackingService.post(event);
         }
     }
 
-    /**
-     * @see org.sakaiproject.poll.logic.ExternalLogic#registerStatement(java.lang.String, boolean, java.lang.String)
-     */
     @Override
     public void registerStatement(String pollText, boolean newPoll, String pollId) {
         if (null != learningResourceStoreService) {
@@ -525,7 +511,7 @@ public class ExternalLogicImpl implements ExternalLogic {
     public int getNumberUsersCanVote() {
     	ArrayList<String> siteGroupRefs = new ArrayList<>();
     	siteGroupRefs.add(siteService.siteReference(developerHelperService.getCurrentLocationId()));
-    	return (authzGroupService.getUsersIsAllowed(PollListManager.PERMISSION_VOTE, siteGroupRefs).size());
+    	return (authzGroupService.getUsersIsAllowed(PERMISSION_VOTE, siteGroupRefs).size());
     }
 
     @Override

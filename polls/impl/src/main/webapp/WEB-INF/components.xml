@@ -1,110 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.poll"
-		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-		<property name="annotatedClasses">
-			<list>
-				<value>org.sakaiproject.poll.model.Poll</value>
-				<value>org.sakaiproject.poll.model.Option</value>
-				<value>org.sakaiproject.poll.model.Vote</value>
-			</list>
-		</property>
-	</bean>
+    <bean id="org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.poll"
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="annotatedClasses">
+            <list>
+                <value>org.sakaiproject.poll.api.model.Poll</value>
+                <value>org.sakaiproject.poll.api.model.Option</value>
+                <value>org.sakaiproject.poll.api.model.Vote</value>
+            </list>
+        </property>
+    </bean>
 
-	<alias name="org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings.poll"
-		alias="org.sakaiproject.poll.hibernate.AdditionalMappings" />
+    <bean id="org.sakaiproject.poll.api.repository.PollRepository"
+          class="org.sakaiproject.poll.impl.repository.PollRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
 
-	<bean id="org.sakaiproject.poll.repository.PollRepository"
-		class="org.sakaiproject.poll.repository.impl.PollRepositoryImpl">
-		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-	</bean>
+    <bean id="org.sakaiproject.poll.api.repository.VoteRepository"
+          class="org.sakaiproject.poll.impl.repository.VoteRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </bean>
 
-	<bean id="org.sakaiproject.poll.repository.VoteRepository"
-		class="org.sakaiproject.poll.repository.impl.VoteRepositoryImpl">
-		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-	</bean>
+    <!-- create a logic bean, give it the repositories from above and some sakai services -->
+    <bean id="org.sakaiproject.poll.api.logic.PollListManager"
+          class="org.sakaiproject.poll.impl.service.PollsServiceImpl"
+          lazy-init="true" init-method="init">
+        <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
+        <property name="voteRepository" ref="org.sakaiproject.poll.api.repository.VoteRepository"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="externalLogic" ref="org.sakaiproject.poll.api.logic.ExternalLogic"/>
+        <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
+        <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+    </bean>
 
-	<!-- create a logic bean, give it the repositories from above and some sakai services -->
-	<bean id="org.sakaiproject.poll.logic.PollListManager"
-		class="org.sakaiproject.poll.service.impl.PollListManagerImpl"
-		lazy-init="true" init-method="init">
-		<property name="pollRepository" ref="org.sakaiproject.poll.repository.PollRepository"/>
-		<property name="voteRepository" ref="org.sakaiproject.poll.repository.VoteRepository"/>
-		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
-		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
-		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
-		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
-		<property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
-		<property name="pollVoteManager" ref="org.sakaiproject.tool.poll.api.PollVoteManager"/>
-	</bean>
+    <bean id="org.sakaiproject.poll.api.logic.ExternalLogic"
+          class="org.sakaiproject.poll.impl.logic.ExternalLogicImpl"
+          init-method="init">
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+        <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <!-- inject other resources -->
+        <property name="emailTemplates" ref="org.sakaiproject.poll.emailtemplates.List"/>
+    </bean>
 
-	<bean id="org.sakaiproject.tool.poll.api.PollVoteManager"
-		class="org.sakaiproject.poll.service.impl.PollVoteManagerImpl"
-		lazy-init="true">
-		<property name="voteRepository" ref="org.sakaiproject.poll.repository.VoteRepository"/>
-		<property name="pollRepository" ref="org.sakaiproject.poll.repository.PollRepository"/>
-		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
-		<property name="pollListManager" ref="org.sakaiproject.poll.logic.PollListManager"/>
-		<property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
-	</bean>
+    <!-- Job to back-fill Poll options' order -->
+    <bean id="pollOrderOptionBackFillJob"
+          class="org.sakaiproject.poll.impl.logic.PollOrderOptionBackFillJob">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="pollService" ref="org.sakaiproject.poll.api.logic.PollListManager"/>
+    </bean>
 
-	<bean id="org.sakaiproject.poll.logic.ExternalLogic" class="org.sakaiproject.poll.logic.impl.ExternalLogicImpl"
-			init-method="init">
-		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
-		<property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
-		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
-		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService" />
-		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-		<property name="eventTrackingService"
-			ref="org.sakaiproject.event.api.EventTrackingService" />
-		<property name="functionManager"
-			ref="org.sakaiproject.authz.api.FunctionManager" />
-		<property name="userTimeService"
-			ref="org.sakaiproject.time.api.UserTimeService" />
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
-		<!-- inject other resources -->
-		<property name="emailTemplates" ref="org.sakaiproject.poll.emailtemplates.List" />
-	</bean>
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.pollOrderOptionBackFillJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId" value="pollOrderOptionBackFillJob"/>
+        <property name="jobName" value="Backfill all existing poll options' order based on their original ID"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+    </bean>
 
-	<!-- Job to back-fill Poll options' order -->
-	<bean id="pollOrderOptionBackFillJob" class="org.sakaiproject.poll.logic.impl.PollOrderOptionBackFillJob">
-		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="pollService" ref="org.sakaiproject.poll.logic.PollListManager" />
-	</bean>
-	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.pollOrderOptionBackFillJob"
-		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-		init-method="init">
-
-		<property name="beanId">
-			<value>pollOrderOptionBackFillJob</value>
-		</property>
-
-		<property name="jobName">
-			<value>Backfill all existing poll options' order based on their original ID</value>
-		</property>
-
-		<property name="schedulerManager">
-			<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
-		</property>
-	</bean>
-
-	<!-- Setup email templates -->
-	<bean id="org.sakaiproject.poll.emailtemplates.List" class="java.util.ArrayList">
-		<constructor-arg>
-      		<list>
-        		<value>org/sakaiproject/poll/templates/notifyDeletedOption.xml</value>
-        		<value>org/sakaiproject/poll/templates/notifyDeletedOption-zh_CN.xml</value>
-      		</list>      
-    	</constructor-arg>
-  	</bean>
+    <!-- Setup email templates -->
+    <bean id="org.sakaiproject.poll.emailtemplates.List" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <value>org/sakaiproject/poll/templates/notifyDeletedOption.xml</value>
+                <value>org/sakaiproject/poll/templates/notifyDeletedOption-zh_CN.xml</value>
+            </list>
+        </constructor-arg>
+    </bean>
 </beans>
