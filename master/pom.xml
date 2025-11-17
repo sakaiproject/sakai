@@ -19,7 +19,7 @@
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
     <sakai.commons-io.version>2.21.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
-    <sakai.commons.lang3.version>3.19.0</sakai.commons.lang3.version>
+    <sakai.commons.lang3.version>3.20.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.6.0</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.14.0</sakai.commons-text.version>
@@ -70,7 +70,7 @@
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.24.3</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
-    <sakai.poi.version>5.4.1</sakai.poi.version>
+    <sakai.poi.version>5.5.0</sakai.poi.version>
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.14.0</joda.time.version>
