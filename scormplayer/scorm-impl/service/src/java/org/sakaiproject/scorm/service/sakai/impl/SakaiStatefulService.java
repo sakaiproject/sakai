@@ -74,6 +74,29 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 	@Override
 	public boolean canLaunch(ContentPackage contentPackage)
 	{
+		// Calculate what the next attempt number would be (same logic as ScormLaunchServiceImpl.prepareLaunch)
+		int numberOfTries = contentPackage.getNumberOfTries();
+		if (numberOfTries != -1)
+		{
+			String learnerId = currentLearnerId();
+			org.sakaiproject.scorm.model.api.Attempt latestAttempt = scormResultService().getNewstAttempt(contentPackage.getContentPackageId(), learnerId);
+
+			if (latestAttempt != null && !latestAttempt.isSuspended())
+			{
+				if (latestAttempt.isNotExited() && latestAttempt.getAttemptNumber() >= numberOfTries)
+				{
+					// Not exited and at limit - would create a new attempt that exceeds limit
+					return canLaunchAttemptInternal(contentPackage, latestAttempt.getAttemptNumber() + 1);
+				}
+				else if (!latestAttempt.isNotExited() && latestAttempt.getAttemptNumber() >= numberOfTries)
+				{
+					// Properly exited and at limit - would create a new attempt that exceeds limit
+					return canLaunchAttemptInternal(contentPackage, latestAttempt.getAttemptNumber() + 1);
+				}
+			}
+		}
+
+		// Use existing logic with -1 (count attempts)
 		return canLaunchAttemptInternal(contentPackage, -1);
 	}
 

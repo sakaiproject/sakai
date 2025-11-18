@@ -21,6 +21,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -112,6 +113,10 @@ public class ScormPlayerPage extends BaseToolPage
 	{
 		super.renderHead(response);
 		response.render(JavaScriptHeaderItem.forUrl("scripts/scorm-rest-launcher.js"));
+
+		// Refresh parent window when this popup closes (handles both normal exit and force-close)
+		String refreshParentScript = "window.addEventListener('beforeunload', function() { if (window.opener && !window.opener.closed) { window.opener.location.reload(); } });";
+		response.render(OnDomReadyHeaderItem.forScript(refreshParentScript));
 	}
 
     public Object getLaunchPanel()
