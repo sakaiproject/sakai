@@ -157,6 +157,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         }
 
         // Delete poll - cascade will automatically delete options and votes
+        voteRepository.findByPollId(poll.getId()).forEach(voteRepository::delete);
         pollRepository.delete(poll);
 
         log.debug("Poll id {} deleted", poll.getId());

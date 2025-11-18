@@ -32,7 +32,7 @@ public class TestDataPreload {
 	/**
 	 * current user, access level user in LOCATION_ID1
 	 */
-	public final static String USER_UPDATE = "user-12345678";
+
 	
 	public final static String USER_LOC_3_UPDATE_1 = "user-11112222";
 	public final static String USER_LOC_3_UPDATE_1_EMAIL = "user-11112222@qnatest.com";
@@ -49,10 +49,7 @@ public class TestDataPreload {
 	public final static String USER_LOC_3_NO_UPDATE_2 = "user-65000011";
 	public final static String USER_LOC_3_NO_UPDATE_2_EMAIL = "user-65000011@qnatest.com";
 	
-	public final static String USER_NO_UPDATE = "user-87654321";
-	
-	public final static String USER_NO_ACCEESS = "user-nobody";
-	
+
 	public final static String USER_CUSTOM_EMAIL1 = "user1@qna.com";
 	public final static String USER_CUSTOM_EMAIL2 = "user2@qna.com";
 	public final static String USER_CUSTOM_EMAIL3 = "user3@qna.com";
@@ -67,7 +64,7 @@ public class TestDataPreload {
 	/**
 	 * current location
 	 */
-	public final static String LOCATION1_ID = "/site/ref-1111111";
+
 	public final static String LOCATION1_TITLE = "Location 1 title";
 	public final static String LOCATION2_ID = "/site/ref-22222222";
 	public final static String LOCATION2_TITLE = "Location 2 title";
@@ -83,44 +80,5 @@ public class TestDataPreload {
 
 	//used for poll read
 	public final static String PERM_SITE_VISIT = "site.visit";
-
-	private String firstPollId = null;
-
-	public String getFirstPollId() {
-		return firstPollId;
-	}
-	
-	/**
-	 * Preload a bunch of test data into the database
-	 *
-     * @param pollRepository poll repository
-     */
-    public void preloadTestData(PollRepository pollRepository) {
-
-        Poll poll1 = new Poll();
-        poll1.setCreationDate(new Date());
-        poll1.setVoteOpen(new Date());
-        poll1.setVoteClose(new Date());
-        poll1.setDescription("this is some text");
-        poll1.setText("something");
-        poll1.setOwner(USER_UPDATE);
-        poll1.setSiteId(LOCATION1_ID);
-
-        // Add options using poll aggregate pattern
-        Option option1 = new Option();
-        option1.setText("Option 1");
-        option1.setOptionOrder(0);
-        poll1.addOption(option1);  // Sets bidirectional relationship
-
-        Option option2 = new Option();
-        option2.setText("Option 2");
-        option2.setOptionOrder(1);
-        poll1.addOption(option2);  // Sets bidirectional relationship
-
-        // Save poll once - cascade handles options
-        pollRepository.save(poll1);
-
-        firstPollId = poll1.getId();
-    }
 
 }

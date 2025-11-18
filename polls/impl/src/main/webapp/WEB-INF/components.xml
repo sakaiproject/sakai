@@ -25,7 +25,7 @@
     </bean>
 
     <!-- create a logic bean, give it the repositories from above and some sakai services -->
-    <bean id="org.sakaiproject.poll.api.logic.PollListManager"
+    <bean id="org.sakaiproject.poll.api.service.PollsService"
           class="org.sakaiproject.poll.impl.service.PollsServiceImpl"
           lazy-init="true" init-method="init">
         <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
@@ -64,7 +64,7 @@
           class="org.sakaiproject.poll.impl.logic.PollOrderOptionBackFillJob">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
-        <property name="pollService" ref="org.sakaiproject.poll.api.logic.PollListManager"/>
+        <property name="pollService" ref="org.sakaiproject.poll.api.service.PollsService"/>
     </bean>
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.pollOrderOptionBackFillJob"
