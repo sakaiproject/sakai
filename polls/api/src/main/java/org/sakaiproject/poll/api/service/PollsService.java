@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
@@ -272,4 +273,53 @@ public interface PollsService {
      * @param votes The votes to delete
      */
     void deleteAll(List<Vote> votes);
+
+    // EntityBroker Entity Adapter Methods
+
+    /**
+     * Create a PollEntity adapter from a Poll domain entity by poll ID.
+     * Computes user-specific presentation data (currentUserVoted).
+     * Constructs the EntityBroker reference internally.
+     *
+     * @param pollId The poll ID
+     * @param includeVotes Include votes in response
+     * @param includeOptions Include options in response (overrides default lazy loading)
+     * @return PollEntity with requested data
+     * @throws SecurityException if user doesn't have access
+     */
+    PollEntity createPollEntity(String pollId, boolean includeVotes, boolean includeOptions) throws SecurityException;
+
+    /**
+     * Create a PollEntity adapter from an existing Poll object.
+     * Computes user-specific presentation data (currentUserVoted).
+     * Constructs the EntityBroker reference internally.
+     *
+     * @param poll The Poll domain entity
+     * @param includeVotes Include votes in response
+     * @param includeOptions Include options in response (overrides default lazy loading)
+     * @return PollEntity with requested data
+     */
+    PollEntity createPollEntity(Poll poll, boolean includeVotes, boolean includeOptions);
+
+    /**
+     * Update poll from PollEntity (from XHR/REST requests).
+     * Extracts changes from PollEntity and updates the persisted Poll.
+     *
+     * @param pollId The poll ID to update
+     * @param pollEntity PollEntity with updated values
+     * @return Updated Poll entity
+     * @throws SecurityException if user doesn't have permission to update
+     * @throws IllegalArgumentException if poll doesn't exist
+     */
+    Poll updatePollFromEntity(String pollId, PollEntity pollEntity) throws SecurityException, IllegalArgumentException;
+
+    /**
+     * Create new poll from PollEntity (from XHR/REST requests).
+     *
+     * @param pollEntity PollEntity with poll data
+     * @return Created Poll entity
+     * @throws SecurityException if user doesn't have permission to create
+     * @throws IllegalArgumentException if data is invalid
+     */
+    Poll createPollFromEntity(PollEntity pollEntity) throws SecurityException, IllegalArgumentException;
 }

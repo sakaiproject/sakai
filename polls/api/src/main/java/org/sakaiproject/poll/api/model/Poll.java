@@ -116,9 +116,6 @@ public class Poll implements PersistableEntity<String> {
     @Column(name = "POLL_IS_PUBLIC", nullable = false)
     private boolean isPublic = false;
 
-    @Transient
-    private boolean currentUserVoted = false;
-
     public Poll() {
         this.text = "";
         this.description = "";

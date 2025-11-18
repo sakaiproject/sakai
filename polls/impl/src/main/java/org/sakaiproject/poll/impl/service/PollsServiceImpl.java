@@ -405,7 +405,9 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     public Entity getEntity(final Reference ref) {
         if (APPLICATION_ID.equals(ref.getType())) {
-            return getPollById(ref.getId()).map(p -> new PollEntity(ref, p)).orElse(null);
+            return getPollById(ref.getId())
+                .map(p -> createPollEntity(p, false, false))
+                .orElse(null);
         }
         return null;
     }
@@ -758,5 +760,113 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     @Override
     public void deleteAll(List<Vote> votes) {
         voteRepository.deleteAll(votes);
+    }
+
+    // EntityBroker Entity Adapter Methods Implementation
+
+    @Override
+    @Transactional(readOnly = true)
+    public PollEntity createPollEntity(String pollId, boolean includeVotes, boolean includeOptions) throws SecurityException {
+        Optional<Poll> pollOpt = getPollById(pollId);
+        if (!pollOpt.isPresent()) {
+            throw new IllegalArgumentException("Poll not found with id: " + pollId);
+        }
+        return createPollEntity(pollOpt.get(), includeVotes, includeOptions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PollEntity createPollEntity(Poll poll, boolean includeVotes, boolean includeOptions) {
+        Objects.requireNonNull(poll, "Poll must not be null");
+
+        // Construct Reference internally
+        Reference reference = entityManager.newReference(REFERENCE_ROOT + "/" + poll.getId());
+
+        // Get current user
+        String currentUserId = externalLogic.getCurrentUserId();
+
+        // Compute currentUserVoted
+        boolean currentUserVoted = false;
+        if (currentUserId != null) {
+            currentUserVoted = userHasVoted(poll.getId(), currentUserId);
+        }
+
+        // Optionally load votes
+        List<Vote> votes = null;
+        if (includeVotes) {
+            votes = getAllVotesForPoll(poll.getId());
+        }
+
+        // Note: includeOptions is handled by Poll.getOptions() which uses JPA lazy loading
+        // If includeOptions is false and options are lazy, they won't be loaded
+        // If they're already loaded or fetch is EAGER, they'll be included
+        // The PollEntity delegates getOptions() to poll.getOptions()
+
+        return new PollEntity(reference, poll, currentUserVoted, votes);
+    }
+
+    @Override
+    public Poll updatePollFromEntity(String pollId, PollEntity pollEntity) throws SecurityException, IllegalArgumentException {
+        Objects.requireNonNull(pollId, "Poll ID must not be null");
+        Objects.requireNonNull(pollEntity, "PollEntity must not be null");
+
+        // Load existing poll
+        Optional<Poll> existingPollOpt = getPollById(pollId);
+        if (!existingPollOpt.isPresent()) {
+            throw new IllegalArgumentException("Poll not found with id: " + pollId);
+        }
+
+        Poll existingPoll = existingPollOpt.get();
+
+        // Extract updates from PollEntity's wrapped Poll
+        Poll updates = pollEntity.getPoll();
+
+        // Apply updates to persistent entity
+        // Only update fields that are part of the domain model
+        if (updates.getText() != null) {
+            existingPoll.setText(updates.getText());
+        }
+        if (updates.getDescription() != null) {
+            existingPoll.setDescription(updates.getDescription());
+        }
+        if (updates.getVoteOpen() != null) {
+            existingPoll.setVoteOpen(updates.getVoteOpen());
+        }
+        if (updates.getVoteClose() != null) {
+            existingPoll.setVoteClose(updates.getVoteClose());
+        }
+        if (updates.getDisplayResult() != null) {
+            existingPoll.setDisplayResult(updates.getDisplayResult());
+        }
+
+        existingPoll.setMinOptions(updates.getMinOptions());
+        existingPoll.setMaxOptions(updates.getMaxOptions());
+        existingPoll.setLimitVoting(updates.isLimitVoting());
+        existingPoll.setPublic(updates.isPublic());
+
+        // Save and return (savePoll handles security checks)
+        return savePoll(existingPoll);
+    }
+
+    @Override
+    public Poll createPollFromEntity(PollEntity pollEntity) throws SecurityException, IllegalArgumentException {
+        Objects.requireNonNull(pollEntity, "PollEntity must not be null");
+
+        // Extract Poll from PollEntity
+        Poll poll = pollEntity.getPoll();
+
+        // Set defaults for new poll
+        if (poll.getOwner() == null) {
+            poll.setOwner(externalLogic.getCurrentUserId());
+        }
+        if (poll.getSiteId() == null) {
+            poll.setSiteId(externalLogic.getCurrentLocationId());
+        }
+        if (poll.getCreationDate() == null) {
+            poll.setCreationDate(new Date());
+        }
+
+        // Save and return (savePoll handles security checks)
+        return savePoll(poll);
     }
 }

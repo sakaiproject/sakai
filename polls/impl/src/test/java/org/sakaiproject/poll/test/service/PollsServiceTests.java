@@ -172,7 +172,9 @@ public class PollsServiceTests extends AbstractTransactionalJUnit4SpringContextT
 	    option2.setText("zsdbsdfb");
 	    option2.setOptionOrder(1);
         poll1.addOption(option2);
-	    
+
+        Poll savedPoll = pollsService.savePoll(poll1);
+
 	    Vote vote = new Vote();
 	    vote.setIp("Localhost");
 	    vote.setUserId(TestDataPreload.USER_UPDATE);
@@ -180,7 +182,8 @@ public class PollsServiceTests extends AbstractTransactionalJUnit4SpringContextT
 	    vote.setSubmissionId(TestDataPreload.USER_UPDATE + ":" + UUID.randomUUID());
 	    vote.setOption(option1);
 
-        Poll savedPoll = pollsService.savePoll(poll1);
+        pollsService.saveVote(vote);
+
         List<Vote> votes = pollsService.getAllVotesForPoll(savedPoll.getId());
 
         Assert.assertEquals(2, savedPoll.getOptions().size());

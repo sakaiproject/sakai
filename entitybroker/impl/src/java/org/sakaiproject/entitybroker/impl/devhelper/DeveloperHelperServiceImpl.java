@@ -442,33 +442,20 @@ public class DeveloperHelperServiceImpl extends AbstractDeveloperHelperService {
         return admin;
     }
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.entitybroker.DeveloperHelperService#isUserAllowedInReference(java.lang.String, java.lang.String, java.lang.String)
-     */
+    @Override
     public boolean isUserAllowedInEntityReference(String userReference, String permission, String reference) {
         if (permission == null) {
             throw new IllegalArgumentException("permission must both be set");
         }
-        boolean allowed = false;
-        if (userReference != null) {
-            String userId = getUserIdFromRef(userReference);
-            if (userId != null) {
-                if (reference == null) {
-                    // special check for the admin user
-                    if ( securityService.isSuperUser(userId) ) {
-                        allowed = true;
-                    }
-                } else {
-                    if ( securityService.unlock(userId, permission, reference) ) {
-                        allowed = true;
-                    }
-                }
-            }
+        String userId = getUserIdFromRef(userReference);
+        if (userId != null) {
+            // special check for the admin user when the reference is null
+            return reference == null
+                    ? securityService.isSuperUser(userId)
+                    : securityService.unlock(userId, permission, reference);
         } else {
-            // special anonymous user case - http://jira.sakaiproject.org/jira/browse/SAK-14840
-            allowed = securityService.unlock(permission, reference);
+            return securityService.unlock(permission, reference);
         }
-        return allowed;
     }
 
     

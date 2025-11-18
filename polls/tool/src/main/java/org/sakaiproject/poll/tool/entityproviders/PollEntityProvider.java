@@ -41,6 +41,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.poll.api.PollConstants;
+import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
@@ -57,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @Slf4j
-public class PollEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, 
+public class PollEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful,
         RequestStorable, RedirectDefinable {
 
     private PollsService pollsService;
@@ -173,10 +174,8 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if (poll.isEmpty()) {
             throw new IllegalArgumentException("No poll found for the given reference: " + ref);
         }
-        String pollId = poll.get().getId();
-        String currentUserId = developerHelperService.getCurrentUserId();
-        
-        boolean allowedManage = false;
+
+        // Security checks
         if (! developerHelperService.isEntityRequestInternal(ref+"")) {
             if (!pollsService.isPollPublic(poll.get())) {
                 //this is not a public poll? (ie .anon role has poll.vote)
@@ -184,37 +183,25 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
                 if(userReference == null) {
                     throw new EntityException("User must be logged in in order to access poll data", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
                 }
-                allowedManage = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_ADD, "/site/" + poll.get().getSiteId());
+                boolean allowedManage = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_ADD, "/site/" + poll.get().getSiteId());
                 boolean allowedVote = developerHelperService.isUserAllowedInEntityReference(userReference, PERMISSION_VOTE, "/site/" + poll.get().getSiteId());
                 if (!allowedManage && !allowedVote) {
                     throw new SecurityException("User ("+userReference+") not allowed to access poll data: " + ref);
                 }
            }
         }
-	
+
+        // Get hydration flags
         Boolean includeVotes = requestStorage.getStoredValueAsType(Boolean.class, "includeVotes");
         if (includeVotes == null) { includeVotes = false; }
-        if (includeVotes) {
-            List<Vote> votes = pollsService.getAllVotesForPoll(poll.get().getId());
-            poll.setVotes(votes);
-        }
         Boolean includeOptions = requestStorage.getStoredValueAsType(Boolean.class, "includeOptions");
         if (includeOptions == null) { includeOptions = false; }
-        if (includeOptions) {
-            List<Option> options = pollsService.getOptionsForPoll(poll.get());
-            poll.setOptions(options);
-        }
-        // add in the indicator that this user has replied
-        if (currentUserId != null) {
-            Map<String, List<Vote>> voteMap = pollsService.getVotesForUser(currentUserId, new String[] {pollId});
-            List<Vote> l = voteMap.get(pollId);
-            if (l != null) {
-                poll.get().setCurrentUserVoted(true);
-            } else {
-                poll.get().setCurrentUserVoted(false);
-            }
-        }
-        return poll;
+
+        // Use service to create PollEntity with computed presentation fields
+        // Service constructs Reference internally
+        PollEntity pollEntity = pollsService.createPollEntity(poll.get(), includeVotes, includeOptions);
+
+        return pollEntity;
     }
 
     @Deprecated
@@ -276,30 +263,20 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
             perm = PERMISSION_ADD;
         }
         List<Poll> polls = pollsService.findAllPollsForUserAndSitesAndPermission(userId, siteIds, perm);
-        if (adminControl) {
-            // add in options
-            for (Poll p : polls) {
-                List<Option> options = pollsService.getOptionsForPoll(p);
-                p.setOptions(options);
-            }
-        } else {
-            // add in the indicators that this user has replied
-            String[] pollIds = new String[polls.size()];
-            for (int i = 0; i < polls.size(); i++) {
-                pollIds[i] = polls.get(i).getId();
-            }
-            Map<String, List<Vote>> voteMap = pollsService.getVotesForUser(userId, pollIds);
-            for (Poll poll : polls) {
-                String pollId = poll.getId();
-                List<Vote> l = voteMap.get(pollId);
-                if (l != null) {
-                    poll.setCurrentUserVoted(true);
-                } else {
-                    poll.setCurrentUserVoted(false);
-                }
-            }
+
+        // Convert each Poll to PollEntity using service
+        // Service constructs Reference internally
+        boolean includeVotes = false;
+        boolean includeOptions = adminControl; // Include options for admin view
+
+        List<PollEntity> pollEntities = new java.util.ArrayList<>();
+        for (Poll poll : polls) {
+            // Use service to create PollEntity with computed fields
+            PollEntity pollEntity = pollsService.createPollEntity(poll, includeVotes, includeOptions);
+            pollEntities.add(pollEntity);
         }
-        return polls;
+
+        return pollEntities;
     }
 
     public String[] getHandledOutputFormats() {

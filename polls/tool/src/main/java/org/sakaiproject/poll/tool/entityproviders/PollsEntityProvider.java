@@ -56,6 +56,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
@@ -102,7 +103,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 	 * site/siteId
 	 */
 	@EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
-	public List<Poll> getPollsForSite(EntityView view) {
+	public List<PollEntity> getPollsForSite(EntityView view) {
 		// get siteId
 		String siteId = view.getPathSegment(2);
 		// check siteId supplied
@@ -133,31 +134,19 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		}
 		List<Poll> polls = pollsService
 				.findAllPollsForUserAndSitesAndPermission(userId, siteIds, perm);
-		if (adminControl) {
-			// add in options
-			for (Poll p : polls) {
-				List<Option> options = pollsService.getOptionsForPoll(p);
-				p.setOptions(options);
-			}
-		} else {
-			// add in the indicators that this user has replied
-			String[] pollIds = new String[polls.size()];
-			for (int i = 0; i < polls.size(); i++) {
-				pollIds[i] = polls.get(i).getId();
-			}
-			Map<String, List<Vote>> voteMap = pollsService.getVotesForUser(
-					userId, pollIds);
-			for (Poll poll : polls) {
-				String pollId = poll.getId();
-				List<Vote> l = voteMap.get(pollId);
-				if (l != null) {
-					poll.setCurrentUserVoted(true);
-				} else {
-					poll.setCurrentUserVoted(false);
-				}
-			}
+
+		// Convert each Poll to PollEntity using service
+		// Service constructs Reference internally
+		boolean includeVotes = false;
+		boolean includeOptions = adminControl;
+
+		List<PollEntity> pollEntities = new ArrayList<>();
+		for (Poll poll : polls) {
+			// Use service to create PollEntity with computed fields
+			PollEntity pollEntity = pollsService.createPollEntity(poll, includeVotes, includeOptions);
+			pollEntities.add(pollEntity);
 		}
-		return polls;
+		return pollEntities;
 	}
 
 	@EntityCustomAction(action = "my", viewKey = EntityView.VIEW_LIST)
@@ -216,30 +205,19 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		}
 		List<Poll> polls = pollsService
 				.findAllPollsForUserAndSitesAndPermission(userId, siteIds, perm);
-		if (adminControl) {
-			// add in options
-			for (Poll p : polls) {
-				List<Option> options = pollsService.getOptionsForPoll(p);
-				p.setOptions(options);
-			}
-		} else {
-			// add in the indicators that this user has replied
-			String[] pollIds = new String[polls.size()];
-			for (int i = 0; i < polls.size(); i++) {
-				pollIds[i] = polls.get(i).getId();
-			}
-			Map<String, List<Vote>> voteMap = pollsService.getVotesForUser(userId, pollIds);
-			for (Poll poll : polls) {
-				String pollId = poll.getId();
-				List<Vote> l = voteMap.get(pollId);
-				if (l != null) {
-					poll.setCurrentUserVoted(true);
-				} else {
-					poll.setCurrentUserVoted(false);
-				}
-			}
+
+		// Convert each Poll to PollEntity using service
+		// Service constructs Reference internally
+		boolean includeVotes = false;
+		boolean includeOptions = adminControl;
+
+		List<PollEntity> pollEntities = new ArrayList<>();
+		for (Poll poll : polls) {
+			// Use service to create PollEntity with computed fields
+			PollEntity pollEntity = pollsService.createPollEntity(poll, includeVotes, includeOptions);
+			pollEntities.add(pollEntity);
 		}
-		return polls;
+		return pollEntities;
 	}
 
 	/**
@@ -251,23 +229,24 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 	}
 
 	@EntityCustomAction(action = "poll-view", viewKey = EntityView.VIEW_SHOW)
-	public Poll getPollEntity(EntityView view, EntityReference ref) {
+	public PollEntity getPollEntity(EntityView view, EntityReference ref) {
 		String id = ref.getId();
 		log.debug("poll id: {}", id);
 
 		if (StringUtils.isBlank(id)) {
 			log.warn("Poll id is not exist. Returning an empty poll object.");
-			return new Poll();
+			// Return a PollEntity with an empty Poll
+			Poll emptyPoll = new Poll();
+			// Service will construct Reference internally
+			return pollsService.createPollEntity(emptyPoll, false, false);
 		}
 		Poll poll = getPollById(id);
 		if (poll == null) {
 			throw new IllegalArgumentException(
 					"No poll found for the given reference: " + id);
 		}
-		String pollId = poll.getId();
-		String currentUserId = developerHelperService.getCurrentUserId();
 
-		boolean allowedManage = false;
+		// Security checks
 		if (!developerHelperService.isEntityRequestInternal(id + "")) {
 			if (!pollsService.isPollPublic(poll)) {
 				// this is not a public poll? (ie .anon role has poll.vote)
@@ -278,7 +257,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 							"User must be logged in in order to access poll data",
 							id, HttpServletResponse.SC_UNAUTHORIZED);
 				}
-				allowedManage = developerHelperService
+				boolean allowedManage = developerHelperService
 						.isUserAllowedInEntityReference(userReference,
 								PERMISSION_ADD,
 								"/site/" + poll.getSiteId());
@@ -293,37 +272,24 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			}
 		}
 
+		// Get hydration flags
 		log.debug("requestStorage: {}", requestStorage);
 		Boolean includeVotes = requestStorage.getStoredValueAsType(
 				Boolean.class, "includeVotes");
 		if (includeVotes == null) {
 			includeVotes = false;
 		}
-		if (includeVotes) {
-			List<Vote> votes = pollsService.getAllVotesForPoll(poll.getId());
-			poll.setVotes(votes);
-		}
 		Boolean includeOptions = requestStorage.getStoredValueAsType(
 				Boolean.class, "includeOptions");
 		if (includeOptions == null) {
 			includeOptions = false;
 		}
-		if (includeOptions) {
-			List<Option> options = pollsService.getOptionsForPoll(poll);
-			poll.setOptions(options);
-		}
-		// add in the indicator that this user has replied
-		if (currentUserId != null) {
-			Map<String, List<Vote>> voteMap = pollsService.getVotesForUser(
-					currentUserId, new String[] { pollId });
-			List<Vote> l = voteMap.get(pollId);
-			if (l != null) {
-				poll.setCurrentUserVoted(true);
-			} else {
-				poll.setCurrentUserVoted(false);
-			}
-		}
-		return poll;
+
+		// Use service to create PollEntity with computed presentation fields
+		// Service constructs Reference internally
+		PollEntity pollEntity = pollsService.createPollEntity(poll, includeVotes, includeOptions);
+
+		return pollEntity;
 	}
 
 	/**
@@ -697,9 +663,6 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 					"Poll Id must be set to create a vote");
 		}
 
-        Optional<Poll> poll = pollsService.getPollById(pollId);
-        poll.addVote(vote);
-
 		Long optionId = null;
 		try {
 			optionId = Long.valueOf((String) params.get("pollOption"));
@@ -957,7 +920,6 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			if (usageSession != null)
 				vote.setIp(usageSession.getIpAddress());
 
-            poll.addVote(vote);
 			boolean saved = pollsService.saveVote(vote);
 			if (!saved) {
 				throw new IllegalStateException("Unable to save vote (" + vote
