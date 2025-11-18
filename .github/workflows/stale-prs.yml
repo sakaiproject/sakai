@@ -20,14 +20,14 @@ jobs:
           days-before-issue-stale: -1
           days-before-issue-close: -1
           
-          # Mark PR as stale after 10 days of inactivity
-          days-before-pr-stale: 10
+          # Mark PR as stale after 21 days of inactivity
+          days-before-pr-stale: 21
           
-          # Close PR 4 days after marking as stale (14 days total)
-          days-before-pr-close: 4
+          # Close PR 4 days after marking as stale (28 days total)
+          days-before-pr-close: 7
           
           # Messages
-          stale-pr-message: 'This PR has been automatically marked as stale due to 10 days of inactivity. It will be closed in 4 days unless there is new activity.'
+          stale-pr-message: 'This PR has been automatically marked as stale due to 21 days of inactivity. It will be closed in 7 days unless there is new activity.'
           close-pr-message: 'This PR has been automatically closed due to inactivity after being marked as stale. You may simply reopen it and continue working on it.'
           
           # Labels
