@@ -32,6 +32,7 @@ import org.sakaiproject.profile2.impl.repository.ProfileImageUploadedRepositoryI
 import org.sakaiproject.profile2.api.repository.SocialNetworkingInfoRepository;
 import org.sakaiproject.profile2.impl.repository.SocialNetworkingInfoRepositoryImpl;
 import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.test.SakaiTestConfiguration;
 
@@ -102,5 +103,10 @@ public class ProfileServiceTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder")
     public SearchIndexBuilder searchIndexBuilder() {
         return mock(SearchIndexBuilder.class);
+    }
+
+    @Bean(name = "org.sakaiproject.search.api.SearchService")
+    public SearchService searchService() {
+        return mock(SearchService.class);
     }
 }

@@ -19,7 +19,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +30,8 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.EntityContentProducerEvents;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.tool.assessment.entity.impl.PublishedItemEntityProviderImpl;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -47,18 +48,29 @@ public class PublishedItemContentProducer implements EntityContentProducer, Enti
 
     @Setter @Getter private EntityManager entityManager = null;
     @Setter EntityProviderManager entityProviderManager;
+    @Setter SearchIndexBuilder searchIndexBuilder;
+    @Setter SearchService searchService;
     PublishedAssessmentService publishedAssessmentService  = new PublishedAssessmentService();
 
-    protected void init() throws Exception {
+    // Map of events to their corresponding search index actions
+    private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+            "sam.pubassessment.saveitem", SearchBuilderItem.ACTION_ADD,
+            "sam.pubassessment.unindexitem", SearchBuilderItem.ACTION_DELETE
+    );
+
+    public void init() {
+        // Register all events with the search service
+        EVENT_ACTIONS.keySet().forEach(searchService::registerFunction);
+        
+        // Register this content producer with the search index builder
+        searchIndexBuilder.registerEntityContentProducer(this);
     }
 
     @Override
     public Set<String> getTriggerFunctions() {
-        Set<String> h = new HashSet<String>();
-        h.add("sam.pubassessment.saveitem");
-        h.add("sam.pubassessment.unindexitem");
-        return h;
+        return EVENT_ACTIONS.keySet();
     }
+
 
     /**
      * Destroy
@@ -88,15 +100,7 @@ public class PublishedItemContentProducer implements EntityContentProducer, Enti
      * {@inheritDoc}
      */
     public Integer getAction(Event event) {
-        String evt = event.getEvent();
-        if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-        if (evt.equals("sam.pubassessment.saveitem")) {
-            return SearchBuilderItem.ACTION_ADD;
-        }
-        if (evt.equals("sam.pubassessment.unindexitem")) {
-            return SearchBuilderItem.ACTION_DELETE;
-        }
-        return SearchBuilderItem.ACTION_UNKNOWN;
+        return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
     }
 
     /**
@@ -370,7 +374,7 @@ public class PublishedItemContentProducer implements EntityContentProducer, Enti
      * {@inheritDoc}
      */
     public boolean matches(Event event) {
-        return matches(getReferenceFromEventResource(event.getResource()));
+        return EVENT_ACTIONS.containsKey(event.getEvent());
     }
 
     private String getReferenceFromEventResource(String resource){
