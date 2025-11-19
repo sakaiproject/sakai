@@ -99,6 +99,7 @@
 	<bean id="org.sakaiproject.scorm.service.impl.ScormEntityProducer"
 		class="org.sakaiproject.scorm.service.impl.ScormEntityProducer"
 		init-method="init">
+		<lookup-method name="gradingService" bean="org.sakaiproject.grading.api.GradingService" />
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="scormContentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
 		<property name="contentPackageDao" ref="org.sakaiproject.scorm.dao.api.ContentPackageDao" />
