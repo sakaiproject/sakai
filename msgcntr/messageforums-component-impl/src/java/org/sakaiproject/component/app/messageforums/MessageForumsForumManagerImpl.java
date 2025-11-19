@@ -614,7 +614,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         HibernateCallback<Topic> hcb = session -> {
             Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
             q.setParameter("id", topicId, LongType.INSTANCE);
-            return (Topic) q.getSingleResult();
+            // Use uniqueResult() so missing topics return null instead of throwing NoResultException.
+            return (Topic) q.uniqueResult();
         };
 
         Topic topic = (Topic) Hibernate.unproxy(getHibernateTemplate().execute(hcb));
