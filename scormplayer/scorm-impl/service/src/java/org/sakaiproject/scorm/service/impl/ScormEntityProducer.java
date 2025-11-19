@@ -55,6 +55,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
 import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
@@ -94,6 +95,10 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     private ContentHostingService contentHostingService;
     private SecurityService securityService;
     private SessionManager sessionManager;
+
+    protected GradingService gradingService() {
+        return null; // Overridden by Spring lookup-method
+    }
 
     public void init() {
         try {
@@ -177,6 +182,9 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
 
                 recordReferenceMapping(transversalMap, fromContext, toContext, source, copy);
                 updateCollectionDisplayName(newResourceId, copy.getTitle());
+
+                // Copy gradebook settings for SCOs
+                copyGradebookSettings(fromContext, toContext, source, copy);
             } catch (Exception e) {
                 log.error("Failed to copy SCORM package {} from {} to {}", source.getContentPackageId(), fromContext, toContext, e);
             }
@@ -344,6 +352,41 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                 contentHostingService.cancelCollection(edit);
             }
             log.debug("Unable to update collection display name for {}: {}", resourceId, e.getMessage());
+        }
+    }
+
+    private void copyGradebookSettings(String fromContext, String toContext, ContentPackage source, ContentPackage copy) {
+        GradingService gs = gradingService();
+        if (gs == null) {
+            return;
+        }
+
+        ContentPackageManifest manifest = contentPackageManifestDao.load(copy.getManifestId());
+        if (manifest == null || manifest.getLaunchData() == null) {
+            return;
+        }
+
+        for (LaunchData launchData : manifest.getLaunchData()) {
+            if (!"sco".equalsIgnoreCase(launchData.getSCORMType())) {
+                continue;
+            }
+
+            String itemIdentifier = launchData.getItemIdentifier();
+            String sourceExternalId = source.getContentPackageId() + ":" + itemIdentifier;
+            String destExternalId = copy.getContentPackageId() + ":" + itemIdentifier;
+
+            // Only copy if source had gradebook sync enabled
+            if (!gs.isExternalAssignmentDefined(fromContext, sourceExternalId)) {
+                continue;
+            }
+
+            try {
+                String title = StringUtils.defaultIfBlank(copy.getTitle(), launchData.getItemTitle());
+                gs.addExternalAssessment(toContext, toContext, destExternalId, null, title,
+                        100.0, copy.getDueOn(), ScormConstants.SCORM_DFLT_TOOL_NAME, null, false, null, null);
+            } catch (Exception e) {
+                log.debug("Could not copy gradebook item for SCO {}: {}", itemIdentifier, e.getMessage());
+            }
         }
     }
 
