@@ -35,7 +35,13 @@ import org.sakaiproject.time.api.TimeRange;
 public interface CalendarEventEdit
 	extends CalendarEvent, Edit, AttachmentContainerEdit
 {
-	/**
+    /**
+     * Access the calendar that this event belongs to.
+     * @return the calendar that this event belongs to.
+     */
+    Calendar getCalendar();
+
+    /**
 	* Replace the time range
 	* @param The new event time range
 	*/
