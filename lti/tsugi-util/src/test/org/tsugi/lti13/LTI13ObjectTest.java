@@ -19,6 +19,7 @@ import org.tsugi.lti13.objects.LTILaunchMessage;
 import org.tsugi.lti13.objects.OpenIDClientRegistration;
 import org.tsugi.lti13.objects.LTIToolConfiguration;
 
+import com.fasterxml.jackson.databind.JsonNode; 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.tsugi.lti13.LTICustomVars;
@@ -244,6 +245,8 @@ public class LTI13ObjectTest {
         OpenIDClientRegistration ocr1 = mapper.readValue(first, OpenIDClientRegistration.class);
         OpenIDClientRegistration ocr2 = mapper.readValue(second, OpenIDClientRegistration.class);
 		assertTrue(ocr1.prettyPrintLog().contains("a@b.com"));
-		assertEquals(ocr1.prettyPrintLog(), ocr2.prettyPrintLog());
+        JsonNode expected = mapper.readTree(ocr1.prettyPrintLog());
+        JsonNode actual = mapper.readTree(ocr2.prettyPrintLog());
+        assertEquals(expected, actual);
 	}
 }
