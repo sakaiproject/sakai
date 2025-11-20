@@ -74,40 +74,62 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 	@Override
 	public boolean canLaunch(ContentPackage contentPackage)
 	{
-		// Calculate what the next attempt number would be (same logic as ScormLaunchServiceImpl.prepareLaunch)
-		int numberOfTries = contentPackage.getNumberOfTries();
-		if (numberOfTries != -1)
+		// Early null guard to prevent NPE
+		if (contentPackage == null)
 		{
-			String learnerId = currentLearnerId();
-			org.sakaiproject.scorm.model.api.Attempt latestAttempt = scormResultService().getNewstAttempt(contentPackage.getContentPackageId(), learnerId);
-
-			if (latestAttempt != null)
-			{
-				// Suspended attempts are resumed with same attempt number
-				if (latestAttempt.isSuspended())
-				{
-					return canLaunchAttemptInternal(contentPackage, latestAttempt.getAttemptNumber());
-				}
-				// Not exited and at/over limit - would create new attempt that exceeds limit
-				else if (latestAttempt.isNotExited() && latestAttempt.getAttemptNumber() >= numberOfTries)
-				{
-					return canLaunchAttemptInternal(contentPackage, latestAttempt.getAttemptNumber() + 1);
-				}
-				// Not exited and under limit - would continue current attempt
-				else if (latestAttempt.isNotExited())
-				{
-					return canLaunchAttemptInternal(contentPackage, latestAttempt.getAttemptNumber());
-				}
-				// Properly exited - would create new attempt
-				else
-				{
-					return canLaunchAttemptInternal(contentPackage, latestAttempt.getAttemptNumber() + 1);
-				}
-			}
+			return false;
 		}
 
-		// Use existing logic with -1 (count attempts)
-		return canLaunchAttemptInternal(contentPackage, -1);
+		// Calculate what the next attempt number would be (same logic as ScormLaunchServiceImpl.prepareLaunch)
+		int numberOfTries = contentPackage.getNumberOfTries();
+
+		// If unlimited attempts, use standard counting logic
+		if (numberOfTries == -1)
+		{
+			return canLaunchAttemptInternal(contentPackage, -1);
+		}
+
+		// Get latest attempt to determine what would happen on launch
+		String learnerId = currentLearnerId();
+		org.sakaiproject.scorm.model.api.Attempt latestAttempt = scormResultService().getNewstAttempt(contentPackage.getContentPackageId(), learnerId);
+
+		// If no attempts exist yet, use standard counting logic
+		if (latestAttempt == null)
+		{
+			return canLaunchAttemptInternal(contentPackage, -1);
+		}
+
+		// Determine attempt number based on attempt state
+		long attemptNumber = determineAttemptNumber(latestAttempt, numberOfTries);
+		return canLaunchAttemptInternal(contentPackage, attemptNumber);
+	}
+
+	/**
+	 * Determines what attempt number would be used on launch based on the latest attempt state.
+	 * Mirrors the logic in ScormLaunchServiceImpl.prepareLaunch.
+	 */
+	private long determineAttemptNumber(org.sakaiproject.scorm.model.api.Attempt latestAttempt, int numberOfTries)
+	{
+		// Suspended attempts are resumed with same attempt number
+		if (latestAttempt.isSuspended())
+		{
+			return latestAttempt.getAttemptNumber();
+		}
+
+		// Not exited attempts
+		if (latestAttempt.isNotExited())
+		{
+			// At/over limit - would create new attempt that exceeds limit
+			if (latestAttempt.getAttemptNumber() >= numberOfTries)
+			{
+				return latestAttempt.getAttemptNumber() + 1;
+			}
+			// Under limit - would continue current attempt
+			return latestAttempt.getAttemptNumber();
+		}
+
+		// Properly exited - would create new attempt
+		return latestAttempt.getAttemptNumber() + 1;
 	}
 
 	@Override
