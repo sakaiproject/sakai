@@ -4582,7 +4582,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                         String uniqueTitle = generateUniqueAssignmentTitle(nAssignment.getTitle(), nAssignment.getContext());
                                         nAssignment.setTitle(uniqueTitle);
-                                        updateAssignment(nAssignment);
+                                        // Use direct repository merge to avoid duplicate task/notification creation
+                                        // The final updateAssignment() call at the end of this method will handle side effects
+                                        nAssignment.setModifier(sessionManager.getCurrentSessionUserId());
+                                        assignmentRepository.merge(nAssignment);
 
                                         try {
                                             // Retry with unique title
@@ -4611,7 +4614,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                             nAssignment.setDraft(true);
                                             nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
                                             nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
-                                            updateAssignment(nAssignment);
+                                            // Use direct repository merge to avoid duplicate task/notification creation
+                                            // The final updateAssignment() call at the end of this method will handle side effects
+                                            nAssignment.setModifier(sessionManager.getCurrentSessionUserId());
+                                            assignmentRepository.merge(nAssignment);
                                         }
                                     }
                                 } else {
