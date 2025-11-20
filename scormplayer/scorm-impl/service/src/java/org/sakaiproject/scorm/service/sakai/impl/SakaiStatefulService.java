@@ -81,16 +81,26 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 			String learnerId = currentLearnerId();
 			org.sakaiproject.scorm.model.api.Attempt latestAttempt = scormResultService().getNewstAttempt(contentPackage.getContentPackageId(), learnerId);
 
-			if (latestAttempt != null && !latestAttempt.isSuspended())
+			if (latestAttempt != null)
 			{
-				if (latestAttempt.isNotExited() && latestAttempt.getAttemptNumber() >= numberOfTries)
+				// Suspended attempts are resumed with same attempt number
+				if (latestAttempt.isSuspended())
 				{
-					// Not exited and at limit - would create a new attempt that exceeds limit
+					return canLaunchAttemptInternal(contentPackage, latestAttempt.getAttemptNumber());
+				}
+				// Not exited and at/over limit - would create new attempt that exceeds limit
+				else if (latestAttempt.isNotExited() && latestAttempt.getAttemptNumber() >= numberOfTries)
+				{
 					return canLaunchAttemptInternal(contentPackage, latestAttempt.getAttemptNumber() + 1);
 				}
-				else if (!latestAttempt.isNotExited() && latestAttempt.getAttemptNumber() >= numberOfTries)
+				// Not exited and under limit - would continue current attempt
+				else if (latestAttempt.isNotExited())
 				{
-					// Properly exited and at limit - would create a new attempt that exceeds limit
+					return canLaunchAttemptInternal(contentPackage, latestAttempt.getAttemptNumber());
+				}
+				// Properly exited - would create new attempt
+				else
+				{
 					return canLaunchAttemptInternal(contentPackage, latestAttempt.getAttemptNumber() + 1);
 				}
 			}

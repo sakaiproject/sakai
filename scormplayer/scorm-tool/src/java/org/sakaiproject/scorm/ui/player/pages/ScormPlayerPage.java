@@ -115,7 +115,8 @@ public class ScormPlayerPage extends BaseToolPage
 		response.render(JavaScriptHeaderItem.forUrl("scripts/scorm-rest-launcher.js"));
 
 		// Refresh parent window when this popup closes (handles both normal exit and force-close)
-		String refreshParentScript = "window.addEventListener('beforeunload', function() { if (window.opener && !window.opener.closed) { window.opener.location.reload(); } });";
+		// Using pagehide event with persisted check to avoid triggering on bfcache navigations
+		String refreshParentScript = "window.addEventListener('pagehide', function(event) { if (!event.persisted && window.opener && !window.opener.closed) { window.opener.location.reload(); } });";
 		response.render(OnDomReadyHeaderItem.forScript(refreshParentScript));
 	}
 
