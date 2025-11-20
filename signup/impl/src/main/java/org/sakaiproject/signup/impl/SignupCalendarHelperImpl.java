@@ -139,13 +139,6 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 				//generate VEvent for timeslot
 				v = externalCalendaringService.createEvent(tsEvent, null, true);
 				externalCalendaringService.addChairAttendeesToEvent(v, getCoordinators(meeting));
-
-				// Cancel the event to release the lock without persisting
-				// This VEvent is only for ICS file generation, not for site calendar
-                Calendar calendar = tsEvent.getCalendar();
-                if (calendar != null && tsEvent.isActiveEdit()) {
-                    calendar.cancelEvent(tsEvent);
-                }
 			} finally {
 				sakaiFacade.popSecurityAdvisor(advisor);
 			}
@@ -177,13 +170,6 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
                 // generate VEvent for timeslot
                 v = externalCalendaringService.createEvent(mEvent, null, true);
                 externalCalendaringService.addChairAttendeesToEvent(v, getCoordinators(meeting));
-
-                // Cancel the event to release the lock without persisting
-                // This VEvent is only for ICS file generation, not for site calendar
-                Calendar calendar = mEvent.getCalendar();
-                if (calendar != null && mEvent.isActiveEdit()) {
-                    calendar.cancelEvent(mEvent);
-                }
 			} finally {
 				sakaiFacade.popSecurityAdvisor(advisor);
 			}
@@ -265,14 +251,11 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	 */
 	private CalendarEventEdit generateEvent(String siteId, Date startTime, Date endTime, String title, String description, String location) {
 		
-		Calendar calendar;
+		Calendar calendar = null;
 		CalendarEventEdit event = null;
 		try {
 			calendar = sakaiFacade.getCalendar(siteId);
-		
-			if (calendar == null) {
-				return null;
-			}
+			if (calendar == null) return null;
 			
 			event = calendar.addEvent();
 			event.setType("Meeting");
@@ -298,8 +281,11 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		} catch (PermissionException e) {
             log.error("SignupCalendarHelperImpl.generateEvent: {}", String.valueOf(e));
 			return null;
+		} finally {
+			// Cancel the event to release the lock without persisting
+			// These events are only for ICS file generation, not for site calendar
+			if (calendar != null && event != null && event.isActiveEdit()) calendar.cancelEvent(event);
 		}
-		
 		return event;
 	}
 	
