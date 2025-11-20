@@ -64,13 +64,18 @@ public class EntryServlet extends HttpServlet {
             //Control if the access to the groups is closed
             SectionManager sm = (SectionManager)ac.getBean("org.sakaiproject.section.api.SectionManager");
             Calendar open = sm.getOpenDate(siteContext);
-            Calendar now = Calendar.getInstance();
-            if (now.before(open)) {
-            	log.debug("SECTIONS: Grupos Cerrados...");
-            	path.append("/closed.jsf");
-            }else {
+            if (open == null) {
+            	// No open date configured, allow access
             	path.append("/studentView.jsf");
-            };
+            } else {
+            	Calendar now = Calendar.getInstance();
+            	if (now.before(open)) {
+            		log.debug("SECTIONS: Grupos Cerrados...");
+            		path.append("/closed.jsf");
+            	} else {
+            		path.append("/studentView.jsf");
+            	}
+            }
         } else {
             // The role filter has not been invoked yet, so this could happen here
             path.append("/noRole.jsp");

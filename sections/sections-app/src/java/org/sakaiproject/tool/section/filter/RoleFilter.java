@@ -122,11 +122,16 @@ public class RoleFilter implements Filter {
 				if (pageName.equals("studentView")) {
 					SectionManager sm = (SectionManager)ac.getBean("org.sakaiproject.section.api.SectionManager");
 					Calendar open = sm.getOpenDate(siteContext);
-					Calendar now = Calendar.getInstance();
-					if (now.before(open)) {
-						isAuthorized = false;
-					} else {
+					if (open == null) {
+						// No open date configured, treat as authorized
 						isAuthorized = true;
+					} else {
+						Calendar now = Calendar.getInstance();
+						if (now.before(open)) {
+							isAuthorized = false;
+						} else {
+							isAuthorized = true;
+						}
 					}
 				} else {
 					isAuthorized = true;
