@@ -43,6 +43,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -752,7 +753,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				questionSize = ((Long) questionSizeMap.get(a.getAssessmentBaseId())).intValue();
 			}
 
-			if (releaseToGroups != null) {
+			if (!MapUtils.isEmpty(releaseToGroups)) {
 				Set<String> keysReleaseToGroups = releaseToGroups.keySet();
 
 				Set<String> commonKeys = new HashSet<>(keysReleaseToGroups);
@@ -1936,7 +1937,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		switch (releaseTo) {
 			case AssessmentAccessControl.ANONYMOUS_USERS:
 				break;
-			// case AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS:
+			case AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS:
+				break;
 			default:
 				// if not anonymous or group then set releaseTo to the site title
 				if (toContext != null) {
