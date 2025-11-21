@@ -47,10 +47,6 @@
            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-           <groupId>org.apache.commons</groupId>
-           <artifactId>commons-text</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
@@ -76,22 +72,14 @@
             <artifactId>poi-ooxml</artifactId>
             <version>${sakai.poi.version}</version>
         </dependency>
-        <!-- RSF dependencies -->
+        <!-- Thymeleaf template engine for RSF replacement -->
         <dependency>
-            <groupId>org.sakaiproject.rsf</groupId>
-            <artifactId>sakai-rsf-core</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.rsf</groupId>
-            <artifactId>sakai-rsf-web-evolvers</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.rsf</groupId>
-            <artifactId>sakai-rsf-web-templates</artifactId>
-            <version>${project.version}</version>
-            <type>war</type>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf-spring5</artifactId>
         </dependency>
     </dependencies>
 </project>

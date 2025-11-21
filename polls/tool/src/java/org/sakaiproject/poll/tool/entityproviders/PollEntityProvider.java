@@ -120,8 +120,8 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         Poll poll = (Poll) entity;
         poll.setCreationDate(new Date());
-        if (poll.getId() == null) {
-            poll.setId( UUID.randomUUID().toString() );
+        if (poll.getUuid() == null) {
+            poll.setUuid( UUID.randomUUID().toString() );
         }
         if (poll.getOwner() == null) {
             poll.setOwner( developerHelperService.getCurrentUserId() );
@@ -173,7 +173,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         if (!allowed) {
             throw new SecurityException("Current user ("+userReference+") cannot update polls in location ("+location+")");
         }
-        developerHelperService.copyBean(poll, current, 0, new String[] {"id", "pollId", "owner","siteId","creationDate","reference","url","properties"}, true);
+        developerHelperService.copyBean(poll, current, 0, new String[] {"uuid", "pollId", "owner","siteId","creationDate","reference","url","properties"}, true);
         pollListManager.savePoll(current);
     }
 
