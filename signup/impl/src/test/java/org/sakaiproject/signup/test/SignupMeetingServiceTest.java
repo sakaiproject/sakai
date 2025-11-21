@@ -10,8 +10,10 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.signup.api.SignupCalendarHelper;
 import org.sakaiproject.signup.api.SignupEmailFacade;
 import org.sakaiproject.signup.api.SignupMeetingService;
 import org.sakaiproject.signup.api.SignupMessageTypes;
@@ -24,6 +26,7 @@ import org.sakaiproject.signup.api.model.SignupMeeting;
 import org.sakaiproject.signup.api.model.SignupSite;
 import org.sakaiproject.signup.api.model.SignupTimeslot;
 import org.sakaiproject.signup.api.restful.SignupTargetSiteEventInfo;
+import org.sakaiproject.signup.impl.SignupCalendarHelperImpl;
 import org.sakaiproject.signup.impl.SignupEmailFacadeImpl;
 import org.sakaiproject.signup.impl.SignupMeetingServiceImpl;
 import org.sakaiproject.site.api.Group;
@@ -38,6 +41,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -52,6 +56,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.sakaiproject.calendar.api.CalendarService.REF_TYPE_CALENDAR;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SignupMeetingServiceTestConfiguration.class })
@@ -65,6 +70,7 @@ public class SignupMeetingServiceTest {
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private CalendarService calendarService;
     @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired private SignupCalendarHelper calendarHelper;
     @Autowired private TimeService timeService;
     @Autowired @Qualifier("org.sakaiproject.time.api.UserTimeService")
     private UserTimeService userTimeService;
@@ -74,6 +80,8 @@ public class SignupMeetingServiceTest {
     private static final String TEST_USER_ID = "user123";
     private static final String TEST_GROUP_ID = "group123";
     private static final String TEST_CALENDAR_ID = "calendar123";
+    private static final String TEST_CALENDAR_REF = Entity.SEPARATOR + REF_TYPE_CALENDAR + Entity.SEPARATOR + TEST_SITE_ID + Entity.SEPARATOR + SiteService.MAIN_CONTAINER;
+
 
     @Before
     public void setUp() throws Exception {
@@ -102,6 +110,9 @@ public class SignupMeetingServiceTest {
         when(resourceLoader.getString("subject.attendee.cancel.own.field")).thenReturn("You have cancelled your appointment for the meeting \"{0}\" in {1}");
         when(resourceLoader.getString("signup.event.currentattendees")).thenReturn("Currently, {0} attendees have been signed up.");
         when(resourceLoader.getString("signup.event.attendeestitle")).thenReturn("{0} attendees");
+        when(resourceLoader.getString("ical.footer.text")).thenReturn("Note that rejecting calendar invites does not remove you from the event. Please return to the site to make any modifications.");
+        when(resourceLoader.getString("ical.footer.separator")).thenReturn("-------");
+        ((SignupCalendarHelperImpl) AopTestUtils.getTargetObject(calendarHelper)).setResourceLoader(resourceLoader);
         ((SignupMeetingServiceImpl) AopTestUtils.getTargetObject(service)).setResourceLoader(resourceLoader);
         ((SignupEmailFacadeImpl) AopTestUtils.getTargetObject(signupEmailFacade)).setResourceLoader(resourceLoader);
     }
@@ -165,10 +176,11 @@ public class SignupMeetingServiceTest {
         when(mockCalendar.allowEditEvent(anyString())).thenReturn(true);
 
         CalendarEventEdit mockEventEdit = mock(CalendarEventEdit.class);
+        when(mockEventEdit.getProperties()).thenReturn(new BaseResourcePropertiesEdit());
         when(mockEventEdit.getId()).thenReturn("event-" + System.currentTimeMillis());
         when(mockCalendar.addEvent()).thenReturn(mockEventEdit);
         when(mockCalendar.getEditEvent(anyString(), anyString())).thenReturn(mockEventEdit);
-
+        when(calendarService.calendarReference(TEST_SITE_ID, SiteService.MAIN_CONTAINER)).thenReturn(TEST_CALENDAR_REF);
         when(calendarService.getCalendar(anyString())).thenReturn(mockCalendar);
     }
 

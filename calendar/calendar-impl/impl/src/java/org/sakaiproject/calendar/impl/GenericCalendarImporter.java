@@ -227,7 +227,12 @@ public class GenericCalendarImporter implements CalendarImporterService
 			return null;
 		}
 
-		@Override
+        @Override
+        public Calendar getCalendar() {
+            return null;
+        }
+
+        @Override
 		public void setDescription(String description) {
 			this.description = formattedText.convertPlaintextToFormattedText(description);
 		}
