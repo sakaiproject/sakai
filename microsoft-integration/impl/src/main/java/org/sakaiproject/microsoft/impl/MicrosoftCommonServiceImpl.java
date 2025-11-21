@@ -156,6 +156,8 @@ import com.microsoft.graph.requests.ChannelCollectionRequest;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import static org.sakaiproject.microsoft.impl.MicrosoftConfigurationServiceImpl.decrypt;
+
 @Slf4j
 @Transactional
 public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
@@ -221,7 +223,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 					log.debug(MicrosoftCredentials.KEY_SCOPE+"="+microsoftCredentials.getScope());
 					log.debug(MicrosoftCredentials.KEY_AUTHORITY+"="+microsoftCredentials.getAuthority());
 
-					AdminAuthProvider authProvider = new AdminAuthProvider(microsoftCredentials.getAuthority(), microsoftCredentials.getClientId(), microsoftCredentials.getSecret(), microsoftCredentials.getScope());
+					AdminAuthProvider authProvider = new AdminAuthProvider(microsoftCredentials.getAuthority(), microsoftCredentials.getClientId(), decrypt(microsoftCredentials.getSecret()), microsoftCredentials.getScope());
 					this.graphClient = GraphServiceClient
 							.builder()
 							.authenticationProvider(authProvider)
