@@ -76,7 +76,7 @@ public class RoleFilter implements Filter {
 
 		HttpServletRequest request = (HttpServletRequest)servletRequest;
 		String servletPath = request.getServletPath();
-		if (log.isDebugEnabled()) log.debug("Filtering request for servletPath=" + servletPath);
+		log.debug("Filtering request for servletPath={}", servletPath);
 		servletPath = servletPath.replaceFirst("^/", "");
 		if (servletPath.contains("/")) {
 			// Only protect the top-level folder, to allow for login through
@@ -91,12 +91,12 @@ public class RoleFilter implements Filter {
 		AuthorizationFilterConfigurationBean authzFilterConfigBean = (AuthorizationFilterConfigurationBean)ac.getBean(authorizationFilterConfigurationBeanName);
 		String userUid = authn.getUserUid(request);
 
-        if (log.isDebugEnabled()) log.debug("Filtering request for user " + userUid + ", pathInfo=" + request.getPathInfo());
+        log.debug("Filtering request for user {}, pathInfo={}", userUid, request.getPathInfo());
 
 		// Try to get the currently selected site context, if any
 		String siteContext = context.getContext(request);
-		
-        if(log.isDebugEnabled()) log.debug("context=" + siteContext);
+
+        log.debug("context={}", siteContext);
 
 		if (siteContext != null) {
 			// Get the name of the page from the servlet path.

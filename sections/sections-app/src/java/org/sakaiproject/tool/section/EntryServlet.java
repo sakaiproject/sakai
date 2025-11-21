@@ -42,7 +42,7 @@ public class EntryServlet extends HttpServlet {
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
-        if(log.isDebugEnabled()) log.debug("Entering sections tool... determining role appropriate view");
+        log.debug("Entering sections tool... determining role appropriate view");
 
         ApplicationContext ac = (ApplicationContext)getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
         Authn authnService = (Authn)ac.getBean("org.sakaiproject.section.api.facade.manager.Authn");
@@ -51,30 +51,30 @@ public class EntryServlet extends HttpServlet {
 
         String userUid = authnService.getUserUid(null);
         String siteContext = contextService.getContext(null);
-        
+
         boolean viewAllSections = authzService.isViewAllSectionsAllowed(userUid, siteContext);
         boolean viewOwnSections = authzService.isViewOwnSectionsAllowed(userUid, siteContext);
 
         StringBuilder path = new StringBuilder(request.getContextPath());
         if(viewAllSections) {
-            if(log.isDebugEnabled()) log.debug("Sending user to the overview page");
+            log.debug("Sending user to the overview page");
             path.append("/overview.jsf");
         } else if (viewOwnSections) {
-            if(log.isDebugEnabled()) log.debug("Sending user to the student view page");
+            log.debug("Sending user to the student view page");
             //Control if the access to the groups is closed
             SectionManager sm = (SectionManager)ac.getBean("org.sakaiproject.section.api.SectionManager");
             Calendar open = sm.getOpenDate(siteContext);
             if (open == null) {
-            	// No open date configured, allow access
-            	path.append("/studentView.jsf");
+                // No open date configured, allow access
+                path.append("/studentView.jsf");
             } else {
-            	Calendar now = Calendar.getInstance();
-            	if (now.before(open)) {
-            		log.debug("SECTIONS: Grupos Cerrados...");
-            		path.append("/closed.jsf");
-            	} else {
-            		path.append("/studentView.jsf");
-            	}
+                Calendar now = Calendar.getInstance();
+                if (now.before(open)) {
+                    log.debug("SECTIONS: Groups closed...");
+                    path.append("/closed.jsf");
+                } else {
+                    path.append("/studentView.jsf");
+                }
             }
         } else {
             // The role filter has not been invoked yet, so this could happen here
