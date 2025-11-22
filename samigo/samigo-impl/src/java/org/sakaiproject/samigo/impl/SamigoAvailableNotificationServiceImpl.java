@@ -49,6 +49,10 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.time.Instant;
 import java.time.format.FormatStyle;
 import java.util.*;
@@ -67,6 +71,10 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
     @Setter private UserTimeService userTimeService;
     private PublishedAssessmentService publishedAssessmentService;
     private static final ResourceLoader rl = new ResourceLoader("SamigoAvailableNotificationMessages");
+    private static final String PUBLISHEDID = "publishedId";
+    private static final String PREPOPULATETEXTFORMATTED = "prePopulateTextFormatted";
+    private static final String EXTENSION = "extension";
+
 
     public void init() {
         log.debug("SamigoAvailableNotificationService init()");
@@ -109,6 +117,37 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
     }
 
     @Override
+    public void scheduleAssessmentAvailableNotification(String publishedId, String prePopulateTextFormatted) {
+        PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedId);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PUBLISHEDID, publishedId);
+        params.put(PREPOPULATETEXTFORMATTED, prePopulateTextFormatted);
+        try {
+            String context = new ObjectMapper().writeValueAsString(params);
+            String contextExtension="";
+            List<ExtendedTime> extensionContainer = PersistenceService.getInstance().getExtendedTimeFacade().getEntriesForPub(publishedAssessment.getData());
+            Date startDate = publishedAssessment.getStartDate();
+            // Only schedule a new notification if start date is in the future to prevent duplicates and spam
+            if (Instant.now().isBefore(startDate.toInstant())) {    //for main
+                scheduledInvocationManager.createDelayedInvocation(startDate.toInstant(), "org.sakaiproject.samigo.api.SamigoAvailableNotificationService", context);
+            } else {
+                scheduledInvocationManager.createDelayedInvocation(Instant.now(), "org.sakaiproject.samigo.api.SamigoAvailableNotificationService", context);
+            }
+            for (ExtendedTime extension: extensionContainer){  //make separate delayedInvocations for people with exceptions.
+                if (Instant.now().isBefore(extension.getStartDate().toInstant())) {
+                    params.put(EXTENSION, extension.getId().toString());
+                    contextExtension = new ObjectMapper().writeValueAsString(params);
+                    scheduledInvocationManager.createDelayedInvocation(extension.getStartDate().toInstant(), "org.sakaiproject.samigo.api.SamigoAvailableNotificationService", contextExtension);
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            log.error("Unable to schedule assessment open notification for assessment {}", publishedId);
+        } catch (JsonProcessingException e) {
+            log.error("scheduleAssessmentAvailableNotification: JsonProcessingException {}", e.getMessage());
+        }
+    }
+
+    @Override
     public void removeScheduledAssessmentNotification(String publishedId) {
         scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.samigo.api.SamigoAvailableNotificationService", publishedId);  //remove main reminder
         PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedId);
@@ -120,6 +159,14 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
         }
     }
 
+    private static boolean isValidJson(String json) {
+        try {
+            return new ObjectMapper().readTree(json).isObject();
+        } catch (JsonProcessingException e) {
+            return false;
+        }
+    }
+
     @Override
     public void execute(String publishedId) {
         log.debug("Samigo available assessment email notification job starting");
@@ -128,6 +175,20 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
         securityService.pushAdvisor(sa);
 
         String extensionId = "";
+        String prePopulateTextFormatted = "";
+        Map<String, String> params = new HashMap<String, String>();
+        //Only for prePopulateTextFormatted text
+        if (isValidJson(publishedId)) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                params = mapper.readValue(publishedId, new TypeReference<Map<String, String>>() {});
+                publishedId = params.get(PUBLISHEDID);
+                prePopulateTextFormatted = (params.get(PREPOPULATETEXTFORMATTED) != null) ? params.get(PREPOPULATETEXTFORMATTED) : "";
+                extensionId = (params.get(EXTENSION) != null) ? params.get(EXTENSION) : "";
+            } catch (JsonProcessingException e) {
+                log.error("execute: JsonProcessingException {}", e.getMessage());
+            }
+        }
         if(StringUtils.contains(publishedId, ',')){ //check for any other information stuck in the publishedId besides the published assessment's ID
             String masterId = publishedId;
             publishedId = masterId.substring(0, masterId.indexOf(','));
@@ -148,12 +209,12 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
                     if(extension != null){  //make sure the extension exists
                         if (StringUtils.isNotBlank(extension.getUser())){ //when the extension has an individual user
                             User user = userDirectoryService.getUser(extension.getUser());
-                            sendEmailNotification(site, publishedAssessment, user, extension);
+                            sendEmailNotification(site, publishedAssessment, user, extension, prePopulateTextFormatted);
                         }
                         if (StringUtils.isNotBlank(extension.getGroup())){    //extension for a group
                             Set<String> groupUserUids = site.getGroup(extension.getGroup()).getUsers();
                             for(User groupUser: userDirectoryService.getUsers(groupUserUids)) {
-                                sendEmailNotification(site, publishedAssessment, groupUser, extension);
+                                sendEmailNotification(site, publishedAssessment, groupUser, extension, prePopulateTextFormatted);
                             }
                         }
                     }
@@ -167,7 +228,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
                         for (User groupUser : userDirectoryService.getUsers(studentUserUids)) {
                             if (!isUserInException(publishedAssessment, groupUser.getId(), site)) {
                                 log.debug("Calling send email notification: {}", groupUser.getId());
-                                sendEmailNotification(site, publishedAssessment, groupUser, null);
+                                sendEmailNotification(site, publishedAssessment, groupUser, null, prePopulateTextFormatted);
                             }
                         }
                     }
@@ -179,7 +240,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
                         log.debug("Samigo assessment open notification checking if member needs an email, member: {}", u.getId());
                         if (!isUserInException(publishedAssessment, u.getId(), site)) {   //send only to active members who aren't part of any exceptions
                             log.debug("Calling send email notification for a regular site member: {}", u.getId());
-                            sendEmailNotification(site, publishedAssessment, u, null);
+                            sendEmailNotification(site, publishedAssessment, u, null, prePopulateTextFormatted);
                         }
                     }
                 }
@@ -193,7 +254,7 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
         }
     }
 
-    private void sendEmailNotification(Site site, PublishedAssessmentFacade publishedAssessment, User userNow, ExtendedTime extension) {   // Prep and send the email
+    private void sendEmailNotification(Site site, PublishedAssessmentFacade publishedAssessment, User userNow, ExtendedTime extension, String prePopulateTextFormatted) {   // Prep and send the email
         log.debug("SendEmailNotification: '{}' to {}", publishedAssessment.getTitle(), userNow.getDisplayId());
 
         String userEmail = userNow.getEmail();
@@ -263,6 +324,8 @@ public class SamigoAvailableNotificationServiceImpl implements SamigoAvailableNo
         }
         replacementValues.put("feedbackType",feedback);
         replacementValues.put("siteUrl", site.getUrl());
+
+        replacementValues.put("prePopulateTextFormatted", prePopulateTextFormatted);
 
         emailTemplateServiceSend(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AVAILABLE_REMINDER, null, userNow, fromStr, userEmail, headerToStr, null, replacementValues);
     }

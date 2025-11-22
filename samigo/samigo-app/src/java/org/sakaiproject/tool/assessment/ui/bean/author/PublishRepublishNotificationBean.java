@@ -37,6 +37,7 @@ public class PublishRepublishNotificationBean implements Serializable {
 
 	private String notificationSubject;
 	private String siteTitle;
+	private String prePopulateText;
 	private boolean sendNotification;
 
 	public ArrayList<SelectItem> getNotificationLevelChoices() {
