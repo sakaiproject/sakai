@@ -2554,7 +2554,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 * @exception PermissionException
 		 *            If the user does not have permission to modify the calendar.
 		 */
-		public CalendarEvent addEvent(TimeRange range, String displayName, String description, String type, String location, 
+		public CalendarEvent addEvent(TimeRange range, String displayName, String description, String type, String location,
 				List attachments) throws PermissionException
 		{
 			// make one
@@ -4137,7 +4137,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		} // getProperties
 
-		/**
+        public Calendar getCalendar() {
+            return m_calendar;
+        }
+
+        /**
 		 * Gets a site name for this calendar event
 		 */
 		public String getSiteName()

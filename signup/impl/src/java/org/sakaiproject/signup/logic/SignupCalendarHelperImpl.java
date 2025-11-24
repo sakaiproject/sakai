@@ -119,11 +119,9 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 			SecurityAdvisor advisor = sakaiFacade.pushSecurityAdvisor();
 			try {
 				CalendarEventEdit tsEvent = generateEvent(meeting, ts);
-				if(tsEvent == null) {
-					// something went wrong when fetching the calendar
-					return null;
-				}
-				tsEvent.setField("vevent_uuid", ts.getUuid());
+				if (tsEvent == null) return null;
+
+                tsEvent.setField("vevent_uuid", ts.getUuid());
 				
 				//SIGNUP-180 add sequence to vevents
 				tsEvent.setField("vevent_sequence", String.valueOf(ts.getVersion()));
@@ -133,7 +131,6 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 				//generate VEvent for timeslot
 				v = externalCalendaringService.createEvent(tsEvent, null, true);
 				externalCalendaringService.addChairAttendeesToEvent(v, getCoordinators(meeting));
-				commitEvent(meeting, tsEvent);
 			} finally {
 				sakaiFacade.popSecurityAdvisor(advisor);
 			}
@@ -155,19 +152,16 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		if(v == null) {
 			SecurityAdvisor advisor = sakaiFacade.pushSecurityAdvisor();
 			try {
-				CalendarEventEdit mEvent = generateEvent(meeting);
-				if(mEvent == null) {
-					//calendar may not be in site - this will be skipped
-					return null;
-				}
-				mEvent.setField("vevent_uuid", meeting.getUuid());
-				mEvent.setField("vevent_sequence", String.valueOf(meeting.getVersion()));
-				mEvent.getProperties().addProperty(ResourceProperties.PROP_CREATOR, meeting.getCreatorUserId());
+                CalendarEventEdit mEvent = generateEvent(meeting);
+                if (mEvent == null) return null;
 
-				//generate VEvent for timeslot
-				v = externalCalendaringService.createEvent(mEvent, null, true);
-				externalCalendaringService.addChairAttendeesToEvent(v, getCoordinators(meeting));
-				commitEvent(meeting, mEvent);
+                mEvent.setField("vevent_uuid", meeting.getUuid());
+                mEvent.setField("vevent_sequence", String.valueOf(meeting.getVersion()));
+                mEvent.getProperties().addProperty(ResourceProperties.PROP_CREATOR, meeting.getCreatorUserId());
+
+                // generate VEvent for timeslot
+                v = externalCalendaringService.createEvent(mEvent, null, true);
+                externalCalendaringService.addChairAttendeesToEvent(v, getCoordinators(meeting));
 			} finally {
 				sakaiFacade.popSecurityAdvisor(advisor);
 			}
@@ -249,14 +243,11 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 	 */
 	private CalendarEventEdit generateEvent(String siteId, Date startTime, Date endTime, String title, String description, String location) {
 		
-		Calendar calendar;
+		Calendar calendar = null;
 		CalendarEventEdit event = null;
 		try {
 			calendar = sakaiFacade.getCalendar(siteId);
-		
-			if (calendar == null) {
-				return null;
-			}
+			if (calendar == null) return null;
 			
 			event = calendar.addEvent();
 			event.setType("Meeting");
@@ -282,8 +273,11 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 		} catch (PermissionException e) {
             log.error("SignupCalendarHelperImpl.generateEvent: {}", String.valueOf(e));
 			return null;
+		} finally {
+			// Cancel the event to release the lock without persisting
+			// These events are only for ICS file generation, not for site calendar
+			if (calendar != null && event != null && event.isActiveEdit()) calendar.cancelEvent(event);
 		}
-		
 		return event;
 	}
 	
@@ -308,36 +302,6 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 			return sakaiFacade.getServerConfigurationService().getPortalUrl() + "/site/" + siteId + "/page/" + sakaiFacade.getCurrentPageId();
 		}
 		return null;
-	}
-
-	// Helper to properly close an opened (locked) CalendarEventEdit
-	private void commitEvent(SignupMeeting meeting, CalendarEventEdit event) {
-		if (meeting == null || event == null) {
-			return;
-		}
-
-		// Get siteId from first signup site, matching generateEvent pattern
-		String siteId = meeting.getSignupSites().get(0).getSiteId();
-		Calendar calendar = null;
-
-		try {
-			calendar = sakaiFacade.getCalendar(siteId);
-			if (calendar == null) {
-				return;
-			}
-
-			calendar.commitEvent(event);
-		} catch (PermissionException e) {
-			log.error("Failed to commit calendar event: {}", e.getMessage());
-		} finally {
-			if (calendar != null && event.isActiveEdit()) {
-				try {
-					calendar.cancelEvent(event);
-				} catch (Exception ce) {
-					log.error("Failed to cancel calendar event after commit failure: {}", ce.getMessage());
-				}
-			}
-		}
 	}
 
 	private SakaiFacade sakaiFacade;
