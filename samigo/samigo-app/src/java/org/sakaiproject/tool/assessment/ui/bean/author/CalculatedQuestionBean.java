@@ -156,6 +156,11 @@ public class CalculatedQuestionBean implements Serializable {
         Map<String, CalculatedQuestionGlobalVariableBean> results = new HashMap<String, CalculatedQuestionGlobalVariableBean>();
         for (CalculatedQuestionGlobalVariableBean globalvariable : this.globalVariables.values()) {
             if (globalvariable.isActive()) {
+                final String SUFFIX = "|0,0";
+                String text = globalvariable.getText();
+                if (text.endsWith(SUFFIX)) {
+                    globalvariable.setText(text.substring(0, text.length() - SUFFIX.length()));
+                }
                 results.put(globalvariable.getName(), globalvariable);
             }
         }
