@@ -2225,8 +2225,8 @@ public class DeliveryBean implements Serializable {
 	  //If using extended Time Delivery, the late submission setting is based on retracted
 	  verifyExtendedTimeDeliveryService();
 	  if (extendedTimeDeliveryService.hasExtendedTime()) {
-		  //Accept it if it's not retracted on the extended time entry
-		  acceptLateSubmission = (extendedTimeDeliveryService.getRetractDate() != null) ? !isRetracted(false) : false;
+		  //Accept if extended time late submission field is blank or has not expired
+		  acceptLateSubmission = !isRetracted(false);
 	  }
 	  return acceptLateSubmission;
   }
