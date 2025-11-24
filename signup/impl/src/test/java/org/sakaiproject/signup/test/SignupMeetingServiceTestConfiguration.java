@@ -2,7 +2,9 @@ package org.sakaiproject.signup.test;
 
 import java.util.Optional;
 
+import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -106,7 +108,9 @@ public class SignupMeetingServiceTestConfiguration extends SakaiTestConfiguratio
 
     @Bean(name = "org.sakaiproject.util.api.FormattedText")
     public FormattedText formattedText() {
-        return Mockito.mock(FormattedText.class);
+        FormattedText formattedText = Mockito.mock(FormattedText.class);
+        Mockito.when(formattedText.convertFormattedTextToPlaintext(Mockito.any())).thenAnswer(AdditionalAnswers.returnsFirstArg());
+        return formattedText;
     }
 
     @Bean(name = "org.sakaiproject.api.app.scheduler.SchedulerManager")
