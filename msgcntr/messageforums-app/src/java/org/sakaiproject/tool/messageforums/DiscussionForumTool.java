@@ -1018,7 +1018,9 @@ public class DiscussionForumTool {
     forumClickCount++;
     if (getDecoratedForum() == null)
     {
-      log.error("Forum not found");
+      log.warn("Forum not found for id {}", getExternalParameterByKey(FORUM_ID));
+      // Clear cached state so main view rebuilds after import/replace
+      reset();
       return gotoMain();
     }
     return FORUM_DETAILS;
@@ -3800,6 +3802,12 @@ public class DiscussionForumTool {
 	        {
 	          Long.parseLong(topicId);
 	          topic = forumManager.getTopicById(Long.valueOf(topicId));
+	          if (topic == null) {
+	            // Topic was not found, likely due to an import/replace or deletion.
+	            log.warn("Topic with id '{}' not found", topicId);
+	            setErrorMessage(getResourceBundleString(TOPIC_WITH_ID) + topicId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
+	            return false;
+	          }
 	        }
 	        catch (NumberFormatException e)
 	        {
@@ -3843,9 +3851,11 @@ public class DiscussionForumTool {
         Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_READ, getEventReference(selectedTopic.getTopic()), null, true, NotificationService.NOTI_OPTIONAL, statement);
         eventTrackingService.post(event);
 
-    	return ALL_MESSAGES;
+        return ALL_MESSAGES;
     } else {
-    	return gotoMain();
+        // Clear cached state so main view rebuilds after import/replace
+        reset();
+        return gotoMain();
     }
   }
 
@@ -3855,6 +3865,8 @@ public class DiscussionForumTool {
     this.selectedForum = null;
     this.selectedTopic = null;
     this.selectedMessage = null;
+    this.selectedThreadHead = null;
+    this.selectedThread = new ArrayList();
 //    this.templateControlPermissions = null;
 //    this.templateMessagePermissions = null;
     this.permissions=null;
