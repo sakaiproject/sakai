@@ -112,7 +112,7 @@
 		<property name="contentHostServ" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="broker" ref="org.sakaiproject.entitybroker.EntityBroker" />
 		<property name="devHlprServ" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
-		<property name="pollServ" ref="org.sakaiproject.poll.logic.PollListManager" />
+		<property name="pollServ" ref="org.sakaiproject.poll.api.service.PollsService" />
 		<property name="anncServ" ref="org.sakaiproject.announcement.api.AnnouncementService" />
 		<property name="calServ" ref="org.sakaiproject.calendar.api.CalendarService" />
 		<property name="podServ" ref="org.sakaiproject.api.app.podcasts.PodcastService" />

@@ -29,8 +29,6 @@ import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.tool.model.OptionBatchForm;
 import org.sakaiproject.poll.tool.model.OptionForm;
-import org.sakaiproject.poll.tool.service.PollValidationException;
-import org.sakaiproject.poll.tool.service.PollsUiService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,8 +43,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
-import static org.sakaiproject.poll.tool.service.PollsUiService.HANDLE_DELETE_OPTION_DO_NOTHING;
-import static org.sakaiproject.poll.tool.service.PollsUiService.HANDLE_DELETE_OPTION_RETURN_VOTES;
 
 @Controller
 @RequestMapping
@@ -54,9 +50,11 @@ import static org.sakaiproject.poll.tool.service.PollsUiService.HANDLE_DELETE_OP
 @Slf4j
 public class OptionController {
 
+    private static final String HANDLE_DELETE_OPTION_DO_NOTHING = "do-nothing";
+    private static final String HANDLE_DELETE_OPTION_RETURN_VOTES = "return-votes";
+
     private final PollsService pollsService;
     private final ExternalLogic externalLogic;
-    private final PollsUiService pollsUiService;
     private final MessageSource messageSource;
 
     @GetMapping("/pollOption")
@@ -114,10 +112,6 @@ public class OptionController {
             return "polls/option-edit";
         }
 
-        Option option = new Option();
-        option.setId(optionForm.getOptionId());
-        option.setText(optionForm.getText());
-
         // Load poll and set relationship
         Optional<Poll> poll = pollsService.getPollById(optionForm.getPollId());
         if (poll.isEmpty()) {
@@ -128,23 +122,63 @@ public class OptionController {
             model.addAttribute("isSiteOwner", isSiteOwner());
             return "polls/option-edit";
         }
-        poll.get().addOption(option);
 
-        try {
-            pollsService.savePoll(poll.get());
-            redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_added_success", null, locale));
-            if ("addAnother".equals(submitAction)) {
-                return "redirect:/pollOption?pollId=" + poll.get().getId();
-            }
-            return "redirect:/voteAdd?pollId=" + poll.get().getId();
-        } catch (PollValidationException ex) {
-            bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
-            model.addAttribute("poll", pollsService.getPollById(optionForm.getPollId()));
+        // Validate option text
+        if (StringUtils.isBlank(optionForm.getText())) {
+            bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage("option_empty", null, locale)));
+            model.addAttribute("poll", poll.get());
             model.addAttribute("isNew", optionForm.getOptionId() == null);
             model.addAttribute("canAdd", isAllowedPollAdd());
             model.addAttribute("isSiteOwner", isSiteOwner());
             return "polls/option-edit";
         }
+
+        Option option;
+        if (optionForm.getOptionId() != null) {
+            // Editing existing option
+            Optional<Option> existingOption = pollsService.getOptionById(optionForm.getOptionId());
+            if (existingOption.isEmpty()) {
+                bindingResult.addError(new FieldError("optionForm", "text", "Option not found"));
+                model.addAttribute("poll", poll.get());
+                model.addAttribute("isNew", false);
+                model.addAttribute("canAdd", isAllowedPollAdd());
+                model.addAttribute("isSiteOwner", isSiteOwner());
+                return "polls/option-edit";
+            }
+            option = existingOption.get();
+        } else {
+            // Creating new option
+            option = new Option();
+            option.setPoll(poll.get());
+            option.setOptionOrder(poll.get().getOptions().size());
+        }
+
+        // Process and sanitize HTML in option text
+        String sanitizedText = externalLogic.processFormattedText(
+            optionForm.getText(),
+            new StringBuilder(),
+            true,
+            true
+        );
+        option.setText(org.sakaiproject.poll.api.util.PollUtils.cleanupHtmlPtags(sanitizedText));
+
+        // Validate after processing
+        if (StringUtils.isBlank(option.getText())) {
+            bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage("option_empty", null, locale)));
+            model.addAttribute("poll", poll.get());
+            model.addAttribute("isNew", optionForm.getOptionId() == null);
+            model.addAttribute("canAdd", isAllowedPollAdd());
+            model.addAttribute("isSiteOwner", isSiteOwner());
+            return "polls/option-edit";
+        }
+
+        pollsService.saveOption(option);
+        redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_added_success", null, locale));
+
+        if ("addAnother".equals(submitAction)) {
+            return "redirect:/pollOption?pollId=" + poll.get().getId();
+        }
+        return "redirect:/voteAdd?pollId=" + poll.get().getId();
     }
 
     @GetMapping("/pollOptionBatch")
@@ -175,12 +209,32 @@ public class OptionController {
             model.addAttribute("isSiteOwner", isSiteOwner());
             return "polls/option-batch";
         }
+
+        // Validate file
+        if (file == null || file.isEmpty()) {
+            bindingResult.addError(new FieldError("batchForm", "file", messageSource.getMessage("error_batch_options", null, locale)));
+            model.addAttribute("poll", pollsService.getPollById(batchForm.getPollId()));
+            model.addAttribute("canAdd", isAllowedPollAdd());
+            model.addAttribute("isSiteOwner", isSiteOwner());
+            return "polls/option-batch";
+        }
+
+        // Parse file to extract option texts
+        List<String> optionTexts = extractOptionsFromFile(file);
+        if (optionTexts.isEmpty()) {
+            bindingResult.addError(new FieldError("batchForm", "file", messageSource.getMessage("error_batch_options", null, locale)));
+            model.addAttribute("poll", pollsService.getPollById(batchForm.getPollId()));
+            model.addAttribute("canAdd", isAllowedPollAdd());
+            model.addAttribute("isSiteOwner", isSiteOwner());
+            return "polls/option-batch";
+        }
+
         try {
-            pollsUiService.saveOptionsBatch(batchForm.getPollId(), batchForm.getFile());
+            pollsService.saveOptionsBatch(batchForm.getPollId(), optionTexts);
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_options_batch_added_success", null, locale));
             return "redirect:/voteAdd?pollId=" + batchForm.getPollId();
-        } catch (PollValidationException ex) {
-            bindingResult.addError(new FieldError("batchForm", "file", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
+        } catch (IllegalArgumentException ex) {
+            bindingResult.addError(new FieldError("batchForm", "file", ex.getMessage()));
             model.addAttribute("poll", pollsService.getPollById(batchForm.getPollId()));
             model.addAttribute("canAdd", isAllowedPollAdd());
             model.addAttribute("isSiteOwner", isSiteOwner());
@@ -202,7 +256,7 @@ public class OptionController {
         if (poll == null) {
             return "redirect:/votePolls";
         }
-        List<Option> pollOptions = pollsService.getOptionsForPoll(poll);
+        List<Option> pollOptions = poll.getOptions();
         boolean hasVotes = !pollsService.getAllVotesForOption(option.get()).isEmpty();
 
         model.addAttribute("option", option);
@@ -231,9 +285,18 @@ public class OptionController {
             orphanHandling = HANDLE_DELETE_OPTION_DO_NOTHING;
         }
 
-        Poll poll = pollsUiService.deleteOption(optionId, orphanHandling);
+        Poll poll = pollsService.deleteOptionWithVoteHandling(optionId, orphanHandling);
         redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_deleted_success", null, locale));
         return "redirect:/voteAdd?pollId=" + poll.getId();
+    }
+
+    private List<String> extractOptionsFromFile(MultipartFile file) {
+        try (java.io.InputStream inputStream = file.getInputStream()) {
+            return org.sakaiproject.poll.tool.util.OptionsFileConverterUtil.convertInputStreamToOptionList(inputStream);
+        } catch (java.io.IOException e) {
+            log.warn("Unable to parse batch options file {}", file.getOriginalFilename(), e);
+            return List.of();
+        }
     }
 
     private boolean isAllowedPollAdd() {

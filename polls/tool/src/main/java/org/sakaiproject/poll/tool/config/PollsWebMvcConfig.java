@@ -16,6 +16,7 @@
 
 package org.sakaiproject.poll.tool.config;
 
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.util.ResourceLoaderMessageSource;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -57,7 +58,7 @@ public class PollsWebMvcConfig implements WebMvcConfigurer, ApplicationContextAw
     @Bean
     public MessageSource messageSource() {
         ResourceLoaderMessageSource messages = new ResourceLoaderMessageSource();
-        messages.setBasename("org/sakaiproject/poll/bundle/Messages");
+        messages.setBasename("bundle.polls");
         return messages;
     }
 

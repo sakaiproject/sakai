@@ -27,14 +27,36 @@
     <!-- create a logic bean, give it the repositories from above and some sakai services -->
     <bean id="org.sakaiproject.poll.api.service.PollsService"
           class="org.sakaiproject.poll.impl.service.PollsServiceImpl"
-          lazy-init="true" init-method="init">
-        <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
-        <property name="voteRepository" ref="org.sakaiproject.poll.api.repository.VoteRepository"/>
+          init-method="init">
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-        <property name="externalLogic" ref="org.sakaiproject.poll.api.logic.ExternalLogic"/>
-        <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+        <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
         <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+        <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
+        <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="voteRepository" ref="org.sakaiproject.poll.api.repository.VoteRepository"/>
+        <property name="optionDeletedBundle">
+            <bean class="org.sakaiproject.util.ResourceLoader">
+                <constructor-arg value="bundle/notifyDeletedOption"/>
+            </bean>
+        </property>
+        <property name="emailTemplates">
+            <list>
+                <value>notifyDeletedOption.xml</value>
+                <value>notifyDeletedOption-zh_CN.xml</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="org.sakaiproject.poll.api.logic.ExternalLogic"
@@ -43,17 +65,11 @@
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
         <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
         <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
-        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
         <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
         <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
         <!-- inject other resources -->
         <property name="emailTemplates" ref="org.sakaiproject.poll.emailtemplates.List"/>

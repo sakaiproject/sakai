@@ -41,6 +41,8 @@ import org.sakaiproject.poll.api.model.Poll;
 import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
 import static org.sakaiproject.poll.api.PollConstants.PERMISSION_VOTE;
 
+import lombok.Setter;
+
 
 /**
  * Entity provider which represents poll votes
@@ -49,10 +51,7 @@ import static org.sakaiproject.poll.api.PollConstants.PERMISSION_VOTE;
  */
 public class PollOptionEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful {
 
-    private PollsService pollsService;
-    public void setPollListManager(PollsService pollsService) {
-        this.pollsService = pollsService;
-    }
+    @Setter private PollsService pollsService;
 
     public static final String PREFIX = "poll-option";
     public String getEntityPrefix() {

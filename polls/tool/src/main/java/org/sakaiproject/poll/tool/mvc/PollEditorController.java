@@ -32,8 +32,6 @@ import org.sakaiproject.poll.api.logic.ExternalLogic;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.tool.model.PollForm;
-import org.sakaiproject.poll.tool.service.PollValidationException;
-import org.sakaiproject.poll.tool.service.PollsUiService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -56,34 +54,45 @@ public class PollEditorController {
 
     private final PollsService pollsService;
     private final ExternalLogic externalLogic;
-    private final PollsUiService pollsUiService;
     private final MessageSource messageSource;
 
     @GetMapping("/voteAdd")
     public String editPoll(@RequestParam(value = "pollId", required = false) String pollId,
-                           @RequestParam(value = "id", required = false) Long legacyId,
                            Model model,
                            Locale locale) {
-        String resolvedId = pollId != null ? pollId : legacyId.toString();
-        Optional<Poll> poll = pollsService.getPollById(resolvedId);
+        boolean isNew = StringUtils.isEmpty(pollId);
+        PollForm form;
+        List options = List.of();
+        boolean hasVotes = false;
 
-        if (poll.isEmpty()) {
-            model.addAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-            return "redirect:/votePolls";
+        if (isNew) {
+            if (!isAllowedPollAdd()) {
+                model.addAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
+                return "redirect:/votePolls";
+            }
+            form = newPollForm();
+        } else {
+            Optional<Poll> poll = pollsService.getPollById(pollId);
+            if (poll.isEmpty()) {
+                model.addAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
+                return "redirect:/votePolls";
+            }
+
+            if (!canEditPoll(poll.get())) {
+                model.addAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
+                return "redirect:/votePolls";
+            }
+
+            ZoneId zoneId = getUserZoneId();
+            form = editPollForm(poll.get(), zoneId);
+            options = pollsService.getVisibleOptionsForPoll(poll.get().getId());
+            hasVotes = !pollsService.getAllVotesForPoll(poll.get().getId()).isEmpty();
         }
-
-        if (!canEditPoll(poll.get())) {
-            model.addAttribute("alert", messageSource.getMessage("new_poll_noperms", null, locale));
-            return "redirect:/votePolls";
-        }
-
-        ZoneId zoneId = getUserZoneId();
-        PollForm form = toForm(poll.get(), zoneId);
 
         model.addAttribute("pollForm", form);
-        model.addAttribute("isNew", false);
-        model.addAttribute("options", poll.get().getId() != null ? pollsService.getVisibleOptionsForPoll(poll.get().getId()) : List.of());
-        model.addAttribute("hasVotes", poll.get().getId() != null && !pollsService.getAllVotesForPoll(poll.get().getId()).isEmpty());
+        model.addAttribute("isNew", isNew);
+        model.addAttribute("options", options);
+        model.addAttribute("hasVotes", hasVotes);
         model.addAttribute("displayResultChoices", List.of(
                 new DisplayOption("open", "new_poll_open"),
                 new DisplayOption("afterVoting", "new_poll_aftervoting"),
@@ -94,7 +103,7 @@ public class PollEditorController {
         model.addAttribute("canAdd", isAllowedPollAdd());
         model.addAttribute("isSiteOwner", isSiteOwner());
         model.addAttribute("showPublicAccess", externalLogic.isShowPublicAccess());
-        model.addAttribute("timezone", zoneId);
+        model.addAttribute("timezone", getUserZoneId());
         return "polls/edit";
     }
 
@@ -108,6 +117,32 @@ public class PollEditorController {
 
         if (!isAllowedPollAdd()) {
             bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
+            populateModelForEdit(model, pollForm, List.of(), false);
+            return "polls/edit";
+        }
+
+        // Validate form inputs
+        if (StringUtils.isBlank(pollForm.getText())) {
+            bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage("error_no_text", null, locale)));
+            populateModelForEdit(model, pollForm, List.of(), false);
+            return "polls/edit";
+        }
+
+        if (pollForm.getOpenDate() == null || pollForm.getCloseDate() == null) {
+            bindingResult.addError(new FieldError("pollForm", "closeDate", messageSource.getMessage("close_before_open", null, locale)));
+            populateModelForEdit(model, pollForm, List.of(), false);
+            return "polls/edit";
+        }
+
+        if (pollForm.getOpenDate().isAfter(pollForm.getCloseDate())) {
+            bindingResult.addError(new FieldError("pollForm", "closeDate", messageSource.getMessage("close_before_open", null, locale)));
+            populateModelForEdit(model, pollForm, List.of(), false);
+            return "polls/edit";
+        }
+
+        if (pollForm.getMinOptions() > pollForm.getMaxOptions()) {
+            bindingResult.addError(new FieldError("pollForm", "maxOptions", messageSource.getMessage("min_greater_than_max", null, locale)));
+            populateModelForEdit(model, pollForm, List.of(), false);
             return "polls/edit";
         }
 
@@ -116,62 +151,60 @@ public class PollEditorController {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
             return "redirect:/votePolls";
         }
-        try {
-            Poll saved = pollsUiService.savePoll(poll, locale);
-            redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_saved_success", null, locale));
 
-            if ("option".equals(redirectTarget)) {
-                return "redirect:/pollOption?pollId=" + saved.getId();
-            }
-            if ("optionBatch".equals(redirectTarget)) {
-                return "redirect:/pollOptionBatch?pollId=" + saved.getId();
-            }
-            if (pollsService.getOptionsForPoll(saved).isEmpty()) {
-                return "redirect:/pollOption?pollId=" + saved.getId();
-            }
-            return "redirect:/votePolls";
-        } catch (PollValidationException ex) {
-            String field = switch (ex.getMessage()) {
-                case "close_before_open" -> "closeDate";
-                case "min_greater_than_max", "invalid_poll_limits" -> "maxOptions";
-                case "error_no_text" -> "text";
-                default -> null;
-            };
-            if (field != null) {
-                bindingResult.addError(new FieldError("pollForm", field, messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
-            } else {
-                bindingResult.addError(new FieldError("pollForm", "text", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale)));
-            }
-            Poll contextPoll = pollForm.getPollId() != null ? pollsService.getPollById(pollForm.getPollId()).orElse(null) : poll;
-            if (contextPoll == null) {
-                redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll_missing", null, locale));
-                return "redirect:/votePolls";
-            }
-            model.addAttribute("poll", contextPoll);
-            model.addAttribute("options", contextPoll.getId() != null ? pollsService.getVisibleOptionsForPoll(contextPoll.getId()) : List.of());
-            model.addAttribute("hasVotes", contextPoll.getId() != null && !pollsService.getAllVotesForPoll(contextPoll.getId()).isEmpty());
-            model.addAttribute("displayResultChoices", List.of(
-                    new DisplayOption("open", "new_poll_open"),
-                    new DisplayOption("afterVoting", "new_poll_aftervoting"),
-                    new DisplayOption("afterClosing", "new_poll_afterClosing"),
-                    new DisplayOption("never", "new_poll_never")
-            ));
-            model.addAttribute("isNew", pollForm.getPollId() == null);
-            model.addAttribute("canAdd", isAllowedPollAdd());
-            model.addAttribute("isSiteOwner", isSiteOwner());
-            model.addAttribute("showPublicAccess", externalLogic.isShowPublicAccess());
-            model.addAttribute("timezone", getUserZoneId());
-            return "polls/edit";
+        Poll saved = pollsService.savePoll(poll);
+        redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_saved_success", null, locale));
+
+        if ("option".equals(redirectTarget)) {
+            return "redirect:/pollOption?pollId=" + saved.getId();
         }
+        if ("optionBatch".equals(redirectTarget)) {
+            return "redirect:/pollOptionBatch?pollId=" + saved.getId();
+        }
+        if (saved.getOptions().isEmpty()) {
+            return "redirect:/pollOption?pollId=" + saved.getId();
+        }
+        return "redirect:/votePolls";
+    }
+
+    private void populateModelForEdit(Model model, PollForm pollForm, List options, boolean hasVotes) {
+        model.addAttribute("options", options);
+        model.addAttribute("hasVotes", hasVotes);
+        model.addAttribute("displayResultChoices", List.of(
+                new DisplayOption("open", "new_poll_open"),
+                new DisplayOption("afterVoting", "new_poll_aftervoting"),
+                new DisplayOption("afterClosing", "new_poll_afterClosing"),
+                new DisplayOption("never", "new_poll_never")
+        ));
+        model.addAttribute("isNew", pollForm.getPollId() == null);
+        model.addAttribute("canAdd", isAllowedPollAdd());
+        model.addAttribute("isSiteOwner", isSiteOwner());
+        model.addAttribute("showPublicAccess", externalLogic.isShowPublicAccess());
+        model.addAttribute("timezone", getUserZoneId());
     }
 
     private Poll preparePollEntity(PollForm form) {
-        Poll poll = form.getPollId() != null ? pollsService.getPollById(form.getPollId()).orElse(null) : new Poll();
-        if (poll == null) {
-            return null;
+        Poll poll;
+        if (StringUtils.isNotBlank(form.getPollId())) {
+            Optional<Poll> p = pollsService.getPollById(form.getPollId());
+            if (p.isEmpty()) {
+                return null;
+            } else {
+                poll = p.get();
+            }
+        } else {
+            poll = new Poll();
         }
+
         poll.setText(StringUtils.trimToEmpty(form.getText()));
-        poll.setDescription(form.getDetails());
+
+        // Process and sanitize HTML in description
+        String sanitizedDescription = externalLogic.processFormattedText(
+            form.getDetails() != null ? form.getDetails() : "",
+            new StringBuilder()
+        );
+        poll.setDescription(org.sakaiproject.poll.api.util.PollUtils.cleanupHtmlPtags(sanitizedDescription));
+
         poll.setPublic(form.isPublic());
         poll.setMinOptions(form.getMinOptions());
         poll.setMaxOptions(form.getMaxOptions());
@@ -180,14 +213,33 @@ public class PollEditorController {
         poll.setOwner(externalLogic.getCurrentUserId());
         poll.setLimitVoting(true);
 
+        // Convert LocalDateTime to Date for persistence
         ZoneId zoneId = getUserZoneId();
-        LocalDateTime open = form.getOpenDate();
-        LocalDateTime close = form.getCloseDate();
-        pollsUiService.hydratePollForForm(poll, open, close, zoneId);
+        if (form.getOpenDate() != null) {
+            poll.setVoteOpen(java.util.Date.from(form.getOpenDate().atZone(zoneId).toInstant()));
+        }
+        if (form.getCloseDate() != null) {
+            poll.setVoteClose(java.util.Date.from(form.getCloseDate().atZone(zoneId).toInstant()));
+        }
+
         return poll;
     }
 
-    private PollForm toForm(Poll poll, ZoneId zoneId) {
+    private PollForm newPollForm() {
+        PollForm form = new PollForm();
+        form.setPollId(null);
+        form.setText("");
+        form.setDetails("");
+        form.setPublic(false);
+        form.setMinOptions(1);
+        form.setMaxOptions(1);
+        form.setDisplayResult("open");
+        form.setOpenDate(null);
+        form.setCloseDate(null);
+        return form;
+    }
+
+    private PollForm editPollForm(Poll poll, ZoneId zoneId) {
         PollForm form = new PollForm();
         form.setPollId(poll.getId());
         form.setText(poll.getText());
@@ -196,9 +248,16 @@ public class PollEditorController {
         form.setMinOptions(poll.getMinOptions());
         form.setMaxOptions(poll.getMaxOptions());
         form.setDisplayResult(poll.getDisplayResult());
-        form.setOpenDate(truncateToMinutes(pollsUiService.toLocalDateTime(poll.getVoteOpen(), zoneId)));
-        form.setCloseDate(truncateToMinutes(pollsUiService.toLocalDateTime(poll.getVoteClose(), zoneId)));
+        form.setOpenDate(truncateToMinutes(toLocalDateTime(poll.getVoteOpen(), zoneId)));
+        form.setCloseDate(truncateToMinutes(toLocalDateTime(poll.getVoteClose(), zoneId)));
         return form;
+    }
+
+    private LocalDateTime toLocalDateTime(java.util.Date date, ZoneId zoneId) {
+        if (date == null) {
+            return null;
+        }
+        return LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(date.getTime()), zoneId);
     }
 
     private boolean isAllowedPollAdd() {

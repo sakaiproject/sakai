@@ -29,8 +29,6 @@ import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.tool.model.VoteForm;
-import org.sakaiproject.poll.tool.service.PollValidationException;
-import org.sakaiproject.poll.tool.service.PollsUiService;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,7 +49,6 @@ public class VoteController {
 
     private final PollsService pollsService;
     private final ExternalLogic externalLogic;
-    private final PollsUiService pollsUiService;
     private final MessageSource messageSource;
 
     @GetMapping("/voteQuestion")
@@ -110,11 +107,11 @@ public class VoteController {
             List<Long> optionIds = voteForm.getSelectedOptionIds() != null
                     ? new ArrayList<>(voteForm.getSelectedOptionIds())
                     : new ArrayList<>();
-            VoteCollection voteCollection = pollsUiService.submitVote(voteForm.getPollId(), optionIds);
+            VoteCollection voteCollection = pollsService.submitVote(voteForm.getPollId(), optionIds);
             redirectAttributes.addFlashAttribute("success", messageSource.getMessage("thanks_msg", null, locale));
             return "redirect:/voteThanks?voteRef=" + voteCollection.getId();
-        } catch (PollValidationException ex) {
-            redirectAttributes.addFlashAttribute("alert", messageSource.getMessage(ex.getMessage(), ex.getArgs(), locale));
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("alert", ex.getMessage());
             return "redirect:/voteQuestion?pollId=" + poll.get().getId();
         }
     }

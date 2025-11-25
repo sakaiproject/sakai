@@ -2,6 +2,7 @@ package org.sakaiproject.poll.test.service;
 
 import org.mockito.Mockito;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -85,4 +86,19 @@ public class PollsServiceTestConfiguration extends SakaiTestConfiguration {
     public UsageSessionService usageSessionService() {
         return Mockito.mock(UsageSessionService.class);
     }
+
+    //         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    //         <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+    //         <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
+    //         <property name="linkMigrationHelper" ref="org.sakaiproject.util.api.LinkMigrationHelper"/>
+    //         <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
+    //         <property name="pollRepository" ref="org.sakaiproject.poll.api.repository.PollRepository"/>
+    //         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+    //         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    //         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    //         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    //         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+    //         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+    //         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    //         <property name="voteRepository" ref="org.sakaiproject.poll.api.repository.VoteRepository"/>
 }

@@ -29,6 +29,7 @@ import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
+import org.sakaiproject.poll.api.model.VoteCollection;
 
 /**
  * This is the interface for the Manager for our poll tool, 
@@ -56,10 +57,9 @@ public interface PollsService {
     
     /**
      * Delete a poll
-     * @param poll - the poll object to remove
-     * @return - true for success, false if failure
+     * @param id - the poll id to remove
      */
-    void deletePoll(Poll poll) throws SecurityException, IllegalArgumentException;
+    void deletePoll(String id) throws SecurityException, IllegalArgumentException;
     
     /**
      * Gets all the Polls
@@ -100,15 +100,7 @@ public interface PollsService {
      * @throws IllegalArgumentException if the pollId is invalid
      */
     List<Option> getVisibleOptionsForPoll(String id);
-    
-    /**
-     * Get all options for a specific poll
-     * @param poll the poll
-     * @return all options OR empty if there are no options for this poll
-     * @throws IllegalArgumentException if the pollId is invalid
-     */
-    List<Option> getOptionsForPoll(Poll poll);
-    
+
     /**
      *  get a poll by its Entity  Reference  
      */
@@ -322,4 +314,42 @@ public interface PollsService {
      * @throws IllegalArgumentException if data is invalid
      */
     Poll createPollFromEntity(PollEntity pollEntity) throws SecurityException, IllegalArgumentException;
+
+    // Bulk Operations
+
+    /**
+     * Delete multiple polls
+     * @param pollIds collection of poll IDs to delete
+     */
+    void deletePolls(java.util.Collection<String> pollIds);
+
+    /**
+     * Reset votes for multiple polls
+     * @param pollIds collection of poll IDs to reset votes for
+     */
+    void resetPollVotes(java.util.Collection<String> pollIds);
+
+    /**
+     * Delete an option with orphan vote handling
+     * @param optionId the option ID to delete
+     * @param orphanVoteHandling how to handle orphaned votes ("do-nothing" or "return-votes")
+     * @return the poll that contained the deleted option
+     */
+    Poll deleteOptionWithVoteHandling(Long optionId, String orphanVoteHandling);
+
+    /**
+     * Save multiple options in batch
+     * @param pollId the poll ID to add options to
+     * @param optionTexts list of option text values to add
+     */
+    void saveOptionsBatch(String pollId, java.util.List<String> optionTexts);
+
+    /**
+     * Submit a vote for a poll
+     * @param pollId the poll ID
+     * @param selectedOptionIds list of selected option IDs
+     * @return the vote collection
+     * @throws IllegalArgumentException if the vote is invalid
+     */
+    VoteCollection submitVote(String pollId, java.util.List<Long> selectedOptionIds);
 }

@@ -22,8 +22,6 @@
 package org.sakaiproject.poll.test.service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -33,18 +31,20 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.poll.impl.service.PollsServiceImpl;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.AopTestUtils;
 
 import static org.sakaiproject.poll.api.PollConstants.*;
 
@@ -56,26 +56,44 @@ import lombok.extern.slf4j.Slf4j;
 public class PollsServiceTests {
 
     public final static String USER_NO_ACCEESS = "user-nobody";
-    public final static String USER_UPDATE = "user-12345678";
+    public final static String USER = "user-12345678";
     public final static String LOCATION1_ID = "ref-1111111";
     public final static String LOCATION1_REF = "/site/" + LOCATION1_ID;
 
     @Autowired private PollsService pollsService;
+    @Autowired private SecurityService securityService;
     @Autowired private SiteService siteService;
-    @Autowired private DeveloperHelperService developerHelperService;
-
-    private String firstPollId;
+    @Autowired private SessionManager sessionManager;
 
     @Before
     public void onSetUp() {
+        ResourceLoader etsOptionDeleted = Mockito.mock(ResourceLoader.class);
+        Mockito.when(etsOptionDeleted.getString("subject")).thenReturn("A poll option you voted for has been deleted");
+        Mockito.when(etsOptionDeleted.getString("message1")).thenReturn("Dear");
+        Mockito.when(etsOptionDeleted.getString("message2")).thenReturn("The poll option you voted for in the site");
+        Mockito.when(etsOptionDeleted.getString("message3")).thenReturn("has been deleted by a poll maintainer. The poll question is:");
+        Mockito.when(etsOptionDeleted.getString("message4")).thenReturn("Please log in to");
+        Mockito.when(etsOptionDeleted.getString("message5")).thenReturn("and place a new vote for the poll.");
+        ((PollsServiceImpl) AopTestUtils.getTargetObject(pollsService)).setOptionDeletedBundle(etsOptionDeleted);
+
+        Mockito.when(siteService.siteReference(LOCATION1_ID)).thenReturn(LOCATION1_REF);
+
+        Mockito.when(securityService.unlock(USER, "site.visit", LOCATION1_REF)).thenReturn(true);
+        Mockito.when(securityService.unlock(USER, PERMISSION_ADD, LOCATION1_REF)).thenReturn(true);
+        Mockito.when(securityService.unlock(USER, PERMISSION_DELETE_OWN, LOCATION1_REF)).thenReturn(true);
+        Mockito.when(securityService.unlock(USER, PERMISSION_DELETE_ANY, LOCATION1_REF)).thenReturn(true);
+        Mockito.when(securityService.unlock(USER_NO_ACCEESS, PERMISSION_ADD, LOCATION1_REF)).thenReturn(false);
+    }
+
+    private String createPoll(String ownerId, String siteId) {
         Poll poll1 = new Poll();
         poll1.setCreationDate(new Date());
         poll1.setVoteOpen(new Date());
         poll1.setVoteClose(new Date());
         poll1.setDescription("this is some text");
         poll1.setText("something");
-        poll1.setOwner(USER_UPDATE);
-        poll1.setSiteId(LOCATION1_ID);
+        poll1.setOwner(ownerId);
+        poll1.setSiteId(siteId);
 
         Option option1 = new Option();
         option1.setText("Option 1");
@@ -87,13 +105,7 @@ public class PollsServiceTests {
         option2.setOptionOrder(1);
         poll1.addOption(option2);
 
-        Mockito.when(developerHelperService.getCurrentUserReference()).thenReturn(USER_UPDATE);
-        Mockito.when(siteService.siteReference(LOCATION1_ID)).thenReturn(LOCATION1_REF);
-        Mockito.when(developerHelperService.isUserAllowedInEntityReference(USER_UPDATE, PERMISSION_ADD, LOCATION1_REF)).thenReturn(true);
-        Mockito.when(developerHelperService.isUserAllowedInEntityReference(USER_UPDATE, PERMISSION_DELETE_ANY, LOCATION1_REF)).thenReturn(true);
-        Mockito.when(developerHelperService.isUserAllowedInEntityReference(USER_UPDATE, "site.visit", LOCATION1_REF)).thenReturn(true);
-        Mockito.when(developerHelperService.isUserAllowedInEntityReference(USER_NO_ACCEESS, "site.visit", LOCATION1_REF)).thenReturn(false);
-        firstPollId = pollsService.savePoll(poll1).getId();
+        return pollsService.savePoll(poll1).getId();
     }
 
     @Test
@@ -103,16 +115,18 @@ public class PollsServiceTests {
         Assert.assertTrue(pollFail.isEmpty());
 
         // this one should exist -- the preload saves one poll and remembers its ID
-        Optional<Poll> poll1 = pollsService.getPollById(firstPollId);
-        Assert.assertTrue(poll1.isPresent());
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
+        String pollId = createPoll(USER, LOCATION1_ID);
+        Optional<Poll> poll = pollsService.getPollById(pollId);
+        Assert.assertTrue(poll.isPresent());
 
         // it should have options
-        Assert.assertNotNull(poll1.get().getOptions());
-        Assert.assertFalse(poll1.get().getOptions().isEmpty());
+        Assert.assertNotNull(poll.get().getOptions());
+        Assert.assertFalse(poll.get().getOptions().isEmpty());
 
         // we expect this one to fails
-        Mockito.when(developerHelperService.getCurrentUserReference()).thenReturn(USER_NO_ACCEESS);
-        Assert.assertThrows(SecurityException.class, () -> pollsService.getPollById(firstPollId));
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER_NO_ACCEESS);
+        Assert.assertThrows(SecurityException.class, () -> pollsService.getPollById(pollId));
     }
 
     @Test
@@ -123,9 +137,10 @@ public class PollsServiceTests {
         poll1.setVoteClose(new Date());
         poll1.setDescription("this is some text");
         poll1.setText("something");
-        poll1.setOwner(USER_UPDATE);
+        poll1.setOwner(USER);
         poll1.setSiteId(LOCATION1_ID);
 
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
         Poll savedPoll1 = pollsService.savePoll(poll1);
         Assert.assertNotNull(savedPoll1);
         Assert.assertNotNull(savedPoll1.getId());
@@ -137,7 +152,7 @@ public class PollsServiceTests {
         poll.setText("sdfgsdf");
         Assert.assertThrows(IllegalArgumentException.class, () -> pollsService.savePoll(poll));
 
-        Mockito.when(developerHelperService.getCurrentUserReference()).thenReturn(USER_NO_ACCEESS);
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER_NO_ACCEESS);
         Assert.assertThrows(SecurityException.class, () -> pollsService.savePoll(poll1));
     }
 
@@ -150,11 +165,11 @@ public class PollsServiceTests {
         poll1.setVoteClose(new Date());
         poll1.setDescription("this is some text");
         poll1.setText("something");
-        poll1.setOwner(USER_UPDATE);
+        poll1.setOwner(USER);
         poll1.setSiteId(LOCATION1_ID);
 
         // we should not be able to delete a poll that hasn't been saved
-        Assert.assertThrows(IllegalArgumentException.class, () -> pollsService.deletePoll(poll1));
+        Assert.assertThrows(IllegalArgumentException.class, () -> pollsService.deletePoll(poll1.getId()));
 
         Option option1 = new Option();
         option1.setText("asdgasd");
@@ -166,15 +181,17 @@ public class PollsServiceTests {
         option2.setOptionOrder(1);
         poll1.addOption(option2);
 
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
         Poll savedPoll = pollsService.savePoll(poll1);
 
         Vote vote = new Vote();
         vote.setIp("Localhost");
-        vote.setUserId(USER_UPDATE);
+        vote.setUserId(USER);
         vote.setVoteDate(Instant.now());
-        vote.setSubmissionId(USER_UPDATE + ":" + UUID.randomUUID());
+        vote.setSubmissionId(USER + ":" + UUID.randomUUID());
         vote.setOption(option1);
 
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
         pollsService.saveVote(vote);
 
         List<Vote> votes = pollsService.getAllVotesForPoll(savedPoll.getId());
@@ -184,12 +201,12 @@ public class PollsServiceTests {
         savedPoll.getOptions().forEach(o -> Assert.assertNotNull(o.getId()));
         votes.forEach(v -> Assert.assertNotNull(v.getId()));
 
-        Mockito.when(developerHelperService.getCurrentUserReference()).thenReturn(USER_NO_ACCEESS);
-        Assert.assertThrows(SecurityException.class, () -> pollsService.deletePoll(savedPoll));
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER_NO_ACCEESS);
+        Assert.assertThrows(SecurityException.class, () -> pollsService.deletePoll(savedPoll.getId()));
 
-        Mockito.when(developerHelperService.getCurrentUserReference()).thenReturn(USER_UPDATE);
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
         try {
-            pollsService.deletePoll(savedPoll);
+            pollsService.deletePoll(savedPoll.getId());
         } catch (SecurityException e) {
             log.error(e.toString());
             Assert.fail();

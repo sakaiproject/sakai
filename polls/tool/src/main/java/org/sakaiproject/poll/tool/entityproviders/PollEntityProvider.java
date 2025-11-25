@@ -40,15 +40,13 @@ import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-import org.sakaiproject.poll.api.PollConstants;
 import org.sakaiproject.poll.api.entity.PollEntity;
 import org.sakaiproject.poll.api.service.PollsService;
-import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
-import org.sakaiproject.poll.api.model.Vote;
 
 import static org.sakaiproject.poll.api.PollConstants.*;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -61,10 +59,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PollEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful,
         RequestStorable, RedirectDefinable {
 
-    private PollsService pollsService;
-    public void setPollListManager(PollsService pollsService) {
-        this.pollsService = pollsService;
-    }
+    @Setter private PollsService pollsService;
 
     public static final String PREFIX = "poll";
     public String getEntityPrefix() {
@@ -215,7 +210,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
             throw new IllegalArgumentException("No poll found for the given reference: " + ref);
         }
         try {
-            pollsService.deletePoll(poll.get());
+            pollsService.deletePoll(poll.get().getId());
         } catch (SecurityException e) {
             throw new SecurityException("The current user ("+developerHelperService.getCurrentUserReference()
                     +") is not allowed to delete this poll: " + ref);

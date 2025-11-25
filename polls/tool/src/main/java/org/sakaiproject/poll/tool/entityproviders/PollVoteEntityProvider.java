@@ -33,6 +33,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.entitybroker.EntityReference;
@@ -68,22 +69,11 @@ import org.sakaiproject.user.api.UserDirectoryService;
 public class PollVoteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, 
     Createable, CollectionResolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable {
 
-    private PollsService pollsService;
-    public void setPollListManager(final PollsService pollsService) {
-        this.pollsService = pollsService;
-    }
+    @Setter private PollsService pollsService;
+    @Setter private UsageSessionService usageSessionService;
+    @Setter private UserDirectoryService userDirectoryService;
 
-    private UsageSessionService usageSessionService;    
-    public void setUsageSessionService(UsageSessionService usageSessionService) {
-		this.usageSessionService = usageSessionService;
-	}
-    
-    private UserDirectoryService userDirectoryService;
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-    	this.userDirectoryService = userDirectoryService;
-    }
-
-	public static final String PREFIX = "poll-vote";
+    public static final String PREFIX = "poll-vote";
     public String getEntityPrefix() {
         return PREFIX;
     }

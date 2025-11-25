@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.poll.api.logic.ExternalLogic;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Poll;
-import org.sakaiproject.poll.tool.service.PollsUiService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -51,18 +50,15 @@ public class PollController {
 
     private final PollsService pollsService;
     private final ExternalLogic externalLogic;
-    private final PollsUiService pollsUiService;
     private final MessageSource messageSource;
     private final UserTimeService userTimeService;
 
     public PollController(PollsService pollsService,
                           ExternalLogic externalLogic,
-                          PollsUiService pollsUiService,
                           MessageSource messageSource,
                           @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService) {
         this.pollsService = pollsService;
         this.externalLogic = externalLogic;
-        this.pollsUiService = pollsUiService;
         this.messageSource = messageSource;
         this.userTimeService = userTimeService;
     }
@@ -98,7 +94,7 @@ public class PollController {
 
             int optionCount = poll.getOptions() != null ? poll.getOptions().size() : 0;
             if (!canVote && optionCount == 0) {
-                optionCount = pollsService.getOptionsForPoll(poll).size();
+                optionCount = poll.getOptions().size();
             }
 
             String voteOpenDisplay = null;
@@ -154,12 +150,12 @@ public class PollController {
 
         switch (action) {
             case "delete" -> {
-                pollsUiService.deletePolls(deleteIds);
+                pollsService.deletePolls(deleteIds);
                 redirectAttributes.addFlashAttribute("success",
                         messageSource.getMessage("poll_deleted_success", null, locale));
             }
             case "reset" -> {
-                pollsUiService.resetPollVotes(deleteIds);
+                pollsService.resetPollVotes(deleteIds);
                 redirectAttributes.addFlashAttribute("success",
                         messageSource.getMessage("poll_votes_reset_success", null, locale));
             }

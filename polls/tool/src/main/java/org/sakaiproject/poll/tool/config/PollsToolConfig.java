@@ -51,7 +51,7 @@ public class PollsToolConfig {
                                                  EntityProviderManager entityProviderManager,
                                                  DeveloperHelperService developerHelperService) {
         PollEntityProvider provider = new PollEntityProvider();
-        provider.setPollListManager(pollsService);
+        provider.setPollsService(pollsService);
         provider.setEntityProviderManager(entityProviderManager);
         provider.setDeveloperHelperService(developerHelperService);
         return provider;
@@ -62,7 +62,7 @@ public class PollsToolConfig {
                                                              EntityProviderManager entityProviderManager,
                                                              DeveloperHelperService developerHelperService) {
         PollOptionEntityProvider provider = new PollOptionEntityProvider();
-        provider.setPollListManager(pollsService);
+        provider.setPollsService(pollsService);
         provider.setEntityProviderManager(entityProviderManager);
         provider.setDeveloperHelperService(developerHelperService);
         return provider;
@@ -75,7 +75,7 @@ public class PollsToolConfig {
                                                          EntityProviderManager entityProviderManager,
                                                          DeveloperHelperService developerHelperService) {
         PollVoteEntityProvider provider = new PollVoteEntityProvider();
-        provider.setPollListManager(pollsService);
+        provider.setPollsService(pollsService);
         provider.setUsageSessionService(usageSessionService);
         provider.setUserDirectoryService(userDirectoryService);
         provider.setEntityProviderManager(entityProviderManager);

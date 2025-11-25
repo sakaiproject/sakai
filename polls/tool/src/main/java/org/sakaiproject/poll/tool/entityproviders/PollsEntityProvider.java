@@ -377,7 +377,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 					"No poll found for the given reference: " + ref);
 		}
 		try {
-			pollsService.deletePoll(poll);
+			pollsService.deletePoll(poll.getId());
 			return String.format("Poll id %s removed", id);
 		} catch (SecurityException e) {
 			throw new SecurityException("The current user ("
@@ -434,7 +434,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			}
 		}
 		// get the options
-		List<Option> options = pollsService.getOptionsForPoll(poll.get());
+		List<Option> options = poll.get().getOptions();
 		return options;
 	}
 

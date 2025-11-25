@@ -33,7 +33,7 @@
         <input type="submit" name="submitAction" value="save" class="active" th:value="#{new_poll_submit}" />
         <input type="submit" name="submitAction" value="addAnother"
                th:if="${isNew}" th:value="#{new_poll_saveoption}" />
-        <input type="button" th:onclick="|location.href='@{/voteAdd(pollId=${poll.pollId})}'|"
+        <input type="button" th:onclick="|location.href='@{/voteAdd(pollId=${poll.id})}'|"
                th:value="#{new_poll_cancel}" value="Cancel" />
       </div>
     </form>

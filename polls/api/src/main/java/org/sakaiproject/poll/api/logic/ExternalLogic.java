@@ -21,12 +21,8 @@
 
 package org.sakaiproject.poll.api.logic;
 
-import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
-import org.sakaiproject.poll.api.model.PollRolePerms;
-import org.sakaiproject.poll.api.model.Vote;
 import org.sakaiproject.tool.api.ToolSession;
 
 public interface ExternalLogic {
@@ -39,7 +35,6 @@ public interface ExternalLogic {
 	 */
 	public boolean isUserAdmin(String userId);
 	
-	
 	/**
 	 * Check if the current user has super admin access
 	 * 
@@ -47,16 +42,12 @@ public interface ExternalLogic {
 	 * @return true if the user has admin access, false otherwise
 	 */
 	public boolean isUserAdmin();
-	
-	
-	
-	
+
 	/**
 	 * @return the current location id of the current user
 	 */
 	public String getCurrentLocationId();
-	
-	
+
 	/**
 	 * @return the current location reference of the current user
 	 */
@@ -67,27 +58,12 @@ public interface ExternalLogic {
 	 */
 	String getCurrentToolURL();
 	
-
 	/**
 	 * @return the current sakai user id (not username)
 	 */
 	public String getCurrentUserId();
-	
-	/**
-	 * Get the current user reference (/user/admin)
-	 * @return
-	 */
-	public String getCurrentuserReference();
-	
-	/**
-	 * Given a userId, return the associated userEid
-	 * @param userId The userId
-	 * @return
-	 * 	The userEid
-	 */
-	public String getUserEidFromId(String userId);
-	
-	/**
+
+    /**
 	 * is the current user allowed to perform the action in the current location?
 	 * @param permission
 	 * @param locationReference
@@ -101,155 +77,29 @@ public interface ExternalLogic {
 	 * @param the user
 	 */
 	public boolean isAllowedInLocation(String permission, String locationReference, String userRefence);
-	
-	/**
-	 * Get the sites  users is a member of  
-	 * @param userId
-	 * @param permission
-	 * @return a list of site references
-	 */
-	public List<String> getSitesForUser(String userId, String permission);
-	
-	/**
-	 * Post a new event to the event tracking service
-	 * @param eventId
-	 * @param reference
-	 * @param does the event modify state?
-	 */
-	public void postEvent(String eventId, String reference, boolean modify);
-	
-	/**
-	 * Register a function with the Sakai Function manager
-	 * @param function
-     * @param userMutable
-	 */
-	public void registerFunction(String function, boolean userMutable);
-	
-	/** 
+
+    /**
 	 *  get the correct Timezone for the the current user
 	 * @return
 	 */
 	public TimeZone getLocalTimeZone();
-	
-	
-	/**
-	 * Get a list of RoleIds in a the given realms
-	 * @param RealmId
-	 * @return a list os frings of the role Ids
-	 */
-	public List<String> getRoleIdsInRealm(String realmId);
-	
-	
-	/**
-	 * is the role allowed to perform the function in the given realm?
-	 * @param RoleId
-	 * @param realmId
-	 * @return
-	 */
-	public boolean isRoleAllowedInRealm(String roleId, String realmId, String permission);
-	
-	/**
-	 * 
-	 * @param siteId
-	 * @return
-	 */
-	public String getSiteTile(String siteId);
-	
-	/**
-	 * Get a site reference "/site/ABCD from its id (ABCD)
-	 * @param siteId
-	 * @return
-	 */
-	public String getSiteRefFromId(String siteId);
-	/**
-	 * Set the tool permissions for the given location
-	 * @param permMap
-	 * @param locationReference
-	 * @throws SecurityException
-	 * @throws IllegalArgumentException
-	 */
-	public void setToolPermissions(Map<String, PollRolePerms> permMap, String locationReference) throws SecurityException, IllegalArgumentException;
-	
-	/**
-	 * Get the Roles in a site
-	 * @param locationReference
-	 * @return
-	 */
-	public Map<String, PollRolePerms> getRoles(String locationReference);
-	
-	/**
-	 * is the user using the "view as ..." feature
-	 * @return
-	 */
-	public boolean userIsViewingAsRole();
-	
-	/**
-	 * Notify a list of users that an option they voted for in a poll has been deleted.
-	 * 
-	 * @param userEids
-	 * 	A List of user EID's that identify the users to be notified
-	 * @param pollQuestion
-	 * 	The text of the poll whose option was deleted
-	 * @param siteTitle
-	 * 	The title of the site that owns the option's poll
-	 */
-	public void notifyDeletedOption(List<String> userEids, String siteTitle, String pollQuestion);
-	
-	
-	
-	/**
+
+    /**
 	 * Needed to invoke helper tools
 	 */
 	public ToolSession getCurrentToolSession();
-	
-	/**
-	 * Are charts enabled on the results page?
-	 * poll.results.chart.enabled=true|false, default false
-	 * @return
-	 */
-	public boolean isResultsChartEnabled();
-	
-	/**
+
+    /**
 	 * Are the public access options available to the Instructor?
 	 * poll.allow.public.access=true|false, default false
 	 * @return
 	 */
 	public boolean isShowPublicAccess();
 
-	/**
-	 * Is the current user using a mobile browser?
-	 * @return
-	 */
-	public boolean isMobileBrowser();
-	
-	/**
-	 * Get a list of the permission keys for the tool
-	 * @return
-	 */
-	public List<String> getPermissionKeys();
-
-    /**
-     * Register a statement with the system LearningResourceStoreService
-     */
-    public void registerStatement(String pollText, Vote vote);
-
-    /**
-     * Register a statement with the system LearningResourceStoreService
-     */
-    public void registerStatement(String pollText, boolean newPoll, String pollId);
-    
     /**
      * Get the total number of users that have permission for voting
      */
     public int getNumberUsersCanVote();
-    
-    
-    /**
-     * @param text
-     * @return
-     */
-    public String convertFormattedTextToPlaintext(String text);
-    
 
     /**
      * @param text
@@ -257,7 +107,6 @@ public interface ExternalLogic {
      * @return
      */
     public String processFormattedText(String text, StringBuilder errorMessages);
-    
     
     /**
      * @param strFromBrowser
