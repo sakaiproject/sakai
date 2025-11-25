@@ -63,11 +63,7 @@
 
       <div class="mt-4" th:if="${pollForm.pollId != null}">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h2 class="h5 mb-0" th:text="#{new_poll_option_title}">Answer Options</h2>
-          <div class="btn-group">
-            <button type="submit" name="redirect" value="option" class="btn btn-outline-primary btn-sm" th:text="#{new_poll_option_add}">Add option</button>
-            <button type="submit" name="redirect" value="optionBatch" class="btn btn-outline-secondary btn-sm" th:text="#{new_poll_option_add_batch}">Add in batch</button>
-          </div>
+          <h2 class="h3 mb-0" th:text="#{new_poll_option_title}">Answer Options</h2>
         </div>
 
         <div class="sak-banner-warn" th:if="${hasVotes}" th:text="#{warn_poll_has_votes}">Existing votes warning</div>
@@ -84,18 +80,22 @@
             <tr th:each="option : ${options}">
               <td th:utext="${option.text}">Option text</td>
               <td class="text-nowrap d-flex gap-2">
-                <a class="btn btn-outline-secondary btn-sm" role="button" th:href="@{'/pollOption'(optionId=${option.optionId})}" th:text="#{new_poll_option_edit}">Edit</a>
-                <a class="btn btn-outline-danger btn-sm" role="button" th:href="@{'/pollOptionDelete'(optionId=${option.optionId})}" th:text="#{new_poll_option_delete}">Delete</a>
+                <a class="btn btn-outline-secondary btn-sm" role="button" th:href="@{'/pollOption'(optionId=${option.id})}" th:text="#{new_poll_option_edit}">Edit</a>
+                <a class="btn btn-outline-danger btn-sm" role="button" th:href="@{'/pollOptionDelete'(optionId=${option.id})}" th:text="#{new_poll_option_delete}">Delete</a>
               </td>
             </tr>
             </tbody>
           </table>
         </div>
+        <div class="mb-3" role="group" aria-label="Option actions">
+          <input type="button" th:onclick="|location.href='@{/pollOption(pollId=${pollForm.pollId})}'|" th:value="#{new_poll_option_add}"/>
+          <input type="button" th:onclick="|location.href='@{/pollOptionBatch(pollId=${pollForm.pollId})}'|" th:value="#{new_poll_option_add_batch}"/>
+        </div>
         <p class="text-muted" th:if="${options.isEmpty()}" th:text="#{new_poll_saveoption}">Save to add options</p>
       </div>
 
       <div class="mt-4">
-        <h2 class="h5" th:text="#{new_poll_limits}">Limits</h2>
+        <h2 class="h3" th:text="#{new_poll_limits}">Limits</h2>
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label" for="min-options" th:text="#{new_poll_min_limits}">Min options</label>

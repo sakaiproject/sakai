@@ -13,7 +13,7 @@
 
     <h1 class="h4 mb-3" th:text="#{poll_vote_title}">Vote</h1>
     <p class="fw-semibold" th:utext="${poll.text}">Poll question</p>
-    <div class="mb-3" th:utext="${poll.details}"></div>
+    <div class="mb-3" th:utext="${poll.description}"></div>
 
     <form th:action="@{/voteQuestion}" th:object="${voteForm}" method="post" class="d-grid gap-3">
       <input type="hidden" th:field="*{pollId}" />
@@ -22,9 +22,9 @@
           <input th:type="${multipleChoice} ? 'checkbox' : 'radio'"
                  class="me-2"
                  name="selectedOptionIds"
-                 th:id="${'option-' + option.optionId}"
-                 th:value="${option.optionId}"
-                 th:checked="${#lists.contains(voteForm.selectedOptionIds, option.optionId)}" />
+                 th:id="${'option-' + option.id}"
+                 th:value="${option.id}"
+                 th:checked="${#lists.contains(voteForm.selectedOptionIds, option.id)}" />
           <span class="flex-grow-1" th:utext="${option.text}">Option text</span>
         </label>
       </div>

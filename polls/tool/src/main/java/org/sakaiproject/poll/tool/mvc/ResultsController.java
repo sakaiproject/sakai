@@ -122,7 +122,7 @@ public class ResultsController {
         boolean canAdd = isAdmin || securityService.unlock(PERMISSION_ADD, siteRef);
         boolean isSiteOwner = isAdmin || securityService.unlock("site.upd", siteRef);
 
-        model.addAttribute("poll", poll);
+        model.addAttribute("poll", poll.get());
         model.addAttribute("rows", rows);
         model.addAttribute("totalVotes", totalVotes);
         model.addAttribute("distinctVoters", distinctVoters);

@@ -25,7 +25,7 @@
       </div>
       <div class="act">
         <input type="submit" class="active" th:value="#{new_poll_submit}" value="Upload" />
-        <input type="button" th:onclick="|location.href='@{/voteAdd(pollId=${poll.pollId})}'|"
+        <input type="button" th:onclick="|location.href='@{/voteAdd(pollId=${poll.id})}'|"
                th:value="#{new_poll_cancel}" value="Cancel" />
       </div>
     </form>

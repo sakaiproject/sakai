@@ -55,7 +55,7 @@ public class VoteController {
     private final SiteService siteService;
     private final ToolManager toolManager;
     private final MessageSource messageSource;
-    
+
     @GetMapping("/voteQuestion")
     public String showVote(@RequestParam("pollId") String pollId,
                            Model model,
@@ -83,7 +83,7 @@ public class VoteController {
         VoteForm voteForm = new VoteForm();
         voteForm.setPollId(pollId);
 
-        model.addAttribute("poll", poll);
+        model.addAttribute("poll", poll.get());
         model.addAttribute("options", options);
         model.addAttribute("multipleChoice", multipleChoice);
         model.addAttribute("voteForm", voteForm);
