@@ -23,10 +23,14 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.poll.tool.model.OptionBatchForm;
 import org.sakaiproject.poll.tool.model.OptionForm;
 import org.springframework.context.MessageSource;
@@ -54,7 +58,11 @@ public class OptionController {
     private static final String HANDLE_DELETE_OPTION_RETURN_VOTES = "return-votes";
 
     private final PollsService pollsService;
-    private final ExternalLogic externalLogic;
+    private final SecurityService securityService;
+    private final SiteService siteService;
+    private final SessionManager sessionManager;
+    private final ToolManager toolManager;
+    private final FormattedText formattedText;
     private final MessageSource messageSource;
 
     @GetMapping("/pollOption")
@@ -154,7 +162,7 @@ public class OptionController {
         }
 
         // Process and sanitize HTML in option text
-        String sanitizedText = externalLogic.processFormattedText(
+        String sanitizedText = formattedText.processFormattedText(
             optionForm.getText(),
             new StringBuilder(),
             true,
@@ -300,11 +308,13 @@ public class OptionController {
     }
 
     private boolean isAllowedPollAdd() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        return securityService.isSuperUser() || securityService.unlock(PERMISSION_ADD, siteRef);
     }
 
     private boolean isSiteOwner() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference());
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        return securityService.isSuperUser() || securityService.unlock("site.upd", siteRef);
     }
 
     public record DeleteChoice(String value, String labelKey) { }

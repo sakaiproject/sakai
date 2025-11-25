@@ -59,22 +59,6 @@
         </property>
     </bean>
 
-    <bean id="org.sakaiproject.poll.api.logic.ExternalLogic"
-          class="org.sakaiproject.poll.impl.logic.ExternalLogicImpl"
-          init-method="init">
-        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
-        <property name="learningResourceStoreService" ref="org.sakaiproject.event.api.LearningResourceStoreService"/>
-        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
-        <property name="userTimeService" ref="org.sakaiproject.time.api.UserTimeService"/>
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
-        <!-- inject other resources -->
-        <property name="emailTemplates" ref="org.sakaiproject.poll.emailtemplates.List"/>
-    </bean>
-
     <!-- Job to back-fill Poll options' order -->
     <bean id="pollOrderOptionBackFillJob"
           class="org.sakaiproject.poll.impl.logic.PollOrderOptionBackFillJob">

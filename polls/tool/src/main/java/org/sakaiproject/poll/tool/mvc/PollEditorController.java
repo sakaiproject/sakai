@@ -28,10 +28,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.tool.model.PollForm;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.UserTimeService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -53,7 +59,13 @@ import static org.sakaiproject.poll.api.PollConstants.*;
 public class PollEditorController {
 
     private final PollsService pollsService;
-    private final ExternalLogic externalLogic;
+    private final SecurityService securityService;
+    private final SiteService siteService;
+    private final SessionManager sessionManager;
+    private final ToolManager toolManager;
+    private final ServerConfigurationService serverConfigurationService;
+    private final FormattedText formattedText;
+    private final UserTimeService userTimeService;
     private final MessageSource messageSource;
 
     @GetMapping("/voteAdd")
@@ -102,7 +114,7 @@ public class PollEditorController {
 
         model.addAttribute("canAdd", isAllowedPollAdd());
         model.addAttribute("isSiteOwner", isSiteOwner());
-        model.addAttribute("showPublicAccess", externalLogic.isShowPublicAccess());
+        model.addAttribute("showPublicAccess", serverConfigurationService.getBoolean("poll.allow.public.access", false));
         model.addAttribute("timezone", getUserZoneId());
         return "polls/edit";
     }
@@ -179,7 +191,7 @@ public class PollEditorController {
         model.addAttribute("isNew", pollForm.getPollId() == null);
         model.addAttribute("canAdd", isAllowedPollAdd());
         model.addAttribute("isSiteOwner", isSiteOwner());
-        model.addAttribute("showPublicAccess", externalLogic.isShowPublicAccess());
+        model.addAttribute("showPublicAccess", serverConfigurationService.getBoolean("poll.allow.public.access", false));
         model.addAttribute("timezone", getUserZoneId());
     }
 
@@ -199,7 +211,7 @@ public class PollEditorController {
         poll.setText(StringUtils.trimToEmpty(form.getText()));
 
         // Process and sanitize HTML in description
-        String sanitizedDescription = externalLogic.processFormattedText(
+        String sanitizedDescription = formattedText.processFormattedText(
             form.getDetails() != null ? form.getDetails() : "",
             new StringBuilder()
         );
@@ -209,8 +221,8 @@ public class PollEditorController {
         poll.setMinOptions(form.getMinOptions());
         poll.setMaxOptions(form.getMaxOptions());
         poll.setDisplayResult(form.getDisplayResult());
-        poll.setSiteId(externalLogic.getCurrentLocationId());
-        poll.setOwner(externalLogic.getCurrentUserId());
+        poll.setSiteId(toolManager.getCurrentPlacement().getContext());
+        poll.setOwner(sessionManager.getCurrentSessionUserId());
         poll.setLimitVoting(true);
 
         // Convert LocalDateTime to Date for persistence
@@ -261,26 +273,29 @@ public class PollEditorController {
     }
 
     private boolean isAllowedPollAdd() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        return securityService.isSuperUser() || securityService.unlock(PERMISSION_ADD, siteRef);
     }
 
     private boolean isSiteOwner() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference());
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        return securityService.isSuperUser() || securityService.unlock("site.upd", siteRef);
     }
 
     private boolean canEditPoll(Poll poll) {
-        if (externalLogic.isUserAdmin()) {
+        if (securityService.isSuperUser()) {
             return true;
         }
-        if (externalLogic.isAllowedInLocation(PERMISSION_EDIT_ANY, externalLogic.getCurrentLocationReference())) {
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        if (securityService.unlock(PERMISSION_EDIT_ANY, siteRef)) {
             return true;
         }
-        return externalLogic.isAllowedInLocation(PERMISSION_EDIT_OWN, externalLogic.getCurrentLocationReference())
-                && StringUtils.equals(poll.getOwner(), externalLogic.getCurrentUserId());
+        return securityService.unlock(PERMISSION_EDIT_OWN, siteRef)
+                && StringUtils.equals(poll.getOwner(), sessionManager.getCurrentSessionUserId());
     }
 
     private ZoneId getUserZoneId() {
-        TimeZone tz = externalLogic.getLocalTimeZone();
+        TimeZone tz = userTimeService.getLocalTimeZone();
         return tz != null ? tz.toZoneId() : ZoneId.systemDefault();
     }
 

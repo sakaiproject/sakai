@@ -23,12 +23,15 @@ import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.tool.model.VoteForm;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,7 +51,10 @@ import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
 public class VoteController {
 
     private final PollsService pollsService;
-    private final ExternalLogic externalLogic;
+    private final SecurityService securityService;
+    private final SiteService siteService;
+    private final SessionManager sessionManager;
+    private final ToolManager toolManager;
     private final MessageSource messageSource;
 
     @GetMapping("/voteQuestion")
@@ -126,10 +132,12 @@ public class VoteController {
     }
 
     private boolean isAllowedPollAdd() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        return securityService.isSuperUser() || securityService.unlock(PERMISSION_ADD, siteRef);
     }
 
     private boolean isSiteOwner() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference());
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        return securityService.isSuperUser() || securityService.unlock("site.upd", siteRef);
     }
 }

@@ -27,11 +27,14 @@ import java.util.Optional;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.poll.api.logic.ExternalLogic;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
 import org.sakaiproject.poll.api.model.Poll;
 import org.sakaiproject.poll.api.model.Vote;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,14 +51,23 @@ import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
 public class ResultsController {
 
     private final PollsService pollsService;
-    private final ExternalLogic externalLogic;
+    private final SessionManager sessionManager;
+    private final SecurityService securityService;
+    private final SiteService siteService;
+    private final ToolManager toolManager;
     private final MessageSource messageSource;
 
     public ResultsController(PollsService pollsService,
-                             ExternalLogic externalLogic,
+                             SessionManager sessionManager,
+                             SecurityService securityService,
+                             SiteService siteService,
+                             ToolManager toolManager,
                              MessageSource messageSource) {
         this.pollsService = pollsService;
-        this.externalLogic = externalLogic;
+        this.sessionManager = sessionManager;
+        this.securityService = securityService;
+        this.siteService = siteService;
+        this.toolManager = toolManager;
         this.messageSource = messageSource;
     }
 
@@ -65,7 +77,8 @@ public class ResultsController {
                               Locale locale,
                               RedirectAttributes redirectAttributes) {
         Optional<Poll> poll = pollsService.getPollById(pollId);
-        if (!pollsService.isAllowedViewResults(poll.get(), externalLogic.getCurrentUserId())) {
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+        if (!pollsService.isAllowedViewResults(poll.get(), currentUserId)) {
             redirectAttributes.addFlashAttribute("alert", messageSource.getMessage("poll.noviewresult", null, locale));
             return "redirect:/votePolls";
         }
@@ -80,7 +93,8 @@ public class ResultsController {
         List<Vote> votes = pollsService.getAllVotesForPoll(poll.get().getId());
         int totalVotes = votes.size();
         int distinctVoters = pollsService.getDistinctVotersForPoll(poll.get());
-        int potentialVoters = externalLogic.getNumberUsersCanVote();
+        String siteId = toolManager.getCurrentPlacement().getContext();
+        int potentialVoters = pollsService.getNumberUsersCanVote(siteId);
 
         List<ResultRow> rows = new ArrayList<>();
         NumberFormat percentFormat = NumberFormat.getPercentInstance(locale);
@@ -115,6 +129,11 @@ public class ResultsController {
         String pollSizeMessage = messageSource.getMessage("results_poll_size",
                 new Object[]{pollSizeDetails}, locale);
 
+        String siteRef = siteService.siteReference(siteId);
+        boolean isAdmin = securityService.isSuperUser();
+        boolean canAdd = isAdmin || securityService.unlock(PERMISSION_ADD, siteRef);
+        boolean isSiteOwner = isAdmin || securityService.unlock("site.upd", siteRef);
+
         model.addAttribute("poll", poll);
         model.addAttribute("rows", rows);
         model.addAttribute("totalVotes", totalVotes);
@@ -122,8 +141,8 @@ public class ResultsController {
         model.addAttribute("voterPercent", voterPercent);
         model.addAttribute("pollSizeMessage", pollSizeMessage);
         model.addAttribute("totalPercentageLabel", totalPercentageLabel);
-        model.addAttribute("canAdd", externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PERMISSION_ADD, externalLogic.getCurrentLocationReference()));
-        model.addAttribute("isSiteOwner", externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference()));
+        model.addAttribute("canAdd", canAdd);
+        model.addAttribute("isSiteOwner", isSiteOwner);
 
         return "polls/results";
     }

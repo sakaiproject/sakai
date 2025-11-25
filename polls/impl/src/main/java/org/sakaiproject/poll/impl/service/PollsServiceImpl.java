@@ -1162,7 +1162,18 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (siteIds.isEmpty()) {
             log.info("Empty list of siteIds for user:{}, permission: {}", userId, permission);
         }
-    
+
         return siteIds;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public int getNumberUsersCanVote(String siteId) {
+        if (siteId == null) {
+            throw new IllegalArgumentException("siteId cannot be null");
+        }
+        List<String> siteGroupRefs = new ArrayList<>();
+        siteGroupRefs.add(siteService.siteReference(siteId));
+        return authzGroupService.getUsersIsAllowed(PERMISSION_VOTE, siteGroupRefs).size();
     }
 }

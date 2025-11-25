@@ -17,8 +17,11 @@
 package org.sakaiproject.poll.tool.mvc;
 
 import lombok.RequiredArgsConstructor;
-import org.sakaiproject.poll.api.logic.ExternalLogic;
-import org.sakaiproject.poll.api.service.PollsService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,21 +34,30 @@ import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
 @RequiredArgsConstructor
 public class PermissionsController {
 
-    private final ExternalLogic externalLogic;
+    private final SecurityService securityService;
+    private final SiteService siteService;
+    private final SessionManager sessionManager;
+    private final ToolManager toolManager;
+    private final ServerConfigurationService serverConfigurationService;
 
     @GetMapping("/votePermissions")
     public String permissions(Model model) {
-        model.addAttribute("toolUrl", externalLogic.getCurrentToolURL());
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        String placementId = sessionManager.getCurrentToolSession().getPlacementId();
+        String toolUrl = serverConfigurationService.getPortalUrl() + siteRef + "/tool/" + placementId;
+        model.addAttribute("toolUrl", toolUrl);
         model.addAttribute("canAdd", isAllowedPollAdd());
         model.addAttribute("isSiteOwner", isSiteOwner());
         return "polls/permissions";
     }
 
     private boolean isAllowedPollAdd() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation(PERMISSION_ADD, externalLogic.getCurrentLocationReference());
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        return securityService.isSuperUser() || securityService.unlock(PERMISSION_ADD, siteRef);
     }
 
     private boolean isSiteOwner() {
-        return externalLogic.isUserAdmin() || externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference());
+        String siteRef = siteService.siteReference(toolManager.getCurrentPlacement().getContext());
+        return securityService.isSuperUser() || securityService.unlock("site.upd", siteRef);
     }
 }

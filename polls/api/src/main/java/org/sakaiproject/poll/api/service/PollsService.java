@@ -355,4 +355,11 @@ public interface PollsService {
      * @throws IllegalArgumentException if the vote is invalid
      */
     VoteCollection submitVote(String pollId, java.util.List<Long> selectedOptionIds);
+
+    /**
+     * Get the number of users who can vote in a site
+     * @param siteId the site ID
+     * @return count of users with vote permission in the site
+     */
+    int getNumberUsersCanVote(String siteId);
 }
