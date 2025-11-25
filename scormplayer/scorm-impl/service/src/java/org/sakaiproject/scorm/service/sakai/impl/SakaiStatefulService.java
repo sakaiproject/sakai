@@ -116,15 +116,15 @@ public abstract class SakaiStatefulService implements LearningManagementSystem
 			return latestAttempt.getAttemptNumber();
 		}
 
-		// Not exited attempts
+		// Abandoned attempts (isNotExited)
 		if (latestAttempt.isNotExited())
 		{
-			// At/over limit - would create new attempt that exceeds limit
+			// If at/over limit - would create new attempt that exceeds limit
 			if (latestAttempt.getAttemptNumber() >= numberOfTries)
 			{
 				return latestAttempt.getAttemptNumber() + 1;
 			}
-			// Under limit - would continue current attempt
+			// Under limit - would resume current attempt
 			return latestAttempt.getAttemptNumber();
 		}
 

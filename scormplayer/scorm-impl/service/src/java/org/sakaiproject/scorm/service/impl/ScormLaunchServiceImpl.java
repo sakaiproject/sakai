@@ -422,6 +422,7 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
                 else if (latestAttempt.isNotExited())
                 {
                     int numberOfTries = contentPackage.getNumberOfTries();
+
                     if (numberOfTries != -1 && latestAttempt.getAttemptNumber() >= numberOfTries)
                     {
                         attemptNumber = latestAttempt.getAttemptNumber() + 1;
