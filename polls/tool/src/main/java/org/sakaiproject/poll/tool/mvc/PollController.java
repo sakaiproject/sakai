@@ -112,15 +112,15 @@ public class PollController {
             String voteOpenDisplay = null;
             String voteOpenSortKey = null;
             if (poll.getVoteOpen() != null) {
-                voteOpenDisplay = userTimeService.shortLocalizedTimestamp(poll.getVoteOpen().toInstant(), effectiveLocale);
-                voteOpenSortKey = sortFormatter.format(poll.getVoteOpen().toInstant());
+                voteOpenDisplay = userTimeService.shortLocalizedTimestamp(poll.getVoteOpen(), effectiveLocale);
+                voteOpenSortKey = sortFormatter.format(poll.getVoteOpen());
             }
 
             String voteCloseDisplay = null;
             String voteCloseSortKey = null;
             if (poll.getVoteClose() != null) {
-                voteCloseDisplay = userTimeService.shortLocalizedTimestamp(poll.getVoteClose().toInstant(), effectiveLocale);
-                voteCloseSortKey = sortFormatter.format(poll.getVoteClose().toInstant());
+                voteCloseDisplay = userTimeService.shortLocalizedTimestamp(poll.getVoteClose(), effectiveLocale);
+                voteCloseSortKey = sortFormatter.format(poll.getVoteClose());
             }
 
             boolean canViewResults = pollsService.isAllowedViewResults(poll, sessionManager.getCurrentSessionUserId());

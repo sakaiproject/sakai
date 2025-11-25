@@ -23,8 +23,10 @@ package org.sakaiproject.poll.api.model;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Stack;
@@ -38,6 +40,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -75,9 +78,8 @@ public class Poll implements PersistableEntity<String> {
     @Column(name = "POLL_SITE_ID", nullable = false, length = 99)
     private String siteId;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "POLL_CREATION_DATE", nullable = false)
-    private Date creationDate;
+    private Instant creationDate;
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
@@ -95,13 +97,11 @@ public class Poll implements PersistableEntity<String> {
     @Column(name = "POLL_MAX_OPTIONS", nullable = false)
     private int maxOptions = 1;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "POLL_VOTE_OPEN", nullable = false)
-    private Date voteOpen;
+    private Instant voteOpen;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "POLL_VOTE_CLOSE", nullable = false)
-    private Date voteClose;
+    private Instant voteClose;
 
     @Column(name = "POLL_DISPLAY_RESULT", nullable = false, length = 99)
     private String displayResult = "open";
@@ -110,6 +110,7 @@ public class Poll implements PersistableEntity<String> {
     private boolean limitVoting = true;
 
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OrderColumn(name = "OPTION_ORDER")
     @ToString.Exclude
     private List<Option> options = new ArrayList<>();
 
@@ -123,11 +124,8 @@ public class Poll implements PersistableEntity<String> {
         this.maxOptions = 1;
         this.limitVoting = true;
         this.isPublic = false;
-        this.voteOpen = new Date();
-
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, 7);
-        this.voteClose = cal.getTime();
+        this.voteOpen = Instant.now();
+        this.voteClose = Instant.now().plus(7, ChronoUnit.DAYS);
         this.displayResult = "open";
     }
 
@@ -172,14 +170,16 @@ public class Poll implements PersistableEntity<String> {
         DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
         if (!"".equals(element.getAttribute(VOTE_OPEN))) {
             try {
-                poll.setVoteOpen(dformat.parse(element.getAttribute(VOTE_OPEN)));
+                Date date = dformat.parse(element.getAttribute(VOTE_OPEN));
+                poll.setVoteOpen(date.toInstant());
             } catch (ParseException e) {
                 //should log this
             }
         }
         if (!"".equals(element.getAttribute(VOTE_CLOSE))) {
             try {
-                poll.setVoteClose(dformat.parse(element.getAttribute(VOTE_CLOSE)));
+                Date date = dformat.parse(element.getAttribute(VOTE_CLOSE));
+                poll.setVoteClose(date.toInstant());
             } catch (ParseException e) {
                 //should log this
             }
@@ -226,8 +226,8 @@ public class Poll implements PersistableEntity<String> {
         }
 
         DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-        poll.setAttribute(VOTE_OPEN, dformat.format(this.voteOpen));
-        poll.setAttribute(VOTE_CLOSE, dformat.format(this.voteClose));
+        poll.setAttribute(VOTE_OPEN, dformat.format(Date.from(this.voteOpen)));
+        poll.setAttribute(VOTE_CLOSE, dformat.format(Date.from(this.voteClose)));
         poll.setAttribute(LIMIT_VOTING, Boolean.toString(limitVoting));
         poll.setAttribute(DISPLAY_RESULT, this.displayResult);
 

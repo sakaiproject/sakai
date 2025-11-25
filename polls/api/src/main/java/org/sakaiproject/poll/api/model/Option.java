@@ -61,9 +61,6 @@ public class Option implements PersistableEntity<Long> {
     @Column(name = "DELETED", nullable = false)
     private Boolean deleted = Boolean.FALSE;
 
-    @Column(name = "OPTION_ORDER", nullable = false)
-    private Integer optionOrder;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "OPTION_POLL_ID", nullable = false)
     @ToString.Exclude

@@ -43,7 +43,13 @@ import org.sakaiproject.site.api.SiteService;
  * accidentally run more than once).
  *
  * @author Brian Jones (bjones86@uwo.ca)
+ * @deprecated This job is no longer needed as of version 26. The Option.optionOrder field has been
+ *             removed and ordering is now managed automatically by Hibernate's @OrderColumn annotation
+ *             on the Poll.options collection. The OPTION_ORDER column in the database is still used
+ *             but is managed by Hibernate based on the position of options in the list. This job can
+ *             be safely removed from any scheduled job configurations.
  */
+@Deprecated
 @Slf4j
 @DisallowConcurrentExecution
 public class PollOrderOptionBackFillJob implements Job
@@ -64,6 +70,12 @@ public class PollOrderOptionBackFillJob implements Job
     @Override
     public void execute( JobExecutionContext jobExecutionContext ) throws JobExecutionException
     {
+        log.warn("PollOrderOptionBackFillJob is deprecated and no longer functional. " +
+                 "Option ordering is now managed by Hibernate's @OrderColumn annotation. " +
+                 "This job can be removed from your scheduled job configuration.");
+        return;
+
+        /* DEPRECATED CODE - kept for reference
         log.info( "Attempting to back-fill all existing Poll option orders..." );
         int modifiedCount = 0;
 
@@ -125,5 +137,6 @@ public class PollOrderOptionBackFillJob implements Job
         }
 
         log.info( "Processing finished, modified {} poll options", modifiedCount );
+        */
     }
 }

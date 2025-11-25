@@ -89,9 +89,9 @@ public class PollsServiceTests {
 
     private String createPoll(String ownerId, String siteId) {
         Poll poll1 = new Poll();
-        poll1.setCreationDate(new Date());
-        poll1.setVoteOpen(new Date());
-        poll1.setVoteClose(Date.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+        poll1.setCreationDate(Instant.now());
+        poll1.setVoteOpen(Instant.now());
+        poll1.setVoteClose(Instant.now().plus(1, ChronoUnit.DAYS));
         poll1.setDescription("this is some text");
         poll1.setText("something");
         poll1.setOwner(ownerId);
@@ -99,12 +99,10 @@ public class PollsServiceTests {
 
         Option option1 = new Option();
         option1.setText("Option 1");
-        option1.setOptionOrder(0);
         poll1.addOption(option1);
 
         Option option2 = new Option();
         option2.setText("Option 2");
-        option2.setOptionOrder(1);
         poll1.addOption(option2);
 
         return pollsService.savePoll(poll1).getId();
@@ -134,9 +132,9 @@ public class PollsServiceTests {
     @Test
     public void testSavePoll() {
         Poll poll1 = new Poll();
-        poll1.setCreationDate(new Date());
-        poll1.setVoteOpen(new Date());
-        poll1.setVoteClose(new Date());
+        poll1.setCreationDate(Instant.now());
+        poll1.setVoteOpen(Instant.now());
+        poll1.setVoteClose(Instant.now());
         poll1.setDescription("this is some text");
         poll1.setText("something");
         poll1.setOwner(USER);
@@ -162,9 +160,9 @@ public class PollsServiceTests {
     public void testDeletePoll() {
 
         Poll poll1 = new Poll();
-        poll1.setCreationDate(new Date());
-        poll1.setVoteOpen(new Date());
-        poll1.setVoteClose(new Date());
+        poll1.setCreationDate(Instant.now());
+        poll1.setVoteOpen(Instant.now());
+        poll1.setVoteClose(Instant.now());
         poll1.setDescription("this is some text");
         poll1.setText("something");
         poll1.setOwner(USER);
@@ -175,12 +173,10 @@ public class PollsServiceTests {
 
         Option option1 = new Option();
         option1.setText("asdgasd");
-        option1.setOptionOrder(0);
         poll1.addOption(option1);
 
         Option option2 = new Option();
         option2.setText("zsdbsdfb");
-        option2.setOptionOrder(1);
         poll1.addOption(option2);
 
         Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
@@ -322,7 +318,6 @@ public class PollsServiceTests {
         Option newOption = new Option();
         String random = UUID.randomUUID().toString();
         newOption.setText(random);
-        newOption.setOptionOrder(2);
 
         Poll saved = pollsService.saveNewOption(poll.get(), newOption);
         Assert.assertNotNull(saved);
@@ -396,6 +391,44 @@ public class PollsServiceTests {
             .findFirst();
         Assert.assertTrue(softDeleted.isPresent());
         Assert.assertTrue(softDeleted.get().getDeleted());
+    }
+
+    @Test
+    public void testReorderOptions() {
+        Mockito.when(sessionManager.getCurrentSessionUserId()).thenReturn(USER);
+        String pollId = createPoll(USER, LOCATION1_ID);
+        Optional<Poll> poll = pollsService.getPollById(pollId);
+        Assert.assertTrue(poll.isPresent());
+
+        // Add a third option
+        Option option3 = new Option();
+        option3.setText("Option 3");
+        poll.get().addOption(option3);
+        pollsService.savePoll(poll.get());
+
+        // Reload and capture original order
+        poll = pollsService.getPollById(pollId);
+        List<Option> options = poll.get().getOptions();
+        Assert.assertEquals(3, options.size());
+
+        Long firstOptionId = options.get(0).getId();
+        Long secondOptionId = options.get(1).getId();
+        Long thirdOptionId = options.get(2).getId();
+
+        // Reorder: move last option to first position
+        Option movedOption = options.remove(2);
+        options.add(0, movedOption);
+
+        // Save and reload
+        pollsService.savePoll(poll.get());
+        poll = pollsService.getPollById(pollId);
+        List<Option> reorderedOptions = poll.get().getOptions();
+
+        // Verify the new order
+        Assert.assertEquals(3, reorderedOptions.size());
+        Assert.assertEquals(thirdOptionId, reorderedOptions.get(0).getId());
+        Assert.assertEquals(firstOptionId, reorderedOptions.get(1).getId());
+        Assert.assertEquals(secondOptionId, reorderedOptions.get(2).getId());
     }
 
     // ========== Vote Tests ==========

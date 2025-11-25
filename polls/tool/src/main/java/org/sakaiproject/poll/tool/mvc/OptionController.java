@@ -156,8 +156,8 @@ public class OptionController {
             option = existingOption.get();
         } else {
             // Creating new option
+            // optionOrder is managed by @OrderColumn - position in list determines order
             option = new Option();
-            option.setOptionOrder(poll.get().getOptions().size());
             poll.get().addOption(option);
         }
 

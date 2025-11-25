@@ -225,13 +225,13 @@ public class PollEditorController {
         poll.setOwner(sessionManager.getCurrentSessionUserId());
         poll.setLimitVoting(true);
 
-        // Convert LocalDateTime to Date for persistence
+        // Convert LocalDateTime to Instant for persistence
         ZoneId zoneId = getUserZoneId();
         if (form.getOpenDate() != null) {
-            poll.setVoteOpen(java.util.Date.from(form.getOpenDate().atZone(zoneId).toInstant()));
+            poll.setVoteOpen(form.getOpenDate().atZone(zoneId).toInstant());
         }
         if (form.getCloseDate() != null) {
-            poll.setVoteClose(java.util.Date.from(form.getCloseDate().atZone(zoneId).toInstant()));
+            poll.setVoteClose(form.getCloseDate().atZone(zoneId).toInstant());
         }
 
         return poll;
@@ -265,11 +265,11 @@ public class PollEditorController {
         return form;
     }
 
-    private LocalDateTime toLocalDateTime(java.util.Date date, ZoneId zoneId) {
-        if (date == null) {
+    private LocalDateTime toLocalDateTime(java.time.Instant instant, ZoneId zoneId) {
+        if (instant == null) {
             return null;
         }
-        return LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(date.getTime()), zoneId);
+        return LocalDateTime.ofInstant(instant, zoneId);
     }
 
     private boolean isAllowedPollAdd() {

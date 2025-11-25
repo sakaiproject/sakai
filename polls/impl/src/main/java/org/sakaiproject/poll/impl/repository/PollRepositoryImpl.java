@@ -4,8 +4,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +54,7 @@ public class PollRepositoryImpl extends SpringCrudRepositoryImpl<Poll, String> i
     }
 
     @Override
-    public List<Poll> findOpenPollsBySiteIds(List<String> siteIds, Date now) {
+    public List<Poll> findOpenPollsBySiteIds(List<String> siteIds, Instant now) {
         if (siteIds == null || siteIds.isEmpty() || now == null) return Collections.emptyList();
 
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();

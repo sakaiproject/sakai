@@ -77,7 +77,7 @@ public class PollEntity implements Entity {
     }
 
     public Date getCreationDate() {
-        return poll.getCreationDate();
+        return poll.getCreationDate() != null ? Date.from(poll.getCreationDate()) : null;
     }
 
     public String getText() {
@@ -97,11 +97,11 @@ public class PollEntity implements Entity {
     }
 
     public Date getVoteOpen() {
-        return poll.getVoteOpen();
+        return poll.getVoteOpen() != null ? Date.from(poll.getVoteOpen()) : null;
     }
 
     public Date getVoteClose() {
-        return poll.getVoteClose();
+        return poll.getVoteClose() != null ? Date.from(poll.getVoteClose()) : null;
     }
 
     public String getDisplayResult() {

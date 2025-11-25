@@ -25,7 +25,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -143,7 +142,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                 // filter down to just the requested ones
                 allowedSites.retainAll(requestedSiteIds);
             }
-            Date now = new Date();
+            Instant now = Instant.now();
             if (PERMISSION_VOTE.equals(permissionConstant)) {
                 polls = pollRepository.findOpenPollsBySiteIds(allowedSites, now);
             } else {
@@ -168,7 +167,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             throw new SecurityException("user:" + userId + " can't add poll to site: " + siteRef);
         }
 
-        if (poll.getCreationDate() == null) poll.setCreationDate(new Date());
+        if (poll.getCreationDate() == null) poll.setCreationDate(Instant.now());
         if (StringUtils.isBlank(poll.getOwner())) poll.setOwner(userId);
 
         boolean isNew = poll.getId() == null;
@@ -522,7 +521,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
                         Option toOption = new Option();
                         toOption.setStatus(fromOption.getStatus());
                         toOption.setDeleted(fromOption.getDeleted());
-                        toOption.setOptionOrder(fromOption.getOptionOrder());
+                        // optionOrder is managed by @OrderColumn - position in list determines order
 
                         String text = fromOption.getText();
                         text = ltiService.fixLtiLaunchUrls(text, fromContext, toContext, transversalMap);
@@ -576,7 +575,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             }
         }
 
-        if ((poll.getDisplayResult().equals("afterClosing") || poll.getDisplayResult().equals("afterVoting") )&& poll.getVoteClose().before(new Date())) {
+        if ((poll.getDisplayResult().equals("afterClosing") || poll.getDisplayResult().equals("afterVoting") )&& poll.getVoteClose().isBefore(Instant.now())) {
             return true;
         }
 
@@ -766,15 +765,16 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         boolean pollAfterOpen = true;
         boolean pollBeforeClose = true;
 
+        Instant now = Instant.now();
         if (poll.getVoteClose() != null) {
-            if (poll.getVoteClose().before(new Date())) {
+            if (poll.getVoteClose().isBefore(now)) {
                 log.debug("Poll is closed for voting");
                 pollBeforeClose = false;
             }
         }
 
         if (poll.getVoteOpen() != null) {
-            if (new Date().before(poll.getVoteOpen())) {
+            if (now.isBefore(poll.getVoteOpen())) {
                 log.debug("Poll is not open yet");
                 pollAfterOpen = false;
             }
@@ -912,7 +912,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             poll.setSiteId(toolManager.getCurrentPlacement().getContext());
         }
         if (poll.getCreationDate() == null) {
-            poll.setCreationDate(new Date());
+            poll.setCreationDate(Instant.now());
         }
 
         // Save and return (savePoll handles security checks)
@@ -1008,13 +1008,11 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (poll.isEmpty()) {
             throw new IllegalArgumentException("Poll not found: " + pollId);
         }
-        int nextOrder = poll.get().getOptions().size();
+        // optionOrder is managed by @OrderColumn - position in list determines order
         for (String optionText : optionTexts) {
             if (StringUtils.isNotBlank(optionText)) {
                 Option option = new Option();
-                option.setPoll(poll.get());
                 option.setText(optionText);
-                option.setOptionOrder(nextOrder);
                 saveNewOption(poll.get(), option);
             }
         }

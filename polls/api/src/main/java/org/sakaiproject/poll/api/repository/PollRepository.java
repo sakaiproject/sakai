@@ -1,6 +1,6 @@
 package org.sakaiproject.poll.api.repository;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,14 +30,14 @@ public interface PollRepository extends SpringCrudRepository<Poll, String> {
 
     /**
      * Finds all currently open polls for multiple sites.
-     * A poll is considered open if the current date/time falls between its voteOpen and voteClose dates.
+     * A poll is considered open if the current instant falls between its voteOpen and voteClose dates.
      * Returns an empty list if any parameter is null or if site IDs list is empty.
      *
      * @param siteIds the list of site identifiers
-     * @param now the current date/time to check against poll open/close dates
+     * @param now the current instant to check against poll open/close dates
      * @return list of open polls ordered by creation date (oldest first), or empty list if parameters are invalid
      */
-    List<Poll> findOpenPollsBySiteIds(List<String> siteIds, Date now);
+    List<Poll> findOpenPollsBySiteIds(List<String> siteIds, Instant now);
 
     /**
      * Finds Options by the poll ID.

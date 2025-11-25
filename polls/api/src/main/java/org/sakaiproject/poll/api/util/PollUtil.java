@@ -34,7 +34,6 @@ public class PollUtil {
     private static final String OPTION_ID = "optionid";
     private static final String TEXT = "text";
     private static final String DELETED = "deleted";
-    private static final String OPTION_ORDER = "optionorder";
     private static final String STATUS = "status";
     
 
@@ -57,7 +56,8 @@ public class PollUtil {
         element.setAttribute(TEXT, option.getText());
         element.setAttribute(DELETED, option.getDeleted().toString());
         element.setAttribute(STATUS, option.getStatus());
-        element.setAttribute(OPTION_ORDER, option.getOptionOrder().toString());
+        // Note: optionOrder is managed by @OrderColumn on Poll.options
+        // Order is determined by position in the poll's options list
         stack.pop();
 
         return element;
@@ -80,7 +80,8 @@ public class PollUtil {
         option.setText(element.getAttribute(TEXT));
         option.setDeleted(Boolean.parseBoolean(element.getAttribute(DELETED)));
         option.setStatus(element.getAttribute(STATUS));
-        option.setOptionOrder(Integer.parseInt(element.getAttribute(OPTION_ORDER)));
+        // Note: optionOrder is managed by @OrderColumn on Poll.options
+        // Order is determined by position when added to poll's options list
         return option;
     }
 }

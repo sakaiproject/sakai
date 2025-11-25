@@ -20,7 +20,7 @@
 
 package org.sakaiproject.poll.tool.entityproviders;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -104,7 +104,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     @Deprecated
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         Poll poll = (Poll) entity;
-        poll.setCreationDate(new Date());
+        poll.setCreationDate(Instant.now());
         if (poll.getOwner() == null) {
             poll.setOwner( developerHelperService.getCurrentUserId() );
         }

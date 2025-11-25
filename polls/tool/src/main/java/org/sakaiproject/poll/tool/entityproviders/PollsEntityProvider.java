@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -301,7 +300,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		// copy from params to Poll
 		copyParamsToObject(params, poll);
 
-		poll.setCreationDate(new Date());
+		poll.setCreationDate(Instant.now());
 		if (poll.getOwner() == null) {
 			poll.setOwner(developerHelperService.getCurrentUserId());
 		}
@@ -523,11 +522,11 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 						+ name.substring(4);
 				Object value = params.get(key);
 				if (value != null) {
-					if (types[0].equals(Date.class)) {
-						Date dateValue = new Date(
+					if (types[0].equals(Instant.class)) {
+						Instant instantValue = Instant.ofEpochMilli(
 								Long.valueOf(value.toString()));
 						try {
-							m.invoke(object, new Object[] { dateValue });
+							m.invoke(object, new Object[] { instantValue });
 						} catch (IllegalAccessException e) {
 							log.debug(e.getMessage(), e);
 						} catch (IllegalArgumentException e) {
