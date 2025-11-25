@@ -60,7 +60,6 @@ public class OptionController {
     private final PollsService pollsService;
     private final SecurityService securityService;
     private final SiteService siteService;
-    private final SessionManager sessionManager;
     private final ToolManager toolManager;
     private final FormattedText formattedText;
     private final MessageSource messageSource;

@@ -53,10 +53,9 @@ public class VoteController {
     private final PollsService pollsService;
     private final SecurityService securityService;
     private final SiteService siteService;
-    private final SessionManager sessionManager;
     private final ToolManager toolManager;
     private final MessageSource messageSource;
-
+    
     @GetMapping("/voteQuestion")
     public String showVote(@RequestParam("pollId") String pollId,
                            Model model,

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,7 @@ import static org.sakaiproject.poll.api.PollConstants.PERMISSION_ADD;
 
 @Controller
 @RequestMapping
+@RequiredArgsConstructor
 @Slf4j
 public class ResultsController {
 
@@ -56,20 +58,6 @@ public class ResultsController {
     private final SiteService siteService;
     private final ToolManager toolManager;
     private final MessageSource messageSource;
-
-    public ResultsController(PollsService pollsService,
-                             SessionManager sessionManager,
-                             SecurityService securityService,
-                             SiteService siteService,
-                             ToolManager toolManager,
-                             MessageSource messageSource) {
-        this.pollsService = pollsService;
-        this.sessionManager = sessionManager;
-        this.securityService = securityService;
-        this.siteService = siteService;
-        this.toolManager = toolManager;
-        this.messageSource = messageSource;
-    }
 
     @GetMapping("/voteResults")
     public String showResults(@RequestParam("pollId") String pollId,

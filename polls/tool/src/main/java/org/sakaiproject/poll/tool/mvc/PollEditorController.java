@@ -38,6 +38,7 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,7 +55,6 @@ import static org.sakaiproject.poll.api.PollConstants.*;
 
 @Controller
 @RequestMapping
-@RequiredArgsConstructor
 @Slf4j
 public class PollEditorController {
 
@@ -67,6 +67,26 @@ public class PollEditorController {
     private final FormattedText formattedText;
     private final UserTimeService userTimeService;
     private final MessageSource messageSource;
+
+    public PollEditorController(PollsService pollsService,
+                                SecurityService securityService,
+                                SiteService siteService,
+                                SessionManager sessionManager,
+                                ToolManager toolManager,
+                                ServerConfigurationService serverConfigurationService,
+                                @Qualifier("org.sakaiproject.time.api.UserTimeService") UserTimeService userTimeService,
+                                MessageSource messageSource,
+                                FormattedText formattedText) {
+        this.pollsService = pollsService;
+        this.securityService = securityService;
+        this.siteService = siteService;
+        this.sessionManager = sessionManager;
+        this.toolManager = toolManager;
+        this.serverConfigurationService = serverConfigurationService;
+        this.userTimeService = userTimeService;
+        this.messageSource = messageSource;
+        this.formattedText = formattedText;
+    }
 
     @GetMapping("/voteAdd")
     public String editPoll(@RequestParam(value = "pollId", required = false) String pollId,

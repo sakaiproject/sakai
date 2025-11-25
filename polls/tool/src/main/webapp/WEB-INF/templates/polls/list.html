@@ -14,7 +14,6 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0" th:text="#{poll_list_title}">Polls</h1>
-      <a class="btn btn-primary" role="button" th:if="${canAdd}" th:href="@{/voteAdd}" th:text="#{new_poll_title}">Add poll</a>
     </div>
 
     <div class="sak-banner-info" role="status" th:if="${#lists.isEmpty(polls)}" th:text="#{poll_list_empty}">
