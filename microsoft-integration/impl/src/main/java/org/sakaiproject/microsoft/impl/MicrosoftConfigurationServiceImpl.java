@@ -21,6 +21,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.microsoft.api.MicrosoftConfigurationService;
 import org.sakaiproject.microsoft.api.data.MicrosoftCredentials;
 import org.sakaiproject.microsoft.api.data.MicrosoftUserIdentifier;
@@ -40,30 +41,44 @@ import javax.crypto.spec.SecretKeySpec;
 @Slf4j
 @Transactional
 public class MicrosoftConfigurationServiceImpl implements MicrosoftConfigurationService {
-	
-	
-	@Setter
+
+    @Setter
 	MicrosoftConfigRepository microsoftConfigRepository;
 
-    private static final String ALGO = "AES/GCM/NoPadding";
+    private static final String ALGORITHM = "AES/GCM/NoPadding";
     private static final int IV_LENGTH = 12;
     private static final int TAG_LENGTH_BIT = 128;
-    private static final String SECRET_KEY = "0123456789abcdef";
+    public static final String LTI_ENCRYPTION_KEY = "lti.encryption.key";
 
-	//------------------------------ CREDENTIALS -------------------------------------------------------
+
+    //------------------------------ CREDENTIALS -------------------------------------------------------
     @Override
     public MicrosoftCredentials getCredentials() {
         MicrosoftCredentials creds = microsoftConfigRepository.getCredentials();
         if (creds != null && creds.getSecret() != null) {
-            creds.setSecret(decrypt(creds.getSecret()));
+            String decrypted = decrypt(creds.getSecret());
+            if (decrypted == null) {
+                decrypted = creds.getSecret();
+            }
+            creds.setSecret(decrypted);
         }
         return creds;
     }
+
+    private static byte[] getKey() {
+        String key = ServerConfigurationService.getString(LTI_ENCRYPTION_KEY, null);
+        if (key == null || key.length() != 32) {
+            throw new RuntimeException("LTI_ENCRYPTION_KEY must be defined and have 32 characters in sakai.properties");
+        }
+        return key.getBytes(StandardCharsets.UTF_8);
+    }
+
+
 	
 	public void saveCredentials(MicrosoftCredentials credentials) {
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_AUTHORITY).value(credentials.getAuthority()).build());
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_CLIENT_ID).value(credentials.getClientId()).build());
-        saveOrUpdateSecretConfigItem(MicrosoftCredentials.KEY_SECRET, credentials.getSecret());
+		saveOrUpdateSecretConfigItem(MicrosoftCredentials.KEY_SECRET,credentials.getSecret());
         saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_SCOPE).value(credentials.getScope()).build());
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_DELEGATED_SCOPE).value(credentials.getDelegatedScope()).build());
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_EMAIL).value(credentials.getEmail()).build());
@@ -168,8 +183,8 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
             byte[] iv = new byte[IV_LENGTH];
             random.nextBytes(iv);
 
-            Cipher cipher = Cipher.getInstance(ALGO);
-            SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            SecretKeySpec keySpec = new SecretKeySpec(getKey(), "AES");
             GCMParameterSpec gcmSpec = new GCMParameterSpec(TAG_LENGTH_BIT, iv);
             cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec);
 
@@ -196,8 +211,8 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
             System.arraycopy(decoded, 0, iv, 0, IV_LENGTH);
             System.arraycopy(decoded, IV_LENGTH, encrypted, 0, encrypted.length);
 
-            Cipher cipher = Cipher.getInstance(ALGO);
-            SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            SecretKeySpec keySpec = new SecretKeySpec(getKey(), "AES");
             GCMParameterSpec gcmSpec = new GCMParameterSpec(TAG_LENGTH_BIT, iv);
             cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmSpec);
 
