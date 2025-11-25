@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,6 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.poll.api.entity.PollEntity;
-import org.sakaiproject.poll.api.logic.ExternalLogic;
 import org.sakaiproject.poll.api.model.VoteCollection;
 import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.poll.api.model.Option;
@@ -252,8 +250,8 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
     }
 
     @Transactional(readOnly = true)
-    public Poll getPollWithVotes(final String pollId) {
-        return pollRepository.findById(pollId).orElse(null);
+    public Optional<Poll> getPollWithVotes(final String pollId) {
+        return pollRepository.findById(pollId);
     }
 
     @Transactional(readOnly = true)
@@ -293,21 +291,22 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         pollRepository.save(poll);
     }
 
-    public boolean saveOption(final Option option) {
-        if (option == null) {
-            throw new IllegalArgumentException("Option cannot be null when saving");
+    public Poll saveNewOption(Poll poll, final Option option) {
+        if (poll == null || option == null) {
+            throw new IllegalArgumentException("Poll/Option cannot be null when saving");
         }
 
         // Save through poll aggregate
-        Poll poll = option.getPoll();
-        if (poll != null) {
-            pollRepository.save(poll);
+        if (poll.getId() != null && option.getId() == null) {
+            poll.addOption(option);
+            Poll saved = pollRepository.save(poll);
             log.debug("Option {} successfully saved", option);
-            return true;
+            return saved;
+        } else {
+            log.warn("Cannot save existing option {}", option.getId());
         }
 
-        log.warn("Cannot save option {} without associated poll", option.getId());
-        return false;
+        return null;
     }
 
     private boolean canDeletePoll(final Poll poll) {
@@ -600,18 +599,18 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     @Transactional(readOnly = true)
-    public Vote getVoteById(Long voteId) {
+    public Optional<Vote> getVoteById(Long voteId) {
         if (voteId == null) {
             throw new IllegalArgumentException("voteId cannot be null when getting vote");
         }
-        return voteRepository.findById(voteId).orElse(null);
+        return voteRepository.findById(voteId);
     }
 
     @Override
-    public boolean saveVote(Vote vote) {
-        voteRepository.save(vote);
-        log.debug("Vote {} successfully saved", vote.getId());
-        return true;
+    public Vote saveVote(Vote vote) {
+        Vote saved = voteRepository.save(vote);
+        log.debug("Vote {} successfully saved", saved.getId());
+        return saved;
     }
 
     @Override
@@ -666,7 +665,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
             }
         }
 
-        return new Vote(submissionId, Instant.now(), userId, ip);
+        return new Vote(option, submissionId, Instant.now(), userId, ip);
     }
 
     @Override
@@ -682,7 +681,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (poll == null) {
             throw new IllegalArgumentException("option must have associated poll when retrieving votes");
         }
-        return voteRepository.findByPollIdAndPollOption(poll.getId(), option.getId());
+        return voteRepository.findByOptionId(option.getId());
     }
 
     @Override
@@ -711,7 +710,7 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
 
     @Override
     @Transactional(readOnly = true)
-    public int getDisctinctVotersForPoll(Poll poll) {
+    public int getDistinctVotersForPoll(Poll poll) {
         return voteRepository.countDistinctSubmissionIds(poll.getId());
     }
 
@@ -1009,15 +1008,14 @@ public class PollsServiceImpl implements PollsService, EntityProducer, EntityTra
         if (poll.isEmpty()) {
             throw new IllegalArgumentException("Poll not found: " + pollId);
         }
-
         int nextOrder = poll.get().getOptions().size();
         for (String optionText : optionTexts) {
             if (StringUtils.isNotBlank(optionText)) {
                 Option option = new Option();
                 option.setPoll(poll.get());
                 option.setText(optionText);
-                option.setOptionOrder(nextOrder++);
-                saveOption(option);
+                option.setOptionOrder(nextOrder);
+                saveNewOption(poll.get(), option);
             }
         }
     }

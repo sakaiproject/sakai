@@ -88,11 +88,11 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
             throw new IllegalArgumentException("Poll Option text must be set to create an option");
         }
         checkOptionPermission(userReference, option);
-        boolean saved = pollsService.saveOption(option);
-        if (!saved) {
+        Poll saved = pollsService.savePoll(poll);
+        if (saved == null) {
             throw new IllegalStateException("Unable to save option ("+option+") for user ("+userReference+"): " + ref);
         }
-        return option.getId()+"";
+        return option.getId().toString();
     }
 
     @Deprecated
@@ -111,9 +111,9 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
         }
         Option option = (Option) entity;
         checkOptionPermission(userReference, current);
-        developerHelperService.copyBean(option, current, 0, new String[] {"id", "pollId", "UUId"}, true);
-        boolean saved = pollsService.saveOption(current);
-        if (!saved) {
+        developerHelperService.copyBean(option, current, 0, new String[] {"id", "poll"}, true);
+        Poll saved = pollsService.savePoll(current.getPoll());
+        if (saved == null) {
             throw new IllegalStateException("Unable to update option ("+option+") for user ("+userReference+"): " + ref);
         }
     }

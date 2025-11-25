@@ -489,7 +489,6 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		if (poll.isEmpty()) {
 			throw new IllegalArgumentException("Poll not found with ID: " + pollId);
 		}
-		option.setPoll(poll.get());
 		// check minimum settings
 		if (option.getText() == null) {
 			throw new IllegalArgumentException(
@@ -497,8 +496,8 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		}
 		checkOptionPermission(userReference, option);
 
-		boolean saved = pollsService.saveOption(option);
-		if (!saved) {
+		Poll saved = pollsService.saveNewOption(poll.get(), option);
+		if (saved == null) {
 			throw new IllegalStateException("Unable to save option (" + option
 					+ ") for user (" + userReference + "): " + ref);
 		}
@@ -574,12 +573,10 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		copyParamsToObject(params, option);
 
 		checkOptionPermission(userReference, current);
-		developerHelperService.copyBean(option, current, 0, new String[] {
-			"id", "pollId", "uuid" }, true);
-		boolean saved = pollsService.saveOption(current);
-		if (!saved) {
-			throw new IllegalStateException("Unable to update option ("
-					+ option + ") for user (" + userReference + "): " + ref);
+		developerHelperService.copyBean(option, current, 0, new String[] {"id", "poll" }, true);
+		Poll saved = pollsService.savePoll(current.getPoll());
+		if (saved == null) {
+			throw new IllegalStateException("Unable to update option (" + option + ") for user (" + userReference + "): " + ref);
 		}
 	}
 
@@ -707,10 +704,9 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 		if (usageSession != null) {
 			vote.setIp(usageSession.getIpAddress());
 		}
-		boolean saved = pollsService.saveVote(vote);
-		if (!saved) {
-			throw new IllegalStateException("Unable to save vote (" + vote
-					+ ") for user (" + userId + "): " + ref);
+		Vote saved = pollsService.saveVote(vote);
+		if (saved == null) {
+			throw new IllegalStateException("Unable to save vote (" + vote + ") for user (" + userId + "): " + ref);
 		}
 		return vote.getId().toString();
 	}
@@ -731,7 +727,12 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			return new Vote();
 		}
 
-		Vote vote = getVoteById(id);
+		Optional<Vote> voteOpt = getVoteById(id);
+		if (voteOpt.isEmpty()) {
+			throw new EntityException("Vote not found: " + id, ref.getId(), HttpServletResponse.SC_NOT_FOUND);
+		}
+
+		Vote vote = voteOpt.get();
 		String userId = developerHelperService.getUserIdFromRef(currentUser);
 		if (developerHelperService.isUserAdmin(currentUser)) {
 			// ok to view this vote
@@ -904,7 +905,6 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 
 		// Create and save the Vote objects.
 		UsageSession usageSession = usageSessionService.getSession();
-		List<Vote> votes = new ArrayList<>();
 		for (Option option : options.values()) {
             Vote vote = new Vote();
 
@@ -920,12 +920,11 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			if (usageSession != null)
 				vote.setIp(usageSession.getIpAddress());
 
-			boolean saved = pollsService.saveVote(vote);
-			if (!saved) {
+			Vote saved = pollsService.saveVote(vote);
+			if (saved == null) {
 				throw new IllegalStateException("Unable to save vote (" + vote
 						+ ") for user (" + userId + "): " + ref);
 			}
-			votes.add(vote);
 		}
 	}
 
@@ -933,7 +932,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 	 * @param id
 	 * @return
 	 */
-	private Vote getVoteById(String id) {
+	private Optional<Vote> getVoteById(String id) {
 		Long voteId;
 		try {
 			voteId = Long.valueOf(id);
@@ -941,8 +940,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			throw new IllegalArgumentException("Cannot convert id (" + id
 					+ ") to long: " + e.getMessage(), e);
 		}
-		Vote vote = pollsService.getVoteById(voteId);
-		return vote;
+		return pollsService.getVoteById(voteId);
 	}
 
 }

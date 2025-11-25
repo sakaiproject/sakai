@@ -149,8 +149,8 @@ public class OptionController {
         } else {
             // Creating new option
             option = new Option();
-            option.setPoll(poll.get());
             option.setOptionOrder(poll.get().getOptions().size());
+            poll.get().addOption(option);
         }
 
         // Process and sanitize HTML in option text
@@ -172,7 +172,7 @@ public class OptionController {
             return "polls/option-edit";
         }
 
-        pollsService.saveOption(option);
+        pollsService.savePoll(poll.get());
         redirectAttributes.addFlashAttribute("success", messageSource.getMessage("poll_option_added_success", null, locale));
 
         if ("addAnother".equals(submitAction)) {

@@ -38,21 +38,17 @@ public class VoteRepositoryImpl extends SpringCrudRepositoryImpl<Vote, Long> imp
     }
 
     @Override
-    public List<Vote> findByPollIdAndPollOption(String pollId, Long optionId) {
-        if (pollId == null || optionId == null) {
-            return Collections.emptyList();
-        }
+    public List<Vote> findByOptionId(Long optionId) {
+        if (optionId == null) return Collections.emptyList();
+
         CriteriaBuilder cb = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<Vote> query = cb.createQuery(Vote.class);
         Root<Vote> root = query.from(Vote.class);
-        Join<Vote, Option> optionJoin = root.join("option");
-        Join<Option, Poll> pollJoin = optionJoin.join("poll");
 
-        Predicate pollPredicate = cb.equal(pollJoin.get("id"), pollId);
-        Predicate optionPredicate = cb.equal(optionJoin.get("optionId"), optionId);
+        Predicate optionPredicate = cb.equal(root.get("option"), optionId);
 
         query.select(root)
-                .where(cb.and(pollPredicate, optionPredicate));
+                .where(optionPredicate);
 
         return sessionFactory.getCurrentSession()
                 .createQuery(query)

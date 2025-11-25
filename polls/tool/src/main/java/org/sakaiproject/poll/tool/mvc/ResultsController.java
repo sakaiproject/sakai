@@ -79,7 +79,7 @@ public class ResultsController {
 
         List<Vote> votes = pollsService.getAllVotesForPoll(poll.get().getId());
         int totalVotes = votes.size();
-        int distinctVoters = pollsService.getDisctinctVotersForPoll(poll.get());
+        int distinctVoters = pollsService.getDistinctVotersForPoll(poll.get());
         int potentialVoters = externalLogic.getNumberUsersCanVote();
 
         List<ResultRow> rows = new ArrayList<>();

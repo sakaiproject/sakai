@@ -35,5 +35,10 @@ public class VoteCollection {
     private String[] optionsSelected;
     private String option;
     private String submissionStatus;
+
+    public VoteCollection() {
+        // need a new id here
+        id = UUID.randomUUID().toString();
+    }
 }
 

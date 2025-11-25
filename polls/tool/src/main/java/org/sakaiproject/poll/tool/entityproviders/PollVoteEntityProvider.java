@@ -86,9 +86,8 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         if ("".equals(id)) {
             return true;
         }
-        Vote vote = getVoteById(id);
-        boolean exists = (vote != null);
-        return exists;
+        Optional<Vote> vote = getVoteById(id);
+        return vote.isPresent();
     }
 
     @Deprecated
@@ -143,11 +142,11 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         if (usageSession != null) {
             vote.setIp( usageSession.getIpAddress() );
         }
-        boolean saved = pollsService.saveVote(vote);
-        if (!saved) {
-            throw new IllegalStateException("Unable to save vote ("+vote+") for user ("+userId+"): " + ref);
+        Vote saved = pollsService.saveVote(vote);
+        if (saved == null) {
+            throw new IllegalStateException("Unable to save vote (" + vote + ") for user (" + userId + "): " + ref);
         }
-        return vote.getId()+"";
+        return vote.getId().toString();
     }
 
     public Object getSampleEntity() {
@@ -162,14 +161,18 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         if (currentUser == null || currentUser.length() == 0) {
             throw new EntityException("Anonymous users cannot view specific votes", ref.getId(), HttpServletResponse.SC_UNAUTHORIZED);
         }
-        
+
         //is this a new object?
         if (ref.getId() == null) {
-        	new Vote();
+        	return new Vote();
         }
-        
-        
-        Vote vote = getVoteById(id);
+
+        Optional<Vote> voteOpt = getVoteById(id);
+        if (voteOpt.isEmpty()) {
+            throw new EntityException("Vote not found: " + id, ref.getId(), HttpServletResponse.SC_NOT_FOUND);
+        }
+
+        Vote vote = voteOpt.get();
         String userId = developerHelperService.getUserIdFromRef(currentUser);
         if (developerHelperService.isUserAdmin(currentUser)) {
             // ok to view this vote
@@ -182,11 +185,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
             // not allowed to view
             throw new SecurityException("User ("+currentUser+") cannot view vote ("+ref+")");
         }
-        
-        if (id == null) {
-            return new Vote();
-        }
-        
+
         return vote;
     }
 
@@ -299,7 +298,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
 		// valid choice for the poll. We use a Map to make sure one cannot vote
 		// more than once for any option by specifying it using equivalent
 		// representations
-		Map<Long, Option> options = new HashMap<Long, Option>();
+		Map<Long, Option> options = new HashMap<>();
 		for (String optionId : optionIds) {
 			try {
 				Optional<Option> option = pollsService.getOptionById(Long.valueOf(optionId));
@@ -323,7 +322,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
 
 		// Create and save the Vote objects.
 		UsageSession usageSession = usageSessionService.getSession();
-		List<Vote> votes = new ArrayList<Vote>();
+		List<Vote> votes = new ArrayList<>();
 		for (Option option : options.values()) {
 			Vote vote = new Vote();
 
@@ -339,8 +338,8 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
 			if (usageSession != null)
 				vote.setIp(usageSession.getIpAddress());
 
-			boolean saved = pollsService.saveVote(vote);
-			if (!saved) {
+            Vote saved = pollsService.saveVote(vote);
+			if (saved == null) {
 				throw new IllegalStateException("Unable to save vote (" + vote + ") for user (" + userId + "): " + ref);
 			}
 			votes.add(vote);
@@ -362,7 +361,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
      * @return
      */
     @Deprecated
-    private Vote getVoteById(String id) {
+    private Optional<Vote> getVoteById(String id) {
         Long voteId;
         try {
             voteId = Long.valueOf(id);
@@ -370,8 +369,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
             log.warn("Attempting to load a vote with an invalid id ({}): {}", id, e.toString());
             throw new EntityException("Invalid identifier provided for poll-vote", "", HttpServletResponse.SC_NOT_ACCEPTABLE);
         }
-        Vote vote = pollsService.getVoteById(voteId);
-        return vote;
+        return pollsService.getVoteById(voteId);
     }
 
     @Deprecated

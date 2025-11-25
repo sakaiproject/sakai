@@ -116,9 +116,9 @@ public interface PollsService {
     /**
      * Get a specific poll with all its votes
      * @param pollId
-     * @return a poll object
+     * @return a poll object or empty if not found
      */
-    Poll getPollWithVotes(String pollId);
+    Optional<Poll> getPollWithVotes(String pollId);
 
     /**
      *  Can the this user view the results for this poll?
@@ -131,10 +131,12 @@ public interface PollsService {
 
     /**
      * Save an individual option
-     * @param t
+     *
+     * @param poll
+     * @param option
      * @return
      */
-    boolean saveOption(Option t);
+    Poll saveNewOption(Poll poll, Option option);
     
     /**
      *  Save a poll
@@ -163,16 +165,17 @@ public interface PollsService {
     /**
      * Get a vote by id
      * @param voteId the vote id
-     * @return the vote OR null if not found
+     * @return the vote or empty if not found
      */
-    Vote getVoteById(Long voteId);
+    Optional<Vote> getVoteById(Long voteId);
 
     /**
      * Save a vote
+     *
      * @param vote the vote to save
-     * @return true if successful
+     * @return
      */
-    boolean saveVote(Vote vote);
+    Vote saveVote(Vote vote);
 
     /**
      * Save a vote collection - a users collection of votes for a specific poll
@@ -229,7 +232,7 @@ public interface PollsService {
      * @param poll the poll
      * @return count of distinct voters
      */
-    int getDisctinctVotersForPoll(Poll poll);
+    int getDistinctVotersForPoll(Poll poll);
 
     /**
      * Get all the votes for a specific user in a poll or polls (or all polls)

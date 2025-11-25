@@ -71,7 +71,8 @@ public class Vote implements PersistableEntity<Long> {
     @Column(name = "VOTE_SUBMISSION_ID", nullable = false, length = 99)
     private String submissionId;
 
-    public Vote(String subId, Instant voteDate, String userId, String ip) {
+    public Vote(Option option, String subId, Instant voteDate, String userId, String ip) {
+        this.option = option;
         this.submissionId = subId;
         this.voteDate = voteDate;
         this.userId = userId;
