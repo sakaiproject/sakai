@@ -1025,7 +1025,7 @@ public class RequestFilter implements Filter
 
 					// check the max, unless we are letting commons-fileupload throw exception on max exceeded
 					// Note: the continue option assumes the max is per-file, not overall.
-					if (m_uploadContinue && (item.getSize() >= uploadMax))
+					if (m_uploadContinue && (item.getSize() > uploadMax))
 					{
 						uploadOk = false;
 
