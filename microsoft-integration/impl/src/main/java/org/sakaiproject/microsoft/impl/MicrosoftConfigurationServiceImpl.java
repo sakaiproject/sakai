@@ -48,25 +48,32 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
     private static final String ALGORITHM = "AES/GCM/NoPadding";
     private static final int IV_LENGTH = 12;
     private static final int TAG_LENGTH_BIT = 128;
-    public static final String LTI_ENCRYPTION_KEY = "lti.encryption.key";
+    public static final String MC_ENCRYPTION_KEY = "microsoft.encryption.key";
 
 
     //------------------------------ CREDENTIALS -------------------------------------------------------
     @Override
     public MicrosoftCredentials getCredentials() {
         MicrosoftCredentials creds = microsoftConfigRepository.getCredentials();
-        if (creds != null && creds.getSecret() != null) {
-            String decrypted = decrypt(creds.getSecret());
-            if (decrypted == null) {
-                decrypted = creds.getSecret();
+        if (creds == null) {
+            return null;
+        }
+
+        String secret = creds.getSecret();
+        if (secret != null) {
+            String decrypted = decrypt(secret);
+            if (decrypted != null) {
+                creds.setSecret(decrypted);
+            } else {
+                log.warn("Microsoft secret appears to be invalid or improperly encrypted; leaving raw value");
+                creds.setSecret(secret);
             }
-            creds.setSecret(decrypted);
         }
         return creds;
     }
 
     private static byte[] getKey() {
-        String key = ServerConfigurationService.getString(LTI_ENCRYPTION_KEY, null);
+        String key = ServerConfigurationService.getString(MC_ENCRYPTION_KEY, null);
         if (key == null || key.length() != 32) {
             throw new RuntimeException("LTI_ENCRYPTION_KEY must be defined and have 32 characters in sakai.properties");
         }
@@ -170,10 +177,19 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
 	}
 
     private void saveOrUpdateSecretConfigItem(String key, String value) {
-        if(value == null) return;
+        if (value == null) {
+            return;
+        }
+
+        String encrypted = encrypt(value);
+        if (encrypted == null) {
+            log.error("Skipping persistence of Microsoft secret '{}' due to encryption failure", key);
+            return;
+        }
+
         saveOrUpdateConfigItem(MicrosoftConfigItem.builder()
                 .key(key)
-                .value(encrypt(value))
+                .value(encrypted)
                 .build());
     }
 
