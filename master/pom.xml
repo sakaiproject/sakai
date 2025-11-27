@@ -24,7 +24,7 @@
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-text.version>1.14.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
-    <sakai.commons.configuration2.version>2.12.0</sakai.commons.configuration2.version>
+    <sakai.commons.configuration2.version>2.13.0</sakai.commons.configuration2.version>
     <sakai.commons.net>3.12.0</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
