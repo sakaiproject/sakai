@@ -194,6 +194,9 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
 	}
 
     private String encrypt(String plainText) {
+        if (plainText == null) {
+            return null;
+        }
         try {
             SecureRandom random = new SecureRandom();
             byte[] iv = new byte[IV_LENGTH];
