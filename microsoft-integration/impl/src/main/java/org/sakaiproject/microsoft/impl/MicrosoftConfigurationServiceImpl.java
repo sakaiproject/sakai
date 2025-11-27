@@ -75,7 +75,9 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
     private static byte[] getKey() {
         String key = ServerConfigurationService.getString(MC_ENCRYPTION_KEY, null);
         if (key == null || key.length() != 32) {
-            throw new RuntimeException("LTI_ENCRYPTION_KEY must be defined and have 32 characters in sakai.properties");
+            throw new RuntimeException(
+                "Property '" + MC_ENCRYPTION_KEY + "' must be defined in sakai.properties and contain 32 ASCII characters for AES‑256"
+            );
         }
         return key.getBytes(StandardCharsets.UTF_8);
     }
@@ -85,7 +87,7 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
 	public void saveCredentials(MicrosoftCredentials credentials) {
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_AUTHORITY).value(credentials.getAuthority()).build());
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_CLIENT_ID).value(credentials.getClientId()).build());
-		saveOrUpdateSecretConfigItem(MicrosoftCredentials.KEY_SECRET,credentials.getSecret());
+		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_SECRET).value(credentials.getSecret()).build());
         saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_SCOPE).value(credentials.getScope()).build());
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_DELEGATED_SCOPE).value(credentials.getDelegatedScope()).build());
 		saveOrUpdateConfigItem(MicrosoftConfigItem.builder().key(MicrosoftCredentials.KEY_EMAIL).value(credentials.getEmail()).build());
@@ -169,29 +171,27 @@ public class MicrosoftConfigurationServiceImpl implements MicrosoftConfiguration
 	}
 	
 	public void saveOrUpdateConfigItem(MicrosoftConfigItem item) {
-		if (microsoftConfigRepository.exists(item.getKey())) {
+        if (item.getKey() != null && item.getKey().toUpperCase().contains("SECRET")) {
+
+            String encrypted = encrypt(item.getValue());
+
+            if (encrypted == null) {
+                log.error("The Microsoft secret could not be encrypted.");
+                return;
+            }
+
+            item = MicrosoftConfigItem.builder()
+                    .key(item.getKey())
+                    .value(encrypted)
+                    .build();
+        }
+
+        if (microsoftConfigRepository.exists(item.getKey())) {
 			microsoftConfigRepository.merge(item);
 		} else {
 			microsoftConfigRepository.save(item);
 		}
 	}
-
-    private void saveOrUpdateSecretConfigItem(String key, String value) {
-        if (value == null) {
-            return;
-        }
-
-        String encrypted = encrypt(value);
-        if (encrypted == null) {
-            log.error("Skipping persistence of Microsoft secret '{}' due to encryption failure", key);
-            return;
-        }
-
-        saveOrUpdateConfigItem(MicrosoftConfigItem.builder()
-                .key(key)
-                .value(encrypted)
-                .build());
-    }
 
     private String encrypt(String plainText) {
         try {
