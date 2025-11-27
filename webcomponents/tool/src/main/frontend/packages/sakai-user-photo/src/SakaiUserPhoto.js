@@ -72,7 +72,7 @@ export class SakaiUserPhoto extends SakaiElement {
     new bootstrap.Popover(el, {
       content: sakaiProfile,
       html: true,
-      trigger: "focus",
+      trigger: "hover focus",
     });
 
     el.addEventListener("show.bs.popover", () => {
@@ -94,7 +94,7 @@ export class SakaiUserPhoto extends SakaiElement {
       <div data-user-id="${this.userId}"
           class="sakai-user-photo ${this.classes}"
           data-bs-toggle="popover"
-          data-bs-trigger="focus"
+          data-bs-trigger="hover focus"
           aria-label="${ifDefined(this.label)}"
           title="${ifDefined(this.label)}"
           tabindex="0"
