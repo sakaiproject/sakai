@@ -55,6 +55,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.dao.api.ContentPackageDao;
@@ -381,9 +382,16 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
             }
 
             try {
-                String title = StringUtils.defaultIfBlank(copy.getTitle(), launchData.getItemTitle());
-                gs.addExternalAssessment(toContext, toContext, destExternalId, null, title,
-                        100.0, copy.getDueOn(), ScormConstants.SCORM_DFLT_TOOL_NAME, null, false, null, null);
+                // Get the source gradebook assignment to copy all its properties
+                Assignment sourceAssignment = gs.getExternalAssignment(fromContext, sourceExternalId);
+                if (sourceAssignment == null) {
+                    log.debug("Skipping gradebook copy for SCO {} - source assignment not found", itemIdentifier);
+                    continue;
+                }
+
+                gs.addExternalAssessment(toContext, toContext, destExternalId, null, sourceAssignment.getName(),
+                        sourceAssignment.getPoints(), copy.getDueOn(), ScormConstants.SCORM_DFLT_TOOL_NAME,
+                        null, false, sourceAssignment.getCategoryId(), null);
             } catch (Exception e) {
                 log.debug("Could not copy gradebook item for SCO {}: {}", itemIdentifier, e.getMessage());
             }
