@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="${isNew} ? #{new_option_title} : #{edit_option_title}">Option</title>
+</head>
+<body>
+  <div class="portletBody container-fluid">
+    <div th:replace="~{fragments/menus :: main('add')}"></div>
+
+    <h1 class="h4 mb-3" th:text="${isNew} ? #{new_option_title} : #{edit_option_title}">Option</h1>
+    <p class="text-muted">
+      <span th:text="#{new_poll_question}">Question</span>:
+      <span th:utext="${poll.text}">Poll question</span>
+    </p>
+
+    <form th:action="@{/pollOption}" th:object="${optionForm}" method="post">
+      <input type="hidden" th:field="*{pollId}" />
+      <input type="hidden" th:field="*{optionId}" />
+
+      <div class="mb-3">
+        <label class="form-label" for="option-text" th:text="#{new_poll_option}">Option</label>
+        <textarea id="option-text"
+                  class="form-control"
+                  th:classappend="${#fields.hasErrors('text')}? ' is-invalid'"
+                  rows="4"
+                  th:field="*{text}"
+                  required></textarea>
+        <div class="invalid-feedback" th:if="${#fields.hasErrors('text')}" th:errors="*{text}">Provide text</div>
+      </div>
+
+      <div class="act">
+        <input type="submit" name="submitAction" value="save" class="active" th:value="#{new_poll_submit}" />
+        <input type="submit" name="submitAction" value="addAnother"
+               th:if="${isNew}" th:value="#{new_poll_saveoption}" />
+        <input type="button" th:onclick="|location.href='@{/voteAdd(pollId=${poll.id})}'|"
+               th:value="#{new_poll_cancel}" value="Cancel" />
+      </div>
+    </form>
+  </div>
+</body>
+</html>

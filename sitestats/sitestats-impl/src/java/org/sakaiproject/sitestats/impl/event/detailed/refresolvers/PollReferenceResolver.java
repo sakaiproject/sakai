@@ -16,13 +16,14 @@
 package org.sakaiproject.sitestats.impl.event.detailed.refresolvers;
 
 import java.util.List;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.api.model.Poll;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.sitestats.api.event.detailed.ResolvedEventData;
 import org.sakaiproject.sitestats.api.event.detailed.polls.PollData;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
@@ -45,7 +46,7 @@ public class PollReferenceResolver
      * @param pollServ the polls service
      * @return a PollData object, or ResolvedEventData.ERROR
      */
-    public static ResolvedEventData resolveReference( String eventRef, List<EventParserTip> tips, PollListManager pollServ )
+    public static ResolvedEventData resolveReference( String eventRef, List<EventParserTip> tips, PollsService pollServ )
     {
         // Short circuit if the ref is null, empty, or the service(s) aren't initialized
         if( StringUtils.isBlank( eventRef ) || pollServ == null )
@@ -57,11 +58,9 @@ public class PollReferenceResolver
         String pollID = GenericRefParser.parse(eventRef, tips).entityId;
         try
         {
-            Long id = Long.parseLong( pollID );
-            Poll poll = pollServ.getPollById( id, false );
-            if( poll != null )
-            {
-                return new PollData( poll.getText() );
+            Optional<Poll> poll = pollServ.getPollById(pollID);
+            if (poll.isPresent()) {
+                return new PollData(poll.get().getText());
             }
         }
         catch( NumberFormatException ex )
