@@ -69,16 +69,23 @@ export class SakaiUserPhoto extends SakaiElement {
     const el = this.querySelector("div");
     const sakaiProfile = this.querySelector("sakai-profile");
 
-    new bootstrap.Popover(el, {
+    const popover = new bootstrap.Popover(el, {
       content: sakaiProfile,
       html: true,
-      trigger: "focus",
+      trigger: "click",
     });
 
-    el.addEventListener("show.bs.popover", () => {
+    const closeOnOutsideClick = e => {
+      const popoverEl = document.querySelector(".popover");
+      if (popoverEl && !popoverEl.contains(e.target) && !el.contains(e.target)) {
+        popover.hide();
+      }
+    };
 
+    el.addEventListener("show.bs.popover", () => {
       this.dispatchEvent(new CustomEvent("profile-shown", { detail: { userId: this.userId }, bubbles: true }));
-      sakaiProfile.fetchProfileData(); // Trigger the JSON load for this user
+      sakaiProfile.fetchProfileData();
+      setTimeout(() => document.addEventListener("click", closeOnOutsideClick, { once: true }), 0);
     });
   }
 
@@ -94,7 +101,7 @@ export class SakaiUserPhoto extends SakaiElement {
       <div data-user-id="${this.userId}"
           class="sakai-user-photo ${this.classes}"
           data-bs-toggle="popover"
-          data-bs-trigger="focus"
+          data-bs-trigger="click"
           aria-label="${ifDefined(this.label)}"
           title="${ifDefined(this.label)}"
           tabindex="0"
