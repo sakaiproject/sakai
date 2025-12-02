@@ -288,12 +288,22 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
             if (manifest == null) {
                 return null;
             }
+
+            // Create a deep copy that is completely detached from Hibernate session
             ContentPackageManifest clone = SerializationUtils.clone(manifest);
             clone.setId(null);
 
+            // Get the launch data list from the clone
             List<LaunchData> launchDataList = clone.getLaunchData();
             if (launchDataList != null) {
-                launchDataList.forEach(ld -> ld.setId(null));
+                // Create a new list with cloned LaunchData objects to ensure complete detachment
+                List<LaunchData> newLaunchDataList = new java.util.ArrayList<>();
+                for (LaunchData ld : launchDataList) {
+                    LaunchData ldClone = SerializationUtils.clone(ld);
+                    ldClone.setId(null);
+                    newLaunchDataList.add(ldClone);
+                }
+                clone.setLaunchData(newLaunchDataList);
             }
 
             return contentPackageManifestDao.save(clone);
