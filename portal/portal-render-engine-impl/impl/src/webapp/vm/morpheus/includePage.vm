@@ -109,24 +109,6 @@
 
                                 #end ## END of IF (${tool.toolJSR168Edit} )
 
-                                #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
-
-                                    <button class="tool-button-container si si-share link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
-                                        <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
-                                    </button>
-                                    <div id="${tool.toolPlacementIDJS}_directurl" role="dialog" aria-labelledby="${tool.toolPlacementIDJS}_directurl__title" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
-                                        <i class="fa fa-times dropDown_close" aria-hidden="true" tabindex="0"></i>
-                                        <label for="${tool.toolPlacementIDJS}_urlholder" id="${tool.toolPlacementIDJS}_directurl__title" class="dropDown_title">${rloader.tool_direct_link}</label>
-                                        #if($toolShortUrlEnabled)
-
-                                            <input tabindex="0" type="checkbox" id="directToolUrl-${i}" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" class="Mrphs-directUrl__checkbox"><label for="directToolUrl-${i}">${rloader.short_url}</label>
-
-                                        #end ## END of IF ($toolShortUrlEnabled)
-
-                                        <textarea name="${tool.toolPlacementIDJS}_urlholder" id="${tool.toolPlacementIDJS}_urlholder" tabindex="0" class="Mrphs-directUrl__textarea ${tool.toolPlacementIDJS}_urlholder" >${tool.directToolUrl}</textarea>
-                                    </div>
-
-                                #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
                                 </div>
 
                             </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
@@ -235,24 +217,6 @@
                                     </a>
                                 #end ## END of IF (${tool.toolJSR168Edit})
                                  
-                                #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
-                                	<!-- TO-DO: let same as the other -->
-                                	
-                                	<button class="tool-button-container si si-share link--directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}" aria-haspopup="dialog">
-                                        <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
-                                    </button>
-                                    <div id="${tool.toolPlacementIDJS}_directurl" role="dialog" aria-labelledby="${tool.toolPlacementIDJS}_directurl__title" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
-                                        <i class="fa fa-times dropDown_close" aria-hidden="true" tabindex="0"></i>
-                                        <label for="${tool.toolPlacementIDJS}_urlholder" id="${tool.toolPlacementIDJS}_directurl__title" class="dropDown_title">${rloader.tool_direct_link}</label>
-                                        #if($toolShortUrlEnabled)
-
-                                            <input tabindex="0" type="checkbox" id="directToolUrl-${i}" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" class="Mrphs-directUrl__checkbox"><label for="directToolUrl-${i}">${rloader.short_url}</label>
-
-                                        #end ## END of IF ($toolShortUrlEnabled)
-
-                                        <textarea name="${tool.toolPlacementIDJS}_urlholder" id="${tool.toolPlacementIDJS}_urlholder" tabindex="0" class="Mrphs-directUrl__textarea ${tool.toolPlacementIDJS}_urlholder" >${tool.directToolUrl}</textarea>
-                                    </div>
-                                #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
                                 </div>
                                 
@@ -301,7 +265,61 @@
 
         #end ## END of IF ($pageTwoColumn)
 
+        #if ( $toolDirectUrlEnabled)
 
+            #set($allTools = [])
+            #if($pageColumn0Tools)
+                #set($dummy = $allTools.addAll($pageColumn0Tools))
+            #end
+            #if($pageColumn1Tools)
+                #set($dummy = $allTools.addAll($pageColumn1Tools))
+            #end
+
+            #set($j = 0)
+
+            <div class="offcanvas offcanvas-end Mrphs-directUrl__dropDown" tabindex="-1" id="sakai-directlink-panel" aria-labelledby="sakai-directlink-label">
+
+                <div class="offcanvas-header border-bottom">
+                    <h2 class="offcanvas-title" id="sakai-directlink-label">
+                        ${rloader.tool_direct_button_link}
+                    </h2>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+
+                <div class="offcanvas-body">
+                    #if ( !$allTools.isEmpty() )
+                        <ul class="list-group list-group-flush">
+                            #foreach ( $tool in $allTools )
+                                #if ( $tool.directToolUrl && ${tool.showDirectToolUrl} )
+
+                                    #set($j = $j + 1)
+
+                                    <li class="list-group-item bg-transparent border-secondary px-0 mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <strong>${tool.toolTitle}</strong>
+                                        </div>
+
+                                        <div id="${tool.toolPlacementIDJS}_directurl" role="dialog" aria-labelledby="${tool.toolPlacementIDJS}_directurl__title" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
+                                            #if($toolShortUrlEnabled)
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <input type="checkbox" id="directToolUrl-${j}" class="Mrphs-directUrl__checkbox" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');">
+                                                    <label for="directToolUrl-${j}" class="form-check-label">
+                                                        ${rloader.short_url}
+                                                    </label>
+                                                </div>
+                                            #end
+                                            <textarea name="${tool.toolPlacementIDJS}_urlholder" id="${tool.toolPlacementIDJS}_urlholder" class="Mrphs-directUrl__textarea ${tool.toolPlacementIDJS}_urlholder form-control border-secondary" style="min-height: 70px; font-size: 0.95rem;">${tool.directToolUrl}</textarea>
+                                        </div>
+                                    </li>
+                                #end
+                            #end
+                        </ul>
+                    #else
+                        <p class="text-secondary">${rloader.tool_direct_link_not_available}</p>
+                    #end
+                </div>
+            </div>
+        #end
     </main>
 
     ## Footer ##
