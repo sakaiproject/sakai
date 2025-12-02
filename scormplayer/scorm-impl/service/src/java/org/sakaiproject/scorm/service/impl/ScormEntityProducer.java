@@ -362,6 +362,10 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
             return;
         }
 
+        if (copy.getManifestId() == null) {
+            return;
+        }
+
         ContentPackageManifest manifest = contentPackageManifestDao.load(copy.getManifestId());
         if (manifest == null || manifest.getLaunchData() == null) {
             return;
