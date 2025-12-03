@@ -3650,7 +3650,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                 // record submission timestamp
                                 if (!withoutFolders && s.getSubmitted() && s.getDateSubmitted() != null) {
-                                    final String zipEntryName = submittersName + resourceLoader.getString("zip.timestamp") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
+                                    final String zipEntryName = submittersName + "timestamp" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                                     final String textEntryString = s.getDateSubmitted().toString();
                                     createTextZipEntry(out, zipEntryName, textEntryString);
                                 }
@@ -3673,7 +3673,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     // include student submission feedback text
                                     if (withFeedbackText) {
                                         // create a feedbackText file into zip
-                                    	final String zipEntryName = submittersName + resourceLoader.getString("zip.feedback_text") + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE;
+                                    	final String zipEntryName = submittersName + "feedbackText" + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE;
                                         final String textEntryString = s.getFeedbackText();
                                         createTextZipEntry(out, zipEntryName, textEntryString);
                                     }
@@ -3701,7 +3701,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                 if (withFeedbackComment) {
                                     // the comments.txt file to show instructor's comments
-                                	final String zipEntryName = submittersName + resourceLoader.getString("zip.comments") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
+                                	final String zipEntryName = submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                                     final String textEntryString = formattedText.encodeUnicode(s.getFeedbackComment());
                                     createTextZipEntry(out, zipEntryName, textEntryString);
                                 }
@@ -3905,7 +3905,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                             // record submission timestamp
                             if (s.getSubmitted() && s.getDateSubmitted() != null) {
-                            	createTextZipEntry(out, submittersName + resourceLoader.getString("zip.timestamp") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE, s.getDateSubmitted().toString());
+                            	createTextZipEntry(out, submittersName + "timestamp" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE, s.getDateSubmitted().toString());
                             }
 
                             // create the folder structure - named after the submitter's name
@@ -3920,7 +3920,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 // include student submission feedback text
                                 if (withFeedbackText) {
                                     // create a feedbackText file into zip
-                                	createTextZipEntry(out, submittersName + resourceLoader.getString("zip.feedback_text") + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE, s.getFeedbackText());
+                                	createTextZipEntry(out, submittersName + "feedbackText" + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE, s.getFeedbackText());
                                 }
                             }
 
@@ -3937,7 +3937,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                             if (withFeedbackComment) {
                                 // the comments.txt file to show instructor's comments
-                                final String zipEntryName = submittersName + resourceLoader.getString("zip.comments") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
+                                final String zipEntryName = submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                             	final String textEntryString = formattedText.encodeUnicode(s.getFeedbackComment());
                             	createTextZipEntry(out, zipEntryName, textEntryString);
                             }
@@ -3970,7 +3970,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                             if (!submittersString.toString().trim().isEmpty()) {
                                 // the comments.txt file to show instructor's comments
-                                final String zipEntryName = submittersName + resourceLoader.getString("zip.comments") + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
+                                final String zipEntryName = submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
                             	final String textEntryString = formattedText.encodeUnicode(submittersString.toString());
                             	createTextZipEntry(out, zipEntryName, textEntryString);
                             }
