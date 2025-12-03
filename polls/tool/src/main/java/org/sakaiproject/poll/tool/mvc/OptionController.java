@@ -263,17 +263,16 @@ public class OptionController {
         if (poll == null) {
             return "redirect:/votePolls";
         }
-        List<Option> pollOptions = poll.getOptions();
         boolean hasVotes = !pollsService.getAllVotesForOption(option.get()).isEmpty();
 
-        model.addAttribute("option", option);
+        model.addAttribute("option", option.get());
         model.addAttribute("poll", poll);
         model.addAttribute("hasVotes", hasVotes || pollsService.pollIsVotable(poll));
         model.addAttribute("handleOptions", List.of(
                 new DeleteChoice(HANDLE_DELETE_OPTION_DO_NOTHING, "handle_delete_option_do_nothing_label"),
                 new DeleteChoice(HANDLE_DELETE_OPTION_RETURN_VOTES, "handle_delete_option_return_votes_label")
         ));
-        model.addAttribute("pollOptions", pollOptions);
+        model.addAttribute("pollOptions", poll.getOptions());
         model.addAttribute("canAdd", isAllowedPollAdd());
         model.addAttribute("isSiteOwner", isSiteOwner());
         return "polls/option-delete";
