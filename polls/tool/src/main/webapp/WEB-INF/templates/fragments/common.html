@@ -2,12 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<div th:fragment="head">
-    <head>
-        <meta charset="UTF-8"/>
-        <script th:src="@{~/library/js/headscripts.js}"></script>
-    </head>
-</div>
+<head th:fragment="head">
+    <meta charset="UTF-8"/>
+    <script th:src="@{~/library/js/headscripts.js}"></script>
+</head>
 
 <div th:fragment="menu (current)">
     <ul class="navIntraTool">
