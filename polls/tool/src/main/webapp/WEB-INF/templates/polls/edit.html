@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8" />
-  <title th:text="${isNew} ? #{new_poll_title} : #{new_poll_title_edit}">Poll</title>
-</head>
+<div th:replace="~{fragments/common :: head}"></div>
 <body>
   <div class="portletBody container-fluid">
-    <div th:replace="~{fragments/menus :: main('add')}"></div>
+    <div th:replace="~{fragments/common :: menu('add')}"></div>
 
     <div th:if="${success}" class="sak-banner-success" role="status" th:text="${success}">Saved</div>
     <div th:if="${alert}" class="sak-banner-error" role="alert" th:text="${alert}">Alert</div>

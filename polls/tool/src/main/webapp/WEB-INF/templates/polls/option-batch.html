@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8" />
-  <title th:text="#{new_option_batch_title}">Batch options</title>
-</head>
+<div th:replace="~{fragments/common :: head}"></div>
 <body>
   <div class="portletBody container-fluid">
-    <div th:replace="~{fragments/menus :: main('add')}"></div>
+    <div th:replace="~{fragments/common :: menu('add')}"></div>
 
     <h1 class="h4 mb-3" th:text="#{new_option_batch_title}">Batch upload</h1>
     <p class="text-muted">

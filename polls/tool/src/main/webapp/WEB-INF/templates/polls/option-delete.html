@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8" />
-  <title th:text="#{delete_confirm}">Delete option</title>
-</head>
+<div th:replace="~{fragments/common :: head}"></div>
 <body>
   <div class="portletBody container-fluid">
-    <div th:replace="~{fragments/menus :: main('add')}"></div>
+    <div th:replace="~{fragments/common :: menu('add')}"></div>
 
     <h1 class="h4 mb-3" th:text="#{delete_confirm}">Confirm delete</h1>
     <div class="sak-banner-warn">

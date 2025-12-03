@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8" />
-  <title th:text="#{thanks_msg}">Thank you</title>
-</head>
+<div th:replace="~{fragments/common :: head}"></div>
 <body>
   <div class="portletBody container-fluid">
-    <div th:replace="~{fragments/menus :: main('list')}"></div>
+    <div th:replace="~{fragments/common :: menu('list')}"></div>
 
     <h1 class="h4 mb-3" th:text="#{thanks_msg}">Thank you for voting</h1>
     <p th:text="#{thanks_ref}">Your reference number:</p>
