@@ -99,7 +99,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="sak-banner-warn" th:text="#{poll_list_delete_confirm_message}">Are you sure you want to delete the selected polls? This action cannot be undone.</div>
+            <div class="sak-banner-warn" role="alert" th:text="#{poll_list_delete_confirm_message}">Are you sure you want to delete the selected polls? This action cannot be undone.</div>
           </div>
           <div class="modal-footer act">
             <button type="button" class="btn btn-primary" id="confirmDelete" data-bs-dismiss="modal" th:text="#{poll_list_delete_confirm}">Delete</button>
@@ -118,7 +118,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="sak-banner-warn" th:text="#{poll_list_reset_confirm_message}">Are you sure you want to reset votes for the selected polls? This action cannot be undone.</div>
+            <div class="sak-banner-warn" role="alert" th:text="#{poll_list_reset_confirm_message}">Are you sure you want to reset votes for the selected polls? This action cannot be undone.</div>
           </div>
           <div class="modal-footer act">
             <button type="button" class="btn btn-primary" id="confirmReset" data-bs-dismiss="modal" th:text="#{poll_list_reset_confirm}">Reset</button>
