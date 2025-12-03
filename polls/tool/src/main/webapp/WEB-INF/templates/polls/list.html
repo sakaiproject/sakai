@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8" />
-  <title th:text="#{poll_list_title}">Polls</title>
-  <script th:src="@{~/library/js/headscripts.js}"></script>
-</head>
+<head th:replace="~{fragments/common :: head}"></head>
 <body>
   <div class="portletBody container-fluid">
-    <div th:replace="~{fragments/menus :: main('list')}"></div>
+    <div th:replace="~{fragments/common :: menu('list')}"></div>
 
     <div th:if="${success}" class="sak-banner-success" role="status" th:text="${success}">Success</div>
     <div th:if="${alert}" class="sak-banner-error" role="alert" th:text="${alert}">Error</div>
