@@ -84,32 +84,75 @@
           </tbody>
         </table>
       </div>
-
-      <div class="d-flex gap-2 mt-3" th:if="${renderDelete}">
-        <button id="delete-polls" type="submit" name="action" value="delete" class="btn btn-danger" th:text="#{poll_list_delete}">Delete selected</button>
-        <button id="reset-polls-votes" type="submit" name="action" value="reset" class="btn btn-outline-secondary" th:text="#{poll_list_reset}">Reset votes</button>
+      <div class="d-flex gap-2 mt-3 act" th:if="${renderDelete}">
+          <input id="delete-polls" type="button" name="action" value="delete" th:value="#{poll_list_delete}"/>
+          <input id="reset-polls-votes" type="button" name="action" value="reset" th:value="#{poll_list_reset}"/>
       </div>
     </form>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmationModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalTitle">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteConfirmationModalTitle" th:text="#{poll_list_delete_confirm_title}">Confirm Delete</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="sak-banner-warn" th:text="#{poll_list_delete_confirm_message}">Are you sure you want to delete the selected polls? This action cannot be undone.</div>
+          </div>
+          <div class="modal-footer act">
+            <button type="button" class="btn btn-primary" id="confirmDelete" data-bs-dismiss="modal" th:text="#{poll_list_delete_confirm}">Delete</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{poll_list_cancel}">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div id="resetConfirmationModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="resetConfirmationModalTitle">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="resetConfirmationModalTitle" th:text="#{poll_list_reset_confirm_title}">Confirm Reset</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="sak-banner-warn" th:text="#{poll_list_reset_confirm_message}">Are you sure you want to reset votes for the selected polls? This action cannot be undone.</div>
+          </div>
+          <div class="modal-footer act">
+            <button type="button" class="btn btn-primary" id="confirmReset" data-bs-dismiss="modal" th:text="#{poll_list_reset_confirm}">Reset</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{poll_list_cancel}">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
   <script type="module">
   const selectAll = document.getElementById('remove-all');
   const deleteButton = document.getElementById('delete-polls');
   const resetButton = document.getElementById('reset-polls-votes');
   const checkboxes = Array.from(document.querySelectorAll('input[name="deleteIds"]'));
+  const form = document.querySelector('form[action*="/polls/bulk"]');
 
   const updateState = () => {
     const checked = checkboxes.filter(cb => cb.checked);
+    const disabled = checked.length === 0;
     if (deleteButton) {
-      deleteButton.disabled = checked.length === 0;
+      deleteButton.disabled = disabled;
+      deleteButton.setAttribute('aria-disabled', String(disabled));
+      deleteButton.classList.toggle('active', !disabled);
     }
     if (resetButton) {
-      resetButton.disabled = checked.length === 0;
+      resetButton.disabled = disabled;
+      resetButton.setAttribute('aria-disabled', String(disabled));
+      resetButton.classList.toggle('active', !disabled);
     }
     if (selectAll) {
       selectAll.checked = checked.length === checkboxes.length && checkboxes.length > 0;
     }
   };
-
   if (selectAll) {
     selectAll.addEventListener('change', (event) => {
       checkboxes.forEach(cb => cb.checked = event.target.checked);
@@ -119,6 +162,54 @@
 
   checkboxes.forEach(cb => cb.addEventListener('change', updateState));
   updateState();
+
+  // Handle delete button click
+  if (deleteButton) {
+    deleteButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+      deleteModal.show();
+    });
+  }
+
+  // Handle reset button click
+  if (resetButton) {
+    resetButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      const resetModal = new bootstrap.Modal(document.getElementById('resetConfirmationModal'));
+      resetModal.show();
+    });
+  }
+
+  // Handle delete confirmation
+  const confirmDeleteButton = document.getElementById('confirmDelete');
+  if (confirmDeleteButton) {
+    confirmDeleteButton.addEventListener('click', () => {
+      if (form && deleteButton) {
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'delete';
+        form.appendChild(actionInput);
+        form.submit();
+      }
+    });
+  }
+
+  // Handle reset confirmation
+  const confirmResetButton = document.getElementById('confirmReset');
+  if (confirmResetButton) {
+    confirmResetButton.addEventListener('click', () => {
+      if (form && resetButton) {
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'reset';
+        form.appendChild(actionInput);
+        form.submit();
+      }
+    });
+  }
   </script>
 </body>
 </html>
