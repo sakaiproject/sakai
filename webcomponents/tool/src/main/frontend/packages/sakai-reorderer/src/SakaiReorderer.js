@@ -73,11 +73,20 @@ export class SakaiReorderer extends SakaiShadowElement {
 
       e.stopPropagation();
 
+      if (!this.draggingElement || !this.draggingElement.dataset.reorderableId) {
+        return;
+      }
+
       const afterElement = this._getDragAfterElement(this.container, this.horizontal ? e.clientX : e.clientY);
 
       const total = this._reorderableIds.length;
 
       const draggingIndex = this._reorderableIds.findIndex(id => id === this.draggingElement.dataset.reorderableId);
+
+      if (draggingIndex === -1) {
+        return;
+      }
+
       const afterIndex = afterElement ? this._reorderableIds.findIndex(id => id === afterElement.dataset.reorderableId) : this._reorderableIds.length - 1;
       this._reorderableIds.splice(draggingIndex, 1);
 
