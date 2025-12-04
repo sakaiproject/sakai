@@ -97,7 +97,6 @@ public class OptionController {
 
         model.addAttribute("poll", poll);
         model.addAttribute("optionForm", form);
-        model.addAttribute("isNew", optionId == null);
         model.addAttribute("canAdd", isAllowedPollAdd());
         model.addAttribute("isSiteOwner", isSiteOwner());
         return "polls/option-edit";
@@ -113,7 +112,6 @@ public class OptionController {
         if (!isAllowedPollAdd()) {
             bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage("new_poll_noperms", null, locale)));
             model.addAttribute("poll", pollsService.getPollById(optionForm.getPollId()));
-            model.addAttribute("isNew", optionForm.getOptionId() == null);
             model.addAttribute("canAdd", isAllowedPollAdd());
             model.addAttribute("isSiteOwner", isSiteOwner());
             return "polls/option-edit";
@@ -124,7 +122,6 @@ public class OptionController {
         if (poll.isEmpty()) {
             bindingResult.addError(new FieldError("optionForm", "text", "Poll not found"));
             model.addAttribute("poll", null);
-            model.addAttribute("isNew", optionForm.getOptionId() == null);
             model.addAttribute("canAdd", isAllowedPollAdd());
             model.addAttribute("isSiteOwner", isSiteOwner());
             return "polls/option-edit";
@@ -134,7 +131,6 @@ public class OptionController {
         if (StringUtils.isBlank(optionForm.getText())) {
             bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage("option_empty", null, locale)));
             model.addAttribute("poll", poll.get());
-            model.addAttribute("isNew", optionForm.getOptionId() == null);
             model.addAttribute("canAdd", isAllowedPollAdd());
             model.addAttribute("isSiteOwner", isSiteOwner());
             return "polls/option-edit";
@@ -147,7 +143,6 @@ public class OptionController {
             if (existingOption.isEmpty()) {
                 bindingResult.addError(new FieldError("optionForm", "text", "Option not found"));
                 model.addAttribute("poll", poll.get());
-                model.addAttribute("isNew", false);
                 model.addAttribute("canAdd", isAllowedPollAdd());
                 model.addAttribute("isSiteOwner", isSiteOwner());
                 return "polls/option-edit";
@@ -173,7 +168,6 @@ public class OptionController {
         if (StringUtils.isBlank(option.getText())) {
             bindingResult.addError(new FieldError("optionForm", "text", messageSource.getMessage("option_empty", null, locale)));
             model.addAttribute("poll", poll.get());
-            model.addAttribute("isNew", optionForm.getOptionId() == null);
             model.addAttribute("canAdd", isAllowedPollAdd());
             model.addAttribute("isSiteOwner", isSiteOwner());
             return "polls/option-edit";
