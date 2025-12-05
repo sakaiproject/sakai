@@ -226,10 +226,17 @@ public class EntityData {
     }
 
     /**
+     * No-arg constructor required for serialization
+     */
+    public EntityData() {
+        // Default constructor for serialization frameworks
+    }
+
+    /**
      * Minimal constructor - used for most basic cases<br/>
      * Use the setters to add in properties or the entity if desired
-     * 
-     * @param reference a globally unique reference to an entity, 
+     *
+     * @param reference a globally unique reference to an entity,
      * consists of the entity prefix and id (e.g. /prefix/id)
      * @param entityDisplayTitle a string which is suitable for display and provides a short summary of the entity,
      * typically 100 chars or less, this may be the name or title of the entity represented by an entity

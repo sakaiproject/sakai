@@ -20,20 +20,30 @@
 
 package org.sakaiproject.entitybroker.rest;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
-import org.azeckoski.reflectutils.ArrayUtils;
-import org.azeckoski.reflectutils.ClassFields;
-import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
-import org.azeckoski.reflectutils.ConstructorUtils;
-import org.azeckoski.reflectutils.ReflectUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -322,52 +332,52 @@ public class EntityDescriptionManager {
             // XML available in case someone wants to parse this in javascript or whatever
             String describePrefixUrl = servletUrl + "/" + prefix + SLASH_DESCRIBE;
             sb.append("    <prefix>\n");
-            sb.append("      <prefix>" + prefix + "</prefix>\n");
-            sb.append("      <describeURL>" + describePrefixUrl + "</describeURL>\n");
+            sb.append("      <prefix>" + escapeXml(prefix) + "</prefix>\n");
+            sb.append("      <describeURL>" + escapeXml(describePrefixUrl) + "</describeURL>\n");
             String summary = getEntityDescription(prefix, null, locale);
             if (summary != null) {
-                sb.append("      <summary>" + summary + "</summary>\n");            
+                sb.append("      <summary>" + escapeXml(summary) + "</summary>\n");
             }
             String description = getEntityDescription(prefix, "description", locale);
             if (description != null) {
-                sb.append("      <description>" + description + "</description>\n");            
+                sb.append("      <description>" + escapeXml(description) + "</description>\n");
             }
             if (extra) {
                 // URLs
                 EntityView ev = entityBrokerManager.makeEntityView(new EntityReference(prefix, id), null, null);
                 if (caps.contains(CollectionResolvable.class)) {
-                    sb.append("      <collectionURL>" + ev.getEntityURL(EntityView.VIEW_LIST, null) + "</collectionURL>\n");
+                    sb.append("      <collectionURL>" + escapeXml(ev.getEntityURL(EntityView.VIEW_LIST, null)) + "</collectionURL>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST, locale);
                     if (viewDesc != null) {
-                        sb.append("      <collectionDescription>"+viewDesc+"</collectionDescription>\n");
+                        sb.append("      <collectionDescription>"+escapeXml(viewDesc)+"</collectionDescription>\n");
                     }
                 }
                 if (caps.contains(Createable.class)) {
-                    sb.append("      <createURL>" + ev.getEntityURL(EntityView.VIEW_NEW, null) + "</createURL>\n");
+                    sb.append("      <createURL>" + escapeXml(ev.getEntityURL(EntityView.VIEW_NEW, null)) + "</createURL>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW, locale);
                     if (viewDesc != null) {
-                        sb.append("      <createDescription>"+viewDesc+"</createDescription>\n");
+                        sb.append("      <createDescription>"+escapeXml(viewDesc)+"</createDescription>\n");
                     }
                 }
                 if (caps.contains(CoreEntityProvider.class) || caps.contains(Resolvable.class)) {
-                    sb.append("      <showURL>" + ev.getEntityURL(EntityView.VIEW_SHOW, null) + "</showURL>\n");
+                    sb.append("      <showURL>" + escapeXml(ev.getEntityURL(EntityView.VIEW_SHOW, null)) + "</showURL>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
                     if (viewDesc != null) {
-                        sb.append("      <showDescription>"+viewDesc+"</showDescription>\n");
+                        sb.append("      <showDescription>"+escapeXml(viewDesc)+"</showDescription>\n");
                     }
                 }
                 if (caps.contains(Updateable.class)) {
-                    sb.append("      <updateURL>" + ev.getEntityURL(EntityView.VIEW_EDIT, null) + "</updateURL>\n");
+                    sb.append("      <updateURL>" + escapeXml(ev.getEntityURL(EntityView.VIEW_EDIT, null)) + "</updateURL>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
                     if (viewDesc != null) {
-                        sb.append("      <updateDescription>"+viewDesc+"</updateDescription>\n");
+                        sb.append("      <updateDescription>"+escapeXml(viewDesc)+"</updateDescription>\n");
                     }
                 }
                 if (caps.contains(Deleteable.class)) {
-                    sb.append("      <deleteURL>" + ev.getEntityURL(EntityView.VIEW_DELETE, null) + "</deleteURL>\n");
+                    sb.append("      <deleteURL>" + escapeXml(ev.getEntityURL(EntityView.VIEW_DELETE, null)) + "</deleteURL>\n");
                     String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
                     if (viewDesc != null) {
-                        sb.append("      <deleteDescription>"+viewDesc+"</deleteDescription>\n");
+                        sb.append("      <deleteDescription>"+escapeXml(viewDesc)+"</deleteDescription>\n");
                     }
                 }
                 // Custom Actions
@@ -376,21 +386,21 @@ public class EntityDescriptionManager {
                     for (CustomAction customAction : customActions) {
                         sb.append("      <customActions>\n");
                         sb.append("        <customAction>\n");
-                        sb.append("          <action>"+customAction.action+"</action>\n");
-                        sb.append("          <url>"+servletUrl+makeActionURL(ev, customAction)+"</url>\n");
+                        sb.append("          <action>"+escapeXml(customAction.action)+"</action>\n");
+                        sb.append("          <url>"+escapeXml(servletUrl+makeActionURL(ev, customAction))+"</url>\n");
                         if (customAction.viewKey == null || "".equals(customAction.viewKey)) {
                             sb.append("          <method/>\n");
                             sb.append("          <viewKey/>\n");
                         } else {
-                            sb.append("          <method>"+EntityView.translateViewKeyToMethod(customAction.viewKey)+"</method>\n");
-                            sb.append("          <viewKey>"+customAction.viewKey+"</viewKey>\n");
+                            sb.append("          <method>"+escapeXml(EntityView.translateViewKeyToMethod(customAction.viewKey))+"</method>\n");
+                            sb.append("          <viewKey>"+escapeXml(customAction.viewKey)+"</viewKey>\n");
                         }
                         String actionDesc = getEntityDescription(prefix, ACTION_KEY_PREFIX + customAction.action, locale);
                         if (actionDesc != null) {
-                            sb.append("          <description>"+actionDesc+"</description>\n");
+                            sb.append("          <description>"+escapeXml(actionDesc)+"</description>\n");
                         }
                         sb.append("        </customAction>\n");
-                        sb.append("      </customActions>\n");               
+                        sb.append("      </customActions>\n");
                     }
                 }
 
@@ -403,13 +413,13 @@ public class EntityDescriptionManager {
                         sb.append("        <format>*</format>\n");
                     } else {
                         for (int i = 0; i < outputFormats.length; i++) {
-                            sb.append("        <format>"+outputFormats[i]+"</format>\n");
+                            sb.append("        <format>"+escapeXml(outputFormats[i])+"</format>\n");
                         }
                     }
                 }
                 String outputDesc = getEntityDescription(prefix, OUTPUT_DESCRIBE_KEY, locale);
                 if (outputDesc != null) {
-                    sb.append("          <description>"+outputDesc+"</description>\n");
+                    sb.append("          <description>"+escapeXml(outputDesc)+"</description>\n");
                 }
                 sb.append("       </outputFormats>\n");
 
@@ -420,13 +430,13 @@ public class EntityDescriptionManager {
                         sb.append("        <format>*</format>\n");
                     } else {
                         for (int i = 0; i < inputFormats.length; i++) {
-                            sb.append("        <format>"+inputFormats[i]+"</format>\n");
+                            sb.append("        <format>"+escapeXml(inputFormats[i])+"</format>\n");
                         }
                     }
                 }
                 String intputDesc = getEntityDescription(prefix, INPUT_DESCRIBE_KEY, locale);
                 if (intputDesc != null) {
-                    sb.append("          <description>"+intputDesc+"</description>\n");
+                    sb.append("          <description>"+escapeXml(intputDesc)+"</description>\n");
                 }
                 sb.append("       </inputFormats>\n");
 
@@ -436,8 +446,8 @@ public class EntityDescriptionManager {
                 if (evap != null || hsap != null) {
                     sb.append("      <accessProvider>\n");
                     if (evap != null) {
-                        sb.append("        <type>" + EntityViewAccessProvider.class.getSimpleName() + "</type>\n");
-                        sb.append("        <implementor>" + evap.getClass().getName() + "</implementor>\n");
+                        sb.append("        <type>" + escapeXml(EntityViewAccessProvider.class.getSimpleName()) + "</type>\n");
+                        sb.append("        <implementor>" + escapeXml(evap.getClass().getName()) + "</implementor>\n");
                         if (AccessFormats.class.isAssignableFrom(evap.getClass())) {
                             String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
                             sb.append("        <accessFormats>\n");
@@ -446,15 +456,15 @@ public class EntityDescriptionManager {
                                     sb.append("          <format>*</format>\n");
                                 } else {
                                     for (int i = 0; i < accessFormats.length; i++) {
-                                        sb.append("          <format>"+accessFormats[i]+"</format>\n");
+                                        sb.append("          <format>"+escapeXml(accessFormats[i])+"</format>\n");
                                     }
                                 }
                             }
                             sb.append("        </accessFormats>\n");
                         }
                     } else {
-                        sb.append("        <type>" + HttpServletAccessProvider.class.getSimpleName() + "</type>\n");
-                        sb.append("        <implementor>" + hsap.getClass().getName() + "</implementor>\n");
+                        sb.append("        <type>" + escapeXml(HttpServletAccessProvider.class.getSimpleName()) + "</type>\n");
+                        sb.append("        <implementor>" + escapeXml(hsap.getClass().getName()) + "</implementor>\n");
                     }
                     sb.append("      </accessProvider>\n");
                 }
@@ -464,43 +474,45 @@ public class EntityDescriptionManager {
                 if (entity != null) {
                     Class<?> entityType = entity.getClass();
                     sb.append("      <entityClass>\n");
-                    sb.append("        <class>"+ entityType.getName() +"</class>\n");
-                    if (ConstructorUtils.isClassSimple(entityType)) {
+                    sb.append("        <class>"+ escapeXml(entityType.getName()) +"</class>\n");
+                    if (isSimpleType(entityType)) {
                         sb.append("        <type>simple</type>\n");
-                    } else if (ConstructorUtils.isClassCollection(entityType)) {
+                    } else if (isCollectionType(entityType)) {
                         sb.append("        <type>collection</type>\n");
-                    } else if (ConstructorUtils.isClassArray(entityType)) {
+                    } else if (isArrayType(entityType)) {
                         sb.append("        <type>array</type>\n");
-                        sb.append("        <componentType>"+ArrayUtils.type((Object[])entity).getName()+"</componentType>\n");
-                    } else if (ConstructorUtils.isClassMap(entityType)) {
+                        Class<?> componentType = getArrayComponentType(entityType);
+                        sb.append("        <componentType>"+escapeXml(componentType != null ? componentType.getName() : Object.class.getName())+"</componentType>\n");
+                    } else if (isMapType(entityType)) {
                         sb.append("        <type>map</type>\n");
                         // get the types of the map keys if possible
                         Map m = (Map) entity;
                         if (m.size() > 0) {
                             Entry entry = (Entry) m.entrySet().iterator().next();
-                            sb.append("        <keyType>"+(entry.getKey()==null?Object.class.getName():entry.getKey().getClass().getName())+"</keyType>\n");
-                            sb.append("        <valueType>"+(entry.getValue()==null?Object.class.getName():entry.getValue().getClass().getName())+"</valueType>\n");
+                            sb.append("        <keyType>"+escapeXml(entry.getKey()==null?Object.class.getName():entry.getKey().getClass().getName())+"</keyType>\n");
+                            sb.append("        <valueType>"+escapeXml(entry.getValue()==null?Object.class.getName():entry.getValue().getClass().getName())+"</valueType>\n");
                         }
                     } else {
                         sb.append("        <type>bean</type>\n");
                         sb.append("        <fields>\n");
                         // get all the read and write fields from this object
-                        Map<String, Class<?>> readTypes = ReflectUtils.getInstance().getFieldTypes(entity.getClass(), FieldsFilter.SERIALIZABLE);
-                        Map<String, Class<?>> writeTypes = ReflectUtils.getInstance().getFieldTypes(entity.getClass(), FieldsFilter.WRITEABLE);
-                        Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
+                        PropertyIntrospection propertyData = analyzeProperties(entity.getClass());
+                        Map<String, Class<?>> readTypes = propertyData.getReadableTypes();
+                        Map<String, Class<?>> writeTypes = propertyData.getWritableTypes();
+                        Map<String, Class<?>> entityTypes = new LinkedHashMap<String, Class<?>>(readTypes);
                         entityTypes.putAll(writeTypes);
                         ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                         Collections.sort(keys);
                         for (String key : keys) {
                             Class<?> type = entityTypes.get(key);
                             sb.append("          <field>\n");
-                            sb.append("            <name>"+ key +"</name>\n");
-                            sb.append("            <type>"+ type.getName() +"</type>\n");
+                            sb.append("            <name>"+ escapeXml(key) +"</name>\n");
+                            sb.append("            <type>"+ escapeXml(type.getName()) +"</type>\n");
                             sb.append("            <readable>"+ readTypes.containsKey(key) +"</readable>\n");
                             sb.append("            <writeable>"+ writeTypes.containsKey(key) +"</writeable>\n");
                             String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key, locale);
                             if (fieldDesc != null) {
-                                sb.append("            <description>"+ fieldDesc +"</description>\n");
+                                sb.append("            <description>"+ escapeXml(fieldDesc) +"</description>\n");
                             }
                             sb.append("          </field>\n");
                         }
@@ -516,16 +528,16 @@ public class EntityDescriptionManager {
                     for (int i = 0; i < redirects.size(); i++) {
                         URLRedirect redirect = redirects.get(i);
                         sb.append("        <redirect>\n");
-                        sb.append("          <template>"+redirect.template+"</template>\n");
+                        sb.append("          <template>"+escapeXml(redirect.template)+"</template>\n");
                         if (redirect.outgoingTemplate != null) {
-                            sb.append("          <outgoingTemplate>"+redirect.outgoingTemplate+"</outgoingTemplate>\n");
+                            sb.append("          <outgoingTemplate>"+escapeXml(redirect.outgoingTemplate)+"</outgoingTemplate>\n");
                         }
                         if (redirect.methodName != null) {
-                            sb.append("          <methodName>"+redirect.methodName+"</methodName>\n");
+                            sb.append("          <methodName>"+escapeXml(redirect.methodName)+"</methodName>\n");
                         }
                         String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template, locale);
                         if (redirectDesc != null) {
-                            sb.append("          <description>"+redirectDesc+"</description>\n");
+                            sb.append("          <description>"+escapeXml(redirectDesc)+"</description>\n");
                         }
                         sb.append("          <controllable>"+redirect.controllable+"</controllable>\n");
                         sb.append("          <order>"+i+"</order>\n");
@@ -538,12 +550,12 @@ public class EntityDescriptionManager {
             sb.append("      <capabilities>\n");
             for (Class<? extends EntityProvider> class1 : caps) {
                 sb.append("        <capability>\n");
-                sb.append("          <name>"+class1.getSimpleName()+"</name>\n");
-                sb.append("          <type>"+class1.getName()+"</type>\n");
+                sb.append("          <name>"+escapeXml(class1.getSimpleName())+"</name>\n");
+                sb.append("          <type>"+escapeXml(class1.getName())+"</type>\n");
                 if (extra) {
                     String capabilityDescription = getEntityDescription(prefix, class1.getSimpleName(), locale);
                     if (capabilityDescription != null) {
-                        sb.append("          <description>" + capabilityDescription + "</description>\n");                  
+                        sb.append("          <description>" + escapeXml(capabilityDescription) + "</description>\n");
                     }
                 }
                 sb.append("        </capability>\n");
@@ -717,14 +729,15 @@ public class EntityDescriptionManager {
                     Class<?> entityType = entity.getClass();
                     sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entityType.getName() +"</h4>\n");
                     sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
-                    if (ConstructorUtils.isClassSimple(entityType)) {
+                    if (isSimpleType(entityType)) {
                         sb.append( makeResolveType("simple", null, locale));
-                    } else if (ConstructorUtils.isClassCollection(entityType)) {
+                    } else if (isCollectionType(entityType)) {
                         sb.append( makeResolveType("collection", null, locale));
-                    } else if (ConstructorUtils.isClassArray(entityType)) {
-                        String cType = "Component Class: " + ArrayUtils.type((Object[])entity).getName();
+                    } else if (isArrayType(entityType)) {
+                        Class<?> componentType = getArrayComponentType(entityType);
+                        String cType = "Component Class: " + (componentType != null ? componentType.getName() : Object.class.getName());
                         sb.append( makeResolveType("array", cType, locale));
-                    } else if (ConstructorUtils.isClassMap(entityType)) {
+                    } else if (isMapType(entityType)) {
                         // get the types of the map keys if possible
                         String mapTypes = null;
                         Map m = (Map) entity;
@@ -748,11 +761,11 @@ public class EntityDescriptionManager {
                         sb.append("          </thead>\n");
                         sb.append("          <tbody>\n");
                         // get all the read and write fields from this object
-                        ClassFields<?> cf = ReflectUtils.getInstance().analyzeClass(entity.getClass());
-                        Map<String, Class<?>> readTypes = cf.getFieldTypes(FieldsFilter.SERIALIZABLE);
-                        Map<String, Class<?>> writeTypes = cf.getFieldTypes(FieldsFilter.WRITEABLE);
-                        HashSet<String> requiredFieldNames = new HashSet<String>(cf.getFieldNamesWithAnnotation(EntityFieldRequired.class));
-                        Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
+                        PropertyIntrospection propertyData = analyzeProperties(entity.getClass());
+                        Map<String, Class<?>> readTypes = propertyData.getReadableTypes();
+                        Map<String, Class<?>> writeTypes = propertyData.getWritableTypes();
+                        HashSet<String> requiredFieldNames = new HashSet<String>(propertyData.getRequiredProperties());
+                        Map<String, Class<?>> entityTypes = new LinkedHashMap<String, Class<?>>(readTypes);
                         entityTypes.putAll(writeTypes);
                         ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
                         Collections.sort(keys);
@@ -877,6 +890,13 @@ public class EntityDescriptionManager {
         return sb.toString();
     }
 
+    private String escapeXml(Object value) {
+        if (value == null) {
+            return "";
+        }
+        return StringEscapeUtils.escapeXml11(String.valueOf(value));
+    }
+
     /**
      * Generates the details listing which shows the response types for a view method
      * @param methodType the view method (new, show, list, delete, edit)
@@ -984,48 +1004,72 @@ public class EntityDescriptionManager {
      * @return all the format extensions handled by this, null if none handled, empty if all
      */
     protected String[] getFormats(String prefix, boolean output) {
-        String[] formats = null;
+        boolean hasFormats = false;
+        boolean allFormats = false;
+        LinkedHashSet<String> collected = new LinkedHashSet<String>();
         try {
-            if (output) {
-                formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class).getHandledOutputFormats();
-            } else {
-                formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class).getHandledInputFormats();
-                if (formats != null) {
-                    // strip out the FORM element if it was included
-                    if (ArrayUtils.contains(formats, Formats.FORM)) {
-                        ArrayList<String> l = new ArrayList<String>();
-                        for (String format : formats) {
-                            if (! Formats.FORM.equals(format)) {
-                                l.add(format);
+            if (entityProviderManager != null) {
+                if (output) {
+                    Outputable outputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
+                    if (outputable != null) {
+                        String[] providerFormats = outputable.getHandledOutputFormats();
+                        if (providerFormats != null) {
+                            hasFormats = true;
+                            if (providerFormats.length == 0) {
+                                allFormats = true;
+                            } else {
+                                collected.addAll(Arrays.asList(providerFormats));
                             }
                         }
-                        formats = l.toArray(new String[l.size()]);
                     }
-                }
-            }
-        } catch (NullPointerException e) {
-            formats = null;
-        }
-        EntityViewAccessProvider evap = entityViewAccessProviderManager.getProvider(prefix);
-        if (evap != null) {
-            if (AccessFormats.class.isAssignableFrom(evap.getClass())) {
-                String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
-                if (accessFormats != null) {
-                    if (accessFormats.length > 0) {
-                        if (formats == null) {
-                            formats = accessFormats;
-                        } else {
-                            for (int i = 0; i < accessFormats.length; i++) {
-                                if (! ReflectUtils.contains(formats, accessFormats[i])) {
-                                    ReflectUtils.appendArray(formats, accessFormats[i]);
+                } else {
+                    Inputable inputable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
+                    if (inputable != null) {
+                        String[] providerFormats = inputable.getHandledInputFormats();
+                        if (providerFormats != null) {
+                            hasFormats = true;
+                            if (providerFormats.length == 0) {
+                                allFormats = true;
+                            } else {
+                                for (String format : providerFormats) {
+                                    if (!Objects.equals(format, Formats.FORM)) {
+                                        collected.add(format);
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+        } catch (RuntimeException e) {
+            log.debug("Error retrieving formats for prefix {}: {}", prefix, e.getMessage());
         }
-        return formats;
+        EntityViewAccessProviderManager accessProviderManager = entityViewAccessProviderManager;
+        if (accessProviderManager != null) {
+            EntityViewAccessProvider evap = accessProviderManager.getProvider(prefix);
+            if (evap != null && AccessFormats.class.isAssignableFrom(evap.getClass())) {
+                String[] accessFormats = ((AccessFormats)evap).getHandledAccessFormats();
+                if (accessFormats != null) {
+                    hasFormats = true;
+                    if (accessFormats.length == 0) {
+                        allFormats = true;
+                    } else {
+                        for (String format : accessFormats) {
+                            if (format != null) {
+                                collected.add(format);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!hasFormats) {
+            return null;
+        }
+        if (allFormats) {
+            return new String[0];
+        }
+        return collected.toArray(new String[collected.size()]);
     }
 
     protected String makeFormatsUrlHtml(String url, String[] formats) {
@@ -1061,7 +1105,7 @@ public class EntityDescriptionManager {
     protected String makeFormUrlHtml(String url, String[] formats) {
         String form = "";
         if (formats != null) {
-            if (ArrayUtils.contains(formats, Formats.FORM)) {
+            if (containsFormat(formats, Formats.FORM)) {
                 form = makeFormatUrlHtml(url, Formats.FORM);
             }
         }
@@ -1117,6 +1161,155 @@ public class EntityDescriptionManager {
             value = null;
         }
         return value;
+    }
+
+    private boolean containsFormat(String[] formats, String format) {
+        if (formats == null || format == null) {
+            return false;
+        }
+        for (String candidate : formats) {
+            if (format.equals(candidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isSimpleType(Class<?> type) {
+        if (type == null) {
+            return true;
+        }
+        if (type.isPrimitive() || Number.class.isAssignableFrom(type) || CharSequence.class.isAssignableFrom(type)
+                || Boolean.class.isAssignableFrom(type) || Character.class.isAssignableFrom(type)
+                || Date.class.isAssignableFrom(type) || Temporal.class.isAssignableFrom(type)
+                || Enum.class.isAssignableFrom(type)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isCollectionType(Class<?> type) {
+        return type != null && Collection.class.isAssignableFrom(type);
+    }
+
+    private boolean isArrayType(Class<?> type) {
+        return type != null && type.isArray();
+    }
+
+    private boolean isMapType(Class<?> type) {
+        return type != null && Map.class.isAssignableFrom(type);
+    }
+
+    private Class<?> getArrayComponentType(Class<?> type) {
+        if (type == null || !type.isArray()) {
+            return null;
+        }
+        Class<?> component = type.getComponentType();
+        while (component != null && component.isArray()) {
+            component = component.getComponentType();
+        }
+        return component;
+    }
+
+    private PropertyIntrospection analyzeProperties(Class<?> type) {
+        PropertyIntrospection introspection = new PropertyIntrospection();
+        if (type == null) {
+            return introspection;
+        }
+        try {
+            for (PropertyDescriptor descriptor : Introspector.getBeanInfo(type).getPropertyDescriptors()) {
+                String name = descriptor.getName();
+                if ("class".equals(name)) {
+                    continue;
+                }
+                Class<?> propertyType = descriptor.getPropertyType();
+                Method readMethod = descriptor.getReadMethod();
+                Method writeMethod = descriptor.getWriteMethod();
+                if (readMethod != null && !Modifier.isStatic(readMethod.getModifiers())) {
+                    introspection.readableTypes.put(name, propertyType);
+                }
+                if (writeMethod != null && !Modifier.isStatic(writeMethod.getModifiers())) {
+                    introspection.writableTypes.put(name, propertyType);
+                }
+                Field field = findField(type, name);
+                if (field != null && !Modifier.isStatic(field.getModifiers()) && Modifier.isPublic(field.getModifiers())) {
+                    introspection.readableTypes.putIfAbsent(name, field.getType());
+                    introspection.writableTypes.putIfAbsent(name, field.getType());
+                }
+                if (isRequired(field, readMethod, writeMethod)) {
+                    introspection.requiredProperties.add(name);
+                }
+            }
+        } catch (IntrospectionException e) {
+            throw new IllegalStateException("Failed to introspect " + type, e);
+        }
+        for (Field field : getAllFields(type)) {
+            String name = field.getName();
+            if ("class".equals(name)) {
+                continue;
+            }
+            if (!Modifier.isStatic(field.getModifiers()) && Modifier.isPublic(field.getModifiers())) {
+                introspection.readableTypes.putIfAbsent(name, field.getType());
+                introspection.writableTypes.putIfAbsent(name, field.getType());
+            }
+            if (!Modifier.isStatic(field.getModifiers()) && field.isAnnotationPresent(EntityFieldRequired.class)) {
+                introspection.requiredProperties.add(name);
+            }
+        }
+        return introspection;
+    }
+
+    private Field findField(Class<?> type, String name) {
+        Class<?> current = type;
+        while (current != null && !Object.class.equals(current)) {
+            try {
+                return current.getDeclaredField(name);
+            } catch (NoSuchFieldException e) {
+                current = current.getSuperclass();
+            }
+        }
+        return null;
+    }
+
+    private List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<Field>();
+        Class<?> current = type;
+        while (current != null && !Object.class.equals(current)) {
+            fields.addAll(Arrays.asList(current.getDeclaredFields()));
+            current = current.getSuperclass();
+        }
+        return fields;
+    }
+
+    private boolean isRequired(Field field, Method readMethod, Method writeMethod) {
+        if (field != null && !Modifier.isStatic(field.getModifiers()) && field.isAnnotationPresent(EntityFieldRequired.class)) {
+            return true;
+        }
+        if (readMethod != null && !Modifier.isStatic(readMethod.getModifiers()) && readMethod.isAnnotationPresent(EntityFieldRequired.class)) {
+            return true;
+        }
+        if (writeMethod != null && !Modifier.isStatic(writeMethod.getModifiers()) && writeMethod.isAnnotationPresent(EntityFieldRequired.class)) {
+            return true;
+        }
+        return false;
+    }
+
+    private static final class PropertyIntrospection {
+        private final Map<String, Class<?>> readableTypes = new LinkedHashMap<String, Class<?>>();
+        private final Map<String, Class<?>> writableTypes = new LinkedHashMap<String, Class<?>>();
+        private final Set<String> requiredProperties = new LinkedHashSet<String>();
+
+        Map<String, Class<?>> getReadableTypes() {
+            return readableTypes;
+        }
+
+        Map<String, Class<?>> getWritableTypes() {
+            return writableTypes;
+        }
+
+        Set<String> getRequiredProperties() {
+            return requiredProperties;
+        }
     }
 
 }
