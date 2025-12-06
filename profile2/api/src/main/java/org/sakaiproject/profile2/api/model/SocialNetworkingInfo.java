@@ -18,6 +18,8 @@ package org.sakaiproject.profile2.api.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
@@ -38,6 +40,10 @@ public class SocialNetworkingInfo implements PersistableEntity<String> {
     @Column(name = "USER_ID", length = 99)
 	private String userId;
 
+    // Legacy column that must be populated - both columns contain the same value
+    @Column(name = "USER_UUID", length = 99, nullable = false)
+	private String userUuid;
+
     @Column(name = "FACEBOOK_URL", length = 255)
 	private String facebookUrl;
 
@@ -46,13 +52,21 @@ public class SocialNetworkingInfo implements PersistableEntity<String> {
 
     @Column(name = "INSTAGRAM_URL", length = 255)
 	private String instagramUrl;
-	
+
 	// additional constructor
 	public SocialNetworkingInfo(String userId) {
 		this.userId = userId;
+		this.userUuid = userId;
 	}
 
     public String getId() {
         return userId;
+    }
+
+    // JPA lifecycle callback to ensure both columns are always synchronized
+    @PrePersist
+    @PreUpdate
+    private void syncUserIds() {
+        this.userUuid = this.userId;
     }
 }
