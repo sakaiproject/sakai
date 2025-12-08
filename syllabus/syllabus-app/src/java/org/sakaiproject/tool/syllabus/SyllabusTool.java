@@ -1027,7 +1027,7 @@ public class SyllabusTool
     			}
     			if (alertMsg.length() > 0)
     			{
-    			  log.debug("Syllabus content sanitized: {}", alertMsg.toString());
+    			  log.debug("Syllabus content sanitized: {}", alertMsg);
     			}
     		 }
     		catch (Exception e)
@@ -1253,7 +1253,7 @@ public class SyllabusTool
 				}
     			if (alertMsg.length() > 0)
     			{
-					log.debug("Syllabus content sanitized: {}", alertMsg.toString());
+					log.debug("Syllabus content sanitized: {}", alertMsg);
     			}
     		 }
     		catch (Exception e)
@@ -1533,7 +1533,7 @@ public class SyllabusTool
 				}
     			if (alertMsg.length() > 0)
     			{
-					log.debug("Syllabus content sanitized: {}", alertMsg.toString());
+					log.debug("Syllabus content sanitized: {}", alertMsg);
     			}
     		 }
     		catch (Exception e)
@@ -1630,7 +1630,7 @@ public class SyllabusTool
 				}
     			if (alertMsg.length() > 0)
     			{
-					log.debug("Syllabus content sanitized: {}", alertMsg.toString());
+					log.debug("Syllabus content sanitized: {}", alertMsg);
     			}
     		 }
     		catch (Exception e)
@@ -1800,7 +1800,7 @@ public class SyllabusTool
 			}
 			if (alertMsg.length() > 0)
 			{
-				log.debug("Syllabus content sanitized: {}", alertMsg.toString());
+				log.debug("Syllabus content sanitized: {}", alertMsg);
 			}
 		 }
 		catch (Exception e)
@@ -1857,7 +1857,7 @@ public class SyllabusTool
 			}
 			if (alertMsg.length() > 0)
 			{
-				log.debug("Syllabus content sanitized: {}", alertMsg.toString());
+				log.debug("Syllabus content sanitized: {}", alertMsg);
 			}
 		 }
 		catch (Exception e)
