@@ -5,7 +5,10 @@
   <div class="portletBody container-fluid">
     <div th:replace="~{fragments/common :: menu('add')}"></div>
 
-    <h1 class="h4 mb-3" th:text="${isNew} ? #{new_option_title} : #{edit_option_title}">Option</h1>
+    <div th:if="${success}" class="sak-banner-success" role="status" th:text="${success}">Success</div>
+    <div th:if="${alert}" class="sak-banner-error" role="alert" th:text="${alert}">Error</div>
+
+    <h1 class="h4 mb-3" th:text="${optionForm.optionId == null} ? #{new_option_title} : #{edit_option_title}">Option</h1>
     <p class="text-muted">
       <span th:text="#{new_poll_question}">Question</span>:
       <span th:utext="${poll.text}">Poll question</span>
@@ -27,11 +30,9 @@
       </div>
 
       <div class="act">
-        <input type="submit" name="submitAction" value="save" class="active" th:value="#{new_poll_submit}" />
-        <input type="submit" name="submitAction" value="addAnother"
-               th:if="${isNew}" th:value="#{new_poll_saveoption}" />
-        <input type="button" th:onclick="|location.href='@{/voteAdd(pollId=${poll.id})}'|"
-               th:value="#{new_poll_cancel}" value="Cancel" />
+        <button type="submit" name="submitAction" value="save" class="active" th:text="#{new_poll_submit}">Save</button>
+        <button type="submit" name="submitAction" value="addAnother" class="active" th:text="#{new_poll_saveoption}">Save and add options</button>
+        <button type="button" class="active" th:onclick="|location.href='@{/voteAdd(pollId=${poll.id})}'|" th:text="#{new_poll_cancel}">Cancel</button>
       </div>
     </form>
   </div>
