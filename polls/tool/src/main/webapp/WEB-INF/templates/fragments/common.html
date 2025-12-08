@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <body>
-  <div th:fragment="main (current)">
+
+<head th:fragment="head">
+    <meta charset="UTF-8"/>
+    <script th:src="@{~/library/js/headscripts.js}"></script>
+</head>
+
+<div th:fragment="menu (current)">
     <ul class="navIntraTool">
-      <li>
+        <li>
         <span th:class="${current}=='list' ? 'current'">
           <span th:if="${current}=='list'" th:text="#{action_main}">Polls</span>
-          <a th:unless="${current}=='list'" th:href="@{/votePolls}" th:text="#{action_main}">Polls</a>
+          <a th:href="@{/votePolls}" th:text="#{action_main}" th:unless="${current}=='list'">Polls</a>
         </span>
-      </li>
-      <li th:if="${canAdd}">
+        </li>
+        <li th:if="${canAdd}">
         <span th:class="${current}=='add' ? 'current'">
           <span th:if="${current}=='add'" th:text="#{action_add_poll}">Add</span>
-          <a th:unless="${current}=='add'" th:href="@{/voteAdd}" th:text="#{action_add_poll}">Add</a>
+          <a th:href="@{/voteAdd}" th:text="#{action_add_poll}" th:unless="${current}=='add'">Add</a>
         </span>
-      </li>
-      <li th:if="${isSiteOwner}">
+        </li>
+        <li th:if="${isSiteOwner}">
         <span th:class="${current}=='permissions' ? 'current'">
           <span th:if="${current}=='permissions'" th:text="#{action_set_permissions}">Permissions</span>
-          <a th:unless="${current}=='permissions'" th:href="@{/votePermissions}" th:text="#{action_set_permissions}">Permissions</a>
+          <a th:href="@{/votePermissions}" th:text="#{action_set_permissions}" th:unless="${current}=='permissions'">Permissions</a>
         </span>
-      </li>
+        </li>
     </ul>
-  </div>
+</div>
 </body>
 </html>
