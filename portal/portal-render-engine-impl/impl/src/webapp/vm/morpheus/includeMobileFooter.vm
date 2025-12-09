@@ -44,6 +44,19 @@
     </li>
     #end 
 
+    #if ( $toolDirectUrlEnabled)
+    <li>
+      <button class="btn icon-button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#sakai-directlink-panel"
+              aria-controls="sakai-directlink-panel"
+              aria-label="${rloader.tool_direct_button_link}"
+              title="${rloader.tool_direct_button_link}">
+        <span class="bi bi-share-fill" aria-hidden="true"></span>
+      </button>
+    </li>
+    #end
+
     #if (!${loginTopLogin})
     <li>
       <a class="btn icon-button"
