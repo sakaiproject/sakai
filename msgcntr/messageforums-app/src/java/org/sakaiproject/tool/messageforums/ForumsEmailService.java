@@ -249,14 +249,13 @@ public class ForumsEmailService {
 			if (attachmentList != null && reply.getTopic().getIncludeContentsInEmails()) {
 				// Clean up temporary files that were created for email attachments
 				if (prefixedPath != null && !"".equals(prefixedPath)) {
-					StringBuilder sbPrefixedPath;
 					Iterator<Attachment> iter = attachmentList.iterator();
 					while (iter.hasNext()) {
-						sbPrefixedPath = new StringBuilder(prefixedPath);
-						sbPrefixedPath.append("email_tmp");
 						a = (Attachment) iter.next();
-						deleteAttachedFile(sbPrefixedPath.append(
-								a.getAttachmentId()).toString());
+						StringBuilder filePath = new StringBuilder(prefixedPath);
+						filePath.append("/email_tmp/");
+						filePath.append(a.getAttachmentId().replace('\\', '/'));
+						deleteAttachedFile(filePath.toString());
 					}
 				}
 			}
