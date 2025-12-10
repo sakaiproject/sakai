@@ -181,7 +181,12 @@ public class MockCalendarEventEdit implements CalendarEventEdit {
 	public void setCreator() {		
 	}
 
-	@Override
+    @Override
+    public Calendar getCalendar() {
+        return null;
+    }
+
+    @Override
 	public void setField(String name, String value) {	
 		if (value == null){
 			m_properties.removeProperty(name);

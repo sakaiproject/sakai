@@ -951,7 +951,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
         // TODO          sakaiFacade.getAdditionalCalendar(site.getSiteId());
         if (calendar == null) {
             try {
-                calendar = calendarService.getCalendar(siteService.siteReference(site.getSiteId()));
+                calendar = calendarService.getCalendar(calendarService.calendarReference(site.getSiteId(), SiteService.MAIN_CONTAINER));
             } catch (IdUnusedException e) {
                 log.warn("Could not find calendar for site: {}", site.getSiteId());
             }

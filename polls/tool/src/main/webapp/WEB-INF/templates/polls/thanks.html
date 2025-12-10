@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head}"></head>
+<body>
+  <div class="portletBody container-fluid">
+    <div th:replace="~{fragments/common :: menu('list')}"></div>
+
+    <h1 class="h4 mb-3" th:text="#{thanks_msg}">Thank you for voting</h1>
+    <p th:text="#{thanks_ref}">Your reference number:</p>
+    <p class="fw-bold" th:text="${voteRef}">reference</p>
+
+    <div class="act">
+      <input type="button" class="active" th:onclick="|location.href='@{/votePolls}'|"
+             th:value="#{thanks_done}" value="Back" />
+    </div>
+  </div>
+</body>
+</html>

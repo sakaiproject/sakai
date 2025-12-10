@@ -19,12 +19,12 @@
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
     <sakai.commons-io.version>2.21.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
-    <sakai.commons.lang3.version>3.19.0</sakai.commons.lang3.version>
+    <sakai.commons.lang3.version>3.20.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.6.0</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
-    <sakai.commons-text.version>1.14.0</sakai.commons-text.version>
+    <sakai.commons-text.version>1.15.0</sakai.commons-text.version>
     <sakai.commons-validator.version>1.7</sakai.commons-validator.version>
-    <sakai.commons.configuration2.version>2.12.0</sakai.commons.configuration2.version>
+    <sakai.commons.configuration2.version>2.13.0</sakai.commons.configuration2.version>
     <sakai.commons.net>3.12.0</sakai.commons.net>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
@@ -65,12 +65,12 @@
     <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>3.2.3</sakai.tika.version>
-    <sakai.tomcat.version>9.0.112</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.113</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.24.3</sakai.log4j.version>
     <sakai.slf4j.version>1.7.36</sakai.slf4j.version>
-    <sakai.poi.version>5.4.1</sakai.poi.version>
+    <sakai.poi.version>5.5.1</sakai.poi.version>
     <sakai.mockito.version>3.12.4</sakai.mockito.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.14.0</joda.time.version>
@@ -780,7 +780,7 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.19.0</version>
+        <version>1.20.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

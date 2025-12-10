@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head}"></head>
+<body>
+  <div class="portletBody container-fluid">
+    <div th:replace="~{fragments/common :: menu('add')}"></div>
+
+    <h1 class="h4 mb-3" th:text="#{delete_confirm}">Confirm delete</h1>
+    <div class="sak-banner-warn">
+      <p class="mb-1" th:text="#{delete_option_message(${option.text})}">Delete message</p>
+      <p class="mb-0" th:if="${hasVotes}" th:text="#{delete_option_has_votes}">Vote handling message</p>
+    </div>
+
+    <form th:action="@{/pollOptionDelete}" method="post">
+      <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <input type="hidden" name="optionId" th:value="${option.id}" />
+
+      <div class="mb-3" th:if="${hasVotes}">
+        <div class="form-check" th:each="choice : ${handleOptions}">
+          <input type="radio" name="orphanHandling" th:id="${'handle-' + choice.value()}" th:value="${choice.value()}" th:checked="${choice.value() == 'return-votes'}" />
+          <label class="form-check-label" th:for="${'handle-' + choice.value()}" th:text="#{${choice.labelKey()}}">Option</label>
+        </div>
+      </div>
+
+      <div class="act">
+        <input type="submit" class="active" th:value="#{delete_option_confirm}" value="Delete" />
+        <input type="button" th:onclick="|location.href='@{/voteAdd(pollId=${poll.id})}'|"
+               th:value="#{new_poll_cancel}" value="Cancel" />
+      </div>
+    </form>
+  </div>
+</body>
+</html>

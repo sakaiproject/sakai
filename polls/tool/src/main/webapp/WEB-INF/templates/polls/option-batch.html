@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head}"></head>
+<body>
+  <div class="portletBody container-fluid">
+    <div th:replace="~{fragments/common :: menu('add')}"></div>
+
+    <h1 class="h4 mb-3" th:text="#{new_option_batch_title}">Batch upload</h1>
+    <p class="text-muted">
+      <span th:text="#{new_poll_question}">Question</span>:
+      <span th:utext="${poll.text}">Poll question</span>
+    </p>
+
+    <form th:action="@{/pollOptionBatch}" th:object="${batchForm}" method="post" enctype="multipart/form-data">
+      <input type="hidden" th:field="*{pollId}" />
+      <div class="mb-3">
+        <label class="form-label" for="batch-file" th:text="#{new_poll_option_batch_info}">Upload instructions</label>
+        <input class="form-control"
+               th:classappend="${#fields.hasErrors('file')}? ' is-invalid'"
+               type="file" id="batch-file" th:field="*{file}" accept=".csv,.xls,.xlsx,.txt" required />
+        <div class="invalid-feedback" th:if="${#fields.hasErrors('file')}" th:errors="*{file}">Provide a valid file</div>
+      </div>
+      <div class="act">
+        <input type="submit" class="active" th:value="#{new_poll_submit}" value="Upload" />
+        <input type="button" th:onclick="|location.href='@{/voteAdd(pollId=${poll.id})}'|"
+               th:value="#{new_poll_cancel}" value="Cancel" />
+      </div>
+    </form>
+  </div>
+</body>
+</html>

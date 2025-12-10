@@ -51,7 +51,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.poll.logic.PollListManager;
+import org.sakaiproject.poll.api.service.PollsService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.StatsAuthz;
@@ -111,7 +111,7 @@ public class DetailedEventsManagerImpl extends HibernateDaoSupport implements De
 	@Setter private UIPermissionsManager forumPermMan;
 	@Setter private EntityBroker broker;
 	@Setter private DeveloperHelperService devHlprServ;
-	@Setter private PollListManager pollServ;
+	@Setter private PollsService pollServ;
 	@Setter private AnnouncementService anncServ;
 	@Setter private CalendarService calServ;
 	@Setter private PodcastService podServ;

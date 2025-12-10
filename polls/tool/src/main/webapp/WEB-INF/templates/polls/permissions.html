@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head}"></head>
+<body>
+  <div class="portletBody container-fluid">
+    <div th:replace="~{fragments/common :: menu('permissions')}"></div>
+
+    <h1 class="h4 mb-3" th:text="#{permissions_title}">Permissions</h1>
+    <sakai-permissions tool="poll" bundle-key="bundle.polls" th:attr="on-refresh=${toolUrl}"></sakai-permissions>
+  </div>
+</body>
+</html>
