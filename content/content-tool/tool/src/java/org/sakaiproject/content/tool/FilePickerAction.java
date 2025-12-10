@@ -1011,7 +1011,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 						try {
 							//add every Team (without items) to the map -> they will be expanded later (doNavigateOneDrive)
 							MicrosoftTeam team = microsoftCommonService.getTeam(ss.getTeamId());
-							onedriveItemsByTeam.put(ss.getTeamId(), MicrosoftTeamWrapper.builder(team).build());
+							onedriveItemsByTeam.put(ss.getTeamId(), MicrosoftTeamWrapper.builder().team(team).build());
 						}catch(Exception e) {
 							log.warn("Error getting Microsoft Team: {}", ss.getTeamId());
 						}

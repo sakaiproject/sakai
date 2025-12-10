@@ -16,12 +16,11 @@
 package org.sakaiproject.grading.impl.repository;
 
 import org.hibernate.Session;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import java.util.List;
@@ -83,22 +82,14 @@ public class CourseGradeRecordRepositoryImpl extends SpringCrudRepositoryImpl<Co
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<CourseGradeRecord> cgr = query.from(CourseGradeRecord.class);
         Join<GradableObject, Gradebook> gb = cgr.join("gradableObject").join("gradebook");
+
+        Predicate studentIdPredicate = HibernateCriterionUtils.PredicateInSplitter(cb, cgr.get("studentId"), studentIds);
+
         query.select(cb.count(cgr))
             .where(cb.and(cb.equal(gb.get("id"), gradebookId),
                             cb.isNotNull(cgr.get("enteredGrade")),
-                            cgr.get("studentId").in(studentIds)));
+                            studentIdPredicate));
         return session.createQuery(query).uniqueResult();
-
-        /*
-        return (Long) sessionFactory.getCurrentSession().createCriteria(CourseGradeRecord.class)
-            .createAlias("gradableObject", "go")
-            .createAlias("go.gradebook", "gb")
-            .add(Restrictions.eq("gb.id", gradebookId))
-            .add(Restrictions.isNotNull("enteredGrade"))
-            .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
-            .setProjection(Projections.rowCount())
-            .uniqueResult();
-        */
     }
 
     @Transactional(readOnly = true)

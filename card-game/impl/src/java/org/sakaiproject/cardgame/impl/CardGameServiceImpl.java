@@ -51,12 +51,12 @@ public class CardGameServiceImpl implements CardGameService {
             CardGameStatItem statItem = optStatItem.get();
             statItem.setHits(statItem.getHits() != null
                     ? statItem.getHits() + 1
-                    : CardGameStatItem.HITS_DEFAULT + 1);
+                    : 1);
         } else {
-            statItemRepository.save(CardGameStatItem.builderWithDefaults()
+            statItemRepository.save(CardGameStatItem.builder()
                 .playerId(playerId)
                 .userId(userId)
-                .hits(CardGameStatItem.HITS_DEFAULT + 1)
+                .hits(1)
                 .build());
         }
     }
@@ -69,12 +69,12 @@ public class CardGameServiceImpl implements CardGameService {
             CardGameStatItem statItem = optStatItem.get();
             statItem.setMisses(statItem.getMisses() != null
                     ? statItem.getMisses() + 1
-                    : CardGameStatItem.MISSES_DEFAULT + 1);
+                    : 1);
         } else {
-            statItemRepository.save(CardGameStatItem.builderWithDefaults()
+            statItemRepository.save(CardGameStatItem.builder()
                 .playerId(playerId)
                 .userId(userId)
-                .misses(CardGameStatItem.MISSES_DEFAULT + 1)
+                .misses(1)
                 .build());
         }
     }
@@ -91,7 +91,7 @@ public class CardGameServiceImpl implements CardGameService {
         if (optStatItem.isPresent()) {
             optStatItem.get().setMarkedAsLearned(true);
         } else {
-            statItemRepository.save(CardGameStatItem.builderWithDefaults()
+            statItemRepository.save(CardGameStatItem.builder()
                 .playerId(playerId)
                 .userId(userId)
                 .markedAsLearned(true)

@@ -17,7 +17,7 @@
     <sakai.version>26-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
     <sakai.commons-httpclient.version>3.1</sakai.commons-httpclient.version>
-    <sakai.commons-io.version>2.20.0</sakai.commons-io.version>
+    <sakai.commons-io.version>2.21.0</sakai.commons-io.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.19.0</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.6.0</sakai.commons.fileupload.version>
@@ -65,7 +65,7 @@
     <sakai.spring.hateoas.version>1.5.6</sakai.spring.hateoas.version>
     <sakai.spring.plugin.version>2.0.0.RELEASE</sakai.spring.plugin.version>
     <sakai.tika.version>3.2.3</sakai.tika.version>
-    <sakai.tomcat.version>9.0.111</sakai.tomcat.version>
+    <sakai.tomcat.version>9.0.112</sakai.tomcat.version>
     <sakai.thymeleaf.version>3.0.15.RELEASE</sakai.thymeleaf.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.log4j.version>2.24.3</sakai.log4j.version>
@@ -176,7 +176,7 @@
               <version>1.7.2</version>
               <inherited>true</inherited>
               <configuration>
-                <updatePomFile>false</updatePomFile>
+                <updatePomFile>true</updatePomFile>
                 <flattenMode>ossrh</flattenMode>
                 <pomElements>
                   <parent>expand</parent>
@@ -2530,7 +2530,7 @@
           <configuration>
             <source>${sakai.jdk.version}</source>
             <links>
-              <link>https://docs.oracle.com/en/java/javase/17/</link>
+              <link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>
               <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
               <link>https://commons.apache.org/proper/commons-collections/apidocs/</link>
               <link>https://commons.apache.org/proper/commons-io/javadocs/api-release/</link>
@@ -2547,24 +2547,6 @@
               <additionalOption>--add-modules</additionalOption>
               <additionalOption>java.xml</additionalOption>
             </additionalOptions>
-            <additionalDependencies>
-              <!-- these wicket dependencies can be removed once this version of wicket is no longer needed (delegatedaccess) -->
-              <additionalDependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-core</artifactId>
-                <version>6.30.0</version>
-              </additionalDependency>
-              <additionalDependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-extensions</artifactId>
-                <version>6.30.0</version>
-              </additionalDependency>
-              <additionalDependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-util</artifactId>
-                <version>6.30.0</version>
-              </additionalDependency>
-            </additionalDependencies>
           </configuration>
         </plugin>
         <plugin>

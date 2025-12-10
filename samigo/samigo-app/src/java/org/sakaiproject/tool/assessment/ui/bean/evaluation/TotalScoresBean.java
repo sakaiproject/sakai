@@ -921,11 +921,6 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 
   private List getEnrollmentListForSelectedSections(int calledFrom, String siteId) {
     List enrollments;
-    
-    // Check if current user can grade all - if so, they should see all student submissions regardless of group restrictions
-    GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
-    boolean canGradeAll = service.isUserAbleToGradeAll(siteId, AgentFacade.getAgentString());
-    
     if (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER_STUDENT){
     	enrollments = getAvailableEnrollments(true, siteId);
     }
@@ -940,12 +935,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 	    	        && "true".equalsIgnoreCase(anonymous))
     	    || (calledFrom==CALLED_FROM_EXPORT_LISTENER
     	    	    && "true".equalsIgnoreCase(anonymous))) {
-        // For instructors who can grade all, get all available enrollments without group filtering
-        if (canGradeAll) {
-            enrollments = getAvailableEnrollments(false, siteId);
-        } else {
-            enrollments = getAllGroupsReleaseEnrollments(siteId);
-        }
+        enrollments = getAllGroupsReleaseEnrollments(siteId);
     }
     else if (getSelectedSectionFilterValue().trim().equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE)) {
     	enrollments = getGroupReleaseEnrollments(siteId);
