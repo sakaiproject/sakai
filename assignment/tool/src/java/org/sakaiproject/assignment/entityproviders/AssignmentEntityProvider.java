@@ -1958,8 +1958,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
                         }
                     }
                 }
-            } else {
-                log.debug("The property \"prop_new_assignment_add_to_gradebook\" is null for the assignment feed");
+            } else if (!GRADEBOOK_INTEGRATION_NO.equals(a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK))) {
+                log.warn("Assignment has gradebook integration mode '{}' but PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT is null",
+                        a.getProperties().get(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
             }
 
             this.attachments = a.getAttachments().stream().map(att -> {
