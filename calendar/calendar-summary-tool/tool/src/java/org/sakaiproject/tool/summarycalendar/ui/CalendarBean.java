@@ -716,14 +716,16 @@ public class CalendarBean {
 	}
 
 	public boolean isViewingSelectedDay() {
-		if(selectedDay != null){
-			Calendar t = Calendar.getInstance(getCurrentUserTimezone(), msgs.getLocale());
-			t.setTime(selectedDay);
-			selectedDayHasEvents = getScheduleEventsForDay(t).size() > 0;
+		if (selectedDay == null) {
+			selectedDayHasEvents = false;
+			return false;
 		}
-		
-		/*return selectedDayHasEvents && selectedDay != null && selectedEventRef == null;*/
-		return selectedDayHasEvents && selectedDay != null && selectedEventRef == null;
+
+		Calendar t = Calendar.getInstance(getCurrentUserTimezone(), msgs.getLocale());
+		t.setTime(selectedDay);
+		selectedDayHasEvents = getScheduleEventsForDay(t).size() > 0;
+
+		return selectedDayHasEvents && selectedEventRef == null;
 	}
 
 	public boolean isViewingSelectedEvent() {
