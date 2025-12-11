@@ -276,7 +276,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
         //SAM-1562 We need to round the double score and covert to a double -DH
         double fScore = Precision.round(ag.getFinalScore(), 2);
         Double score = Double.valueOf(fScore).doubleValue();
-        points = getFormattedScore(score, gradebookUId);
+        points = getFormattedScore(score, AgentFacade.getCurrentSiteId());
         log.debug("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
     }
 
@@ -334,17 +334,17 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		return null;
 	}
 
-  private String getFormattedScore(Double score, String gradebookUId) {
+  private String getFormattedScore(Double score, String siteId) {
     String currentLocaleStr = null;
     String userId = AgentFacade.getEid();
 
     try {
-      Site site = siteService.getSite(gradebookUId);
+      Site site = siteService.getSite(siteId);
       ResourceProperties siteProperties = site.getProperties();
       currentLocaleStr = (String) siteProperties.get("locale_string");
 
     } catch (IdUnusedException ex) {
-      log.error("Not posible to get siteProperties");
+      log.warn("Unable to retrieve site properties for siteId {} : {}", siteId, ex.toString());
     }
 
     if (currentLocaleStr == null && userId != null) {
