@@ -840,7 +840,7 @@ public class GradingServiceImpl implements GradingService {
             getMaxPoints(gradebook.getSelectedGradeMapping().getGradeMap()).ifPresent(assignmentDefinition::setPoints);
         }
 
-        final String validatedName = GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition, gradebook.getGradeType() == GradeType.LETTER);
+        final String validatedName = GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition, gradebook.getGradeType());
 
         Long assignmentId = null;
         // if attaching to category
@@ -895,7 +895,7 @@ public class GradingServiceImpl implements GradingService {
 
         final Gradebook gradebook = this.getGradebook(gradebookUid);
 
-        final String validatedName = GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition, gradebook.getGradeType() == GradeType.LETTER);
+        final String validatedName = GradebookHelper.validateAssignmentNameAndPoints(assignmentDefinition, gradebook.getGradeType());
 
         final GradebookAssignment assignment = getAssignmentWithoutStatsByID(gradebookUid, assignmentId);
         if (assignment == null) {

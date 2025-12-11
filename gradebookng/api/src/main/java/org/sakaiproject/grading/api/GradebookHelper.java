@@ -41,16 +41,17 @@ public class GradebookHelper {
     /**
      * Validate assignment points and name is valid
      * @param assignmentDefition
+     * @param gradeType
      * @throws InvalidGradeItemNameException
      * @throws AssignmentHasIllegalPointsException
      * @throws ConflictingAssignmentNameException
      * @return validated name
      */
 
-    public static String validateAssignmentNameAndPoints(Assignment assignmentDefinition, boolean skipPointsValidation)
+    public static String validateAssignmentNameAndPoints(Assignment assignmentDefinition, GradeType gradeType)
         throws InvalidGradeItemNameException, AssignmentHasIllegalPointsException, ConflictingAssignmentNameException {
 
-        if (!skipPointsValidation) {
+        if (gradeType != GradeType.LETTER) {
             // Ensure that points is > zero.
             final Double points = assignmentDefinition.getPoints();
             if ((points == null) || (points <= 0)) {

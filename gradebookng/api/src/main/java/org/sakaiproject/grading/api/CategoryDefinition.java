@@ -124,7 +124,8 @@ public class CategoryDefinition implements Serializable {
         if (gradeType != GradeType.LETTER) {
             return getAssignmentList().stream()
                     .filter(a -> a.getPoints() != null)
-                    .collect(Collectors.summingDouble(Assignment::getPoints));
+                    .mapToDouble(Assignment::getPoints)
+                    .sum();
         } else {
             if (maxPoints == null || maxPoints <= 0D) {
                 throw new IllegalArgumentException("maxPoints must be > 0 for LETTER grade type");

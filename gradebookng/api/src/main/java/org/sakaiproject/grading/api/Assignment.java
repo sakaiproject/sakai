@@ -70,6 +70,9 @@ public class Assignment implements Serializable, Comparable<Assignment> {
      */
     private Double points;
 
+    /**
+     * the maximum letter grade for letter-grade entry mode, or null if not applicable.
+     */
     private String maxLetterGrade;
 
     /**

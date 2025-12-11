@@ -705,8 +705,7 @@ public class GbGradebookData {
 			return this.score;
 		};
 
-		// We assume you'll check isNull() prior to calling this
-		public double getScore() {
+		public Double getScore() {
 			return this.score == null ? null : Double.valueOf(this.score);
 		};
 
@@ -715,7 +714,10 @@ public class GbGradebookData {
 		}
 
 		public boolean isPackable() {
-			return settings.getGradeType() != GradeType.LETTER && (isNull() || settings.getGradeType() == GradeType.LETTER || (Double.valueOf(this.score) >= 0 && Double.valueOf(this.score) < 16384));
+			if (settings.getGradeType() == GradeType.LETTER) {
+				return false;
+			}
+			return isNull() || (Double.valueOf(this.score) >= 0 && Double.valueOf(this.score) < 16384);
 		}
 
         public boolean isExcused() {

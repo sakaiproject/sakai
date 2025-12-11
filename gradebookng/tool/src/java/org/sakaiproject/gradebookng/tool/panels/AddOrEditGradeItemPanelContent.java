@@ -305,7 +305,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 						sakaiRubricAssociation.add(AttributeModifier.append("association", (new ObjectMapper()).writeValueAsString(optAssociation.get())));
 					}
 				} catch (Exception e) {
-					log.warn("Failed to get rubric association for gradebook assignment {}: {}", assignment.getId(), e.toString());
+					log.warn("Failed to get rubric association for gradebook assignment {}", assignment.getId(), e);
 				}
 			}
 		}

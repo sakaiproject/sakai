@@ -701,12 +701,12 @@ public class GradebookNgBusinessService {
 				} catch (ParseException pe) {
 					log.warn("Failed to parse adjusted grades in current locale");
 				}
-			} /*else {
+			} else {
 				if (!StringUtils.equals(storedGrade, oldGrade)) {
 					log.warn("Rejected new grade because of concurrent edit: {} vs {}", storedGrade, oldGrade);
 					return GradeSaveResponse.CONCURRENT_EDIT;
 				}
-			}*/
+			}
 		}
 
 		GradeSaveResponse rval = null;

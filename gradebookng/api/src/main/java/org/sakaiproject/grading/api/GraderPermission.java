@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.grading.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

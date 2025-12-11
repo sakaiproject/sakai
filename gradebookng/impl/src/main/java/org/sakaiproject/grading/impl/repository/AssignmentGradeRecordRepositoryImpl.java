@@ -18,6 +18,7 @@ package org.sakaiproject.grading.impl.repository;
 import org.hibernate.Session;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,6 +72,10 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
 
     @Transactional(readOnly = true)
     public List<AssignmentGradeRecord> findByGradableObject_IdAndGradableObject_Removed(Long gradableObjectId, Boolean removed) {
+
+        if (gradableObjectId == null || removed == null) {
+            return Collections.emptyList();
+        }
 
         Session session = sessionFactory.getCurrentSession();
         CriteriaBuilder cb = session.getCriteriaBuilder();
