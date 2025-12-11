@@ -819,7 +819,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, a1Id, user1, grade1, comment1);
 
         String grade2 = "C";
-        String comment2 = "Shite";
+        String comment2 = "Needs improvement";
         gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, a1Id, user2, grade2, comment2);
 
         GradeDefinition gradeDef1 = gradingService.getGradeDefinitionForStudentForItem(gradebook.getUid(), siteId, a1Id, user1);
