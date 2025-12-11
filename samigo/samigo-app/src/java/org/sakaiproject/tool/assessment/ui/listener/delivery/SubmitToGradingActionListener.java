@@ -321,7 +321,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		// wrapper for SectionDataIfc
 		Iterator<SectionContentsBean> iter = delivery.getPageContents().getPartsContents()
 				.iterator();
-		log.debug("****1b. inside submitToGradingService, iter= " + iter);
+		log.debug("****1b. inside submitToGradingService, iter= {}", iter);
 		HashSet<ItemGradingData> adds = new HashSet<>();
 		HashSet<ItemGradingData> removes = new HashSet<>();
 
@@ -335,7 +335,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		// ones.
 		while (iter.hasNext()) {
 			SectionContentsBean part = iter.next();
-			log.debug("****1c. inside submitToGradingService, part " + part);
+			log.debug("****1c. inside submitToGradingService, part {}", part);
 			for (ItemContentsBean item : part.getItemContents()) { // go through each item from form
 				log.debug("****** before prepareItemGradingPerItem");
 				prepareItemGradingPerItem(ae, delivery, item, adds, removes);
@@ -796,10 +796,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 						itemgrading.setAgentId(AgentFacade.getAgentString());
 						verifySubmittedDateInItemGrading(item, itemgrading);
 						adds.add(itemgrading);
-						log.debug("adding answer: " + itemgrading.getItemGradingId());
+						log.debug("adding answer: {}", itemgrading.getItemGradingId());
 					} else if((!item.isTimedQuestion() && !delivery.isTrackingQuestions()) || grading.size() > 1){
 						removes.add(itemgrading);
-						log.debug("remove answer: " + itemgrading.getItemGradingId());
+						log.debug("remove answer: {}", itemgrading.getItemGradingId());
 					}
 				} else { 
 					 // new answer
@@ -808,7 +808,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						itemgrading.setAgentId(AgentFacade.getAgentString());
 						verifySubmittedDateInItemGrading(item, itemgrading);
 						adds.add(itemgrading);
-						log.debug("adding new answer answer: " + itemgrading.getItemGradingId());
+						log.debug("adding new answer answer: {}", itemgrading.getItemGradingId());
 					}
 				}
 			}
@@ -891,7 +891,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		String actionCommand = "";
 		if (ae != null) {
 			actionCommand = ae.getComponent().getId();
-			log.debug("ae is not null, getActionCommand() = " + actionCommand);	
+			log.debug("ae is not null, getActionCommand() = {}", actionCommand);	
 		} else {
 			log.debug("ae is null");
 		}
@@ -911,7 +911,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				itemGrading.setPublishedItemId(publishedItemId);
 				ItemService itemService = new ItemService();
 				Long itemTextId = itemService.getItemTextId(publishedItemId);
-				log.debug("itemTextId = " + itemTextId);
+				log.debug("itemTextId = {}", itemTextId);
 				if(itemTextId != -1){
 					itemGrading.setPublishedItemTextId(itemTextId);
 					adds.add(itemGrading);
@@ -965,12 +965,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 	}
     	GradingService gradingService = new GradingService();
     	List<ItemGradingData> data = gradingService.getAllItemGradingDataForItemInGrading(assessmentGradingId, publishedItemId);
-    	log.debug("got " + data.size() + " answers from storage");
-    	log.debug("got " + grading.size() + " items in the grading object");
+    	log.debug("got {} answers from storage", data.size());
+    	log.debug("got {} items in the grading object", grading.size());
     	for (int i = 0; i < data.size(); i++) {
     		ItemGradingData item = data.get(i);
     		if (!itemsInGrading.contains(item.getItemGradingId())) {
-    			log.debug("we will remove "  + item.getItemGradingId());
+    			log.debug("we will remove {}", item.getItemGradingId());
     			ret.add(item);
     		}
     	}
