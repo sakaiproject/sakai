@@ -131,8 +131,8 @@ public class SecureDeliverySeb implements SecureDeliveryModuleIfc {
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
         publishedAssessmentService.getPublishedAssessmentStatus(assessmentId);
         PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(assessmentId.toString());
-        String siteId = publishedAssessment.getOwnerSiteId();
-        return isEnabled(siteId);
+        // publishedAssessment will be null when previewing a draft
+        return (publishedAssessment != null) ? isEnabled(publishedAssessment.getOwnerSiteId()) : isEnabled();
     }
 
     public String getModuleName(Locale locale) {
