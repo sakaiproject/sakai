@@ -63,10 +63,22 @@ public class SocialNetworkingInfo implements PersistableEntity<String> {
         return userId;
     }
 
-    // JPA lifecycle callback to ensure both columns are always synchronized
+    /**
+     * JPA lifecycle callback to ensure both columns are always synchronized.
+     *
+     * <p>Architecture note: userId (USER_ID column) is the authoritative field and primary key.
+     * userUuid (USER_UUID column) is a legacy column that must be kept in sync for backwards
+     * compatibility. This callback ensures userUuid is synchronized from userId before any
+     * database write operation.</p>
+     *
+     * <p>The null guard prevents violating the NOT NULL constraint on USER_UUID if an entity
+     * is created using the no-arg constructor without setting userId.</p>
+     */
     @PrePersist
     @PreUpdate
     private void syncUserIds() {
-        this.userUuid = this.userId;
+        if (this.userId != null) {
+            this.userUuid = this.userId;
+        }
     }
 }
