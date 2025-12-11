@@ -29,15 +29,6 @@
 --%>
 -->
 <%-- "checked in wysiwyg code but disabled, added in lydia's changes between 1.9 and 1.10" --%>
-<%-- 
-saveButton style is used only on save buttons to attach a click handler, so that javascript
-can throw a confirm dialog box if nothing has been changed.  saveButton style doesn't do any
-styling.
-
-changeWatch style is used only on fields that should be watched for changes, with the saveButton 
-above.  If a changeWatch field is changed, the saveButton buttons will not trigger a 
-confirmation dialog
---%>
 <f:view>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%= request.getAttribute("html.head") %>
@@ -55,7 +46,6 @@ confirmation dialog
 		}
 
 		document.addEventListener('DOMContentLoaded', () => {
-			initCalcQuestion();
 			const deleteLinks = document.querySelectorAll('a.sam-deleteglobalvariable');
 			[].forEach.call(deleteLinks, (link) => {
 				link.existingOnclick = link.onclick;
@@ -90,14 +80,14 @@ confirmation dialog
 				rendered="#{itemauthor.target=='assessment'}" 
 				value="#{commonMessages.action_save}" 
 				action="#{itemauthor.currentItem.getOutcome}" 
-				styleClass="active saveButton">
+				styleClass="active">
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
 	  	</h:commandButton>
 	  	<h:commandButton 
 	  			rendered="#{itemauthor.target=='questionpool'}" 
 	  			value="#{commonMessages.action_save}" 
 	  			action="#{itemauthor.currentItem.getPoolOutcome}" 
-	  			styleClass="active saveButton">
+	  			styleClass="active">
 	    	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
 	  	</h:commandButton>
 	
@@ -307,7 +297,7 @@ confirmation dialog
 	          		<h:outputText value="#{authorMessages.calc_question_min}"  />
 	        	</f:facet>
 	          	<h:inputText value="#{variable.min}" disabled="#{!variable.active }" 
-	          			styleClass="#{(!variable.validMin ? 'validationError' : '') } changeWatch"/>
+	          			styleClass="#{(!variable.validMin ? 'validationError' : '') }"/>
 	      	</h:column>
 	
 	      	<h:column>
@@ -315,14 +305,14 @@ confirmation dialog
 	          		<h:outputText value="#{authorMessages.calc_question_max}"  />
 	        	</f:facet>
 	          	<h:inputText value="#{variable.max}" disabled="#{!variable.active }" 
-	          			styleClass="#{(!variable.validMax ? 'validationError' : '') } changeWatch"/>
+	          			styleClass="#{(!variable.validMax ? 'validationError' : '') }"/>
 	      	</h:column>
 	
 	      	<h:column>
 	        	<f:facet name="header">
 	          		<h:outputText value="#{authorMessages.calc_question_dec}"  />
 	        	</f:facet>
-			  	<h:selectOneMenu value="#{variable.decimalPlaces}" disabled="#{!variable.active }" styleClass="changeWatch">
+			  	<h:selectOneMenu value="#{variable.decimalPlaces}" disabled="#{!variable.active }">
 		     		<f:selectItems value="#{itemauthor.decimalPlaceList}" />
 	  			</h:selectOneMenu>
 	      	</h:column>
@@ -356,7 +346,7 @@ confirmation dialog
 	        	<h:inputTextarea value="#{globalvariable.text}"
 	        			cols="40" rows="3" 
 	        			disabled="#{!globalvariable.active}" 
-	        			styleClass="#{(!globalvariable.validFormula ? 'validationError' : '')} changeWatch"/>
+	        			styleClass="#{(!globalvariable.validFormula ? 'validationError' : '')}"/>
 	      </h:column>
 
 	      <h:column>
@@ -416,7 +406,7 @@ confirmation dialog
 	        	<h:inputTextarea value="#{formula.text }"
 	        			cols="40" rows="3" 
 	        			disabled="#{!formula.active }" 
-	        			styleClass="#{(!formula.validFormula ? 'validationError' : '')} changeWatch"/>        	
+	        			styleClass="#{(!formula.validFormula ? 'validationError' : '')}"/>
 	      </h:column>
 	      
 	      <h:column>
@@ -425,14 +415,14 @@ confirmation dialog
 	        	</f:facet>
 	          	<h:inputText value="#{formula.tolerance}"  
 	          			disabled="#{!formula.active }" 
-	          			styleClass="#{(!formula.validTolerance ? 'validationError' : '')} changeWatch"/>
+	          			styleClass="#{(!formula.validTolerance ? 'validationError' : '')}"/>
 	      </h:column>
 	      
 	      <h:column>
 	        	<f:facet name="header">
 	          		<h:outputText value="#{authorMessages.calc_question_dec}" />
 	        	</f:facet>
-			  	<h:selectOneMenu id="assignToPart" value="#{formula.decimalPlaces}" disabled="#{!formula.active }" styleClass="changeWatch">
+			  	<h:selectOneMenu id="assignToPart" value="#{formula.decimalPlaces}" disabled="#{!formula.active }">
 	     			<f:selectItems  value="#{itemauthor.decimalPlaceList}" />
 	  			</h:selectOneMenu>          
 	      </h:column>
@@ -599,14 +589,14 @@ confirmation dialog
 				rendered="#{itemauthor.target=='assessment'}" 
 				value="#{commonMessages.action_save}" 
 				action="#{itemauthor.currentItem.getOutcome}" 
-				styleClass="active saveButton">
+				styleClass="active">
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
 	  	</h:commandButton>
 	  	<h:commandButton 
 	  			rendered="#{itemauthor.target=='questionpool'}" 
 	  			value="#{commonMessages.action_save}" 
 	  			action="#{itemauthor.currentItem.getPoolOutcome}" 
-	  			styleClass="active saveButton">
+	  			styleClass="active">
 	        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
 	  	</h:commandButton>
 	  	<h:commandButton  
