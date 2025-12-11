@@ -4556,23 +4556,70 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                                 .orElse(null);
                                     }
 
-                                    gradingService.addExternalAssessment(
-                                            nAssignment.getContext(),
-                                            nAssignment.getContext(),
-                                            nAssignmentRef,
-                                            null,
-                                            nAssignment.getTitle(),
-                                            nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor(),
-                                            Date.from(nAssignment.getDueDate()),
-                                            this.getToolId(),
-                                            null,
-                                            false,
-                                            categoryId,
-                                            null);
-                                    if (StringUtils.isNotBlank(nAssignmentRef)) {
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                    try {
+                                        gradingService.addExternalAssessment(
+                                                nAssignment.getContext(),
+                                                nAssignment.getContext(),
+                                                nAssignmentRef,
+                                                null,
+                                                nAssignment.getTitle(),
+                                                nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor(),
+                                                Date.from(nAssignment.getDueDate()),
+                                                this.getToolId(),
+                                                null,
+                                                false,
+                                                categoryId,
+                                                null);
+                                        if (StringUtils.isNotBlank(nAssignmentRef)) {
+                                            nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                        }
+                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+                                    } catch (org.sakaiproject.grading.api.ConflictingAssignmentNameException e) {
+                                        // Assignment name conflicts with existing gradebook item
+                                        // Generate a unique title and retry
+                                        log.warn("Assignment '{}' conflicts with existing gradebook item in site {}. Attempting to rename. oAssignmentId={} nAssignmentId={}",
+                                                nAssignment.getTitle(), nAssignment.getContext(), oAssignmentId, nAssignmentId);
+
+                                        String uniqueTitle = generateUniqueAssignmentTitle(nAssignment.getTitle(), nAssignment.getContext());
+                                        nAssignment.setTitle(uniqueTitle);
+                                        // Use direct repository merge to avoid duplicate task/notification creation
+                                        // The final updateAssignment() call at the end of this method will handle side effects
+                                        nAssignment.setModifier(sessionManager.getCurrentSessionUserId());
+                                        assignmentRepository.merge(nAssignment);
+
+                                        try {
+                                            // Retry with unique title
+                                            gradingService.addExternalAssessment(
+                                                    nAssignment.getContext(),
+                                                    nAssignment.getContext(),
+                                                    nAssignmentRef,
+                                                    null,
+                                                    uniqueTitle,
+                                                    nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor(),
+                                                    Date.from(nAssignment.getDueDate()),
+                                                    this.getToolId(),
+                                                    null,
+                                                    false,
+                                                    categoryId,
+                                                    null);
+                                            if (StringUtils.isNotBlank(nAssignmentRef)) {
+                                                nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                            }
+                                            nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+                                            log.info("Successfully imported assignment with renamed title '{}' in site {}", uniqueTitle, nAssignment.getContext());
+                                        } catch (Exception retryException) {
+                                            // If retry also fails, set to draft and disable gradebook integration
+                                            log.error("Failed to import assignment even after renaming. Setting to draft. Title='{}' oAssignmentId={} nAssignmentId={} Error: {}",
+                                                    uniqueTitle, oAssignmentId, nAssignmentId, retryException.getMessage());
+                                            nAssignment.setDraft(true);
+                                            nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                                            nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+                                            // Use direct repository merge to avoid duplicate task/notification creation
+                                            // The final updateAssignment() call at the end of this method will handle side effects
+                                            nAssignment.setModifier(sessionManager.getCurrentSessionUserId());
+                                            assignmentRepository.merge(nAssignment);
+                                        }
                                     }
-                                    nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
                                 } else {
                                     // internal gradebook items should have already been created and are linked using a Long or a title
                                     if (newGbAssignment == null) {
@@ -5130,6 +5177,32 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         return errorMessage;
+    }
+
+    /**
+     * Generates a unique assignment title by appending a suffix (-1, -2, etc.) if a conflict exists.
+     * This is used during assignment import to avoid duplicate assignment names.
+     *
+     * @param originalTitle the original assignment title
+     * @param context the site context
+     * @return a unique title that doesn't conflict with existing assignments
+     */
+    private String generateUniqueAssignmentTitle(String originalTitle, String context) {
+        Collection<Assignment> existingAssignments = getAssignmentsForContext(context);
+        Set<String> existingTitles = existingAssignments.stream()
+                .map(Assignment::getTitle)
+                .collect(java.util.stream.Collectors.toSet());
+
+        String uniqueTitle = originalTitle;
+        int suffix = 1;
+
+        // Keep incrementing suffix until we find a unique title
+        while (existingTitles.contains(uniqueTitle)) {
+            uniqueTitle = originalTitle + "-" + suffix;
+            suffix++;
+        }
+
+        return uniqueTitle;
     }
 
     private Optional<Long> createCategoryForGbAssignmentIfNecessary(
