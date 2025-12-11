@@ -65,6 +65,10 @@ public interface SimplePage {
 
     public void setHidden(boolean hidden);
 
+    public boolean isHiddenFromNavigation();
+
+    public void setHiddenFromNavigation(boolean hiddenFromNavigation);
+
     public Date getReleaseDate();
 
     public void setReleaseDate(Date releaseDate);
