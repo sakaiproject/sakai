@@ -680,16 +680,26 @@ public class GradebookPage extends BasePage {
 		response.render(JavaScriptHeaderItem
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-connection-poll.js%s", version)));
 
-		final StringValue focusAssignmentId = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
+		final StringValue focusAssignmentIdParam = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
 		final StringValue showPopupForNewItem = getPageParameters().get(NEW_GBITEM_POPOVER_PARAM);
-		if (!focusAssignmentId.isNull() && this.hasStudents) {
-			final boolean showPopover = !showPopupForNewItem.isNull() && showPopupForNewItem.toBoolean(false);
+		if (!focusAssignmentIdParam.isNull() && this.hasStudents) {
+			long focusAssignmentId = -1L;
+			try {
+				focusAssignmentId = focusAssignmentIdParam.toLong(-1L);
+			} catch (NumberFormatException e) {
+				focusAssignmentId = -1L;
+			}
+
 			getPageParameters().remove(FOCUS_ASSIGNMENT_ID_PARAM);
 			getPageParameters().remove(NEW_GBITEM_POPOVER_PARAM);
-			response.render(JavaScriptHeaderItem
-					.forScript(
-							String.format("GbGradeTable.focusColumnForAssignmentId(%s,%s)", focusAssignmentId.toString(), showPopover),
-							null));
+
+			if (focusAssignmentId > 0L) {
+				final boolean showPopover = !showPopupForNewItem.isNull() && showPopupForNewItem.toBoolean(false);
+				response.render(JavaScriptHeaderItem
+						.forScript(
+								String.format("GbGradeTable.focusColumnForAssignmentId(%d,%s)", focusAssignmentId, showPopover),
+								null));
+			}
 		}
 	}
 
