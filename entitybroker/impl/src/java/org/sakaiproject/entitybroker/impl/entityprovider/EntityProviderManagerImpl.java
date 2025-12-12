@@ -21,21 +21,21 @@
 package org.sakaiproject.entitybroker.impl.entityprovider;
 
 import java.io.Serializable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-
-import org.azeckoski.reflectutils.ReflectUtils;
-import org.azeckoski.reflectutils.refmap.ReferenceMap;
-import org.azeckoski.reflectutils.refmap.ReferenceType;
+import java.util.concurrent.ConcurrentHashMap;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -141,14 +141,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     private boolean filterServices = false;
     private Set<String> allowedServices;
 
-    protected ReferenceMap<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.SOFT);
+    protected final Map<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
 
-    @SuppressWarnings("unchecked")
-    protected ReferenceMap<String, EntityProviderListener> listenerMap = new ReferenceMap<String, EntityProviderListener>(ReferenceType.STRONG, ReferenceType.SOFT);
+    protected final Map<String, EntityProviderListener<?>> listenerMap = new ConcurrentHashMap<String, EntityProviderListener<?>>();
 
-    // old CHMs were switched to RMs to avoid holding strong references and allowing clean classloader unloads
-    // protected ConcurrentMap<String, EntityProvider> prefixMap = new ConcurrentHashMap<String, EntityProvider>();
-    // protected ConcurrentMap<String, ReferenceParseable> parseMap = new ConcurrentHashMap<String, ReferenceParseable>();
+    // Concurrent maps provide thread safety; entries remain strongly referenced until explicitly removed
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.managers.EntityProviderManager#getProviderByPrefix(java.lang.String)
@@ -359,7 +356,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                 +") prefix ("+prefix+") with "+count+" capabilities");
 
         // call the registered listeners
-        for (Iterator<EntityProviderListener> iterator = listenerMap.values().iterator(); iterator.hasNext();) {
+        for (Iterator<EntityProviderListener<?>> iterator = listenerMap.values().iterator(); iterator.hasNext();) {
             EntityProviderListener<? extends EntityProvider> providerListener = iterator.next();
             callListener(providerListener, entityProvider);
         }
@@ -545,7 +542,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         if (! listenerMap.isEmpty()) {
             // try to find by the object equality and then remove
             String key = null;
-            for (Entry<String, EntityProviderListener> entry : listenerMap.entrySet()) {
+            for (Entry<String, EntityProviderListener<?>> entry : listenerMap.entrySet()) {
                 if (listener.equals(entry.getValue())) {
                     key = entry.getKey();
                     break;
@@ -603,7 +600,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
      */
     @SuppressWarnings("unchecked")
     protected static List<Class<? extends EntityProvider>> extractCapabilities(EntityProvider provider) {
-        List<Class<?>> superclasses = ReflectUtils.getSuperclasses(provider.getClass());
+        List<Class<?>> superclasses = getAllTypes(provider.getClass());
         Set<Class<? extends EntityProvider>> capabilities = new HashSet<Class<? extends EntityProvider>>();
 
         for (Class<?> superclazz : superclasses) {
@@ -612,6 +609,31 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             }
         }
         return new ArrayList<Class<? extends EntityProvider>>(capabilities);
+    }
+
+    private static List<Class<?>> getAllTypes(Class<?> type) {
+        LinkedHashSet<Class<?>> discovered = new LinkedHashSet<Class<?>>();
+        Deque<Class<?>> stack = new ArrayDeque<Class<?>>();
+        if (type != null) {
+            stack.push(type);
+        }
+        while (!stack.isEmpty()) {
+            Class<?> current = stack.pop();
+            if (current == null || Object.class.equals(current)) {
+                continue;
+            }
+            if (!discovered.add(current)) {
+                continue;
+            }
+            Class<?> superclass = current.getSuperclass();
+            if (superclass != null) {
+                stack.push(superclass);
+            }
+            for (Class<?> iface : current.getInterfaces()) {
+                stack.push(iface);
+            }
+        }
+        return new ArrayList<Class<?>>(discovered);
     }
 
     public static class EntityProviderComparator implements Comparator<EntityProvider>, Serializable {
