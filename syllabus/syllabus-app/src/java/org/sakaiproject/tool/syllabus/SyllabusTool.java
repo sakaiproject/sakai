@@ -1027,8 +1027,7 @@ public class SyllabusTool
     			}
     			if (alertMsg.length() > 0)
     			{
-    				alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
-    			  return "edit";
+    			  log.debug("Syllabus content sanitized: {}", alertMsg);
     			}
     		 }
     		catch (Exception e)
@@ -1254,8 +1253,7 @@ public class SyllabusTool
 				}
     			if (alertMsg.length() > 0)
     			{
-					alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
-					return "edit";
+					log.debug("Syllabus content sanitized: {}", alertMsg);
     			}
     		 }
     		catch (Exception e)
@@ -1535,8 +1533,7 @@ public class SyllabusTool
 				}
     			if (alertMsg.length() > 0)
     			{
-    				alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
-					return "edit";
+					log.debug("Syllabus content sanitized: {}", alertMsg);
     			}
     		 }
     		catch (Exception e)
@@ -1633,8 +1630,7 @@ public class SyllabusTool
 				}
     			if (alertMsg.length() > 0)
     			{
-    				alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
-					return "edit";
+					log.debug("Syllabus content sanitized: {}", alertMsg);
     			}
     		 }
     		catch (Exception e)
@@ -1804,8 +1800,7 @@ public class SyllabusTool
 			}
 			if (alertMsg.length() > 0)
 			{
-				alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
-				return "edit";
+				log.debug("Syllabus content sanitized: {}", alertMsg);
 			}
 		 }
 		catch (Exception e)
@@ -1862,8 +1857,7 @@ public class SyllabusTool
 			}
 			if (alertMsg.length() > 0)
 			{
-				alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
-				return "edit";
+				log.debug("Syllabus content sanitized: {}", alertMsg);
 			}
 		 }
 		catch (Exception e)
