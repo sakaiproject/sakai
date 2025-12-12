@@ -114,8 +114,8 @@
                 <ul wicket:id="gbToolbarColumnTools" class="gb-toolbar-right my-2 d-flex flex-wrap list-unstyled align-items-center">
                     <li wicket:id="itemFilter" class="me-2 mb-1">
                         <div class="gb-student-filter gb-item-text-filter">
-                            <label for="itemFilterInput" class="sr-only"><wicket:message key="filter.items"/></label>
-                            <input type="text" id="itemFilterInput" class="form-control" aria-controls="gradeTable" />
+                            <label for="itemFilterInput" id="itemFilterLabel" class="sr-only"><wicket:message key="filter.items"/></label>
+                            <input type="text" id="itemFilterInput" class="form-control" aria-controls="gradeTable" aria-labelledby="itemFilterLabel" wicket:message="placeholder:filter.items" />
                             <a class="gb-item-filter-clear-button" wicket:message="title:filter.itemsclear" href="javascript:void(0)">
                                 <i class="fa fa-times-circle" aria-hidden="true"></i>
                             </a>
