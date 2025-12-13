@@ -670,6 +670,19 @@ public interface GradingService extends EntityProducer {
     Map<String, CourseGradeTransferBean> getCourseGradeForStudents(String gradebookUid, String siteId, List<String> userUuids, Map<String, Double> schema);
 
     /**
+     * Calculate an on-the-fly course grade preview using supplied what-if scores. No data is persisted.
+     *
+     * @param gradebookUid the gradebook id
+     * @param siteId the site id
+     * @param studentUuid the student to calculate for
+     * @param whatIfScores assignment id to raw score map (points/percent/letter based on gradebook type)
+     * @param includeNonReleasedItems whether to include items that are not released
+     * @return the calculated course grade, or null if the user cannot access it
+     */
+    CourseGradeTransferBean calculateCourseGradePreview(String gradebookUid, String siteId, String studentUuid,
+            Map<Long, String> whatIfScores, boolean includeNonReleasedItems);
+
+    /**
      * Get a list of CourseSections that the current user has access to in the given gradebook. This is a combination of sections and groups
      * and is permission filtered.
      *

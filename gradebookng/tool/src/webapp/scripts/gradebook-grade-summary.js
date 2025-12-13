@@ -254,6 +254,7 @@ GradebookGradeSummary.prototype.setupModalPrint = function() {
 GradebookGradeSummary.prototype.setupStudentView = function() {
   var self = this;
   self.setupTableSorting();
+  self.setupWhatIfCalculator();
 
   var $button = $("body").find(".portletBody .gb-summary-print");
   $button.off("click").on("click", function() {
@@ -264,6 +265,127 @@ GradebookGradeSummary.prototype.setupStudentView = function() {
   });
 };
 
+
+GradebookGradeSummary.prototype.setupWhatIfCalculator = function() {
+  const $toggle = $("body").find(".portletBody .gb-whatif-toggle");
+  const callbackUrl = this.$content.attr("data-whatif-url");
+  const enabled = this.$content.attr("data-whatif-enabled") === "true";
+
+  if (!$toggle.length || !callbackUrl || !enabled) {
+    $toggle.hide();
+    return;
+  }
+
+  $toggle.attr("aria-pressed", "false").removeClass("active");
+
+  const $help = this.$content.find(".gb-whatif-note");
+  const $result = this.$content.find(".gb-whatif-result");
+  const $gradeTarget = this.$content.find(".gb-whatif-grade");
+  const $error = this.$content.find(".gb-whatif-error");
+
+  const showError = message => {
+    if (!$error.length) {
+      return;
+    }
+    $error.text(message).removeClass("d-none");
+  };
+
+  const clearError = () => {
+    if (!$error.length) {
+      return;
+    }
+    $error.addClass("d-none").text("");
+  };
+
+  const ensureInputs = () => {
+    this.$content.find(".gb-summary-grade-row[data-assignment-id]").each(function() {
+      const $row = $(this);
+      let $input = $row.find(".gb-whatif-input");
+      if ($input.length === 0) {
+        const starting = $row.data("grade") ? ("" + $row.data("grade")).trim()
+          : $row.find(".gb-summary-grade-score-raw").text().trim();
+        $input = $('<input type="text" class="form-control form-control-sm gb-whatif-input d-none mt-1" />');
+        if (starting) {
+          $input.val(starting);
+        }
+        $row.find(".gb-summary-grade-score").append($input);
+      }
+    });
+  };
+
+  const collectScores = () => {
+    const scores = {};
+    this.$content.find(".gb-whatif-input").each(function() {
+      const $input = $(this);
+      const assignmentId = $input.closest(".gb-summary-grade-row").data("assignment-id");
+      if (assignmentId !== undefined && assignmentId !== null) {
+        scores[assignmentId] = $input.val().trim();
+      }
+    });
+    return scores;
+  };
+
+  let debounceTimer = null;
+  const requestPreview = () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      const payload = collectScores();
+      fetch(callbackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+        body: "whatIf=" + encodeURIComponent(JSON.stringify(payload))
+      })
+        .then(response => response.ok ? response.json() : Promise.reject())
+        .then(data => {
+          if (data.error) {
+            showError(data.error);
+            $result.addClass("d-none");
+            return;
+          }
+          clearError();
+          if (data.courseGrade) {
+            $gradeTarget.text(data.courseGrade);
+            $result.removeClass("d-none");
+          } else {
+            showError(this.$content.attr("data-whatif-error") || "Unable to calculate what-if grade right now.");
+            $result.addClass("d-none");
+          }
+        })
+        .catch(() => {
+          showError(this.$content.attr("data-whatif-error") || "Unable to calculate what-if grade right now.");
+        });
+    }, 250);
+  };
+
+  const activate = () => {
+    ensureInputs();
+    this.$content.find(".gb-whatif-input").removeClass("d-none");
+    $help.removeClass("d-none");
+    requestPreview();
+  };
+
+  const deactivate = () => {
+    this.$content.find(".gb-whatif-input").addClass("d-none");
+    $help.addClass("d-none");
+    $result.addClass("d-none");
+    clearError();
+  };
+
+  this.$content.on("input", ".gb-whatif-input", requestPreview);
+
+  $toggle.off("click").on("click", function(event) {
+    event.preventDefault();
+    const active = $(this).attr("aria-pressed") === "true";
+    const nextState = !active;
+    $(this).attr("aria-pressed", nextState);
+    $(this).toggleClass("active", nextState);
+    if (nextState) {
+      activate();
+    } else {
+      deactivate();
+    }
+  });
+};
 
 GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML) {
   const printWindow = window.open("", "_blank");

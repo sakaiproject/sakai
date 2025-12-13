@@ -2761,6 +2761,22 @@ public class GradingServiceImpl implements GradingService {
         return scoreAsDouble;
     }
 
+    private Double convertWhatIfGrade(final String rawGrade, final GradebookAssignment assignment, final Gradebook gradebook,
+            final Map<String, Double> sortedGradeMap) {
+
+        if (StringUtils.isBlank(rawGrade)) {
+            return null;
+        }
+
+        if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradebook.getGradeType())) {
+            return calculateEquivalentPointValueForPercent(assignment.getPointsPossible(), NumberUtils.createDouble(rawGrade));
+        } else if (Objects.equals(GradingConstants.GRADE_TYPE_LETTER, gradebook.getGradeType())) {
+            return sortedGradeMap.get(rawGrade);
+        }
+
+        return convertStringToDouble(rawGrade);
+    }
+
     /**
      * Get a list of assignments in the gradebook attached to the given category. Note that each assignment only knows the category by name.
      *
@@ -3431,6 +3447,124 @@ public class GradingServiceImpl implements GradingService {
             log.error("Error in getCourseGradeForStudents: {}", e.toString());
         }
         return rval;
+    }
+
+    @Override
+    public CourseGradeTransferBean calculateCourseGradePreview(final String gradebookUid, final String siteId,
+            final String studentUuid, final Map<Long, String> whatIfScores, final boolean includeNonReleasedItems) {
+
+        if (gradebookUid == null || siteId == null || studentUuid == null) {
+            throw new IllegalArgumentException("gradebookUid, siteId and studentUuid are required");
+        }
+
+        final String currentUser = sessionManager.getCurrentSessionUserId();
+        final boolean isSelf = StringUtils.equals(studentUuid, currentUser);
+        final boolean canView =
+                currentUserHasEditPerm(siteId)
+                        || currentUserHasGradingPerm(siteId)
+                        || (currentUserHasViewOwnGradesPerm(siteId) && isSelf);
+
+        if (!canView) {
+            throw new GradingSecurityException("You do not have permission to preview this course grade");
+        }
+
+        final Gradebook gradebook = getGradebook(gradebookUid);
+        if (gradebook == null) {
+            throw new IllegalArgumentException("Invalid gradebook uid");
+        }
+
+        if (!gradebook.getCourseGradeDisplayed() && !(currentUserHasEditPerm(siteId) || currentUserHasGradingPerm(siteId))) {
+            return null;
+        }
+
+        final CourseGrade courseGrade = getCourseGrade(gradebook.getId());
+        final Map<String, Double> sortedGradeMap = GradeMappingDefinition
+                .sortGradeMapping(gradebook.getSelectedGradeMapping().getGradeMap());
+
+        final List<AssignmentGradeRecord> existingRecords = getAllAssignmentGradeRecords(gradebook.getId(), Collections.singletonList(studentUuid));
+        final Map<Long, AssignmentGradeRecord> recordByAssignment = new HashMap<>();
+        final List<AssignmentGradeRecord> workingRecords = new ArrayList<>();
+
+        for (final AssignmentGradeRecord agr : existingRecords) {
+            final AssignmentGradeRecord copy = agr.clone();
+            copy.setExcludedFromGrade(agr.getExcludedFromGrade());
+            copy.setDroppedFromGrade(Boolean.FALSE);
+            recordByAssignment.put(copy.getAssignment().getId(), copy);
+            workingRecords.add(copy);
+        }
+
+        if (whatIfScores != null && !whatIfScores.isEmpty()) {
+            for (final Map.Entry<Long, String> entry : whatIfScores.entrySet()) {
+                final Long assignmentId = entry.getKey();
+                if (assignmentId == null) {
+                    continue;
+                }
+
+                final GradebookAssignment assignment = getAssignmentWithoutStatsByID(gradebookUid, assignmentId);
+                if (assignment == null) {
+                    continue;
+                }
+
+                AssignmentGradeRecord record = recordByAssignment.get(assignmentId);
+                if (record == null) {
+                    record = new AssignmentGradeRecord(assignment, studentUuid, null);
+                    record.setExcludedFromGrade(Boolean.FALSE);
+                    recordByAssignment.put(assignmentId, record);
+                    workingRecords.add(record);
+                }
+
+                final String rawGrade = StringUtils.trimToEmpty(entry.getValue());
+                final Double convertedGrade = convertWhatIfGrade(rawGrade, assignment, gradebook, sortedGradeMap);
+
+                if (StringUtils.isNotBlank(rawGrade) && convertedGrade == null) {
+                    throw new IllegalArgumentException("invalidGrade");
+                }
+
+                record.setPointsEarned(convertedGrade);
+                if (StringUtils.isNotBlank(rawGrade)) {
+                    record.setExcludedFromGrade(Boolean.FALSE);
+                }
+                record.setDroppedFromGrade(Boolean.FALSE);
+                record.setGradableObject(assignment);
+            }
+        }
+
+        if (!includeNonReleasedItems) {
+            workingRecords.removeIf(rec -> rec.getAssignment() != null && !rec.getAssignment().getReleased());
+        }
+
+        applyDropScores(workingRecords, gradebook.getCategoryType());
+
+        final List<Category> categories = getCategories(gradebook.getId());
+        final List<GradebookAssignment> countedAssignments = getCountedAssignments(gradebook.getId()).stream()
+                .filter(GradebookAssignment::isIncludedInCalculations)
+                .collect(Collectors.toList());
+
+        final List<Double> earnedTotals = getTotalPointsEarnedInternal(studentUuid, gradebook, categories, workingRecords, countedAssignments);
+        final double totalPointsEarned = earnedTotals.get(0);
+        final double literalTotalPointsEarned = earnedTotals.get(1);
+        final double extraPointsEarned = earnedTotals.get(2);
+        final double totalPointsPossible = getTotalPointsInternal(gradebook, categories, studentUuid, workingRecords, countedAssignments, false);
+
+        final CourseGradeRecord previewRecord = new CourseGradeRecord(courseGrade, studentUuid);
+        previewRecord.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, extraPointsEarned);
+
+        final CourseGradeTransferBean cg = new CourseGradeTransferBean();
+        cg.setId(courseGrade.getId());
+
+        Double calculatedGrade = previewRecord.getAutoCalculatedGrade();
+        if (calculatedGrade != null) {
+            final BigDecimal rounded = new BigDecimal(calculatedGrade)
+                    .setScale(10, RoundingMode.HALF_UP)
+                    .setScale(2, RoundingMode.HALF_UP);
+            calculatedGrade = rounded.doubleValue();
+            cg.setCalculatedGrade(calculatedGrade.toString());
+            cg.setMappedGrade(GradeMapping.getMappedGrade(sortedGradeMap, calculatedGrade));
+        }
+
+        cg.setPointsEarned(previewRecord.getCalculatedPointsEarned());
+        cg.setTotalPointsPossible(previewRecord.getTotalPointsPossible());
+        return cg;
     }
 
     @Override

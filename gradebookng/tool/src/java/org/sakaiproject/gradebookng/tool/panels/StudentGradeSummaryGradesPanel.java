@@ -23,6 +23,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -37,11 +41,16 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.handler.TextRequestHandler;
+import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.CategoryScoreData;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
@@ -52,6 +61,7 @@ import org.sakaiproject.grading.api.model.Gradebook;
 public class StudentGradeSummaryGradesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger log = LoggerFactory.getLogger(StudentGradeSummaryGradesPanel.class);
 
 	Integer configuredCategoryType;
 
@@ -61,6 +71,8 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 	boolean categoriesEnabled = false;
 	boolean isAssignmentsDisplayed = false;
 	private boolean courseGradeStatsEnabled;
+	private AbstractDefaultAjaxBehavior whatIfCalculationBehavior;
+	private String studentUuid;
 
 	public StudentGradeSummaryGradesPanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
@@ -69,6 +81,16 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+
+		this.whatIfCalculationBehavior = new AbstractDefaultAjaxBehavior() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void respond(final AjaxRequestTarget target) {
+				handleWhatIfRequest();
+			}
+		};
+		add(this.whatIfCalculationBehavior);
 
 		final Gradebook gradebook = this.businessService.getGradebook(currentGradebookUid, currentSiteId);
 
@@ -93,6 +115,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		// unpack model
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
 		final String userId = (String) modelData.get("studentUuid");
+		this.studentUuid = userId;
 
 		final Gradebook gradebook = getGradebook();
 		String studentCourseGradeComment = this.businessService.getAssignmentGradeComment(getCurrentSiteId(), this.businessService.getCourseGradeId(gradebook.getId()), userId);
@@ -232,6 +255,84 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		courseGradePanel.add(courseGradeStatsLink);
 		courseGradePanel.addOrReplace(new Label("studentCourseGradeComment", studentCourseGradeComment));
 		add(new AttributeModifier("data-studentid", userId));
+		add(new AttributeModifier("data-whatif-url", this.whatIfCalculationBehavior.getCallbackUrl().toString()));
+		add(new AttributeModifier("data-whatif-error", getString("whatif.error.generic")));
+
+		final boolean whatIfEnabled = this.someAssignmentsReleased && courseGrade != null;
+		add(new AttributeModifier("data-whatif-enabled", String.valueOf(whatIfEnabled)));
+	}
+
+	/**
+	 * Handle a what-if calculation request from the client.
+	 */
+	private void handleWhatIfRequest() {
+		final RequestCycle requestCycle = RequestCycle.get();
+		final StringValue payload = requestCycle.getRequest().getRequestParameters().getParameterValue("whatIf");
+
+		final ObjectMapper mapper = new ObjectMapper();
+		final ObjectNode result = mapper.createObjectNode();
+
+		try {
+			Map<Long, String> whatIfMap = Collections.emptyMap();
+			if (payload != null && !payload.isNull() && StringUtils.isNotBlank(payload.toString())) {
+				final Map<String, String> raw = mapper.readValue(payload.toString(), new TypeReference<Map<String, String>>() {});
+				if (raw != null) {
+					final Map<Long, String> parsed = new HashMap<>();
+					for (final Map.Entry<String, String> entry : raw.entrySet()) {
+						if (StringUtils.isBlank(entry.getKey())) {
+							continue;
+						}
+						try {
+							parsed.put(Long.valueOf(entry.getKey()), entry.getValue());
+						} catch (NumberFormatException nfe) {
+							log.warn("Ignoring what-if entry with invalid assignment id {}", entry.getKey());
+						}
+					}
+					whatIfMap = parsed;
+				}
+			}
+
+			final CourseGradeTransferBean preview = this.businessService.calculateWhatIfCourseGrade(currentGradebookUid, currentSiteId,
+					this.studentUuid, whatIfMap, true);
+
+			final Gradebook gradebook = this.businessService.getGradebook(currentGradebookUid, currentSiteId);
+			final CourseGradeFormatter formatter = new CourseGradeFormatter(
+					gradebook,
+					GbRole.STUDENT,
+					gradebook.getCourseGradeDisplayed(),
+					gradebook.getCoursePointsDisplayed(),
+					true,
+					this.businessService.getShowCalculatedGrade());
+
+			if (preview != null) {
+				result.put("courseGrade", formatter.format(preview));
+				if (preview.getMappedGrade() != null) {
+					result.put("mappedGrade", preview.getMappedGrade());
+				}
+				if (preview.getCalculatedGrade() != null) {
+					result.put("calculatedGrade", preview.getCalculatedGrade());
+				}
+				if (preview.getPointsEarned() != null) {
+					result.put("pointsEarned", preview.getPointsEarned());
+				}
+				if (preview.getTotalPointsPossible() != null) {
+					result.put("totalPointsPossible", preview.getTotalPointsPossible());
+				}
+			} else {
+				result.put("courseGrade", formatter.format(null));
+			}
+		} catch (IllegalArgumentException e) {
+			if ("invalidGrade".equals(e.getMessage())) {
+				result.put("error", getString("whatif.error.invalid"));
+			} else {
+				result.put("error", getString("whatif.error.generic"));
+			}
+		} catch (Exception e) {
+			log.error("Error calculating what-if course grade preview", e);
+			result.put("error", getString("whatif.error.generic"));
+		}
+
+		requestCycle.scheduleRequestHandlerAfterCurrent(new TextRequestHandler("application/json", "UTF-8", result.toString()));
 	}
 
 	/**
