@@ -185,8 +185,9 @@ export class SakaiAccount extends SakaiElement {
     }
 
     const mobile = this.renderRoot.querySelector("#mobile-input").value;
-
-    if (mobile && !isMobilePhone(mobile)) {
+    // Remove spaces for validation, but keep original format for storage
+    const mobileForValidation = mobile ? mobile.replace(/\s/g, "") : mobile;
+    if (mobile && !isMobilePhone(mobileForValidation, "any")) {
       this._currentError = this._i18n.invalid_mobile;
       this._displayContactInfoErrorBanner = true;
       this._mobileInvalid = true;
