@@ -305,7 +305,8 @@ GradebookGradeSummary.prototype.setupWhatIfCalculator = function() {
       if ($input.length === 0) {
         const starting = $row.data("grade") ? ("" + $row.data("grade")).trim()
           : $row.find(".gb-summary-grade-score-raw").text().trim();
-        $input = $('<input type="text" class="form-control form-control-sm gb-whatif-input d-none mt-1" aria-label="' + labelPrefix + '" />');
+        $input = $('<input type="text" class="form-control form-control-sm gb-whatif-input d-none mt-1" />');
+        $input.attr("aria-label", labelPrefix);
         if (starting) {
           $input.val(starting);
         }

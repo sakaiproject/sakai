@@ -2769,9 +2769,19 @@ public class GradingServiceImpl implements GradingService {
         }
 
         if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradebook.getGradeType())) {
-            return calculateEquivalentPointValueForPercent(assignment.getPointsPossible(), NumberUtils.createDouble(rawGrade));
+            final Double percent = convertStringToDouble(rawGrade);
+            return calculateEquivalentPointValueForPercent(assignment.getPointsPossible(), percent);
         } else if (Objects.equals(GradingConstants.GRADE_TYPE_LETTER, gradebook.getGradeType())) {
-            return sortedGradeMap.get(rawGrade);
+            final LetterGradePercentMapping mapping = getLetterGradePercentMapping(gradebook);
+            if (mapping == null) {
+                return null;
+            }
+            final String standardizedGrade = mapping.standardizeInputGrade(rawGrade);
+            if (standardizedGrade == null) {
+                return null;
+            }
+            final Double percent = sortedGradeMap.get(standardizedGrade);
+            return calculateEquivalentPointValueForPercent(assignment.getPointsPossible(), percent);
         }
 
         return convertStringToDouble(rawGrade);
@@ -3459,14 +3469,13 @@ public class GradingServiceImpl implements GradingService {
 
         final String currentUser = sessionManager.getCurrentSessionUserId();
         final boolean isSelf = StringUtils.equals(studentUuid, currentUser);
-        final boolean canView =
-                currentUserHasEditPerm(siteId)
-                        || currentUserHasGradingPerm(siteId)
-                        || (currentUserHasViewOwnGradesPerm(siteId) && isSelf);
+        final boolean isStaff = currentUserHasEditPerm(siteId) || currentUserHasGradingPerm(siteId);
+        final boolean canView = isStaff || (currentUserHasViewOwnGradesPerm(siteId) && isSelf);
 
         if (!canView) {
             throw new GradingSecurityException("You do not have permission to preview this course grade");
         }
+        final boolean effectiveIncludeNonReleasedItems = includeNonReleasedItems && isStaff;
 
         final Gradebook gradebook = getGradebook(gradebookUid);
         if (gradebook == null) {
@@ -3476,12 +3485,16 @@ public class GradingServiceImpl implements GradingService {
         if (!gradebook.getCourseGradeDisplayed() && !(currentUserHasEditPerm(siteId) || currentUserHasGradingPerm(siteId))) {
             return null;
         }
+        if (!isStaff && !gradebook.getAssignmentsDisplayed()) {
+            throw new GradingSecurityException("You do not have permission to preview this course grade");
+        }
 
         final CourseGrade courseGrade = getCourseGrade(gradebook.getId());
         final Map<String, Double> sortedGradeMap = GradeMappingDefinition
                 .sortGradeMapping(gradebook.getSelectedGradeMapping().getGradeMap());
 
-        final List<AssignmentGradeRecord> existingRecords = getAllAssignmentGradeRecords(gradebook.getId(), Collections.singletonList(studentUuid));
+        final Map<String, List<AssignmentGradeRecord>> gradeRecordMap = getGradeRecordMapForStudents(gradebook.getId(), Collections.singletonList(studentUuid));
+        final List<AssignmentGradeRecord> existingRecords = gradeRecordMap.getOrDefault(studentUuid, Collections.emptyList());
         final Map<Long, AssignmentGradeRecord> recordByAssignment = new HashMap<>();
         final List<AssignmentGradeRecord> workingRecords = new ArrayList<>();
 
@@ -3529,7 +3542,7 @@ public class GradingServiceImpl implements GradingService {
             }
         }
 
-        if (!includeNonReleasedItems) {
+        if (!effectiveIncludeNonReleasedItems) {
             workingRecords.removeIf(rec -> rec.getAssignment() != null && !rec.getAssignment().getReleased());
         }
 

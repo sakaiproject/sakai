@@ -274,9 +274,17 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final ObjectNode result = mapper.createObjectNode();
 
 		try {
+			final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
+			final String modelStudentId = (String) modelData.get("studentUuid");
+			if (StringUtils.isBlank(modelStudentId)) {
+				result.put("error", getString("whatif.error.generic"));
+				requestCycle.scheduleRequestHandlerAfterCurrent(new TextRequestHandler("application/json", "UTF-8", result.toString()));
+				return;
+			}
 			Map<Long, String> whatIfMap = Collections.emptyMap();
-			if (payload != null && !payload.isNull() && StringUtils.isNotBlank(payload.toString())) {
-				final Map<String, String> raw = mapper.readValue(payload.toString(), new TypeReference<Map<String, String>>() {});
+			final String payloadString = payload != null ? payload.toOptionalString() : null;
+			if (StringUtils.isNotBlank(payloadString)) {
+				final Map<String, String> raw = mapper.readValue(payloadString, new TypeReference<Map<String, String>>() {});
 				if (raw != null) {
 					final Map<Long, String> parsed = new HashMap<>();
 					for (final Map.Entry<String, String> entry : raw.entrySet()) {
@@ -294,7 +302,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 			}
 
 			final CourseGradeTransferBean preview = this.businessService.calculateWhatIfCourseGrade(currentGradebookUid, currentSiteId,
-					this.studentUuid, whatIfMap, true);
+					modelStudentId, whatIfMap, false);
 
 			final Gradebook gradebook = this.businessService.getGradebook(currentGradebookUid, currentSiteId);
 			final CourseGradeFormatter formatter = new CourseGradeFormatter(
