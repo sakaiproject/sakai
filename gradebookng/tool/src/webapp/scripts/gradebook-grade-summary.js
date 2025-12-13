@@ -312,6 +312,10 @@ GradebookGradeSummary.prototype.setupWhatIfCalculator = function() {
         const assignmentTitle = $row.find(".gb-summary-grade-title").text().trim();
         if (assignmentTitle) {
           $input.attr("aria-label", `${labelPrefix} ${assignmentTitle}`);
+        } else {
+          const assignmentId = $row.data("assignment-id");
+          const fallback = assignmentId ? `${labelPrefix} ${assignmentId}` : labelPrefix;
+          $input.attr("aria-label", fallback);
         }
         $row.find(".gb-summary-grade-score").append($input);
       }
