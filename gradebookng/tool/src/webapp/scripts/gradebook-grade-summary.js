@@ -306,18 +306,15 @@ GradebookGradeSummary.prototype.setupWhatIfCalculator = function() {
         const starting = $row.data("grade") ? ("" + $row.data("grade")).trim()
           : $row.find(".gb-summary-grade-score-raw").text().trim();
         $input = $('<input type="text" class="form-control form-control-sm gb-whatif-input d-none mt-1" />');
-        $input.attr("aria-label", labelPrefix);
         if (starting) {
           $input.val(starting);
         }
         const assignmentTitle = $row.find(".gb-summary-grade-title").text().trim();
-        if (assignmentTitle) {
-          $input.attr("aria-label", `${labelPrefix} ${assignmentTitle}`);
-        } else {
-          const assignmentId = $row.data("assignment-id");
-          const fallback = assignmentId ? `${labelPrefix} ${assignmentId}` : labelPrefix;
-          $input.attr("aria-label", fallback);
-        }
+        const assignmentId = $row.data("assignment-id");
+        const ariaLabel = assignmentTitle
+          ? `${labelPrefix} ${assignmentTitle}`
+          : (assignmentId ? `${labelPrefix} ${assignmentId}` : labelPrefix);
+        $input.attr("aria-label", ariaLabel);
         $row.find(".gb-summary-grade-score").append($input);
       }
     });
