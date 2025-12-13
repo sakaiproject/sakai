@@ -257,6 +257,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		add(new AttributeModifier("data-studentid", userId));
 		add(new AttributeModifier("data-whatif-url", this.whatIfCalculationBehavior.getCallbackUrl().toString()));
 		add(new AttributeModifier("data-whatif-error", getString("whatif.error.generic")));
+		add(new AttributeModifier("data-whatif-label-prefix", getString("whatif.label.prefix")));
 
 		final boolean whatIfEnabled = this.someAssignmentsReleased && courseGrade != null;
 		add(new AttributeModifier("data-whatif-enabled", String.valueOf(whatIfEnabled)));

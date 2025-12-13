@@ -270,6 +270,7 @@ GradebookGradeSummary.prototype.setupWhatIfCalculator = function() {
   const $toggle = $("body").find(".portletBody .gb-whatif-toggle");
   const callbackUrl = this.$content.attr("data-whatif-url");
   const enabled = this.$content.attr("data-whatif-enabled") === "true";
+  const labelPrefix = this.$content.attr("data-whatif-label-prefix") || "What-if score for";
 
   if (!$toggle.length || !callbackUrl || !enabled) {
     $toggle.hide();
@@ -307,6 +308,10 @@ GradebookGradeSummary.prototype.setupWhatIfCalculator = function() {
         $input = $('<input type="text" class="form-control form-control-sm gb-whatif-input d-none mt-1" />');
         if (starting) {
           $input.val(starting);
+        }
+        const assignmentTitle = $row.find(".gb-summary-grade-title").text().trim();
+        if (assignmentTitle) {
+          $input.attr("aria-label", `${labelPrefix} ${assignmentTitle}`);
         }
         $row.find(".gb-summary-grade-score").append($input);
       }
