@@ -187,6 +187,7 @@ public class GradeImportUploadStep extends BasePanel {
 				}
 
 				final ImportWizardModel importWizardModel = new ImportWizardModel();
+				importWizardModel.setGradeType(businessService.getGradebookSettings(currentGradebookUid, currentSiteId).getGradeType());
 				importWizardModel.setSpreadsheetWrapper(spreadsheetWrapper);
 				boolean uploadSuccess = ImportGradesHelper.setupImportWizardModelForSelectionStep(page, GradeImportUploadStep.this, importWizardModel, businessService, target, currentGradebookUid, currentSiteId);
 

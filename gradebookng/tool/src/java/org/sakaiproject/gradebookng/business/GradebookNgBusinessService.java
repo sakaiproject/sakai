@@ -80,6 +80,7 @@ import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.rubrics.api.RubricsConstants;
@@ -606,7 +607,7 @@ public class GradebookNgBusinessService {
 		final Double maxPoints = assignment.getPoints();
 
 		// check what grading mode we are in
-		final Integer gradingType = gradebook.getGradeType();
+		final GradeType gradingType = gradebook.getGradeType();
 
 		// if percentage entry type, reformat the grades, otherwise use points as is
 		String newGradeAdjusted = newGrade;
@@ -624,7 +625,7 @@ public class GradebookNgBusinessService {
 					",".equals(formattedText.getDecimalSeparator()) ? "," : ".");
 		}
 
-		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
+		if (gradingType == GradeType.PERCENTAGE) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
 			Double newGradePercentage = new Double("0.0");
 
@@ -687,17 +688,24 @@ public class GradebookNgBusinessService {
 		// someone else has edited.
 		// if oldGrade == null, ignore concurrency check
 		if (oldGrade != null) {
-			try {
-				NumberFormat format = NumberFormat.getNumberInstance();
-				// SAK-42001 A stored value in database of 69.225 needs to match the 69.22 coming back from UI AJAX call
-				final BigDecimal storedBig = storedGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(format.parse(storedGradeAdjusted).doubleValue()).setScale(2, RoundingMode.HALF_DOWN);
-				final BigDecimal oldBig = oldGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(format.parse(oldGradeAdjusted).doubleValue()).setScale(2, RoundingMode.HALF_DOWN);
-				if (storedBig.compareTo(oldBig) != 0) {
-					log.warn("Rejected new grade because of concurrent edit: {} vs {}", storedBig, oldBig);
+			if (gradebook.getGradeType() != GradeType.LETTER) {
+				try {
+					NumberFormat format = NumberFormat.getNumberInstance();
+					// SAK-42001 A stored value in database of 69.225 needs to match the 69.22 coming back from UI AJAX call
+					final BigDecimal storedBig = storedGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(format.parse(storedGradeAdjusted).doubleValue()).setScale(2, RoundingMode.HALF_DOWN);
+					final BigDecimal oldBig = oldGradeAdjusted == null ? BigDecimal.ZERO : new BigDecimal(format.parse(oldGradeAdjusted).doubleValue()).setScale(2, RoundingMode.HALF_DOWN);
+					if (storedBig.compareTo(oldBig) != 0) {
+						log.warn("Rejected new grade because of concurrent edit: {} vs {}", storedBig, oldBig);
+						return GradeSaveResponse.CONCURRENT_EDIT;
+					}
+				} catch (ParseException pe) {
+					log.warn("Failed to parse adjusted grades in current locale");
+				}
+			} else {
+				if (!StringUtils.equals(storedGrade, oldGrade)) {
+					log.warn("Rejected new grade because of concurrent edit: {} vs {}", storedGrade, oldGrade);
 					return GradeSaveResponse.CONCURRENT_EDIT;
 				}
-			} catch (ParseException pe) {
-				log.warn("Failed to parse adjusted grades in current locale");
 			}
 		}
 
@@ -765,8 +773,8 @@ public class GradebookNgBusinessService {
 
 		// if percentage entry type, reformat the grade, otherwise use points as is
 		String storedGradeAdjusted = storedGrade;
-		final Integer gradingType = getGradebook(gradebookUid, siteId).getGradeType();
-		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
+		final GradeType gradingType = getGradebook(gradebookUid, siteId).getGradeType();
+		if (gradingType == GradeType.PERCENTAGE) {
 			// the stored grade represents points so the number needs to be adjusted back to percentage
 			Double storedGradePoints = new Double("0.0");
 			if (StringUtils.isNotBlank(storedGrade)) {
@@ -916,7 +924,7 @@ public class GradebookNgBusinessService {
 		return items;
 	}
 
-	public List<GbGradeComparisonItem> buildMatrixForGradeComparison(String gradebookUid, String siteId, Assignment assignment, Integer gradingType, GradebookInformation settings){
+	public List<GbGradeComparisonItem> buildMatrixForGradeComparison(String gradebookUid, String siteId, Assignment assignment, GradeType gradingType, GradebookInformation settings){
 		// Only return the list if the feature is activated
 		boolean serverPropertyOn = serverConfigService.getConfig(
 				SAK_PROP_ALLOW_STUDENTS_TO_COMPARE_GRADES,
@@ -959,7 +967,7 @@ public class GradebookNgBusinessService {
 						el.setIsCurrentUser(userEid.equals(el.getEid()));
 						
 						el.setGrade(FormatHelper.formatGrade(el.getGrade())
-								+ (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType) ? "%" : ""));
+								+ (gradingType == GradeType.PERCENTAGE ? "%" : ""));
 						return el;
 					})
 					.collect(Collectors.toList());
@@ -1718,11 +1726,11 @@ public class GradebookNgBusinessService {
 		final Gradebook gradebook = getGradebook(gradebookUid, siteId);
 
 		if (gradebook != null) {
-			final Long assignmentId = this.gradingService.addAssignment(gradebookUid, siteId, assignment);
+			final Long assignmentId = gradingService.addAssignment(gradebookUid, siteId, assignment);
 
 			// Force the assignment to sit at the end of the list
 			if (assignment.getSortOrder() == null) {
-				final List<Assignment> allAssignments = this.gradingService.getAssignments(gradebookUid, siteId, SortType.SORT_BY_NONE);
+				final List<Assignment> allAssignments = gradingService.getAssignments(gradebookUid, siteId, SortType.SORT_BY_NONE);
 				int nextSortOrder = allAssignments.size();
 				for (final Assignment anotherAssignment : allAssignments) {
 					if (anotherAssignment.getSortOrder() != null && anotherAssignment.getSortOrder() >= nextSortOrder) {
@@ -2257,7 +2265,7 @@ public class GradebookNgBusinessService {
 
 		final Gradebook gradebook = getGradebook(gradebookUid, siteId);
 
-		final Optional<CategoryScoreData> result = gradingService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId, isInstructor, gradebook.getCategoryType(), null);
+		final Optional<CategoryScoreData> result = gradingService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId, isInstructor, null);
 		log.debug("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
 
 		return result;
