@@ -320,9 +320,6 @@ public class GradebookPage extends BasePage {
 
 		final WebMarkupContainer toolbarColumnTools = new WebMarkupContainer("gbToolbarColumnTools");
 		toolbarColumnTools.setVisible(this.hasGradebookItems);
-		final WebMarkupContainer itemFilter = new WebMarkupContainer("itemFilter");
-		itemFilter.setVisible(this.hasGradebookItems);
-		toolbarColumnTools.add(itemFilter);
 		toolbar.add(toolbarColumnTools);
 
 		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
@@ -682,13 +679,12 @@ public class GradebookPage extends BasePage {
 
 		final StringValue focusAssignmentId = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
 		final StringValue showPopupForNewItem = getPageParameters().get(NEW_GBITEM_POPOVER_PARAM);
-		if (!focusAssignmentId.isNull() && this.hasStudents) {
-			final boolean showPopover = !showPopupForNewItem.isNull() && showPopupForNewItem.toBoolean(false);
+		if(!showPopupForNewItem.isNull() && !focusAssignmentId.isNull() && this.hasStudents){
 			getPageParameters().remove(FOCUS_ASSIGNMENT_ID_PARAM);
 			getPageParameters().remove(NEW_GBITEM_POPOVER_PARAM);
 			response.render(JavaScriptHeaderItem
 					.forScript(
-							String.format("GbGradeTable.focusColumnForAssignmentId(%s,%s)", focusAssignmentId.toString(), showPopover),
+							String.format("GbGradeTable.focusColumnForAssignmentId(%s,%s)", focusAssignmentId.toString(),showPopupForNewItem),
 							null));
 		}
 	}

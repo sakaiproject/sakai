@@ -5,29 +5,6 @@
 <body>
 
 <wicket:extend>
-  <style>
-    .gb-item-text-filter {
-      position: relative;
-    }
-    .gb-item-text-filter input {
-      padding-right: 32px;
-    }
-    .gb-item-text-filter .gb-item-filter-clear-button {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 20px;
-      height: 20px;
-      border: none;
-      background: transparent;
-      color: #2e6e9e;
-      padding: 0;
-    }
-  </style>
   <form wicket:id="form" id="gradebookSpreadsheet" class="container-fluid px-0">
     <div id="gbConnectionTimeoutFeedback" class="sak-banner-warn" style="display:none;">
         <wicket:message key="feedback.connectiontimeout" />
@@ -112,15 +89,6 @@
                     <li class="gb-student-summary"><!-- Populated by JavaScript --></li>
                 </ul>
                 <ul wicket:id="gbToolbarColumnTools" class="gb-toolbar-right my-2 d-flex flex-wrap list-unstyled align-items-center">
-                    <li wicket:id="itemFilter" class="me-2 mb-1">
-                        <div class="gb-student-filter gb-item-text-filter">
-                            <label for="itemFilterInput" class="sr-only"><wicket:message key="filter.items"/></label>
-                            <input type="text" id="itemFilterInput" class="form-control" aria-controls="gradeTable" />
-                            <a class="gb-item-filter-clear-button" wicket:message="title:filter.itemsclear" href="javascript:void(0)">
-                                <i class="fa fa-times-circle" aria-hidden="true"></i>
-                            </a>
-                        </div>
-                    </li>
                     <li class="gb-grade-item-summary me-2 mb-1"><!-- Populated by JavaScript --></li>
                     <li class="me-2 mb-1">
                         <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" class="button" aria-haspopup="true" aria-expanded="false" aria-controls="gradeItemsTogglePanel"><wicket:message key="label.toolbar.toggleitems"/></button>
