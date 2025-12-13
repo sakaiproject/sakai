@@ -1,6 +1,8 @@
 GB_HIDDEN_ITEMS_KEY = portal.user.id + "#gradebook#hiddenitems";
+GB_SCROLL_LEFT_KEY = portal.user.id + "#gradebook#scrollleft";
 
 GbGradeTable = { _onReadyCallbacks: [] };
+GbGradeTable.itemFilterText = "";
 
 GbGradeTable.dropdownShownHandler = e => {
 
@@ -190,6 +192,30 @@ TrimPathFragmentCache.prototype.getFragment = function (values) {
 TrimPathFragmentCache.prototype.setHTML = function (target, values) {
   GbGradeTable.replaceContents(target, this.getFragment(values));
 }
+
+GbGradeTable.matchesItemFilter = function(column) {
+  if (!GbGradeTable.itemFilterText) {
+    return true;
+  }
+
+  const haystack = [
+    column?.title,
+    column?.abbrevTitle,
+    column?.name,
+    column?.categoryName,
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  return haystack.indexOf(GbGradeTable.itemFilterText) !== -1;
+};
+
+GbGradeTable.isColumnHidden = function(column) {
+  return column.hidden || !GbGradeTable.matchesItemFilter(column);
+};
+
+GbGradeTable.setItemFilterText = function(text) {
+  GbGradeTable.itemFilterText = (text || "").toString().trim().toLowerCase();
+  GbGradeTable.redrawTable(true);
+};
 
 $(document).ready(function() {
   // need TrimPath to load before parsing templates
@@ -904,6 +930,16 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     }
   });
 
+  // Restore horizontal scroll position if we stored it before a page refresh (eg, after saving an edited item)
+  const storedScrollLeft = sessionStorage.getItem(GB_SCROLL_LEFT_KEY);
+  if (storedScrollLeft !== null) {
+    const tableContainer = document.querySelector(".tabulator-tableholder");
+    if (tableContainer) {
+      tableContainer.scrollLeft = parseInt(storedScrollLeft, 10);
+    }
+    sessionStorage.removeItem(GB_SCROLL_LEFT_KEY);
+  }
+
   GbGradeTable.instance.on("headerClick", (e, column) => {
     if (e.target.classList.contains('gb-title')) {
       const table = column.getTable();
@@ -1208,7 +1244,43 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       $input.val("").trigger("keyup");
     }
   });
-  
+
+  let itemFilterTimeout;
+  let previousItemFilterText = "";
+  const $itemFilterInput = $("#itemFilterInput");
+  if ($itemFilterInput.length) {
+    if (GbGradeTable.i18n && GbGradeTable.i18n["filter.items"]) {
+      $itemFilterInput.attr("placeholder", GbGradeTable.i18n["filter.items"]);
+    }
+
+    $itemFilterInput
+      .on("keyup", function (event) {
+        clearTimeout(itemFilterTimeout);
+        itemFilterTimeout = setTimeout(function () {
+          const currentFilterText = event.target.value;
+          if (currentFilterText !== previousItemFilterText) {
+            previousItemFilterText = currentFilterText;
+            GbGradeTable.setItemFilterText(currentFilterText);
+          }
+        }, 300);
+      })
+      .on("keydown", function (event) {
+        if (event.key === "Enter") {
+          clearTimeout(itemFilterTimeout);
+          GbGradeTable.setItemFilterText(event.target.value);
+          return false;
+        }
+      });
+  }
+
+  $(document).on("click", ".gb-item-filter-clear-button", function (event) {
+    event.preventDefault();
+    const $input = $("#itemFilterInput");
+    if ($input.val().length > 0) {
+      $input.val("").trigger("keyup");
+    }
+  });
+
   rubricGradingRow = 0;
   rubricGradingCol = 0;
   
@@ -1239,6 +1311,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   })
   .on("click", ".gb-dropdown-menu .edit-assignment-details", function () {
     const cellElement = $(this).closest(".tabulator-cell, .tabulator-col");
+
+    // Persist current horizontal position so we can restore after the page reloads from the edit
+    const tableContainer = document.querySelector(".tabulator-tableholder");
+    if (tableContainer) {
+      sessionStorage.setItem(GB_SCROLL_LEFT_KEY, tableContainer.scrollLeft);
+    }
 
     GbGradeTable.ajax({
       action: "editAssignment",
@@ -1862,7 +1940,7 @@ GbGradeTable.getFilteredColumns = function() {
 
   return GbGradeTable._fixedColumns.concat(
     GbGradeTable.columns
-      .filter(col => !col.hidden)
+      .filter(col => !GbGradeTable.isColumnHidden(col))
       .map((column, colIndex) => ({
         field: (GbGradeTable._fixedColumns.length + colIndex).toString(),
         formatter: GbGradeTable.cellFormatter,
@@ -1886,7 +1964,7 @@ GbGradeTable.getFilteredData = function() {
 GbGradeTable.applyColumnFilter = function(data) {
   for (var i=GbGradeTable.columns.length-1; i>=0; i--) {
     var column = GbGradeTable.columns[i];
-    if (column.hidden) {
+    if (GbGradeTable.isColumnHidden(column)) {
       for(var row=0; row<data.length; row++) {
         data[row] = data[row]
           .slice(0, i + GbGradeTable.FIXED_COLUMN_OFFSET)
@@ -2872,7 +2950,7 @@ GbGradeTable.refreshSummaryLabels = function() {
     var visibleColumns = 0;
     var totalColumns = GbGradeTable.columns.length;
     $.each(GbGradeTable.columns, function(i, col) {
-      if (!col.hidden) {
+      if (!GbGradeTable.isColumnHidden(col)) {
         visibleColumns = visibleColumns + 1;
       }
     });
@@ -2892,13 +2970,13 @@ GbGradeTable.refreshSummaryLabels = function() {
       if (col.type === 'category') {
         totalCategories += 1;
 
-        if (!col.hidden) {
+        if (!GbGradeTable.isColumnHidden(col)) {
           visibleCategories += 1;
         }
       } else if (col.type === 'assignment') {
         totalAssignments += 1;
 
-        if (!col.hidden) {
+        if (!GbGradeTable.isColumnHidden(col)) {
           visibleAssignments += 1;
         }
       }
@@ -3138,30 +3216,44 @@ GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNew
   if (assignmentId) {
     GbGradeTable.addReadyCallback(function() {
       const col = GbGradeTable.colForAssignment(assignmentId);
-      const cell = GbGradeTable.instance.getRows()[0].getCells()[col];
+      const rows = GbGradeTable.instance.getRows();
+      const firstRow = rows && rows.length ? rows[0] : null;
 
-      if (showPopupForNewItem === true) {
-        GbGradeTable.instance.scrollToColumn(col, "end", false);
-
-        const $selectedField = $(cell.getElement());
-        setTimeout(() => GbGradeTable.instance.addRange(cell, cell), 100);
-        $selectedField.attr('data-bs-toggle','popover');
-        $selectedField.attr('data-bs-placement','top');
-        $selectedField.attr('data-bs-container','body');
-        $selectedField.attr('data-bs-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
-        $selectedField.attr('data-bs-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
-        $selectedField.attr('data-bs-template','<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="mt-0 popover-header"></h3><div class="popover-body p-2"></div></div>');
-
-        $('body, button').on('click keyup touchend', function (e) {
-          if ($(e.target).data("bs-toggle") !== 'popover'
-              && $(e.target).parents('.popover.in').length === 0) { 
-              document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
-                bootstrap.Popover.getInstance(el)?.hide();
-              });
-          }
-        })
-        new bootstrap.Popover($selectedField[0]).show();
+      if (col < 0 || !firstRow) {
+        return;
       }
+
+      GbGradeTable.instance.scrollToColumn(col, "end", false);
+      setTimeout(() => {
+        const cell = firstRow.getCells()[col];
+        if (!cell) {
+          return;
+        }
+
+        GbGradeTable.instance.addRange(cell, cell);
+        cell.getElement().focus();
+
+        if (showPopupForNewItem === true) {
+
+          const $selectedField = $(cell.getElement());
+          $selectedField.attr('data-bs-toggle','popover');
+          $selectedField.attr('data-bs-placement','top');
+          $selectedField.attr('data-bs-container','body');
+          $selectedField.attr('data-bs-content',GbGradeTable.templates['newGradeItemPopoverMessage'].process());
+          $selectedField.attr('data-bs-title',GbGradeTable.templates['newGradeItemPopoverTitle'].process());
+          $selectedField.attr('data-bs-template','<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="mt-0 popover-header"></h3><div class="popover-body p-2"></div></div>');
+
+          $('body, button').on('click keyup touchend', function (e) {
+            if ($(e.target).data("bs-toggle") !== 'popover'
+                && $(e.target).parents('.popover.in').length === 0) { 
+                document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+                  bootstrap.Popover.getInstance(el)?.hide();
+                });
+            }
+          })
+          new bootstrap.Popover($selectedField[0]).show();
+        }
+      }, 200);
     });
   }
 };
