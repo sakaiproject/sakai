@@ -37,33 +37,33 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "PROFILE_IMAGES_UPLOADED_T")
+@Table(name = "PROFILE_IMAGES_T")
 public class ProfileImageUploaded implements PersistableEntity<String> {
 
-	@EqualsAndHashCode.Include
+    @EqualsAndHashCode.Include
     @Id
-    @Column(name = "USER_ID", length = 99)
-	private String userId;
+    @Column(name = "USER_UUID", length = 99)
+    private String userId;
 
-	@Column(name = "RESOURCE_MAIN", length = 4000, nullable = false)
-	private String mainResource;
+    @Column(name = "RESOURCE_MAIN", length = 4000, nullable = false)
+    private String mainResource;
 
     @Column(name = "RESOURCE_THUMB", length = 4000, nullable = false)
-	private String thumbnailResource;
+    private String thumbnailResource;
 
     @Column(name = "RESOURCE_AVATAR", length = 4000, nullable = false)
-	private String avatarResource;
+    private String avatarResource;
 
-	/** 
-	 * Additional constructor to create a ProfileImage record in one go
-	 */
-	public ProfileImageUploaded(String userId, String mainResource, String thumbnailResource, String avatarResource) {
+    /**
+     * Additional constructor to create a ProfileImage record in one go
+     */
+    public ProfileImageUploaded(String userId, String mainResource, String thumbnailResource, String avatarResource) {
 
-		this.userId = userId;
-		this.mainResource = mainResource;
-		this.thumbnailResource = thumbnailResource;
-		this.avatarResource = avatarResource;
-	}
+        this.userId = userId;
+        this.mainResource = mainResource;
+        this.thumbnailResource = thumbnailResource;
+        this.avatarResource = avatarResource;
+    }
 
     public String getId() {
         return userId;
