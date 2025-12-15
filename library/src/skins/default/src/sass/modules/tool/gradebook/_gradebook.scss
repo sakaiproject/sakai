@@ -427,6 +427,27 @@
     right: 8px;
     color: var(--sakai-text-color-dimmed);
   }
+  .gb-item-text-filter {
+    position: relative;
+  }
+  .gb-item-text-filter input {
+    padding-right: 32px;
+  }
+  .gb-item-text-filter .gb-item-filter-clear-button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    color: var(--sakai-primary-color-1);
+    padding: 0;
+  }
   .gb-grade-item-summary .gb-item-summary-counts.warn-items-hidden,
   .gb-student-summary .gb-student-summary-counts.warn-students-hidden {
     color: var(--warnBanner-color);
