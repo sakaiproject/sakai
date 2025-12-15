@@ -701,6 +701,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo) {
 		PublishedAssessmentData a = loadPublishedAssessment(assessmentId);
+		if (a == null) {
+			log.debug("Published assessment not found for assessmentId: {}", assessmentId);
+			return null;
+		}
 		a.setSectionSet(getSectionSetForAssessment(a)); // this is making things slow -pbd
 		Map<String, String> releaseToGroups = new HashMap<>();
 		Set<String> groupReferences = new HashSet<>();
