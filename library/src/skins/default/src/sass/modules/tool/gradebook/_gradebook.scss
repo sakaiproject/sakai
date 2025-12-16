@@ -438,7 +438,7 @@
     right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     width: 20px;
@@ -447,6 +447,15 @@
     background: transparent;
     color: var(--sakai-primary-color-1);
     padding: 0;
+  }
+  @media (max-width: 768px) {
+    .gb-item-text-filter .gb-item-filter-clear-button {
+      width: 44px;
+      height: 44px;
+    }
+    .gb-item-text-filter input {
+      padding-right: 56px;
+    }
   }
   .gb-grade-item-summary .gb-item-summary-counts.warn-items-hidden,
   .gb-student-summary .gb-student-summary-counts.warn-students-hidden {
