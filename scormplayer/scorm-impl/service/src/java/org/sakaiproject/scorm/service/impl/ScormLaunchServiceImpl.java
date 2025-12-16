@@ -421,8 +421,17 @@ public class ScormLaunchServiceImpl implements ScormLaunchService
                 }
                 else if (latestAttempt.isNotExited())
                 {
-                    attemptNumber = latestAttempt.getAttemptNumber();
-                    sessionBean.setAttempt(latestAttempt);
+                    int numberOfTries = contentPackage.getNumberOfTries();
+
+                    if (numberOfTries != -1 && latestAttempt.getAttemptNumber() >= numberOfTries)
+                    {
+                        attemptNumber = latestAttempt.getAttemptNumber() + 1;
+                    }
+                    else
+                    {
+                        attemptNumber = latestAttempt.getAttemptNumber();
+                        sessionBean.setAttempt(latestAttempt);
+                    }
                 }
                 else
                 {

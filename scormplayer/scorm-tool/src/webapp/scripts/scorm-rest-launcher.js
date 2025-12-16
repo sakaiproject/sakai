@@ -646,4 +646,12 @@
         bootstrap,
         active: launchers,
     };
+
+    // Refresh parent window when this popup closes (handles both normal exit and force-close)
+    // Using pagehide event with persisted check to avoid triggering on bfcache navigations
+    window.addEventListener('pagehide', function(event) {
+        if (!event.persisted && window.opener && !window.opener.closed) {
+            window.opener.location.reload();
+        }
+    });
 })();
