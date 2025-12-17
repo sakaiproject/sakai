@@ -96,10 +96,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     private ContentHostingService contentHostingService;
     private SecurityService securityService;
     private SessionManager sessionManager;
-
-    protected GradingService gradingService() {
-        return null; // Overridden by Spring lookup-method
-    }
+    private GradingService gradingService;
 
     public void init() {
         try {
@@ -357,8 +354,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     }
 
     private void copyGradebookSettings(String fromContext, String toContext, ContentPackage source, ContentPackage copy) {
-        GradingService gs = gradingService();
-        if (gs == null) {
+        if (gradingService == null) {
             return;
         }
 
@@ -381,19 +377,19 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
             String destExternalId = copy.getContentPackageId() + ":" + itemIdentifier;
 
             // Only copy if source had gradebook sync enabled
-            if (!gs.isExternalAssignmentDefined(fromContext, sourceExternalId)) {
+            if (!gradingService.isExternalAssignmentDefined(fromContext, sourceExternalId)) {
                 continue;
             }
 
             try {
                 // Get the source gradebook assignment to copy all its properties
-                Assignment sourceAssignment = gs.getExternalAssignment(fromContext, sourceExternalId);
+                Assignment sourceAssignment = gradingService.getExternalAssignment(fromContext, sourceExternalId);
                 if (sourceAssignment == null) {
                     log.debug("Skipping gradebook copy for SCO {} - source assignment not found", itemIdentifier);
                     continue;
                 }
 
-                gs.addExternalAssessment(toContext, toContext, destExternalId, null, sourceAssignment.getName(),
+                gradingService.addExternalAssessment(toContext, toContext, destExternalId, null, sourceAssignment.getName(),
                         sourceAssignment.getPoints(), copy.getDueOn(), ScormConstants.SCORM_DFLT_TOOL_NAME,
                         null, false, sourceAssignment.getCategoryId(), null);
             } catch (Exception e) {
