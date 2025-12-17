@@ -427,6 +427,28 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		pageMap.put("isPopup", page.isPopUp());
 		pageMap.put("title", formattedText.escapeHtml(page.getTitle()));
 		pageMap.put("description", getPageDescription(page));
+
+		// Check if this is a LessonBuilder page that should be hidden from navigation
+		if (toolList != null && !toolList.isEmpty()) {
+			ToolConfiguration firstTool = toolList.get(0);
+			pageMap.put("wellKnownToolId", firstTool.getToolId());
+
+			if ("sakai.lessonbuildertool".equals(firstTool.getToolId())) {
+				try {
+					Site pageSite = siteService.getSite(page.getSiteId());
+					boolean lessonbuilderUpdater = securityService.unlock("lessonbuilder.upd", pageSite.getReference());
+					boolean lbHidden = isLessonBuilderPageHiddenFromNavigation(page.getId(), page.getSiteId());
+					boolean hideFromNavEffective = !lessonbuilderUpdater && lbHidden;
+					pageMap.put("isHiddenFromNavigation", hideFromNavEffective);
+					if (lbHidden) {
+						pageMap.put("hidden", Boolean.TRUE);
+					}
+				} catch (IdUnusedException e) {
+					pageMap.put("isHiddenFromNavigation", Boolean.FALSE);
+				}
+			}
+		}
+
 		return pageMap;
 	}
 
@@ -1541,4 +1563,28 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		Site site = getSite(siteId);
 		return site != null && site.isJoinable() && site.getUserRole(userId) == null;
 	}
+
+	/**
+	 * Check if a LessonBuilder page is marked as hidden from navigation.
+	 */
+	private boolean isLessonBuilderPageHiddenFromNavigation(String pageId, String siteId) {
+		try {
+			Object simplePageToolDao = ComponentManager.get("org.sakaiproject.lessonbuildertool.model.SimplePageToolDao");
+
+			if (simplePageToolDao != null) {
+				java.lang.reflect.Method findPageMethod = simplePageToolDao.getClass().getMethod("findSimplePageBySitePageId", String.class);
+				Object simplePage = findPageMethod.invoke(simplePageToolDao, pageId);
+
+				if (simplePage != null) {
+					java.lang.reflect.Method isHiddenMethod = simplePage.getClass().getMethod("isHiddenFromNavigation");
+					Boolean isHiddenFromNavigation = (Boolean) isHiddenMethod.invoke(simplePage);
+					return Boolean.TRUE.equals(isHiddenFromNavigation);
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Error checking hiddenFromNavigation for LessonBuilder pageId={} siteId={}", pageId, siteId, e);
+		}
+		return Boolean.FALSE;
+	}
+
 }

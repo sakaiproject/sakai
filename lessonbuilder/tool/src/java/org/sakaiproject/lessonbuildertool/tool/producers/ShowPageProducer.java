@@ -4492,7 +4492,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UISelect buttonColors = UISelect.make(form, "btncolor", SimplePageBean.NewColors, simplePageBean.getNewColorLabelsI18n(), "#{simplePageBean.buttonColor}", SimplePageBean.NewColors[0]);
 
-		UIBoundBoolean.make(form, "hide2", "#{simplePageBean.hidePage}", (currentPage.isHidden()));
+		// Determine current visibility state
+		String currentVisibility2 = computeVisibilityChoice(currentPage);
+
+		UISelect visibilityRadios2 = UISelect.make(form, "visibility-select-2",
+			new String[] {"visible", "hide", "hideFromNav"}, 
+			"#{simplePageBean.visibilityChoice2}", currentVisibility2);
+		UISelectChoice.make(form, "visibility-visible-2", visibilityRadios2.getFullID(), 0);
+		UISelectChoice.make(form, "visibility-hide-2", visibilityRadios2.getFullID(), 1);
+		UISelectChoice.make(form, "visibility-hideFromNav-2", visibilityRadios2.getFullID(), 2);
 		UIBoundBoolean.make(form, "page-releasedate2", "#{simplePageBean.hasReleaseDate}", Boolean.FALSE);
 
 		String releaseDateString = "";
@@ -4905,7 +4913,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		if (!simplePageBean.isStudentPage(page)) {
 			UIOutput.make(tofill, "hideContainer");
-			UIBoundBoolean.make(form, "hide", "#{simplePageBean.hidePage}", (page.isHidden()));
+
+			// Determine current visibility state
+			String currentVisibility = computeVisibilityChoice(page);
+
+			UISelect visibilityRadios = UISelect.make(form, "visibility-select",
+				new String[] {"visible", "hide", "hideFromNav"}, 
+				"#{simplePageBean.visibilityChoice}", currentVisibility);
+			UISelectChoice.make(form, "visibility-visible", visibilityRadios.getFullID(), 0);
+			UISelectChoice.make(form, "visibility-hide", visibilityRadios.getFullID(), 1);
+			UISelectChoice.make(form, "visibility-hideFromNav", visibilityRadios.getFullID(), 2);
 
 			Date releaseDate = page.getReleaseDate();
 
@@ -5036,6 +5053,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UICommand.make(form, "create-title", messageLocator.getMessage("simplepage.save"), "#{simplePageBean.editTitle}");
 		UICommand.make(form, "cancel-title", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+	}
+
+	private static String computeVisibilityChoice(SimplePage page) {
+		if (page == null) return "visible";
+		if (page.isHidden()) return "hide";
+		if (page.isHiddenFromNavigation()) return "hideFromNav";
+		return "visible";
 	}
 
 	private void createNewPageDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem) {
