@@ -25,12 +25,11 @@ package org.sakaiproject.rubrics.impl.repository;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.rubrics.api.model.Evaluation;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import javax.persistence.LockModeType;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -42,9 +41,8 @@ import javax.persistence.criteria.Root;
 import org.hibernate.NonUniqueResultException;
 import org.hibernate.Session;
 
+@Slf4j
 public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluation, Long> implements EvaluationRepository {
-
-    private static final Logger log = LoggerFactory.getLogger(EvaluationRepositoryImpl.class);
 
     public List<Evaluation> findByAssociationId(Long associationId) {
 
