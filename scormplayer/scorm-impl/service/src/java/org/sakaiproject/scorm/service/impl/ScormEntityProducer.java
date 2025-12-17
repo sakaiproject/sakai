@@ -376,16 +376,14 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
             String sourceExternalId = source.getContentPackageId() + ":" + itemIdentifier;
             String destExternalId = copy.getContentPackageId() + ":" + itemIdentifier;
 
-            // Only copy if source had gradebook sync enabled
             if (!gradingService.isExternalAssignmentDefined(fromContext, sourceExternalId)) {
                 continue;
             }
 
             try {
-                // Get the source gradebook assignment to copy all its properties
                 Assignment sourceAssignment = gradingService.getExternalAssignment(fromContext, sourceExternalId);
                 if (sourceAssignment == null) {
-                    log.debug("Skipping gradebook copy for SCO {} - source assignment not found", itemIdentifier);
+                    log.warn("Skipping gradebook copy for SCO {} - source assignment not found", itemIdentifier);
                     continue;
                 }
 
@@ -393,7 +391,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                         sourceAssignment.getPoints(), copy.getDueOn(), ScormConstants.SCORM_DFLT_TOOL_NAME,
                         null, false, sourceAssignment.getCategoryId(), null);
             } catch (Exception e) {
-                log.debug("Could not copy gradebook item for SCO {}: {}", itemIdentifier, e.getMessage());
+                log.warn("Could not copy gradebook item for SCO {}: {}", itemIdentifier, e.getMessage());
             }
         }
     }
