@@ -59,6 +59,13 @@ GbGradeTable.updateViewPreferences = function () {
   });
 };
 
+GbGradeTable.persistScrollPosition = function() {
+  const tableContainer = document.querySelector(".tabulator-tableholder");
+  if (tableContainer) {
+    sessionStorage.setItem(GB_SCROLL_LEFT_KEY, tableContainer.scrollLeft);
+  }
+};
+
 var sakaiReminder = new SakaiReminder();
 
 GbGradeTable.unpack = function (s, rowCount, columnCount) {
@@ -193,19 +200,24 @@ TrimPathFragmentCache.prototype.setHTML = function (target, values) {
   GbGradeTable.replaceContents(target, this.getFragment(values));
 }
 
+GbGradeTable.buildItemFilterHaystacks = function() {
+  GbGradeTable.columns.forEach(column => {
+    const haystack = [
+      column?.title,
+      column?.abbrevTitle,
+      column?.name,
+      column?.categoryName,
+    ].filter(Boolean).join(" ").toLowerCase();
+    column._itemFilterHaystack = haystack;
+  });
+};
+
 GbGradeTable.matchesItemFilter = function(column) {
   if (!GbGradeTable.itemFilterText) {
     return true;
   }
 
-  const haystack = [
-    column?.title,
-    column?.abbrevTitle,
-    column?.name,
-    column?.categoryName,
-  ].filter(Boolean).join(" ").toLowerCase();
-
-  return haystack.indexOf(GbGradeTable.itemFilterText) !== -1;
+  return (column?._itemFilterHaystack || "").indexOf(GbGradeTable.itemFilterText) !== -1;
 };
 
 GbGradeTable.isColumnHidden = function(column) {
@@ -777,6 +789,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.columns = tableData.columns;
   let hiddenItems = JSON.parse(sessionStorage.getItem(GB_HIDDEN_ITEMS_KEY)) || [];
   GbGradeTable.columns.filter(c => hiddenItems.includes(c.assignmentId)).forEach(c => c.hidden = true);
+  GbGradeTable.buildItemFilterHaystacks();
   GbGradeTable.settings = tableData.settings;
   GbGradeTable.courseGradeId = tableData.courseGradeId;
   GbGradeTable.gradebookId = tableData.gradebookId;
@@ -1249,10 +1262,6 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   let previousItemFilterText = "";
   const $itemFilterInput = $("#itemFilterInput");
   if ($itemFilterInput.length) {
-    if (GbGradeTable.i18n && GbGradeTable.i18n["filter.items"]) {
-      $itemFilterInput.attr("placeholder", GbGradeTable.i18n["filter.items"]);
-    }
-
     $itemFilterInput
       .on("keyup", function (event) {
         clearTimeout(itemFilterTimeout);
@@ -1313,10 +1322,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     const cellElement = $(this).closest(".tabulator-cell, .tabulator-col");
 
     // Persist current horizontal position so we can restore after the page reloads from the edit
-    const tableContainer = document.querySelector(".tabulator-tableholder");
-    if (tableContainer) {
-      sessionStorage.setItem(GB_SCROLL_LEFT_KEY, tableContainer.scrollLeft);
-    }
+    GbGradeTable.persistScrollPosition();
 
     GbGradeTable.ajax({
       action: "editAssignment",
@@ -3217,13 +3223,18 @@ GbGradeTable.focusColumnForAssignmentId = function(assignmentId, showPopupForNew
     GbGradeTable.addReadyCallback(function() {
       const col = GbGradeTable.colForAssignment(assignmentId);
       const rows = GbGradeTable.instance.getRows();
-      const firstRow = rows && rows.length ? rows[0] : null;
 
-      if (col < 0 || !firstRow) {
+      if (col < 0) {
         return;
       }
 
       GbGradeTable.instance.scrollToColumn(col, "end", false);
+
+      const firstRow = rows && rows.length ? rows[0] : null;
+      if (!firstRow) {
+        return;
+      }
+
       setTimeout(() => {
         const cell = firstRow.getCells()[col];
         if (!cell) {
