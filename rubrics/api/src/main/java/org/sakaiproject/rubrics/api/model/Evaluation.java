@@ -78,11 +78,11 @@ public class Evaluation implements PersistableEntity<Long>, Serializable {
     @NonNull
     private String evaluatorId;
 
-    @Column(name = "evaluated_item_id")
+    @Column(name = "evaluated_item_id", nullable = false)
     @NonNull
     private String evaluatedItemId;
 
-    @Column(name = "evaluated_item_owner_id", length=99)
+    @Column(name = "evaluated_item_owner_id", length=99, nullable = false)
     @NonNull
     private String evaluatedItemOwnerId;
 
