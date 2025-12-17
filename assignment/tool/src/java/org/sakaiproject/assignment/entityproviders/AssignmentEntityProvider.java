@@ -17,7 +17,17 @@ package org.sakaiproject.assignment.entityproviders;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +43,7 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.fileupload.FileItem;
 
+import org.apache.commons.lang3.Strings;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
@@ -1382,41 +1393,22 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         return "SUCCESS";
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.sakaiproject.entitybroker.entityprovider.extension.PropertiesProvider
-     * #findEntityRefs(java.lang.String[], java.lang.String[],
-     * java.lang.String[], boolean)
-     */
-    public List<String> findEntityRefs(String[] prefixes, String[] name,
-                                       String[] searchValue, boolean exactMatch) {
-        String siteId = null;
-        String userId = null;
-        List<String> rv = new ArrayList<String>();
-
-        if (ENTITY_PREFIX.equals(prefixes[0])) {
-
+    @Override
+    public List<String> findEntityRefs(String[] prefixes, String[] name, String[] searchValue, boolean exactMatch) {
+        if (Strings.CI.containsAny(ENTITY_PREFIX, prefixes) && name.length == searchValue.length) {
             for (int i = 0; i < name.length; i++) {
-                if ("context".equalsIgnoreCase(name[i])
-                        || "site".equalsIgnoreCase(name[i]))
-                    siteId = searchValue[i];
-                else if ("user".equalsIgnoreCase(name[i])
-                        || "userId".equalsIgnoreCase(name[i]))
-                    userId = searchValue[i];
-            }
+                String siteId = Strings.CI.containsAny(name[i], "context", "siteId") ? searchValue[i] : null;
 
-            if (siteId != null) {
-                // filter to obtain only grade-able assignments
-                for (Assignment assignment : assignmentService.getAssignmentsForContext(siteId)) {
-                    if (!assignment.getDraft() && assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())) {
-                        rv.add(Entity.SEPARATOR + ENTITY_PREFIX + Entity.SEPARATOR + assignment.getId());
-                    }
+                if (siteId != null) {
+                    return assignmentService.getAssignmentsForContext(siteId).stream()
+                            .filter(Predicate.not(Assignment::getDraft))
+                            .filter(Predicate.not(Assignment::getDeleted))
+                            .map(a -> AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference())
+                            .toList();
                 }
             }
         }
-        return rv;
+        return Collections.emptyList();
     }
 
     /*

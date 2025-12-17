@@ -1,0 +1,535 @@
+
+package org.sakaiproject.entitybroker.rest;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.azeckoski.reflectutils.map.ArrayOrderedMap;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entitybroker.EntityBrokerManager;
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.config.EntityRestTestConfiguration;
+import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.exception.EntityException;
+import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
+import org.sakaiproject.entitybroker.mocks.data.MyEntity;
+import org.sakaiproject.entitybroker.mocks.data.TestData;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.Assert.*;
+
+@ContextConfiguration(classes = {EntityRestTestConfiguration.class})
+@RunWith(SpringJUnit4ClassRunner.class)
+public class EntityEncodingManagerTest {
+
+    @Autowired private EntityEncodingManager entityEncodingManager;
+    @Autowired private EntityBrokerManager entityBrokerManager;
+    @Autowired private EntityProviderManager entityProviderManager;
+    @Autowired private ServerConfigurationService serverConfigurationService;
+
+    private TestData td;
+
+    @Before
+    public void setUp() {
+        td = new TestData(entityProviderManager);
+        Mockito.when(serverConfigurationService.getServerUrl()).thenReturn("http://localhost:8080");
+    }
+
+    @After
+    public void tearDown() {
+        entityProviderManager.unRegistrarAllProvidersAndListeners();
+        td = null;
+    }
+
+    @Test
+    public void testInternalInputTranslator() {
+
+        String xml = "<" + TestData.PREFIX6 + "><stuff>TEST</stuff><number>5</number></" + TestData.PREFIX6 + ">";
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes());
+        MyEntity me = (MyEntity) entityEncodingManager.translateInputToEntity(
+                new EntityReference(TestData.PREFIX6, ""), Formats.XML, inputStream, null);
+        assertNotNull(me);
+        assertEquals("TEST", me.getStuff());
+        assertEquals(5, me.getNumber());
+
+        // old sucky way String json = "{\""+TestData.PREFIX6+"\" : { \"stuff\" : \"TEST\", \"number\" : 5 }}";
+        String json = "{ \"stuff\" : \"TEST\", \"number\" : 5 }";
+        inputStream = new ByteArrayInputStream(json.getBytes());
+        MyEntity me2 = (MyEntity) entityEncodingManager.translateInputToEntity(
+                new EntityReference(TestData.PREFIX6, ""), Formats.JSON, inputStream, null);
+        assertNotNull(me2);
+        assertEquals("TEST", me2.getStuff());
+        assertEquals(5, me2.getNumber());
+
+    }
+
+    @Test
+    public void testEncodeEntity() {
+        String encoded;
+        EntityData ed;
+
+        ed = new EntityData(new EntityReference(TestData.REF4), "Aaron Title", TestData.entity4);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains(TestData.PREFIX4));
+        assertTrue(encoded.contains("Aaron Title"));
+        assertTrue(encoded.contains("something0"));
+
+        ed = new EntityData(new EntityReference(TestData.REF4), "Aaron Title2", TestData.entity4_two);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains(TestData.PREFIX4));
+        assertTrue(encoded.contains("Aaron Title2"));
+        assertTrue(encoded.contains("something1"));
+
+        // test encoding random stuff
+        Map<String, Object> map = new ArrayOrderedMap<>();
+        map.put("A", "aaron");
+        map.put("B", "becky");
+        map.put("C", "minerva");
+        ed = new EntityData(map);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains(TestData.PREFIX4));
+        assertTrue(encoded.contains("aaron"));
+        assertTrue(encoded.contains("becky"));
+
+        List<String> l = new ArrayList<>();
+        l.add("AZ");
+        l.add("BZ");
+        l.add("CZ");
+        ed = new EntityData(l);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains(TestData.PREFIX4));
+        assertTrue(encoded.contains("AZ"));
+        assertTrue(encoded.contains("BZ"));
+
+        String[] array = new String[]{"A", "B", "C"};
+        ed = new EntityData(array);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains(TestData.PREFIX4));
+        assertTrue(encoded.contains("A"));
+        assertTrue(encoded.contains("B"));
+
+    }
+
+    /**
+     * Items with spaces will not encode correctly and will cause an exception, they
+     * have to be fixed at the provider level
+     */
+    @Test
+    public void testSpaceEncoding() {
+        EntityData ed;
+
+        // test encoding weird stuff
+        Map<String, Object> map = new ArrayOrderedMap<>();
+        map.put("A1", "aaron one");
+        map.put("C&3", "minerva three");
+        map.put("B 2", "becky two");
+        ed = new EntityData(map);
+        /* fixed in 0.9.15 reflectutils
+        try {
+            entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
+            fail ("Could not encode spaces");
+        } catch (UnsupportedOperationException e) {
+            assertNotNull(e.getMessage());
+        }*/
+        String encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains("aaron one"));
+        assertTrue(encoded.contains("becky two"));
+        assertTrue(encoded.contains("minerva three"));
+    }
+
+    @Test
+    public void testInternalOutputFormatter() {
+
+        String fo;
+        EntityView view;
+        OutputStream output;
+
+        // XML test valid resolvable entity
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.REF4 + "." + Formats.XML);
+        assertNotNull(view);
+        entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains("<id>4-one</id>"));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+
+        // test null view
+        output = new ByteArrayOutputStream();
+        entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.REF4), Formats.XML, null, null, output, null);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains("<id>4-one</id>"));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+
+        // test list of entities
+        ArrayList<EntityData> testEntities = new ArrayList<>();
+        testEntities.add(new EntityData(TestData.REF4, null, TestData.entity4));
+        testEntities.add(new EntityData(TestData.REF4_two, null, TestData.entity4_two));
+        output = new ByteArrayOutputStream();
+        entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.PREFIX4, ""), Formats.XML, testEntities, null, output, null);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains("<id>4-one</id>"));
+        assertTrue(fo.contains("<id>4-two</id>"));
+        assertFalse(fo.contains("<id>4-three</id>"));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+
+        // test single entity
+        testEntities.clear();
+        testEntities.add(new EntityData(TestData.REF4_3, null, TestData.entity4_3));
+        output = new ByteArrayOutputStream();
+        entityEncodingManager.internalOutputFormatter(new EntityReference(TestData.REF4_3), Formats.XML, testEntities, null, output, null);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains("<id>4-three</id>"));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+
+
+        // JSON test valid resolvable entity
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.REF4 + "." + Formats.JSON);
+        assertNotNull(view);
+        entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains("\"id\":"));
+        assertTrue(fo.contains("\"4-one\","));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+
+        // JSONP test valid resolvable entity, default callback
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.ENTITY_URL4_JSONP);
+        assertNotNull(view);
+        entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains("\"id\":"));
+        assertTrue(fo.contains("\"4-one\","));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+        assertTrue(fo.contains(EntityEncodingManager.JSON_DEFAULT_CALLBACK + "("));
+
+        // JSONP test valid resolvable entity, specified callback
+        HashMap<String, Object> callbackParam = new HashMap<>();
+        callbackParam.put(EntityEncodingManager.JSON_CALLBACK_PARAM, "customCallback");
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.ENTITY_URL4_JSONP);
+        assertNotNull(view);
+        entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, callbackParam, output, view);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains("\"id\":"));
+        assertTrue(fo.contains("\"4-one\","));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+        assertTrue(fo.contains("customCallback("));
+
+        // HTML test valid resolvable entity
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.REF4 + "." + Formats.HTML);
+        assertNotNull(view);
+        entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains(TestData.REF4));
+
+        // test invalid format request
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.REF4 + "." + Formats.RSS);
+        assertNotNull(view);
+        try {
+            entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
+            fail("Should have thrown exception");
+        } catch (FormatUnsupportedException e) {
+            assertNotNull(e.getMessage());
+        }
+
+        // test for unresolvable entities
+
+        // JSON test unresolvable entity
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.REF1 + "." + Formats.JSON);
+        assertNotNull(view);
+        try {
+            entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
+            fail("Should have thrown exception");
+        } catch (EntityException e) {
+            assertNotNull(e.getMessage());
+            assertEquals(HttpServletResponse.SC_NOT_FOUND, e.responseCode);
+        }
+
+        // HTML test unresolvable entity
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.REF1); // blank
+        assertNotNull(view);
+        try {
+            entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
+            fail("Should have thrown exception");
+        } catch (EntityException e) {
+            assertNotNull(e.getMessage());
+            assertEquals(HttpServletResponse.SC_NOT_FOUND, e.responseCode);
+        }
+
+        // test resolvable collections
+        // XML
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.SPACE4 + "." + Formats.XML);
+        assertNotNull(view);
+        entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains(TestData.IDS4[0]));
+        assertTrue(fo.contains(TestData.IDS4[1]));
+        assertTrue(fo.contains(TestData.IDS4[2]));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+
+        // JSON
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.SPACE4 + "." + Formats.JSON);
+        assertNotNull(view);
+        entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains(TestData.IDS4[0]));
+        assertTrue(fo.contains(TestData.IDS4[1]));
+        assertTrue(fo.contains(TestData.IDS4[2]));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+
+        // test for invalid refs
+        try {
+            entityEncodingManager.internalOutputFormatter(new EntityReference("/fakey/fake"), Formats.JSON, null, null, output, null);
+            fail("Should have thrown exception");
+        } catch (EntityException e) {
+            assertNotNull(e.getMessage());
+            assertEquals(HttpServletResponse.SC_NOT_FOUND, e.responseCode);
+        }
+
+    }
+
+    // testing the internal encoder
+    @Test
+    public void testJSONEncode() {
+        String encoded;
+
+        encoded = entityEncodingManager.encodeData(null, Formats.JSON, null, null);
+        assertNotNull(encoded);
+        assertEquals("", encoded);
+
+        Map<String, Object> m = new ArrayOrderedMap<>();
+        m.put("id", 123);
+        m.put("thing", "AZ");
+        encoded = entityEncodingManager.encodeData(m, Formats.JSON, null, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains("123"));
+        assertTrue(encoded.contains("AZ"));
+
+        Map<String, Object> m2 = new ArrayOrderedMap<>();
+        m2.put("name", "aaron");
+        m2.put("date", new Date());
+        m2.put("num", 456);
+        m2.put("array", new String[]{"A", "B", "C"});
+        m.put("map", m2);
+
+        encoded = entityEncodingManager.encodeData(m, Formats.JSON, null, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains("123"));
+        assertTrue(encoded.contains("AZ"));
+        assertTrue(encoded.contains("aaron"));
+        assertTrue(encoded.contains("456"));
+
+    }
+
+    // testing the internal decoder
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testJSONDecode() {
+        Map<String, Object> decoded;
+
+        String json = "{\"id\":123,\"thing\":\"AZ\"}";
+        decoded = entityEncodingManager.decodeData(json, Formats.JSON);
+        assertNotNull(decoded);
+        assertEquals(123, decoded.get("id"));
+        assertEquals("AZ", decoded.get("thing"));
+
+        json = "{\"id\":123,\"thing\":\"AZ\",\"map\":{\"name\":\"aaron\",\"date\":1221493247004,\"num\":456,\"array\":[\"A\",\"B\",\"C\"]}}";
+        decoded = entityEncodingManager.decodeData(json, Formats.JSON);
+        assertNotNull(decoded);
+        assertEquals(3, decoded.size());
+        assertEquals(123, decoded.get("id"));
+        assertEquals("AZ", decoded.get("thing"));
+        Map<String, Object> m2d = (Map<String, Object>) decoded.get("map");
+        assertEquals(4, m2d.size());
+        assertEquals("aaron", m2d.get("name"));
+        assertEquals(456, m2d.get("num"));
+
+    }
+
+    @Test
+    public void testXMLEncode() {
+        String encoded;
+
+        encoded = entityEncodingManager.encodeData(null, Formats.XML, null, null);
+        assertNotNull(encoded);
+        assertEquals("", encoded);
+
+        Map<String, Object> m = new ArrayOrderedMap<>();
+        m.put("id", 123);
+        m.put("thing", "AZ");
+        encoded = entityEncodingManager.encodeData(m, Formats.XML, null, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains("123"));
+        assertTrue(encoded.contains("AZ"));
+
+        Map<String, Object> m2 = new ArrayOrderedMap<>();
+        m2.put("name", "aaron");
+        m2.put("date", new Date());
+        m2.put("num", 456);
+        m2.put("array", new String[]{"A", "B", "C"});
+        m.put("map", m2);
+
+        encoded = entityEncodingManager.encodeData(m, Formats.XML, null, null);
+        assertNotNull(encoded);
+        assertTrue(encoded.contains("123"));
+        assertTrue(encoded.contains("AZ"));
+        assertTrue(encoded.contains("aaron"));
+        assertTrue(encoded.contains("456"));
+
+    }
+
+    // testing the internal decoder
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testXMLDecode() {
+        Map<String, Object> decoded;
+
+        String xml = "<data><id type='number'>123</id><thing>AZ</thing></data>";
+        decoded = entityEncodingManager.decodeData(xml, Formats.XML);
+        assertNotNull(decoded);
+        assertEquals(123, decoded.get("id"));
+        assertEquals("AZ", decoded.get("thing"));
+
+        xml = "<data type='map' size='3' class='org.sakaiproject.genericdao.util.map.ArrayOrderedMap'><id type='number' class='java.lang.Integer'>123</id><thing>AZ</thing><map type='map' size='4' class='org.sakaiproject.genericdao.util.map.ArrayOrderedMap'><name>aaron</name><date type='date' date='2008-09-17T14:47:18+01:00'>1221659238015</date><num type='number' class='java.lang.Integer'>456</num><array type='array' length='3' component='java.lang.String'><string>A</string><string>B</string><string>C</string></array></map></data>";
+        decoded = entityEncodingManager.decodeData(xml, Formats.XML);
+        assertNotNull(decoded);
+        assertEquals(3, decoded.size());
+        assertEquals(123, decoded.get("id"));
+        assertEquals("AZ", decoded.get("thing"));
+        Map<String, Object> m2d = (Map<String, Object>) decoded.get("map");
+        assertEquals(4, m2d.size());
+        assertEquals("aaron", m2d.get("name"));
+        assertEquals(456, m2d.get("num"));
+
+    }
+
+    @Test
+    public void testFormatAndOutputEntity() {
+        String output;
+        OutputStream outputStream;
+        EntityReference ref;
+        String format = Formats.XML;
+        List<EntityData> entities;
+
+        outputStream = new ByteArrayOutputStream();
+        ref = new EntityReference(TestData.PREFIX4, TestData.IDS4[0]);
+        entityEncodingManager.formatAndOutputEntity(ref, format, null, outputStream, null);
+        output = outputStream.toString();
+        assertNotNull(output);
+        assertTrue(output.length() > 20);
+        assertTrue(output.contains(TestData.PREFIX4));
+        assertTrue(output.contains(TestData.REF4));
+
+        outputStream = new ByteArrayOutputStream();
+        ref = new EntityReference(TestData.PREFIX4, "");
+        entityEncodingManager.formatAndOutputEntity(ref, format, null, outputStream, null);
+        output = outputStream.toString();
+        assertNotNull(output);
+        assertTrue(output.length() > 20);
+        assertTrue(output.contains(TestData.PREFIX4));
+        assertTrue(output.contains(TestData.REF4));
+        assertTrue(output.contains(TestData.REF4_two));
+        assertTrue(output.contains(TestData.REF4_3));
+
+        entities = new ArrayList<>();
+        entities.add(new EntityData(new EntityReference(TestData.REF4), "Hello1", td.entityProviderS1.myEntities.get(TestData.IDS4[0])));
+        entities.add(new EntityData(new EntityReference(TestData.REF4_two), "Hello2", td.entityProviderS1.myEntities.get(TestData.IDS4[1])));
+        outputStream = new ByteArrayOutputStream();
+        ref = new EntityReference(TestData.PREFIX4, "");
+        entityEncodingManager.formatAndOutputEntity(ref, format, entities, outputStream, null);
+        output = outputStream.toString();
+        assertNotNull(output);
+        assertTrue(output.length() > 20);
+        assertTrue(output.contains("Hello"));
+        assertTrue(output.contains(TestData.PREFIX4));
+        assertTrue(output.contains(TestData.REF4));
+        assertTrue(output.contains(TestData.REF4_two));
+
+        outputStream = new ByteArrayOutputStream();
+        ref = new EntityReference(TestData.PREFIXS1, TestData.IDSS1[0]);
+        entityEncodingManager.formatAndOutputEntity(ref, format, null, outputStream, null);
+        output = outputStream.toString();
+        assertNotNull(output);
+        assertTrue(output.length() > 20);
+        assertTrue(output.contains(TestData.PREFIXS1));
+        assertTrue(output.contains("xtra"));
+        assertTrue(output.contains(TestData.IDSS1[0]));
+
+        entities = new ArrayList<>();
+        entities.add(new EntityData(new EntityReference(TestData.PREFIXS1, TestData.IDSS1[0]), "Hello1", td.entityProviderS1.myEntities.get(TestData.IDSS1[0])));
+        entities.add(new EntityData(new EntityReference(TestData.PREFIXS1, TestData.IDSS1[2]), "Hello2", td.entityProviderS1.myEntities.get(TestData.IDSS1[2])));
+        outputStream = new ByteArrayOutputStream();
+        ref = new EntityReference(TestData.PREFIXS1, "");
+        entityEncodingManager.formatAndOutputEntity(ref, format, entities, outputStream, null);
+        output = outputStream.toString();
+        assertNotNull(output);
+        assertTrue(output.length() > 20);
+        assertTrue(output.contains(TestData.PREFIXS1));
+        assertTrue(output.contains("Hello"));
+        assertTrue(output.contains("xtra"));
+        assertTrue(output.contains(TestData.IDSS1[0]));
+        assertTrue(output.contains(TestData.IDSS1[2]));
+
+    }
+
+}

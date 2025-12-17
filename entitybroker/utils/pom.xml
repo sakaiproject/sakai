@@ -11,12 +11,10 @@
         <version>26-SNAPSHOT</version>
     </parent>
     <dependencies>
-        <!-- internal dependencies -->
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
         </dependency>
-        <!-- for reloadable proxy and spring stuff -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -49,45 +47,18 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
-        <!-- required for bean cloning and reflection -->
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>reflectutils</artifactId>
+            <version>${reflectutils.version}</version>
         </dependency>
-        <!-- required for sending http requests -->
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
         </dependency>
         <dependency>
-            <!--TODO Move to javax.servlet-api version of master-->
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
     </dependencies>
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-<!-- include the readme.txt file and the java source files -->
-            <resource>
-                <directory>${basedir}</directory>
-                <includes>
-                    <include>*.txt</include>
-                    <include>src/**/*.java</include>
-                    <include>src/**/*.html</include>
-                    <include>src/**/*.xml</include>
-                    <include>src/**/*.properties</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
-    </build>
 </project>

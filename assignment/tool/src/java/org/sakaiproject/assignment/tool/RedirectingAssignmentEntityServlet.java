@@ -36,7 +36,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
- * Does a redirect to allow basic DirectServlet access to old assignment
+ * Does a redirect to allow basic access to old assignment
  * Entities
  * 
  * @author Joshua Ryan josh@asu.edu alt^I

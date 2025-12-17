@@ -1,18 +1,22 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <name>Sakai Entity Broker Implementation</name>
-    <groupId>org.sakaiproject.entitybroker</groupId>
-    <artifactId>entitybroker-impl</artifactId>
-    <packaging>jar</packaging>
-<!-- the base is parent -->
     <parent>
         <artifactId>entitybroker</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>26-SNAPSHOT</version><!--entitybroker.version-->
+        <version>26-SNAPSHOT</version>
     </parent>
+
+    <name>Sakai Entity Broker Implementation</name>
+    <groupId>org.sakaiproject.entitybroker</groupId>
+    <artifactId>entitybroker-impl</artifactId>
+    <packaging>sakai-component</packaging>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
     <dependencies>
-<!-- internal dependencies -->
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
@@ -20,14 +24,14 @@
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-mocks</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
-            <!-- for 2.0.6 compatibility, http://jira.codehaus.org/browse/MNG-2919 -->
         </dependency>
-        <!-- external dependencies -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -45,36 +49,22 @@
             <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-        </dependency>
-        <!-- generic DAO -->
-        <dependency>
-            <groupId>org.sakaiproject.genericdao</groupId>
-            <artifactId>generic-dao</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>reflectutils</artifactId>
-        </dependency>
-        <!-- testing -->
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-servlet-tester</artifactId>
-            <scope>test</scope>
+            <version>${reflectutils.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -84,9 +74,7 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <scope>test</scope>
         </dependency>
-        <!-- Kernel dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
@@ -103,46 +91,28 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-test</artifactId>
+        </dependency>
     </dependencies>
+
     <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/ddl</directory>
-                <includes>
-                    <include>**/*.sql</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/resources</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.sakaiproject.maven.plugins</groupId>
+                <artifactId>sakai</artifactId>
+                <configuration>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
         <testResources>
             <testResource>
-                <directory>${basedir}/src/ddl</directory>
-                <includes>
-                    <include>**/*.sql</include>
-                </includes>
+                <directory>src/test/resources</directory>
             </testResource>
             <testResource>
-                <directory>${basedir}/src/test</directory>
-                <includes>
-                    <include>database-test.xml</include>
-                    <include>database.properties</include>
-                    <include>log4j2.properties</include>
-                </includes>
+                <directory>src/main/webapp</directory>
             </testResource>
         </testResources>
     </build>

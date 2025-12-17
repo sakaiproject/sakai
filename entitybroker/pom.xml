@@ -19,100 +19,33 @@
         (easier to use and understand) and more powerful (easier to extend and improve).
         The Entity Broker integrates seamlessly with the existing Entity system in Sakai
         (Entity Producers and Entities) and entities created using entity providers are
-        accessible in Sakai as if they were created using the legacy system. Send feedback
-        or comments to Aaron Zeckoski (azeckoski@gmail.com, aaronz@vt.edu).
+        accessible in Sakai as if they were created using the legacy system.
   </description>
   <properties>
-    <easymock.version>2.0</easymock.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
   <modules>
     <module>api</module>
     <module>impl</module>
-    <module>rest</module>
     <module>tool</module>
-    <module>pack</module>
     <module>mocks</module>
     <module>utils</module>
-    <module>core-providers</module>
   </modules>
-  <developers>
-    <developer>
-      <id>aaronz@vt.edu</id>
-      <name>Aaron Zeckoski</name>
-      <email>aaron@caret.cam.ac.uk</email>
-      <url>http://confluence.sakaiproject.org/confluence/display/~aaronz</url>
-      <organization>CARET</organization>
-      <organizationUrl>http://www.caret.cam.ac.uk/</organizationUrl>
-      <roles>
-        <role>Project Manager</role>
-        <role>Architect</role>
-        <role>Developer</role>
-      </roles>
-      <timezone>0</timezone>
-    </developer>
-    <developer>
-      <id>amb26</id>
-      <name>Antranig Basman</name>
-      <email>antranig@caret.cam.ac.uk</email>
-      <url>http://ponder.org.uk</url>
-      <organization>CARET</organization>
-      <organizationUrl>http://www.caret.cam.ac.uk/</organizationUrl>
-      <roles>
-        <role>Developer</role>
-      </roles>
-      <timezone>0</timezone>
-    </developer>
-  </developers>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject.entitybroker</groupId>
-        <artifactId>entitybroker-api</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.entitybroker</groupId>
-        <artifactId>entitybroker-impl</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.entitybroker</groupId>
-        <artifactId>entitybroker-restimpl</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.entitybroker</groupId>
-        <artifactId>entitybroker-mocks</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.entitybroker</groupId>
-        <artifactId>entitybroker-utils</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <!-- IMPL dependencies -->
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>reflectutils</artifactId>
-        <version>${reflectutils.version}</version>
-      </dependency>
-      <!-- testing -->
-      <dependency>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty</artifactId>
-        <version>6.1.26</version>
-        <type>jar</type>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty-servlet-tester</artifactId>
-        <version>6.1.26</version>
-        <type>jar</type>
-        <scope>test</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+
+  <build>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources>
+  </build>
+
 </project>

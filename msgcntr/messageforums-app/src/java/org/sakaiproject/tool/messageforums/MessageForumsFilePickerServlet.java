@@ -43,9 +43,9 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.access.HttpServletAccessProvider;
-import org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager;
+import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
+import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.jsf2.util.JsfTool;
 import org.sakaiproject.util.Web;
@@ -57,14 +57,14 @@ import org.sakaiproject.tool.api.ToolException;
  * 
  */
 @Slf4j
-public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServletAccessProvider {
+public class MessageForumsFilePickerServlet extends JsfTool  implements EntityViewAccessProvider {
     private static final String HELPER_EXT = ".helper";
 
     private static final String HELPER_SESSION_PREFIX = "session.";
     
     private boolean initComplete = false;
     private SiteService siteService;
-    private HttpServletAccessProviderManager accessProviderManager;
+    private EntityViewAccessProviderManager accessProviderManager;
     private DiscussionForumManager forumManager;
 
     protected void dispatch(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -300,8 +300,8 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
       try {
         //load service level dependecies from the ComponentManager
         siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
-        accessProviderManager = (HttpServletAccessProviderManager) ComponentManager
-          .get("org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager");
+        accessProviderManager = (EntityViewAccessProviderManager) ComponentManager
+          .get("org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager");
         forumManager = (DiscussionForumManager) ComponentManager
           .get("org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager");
         
@@ -319,7 +319,7 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
       }
     }
 
-    public void handleAccess(HttpServletRequest req, HttpServletResponse res, EntityReference ref) {
+    public void handleAccess(EntityView view, HttpServletRequest req, HttpServletResponse res) {
         //don't bother if the user is not logged in
         if (req.getRemoteUser() == null) {
             try {

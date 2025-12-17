@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- providers which are supplied as part of the entity broker itself are defined here -->
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.UserEntityProvider">
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="profileService" ref="org.sakaiproject.profile2.api.ProfileService"/>
+    </bean>
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.SiteEntityProvider"
+          init-method="init">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="userEntityProvider" ref="org.sakaiproject.entitybroker.providers.UserEntityProvider"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="maxDepth" value="8"/>
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+        <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
+    </bean>
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.SessionEntityProvider">
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="authenticationManager" ref="org.sakaiproject.user.api.AuthenticationManager"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    </bean>
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.ServerConfigEntityProvider">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="clusterService" ref="org.sakaiproject.cluster.api.ClusterService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+    </bean>
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.MembershipEntityProvider"
+          init-method="init">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="userEntityProvider" ref="org.sakaiproject.entitybroker.providers.UserEntityProvider"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="userAuditRegistration"
+                  ref="org.sakaiproject.userauditservice.api.UserAuditRegistration.direct"/>
+    </bean>
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.ToolEntityProvider">
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+    </bean>
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.NotificationEntityProvider"
+          init-method="init">
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.external"
+          class="org.sakaiproject.entitybroker.providers.user.prefs.ExternalEmailUserNotificationPreferencesRegistrationImpl"
+          init-method="init">
+        <property name="userNotificationPreferencesRegistrationService" ref="org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService"/>
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+        <property name="bundleLocation" value="notify"/>
+        <property name="sectionTitleBundleKey" value="prefs_title"/>
+        <property name="sectionDescriptionBundleKey" value="prefs_description"/>
+        <property name="overrideSectionTitleBundleKey" value="prefs_title_override"/>
+        <property name="defaultValue" value="3"/>
+        <property name="type" value="sakai:external"/>
+        <property name="prefix" value="ext"/>
+        <property name="toolId" value="sakai.externalnoti"/>
+        <property name="rawOptions">
+            <map>
+                <entry key="1" value="prefs_opt1"/>
+                <entry key="2" value="prefs_opt2"/>
+                <entry key="3" value="prefs_opt3"/>
+            </map>
+        </property>
+        <property name="overrideBySite" value="false"/>
+        <property name="expandByDefault" value="true"/>
+    </bean>
+
+    <bean id="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          abstract="true"
+          init-method="init">
+        <property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+        <property name="cmAdmin" ref="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.entitybroker.providers.AcademicSessionEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.AcademicSessionEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.CanonicalCourseEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.CanonicalCourseEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.CourseOfferingEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.CourseOfferingEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.CourseSetEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.CourseSetEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.EnrollmentEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.EnrollmentEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.EnrollmentSetEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.EnrollmentSetEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.SectionEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.SectionEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.SectionCategoryEntityProvider"
+          parent="org.sakaiproject.entitybroker.providers.AbstractCmEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.SectionCategoryEntityProvider"/>
+
+    <bean id="org.sakaiproject.entitybroker.providers.IgniteEntityProvider"
+          parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.IgniteEntityProvider">
+
+        <property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite"/>
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+    </bean>
+
+</beans>
