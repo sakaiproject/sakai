@@ -104,6 +104,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -833,11 +835,20 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 	}
 
     public boolean deleteEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId) {
+        return deleteEvaluationForToolAndItemAndEvaluatedItemId(toolId, itemId, evaluatedItemId, null, siteId);
+    }
+
+    public boolean deleteEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String evaluatedItemOwnerId, String siteId) {
 
         ToolItemRubricAssociation association = associationRepository.findByToolIdAndItemId(toolId, itemId)
             .orElseThrow(() -> new IllegalArgumentException("No association for toolId " + toolId + " and itemId " + itemId));
 
-        int count = evaluationRepository.deleteByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId);
+        int count;
+        if (StringUtils.isNotBlank(evaluatedItemOwnerId)) {
+            count = evaluationRepository.deleteByAssociationIdAndEvaluatedItemIdAndOwner(association.getId(), evaluatedItemId, evaluatedItemOwnerId);
+        } else {
+            count = evaluationRepository.deleteByAssociationIdAndEvaluatedItemId(association.getId(), evaluatedItemId);
+        }
 
         return count == 1;
     }
@@ -864,93 +875,48 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
     }
 
 
+    @Transactional
     public EvaluationTransferBean saveEvaluation(EvaluationTransferBean evaluationBean, String siteId) {
 
         if (!canGrade(evaluationBean, siteId)) {
             throw new SecurityException("You must be an evaluator to evaluate rubrics");
         }
 
-        Evaluation evaluation;
         List<Long> newOutcomesCriterionIds = new ArrayList<>();
-        if (evaluationBean.getId() != null) {
-            evaluation = evaluationRepository.getById(evaluationBean.getId());
-
-            List<CriterionOutcome> outcomes = evaluation.getCriterionOutcomes();
-            List<Long> outcomeIds = outcomes.stream().map(CriterionOutcome::getCriterionId).collect(Collectors.toList());
-
-            for (CriterionOutcomeTransferBean outcomeBean : evaluationBean.getCriterionOutcomes()) {
-                Long beanCriterionId = outcomeBean.getCriterionId();
-                if (beanCriterionId == null) {
-                    // add
-                    CriterionOutcome outcome = new CriterionOutcome();
-                    outcome.setCriterionId(outcomeBean.getCriterionId());
-                    outcome.setPoints(outcomeBean.getPoints());
-                    outcome.setComments(outcomeBean.getComments());
-                    outcome.setPointsAdjusted(outcomeBean.getPointsAdjusted());
-                    outcome.setSelectedRatingId(outcomeBean.getSelectedRatingId());
-                    outcomes.add(outcome);
-                } else if (outcomeIds.contains(beanCriterionId)) {
-                    outcomes.stream().filter(i -> i.getCriterionId().equals(beanCriterionId)).findAny().ifPresent(o -> {
-                        // update
-                        o.setPoints(outcomeBean.getPoints());
-                        o.setComments(outcomeBean.getComments());
-                        o.setPointsAdjusted(outcomeBean.getPointsAdjusted());
-                        o.setSelectedRatingId(outcomeBean.getSelectedRatingId());
-                    });
-                    // criterion processed so remove it from the list
-                    outcomeIds.remove(beanCriterionId);
-                } else {
-                    log.info("An outcome with id: [{}], was not in the original list but now it appears (dynamic rubric)", beanCriterionId);
-
-                    CriterionOutcome outcome = new CriterionOutcome();
-                    outcome.setCriterionId(beanCriterionId);
-                    outcome.setPoints(outcomeBean.getPoints());
-                    outcome.setComments(outcomeBean.getComments());
-                    outcome.setPointsAdjusted(outcomeBean.getPointsAdjusted());
-                    outcome.setSelectedRatingId(outcomeBean.getSelectedRatingId());
-                    outcomes.add(outcome);
-                    newOutcomesCriterionIds.add(beanCriterionId);
-                }
-            }
-            // outcomeIds should be empty, if not the db contained outcomes not reported in the ui so remove them
-            outcomes.removeIf(o -> outcomeIds.contains(o.getCriterionId()));
+        Evaluation evaluation = resolveEvaluationForUpdate(evaluationBean);
+        if (evaluation.getId() != null) {
+            mergeCriterionOutcomes(evaluation, evaluationBean, newOutcomesCriterionIds);
         } else {
-            evaluation = new Evaluation();
-            evaluation.getCriterionOutcomes().addAll(evaluationBean.getCriterionOutcomes().stream().map(o -> {
-                CriterionOutcome outcome = new CriterionOutcome();
-                outcome.setCriterionId(o.getCriterionId());
-                outcome.setPoints(o.getPoints());
-                outcome.setComments(o.getComments());
-                outcome.setPointsAdjusted(o.getPointsAdjusted());
-                outcome.setSelectedRatingId(o.getSelectedRatingId());
-                return outcome;
-            }).collect(Collectors.toList()));
+            applyOutcomesToNewEvaluation(evaluation, evaluationBean);
         }
+        applyEvaluationFields(evaluation, evaluationBean, siteId);
 
-        // only set these once
-        if (StringUtils.isBlank(evaluation.getCreatorId())) evaluation.setCreatorId(userDirectoryService.getCurrentUser().getId());
-        if (evaluation.getCreated() == null) evaluation.setCreated(Instant.now());
-        if (StringUtils.isBlank(evaluation.getOwnerId())) evaluation.setOwnerId(siteId);
-        if (evaluation.getAssociationId() == null) evaluation.setAssociationId(evaluationBean.getAssociationId());
-
-        // set these on each save
-        evaluation.setEvaluatorId(evaluationBean.getEvaluatorId());
-        evaluation.setEvaluatedItemId(evaluationBean.getEvaluatedItemId());
-        evaluation.setEvaluatedItemOwnerId(evaluationBean.getEvaluatedItemOwnerId());
-        evaluation.setOverallComment(evaluationBean.getOverallComment());
-        evaluation.setStatus(evaluationBean.getStatus());
-        evaluation.setEvaluatedItemOwnerType(evaluationBean.getEvaluatedItemOwnerType());
-        evaluation.setModified(Instant.now());
-
-        Evaluation savedEvaluation = evaluationRepository.save(evaluation);
+        Evaluation savedEvaluation;
+        try {
+            savedEvaluation = evaluationRepository.save(evaluation);
+        } catch (DataIntegrityViolationException dive) {
+            if (isConstraintViolation(dive) && evaluationBean.getId() == null) {
+                Evaluation lockedEvaluation = evaluationRepository
+                    .findByAssociationIdAndEvaluatedItemIdAndOwnerForUpdate(
+                        evaluationBean.getAssociationId(), evaluationBean.getEvaluatedItemId(), evaluationBean.getEvaluatedItemOwnerId())
+                    .orElseThrow(() -> dive);
+                mergeCriterionOutcomes(lockedEvaluation, evaluationBean, newOutcomesCriterionIds);
+                applyEvaluationFields(lockedEvaluation, evaluationBean, siteId);
+                savedEvaluation = evaluationRepository.save(lockedEvaluation);
+            } else {
+                throw dive;
+            }
+        }
 
         // If this evaluation has been returned, back it up.
         if (savedEvaluation.getStatus() == EvaluationStatus.RETURNED) {
+            final List<Long> newOutcomesForReturn = new ArrayList<>(newOutcomesCriterionIds);
+            final Evaluation persistedEvaluation = savedEvaluation;
 
             ReturnedEvaluation returnedEvaluation = returnedEvaluationRepository.findByOriginalEvaluationId(evaluation.getId())
                 .map(re -> {
-                    re.setOverallComment(savedEvaluation.getOverallComment());
-                    Map<Long, CriterionOutcome> outcomes = savedEvaluation.getCriterionOutcomes().stream()
+                    re.setOverallComment(persistedEvaluation.getOverallComment());
+                    Map<Long, CriterionOutcome> outcomes = persistedEvaluation.getCriterionOutcomes().stream()
                             .collect(Collectors.toMap(CriterionOutcome::getCriterionId, co -> co));
                     re.getCriterionOutcomes().removeIf(o -> outcomes.get(o.getCriterionId()) == null);
                     re.getCriterionOutcomes().forEach(rco -> {
@@ -960,8 +926,11 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                         rco.setPoints(o.getPoints());
                         rco.setComments(o.getComments());
                     });
-                    if (!newOutcomesCriterionIds.isEmpty()) {
-                        savedEvaluation.getCriterionOutcomes().stream().filter(o -> newOutcomesCriterionIds.contains(o.getCriterionId())).findAny().ifPresent(o -> {
+                    if (!newOutcomesForReturn.isEmpty()) {
+                        persistedEvaluation.getCriterionOutcomes().stream()
+                            .filter(o -> newOutcomesForReturn.contains(o.getCriterionId()))
+                            .findAny()
+                            .ifPresent(o -> {
                             ReturnedCriterionOutcome rco = new ReturnedCriterionOutcome(o);
                             re.getCriterionOutcomes().add(rco);
                         });
@@ -969,10 +938,10 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
                     return re;
                 }).orElseGet(() -> {
                     ReturnedEvaluation re = new ReturnedEvaluation();
-                    re.setOverallComment(savedEvaluation.getOverallComment());
-                    re.setOriginalEvaluationId(savedEvaluation.getId());
+                    re.setOverallComment(persistedEvaluation.getOverallComment());
+                    re.setOriginalEvaluationId(persistedEvaluation.getId());
                     List<ReturnedCriterionOutcome> criterionOutcomes = re.getCriterionOutcomes();
-                    savedEvaluation.getCriterionOutcomes().forEach(co -> {
+                    persistedEvaluation.getCriterionOutcomes().forEach(co -> {
                         ReturnedCriterionOutcome rco = new ReturnedCriterionOutcome(co);
                         criterionOutcomes.add(rco);
                     });
@@ -981,6 +950,86 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             returnedEvaluationRepository.save(returnedEvaluation);
         }
         return new EvaluationTransferBean(savedEvaluation);
+    }
+
+    private Evaluation resolveEvaluationForUpdate(EvaluationTransferBean evaluationBean) {
+        if (evaluationBean.getId() != null) {
+            return evaluationRepository.getById(evaluationBean.getId());
+        }
+
+        return evaluationRepository
+            .findByAssociationIdAndEvaluatedItemIdAndOwnerForUpdate(
+                evaluationBean.getAssociationId(), evaluationBean.getEvaluatedItemId(), evaluationBean.getEvaluatedItemOwnerId())
+            .orElseGet(Evaluation::new);
+    }
+
+    private void applyOutcomesToNewEvaluation(Evaluation evaluation, EvaluationTransferBean evaluationBean) {
+        evaluation.getCriterionOutcomes().clear();
+        evaluationBean.getCriterionOutcomes().forEach(o -> {
+            CriterionOutcome outcome = new CriterionOutcome();
+            copyCriterionOutcome(o, outcome);
+            evaluation.getCriterionOutcomes().add(outcome);
+        });
+    }
+
+    private void mergeCriterionOutcomes(Evaluation evaluation, EvaluationTransferBean evaluationBean, List<Long> newOutcomesCriterionIds) {
+        newOutcomesCriterionIds.clear();
+        List<CriterionOutcome> outcomes = evaluation.getCriterionOutcomes();
+        List<Long> outcomeIds = outcomes.stream().map(CriterionOutcome::getCriterionId).collect(Collectors.toList());
+
+        for (CriterionOutcomeTransferBean outcomeBean : evaluationBean.getCriterionOutcomes()) {
+            Long beanCriterionId = outcomeBean.getCriterionId();
+            if (beanCriterionId == null) {
+                CriterionOutcome outcome = new CriterionOutcome();
+                copyCriterionOutcome(outcomeBean, outcome);
+                outcomes.add(outcome);
+            } else if (outcomeIds.contains(beanCriterionId)) {
+                outcomes.stream().filter(i -> i.getCriterionId().equals(beanCriterionId)).findAny().ifPresent(o -> copyCriterionOutcome(outcomeBean, o));
+                outcomeIds.remove(beanCriterionId);
+            } else {
+                log.info("An outcome with id: [{}], was not in the original list but now it appears (dynamic rubric)", beanCriterionId);
+
+                CriterionOutcome outcome = new CriterionOutcome();
+                copyCriterionOutcome(outcomeBean, outcome);
+                outcomes.add(outcome);
+                newOutcomesCriterionIds.add(beanCriterionId);
+            }
+        }
+        outcomes.removeIf(o -> outcomeIds.contains(o.getCriterionId()));
+    }
+
+    private void copyCriterionOutcome(CriterionOutcomeTransferBean outcomeBean, CriterionOutcome outcome) {
+        outcome.setCriterionId(outcomeBean.getCriterionId());
+        outcome.setPoints(outcomeBean.getPoints());
+        outcome.setComments(outcomeBean.getComments());
+        outcome.setPointsAdjusted(outcomeBean.getPointsAdjusted());
+        outcome.setSelectedRatingId(outcomeBean.getSelectedRatingId());
+    }
+
+    private void applyEvaluationFields(Evaluation evaluation, EvaluationTransferBean evaluationBean, String siteId) {
+        if (StringUtils.isBlank(evaluation.getCreatorId())) evaluation.setCreatorId(userDirectoryService.getCurrentUser().getId());
+        if (evaluation.getCreated() == null) evaluation.setCreated(Instant.now());
+        if (StringUtils.isBlank(evaluation.getOwnerId())) evaluation.setOwnerId(siteId);
+        if (evaluation.getAssociationId() == null) evaluation.setAssociationId(evaluationBean.getAssociationId());
+
+        evaluation.setEvaluatorId(evaluationBean.getEvaluatorId());
+        evaluation.setEvaluatedItemId(evaluationBean.getEvaluatedItemId());
+        evaluation.setEvaluatedItemOwnerId(evaluationBean.getEvaluatedItemOwnerId());
+        evaluation.setOverallComment(evaluationBean.getOverallComment());
+        evaluation.setStatus(evaluationBean.getStatus());
+        evaluation.setEvaluatedItemOwnerType(evaluationBean.getEvaluatedItemOwnerType());
+        evaluation.setModified(Instant.now());
+    }
+
+    private boolean isConstraintViolation(Throwable error) {
+        Throwable cause = error;
+        while (cause != null) {
+            if (cause instanceof ConstraintViolationException) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
     public EvaluationTransferBean cancelDraftEvaluation(Long draftEvaluationId) {

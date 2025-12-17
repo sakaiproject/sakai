@@ -27,6 +27,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -34,6 +35,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import org.hibernate.SessionFactory;
@@ -827,6 +833,73 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
         when(userDirectoryService.getUser("user1")).thenReturn(user1User);
         String filename = rubricsService.createContextualFilename(rubric, toolId, toolItem1, evaluation1.getEvaluatedItemId(), siteId);
         assertEquals(rubric.getTitle() + '_' + user1SortName, filename);
+    }
+
+    @Test
+    public void concurrentSaveSameEvaluationKeepsSingleRow() throws Exception {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = "sakai.assignment";
+        String toolItemId = "item-concurrent";
+        Map<String, String> rbcsParams = new HashMap<>();
+        rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        rbcsParams.put(RubricsConstants.RBCS_LIST, rubric.getId().toString());
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams)
+            .orElseThrow(() -> new IllegalStateException("Association not created"));
+
+        EvaluationTransferBean eval1 = buildEvaluation(association.getId(), rubric, toolItemId);
+        EvaluationTransferBean eval2 = buildEvaluation(association.getId(), rubric, toolItemId);
+
+        CountDownLatch startLatch = new CountDownLatch(1);
+        ExecutorService exec = Executors.newFixedThreadPool(2);
+        Callable<EvaluationTransferBean> task1 = () -> {
+            startLatch.await();
+            return rubricsService.saveEvaluation(eval1, siteId);
+        };
+        Callable<EvaluationTransferBean> task2 = () -> {
+            startLatch.await();
+            return rubricsService.saveEvaluation(eval2, siteId);
+        };
+
+        Future<EvaluationTransferBean> f1 = exec.submit(task1);
+        Future<EvaluationTransferBean> f2 = exec.submit(task2);
+        startLatch.countDown();
+
+        EvaluationTransferBean saved1 = f1.get();
+        EvaluationTransferBean saved2 = f2.get();
+
+        assertNotNull(saved1);
+        assertNotNull(saved2);
+        List<Evaluation> evaluations = evaluationRepository.findByAssociationId(association.getId());
+        assertEquals(1, evaluations.size());
+        assertTrue(evaluationRepository.findByAssociationIdAndEvaluatedItemIdAndOwner(association.getId(), toolItemId, user2).isPresent());
+
+        exec.shutdownNow();
+    }
+
+    @Test
+    public void findByAssociationIdAndEvaluatedItemIdHandlesMultipleOwners() {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = "sakai.assignment";
+        String toolItemId = "item-duplicates";
+        Map<String, String> rbcsParams = new HashMap<>();
+        rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        rbcsParams.put(RubricsConstants.RBCS_LIST, rubric.getId().toString());
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams)
+            .orElseThrow(() -> new IllegalStateException("Association not created"));
+
+        EvaluationTransferBean evalUser2 = buildEvaluation(association.getId(), rubric, toolItemId);
+        EvaluationTransferBean evalUser3 = buildEvaluation(association.getId(), rubric, toolItemId);
+        evalUser3.setEvaluatedItemOwnerId(user3);
+
+        rubricsService.saveEvaluation(evalUser2, siteId);
+        rubricsService.saveEvaluation(evalUser3, siteId);
+
+        Optional<Evaluation> opt = evaluationRepository.findByAssociationIdAndEvaluatedItemId(association.getId(), toolItemId);
+        assertTrue(opt.isPresent());
+        assertTrue(Arrays.asList(user2, user3).contains(opt.get().getEvaluatedItemOwnerId()));
+        assertEquals(2, evaluationRepository.findByAssociationId(association.getId()).size());
     }
 
     @Test

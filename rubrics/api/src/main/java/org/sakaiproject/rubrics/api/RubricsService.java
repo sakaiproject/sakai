@@ -108,6 +108,7 @@ public interface RubricsService extends EntityProducer {
     Optional<EvaluationTransferBean> getEvaluationForToolAndItemAndEvaluatedItemAndOwnerId(String toolId, String itemId, String evaluatedItemId, String evaluatedItemOwnerId, String siteId, boolean isPeer);
 
     boolean deleteEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String siteId);
+    boolean deleteEvaluationForToolAndItemAndEvaluatedItemId(String toolId, String itemId, String evaluatedItemId, String evaluatedItemOwnerId, String siteId);
 
     List<EvaluationTransferBean> getEvaluationsForToolAndItem(String toolId, String itemId, String siteId);
 

@@ -29,6 +29,9 @@ import org.sakaiproject.rubrics.api.model.Evaluation;
 import org.sakaiproject.rubrics.api.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.api.repository.EvaluationRepository;
 import org.sakaiproject.springframework.data.SpringCrudRepositoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import javax.persistence.LockModeType;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
@@ -36,9 +39,12 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 
+import org.hibernate.NonUniqueResultException;
 import org.hibernate.Session;
 
 public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluation, Long> implements EvaluationRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(EvaluationRepositoryImpl.class);
 
     public List<Evaluation> findByAssociationId(Long associationId) {
 
@@ -62,7 +68,12 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
                             cb.equal(eval.get("evaluatedItemId"), evaluatedItemId)));
 
-        return session.createQuery(query).uniqueResultOptional();
+        try {
+            return session.createQuery(query).uniqueResultOptional();
+        } catch (NonUniqueResultException e) {
+            log.warn("Found multiple evaluations for associationId {} and evaluatedItemId {}. Returning the first result.", associationId, evaluatedItemId);
+            return session.createQuery(query).setMaxResults(1).uniqueResultOptional();
+        }
     }
 
     public Optional<Evaluation> findByAssociationIdAndEvaluatedItemIdAndOwner(Long associationId, String evaluatedItemId, String evaluatedItemOwnerId) {
@@ -77,6 +88,22 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
                             cb.equal(eval.get("evaluatedItemOwnerId"), evaluatedItemOwnerId)));
 
         return session.createQuery(query).uniqueResultOptional();
+    }
+
+    public Optional<Evaluation> findByAssociationIdAndEvaluatedItemIdAndOwnerForUpdate(Long associationId, String evaluatedItemId, String evaluatedItemOwnerId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Evaluation> query = cb.createQuery(Evaluation.class);
+        Root<Evaluation> eval = query.from(Evaluation.class);
+        query.where(cb.and(cb.equal(eval.get("associationId"), associationId),
+                            cb.equal(eval.get("evaluatedItemId"), evaluatedItemId),
+                            cb.equal(eval.get("evaluatedItemOwnerId"), evaluatedItemOwnerId)));
+
+        return session.createQuery(query)
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .uniqueResultOptional();
     }
 
     public Optional<Evaluation> findByAssociationIdAndUserId(Long associationId, String userId) {
@@ -103,6 +130,20 @@ public class EvaluationRepositoryImpl extends SpringCrudRepositoryImpl<Evaluatio
         Root<Evaluation> eval = delete.from(Evaluation.class);
         delete.where(cb.and(cb.equal(eval.get("associationId"), associationId),
                             cb.equal(eval.get("evaluatedItemId"), evaluatedItemId)));
+
+        return session.createQuery(delete).executeUpdate();
+    }
+
+    public int deleteByAssociationIdAndEvaluatedItemIdAndOwner(Long associationId, String evaluatedItemId, String evaluatedItemOwnerId) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<Evaluation> delete = cb.createCriteriaDelete(Evaluation.class);
+        Root<Evaluation> eval = delete.from(Evaluation.class);
+        delete.where(cb.and(cb.equal(eval.get("associationId"), associationId),
+                            cb.equal(eval.get("evaluatedItemId"), evaluatedItemId),
+                            cb.equal(eval.get("evaluatedItemOwnerId"), evaluatedItemOwnerId)));
 
         return session.createQuery(delete).executeUpdate();
     }
