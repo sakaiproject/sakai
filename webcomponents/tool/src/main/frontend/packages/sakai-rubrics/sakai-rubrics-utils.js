@@ -72,6 +72,8 @@ window.top.rubrics.utils = window.top.rubrics.utils || {
         el.setAttribute("force-preview", "");
       } else {
         el.removeAttribute("force-preview");
+        // If a dropdown menu of views can be selected, initialize the view with the Grading Rubric
+        el.displayGradingTab();
       }
       el.setAttribute("tool-id", attributes["tool-id"]);
       el.setAttribute("entity-id", attributes["entity-id"]);
