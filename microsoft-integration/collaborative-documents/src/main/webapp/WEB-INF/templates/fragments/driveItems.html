@@ -57,7 +57,7 @@
 			<span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
-			<li class="dropdown-item" th:if="${allowCreateFolders}"><a href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).FOLDER}]])" th:text="#{create.folder}" th:aria-label="#{create.folder}">Folder</a></li>
+			<li th:if="${allowCreateFolders}"><a class="dropdown-item" href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).FOLDER}]])" th:text="#{create.folder}" th:aria-label="#{create.folder}">Folder</a></li>
 			<li th:if="${allowCreateFolders} and ${allowCreateFiles}"><hr class="dropdown-divider" /></li>
 			<li th:if="${allowCreateFiles}"><a class="dropdown-item" href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).DOC_WORD}]])" th:text="#{create.word}" th:aria-label="#{create.word}">Word</a></li>
 			<li th:if="${allowCreateFiles}"><a class="dropdown-item" href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).DOC_EXCEL}]])" th:text="#{create.excel}" th:aria-label="#{create.excel}">Excel</a></li>
