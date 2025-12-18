@@ -107,6 +107,16 @@
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="scormResourceService" ref="org.sakaiproject.scorm.service.api.ScormResourceService" />
-		<property name="gradingService" ref="org.sakaiproject.grading.api.GradingService" />
+		<property name="gradingService">
+			<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" lazy-init="true">
+				<property name="targetClass" value="org.sakaiproject.component.cover.ComponentManager" />
+				<property name="targetMethod" value="get" />
+				<property name="arguments">
+					<list>
+						<value>org.sakaiproject.grading.api.GradingService</value>
+					</list>
+				</property>
+			</bean>
+		</property>
 	</bean>
 </beans>
