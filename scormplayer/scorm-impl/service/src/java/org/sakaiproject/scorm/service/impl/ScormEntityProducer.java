@@ -354,9 +354,6 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
     }
 
     private void copyGradebookSettings(String fromContext, String toContext, ContentPackage source, ContentPackage copy) {
-        if (gradingService == null) {
-            return;
-        }
 
         if (copy.getManifestId() == null) {
             return;
