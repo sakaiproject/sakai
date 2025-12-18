@@ -388,7 +388,7 @@ public class ScormEntityProducer implements EntityProducer, EntityTransferrer, H
                         sourceAssignment.getPoints(), copy.getDueOn(), ScormConstants.SCORM_DFLT_TOOL_NAME,
                         null, false, sourceAssignment.getCategoryId(), null);
             } catch (Exception e) {
-                log.warn("Could not copy gradebook item for SCO {}: {}", itemIdentifier, e.getMessage());
+                log.warn("Could not copy gradebook item for SCO {}: {}", itemIdentifier, e.toString());
             }
         }
     }
