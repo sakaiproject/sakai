@@ -44,10 +44,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -83,9 +80,7 @@ import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -94,7 +89,6 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -105,6 +99,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
@@ -120,9 +115,8 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.util.api.LinkMigrationHelper;
-import org.sakaiproject.grading.api.ConflictingAssignmentNameException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -133,12 +127,12 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.MergeConfig;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 import org.springframework.context.MessageSource;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
@@ -149,8 +143,6 @@ import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
-
-import org.sakaiproject.util.MergeConfig;
 
 /**
  * @author hedrick
@@ -1832,7 +1824,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					toolsReused.put(title, page.getPageId());
 					reused = true;
 				} else {
-					page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
+					// Create page with initial toolId, parent relationships will be set later
+					page = simplePageToolDao.makePage("0", siteId, title, null, null);
 					log.debug("Created new page {}", page.getPageId());
 				}
 
@@ -1897,7 +1890,83 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				pageElementMap.put(oldPageId, pageElement);
 			}
 
-			log.debug("Starting second pass over pages ({}) {} to create items", pageElementMap.size(), pageMap);
+			log.debug("Starting hierarchy calculation for {} pages", pageMap.size());
+
+			Map<Long, Long> calculatedParentMap = new HashMap<>();
+			Map<Long, Long> calculatedTopParentMap = new HashMap<>();
+
+			// Get parent-child relationships from source site
+			Map<Long, List<Long>> subpageRefs = findReferencedPagesByItems(fromSiteId);
+
+			// Build parent map from subpage references
+			for (Map.Entry<Long, List<Long>> entry : subpageRefs.entrySet()) {
+				Long oldParentPageId = entry.getKey();
+				List<Long> oldChildPageIds = entry.getValue();
+
+				if (!pageMap.containsKey(oldParentPageId)) continue;
+
+				for (Long oldChildPageId : oldChildPageIds) {
+					if (pageMap.containsKey(oldChildPageId)) {
+						calculatedParentMap.put(oldChildPageId, oldParentPageId);
+					}
+				}
+			}
+
+			// Calculate top parents by walking up the tree
+			for (Long pageId : calculatedParentMap.keySet()) {
+				Long currentPageId = pageId;
+				Long topParent = null;
+
+				while (calculatedParentMap.containsKey(currentPageId)) {
+					topParent = calculatedParentMap.get(currentPageId);
+					currentPageId = topParent;
+				}
+
+				if (topParent != null) {
+					calculatedTopParentMap.put(pageId, topParent);
+				}
+			}
+
+			// Apply calculated relationships to imported pages
+			int hierarchyUpdates = 0;
+			for (Map.Entry<Long, Long> entry : pageMap.entrySet()) {
+				Long oldPageId = entry.getKey();
+				Long newPageId = entry.getValue();
+
+				SimplePage page = simplePageToolDao.getPage(newPageId);
+				if (page == null) continue;
+
+				boolean updated = false;
+
+				// Set parent relationship
+				if (calculatedParentMap.containsKey(oldPageId)) {
+					Long oldParentId = calculatedParentMap.get(oldPageId);
+					Long newParentId = pageMap.get(oldParentId);
+					if (newParentId != null) {
+						page.setParent(newParentId);
+						updated = true;
+					}
+				}
+
+				// Set top parent relationship 
+				if (calculatedTopParentMap.containsKey(oldPageId)) {
+					Long oldTopParentId = calculatedTopParentMap.get(oldPageId);
+					Long newTopParentId = pageMap.get(oldTopParentId);
+					if (newTopParentId != null) {
+						page.setTopParent(newTopParentId);
+						updated = true;
+					}
+				}
+
+				if (updated) {
+					simplePageToolDao.quickUpdate(page);
+					hierarchyUpdates++;
+				}
+			}
+
+			if (hierarchyUpdates > 0) {
+				log.info("Updated page hierarchies for {} imported pages", hierarchyUpdates);
+			}
 
 			// Process pages we inserted (in PageElementMap) to create the items
 			boolean needFix = false;
@@ -2075,6 +2144,37 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				log.debug(result);
 				results.append(result);
 			}
+			
+			// Update toolIds for child pages
+			int toolIdUpdates = 0;
+			for (Map.Entry<Long, Long> entry : pageMap.entrySet()) {
+				Long oldPageId = entry.getKey();
+				Long newPageId = entry.getValue();
+				
+				// Only process child pages (those with topparent)
+				if (calculatedTopParentMap.containsKey(oldPageId)) {
+					Long oldTopParentId = calculatedTopParentMap.get(oldPageId);
+					Long newTopParentId = pageMap.get(oldTopParentId);
+					
+					if (newTopParentId != null) {
+						SimplePage page = simplePageToolDao.getPage(newPageId);
+						SimplePage topParentPage = simplePageToolDao.getPage(newTopParentId);
+						
+						if (page != null && topParentPage != null && topParentPage.getToolId() != null 
+							&& !topParentPage.getToolId().equals("0") && !topParentPage.getToolId().equals(page.getToolId())) {
+							page.setToolId(topParentPage.getToolId());
+							simplePageToolDao.quickUpdate(page);
+							toolIdUpdates++;
+							log.debug("Updated toolId {} for page {} from topparent {}", topParentPage.getToolId(), newPageId, newTopParentId);
+						}
+					}
+				}
+			}
+			
+			if (toolIdUpdates > 0) {
+				log.info("Updated toolIds for {} child pages", toolIdUpdates);
+			}
+			
 			results.append("merging lessonbuilder tool " + siteId + " (" + count + ") items.\n");
 		}
 		catch (DOMException e)
