@@ -31,10 +31,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.codec.binary.Base64;
@@ -50,6 +49,7 @@ import org.sakaiproject.component.api.ServerConfigurationService.ConfigurationPr
 import org.sakaiproject.component.impl.ConfigItemImpl;
 import org.sakaiproject.config.api.HibernateConfigItem;
 import org.sakaiproject.config.api.HibernateConfigItemDao;
+import org.sakaiproject.scheduling.api.SchedulingService;
 
 /**
  * KNL-1063
@@ -82,13 +82,12 @@ public class StoredConfigService implements ConfigurationListener, Configuration
     public static final String SAKAI_CONFIG_NEVER_PERSIST = "sakai.config.never.persist";
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-    private ScheduledExecutorService scheduler;
+    @Setter SchedulingService schedulingService;
+    @Setter ServerConfigurationService serverConfigurationService;
+    @Setter HibernateConfigItemDao dao;
+    @Setter PBEStringEncryptor textEncryptor;
 
-    private ServerConfigurationService serverConfigurationService;
-    private HibernateConfigItemDao dao;
-    private PBEStringEncryptor textEncryptor;
     private Set<String> neverPersistItems;
-
     private String node;
 
     public void init() {
@@ -126,10 +125,8 @@ public class StoredConfigService implements ConfigurationListener, Configuration
 
         if (serverConfigurationService.getBoolean(SAKAI_CONFIG_POLL_ENABLE, false)) {
             final int pollDelaySeconds = serverConfigurationService.getInt(SAKAI_CONFIG_POLL_SECONDS, 60);
-            // setup an ExecutorService
-            scheduler = Executors.newSingleThreadScheduledExecutor();
             // schedule task for every pollDelaySeconds
-            scheduler.scheduleWithFixedDelay(
+            schedulingService.scheduleWithFixedDelay(
                 new Runnable() {
                     ZonedDateTime pollDate;
                     @Override
@@ -141,13 +138,6 @@ public class StoredConfigService implements ConfigurationListener, Configuration
                 pollDelaySeconds, TimeUnit.SECONDS
             );
             log.info("{} is enabled and polling every {} seconds", SAKAI_CONFIG_POLL_ENABLE, pollDelaySeconds);
-        }
-    }
-
-    public void destroy() {
-        // terminate the scheduler
-        if (scheduler != null) {
-            scheduler.shutdown();
         }
     }
 
@@ -684,17 +674,4 @@ public class StoredConfigService implements ConfigurationListener, Configuration
 
         return string;
     }
-
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
-    public void setDao(HibernateConfigItemDao dao) {
-        this.dao = dao;
-    }
-
-    public void setTextEncryptor(PBEStringEncryptor textEncryptor) {
-        this.textEncryptor = textEncryptor;
-    }
-
 }

@@ -40,9 +40,10 @@
 
     <bean id="org.sakaiproject.config.impl.StoredConfigService"
           class="org.sakaiproject.config.impl.StoredConfigService"
-          init-method="init" destroy-method="destroy" lazy-init="false">
+          init-method="init" lazy-init="false">
 
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="schedulingService" ref="org.sakaiproject.scheduling.api.SchedulingService"/>
         <property name="dao" ref="org.sakaiproject.config.api.HibernateConfigItemDao"/>
         <property name="textEncryptor" ref="org.jasypt.encryption.pbe.PBEStringEncryptor"/>
     </bean>

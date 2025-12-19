@@ -28,13 +28,9 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Optional;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import java.io.InputStream;
@@ -106,6 +102,7 @@ import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.util.SakaiKeySetUtil;
 import org.tsugi.jackson.JacksonUtil;
 import org.sakaiproject.lti13.util.SakaiLaunchJWT;
+import org.sakaiproject.scheduling.api.SchedulingService;
 
 import org.tsugi.lti13.objects.LaunchJWT;
 import org.tsugi.lti13.LTI13Util;
@@ -149,12 +146,8 @@ public class PlusServiceImpl implements PlusService {
 	@Autowired private ServerConfigurationService serverConfigurationService;
 	@Autowired private SiteService siteService;
 	@Autowired private SecurityService securityService;
+	@Autowired private SchedulingService schedulingService;
 
-	/**
-	 * Context Synchronization Scheduler - this approach was inspired by
-	 * kernel-impl/src/main/java/org/sakaiproject/authz/impl/DbAuthzGroupService.java
-	 */
-	private ScheduledExecutorService refreshScheduler;
 	private Map<String, String> refreshQueue;
 
 	/**
@@ -167,8 +160,7 @@ public class PlusServiceImpl implements PlusService {
 
 			long refreshTaskInterval = 60;
 
-			refreshScheduler = Executors.newSingleThreadScheduledExecutor();
-			refreshScheduler.scheduleWithFixedDelay(
+			schedulingService.scheduleWithFixedDelay(
 				new refreshContextMembershipsTask(),
 				120, // minimally wait 2 mins for sakai to start
 				refreshTaskInterval, // delay before running again
@@ -177,15 +169,6 @@ public class PlusServiceImpl implements PlusService {
 		} catch (Exception t) {
 			log.warn("init(): ", t);
 		}
-	}
-
-	/**
-	 * Returns to uninitialized state.
-	 */
-	public void destroy()
-	{
-		refreshScheduler.shutdown();
-		log.info(this +".destroy()");
 	}
 
 	/*

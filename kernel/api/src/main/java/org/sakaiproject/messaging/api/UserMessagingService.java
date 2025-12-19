@@ -62,7 +62,7 @@ public interface UserMessagingService {
     /**
      * @return the list of notifications for the current user
      */
-    public List<UserNotification> getNotifications();
+    public List<UserNotificationTransferBean> getNotifications();
 
     /**
      * Register a handler for broadcast messages. The first registered handler that

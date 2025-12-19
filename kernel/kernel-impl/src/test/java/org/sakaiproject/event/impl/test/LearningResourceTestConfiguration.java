@@ -42,6 +42,7 @@ import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.log.api.LogConfigurationManager;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -196,4 +197,8 @@ public class LearningResourceTestConfiguration {
         return mock(LearningResourceStoreService.class);
     }
 
+    @Bean(name = "org.sakaiproject.scheduling.api.SchedulingService")
+    public SchedulingService schedulingService() {
+        return mock(SchedulingService.class);
+    }
 }

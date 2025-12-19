@@ -15,10 +15,15 @@
  */
 package org.sakaiproject.messaging.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.time.Duration;
 
-@AllArgsConstructor @Getter
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Data;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class UserNotificationData {
 
     private String from;
@@ -27,4 +32,6 @@ public class UserNotificationData {
     private String title;
     private String url;
     private String commonToolId;
+    private boolean broadcast;
+    private Duration ttl;
 }

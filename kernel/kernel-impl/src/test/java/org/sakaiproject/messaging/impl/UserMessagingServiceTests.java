@@ -169,7 +169,7 @@ public class UserMessagingServiceTests extends SakaiTests {
 
         userMessagingService.subscribeToPush(endpoint, auth, userKey, fingerprint);
 
-        UserNotificationData und = new UserNotificationData(student, instructor, "site1", "New Assignment", "http://nothing.com", "sakai.tool");
+        UserNotificationData und = new UserNotificationData(student, instructor, "site1", "New Assignment", "http://nothing.com", "sakai.tool", false, null);
 
         Observable noop = new Observable();
 
