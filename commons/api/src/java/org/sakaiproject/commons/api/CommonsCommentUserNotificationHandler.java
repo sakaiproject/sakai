@@ -91,7 +91,7 @@ public class CommonsCommentUserNotificationHandler extends AbstractUserNotificat
 
             // First, send an alert to the post author
             if (!commentCreator.equals(postCreator)) {
-                bhEvents.add(new UserNotificationData(commentCreator, postCreator, siteId, siteTitle, url, CommonsConstants.TOOL_ID));
+                bhEvents.add(new UserNotificationData(commentCreator, postCreator, siteId, siteTitle, url, CommonsConstants.TOOL_ID, false, null));
             }
 
             List<String> sentAlready = new ArrayList<>();
@@ -107,7 +107,7 @@ public class CommonsCommentUserNotificationHandler extends AbstractUserNotificat
                 }
 
                 if (!sentAlready.contains(to)) {
-                    bhEvents.add(new UserNotificationData(commentCreator, to, siteId, siteTitle, url, CommonsConstants.TOOL_ID));
+                    bhEvents.add(new UserNotificationData(commentCreator, to, siteId, siteTitle, url, CommonsConstants.TOOL_ID, false, null));
                     sentAlready.add(to);
                 }
             }

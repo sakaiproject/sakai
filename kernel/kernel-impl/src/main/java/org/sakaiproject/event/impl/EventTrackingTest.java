@@ -28,6 +28,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 
@@ -87,6 +88,14 @@ public class EventTrackingTest extends ClusterEventTracking
 	 * @return the SecurityService collaborator.
 	 */
 	protected SecurityService securityService()
+	{
+		return null;
+	}
+
+	/**
+	 * @return the SchedulingService collaborator.
+	 */
+	protected SchedulingService schedulingService()
 	{
 		return null;
 	}

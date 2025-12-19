@@ -39,8 +39,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +60,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseDbFlatStorage;
@@ -126,6 +125,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	protected boolean m_promoteUsersToProvided = true;
 	protected boolean m_promoteUsersToProvidedRole = false;
 	private MemoryService m_memoryService;
+
+	protected abstract SchedulingService schedulingService();
+
 	// KNL-600 CACHING for the realm role groups
 	private Cache m_realmRoleGRCache;
 	
@@ -150,9 +152,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	 * if threshold is reached delay processing the queue
 	 */
 	private long refreshMaxTime = 15;
-
-	/** Executor used to schedule processing */
-	private ScheduledExecutorService refreshScheduler;
 
 	/** Queue of authzgroups to refresh used by refreshAuthzGroupTask */
 	private Map<String, AuthzGroup> refreshQueue;
@@ -289,8 +288,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
             refreshQueue = Collections.synchronizedMap(new LinkedHashMap<>());
 
-            refreshScheduler = Executors.newSingleThreadScheduledExecutor();
-            refreshScheduler.scheduleWithFixedDelay(
+            schedulingService().scheduleWithFixedDelay(
                 new RefreshAuthzGroupTask(),
                 120, // minimally wait 2 mins for sakai to start
                 refreshTaskInterval, // delay before running again
@@ -325,8 +323,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	*/
 	public void destroy()
 	{
-		refreshScheduler.shutdown();
-
 		// done with event watching
 		eventTrackingService().deleteObserver(this);
 

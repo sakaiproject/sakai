@@ -18,7 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.messaging.api.UserMessagingService;
-import org.sakaiproject.messaging.api.model.UserNotification;
+import org.sakaiproject.messaging.api.UserNotificationTransferBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -62,7 +62,7 @@ public class SitesController extends AbstractSakaiApiController {
 		checkSakaiSession();
 
         List<String> pinnedSites = portalService.getPinnedSites();
-        List<UserNotification> notifications = userMessagingService.getNotifications();
+        List<UserNotificationTransferBean> notifications = userMessagingService.getNotifications();
 
         return Map.of(
             "terms", cmService.getAcademicSessions().stream().map(as -> {
@@ -74,7 +74,7 @@ public class SitesController extends AbstractSakaiApiController {
                         return null;
                     }
 
-                    List<UserNotification> siteNotifications = notifications.stream().filter(n -> StringUtils.equals(n.getSiteId(), s.getId())).collect(Collectors.toList());
+                    List<UserNotificationTransferBean> siteNotifications = notifications.stream().filter(n -> StringUtils.equals(n.siteId, s.getId())).collect(Collectors.toList());
 
                     Map<String, Object> site = new HashMap<>();
                     site.put("siteId", s.getId());
@@ -96,7 +96,7 @@ public class SitesController extends AbstractSakaiApiController {
                             if (tools.get(0).getTool() == null) return null;
                             String url = serverConfigurationService.getPortalUrl() + "/site/" + s.getId() + "/tool/" + tools.get(0).getId();
                             String commonToolId = tools.get(0).getTool().getId();
-                            boolean hasAlerts = siteNotifications.stream().anyMatch(sn -> !sn.getViewed() && StringUtils.equals(sn.getTool(), commonToolId));
+                            boolean hasAlerts = siteNotifications.stream().anyMatch(sn -> !sn.viewed && StringUtils.equals(sn.tool, commonToolId));
                             return Map.of("id", commonToolId, "title", sp.getTitle(), "url", url, "iconClass", "si-" + commonToolId.replace(".", "-"), "hasAlerts", hasAlerts);
                         }).filter(Objects::nonNull).collect(Collectors.toList()));
 
