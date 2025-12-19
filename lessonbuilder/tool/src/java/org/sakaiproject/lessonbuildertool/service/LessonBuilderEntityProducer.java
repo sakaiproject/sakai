@@ -576,6 +576,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// Orphaned pages need not apply!
 		SimplePageBean simplePageBean = makeSimplePageBean(siteId);
 		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
+		
+		Map<Long, List<Long>> pageToReferencedPages = findReferencedPagesByItems(siteId);
 
 		Set<Long> originalSelectedPageIds = new HashSet<>();
 		Set<Long> selectedPageIds = new HashSet<>();
@@ -591,7 +593,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 			}
 			// Expand selection to include all descendant pages
-			selectedPageIds = expandSelectionToIncludeDescendants(selectedPageIds, siteId);
+			selectedPageIds = expandSelectionToIncludeDescendants(selectedPageIds, siteId, orphanFinder, pageToReferencedPages);
 		}
 
 		try
@@ -629,7 +631,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			int count = 0;
 			if (hasSelection) {
-				Set<Long> topLevelSelectedPages = findTopLevelSelectedPages(originalSelectedPageIds, selectedPageIds, siteId);
+				Set<Long> topLevelSelectedPages = findTopLevelSelectedPages(originalSelectedPageIds, selectedPageIds, siteId, pageToReferencedPages);
 				// Filter out top-level selections that are orphans (not exported as pages)
 				List<Long> orderedTopLevelPages = new ArrayList<>();
 				for (Long id : topLevelSelectedPages) {
@@ -709,17 +711,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	 * Expands the selected page IDs to include all descendant pages
 	 * Only includes referenced subpages if the parent page is valid (not orphaned)
 	 */
-	private Set<Long> expandSelectionToIncludeDescendants(Set<Long> selectedPageIds, String siteId) {
+	private Set<Long> expandSelectionToIncludeDescendants(Set<Long> selectedPageIds, String siteId, OrphanPageFinder orphanFinder, Map<Long, List<Long>> pageToReferencedPages) {
 		if (selectedPageIds.isEmpty()) return selectedPageIds;
 
 		Set<Long> expandedIds = new HashSet<>(selectedPageIds);
 		List<SimplePage> allPages = simplePageToolDao.getSitePages(siteId);
 
 		if (allPages == null || allPages.isEmpty()) return expandedIds;
-
-		// Create OrphanPageFinder to filter out pages that should not be included
-		SimplePageBean simplePageBean = makeSimplePageBean(siteId);
-		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
 
 		// Build parent-child relationships based on the parent field
 		Map<Long, List<Long>> parentToChildren = new HashMap<>();
@@ -730,9 +728,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 					.add(page.getPageId());
 			}
 		}
-
-		// Build relationships based on page items of type page (subpages referenced in content)
-		Map<Long, List<Long>> pageToReferencedPages = findReferencedPagesByItems(siteId);
 
 		Queue<Long> toProcess = new LinkedList<>(selectedPageIds);
 
@@ -898,11 +893,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	 * Finds the top-level pages that should become new Lessons from the selected pages
 	 * Only considers pages that were originally selected by the user, not those added automatically as references
 	 */
-	private Set<Long> findTopLevelSelectedPages(Set<Long> originalSelectedPageIds, Set<Long> allSelectedPageIds, String siteId) {
+	private Set<Long> findTopLevelSelectedPages(Set<Long> originalSelectedPageIds, Set<Long> allSelectedPageIds, String siteId, Map<Long, List<Long>> pageToReferencedPages) {
 		Set<Long> topLevelPages = new HashSet<>();
-		
-		// Get referenced pages relationships to check if a page is referenced by another selected page
-		Map<Long, List<Long>> pageToReferencedPages = findReferencedPagesByItems(siteId);
 		Set<Long> referencedBySelectedPages = new HashSet<>();
 		
 		// Find all pages that are referenced by originally selected pages
