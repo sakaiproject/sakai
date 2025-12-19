@@ -30,7 +30,7 @@ The source build uses a multi-stage build, building an intermediate image with J
 
 To build from source use these steps:
  1. From this folder
- 1. Execute `docker build --build-arg release=master -t sakai -f ./Dockerfile.source .` substituting "master" for the branch/tag you wish to build
+ 1. Execute `docker build --build-arg release=master -t sakai .` substituting "master" for the branch/tag you wish to build
  1. Upon completion you can execute `docker image ls sakai` to verify it's creation
     *     $ docker image ls sakai
           REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
@@ -38,7 +38,7 @@ To build from source use these steps:
 
 If you want to checkout a different repository, use
 
- 1. ``docker build --build-arg repository=https://github.com/adrianfish/sakai.git --build-arg release=SAK-52129 -t sakai -f ./Dockerfile.source .``
+ 1. ``docker build --build-arg repo=https://github.com/adrianfish/sakai.git --build-arg release=SAK-52129 -t sakai .``
 # Running this image
 
 ## Starting MariaDB/MySQL
