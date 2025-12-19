@@ -832,8 +832,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				newPage.setTopParent(topParentId);
 
 				// Set the toolId from the top-level page
-				if (parentPage != null && parentPage.getToolId() != null) {
-					newPage.setToolId(parentPage.getToolId());
+				SimplePage topParentPage = simplePageToolDao.getPage(topParentId);
+				if (topParentPage != null && topParentPage.getToolId() != null) {
+					newPage.setToolId(topParentPage.getToolId());
 				}
 			}
 
