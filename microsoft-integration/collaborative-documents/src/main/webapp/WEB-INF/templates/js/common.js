@@ -511,3 +511,34 @@ function activateBreadcrumb(elem) {
 		elem.focus();
 	}
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+	const modal = document.getElementById('newitem-modal');
+
+	if (!modal) {
+		return;
+	}
+
+	modal.addEventListener('shown.bs.modal', function() {
+		const modalElem = document.getElementById('newitem-modal-body-container');
+
+		if (!modalElem) {
+			return;
+		}
+
+		const handleEnter = (event) => {
+			if (event.key === 'Enter' || event.keyCode === KEYCODE.ENTER) {
+				if (event.target.classList.contains('form-control')) {
+						event.preventDefault();
+						event.stopPropagation();
+						addItem();
+				}
+			}
+		};
+		modalElem.addEventListener('keydown', handleEnter);
+
+		modal.addEventListener('hidden.bs.modal', function cleanup() {
+			modalElem.removeEventListener('keydown', handleEnter);
+		}, { once: true });
+	});
+});
