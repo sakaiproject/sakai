@@ -27,6 +27,8 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.GbChartData;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.util.ResourceLoader;
@@ -45,7 +47,8 @@ public class AssignmentGradeChart extends BaseChart {
 	@SuppressWarnings("unchecked")
 	private static ResourceLoader RL = new ResourceLoader();
 
-	public AssignmentGradeChart(final String id, final long assignmentId, final String studentGrade) {
+	//public AssignmentGradeChart(final String id, final IModel<?> model) {
+	public AssignmentGradeChart(String id, long assignmentId, String studentGrade) {
 		super(id);
 		this.assignmentId = assignmentId;
 		this.studentGrade = studentGrade;
@@ -63,12 +66,14 @@ public class AssignmentGradeChart extends BaseChart {
 			// so students can get grade stats
 			addAdvisor();
 
-			final Integer gradingType = this.businessService.getGradebook(currentGradebookUid, currentSiteId).getGradeType();
-			final Assignment assignment = this.businessService.getAssignment(currentGradebookUid, currentSiteId, this.assignmentId);
-			final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, Arrays.asList(assignment), this.businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null), null);
+			GradebookInformation info = businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
+			final GradeType gradingType = info.getGradeType();
+			final Assignment assignment = businessService.getAssignment(currentGradebookUid, currentSiteId, this.assignmentId);
+			final List<GbStudentGradeInfo> gradeInfo = businessService.buildGradeMatrix(currentGradebookUid, currentSiteId, Arrays.asList(assignment), this.businessService.getGradeableUsers(currentGradebookUid, currentSiteId, null), null);
+        	final Map<String, Double> gradeMap = info.getSelectedGradingScaleBottomPercents();
 
 			// get all grades for this assignment
-			final List<Double> allGrades = new ArrayList<>();
+			final List allGrades = new ArrayList();
             for (final GbStudentGradeInfo studentGradeInfo : gradeInfo) {
                 final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
                 final GbGradeInfo grade = studentGrades.get(this.assignmentId);
@@ -77,40 +82,51 @@ public class AssignmentGradeChart extends BaseChart {
                     continue;
                 }
 
-                allGrades.add(Double.valueOf(grade.getGrade()));
+                allGrades.add(gradingType == GradeType.LETTER ? grade.getGrade() : Double.valueOf(grade.getGrade()));
             }
 			Collections.sort(allGrades);
 
 			final GbChartData data = new GbChartData();
 
-			// Add 0-50% range
-			data.addZeroed(buildRangeLabel(0, 50));
+			if (gradingType != GradeType.LETTER) {
+				// Add 0-50% range
+				data.addZeroed(buildRangeLabel(0, 50));
 
-			// Add all ranges from 50 up to 100 in increments of 10.
-			final int range = 10;
-			for (int start = 50; start < 100; start = start + range) {
-				data.addZeroed(buildRangeLabel(start, start + range));
-			}
-
-			for (final Double grade : allGrades) {
-				if (getExtraCredit(grade, assignment, gradingType)) {
-					data.add(getString("label.statistics.chart.extracredit"));
-					continue;
+				// Add all ranges from 50 up to 100 in increments of 10.
+				final int range = 10;
+				for (int start = 50; start < 100; start = start + range) {
+					data.addZeroed(buildRangeLabel(start, start + range));
 				}
 
-				final double percentage = this.getPercentage(grade, assignment, gradingType);
-				data.add(determineKeyForGrade(percentage, range));
+				for (final Double grade : (List<Double>) allGrades) {
+					if (getExtraCredit(grade, assignment, gradingType)) {
+						data.add(getString("label.statistics.chart.extracredit"));
+						continue;
+					}
+
+					final double percentage = this.getPercentage(grade, assignment, gradingType);
+					data.add(determineKeyForGrade(percentage, range));
+				}
+
+				if (this.studentGrade != null) {
+					data.setStudentGradeRange(determineKeyForGrade(
+							getPercentage(Double.valueOf(this.studentGrade), assignment, gradingType), range));
+				}
+				data.setXAxisLabel(MessageHelper.getString("label.statistics.chart.xaxis", RL.getLocale()));
+			} else {
+				gradeMap.keySet().forEach(data::addZeroed);
+				((List<String>) allGrades).forEach(data::add);
+				data.setXAxisLabel(MessageHelper.getString("label.statistics.chart.letter_xaxis", RL.getLocale()));
+
+				if (this.studentGrade != null) {
+					data.setStudentGradeRange(this.studentGrade);
+				}
 			}
 
 			data.setChartTitle(MessageHelper.getString("label.statistics.chart.title", RL.getLocale()));
-			data.setXAxisLabel(MessageHelper.getString("label.statistics.chart.xaxis", RL.getLocale()));
 			data.setYAxisLabel(MessageHelper.getString("label.statistics.chart.yaxis", RL.getLocale()));
 			data.setChartType("bar");
 			data.setChartId(this.getMarkupId());
-			if (this.studentGrade != null) {
-				data.setStudentGradeRange(determineKeyForGrade(
-						getPercentage(Double.valueOf(this.studentGrade), assignment, gradingType), range));
-			}
 			return data;
 
 		} finally {
@@ -137,9 +153,9 @@ public class AssignmentGradeChart extends BaseChart {
 	 * @param gradingType
 	 * @return
 	 */
-	private boolean getExtraCredit(final Double grade, final Assignment assignment, final Integer gradingType) {
-		return (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType) && grade > 100)
-				|| (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, gradingType) && grade > assignment.getPoints());
+	private boolean getExtraCredit(Double grade, Assignment assignment, GradeType gradingType) {
+		return (gradingType == GradeType.PERCENTAGE && grade > 100)
+				|| (gradingType == GradeType.POINTS && grade > assignment.getPoints());
 	}
 
 	private String determineKeyForGrade(final double percentage, final int range) {
@@ -157,8 +173,8 @@ public class AssignmentGradeChart extends BaseChart {
 		}
 	}
 
-	private double getPercentage(final Double grade, final Assignment assignment, final int gradingType) {
-		if (GradingConstants.GRADE_TYPE_PERCENTAGE == gradingType) {
+	private double getPercentage(Double grade, Assignment assignment, GradeType gradingType) {
+		if (gradingType == GradeType.PERCENTAGE) {
 			return grade;
 		} else {
 			return grade / assignment.getPoints() * 100;

@@ -71,6 +71,11 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private Double points;
 
     /**
+     * the maximum letter grade for letter-grade entry mode, or null if not applicable.
+     */
+    private String maxLetterGrade;
+
+    /**
      * the due date for the assignment, or null if none is defined.
      */
     private Date dueDate;

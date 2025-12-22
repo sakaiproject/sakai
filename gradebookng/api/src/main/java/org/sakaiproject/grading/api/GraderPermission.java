@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.grading.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,10 +41,7 @@ public enum GraderPermission {
      * @return
      */
     public static List<String> getStandardPermissions() {
-        List<String> rval = new ArrayList<>();
-        rval.add(GraderPermission.VIEW.toString());
-        rval.add(GraderPermission.GRADE.toString());
-        return rval;
+        return List.of(GraderPermission.VIEW.toString(), GraderPermission.GRADE.toString());
     }
 
 }
