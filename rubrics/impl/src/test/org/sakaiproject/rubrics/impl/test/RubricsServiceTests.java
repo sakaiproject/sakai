@@ -1054,12 +1054,22 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, toolItemId);
         EvaluationTransferBean eval1 = rubricsService.saveEvaluation(evaluation, siteId);
-        EvaluationTransferBean eval2 = rubricsService.saveEvaluation(evaluation, siteId);
+        EvaluationTransferBean eval2 = rubricsService.saveEvaluation(evaluation, siteId); // duplicate save from the same instructor
+        evaluation.setEvaluatorId(user3);
+        EvaluationTransferBean eval3 = rubricsService.saveEvaluation(evaluation, siteId); // duplicate save from different instructor
 
         assertNotNull(eval1);
         assertNotNull(eval2);
+        assertNotNull(eval3);
+        assertEquals(eval1.getId(), eval2.getId());
+        assertEquals(eval1.getId(), eval3.getId());
+
         List<Evaluation> evaluations = evaluationRepository.findByAssociationId(association.getId());
         assertEquals(1, evaluations.size());
+        assertEquals(eval1.getId(), evaluations.get(0).getId());
+        assertEquals(user3, evaluations.get(0).getEvaluatorId());
+
+        assertTrue(evaluationRepository.findByAssociationIdAndEvaluatedItemId(association.getId(), toolItemId).isPresent());
         assertTrue(evaluationRepository.findByAssociationIdAndEvaluatedItemIdAndOwner(association.getId(), toolItemId, user2).isPresent());
     }
 
