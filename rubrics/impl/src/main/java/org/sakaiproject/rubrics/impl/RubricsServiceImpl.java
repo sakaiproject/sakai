@@ -915,16 +915,21 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             // outcomeIds should be empty, if not the db contained outcomes not reported in the ui so remove them
             outcomes.removeIf(o -> outcomeIds.contains(o.getCriterionId()));
         } else {
-            evaluation = new Evaluation();
-            evaluation.getCriterionOutcomes().addAll(evaluationBean.getCriterionOutcomes().stream().map(o -> {
-                CriterionOutcome outcome = new CriterionOutcome();
-                outcome.setCriterionId(o.getCriterionId());
-                outcome.setPoints(o.getPoints());
-                outcome.setComments(o.getComments());
-                outcome.setPointsAdjusted(o.getPointsAdjusted());
-                outcome.setSelectedRatingId(o.getSelectedRatingId());
-                return outcome;
-            }).collect(Collectors.toList()));
+            // see if an evaluation exists for this association and item
+            evaluation = evaluationRepository.findByAssociationIdAndEvaluatedItemId(evaluationBean.getAssociationId(), evaluationBean.getEvaluatedItemId())
+                    .orElseGet(() -> {
+                        Evaluation e = new Evaluation();
+                        e.getCriterionOutcomes().addAll(evaluationBean.getCriterionOutcomes().stream().map(o -> {
+                            CriterionOutcome outcome = new CriterionOutcome();
+                            outcome.setCriterionId(o.getCriterionId());
+                            outcome.setPoints(o.getPoints());
+                            outcome.setComments(o.getComments());
+                            outcome.setPointsAdjusted(o.getPointsAdjusted());
+                            outcome.setSelectedRatingId(o.getSelectedRatingId());
+                            return outcome;
+                        }).toList());
+                        return e;
+                    });
         }
 
         // only set these once

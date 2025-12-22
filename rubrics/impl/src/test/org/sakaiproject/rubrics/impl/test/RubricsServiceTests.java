@@ -34,6 +34,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import org.hibernate.SessionFactory;
@@ -1033,6 +1038,29 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         assertFalse(oldTitles.contains(extraTitle));
         assertTrue(newTitles.contains(extraTitle));
+    }
+
+    @Test
+    public void saveDuplicateNewEvaluations() throws Exception {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = "sakai.assignment";
+        String toolItemId = "item-concurrent";
+        Map<String, String> rbcsParams = new HashMap<>();
+        rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        rbcsParams.put(RubricsConstants.RBCS_LIST, rubric.getId().toString());
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams)
+                .orElseThrow(() -> new IllegalStateException("Association not created"));
+
+        EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, toolItemId);
+        EvaluationTransferBean eval1 = rubricsService.saveEvaluation(evaluation, siteId);
+        EvaluationTransferBean eval2 = rubricsService.saveEvaluation(evaluation, siteId);
+
+        assertNotNull(eval1);
+        assertNotNull(eval2);
+        List<Evaluation> evaluations = evaluationRepository.findByAssociationId(association.getId());
+        assertEquals(1, evaluations.size());
+        assertTrue(evaluationRepository.findByAssociationIdAndEvaluatedItemIdAndOwner(association.getId(), toolItemId, user2).isPresent());
     }
 
     private EvaluationTransferBean buildEvaluation(Long associationId, RubricTransferBean rubricBean, String toolItemId) {
