@@ -249,14 +249,13 @@ public class ForumsEmailService {
 			if (attachmentList != null && reply.getTopic().getIncludeContentsInEmails()) {
 				// Clean up temporary files that were created for email attachments
 				if (prefixedPath != null && !"".equals(prefixedPath)) {
-					StringBuilder sbPrefixedPath;
 					Iterator<Attachment> iter = attachmentList.iterator();
 					while (iter.hasNext()) {
-						sbPrefixedPath = new StringBuilder(prefixedPath);
-						sbPrefixedPath.append("/email_tmp/");
 						a = (Attachment) iter.next();
-						deleteAttachedFile(sbPrefixedPath.append(
-								a.getAttachmentId()).toString());
+						StringBuilder filePath = new StringBuilder(prefixedPath);
+						filePath.append("/email_tmp/");
+						filePath.append(a.getAttachmentId().replace('\\', '/'));
+						deleteAttachedFile(filePath.toString());
 					}
 				}
 			}
@@ -271,7 +270,7 @@ public class ForumsEmailService {
 		byte[] data = cr.getContent();
 		StringBuilder sbPrefixedPath = new StringBuilder(prefixedPath);
 		sbPrefixedPath.append("/email_tmp/");
-		sbPrefixedPath.append(resourceId);
+		sbPrefixedPath.append(resourceId.replace('\\', '/'));
 		String filename = sbPrefixedPath.toString().replace(" ", "");
 		String path = filename.substring(0, filename.lastIndexOf("/"));
 		File dir = new File(path);
