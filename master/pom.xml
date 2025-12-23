@@ -1687,6 +1687,7 @@
         <groupId>org.sakaiproject.portal</groupId>
         <artifactId>sakai-portal-util</artifactId>
         <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
@@ -1794,6 +1795,7 @@
         <groupId>org.sakaiproject.lti</groupId>
         <artifactId>lti-util</artifactId>
         <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.lti</groupId>
