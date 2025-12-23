@@ -81,14 +81,9 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AopTestUtils;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
@@ -1033,6 +1028,39 @@ public class RubricsServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         assertFalse(oldTitles.contains(extraTitle));
         assertTrue(newTitles.contains(extraTitle));
+    }
+
+    @Test
+    public void saveDuplicateNewEvaluations() throws Exception {
+        switchToInstructor();
+        RubricTransferBean rubric = rubricsService.createDefaultRubric(siteId);
+        String toolId = "sakai.assignment";
+        String toolItemId = "item-concurrent";
+        Map<String, String> rbcsParams = new HashMap<>();
+        rbcsParams.put(RubricsConstants.RBCS_ASSOCIATE, "1");
+        rbcsParams.put(RubricsConstants.RBCS_LIST, rubric.getId().toString());
+        ToolItemRubricAssociation association = rubricsService.saveRubricAssociation(toolId, toolItemId, rbcsParams)
+                .orElseThrow(() -> new IllegalStateException("Association not created"));
+
+        EvaluationTransferBean evaluation = buildEvaluation(association.getId(), rubric, toolItemId);
+        EvaluationTransferBean eval1 = rubricsService.saveEvaluation(evaluation, siteId);
+        EvaluationTransferBean eval2 = rubricsService.saveEvaluation(evaluation, siteId); // duplicate save from the same instructor
+        evaluation.setEvaluatorId(user3);
+        EvaluationTransferBean eval3 = rubricsService.saveEvaluation(evaluation, siteId); // duplicate save from different instructor
+
+        assertNotNull(eval1);
+        assertNotNull(eval2);
+        assertNotNull(eval3);
+        assertEquals(eval1.getId(), eval2.getId());
+        assertEquals(eval1.getId(), eval3.getId());
+
+        List<Evaluation> evaluations = evaluationRepository.findByAssociationId(association.getId());
+        assertEquals(1, evaluations.size());
+        assertEquals(eval1.getId(), evaluations.get(0).getId());
+        assertEquals(user3, evaluations.get(0).getEvaluatorId());
+
+        assertTrue(evaluationRepository.findByAssociationIdAndEvaluatedItemId(association.getId(), toolItemId).isPresent());
+        assertTrue(evaluationRepository.findByAssociationIdAndEvaluatedItemIdAndOwner(association.getId(), toolItemId, user2).isPresent());
     }
 
     private EvaluationTransferBean buildEvaluation(Long associationId, RubricTransferBean rubricBean, String toolItemId) {
