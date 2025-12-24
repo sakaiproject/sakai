@@ -29,12 +29,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +48,7 @@ import org.sakaiproject.assignment.impl.conversion.O11Assignment;
 import org.sakaiproject.assignment.impl.conversion.O11AssignmentContent;
 import org.sakaiproject.assignment.impl.conversion.O11Submission;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
-import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.api.ConfiguredContext;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.hibernate.AssignableUUIDGenerator;
 import org.sakaiproject.site.api.Group;
@@ -84,7 +79,7 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
 
     @Autowired private AssignmentConversionService conversion;
     @Autowired private AssignmentRepository assignmentRepository;
-    @Autowired private ServerConfigurationService serviceConfigurationService;
+    @Autowired private ConfiguredContext configuredContext;
     @Autowired private SiteService siteService;
 
     private AssignmentDataProvider mockDataProvider;
@@ -93,10 +88,9 @@ public class AssignmentConversionTest extends AbstractTransactionalJUnit4SpringC
     public void setup() {
         mockDataProvider = Mockito.mock(AssignmentDataProvider.class);
         ReflectionTestUtils.setField(conversion, "dataProvider", mockDataProvider);
-        Mockito.when(serviceConfigurationService.getStrings(AssignableUUIDGenerator.HIBERNATE_ASSIGNABLE_ID_CLASSES))
-                .thenReturn(new String[] {"org.sakaiproject.assignment.api.model.Assignment", "org.sakaiproject.assignment.api.model.AssignmentSubmission"});
-        Mockito.when(serviceConfigurationService.getConfigItem(AssignableUUIDGenerator.HIBERNATE_ASSIGNABLE_ID_CLASSES)).thenReturn(null);
-        AssignableUUIDGenerator.setServerConfigurationService(serviceConfigurationService);
+        Mockito.when(configuredContext.getStrings(AssignableUUIDGenerator.HIBERNATE_ASSIGNABLE_ID_CLASSES))
+                .thenReturn(List.of("org.sakaiproject.assignment.api.model.Assignment", "org.sakaiproject.assignment.api.model.AssignmentSubmission"));
+        AssignableUUIDGenerator.setConfiguredContext(configuredContext);
         try {
             Site site = (Site) Mockito.mock(Site.class);
             Mockito.when(siteService.getSite("2614_G_2015_N_N")).thenReturn(site);

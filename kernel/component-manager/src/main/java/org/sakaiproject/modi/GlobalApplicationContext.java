@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.modi;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
@@ -58,6 +59,7 @@ public class GlobalApplicationContext {
     public static void setContext(ConfigurableApplicationContext context) {
         synchronized (lock) {
             GlobalApplicationContext.context = context;
+            ComponentManager.shutdown();
         }
     }
 
@@ -72,6 +74,7 @@ public class GlobalApplicationContext {
         synchronized (lock) {
             if (context != null) {
                 context.stop();
+                ComponentManager.shutdown();
                 context = null;
             }
         }

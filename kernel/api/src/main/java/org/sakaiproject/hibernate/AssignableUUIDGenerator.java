@@ -16,7 +16,6 @@
 package org.sakaiproject.hibernate;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Properties;
 
 import org.hibernate.HibernateException;
@@ -27,7 +26,7 @@ import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.UUIDGenerator;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
-import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.api.ConfiguredContext;
 
 import lombok.Setter;
 
@@ -36,7 +35,7 @@ public class AssignableUUIDGenerator extends UUIDGenerator implements Identifier
     public static final String HIBERNATE_ASSIGNABLE_ID_CLASSES = "hibernate.assignable.id.classes";
 
     @Setter
-    private static ServerConfigurationService serverConfigurationService;
+    private static ConfiguredContext configuredContext;
 
     @Override
     public void configure(Type type, Properties params, ServiceRegistry serviceRegistry) throws MappingException {
@@ -45,14 +44,12 @@ public class AssignableUUIDGenerator extends UUIDGenerator implements Identifier
 
     @Override
     public Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
-        if (serverConfigurationService != null) {
-            String[] classes = serverConfigurationService.getStrings(HIBERNATE_ASSIGNABLE_ID_CLASSES);
-            if (classes != null) {
-                String entityName = object.getClass().getName();
-                if (Arrays.asList(classes).contains(entityName)) {
-                    final Serializable id = session.getEntityPersister(entityName, object).getIdentifier(object, session);
-                    if (id != null) return id;
-                }
+        if (configuredContext != null) {
+            var classes = configuredContext.getStrings(HIBERNATE_ASSIGNABLE_ID_CLASSES);
+            String entityName = object.getClass().getName();
+            if (classes.contains(entityName)) {
+                final Serializable id = session.getEntityPersister(entityName, object).getIdentifier(object, session);
+                if (id != null) return id;
             }
         }
         return super.generate(session, object);

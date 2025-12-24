@@ -162,13 +162,13 @@
 				<bean class="org.sakaiproject.springframework.orm.hibernate.AddablePersistenceUnit"/>
 			</list>
 		</property>
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="configuredContext" ref="org.sakaiproject.component.api.ConfiguredContext"/>
 	</bean>
 
 	<!--  The "Global" JPA Entity Manager Factory -->
 	<bean id="entityManagerFactory"
 		  class="org.sakaiproject.ignite.IgniteEntityManagerFactoryBean">
-		<property name="ignite" ref="org.sakaiproject.ignite.SakaiIgniteConfiguration" />
+		<property name="ignite" ref="org.sakaiproject.ignite.SakaiIgnite" />
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
 		</property>

@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.ignite;
 
-import org.apache.ignite.configuration.IgniteConfiguration;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +22,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class IgniteEntityManagerFactoryBean extends LocalContainerEntityManagerFactoryBean {
 
-    public void setIgnite(IgniteConfiguration igniteConfiguration) {
-        String igniteInstanceName = igniteConfiguration.getIgniteInstanceName();
-        getJpaPropertyMap().put("org.apache.ignite.hibernate.ignite_instance_name", igniteInstanceName);
-        log.info("Ignite instance name [{}] configured as hibernate cache provider", igniteInstanceName);
+    /**
+     * To manage our lifecycle timing, we take our concrete subclass here rather than
+     * either the Ignite interface or even the IgniteSpringBean. Effectively, we need to
+     * start the grid slightly before the normal Spring behavior to satisfy Hibernate's
+     * initialization.
+     */
+    public void setIgnite(EagerIgniteSpringBean ignite) {
+        ignite.ensureStarted();
+        getJpaPropertyMap().put("org.apache.ignite.hibernate.ignite_instance_name", ignite.name());
+        log.info("Ignite instance name [{}] configured as hibernate cache provider", ignite.name());
     }
 }

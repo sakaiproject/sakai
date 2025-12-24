@@ -16,17 +16,33 @@
 package org.sakaiproject.ignite;
 
 import org.apache.ignite.IgniteSpringBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.SmartInitializingSingleton;
 
-public class EagerIgniteSpringBean extends IgniteSpringBean implements InitializingBean, SmartInitializingSingleton {
+public class EagerIgniteSpringBean extends IgniteSpringBean {
 
-    @Override
-    public void afterSingletonsInstantiated() {
+    private boolean started = false;
+
+    /**
+     * Ensure that the Ignite grid instance has been started.
+     * <p>
+     * IgniteSpringBean conducts an unsafe (once-only) startup of the instance in its normal
+     * afterSingletonsInstantiated lifecycle hook, but it does so after some components like
+     * the Hibernate entity manager need the grid started. Here, we safely bridge our needed
+     * lifecycle with the base bean behavior by checking and conditionally starting.
+     * {@link IgniteEntityManagerFactoryBean}
+     */
+    public void ensureStarted() {
+        if (started) return;
+
+        super.afterSingletonsInstantiated();
+        started = true;
     }
 
+    /**
+     * We wrap lifecycle hook because it unconditionally tries to start the grid.
+     * @see #ensureStarted()
+     */
     @Override
-    public void afterPropertiesSet() throws Exception {
-        super.afterSingletonsInstantiated();
+    public void afterSingletonsInstantiated() {
+        ensureStarted();
     }
 }
