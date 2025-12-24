@@ -70,7 +70,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
@@ -921,6 +923,12 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 
   private List getEnrollmentListForSelectedSections(int calledFrom, String siteId) {
     List enrollments;
+    
+    // Check if current user has privilege to assess all groups - if so, they should see all student submissions regardless of group restrictions
+    boolean hasAllGroupsPrivilege = PersistenceService.getInstance()
+        .getAuthzQueriesFacade()
+        .hasPrivilege(SamigoConstants.AUTHZ_ASSESSMENT_ALL_GROUPS, siteId);
+    
     if (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER_STUDENT){
     	enrollments = getAvailableEnrollments(true, siteId);
     }
@@ -935,7 +943,12 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 	    	        && "true".equalsIgnoreCase(anonymous))
     	    || (calledFrom==CALLED_FROM_EXPORT_LISTENER
     	    	    && "true".equalsIgnoreCase(anonymous))) {
-        enrollments = getAllGroupsReleaseEnrollments(siteId);
+        // For instructors who have all groups privilege, get all available enrollments without group filtering
+        if (hasAllGroupsPrivilege) {
+            enrollments = getAvailableEnrollments(false, siteId);
+        } else {
+            enrollments = getAllGroupsReleaseEnrollments(siteId);
+        }
     }
     else if (getSelectedSectionFilterValue().trim().equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE)) {
     	enrollments = getGroupReleaseEnrollments(siteId);

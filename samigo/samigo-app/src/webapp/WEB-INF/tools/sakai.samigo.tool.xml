@@ -27,5 +27,6 @@
         <function name="assessment.template.create" />
         <function name="assessment.template.edit.own" />
         <function name="assessment.template.delete.own" />
+        <function name="assessment.all.groups" />
 
 </registration>
