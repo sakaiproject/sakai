@@ -136,6 +136,8 @@ public class RuntimeRegistrationTest extends SakaiTests {
         userMessagingService.unregisterHandler(handlerOne);
     }
 
+    // Note that this design is not necessarily intentional. It MAY be sensible for multiple handlers to
+    // receive an event. However, the current design is that a single handler may be registered at a time.
     @Test
     public void givenTwoHandlersForSameEvents_whenWeUnregisterOne_thenCanRegisterAnother() {
         // GIVEN
@@ -168,7 +170,7 @@ public class RuntimeRegistrationTest extends SakaiTests {
         userMessagingService.unregisterHandler(handlerTwo);
     }
 
-        private Event ATestEvent() {
+    private Event ATestEvent() {
         Event event = mock(Event.class);
         when(event.getEvent()).thenReturn("test.event");
         when(event.getResource()).thenReturn("no.resource");

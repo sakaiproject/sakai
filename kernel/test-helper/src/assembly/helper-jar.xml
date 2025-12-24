@@ -24,6 +24,8 @@
         <include>org.sakaiproject.edu-services.sections:*</include>
         <include>org.springframework:*</include>
         <include>com.opencsv:*</include>
+        <include>com.googlecode.json-simple:*</include>
+        <include>com.sun.mail:*</include>
       </includes>
     </dependencySet>
   </dependencySets>
