@@ -52,13 +52,16 @@ import net.oauth.signature.OAuthSignatureMethod;
 import org.tsugi.lti.LTIConstants;
 import org.tsugi.lti.LTIUtil;
 import org.tsugi.lti.MessageResponseBuilder;
+import org.tsugi.lti.POXJacksonParser;
 import org.tsugi.lti.objects.Groups;
 import org.tsugi.lti.objects.DeleteResultResponse;
 import org.tsugi.lti.objects.ReadResultResponse;
 import org.tsugi.lti.objects.ReplaceResultResponse;
 import org.tsugi.lti.objects.Result;
 import org.tsugi.lti.objects.ResultData;
+import org.tsugi.lti.objects.ResultRecord;
 import org.tsugi.lti.objects.ResultScore;
+import org.tsugi.lti.objects.POXRequestBody;
 import org.tsugi.pox.IMSPOXRequestJackson;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -118,6 +121,17 @@ public class ServiceServlet extends HttpServlet {
 
 	protected static LTIService ltiService = null;
 	private static final XmlMapper POX_XML_MAPPER = new XmlMapper();
+
+	private static final String ERROR_SERVICE_INVALID = "service.invalid";
+	private static final String ERROR_SERVICE_NOTALLOWED = "service.notallowed";
+	private static final String ERROR_OUTCOMES_MISSING = "outcomes.missing";
+	private static final String ERROR_OUTCOMES_FAIL = "outcomes.fail";
+	private static final String ERROR_OUTCOME_FAIL = "outcome.fail";
+	private static final String ERROR_OUTCOME_NO_VALIDATE = "outcome.no.validate";
+	private static final String ERROR_OUTCOME_GRADE_FAIL = "outcome.grade.fail";
+	private static final String ERROR_OUTCOMES_SOURCEDID = "outcomes.sourcedid";
+	private static final String ERROR_POX_INVALID = "pox.invalid";
+	private static final String ERROR_MEMBERSHIPS_FAIL = "memberships.fail";
 
 	static {
 		POX_XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -206,13 +220,13 @@ public class ServiceServlet extends HttpServlet {
 			sourcedid = request.getParameter("id");
 			if ( allowRoster != null ) message_type = "roster";
 		} else {
-			doError(request, response, "service.invalid", "lti_message_type:"+lti_message_type, null);
+			doError(request, response, ERROR_SERVICE_INVALID, "lti_message_type:"+lti_message_type, null);
 			return;
 		}
 
 		// If we have not gotten one of our allowed message types, stop now
 		if ( message_type == null ) {
-			doError(request, response, "service.invalid", "lti_message_type="+lti_message_type, null);
+			doError(request, response, ERROR_SERVICE_INVALID, "lti_message_type="+lti_message_type, null);
 			return;
 		}
 
@@ -225,13 +239,13 @@ public class ServiceServlet extends HttpServlet {
 
 		// No point continuing without a sourcedid
 		if(LTIUtil.isBlank(sourcedid)) {
-			doError(request, response, "outcomes.missing", "sourcedid", null);
+			doError(request, response, ERROR_OUTCOMES_MISSING, "sourcedid", null);
 			return;
 		}
 
 		String lti_version = request.getParameter(LTIConstants.LTI_VERSION);
 		if(!LTIUtil.equals(lti_version, "LTI-1p0")) {
-			doError(request, response, "service.invalid", "lti_version="+lti_version, null);
+			doError(request, response, ERROR_SERVICE_INVALID, "lti_version="+lti_version, null);
 			return;
 		}
 
@@ -249,7 +263,7 @@ public class ServiceServlet extends HttpServlet {
 				}
 			}
 			if(LTIUtil.isBlank(oauth_consumer_key)) {
-				doError(request, response, "outcomes.missing", "oauth_consumer_key", null);
+				doError(request, response, ERROR_OUTCOMES_MISSING, "oauth_consumer_key", null);
 				return;
 			}
 		}
@@ -280,7 +294,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a more generic message back to the caller
 		if ( placement_id == null || user_id == null ) {
-			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			doError(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -289,7 +303,7 @@ public class ServiceServlet extends HttpServlet {
 		Properties normalProps = SakaiLTIUtil.normalizePlacementProperties(placement_id, ltiService);
 		if ( normalProps == null ) {
 			log.debug("Error retrieving result_sourcedid information");
-			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			doError(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -303,7 +317,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a more generic message back to the caller
 		if (  site == null ) {
-			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			doError(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -337,7 +351,7 @@ public class ServiceServlet extends HttpServlet {
 			if (base_string != null) {
 				log.warn(base_string);
 			}
-			doError(request, response, "outcome.no.validate", oauth_consumer_key, null);
+			doError(request, response, ERROR_OUTCOME_NO_VALIDATE, oauth_consumer_key, null);
 			return;
 		}
 
@@ -346,7 +360,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a generic message back to the caller
 		if ( placement_secret == null ) {
-			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			doError(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -365,7 +379,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a message back to the caller
 		if ( ! matched ) {
-			doError(request, response, "outcomes.sourcedid", "sourcedid", null);
+			doError(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -384,7 +398,7 @@ public class ServiceServlet extends HttpServlet {
 		String result_resultdata_text = request.getParameter("result_resultdata_text");
 
 		if(LTIUtil.isBlank(result_resultscore_textstring) && ! isRead ) {
-			doError(request, response, "outcomes.missing", "result_resultscore_textstring", null);
+			doError(request, response, ERROR_OUTCOMES_MISSING, "result_resultscore_textstring", null);
 			return;
 		}
 
@@ -409,27 +423,27 @@ public class ServiceServlet extends HttpServlet {
 						resultScore = "";
 						resultData = "";
 					} else {
-						doError(request, response, "outcome.fail", (String) retval, null);
+						doError(request, response, ERROR_OUTCOME_FAIL, (String) retval, null);
 						return;
 					}
 				}
 		    } else if ( isDelete ) {
 				retval = SakaiLTIUtil.deleteGrade(sourcedid, request, ltiService);
 				if (retval instanceof String) {
-					doError(request, response, "outcome.fail", (String) retval, null);
+					doError(request, response, ERROR_OUTCOME_FAIL, (String) retval, null);
 					return;
 				}
 			} else {
 				dGrade = new Double(result_resultscore_textstring);
 				retval = SakaiLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
 				if (retval instanceof String) {
-					doError(request, response, "outcome.fail", (String) retval, null);
+					doError(request, response, ERROR_OUTCOME_FAIL, (String) retval, null);
 					return;
 				}
 			}
 			success = true;
 		} catch (Exception e) {
-			doError(request, response, "outcome.grade.fail", "", e);
+			doError(request, response, ERROR_OUTCOME_GRADE_FAIL, "", e);
 		}
 
 		if ( ! success ) return;
@@ -457,7 +471,7 @@ public class ServiceServlet extends HttpServlet {
 		// Check for permission in placement
 		String allowRoster = normalProps.getProperty(LTI_PORTLET_ALLOWROSTER);
 		if ( ! LTI_PORTLET_ON.equals(allowRoster) ) {
-			doError(request, response, "service.notallowed", "lti_message_type="+lti_message_type, null);
+			doError(request, response, ERROR_SERVICE_NOTALLOWED, "lti_message_type="+lti_message_type, null);
 			return;
 		}
 
@@ -570,7 +584,7 @@ public class ServiceServlet extends HttpServlet {
 			}
 			success = true;
 		} catch (Exception e) {
-			doError(request, response, "memberships.fail", "", e);
+			doError(request, response, ERROR_MEMBERSHIPS_FAIL, "", e);
 		} finally {
 			SakaiLTIUtil.popAdvisor();
 		}
@@ -643,7 +657,7 @@ public class ServiceServlet extends HttpServlet {
 
 		IMSPOXRequestJackson pox = new IMSPOXRequestJackson(request);
 		if ( ! pox.valid ) {
-			doErrorXML(request, response, pox, "pox.invalid", pox.errorMessage, null);
+			doErrorXML(request, response, pox, ERROR_POX_INVALID, pox.errorMessage, null);
 			return;
 		}
 
@@ -662,10 +676,9 @@ public class ServiceServlet extends HttpServlet {
 				log.debug("POST\n{}", pox.getPostBody());
 			}
 		}
-		Map<String,String> bodyMap = pox.getBodyMap();
 		if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) ||
 			  "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
-			sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
+			sourcedid = POXJacksonParser.getBodySourcedId(pox.getPoxRequest());
 			message_type = "basicoutcome";
 		} else {
 			String output = pox.getResponseUnsupported("Not supported "+lti_message_type);
@@ -677,7 +690,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// No point continuing without a sourcedid
 		if(LTIUtil.isBlank(sourcedid)) {
-			doErrorXML(request, response, pox, "outcomes.missing", "sourcedid", null);
+			doErrorXML(request, response, pox, ERROR_OUTCOMES_MISSING, "sourcedid", null);
 			return;
 		}
 
@@ -714,7 +727,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a more generic message back to the caller
 		if ( placement_id == null || user_id == null ) {
-			doErrorXML(request, response, pox, "outcomes.sourcedid", "missing user_id or placement_id", null);
+			doErrorXML(request, response, pox, ERROR_OUTCOMES_SOURCEDID, "missing user_id or placement_id", null);
 			return;
 		}
 
@@ -725,7 +738,7 @@ public class ServiceServlet extends HttpServlet {
 		Properties normalProps = SakaiLTIUtil.normalizePlacementProperties(placement_id, ltiService);
 		if ( normalProps == null ) {
 			log.debug("Error retrieving result_sourcedid information");
-			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			doErrorXML(request, response, pox, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -739,7 +752,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a more generic message back to the caller
 		if (  site == null ) {
-			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			doErrorXML(request, response, pox, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -756,7 +769,7 @@ public class ServiceServlet extends HttpServlet {
 			if (pox.base_string != null) {
 				log.warn(pox.base_string);
 			}
-			doErrorXML(request, response, pox, "outcome.no.validate", oauth_consumer_key, null);
+			doErrorXML(request, response, pox, ERROR_OUTCOME_NO_VALIDATE, oauth_consumer_key, null);
 			return;
 		}
 
@@ -766,7 +779,7 @@ public class ServiceServlet extends HttpServlet {
 		// Send a generic message back to the caller
 		if ( placement_secret ==null ) {
 			log.debug("placement_secret is null");
-			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			doErrorXML(request, response, pox, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -785,7 +798,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a message back to the caller
 		if ( ! matched ) {
-			doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			doErrorXML(request, response, pox, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -804,15 +817,40 @@ public class ServiceServlet extends HttpServlet {
 		boolean isRead = LTIUtil.equals(lti_message_type, "readResultRequest");
 		boolean isDelete = LTIUtil.equals(lti_message_type, "deleteResultRequest");
 
-		Map<String,String> bodyMap = pox.getBodyMap();
-		String result_resultscore_textstring = bodyMap.get("/resultRecord/result/resultScore/textString");
-		String result_resultdata_text = bodyMap.get("/resultRecord/result/resultData/text");
-		String sourced_id = bodyMap.get("/resultRecord/result/sourcedId");
+		String result_resultscore_textstring = null;
+		String result_resultdata_text = null;
+		String sourced_id = null;
+		
+		POXRequestBody poxBody = pox.getPoxRequest().getPoxBody();
+		ResultRecord resultRecord = null;
+		
+		if (poxBody.getReplaceResultRequest() != null) {
+			resultRecord = poxBody.getReplaceResultRequest().getResultRecord();
+		} else if (poxBody.getReadResultRequest() != null) {
+			resultRecord = poxBody.getReadResultRequest().getResultRecord();
+		} else if (poxBody.getDeleteResultRequest() != null) {
+			resultRecord = poxBody.getDeleteResultRequest().getResultRecord();
+		}
+		
+		if (resultRecord != null) {
+			if (resultRecord.getSourcedGUID() != null) {
+				sourced_id = resultRecord.getSourcedGUID().getSourcedId();
+			}
+			if (resultRecord.getResult() != null) {
+				if (resultRecord.getResult().getResultScore() != null) {
+					result_resultscore_textstring = resultRecord.getResult().getResultScore().getTextString();
+				}
+				if (resultRecord.getResult().getResultData() != null) {
+					result_resultdata_text = resultRecord.getResult().getResultData().getText();
+				}
+			}
+		}
+		
 		log.debug("comment={}", result_resultdata_text);
 		log.debug("grade={}", result_resultscore_textstring);
 
 		if(LTIUtil.isBlank(result_resultscore_textstring) && ! isRead && ! isDelete ) {
-			doErrorXML(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
+			doErrorXML(request, response, pox, ERROR_OUTCOMES_MISSING, "result_resultscore_textstring", null);
 			return;
 		}
 
@@ -840,7 +878,7 @@ public class ServiceServlet extends HttpServlet {
 					if ( check instanceof Boolean && ((Boolean) check) ) {
 						// Read fail with Good SourceDID is treated as empty
 					} else {
-						doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
+						doErrorXML(request, response, pox, ERROR_OUTCOMES_FAIL, (String) retval, null);
 						return;
 					}
 
@@ -864,7 +902,7 @@ public class ServiceServlet extends HttpServlet {
 			} else if ( isDelete ) {
 				retval = SakaiLTIUtil.deleteGrade(sourcedid, request, ltiService);
 				if ( retval instanceof String ) {
-					doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
+					doErrorXML(request, response, pox, ERROR_OUTCOMES_FAIL, (String) retval, null);
 					return;
 				}
 				responsePayload = new DeleteResultResponse();
@@ -877,7 +915,7 @@ public class ServiceServlet extends HttpServlet {
 				dGrade = new Double(result_resultscore_textstring);
 				retval = SakaiLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
 				if ( retval instanceof String ) {
-					doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
+					doErrorXML(request, response, pox, ERROR_OUTCOMES_FAIL, (String) retval, null);
 					return;
 				}
 				responsePayload = new ReplaceResultResponse();
@@ -886,7 +924,7 @@ public class ServiceServlet extends HttpServlet {
 
 			success = true;
 		} catch (Exception e) {
-			doErrorXML(request, response, pox, "outcome.grade.fail", e.getMessage(), e);
+			doErrorXML(request, response, pox, ERROR_OUTCOME_GRADE_FAIL, e.getMessage(), e);
 		}
 
 		if ( !success ) return;

@@ -90,12 +90,17 @@ public class IMSPOXRequestJacksonTest {
     @Test
     public void testGetBodyMap() {
         IMSPOXRequestJackson pox = new IMSPOXRequestJackson(TEST_XML_REQUEST);
-        Map<String, String> bodyMap = pox.getBodyMap();
         
-        assertNotNull("Body map should not be null", bodyMap);
-        assertEquals("3124567", bodyMap.get("sourcedId"));
-        assertEquals("A", bodyMap.get("textString"));
-        assertEquals("en-us", bodyMap.get("language"));
+        String sourcedId = POXJacksonParser.getBodySourcedId(pox.getPoxRequest());
+        String textString = POXJacksonParser.getBodyTextString(pox.getPoxRequest());
+        String language = POXJacksonParser.getBodyLanguage(pox.getPoxRequest());
+        
+        assertNotNull("SourcedId should not be null", sourcedId);
+        assertEquals("3124567", sourcedId);
+        assertNotNull("TextString should not be null", textString);
+        assertEquals("A", textString);
+        assertNotNull("Language should not be null", language);
+        assertEquals("en-us", language);
     }
     
     @Test

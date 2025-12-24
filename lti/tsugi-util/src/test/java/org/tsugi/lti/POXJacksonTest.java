@@ -183,21 +183,27 @@ public class POXJacksonTest {
     @Test
     public void testGetBodyInfo_ReplaceResult() {
         POXEnvelopeRequest request = POXJacksonParser.parseRequest(SAMPLE_REQUEST_XML);
-        Map<String, String> bodyInfo = POXJacksonParser.getBodyInfo(request);
         
-        assertNotNull("Body info should not be null", bodyInfo);
-        assertEquals("3124567", bodyInfo.get("sourcedId"));
-        assertEquals("en-us", bodyInfo.get("language"));
-        assertEquals("A", bodyInfo.get("textString"));
+        String sourcedId = POXJacksonParser.getBodySourcedId(request);
+        String language = POXJacksonParser.getBodyLanguage(request);
+        String textString = POXJacksonParser.getBodyTextString(request);
+        
+        assertNotNull("SourcedId should not be null", sourcedId);
+        assertEquals("3124567", sourcedId);
+        assertNotNull("Language should not be null", language);
+        assertEquals("en-us", language);
+        assertNotNull("TextString should not be null", textString);
+        assertEquals("A", textString);
     }
 
     @Test
     public void testGetBodyInfo_ReadMembership() {
         POXEnvelopeRequest request = POXJacksonParser.parseRequest(SAMPLE_MEMBERSHIP_REQUEST_XML);
-        Map<String, String> bodyInfo = POXJacksonParser.getBodyInfo(request);
         
-        assertNotNull("Body info should not be null", bodyInfo);
-        assertEquals("123course456", bodyInfo.get("sourcedId"));
+        String sourcedId = POXJacksonParser.getBodySourcedId(request);
+        
+        assertNotNull("SourcedId should not be null", sourcedId);
+        assertEquals("123course456", sourcedId);
     }
 
 
