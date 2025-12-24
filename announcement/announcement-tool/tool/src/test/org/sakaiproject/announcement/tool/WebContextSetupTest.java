@@ -52,11 +52,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 // we would have to have the new context in place during its own refresh. For now, it's easier to load it in the same
 // context as the kernel, deal with the cover issues later.
 @ContextHierarchy({
-        @ContextConfiguration(name = "kernel", locations = "file:../../announcement-impl/impl/src/webapp/WEB-INF/components.xml"),
-//        @ContextConfiguration(locations = "file:../../announcement-impl/impl/src/webapp/WEB-INF/components.xml"),
-        @ContextConfiguration(classes = AnncTestBeanConfig.class)
+        @ContextConfiguration(name = "kernel", locations = {
+                "file:src/test/resources/mocks.xml",
+                "file:../../announcement-impl/impl/src/webapp/WEB-INF/components.xml"
+        }),
+        //@ContextConfiguration(classes = AnncTestBeanConfig.class)
 })
-
 public class WebContextSetupTest extends ModiWebTest {
     @Inject WebApplicationContext applicationContext;
     @Inject MockServletContext servletContext;

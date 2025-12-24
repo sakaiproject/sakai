@@ -96,6 +96,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.sakaiproject.lti</groupId>
+            <artifactId>lti-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- embed a full kernel and our impl for testing -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
