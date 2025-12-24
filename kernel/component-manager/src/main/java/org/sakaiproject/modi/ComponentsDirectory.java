@@ -17,6 +17,7 @@ package org.sakaiproject.modi;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.GenericApplicationContext;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -73,10 +74,10 @@ public class ComponentsDirectory {
     /**
      * Signal that the container has started and components should load.
      */
-    public void starting(SharedApplicationContext context) {
+    public void starting(GenericApplicationContext context) {
         log.info("Starting traditional components in: {}", rootPath);
-        components.forEach(context::registerBeanSource);
-        overrides.ifPresent(context::registerBeanSource);
+        components.forEach(c -> c.registerBeans(context));
+        overrides.ifPresent(o -> o.registerBeans(context));
     }
 
     /**

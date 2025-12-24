@@ -26,6 +26,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
+import java.util.Optional;
 
 import lombok.Setter;
 
@@ -140,4 +141,70 @@ public class NumberUtil {
     public static Double parseLocaleDouble(final String origin) {
         return parseLocaleDouble(origin, resourceLoader.getLocale());
     }
+
+    /**
+     * Parse a string value into an optional Integer. Directly uses {@link Integer#valueOf(String)}.
+     * <p>
+     * These conversions are only here because commons-lang3 does not support Optional.
+     *
+     * @param value the string to parse
+     * @return the Integer value or an empty Optional if unable to convert
+     */
+    public static Optional<Integer> toInteger(final String value) {
+        try {
+            return Optional.of(Integer.valueOf(value));
+        } catch (final NumberFormatException nfe) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Parse a string value into a Integer with default value. Directly uses {@link Integer#valueOf(String)}.
+     * <p>
+     * These conversions are only here because commons-lang3 does not support Optional.
+     *
+     * @param value the string to parse
+     * @return the Integer value or the supplied default if unable to convert
+     */
+    public static Integer toInteger(final String value, final Integer defaultValue) {
+        try {
+            return Integer.valueOf(value);
+        } catch (final NumberFormatException nfe) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Parse a string value into an optional Long. Directly uses {@link Long#valueOf(String)}.
+     * <p>
+     * These conversions are only here because commons-lang3 does not support Optional.
+     *
+     * @param value the string to parse
+     * @return the Long value or an empty Optional if unable to convert
+     */
+    public static Optional<Long> toLong(final String value) {
+        try {
+            return Optional.of(Long.valueOf(value));
+        } catch (final NumberFormatException nfe) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Parse a string value into a Long with default value. Directly uses {@link Long#valueOf(String)}.
+     * <p>
+     * These conversions are only here because commons-lang3 does not support Optional.
+     *
+     * @param value the string to parse
+     * @return the Long value or the supplied default if unable to convert
+     */
+    public static Long toLong(final String value, final Long defaultValue) {
+        try {
+            return Long.valueOf(value);
+        } catch (final NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+
 }

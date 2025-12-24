@@ -84,46 +84,20 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	private final String DBG_PREFIX = "** ";
 	private final String DBG_SUFFIX = " **";
 
-	private final static Object LOCK = new Object();
-
-	private static SessionManager sessionManager;
 	protected SessionManager getSessionManager() {
-        if (sessionManager == null) {
-            synchronized (LOCK) {
-                sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
-            }
-        }
-        return sessionManager;
+		return ComponentManager.get(SessionManager.class);
 	}
 
-	private static PreferencesService preferencesService;
 	protected PreferencesService getPreferencesService() {
-	    if (preferencesService == null) {
-	        synchronized (LOCK) {
-	            preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
-            }
-	    }
-	    return preferencesService;
+		return ComponentManager.get(PreferencesService.class);
 	}
 	
-	private static MessageBundleService messageBundleService;
     protected MessageBundleService getMessageBundleService() {
-        if (messageBundleService == null) {
-            synchronized (LOCK) {
-                messageBundleService = (MessageBundleService) ComponentManager.get(MessageBundleService.class.getName());
-            }
-        }
-        return messageBundleService;
+		return ComponentManager.get(MessageBundleService.class);
     }
 
-    private static ThreadLocalManager threadLocalManager;
-    protected static ThreadLocalManager getThreadLocalManager() {
-        if (threadLocalManager == null) {
-            synchronized (LOCK) {
-                threadLocalManager = (ThreadLocalManager) ComponentManager.get(ThreadLocalManager.class);
-            }
-        }
-        return threadLocalManager;
+    protected ThreadLocalManager getThreadLocalManager() {
+		return ComponentManager.get(ThreadLocalManager.class);
     }
 
 	/**

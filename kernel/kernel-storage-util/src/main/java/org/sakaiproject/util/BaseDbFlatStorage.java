@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
@@ -45,7 +46,6 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.cover.MemoryServiceLocator;
 import org.sakaiproject.time.cover.TimeService;
 
 /**
@@ -215,10 +215,9 @@ public class BaseDbFlatStorage
 		}
 
 		String cacheName = CACHE_NAME_PREFIX+table;
-		MemoryService memoryService = MemoryServiceLocator.getInstance();
+		MemoryService memoryService = ComponentManager.get(MemoryService.class);
 		if ( memoryService == null ) return null;
-		Cache myCache = memoryService.newCache(cacheName);
-		return myCache;
+		return memoryService.getCache(cacheName);
 	}
 
 	/**
