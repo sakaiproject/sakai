@@ -159,40 +159,99 @@ public class POXJacksonParser {
     }
 
     /**
-     * Get body information from a parsed request
+     * Get sourcedId from the POX body.
+     * Works with replaceResultRequest, readResultRequest, deleteResultRequest, and readMembershipRequest.
      * 
      * @param request The parsed POX request
-     * @return Map containing body information
+     * @return The sourcedId string, or null if not found
      */
-    public static Map<String, String> getBodyInfo(POXEnvelopeRequest request) {
-        Map<String, String> bodyInfo = new HashMap<>();
-        
+    public static String getBodySourcedId(POXEnvelopeRequest request) {
         if (request == null || request.getPoxBody() == null) {
-            return bodyInfo;
+            return null;
         }
         
         POXRequestBody body = request.getPoxBody();
+        ResultRecord resultRecord = null;
         
         if (body.getReplaceResultRequest() != null) {
-            ReplaceResultRequest replaceRequest = body.getReplaceResultRequest();
-            if (replaceRequest.getResultRecord() != null) {
-                ResultRecord record = replaceRequest.getResultRecord();
-                if (record.getSourcedGUID() != null) {
-                    bodyInfo.put("sourcedId", record.getSourcedGUID().getSourcedId());
-                }
-                if (record.getResult() != null && record.getResult().getResultScore() != null) {
-                    ResultScore score = record.getResult().getResultScore();
-                    bodyInfo.put("language", score.getLanguage());
-                    bodyInfo.put("textString", score.getTextString());
-                }
-            }
+            resultRecord = body.getReplaceResultRequest().getResultRecord();
+        } else if (body.getReadResultRequest() != null) {
+            resultRecord = body.getReadResultRequest().getResultRecord();
+        } else if (body.getDeleteResultRequest() != null) {
+            resultRecord = body.getDeleteResultRequest().getResultRecord();
+        }
+        
+        if (resultRecord != null && resultRecord.getSourcedGUID() != null) {
+            return resultRecord.getSourcedGUID().getSourcedId();
         }
         
         if (body.getReadMembershipRequest() != null) {
-            bodyInfo.put("sourcedId", body.getReadMembershipRequest().getSourcedId());
+            return body.getReadMembershipRequest().getSourcedId();
         }
         
-        return bodyInfo;
+        return null;
+    }
+
+    /**
+     * Get language from the resultScore in the POX body.
+     * Works with replaceResultRequest, readResultRequest, and deleteResultRequest.
+     * 
+     * @param request The parsed POX request
+     * @return The language string, or null if not found
+     */
+    public static String getBodyLanguage(POXEnvelopeRequest request) {
+        if (request == null || request.getPoxBody() == null) {
+            return null;
+        }
+        
+        POXRequestBody body = request.getPoxBody();
+        ResultRecord resultRecord = null;
+        
+        if (body.getReplaceResultRequest() != null) {
+            resultRecord = body.getReplaceResultRequest().getResultRecord();
+        } else if (body.getReadResultRequest() != null) {
+            resultRecord = body.getReadResultRequest().getResultRecord();
+        } else if (body.getDeleteResultRequest() != null) {
+            resultRecord = body.getDeleteResultRequest().getResultRecord();
+        }
+        
+        if (resultRecord != null && resultRecord.getResult() != null && 
+            resultRecord.getResult().getResultScore() != null) {
+            return resultRecord.getResult().getResultScore().getLanguage();
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get textString from the resultScore in the POX body.
+     * Works with replaceResultRequest, readResultRequest, and deleteResultRequest.
+     * 
+     * @param request The parsed POX request
+     * @return The textString value, or null if not found
+     */
+    public static String getBodyTextString(POXEnvelopeRequest request) {
+        if (request == null || request.getPoxBody() == null) {
+            return null;
+        }
+        
+        POXRequestBody body = request.getPoxBody();
+        ResultRecord resultRecord = null;
+        
+        if (body.getReplaceResultRequest() != null) {
+            resultRecord = body.getReplaceResultRequest().getResultRecord();
+        } else if (body.getReadResultRequest() != null) {
+            resultRecord = body.getReadResultRequest().getResultRecord();
+        } else if (body.getDeleteResultRequest() != null) {
+            resultRecord = body.getDeleteResultRequest().getResultRecord();
+        }
+        
+        if (resultRecord != null && resultRecord.getResult() != null && 
+            resultRecord.getResult().getResultScore() != null) {
+            return resultRecord.getResult().getResultScore().getTextString();
+        }
+        
+        return null;
     }
 
     /**

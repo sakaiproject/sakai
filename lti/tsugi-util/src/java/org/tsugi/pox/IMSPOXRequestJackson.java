@@ -312,10 +312,6 @@ public class IMSPOXRequestJackson {
         return POXJacksonParser.getHeaderInfo(poxRequest);
     }
 
-    public Map<String, String> getBodyMap() {
-        return POXJacksonParser.getBodyInfo(poxRequest);
-    }
-
     public String getPostBody() {
         return postBody;
     }
@@ -528,10 +524,9 @@ public class IMSPOXRequestJackson {
         IMSPOXRequestJackson pox = new IMSPOXRequestJackson(inputTestData);
         log.debug("Version = {}", pox.getHeaderVersion());
         log.debug("Operation = {}", pox.getOperation());
-        Map<String, String> bodyMap = pox.getBodyMap();
-        String guid = bodyMap.get("sourcedId");
+        String guid = POXJacksonParser.getBodySourcedId(pox.getPoxRequest());
         log.debug("guid={}", guid);
-        String grade = bodyMap.get("textString");
+        String grade = POXJacksonParser.getBodyTextString(pox.getPoxRequest());
         log.debug("grade={}", grade);
 
         String desc = "Message received and validated operation=" + pox.getOperation() +
