@@ -259,6 +259,9 @@ public class GradeSummaryTablePanel extends BasePanel implements IAjaxIndicatorA
 							rawGrade = "";
 							comment = "";
 						}
+						assignmentItem.add(new AttributeModifier("data-assignment-id", assignment.getId()));
+						assignmentItem.add(new AttributeModifier("data-points", assignment.getPoints()));
+						assignmentItem.add(new AttributeModifier("data-grade", StringUtils.defaultString(rawGrade)));
 
 						final Label title = new Label("title", assignment.getName());
 						assignmentItem.add(title);

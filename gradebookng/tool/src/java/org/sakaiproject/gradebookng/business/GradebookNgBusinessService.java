@@ -572,6 +572,21 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	 * Calculate a course grade preview for the given student with hypothetical scores.
+	 *
+	 * @param gradebookUid the gradebook id
+	 * @param siteId the site id
+	 * @param studentUuid the student
+	 * @param whatIfScores map of assignment id to raw score string
+	 * @param includeNonReleasedItems whether to include items that are not released
+	 * @return preview of the course grade, or null if it cannot be calculated for the user
+	 */
+	public CourseGradeTransferBean calculateWhatIfCourseGrade(final String gradebookUid, final String siteId, final String studentUuid,
+			final Map<Long, String> whatIfScores, final boolean includeNonReleasedItems) {
+		return this.gradingService.calculateCourseGradePreview(gradebookUid, siteId, studentUuid, whatIfScores, includeNonReleasedItems);
+	}
+
+	/**
 	 * Save the grade and comment for a student's assignment and do concurrency checking
 	 *
 	 * @param assignmentId id of the gradebook assignment
