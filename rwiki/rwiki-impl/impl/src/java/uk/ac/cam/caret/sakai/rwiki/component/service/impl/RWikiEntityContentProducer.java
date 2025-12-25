@@ -62,6 +62,13 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 
 	private EntityManager entityManager = null;
 
+	// Map of events to their corresponding search index actions
+	private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+			RWikiObjectService.EVENT_RESOURCE_ADD, SearchBuilderItem.ACTION_ADD,
+			RWikiObjectService.EVENT_RESOURCE_WRITE, SearchBuilderItem.ACTION_ADD,
+			RWikiObjectService.EVENT_RESOURCE_REMOVE, SearchBuilderItem.ACTION_DELETE
+	);
+
 	public void init()
 	{
 		try
@@ -76,14 +83,11 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 					.getName());
 			entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 
-			if ( "true".equals(ServerConfigurationService.getString(
-					"search.enable", "false")))
-			{
-
-				searchService.registerFunction(RWikiObjectService.EVENT_RESOURCE_ADD);
-				searchService.registerFunction(RWikiObjectService.EVENT_RESOURCE_WRITE);
-				searchIndexBuilder.registerEntityContentProducer(this);
-			}
+			// Register all events with the search service
+			EVENT_ACTIONS.keySet().forEach(searchService::registerFunction);
+			
+			// Register this content producer with the search index builder
+			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 		catch (Throwable t)
 		{
@@ -180,22 +184,12 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 
 	public Integer getAction(Event event)
 	{
-		String eventName = event.getEvent();
-		if (RWikiObjectService.EVENT_RESOURCE_ADD.equals(eventName)
-				|| RWikiObjectService.EVENT_RESOURCE_WRITE.equals(eventName))
-		{
-			return SearchBuilderItem.ACTION_ADD;
-		}
-		if (RWikiObjectService.EVENT_RESOURCE_REMOVE.equals(eventName))
-		{
-			return SearchBuilderItem.ACTION_DELETE;
-		}
-		return SearchBuilderItem.ACTION_UNKNOWN;
+		return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
 	}
 
 	public boolean matches(Event event)
 	{
-		return !SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
+		return EVENT_ACTIONS.containsKey(event.getEvent());
 	}
 
 	public String getTool()
