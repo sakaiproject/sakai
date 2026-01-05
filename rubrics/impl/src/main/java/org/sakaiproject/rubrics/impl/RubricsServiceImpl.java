@@ -872,9 +872,34 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
 
         Evaluation evaluation;
         List<Long> newOutcomesCriterionIds = new ArrayList<>();
-        if (evaluationBean.getId() != null) {
-            evaluation = evaluationRepository.getById(evaluationBean.getId());
 
+        if (evaluationBean.getId() != null) {
+            // UI knows the evaluation ID, fetch it directly
+            evaluation = evaluationRepository.getById(evaluationBean.getId());
+        } else {
+            // UI thinks this is new, but check if an evaluation exists for this association and item
+            evaluation = evaluationRepository.findByAssociationIdAndEvaluatedItemIdAndOwner(
+                    evaluationBean.getAssociationId(),
+                    evaluationBean.getEvaluatedItemId(),
+                    evaluationBean.getEvaluatedItemOwnerId())
+                .orElseGet(() -> {
+                    // Create a new evaluation with outcomes from the bean
+                    Evaluation e = new Evaluation();
+                    e.getCriterionOutcomes().addAll(evaluationBean.getCriterionOutcomes().stream().map(o -> {
+                        CriterionOutcome outcome = new CriterionOutcome();
+                        outcome.setCriterionId(o.getCriterionId());
+                        outcome.setPoints(o.getPoints());
+                        outcome.setComments(o.getComments());
+                        outcome.setPointsAdjusted(o.getPointsAdjusted());
+                        outcome.setSelectedRatingId(o.getSelectedRatingId());
+                        return outcome;
+                    }).toList());
+                    return e;
+                });
+        }
+
+        // If evaluation already exists (has an ID), merge the criterion outcomes
+        if (evaluation.getId() != null) {
             List<CriterionOutcome> outcomes = evaluation.getCriterionOutcomes();
             List<Long> outcomeIds = outcomes.stream().map(CriterionOutcome::getCriterionId).collect(Collectors.toList());
 
@@ -914,17 +939,6 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             }
             // outcomeIds should be empty, if not the db contained outcomes not reported in the ui so remove them
             outcomes.removeIf(o -> outcomeIds.contains(o.getCriterionId()));
-        } else {
-            evaluation = new Evaluation();
-            evaluation.getCriterionOutcomes().addAll(evaluationBean.getCriterionOutcomes().stream().map(o -> {
-                CriterionOutcome outcome = new CriterionOutcome();
-                outcome.setCriterionId(o.getCriterionId());
-                outcome.setPoints(o.getPoints());
-                outcome.setComments(o.getComments());
-                outcome.setPointsAdjusted(o.getPointsAdjusted());
-                outcome.setSelectedRatingId(o.getSelectedRatingId());
-                return outcome;
-            }).collect(Collectors.toList()));
         }
 
         // only set these once
@@ -950,11 +964,11 @@ public class RubricsServiceImpl implements RubricsService, EntityTransferrer {
             ReturnedEvaluation returnedEvaluation = returnedEvaluationRepository.findByOriginalEvaluationId(evaluation.getId())
                 .map(re -> {
                     re.setOverallComment(savedEvaluation.getOverallComment());
-                    Map<Long, CriterionOutcome> outcomes = savedEvaluation.getCriterionOutcomes().stream()
+                    Map<Long, CriterionOutcome> outcomesById = savedEvaluation.getCriterionOutcomes().stream()
                             .collect(Collectors.toMap(CriterionOutcome::getCriterionId, co -> co));
-                    re.getCriterionOutcomes().removeIf(o -> outcomes.get(o.getCriterionId()) == null);
+                    re.getCriterionOutcomes().removeIf(o -> outcomesById.get(o.getCriterionId()) == null);
                     re.getCriterionOutcomes().forEach(rco -> {
-                        CriterionOutcome o = outcomes.get(rco.getCriterionId());
+                        CriterionOutcome o = outcomesById.get(rco.getCriterionId());
                         rco.setSelectedRatingId(o.getSelectedRatingId());
                         rco.setPointsAdjusted(o.getPointsAdjusted());
                         rco.setPoints(o.getPoints());
