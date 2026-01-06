@@ -1381,8 +1381,12 @@ public class DeliveryBean implements Serializable {
 
       // secure delivery START phase
       // should occur before timer check, so that timer will be stopped if access is denied
-      setSecureDeliveryHTMLFragment( "" );
-      setBlockDelivery( false );
+      if (secureDeliveryStatus == null) {
+        setSecureDeliveryHTMLFragment( "" );
+        setBlockDelivery( false );
+      } else if (PhaseStatus.FAILURE.equals(secureDeliveryStatus) && StringUtils.isBlank(secureDeliveryHTMLFragment)) {
+        validateSecureDeliveryPhase(Phase.ASSESSMENT_START);
+      }
 
       if (SamigoConstants.OUTCOME_DELIVERY_TAKE_ASSESSMENT.equals(results) && getSecureDeliveryModuleId() != null) {
         if (secureDeliveryStatus == null) {

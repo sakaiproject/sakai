@@ -370,6 +370,7 @@ function initSecureDeliverySettings(isPublishedSettingsPage) {
     if (isPublishedSettingsPage) {
         // Published assessment Settings
         handleSecureDeliveryModule();
+        formElements.secureDeliveryModule?.onChange(handleSecureDeliveryModule);
 
     } else {
         // Draft assessment Settings
