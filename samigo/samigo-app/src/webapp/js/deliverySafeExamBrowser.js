@@ -2,6 +2,7 @@
 
 const siteId = "IS_NOT_NEEDED";
 const formId = "takeAssessmentForm";
+const returnUrlId = formId + ":sebReturnUrl";
 // Replacing http: to seb: and https: to sebs:
 const sebProtocol = window.location.protocol.replace('http','seb');
 const startButtonId = formId + ":resetViewHidden";
@@ -28,6 +29,14 @@ function getLaunchSebLink() {
     return getDownloadConfigLink().replace(protocol, sebProtocol) + "?launch=true";
 }
 
+function getReturnUrl() {
+    const target = document.getElementById(returnUrlId)?.value;
+    if (target && target.trim() !== "") {
+        return target;
+    }
+    return window.location.href;
+}
+
 function isStartView() {
     return document.getElementById(startButtonId) ? true : false;
 }
@@ -48,7 +57,9 @@ async function configureLink(linkId, href) {
     if (link && href && href !== "" && href !== "#") {
         link.setAttribute("href", href);
     } else {
-        link.remove();
+        if (link) {
+            link.remove();
+        }
         console.debug(`Link with Id ${linkId} removed, due to invalid href ${href}.`);
     }
 }
@@ -121,9 +132,9 @@ async function onSebKeysPresent() {
 if (sebApi) {
     // If our keys are present, we can call onSebKeysPresent, else, we register it as a callback for the update
     if (isEmptyKey(sebApi.security?.configKey) || isEmptyKey(sebApi.security?.browserExamKey)) {
-        onSebKeysPresent();
-    } else {
         sebApi.security.updateKeys(onSebKeysPresent);
+    } else {
+        onSebKeysPresent();
     }
 
     // Check if this is the sebSetup view, hide it and display loading bar
@@ -136,8 +147,20 @@ if (sebApi) {
 } else {
     // Configure links
     document.addEventListener("DOMContentLoaded", () => {
-        configureLink(launchSebLinkId, getLaunchSebLink());
+        const launchUrl = new URL(getLaunchSebLink());
+        launchUrl.searchParams.set("return", getReturnUrl());
+        configureLink(launchSebLinkId, launchUrl.toString());
         configureLink(downloadSebLinkId, downloadSebLink);
         configureLink(downloadConfigLinkId, getDownloadConfigLink());
+
+        const launchLink = document.getElementById(launchSebLinkId);
+        if (launchLink && !launchLink.classList.contains("disabled")) {
+            launchLink.addEventListener("click", () => {
+                // Keep the regular browser on the T&Q landing page after SEB launches.
+                window.setTimeout(() => {
+                    window.location.href = getReturnUrl();
+                }, 500);
+            });
+        }
     }, { once : true });
 }
