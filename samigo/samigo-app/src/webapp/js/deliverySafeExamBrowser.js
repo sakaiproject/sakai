@@ -56,10 +56,8 @@ async function configureLink(linkId, href) {
     const link = document.getElementById(linkId);
     if (link && href && href !== "" && href !== "#") {
         link.setAttribute("href", href);
-    } else {
-        if (link) {
-            link.remove();
-        }
+    } else if (link) {
+        link.remove();
         console.debug(`Link with Id ${linkId} removed, due to invalid href ${href}.`);
     }
 }
