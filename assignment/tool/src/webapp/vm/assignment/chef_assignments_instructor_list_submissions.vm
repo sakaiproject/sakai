@@ -451,6 +451,11 @@ function printView(url) {
 										#end
 									</div>
 									<div>
+									#set($submissionStatus = $!service.getSubmissionStatus($!submissionId, true))
+									## Get canonical status enum to check if this is a no-submission case
+									#set($canonicalStatus = $!service.getSubmissionCanonicalStatus($submission, true))
+									## Check if grading is allowed: not disabled AND NOT a no-submission status
+									#set($canGrade = !$disableGrading && $canonicalStatus && $canonicalStatus.name() != "NO_SUBMISSION")
 									#if ($taggable)
 										#if ($value_CheckAnonymousGrading)
 											$anonymousSubmissionId
@@ -459,7 +464,7 @@ function printView(url) {
 										#end
 
 										#if ($gusers)
-											<div class="badge bg-primary fs-6"> 
+											<div class="badge bg-primary fs-6">
 											#foreach ($user in $gusers)
 												#if($velocityCount > 1), #end
 												#set($is_user_duplicate=false)
@@ -477,7 +482,7 @@ function printView(url) {
 											#end
 											</div>
 										#end
-										#if(!$disableGrading)
+										#if($canGrade)
 											<div class="itemAction">
 												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading)$anonymousSubmissionId#else$formattedText.escapeHtml($submitterName)#end</span></a>
 												#foreach ($provider in $providers)
@@ -491,7 +496,7 @@ function printView(url) {
 											</div>
 										#end
 									#else
-										#if(!$disableGrading)
+										#if($canGrade)
 											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$formattedText.escapeUrl($assignmentReference)&submissionId=$formattedText.escapeUrl($userSubmission.Reference)")" title="$tlang.getString("listsub.grasub")">
 												#if ($value_CheckAnonymousGrading)
 													$anonymousSubmissionId
@@ -640,7 +645,7 @@ function printView(url) {
 						</tr>
 					#else
 						## no submission for the user yet
-						<tr> 
+						<tr>
 							<td headers="attachment" class="attach">
 								&nbsp;
 							</td>
