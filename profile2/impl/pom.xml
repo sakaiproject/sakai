@@ -64,7 +64,6 @@
 		<dependency>
 			<groupId>org.sakaiproject.search</groupId>
       <artifactId>search-api</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>

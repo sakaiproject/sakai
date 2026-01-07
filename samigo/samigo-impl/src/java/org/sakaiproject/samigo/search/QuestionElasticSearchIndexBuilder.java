@@ -593,7 +593,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             throws IllegalArgumentException, IllegalStateException, UnsupportedOperationException {
         final EntityContentProducer ecp = (EntityContentProducer)validationContext.get(ADD_RESOURCE_VALIDATION_KEY_CONTENT_PRODUCER);
         IndexAction action1;
-        if (ecp.getAction(event)==100){
+        if (ecp.getAction(event).equals(ItemContentProducer.ACTION_SITE_DELETE_IF_REMOVED)){
             //if we need to delete all the site items we delete it and continue with Action_unknown
             //to stop the process.
             String siteId = event.getResource().substring(6);

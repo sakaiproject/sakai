@@ -63,6 +63,13 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 	
 	private SimplePageToolDao simplePageToolDao;
 	
+	// Map of events to their corresponding search index actions
+	private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+			LessonBuilderEvents.ITEM_CREATE, SearchBuilderItem.ACTION_ADD,
+			LessonBuilderEvents.ITEM_UPDATE, SearchBuilderItem.ACTION_ADD,
+			LessonBuilderEvents.ITEM_DELETE, SearchBuilderItem.ACTION_DELETE
+	);
+	
 	private LessonBuilderAccessAPI lessonBuilderAccessAPI;
     
 	private SecurityService securityService;
@@ -118,14 +125,11 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 					.getName());
 			entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 
-			if ( "true".equals(ServerConfigurationService.getString(
-					"search.enable", "false")))
-			{
-				searchService.registerFunction(LessonBuilderEvents.ITEM_CREATE);
-				searchService.registerFunction(LessonBuilderEvents.ITEM_UPDATE);
-				searchService.registerFunction(LessonBuilderEvents.ITEM_DELETE);
-				searchIndexBuilder.registerEntityContentProducer(this);
-			}
+			// Register all events with the search service
+			EVENT_ACTIONS.keySet().forEach(searchService::registerFunction);
+			
+			// Register this content producer with the search index builder
+			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 		catch (Throwable t)
 		{
@@ -206,22 +210,12 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 	
 	public Integer getAction(Event event)
 	{
-		String eventName = event.getEvent();
-		if (LessonBuilderEvents.ITEM_CREATE.equals(eventName)
-				|| LessonBuilderEvents.ITEM_UPDATE.equals(eventName))
-		{
-			return SearchBuilderItem.ACTION_ADD;
-		}
-		if (LessonBuilderEvents.ITEM_DELETE.equals(eventName))
-		{
-			return SearchBuilderItem.ACTION_DELETE;
-		}
-		return SearchBuilderItem.ACTION_UNKNOWN;
+		return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
 	}
 
 	public boolean matches(Event event)
 	{
-		return !SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
+		return EVENT_ACTIONS.containsKey(event.getEvent());
 	}
 
 	public String getTool()
