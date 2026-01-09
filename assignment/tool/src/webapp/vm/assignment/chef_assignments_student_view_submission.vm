@@ -490,7 +490,7 @@ $(document).ready(function(){
 								</label>	
 							</td>
                                                         <td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
-							<span class="badge bg-primary fs-6">
+							<span class="badge bg-primary fs-6 text-wrap text-start">
 								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
 									$formattedText.escapeHtml($user.getDisplayName())#if ($showUserId) ($formattedText.escapeHtml($user.getDisplayId())) #end
