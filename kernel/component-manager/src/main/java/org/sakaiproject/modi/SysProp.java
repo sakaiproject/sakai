@@ -57,12 +57,12 @@ public enum SysProp {
     }
 
     /** Get the value of this property; currently implemented over System properties. */
-    Optional<String> get() {
+    public Optional<String> get() {
         return Optional.ofNullable(System.getProperty(key));
     }
 
     /** Get the value of this property as a Path; currently implemented over System properties. */
-    Optional<Path> getPath() {
+    public Optional<Path> getPath() {
         return get().map(Path::of);
     }
 
@@ -70,27 +70,27 @@ public enum SysProp {
      * Get the value of this property as a Path, with a resolved extension; currently implemented over System
      * properties.
      */
-    Optional<Path> getPathPlus(String other) {
+    public Optional<Path> getPathPlus(String other) {
         return getPath().map(p -> p.resolve(other));
     }
 
     /** Get the value of this property, with a default value; currently implemented over System properties. */
-    Optional<String> get(String def) {
+    public Optional<String> get(String def) {
         return Optional.ofNullable(System.getProperty(key, def));
     }
 
     /** Get the unchecked value of this property; currently implemented over System properties. */
-    String getRaw() {
+    public String getRaw() {
         return System.getProperty(key);
     }
 
     /** Get the unchecked value of this property, with a default value; currently implemented over System properties. */
-    String getRaw(String def) {
+    public String getRaw(String def) {
         return System.getProperty(key, def);
     }
 
     /** Get the unchecked value of this property as a Path; currently implemented over System properties. */
-    Path getRawPath() {
+    public Path getRawPath() {
         return get().map(Path::of).orElse(null);
     }
 
@@ -99,7 +99,7 @@ public enum SysProp {
      * <p>
      * The extension is applied if the property is set. This returns the combined path if so, null otherwise.
      */
-    Path getRawPathPlus(String other) {
+    public Path getRawPathPlus(String other) {
         return getPath().map(p -> p.resolve(other)).orElse(null);
     }
 

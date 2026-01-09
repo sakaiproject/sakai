@@ -40,6 +40,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.component.api.ConfiguredContext;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.contentreview.service.ContentReviewService;
@@ -230,6 +231,11 @@ public class AssignmentTestConfiguration {
         Mockito.when(scs.getString("assignment.timesheet.timePattern", AssignmentServiceConstants.SAK_PROP_ASSIGNMENT_TIMESHEET_TIME_PATTERN_DEFAULT)).thenReturn(AssignmentServiceConstants.SAK_PROP_ASSIGNMENT_TIMESHEET_TIME_PATTERN_DEFAULT);
         Mockito.when(scs.getInt("assignment.grading.decimals", AssignmentConstants.DEFAULT_DECIMAL_POINT)).thenReturn(2);
         return scs;
+    }
+
+    @Bean(name = "org.sakaiproject.component.api.ConfiguredContext")
+    public ConfiguredContext configuredContext() {
+        return mock(ConfiguredContext.class);
     }
 
     @Bean(name = "org.sakaiproject.taggable.api.TaggingManager")

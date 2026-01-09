@@ -90,14 +90,7 @@ public class EhcacheMemoryService implements MemoryService {
      * Service SHUTDOWN
      */
     public void destroy() {
-        try {
-            cacheManager.clearAll();
-            cacheManager.removalAll(); // removeAllCaches()
-            cacheManager.shutdown();
-        } catch (CacheException e) {
-            // NOTHING TO DO HERE
-            log.warn("destroy() cache shutdown failure: "+e);
-        }
+        cacheManager.shutdown();
         cacheManager = null; // release
         log.info("SHUTDOWN");
     }

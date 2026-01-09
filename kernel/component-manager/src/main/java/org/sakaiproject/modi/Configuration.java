@@ -42,7 +42,7 @@ import java.util.Optional;
  * merges them, with the latter files taking precedence.
  */
 @Slf4j
-class Configuration implements BeanDefinitionSource {
+public class Configuration implements BeanDefinitionSource {
     /**
      * Create a Configuration loader that will load the default config/properties beans.
      * <p>
@@ -95,7 +95,7 @@ class Configuration implements BeanDefinitionSource {
      * The base configuration is read directly from the kernel jar, via the classpath.
      */
     protected Resource baseConfig() {
-        return new ClassPathResource("org/sakaiproject/config/sakai-configuration.xml");
+        return new ClassPathResource("org/sakaiproject/config/modi-configuration.xml");
     }
 
     protected Optional<Resource> localConfig() {

@@ -16,8 +16,10 @@
 package org.sakaiproject.ignite;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +33,6 @@ import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.DeploymentMode;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.TransactionConfiguration;
-import org.apache.ignite.failure.FailureHandler;
 import org.apache.ignite.logger.slf4j.Slf4jLogger;
 import org.apache.ignite.plugin.segmentation.SegmentationPolicy;
 import org.apache.ignite.spi.checkpoint.cache.CacheCheckpointSpi;
@@ -41,7 +42,10 @@ import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import org.apache.ignite.transactions.TransactionConcurrency;
 import org.apache.ignite.transactions.TransactionIsolation;
-import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.api.ConfiguredContext;
+
+import static org.sakaiproject.modi.SysProp.sakai_home;
+
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import lombok.Getter;
@@ -63,10 +67,33 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
     public static final String IGNITE_TCP_SLOW_CLIENT_MESSAGE_QUEUE_LIMIT = "ignite.tcpSlowClientMessageQueueLimit";
     public static final String IGNITE_STOP_ON_FAILURE = "ignite.stopOnFailure";
 
-    private static final IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
-    private static Boolean configured = Boolean.FALSE;
+    /** Special property that we can use to append an index to the node name for concurrency/reuse in testing. */
+    public static final String IGNITE_INSTANCE_INDEX = "ignite.instance.index";
 
-    @Setter private ServerConfigurationService serverConfigurationService;
+    // Deprecated property constants
+    private static final String _SERVER_NAME = "serverName";
+    private static final String _SERVER_ID = "serverId";
+    private static final String _DEFAULT_HOSTNAME = "localhost";
+
+    /**
+     * These are bindings to magic property names and values. Their use should
+     * be considered deprecated. The ServerConfigurationService exposes this kind
+     * of magic property as methods, but does not distinguish between those that
+     * are essential for bootstrapping or must remain fixed.
+     * <p>
+     * This blurry, special nature of a few properties is not reproduced on the
+     * {@link ConfiguredContext}. Rather, those truly special properties
+     * should be bundled together as a strongly-typed configuration that can
+     * be injected. Here, we read them as undifferentiated properties, and in
+     * the case of the default hostname, a literal value.
+     * <p>
+     * See also:
+     * - {@link org.sakaiproject.modi.Environment}
+     * - {@link org.sakaiproject.modi.SysProp}
+     */
+    private static final String[] __DEPRECATED_PROPERTY_USAGE = {_SERVER_NAME, _SERVER_ID, _DEFAULT_HOSTNAME};
+
+    @Setter private ConfiguredContext configuredContext;
     @Setter private List<CacheConfiguration> hibernateCacheConfiguration;
     @Setter private List<CacheConfiguration> requiredCacheConfiguration;
     @Setter private List<IgniteConditionalCache> conditionalCacheConfiguration;
@@ -74,12 +101,25 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
     @Getter @Setter private String address;
     @Getter @Setter private String home;
-    @Getter @Setter private String[] remoteAddresses;
+    @Getter @Setter private List<String> remoteAddresses;
     @Getter @Setter private int port;
     @Getter @Setter private int range;
     @Getter @Setter private String mode;
     @Getter @Setter private String name;
     @Getter @Setter private String node;
+
+    /**
+     * The instance index is used as a suffix on the instance name to allow restarting the
+     * kernel within the same JVM. In normal operation, the lifetimes of the JVM, the application
+     * context, and the single Ignite instance are bound together. However, with the new
+     * component manager, the kernel and application context lifetimes have been separated from
+     * the JVM (and/or servlet container) lifetime. This suffix allows a suite of integration
+     * tests to run and generate isolated application contexts, each with a fresh kernel and
+     * isolated Ignite instance by setting the index between dirtied test contexts.
+     * <p>
+     * If the index is 0, it will not be used; if it is >0, it will be appended to the name.
+     */
+    @Getter @Setter private int instanceIndex = 0;
 
     @Override
     public Class<?> getObjectType() {
@@ -88,18 +128,20 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
 
     @Override
     protected IgniteConfiguration createInstance() {
-        if (!configured) {
-            address = serverConfigurationService.getString(IGNITE_ADDRESS);
-            home = serverConfigurationService.getString(IGNITE_HOME);
-            remoteAddresses = serverConfigurationService.getStrings(IGNITE_ADDRESSES);
-            port = serverConfigurationService.getInt(IGNITE_PORT, 0);
-            range = serverConfigurationService.getInt(IGNITE_RANGE, 10);
-            mode = serverConfigurationService.getString(IGNITE_MODE, "server");
-            name = serverConfigurationService.getServerName();
-            node = serverConfigurationService.getServerId();
-            int tcpMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_MESSAGE_QUEUE_LIMIT, 1024);
-            int tcpSlowClientMessageQueueLimit = serverConfigurationService.getInt(IGNITE_TCP_SLOW_CLIENT_MESSAGE_QUEUE_LIMIT, tcpMessageQueueLimit / 2);
-            boolean stopOnFailure = serverConfigurationService.getBoolean(IGNITE_STOP_ON_FAILURE, true);
+        IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
+        // FIXME: The body of this method is left indented to minimize the diff
+            address = configuredContext.getString(IGNITE_ADDRESS, "127.0.0.1");
+            home = configuredContext.getString(IGNITE_HOME, fallbackBaseDirectory());
+            remoteAddresses = configuredContext.getStrings(IGNITE_ADDRESSES);
+            port = configuredContext.getInt(IGNITE_PORT, 0);
+            range = configuredContext.getInt(IGNITE_RANGE, 10);
+            mode = configuredContext.getString(IGNITE_MODE, "server");
+            name = configuredContext.getString(_SERVER_NAME, _DEFAULT_HOSTNAME);
+            node = configuredContext.getString(_SERVER_ID, _DEFAULT_HOSTNAME);
+            instanceIndex = configuredContext.getInt(IGNITE_INSTANCE_INDEX, instanceIndex);
+            int tcpMessageQueueLimit = configuredContext.getInt(IGNITE_TCP_MESSAGE_QUEUE_LIMIT, 1024);
+            int tcpSlowClientMessageQueueLimit = configuredContext.getInt(IGNITE_TCP_SLOW_CLIENT_MESSAGE_QUEUE_LIMIT, tcpMessageQueueLimit / 2);
+            boolean stopOnFailure = configuredContext.getBoolean(IGNITE_STOP_ON_FAILURE, true);
 
             Map<String, Object> attributes = new HashMap<>();
             // disable banner
@@ -120,21 +162,15 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             igniteConfiguration.setGridLogger(new Slf4jLogger());
 
             // configuration for metrics update frequency
-            igniteConfiguration.setMetricsUpdateFrequency(serverConfigurationService.getLong(IGNITE_METRICS_UPDATE_FREQ, IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
-            igniteConfiguration.setMetricsLogFrequency(serverConfigurationService.getLong(IGNITE_METRICS_LOG_FREQ, 0L));
+            igniteConfiguration.setMetricsUpdateFrequency(configuredContext.getLong(IGNITE_METRICS_UPDATE_FREQ, IgniteConfiguration.DFLT_METRICS_UPDATE_FREQ));
+            igniteConfiguration.setMetricsLogFrequency(configuredContext.getLong(IGNITE_METRICS_LOG_FREQ, 0L));
 
             TcpCommunicationSpi tcpCommunication = new TcpCommunicationSpi();
             TcpDiscoverySpi tcpDiscovery = new TcpDiscoverySpi();
             TcpDiscoveryVmIpFinder finder = new TcpDiscoveryVmIpFinder();
             Set<String> discoveryAddresses = new HashSet<>();
 
-            String localInterfaceAddress;
-            if (StringUtils.isNotBlank(address)) {
-                localInterfaceAddress = address;
-            } else {
-                // use loop back if no interface was configured
-                localInterfaceAddress = "127.0.0.1";
-            }
+            String localInterfaceAddress = address;
 
             if (StringUtils.equalsIgnoreCase("client", mode)) {
                 igniteConfiguration.setClientMode(true);
@@ -163,7 +199,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             transactionConfiguration.setDefaultTxTimeout(30 * 1000);
             igniteConfiguration.setTransactionConfiguration(transactionConfiguration);
 
-            configureCaches();
+            configureCaches(igniteConfiguration);
 
             // which interface tcp communication will use
             tcpCommunication.setLocalAddress(localInterfaceAddress);
@@ -193,9 +229,7 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
             tcpDiscovery.setLocalAddress(localInterfaceAddress);
 
             // remote node network configuration, 1.2.3.5:49000..49009
-            if (remoteAddresses != null && remoteAddresses.length > 0) {
-                discoveryAddresses.addAll(Arrays.asList(remoteAddresses));
-            }
+            discoveryAddresses.addAll(remoteAddresses);
 
             attributes.put("DiscoveryAddressesSize", discoveryAddresses.size());
 
@@ -217,13 +251,14 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
                     tcpDiscovery.getLocalPort(),
                     tcpDiscovery.getLocalPort() + tcpDiscovery.getLocalPortRange());
 
-            configured = Boolean.TRUE;
-        }
         return igniteConfiguration;
     }
 
     private void configureName() {
         name = StringUtils.replaceChars(name, '.', '-');
+        if (instanceIndex > 0) {
+            name += "-" + instanceIndex;
+        }
     }
 
     private void configurePort() {
@@ -242,33 +277,53 @@ public class IgniteConfigurationAdapter extends AbstractFactoryBean<IgniteConfig
         return number;
     }
 
+    /**
+     * When the node is named, the "Ignite home directory" is one level under the
+     * configured IGNITE_HOME / ignite.home path. For example, this name will almost
+     * always be the FDQN of the server and match the serverId property. The usual
+     * path will be of the form:   ${sakai.home}/ignite/[machine-name]
+     */
     private void configureHome() {
-        String path = home;
-        if (StringUtils.isBlank(path)) {
-            // if the root path is not specified use sakai.home/ignite/
-            path = serverConfigurationService.getSakaiHomePath();
-            path = path + File.separator + "ignite";
+        var base = Path.of(home);
+        var igniteHome = StringUtils.isBlank(node) ? base : base.resolve(node);
+
+        try {
+            Files.createDirectories(igniteHome);
+            if (!Files.isWritable(igniteHome)) throw cannotWriteToIgniteDirectory(igniteHome);
+            home = igniteHome.toAbsolutePath().toString();
+        } catch (IOException e) {
+            throw cannotCreateIgniteDirectory(igniteHome);
         }
-
-        if (StringUtils.isNotBlank(node)) {
-            if (!StringUtils.endsWith(path, File.separator)) {
-                path = path + File.separator;
-            }
-            path = path + node;
-        }
-
-        File igniteHome = new File(path);
-        if (!igniteHome.exists()) igniteHome.mkdirs();
-
-        // return the absolute path
-        home = igniteHome.getAbsolutePath();
     }
 
-    private void configureCaches() {
+    /**
+     * The default Ignite base directory is ${sakai.home}/ignite/
+     */
+    protected String fallbackBaseDirectory() {
+        return sakai_home.getPathPlus("ignite")
+                .map(Path::toString)
+                .orElseThrow(this::cannotStartWithoutHomeDirectory);
+    }
+
+    private void configureCaches(IgniteConfiguration igniteConfiguration) {
         List<CacheConfiguration> caches = new ArrayList<>();
         caches.addAll(hibernateCacheConfiguration);
         caches.addAll(requiredCacheConfiguration);
         conditionalCacheConfiguration.stream().filter(IgniteConditionalCache::exists).map(IgniteConditionalCache::getCacheConfiguration).forEach(caches::add);
         igniteConfiguration.setCacheConfiguration(caches.toArray(new CacheConfiguration[]{}));
+    }
+
+    private IllegalStateException cannotStartWithoutHomeDirectory() {
+        return new IllegalStateException("Critical error -- cannot start Ignite without either ignite.home or sakai.home set!");
+    }
+
+    private IllegalStateException cannotCreateIgniteDirectory(Path path) {
+        return new IllegalStateException(
+                String.format("Critical error -- cannot create Ignite home directory [%s], so cannot start. Check ignite.home and sakai.home properties.", path.toAbsolutePath()));
+    }
+
+    private IllegalStateException cannotWriteToIgniteDirectory(Path path) {
+        return new IllegalStateException(
+                String.format("Critical error -- cannot write to Ignite home directory [%s], so cannot start. Check ignite.home and sakai.home properties.", path.toAbsolutePath()));
     }
 }

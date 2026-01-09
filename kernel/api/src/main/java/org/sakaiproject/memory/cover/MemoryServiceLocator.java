@@ -22,6 +22,7 @@
 package org.sakaiproject.memory.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.memory.api.MemoryService;
 
 /**
  * <p>
@@ -30,32 +31,20 @@ import org.sakaiproject.component.cover.ComponentManager;
  * 
  * NOTE: Static covers should not be used in favour of injection or lookup via the component manager.
  * This cover should NEVER be used in the Kernel (only by tools outside the kernel)
+ *
+ * @deprecated since 26 - scheduled for removal in 27; use injection or {@link ComponentManager#get(Class)}
  */
+@Deprecated(forRemoval = true, since = "26")
 public class MemoryServiceLocator
 {
-	private static org.sakaiproject.memory.api.MemoryService m_instance = null;
-
 	/**
 	 * Access the component instance: special cover only method.
 	 * 
 	 * @return the component instance.
 	 */
-	public static org.sakaiproject.memory.api.MemoryService getInstance()
+	public static MemoryService getInstance()
 	{
-		org.sakaiproject.memory.api.MemoryService memoryService;
-		if (ComponentManager.CACHE_COMPONENTS)
-		{
-			if (m_instance == null)
-				m_instance = (org.sakaiproject.memory.api.MemoryService) ComponentManager
-						.get(org.sakaiproject.memory.api.MemoryService.class);
-			memoryService = m_instance;
-		}
-		else
-		{
-			memoryService = (org.sakaiproject.memory.api.MemoryService) ComponentManager
-					.get(org.sakaiproject.memory.api.MemoryService.class);
-		}
-		return memoryService;
+		return ComponentManager.get(MemoryService.class);
 	}
 
 }
