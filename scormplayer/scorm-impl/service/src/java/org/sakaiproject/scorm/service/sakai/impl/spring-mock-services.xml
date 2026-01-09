@@ -48,9 +48,4 @@
 		<constructor-arg value="org.sakaiproject.entity.api.EntityManager"/>
 	</bean>
 
-	<!-- Lazy proxy for GradingService - not used in tests but required for bean instantiation -->
-	<bean id="org.sakaiproject.grading.api.GradingService"
-		  class="org.springframework.aop.framework.ProxyFactoryBean" lazy-init="true">
-		<property name="proxyInterfaces" value="org.sakaiproject.grading.api.GradingService"/>
-	</bean>
 </beans>
