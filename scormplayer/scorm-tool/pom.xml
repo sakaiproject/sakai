@@ -55,7 +55,6 @@
         <dependency>
             <groupId>org.sakaiproject.edu-services.sections</groupId>
             <artifactId>sections-api</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- External Dependencies -->
