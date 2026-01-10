@@ -428,7 +428,7 @@
       <h:panelGroup styleClass="form-group row" layout="block">
         <h:outputLabel for="secureDeliveryModule" value="#{assessmentSettingsMessages.require_secure_delivery}" styleClass="col-md-2 form-label" />
         <div class="col-md-10">
-          <h:selectOneRadio id="secureDeliveryModule" disabled="true" value="#{publishedSettings.secureDeliveryModule}" layout="pageDirection" onclick="setBlockDivs();">
+          <h:selectOneRadio id="secureDeliveryModule" value="#{publishedSettings.secureDeliveryModule}" layout="pageDirection" onclick="setBlockDivs();">
               <f:selectItems value="#{publishedSettings.secureDeliveryModuleSelections}" />
           </h:selectOneRadio>
         </div>
@@ -453,7 +453,7 @@
         <h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"
             styleClass="col-md-2 form-label" />
         <div class="col-md-10">
-            <h:inputText id="secureDeliveryModuleExitPassword" disabled="true" size="14" value="#{publishedSettings.secureDeliveryModuleExitPassword}"
+            <h:inputText id="secureDeliveryModuleExitPassword" size="14" value="#{publishedSettings.secureDeliveryModuleExitPassword}"
                 maxlength="14" styleClass="form-control" />
         </div>
       </h:panelGroup>

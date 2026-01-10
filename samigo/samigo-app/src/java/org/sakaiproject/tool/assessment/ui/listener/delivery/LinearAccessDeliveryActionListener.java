@@ -58,6 +58,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
 @Slf4j
@@ -125,6 +126,9 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
                   PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
                   delivery.setSecureDeliveryStatus(status);
                   if ( PhaseStatus.FAILURE == status && !StringUtils.equals(moduleId, SecureDeliverySeb.MODULE_NAME) ) {
+                      delivery.setSecureDeliveryHTMLFragment(
+                              secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status,
+                                      new ResourceLoader().getLocale()));
                       return;
                   }
               }    	  
