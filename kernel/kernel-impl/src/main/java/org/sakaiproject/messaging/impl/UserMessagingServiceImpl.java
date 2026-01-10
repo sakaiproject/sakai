@@ -178,7 +178,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                 try {
                     userNotificationRepository.deleteExpiredNotifications();
                 } catch (Exception e) {
-                    log.warn("Exception whiles deleting expired notifications", e);
+                    log.warn("Exception whilst deleting expired notifications", e);
                 }
             }, 0, deleteExpiredPeriod, TimeUnit.MINUTES);
 

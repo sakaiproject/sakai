@@ -24,22 +24,34 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SchedulingServiceImpl implements SchedulingService {
 
     @Autowired private ServerConfigurationService serverConfigurationService;
+
+    private static int DEFAULT_POOL_SIZE = 8;
 
     private ScheduledThreadPoolExecutor executor;
 
     public void init() {
 
-        int poolSize = serverConfigurationService.getInt("schedulingservice.poolsize", 8);
+        int poolSize = serverConfigurationService.getInt("schedulingservice.poolsize", DEFAULT_POOL_SIZE);
+        if (poolSize <= 0) {
+          log.warn("schedulingservice.poolsize is invalid. Defaulting to {}", DEFAULT_POOL_SIZE);
+          poolSize = DEFAULT_POOL_SIZE;
+        }
+
         executor = new ScheduledThreadPoolExecutor(poolSize);
         executor.setRemoveOnCancelPolicy(true);
     }
 
     public void destroy() {
 
-        executor.shutdownNow();
+        if (executor != null) {
+            executor.shutdownNow();
+        }
     }
 
     @Override
