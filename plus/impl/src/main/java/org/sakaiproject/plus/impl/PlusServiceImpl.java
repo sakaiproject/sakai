@@ -566,10 +566,16 @@ public class PlusServiceImpl implements PlusService {
 			long longestRefreshed = 0;
 			String longestName = null;
 
-			while(true) {
-				List<String> queueList = new ArrayList<String>(refreshQueue.values());
-				if ( queueList.size() < 1 ) break;
-				String contextGuid = queueList.get(0);
+            while (true) {
+			    String contextGuid;
+		        synchronized (refreshQueue) {
+				    if (refreshQueue.isEmpty()) {
+					    break;
+			        }
+                    // Keys and values are the same in refreshQueue
+                    contextGuid = refreshQueue.entrySet().iterator().next().getKey();
+                    refreshQueue.remove(contextGuid);
+			    }
 				log.debug("Context pulled from queue {}", contextGuid);
 
 				numberRefreshed++;
