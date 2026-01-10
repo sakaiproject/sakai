@@ -126,7 +126,7 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
                 String title = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
                 UserNotificationData userNotificationData = new UserNotificationData();
                 userNotificationData.setFrom(event.getUserId());
-                userNotificationData.setTo("BROADCAST");
+                userNotificationData.setTo(UserNotificationData.BROADCAST);
                 userNotificationData.setTitle(title);
                 userNotificationData.setBroadcast(true);
                 userNotificationData.setTtl(Duration.ofHours(motdTTLHours));
