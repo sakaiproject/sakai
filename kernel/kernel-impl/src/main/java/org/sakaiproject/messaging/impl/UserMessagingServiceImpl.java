@@ -172,9 +172,14 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
             long deleteExpiredPeriod = serverConfigurationService.getLong("messaging.delete.expired.periodminutes", 30);
 
-            // Clean up expired notifications every 30 minutes
+            // Clean up expired notifications every deleteExpiredPeriod minutes
             schedulingService.scheduleWithFixedDelay(() -> {
-                userNotificationRepository.deleteExpiredNotifications();
+
+                try {
+                    userNotificationRepository.deleteExpiredNotifications();
+                } catch (Exception e) {
+                    log.warn("Exception whiles deleting expired notifications", e);
+                }
             }, 0, deleteExpiredPeriod, TimeUnit.MINUTES);
 
             pushEnabled = serverConfigurationService.getBoolean("portal.notifications.push.enabled", true);
