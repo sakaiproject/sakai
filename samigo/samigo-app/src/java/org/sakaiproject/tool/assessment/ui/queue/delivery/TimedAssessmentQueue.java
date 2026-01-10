@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.HashMap;
@@ -39,9 +40,9 @@ import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGrading
 @Slf4j
 public class TimedAssessmentQueue { 
 
-  private ConcurrentHashMap queue;
+  private ConcurrentMap queue;
   private SchedulingService schedulingService;
-  private HashMap<Long, ScheduledFuture<?>> tasks;
+  private ConcurrentMap<Long, ScheduledFuture<?>> tasks;
 
   private static class Loader {
     static final TimedAssessmentQueue INSTANCE = new TimedAssessmentQueue(ComponentManager.get(SchedulingService.class));
@@ -50,7 +51,7 @@ public class TimedAssessmentQueue {
   private TimedAssessmentQueue(SchedulingService schedulingService) {
     this.schedulingService = schedulingService;
     queue = new ConcurrentHashMap();
-    tasks = new HashMap<>();
+    tasks = new ConcurrentHashMap<>();
   } 
 
 
@@ -74,9 +75,9 @@ public class TimedAssessmentQueue {
                             0,
                             3000,
                             TimeUnit.MILLISECONDS)); 
-              log.info( "SAMIGO_TIMED_ASSESSMENT:QUEUE:NEWTIMER:SUCCESS ID:" + timedAG.getAssessmentGradingId());
+              log.info( "SAMIGO_TIMED_ASSESSMENT:QUEUE:NEWTIMER:SUCCESS ID:{}", timedAG.getAssessmentGradingId());
           } catch (Exception ex) {
-              log.error("SAMIGO_TIMED_ASSESSMENT:QUEUE:NEWTIMER:FAILED ID:" + timedAG.getAssessmentGradingId() + " Exception:" + ex);
+              log.error("SAMIGO_TIMED_ASSESSMENT:QUEUE:NEWTIMER:FAILED ID:{} Exception:{}", timedAG.getAssessmentGradingId(), ex);
           }
   }
 
@@ -89,9 +90,14 @@ public class TimedAssessmentQueue {
 
   // Remove a timed assessment from the queue
   public void remove(long timedAG){
-    log.info("SAMIGO_TIMED_ASSESSMENT:QUEUE:REMOVE ID:" + timedAG);
+    log.info("SAMIGO_TIMED_ASSESSMENT:QUEUE:REMOVE ID:{}", timedAG);
     // Stop the task and remove it
-    tasks.get(timedAG).cancel(true);
+    ScheduledFuture future = tasks.get(timedAG);
+
+    if (future != null) {
+      future.cancel(true);
+    }
+
     tasks.remove(timedAG);
     // Remove the grading data from the queue
     queue.remove(timedAG);
