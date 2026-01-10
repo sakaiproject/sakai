@@ -94,7 +94,7 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
                     String toolId = site.getToolForCommonId(DiscussionForumService.MESSAGES_TOOL_ID).getId();
                     String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
                             + "/tool/" + toolId + "/privateMsg/pvtMsgDirectAccess?current_msg_detail=" + pvtMessage.getId();
-                    notificationEvents.add(new UserNotificationData(from, userId, siteId, title, url, DiscussionForumService.MESSAGES_TOOL_ID));
+                    notificationEvents.add(new UserNotificationData(from, userId, siteId, title, url, DiscussionForumService.MESSAGES_TOOL_ID, false, null));
                 }
             } catch (IdUnusedException idEx) {
                 log.error("Failed to find the site: " + siteId, idEx);
