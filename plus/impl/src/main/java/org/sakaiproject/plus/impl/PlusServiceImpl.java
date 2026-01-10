@@ -588,7 +588,6 @@ public class PlusServiceImpl implements PlusService {
 					log.error("refreshContextMembershipsTask.run() Problem refreshing context: " + contextGuid, e);
 				} finally {
 					time = (System.currentTimeMillis() - start);
-					refreshQueue.remove(contextGuid);
 					log.debug("Refresh of context: {} took {} seconds", contextGuid, time/1e3);
 				}
 

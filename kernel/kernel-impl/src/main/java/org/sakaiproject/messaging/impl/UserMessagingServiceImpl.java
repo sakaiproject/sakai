@@ -401,8 +401,6 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                                     );
 
                                 if (!finalDeferred) {
-                                    bean.tool = und.getCommonToolId();
-
                                     if (und.isBroadcast()) {
                                         pushToAllUsers(decorateNotification(bean));
                                     } else {
