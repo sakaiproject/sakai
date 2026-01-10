@@ -406,7 +406,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                                     if (und.isBroadcast()) {
                                         pushToAllUsers(decorateNotification(bean));
                                     } else {
-                                        push(decorateNotification(bean));
+                                        pushToSingleUser(decorateNotification(bean));
                                     }
                                 }
                             })
@@ -583,7 +583,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         un.title = resourceLoader.getString("test_notification_title");
         un.eventDate = Instant.now();
 
-        push(decorateNotification(un));
+        pushToSingleUser(decorateNotification(un));
     }
 
     /**
@@ -591,22 +591,21 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
      */
     private void pushToAllUsers(UserNotificationTransferBean bean) {
 
+        if (!pushEnabled || pushService == null) {
+            log.debug("Push service is not enabled or not initialized");
+            return;
+        }
+
         executor.execute(() -> {
 
             int current = 0;
             int pageSize = 100;
-            Map<String, String> done = new HashMap<>();
             Page<PushSubscription> page = pushSubscriptionRepository.findAll(PageRequest.of(current, pageSize));
             while (page.getNumberOfElements() > 0) {
 
                 page.getContent().forEach(ps -> {
-
-                    String userId = ps.getUserId();
-                    if (!done.containsKey(userId)) {
-                        bean.to = ps.getUserId();
-                        push(bean);
-                        done.put(userId, "");
-                    }
+                    bean.to = ps.getUserId();
+                    push(ps, bean);
                 });
 
                 current++;
@@ -616,11 +615,12 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     /**
-     * Send a push notification to a user
+     * Send a push notification to a user. This may result in a few pushes as every user can have
+     * multiple devices and thus multiple subscriptions
      * 
      * @param un the UserNotification to push
      */
-    private void push(UserNotificationTransferBean un) {
+    private void pushToSingleUser(UserNotificationTransferBean un) {
 
         if (un == null) {
             log.warn("Cannot push null notification");
@@ -632,56 +632,61 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             return;
         }
 
-        pushSubscriptionRepository.findByUser(un.to).forEach(pushSubscription -> {
-            String pushEndpoint = pushSubscription.getEndpoint();
-            String pushUserKey = pushSubscription.getUserKey();
-            String pushAuth = pushSubscription.getAuth();
+        pushSubscriptionRepository.findByUser(un.to).forEach(ps -> this.push(ps, un));
+    }
 
-            // We only push if the user has given permission for notifications
-            // and successfully set their subscription details
-            if (StringUtils.isAnyBlank(pushEndpoint, pushUserKey, pushAuth)) {
-                log.debug("Skipping push notification due to missing subscription details for user {}", un.to);
-                return;
-            }
+    /**
+     * Push the user notification un to the subscription
+     */
+    private void push(PushSubscription subscription, UserNotificationTransferBean un) {
 
-            Subscription sub = new Subscription(pushEndpoint, new Subscription.Keys(pushUserKey, pushAuth));
-            try {
-                String notificationJson = objectMapper.writeValueAsString(un);
-                HttpResponse pushResponse = pushService.send(new Notification(sub, notificationJson));
+        String pushEndpoint = subscription.getEndpoint();
+        String pushUserKey = subscription.getUserKey();
+        String pushAuth = subscription.getAuth();
 
-                int statusCode = pushResponse.getStatusLine().getStatusCode();
-                if (statusCode >= 200 && statusCode < 300) {
-                    log.debug("Successfully sent push notification to {} with status {}", 
-                            pushEndpoint, statusCode);
-                } else {
-                    String reason = pushResponse.getStatusLine().getReasonPhrase();
-                    log.warn("Push notification to {} failed with status {} and reason {}", 
-                            pushEndpoint, statusCode, reason);
+        // We only push if the user has given permission for notifications
+        // and successfully set their subscription details
+        if (StringUtils.isAnyBlank(pushEndpoint, pushUserKey, pushAuth)) {
+            log.debug("Skipping push notification due to missing subscription details for user {}", un.to);
+            return;
+        }
 
-                    switch (statusCode) {
-                        case 410:
-                        case 404:
-                        case 400:
-                            log.info("Removing invalid push subscription for user {} due to status {}", 
-                                un.to, statusCode);
-                            // Clear the invalid subscription
-                            clearPushSubscription(pushSubscription);
-                            break;
-                        case 403:
-                            log.warn("Push failed with {}. Check VAPID configuration", statusCode);
-                            break;
-                        case 429:
-                            log.warn("Push failed with {}. Check rate of push message sending", statusCode);
-                            break;
-                        default:
-                            log.warn("Push failed with {}", statusCode);
-                    }
+        Subscription sub = new Subscription(pushEndpoint, new Subscription.Keys(pushUserKey, pushAuth));
+        try {
+            String notificationJson = objectMapper.writeValueAsString(un);
+            HttpResponse pushResponse = pushService.send(new Notification(sub, notificationJson));
+
+            int statusCode = pushResponse.getStatusLine().getStatusCode();
+            if (statusCode >= 200 && statusCode < 300) {
+                log.debug("Successfully sent push notification to {} with status {}", 
+                        pushEndpoint, statusCode);
+            } else {
+                String reason = pushResponse.getStatusLine().getReasonPhrase();
+                log.warn("Push notification to {} failed with status {} and reason {}", 
+                        pushEndpoint, statusCode, reason);
+
+                switch (statusCode) {
+                    case 410:
+                    case 404:
+                    case 400:
+                        log.info("Removing invalid push subscription for user {} due to status {}", 
+                            un.to, statusCode);
+                        // Clear the invalid subscription
+                        clearPushSubscription(subscription);
+                        break;
+                    case 403:
+                        log.warn("Push failed with {}. Check VAPID configuration", statusCode);
+                        break;
+                    case 429:
+                        log.warn("Push failed with {}. Check rate of push message sending", statusCode);
+                        break;
+                    default:
+                        log.warn("Push failed with {}", statusCode);
                 }
-            } catch (Exception e) {
-                log.error("Failed to serialize notification for push: {}", e.toString());
-                log.debug("Stacktrace", e);
             }
-        });
+        } catch (Exception e) {
+            log.warn("Failed to serialize notification for push", e);
+        }
     }
 
     /**
