@@ -26,6 +26,8 @@ import lombok.Data;
 @Data
 public class UserNotificationData {
 
+    public static final String BROADCAST = "BROADCAST";
+
     private String from;
     private String to;
     private String siteId;
