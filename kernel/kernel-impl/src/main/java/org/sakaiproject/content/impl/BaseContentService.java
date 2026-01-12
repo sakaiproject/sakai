@@ -8310,8 +8310,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 								}
 							} catch (IdUsedException e) {
 								// Resource already exists, thats ok, but we should still put it in the traversalMap
-								traversalMap.put(oResource.getId(), nId);
-								traversalMap.put(oResource.getUrl(), nUrl);
+								transversalMap.put(oResource.getId(), nId);
+								transversalMap.put(oResource.getUrl(), nUrl);
 							} catch (PermissionException|IdInvalidException|InconsistentException|ServerOverloadException e) {
 							}
 						} // if
