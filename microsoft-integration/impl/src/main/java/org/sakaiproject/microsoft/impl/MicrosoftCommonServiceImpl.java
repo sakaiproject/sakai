@@ -80,6 +80,7 @@ import com.microsoft.graph.requests.UserCollectionRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.messaging.api.MicrosoftMessage;
 import org.sakaiproject.messaging.api.MicrosoftMessage.MicrosoftMessageBuilder;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
@@ -110,6 +111,7 @@ import org.sakaiproject.microsoft.api.model.SiteSynchronization;
 import org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository;
 import org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository;
 import org.sakaiproject.microsoft.provider.AdminAuthProvider;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -178,7 +180,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	private static final String LINK_TYPE_VIEW = "view";
 	private static final String LINK_SCOPE_USERS = "users";
 	public static int COLUMN_SIZE = 7;
-	private static final int TEAM_CHARACTER_LIMIT = 73;// around 80, but leaving some margin because it is not consistent on the Microsoft side
+	private static final int TEAM_CHARACTER_LIMIT = 256;// 256 is the maximum legth for a Team name in the UI, no limits specified on the API docs
 	private static final int CHANNEL_CHARACTER_LIMIT = 50;// this is an official restriction
 	private final int MAX_RETRY = 2;
 	private final int MAX_PER_REQUEST = 20;
@@ -191,6 +193,8 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	@Setter private MicrosoftLoggingRepository microsoftLoggingRepository;
 	@Setter private MicrosoftMessagingService microsoftMessagingService;
 	@Setter private SakaiProxy sakaiProxy;
+
+	private FormattedText formattedText = ComponentManager.get(FormattedText.class);
 
 	private Cache cache = null;
 	private GraphServiceClient graphClient = null;
@@ -1767,7 +1771,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						.filter(g ->
 								successRequests.stream().noneMatch(c ->
 										c.getName()
-												.equalsIgnoreCase(formatMicrosoftString(truncateTitle(((org.sakaiproject.site.api.Group) g).getTitle())))))
+												.equalsIgnoreCase(processMicrosoftChannelName(((org.sakaiproject.site.api.Group) g).getTitle()))))
 						.collect(Collectors.toList());
 
 		responseMap.put("failed", pendingGroups);
@@ -1794,20 +1798,14 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 
 	@Override
 	public String processMicrosoftChannelName(String name) {
-		return formatMicrosoftString(truncateTitle(name));
+		return formatMicrosoftChannelString(
+			formattedText.makeShortenedText(name, CHANNEL_CHARACTER_LIMIT, null, null)
+		);
 	}
-
 
 	@Override
 	public String processMicrosoftTeamName(String name) {
-		return name.length() > TEAM_CHARACTER_LIMIT ?
-				name.substring(0, TEAM_CHARACTER_LIMIT)
-				:
-				name;
-	}
-
-	private String truncateTitle(String title) {
-		return title.length() > CHANNEL_CHARACTER_LIMIT ? title.substring(0, CHANNEL_CHARACTER_LIMIT - 1) : title;
+		return formattedText.makeShortenedText(name, TEAM_CHARACTER_LIMIT, null, null);
 	}
 
 	@Override
@@ -3173,7 +3171,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	}
 	
 	//https://learn.microsoft.com/en-us/graph/known-issues#create-channel-can-return-an-error-response
-	private String formatMicrosoftString(String str) {
+	private String formatMicrosoftChannelString(String str) {
 		String[] charsToReplace = {"\\~", "#", "%", "&", "\\*", "\\{", "\\}", "\\+", "/", "\\\\", ":", "<", ">", "\\?", "\\|", "‘", "'", "`", "´", "”", "\""};
 		for (String c : charsToReplace) {
 		    str = str.replaceAll(c, "");
