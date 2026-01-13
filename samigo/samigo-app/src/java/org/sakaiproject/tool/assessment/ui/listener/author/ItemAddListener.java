@@ -1967,6 +1967,11 @@ public class ItemAddListener implements ActionListener {
 
 	private void preparePublishedTextForCalculatedQueston(ItemFacade item, ItemBean bean) {
 		Set<ItemTextIfc> itemTextSet = item.getItemTextSet();
+		if (itemTextSet == null) {
+			itemTextSet = new HashSet<>();
+			item.setItemTextSet(itemTextSet);
+		}
+		
 		CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();
 		double score = bean.getItemScore();
 		double partialCredit = 0d;
@@ -1988,6 +1993,7 @@ public class ItemAddListener implements ActionListener {
 		List<CalculatedQuestionAnswerIfc> list = new ArrayList<>();
 		list.addAll(calcBean.getFormulas().values());
 		list.addAll(calcBean.getVariables().values());
+		list.addAll(calcBean.getGlobalvariables().values());
 
 		// loop through all variables and formulas to create ItemText objects
 		for (CalculatedQuestionAnswerIfc varFormula : list) {

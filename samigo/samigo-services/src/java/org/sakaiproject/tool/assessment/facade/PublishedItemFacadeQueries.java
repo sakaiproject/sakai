@@ -108,6 +108,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 			item.getItemTextSet().clear();
 			item.getItemMetaDataSet().clear();
 			item.getItemFeedbackSet().clear();
+			getHibernateTemplate().flush();
 			getHibernateTemplate().merge(item);
 		}
 	}
