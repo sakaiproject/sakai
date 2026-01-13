@@ -214,6 +214,13 @@ async function addItem() {
 }
 
 function toggleDropdown(elem, folder){
+	document.querySelectorAll('.dropdown-toggle').forEach((openDropdown) => {
+		if(openDropdown !== elem) {
+			openDropdown.classList.remove('open');
+			openDropdown.querySelector('.dropdown-menu')?.classList.remove('show');
+		}
+	});
+
 	let dropdownElem = elem.querySelector('.dropdown-menu');
 	if(!dropdownElem){
 		dropdownElem = document.getElementById('itemDropdownMenu').cloneNode(true);
@@ -227,7 +234,9 @@ function toggleDropdown(elem, folder){
 		elem.appendChild(dropdownElem);
 	}
 
-	if(elem.classList.contains("open")) {
+	const isCurrentlyOpen = dropdownElem.classList.contains('show');
+
+	if(isCurrentlyOpen) {
 		elem.classList.remove('open');
 		dropdownElem.classList.remove('show');
 	} else {
