@@ -53,4 +53,25 @@ public class UserNotificationTransferBean {
         bean.broadcast = un.getBroadcast();
         return bean;
     }
+
+    public static UserNotificationTransferBean of(UserNotificationTransferBean from) {
+
+        UserNotificationTransferBean to = new UserNotificationTransferBean();
+        to.from = from.from;
+        to.to = from.to;
+        to.event = from.event;
+        to.ref = from.ref;
+        to.title = from.title;
+        to.siteId = from.siteId;
+        to.url = from.url;
+        to.eventDate = from.eventDate;
+        to.viewed = from.viewed;
+        to.tool = from.tool;
+        to.broadcast = from.broadcast;
+        to.fromDisplayName = from.fromDisplayName;
+        to.siteTitle = from.siteTitle;
+        to.formattedEventDate = from.formattedEventDate;
+        return to;
+    }
+
 }

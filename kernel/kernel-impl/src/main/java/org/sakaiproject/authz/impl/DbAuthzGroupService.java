@@ -712,13 +712,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				long longestRefreshed = 0;
 				String longestName = null;
 				
-				List<AuthzGroup> queueList = new ArrayList<AuthzGroup>(refreshQueue.values());
-
-				Iterator<AuthzGroup> it = queueList.iterator();
-				while (it.hasNext()) {
-					AuthzGroup azGroup = it.next();
-					String azGroupId = azGroup.getId();
-					if (log.isDebugEnabled()) log.debug("RefreshAuthzGroupTask.run() start refresh of azgroup: " + azGroupId);
+				while (true) {
+					AuthzGroup azGroup;
+					String azGroupId;
+					synchronized (refreshQueue) {
+						if (refreshQueue.isEmpty()) {
+							break;
+						}
+						azGroup = refreshQueue.values().iterator().next();
+						azGroupId = azGroup.getId();
+						refreshQueue.remove(azGroupId);
+					}
+					log.debug("RefreshAuthzGroupTask.run() start refresh of azgroup: {}", azGroupId);
 
 					numberRefreshed++;
 					long time = 0;
@@ -726,11 +731,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					try {
 						((DbStorage) m_storage).refreshAuthzGroupInternal((BaseAuthzGroup) azGroup);
 					} catch (Throwable e) {
-						log.error("RefreshAuthzGroupTask.run() Problem refreshing azgroup: " + azGroupId, e);
+						log.error("RefreshAuthzGroupTask.run() Problem refreshing azgroup: {}", azGroupId, e);
 					} finally {
 						time = (System.currentTimeMillis() - start);
-						refreshQueue.remove(azGroupId);
-						if (log.isDebugEnabled()) log.debug("RefreshAuthzGroupTask.run() refresh of azgroup: " + azGroupId + " took " + time/1e3 + " seconds");
+						log.debug("RefreshAuthzGroupTask.run() refresh of azgroup: {} took {} seconds", azGroupId, time/1e3);
 					}
 					timeRefreshed += time;
 					if (time > longestRefreshed) {
@@ -738,7 +742,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 						longestName = azGroupId;
 					}
 					
-					if (it.hasNext() && (time > (refreshMaxTime * 1000L))) {
+					if (time > (refreshMaxTime * 1000L)) {
 						log.warn("RefreshAuthzGroupTask.run() " + azGroupId + " took " + time/1e3 + 
 								" seconds which is longer than the maximum allowed of " + refreshMaxTime + 
 								" seconds, delay processing the rest of the queue");
