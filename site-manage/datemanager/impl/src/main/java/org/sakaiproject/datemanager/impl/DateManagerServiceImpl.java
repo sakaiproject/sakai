@@ -806,7 +806,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 				String dueDateRaw = (String) jsonItem.get(DateManagerConstants.JSON_DUEDATE_PARAM_NAME);
 				Instant dueDate = null;
 				if (StringUtils.isNotBlank(dueDateRaw)) {
-					dueDateRaw = dueDateRaw.replaceAll("\"", "").replace("/", "-");
+					dueDateRaw = dueDateRaw.replaceAll("\"", "");
 					try {
 
 						LocalDate date;
@@ -2000,9 +2000,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 * Function that detect if there is any change or not in the sent tool
 	 * 
 	 * @param toolId - String - the tool Id
-	 * @param dateManagerValidation - DateManagerValidation - the validator used to update the object
-	 * 
-	 * @return boolean
+	 * @param columns - String[] - the columns
 	 */
 	public boolean isChanged(String toolId, String[] columns) {
 		String id = columns[0].replaceAll("\"", "");
@@ -2065,7 +2063,7 @@ public class DateManagerServiceImpl implements DateManagerService {
 		} else if (DateManagerConstants.COMMON_ID_GRADEBOOK.equals(toolId.replaceAll("\"", ""))) {
 			org.sakaiproject.grading.api.Assignment gbitem = gradingService.getAssignment(getCurrentSiteId(), getCurrentSiteId(), Long.parseLong(id));
 			if (columns[2] != null && columns[2].matches(".*\\d.*")) {
-				columns[2] = columns[2].replaceAll("\"", "").replace("/", "-");
+				columns[2] = columns[2].replaceAll("\"", "");
 				try {
 					LocalDate date;
 					if (columns[2].contains("T")) {
