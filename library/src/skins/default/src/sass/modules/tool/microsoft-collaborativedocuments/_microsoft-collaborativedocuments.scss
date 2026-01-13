@@ -1,11 +1,8 @@
 .#{$namespace}microsoft-collaborativedocuments {
 
-	$color-hover: var(--button-hover-text-color);
-	$color-active: var(--button-active-text-color);
-
 	$background-color: var(--sakai-background-color-2);
 	$background-color-hover: var(--sakai-background-color-3);
-	$background-color-button-hover: var(--button-hover-background);
+	$background-color-button-hover: var(--button-primary-hover-background);
 	$background-color-button-active: var(--button-active-background);
 
 	$shadow-button-hover: var(--button-hover-shadow);
@@ -79,7 +76,6 @@
 			.dropdown-toggle {
 				display: block;
 				&:hover, &:focus  {
-					color: $color-hover;
 					text-decoration: none;
 					background: $background-color-button-hover;
 					border-color: $border-color-hover;
@@ -87,7 +83,6 @@
 				}
 				&:active {
 					outline: 0;
-					color: $color-active;
 					text-decoration: none;
 					background: $background-color-button-active;
 					border-color: $border-color-active;
@@ -100,12 +95,14 @@
 			justify-content: space-between;
 		}
 		.dropdown-toggle {
-			display: none;
+			display: inline-block;
 			/*border: 1px solid $border-color-button;*/
 			border-radius: 4px;
-			padding: 0 5px;
+			padding: 2px 6px;
 			text-decoration: none;
 			position: relative;
+			margin: 0 .5rem 0 0;
+			visibility: visible;
 			.dropdown-menu {
 				position: absolute;
 				margin-top: 5px;
@@ -113,6 +110,9 @@
 		}
 		a {
 			text-decoration: none;
+		}
+		&.header {
+			text-decoration: underline;
 		}
 	}
 	form.dropzone {
