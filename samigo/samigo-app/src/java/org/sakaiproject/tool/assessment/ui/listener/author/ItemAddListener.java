@@ -1761,7 +1761,7 @@ public class ItemAddListener implements ActionListener {
 		  preparePublishedTextForEMI(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
-	      preparePublishedTextForCalculatedQueston(item, bean);
+	      preparePublishedTextForCalculatedQuestion(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.IMAGEMAP_QUESTION)) {
 		  preparePublishedTextForImageMapQuestion(item, bean);
@@ -1965,7 +1965,7 @@ public class ItemAddListener implements ActionListener {
 		}
 	}
 
-	private void preparePublishedTextForCalculatedQueston(ItemFacade item, ItemBean bean) {
+	private void preparePublishedTextForCalculatedQuestion(ItemFacade item, ItemBean bean) {
 		Set<ItemTextIfc> itemTextSet = item.getItemTextSet();
 		if (itemTextSet == null) {
 			itemTextSet = new HashSet<>();
