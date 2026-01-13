@@ -1168,7 +1168,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			boolean includeTwitterLibrary = false;
 
 			boolean forceButtonColor = false;
-			String color = null;
+			String headerColor = null;
+			String colColor = null;
 			for (SimplePageItem i : itemList) {
 
 				// break is not a normal item. handle it first
@@ -1177,8 +1178,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (first || i.getType() == SimplePageItem.BREAK) {
 				    boolean sectionbreak = false;
 				    forceButtonColor = BooleanUtils.toBoolean(i.getAttribute("forceBtn"));
-				    color = i.getAttribute("colcolor");
 				    if (first || "section".equals(i.getFormat())) {
+					headerColor = i.getAttribute("colcolor");
+					colColor = headerColor;
 					sectionWrapper = UIBranchContainer.make(container, "sectionWrapper:");
 					boolean collapsible = i.getAttribute("collapsible") != null && (!"0".equals(i.getAttribute("collapsible")));
 					boolean defaultClosed = i.getAttribute("defaultClosed") != null && (!"0".equals(i.getAttribute("defaultClosed")));
@@ -1212,12 +1214,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 					if (!needIcon)
 					    collapsedIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
-
-					sectionHeader.decorate(new UIStyleDecorator((color == null?"":"col"+color+"-header")));
-					cols = colCount(itemList, i.getId());
-					sectionbreak = true;
-					colnum = 0;
-				    } else if ("column".equals(i.getFormat()))
+						sectionHeader.decorate(new UIStyleDecorator((headerColor == null ? "" : "col" + headerColor + "-header")));
+						cols = colCount(itemList, i.getId());
+						sectionbreak = true;
+						colnum = 0;
+					} else if ("column".equals(i.getFormat()))
 					colnum++;
 				    String colForceBtnColor = i.getAttribute("forceBtn");
 				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");
@@ -1230,9 +1231,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    colnum += width; // number after this column
 
 				    if (!first && !"section".equals(i.getFormat())) {
-						color = i.getAttribute("colcolor");
+						colColor = i.getAttribute("colcolor");
 				    }
-				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
+				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (width > 1?" double":"") + (split > 1?" split":"") + (colColor == null?"":" col"+colColor)));
 				    UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
 
 				    if (canEditPage) {
@@ -1489,7 +1490,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// way things are
 					// done so the user never has to request a refresh.
 					//   FYI: this actually puts in an IFRAME for inline BLTI items
-					showRefresh = !makeLink(tableRow, "link", i, canSeeAll, currentPage, notDone, status, forceButtonColor, color) || showRefresh;
+					showRefresh = !makeLink(tableRow, "link", i, canSeeAll, currentPage, notDone, status, forceButtonColor, colColor) || showRefresh;
 					UILink.make(tableRow, "copylink", i.getName(), "http://lessonbuilder.sakaiproject.org/" + i.getId() + "/").
 					    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.copylink2").replace("{}", i.getName())));
 
