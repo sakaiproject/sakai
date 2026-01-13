@@ -140,5 +140,12 @@ public abstract class AbstractSCORM13APBase extends AbstractTransactionalJUnit4S
 		{
 			return mock(SessionManager.class);
 		}
-	}
+
+		@Bean(name = "org.sakaiproject.grading.api.GradingService")
+		public org.sakaiproject.grading.api.GradingService gradingService()
+		{
+			return mock(org.sakaiproject.grading.api.GradingService.class);
+		}
+	
+}
 }
