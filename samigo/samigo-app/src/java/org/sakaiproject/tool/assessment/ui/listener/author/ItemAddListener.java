@@ -1995,6 +1995,14 @@ public class ItemAddListener implements ActionListener {
 		list.addAll(calcBean.getVariables().values());
 		list.addAll(calcBean.getGlobalvariables().values());
 
+		// add "|0,0" to global variables
+		for (CalculatedQuestionAnswerIfc varFormula : list) {
+			if (varFormula instanceof CalculatedQuestionGlobalVariableBean) {
+				CalculatedQuestionGlobalVariableBean globalVariable = (CalculatedQuestionGlobalVariableBean) varFormula;
+				globalVariable.setText(globalVariable.getText() + "|0,0");
+			}
+		}
+
 		// loop through all variables and formulas to create ItemText objects
 		for (CalculatedQuestionAnswerIfc varFormula : list) {
 			ItemTextIfc choiceText = null;
