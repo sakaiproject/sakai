@@ -2650,7 +2650,7 @@ $(document).ready(function () {
     } else {
       $('#expandCollapseButtons').hide();
     }
-    $document.reload();
+    location.reload();
     return false;
   });
 
