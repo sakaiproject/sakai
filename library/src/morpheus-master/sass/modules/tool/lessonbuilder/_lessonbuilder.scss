@@ -103,7 +103,7 @@
 		color: var(--link-color);
 	}
 	//legacy gray
-	.colgray, .colgray-trans {
+	.portletBody .column.colgray, .portletBody .column.colgray-trans {
 		@extend .sakai-colorize--sakai-color-gray--lighter-6;
 		border: 1px solid var(--sakai-color-gray--lighter-5);
 	}
@@ -114,7 +114,7 @@
 		color: var(--sakai-color-gray--darker-6);
 	}
 	//legacy red
-	.colred, .colred-trans {
+	.portletBody .column.colred, .portletBody .column.colred-trans {
 		@extend .sakai-colorize--sakai-color-red--lighter-6;
 		border: 1px solid var(--sakai-color-red--lighter-5);
 	}
@@ -125,7 +125,7 @@
 		color: var(--sakai-color-red--darker-6);
 	}
 	//legacy blue
-	.colblue, .colblue-trans {
+	.portletBody .column.colblue, .portletBody .column.colblue-trans {
 		@extend .sakai-colorize--sakai-color-blue--lighter-6;
 		border: 1px solid var(--sakai-color-blue--lighter-5);
 	}
@@ -136,7 +136,7 @@
 		color: var(--sakai-color-blue--darker-6);
 	}
 	//legacy green
-	.colgreen, .colgreen-trans {
+	.portletBody .column.colgreen, .portletBody .column.colgreen-trans {
 		@extend .sakai-colorize--sakai-color-green--lighter-6;
 		border: 1px solid var(--sakai-color-green--lighter-5);
 	}
@@ -147,7 +147,7 @@
 		color: var(--sakai-color-green--darker-6);
 	}
 	//legacy yellow
-	.colyellow, .colyellow-trans {
+	.portletBody .column.colyellow, .portletBody .column.colyellow-trans {
 		@extend .sakai-colorize--sakai-color-gold--lighter-6;
 		border: 1px solid var(--sakai-color-gold--lighter-5);
 	}
@@ -197,9 +197,9 @@
 			$shade3: #{$color}--#{$lighterOrDarker}-3;
 			$shade4: #{$color}--#{$lighterOrDarker}-7;
 		}
-		.coln#{$name}, .coln#{$name}-trans {
+		.portletBody .column.coln#{$name}, .portletBody .column.coln#{$name}-trans {
 			background: var(--sakai-background-color-1) !important;
-			border: 1px solid var($shade1) !important;
+			border: 1px solid var(#{$shade2});
 		}
 		.coln#{$name}-header, .coln#{$name}-trans-header {
 			@extend .sakai-colorize#{$shade2};
@@ -213,12 +213,8 @@
 			@extend .sakai-colorize#{$shade3};
 			border-color: var(#{$shade3});
 		}
-		.coln#{$name}-header + .section {
-			border: 1px solid var(#{$shade2});
-			border-top: none;
-		}
 		
-		.coln#{$name} {
+		.column.coln#{$name}, .column.coln#{$name}-trans {
 			.questionDiv .contentCol, .checklistDiv {
 				@extend .sakai-colorize#{$shade4};
 			}
@@ -274,9 +270,10 @@
 	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'lighter', 'navy' );
 	@include sakaiLessonsLayoutColorScheme('--sakai-lessons-navy', 'darker', 'navy2' );
 
-	.colngray-trans, .colnblack-trans, .colnblue-trans, .colnblue2-trans, .colnred-trans, .colnnavy-trans, .colnnavy2-trans, .colnorange-trans, .colngold-trans, .colnteal-trans, .colnpurple-trans,
-	.colgray-trans, .colred-trans, .colblue-trans, .colgreen-trans, .colyellow-trans, .colngreen-trans {
-		border-color: transparent;
+	.portletBody .column.colngray-trans, .portletBody .column.colnblack-trans, .portletBody .column.colnblue-trans, .portletBody .column.colnblue2-trans, .portletBody .column.colnred-trans, .portletBody .column.colnnavy-trans,
+	.portletBody .column.colnnavy2-trans, .portletBody .column.colnorange-trans, .portletBody .column.colngold-trans, .portletBody .column.colnteal-trans, .portletBody .column.colnpurple-trans, .portletBody .column.colgray-trans,
+	.portletBody .column.colred-trans, .portletBody .column.colblue-trans, .portletBody .column.colgreen-trans, .portletBody .column.colyellow-trans, .portletBody .column.colngreen-trans {
+		border: 1px solid transparent;
 		box-shadow: none;
 		transition: none;
 	}

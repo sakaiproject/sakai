@@ -1252,58 +1252,57 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			boolean includeTwitterLibrary = false;
 
 			boolean forceButtonColor = false;
-			String color = null;
+			String headerColor = null;
+			String colColor = null;
 			for (SimplePageItem i : itemList) {
 
 				// break is not a normal item. handle it first
-			        // this will work whether first item is break or not. Might be a section
-			        // break or a normal item
+				// this will work whether first item is break or not. Might be a section
+				// break or a normal item
 				if (first || i.getType() == SimplePageItem.BREAK) {
 				    boolean sectionbreak = false;
 				    forceButtonColor = BooleanUtils.toBoolean(i.getAttribute("forceBtn"));
-				    color = i.getAttribute("colcolor");
 				    if (first || "section".equals(i.getFormat())) {
-					sectionWrapper = UIBranchContainer.make(container, "sectionWrapper:");
-					boolean collapsible = i.getAttribute("collapsible") != null && (!"0".equals(i.getAttribute("collapsible")));
-					boolean defaultClosed = i.getAttribute("defaultClosed") != null && (!"0".equals(i.getAttribute("defaultClosed")));
-					UIOutput sectionHeader = UIOutput.make(sectionWrapper, "sectionHeader");
+						headerColor = i.getAttribute("colcolor");
+						colColor = headerColor;
+						sectionWrapper = UIBranchContainer.make(container, "sectionWrapper:");
+						boolean collapsible = i.getAttribute("collapsible") != null && (!"0".equals(i.getAttribute("collapsible")));
+						boolean defaultClosed = i.getAttribute("defaultClosed") != null && (!"0".equals(i.getAttribute("defaultClosed")));
+						UIOutput sectionHeader = UIOutput.make(sectionWrapper, "sectionHeader");
 
-					// only do this is there's an actual section break. Implicit ones don't have an item to hold the title
-					String headerText = "";
-					if ("section".equals(i.getFormat()) && i.getName() != null) {
-					    headerText = i.getName();
-					}
-					UIOutput.make(sectionWrapper, "sectionHeaderText", headerText);
-					UIOutput collapsedIcon = UIOutput.make(sectionWrapper, "sectionCollapsedIcon");
-					sectionHeader.decorate(new UIStyleDecorator(headerText.equals("")? "skip" : ""));
-					sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
-						if(forceButtonColor){
+						// only do this is there's an actual section break. Implicit ones don't have an item to hold the title
+						String headerText = "";
+						if ("section".equals(i.getFormat()) && i.getName() != null) headerText = i.getName();
+						UIOutput.make(sectionWrapper, "sectionHeaderText", headerText);
+						UIOutput collapsedIcon = UIOutput.make(sectionWrapper, "sectionCollapsedIcon");
+						sectionHeader.decorate(new UIStyleDecorator(headerText.equals("") ? "skip" : ""));
+						sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
+						if (forceButtonColor) {
 							sectionContainer.decorate(new UIStyleDecorator("hasColor"));
 						}
-					boolean needIcon = false;
-					if (collapsible) {
-						sectionHeader.decorate(new UIStyleDecorator("collapsibleSectionHeader"));
-						sectionHeader.decorate(new UIFreeAttributeDecorator("aria-controls", sectionContainer.getFullID()));
-						sectionHeader.decorate(new UIFreeAttributeDecorator("aria-expanded", (defaultClosed?"false":"true")));
-						sectionContainer.decorate(new UIStyleDecorator("collapsible"));
-						if (defaultClosed ) {
-							sectionHeader.decorate(new UIStyleDecorator("closedSectionHeader"));
-							sectionContainer.decorate(new UIStyleDecorator("defaultClosed"));
-							needIcon = true;
-						} else {
-							sectionHeader.decorate(new UIStyleDecorator("openSectionHeader"));
+						boolean needIcon = false;
+						if (collapsible) {
+							sectionHeader.decorate(new UIStyleDecorator("collapsibleSectionHeader"));
+							sectionHeader.decorate(new UIFreeAttributeDecorator("aria-controls", sectionContainer.getFullID()));
+							sectionHeader.decorate(new UIFreeAttributeDecorator("aria-expanded", (defaultClosed ? "false" : "true")));
+							sectionContainer.decorate(new UIStyleDecorator("collapsible"));
+							if (defaultClosed) {
+								sectionHeader.decorate(new UIStyleDecorator("closedSectionHeader"));
+								sectionContainer.decorate(new UIStyleDecorator("defaultClosed"));
+								needIcon = true;
+							} else {
+								sectionHeader.decorate(new UIStyleDecorator("openSectionHeader"));
+							}
 						}
-					}
-					if (!needIcon)
-					    collapsedIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
+						if (!needIcon) collapsedIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
 
-					sectionHeader.decorate(new UIStyleDecorator((color == null?"":"col"+color+"-header")));
-					cols = colCount(itemList, i.getId());
-					sectionbreak = true;
-					colnum = 0;
-				    } else if ("column".equals(i.getFormat()))
-					colnum++;
-				    String colForceBtnColor = i.getAttribute("forceBtn");
+						sectionHeader.decorate(new UIStyleDecorator((headerColor == null ? "" : "col" + headerColor + "-header")));
+						cols = colCount(itemList, i.getId());
+						sectionbreak = true;
+						colnum = 0;
+					} else if ("column".equals(i.getFormat())) colnum++;
+
+					String colForceBtnColor = i.getAttribute("forceBtn");
 				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");
 				    if(StringUtils.isEmpty(colForceBtnColor) || StringUtils.equalsIgnoreCase(colForceBtnColor, "false")){
 				    	columnContainer.decorate(new UIStyleDecorator("noColor"));
@@ -1313,46 +1312,43 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
 				    colnum += width; // number after this column
 
-				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"") + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
+				    if (!first && !"section".equals(i.getFormat())) colColor = i.getAttribute("colcolor");
+					columnContainer.decorate(new UIStyleDecorator("cols" + cols + (width > 1 ? " double" : "") + (split > 1 ? " split" : "") + (colColor == null ? "" : " col" + colColor)));
 				    UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
 
 				    if (canEditPage) {
-				    UIComponent delIcon = UIOutput.make(columnContainer, "section-td");
-				    if (first)
-					delIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
+						UIComponent delIcon = UIOutput.make(columnContainer, "section-td");
+						if (first) delIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
 
-				    UIOutput.make(columnContainer, "section2");
-				    UIOutput.make(columnContainer, "section3").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.columnopen")));
-				    UIOutput.make(columnContainer, "addbottom");
-				    UIOutput.make(columnContainer, "addbottom2").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.add-item-column")));
-				    UIOutput mergeLink = UIOutput.make(columnContainer, "section-del-link");
-				    mergeLink.decorate(new UIFreeAttributeDecorator("data-merge-id", String.valueOf(i.getId())));
-				    mergeLink.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.join-items")));
-				    mergeLink.decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.join-items")));
-				    mergeLink.decorate(new UIStyleDecorator(sectionbreak?"section-merge-link":"column-merge-link"));
-				    }
+						UIOutput.make(columnContainer, "section2");
+						UIOutput.make(columnContainer, "section3").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.columnopen")));
+						UIOutput.make(columnContainer, "addbottom");
+						UIOutput.make(columnContainer, "addbottom2").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.add-item-column")));
+						UIOutput mergeLink = UIOutput.make(columnContainer, "section-del-link");
+						mergeLink.decorate(new UIFreeAttributeDecorator("data-merge-id", String.valueOf(i.getId())));
+						mergeLink.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.join-items")));
+						mergeLink.decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.join-items")));
+						mergeLink.decorate(new UIStyleDecorator(sectionbreak ? "section-merge-link" : "column-merge-link"));
+					}
 
-				    UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
+					UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 				    tableRow.decorate(new UIFreeAttributeDecorator("class", "breakitem break" + i.getFormat()));
 				    if (canEditPage) {
-					// usual case is this is a break
-					if (i.getType() == SimplePageItem.BREAK)
-					    UIOutput.make(tableRow, "itemid", String.valueOf(i.getId()));
-					else {
-					    // page doesn't start with a break. have to use pageid
-					    UIOutput.make(tableRow, "itemid", "p" + currentPage.getPageId());
+						// usual case is this is a break
+						if (i.getType() == SimplePageItem.BREAK)
+							UIOutput.make(tableRow, "itemid", String.valueOf(i.getId()));
+						else {
+							// page doesn't start with a break. have to use pageid
+							UIOutput.make(tableRow, "itemid", "p" + currentPage.getPageId());
+						}
 					}
-				    }
 
-				    first = false;
-				    if (i.getType() == SimplePageItem.BREAK)
-				    continue;
+					first = false;
+				    if (i.getType() == SimplePageItem.BREAK) continue;
 				    // for first item, if wasn't break, process it
 				}
 				
-				if (!simplePageBean.isItemVisible(i, currentPage)) {
-					continue;
-				}
+				if (!simplePageBean.isItemVisible(i, currentPage)) continue;
 
 				if(httpServletRequest.getParameter("printall") != null && i.getSakaiId() != null && !"".equals(i.getSakaiId()) && StringUtils.isNumeric(i.getSakaiId())
 						&& !printedSubpages.contains(Long.valueOf(i.getSakaiId())))			
@@ -1531,7 +1527,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// way things are
 					// done so the user never has to request a refresh.
 					//   FYI: this actually puts in an IFRAME for inline BLTI items
-					showRefresh = !makeLink(tableRow, "link", i, canSeeAll, currentPage, notDone, status, forceButtonColor, color) || showRefresh;
+					showRefresh = !makeLink(tableRow, "link", i, canSeeAll, currentPage, notDone, status, forceButtonColor, colColor) || showRefresh;
 					UILink.make(tableRow, "copylink", i.getName(), "http://lessonbuilder.sakaiproject.org/" + i.getId() + "/").
 					    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.copylink2").replace("{}", i.getName())));
 

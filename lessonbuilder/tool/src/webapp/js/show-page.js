@@ -2839,7 +2839,7 @@ $(document).ready(function() {
 			$('#expandCollapseButtons').hide();
 		}
 		$('#column-dialog').dialog('close');
-		$document.reload();
+		location.reload();
 		return false;
 	    });
 
