@@ -1657,7 +1657,7 @@ public class ItemAddListener implements ActionListener {
 	      for (CalculatedQuestionAnswerIfc varFormula : list) {
 	          if (varFormula instanceof CalculatedQuestionGlobalVariableBean) {
 	              CalculatedQuestionGlobalVariableBean globalVariable = (CalculatedQuestionGlobalVariableBean) varFormula;
-	              globalVariable.setText(globalVariable.getText() + "|0,0");
+	              globalVariable.setText(globalVariable.getText() + GradingService.GLOBAL_VAR_FORMAT_SUFFIX);
 	          }
 	      }
 	      
@@ -1999,7 +1999,7 @@ public class ItemAddListener implements ActionListener {
 		for (CalculatedQuestionAnswerIfc varFormula : list) {
 			if (varFormula instanceof CalculatedQuestionGlobalVariableBean) {
 				CalculatedQuestionGlobalVariableBean globalVariable = (CalculatedQuestionGlobalVariableBean) varFormula;
-				globalVariable.setText(globalVariable.getText() + "|0,0");
+				globalVariable.setText(globalVariable.getText() + GradingService.GLOBAL_VAR_FORMAT_SUFFIX);
 			}
 		}
 

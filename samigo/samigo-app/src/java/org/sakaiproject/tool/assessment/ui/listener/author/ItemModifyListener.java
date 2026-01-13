@@ -804,7 +804,7 @@ public class ItemModifyListener implements ActionListener
         for (AnswerIfc answer : answers) {
           if (answer.getIsCorrect()) {
             String text = answer.getText();
-            if (text.endsWith("|0,0") || !text.contains("|")) {
+            if (text.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX) || !text.contains("|")) {
                 // could be a global variable which not appear on the instructions
                 // a formula would have the format |0.0,0
                 // !text.contains("|") because there are previous global variables without |0,0
