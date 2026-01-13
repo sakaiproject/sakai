@@ -80,7 +80,6 @@ import com.microsoft.graph.requests.UserCollectionRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.messaging.api.MicrosoftMessage;
 import org.sakaiproject.messaging.api.MicrosoftMessage.MicrosoftMessageBuilder;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
@@ -180,7 +179,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	private static final String LINK_TYPE_VIEW = "view";
 	private static final String LINK_SCOPE_USERS = "users";
 	public static int COLUMN_SIZE = 7;
-	private static final int TEAM_CHARACTER_LIMIT = 256;// 256 is the maximum legth for a Team name in the UI, no limits specified on the API docs
+	private static final int TEAM_CHARACTER_LIMIT = 256;// 256 is the maximum length for a Team name in the UI, no limits specified on the API docs
 	private static final int CHANNEL_CHARACTER_LIMIT = 50;// this is an official restriction
 	private final int MAX_RETRY = 2;
 	private final int MAX_PER_REQUEST = 20;
@@ -193,8 +192,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	@Setter private MicrosoftLoggingRepository microsoftLoggingRepository;
 	@Setter private MicrosoftMessagingService microsoftMessagingService;
 	@Setter private SakaiProxy sakaiProxy;
-
-	private FormattedText formattedText = ComponentManager.get(FormattedText.class);
+	@Setter private FormattedText formattedText;
 
 	private Cache cache = null;
 	private GraphServiceClient graphClient = null;
