@@ -32,18 +32,17 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
-
-import java.util.Locale;
 
 import static org.mockito.Mockito.when;
 
@@ -66,7 +65,15 @@ public class DateManagerTestConfiguration {
 
     @Bean(name = "PersistenceService")
     public PersistenceService persistenceService() {
-        return Mockito.mock(PersistenceService.class);
+        PersistenceService persistenceService = Mockito.mock(PersistenceService.class);
+
+        PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries = Mockito.mock(PublishedAssessmentFacadeQueriesAPI.class);
+        when(persistenceService.getPublishedAssessmentFacadeQueries()).thenReturn(publishedAssessmentFacadeQueries);
+
+        AssessmentFacadeQueriesAPI assessmentFacadeQueries = Mockito.mock(AssessmentFacadeQueriesAPI.class);
+        when(persistenceService.getAssessmentFacadeQueries()).thenReturn(assessmentFacadeQueries);
+
+        return persistenceService;
     }
 
     @Bean(name = "org.sakaiproject.calendar.api.CalendarService")
@@ -152,12 +159,5 @@ public class DateManagerTestConfiguration {
     @Bean(name = "org.sakaiproject.user.api.PreferencesService")
     public PreferencesService preferencesService() {
         return Mockito.mock(PreferencesService.class);
-    }
-
-    @Bean(name = "org.sakaiproject.util.ResourceLoader.datemanager")
-    public ResourceLoader resourceLoader() {
-        ResourceLoader resourceLoader = Mockito.mock(ResourceLoader.class);
-        when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
-        return resourceLoader;
     }
 }
