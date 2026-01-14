@@ -38,6 +38,8 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
 import org.sakaiproject.grading.api.CategoryScoreData;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradebookInformation;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.CourseGrade;
 import org.sakaiproject.util.NumberUtil;
@@ -137,11 +139,19 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 			rawNewGrade = "0" + rawNewGrade;  // prepend a 0 so this passes validation (ie. ".1 " becomes "0.1")
 		}
 
-		if (StringUtils.isNotBlank(rawNewGrade)
-				&& (!NumberUtil.isValidLocaleDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
-			target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
+		GradebookInformation settings = businessService.getGradebookSettings(currentGradebookUid, currentSiteId);
+		if (StringUtils.isNotBlank(rawNewGrade)) {
+			if (settings.getGradeType() != GradeType.LETTER && (!NumberUtil.isValidLocaleDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
+				target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
+				return new ArgumentErrorResponse("Grade not valid");
+			}
 
-			return new ArgumentErrorResponse("Grade not valid");
+			if (settings.getGradeType() == GradeType.LETTER) {
+				if (!settings.getSelectedGradingScaleBottomPercents().keySet().contains(rawNewGrade)) {
+					target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
+					return new ArgumentErrorResponse("Grade not valid");
+				}
+			}
 		}
 
 		final String oldGrade = FormatHelper.formatGradeFromUserLocale(rawOldGrade);
@@ -187,7 +197,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 
 		studentCourseGrade.setDisplayString(courseGradeFormatter.format(studentCourseGrade));
 
-		final String[] courseGradeData = GbGradebookData.getCourseGradeData(studentCourseGrade, gradebook.getSelectedGradeMapping().getGradeMap());
+		final String[] courseGradeData = GbGradebookData.getCourseGradeData(studentCourseGrade, gradebook.getSelectedGradeMapping().getGradeMap(), settings.getGradeType());
 
 		Optional<CategoryScoreData> catData = categoryId == null ?
 				Optional.empty() : businessService.getCategoryScoreForStudent(currentGradebookUid, currentSiteId, Long.valueOf(categoryId), studentUuid, true);
