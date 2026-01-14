@@ -60,8 +60,8 @@ import lombok.extern.slf4j.Slf4j;
 public class SakaiProperties implements BeanFactoryPostProcessorCreator, InitializingBean {
     private SakaiPropertiesFactoryBean propertiesFactoryBean = new SakaiPropertiesFactoryBean();
     //private PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-    private ReversiblePropertyOverrideConfigurer propertyOverrideConfigurer = new ReversiblePropertyOverrideConfigurer();
-    private PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
+    protected ReversiblePropertyOverrideConfigurer propertyOverrideConfigurer = new ReversiblePropertyOverrideConfigurer();
+    protected PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 
     public SakaiProperties() {
         // Set defaults.

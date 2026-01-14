@@ -17,6 +17,14 @@
 		<property name="sakaiProperties" ref="org.sakaiproject.component.SakaiProperties"/>
 	</bean>
 
+	<bean id="org.sakaiproject.component.api.ConfiguredContext"
+		  class="org.sakaiproject.component.impl.ConfiguredContextImpl">
+
+		<!-- The Spring integration for IntelliJ says there is no matching constructor, but -->
+		<!-- that is because it cannot resolve all of our references across project boundaries. -->
+		<constructor-arg ref="org.sakaiproject.component.SakaiProperties" />
+	</bean>
+
 	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
 		<property name="beans">
 			<map>
