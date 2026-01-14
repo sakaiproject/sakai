@@ -23,6 +23,7 @@
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl.test;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import uk.ac.cam.caret.sakai.rwiki.component.service.impl.RWikiObjectServiceImpl;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl;
@@ -82,7 +83,7 @@ public class RWikiObjectServiceImplTest extends TestCase {
 	public void testExtractReferencesExtractReferencesTooLong() {
 		StringBuffer sb;
 		rwco = new RWikiCurrentObjectImpl();
-		HashSet<String> hs = new HashSet<String>();
+		HashSet<String> hs = new LinkedHashSet<>();
 		
 		hs.add(longString(3990));
 		sb = rwosi.extractReferences(rwco, hs);
