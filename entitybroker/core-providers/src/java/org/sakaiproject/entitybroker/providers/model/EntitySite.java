@@ -28,8 +28,8 @@ import java.util.Stack;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
-import org.azeckoski.reflectutils.annotations.ReflectTransient;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.Member;
@@ -61,7 +61,7 @@ import org.w3c.dom.Element;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
-@ReflectIgnoreClassFields({"createdBy", "modifiedBy", "properties", "propertiesEdit", "members", "orderedPages", "pages", "roles", "users", "groups", "url"})
+@JsonIgnoreProperties(value = {"createdBy", "modifiedBy", "properties", "propertiesEdit", "members", "orderedPages", "pages", "roles", "users", "groups", "url"})
 public class EntitySite implements Site {
 
     private static final long serialVersionUID = 7526472295622776147L;
@@ -552,6 +552,13 @@ public class EntitySite implements Site {
         }
         throw new UnsupportedOperationException();
     }
+
+    public void setCreatedBy(String userId) {
+        owner = userId;
+        if (site != null) {
+            site.setCreatedBy(userId);
+        }
+    }
     public Date getCreatedDate() {
         if (site != null) {
             return noAccess() ? null : site.getCreatedDate();
@@ -751,7 +758,7 @@ public class EntitySite implements Site {
         throw new UnsupportedOperationException();
     }
 
-    @ReflectTransient
+    @JsonIgnore
     public Element toXml(Document arg0, Stack arg1) {
         if (site != null) {
             return site.toXml(arg0, arg1);

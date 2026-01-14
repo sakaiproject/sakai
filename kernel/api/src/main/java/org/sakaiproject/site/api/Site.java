@@ -86,10 +86,17 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 
 	public final static String PROP_COURSE_IMAGE_URL = "course_image_url";
 
-	/**
-	 * @return the user who created this.
-	 */
-	User getCreatedBy();
+    /**
+     * @return the user who created this.
+     */
+    User getCreatedBy();
+
+    /**
+     * Set the id of the user who created this site.
+     *
+     * @param userId  the id of the user who should be recorded as the creator
+     */
+    void setCreatedBy(String userId);
 
 	/**
 	 * @return the user who last modified this.

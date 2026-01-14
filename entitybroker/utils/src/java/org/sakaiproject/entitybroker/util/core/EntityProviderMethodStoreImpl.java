@@ -23,6 +23,7 @@ package org.sakaiproject.entitybroker.util.core;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,8 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.azeckoski.reflectutils.ReflectUtils;
+import java.util.stream.Collectors;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -153,8 +153,8 @@ public class EntityProviderMethodStoreImpl implements EntityProviderMethodStore 
             sb.append(ca.getValue().toString());
             cas.put(ca.getKey(), action.copy()); // make a copy to avoid holding objects from another ClassLoader
         }
-        entityActions.put(prefix, actions);
-        log.info("Registered "+actions.size()+" custom actions for entity prefix ("+prefix+"): " + sb.toString());
+        entityActions.put(prefix, cas);
+        log.info("Registered {} custom actions for entity prefix ({}): {}", cas.size(), prefix, sb);
     }
 
     /* (non-Javadoc)
@@ -357,11 +357,20 @@ public class EntityProviderMethodStoreImpl implements EntityProviderMethodStore 
                 }
             }
             if (!found) {
-                throw new IllegalArgumentException("Invalid method params: param type is not allowed: " + paramType.getName() 
-                        + " : valid types include: " + ReflectUtils.arrayToString(validTypes));
+                throw new IllegalArgumentException("Invalid method params: param type is not allowed: " + paramType.getName()
+                        + " : valid types include: " + stringifyClassArray(validTypes));
             }
         }
         return validParams;
+    }
+
+    private static String stringifyClassArray(Class<?>[] types) {
+        if (types == null || types.length == 0) {
+            return "[]";
+        }
+        return Arrays.stream(types)
+                .map(Class::getName)
+                .collect(Collectors.joining(", ", "[", "]"));
     }
 
     /**
