@@ -327,6 +327,9 @@ public class AssessmentSettingsBean extends SpringBeanAutowiringSupport implemen
 
     public void setAssessment(AssessmentFacade assessment) {
     try {
+      // Clear cached gradebook items when loading a new assessment
+      this.existingGradebook = null;
+
       //1.  set the template info
       AssessmentService service = new AssessmentService();
       AssessmentTemplateIfc template = null;

@@ -311,6 +311,9 @@ public class PublishedAssessmentSettingsBean extends SpringBeanAutowiringSupport
 
     public void setAssessment(PublishedAssessmentFacade assessment) {
     try {
+      // Clear cached gradebook items when loading a new assessment
+      this.existingGradebook = null;
+
       this.assessment = assessment;
       // set the valueMap
       setValueMap(assessment.getAssessmentMetaDataMap());
