@@ -269,24 +269,26 @@ public class ForumsEmailService {
 		ContentHostingService contentHostingService = ComponentManager.get(ContentHostingService.class);;
 		ContentResource cr = contentHostingService.getResource(resourceId);
 		byte[] data = cr.getContent();
-		String filename = buildAttachmentPath(resourceId);
-		String path = filename.substring(0, filename.lastIndexOf(File.separator));
-		File dir = new File(path);
+		
+		File file = new File(buildAttachmentPath(resourceId));
+		File dir = file.getParentFile();
+		
+		if (dir == null) {
+			throw new IOException("Unable to determine parent directory for file: " + file.getAbsolutePath());
+		}
 		
 		if (!dir.exists()) {
 			boolean success = dir.mkdirs();
 			if (!success && !dir.exists()) {
-				throw new IOException("Failed to create directory: " + path);
+				throw new IOException("Failed to create directory: " + dir.getAbsolutePath());
 			}
 		}
 		
-		File file = new File(filename);
 		file.deleteOnExit();
-		dir.deleteOnExit();
 		
 		boolean success = file.createNewFile();
 		if (!success && !file.exists()) {
-			throw new IOException("Failed to create file: " + filename);
+			throw new IOException("Failed to create file: " + file.getAbsolutePath());
 		}
 		
 		FileOutputStream fileOutputStream = null;
