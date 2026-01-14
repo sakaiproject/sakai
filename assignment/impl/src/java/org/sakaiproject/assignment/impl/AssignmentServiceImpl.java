@@ -4582,6 +4582,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                                         String uniqueTitle = generateUniqueAssignmentTitle(nAssignment.getTitle(), nAssignment.getContext());
                                         nAssignment.setTitle(uniqueTitle);
+                                        nAssignment.setDraft(true); // Set to draft so user can review the renamed assignment
                                         // Use direct repository merge to avoid duplicate task/notification creation
                                         // The final updateAssignment() call at the end of this method will handle side effects
                                         nAssignment.setModifier(sessionManager.getCurrentSessionUserId());
