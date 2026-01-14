@@ -38,9 +38,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -55,6 +53,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -79,7 +78,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -322,7 +321,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		// wrapper for SectionDataIfc
 		Iterator<SectionContentsBean> iter = delivery.getPageContents().getPartsContents()
 				.iterator();
-		log.debug("****1b. inside submitToGradingService, iter= " + iter);
+		log.debug("****1b. inside submitToGradingService, iter= {}", iter);
 		HashSet<ItemGradingData> adds = new HashSet<>();
 		HashSet<ItemGradingData> removes = new HashSet<>();
 
@@ -336,7 +335,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		// ones.
 		while (iter.hasNext()) {
 			SectionContentsBean part = iter.next();
-			log.debug("****1c. inside submitToGradingService, part " + part);
+			log.debug("****1c. inside submitToGradingService, part {}", part);
 			for (ItemContentsBean item : part.getItemContents()) { // go through each item from form
 				log.debug("****** before prepareItemGradingPerItem");
 				prepareItemGradingPerItem(ae, delivery, item, adds, removes);
@@ -797,10 +796,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 						itemgrading.setAgentId(AgentFacade.getAgentString());
 						verifySubmittedDateInItemGrading(item, itemgrading);
 						adds.add(itemgrading);
-						log.debug("adding answer: " + itemgrading.getItemGradingId());
+						log.debug("adding answer: {}", itemgrading.getItemGradingId());
 					} else if((!item.isTimedQuestion() && !delivery.isTrackingQuestions()) || grading.size() > 1){
 						removes.add(itemgrading);
-						log.debug("remove answer: " + itemgrading.getItemGradingId());
+						log.debug("remove answer: {}", itemgrading.getItemGradingId());
 					}
 				} else { 
 					 // new answer
@@ -809,7 +808,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						itemgrading.setAgentId(AgentFacade.getAgentString());
 						verifySubmittedDateInItemGrading(item, itemgrading);
 						adds.add(itemgrading);
-						log.debug("adding new answer answer: " + itemgrading.getItemGradingId());
+						log.debug("adding new answer answer: {}", itemgrading.getItemGradingId());
 					}
 				}
 			}
@@ -892,20 +891,19 @@ public class SubmitToGradingActionListener implements ActionListener {
 		String actionCommand = "";
 		if (ae != null) {
 			actionCommand = ae.getComponent().getId();
-			log.debug("ae is not null, getActionCommand() = " + actionCommand);	
+			log.debug("ae is not null, getActionCommand() = {}", actionCommand);	
 		} else {
 			log.debug("ae is null");
 		}
 		
-		if ("1".equals(delivery.getNavigation()) && adds.isEmpty() && !"showFeedback".equals(actionCommand)) {
-			log.debug("enter here");
+		if ("1".equals(delivery.getNavigation()) && adds.isEmpty() && (ae == null || !"showFeedback".equals(actionCommand))) {
 			Long assessmentGradingId = delivery.getAssessmentGrading().getAssessmentGradingId();
 			Long publishedItemId = item.getItemData().getItemId();
-			log.debug("assessmentGradingId = " + assessmentGradingId);
-			log.debug("publishedItemId = " + publishedItemId);
+			log.debug("assessmentGradingId = {}, publishedItemId = {}", assessmentGradingId, publishedItemId);
 			GradingService gradingService = new GradingService();
 			
-			if (gradingService.getItemGradingData(assessmentGradingId.toString(), publishedItemId.toString()) == null) {
+			ItemGradingData existingItemGrading = gradingService.getItemGradingData(assessmentGradingId.toString(), publishedItemId.toString());
+			if (existingItemGrading == null) {
 				log.debug("Create a new (fake) ItemGradingData");
 				ItemGradingData itemGrading = new ItemGradingData();
 				itemGrading.setAssessmentGradingId(assessmentGradingId);
@@ -913,18 +911,23 @@ public class SubmitToGradingActionListener implements ActionListener {
 				itemGrading.setPublishedItemId(publishedItemId);
 				ItemService itemService = new ItemService();
 				Long itemTextId = itemService.getItemTextId(publishedItemId);
-				log.debug("itemTextId = " + itemTextId);
+				log.debug("itemTextId = {}", itemTextId);
 				if(itemTextId != -1){
 					itemGrading.setPublishedItemTextId(itemTextId);
 					adds.add(itemGrading);
 				}
 			}
 			else {
-				// For File Upload question, if user clicks on "Upload", a ItemGradingData will be created. 
-				// Therefore, when user clicks on "Next", we shouldn't create it again.
-				// Same for Audio question, if user records anything, a ItemGradingData will be created.
-				// We don't create it again when user clicks on "Next".
-				if ((typeId == 6 || typeId == 7)) {
+				// When ae is null and ItemGradingData exists but wasn't added to 'adds',
+				// we need to add it to prevent blank questions in linear navigation
+				if (ae == null) {
+					log.debug("Adding existing ItemGradingData to adds to prevent blank question. itemGradingId={}", existingItemGrading.getItemGradingId());
+					adds.add(existingItemGrading);
+				} else if ((typeId == 6 || typeId == 7)) {
+					// For File Upload question, if user clicks on "Upload", a ItemGradingData will be created. 
+					// Therefore, when user clicks on "Next", we shouldn't create it again.
+					// Same for Audio question, if user records anything, a ItemGradingData will be created.
+					// We don't create it again when user clicks on "Next".
 					log.debug("File Upload or Audio! Do not create empty ItemGradingData if there exists one");
 				}
 			}
@@ -962,12 +965,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 	}
     	GradingService gradingService = new GradingService();
     	List<ItemGradingData> data = gradingService.getAllItemGradingDataForItemInGrading(assessmentGradingId, publishedItemId);
-    	log.debug("got " + data.size() + " answers from storage");
-    	log.debug("got " + grading.size() + " items in the grading object");
+    	log.debug("got {} answers from storage", data.size());
+    	log.debug("got {} items in the grading object", grading.size());
     	for (int i = 0; i < data.size(); i++) {
     		ItemGradingData item = data.get(i);
     		if (!itemsInGrading.contains(item.getItemGradingId())) {
-    			log.debug("we will remove "  + item.getItemGradingId());
+    			log.debug("we will remove {}", item.getItemGradingId());
     			ret.add(item);
     		}
     	}
