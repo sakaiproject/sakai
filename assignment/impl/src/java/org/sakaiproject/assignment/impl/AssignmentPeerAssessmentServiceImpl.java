@@ -221,7 +221,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                         }
                     } else {
                         //this isn't realy possible since we looked up the peer assessments by submission id
-                        log.error("AssignmentPeerAssessmentServiceImpl: found a peer assessment with an invalid session id: " + p.getId().getSubmissionId());
+                        log.error("AssignmentPeerAssessmentServiceImpl: found a peer assessment with an invalid session id: {}", p.getId().getSubmissionId());
                     }
                 }
 
