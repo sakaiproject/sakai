@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.opensearch.action.search.SearchResponse;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 
@@ -208,23 +207,6 @@ public interface SearchService extends Diagnosable
 					  int end, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException;
 
 
-	/**
-	 * This is the same as standard search, but the caller can specify the logical name
-	 * of the index builder which should execute the search and pass a more complex information in the search Terms.
-	 * In this case we return the SearchResponse directly
-	 *
-	 *
-	 * @param searchTerms A Map where we can define more information for the search
-	 * @param contexts A list of contexts
-	 * @param start starting from
-	 * @param end ending at
-	 * @param indexBuilderName logical index builder name or {@code null} to fall back to default
-	 * @param additionalSearchInformation extra parameters to construct more advanced queries
-	 * @return
-	 * @throws InvalidSearchQueryException if unable to parse the query
-	 */
-	SearchResponse searchResponse(String searchTerms, List<String> contexts, List<String> toolIds, int start,
-					  int end, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException;
 
 
 
