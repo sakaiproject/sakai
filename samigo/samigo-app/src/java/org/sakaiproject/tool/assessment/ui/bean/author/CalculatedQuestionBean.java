@@ -23,6 +23,8 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import org.apache.commons.collections4.comparators.NullComparator;
+import org.sakaiproject.tool.assessment.services.GradingService;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -156,10 +158,9 @@ public class CalculatedQuestionBean implements Serializable {
         Map<String, CalculatedQuestionGlobalVariableBean> results = new HashMap<String, CalculatedQuestionGlobalVariableBean>();
         for (CalculatedQuestionGlobalVariableBean globalvariable : this.globalVariables.values()) {
             if (globalvariable.isActive()) {
-                final String SUFFIX = "|0,0";
                 String text = globalvariable.getText();
-                if (text.endsWith(SUFFIX)) {
-                    globalvariable.setText(text.substring(0, text.length() - SUFFIX.length()));
+                if (text != null && text.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX)) {
+                    globalvariable.setText(text.substring(0, text.length() - GradingService.GLOBAL_VAR_FORMAT_SUFFIX.length()));
                 }
                 results.put(globalvariable.getName(), globalvariable);
             }
@@ -181,8 +182,8 @@ public class CalculatedQuestionBean implements Serializable {
         // remove "|0,0" from the global variables
         for (CalculatedQuestionGlobalVariableBean globalVariable : beanList) {
             String text = globalVariable.getText();
-            if (text.endsWith("|0,0")) {
-                globalVariable.setText(text.substring(0, text.length() - 4));
+            if (text != null && text.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX)) {
+                globalVariable.setText(text.substring(0, text.length() - GradingService.GLOBAL_VAR_FORMAT_SUFFIX.length()));
             }
         }
         return beanList;

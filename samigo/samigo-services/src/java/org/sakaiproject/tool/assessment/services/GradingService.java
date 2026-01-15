@@ -129,6 +129,7 @@ public class GradingService
   public static final char CALCULATION_AUX_OPEN = '└';
   public static final char CALCULATION_AUX_CLOSE = '┐';
   public static final String FORMAT_MASK = "0E0";
+  public static final String GLOBAL_VAR_FORMAT_SUFFIX = "|0,0";
   public static final BigDecimal DEFAULT_MAX_THRESHOLD = BigDecimal.valueOf(1.0e+11);
   public static final BigDecimal DEFAULT_MIN_THRESHOLD = BigDecimal.valueOf(0.0001);
   /**
@@ -3160,8 +3161,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           String globalVariableName = globalVariableNames.get(i);
           String longFormula = replaceFormulaNameWithFormula(item, globalVariableName);
           // remove "|0,0" from longFormula if present
-          if (longFormula.endsWith("|0,0")) {
-            longFormula = longFormula.substring(0, longFormula.length() - 4);
+          if (longFormula.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX)) {
+            longFormula = longFormula.substring(0, longFormula.length() - GradingService.GLOBAL_VAR_FORMAT_SUFFIX.length());
           }
           globalVariables.put(globalVariableName, longFormula);
       }
