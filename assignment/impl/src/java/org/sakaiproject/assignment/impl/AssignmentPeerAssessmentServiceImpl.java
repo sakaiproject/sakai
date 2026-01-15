@@ -317,8 +317,10 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 if (!StringUtils.isBlank(opaqueContext)) {
                     Assignment assignment = assignmentService.getAssignment(opaqueContext);
                     if (assignment != null && assignment.getAllowPeerAssessment() && !assignment.getDraft()) {
-                        log.debug("Scheduling retry for failed peer assessment assignment: {}", opaqueContext);
-                        scheduleRetry(assignment);
+                        if (shouldScheduleRetry(assignment, totalSubmissions)) {
+                            log.debug("Scheduling retry for failed peer assessment assignment: {}", opaqueContext);
+                            scheduleRetry(assignment);
+                        }
                     }
                 }
             } catch (Exception retryException) {
