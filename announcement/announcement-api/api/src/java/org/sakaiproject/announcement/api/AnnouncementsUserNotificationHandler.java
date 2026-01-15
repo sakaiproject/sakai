@@ -88,8 +88,7 @@ public class AnnouncementsUserNotificationHandler extends AbstractUserNotificati
         return Arrays.asList(AnnouncementService.SECURE_ANNC_ADD,
                 AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY,
                 AnnouncementService.SECURE_ANNC_REMOVE_OWN, AnnouncementService.SECURE_ANNC_REMOVE_ANY,
-                AnnouncementService.EVENT_AVAILABLE_ANNC,
-                AnnouncementService.EVENT_MOTD_NEW);
+                AnnouncementService.EVENT_AVAILABLE_ANNC);
     }
 
     @Override
