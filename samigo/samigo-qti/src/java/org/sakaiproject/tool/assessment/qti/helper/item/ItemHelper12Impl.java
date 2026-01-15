@@ -612,8 +612,8 @@ public class ItemHelper12Impl extends ItemHelperBase
               if (answer.getIsCorrect()) {
                   String text = answer.getText();
                   // remove "|0,0" from the global variables
-                  if (text.endsWith("|0,0")) {
-                    text = text.substring(0, text.length() - 4);
+                  if (text.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX)) {
+                    text = text.substring(0, text.length() - GradingService.GLOBAL_VAR_FORMAT_SUFFIX.length());
                   }
 
                   // add nodes

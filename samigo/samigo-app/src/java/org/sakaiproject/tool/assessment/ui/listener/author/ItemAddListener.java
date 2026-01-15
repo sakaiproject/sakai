@@ -1657,7 +1657,10 @@ public class ItemAddListener implements ActionListener {
 	      for (CalculatedQuestionAnswerIfc varFormula : list) {
 	          if (varFormula instanceof CalculatedQuestionGlobalVariableBean) {
 	              CalculatedQuestionGlobalVariableBean globalVariable = (CalculatedQuestionGlobalVariableBean) varFormula;
-	              globalVariable.setText(globalVariable.getText() + "|0,0");
+	              String text = globalVariable.getText();
+	              if (text != null && !text.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX)) {
+	                globalVariable.setText(text + GradingService.GLOBAL_VAR_FORMAT_SUFFIX);
+	              }
 	          }
 	      }
 	      
@@ -1761,7 +1764,7 @@ public class ItemAddListener implements ActionListener {
 		  preparePublishedTextForEMI(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
-	      preparePublishedTextForCalculatedQueston(item, bean);
+	      preparePublishedTextForCalculatedQuestion(item, bean);
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.IMAGEMAP_QUESTION)) {
 		  preparePublishedTextForImageMapQuestion(item, bean);
@@ -1965,8 +1968,13 @@ public class ItemAddListener implements ActionListener {
 		}
 	}
 
-	private void preparePublishedTextForCalculatedQueston(ItemFacade item, ItemBean bean) {
+	private void preparePublishedTextForCalculatedQuestion(ItemFacade item, ItemBean bean) {
 		Set<ItemTextIfc> itemTextSet = item.getItemTextSet();
+		if (itemTextSet == null) {
+			itemTextSet = new HashSet<>();
+			item.setItemTextSet(itemTextSet);
+		}
+		
 		CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();
 		double score = bean.getItemScore();
 		double partialCredit = 0d;
@@ -1988,6 +1996,18 @@ public class ItemAddListener implements ActionListener {
 		List<CalculatedQuestionAnswerIfc> list = new ArrayList<>();
 		list.addAll(calcBean.getFormulas().values());
 		list.addAll(calcBean.getVariables().values());
+		list.addAll(calcBean.getGlobalvariables().values());
+
+		// add "|0,0" to global variables
+		for (CalculatedQuestionAnswerIfc varFormula : list) {
+			if (varFormula instanceof CalculatedQuestionGlobalVariableBean) {
+				CalculatedQuestionGlobalVariableBean globalVariable = (CalculatedQuestionGlobalVariableBean) varFormula;
+				String text = globalVariable.getText();
+				if (text != null && !text.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX)) {
+					globalVariable.setText(text + GradingService.GLOBAL_VAR_FORMAT_SUFFIX);
+				}
+			}
+		}
 
 		// loop through all variables and formulas to create ItemText objects
 		for (CalculatedQuestionAnswerIfc varFormula : list) {
