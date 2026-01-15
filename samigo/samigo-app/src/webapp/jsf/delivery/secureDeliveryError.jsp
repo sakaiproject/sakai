@@ -46,7 +46,7 @@
    </h:panelGroup>
 
    <f:verbatim><p class="act"></f:verbatim>
-       <h:commandButton accesskey="#{deliveryMessages.a_return}" value="#{deliveryMessages.button_return}" type="submit"
+       <h:commandButton value="#{deliveryMessages.button_return}" type="submit"
           style="act" action="select" 
           rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='reviewAssessment'}">
          <f:actionListener

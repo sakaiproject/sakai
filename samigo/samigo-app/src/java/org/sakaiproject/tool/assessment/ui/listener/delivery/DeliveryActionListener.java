@@ -368,6 +368,9 @@ public class DeliveryActionListener
                           PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
                           delivery.setSecureDeliveryStatus(status);
                           if ( PhaseStatus.FAILURE == status && !StringUtils.equals(moduleId, SecureDeliverySeb.MODULE_NAME) ) {
+                              delivery.setSecureDeliveryHTMLFragment(
+                                      secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status,
+                                              new ResourceLoader().getLocale()));
                               return;
                           }
                       }
@@ -3126,4 +3129,3 @@ public class DeliveryActionListener
   }
   
 }
-
