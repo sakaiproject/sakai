@@ -34,15 +34,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
-import org.opensearch.action.search.SearchResponse;
-import org.opensearch.search.SearchHit;
-import org.opensearch.search.aggregations.bucket.terms.Terms;
-import org.opensearch.search.aggregations.metrics.TopHits;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.elasticsearch.ElasticSearchService;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.assessment.services.question.QuestionSearchResult;
+import org.sakaiproject.tool.assessment.services.question.QuestionSearchService;
 import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -77,20 +72,13 @@ public class SearchQuestionBean   implements Serializable {
     private String textToSearch;
     private String[] tagToSearch;
     private static final TagService tagService= (TagService) ComponentManager.get( TagService.class );
-    private static final SearchService searchService= (SearchService) ComponentManager.get( SearchService.class );
-    private static final SiteService siteService= (SiteService) ComponentManager.get( SiteService.class );
+    private static final QuestionSearchService questionSearchService = (QuestionSearchService) ComponentManager.get(QuestionSearchService.class);
     private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
     private ItemService itemService = new ItemService();
-    private AssessmentService assessmentService = new AssessmentService();
-    private QuestionPoolService questionPoolService = new QuestionPoolService();
     private String tagToSearchLabel;
     private String lastSearchType;
 
-    //This cache will avoid calling multiple times the services to know the name of sites, and assessments.
-    //It will live during the Bean live... so it will be useful for preview too.
-    private HashMap<String,String> qpTitlesCache = new HashMap<String,String>();
-    private HashMap<String,String> assessmentTitlesCache = new HashMap<String,String>();
-    private HashMap<String,String> siteTitlesCache = new HashMap<String,String>();
+    // Cache for userOwns() checks to avoid repeated searches
     private HashMap<String,Boolean> questionsIOwn = new HashMap<String,Boolean>();
 
     public SearchQuestionBean() {
@@ -112,26 +100,15 @@ public class SearchQuestionBean   implements Serializable {
 
     public void searchQuestionsByTag (String[] tagList, boolean andOption){
 
-        HashMap<String,ItemSearchResult> resultsTemp = new HashMap<>();
         questionsIOwn.clear();
         setResults(new HashMap<>());
         setResultsSize(0);
-        HashMap<String,String> additionalSearchInformation = new HashMap<String,String>();
-        additionalSearchInformation.put("group","hash");
-        additionalSearchInformation.put("scope","own");
-        additionalSearchInformation.put("subtype","item");
-        if (andOption) {
-            additionalSearchInformation.put("logic","and");
-        }else{
-            additionalSearchInformation.put("logic","or");
-        }
 
+        // Build tag labels for display
         String tagsLabels ="";
         if (tagList!=null) {
             Boolean more = false;
-            int i=1;
             for (String s : tagList) {
-
                 if (more) {
                     tagsLabels += ",";
                 }
@@ -140,190 +117,79 @@ public class SearchQuestionBean   implements Serializable {
                     String tagLabel = tag.getTagLabel();
                     String tagCollectionName = tag.getCollectionName();
                     tagsLabels += " " + tagLabel + "(" + tagCollectionName + ")";
-                    additionalSearchInformation.put("tag_" + i,tagLabel + "(" + tagCollectionName + ")");
                     more = true;
                 }
-                i++;
             }
         }
         setTagToSearch(tagList);
         setTagToSearchLabel(tagsLabels);
 
-        try {
+        // Use the service to search
+        List<QuestionSearchResult> searchResults = questionSearchService.searchByTags(tagList, andOption);
 
-            SearchResponse sr = ((ElasticSearchService) searchService).searchResponse("", null, null, 0, 0, "questions",additionalSearchInformation);
-            log.debug("This is the search response: " + sr.toString());
-            Terms dedup = sr.getAggregations().get("dedup");
-
-            for (Terms.Bucket entry : dedup.getBuckets()) {
-                String key = entry.getKeyAsString();                    // bucket key
-                long docCount = entry.getDocCount();            // Doc count
-                log.debug("key [{"+key+"}], doc_count [{"+docCount+"}]");
-
-                TopHits topHits = entry.getAggregations().get("dedup_docs");
-                for (SearchHit hit : topHits.getHits().getHits()) {
-                    log.debug(" -> id [{"+hit.getId()+"}]");
-                    String typeId = hit.field("typeId").getValue();
-                    String qText = hit.field("qText").getValue();
-                    Set<String> tagsSet = getTagsFromString(hit.field("tags").getValues());
-                    ItemSearchResult itemTemp = new ItemSearchResult(hit.getId(),typeId,qText,tagsSet,origin(hit));
-                    resultsTemp.put(hit.getId(),itemTemp);
-                }
-            }
-
-        }catch (org.sakaiproject.search.api.InvalidSearchQueryException ex){
-            log.info("Error in the search: " + ex.getMessage());
-            String publish_error= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","tag_tags_error2");
-            FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error));
-        }
-
-        for (String q : resultsTemp.keySet()) {
+        // Convert to ItemSearchResult and filter by /sam_item/ prefix
+        for (QuestionSearchResult qsr : searchResults) {
             try {
-                if (q.startsWith("/sam_item/")) {
-                    ItemSearchResult item = resultsTemp.get(q);
-                    item.setIdString(q.substring(10));
-                    results.put(q.substring(10), item);
+                if (qsr.getId().startsWith("/sam_item/")) {
+                    String itemId = qsr.getId().substring(10);
+                    ItemSearchResult item = new ItemSearchResult(
+                        itemId,
+                        qsr.getTypeId(),
+                        qsr.getQuestionText(),
+                        qsr.getTags(),
+                        qsr.getOrigin()
+                    );
+                    results.put(itemId, item);
                 }
-            }catch (Exception ex){
-                log.debug("Error finding the indexed question: " + q);
+            } catch (Exception ex) {
+                log.debug("Error processing search result: " + qsr.getId());
             }
         }
 
         setResults(results);
-        if (results==null) {
-            setResultsSize(0);
-        }else{
-            setResultsSize(results.size());
-        }
+        setResultsSize(results.size());
         setTextToSearch("");
 
     }
 
     public void searchQuestionsByText (boolean andOption){
-        HashMap<String,ItemSearchResult> resultsTemp = new HashMap<>();
         questionsIOwn.clear();
         setResults(new HashMap<>());
         setResultsSize(0);
-        HashMap<String,String> additionalSearchInformation = new HashMap<String,String>();
-        additionalSearchInformation.put("group","hash");
-        additionalSearchInformation.put("scope","own");
-        additionalSearchInformation.put("subtype","item");
-        if (andOption) {
-            additionalSearchInformation.put("logic","and");
-        }else{
-            additionalSearchInformation.put("logic","or");
-        }
-        String textToSearch =getTextToSearch();
-        //Let's remove the HTML code to search only by the real text.
+
+        String textToSearch = getTextToSearch();
+        // Remove HTML code to search only by the real text
         Source parseSearchTerms = new Source(textToSearch);
         textToSearch = parseSearchTerms.getTextExtractor().toString();
         this.setTextToSearch(textToSearch);
 
-        try {
-            SearchResponse sr = ((ElasticSearchService) searchService).searchResponse(textToSearch, null, null, 0, 0, "questions", additionalSearchInformation);
-            log.debug("This is the search repsonse: " + sr.toString());
-            Terms dedup = sr.getAggregations().get("dedup");
-            // For each entry
-            for (Terms.Bucket entry : dedup.getBuckets()) {
+        // Use the service to search
+        List<QuestionSearchResult> searchResults = questionSearchService.searchByText(textToSearch, andOption);
 
-                String key = entry.getKeyAsString();                    // bucket key
-                long docCount = entry.getDocCount();            // Doc count
-                log.debug("key [{"+key+"}], doc_count [{"+docCount+"}]");
-
-                // We ask for top_hits for each bucket
-                TopHits topHits = entry.getAggregations().get("dedup_docs");
-                for (SearchHit hit : topHits.getHits().getHits()) {
-                    log.debug(" -> id [{"+hit.getId()+"}]");
-                    String typeId = hit.field("typeId").getValue();
-                    String qText = hit.field("qText").getValue();
-                    Set<String> tagsSet = getTagsFromString(hit.field("tags").getValues());
-                    ItemSearchResult itemTemp = new ItemSearchResult(hit.getId(),typeId,qText,tagsSet,origin(hit));
-                    resultsTemp.put(hit.getId(),itemTemp);
-                    //resultIds.put(hit.getId(),origin(hit));
-                }
-            }
-
-
-        }catch (org.sakaiproject.search.api.InvalidSearchQueryException ex){
-            log.info("Error in the search: " + ex.getMessage());
-            String publish_error= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","tag_text_error3");
-            FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error));
-        }catch (java.lang.NullPointerException e){
-            log.info("Error in the search: " + e.getMessage());
-            String publish_error= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","tag_text_error2");
-            FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error));
-        }
-
-
-        for (String q : resultsTemp.keySet()) {
+        // Convert to ItemSearchResult and filter by /sam_item/ prefix
+        for (QuestionSearchResult qsr : searchResults) {
             try {
-                if (q.startsWith("/sam_item/")) {
-                    ItemSearchResult item = resultsTemp.get(q);
-                    item.setIdString(q.substring(10));
-                    results.put(q.substring(10), item);
+                if (qsr.getId().startsWith("/sam_item/")) {
+                    String itemId = qsr.getId().substring(10);
+                    ItemSearchResult item = new ItemSearchResult(
+                        itemId,
+                        qsr.getTypeId(),
+                        qsr.getQuestionText(),
+                        qsr.getTags(),
+                        qsr.getOrigin()
+                    );
+                    results.put(itemId, item);
                 }
-            }catch (Exception ex){
-                log.debug("Error finding the indexed question: " + q);
+            } catch (Exception ex) {
+                log.debug("Error processing search result: " + qsr.getId());
             }
         }
+
         setResults(results);
-        if (results==null) {
-            setResultsSize(0);
-        }else{
-            setResultsSize(results.size());
-        }
+        setResultsSize(results.size());
         setTagToSearch(null);
         setTagToSearchLabel("");
 
-    }
-
-
-    private String origin(SearchHit hit){
-        try {
-            if ((hit.field("questionPoolId") != null) && (hit.field("questionPoolId").getValue() != null)) {
-                //First we check if we have the question pool title in the temporal cache
-                if (qpTitlesCache.containsKey(hit.field("questionPoolId").getValue())){
-                     return qpTitlesCache.get(hit.field("questionPoolId").getValue());
-                }else {
-                    //If not... we retrieve the title and add it to the cache map.
-                    //We will do the same with the assessmentTitle and the siteTitle
-                    String qpTitle = questionPoolService.getPool(Long.parseLong(hit.field("questionPoolId").getValue()), AgentFacade.getAgentString()).getTitle();
-                    qpTitlesCache.put(hit.field("questionPoolId").getValue(), qpTitle);
-                    return qpTitle;
-                }
-            }else if ((hit.field("assessmentId") != null) && (hit.field("assessmentId").getValue() != null) && (hit.field("site") != null) && (hit.field("site").getValue() != null)) {
-                    String assessmentTitle="";
-                    String siteTitle="";
-                    if (assessmentTitlesCache.containsKey(hit.field("assessmentId").getValue())) {
-                        assessmentTitle = assessmentTitlesCache.get(hit.field("assessmentId").getValue());
-                    }else{
-                        assessmentTitle = assessmentService.getAssessment(hit.field("assessmentId").getValue().toString()).getTitle();
-                        assessmentTitlesCache.put(hit.field("assessmentId").getValue(), assessmentTitle);
-                    }
-                    if (siteTitlesCache.containsKey(hit.field("site").getValue())) {
-                        siteTitle = siteTitlesCache.get(hit.field("site").getValue());
-                    }else{
-                        siteTitle = siteService.getSite(hit.field("site").getValue().toString()).getTitle();
-                        siteTitlesCache.put(hit.field("site").getValue(), siteTitle);
-                    }
-
-                    return siteTitle + " : " + assessmentTitle;
-            }else {
-                return "";
-            }
-        }catch(Exception ex){
-            //Maybe a question is orphan and has not assessment or question pool. In that case we just return empty string
-            return "";
-        }
-    }
-
-    private Set<String> getTagsFromString(List tags){
-        Set<String> tagSet = new HashSet<>();
-        Iterator<String> iterator = tags.iterator();
-        while (iterator.hasNext()){
-            tagSet.add(iterator.next().toString());
-        }
-        return tagSet;
     }
 
 
@@ -335,61 +201,18 @@ public class SearchQuestionBean   implements Serializable {
         // To improve performance, we will store a "search-duration" cache of this,
         // so we don't call the search service once we know that result.
 
-        if (questionsIOwn.containsKey(questionId)){
-            if (questionsIOwn.get(questionId)){
-                return true;
-            }else{
-                return false;
-            }
-        }else {
-
-            HashMap<String, String> additionalSearchInformation = new HashMap<String, String>();
-            additionalSearchInformation.put("scope", "own");
-            additionalSearchInformation.put("subtype", "item");
-            additionalSearchInformation.put("questionId", questionId);
-
-            try {
-
-                SearchResponse sr = ((ElasticSearchService) searchService).searchResponse("", null, null, 0, 1, "questions", additionalSearchInformation);
-                if (sr.getHits().getTotalHits().value < 1) {
-                    questionsIOwn.put(questionId, Boolean.FALSE);
-                    return false;
-                } else {
-                    questionsIOwn.put(questionId, Boolean.TRUE);
-                    return true;
-                }
-
-            } catch (Exception ex) {
-                //Failure searching. It should not happen, Let's return false.
-                log.warn("Failure calculating permissions to preview");
-                return false;
-            }
+        if (questionsIOwn.containsKey(questionId)) {
+            return questionsIOwn.get(questionId);
+        } else {
+            boolean owns = questionSearchService.userOwnsQuestion(questionId);
+            questionsIOwn.put(questionId, owns);
+            return owns;
         }
     }
 
     public List<String> originFull(String hash){
-        //We will return all the origins based in a hash.
-        List<String> origins = new ArrayList<>();
-
-        HashMap<String,String> additionalSearchInformation = new HashMap<String,String>();
-        additionalSearchInformation.put("scope","own");
-        additionalSearchInformation.put("subtype","item");
-        additionalSearchInformation.put("hash",hash);
-        try {
-
-            SearchResponse sr = ((ElasticSearchService) searchService).searchResponse("", null, null, 0, 1000, "questions", additionalSearchInformation);
-
-            for (SearchHit hit : sr.getHits()) {
-                origins.add(origin(hit));
-            }
-
-        }catch (Exception ex){
-            //Failure searching. It should not happen, Let's return an empty List.
-            log.warn("Failure searching for a question hash");
-            return new ArrayList<>();
-        }
-        return origins;
-
+        // We will return all the origins based on a hash
+        return questionSearchService.getQuestionOrigins(hash);
     }
 
     public ItemFacade getItem(String itemId){
