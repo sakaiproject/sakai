@@ -159,7 +159,7 @@ public class CalculatedQuestionBean implements Serializable {
         for (CalculatedQuestionGlobalVariableBean globalvariable : this.globalVariables.values()) {
             if (globalvariable.isActive()) {
                 String text = globalvariable.getText();
-                if (text.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX)) {
+                if (text != null && text.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX)) {
                     globalvariable.setText(text.substring(0, text.length() - GradingService.GLOBAL_VAR_FORMAT_SUFFIX.length()));
                 }
                 results.put(globalvariable.getName(), globalvariable);
@@ -182,7 +182,7 @@ public class CalculatedQuestionBean implements Serializable {
         // remove "|0,0" from the global variables
         for (CalculatedQuestionGlobalVariableBean globalVariable : beanList) {
             String text = globalVariable.getText();
-            if (text.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX)) {
+            if (text != null && text.endsWith(GradingService.GLOBAL_VAR_FORMAT_SUFFIX)) {
                 globalVariable.setText(text.substring(0, text.length() - GradingService.GLOBAL_VAR_FORMAT_SUFFIX.length()));
             }
         }
