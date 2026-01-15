@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,8 +27,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
@@ -41,7 +37,6 @@ import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
-import org.sakaiproject.assignment.api.ReferenceReckoner;
 import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -57,10 +52,11 @@ import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
@@ -281,7 +277,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                             totalReviewsAssigned++;
                             log.debug("Assigned reviewer {} to submission {} (review count: {})", lowestAssignedAssessor, submissionId, assignedCount);
                         } else {
-                            log.warn("Could not find available reviewer for submission {} (submitter: {}), breaking assignment loop", submissionId, submitterId);
+                            log.debug("Could not find available reviewer for submission {} (submitter: {})", submissionId, submitterId);
                             break;
                         }
                     }
@@ -292,16 +288,24 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                         getHibernateTemplate().saveOrUpdate(item);
                     }
                     success = true;
+                    clearRetryCounters(assignment);
                 } else {
                     log.debug("No new peer assessment items to save");
                     // Check if existing items cover all submissions
                     success = validatePeerAssessmentCoverage(assignment, submissionIdMap, numOfReviews);
+                    if (success) {
+                        clearRetryCounters(assignment);
+                    }
                 }
 
                 log.info("Peer assessment assignment completed for {}: {} submissions processed, {} reviews assigned, success: {}", opaqueContext, totalSubmissions, totalReviewsAssigned, success);
                 if (!success && totalReviewsAssigned == 0 && totalSubmissions > 0) {
-                    log.warn("No reviews were assigned for assignment {} with {} submissions. Scheduling retry.", opaqueContext, totalSubmissions);
-                    scheduleRetry(assignment);
+                    if (shouldScheduleRetry(assignment, totalSubmissions)) {
+                        log.warn("No reviews were assigned for assignment {} with {} submissions. Scheduling retry.", opaqueContext, totalSubmissions);
+                        scheduleRetry(assignment);
+                    } else {
+                        log.error("Maximum retry attempts reached for assignment {}. Stopping retries.", opaqueContext);
+                    }
                 }
             } else {
                 log.warn("Assignment {} does not allow peer assessment or is in draft mode, skipping", opaqueContext);
@@ -592,14 +596,29 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
      */
     private boolean validatePeerAssessmentCoverage(Assignment assignment, Map<String, AssignmentSubmission> submissionIdMap, int numOfReviews) {
         try {
+            int totalSubmissions = submissionIdMap.size();
+            if (totalSubmissions <= 1) {
+                log.info("Only {} submission(s) available for assignment {}. Peer review not feasible, accepting as valid", totalSubmissions, assignment.getId());
+                return true;
+            }
+
+            // Maximum possible reviews per submission is (totalSubmissions - 1) since a student can't review themselves
+            int maxPossibleReviews = totalSubmissions - 1;
+            if (numOfReviews > maxPossibleReviews) {
+                log.info("Requested {} reviews per submission exceeds maximum possible {} for assignment {} - accepting partial coverage", numOfReviews, maxPossibleReviews, assignment.getId());
+                numOfReviews = maxPossibleReviews;
+            }
+
             List<PeerAssessmentItem> allItems = getPeerAssessmentItemsByAssignmentId(assignment.getId(), assignment.getScaleFactor());
             Map<String, Integer> submissionReviewCounts = new HashMap<>();
+
             // Count reviews per submission
             for (PeerAssessmentItem item : allItems) {
                 if (!item.getRemoved()) {
                     submissionReviewCounts.merge(item.getId().getSubmissionId(), 1, Integer::sum);
                 }
             }
+
             // Check if all submissions have adequate reviews
             int underReviewedSubmissions = 0;
             for (String submissionId : submissionIdMap.keySet()) {
@@ -609,6 +628,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                     log.warn("Submission {} has only {} reviews (expected: {})", submissionId, reviewCount, numOfReviews);
                 }
             }
+
             if (underReviewedSubmissions > 0) {
                 log.error("{} submissions are under-reviewed for assignment {}", underReviewedSubmissions, assignment.getId());
                 return false;
@@ -621,16 +641,91 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
     }
 
     /**
+     * Checks if a retry should be scheduled based on retry count limit
+     */
+    private boolean shouldScheduleRetry(Assignment assignment, int totalSubmissions) {
+        String retryCountKey = "peerAssessmentRetryCount_" + assignment.getId();
+        String lastAttemptKey = "peerAssessmentLastAttempt_" + assignment.getId();
+
+        try {
+            // Get current retry count from assignment properties
+            String retryCountStr = assignment.getProperties().get(retryCountKey);
+            int retryCount = retryCountStr != null ? Integer.parseInt(retryCountStr) : 0;
+            int maxRetries = 5;
+            if (retryCount >= maxRetries) {
+                log.warn("Assignment {} has reached maximum retry attempts ({}), stopping retries", assignment.getId(), maxRetries);
+                return false;
+            }
+
+            // Increment retry count
+            assignment.getProperties().put(retryCountKey, String.valueOf(retryCount + 1));
+            assignment.getProperties().put(lastAttemptKey, String.valueOf(System.currentTimeMillis()));
+
+            // Save the updated assignment properties
+            try {
+                assignmentService.updateAssignment(assignment);
+            } catch (Exception e) {
+                log.warn("Could not update assignment properties for retry tracking: {}", e.getMessage());
+            }
+
+            return true;
+
+        } catch (Exception e) {
+            log.error("Error checking retry eligibility for assignment {}: {}", assignment.getId(), e.getMessage(), e);
+            return false;
+        }
+    }
+
+    /**
      * Schedules a retry of the peer assessment assignment after a delay
      */
     private void scheduleRetry(Assignment assignment) {
         try {
-            // Schedule retry in 5 minutes
-            Instant retryTime = Instant.now().plusSeconds(300);
-            log.debug("Scheduling peer assessment retry for assignment {} at {}", assignment.getId(), retryTime);
+            // Get current retry count for exponential backoff
+            String retryCountStr = assignment.getProperties().get("peerAssessmentRetryCount_" + assignment.getId());
+            int retryCount = retryCountStr != null ? Integer.parseInt(retryCountStr) : 1;
+
+            // Exponential backoff: 30 seconds * 2^(retryCount-1), max 10 minutes
+            int baseDelay = 30;
+            int delay = Math.min(baseDelay * (int) Math.pow(2, retryCount - 1), 600);
+
+            Instant retryTime = Instant.now().plusSeconds(delay);
+            log.info("Scheduling peer assessment retry #{} for assignment {} in {} seconds (at {})", retryCount, assignment.getId(), delay, retryTime);
+            removeScheduledPeerReview(assignment.getId());
             scheduledInvocationManager.createDelayedInvocation(retryTime, "org.sakaiproject.assignment.api.AssignmentPeerAssessmentService", assignment.getId());
+
         } catch (Exception e) {
             log.error("Failed to schedule retry for assignment {}: {}", assignment.getId(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Clears retry counters when peer assessment assignment is successful
+     */
+    private void clearRetryCounters(Assignment assignment) {
+        try {
+            String retryCountKey = "peerAssessmentRetryCount_" + assignment.getId();
+            String lastAttemptKey = "peerAssessmentLastAttempt_" + assignment.getId();
+
+            boolean needsUpdate = false;
+
+            if (assignment.getProperties().get(retryCountKey) != null) {
+                assignment.getProperties().remove(retryCountKey);
+                needsUpdate = true;
+            }
+
+            if (assignment.getProperties().get(lastAttemptKey) != null) {
+                assignment.getProperties().remove(lastAttemptKey);
+                needsUpdate = true;
+            }
+
+            if (needsUpdate) {
+                assignmentService.updateAssignment(assignment);
+                log.debug("Cleared retry counters for successful assignment {}", assignment.getId());
+            }
+
+        } catch (Exception e) {
+            log.warn("Could not clear retry counters for assignment {}: {}", assignment.getId(), e.getMessage());
         }
     }
 }
