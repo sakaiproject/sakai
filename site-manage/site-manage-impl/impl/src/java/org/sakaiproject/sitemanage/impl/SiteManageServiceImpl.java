@@ -411,6 +411,11 @@ public class SiteManageServiceImpl implements SiteManageService {
 			return;
 		}
 
+		// Convert null maps to empty maps to prevent NPE throughout this method
+		importTools = MapUtils.emptyIfNull(importTools);
+		toolItemMap = MapUtils.emptyIfNull(toolItemMap);
+		toolOptions = MapUtils.emptyIfNull(toolOptions);
+
 		//if add missing tools is enabled, add the tools ito the site before importing content
 		if (isAddMissingToolsOnImportEnabled()) {
 
