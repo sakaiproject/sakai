@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -133,7 +134,7 @@ public class SiteManageServiceImpl implements SiteManageService {
     }
 
     @Override
-    public boolean importToolsIntoSiteThread(final Site site, final List<String> existingTools, final Map<String, List<String>> importTools, final Map<String, Map<String, List<String>>> toolItemMap, final Map<String, Map<String, List<String>>> toolOptions, final boolean cleanup) {
+    public boolean importToolsIntoSiteThread(final Site site, List<String> existingTools, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, final boolean cleanup) {
 
         final User user = userDirectoryService.getCurrentUser();
         final Locale locale = preferencesService.getLocale(user.getId());
@@ -147,19 +148,16 @@ public class SiteManageServiceImpl implements SiteManageService {
             sessionManager.setCurrentToolSession(toolSession);
             
 			// This importSites var is solely for event tracking
-			String importSites = "";
-			for (Map.Entry<String, List<String>> entry : importTools.entrySet()) {
-				if (importSites.length() >= 255) {
-					break;
-				}
-				for (String data : entry.getValue() ) {
-					String temp = StringUtils.joinWith(", ", importSites, data);
-					if (!importSites.contains(data) && temp.length() < 255) {
-						importSites = temp;
-					}
-				}
-			}
-			eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
+            String importSites = "";
+            if (importTools != null) {
+                 importSites = importTools.values().stream()
+                        .flatMap(List::stream)
+                        .distinct()
+                        .limit(10)
+                        .collect(Collectors.joining(", "));
+                importSites = StringUtils.abbreviate(importSites, 255);
+            }
+            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, importSites, id, false, NotificationService.NOTI_OPTIONAL));
 			
 			try {
                 log.info("Started Site Import for the site {}", id);
@@ -326,7 +324,7 @@ public class SiteManageServiceImpl implements SiteManageService {
      *
      * @param toSite the site to update
      * @param fromSiteId the site id to copy from
-     * @param importTools the tool id to copy
+     * @param toolId the tool id to copy
      * @return site the updated site object
      */
     private Site setToolTitle(Site toSite, String fromSiteId, String toolId) {
@@ -358,18 +356,13 @@ public class SiteManageServiceImpl implements SiteManageService {
 
     /**
      * Helper to add a tool to a site if the site does not contain an instance of the tool.
-     * <p>
-     * Note that it does NOT save the site. The caller must handle this.
      *
      * @param site   the site to check
      * @param toolId the tool to add (eg sakai.resources)
-     * @return site the updated site object
      */
-    private Site addToolToSiteIfMissing(Site site, String toolId) {
+    private void addToolToSiteIfMissing(Site site, String toolId) {
 
-        if (site.getToolForCommonId(toolId) != null) {
-            return site;
-        }
+        if (site.getToolForCommonId(toolId) != null) return;
 
         log.debug("Adding tool to site: {}, tool: {}", site.getId(), toolId);
 
@@ -378,17 +371,15 @@ public class SiteManageServiceImpl implements SiteManageService {
         ToolConfiguration tool = page.addTool();
         tool.setTool(toolId, toolManager.getTool(toolId));
         tool.setTitle(toolManager.getTool(toolId).getTitle());
-
-        return site;
+        saveSite(site);
     }
 
     /**
      * Copies the site information from one site ot another.
      * @param fromSiteId    the source site
      * @param toSiteId      the destinatination site
-     * @return the site with the updated site information
      */
-    private Site copySiteInformation(String fromSiteId, String toSiteId) {
+    private void copySiteInformation(String fromSiteId, String toSiteId) {
         Site toSite = null;
         try {
             Site fromSite = siteService.getSite(fromSiteId);
@@ -397,17 +388,21 @@ public class SiteManageServiceImpl implements SiteManageService {
             toSite.setInfoUrl(fromSite.getInfoUrl());
             saveSite(toSite);
         } catch (IdUnusedException iue) {
-            log.warn("Site not found, {}", iue.getMessage());
+            log.warn("Site not found, {}", iue.toString());
         }
-        return toSite;
     }
 
     @Override
     public void importToolsIntoSite(Site site, List<String> toolIds, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, boolean cleanup) {
 
+		if (toolIds == null) toolIds = new ArrayList<>();
+		if (importTools == null) importTools = new HashMap<>();
+		if (toolItemMap == null) toolItemMap = new HashMap<>();
+		if (toolOptions == null) toolOptions = new HashMap<>();
+
 		log.debug("toolIds={}, importTools={}, toolItemMap={}, toolOptions={}", toolIds, importTools, toolItemMap, toolOptions);
 
-		if (MapUtils.isEmpty(importTools) && MapUtils.isEmpty(toolItemMap) && MapUtils.isEmpty(toolOptions)) {
+		if (toolIds.isEmpty() && importTools.isEmpty() && toolItemMap.isEmpty() && toolOptions.isEmpty()) {
 			return;
 		}
 
@@ -430,22 +425,17 @@ public class SiteManageServiceImpl implements SiteManageService {
 
 			//and add
 			for (String missingToolId : missingToolIds) {
-				site = addToolToSiteIfMissing(site, missingToolId);
-				saveSite(site);
+				if (site != null) {
+					addToolToSiteIfMissing(site, missingToolId);
+				}
 			}
 
 			//now update toolIds so that selected content and options are imported
 			toolIds.clear();
 
-			if (MapUtils.isNotEmpty(importTools)) {
-				toolIds.addAll(importTools.keySet());
-			}
-
-			if (MapUtils.isNotEmpty(toolItemMap)) {
-				toolIds.addAll(toolItemMap.keySet());
-			}
-
-			if (MapUtils.isNotEmpty(toolOptions)) {
+			toolIds.addAll(importTools.keySet());
+			toolIds.addAll(toolItemMap.keySet());
+			if (!toolOptions.isEmpty()) {
 				Set<String> uniqueToolIds = new LinkedHashSet<>(toolIds);
 				uniqueToolIds.addAll(toolOptions.keySet());
 				toolIds.clear();
@@ -454,7 +444,7 @@ public class SiteManageServiceImpl implements SiteManageService {
 		}
 
 		//set custom title
-		if (cleanup) {
+		if (cleanup && !toolIds.isEmpty() && !importTools.isEmpty()) {
 			log.debug("allToolIds: {}", toolIds);
 			for (String toolId : toolIds) {
 				try {
@@ -474,10 +464,15 @@ public class SiteManageServiceImpl implements SiteManageService {
 
 		Set<String> siteIds = new LinkedHashSet<>();
 		Map<String, String> transversalMap = new HashMap<>();
-		final String toSiteId = site.getId();
+		final String toSiteId = site != null ? site.getId() : null;
+		
+		if (toSiteId == null) {
+			log.warn("Cannot import tools into a null site or site with null ID");
+			return;
+		}
 
 		// Begin populating siteIds from toolOptions because the user might only be copying tool permissions, Gradebook Settings, etc.
-		if (MapUtils.isNotEmpty(toolOptions)) {
+		if (!toolOptions.isEmpty()) {
 			for (String toolId : toolOptions.keySet()) {
 				Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
 				for (String fromSiteId : siteOptions.keySet()) {
@@ -488,40 +483,43 @@ public class SiteManageServiceImpl implements SiteManageService {
 
 		// import resources first
 		boolean resourcesImported = false;
-		for (int i = 0; i < toolIds.size() && !resourcesImported; i++) {
-			String toolId = toolIds.get(i);
-			Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
+		if (toolIds.contains(SiteManageConstants.RESOURCES_TOOL_ID)) {
+			for (int i = 0; i < toolIds.size() && !resourcesImported; i++) {
+				String toolId = toolIds.get(i);
+				Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
 
-			if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)) {
-				List<String> fullyImportedSiteIds = importTools.getOrDefault(toolId, Collections.EMPTY_LIST);
-				for (String fromSiteId : fullyImportedSiteIds) {
-					SecurityAdvisor securityAdvisor = pushAdvisorIfTemplateSite(fromSiteId);
-					try {
-						String fromSiteCollectionId = contentHostingService.getSiteCollection(fromSiteId);
-						String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
-						transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, siteItems.get(fromSiteId), Collections.EMPTY_LIST, cleanup));
-						transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
-						siteIds.add(fromSiteId);
-						resourcesImported = true;
-					} finally {
-						if (securityAdvisor != null) {
-							securityService.popAdvisor(securityAdvisor);
+				// Resources fully imported
+				if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)) {
+					List<String> fullyImportedSiteIds = importTools.getOrDefault(toolId, Collections.EMPTY_LIST);
+					for (String fromSiteId : fullyImportedSiteIds) {
+						SecurityAdvisor securityAdvisor = pushAdvisorIfTemplateSite(fromSiteId);
+						try {
+							String fromSiteCollectionId = contentHostingService.getSiteCollection(fromSiteId);
+							String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
+							transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, siteItems.get(fromSiteId), Collections.EMPTY_LIST, cleanup));
+							transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+							siteIds.add(fromSiteId);
+							resourcesImported = true;
+						} finally {
+							if (securityAdvisor != null) {
+								securityService.popAdvisor(securityAdvisor);
+							}
 						}
 					}
-				}
 
-				for (String fromSiteId : siteItems.keySet()) {
-					SecurityAdvisor securityAdvisor = pushAdvisorIfTemplateSite(fromSiteId);
-					try {
-						String fromSiteCollectionId = contentHostingService.getSiteCollection(fromSiteId);
-						String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
-						transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, siteItems.get(fromSiteId), Collections.EMPTY_LIST, cleanup));
-						transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
-						siteIds.add(fromSiteId);
-						resourcesImported = true;
-					} finally {
-						if (securityAdvisor != null) {
-							securityService.popAdvisor(securityAdvisor);
+					for (String fromSiteId : siteItems.keySet()) {
+						SecurityAdvisor securityAdvisor = pushAdvisorIfTemplateSite(fromSiteId);
+						try {
+							String fromSiteCollectionId = contentHostingService.getSiteCollection(fromSiteId);
+							String toSiteCollectionId = contentHostingService.getSiteCollection(toSiteId);
+							transversalMap.putAll(transferCopyEntities(toolId, fromSiteCollectionId, toSiteCollectionId, siteItems.get(fromSiteId), Collections.EMPTY_LIST, cleanup));
+							transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
+							siteIds.add(fromSiteId);
+							resourcesImported = true;
+						} finally {
+							if (securityAdvisor != null) {
+								securityService.popAdvisor(securityAdvisor);
+							}
 						}
 					}
 				}
@@ -531,32 +529,28 @@ public class SiteManageServiceImpl implements SiteManageService {
 		// Now gradebook. Several tools depend on gradebook and may well bring in gradebook items. If
 		// the gradebook import happens after that, in replace mode, the gradebook import will clean
 		// out all the items imported by the other tools, like Assignments.
-		for (String toolId : toolIds) {
-			if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID)) {
-				Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
-				Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
+		if (toolIds.contains(SiteManageConstants.GRADEBOOK_TOOL_ID)) {
+			for (String toolId : toolIds) {
+				if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID)) {
+					Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
+					Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
 
-				List<String> fullyImportedSiteIds = importTools.getOrDefault(toolId, Collections.EMPTY_LIST);
-				for (String fromSiteId : fullyImportedSiteIds) {
-					doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
-				}
+					List<String> fullyImportedSiteIds = importTools.getOrDefault(toolId, Collections.EMPTY_LIST);
+					for (String fromSiteId : fullyImportedSiteIds) {
+						doImport(transversalMap, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
+					}
 
-				// Gradebook is a special case for importing because of its Copy Settings option.
-				// The instructor could have decided to copy settings without any other content from the tool.
-				Set<String> sIds = new HashSet<>();
-				if (siteItems != null) {
+					// Gradebook is a special case for importing because of its Copy Settings option.
+					// The instructor could have decided to copy settings without any other content from the tool.
+					Set<String> sIds = new HashSet<>();
 					sIds.addAll(siteItems.keySet());
-				}
-				if (siteOptions != null) {
 					sIds.addAll(siteOptions.keySet());
-				}
 
-				for (String fromSiteId : sIds) {
-					if (!fullyImportedSiteIds.contains(fromSiteId)) { // There's no need to doImport if a full import already ran.
-						if (siteItems == null || !siteItems.containsKey(fromSiteId)) {
-							// Inject this pseudo-option to notify Gradebook logic that we only want to copy settings.
-							// Without this flag, transferGradebook will copy all items, which is not what the user selected.
-							if (siteOptions != null) {
+					for (String fromSiteId : sIds) {
+						if (!fullyImportedSiteIds.contains(fromSiteId)) { // There's no need to doImport if a full import already ran.
+							if (!siteItems.containsKey(fromSiteId)) {
+								// Inject this pseudo-option to notify Gradebook logic that we only want to copy settings.
+								// Without this flag, transferGradebook will copy all items, which is not what the user selected.
 								List<String> options = siteOptions.get(fromSiteId);
 								if (options != null) {
 									List<String> mutableOptions = new ArrayList<>(options);
@@ -564,72 +558,87 @@ public class SiteManageServiceImpl implements SiteManageService {
 									siteOptions.put(fromSiteId, mutableOptions);
 								}
 							}
+							doImport(transversalMap, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
 						}
-						doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
 					}
 				}
 			}
 		}
 
 		// Now calendar. Same reason as gradebook.
-		for (String toolId : toolIds) {
-			if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID) && importTools.containsKey(toolId)) {
-				Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
-				Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
+		if (toolIds.contains(SiteManageConstants.CALENDAR_TOOL_ID)) {
+			for (String toolId : toolIds) {
+				if (StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID) && importTools.containsKey(toolId)) {
+					Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
+					Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
 
-				for (String fromSiteId : importTools.get(toolId)) {
-					doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
+					for (String fromSiteId : importTools.get(toolId)) {
+						doImport(transversalMap, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, false);
+					}
 				}
 			}
 		}
 
 		// Now import the rest of the tools
-		for (String toolId : toolIds) {
-			if (!StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)
-					&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID)
-					&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID)) {
+		if (!toolIds.isEmpty()) {
+			for (String toolId : toolIds) {
+				if (!StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.RESOURCES_TOOL_ID)
+						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.GRADEBOOK_TOOL_ID)
+						&& !StringUtils.equalsIgnoreCase(toolId, SiteManageConstants.CALENDAR_TOOL_ID)) {
 
-				Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
-				Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
+					Map<String, List<String>> siteItems = toolItemMap.getOrDefault(toolId, Collections.EMPTY_MAP);
+					Map<String, List<String>> siteOptions = toolOptions.getOrDefault(toolId, Collections.EMPTY_MAP);
 
-				List<String> fullyImportedSiteIds = importTools.getOrDefault(toolId, Collections.EMPTY_LIST);
-				for (String fromSiteId : fullyImportedSiteIds) {
-					doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, true);
-				}
+					List<String> fullyImportedSiteIds = importTools.getOrDefault(toolId, Collections.EMPTY_LIST);
+					for (String fromSiteId : fullyImportedSiteIds) {
+						doImport(transversalMap, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, true);
+					}
 
-				for (String fromSiteId : siteItems.keySet()) {
-					doImport(transversalMap, site, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, true);
+					for (String fromSiteId : siteItems.keySet()) {
+						doImport(transversalMap, toolId, siteIds, fromSiteId, toSiteId, siteItems, siteOptions, cleanup, true);
+					}
 				}
 			}
 		}
 
 		// Update entity references
-		for (String toolId : toolIds) {
-			if (importTools.containsKey(toolId)) {
-				updateEntityReferences(toolId, toSiteId, transversalMap, site);
+		if (!transversalMap.isEmpty() && !toolIds.isEmpty()) {
+			for (String toolId : toolIds) {
+				if (importTools.containsKey(toolId)) {
+					updateEntityReferences(toolId, toSiteId, transversalMap, site);
+				}
 			}
 		}
 
 		// Copy permissions from source sites to destination site
-		for (String fromSiteId : siteIds) {
-			Set<String> toolPermissions = getToolPermissionCandidatesToCopy(fromSiteId, importTools, toolOptions);
-			log.debug("Copying permissions from site {} to site {} out of this possible set {}", fromSiteId, toSiteId, toolPermissions);
-			copyToolPermissions(fromSiteId, toSiteId, toolPermissions);
-		}
+		if (!siteIds.isEmpty()) {
+			for (String fromSiteId : siteIds) {
+				Set<String> toolPermissions = getToolPermissionCandidatesToCopy(fromSiteId, importTools, toolOptions);
+				if (CollectionUtils.isNotEmpty(toolPermissions)) {
+					log.debug("Copying permissions from site {} to site {} out of this possible set {}", fromSiteId, toSiteId, toolPermissions);
+					copyToolPermissions(fromSiteId, toSiteId, toolPermissions);
+				}
+			}
 
-		// Handle the Context.id.history
-		mergeContextIdHistory(siteIds, site);
+			// Handle the Context.id.history
+			mergeContextIdHistory(siteIds, site);
+		}
 	}
 
-	private void doImport(Map<String, String> transversalMap, Site site, String toolId, Set<String> siteIds, String fromSiteId, String toSiteId, Map<String, List<String>> siteItems, Map<String, List<String>> siteOptions, boolean cleanup, boolean checkSiteInfo) {
+	private void doImport(Map<String, String> transversalMap, String toolId, Set<String> siteIds, String fromSiteId, String toSiteId, Map<String, List<String>> siteItems, Map<String, List<String>> siteOptions, boolean cleanup, boolean checkSiteInfo) {
+		if (transversalMap == null || siteIds == null) {
+			return;
+		}
 
 		if (checkSiteInfo && SiteManageConstants.SITE_INFO_TOOL_ID.equals(toolId)) {
-			site = copySiteInformation(fromSiteId, toSiteId);
+			copySiteInformation(fromSiteId, toSiteId);
 			siteIds.add(fromSiteId);
 		} else {
 			SecurityAdvisor securityAdvisor = pushAdvisorIfTemplateSite(fromSiteId);
 			try {
-				transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, siteItems.get(fromSiteId), siteOptions.get(fromSiteId), cleanup));
+				List<String> items = siteItems != null ? siteItems.get(fromSiteId) : null;
+				List<String> options = siteOptions != null ? siteOptions.get(fromSiteId) : null;
+				transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, items, options, cleanup));
 				transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
 				siteIds.add(fromSiteId);
 			} finally {
@@ -665,7 +674,9 @@ public class SiteManageServiceImpl implements SiteManageService {
      * @param site       the site to save
      */
     private void mergeContextIdHistory(Set<String> siteIds, Site site) {
-        Set<String> new_set = new LinkedHashSet<String>();
+        if (siteIds == null || site == null) return;
+
+        Set<String> new_set = new LinkedHashSet<>();
         for(String fromSiteId : siteIds) {
             try {
                 Site fromSite = siteService.getSite(fromSiteId);
@@ -708,6 +719,9 @@ public class SiteManageServiceImpl implements SiteManageService {
      * @param site  the site to save
      */
     private void saveSite(Site site) {
+        if (site == null || site.getId() == null) {
+            return;
+        }
         try {
             siteService.save(site);
         } catch (IdUnusedException iue) {
@@ -760,20 +774,18 @@ public class SiteManageServiceImpl implements SiteManageService {
 
     private Set<String> getToolPermissionCandidatesToCopy(String siteId, Map<String, List<String>> importTools, Map<String, Map<String, List<String>>> toolOptions) {
 
-		Set<String> toolIds = new HashSet<>();
-		if (importTools != null) {
-			toolIds.addAll(importTools.keySet());
-		}
-		if (toolOptions != null) {
-			toolIds.addAll(toolOptions.keySet()); // the instructor might want to copy permissions without any other content from the tool
-		}
+		if (importTools == null) importTools = new HashMap<>();
+		if (toolOptions == null) toolOptions = new HashMap<>();
+
+		Set<String> toolIds = new HashSet<>(importTools.keySet());
+		toolIds.addAll(toolOptions.keySet()); // the instructor might want to copy permissions without any other content from the tool
 
 		Set<String> toolPermissions = new HashSet<>();
 		for (String toolId : toolIds) {
 
 			// set copyPermissionsSelected to true if a copy permissions option is selected
 			boolean copyPermissionsSelected = false;
-			Map<String, List<String>> options = (toolOptions != null) ? toolOptions.get(toolId) : null;
+			Map<String, List<String>> options = toolOptions.get(toolId);
 			if (options != null) {
 				List<String> siteOptions = options.get(siteId);
 				copyPermissionsSelected = siteOptions != null && siteOptions.contains(EntityTransferrer.COPY_PERMISSIONS_OPTION);
