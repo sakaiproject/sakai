@@ -2913,13 +2913,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private List<User> getSearchedUsers(String searchString, List<User> userList, boolean retain) {
         List<User> rv = new ArrayList<>();
         if (StringUtils.isNotBlank(searchString)) {
-            searchString = searchString.toLowerCase();
+            String normalizedSearchString = normalizeStringForSearch(searchString);
             for (User u : userList) {
                 // search on user sortname, eid, email
                 String[] fields = {u.getSortName(), u.getEid(), u.getEmail()};
                 List<String> l = Arrays.asList(fields);
                 for (String s : l) {
-                    if (StringUtils.containsIgnoreCase(s, searchString)) {
+                    if (s != null && normalizeStringForSearch(s).contains(normalizedSearchString)) {
                         rv.add(u);
                         break;
                     }
@@ -2930,6 +2930,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             rv = userList;
         }
         return rv;
+    }
+
+    /**
+     * Normalizes a string for case and accent-insensitive search
+     * @param input the string to normalize
+     * @return the normalized string without accents and in lowercase
+     */
+    private String normalizeStringForSearch(String input) {
+        if (input == null) return null;
+        String decomposed = Normalizer.normalize(input, Normalizer.Form.NFD);
+        return decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
     }
 
     @Override
