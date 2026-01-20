@@ -24,6 +24,8 @@
 package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1272,8 +1274,15 @@ public class ExtractionHelper
 			  // oldSplittedResourceId[3] = Blue Hill.jpg
 			  endIndex = splittedString[i].indexOf("\"",splittedString[i].indexOf("\"")+1);
 			  oldResourceId = splittedString[i].substring(splittedString[i].indexOf("\"")+1, endIndex);
+			  try {
+			      oldResourceId = URLDecoder.decode(oldResourceId, "UTF-8");
+			  }  catch (UnsupportedEncodingException e) {
+			      log.error(e.getMessage());
+			  }
+
+			  oldResourceId = StringUtils.replace(oldResourceId, " ", "");
 			  String[] oldSplittedResourceId = oldResourceId.split("/");
-			  fullFilePath = unzipLocation + "/" + oldResourceId.replace(" ", "");
+			  fullFilePath = unzipLocation + "/" + oldResourceId;
 			  filename = oldSplittedResourceId[oldSplittedResourceId.length - 1];
 			  MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
 			  contentType = mimetypesFileTypeMap.getContentType(filename);
