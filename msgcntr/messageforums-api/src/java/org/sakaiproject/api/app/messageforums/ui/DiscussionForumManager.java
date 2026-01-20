@@ -436,7 +436,7 @@ public interface DiscussionForumManager
    * @param message
    * @param readStatus TODO
    */
-  public void markMessageAs(Message message, boolean readStatus);
+  public void markMessageAsNoRead(Message message, boolean readStatus);
   
   /**
    * Mark the not read status for a given message for a given user

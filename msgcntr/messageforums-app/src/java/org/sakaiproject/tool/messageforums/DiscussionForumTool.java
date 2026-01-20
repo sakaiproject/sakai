@@ -6835,7 +6835,7 @@ public class DiscussionForumTool {
    */
   public String processActionMarkAllAsNotRead()
   {
-	  return markAllMessages(true);
+	  return markAllMessagesAsNoRead(true);
   }
   
   /**
@@ -6881,13 +6881,13 @@ public class DiscussionForumTool {
       DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
       if (decoMessage.isSelected())
       {
-        forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
+        forumManager.markMessageAsNoRead(decoMessage.getMessage(), readStatus);
       }
     }
     return displayTopicById(TOPIC_ID); // reconstruct topic again;
   }
 
-  private String markAllMessages(boolean readStatus)
+  private String markAllMessagesAsNoRead(boolean readStatus)
   {
 	  if (selectedTopic == null)
 	    {
@@ -6904,7 +6904,7 @@ public class DiscussionForumTool {
 	    while (iter.hasNext())
 	    {
 	      DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
-	      forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
+	      forumManager.markMessageAsNoRead(decoMessage.getMessage(), readStatus);
 
 	    }
 	    //return displayTopicById(TOPIC_ID); // reconstruct topic again;
@@ -6927,7 +6927,7 @@ public class DiscussionForumTool {
 	  Iterator iter = selectedThread.iterator();
 	  while (iter.hasNext()){
 		  DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
-		  forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
+		  forumManager.markMessageAsNoRead(decoMessage.getMessage(), readStatus);
 	  }
 	  return processActionGetDisplayThread(readStatus);
   }

@@ -1695,7 +1695,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return false; 
   }
 
-  public void markMessageAs(Message message, boolean readStatus)
+  public void markMessageAsNoRead(Message message, boolean readStatus)
   {
     if (log.isDebugEnabled())
     {
