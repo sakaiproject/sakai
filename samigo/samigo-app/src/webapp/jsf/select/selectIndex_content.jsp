@@ -39,6 +39,14 @@
     <script>includeWebjarLibrary('datatables');</script>
     <script src="/samigo-app/js/naturalSort.js"></script>
     <script>
+        // Function to normalize search text
+        window.normalizeSearchText = function(text) {
+            return text
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+        };
+
         $(document).ready(function() {
             jQuery.extend(jQuery.fn.dataTableExt.oSort, {
                 "span-asc": function (a, b) {
@@ -103,6 +111,56 @@
                         }
                     }
               });
+
+              $(document).ready(function() {
+                  const table = $('#selectIndexForm\\:selectTable').DataTable();
+                  const searchInput = document.querySelector('#selectIndexForm\\:selectTable_filter input');
+                  
+                  if (table && searchInput && !searchInput.hasCustomSearch) {
+                      searchInput.hasCustomSearch = true;
+
+                      let lastSearchTerm = '';
+
+                      $(searchInput).off();
+                      searchInput.removeAttribute('data-dt-search');
+
+                      const customSearchFunction = function(settings, searchData, index, rowData, counter) {
+                          if (settings.nTable.id !== 'selectIndexForm:selectTable') {
+                              return true;
+                          }
+
+                          if (!lastSearchTerm || lastSearchTerm.trim() === '') {
+                              return true;
+                          }
+
+                          const normalizedSearch = window.normalizeSearchText(lastSearchTerm);
+
+                          return searchData.some(cellData => {
+                              if (cellData && typeof cellData === 'string') {
+                                  const cleanCellData = cellData.replace(/<[^>]*>/g, '');
+                                  const normalizedCell = window.normalizeSearchText(cleanCellData);
+                                  return normalizedCell.includes(normalizedSearch);
+                              }
+                              return false;
+                          });
+                      };
+
+                      $.fn.dataTable.ext.search.push(customSearchFunction);
+
+                      const handleSearch = function() {
+                          lastSearchTerm = this.value;
+                          table.draw();
+                      };
+
+                      searchInput.addEventListener('input', handleSearch);
+                      searchInput.addEventListener('keyup', handleSearch);
+
+                      if (searchInput.value) {
+                          lastSearchTerm = searchInput.value;
+                          table.draw();
+                      }
+                  }
+              });
             }
 
             var notEmptyReviewTableTd = $("#selectIndexForm\\:reviewTable td:not(:empty)").length;
@@ -144,6 +202,55 @@
                     }
                 });
 
+                const searchInput = document.querySelector('#selectIndexForm\\:reviewTable_filter input');
+                if (table && searchInput) {
+                    if (searchInput.hasCustomSearch) {
+                        return;
+                    }
+                    searchInput.hasCustomSearch = true;
+
+                    let lastSearchTerm = '';
+
+                    $(searchInput).off();
+                    searchInput.removeAttribute('data-dt-search');
+
+                    const customSearchFunction = function(settings, searchData, index, rowData, counter) {
+                        if (settings.nTable.id !== 'selectIndexForm:reviewTable') {
+                            return true;
+                        }
+
+                        if (!lastSearchTerm || lastSearchTerm.trim() === '') {
+                            return true;
+                        }
+
+                        const normalizedSearch = window.normalizeSearchText(lastSearchTerm);
+
+                        return searchData.some(cellData => {
+                            if (cellData && typeof cellData === 'string') {
+                                const cleanCellData = cellData.replace(/<[^>]*>/g, '');
+                                const normalizedCell = window.normalizeSearchText(cleanCellData);
+                                return normalizedCell.includes(normalizedSearch);
+                            }
+                            return false;
+                        });
+                    };
+
+                    $.fn.dataTable.ext.search.push(customSearchFunction);
+
+                    const handleSearch = function() {
+                        lastSearchTerm = this.value;
+                        table.draw();
+                    };
+
+                    searchInput.addEventListener('input', handleSearch);
+                    searchInput.addEventListener('keyup', handleSearch);
+
+                    if (searchInput.value) {
+                        lastSearchTerm = searchInput.value;
+                        table.draw();
+                    }
+                }
+
               } else {
                 var table = $("#selectIndexForm\\:reviewTable").DataTable({
                     "paging": true,
@@ -176,6 +283,55 @@
                         }
                     }
                 });
+
+                const searchInput2 = document.querySelector('#selectIndexForm\\:reviewTable_filter input');
+                if (table && searchInput2) {
+                    if (searchInput2.hasCustomSearch) {
+                        return;
+                    }
+                    searchInput2.hasCustomSearch = true;
+
+                    let lastSearchTerm2 = '';
+
+                    $(searchInput2).off();
+                    searchInput2.removeAttribute('data-dt-search');
+
+                    const customSearchFunction2 = function(settings, searchData, index, rowData, counter) {
+                        if (settings.nTable.id !== 'selectIndexForm:reviewTable') {
+                            return true;
+                        }
+
+                        if (!lastSearchTerm2 || lastSearchTerm2.trim() === '') {
+                            return true;
+                        }
+
+                        const normalizedSearch2 = window.normalizeSearchText(lastSearchTerm2);
+
+                        return searchData.some(cellData => {
+                            if (cellData && typeof cellData === 'string') {
+                                const cleanCellData = cellData.replace(/<[^>]*>/g, '');
+                                const normalizedCell = window.normalizeSearchText(cleanCellData);
+                                return normalizedCell.includes(normalizedSearch2);
+                            }
+                            return false;
+                        });
+                    };
+
+                    $.fn.dataTable.ext.search.push(customSearchFunction2);
+
+                    const handleSearch2 = function() {
+                        lastSearchTerm2 = this.value;
+                        table.draw();
+                    };
+
+                    searchInput2.addEventListener('input', handleSearch2);
+                    searchInput2.addEventListener('keyup', handleSearch2);
+
+                    if (searchInput2.value) {
+                        lastSearchTerm2 = searchInput2.value;
+                        table.draw();
+                    }
+                }
               }
             }
         });

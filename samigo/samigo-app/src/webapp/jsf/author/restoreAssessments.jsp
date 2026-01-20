@@ -14,10 +14,18 @@
             <script type="text/javascript" src="/samigo-app/js/naturalSort.js"></script>
             <script type="text/javascript" src="/samigo-app/js/sortHelper.js"></script>
             <script>
+                // Function to normalize search text
+                window.normalizeSearchText = function(text) {
+                    return text
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "");
+                };
+
                 $(document).ready(function() {
                     var notEmptyTableTd = $("#restoreAssessmentsForm\\:deletedAssessmentsTable td:not(:empty)").length;
                     if (notEmptyTableTd > 0) {
-                        $("#restoreAssessmentsForm\\:deletedAssessmentsTable").DataTable({
+                        var table = $("#restoreAssessmentsForm\\:deletedAssessmentsTable").DataTable({
                             "paging": true,
                             "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
                             "pageLength": 20,
@@ -50,6 +58,55 @@
                                 updateRestoreButton();
                             }
                         });
+
+                        const searchInput = document.querySelector('#restoreAssessmentsForm\\:deletedAssessmentsTable_filter input');
+                        if (table && searchInput) {
+                            if (searchInput.hasCustomSearch) {
+                                return;
+                            }
+                            searchInput.hasCustomSearch = true;
+
+                            let lastSearchTerm = '';
+
+                            $(searchInput).off();
+                            searchInput.removeAttribute('data-dt-search');
+
+                            const customSearchFunction = function(settings, searchData, index, rowData, counter) {
+                                if (settings.nTable.id !== 'restoreAssessmentsForm:deletedAssessmentsTable') {
+                                    return true;
+                                }
+
+                                if (!lastSearchTerm || lastSearchTerm.trim() === '') {
+                                    return true;
+                                }
+
+                                const normalizedSearch = window.normalizeSearchText(lastSearchTerm);
+
+                                return searchData.some(cellData => {
+                                    if (cellData && typeof cellData === 'string') {
+                                        const cleanCellData = cellData.replace(/<[^>]*>/g, '');
+                                        const normalizedCell = window.normalizeSearchText(cleanCellData);
+                                        return normalizedCell.includes(normalizedSearch);
+                                    }
+                                    return false;
+                                });
+                            };
+
+                            $.fn.dataTable.ext.search.push(customSearchFunction);
+
+                            const handleSearch = function() {
+                                lastSearchTerm = this.value;
+                                table.draw();
+                            };
+
+                            searchInput.addEventListener('input', handleSearch);
+                            searchInput.addEventListener('keyup', handleSearch);
+
+                            if (searchInput.value) {
+                                lastSearchTerm = searchInput.value;
+                                table.draw();
+                            }
+                        }
                     }
 
                     $("#restoreAssessmentsForm\\:deletedAssessmentsTable").on("change", ".select-checkbox", function() {
