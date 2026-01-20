@@ -201,7 +201,7 @@ export class SakaiRubricsManager extends RubricsElement {
   filterRubrics(e) {
 
     this.querySelectorAll("sakai-rubrics-list, sakai-rubrics-shared-list").forEach(rubricList => {
-      rubricList.search(e.target.value.toLowerCase());
+      rubricList.search(e.target.value);
     });
   }
 
