@@ -39,6 +39,7 @@ import java.nio.file.StandardCopyOption;
 import java.text.Collator;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
@@ -69,6 +70,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Map;
 import java.util.Objects;
@@ -1227,6 +1229,17 @@ public class AssignmentAction extends PagedResourceActionII {
         super.init(config);
         WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
         assignmentToolUtils = applicationContext.getBean("org.sakaiproject.assignment.tool.AssignmentToolUtils", AssignmentToolUtils.class);
+    }
+
+    /**
+     * Normalizes a string for case and accent-insensitive search
+     * @param input the string to normalize
+     * @return the normalized string without accents and in lowercase
+     */
+    private String normalizeStringForSearch(String input) {
+        if (input == null) return null;
+        String decomposed = Normalizer.normalize(input, Normalizer.Form.NFD);
+        return decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -13820,8 +13833,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 //Search assignments by title
                 String searchTerm = (String) state.getAttribute(SEARCH_ASSIGNMENTS);
                 if (searchTerm != null && !searchTerm.isEmpty()) {
+                    String normalizedSearchTerm = normalizeStringForSearch(searchTerm);
                     returnResources = ((List<Assignment>)returnResources).stream()
-                        .filter(a -> a.getTitle().toLowerCase().contains(searchTerm.toLowerCase()))
+                        .filter(a -> normalizeStringForSearch(a.getTitle()).contains(normalizedSearchTerm))
                         .collect(Collectors.toList());
                 }
 
