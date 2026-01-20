@@ -1949,9 +1949,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			boolean siteQuotaUnlimited = siteQuota == 0;
 			
 			// If the file size exceeds the max uploaded file size, post error message
+			// Note: fileSize comes from content-length header which includes multipart overhead
+			// HTTP multipart overhead: headers (~250B) + boundaries (~300B) + form fields (~350B) ≈ 1KB
+			// Use 64KB margin for safety with various browsers and large file scenarios
+			Long uploadMaxBytes = uploadMax * 1024L * 1024L;
+			Long margin = 64L * 1024L; // 64KB margin for multipart overhead
 			Long fileSizeKB = fileSize / 1024L;
-			Long fileSizeMB = fileSize / 1024L / 1024L;
-			if( fileSizeMB > uploadMax )
+			if( fileSize > (uploadMaxBytes + margin) )
 			{
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-per-upload-quota", new Object[]{uploadMax}));
 			}

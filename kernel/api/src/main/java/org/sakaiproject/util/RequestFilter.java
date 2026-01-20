@@ -967,18 +967,14 @@ public class RequestFilter implements Filter
 		// to let commons-fileupload throw the exception on over-max, and also halt full processing of input fields
 		if (!m_uploadContinue)
 		{
-			// TODO: when we switch to commons-fileupload 1.2
-			// // either per file or overall request, as configured
-			// if (m_uploadMaxPerFile)
-			// {
-			// upload.setFileSizeMax(uploadMax);
-			// }
-			// else
-			// {
-			// upload.setSizeMax(uploadMax);
-			// }
+			// Apache Commons FileUpload uses >= internally, but we want to allow files exactly at the limit
+			// Add margin to account for HTTP multipart protocol overhead:
+			// - HTTP headers (~250 bytes), multipart boundaries (~300 bytes), form fields (~350 bytes)
+			// - Total typical overhead: ~1KB, but use 64KB margin for safety with large files
+			long margin = 64L * 1024L; // 64KB margin for multipart overhead
 
-			upload.setSizeMax(uploadMax);
+			upload.setSizeMax(uploadMax + margin);
+			upload.setFileSizeMax(uploadMax + margin);
 		}
 
 		try
