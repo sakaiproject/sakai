@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -2940,7 +2941,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private String normalizeStringForSearch(String input) {
         if (input == null) return null;
         String decomposed = Normalizer.normalize(input, Normalizer.Form.NFD);
-        return decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+        return decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase(Locale.ROOT);
     }
 
     @Override

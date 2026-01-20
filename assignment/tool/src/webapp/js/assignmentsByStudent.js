@@ -8,7 +8,7 @@ window.includeWebjarLibrary('datatables-rowgroup');
 window.assignments = window.assignments ?? {};
 
 // Function to normalize search text
-window.normalizeSearchText = function(text) {
+window.assignments.normalizeSearchText = function(text) {
   return text
     .toLowerCase()
     .normalize("NFD")
@@ -111,12 +111,12 @@ window.addEventListener("load", () => {
           return true;
         }
 
-        const normalizedSearch = window.normalizeSearchText(lastSearchTerm);
+        const normalizedSearch = window.assignments.normalizeSearchText(lastSearchTerm);
 
         return searchData.some(cellData => {
           if (cellData && typeof cellData === 'string') {
             const cleanCellData = cellData.replace(/<[^>]*>/g, '');
-            const normalizedCell = window.normalizeSearchText(cleanCellData);
+            const normalizedCell = window.assignments.normalizeSearchText(cleanCellData);
             return normalizedCell.includes(normalizedSearch);
           }
           return false;

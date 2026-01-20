@@ -70,6 +70,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Map;
 import java.util.Objects;
@@ -1238,7 +1239,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private String normalizeStringForSearch(String input) {
         if (input == null) return null;
         String decomposed = Normalizer.normalize(input, Normalizer.Form.NFD);
-        return decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+        return decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -13848,9 +13849,9 @@ public class AssignmentAction extends PagedResourceActionII {
                 //Search assignments by title
                 String searchTerm = (String) state.getAttribute(SEARCH_ASSIGNMENTS);
                 if (searchTerm != null && !searchTerm.isEmpty()) {
-                    String normalizedSearchTerm = normalizeStringForSearch(searchTerm.toLowerCase());
+                    String normalizedSearchTerm = normalizeStringForSearch(searchTerm);
                     returnResources = ((List<Assignment>)returnResources).stream()
-                        .filter(a -> normalizeStringForSearch(a.getTitle().toLowerCase()).contains(normalizedSearchTerm))
+                        .filter(a -> normalizeStringForSearch(a.getTitle()).contains(normalizedSearchTerm))
                         .collect(Collectors.toList());
                 }
 
