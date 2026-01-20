@@ -23,6 +23,7 @@
 		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
+		<script src="/messageforums-tool/js/threadScrollEvent.js"></script>
 		<script>
 			$(document).ready(function () {
 				var menuLink = $('#forumsMainMenuLink');
@@ -38,6 +39,11 @@
 				}
 
 			});
+			var markAsNotReadText = "<h:outputText value="#{msgs.cdfm_mark_as_not_read}"/>";
+			var showThreadChanges = "<h:outputText value="#{ForumTool.showThreadChanges}"/>";
+			var statRead = "<h:outputText value="#{msgs.stat_forum_read}"/>";
+			var newFlag = "<h:outputText value="#{msgs.cdfm_newflag}"/>";
+			var isMarkAsNotReadValue = "<h:outputText value="#{ForumTool.selectedTopic.isMarkAsNotRead}"/>";
 		</script>
 		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 	<%--//
@@ -71,6 +77,13 @@
 		// element into which the value gets insert and retrieved from
 		<span class="highlight"  id="maxthreaddepth" class="skip"><h:outputText value="#{msgs.cdfm_maxthreaddepth}" /></span>
 //--%>
+
+		<div class="headerBar">
+		  <div class="progress-container">
+		    <div class="progress-bar" id="myBar"></div>
+		  </div>
+		  <div id="progress-value" class="p-2"></div>
+		</div>
 
 			<h:panelGrid columns="2" width="100%" styleClass="specialLink">
 			    <h:panelGroup>
@@ -131,7 +144,7 @@
 			<h:commandLink styleClass="button" value="#{msgs.cdfm_reply_thread}" id="replyThread" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}"
 				action="#{ForumTool.processDfMsgReplyThread}" immediate="true"/>
 			<h:outputText value="&#160;" escape="false" />
-			<h:commandLink styleClass="button" value=" #{msgs.cdfm_mark_all_as_read}" id="markAllRead" action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"/>
+			<h:commandLink styleClass="button" value=" #{msgs.cdfm_mark_all_as_not_read}" id="markAllNotRead" action="#{ForumTool.processActionMarkAllThreadAsNotRead}" rendered="#{ForumTool.selectedTopic.isMarkAsNotRead and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"/>
 			<h:outputText value="&#160;" escape="false" />
 			<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrlThread}');">
 				<span class="bi bi-printer-fill" aria-hidden="true"></span>
