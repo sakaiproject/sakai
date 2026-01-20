@@ -132,8 +132,8 @@
           <h:outputLabel for="read"><h:outputText id="read_label" value="#{msgs.perm_read}" /></h:outputLabel>
         </h:panelGroup>
          <h:panelGroup styleClass="checkbox">
-          <h:selectBooleanCheckbox id="markAsRead" value="#{permission.markAsRead}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
-          <h:outputLabel for="markAsRead"><h:outputText id="markAsRead_label" value="#{msgs.perm_mark_as_read}" /></h:outputLabel>
+          <h:selectBooleanCheckbox id="markAsNotRead" value="#{permission.markAsNotRead}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
+          <h:outputLabel for="markAsNotRead"><h:outputText id="markAsNotRead_label" value="#{msgs.perm_mark_as_not_read}" /></h:outputLabel>
         </h:panelGroup>
         <h:panelGroup styleClass="checkbox">
           <h:selectBooleanCheckbox id="moderatePostings" value="#{permission.moderatePostings}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{(not ForumTool.editMode) || ForumTool.disableModeratePerm}"/>

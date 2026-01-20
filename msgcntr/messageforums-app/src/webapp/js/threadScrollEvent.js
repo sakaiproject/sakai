@@ -1,0 +1,76 @@
+window.numRead = 0;
+
+window.onload = function() {
+	const items = Array.from(document.querySelectorAll('[id]')).filter(it => /^mi-\d+ti-\d+fi-\d+$/.test(it.id));
+	const totalWidth = items.length;
+	window.numRead = 0;
+	let ticking = false;
+
+	//Only make changes when access from the tool or load the tool
+	if (showThreadChanges === "true") {
+		const conversations = items.map(item => ({
+			conversation: item,
+			read: false
+		}));
+
+		//update with the read
+		conversations.forEach(item => {
+			const mnew = item.conversation.querySelector(".messageNew");
+			if(!mnew) {item.read=true;}
+		});
+
+		const notRead = conversations.filter(item => item.read === false);
+		window.numRead = totalWidth - notRead.length;
+
+		updateBar(window.numRead, totalWidth);
+
+		const scroller = document.querySelector(".portal-main-container.container-fluid.pt-4")
+		const scrollerfn = () => {
+			if (!ticking) {
+				// Throttle the event to "do something" every 2000ms
+				setTimeout(() => {
+					elementsInViewPort(notRead);
+					ticking = false;
+				}, 2000);
+
+				ticking = true;
+			}
+		}
+		if (scroller) {
+			scroller.addEventListener("scroll", scrollerfn);
+			scrollerfn();
+		}
+	} else {
+		updateBar(window.numRead, totalWidth);
+	}
+
+	function elementsInViewPort(items) {
+		items.forEach(item => {
+			const p = item.conversation.querySelector(".textPanel p");
+			const toolBar = item.conversation.querySelector(".itemToolBar");
+			const mnew = item.conversation.querySelector(".messageNew");
+			const parts = item.conversation.id.split(/mi-|ti-|fi-/).filter(Boolean);
+			const [mi, ti] = parts;
+			if (mnew && !item.read && isBottomInViewport(item.conversation)) {
+				doAjaxRead(mi, ti, toolBar);
+				item.read=true;
+				window.numRead++;
+				updateBar(window.numRead, totalWidth);
+			}
+		});
+	}
+
+}
+
+function isBottomInViewport(item) {
+	const rect = item.getBoundingClientRect();
+	const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+	return rect.bottom <= viewportHeight && rect.bottom >= 0;
+}
+
+function updateBar(currentRead, total) {
+	const elem = document.getElementById("myBar");
+	const pct = Math.round(((currentRead*100)/total)) || 0;
+	elem.style.width = pct + '%'; 
+	document.getElementById("progress-value").innerHTML = statRead + ' '+ currentRead + '/' + total + ' - ' + pct + '%';
+}

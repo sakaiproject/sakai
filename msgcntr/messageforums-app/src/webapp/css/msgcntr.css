@@ -95,10 +95,14 @@
 }
 
 .childrenNewZero {
-    color: var(--sakai-text-color-2);
-    font-size: 85%;
-    font-weight: normal;
-    margin-left: 5px;
+	margin-left: 5px;
+}
+
+.childrenZero{
+	color: var(--sakai-text-color-2);
+	font-size: 85%;
+	font-weight: normal;
+	margin-left: 5px;
 }
 
 #messNavHolder{
@@ -152,13 +156,13 @@
 	margin-right: 5px;
 }
 
-.Mrphs-sakai-forums #msgForum a.button.markAsReadIcon{
+.Mrphs-sakai-forums #msgForum a.button.markAsNotReadIcon{
 	cursor: pointer;
 	padding-left: 25px;
 	position:relative;
 }
 
-.Mrphs-sakai-forums #msgForum a.button.markAsReadIcon::before{
+.Mrphs-sakai-forums #msgForum a.button.markAsNotReadIcon::before{
 	content: "\F32C";
 	font-family: bootstrap-icons;
 	position: absolute;
@@ -167,8 +171,8 @@
 	transform: translateY(-50%);
 }
 
-.Mrphs-sakai-forums #msgForum a.markAsReadIcon:hover::before{
-	content: "\F32D";
+.Mrphs-sakai-forums #msgForum a.markAsNotReadIcon:hover::before{
+	content: "\F32C";
 	font-family: bootstrap-icons;
 }
 .messagesFlat,.messagesThreaded{
@@ -664,4 +668,34 @@ img.authorImage {
 
 .draft-forum-topic a:hover {
 	color: #333 !important;
+}
+
+/* Style the header: fixed position (always stay at the top) */
+.headerBar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  color : var(--sakai-text-color-1);
+  height: 3rem;
+  margin-top: 1rem;
+}
+
+/* The progress container (grey background) */
+.Mrphs-sakai-forums .progress-container {
+  width: 100%;
+  height: 8px;
+  background: var(--sakai-color-gray);
+}
+
+/* The progress bar (scroll indicator) */
+.Mrphs-sakai-forums .progress-bar {
+  height: 8px;
+  background: var(--sakai-brand);
+  width: 0%;
+}
+
+.Mrphs-sakai-forums #progress-value {
+  float: right;
+  background: var(--sakai-background-color-1);
 }

@@ -201,7 +201,7 @@ function selectDeselectCheckboxes(mainCheckboxId, myForm) {
 	var isChecked = el.checked;           
 	for ( i = 0; i < myForm.elements.length; i++ ) {
 		if (myForm.elements[i].type == 'checkbox' ) {
-			myForm.elements[i].checked  = isChecked;                                               
+			myForm.elements[i].checked  = isChecked;
 		}
 	}
 }
@@ -209,7 +209,7 @@ function resetMainCheckbox(checkboxId) {
   mainCheckboxEl = getTheElement(checkboxId);
   if (mainCheckboxEl.checked = true) {
   	mainCheckboxEl.checked = false;
-  }                                                  
+  }
 }
 // if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.
 // ie/xp reports clientHeight == offsetHeight, but has a good scrollHeight
@@ -307,7 +307,9 @@ function setupMessageNav(messageType){
             last = $("#lastPendingItemTitleHolder").text();
         }
 		//go to first new or pending message
-        $('#messNavHolder').append("<span class='jumpToNew specialLink'><a class='button' href='#" + messageType + "newMess0'>" + tofirst + "</a></span>");
+		if ($('#messNavHolder').find('.jumpToNew[rel="setupMessageNav"]').length === 0) {
+			$('#messNavHolder').append("<span class='jumpToNew specialLink' rel='setupMessageNav'><a class='button' href='#" + messageType + "newMess0'>" + tofirst + "</a></span>");
+		}
         //instrument link targets (clicking on "New" goes to next one, same with "Pending")
 		$("." + messageType).each(function(intIndex){
             var parentRow = $(this).parents('tr');
@@ -354,9 +356,6 @@ function setupMessageNav(messageType){
             }
         });
     }
-    if ($(".messageNew").size() < 1 && $(".messagePending").size() < 1) {
-        $('#messNavHolder').remove()
-    }
 }
 
 function doAjax(messageId, topicId, self){
@@ -364,49 +363,57 @@ function doAjax(messageId, topicId, self){
     $.ajax({
         type: "GET",
         url: document.forms[0].action,
-        data: "ajax=true&action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
+        data: "ajax=true&action=markMessageAsNotRead&messageId=" + messageId + "&topicId=" + topicId,
         success: function(msg){
             if (msg.match(/SUCCESS/)) {
                 setTimeout(function(){
                     var thisRow = $(self).parents('tr');
+                    $(thisRow).children("td").find("div.messageMetadata").children("span.textPanelFooter").addClass('unreadMsg');
                     //only do this if in subject only view
                     if ($(self).parent('td').size() === 1) {
                         var thisTheadClassArr = $(thisRow).prop('class').split(' ');
                         var thisThread = thisTheadClassArr[thisTheadClassArr.length - 1];
-                        var unread = parseInt($('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(), 10);
+                        var unread = parseInt($('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(), 10) || 0;
                         if (unread > 0) {
-                            $('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(unread - 1);
+                            $('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(unread + 1);
+                        } else {
+                            //change class
+                            $('.hierItemBlock.' + thisThread + ' .childrenNewZero').removeClass('childrenZero childrenNewZero').addClass('childrenNew childrenNewNumber');
+                            $('.hierItemBlock.' + thisThread + ' .childrenZero').removeClass('childrenZero').addClass('childrenNew');
+                            $('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(unread + 1);
                         }
-                        $('.' + thisThread).find('em').text($('.' + thisThread).find('em').text() - 1);
-						//hide "New Messages" in thread seed if all messages have been marked as "read"
+                        $('.' + thisThread).find('em').text($('.' + thisThread).find('em').text() + 1);
+                        //hide "New Messages" in thread seed if all messages have been marked as "read"
                         if ($('.' + thisThread).find('span.messageNew').size() === 1) {
                             $('.' + thisThread).find('span.childrenNewThread').css('visibility', 'hidden');
                         }
-						// remove this "New" flag if this message has been marked as read
-                        $(thisRow).children("td").children("span").children("span.messageNew").remove();
+						// replace this "New" flag if this message has been marked as not read
+                        var thisTitle = $(thisRow).children("td").find('a.messagetitlelink').first().text();
+                        $(thisRow).children("td").children('span.firstChild').prepend('<span class="messageNew">' + newFlag + '</span>');
+                        $(thisRow).children("td").find('a.messagetitlelink').first().html('<span class="unreadMsg">' + thisTitle + '</span>');
                     }
                     else {
-						//in dfFlatView - remove "New" flag, as well as link target for the thread navigator
-						$(self).parents('tr').removeClass('messageNewNext')
-                        $(self).parents("div").parents("div").children('a.messageNewAnchor').remove()
-                        $(self).parents("div").parents("div").children("span.messageNew").remove()
-						// remove "Go to first new message" link if all messages have been marked as "read"
-                        if ($('.messagesThreaded').find('a.messageNewAnchor').size() === 0) {
-                            $('.jumpToNew').remove();
-                        }
+						//in dfFlatView - add "New" flag, as well as link target for the thread navigator
+						$(self).closest("td").find("span.authorImage").after('<span class="messageNew">' + newFlag + '</span>');
+						if (setupMessageNav) { setupMessageNav('messageNew'); }
+						var thisRowNumReaders = $(self).closest("div").parent("div").children("span.messageNewNumReaders");
+						var messageNumReaders = parseInt($(thisRowNumReaders).text(), 10) || 0;
+						if (messageNumReaders>0) { $(thisRowNumReaders).text(messageNumReaders - 1); }
                     }
-
 
                     //remove at end after references are not needed
                     $(self).remove();
-                    $("#" + messageId).parents("tr:first").children("td").each(function(){
-                        this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus');
-                    });
                 }, 500);
             }
             else {
                 $(self).remove();
                 $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");
+            }
+            const parentTable = $(self).parents('table');
+            const total = $(parentTable).find('tr').size();
+            if (!!window.numRead && window.numRead > 0) {
+                window.numRead--;
+                updateBar(window.numRead, total);
             }
         },
         error: function(){
@@ -415,6 +422,48 @@ function doAjax(messageId, topicId, self){
         }
     });
     //$.ajax({type: "GET", url: location.href, data: ""});
+    return false;
+}
+
+function doAjaxRead(messageId, topicId, self){
+    $(self).prop('src', '/library/image/sakai/spinner.gif');
+    $.ajax({
+        type: "GET",
+        url: document.forms[0].action,
+        data: "ajax=true&action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
+        success: function(msg){
+            if (msg.match(/SUCCESS/)) {
+                setTimeout(function(){
+					$(self).parents('tr').removeClass('messageNewNext');
+					$(self).parents("div").children("span.messageNew").remove();
+					$(self).parents("div").children("div.messageMetadata").find("span.unreadMsg").removeClass('unreadMsg');
+					$(self).parents("div").parents("div").children('a.messageNewAnchor').remove();
+					// remove "Go to first new message" link if all messages have been marked as "read"
+					if ($('.messagesThreaded').find('a.messageNewAnchor').size() === 0) {
+					    $('.jumpToNew').remove();
+					}
+					//add button
+					if (isMarkAsNotReadValue === "true") {
+						$(self).prepend(
+						  $('<a>', {
+						    href: 'javascript:void(0);',
+						    title: markAsNotReadText,
+						    class: 'markAsNotReadIcon button',
+						    text: markAsNotReadText,
+						    click: function() {
+						      doAjax(messageId, topicId, this);
+						    }
+						  })
+						);
+					}
+					if (setupMessageNav) { setupMessageNav('messageNew'); }
+					var thisRowNumReaders = $(self).parent("div").parent("div").children("span.messageNewNumReaders");
+					var messageNumReaders = parseInt($(thisRowNumReaders).text(), 10) || 0;
+					$(thisRowNumReaders).text(messageNumReaders + 1);
+                }, 500);
+            }
+        }
+    });
     return false;
 }
 

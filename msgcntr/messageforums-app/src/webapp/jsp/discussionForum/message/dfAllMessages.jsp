@@ -89,7 +89,7 @@
             }
         
          }
-
+        var newFlag = "<h:outputText value="#{msgs.cdfm_newflag}"/>";
  		</script>
 		<h:outputText styleClass="showMoreText"  style="display:none" value="#{msgs.cdfm_show_more_full_description}"  />
 
@@ -329,7 +329,7 @@
 				
 					<h:panelGroup rendered="#{!message.deleted}" styleClass="firstChild">
 				
-					<h:outputText styleClass="messageNew" value=" #{msgs.cdfm_newflag}" rendered="#{!message.read}"/>	
+					<h:outputText styleClass="messageNew" value="#{msgs.cdfm_newflag}" rendered="#{!message.read}"/>
 
 					<%-- message has been submitted and is pending approval by moderator --%>
 						<h:outputText value="#{msgs.cdfm_msg_pending_label}" styleClass="messagePending" rendered="#{message.msgPending}" />
@@ -370,9 +370,9 @@
 						<%--
 		          	<h:outputText value="  " />
 				
-						<h:graphicImage value="/images/trans.gif" rendered="#{!message.read}"
-							alt="#{msgs.cdfm_mark_as_read}" title="#{msgs.cdfm_mark_as_read}"
-							onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);" styleClass="markAsReadIcon"/>
+						<h:graphicImage value="/images/trans.gif" rendered="#{message.read and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"
+							alt="#{msgs.cdfm_mark_as_not_read}" title="#{msgs.cdfm_mark_as_not_read}"
+							onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);" styleClass="markAsNotReadIcon"/>
 						--%>	
 				</h:panelGroup>
 					<%--  thread metadata (count) --%>
@@ -388,27 +388,29 @@
                                   rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) >= 1}"/>
                     <h:outputText styleClass="childrenNew" id="topic_msg_count56" value="#{msgs.cdfm_lowercase_unread_msg}"
                                   rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) >= 1}"/>
-   
-                    <%-- // display ('unread ') with different style sheet if unread message is 0 --%>  
-                    <h:outputText styleClass="childrenNewZero" id="topic_msg_count57" value="  #{(message.childUnread) + (message.read ? 0 : 1)} #{msgs.cdfm_lowercase_unread_msg}" 
-                                  rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) == 0}"/> 
-                               
-                     <%-- // display singular ('message') if total message is 1--%>                   
+
+                    <%-- // display ('unread ') with different style sheet if unread message is 0 --%>
+                    <h:outputText styleClass="childrenZero childrenNewZero" id="topic_msg_count57" value="#{(message.childUnread) + (message.read ? 0 : 1)}"
+                                  rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) == 0}"/>
+                    <h:outputText styleClass="childrenZero" id="topic_msg_unread_count57" value="#{msgs.cdfm_lowercase_unread_msg}"
+                                  rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) == 0}"/>
+
+                     <%-- // display singular ('message') if total message is 1--%>
                      <h:outputText styleClass="textPanelFooter" id="topic_msg_count58" value="#{msgs.cdfm_of} #{message.childCount + 1} #{msgs.cdfm_lowercase_msg}"
                                    rendered="#{message.depth == 0 && message.childCount ==0}"  />
-                                                                           
-                     <%-- // display singular ('message') if total message is 0 or more than 1--%>                   
+
+                     <%-- // display singular ('message') if total message is 0 or more than 1--%>
                      <h:outputText styleClass="textPanelFooter" id="topic_msg_count59" value="#{msgs.cdfm_of} #{message.childCount + 1} #{msgs.cdfm_lowercase_msgs}"
                                    rendered="#{message.depth == 0 && message.childCount >=1}"  />
 				<%-- NOT moved--%>
 				</h:panelGroup>
 			</h:column>
 				<%-- author column --%>
-			<h:column rendered="#{ForumTool.selectedTopic.isMarkAsRead}">
-				<f:facet name="header"><h:outputText value="#{msgs.cdfm_mark_as_read}" escape="false"/></f:facet>
-				<h:outputLink rendered="#{!message.read}" value="javascript:void(0);" title="#{msgs.cdfm_mark_as_read}" styleClass="markAsReadIcon button"
+			<h:column rendered="#{ForumTool.selectedTopic.isMarkAsNotRead}">
+				<f:facet name="header"><h:outputText value="#{msgs.cdfm_mark_as_not_read}" escape="false"/></f:facet>
+				<h:outputLink rendered="#{message.read and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}" value="javascript:void(0);" title="#{msgs.cdfm_mark_as_not_read}" styleClass="markAsNotReadIcon button"
 							  onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
-					<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
+					<h:outputText value="#{msgs.cdfm_mark_as_not_read}"/>
 				</h:outputLink>
 			</h:column>
 			<h:column>
