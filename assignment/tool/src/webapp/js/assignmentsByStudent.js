@@ -7,6 +7,14 @@ window.includeWebjarLibrary('datatables-rowgroup');
 // Make sure assignments namespace exists
 window.assignments = window.assignments ?? {};
 
+// Function to normalize search text
+window.assignments.normalizeSearchText = function(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 // Assignments By Students "global" namespace
 window.assignments.byStudent = {
   datatablesConfig: {
@@ -77,5 +85,60 @@ function renderGrouping({ studentName, actionLink, expanded, studentUserId, user
   
   return template.content;
 }
+
+window.addEventListener("load", () => {
+  $(document).on('init.dt', '#assignmentsByStudent', function() {
+    const table = $('#assignmentsByStudent').DataTable();
+    const searchInput = document.querySelector('#assignmentsByStudent_filter input');
+
+    if (table && searchInput) {
+      if (searchInput.hasCustomSearch) {
+        return;
+      }
+      searchInput.hasCustomSearch = true;
+
+      let lastSearchTerm = '';
+
+      $(searchInput).off();
+      searchInput.removeAttribute('data-dt-search');
+
+      const customSearchFunction = function(settings, searchData, index, rowData, counter) {
+        if (settings.nTable.id !== 'assignmentsByStudent') {
+          return true;
+        }
+
+        if (!lastSearchTerm || lastSearchTerm.trim() === '') {
+          return true;
+        }
+
+        const normalizedSearch = window.assignments.normalizeSearchText(lastSearchTerm);
+
+        return searchData.some(cellData => {
+          if (cellData && typeof cellData === 'string') {
+            const cleanCellData = cellData.replace(/<[^>]*>/g, '');
+            const normalizedCell = window.assignments.normalizeSearchText(cleanCellData);
+            return normalizedCell.includes(normalizedSearch);
+          }
+          return false;
+        });
+      };
+
+      $.fn.dataTable.ext.search.push(customSearchFunction);
+
+      const handleSearch = function() {
+        lastSearchTerm = this.value;
+        table.draw();
+      };
+
+      searchInput.addEventListener('input', handleSearch);
+      searchInput.addEventListener('keyup', handleSearch);
+
+      if (searchInput.value) {
+        lastSearchTerm = searchInput.value;
+        table.draw();
+      }
+    }
+  });
+});
 
 })();
