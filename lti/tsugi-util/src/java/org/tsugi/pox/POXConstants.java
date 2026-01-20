@@ -1,23 +1,31 @@
 package org.tsugi.pox;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class POXConstants {
+    
+    private POXConstants() {
+        // Utility class - prevent instantiation
+    }
     
     public static final String MAJOR_SUCCESS = "success";
     public static final String MAJOR_FAILURE = "failure";
     public static final String MAJOR_UNSUPPORTED = "unsupported";
     public static final String MAJOR_PROCESSING = "processing";
     
-    public static final String[] VALID_MAJOR = {
+    public static final List<String> VALID_MAJOR = Collections.unmodifiableList(Arrays.asList(
         MAJOR_SUCCESS, MAJOR_FAILURE, MAJOR_UNSUPPORTED, MAJOR_PROCESSING
-    };
+    ));
     
     public static final String SEVERITY_ERROR = "error";
     public static final String SEVERITY_WARNING = "warning";
     public static final String SEVERITY_STATUS = "status";
     
-    public static final String[] VALID_SEVERITY = {
+    public static final List<String> VALID_SEVERITY = Collections.unmodifiableList(Arrays.asList(
         SEVERITY_ERROR, SEVERITY_WARNING, SEVERITY_STATUS
-    };
+    ));
     
     public static final String MINOR_FULLSUCCESS = "fullsuccess";
     public static final String MINOR_NOSOURCEDIDS = "nosourcedids";
@@ -40,7 +48,7 @@ public class POXConstants {
     public static final String MINOR_LINKFAILURE = "linkfailure";
     public static final String MINOR_UNSUPPORTED = "unsupported";
     
-    public static final String[] VALID_MINOR = {
+    public static final List<String> VALID_MINOR = Collections.unmodifiableList(Arrays.asList(
         MINOR_FULLSUCCESS, MINOR_NOSOURCEDIDS, MINOR_IDALLOC, MINOR_OVERFLOWFAIL,
         MINOR_IDALLOCINUSEFAIL, MINOR_INVALIDDATAFAIL, MINOR_INCOMPLETEDATA,
         MINOR_PARTIALSTORAGE, MINOR_UNKNOWNOBJECT, MINOR_DELETEFAILURE,
@@ -48,17 +56,17 @@ public class POXConstants {
         MINOR_UNKNOWNQUERY, MINOR_UNKNOWNVOCAB, MINOR_TARGETISBUSY,
         MINOR_UNKNOWNEXTENSION, MINOR_UNAUTHORIZEDREQUEST, MINOR_LINKFAILURE,
         MINOR_UNSUPPORTED
-    };
+    ));
     
     public static final String OPERATION_REPLACE_RESULT = "replaceResultRequest";
     public static final String OPERATION_READ_RESULT = "readResultRequest";
     public static final String OPERATION_DELETE_RESULT = "deleteResultRequest";
     public static final String OPERATION_READ_MEMBERSHIP = "readMembershipRequest";
     
-    public static final String[] VALID_OPERATIONS = {
+    public static final List<String> VALID_OPERATIONS = Collections.unmodifiableList(Arrays.asList(
         OPERATION_REPLACE_RESULT, OPERATION_READ_RESULT, 
         OPERATION_DELETE_RESULT, OPERATION_READ_MEMBERSHIP
-    };
+    ));
     
     public static final String ROLE_LEARNER = "Learner";
     public static final String ROLE_INSTRUCTOR = "Instructor";
@@ -69,27 +77,27 @@ public class POXConstants {
     public static final String ROLE_ADMINISTRATOR = "Administrator";
     public static final String ROLE_TEACHING_ASSISTANT = "TeachingAssistant";
     
-    public static final String[] VALID_ROLES = {
+    public static final List<String> VALID_ROLES = Collections.unmodifiableList(Arrays.asList(
         ROLE_LEARNER, ROLE_INSTRUCTOR, ROLE_CONTENT_DEVELOPER, ROLE_MEMBER,
         ROLE_MANAGER, ROLE_MENTOR, ROLE_ADMINISTRATOR, ROLE_TEACHING_ASSISTANT
-    };
+    ));
     
     public static final String FIELD_TYPE_BOOLEAN = "Boolean";
     public static final String FIELD_TYPE_INTEGER = "Integer";
     public static final String FIELD_TYPE_REAL = "Real";
     public static final String FIELD_TYPE_STRING = "String";
     
-    public static final String[] VALID_FIELD_TYPES = {
+    public static final List<String> VALID_FIELD_TYPES = Collections.unmodifiableList(Arrays.asList(
         FIELD_TYPE_BOOLEAN, FIELD_TYPE_INTEGER, FIELD_TYPE_REAL, FIELD_TYPE_STRING
-    };
+    ));
     
     public static final String STATUS_ACTIVE = "Active";
     public static final String STATUS_INACTIVE = "Inactive";
     public static final String STATUS_DELETED = "Deleted";
     
-    public static final String[] VALID_STATUS = {
+    public static final List<String> VALID_STATUS = Collections.unmodifiableList(Arrays.asList(
         STATUS_ACTIVE, STATUS_INACTIVE, STATUS_DELETED
-    };
+    ));
     
     public static final String NAMESPACE_IMSOMS = "http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0";
     public static final String NAMESPACE_IMSMMS = "http://www.imsglobal.org/services/lis/mms2p0/wsdl11/sync/imsmms_v2p0";
@@ -128,16 +136,11 @@ public class POXConstants {
         return isValidValue(status, VALID_STATUS);
     }
         
-    private static boolean isValidValue(String value, String[] validValues) {
+    private static boolean isValidValue(String value, List<String> validValues) {
         if (value == null) {
             return false;
         }
-        for (String validValue : validValues) {
-            if (validValue.equals(value)) {
-                return true;
-            }
-        }
-        return false;
+        return validValues.contains(value);
     }
 }
 

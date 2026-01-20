@@ -1,6 +1,5 @@
 package org.tsugi.lti;
 
-import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -69,11 +68,6 @@ public class POXJacksonTest {
             "<imsx_POXBody>\n" +
             "</imsx_POXBody>\n" +
             "</imsx_POXEnvelopeResponse>";
-
-    @Before
-    public void setUp() {
-
-    }
 
     @Test
     public void testParseRequest_Success() {
@@ -328,7 +322,7 @@ public class POXJacksonTest {
             POXEnvelopeRequest jacksonRequest = POXJacksonParser.parseRequest(SAMPLE_REQUEST_XML);
             String operation = POXJacksonParser.getOperation(jacksonRequest);
             Map<String, String> headerInfo = POXJacksonParser.getHeaderInfo(jacksonRequest);
-            String version = headerInfo.get("version");
+            assertNotNull("Header info should contain version", headerInfo.get("version"));
         }
         long jacksonTime = System.nanoTime() - jacksonStart;
         

@@ -259,30 +259,15 @@ public class POXResponseFactory {
     }
     
     private static boolean isValidMajorCode(String major) {
-        for (String validMajor : IMSPOXRequestJackson.validMajor) {
-            if (validMajor.equals(major)) {
-                return true;
-            }
-        }
-        return false;
+        return POXConstants.isValidMajorCode(major);
     }
 
     private static boolean isValidSeverity(String severity) {
-        for (String validSeverity : IMSPOXRequestJackson.validSeverity) {
-            if (validSeverity.equals(severity)) {
-                return true;
-            }
-        }
-        return false;
+        return POXConstants.isValidSeverity(severity);
     }
     
     private static boolean isValidMinorCode(String minor) {
-        for (String validMinor : IMSPOXRequestJackson.validMinor) {
-            if (validMinor.equals(minor)) {
-                return true;
-            }
-        }
-        return false;
+        return POXConstants.isValidMinorCode(minor);
     }
 }
 

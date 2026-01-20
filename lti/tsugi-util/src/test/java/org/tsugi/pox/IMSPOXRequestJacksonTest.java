@@ -190,6 +190,7 @@ public class IMSPOXRequestJacksonTest {
     
     @Test
     public void testRunTest() {
+        // Smoke test - checking to see if the method passes without throwing an exception
         IMSPOXRequestJackson.runTest();
     }
     

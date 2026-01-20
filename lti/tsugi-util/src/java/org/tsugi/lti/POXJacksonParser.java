@@ -22,6 +22,14 @@ public class POXJacksonParser {
     
     private static final Logger log = LoggerFactory.getLogger(POXJacksonParser.class);
     
+    private static final XmlMapper XML_MAPPER;
+    
+    static {
+        XML_MAPPER = new XmlMapper();
+        XML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        XML_MAPPER.setDefaultUseWrapper(false);
+    }
+    
     public final static String MAJOR_SUCCESS = POXConstants.MAJOR_SUCCESS;
     public final static String MAJOR_FAILURE = POXConstants.MAJOR_FAILURE;
     public final static String MAJOR_UNSUPPORTED = POXConstants.MAJOR_UNSUPPORTED;
@@ -65,11 +73,7 @@ public class POXJacksonParser {
         }
 
         try {
-            XmlMapper mapper = new XmlMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            mapper.setDefaultUseWrapper(false);
-
-            POXEnvelopeRequest request = mapper.readValue(xmlString.trim(), POXEnvelopeRequest.class);
+            POXEnvelopeRequest request = XML_MAPPER.readValue(xmlString.trim(), POXEnvelopeRequest.class);
             
             if (request != null && request.getPoxHeader() == null && request.getPoxBody() == null) {
                 log.warn("Parsed request but both header and body are null - likely invalid XML");
@@ -98,11 +102,7 @@ public class POXJacksonParser {
         }
 
         try {
-            XmlMapper mapper = new XmlMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            mapper.setDefaultUseWrapper(false);
-
-            POXEnvelopeResponse response = mapper.readValue(xmlString.trim(), POXEnvelopeResponse.class);
+            POXEnvelopeResponse response = XML_MAPPER.readValue(xmlString.trim(), POXEnvelopeResponse.class);
             log.debug("Successfully parsed POX response");
             return response;
 
@@ -125,13 +125,13 @@ public class POXJacksonParser {
         
         POXRequestBody body = request.getPoxBody();
         if (body.getReplaceResultRequest() != null) {
-            return "replaceResultRequest";
+            return POXConstants.OPERATION_REPLACE_RESULT;
         } else if (body.getReadResultRequest() != null) {
-            return "readResultRequest";
+            return POXConstants.OPERATION_READ_RESULT;
         } else if (body.getDeleteResultRequest() != null) {
-            return "deleteResultRequest";
+            return POXConstants.OPERATION_DELETE_RESULT;
         } else if (body.getReadMembershipRequest() != null) {
-            return "readMembershipRequest";
+            return POXConstants.OPERATION_READ_MEMBERSHIP;
         }
         
         return null;
@@ -159,6 +159,24 @@ public class POXJacksonParser {
     }
 
     /**
+     * Get ResultRecord from the POX body.
+     * Works with replaceResultRequest, readResultRequest, and deleteResultRequest.
+     * 
+     * @param body The POX request body
+     * @return The ResultRecord, or null if not found
+     */
+    private static ResultRecord getResultRecord(POXRequestBody body) {
+        if (body.getReplaceResultRequest() != null) {
+            return body.getReplaceResultRequest().getResultRecord();
+        } else if (body.getReadResultRequest() != null) {
+            return body.getReadResultRequest().getResultRecord();
+        } else if (body.getDeleteResultRequest() != null) {
+            return body.getDeleteResultRequest().getResultRecord();
+        }
+        return null;
+    }
+
+    /**
      * Get sourcedId from the POX body.
      * Works with replaceResultRequest, readResultRequest, deleteResultRequest, and readMembershipRequest.
      * 
@@ -171,15 +189,7 @@ public class POXJacksonParser {
         }
         
         POXRequestBody body = request.getPoxBody();
-        ResultRecord resultRecord = null;
-        
-        if (body.getReplaceResultRequest() != null) {
-            resultRecord = body.getReplaceResultRequest().getResultRecord();
-        } else if (body.getReadResultRequest() != null) {
-            resultRecord = body.getReadResultRequest().getResultRecord();
-        } else if (body.getDeleteResultRequest() != null) {
-            resultRecord = body.getDeleteResultRequest().getResultRecord();
-        }
+        ResultRecord resultRecord = getResultRecord(body);
         
         if (resultRecord != null && resultRecord.getSourcedGUID() != null) {
             return resultRecord.getSourcedGUID().getSourcedId();
@@ -205,15 +215,7 @@ public class POXJacksonParser {
         }
         
         POXRequestBody body = request.getPoxBody();
-        ResultRecord resultRecord = null;
-        
-        if (body.getReplaceResultRequest() != null) {
-            resultRecord = body.getReplaceResultRequest().getResultRecord();
-        } else if (body.getReadResultRequest() != null) {
-            resultRecord = body.getReadResultRequest().getResultRecord();
-        } else if (body.getDeleteResultRequest() != null) {
-            resultRecord = body.getDeleteResultRequest().getResultRecord();
-        }
+        ResultRecord resultRecord = getResultRecord(body);
         
         if (resultRecord != null && resultRecord.getResult() != null && 
             resultRecord.getResult().getResultScore() != null) {
@@ -236,15 +238,7 @@ public class POXJacksonParser {
         }
         
         POXRequestBody body = request.getPoxBody();
-        ResultRecord resultRecord = null;
-        
-        if (body.getReplaceResultRequest() != null) {
-            resultRecord = body.getReplaceResultRequest().getResultRecord();
-        } else if (body.getReadResultRequest() != null) {
-            resultRecord = body.getReadResultRequest().getResultRecord();
-        } else if (body.getDeleteResultRequest() != null) {
-            resultRecord = body.getDeleteResultRequest().getResultRecord();
-        }
+        ResultRecord resultRecord = getResultRecord(body);
         
         if (resultRecord != null && resultRecord.getResult() != null && 
             resultRecord.getResult().getResultScore() != null) {
