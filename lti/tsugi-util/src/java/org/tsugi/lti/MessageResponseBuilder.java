@@ -88,7 +88,7 @@ public class MessageResponseBuilder {
             }
         } catch (Exception e) {
             log.error("Error serializing MessageResponse to XML", e);
-            return "";
+            throw new RuntimeException("Failed to serialize MessageResponse to XML", e);
         }
     }
 

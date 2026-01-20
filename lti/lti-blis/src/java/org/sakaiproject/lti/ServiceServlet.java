@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Iterator;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -569,8 +568,8 @@ public class ServiceServlet extends HttpServlet {
 
 				if (groups.size() > 0) {
 					List<org.tsugi.lti.objects.Group> lgm = new ArrayList<>();
-					for (Iterator i = groups.iterator();i.hasNext();) {
-						org.sakaiproject.site.api.Group group = (org.sakaiproject.site.api.Group) i.next();
+					for (Object groupObj : groups) {
+						org.sakaiproject.site.api.Group group = (org.sakaiproject.site.api.Group) groupObj;
 						org.tsugi.lti.objects.Group ltiGroup = MessageResponseBuilder.createGroup(
 							group.getId(), group.getTitle());
 						lgm.add(ltiGroup);
@@ -668,9 +667,8 @@ public class ServiceServlet extends HttpServlet {
 		String message_type = null;
 		if ( log.isDebugEnabled() ) {
 			try {
-				XmlMapper mapper = new XmlMapper();
-				Object obj = mapper.readValue(pox.getPostBody(), Object.class);
-				String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+				Object obj = POX_XML_MAPPER.readValue(pox.getPostBody(), Object.class);
+				String pretty = POX_XML_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
 				log.debug("POST\n{}", pretty);
 			} catch (Exception e) {
 				log.debug("POST\n{}", pox.getPostBody());

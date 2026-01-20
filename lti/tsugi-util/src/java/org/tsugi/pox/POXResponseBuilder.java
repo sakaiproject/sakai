@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.tsugi.lti.objects.POXEnvelopeResponse;
 import org.tsugi.lti.objects.POXResponseBody;
 import org.tsugi.lti.objects.POXResponseHeader;
@@ -14,7 +13,7 @@ import org.tsugi.lti.objects.POXCodeMinor;
 import org.tsugi.lti.objects.POXCodeMinorField;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,12 +22,12 @@ import java.util.ArrayList;
 @Slf4j
 public class POXResponseBuilder {
     
-    private static final XmlMapper xmlMapper = new XmlMapper();
+    private static final XmlMapper XML_MAPPER;
     
     static {
-        xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-        xmlMapper.configure(com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        xmlMapper.setDefaultUseWrapper(false);
+        XML_MAPPER = new XmlMapper();
+        XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        XML_MAPPER.setDefaultUseWrapper(false);
     }
     
     private String description;
@@ -132,6 +131,18 @@ public class POXResponseBuilder {
         return this;
     }
     
+    private String cleanBodyContent(String content) {
+        if (content == null || content.trim().isEmpty()) {
+            return "";
+        }
+        String cleanBody = content.trim();
+        if (cleanBody.startsWith("<?xml")) {
+            int pos = cleanBody.indexOf("<", 1);
+            if (pos > 0) cleanBody = cleanBody.substring(pos);
+        }
+        return cleanBody;
+    }
+    
     public POXEnvelopeResponse build() {
         if (messageId == null) {
             messageId = String.valueOf(new Date().getTime());
@@ -157,12 +168,8 @@ public class POXResponseBuilder {
         response.setPoxHeader(header);
         
         POXResponseBody body = new POXResponseBody();
-        if (bodyContent != null && !bodyContent.trim().isEmpty()) {
-            String cleanBody = bodyContent.trim();
-            if (cleanBody.startsWith("<?xml")) {
-                int pos = cleanBody.indexOf("<", 1);
-                if (pos > 0) cleanBody = cleanBody.substring(pos);
-            }
+        String cleanBody = cleanBodyContent(bodyContent);
+        if (!cleanBody.isEmpty()) {
             body.setRawContent(cleanBody);
         }
         response.setPoxBody(body);
@@ -171,68 +178,13 @@ public class POXResponseBuilder {
     }
 
     public String buildAsXml() {
-        POXEnvelopeResponse response = build();
-        return buildManualXml(response);
-    }
-    
-    private String buildManualXml(POXEnvelopeResponse response) {
-        StringBuilder minorString = new StringBuilder();
-        if (codeMinor != null && codeMinor.getCodeMinorFields() != null) {
-            minorString.append("\n        <imsx_codeMinor>\n");
-            for (POXCodeMinorField field : codeMinor.getCodeMinorFields()) {
-                minorString.append("          <imsx_codeMinorField>\n");
-                minorString.append("            <imsx_codeMinorFieldName>");
-                minorString.append(StringEscapeUtils.escapeXml11(field.getFieldName()));
-                minorString.append("</imsx_codeMinorFieldName>\n");
-                minorString.append("            <imsx_codeMinorFieldValue>");
-                minorString.append(StringEscapeUtils.escapeXml11(field.getFieldValue()));
-                minorString.append("</imsx_codeMinorFieldValue>\n");
-                minorString.append("          </imsx_codeMinorField>\n");
-            }
-            minorString.append("        </imsx_codeMinor>");
+        try {
+            POXEnvelopeResponse response = build();
+            return XML_MAPPER.writeValueAsString(response);
+        } catch (Exception e) {
+            log.error("Error serializing POXEnvelopeResponse to XML", e);
+            throw new RuntimeException("Failed to serialize POXEnvelopeResponse to XML", e);
         }
-
-        String bodyStr = "";
-        if (bodyContent != null && !bodyContent.trim().isEmpty()) {
-            String cleanBody = bodyContent.trim();
-            if (cleanBody.startsWith("<?xml")) {
-                int pos = cleanBody.indexOf("<", 1);
-                if (pos > 0) cleanBody = cleanBody.substring(pos);
-            }
-            bodyStr = cleanBody;
-        }
-        String newLine = bodyStr.length() > 0 ? "\n" : "";
-
-        return String.format(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
-            "  <imsx_POXHeader>\n" +
-            "    <imsx_POXResponseHeaderInfo>\n" + 
-            "      <imsx_version>V1.0</imsx_version>\n" +
-            "      <imsx_messageIdentifier>%s</imsx_messageIdentifier>\n" + 
-            "      <imsx_statusInfo>\n" +
-            "        <imsx_codeMajor>%s</imsx_codeMajor>\n" +
-            "        <imsx_severity>%s</imsx_severity>\n" +
-            "        <imsx_description>%s</imsx_description>\n" +
-            "        <imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>\n" +       
-            "        <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" + 
-            "%s\n"+ 
-            "      </imsx_statusInfo>\n" +
-            "    </imsx_POXResponseHeaderInfo>\n" + 
-            "  </imsx_POXHeader>\n" +
-            "  <imsx_POXBody>\n" +
-            "%s%s"+
-            "  </imsx_POXBody>\n" +
-            "</imsx_POXEnvelopeResponse>",
-            StringEscapeUtils.escapeXml11(messageId), 
-            StringEscapeUtils.escapeXml11(major), 
-            StringEscapeUtils.escapeXml11(severity), 
-            StringEscapeUtils.escapeXml11(description), 
-            StringEscapeUtils.escapeXml11(messageId), 
-            StringEscapeUtils.escapeXml11(operation), 
-            StringEscapeUtils.escapeXml11(minorString.toString()), 
-            bodyStr, newLine
-        );
     }
 
     public static String createSuccessResponse(String description, String bodyContent, String messageId, String operation) {

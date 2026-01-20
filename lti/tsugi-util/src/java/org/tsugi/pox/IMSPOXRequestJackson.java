@@ -2,6 +2,7 @@ package org.tsugi.pox;
 
 import java.io.Reader;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Date;
 import java.util.Map;
@@ -197,7 +198,7 @@ public class IMSPOXRequestJackson {
             if ("HMAC-SHA256".equals(oauth_signature_method)) {
                 md = MessageDigest.getInstance("SHA-256");
             }
-            md.update(postBody.getBytes());
+            md.update(postBody.getBytes(StandardCharsets.UTF_8));
             byte[] output = Base64.encode(md.digest());
             String hash = new String(output);
             log.debug("HASH={}", hash);
@@ -356,9 +357,9 @@ public class IMSPOXRequestJackson {
                 String key = (String) okey;
                 String value = minor.getProperty(key);
                 if (key == null || value == null) continue;
-                if (!inArray(validMinor, value)) {
+                if (!POXConstants.isValidMinorCode(value)) {
                     if (internalError.length() > 0) internalError.append(", ");
-                    internalError.append("Invalid imsx_codeMinorFieldValue=" + value);
+                    internalError.append("Invalid imsx_codeMinorFieldValue=").append(value);
                     continue;
                 }
                 
@@ -373,13 +374,13 @@ public class IMSPOXRequestJackson {
             }
         }
 
-        if (!inArray(validMajor, major)) {
+        if (!POXConstants.isValidMajorCode(major)) {
             if (internalError.length() > 0) internalError.append(", ");
-            internalError.append("Invalid imsx_codeMajor=" + major);
+            internalError.append("Invalid imsx_codeMajor=").append(major);
         }
-        if (!inArray(validSeverity, severity)) {
+        if (!POXConstants.isValidSeverity(severity)) {
             if (internalError.length() > 0) internalError.append(", ");
-            internalError.append("Invalid imsx_severity=" + severity);
+            internalError.append("Invalid imsx_severity=").append(severity);
         }
 
         if (internalError.length() > 0) {

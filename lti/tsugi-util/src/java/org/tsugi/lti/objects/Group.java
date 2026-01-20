@@ -17,4 +17,3 @@ public class Group {
     @JacksonXmlProperty(localName = "set")
     private GroupSet set;
 }
-
