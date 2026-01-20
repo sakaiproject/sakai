@@ -562,11 +562,25 @@ roster.renderNoParticipants = function () {
   $('#roster-members').html(`<div id="roster-information">${roster.i18n.no_participants}</div>`);
 };
 
+roster.normalizeText = function (text) {
+
+  if (!text) return "";
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
+
 roster.search = function (query) {
 
   if (query && query !== roster.i18n.roster_search_text) {
-    const regex = new RegExp(query, 'i');
-    let userIds = roster.searchIndex.filter(u => regex.test(u.displayName) || regex.test(u.eid)).map(u => u.id);
+    if (!roster.searchIndex || !Array.isArray(roster.searchIndex)) {
+      console.error("Search index not available");
+      return;
+    }
+    
+    const normalizedQuery = roster.normalizeText(query);
+    let userIds = roster.searchIndex.filter(u => {
+      return roster.normalizeText(u.displayName).includes(normalizedQuery) || 
+             roster.normalizeText(u.eid).includes(normalizedQuery);
+    }).map(u => u.id);
     //if query string is too short, show 20 users as much
     if (query.length < 3 && userIds.length > 20) {
       userIds = userIds.slice(0, 20);
@@ -616,7 +630,18 @@ roster.readySearchField = function () {
     });
 
     field.autocomplete({
-      source: roster.searchSource,
+      source: function(request, response) {
+        if (!roster.searchSource || !Array.isArray(roster.searchSource)) {
+          response([]);
+          return;
+        }
+
+        const normalizedTerm = roster.normalizeText(request.term);
+        const matches = roster.searchSource.filter(item => 
+          roster.normalizeText(item).includes(normalizedTerm)
+        );
+        response(matches.slice(0, 10));
+      },
       select: function (e, ui) {
 
         if (e.originalEvent?.originalEvent?.type === "click") {
@@ -844,7 +869,9 @@ roster.init = function () {
     success: function (data) {
 
       roster.searchIndex = data;
-      roster.searchSource = [ ...data.map(u => u.displayName), ...data.map(u => u.eid) ];
+      const displayNames = data.map(u => u.displayName);
+      const eids = data.map(u => u.eid);
+      roster.searchSource = [ ...displayNames, ...eids ];
     },
     error: () => console.error("failure retrieving search index data")
   });
