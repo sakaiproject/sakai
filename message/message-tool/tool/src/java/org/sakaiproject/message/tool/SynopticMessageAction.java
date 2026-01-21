@@ -21,11 +21,9 @@
 
 package org.sakaiproject.message.tool;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.Vector;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.cheftool.Context;
@@ -44,7 +42,6 @@ import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageService;
-import org.sakaiproject.message.tool.CollectionUtils.Filter;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -182,15 +179,20 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			if (state.getAttribute(STATE_DAYS) == null)
 			{
 				int days = 10;
+				String daysParam = config.getInitParameter(PARAM_DAYS);
 				try
 				{
-					days = Integer.parseInt(config.getInitParameter(PARAM_DAYS));
+					if (daysParam != null)
+					{
+						days = Integer.parseInt(daysParam);
+					}
 				}
 				catch (Exception e)
 				{
+					log.debug("reading days parameter: [{}], {}", daysParam, e.toString());
 				}
 
-				state.setAttribute(STATE_DAYS, new Integer(days));
+				state.setAttribute(STATE_DAYS, Integer.valueOf(days));
 
 				long startTime = System.currentTimeMillis() - ((long) days * 24l * 60l * 60l * 1000l);
 				state.setAttribute(STATE_AFTER_DATE, TimeService.newTime(startTime));
@@ -199,69 +201,114 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			// read the items parameter
 			if (state.getAttribute(STATE_ITEMS) == null)
 			{
+				String itemsParam = config.getInitParameter(PARAM_ITEMS);
 				try
 				{
-					state.setAttribute(STATE_ITEMS, new Integer(config.getInitParameter(PARAM_ITEMS)));
+					if (itemsParam != null)
+					{
+						state.setAttribute(STATE_ITEMS, Integer.valueOf(itemsParam));
+					}
+					else
+					{
+						state.setAttribute(STATE_ITEMS, Integer.valueOf(3));
+					}
 				}
 				catch (Exception e)
 				{
+					log.debug("reading items parameter: [{}], {}", itemsParam, e.toString());
 					// use a default value
-					state.setAttribute(STATE_ITEMS, new Integer(3));
+					state.setAttribute(STATE_ITEMS, Integer.valueOf(3));
 				}
 			}
 
 			// read the length parameter
 			if (state.getAttribute(STATE_LENGTH) == null)
 			{
+				String lengthParam = config.getInitParameter(PARAM_LENGTH);
 				try
 				{
-					state.setAttribute(STATE_LENGTH, new Integer(config.getInitParameter(PARAM_LENGTH)));
+					if (lengthParam != null)
+					{
+						state.setAttribute(STATE_LENGTH, Integer.valueOf(lengthParam));
+					}
+					else
+					{
+						state.setAttribute(STATE_LENGTH, 50);
+					}
 				}
 				catch (Exception e)
 				{
+					log.debug("reading length parameter: [{}], {}", lengthParam, e.toString());
 					// use a default value
-					state.setAttribute(STATE_LENGTH, new Integer(50));
+					state.setAttribute(STATE_LENGTH, 50);
 				}
 			}
 
 			// read the show-subject parameter
 			if (state.getAttribute(STATE_SHOW_SUBJECT) == null)
 			{
+				String showSubjectParam = config.getInitParameter(PARAM_SHOW_SUBJECT);
 				try
 				{
-					state.setAttribute(STATE_SHOW_SUBJECT, new Boolean(config.getInitParameter(PARAM_SHOW_SUBJECT)));
+					if (showSubjectParam != null)
+					{
+						state.setAttribute(STATE_SHOW_SUBJECT, Boolean.valueOf(showSubjectParam));
+					}
+					else
+					{
+						state.setAttribute(STATE_SHOW_SUBJECT, Boolean.FALSE);
+					}
 				}
 				catch (Exception e)
 				{
+					log.debug("reading show-subject parameter: [{}], {}", showSubjectParam, e.toString());
 					// use a default value
-					state.setAttribute(STATE_SHOW_SUBJECT, new Boolean(false));
+					state.setAttribute(STATE_SHOW_SUBJECT, Boolean.FALSE);
 				}
 			}
 
 			// read the show-body parameter
 			if (state.getAttribute(STATE_SHOW_BODY) == null)
 			{
+				String showBodyParam = config.getInitParameter(PARAM_SHOW_BODY);
 				try
 				{
-					state.setAttribute(STATE_SHOW_BODY, new Boolean(config.getInitParameter(PARAM_SHOW_BODY)));
+					if (showBodyParam != null)
+					{
+						state.setAttribute(STATE_SHOW_BODY, Boolean.valueOf(showBodyParam));
+					}
+					else
+					{
+						state.setAttribute(STATE_SHOW_BODY, Boolean.FALSE);
+					}
 				}
 				catch (Exception e)
 				{
+					log.debug("reading show-body parameter: [{}], {}", showBodyParam, e.toString());
 					// use a default value
-					state.setAttribute(STATE_SHOW_BODY, new Boolean(false));
+					state.setAttribute(STATE_SHOW_BODY, Boolean.FALSE);
 				}
 			}
 			
 			if (state.getAttribute(STATE_HIDE_OPTIONS) == null)
 			{
+				String hideOptionsParam = config.getInitParameter(PARAM_HIDE_OPTIONS);
 				try
 				{
-					state.setAttribute(STATE_HIDE_OPTIONS, new Boolean(config.getInitParameter(PARAM_HIDE_OPTIONS)));
+					if (hideOptionsParam != null)
+					{
+						state.setAttribute(STATE_HIDE_OPTIONS, Boolean.valueOf(hideOptionsParam));
+					}
+					else
+					{
+						state.setAttribute(STATE_HIDE_OPTIONS, Boolean.FALSE);
+					}
 				}
 				catch (Exception e)
 				{
+					log.debug("reading hide-options parameter: [{}], {}", hideOptionsParam, e.toString());
 					// use a default value
-					state.setAttribute(STATE_HIDE_OPTIONS, new Boolean(false));
+					state.setAttribute(STATE_HIDE_OPTIONS, Boolean.FALSE);
 				}
 			}
 
@@ -277,12 +324,12 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 	private void initStateShowNewlines(SessionState state, PortletConfig config) {
 		try
 		{
-			state.setAttribute(STATE_SHOW_NEWLINES, new Boolean(config.getInitParameter(PARAM_SHOW_NEWLINES)));
+			state.setAttribute(STATE_SHOW_NEWLINES, Boolean.valueOf(config.getInitParameter(PARAM_SHOW_NEWLINES)));
 		}
 		catch (Exception e)
 		{
 			// use a default value
-			state.setAttribute(STATE_SHOW_NEWLINES, new Boolean(false));
+			state.setAttribute(STATE_SHOW_NEWLINES, Boolean.FALSE);
 		}
 	}
 
@@ -399,95 +446,66 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 
 	} // buildMainPanelContext
 
-	private List retrieveMessages(final MessageService messageService,
-			final String serviceName, final String channelRef,
-			final Time afterDate, final int numberOfMessages)
+	private List<Message> retrieveMessages(final MessageService messageService,
+										   final String serviceName,
+										   final String channelRef,
+										   final Time afterDate,
+										   final int numberOfMessages) 
 			throws PermissionException {
-		List result;
+		List<Message> result;
 		if (numberOfMessages <= 0 || serviceName == null) {
-			result = new Vector();
+			result = new ArrayList<>();
 		} else if (SERVICENAME_DISCUSSION.equals(serviceName)) {
-			// showing the draft messages of discussion
-			result = messageService.getMessages(channelRef, afterDate,
-					numberOfMessages, false, true, false);
+			result = messageService.getMessages(channelRef, afterDate, numberOfMessages, false, true, false);
 		} else if (SERVICENAME_ANNOUNCEMENT.equals(serviceName)) {
-			result = messageService.getMessages(channelRef, null, 0, false,
-					false, false);
+			result = messageService.getMessages(channelRef, afterDate, 0, false, false, false);
 			filterAnnouncementMessages(result, afterDate);
-			CollectionUtils.removeTail(result, numberOfMessages);
-		} else { // old default, left for compatibility (but are there any
-			// other services??)
-			result = messageService.getMessages(channelRef, afterDate,
-					numberOfMessages, false, false, false);
+			if (result.size() > numberOfMessages) {
+				result.subList(numberOfMessages, result.size()).clear();
+			}
+		} else {
+			result = messageService.getMessages(channelRef, afterDate, numberOfMessages, false, false, false);
 		}
 		return result;
 	}
 
-	private void filterAnnouncementMessages(final List<Message> messages,
-			final Time afterDate) {
+	private void filterAnnouncementMessages(final List<Message> messages, final Time afterDate) {
 		final Time currentTime = TimeService.newTime();
-		final Set<Filter<Message>> filters = new HashSet<Filter<Message>>(3);
-		// before release-date filter
-		filters.add(new Filter<Message>() {
-			public boolean accept(Message message) {
-				Time releaseDate;
-				try {
-					releaseDate = message.getProperties().getTimeProperty(
-							MESSAGEPROP_TIME_RELEASEDATE);
-				} catch (EntityPropertyNotDefinedException e) {
-					releaseDate = null;
-				} catch (EntityPropertyTypeException e) {
-				 	log.error(e.getMessage(), e);
-					releaseDate = null;
-				}
-				return releaseDate == null ? true : releaseDate
-						.before(currentTime);
-
-			}
-		});
-		// before afterDate (user-option) filter
-		filters.add(new Filter<Message>() {
-			public boolean accept(Message message) {
-				Time releaseDate;
-				try {
-					releaseDate = message.getProperties().getTimeProperty(
-							MESSAGEPROP_TIME_RELEASEDATE);
-				} catch (EntityPropertyNotDefinedException e) {
-					releaseDate = null;
-				} catch (EntityPropertyTypeException e) {
-				 	log.error(e.getMessage(), e);
-					releaseDate = null;
-				}
-				// if no release-date is set, use the header-date as
-				// release-date instead
-				if (releaseDate == null) {
-					releaseDate = message.getHeader().getDate();
-				}
-				return releaseDate == null ? true : releaseDate
-						.after(afterDate);
-
-			}
-		});
-		// after expire-date filter
-		filters.add(new Filter<Message>() {
-			public boolean accept(Message message) {
-				Time expireDate;
-				try {
-					expireDate = message.getProperties().getTimeProperty(
-							MESSAGEPROP_TIME_EXPIREDATE);
-				} catch (EntityPropertyNotDefinedException e) {
-					expireDate = null;
-				} catch (EntityPropertyTypeException e) {
-				 	log.error(e.getMessage(), e);
-					expireDate = null;
-				}
-				return expireDate == null ? true : expireDate
-						.after(currentTime);
-
+		messages.removeIf(message -> {
+			// before release-date filter
+			Time releaseDate = getTimeProperty(message, MESSAGEPROP_TIME_RELEASEDATE);
+			if (releaseDate != null && releaseDate.after(currentTime)) {
+				return true;
 			}
 
+			// before afterDate (user-option) filter
+			// if no release-date is set, use the header-date as release-date instead
+			if (releaseDate == null) {
+				releaseDate = message.getHeader().getDate();
+			}
+			if (releaseDate != null && releaseDate.before(afterDate)) {
+				return true;
+			}
+
+			// after expire-date filter
+			Time expireDate = getTimeProperty(message, MESSAGEPROP_TIME_EXPIREDATE);
+			if (expireDate != null && expireDate.before(currentTime)) {
+				return true;
+			}
+
+			return false;
 		});
-		CollectionUtils.filter(messages, filters);
+	}
+
+	private Time getTimeProperty(Message message, String propertyName) {
+		try {
+			return message.getProperties().getTimeProperty(propertyName);
+		} catch (EntityPropertyNotDefinedException e) {
+			return null;
+		} catch (EntityPropertyTypeException e) {
+			log.warn("the property {} is not a valid time, {}", propertyName, e.toString());
+			return null;
+		}
 	}
 
 	/**
@@ -502,8 +520,8 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		String one_item = rb.getString("one_item");
 		String all_items = rb.getString("channel_analog");
 		String channel_analog = rb.getString("channel_analog");
-		Boolean allow_show_subject = new Boolean(true);
-		Boolean allow_channel_choice = new Boolean(false);
+		Boolean allow_show_subject = Boolean.TRUE;
+		Boolean allow_channel_choice = Boolean.FALSE;
 
 		if (serviceName.equals(SERVICENAME_DISCUSSION))
 		{
@@ -582,7 +600,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			// }
 			// }
 
-			List channel_list = new Vector();
+			List<String> channel_list = new ArrayList<>();
 			while (aChannel.hasNext())
 			{
 				String theChannel = (String) aChannel.next();
@@ -645,33 +663,21 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			{
 				// always show subject for Recent Discussion
 				String showBody = data.getParameters().getString(FORM_SHOW_BODY);
-				try
+				Boolean sb = Boolean.valueOf(showBody);
+				if (!sb.equals(state.getAttribute(STATE_SHOW_BODY)))
 				{
-					Boolean sb = new Boolean(showBody);
-					if (!sb.equals((Boolean) state.getAttribute(STATE_SHOW_BODY)))
-					{
-						state.setAttribute(STATE_SHOW_BODY, sb);
-						state.setAttribute(STATE_UPDATE, STATE_UPDATE);
-					}
-				}
-				catch (Exception ignore)
-				{
+					state.setAttribute(STATE_SHOW_BODY, sb);
+					state.setAttribute(STATE_UPDATE, STATE_UPDATE);
 				}
 			}
 			else if (serviceName.equals(SERVICENAME_ANNOUNCEMENT))
 			{
 				String showSubject = data.getParameters().getString(FORM_SHOW_SUBJECT);
-				try
+				Boolean ss = Boolean.valueOf(showSubject);
+				if (!ss.equals(state.getAttribute(STATE_SHOW_SUBJECT)))
 				{
-					Boolean ss = new Boolean(showSubject);
-					if (!ss.equals((Boolean) state.getAttribute(STATE_SHOW_SUBJECT)))
-					{
-						state.setAttribute(STATE_SHOW_SUBJECT, ss);
-						state.setAttribute(STATE_UPDATE, STATE_UPDATE);
-					}
-				}
-				catch (Exception ignore)
-				{
+					state.setAttribute(STATE_SHOW_SUBJECT, ss);
+					state.setAttribute(STATE_UPDATE, STATE_UPDATE);
 				}
 			}
 		}
@@ -702,51 +708,47 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 
 		// days
 		String daysValue = data.getParameters().getString(FORM_DAYS);
-		try
-		{
-			Integer days = new Integer(daysValue);
-			if (!days.equals((Integer) state.getAttribute(STATE_DAYS)))
-			{
-				state.setAttribute(STATE_DAYS, days);
-				state.setAttribute(STATE_UPDATE, STATE_UPDATE);
+		if (daysValue != null) {
+			try {
+				Integer days = Integer.valueOf(daysValue);
+				if (!days.equals(state.getAttribute(STATE_DAYS))) {
+					state.setAttribute(STATE_DAYS, days);
+					state.setAttribute(STATE_UPDATE, STATE_UPDATE);
 
-				// recompute this which is used for selecting the messages for display
-				long startTime = System.currentTimeMillis() - (days.longValue() * 24l * 60l * 60l * 1000l);
-				state.setAttribute(STATE_AFTER_DATE, TimeService.newTime(startTime));
+					// recompute this which is used for selecting the messages for display
+					long startTime = System.currentTimeMillis() - (days.longValue() * 24L * 60L * 60L * 1000L);
+					state.setAttribute(STATE_AFTER_DATE, TimeService.newTime(startTime));
+				}
+			} catch (NumberFormatException nfe) {
+				log.warn("Invalid days value provided: [{}], {}", daysValue, nfe.toString());
 			}
-		}
-		catch (Exception ignore)
-		{
 		}
 
 		// items
 		String itemsValue = data.getParameters().getString(FORM_ITEMS);
-		try
-		{
-			Integer items = new Integer(itemsValue);
-			if (!items.equals((Integer) state.getAttribute(STATE_ITEMS)))
-			{
-				state.setAttribute(STATE_ITEMS, items);
-				state.setAttribute(STATE_UPDATE, STATE_UPDATE);
+		if (itemsValue != null) {
+			try {
+				Integer items = Integer.valueOf(itemsValue);
+				if (!items.equals(state.getAttribute(STATE_ITEMS))) {
+					state.setAttribute(STATE_ITEMS, items);
+					state.setAttribute(STATE_UPDATE, STATE_UPDATE);
+				}
+			} catch (NumberFormatException nfe) {
+				log.warn("Invalid items value provided: [{}], {}", itemsValue, nfe.toString());
 			}
 		}
-		catch (Exception ignore)
-		{
-		}
-
 		// length
 		String lengthValue = data.getParameters().getString(FORM_LENGTH);
-		try
-		{
-			Integer length = new Integer(lengthValue);
-			if (!length.equals((Integer) state.getAttribute(STATE_LENGTH)))
-			{
-				state.setAttribute(STATE_LENGTH, length);
-				state.setAttribute(STATE_UPDATE, STATE_UPDATE);
+		try {
+			if (lengthValue != null) {
+				Integer length = Integer.valueOf(lengthValue);
+				if (!length.equals(state.getAttribute(STATE_LENGTH))) {
+					state.setAttribute(STATE_LENGTH, length);
+					state.setAttribute(STATE_UPDATE, STATE_UPDATE);
+				}
 			}
-		}
-		catch (Exception ignore)
-		{
+		} catch (NumberFormatException nfe) {
+			log.warn("Invalid length value provided: [{}], {}", lengthValue, nfe.toString());
 		}
 
 		// update the tool config
@@ -791,24 +793,22 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 	{
 		PortletConfig config = portlet.getPortletConfig();
 
-		try
-		{
+		try {
 			int days = Integer.parseInt(config.getInitParameter(PARAM_DAYS));
-			state.setAttribute(STATE_DAYS, new Integer(days));
+			state.setAttribute(STATE_DAYS, days);
 
-			long startTime = System.currentTimeMillis() - ((long) days * 24l * 60l * 60l * 1000l);
+			long startTime = System.currentTimeMillis() - (long) days * 24L * 60L * 60L * 1000L;
 			state.setAttribute(STATE_AFTER_DATE, TimeService.newTime(startTime));
 
-			state.setAttribute(STATE_ITEMS, new Integer(config.getInitParameter(PARAM_ITEMS)));
-			state.setAttribute(STATE_LENGTH, new Integer(config.getInitParameter(PARAM_LENGTH)));
-			state.setAttribute(STATE_SHOW_SUBJECT, new Boolean(config.getInitParameter(PARAM_SHOW_SUBJECT)));
-			state.setAttribute(STATE_SHOW_BODY, new Boolean(config.getInitParameter(PARAM_SHOW_BODY)));
-			state.setAttribute(STATE_SHOW_NEWLINES, new Boolean(config.getInitParameter(PARAM_SHOW_NEWLINES)));
-			state.setAttribute(STATE_HIDE_OPTIONS, new Boolean(config.getInitParameter(PARAM_HIDE_OPTIONS)));
-		}
-		catch (Exception e)
-		{
-			// do not update the state if there are any errors
+			state.setAttribute(STATE_ITEMS, Integer.valueOf(config.getInitParameter(PARAM_ITEMS)));
+			state.setAttribute(STATE_LENGTH, Integer.valueOf(config.getInitParameter(PARAM_LENGTH)));
+			state.setAttribute(STATE_SHOW_SUBJECT, Boolean.valueOf(config.getInitParameter(PARAM_SHOW_SUBJECT)));
+			state.setAttribute(STATE_SHOW_BODY, Boolean.valueOf(config.getInitParameter(PARAM_SHOW_BODY)));
+			state.setAttribute(STATE_SHOW_NEWLINES, Boolean.valueOf(config.getInitParameter(PARAM_SHOW_NEWLINES)));
+			state.setAttribute(STATE_HIDE_OPTIONS, Boolean.valueOf(config.getInitParameter(PARAM_HIDE_OPTIONS)));
+		} catch (Exception e) {
+			// don't update the state if there are any errors
+			log.warn("Could not update state from configuration parameters: {}", e.toString());
 		}
 	} 
 

@@ -54,6 +54,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -371,12 +372,17 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		//get attachments
 		List<DecoratedAttachment> attachments = new ArrayList<DecoratedAttachment>();
 		for (Reference attachment : (List<Reference>) a.getHeader().getAttachments()) {
-			String url = attachment.getUrl();
-			String name = attachment.getProperties().getPropertyFormatted(attachment.getProperties().getNamePropDisplayName());
 			String attachId = attachment.getId();
-			String type = attachment.getProperties().getProperty(attachment.getProperties().getNamePropContentType());
-			String attachRef = attachment.getReference();								
-			DecoratedAttachment decoratedAttachment = new DecoratedAttachment(attachId,name,type,url,attachRef);
+			String url = attachment.getUrl();
+			String attachRef = attachment.getReference();
+			String name = "";
+			String type = "";
+			ResourceProperties props = attachment.getProperties();
+			if (props != null) {
+				name = props.getPropertyFormatted(props.getNamePropDisplayName());
+				type = props.getProperty(props.getNamePropContentType());
+			}
+			DecoratedAttachment decoratedAttachment = new DecoratedAttachment(attachId, name, type, url, attachRef);
 			attachments.add(decoratedAttachment);
 		}
 		da.setAttachments(attachments);

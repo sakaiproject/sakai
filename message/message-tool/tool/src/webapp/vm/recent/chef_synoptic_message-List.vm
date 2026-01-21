@@ -17,39 +17,39 @@
 			#foreach ($item in $messages)
 				<li>
 					#set($counter = $counter + 1)
+					#set($props = $item.Properties)
 					#if ($showSubject)
-					#if (!$props.isEmpty() && $props.getProperty("releaseDate"))
-						#set($releasedate = $props.getTimeProperty("releaseDate"))
-					#else
-						#set($releasedate= $item.Header.Date)
-					#end
+						#if ($props && !$props.isEmpty() && $props.getProperty("releaseDate"))
+							#set($releasedate = $props.getTimeProperty("releaseDate"))
+						#else
+							#set($releasedate= $item.Header.Date)
+						#end
 						<h3 class="textPanelHeader">$formattedText.escapeHtml($item.Header.Subject)</h3>
-					<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
+						<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
 					#else
                         #set ($text=$item.Body)
                         <div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limit($text,$length))}</div>
 					#end
+
 					#set ($size = 0)
 					#if (!$item.Header.Attachments.isEmpty())
-##					<h3 class="textBlockHeader indnt1">$tlang.getString("gen.attach")</h3>
-						#set ($props = false)
 						#set ($size = $item.Header.Attachments.size())
 						<ul class="attachList indnt1">
 						#foreach ($attachment in $item.Header.Attachments)
-							#set ($props = $attachment.Properties)
-							#if (!$props)
+							#set ($aProps = $attachment.Properties)
+							#if (!$aProps)
 								#if ($size > 0) #set ($size = $size - 1) #end
 							#else
 								<li>
-									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									#if ($aProps.getBooleanProperty($aProps.NamePropIsCollection))
 										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="" />
 									#else
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt=""/>
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($aProps.getProperty($aProps.NamePropContentType)))" border="0" alt=""/>
 									#end
 									<a href="$attachment.Url" target="_blank">
-										$formattedText.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
-									#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-										($props.getPropertyFormatted($props.NamePropContentLength))
+										$formattedText.escapeHtml($aProps.getPropertyFormatted("DAV:displayname"))</a>
+									#if (!$aProps.getBooleanProperty($aProps.NamePropIsCollection))
+										($aProps.getPropertyFormatted($aProps.NamePropContentLength))
 									#end
 								</li>
 							#end
@@ -57,6 +57,9 @@
 						</ul>
 				#end
 				</li>
+				#if ($counter < $messages.size())
+					<hr/>
+				#end
 			#end	
 			</ul>
 		#end
