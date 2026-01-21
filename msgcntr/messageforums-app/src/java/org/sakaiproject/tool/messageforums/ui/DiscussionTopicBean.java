@@ -889,7 +889,7 @@ public class DiscussionTopicBean
   public boolean getIsMarkAsNotRead()
   {
     log.debug("getIsMarkAsNotRead()");
-    return isMarkAsNotRead.booleanValue();
+    return isMarkAsNotRead != null ? isMarkAsNotRead : false;
   }
 
   public void setIsMarkAsNotRead(Boolean isMarkAsNotRead) {
