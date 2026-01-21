@@ -68,7 +68,7 @@
 <h:panelGrid columns="2" styleClass="navPanel" width="100%">
   <%--
   <h:panelGroup styleClass="specialLink"  style="float:none;text-align:center">  
-		  <h:commandLink action="#{ForumTool.processActionMarkCheckedAsNotRead}" id="markAsNotRead"  value="#{msgs.cdfm_mark_check_as_not:read}"
+		  <h:commandLink action="#{ForumTool.processActionMarkCheckedAsNotRead}" id="markAsNotRead"  value="#{msgs.cdfm_mark_check_as_not_read}"
 				rendered="#{ForumTool.selectedTopic.isMarkAsNotRead && !ForumTool.expandedView}" title="#{msgs.cdfm_mark_check_as_not_read}">
   --%>
 				<%--<h:commandLink action="#{ForumTool.processActionMarkCheckedAsUnread}" id="markAsunread"  value="#{msgs.cdfm_mark_check_as_unread}">--%>

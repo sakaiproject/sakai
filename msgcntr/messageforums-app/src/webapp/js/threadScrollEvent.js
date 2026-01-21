@@ -29,7 +29,7 @@ window.onload = function() {
 			if (!ticking) {
 				// Throttle the event to "do something" every 2000ms
 				setTimeout(() => {
-					elementsInViewPort(notRead);
+					elementsInViewPort(notRead, scroller);
 					ticking = false;
 				}, 2000);
 
@@ -44,14 +44,14 @@ window.onload = function() {
 		updateBar(window.numRead, totalWidth);
 	}
 
-	function elementsInViewPort(items) {
+	function elementsInViewPort(items, scroller) {
 		items.forEach(item => {
 			const p = item.conversation.querySelector(".textPanel p");
 			const toolBar = item.conversation.querySelector(".itemToolBar");
 			const mnew = item.conversation.querySelector(".messageNew");
 			const parts = item.conversation.id.split(/mi-|ti-|fi-/).filter(Boolean);
 			const [mi, ti] = parts;
-			if (mnew && !item.read && isBottomInViewport(item.conversation)) {
+			if (mnew && !item.read && isBottomInViewport(item.conversation, scroller)) {
 				doAjaxRead(mi, ti, toolBar);
 				item.read=true;
 				window.numRead++;
@@ -62,10 +62,13 @@ window.onload = function() {
 
 }
 
-function isBottomInViewport(item) {
+function isBottomInViewport(item, scroller) {
 	const rect = item.getBoundingClientRect();
-	const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-	return rect.bottom <= viewportHeight && rect.bottom >= 0;
+	const viewport = scroller?.getBoundingClientRect?.() ?? {
+		top: 0,
+		bottom: window.innerHeight || document.documentElement.clientHeight
+	};
+	return rect.bottom <= viewport.bottom && rect.bottom >= viewport.top;
 }
 
 function updateBar(currentRead, total) {
