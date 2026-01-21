@@ -1564,7 +1564,7 @@ public class MessageForumSynopticBean {
 	 * 
 	 * @param ActionEvent e
 	 */
-	public void processNotReadAll(ActionEvent e) {
+	public void processReadAll(ActionEvent e) {
 		//need modified to support internationalization
 		final String typeUuid = typeManager.getReceivedPrivateMessageType();
 
@@ -1585,7 +1585,7 @@ public class MessageForumSynopticBean {
 			} 
 			else {
 				for (Iterator iter = privateMessages.iterator(); iter.hasNext();) {
-					pvtMessageManager.markMessageAsNotReadForUser(
+					pvtMessageManager.markMessageAsReadForUser(
 											(PrivateMessage) iter.next(), contextId);
 				}
 			}
@@ -1604,7 +1604,7 @@ public class MessageForumSynopticBean {
 			else {
 				// TODO: construct query to be one roundtrip to DB
 				for (Iterator iter = privateMessages.iterator(); iter.hasNext();) {
-					pvtMessageManager.markMessageAsNotReadForUser((PrivateMessage) iter.next());
+					pvtMessageManager.markMessageAsReadForUser((PrivateMessage) iter.next());
 				}
 			}
 		}

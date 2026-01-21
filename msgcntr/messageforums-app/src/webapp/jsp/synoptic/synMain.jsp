@@ -71,13 +71,13 @@
 					<h:outputText value="  " rendered="#{eachSite.unreadPrivateAmt > 0}" />
 											--%>									
 		 			<h:commandLink action="synMain"
-						actionListener="#{mfSynopticBean.processNotReadAll}"
+						actionListener="#{mfSynopticBean.processReadAll}"
 						rendered="#{eachSite.unreadPrivateAmt > 0}"
-														title="#{msgs.syn_mark_as_not_read}">
+														title="#{msgs.syn_mark_as_read}">
 
-													<h:graphicImage url="/images/trans.gif" alt="#{msgs.syn_mark_as_not_read}"
-															rendered="#{eachSite.unreadPrivateAmt > 0}"  styleClass="markAsNotReadIcon"/>
-															<h:outputText  value="#{msgs.syn_mark_as_not_read}"/>
+													<h:graphicImage url="/images/trans.gif" alt="#{msgs.syn_mark_as_read}"
+															rendered="#{eachSite.unreadPrivateAmt > 0}"  styleClass="markAsReadIcon"/>
+															<h:outputText  value="#{msgs.syn_mark_as_read}"/>
 														
 														
 							<f:param name="contextId" value="#{eachSite.siteId}" />
@@ -141,9 +141,9 @@
 					escape="false" title="#{msgs.syn_goto_messages}" rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}" />
 				<h:outputText value="  " rendered="true" />
 										<h:outputText escape="false" value="&nbsp;&nbsp;" />
-	 			<h:commandLink action="synMain" actionListener="#{mfSynopticBean.processNotReadAll}" styleClass="active" >
-									<h:graphicImage url="/images/trans.gif" alt="#{msgs.syn_mark_as_not_read}"  styleClass="markAsNotReadIcon"/>
-										<h:outputText value="#{msgs.syn_mark_as_not_read} " />
+	 			<h:commandLink action="synMain" actionListener="#{mfSynopticBean.processReadAll}" styleClass="active" >
+									<h:graphicImage url="/images/trans.gif" alt="#{msgs.syn_mark_as_read}"  styleClass="markAsReadIcon"/>
+										<h:outputText value="#{msgs.syn_mark_as_read} " />
 					<f:param name="contextId" value="#{eachSite.siteId}" />
 				</h:commandLink>
 			</h:panelGroup>
@@ -170,9 +170,9 @@
 	</h:panelGrid>
 
     <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
-    <div id="markAsNotRead" class="markasnotread_popup"
+    <div id="markAsRead" class="markasread_popup" 
         style="position:absolute; top: -1000px; left: -1000px;" >
-  	  <h:outputText value="#{msgs.syn_mark_as_not_read}" />
+  	  <h:outputText value="#{msgs.syn_mark_as_read}" />
     </div>
 
     </h:form> 

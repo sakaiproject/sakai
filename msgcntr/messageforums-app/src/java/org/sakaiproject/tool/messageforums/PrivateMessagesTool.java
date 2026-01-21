@@ -1281,7 +1281,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
         }
         setDetailMsgCount++;
        
-        prtMsgManager.markMessageAsNotReadForUser(dMsg.getMsg());
+        prtMsgManager.markMessageAsReadForUser(dMsg.getMsg());
                
         PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(dMsg.getMsg());
         this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
@@ -2170,7 +2170,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       
       detailMsg= new PrivateMessageDecoratedBean(message);
       //get attachments
-      prtMsgManager.markMessageAsNotReadForUser(detailMsg.getMsg());
+      prtMsgManager.markMessageAsReadForUser(detailMsg.getMsg());
       
       PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(detailMsg.getMsg());
       this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
@@ -2231,7 +2231,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     {
       PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(currentMsgPosition+1); 
       //get attachments
-      prtMsgManager.markMessageAsNotReadForUser(thisDmb.getMsg());
+      prtMsgManager.markMessageAsReadForUser(thisDmb.getMsg());
       
       PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(thisDmb.getMsg());
       this.setDetailMsg(new PrivateMessageDecoratedBean(initPrivateMessage));
@@ -4753,7 +4753,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 			{
 				msgSelected = true;
 				if (readStatus && !decoMessage.isHasRead()) {
-					prtMsgManager.markMessageAsNotReadForUser(decoMessage.getMsg());
+					prtMsgManager.markMessageAsReadForUser(decoMessage.getMsg());
 				} else if(!readStatus && decoMessage.isHasRead()) {
 					prtMsgManager.markMessageAsUnreadForUser(decoMessage.getMsg());
 				}
