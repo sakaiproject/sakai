@@ -1,6 +1,6 @@
 window.numRead = 0;
 
-window.onload = function() {
+window.addEventListener("load", () => {
 	const items = Array.from(document.querySelectorAll('[id]')).filter(it => /^mi-\d+ti-\d+fi-\d+$/.test(it.id));
 	const totalWidth = items.length;
 	window.numRead = 0;
@@ -60,7 +60,7 @@ window.onload = function() {
 		});
 	}
 
-}
+});
 
 function isBottomInViewport(item, scroller) {
 	const rect = item.getBoundingClientRect();

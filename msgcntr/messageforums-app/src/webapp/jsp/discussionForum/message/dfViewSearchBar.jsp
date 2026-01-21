@@ -76,7 +76,7 @@
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 		 </h:commandLink>
-		 <h:commandLink action="#{ForumTool.processActionMarkAllNotAsRead}" id="markAllAsNotRead"  value="#{msgs.cdfm_mark_all_as_not_read}"
+		 <h:commandLink action="#{ForumTool.processActionMarkAllAsNotRead}" id="markAllAsNotRead"  value="#{msgs.cdfm_mark_all_as_not_read}"
 				rendered="#{ForumTool.selectedTopic.isMarkAsNotRead && ForumTool.expandedView}" title="#{msgs.cdfm_mark_all_as_not_read}"> 
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
