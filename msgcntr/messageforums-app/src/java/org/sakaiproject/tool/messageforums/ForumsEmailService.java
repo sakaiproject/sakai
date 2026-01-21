@@ -245,22 +245,21 @@ public class ForumsEmailService {
 			log.error("Failed to send all emails: "+ e.getMessage());
 		} catch (NoRecipientsException e) {
 			log.warn("No valid recipients found: "+ toEmailAddress.toString());
+		} finally {
+			if (attachmentList != null && reply.getTopic().getIncludeContentsInEmails()) {
+				// Clean up temporary files that were created for email attachments
+				if (prefixedPath != null && !"".equals(prefixedPath)) {
+					Iterator<Attachment> iter = attachmentList.iterator();
+					while (iter.hasNext()) {
+						a = (Attachment) iter.next();
+						StringBuilder filePath = new StringBuilder(prefixedPath);
+						filePath.append("/email_tmp/");
+						filePath.append(a.getAttachmentId().replace('\\', '/'));
+						deleteAttachedFile(filePath.toString());
+					}
+				}
+			}
 		}
-	}
-
-	private String buildAttachmentPath(String resourceId) {
-		String basePath = prefixedPath;
-		if (basePath.startsWith("/tmp")) {
-			basePath = System.getProperty("java.io.tmpdir");
-		}
-
-		StringBuilder path = new StringBuilder(basePath);
-		if (!basePath.endsWith(File.separator)) {
-			path.append(File.separator);
-		}
-		path.append("email_tmp").append(File.separator);
-		path.append(resourceId.replace("\\", File.separator).replace("/", File.separator));
-		return path.toString().replace(" ", "");
 	}
 
 	private File getAttachedFile(String resourceId) throws PermissionException,
@@ -269,26 +268,25 @@ public class ForumsEmailService {
 		ContentHostingService contentHostingService = ComponentManager.get(ContentHostingService.class);;
 		ContentResource cr = contentHostingService.getResource(resourceId);
 		byte[] data = cr.getContent();
-		String filename = buildAttachmentPath(resourceId);
-		String path = filename.substring(0, filename.lastIndexOf(File.separator));
+		StringBuilder sbPrefixedPath = new StringBuilder(prefixedPath);
+		sbPrefixedPath.append("/email_tmp/");
+		sbPrefixedPath.append(resourceId.replace('\\', '/'));
+		String filename = sbPrefixedPath.toString().replace(" ", "");
+		String path = filename.substring(0, filename.lastIndexOf("/"));
 		File dir = new File(path);
-		
-		if (!dir.exists()) {
-			boolean success = dir.mkdirs();
-			if (!success && !dir.exists()) {
-				throw new IOException("Failed to create directory: " + path);
-			}
+		boolean success = dir.mkdirs();
+		// Shouldn't come to here because resourceId is unique
+		if (!success) {
+			log
+					.error("getAttachedFile(): File exists already! This should not happen. Please check for resourceId.");
 		}
-		
 		File file = new File(filename);
-		file.deleteOnExit();
-		dir.deleteOnExit();
-		
-		boolean success = file.createNewFile();
-		if (!success && !file.exists()) {
-			throw new IOException("Failed to create file: " + filename);
+		success = file.createNewFile();
+		// Shouldn't come to here because resourceId is unique
+		if (!success) {
+			log
+					.error("getAttachedFile(): File exists already! This should not heppen. Please check for resourceId.");
 		}
-		
 		FileOutputStream fileOutputStream = null;
 		try {
 			fileOutputStream = new FileOutputStream(file);
@@ -303,6 +301,24 @@ public class ForumsEmailService {
 			}
 		}
 		return file;
+	}
+
+	private void deleteAttachedFile(String filename) {
+		// delete the file
+		String tunedFilename = filename.replace(" ", "");
+		File file = new File(tunedFilename);
+		boolean success = file.delete();
+		if (!success) {
+			log.error("Fail to delete file: " + tunedFilename);
+		}
+		// delete the last directory
+		String directoryName = tunedFilename.substring(0, tunedFilename
+				.lastIndexOf("/"));
+		File dir = new File(directoryName);
+		success = dir.delete();
+		if (!success) {
+			log.error("Fail to delete directory: " + directoryName);
+		}
 	}
 
 	public String getRedirectURL(Site currentSite) {
