@@ -40,7 +40,7 @@
 				<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{ForumTool.selectedForum.forum.draft == 'true'}"/>
 				<h:outputText id="draft_space" value=" -  " rendered="#{ForumTool.selectedForum.forum.draft == 'true'}" styleClass="title"/>
 				<h:outputText styleClass="bi bi-calendar-x" rendered="#{ForumTool.selectedForum.forum.availability == 'false'}" style="margin-right:.5em"/>
-				<h:outputText styleClass="bi bi-lock-fill" rendered="#{ForumTool.selectedForum.forum.locked == 'true'}" style="margin-right:.5em"/>
+				<h:outputText styleClass="bi bi-lock-fill" rendered="#{ForumTool.selectedForum.locked == 'true'}" style="margin-right:.5em"/>
 				<%-- Rubrics marker --%>
 				<h:panelGroup rendered="#{ForumTool.selectedForum.hasRubric == 'true'}">
 					<sakai-rubric-student-preview-button
@@ -130,7 +130,7 @@
 						<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{topic.topic.draft == 'true'}"/>
 						<h:outputText id="draft_space" value="  - " rendered="#{topic.topic.draft == 'true'}" styleClass="title"/>
 						<h:outputText styleClass="bi bi-calendar-x" title="#{msgs.topic_restricted_message}" style="margin-right:.5em" rendered="#{topic.availability == 'false'}" escape="false" />
-						<h:outputText styleClass="bi bi-lock-fill" title="#{msgs.cdfm_forum_locked}" style="margin-right:.5em" rendered="#{ForumTool.selectedForum.forum.locked == 'true' || topic.locked == 'true'}" escape="false" />
+						<h:outputText styleClass="bi bi-lock-fill" title="#{msgs.cdfm_forum_locked}" style="margin-right:.5em" rendered="#{ForumTool.selectedForum.locked == 'true' || topic.locked == 'true'}" escape="false" />
 						<%-- Rubrics marker --%>
 						<h:panelGroup rendered="#{topic.hasRubric == 'true'}">
 							<sakai-rubric-student-preview-button

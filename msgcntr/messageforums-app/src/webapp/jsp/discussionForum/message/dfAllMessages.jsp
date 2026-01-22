@@ -197,7 +197,7 @@
 						<span class="bi bi-calendar-x" aria-hidden="true" style="margin-right:.5em"></span>
 						<h:outputText value="#{msgs.topic_restricted_message}" />
 					</h:panelGroup>
-					<h:panelGroup rendered="#{ForumTool.selectedForum.forum.locked == 'true' || ForumTool.selectedTopic.topic.locked == 'true'}">
+					<h:panelGroup rendered="#{ForumTool.selectedForum.locked == 'true' || ForumTool.selectedTopic.locked == 'true'}">
 						<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.5em"></span>
 					</h:panelGroup>
 					<%-- Rubrics marker --%>
