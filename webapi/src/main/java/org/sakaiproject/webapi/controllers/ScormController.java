@@ -53,41 +53,35 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @RestController
 @RequestMapping(path = "/scorm", produces = MediaType.APPLICATION_JSON_VALUE)
-public class ScormController extends AbstractSakaiApiController
-{
+public class ScormController extends AbstractSakaiApiController {
+
     @Autowired
     private ScormLaunchService scormLaunchService;
 
     @PostMapping(path = "/sessions", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ScormSessionResponse createSession(@RequestBody ScormSessionRequest request)
-    {
+    public ScormSessionResponse createSession(@RequestBody ScormSessionRequest request) {
+
         checkSakaiSession();
-        if (request.getContentPackageId() <= 0)
-        {
+        if (request.getContentPackageId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "contentPackageId must be positive");
         }
 
         Optional<ScormNavigationRequest> navRequest = request.navigationRequest()
             .map(ScormNavigationRequest::ofRequest);
 
-        try
-        {
+        try {
             ScormLaunchContext context = scormLaunchService.openSession(request.getContentPackageId(), navRequest, Optional.ofNullable(StringUtils.trimToNull(request.getCompletionUrl())));
             return toResponse(context);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
-        catch (IllegalStateException e)
-        {
+        } catch (IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
         }
     }
 
     @GetMapping(path = "/sessions/{sessionId}")
-    public ScormSessionResponse getSession(@PathVariable String sessionId)
-    {
+    public ScormSessionResponse getSession(@PathVariable String sessionId) {
+
         checkSakaiSession();
 
         return scormLaunchService.getSession(sessionId)
@@ -96,31 +90,26 @@ public class ScormController extends AbstractSakaiApiController
     }
 
     @PostMapping(path = "/sessions/{sessionId}/nav", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ScormSessionResponse navigate(@PathVariable String sessionId, @RequestBody ScormNavigationPayload payload)
-    {
+    public ScormSessionResponse navigate(@PathVariable String sessionId, @RequestBody ScormNavigationPayload payload) {
+
         checkSakaiSession();
 
         ScormNavigationRequest request = buildNavigationRequest(payload)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Navigation request payload is empty"));
 
-        try
-        {
+        try {
             ScormLaunchContext context = scormLaunchService.navigate(sessionId, request);
             return toResponse(context);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     @PostMapping(path = "/sessions/{sessionId}/runtime", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ScormRuntimeResponse runtime(@PathVariable String sessionId, @RequestBody ScormRuntimePayload payload)
-    {
+    public ScormRuntimeResponse runtime(@PathVariable String sessionId, @RequestBody ScormRuntimePayload payload) {
         checkSakaiSession();
 
-        if (StringUtils.isBlank(payload.getMethod()))
-        {
+        if (StringUtils.isBlank(payload.getMethod())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Runtime method is required");
         }
 
@@ -129,26 +118,23 @@ public class ScormController extends AbstractSakaiApiController
             Optional.ofNullable(payload.getArguments()).orElse(List.of()),
             payload.getScoId());
 
-        try
-        {
+        try {
             ScormRuntimeResult result = scormLaunchService.runtime(sessionId, invocation);
             return new ScormRuntimeResponse(result.getValue(), result.getErrorCode(), result.getDiagnostic(), result.getLaunchPath(), result.isSessionEnded());
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     @DeleteMapping(path = "/sessions/{sessionId}")
-    public void closeSession(@PathVariable String sessionId)
-    {
+    public void closeSession(@PathVariable String sessionId) {
+
         checkSakaiSession();
         scormLaunchService.closeSession(sessionId);
     }
 
-    private ScormSessionResponse toResponse(ScormLaunchContext context)
-    {
+    private ScormSessionResponse toResponse(ScormLaunchContext context) {
+
         SessionBean sessionBean = context.getSessionBean();
         IValidRequests nav = sessionBean.getNavigationState();
 
@@ -179,23 +165,19 @@ public class ScormController extends AbstractSakaiApiController
             .build();
     }
 
-    private Optional<ScormNavigationRequest> buildNavigationRequest(ScormNavigationPayload payload)
-    {
-        if (payload == null)
-        {
+    private Optional<ScormNavigationRequest> buildNavigationRequest(ScormNavigationPayload payload) {
+
+        if (payload == null) {
             return Optional.empty();
         }
 
-        if (payload.getNavigationRequest() != null)
-        {
+        if (payload.getNavigationRequest() != null) {
             return Optional.of(ScormNavigationRequest.ofRequest(payload.getNavigationRequest()));
         }
-        if (StringUtils.isNotBlank(payload.getChoiceActivityId()))
-        {
+        if (StringUtils.isNotBlank(payload.getChoiceActivityId())) {
             return Optional.of(ScormNavigationRequest.ofChoice(payload.getChoiceActivityId()));
         }
-        if (StringUtils.isNotBlank(payload.getTargetActivityId()))
-        {
+        if (StringUtils.isNotBlank(payload.getTargetActivityId())) {
             return Optional.of(ScormNavigationRequest.ofTarget(payload.getTargetActivityId()));
         }
 
@@ -205,14 +187,13 @@ public class ScormController extends AbstractSakaiApiController
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class ScormSessionRequest
-    {
+    private static class ScormSessionRequest {
+
         private long contentPackageId;
         private Integer navigationRequest;
         private String completionUrl;
 
-        public Optional<Integer> navigationRequest()
-        {
+        public Optional<Integer> navigationRequest() {
             return Optional.ofNullable(navigationRequest);
         }
     }
@@ -220,8 +201,8 @@ public class ScormController extends AbstractSakaiApiController
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class ScormNavigationPayload
-    {
+    private static class ScormNavigationPayload {
+
         private Integer navigationRequest;
         private String choiceActivityId;
         private String targetActivityId;
@@ -230,8 +211,8 @@ public class ScormController extends AbstractSakaiApiController
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class ScormRuntimePayload
-    {
+    private static class ScormRuntimePayload {
+
         private String method;
         private List<String> arguments;
         private String scoId;
@@ -239,8 +220,8 @@ public class ScormController extends AbstractSakaiApiController
 
     @Data
     @Builder
-    private static class NavigationState
-    {
+    private static class NavigationState {
+
         private final boolean start;
         private final boolean resume;
         private final boolean previous;
@@ -252,8 +233,8 @@ public class ScormController extends AbstractSakaiApiController
     @Data
     @Builder
     @JsonInclude(Include.NON_NULL)
-    private static class ScormSessionResponse
-    {
+    private static class ScormSessionResponse {
+
         private final String sessionId;
         private final long contentPackageId;
         private final String contentPackageTitle;
