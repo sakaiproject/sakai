@@ -2125,8 +2125,13 @@ public class DiscussionForumTool {
             && Boolean.TRUE.equals(topic.getAvailabilityRestricted())
             && Boolean.TRUE.equals(topic.getLockedAfterClosed())
             && Boolean.TRUE.equals(topic.getLocked())) {
+          DiscussionTopic persistedTopic = forumManager.getTopicById(topic.getId());
+          Date persistedCloseDate = persistedTopic != null ? persistedTopic.getCloseDate() : null;
           Date closeDate = topic.getCloseDate();
-          if (closeDate != null && closeDate.after(new Date())) {
+          if (persistedCloseDate != null
+              && persistedCloseDate.before(new Date())
+              && closeDate != null
+              && closeDate.after(new Date())) {
             topic.setLocked(false);
             selectedTopic.setTopicLocked(false);
           }
