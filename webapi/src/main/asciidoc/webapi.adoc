@@ -68,6 +68,8 @@ include::{snippets}/get-site-calendar/response-body.adoc[]
 
 === Scorm API
 
+__See the login api about session cookies__
+
 Create a Scorm session:
 include::{snippets}/create-scorm-session/http-request.adoc[]
 
