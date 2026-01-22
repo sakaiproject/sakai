@@ -2120,6 +2120,17 @@ public class DiscussionForumTool {
         if(selectedForum.getForum().getRestrictPermissionsForGroups() && ServerConfigurationService.getBoolean("msgcntr.restricted.group.perms", false)){
           topic.setRestrictPermissionsForGroups(true);
         }
+
+        if (!isNew
+            && Boolean.TRUE.equals(topic.getAvailabilityRestricted())
+            && Boolean.TRUE.equals(topic.getLockedAfterClosed())
+            && Boolean.TRUE.equals(topic.getLocked())) {
+          Date closeDate = topic.getCloseDate();
+          if (closeDate != null && closeDate.after(new Date())) {
+            topic.setLocked(false);
+            selectedTopic.setTopicLocked(false);
+          }
+        }
         if(topic.getCreatedBy()==null&&this.forumManager.getAnonRole()==true){
           topic.setCreatedBy(".anon");
         }
