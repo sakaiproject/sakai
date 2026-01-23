@@ -79,7 +79,7 @@
 
     <f:verbatim><span><a href="/portal/tool/</f:verbatim>
 <h:outputText value="#{requestScope['sakai.tool.placement.id']}" />
-<f:verbatim>/jsf/author/searchPreview.faces?idString=</f:verbatim><h:outputText value="#{item_search_result.value.idString}" />
+<f:verbatim>/jsf/author/searchPreview.faces?idString=</f:verbatim><h:outputText value="#{item_search_result.value.id}" />
 <f:verbatim>&typeId=</f:verbatim><h:outputText value="#{item_search_result.value.typeId}" />
 <f:verbatim>" class="uimodal" loading="</f:verbatim><h:outputText value="#{authorMessages.loading}" /><f:verbatim>" title="</f:verbatim><h:outputText value="#{authorMessages.preview}" /><f:verbatim>"   ><i class="fa fa-eye" aria-hidden="true"></i></a></f:verbatim>
 
@@ -116,7 +116,7 @@
           <h:outputText value="#{questionPoolMessages.q_text}" />
         </h:panelGroup>
       </f:facet>
-        <h:outputText escape="false" value="#{row + 1} : #{item_search_result.value.qText}" />
+        <h:outputText escape="false" value="#{row + 1} : #{item_search_result.value.questionText}" />
 
     </h:column>
 
@@ -127,7 +127,7 @@
                   <h:outputText value="#{questionPoolMessages.t_tags}" />
               </h:panelGroup>
           </f:facet>
-          <t:dataList value="#{item_search_result.value.tagSet.toArray()}" var="tag" layout="unorderedList">
+          <t:dataList value="#{item_search_result.value.tags.toArray()}" var="tag" layout="unorderedList">
               <f:verbatim><span></f:verbatim>
               <h:outputText value="#{tag}"/>
         <f:verbatim></span></br>  </f:verbatim>
@@ -140,11 +140,7 @@
                   <h:outputText value="#{authorMessages.origin}" />
               </h:panelGroup>
           </f:facet>
-          <t:dataList value="#{item_search_result.value.origin}" var="origin">
-              <f:verbatim><span></f:verbatim>
-              <h:outputText value="#{origin}"/>
-              <f:verbatim></span></br>  </f:verbatim>
-          </t:dataList>
+          <h:outputText value="#{searchQuestionBean.getOriginDisplay(item_search_result.value)}"/>
       </h:column>
 
 
@@ -157,7 +153,7 @@
         </h:panelGroup>
       </f:facet>
       <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{searchQuestionBean.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));">
-        <f:selectItem itemValue="#{item_search_result.value.idString}" itemLabel=""/>
+        <f:selectItem itemValue="#{item_search_result.value.id}" itemLabel=""/>
       </h:selectManyCheckbox>
     </h:column>
 

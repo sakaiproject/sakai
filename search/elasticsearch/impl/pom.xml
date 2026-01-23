@@ -254,6 +254,24 @@
           <filtering>false</filtering>
         </testResource>
       </testResources>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>attach-classes</id>
+              <phase>package</phase>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+              <configuration>
+                <classifier>classes</classifier>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
     </build>
 
 </project>

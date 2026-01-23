@@ -25,12 +25,15 @@ import lombok.Data;
 /**
  * Represents a question search result.
  * This is a clean DTO that doesn't expose OpenSearch implementation types.
+ *
+ * <p>The origin can be computed from questionPoolId, assessmentId, and siteId
+ * by the caller. This avoids service-level caching issues.</p>
  */
 @Data
 @AllArgsConstructor
 public class QuestionSearchResult {
     /**
-     * The full question ID (including prefix like "/sam_item/")
+     * The question item ID (without "/sam_item/" prefix)
      */
     private String id;
 
@@ -50,8 +53,31 @@ public class QuestionSearchResult {
     private Set<String> tags;
 
     /**
-     * Description of where this question came from
-     * (e.g., question pool name, or site:assessment)
+     * The question pool ID if this question is from a pool, null otherwise
      */
-    private String origin;
+    private String questionPoolId;
+
+    /**
+     * The assessment ID if this question is from an assessment, null otherwise
+     */
+    private String assessmentId;
+
+    /**
+     * The site ID if this question is from an assessment, null otherwise
+     */
+    private String siteId;
+
+    /**
+     * Check if this question is from a question pool.
+     */
+    public boolean isFromQuestionPool() {
+        return questionPoolId != null;
+    }
+
+    /**
+     * Check if this question is from an assessment.
+     */
+    public boolean isFromAssessment() {
+        return assessmentId != null && siteId != null;
+    }
 }

@@ -18,31 +18,39 @@
 package org.sakaiproject.tool.assessment.services.question;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service for searching questions in the Samigo question bank.
  * This provides a clean API for question search operations without exposing
  * OpenSearch-specific types.
+ *
+ * <p>This service is stateless. Callers should manage their own caches for
+ * title lookups to avoid memory issues.</p>
  */
 public interface QuestionSearchService {
 
     /**
      * Search for questions by tags.
      *
-     * @param tags array of tag IDs to search for
+     * @param tagLabels list of tag labels in format "TagLabel(CollectionName)"
      * @param andLogic true to require all tags (AND logic), false for any tag (OR logic)
      * @return list of matching questions, or empty list if none found
+     * @throws QuestionSearchException if the search operation fails
      */
-    List<QuestionSearchResult> searchByTags(String[] tags, boolean andLogic);
+    List<QuestionSearchResult> searchByTags(List<String> tagLabels, boolean andLogic)
+            throws QuestionSearchException;
 
     /**
      * Search for questions by text content.
      *
-     * @param text the search text (will be stripped of HTML)
+     * @param text the search text
      * @param andLogic true for AND logic, false for OR logic
      * @return list of matching questions, or empty list if none found
+     * @throws QuestionSearchException if the search operation fails
      */
-    List<QuestionSearchResult> searchByText(String text, boolean andLogic);
+    List<QuestionSearchResult> searchByText(String text, boolean andLogic)
+            throws QuestionSearchException;
 
     /**
      * Check if the current user owns a specific question.
@@ -57,7 +65,9 @@ public interface QuestionSearchService {
      * This is used to find duplicate questions across different assessments/pools.
      *
      * @param hash the question content hash
+     * @param titleCache optional cache for title lookups (keys: "qp:id", "site:id", "assessment:id")
+     *                   Pass null if no caching is desired
      * @return list of origin descriptions (e.g., "Site Name : Assessment Name")
      */
-    List<String> getQuestionOrigins(String hash);
+    List<String> getQuestionOrigins(String hash, Map<String, String> titleCache);
 }
