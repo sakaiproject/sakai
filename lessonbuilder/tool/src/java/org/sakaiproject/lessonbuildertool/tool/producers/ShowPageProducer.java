@@ -2171,7 +2171,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 } catch (Exception ex) {
                                     log.warn("Error encoding the PDF url, the PDF might not load in the UI. {}", ex.getMessage());
                                 }
-                                String pdfViewerUrl = String.format("/library/webjars/pdf-js/5.3.31/web/viewer.html?file=%s", movieUrl);
+                                String pdfViewerUrl = String.format("/library/webjars/pdf-js/5.4.530/web/viewer.html?file=%s", movieUrl);
                                 item2 = UIOutput.make(tableRow, "pdfEmbed")
                                         .decorate(new UIFreeAttributeDecorator("src", pdfViewerUrl))
                                         .decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
