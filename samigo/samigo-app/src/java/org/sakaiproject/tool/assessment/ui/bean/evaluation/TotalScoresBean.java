@@ -1211,12 +1211,23 @@ public class TotalScoresBean implements Serializable, PhaseAware {
         return !StringUtils.equals(searchString, defaultSearchString);
 	}
 	
+	/**
+	 * Normalize text for accent-insensitive search
+	 */
+	private String normalizeSearchText(String text) {
+		if (text == null) return null;
+		return java.text.Normalizer.normalize(text.toLowerCase(), java.text.Normalizer.Form.NFD)
+				.replaceAll("[\\u0300-\\u036f]", "");
+	}
+
 	public List findMatchingAgents(final String pattern) {
 		List filteredList = new ArrayList();
 		// name1 example: John Doe
 		StringBuilder name1;
 		// name2 example: Doe, John
 		StringBuilder name2;
+		String normalizedPattern = normalizeSearchText(pattern);
+		
 		for(Iterator iter = allAgents.iterator(); iter.hasNext();) {
 			AgentResults result = (AgentResults)iter.next();
 			// name1 example: John Doe
@@ -1227,11 +1238,18 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 			name2 = new StringBuilder(result.getLastName());
 			name2.append(", ");
 			name2.append(result.getFirstName());
-			if (result.getFirstName().toLowerCase().startsWith(pattern.toLowerCase()) ||
-				result.getLastName().toLowerCase().startsWith(pattern.toLowerCase()) ||
-				result.getAgentEid().toLowerCase().startsWith(pattern.toLowerCase()) ||
-				name1.toString().toLowerCase().startsWith(pattern.toLowerCase()) ||
-				name2.toString().toLowerCase().startsWith(pattern.toLowerCase())) {
+			
+			String normalizedFirstName = normalizeSearchText(result.getFirstName());
+			String normalizedLastName = normalizeSearchText(result.getLastName());
+			String normalizedAgentEid = normalizeSearchText(result.getAgentEid());
+			String normalizedName1 = normalizeSearchText(name1.toString());
+			String normalizedName2 = normalizeSearchText(name2.toString());
+			
+			if (normalizedFirstName.startsWith(normalizedPattern) ||
+				normalizedLastName.startsWith(normalizedPattern) ||
+				normalizedAgentEid.startsWith(normalizedPattern) ||
+				normalizedName1.startsWith(normalizedPattern) ||
+				normalizedName2.startsWith(normalizedPattern)) {
 				filteredList.add(result);
 			}
 		}
