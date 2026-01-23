@@ -1,18 +1,20 @@
-$(function() {
-    function adjustPdfIframeHeight($iframe) {
-        var width = $iframe.width();
-        var height = width * 0.75;
-        $iframe.css('height', height + 'px');
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    const adjustPdfIframeHeight = (iframe) => {
+        const height = iframe.offsetWidth * 0.75;
+        iframe.style.height = height + 'px';
+    };
 
-    $('iframe[src*="pdf-js"]').each(function() {
-        var $iframe = $(this);
-        var $section = $iframe.closest('.section');
-        if ($section.length) {
-            var ro = new ResizeObserver(function() {
-                adjustPdfIframeHeight($iframe);
+    document.querySelectorAll('iframe[src*="pdf-js"]').forEach((iframe) => {
+        const section = iframe.closest('.section');
+
+        // Set initial height
+        adjustPdfIframeHeight(iframe);
+
+        if (section) {
+            const ro = new ResizeObserver(() => {
+                adjustPdfIframeHeight(iframe);
             });
-            ro.observe($section[0]);
+            ro.observe(section);
         }
     });
 });
