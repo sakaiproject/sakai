@@ -86,8 +86,7 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
     private AssessmentService assessmentService;
 
     @Override
-    public List<QuestionSearchResult> searchByTags(List<String> tagLabels, boolean andLogic)
-            throws QuestionSearchException {
+    public List<QuestionSearchResult> searchByTags(List<String> tagLabels, boolean andLogic) {
         if (tagLabels == null || tagLabels.isEmpty()) {
             return new ArrayList<>();
         }
@@ -107,13 +106,12 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
             return processSearchResponse(sr);
         } catch (InvalidSearchQueryException ex) {
             log.warn("Error searching questions by tags: {}", ex.getMessage());
-            throw new QuestionSearchException("Failed to search questions by tags", ex);
+            return new ArrayList<>();
         }
     }
 
     @Override
-    public List<QuestionSearchResult> searchByText(String text, boolean andLogic)
-            throws QuestionSearchException {
+    public List<QuestionSearchResult> searchByText(String text, boolean andLogic) {
         if (text == null || text.trim().isEmpty()) {
             return new ArrayList<>();
         }
@@ -126,7 +124,7 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
             return processSearchResponse(sr);
         } catch (InvalidSearchQueryException ex) {
             log.warn("Error searching questions by text: {}", ex.getMessage());
-            throw new QuestionSearchException("Failed to search questions by text", ex);
+            return new ArrayList<>();
         }
     }
 
@@ -270,12 +268,14 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
     /**
      * Extract the origin description from a search hit using provided cache.
      * Returns the question pool name, or "Site : Assessment" format.
+     * Returns empty string if the origin cannot be resolved (e.g., deleted entities).
      */
     private String extractOrigin(SearchHit hit, Map<String, String> titleCache) {
         try {
             String qpId = extractFieldValue(hit, FIELD_QUESTION_POOL_ID);
             if (qpId != null) {
-                return resolveQuestionPoolTitle(qpId, titleCache);
+                String poolTitle = resolveQuestionPoolTitle(qpId, titleCache);
+                return poolTitle != null ? poolTitle : "";
             }
 
             String assessmentId = extractFieldValue(hit, FIELD_ASSESSMENT_ID);
@@ -284,6 +284,10 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
             if (assessmentId != null && siteId != null) {
                 String siteTitle = resolveSiteTitle(siteId, titleCache);
                 String assessmentTitle = resolveAssessmentTitle(assessmentId, titleCache);
+                // If either is null (deleted), skip this origin
+                if (siteTitle == null || assessmentTitle == null) {
+                    return "";
+                }
                 return siteTitle + " : " + assessmentTitle;
             }
 
@@ -297,14 +301,18 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
 
     /**
      * Resolve question pool title, using cache if available.
+     * Returns null if the pool doesn't exist (e.g., was deleted).
      */
     private String resolveQuestionPoolTitle(String qpId, Map<String, String> cache) {
         String cacheKey = "qp:" + qpId;
         if (cache != null && cache.containsKey(cacheKey)) {
             return cache.get(cacheKey);
         }
-        String title = questionPoolService.getPool(
-            Long.parseLong(qpId), AgentFacade.getAgentString()).getTitle();
+        var pool = questionPoolService.getPool(Long.parseLong(qpId), AgentFacade.getAgentString());
+        if (pool == null) {
+            return null;
+        }
+        String title = pool.getTitle();
         if (cache != null) {
             cache.put(cacheKey, title);
         }
@@ -313,28 +321,39 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
 
     /**
      * Resolve site title, using cache if available.
+     * Returns null if the site doesn't exist.
      */
-    private String resolveSiteTitle(String siteId, Map<String, String> cache) throws Exception {
+    private String resolveSiteTitle(String siteId, Map<String, String> cache) {
         String cacheKey = "site:" + siteId;
         if (cache != null && cache.containsKey(cacheKey)) {
             return cache.get(cacheKey);
         }
-        String title = siteService.getSite(siteId).getTitle();
-        if (cache != null) {
-            cache.put(cacheKey, title);
+        try {
+            String title = siteService.getSite(siteId).getTitle();
+            if (cache != null) {
+                cache.put(cacheKey, title);
+            }
+            return title;
+        } catch (Exception ex) {
+            log.debug("Site not found: {}", siteId);
+            return null;
         }
-        return title;
     }
 
     /**
      * Resolve assessment title, using cache if available.
+     * Returns null if the assessment doesn't exist (e.g., was deleted).
      */
     private String resolveAssessmentTitle(String assessmentId, Map<String, String> cache) {
         String cacheKey = "assessment:" + assessmentId;
         if (cache != null && cache.containsKey(cacheKey)) {
             return cache.get(cacheKey);
         }
-        String title = assessmentService.getAssessment(assessmentId).getTitle();
+        var assessment = assessmentService.getAssessment(assessmentId);
+        if (assessment == null) {
+            return null;
+        }
+        String title = assessment.getTitle();
         if (cache != null) {
             cache.put(cacheKey, title);
         }

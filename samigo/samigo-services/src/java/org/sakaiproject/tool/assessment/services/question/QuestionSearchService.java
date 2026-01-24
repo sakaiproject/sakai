@@ -27,6 +27,9 @@ import java.util.Map;
  *
  * <p>This service is stateless. Callers should manage their own caches for
  * title lookups to avoid memory issues.</p>
+ *
+ * <p>All methods return empty results on error and log warnings internally.
+ * This keeps the API simple and avoids exposing search implementation details.</p>
  */
 public interface QuestionSearchService {
 
@@ -35,22 +38,18 @@ public interface QuestionSearchService {
      *
      * @param tagLabels list of tag labels in format "TagLabel(CollectionName)"
      * @param andLogic true to require all tags (AND logic), false for any tag (OR logic)
-     * @return list of matching questions, or empty list if none found
-     * @throws QuestionSearchException if the search operation fails
+     * @return list of matching questions, or empty list if none found or on error
      */
-    List<QuestionSearchResult> searchByTags(List<String> tagLabels, boolean andLogic)
-            throws QuestionSearchException;
+    List<QuestionSearchResult> searchByTags(List<String> tagLabels, boolean andLogic);
 
     /**
      * Search for questions by text content.
      *
      * @param text the search text
      * @param andLogic true for AND logic, false for OR logic
-     * @return list of matching questions, or empty list if none found
-     * @throws QuestionSearchException if the search operation fails
+     * @return list of matching questions, or empty list if none found or on error
      */
-    List<QuestionSearchResult> searchByText(String text, boolean andLogic)
-            throws QuestionSearchException;
+    List<QuestionSearchResult> searchByText(String text, boolean andLogic);
 
     /**
      * Check if the current user owns a specific question.
