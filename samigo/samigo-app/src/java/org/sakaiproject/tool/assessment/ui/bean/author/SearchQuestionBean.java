@@ -27,15 +27,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.assessment.services.question.QuestionSearchException;
 import org.sakaiproject.tool.assessment.services.question.QuestionSearchResult;
 import org.sakaiproject.tool.assessment.services.question.QuestionSearchService;
 import org.sakaiproject.tags.api.Tag;
@@ -46,7 +43,6 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import lombok.extern.slf4j.Slf4j;
 import net.htmlparser.jericho.Source;
@@ -137,25 +133,16 @@ public class SearchQuestionBean implements Serializable {
         setTagToSearch(tagList);
         setTagToSearchLabel(tagsLabelsDisplay.toString());
 
-        try {
-            // Use the service to search (passing labels, not IDs)
-            List<QuestionSearchResult> searchResults = questionSearchService.searchByTags(tagLabelsForSearch, andOption);
+        // Use the service to search (passing labels, not IDs)
+        List<QuestionSearchResult> searchResults = questionSearchService.searchByTags(tagLabelsForSearch, andOption);
 
-            // Store results directly (no conversion needed)
-            for (QuestionSearchResult qsr : searchResults) {
-                results.put(qsr.getId(), qsr);
-            }
-
-            setResults(results);
-            setResultsSize(results.size());
-
-        } catch (QuestionSearchException ex) {
-            log.warn("Error searching questions by tags: {}", ex.getMessage());
-            String errorMsg = ContextUtil.getLocalizedString(
-                "org.sakaiproject.tool.assessment.bundle.AuthorMessages", "tag_tags_error2");
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMsg, null));
+        // Store results directly (no conversion needed)
+        for (QuestionSearchResult qsr : searchResults) {
+            results.put(qsr.getId(), qsr);
         }
 
+        setResults(results);
+        setResultsSize(results.size());
         setTextToSearch("");
     }
 
@@ -172,25 +159,16 @@ public class SearchQuestionBean implements Serializable {
         searchText = parseSearchTerms.getTextExtractor().toString();
         this.setTextToSearch(searchText);
 
-        try {
-            // Use the service to search
-            List<QuestionSearchResult> searchResults = questionSearchService.searchByText(searchText, andOption);
+        // Use the service to search
+        List<QuestionSearchResult> searchResults = questionSearchService.searchByText(searchText, andOption);
 
-            // Store results directly (no conversion needed)
-            for (QuestionSearchResult qsr : searchResults) {
-                results.put(qsr.getId(), qsr);
-            }
-
-            setResults(results);
-            setResultsSize(results.size());
-
-        } catch (QuestionSearchException ex) {
-            log.warn("Error searching questions by text: {}", ex.getMessage());
-            String errorMsg = ContextUtil.getLocalizedString(
-                "org.sakaiproject.tool.assessment.bundle.AuthorMessages", "tag_tags_error2");
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMsg, null));
+        // Store results directly (no conversion needed)
+        for (QuestionSearchResult qsr : searchResults) {
+            results.put(qsr.getId(), qsr);
         }
 
+        setResults(results);
+        setResultsSize(results.size());
         setTagToSearch(null);
         setTagToSearchLabel("");
     }
@@ -221,6 +199,7 @@ public class SearchQuestionBean implements Serializable {
     /**
      * Get the display origin for a question result.
      * Resolves the origin lazily using session-scoped cache.
+     * Returns empty string if the origin cannot be resolved (e.g., deleted entities).
      */
     public String getOriginDisplay(QuestionSearchResult result) {
         if (result == null) {
@@ -233,8 +212,12 @@ public class SearchQuestionBean implements Serializable {
                 if (titleCache.containsKey(cacheKey)) {
                     return titleCache.get(cacheKey);
                 }
-                String title = questionPoolService.getPool(
-                    Long.parseLong(result.getQuestionPoolId()), AgentFacade.getAgentString()).getTitle();
+                var pool = questionPoolService.getPool(
+                    Long.parseLong(result.getQuestionPoolId()), AgentFacade.getAgentString());
+                if (pool == null) {
+                    return "";
+                }
+                String title = pool.getTitle();
                 titleCache.put(cacheKey, title);
                 return title;
             }
@@ -247,7 +230,8 @@ public class SearchQuestionBean implements Serializable {
                 if (titleCache.containsKey(siteCacheKey)) {
                     siteTitle = titleCache.get(siteCacheKey);
                 } else {
-                    siteTitle = siteService.getSite(result.getSiteId()).getTitle();
+                    var site = siteService.getSite(result.getSiteId());
+                    siteTitle = site.getTitle();
                     titleCache.put(siteCacheKey, siteTitle);
                 }
 
@@ -255,7 +239,11 @@ public class SearchQuestionBean implements Serializable {
                 if (titleCache.containsKey(assessmentCacheKey)) {
                     assessmentTitle = titleCache.get(assessmentCacheKey);
                 } else {
-                    assessmentTitle = assessmentService.getAssessment(result.getAssessmentId()).getTitle();
+                    var assessment = assessmentService.getAssessment(result.getAssessmentId());
+                    if (assessment == null) {
+                        return "";
+                    }
+                    assessmentTitle = assessment.getTitle();
                     titleCache.put(assessmentCacheKey, assessmentTitle);
                 }
 
