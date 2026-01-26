@@ -18,9 +18,8 @@
 package org.sakaiproject.tool.assessment.services.question;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,39 +38,8 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Implementation of QuestionSearchService using ElasticSearch/OpenSearch.
- * This encapsulates all OpenSearch-specific logic for question searching.
- *
- * Note: This service is stateless. Title caching should be done at the caller level
- * (e.g., in a session-scoped bean) to avoid memory leaks in this singleton service.
- */
 @Slf4j
 public class QuestionSearchServiceImpl implements QuestionSearchService {
-
-    // Constants for index and aggregation names
-    private static final String INDEX_NAME = "questions";
-    private static final String AGGREGATION_DEDUP = "dedup";
-    private static final String AGGREGATION_DEDUP_DOCS = "dedup_docs";
-
-    // Constants for search parameters
-    private static final String PARAM_GROUP = "group";
-    private static final String PARAM_SCOPE = "scope";
-    private static final String PARAM_SUBTYPE = "subtype";
-    private static final String PARAM_LOGIC = "logic";
-    private static final String PARAM_HASH = "hash";
-    private static final String PARAM_QUESTION_ID = "questionId";
-
-    // Constants for field names
-    private static final String FIELD_TYPE_ID = "typeId";
-    private static final String FIELD_QTEXT = "qText";
-    private static final String FIELD_TAGS = "tags";
-    private static final String FIELD_QUESTION_POOL_ID = "questionPoolId";
-    private static final String FIELD_ASSESSMENT_ID = "assessmentId";
-    private static final String FIELD_SITE = "site";
-
-    // Reference prefix for samigo items
-    private static final String SAM_ITEM_PREFIX = "/sam_item/";
 
     @Setter
     private ElasticSearchService elasticSearchService;
@@ -91,9 +59,12 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
             return new ArrayList<>();
         }
 
-        Map<String, String> searchParams = createBaseSearchParams(andLogic);
+        Map<String, String> searchParams = new HashMap<>();
+        searchParams.put("group", "hash");
+        searchParams.put("scope", "own");
+        searchParams.put("subtype", "item");
+        searchParams.put("logic", andLogic ? "and" : "or");
 
-        // Add tag information (labels already resolved by caller)
         int i = 1;
         for (String tagLabel : tagLabels) {
             searchParams.put("tag_" + i, tagLabel);
@@ -102,7 +73,7 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
 
         try {
             SearchResponse sr = elasticSearchService.searchResponse(
-                "", null, null, 0, 0, INDEX_NAME, searchParams);
+                "", null, null, 0, 0, "questions", searchParams);
             return processSearchResponse(sr);
         } catch (InvalidSearchQueryException ex) {
             log.warn("Error searching questions by tags: {}", ex.getMessage());
@@ -116,11 +87,15 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
             return new ArrayList<>();
         }
 
-        Map<String, String> searchParams = createBaseSearchParams(andLogic);
+        Map<String, String> searchParams = new HashMap<>();
+        searchParams.put("group", "hash");
+        searchParams.put("scope", "own");
+        searchParams.put("subtype", "item");
+        searchParams.put("logic", andLogic ? "and" : "or");
 
         try {
             SearchResponse sr = elasticSearchService.searchResponse(
-                text, null, null, 0, 0, INDEX_NAME, searchParams);
+                text, null, null, 0, 0, "questions", searchParams);
             return processSearchResponse(sr);
         } catch (InvalidSearchQueryException ex) {
             log.warn("Error searching questions by text: {}", ex.getMessage());
@@ -134,14 +109,14 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
             return false;
         }
 
-        Map<String, String> searchParams = new LinkedHashMap<>();
-        searchParams.put(PARAM_SCOPE, "own");
-        searchParams.put(PARAM_SUBTYPE, "item");
-        searchParams.put(PARAM_QUESTION_ID, questionId);
+        Map<String, String> searchParams = new HashMap<>();
+        searchParams.put("scope", "own");
+        searchParams.put("subtype", "item");
+        searchParams.put("questionId", questionId);
 
         try {
             SearchResponse sr = elasticSearchService.searchResponse(
-                "", null, null, 0, 1, INDEX_NAME, searchParams);
+                "", null, null, 0, 1, "questions", searchParams);
             return sr.getHits().getTotalHits().value >= 1;
         } catch (Exception ex) {
             log.warn("Error checking question ownership for {}: {}", questionId, ex.getMessage());
@@ -156,14 +131,14 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
         }
 
         List<String> origins = new ArrayList<>();
-        Map<String, String> searchParams = new LinkedHashMap<>();
-        searchParams.put(PARAM_SCOPE, "own");
-        searchParams.put(PARAM_SUBTYPE, "item");
-        searchParams.put(PARAM_HASH, hash);
+        Map<String, String> searchParams = new HashMap<>();
+        searchParams.put("scope", "own");
+        searchParams.put("subtype", "item");
+        searchParams.put("hash", hash);
 
         try {
             SearchResponse sr = elasticSearchService.searchResponse(
-                "", null, null, 0, 1000, INDEX_NAME, searchParams);
+                "", null, null, 0, 1000, "questions", searchParams);
 
             for (SearchHit hit : sr.getHits()) {
                 String origin = extractOrigin(hit, titleCache);
@@ -178,32 +153,16 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
         }
     }
 
-    /**
-     * Create base search parameters common to tag and text searches.
-     */
-    private Map<String, String> createBaseSearchParams(boolean andLogic) {
-        Map<String, String> params = new LinkedHashMap<>();
-        params.put(PARAM_GROUP, PARAM_HASH);
-        params.put(PARAM_SCOPE, "own");
-        params.put(PARAM_SUBTYPE, "item");
-        params.put(PARAM_LOGIC, andLogic ? "and" : "or");
-        return params;
-    }
-
-    /**
-     * Process the OpenSearch response and convert to QuestionSearchResult list.
-     * Only includes results with the /sam_item/ prefix.
-     */
     private List<QuestionSearchResult> processSearchResponse(SearchResponse sr) {
         List<QuestionSearchResult> results = new ArrayList<>();
 
-        Terms dedup = sr.getAggregations().get(AGGREGATION_DEDUP);
+        Terms dedup = sr.getAggregations().get("dedup");
         if (dedup == null) {
             return results;
         }
 
         for (Terms.Bucket entry : dedup.getBuckets()) {
-            TopHits topHits = entry.getAggregations().get(AGGREGATION_DEDUP_DOCS);
+            TopHits topHits = entry.getAggregations().get("dedup_docs");
             if (topHits == null) {
                 continue;
             }
@@ -211,23 +170,36 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
             for (SearchHit hit : topHits.getHits().getHits()) {
                 try {
                     String id = hit.getId();
-
-                    // Filter: only include /sam_item/ references
-                    if (!id.startsWith(SAM_ITEM_PREFIX)) {
+                    if (!id.startsWith("/sam_item/")) {
                         continue;
                     }
 
-                    // Extract the actual item ID (remove prefix)
-                    String itemId = id.substring(SAM_ITEM_PREFIX.length());
+                    String itemId = id.substring(10);
+                    String typeId = hit.field("typeId").getValue();
+                    String qText = hit.field("qText").getValue();
 
-                    String typeId = hit.field(FIELD_TYPE_ID).getValue();
-                    String qText = hit.field(FIELD_QTEXT).getValue();
-                    Set<String> tags = extractTags(hit.field(FIELD_TAGS).getValues());
+                    Set<String> tags = new HashSet<>();
+                    List<Object> tagValues = hit.field("tags").getValues();
+                    if (tagValues != null) {
+                        for (Object tagValue : tagValues) {
+                            tags.add(tagValue.toString());
+                        }
+                    }
 
-                    // Pass null for cache - origin will be resolved by caller if needed
-                    String questionPoolId = extractFieldValue(hit, FIELD_QUESTION_POOL_ID);
-                    String assessmentId = extractFieldValue(hit, FIELD_ASSESSMENT_ID);
-                    String siteId = extractFieldValue(hit, FIELD_SITE);
+                    String questionPoolId = null;
+                    if (hit.field("questionPoolId") != null && hit.field("questionPoolId").getValue() != null) {
+                        questionPoolId = hit.field("questionPoolId").getValue().toString();
+                    }
+
+                    String assessmentId = null;
+                    if (hit.field("assessmentId") != null && hit.field("assessmentId").getValue() != null) {
+                        assessmentId = hit.field("assessmentId").getValue().toString();
+                    }
+
+                    String siteId = null;
+                    if (hit.field("site") != null && hit.field("site").getValue() != null) {
+                        siteId = hit.field("site").getValue().toString();
+                    }
 
                     results.add(new QuestionSearchResult(itemId, typeId, qText, tags,
                         questionPoolId, assessmentId, siteId));
@@ -241,122 +213,75 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
         return results;
     }
 
-    /**
-     * Safely extract a field value from a search hit.
-     */
-    private String extractFieldValue(SearchHit hit, String fieldName) {
-        if (hit.field(fieldName) != null && hit.field(fieldName).getValue() != null) {
-            return hit.field(fieldName).getValue().toString();
-        }
-        return null;
-    }
-
-    /**
-     * Extract tags from the search hit field values.
-     */
-    private Set<String> extractTags(List<Object> tagValues) {
-        Set<String> tagSet = new HashSet<>();
-        if (tagValues != null) {
-            Iterator<Object> iterator = tagValues.iterator();
-            while (iterator.hasNext()) {
-                tagSet.add(iterator.next().toString());
-            }
-        }
-        return tagSet;
-    }
-
-    /**
-     * Extract the origin description from a search hit using provided cache.
-     * Returns the question pool name, or "Site : Assessment" format.
-     * Returns empty string if the origin cannot be resolved (e.g., deleted entities).
-     */
     private String extractOrigin(SearchHit hit, Map<String, String> titleCache) {
         try {
-            String qpId = extractFieldValue(hit, FIELD_QUESTION_POOL_ID);
-            if (qpId != null) {
-                String poolTitle = resolveQuestionPoolTitle(qpId, titleCache);
-                return poolTitle != null ? poolTitle : "";
-            }
+            // Check question pool first
+            if (hit.field("questionPoolId") != null && hit.field("questionPoolId").getValue() != null) {
+                String qpId = hit.field("questionPoolId").getValue().toString();
+                String cacheKey = "qp:" + qpId;
 
-            String assessmentId = extractFieldValue(hit, FIELD_ASSESSMENT_ID);
-            String siteId = extractFieldValue(hit, FIELD_SITE);
+                if (titleCache != null && titleCache.containsKey(cacheKey)) {
+                    return titleCache.get(cacheKey);
+                }
 
-            if (assessmentId != null && siteId != null) {
-                String siteTitle = resolveSiteTitle(siteId, titleCache);
-                String assessmentTitle = resolveAssessmentTitle(assessmentId, titleCache);
-                // If either is null (deleted), skip this origin
-                if (siteTitle == null || assessmentTitle == null) {
+                var pool = questionPoolService.getPool(Long.parseLong(qpId), AgentFacade.getAgentString());
+                if (pool == null) {
                     return "";
                 }
+                String title = pool.getTitle();
+                if (titleCache != null) {
+                    titleCache.put(cacheKey, title);
+                }
+                return title;
+            }
+
+            // Check assessment
+            if (hit.field("assessmentId") != null && hit.field("assessmentId").getValue() != null &&
+                hit.field("site") != null && hit.field("site").getValue() != null) {
+
+                String assessmentId = hit.field("assessmentId").getValue().toString();
+                String siteId = hit.field("site").getValue().toString();
+
+                // Get site title
+                String siteCacheKey = "site:" + siteId;
+                String siteTitle;
+                if (titleCache != null && titleCache.containsKey(siteCacheKey)) {
+                    siteTitle = titleCache.get(siteCacheKey);
+                } else {
+                    try {
+                        siteTitle = siteService.getSite(siteId).getTitle();
+                        if (titleCache != null) {
+                            titleCache.put(siteCacheKey, siteTitle);
+                        }
+                    } catch (Exception ex) {
+                        return "";
+                    }
+                }
+
+                // Get assessment title
+                String assessmentCacheKey = "assessment:" + assessmentId;
+                String assessmentTitle;
+                if (titleCache != null && titleCache.containsKey(assessmentCacheKey)) {
+                    assessmentTitle = titleCache.get(assessmentCacheKey);
+                } else {
+                    var assessment = assessmentService.getAssessment(assessmentId);
+                    if (assessment == null) {
+                        return "";
+                    }
+                    assessmentTitle = assessment.getTitle();
+                    if (titleCache != null) {
+                        titleCache.put(assessmentCacheKey, assessmentTitle);
+                    }
+                }
+
                 return siteTitle + " : " + assessmentTitle;
             }
 
             return "";
 
         } catch (Exception ex) {
-            log.debug("Could not extract origin for question {}: {}", hit.getId(), ex.getMessage());
+            log.debug("Could not extract origin: {}", ex.getMessage());
             return "";
         }
-    }
-
-    /**
-     * Resolve question pool title, using cache if available.
-     * Returns null if the pool doesn't exist (e.g., was deleted).
-     */
-    private String resolveQuestionPoolTitle(String qpId, Map<String, String> cache) {
-        String cacheKey = "qp:" + qpId;
-        if (cache != null && cache.containsKey(cacheKey)) {
-            return cache.get(cacheKey);
-        }
-        var pool = questionPoolService.getPool(Long.parseLong(qpId), AgentFacade.getAgentString());
-        if (pool == null) {
-            return null;
-        }
-        String title = pool.getTitle();
-        if (cache != null) {
-            cache.put(cacheKey, title);
-        }
-        return title;
-    }
-
-    /**
-     * Resolve site title, using cache if available.
-     * Returns null if the site doesn't exist.
-     */
-    private String resolveSiteTitle(String siteId, Map<String, String> cache) {
-        String cacheKey = "site:" + siteId;
-        if (cache != null && cache.containsKey(cacheKey)) {
-            return cache.get(cacheKey);
-        }
-        try {
-            String title = siteService.getSite(siteId).getTitle();
-            if (cache != null) {
-                cache.put(cacheKey, title);
-            }
-            return title;
-        } catch (Exception ex) {
-            log.debug("Site not found: {}", siteId);
-            return null;
-        }
-    }
-
-    /**
-     * Resolve assessment title, using cache if available.
-     * Returns null if the assessment doesn't exist (e.g., was deleted).
-     */
-    private String resolveAssessmentTitle(String assessmentId, Map<String, String> cache) {
-        String cacheKey = "assessment:" + assessmentId;
-        if (cache != null && cache.containsKey(cacheKey)) {
-            return cache.get(cacheKey);
-        }
-        var assessment = assessmentService.getAssessment(assessmentId);
-        if (assessment == null) {
-            return null;
-        }
-        String title = assessment.getTitle();
-        if (cache != null) {
-            cache.put(cacheKey, title);
-        }
-        return title;
     }
 }

@@ -47,11 +47,21 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import lombok.extern.slf4j.Slf4j;
 import net.htmlparser.jericho.Source;
 
-/* For author: Search Questions backing bean. */
 @Slf4j
 @ManagedBean(name="searchQuestionBean")
 @SessionScoped
 public class SearchQuestionBean implements Serializable {
+
+    private static final String EDIT_POOL = "editPool";
+    private static final String EDIT_ASSESSMENT = "editAssessment";
+
+    private static final TagService tagService = (TagService) ComponentManager.get(TagService.class);
+    private static final QuestionSearchService questionSearchService = (QuestionSearchService) ComponentManager.get(QuestionSearchService.class);
+    private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
+    private static final SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+
+    private QuestionPoolService questionPoolService = new QuestionPoolService();
+    private AssessmentService assessmentService = new AssessmentService();
 
     private String selectedSection;
     private String selectedQuestionPool;
@@ -59,53 +69,32 @@ public class SearchQuestionBean implements Serializable {
     private String outcome;
     private String[] destItems = {};
     private HashMap<String, QuestionSearchResult> results;
-    private static final String EDIT_POOL = "editPool";
-    private static final String EDIT_ASSESSMENT = "editAssessment";
     private int resultsSize;
     private boolean showTags;
     private String tagDisabled;
     private String textToSearch;
     private String[] tagToSearch;
-
-    // Services
-    private static final TagService tagService = (TagService) ComponentManager.get(TagService.class);
-    private static final QuestionSearchService questionSearchService = (QuestionSearchService) ComponentManager.get(QuestionSearchService.class);
-    private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
-    private static final SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
-
-    private ItemService itemService = new ItemService();
-    private QuestionPoolService questionPoolService = new QuestionPoolService();
-    private AssessmentService assessmentService = new AssessmentService();
-
     private String tagToSearchLabel;
     private String lastSearchType;
-
-    // Session-scoped caches (cleared on new search) - avoids memory leak in singleton service
     private Map<String, Boolean> questionsIOwn = new HashMap<>();
     private Map<String, String> titleCache = new HashMap<>();
 
     public SearchQuestionBean() {
         results = new HashMap<>();
-        setResultsSize(0);
-        setTextToSearch("");
-        setTagToSearch(null);
-        setTagToSearchLabel("");
-        setShowTags(serverConfigurationService.getBoolean("samigo.author.usetags", false));
-        if (getShowTags()) {
-            setTagDisabled("");
-        } else {
-            setTagDisabled("style=display:none");
-        }
+        resultsSize = 0;
+        textToSearch = "";
+        tagToSearch = null;
+        tagToSearchLabel = "";
+        showTags = serverConfigurationService.getBoolean("samigo.author.usetags", false);
+        tagDisabled = showTags ? "" : "style=display:none";
     }
 
     public void searchQuestionsByTag(String[] tagList, boolean andOption) {
-        // Clear caches for new search
         questionsIOwn.clear();
         titleCache.clear();
-        setResults(new HashMap<>());
-        setResultsSize(0);
+        results = new HashMap<>();
+        resultsSize = 0;
 
-        // Build tag labels for display AND for search (single lookup)
         List<String> tagLabelsForSearch = new ArrayList<>();
         StringBuilder tagsLabelsDisplay = new StringBuilder();
 
@@ -114,14 +103,8 @@ public class SearchQuestionBean implements Serializable {
             for (String tagId : tagList) {
                 if (tagService.getTags().getForId(tagId).isPresent()) {
                     Tag tag = tagService.getTags().getForId(tagId).get();
-                    String tagLabel = tag.getTagLabel();
-                    String tagCollectionName = tag.getCollectionName();
-                    String fullLabel = tagLabel + "(" + tagCollectionName + ")";
-
-                    // For search
+                    String fullLabel = tag.getTagLabel() + "(" + tag.getCollectionName() + ")";
                     tagLabelsForSearch.add(fullLabel);
-
-                    // For display
                     if (!first) {
                         tagsLabelsDisplay.append(",");
                     }
@@ -130,77 +113,48 @@ public class SearchQuestionBean implements Serializable {
                 }
             }
         }
-        setTagToSearch(tagList);
-        setTagToSearchLabel(tagsLabelsDisplay.toString());
+        tagToSearch = tagList;
+        tagToSearchLabel = tagsLabelsDisplay.toString();
 
-        // Use the service to search (passing labels, not IDs)
         List<QuestionSearchResult> searchResults = questionSearchService.searchByTags(tagLabelsForSearch, andOption);
-
-        // Store results directly (no conversion needed)
         for (QuestionSearchResult qsr : searchResults) {
             results.put(qsr.getId(), qsr);
         }
-
-        setResults(results);
-        setResultsSize(results.size());
-        setTextToSearch("");
+        resultsSize = results.size();
+        textToSearch = "";
     }
 
     public void searchQuestionsByText(boolean andOption) {
-        // Clear caches for new search
         questionsIOwn.clear();
         titleCache.clear();
-        setResults(new HashMap<>());
-        setResultsSize(0);
+        results = new HashMap<>();
+        resultsSize = 0;
 
-        String searchText = getTextToSearch();
-        // Remove HTML code to search only by the real text
-        Source parseSearchTerms = new Source(searchText);
-        searchText = parseSearchTerms.getTextExtractor().toString();
-        this.setTextToSearch(searchText);
+        Source parseSearchTerms = new Source(textToSearch);
+        textToSearch = parseSearchTerms.getTextExtractor().toString();
 
-        // Use the service to search
-        List<QuestionSearchResult> searchResults = questionSearchService.searchByText(searchText, andOption);
-
-        // Store results directly (no conversion needed)
+        List<QuestionSearchResult> searchResults = questionSearchService.searchByText(textToSearch, andOption);
         for (QuestionSearchResult qsr : searchResults) {
             results.put(qsr.getId(), qsr);
         }
-
-        setResults(results);
-        setResultsSize(results.size());
-        setTagToSearch(null);
-        setTagToSearchLabel("");
+        resultsSize = results.size();
+        tagToSearch = null;
+        tagToSearchLabel = "";
     }
 
-
     public boolean userOwns(String questionId) {
-        // To know if the actual user owns a question... just search for it with the "own" parameter.
-        // If results length is 0... then you don't own it :)
-        // This is needed to avoid the view of not owned question by someone that
-        // tries to preview a question (for instance calling the jsf directly).
-        // To improve performance, we will store a "search-duration" cache of this,
-        // so we don't call the search service once we know that result.
-
         if (questionsIOwn.containsKey(questionId)) {
             return questionsIOwn.get(questionId);
-        } else {
-            boolean owns = questionSearchService.userOwnsQuestion(questionId);
-            questionsIOwn.put(questionId, owns);
-            return owns;
         }
+        boolean owns = questionSearchService.userOwnsQuestion(questionId);
+        questionsIOwn.put(questionId, owns);
+        return owns;
     }
 
     public List<String> originFull(String hash) {
-        // We will return all the origins based on a hash, using session-scoped cache
         return questionSearchService.getQuestionOrigins(hash, titleCache);
     }
 
-    /**
-     * Get the display origin for a question result.
-     * Resolves the origin lazily using session-scoped cache.
-     * Returns empty string if the origin cannot be resolved (e.g., deleted entities).
-     */
     public String getOriginDisplay(QuestionSearchResult result) {
         if (result == null) {
             return "";
@@ -230,8 +184,7 @@ public class SearchQuestionBean implements Serializable {
                 if (titleCache.containsKey(siteCacheKey)) {
                     siteTitle = titleCache.get(siteCacheKey);
                 } else {
-                    var site = siteService.getSite(result.getSiteId());
-                    siteTitle = site.getTitle();
+                    siteTitle = siteService.getSite(result.getSiteId()).getTitle();
                     titleCache.put(siteCacheKey, siteTitle);
                 }
 
@@ -256,67 +209,52 @@ public class SearchQuestionBean implements Serializable {
         return "";
     }
 
-    public ItemFacade getItem(String itemId){
-        ItemService itemService = new ItemService();
-        return itemService.getItem(itemId);
+    public ItemFacade getItem(String itemId) {
+        return new ItemService().getItem(itemId);
     }
 
-    public ItemDataIfc getData(String itemId){
-        ItemService itemService = new ItemService();
-        return itemService.getItem(itemId).getData();
+    public ItemDataIfc getData(String itemId) {
+        return new ItemService().getItem(itemId).getData();
     }
 
-    public String getSelectedSection() {return selectedSection;}
+    public String getSelectedSection() { return selectedSection; }
+    public void setSelectedSection(String pstr) { selectedSection = pstr; }
 
-    public void setSelectedSection(String pstr) {selectedSection= pstr;}
+    public String[] getDestItems() { return destItems; }
+    public void setDestItems(String[] pPool) { destItems = pPool; }
 
-    public void setDestItems(String[] pPool) {destItems= pPool;}
-
-    public String[] getDestItems() {return destItems;}
-
-    public String getOutcome() {return outcome;}
-
-    public void setOutcome(String param) {this.outcome= param;}
-
-    public void setResults(HashMap<String, QuestionSearchResult> list) { results = list; }
+    public String getOutcome() { return outcome; }
+    public void setOutcome(String param) { outcome = param; }
 
     public HashMap<String, QuestionSearchResult> getResults() { return results; }
+    public void setResults(HashMap<String, QuestionSearchResult> list) { results = list; }
 
     public int getResultsSize() { return resultsSize; }
+    public void setResultsSize(int resultSize) { resultsSize = resultSize; }
 
-    public void setResultsSize(int resultSize) { this.resultsSize = resultSize; }
+    public boolean getShowTags() { return showTags; }
+    public void setShowTags(boolean showTags) { this.showTags = showTags; }
 
-    public boolean getShowTags() {return showTags;}
+    public String getSelectedQuestionPool() { return selectedQuestionPool; }
+    public void setSelectedQuestionPool(String selectedQuestionPool) { this.selectedQuestionPool = selectedQuestionPool; }
 
-    public void setShowTags(boolean showTags) {this.showTags = showTags;}
+    public boolean isComesFromPool() { return comesFromPool; }
+    public void setComesFromPool(boolean comesFromPool) { this.comesFromPool = comesFromPool; }
 
-    public String getSelectedQuestionPool() {return selectedQuestionPool;}
+    public String getTextToSearch() { return textToSearch; }
+    public void setTextToSearch(String textToSearch) { this.textToSearch = textToSearch; }
 
-    public void setSelectedQuestionPool(String selectedQuestionPool) {this.selectedQuestionPool = selectedQuestionPool;}
+    public String[] getTagToSearch() { return tagToSearch; }
+    public void setTagToSearch(String[] tagToSearch) { this.tagToSearch = tagToSearch; }
 
-    public boolean isComesFromPool() {return comesFromPool;}
+    public String getTagToSearchLabel() { return tagToSearchLabel; }
+    public void setTagToSearchLabel(String tagToSearchLabel) { this.tagToSearchLabel = tagToSearchLabel; }
 
-    public void setComesFromPool(boolean comesFromPool) {this.comesFromPool = comesFromPool;}
+    public String getTagDisabled() { return tagDisabled; }
+    public void setTagDisabled(String tagDisabled) { this.tagDisabled = tagDisabled; }
 
-    public String getTextToSearch() {return textToSearch;}
-
-    public void setTextToSearch(String textToSearch) {this.textToSearch = textToSearch;}
-
-    public String[] getTagToSearch() {return tagToSearch;}
-
-    public void setTagToSearch(String[] tagToSearch) {this.tagToSearch = tagToSearch;}
-
-    public String getTagToSearchLabel() {return tagToSearchLabel;}
-
-    public void setTagToSearchLabel(String tagToSearchLabel) {this.tagToSearchLabel = tagToSearchLabel;}
-
-    public String getTagDisabled() {return tagDisabled;}
-
-    public void setTagDisabled(String tagDisabled) {this.tagDisabled = tagDisabled;}
-
-    public String getLastSearchType() {return lastSearchType;}
-
-    public void setLastSearchType(String lastSearchType) {this.lastSearchType = lastSearchType;}
+    public String getLastSearchType() { return lastSearchType; }
+    public void setLastSearchType(String lastSearchType) { this.lastSearchType = lastSearchType; }
 
     public String doit() {
         return outcome;
@@ -326,17 +264,12 @@ public class SearchQuestionBean implements Serializable {
         results = new HashMap<>();
         titleCache.clear();
         questionsIOwn.clear();
-        setResultsSize(0);
-        setTextToSearch("");
-        setTagToSearch(null);
-        setTagToSearchLabel("");
-        String[] emptyArr = {};
-        setDestItems(emptyArr);
-        if (comesFromPool) {
-            setOutcome(EDIT_POOL);
-        } else {
-            setOutcome(EDIT_ASSESSMENT);
-        }
-        return getOutcome();
+        resultsSize = 0;
+        textToSearch = "";
+        tagToSearch = null;
+        tagToSearchLabel = "";
+        destItems = new String[]{};
+        outcome = comesFromPool ? EDIT_POOL : EDIT_ASSESSMENT;
+        return outcome;
     }
 }
