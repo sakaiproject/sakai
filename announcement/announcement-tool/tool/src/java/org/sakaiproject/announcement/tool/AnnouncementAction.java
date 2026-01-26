@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -2699,6 +2700,13 @@ public class AnnouncementAction extends PagedResourceActionII
 				header.setDraft(tempHidden);
 				header.replaceAttachments(state.getAttachments());
 				header.setFrom(userDirectoryService.getCurrentUser());
+
+				if (!header.getDraft() && isMotd(state.getChannelId())) {
+					// set MOTD attachments to public view
+					header.getAttachments().stream().map(Reference::getId)
+							.filter(StringUtils::isNotBlank)
+							.forEach(id -> contentHostingService.setPubView(id, true));
+				}
 
 				// values stored here if saving from Add/Revise page
 				ParameterParser params = rundata.getParameters();

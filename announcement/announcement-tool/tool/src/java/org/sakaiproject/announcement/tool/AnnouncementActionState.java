@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.cheftool.ControllerState;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
@@ -590,7 +591,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	private String m_status = null;
 
 	// temporary attachment list - never set to null!
-	private List m_attachments = EntityManager.newReferenceList();
+	private List<Reference> m_attachments = EntityManager.newReferenceList();
 
 	// temporary selected attachment list
 	private Vector m_selectedAttachments = new Vector();
@@ -1021,7 +1022,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	/**
 	 * Get
 	 */
-	public List getAttachments()
+	public List<Reference> getAttachments()
 	{
 		return m_attachments;
 
@@ -1030,7 +1031,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	/**
 	 * Set
 	 */
-	public void setAttachments(List attachments)
+	public void setAttachments(List<Reference> attachments)
 	{
 		if (attachments != null)
 		{
