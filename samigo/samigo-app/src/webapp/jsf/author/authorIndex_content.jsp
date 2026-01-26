@@ -148,8 +148,15 @@
                         table.draw();
                     };
 
+                    const handleKeyDown = function(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                        }
+                    };
+
                     searchInput.addEventListener('input', handleSearch);
                     searchInput.addEventListener('keyup', handleSearch);
+                    searchInput.addEventListener('keydown', handleKeyDown);
 
                     if (searchInput.value) {
                         lastSearchTerm = searchInput.value;
