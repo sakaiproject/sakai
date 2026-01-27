@@ -319,7 +319,7 @@ public class ForumsEmailService {
 		File file = new File(tunedFilename);
 		boolean success = file.delete();
 		if (!success) {
-			log.warn("Failed to delete file immediately, marking for deletion on exit: " + tunedFilename);
+			log.warn("Failed to delete file immediately, marking for deletion on exit: {}", tunedFilename);
 			if (file.exists()) {
 				file.deleteOnExit();
 			}
@@ -332,7 +332,7 @@ public class ForumsEmailService {
 		File dir = new File(directoryName);
 		success = dir.delete();
 		if (!success) {
-			log.debug("Failed to delete directory (may not be empty): " + directoryName);
+			log.debug("Failed to delete directory (may not be empty): {}", directoryName);
 			if (dir.exists()) {
 				dir.deleteOnExit();
 			}
