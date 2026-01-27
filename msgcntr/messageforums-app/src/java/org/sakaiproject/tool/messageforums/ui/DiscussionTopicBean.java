@@ -70,6 +70,7 @@ public class DiscussionTopicBean
   private Boolean nonePermission = null;
   private boolean sorted = false;
   @Getter @Setter private boolean createTask = false;
+  @Getter @Setter private boolean selected = false;
 
   
   private Boolean isRead = null;

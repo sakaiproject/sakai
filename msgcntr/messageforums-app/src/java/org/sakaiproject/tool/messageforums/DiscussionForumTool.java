@@ -306,6 +306,7 @@ public class DiscussionForumTool {
   private static final String VIEW_UNDER_CONSTRUCT = "cdfm_view_under_construct";
   private static final String LOST_ASSOCIATE = "cdfm_lost_association";
   private static final String NO_MARKED_READ_MESSAGE = "cdfm_no_message_mark_read";
+  private static final String BULK_NONE_SELECTED = "cdfm_bulk_none_selected";
   private static final String GRADE_SUCCESSFUL = "cdfm_grade_successful";
   private static final String GRADE_GREATER_ZERO = "cdfm_grade_greater_than_zero";
   private static final String GRADE_DECIMAL_WARN = "cdfm_grade_decimal_warn";
@@ -753,6 +754,66 @@ public class DiscussionForumTool {
     //update synoptic info for forums only:
     setForumSynopticInfoHelper(userId, getSiteId(), unreadMessagesCount, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     return forums;
+  }
+
+  public boolean isShowBulkActions()
+  {
+    List<DiscussionForumBean> forumsList = getForums();
+    if (forumsList == null) {
+      return false;
+    }
+
+    for (DiscussionForumBean forum : forumsList) {
+      if (forum.isChangeSettings()) {
+        return true;
+      }
+      List<DiscussionTopicBean> topics = forum.getTopics();
+      if (topics != null) {
+        for (DiscussionTopicBean topic : topics) {
+          if (topic.isChangeSettings()) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private List<DiscussionForumBean> getSelectedForumBeans()
+  {
+    List<DiscussionForumBean> selected = new ArrayList<>();
+    List<DiscussionForumBean> forumsList = getForums();
+    if (forumsList == null) {
+      return selected;
+    }
+    for (DiscussionForumBean forum : forumsList) {
+      if (forum.isSelected()) {
+        selected.add(forum);
+      }
+    }
+    return selected;
+  }
+
+  private List<DiscussionTopicBean> getSelectedTopicBeans()
+  {
+    List<DiscussionTopicBean> selected = new ArrayList<>();
+    List<DiscussionForumBean> forumsList = getForums();
+    if (forumsList == null) {
+      return selected;
+    }
+    for (DiscussionForumBean forum : forumsList) {
+      List<DiscussionTopicBean> topics = forum.getTopics();
+      if (topics == null) {
+        continue;
+      }
+      for (DiscussionTopicBean topic : topics) {
+        if (topic.isSelected()) {
+          selected.add(topic);
+        }
+      }
+    }
+    return selected;
   }
 
   public void setTopicGradeAssign(DiscussionTopicBean bean, String defaultGradeAssign) {
@@ -2251,6 +2312,184 @@ public class DiscussionForumTool {
     // Delete task
     String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId + TOPIC_REF + topicId;
     taskService.removeTaskByReference(reference);
+
+    reset();
+    return gotoMain();
+  }
+
+  public String processActionBulkPublish()
+  {
+    return processBulkDraftChange(false);
+  }
+
+  public String processActionBulkUnpublish()
+  {
+    return processBulkDraftChange(true);
+  }
+
+  public String processActionBulkRemove()
+  {
+    List<DiscussionForumBean> selectedForums = getSelectedForumBeans();
+    List<DiscussionTopicBean> selectedTopics = getSelectedTopicBeans();
+
+    if (selectedForums.isEmpty() && selectedTopics.isEmpty()) {
+      setErrorMessage(getResourceBundleString(BULK_NONE_SELECTED));
+      return null;
+    }
+
+    Set<Long> selectedForumIds = new HashSet<>();
+    for (DiscussionForumBean forumBean : selectedForums) {
+      if (forumBean.getForum() != null && forumBean.getForum().getId() != null) {
+        selectedForumIds.add(forumBean.getForum().getId());
+      }
+    }
+
+    for (DiscussionForumBean forumBean : selectedForums) {
+      DiscussionForum forum = forumManager.getForumById(forumBean.getForum().getId());
+      if (forum == null) {
+        continue;
+      }
+      if (!uiPermissionsManager.isChangeSettings(forum)) {
+        continue;
+      }
+
+      HashMap<String, Integer> beforeChangeHM =
+          SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), null);
+      List topics = forum.getTopics();
+
+      forumManager.deleteForum(forum);
+
+      if (beforeChangeHM != null) {
+        updateSynopticMessagesForForumComparingOldMessagesCount(
+            getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+
+      // Delete task (forum)
+      String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
+      taskService.removeTaskByReference(reference);
+      // Delete task (topics)
+      if (topics != null) {
+        for (Iterator topicIter = topics.iterator(); topicIter.hasNext();) {
+          DiscussionTopic topic = (DiscussionTopic) topicIter.next();
+          Long topicId = topic.getId();
+          reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId() + TOPIC_REF + topicId;
+          taskService.removeTaskByReference(reference);
+        }
+      }
+    }
+
+    for (DiscussionTopicBean topicBean : selectedTopics) {
+      DiscussionTopic topic = forumManager.getTopicById(topicBean.getTopic().getId());
+      if (topic == null) {
+        continue;
+      }
+      DiscussionForum forum = forumManager.getForumById(topic.getBaseForum().getId());
+      if (forum == null) {
+        continue;
+      }
+      if (selectedForumIds.contains(forum.getId())) {
+        continue;
+      }
+      if (!uiPermissionsManager.isChangeSettings(topic, forum)) {
+        continue;
+      }
+
+      HashMap<String, Integer> beforeChangeHM =
+          SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), topic.getId());
+
+      forumManager.deleteTopic(topic);
+
+      if (beforeChangeHM != null) {
+        updateSynopticMessagesForForumComparingOldMessagesCount(
+            getSiteId(), forum.getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+
+      // Delete task
+      String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId() + TOPIC_REF + topic.getId();
+      taskService.removeTaskByReference(reference);
+    }
+
+    reset();
+    return gotoMain();
+  }
+
+  private String processBulkDraftChange(boolean draft)
+  {
+    List<DiscussionForumBean> selectedForums = getSelectedForumBeans();
+    List<DiscussionTopicBean> selectedTopics = getSelectedTopicBeans();
+
+    if (selectedForums.isEmpty() && selectedTopics.isEmpty()) {
+      setErrorMessage(getResourceBundleString(BULK_NONE_SELECTED));
+      return null;
+    }
+
+    for (DiscussionForumBean forumBean : selectedForums) {
+      DiscussionForum forum = forumManager.getForumById(forumBean.getForum().getId());
+      if (forum == null) {
+        continue;
+      }
+      if (!uiPermissionsManager.isChangeSettings(forum)) {
+        continue;
+      }
+      if (draft == forum.getDraft()) {
+        continue;
+      }
+
+      boolean updateCounts = needToUpdateSynopticOnForumSave(forum, draft);
+      HashMap<String, Integer> beforeChangeHM = null;
+      if (updateCounts) {
+        beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), null);
+      }
+
+      forumManager.saveForum(forum, draft, getSiteId(), true, getUserId());
+
+      if (updateCounts && beforeChangeHM != null) {
+        updateSynopticMessagesForForumComparingOldMessagesCount(
+            getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+    }
+
+    for (DiscussionTopicBean topicBean : selectedTopics) {
+      DiscussionTopic topic = forumManager.getTopicById(topicBean.getTopic().getId());
+      if (topic == null) {
+        continue;
+      }
+      DiscussionForum forum = forumManager.getForumById(topic.getBaseForum().getId());
+      if (forum == null) {
+        continue;
+      }
+      if (!uiPermissionsManager.isChangeSettings(topic, forum)) {
+        continue;
+      }
+      if (draft == topic.getDraft()) {
+        continue;
+      }
+
+      boolean updateCounts = needToUpdateSynopticOnForumSave(topic, draft);
+      HashMap<String, Integer> beforeChangeHM = null;
+      if (updateCounts) {
+        beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(
+            getSiteId(), forum.getId(), topic.getId());
+      }
+
+      HashMap<String, Integer> beforeForumChangeHM = null;
+      if (!draft && forum.getDraft()) {
+        beforeForumChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(
+            getSiteId(), forum.getId(), null);
+      }
+
+      forumManager.saveTopic(topic, draft);
+
+      if (updateCounts && beforeChangeHM != null) {
+        updateSynopticMessagesForForumComparingOldMessagesCount(
+            getSiteId(), forum.getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+
+      if (!draft && beforeForumChangeHM != null) {
+        updateSynopticMessagesForForumComparingOldMessagesCount(
+            getSiteId(), forum.getId(), null, beforeForumChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+    }
 
     reset();
     return gotoMain();
