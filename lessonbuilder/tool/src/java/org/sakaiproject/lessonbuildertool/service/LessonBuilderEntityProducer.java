@@ -847,7 +847,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	 * This helps identify orphaned subpages that should be included in exports
 	 * but lack proper parent/topparent/toolid fields
 	 */
-	private Map<Long, List<Long>> findReferencedPagesByItems(String siteId) {
+	public Map<Long, List<Long>> findReferencedPagesByItems(String siteId) {
 		Map<Long, List<Long>> pageToReferencedPages = new HashMap<>();
 		
 		List<SimplePage> allPages = simplePageToolDao.getSitePages(siteId);
