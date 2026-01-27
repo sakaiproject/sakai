@@ -135,7 +135,7 @@ public class POXResponseBuilderTest {
     @Test
     public void testCreateSuccessResponseStatic() {
         // Most POX success responses don't have body content
-        String response = POXResponseBuilder.createSuccessResponse(
+        String response = POXResponseFactory.createSuccessResponse(
             "Test success", "msg123", "replaceResultRequest");
         
         assertNotNull("Response should not be null", response);
@@ -148,7 +148,7 @@ public class POXResponseBuilderTest {
         Properties minorCodes = new Properties();
         minorCodes.setProperty("error1", "invaliddata");
         
-        String response = POXResponseBuilder.createFailureResponse(
+        String response = POXResponseFactory.createFailureResponse(
             "Test failure", minorCodes, "msg123", "replaceResultRequest");
         
         assertNotNull("Response should not be null", response);
@@ -158,7 +158,7 @@ public class POXResponseBuilderTest {
     
     @Test
     public void testCreateUnsupportedResponseStatic() {
-        String response = POXResponseBuilder.createUnsupportedResponse(
+        String response = POXResponseFactory.createUnsupportedResponse(
             "Test unsupported", "msg123", "replaceResultRequest");
         
         assertNotNull("Response should not be null", response);
@@ -168,7 +168,7 @@ public class POXResponseBuilderTest {
     
     @Test
     public void testCreateProcessingResponseStatic() {
-        String response = POXResponseBuilder.createProcessingResponse(
+        String response = POXResponseFactory.createProcessingResponse(
             "Test processing", "msg123", "replaceResultRequest");
         
         assertNotNull("Response should not be null", response);

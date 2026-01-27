@@ -1,23 +1,15 @@
 package org.tsugi.pox;
 
-import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import org.tsugi.lti.objects.POXEnvelopeResponse;
-import org.tsugi.lti.objects.POXResponseBody;
-import org.tsugi.lti.objects.POXResponseHeader;
-import org.tsugi.lti.objects.POXResponseHeaderInfo;
-import org.tsugi.lti.objects.POXStatusInfo;
-import org.tsugi.lti.objects.POXCodeMinor;
 import org.tsugi.lti.objects.POXCodeMinorField;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class POXResponseFactory {
@@ -118,45 +110,6 @@ public class POXResponseFactory {
     
     public static String createProcessingResponse(String description, String operation) {
         return createProcessingResponse(description, null, operation);
-    }
-    
-    /**
-     * Create a fatal error response
-     * 
-     * @param description The error description
-     * @param messageId The message ID (optional, will generate if null)
-     * @return XML response string
-     */
-    public static String createFatalResponse(String description, String messageId) {
-        if (messageId == null) {
-            messageId = String.valueOf(new Date().getTime());
-        }
-        
-        return String.format(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
-            "    <imsx_POXHeader>\n" +
-            "        <imsx_POXResponseHeaderInfo>\n" + 
-            "            <imsx_version>V1.0</imsx_version>\n" +
-            "            <imsx_messageIdentifier>%s</imsx_messageIdentifier>\n" + 
-            "            <imsx_statusInfo>\n" +
-            "                <imsx_codeMajor>failure</imsx_codeMajor>\n" +
-            "                <imsx_severity>error</imsx_severity>\n" +
-            "                <imsx_description>%s</imsx_description>\n" +
-            "                <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" + 
-            "            </imsx_statusInfo>\n" +
-            "        </imsx_POXResponseHeaderInfo>\n" + 
-            "    </imsx_POXHeader>\n" +
-            "    <imsx_POXBody/>\n" +
-            "</imsx_POXEnvelopeResponse>",
-            messageId, 
-            description,
-            messageId
-        );
-    }
-    
-    public static String createFatalResponse(String description) {
-        return createFatalResponse(description, null);
     }
     
     /**

@@ -167,41 +167,4 @@ public class POXResponseBuilder {
             throw new RuntimeException("Failed to serialize POXEnvelopeResponse to XML", e);
         }
     }
-
-    public static String createSuccessResponse(String description, String messageId, String operation) {
-        return POXResponseBuilder.create()
-            .withDescription(description)
-            .withMessageId(messageId)
-            .withOperation(operation)
-            .asSuccess()
-            .buildAsXml();
-    }
-
-    public static String createFailureResponse(String description, Properties minorCodes, String messageId, String operation) {
-        return POXResponseBuilder.create()
-            .withDescription(description)
-            .withMinorCodes(minorCodes)
-            .withMessageId(messageId)
-            .withOperation(operation)
-            .asFailure()
-            .buildAsXml();
-    }
-    
-    public static String createUnsupportedResponse(String description, String messageId, String operation) {
-        return POXResponseBuilder.create()
-            .withDescription(description)
-            .withMessageId(messageId)
-            .withOperation(operation)
-            .asUnsupported()
-            .buildAsXml();
-    }
-
-    public static String createProcessingResponse(String description, String messageId, String operation) {
-        return POXResponseBuilder.create()
-            .withDescription(description)
-            .withMessageId(messageId)
-            .withOperation(operation)
-            .asProcessing()
-            .buildAsXml();
-    }
 }
