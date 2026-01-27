@@ -582,19 +582,24 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// Orphaned pages need not apply!
 		SimplePageBean simplePageBean = makeSimplePageBean(siteId);
 		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
+		
+		Map<Long, List<Long>> pageToReferencedPages = findReferencedPagesByItems(siteId);
 
+		Set<Long> originalSelectedPageIds = new HashSet<>();
 		Set<Long> selectedPageIds = new HashSet<>();
 		boolean hasSelection = selectedIds != null && !selectedIds.isEmpty();
 		if (hasSelection) {
 			for (String idStr : selectedIds) {
 				try {
-					selectedPageIds.add(Long.valueOf(idStr));
+					Long pageId = Long.valueOf(idStr);
+					originalSelectedPageIds.add(pageId);
+					selectedPageIds.add(pageId);
 				} catch (NumberFormatException e) {
 					log.warn("Invalid page Id: {}", idStr);
 				}
 			}
 			// Expand selection to include all descendant pages
-			selectedPageIds = expandSelectionToIncludeDescendants(selectedPageIds, siteId);
+			selectedPageIds = expandSelectionToIncludeDescendants(selectedPageIds, siteId, orphanFinder, pageToReferencedPages);
 		}
 
 		try
@@ -614,7 +619,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
 			if (sitePages != null && !sitePages.isEmpty()) {
 				for (SimplePage page: sitePages) {
-					if (orphanFinder.isOrphan(page.getPageId())) {
+					// Skip orphaned pages unless they are in our selected set
+					boolean isSelectedOrExpanded = hasSelection && selectedPageIds.contains(Long.valueOf(page.getPageId()));
+					if (orphanFinder.isOrphan(page.getPageId()) && !isSelectedOrExpanded) {
 						orphansSkipped++;
 						continue;
 					}
@@ -630,11 +637,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 			int count = 0;
 			if (hasSelection) {
-				Set<Long> topLevelSelectedPages = findTopLevelSelectedPages(selectedPageIds, siteId);
+				Set<Long> topLevelSelectedPages = findTopLevelSelectedPages(originalSelectedPageIds, selectedPageIds, siteId, pageToReferencedPages);
 				// Filter out top-level selections that are orphans (not exported as pages)
 				List<Long> orderedTopLevelPages = new ArrayList<>();
 				for (Long id : topLevelSelectedPages) {
-					if (orphanFinder.isOrphan(id)) {
+					boolean wasOriginallySelected = originalSelectedPageIds.contains(id);
+					if (orphanFinder.isOrphan(id) && !wasOriginallySelected) {
 						selectionSkipped++;
 						continue;
 					}
@@ -707,8 +715,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	/**
 	 * Expands the selected page IDs to include all descendant pages
+	 * Only includes referenced subpages if the parent page is valid (not orphaned)
 	 */
-	private Set<Long> expandSelectionToIncludeDescendants(Set<Long> selectedPageIds, String siteId) {
+	private Set<Long> expandSelectionToIncludeDescendants(Set<Long> selectedPageIds, String siteId, OrphanPageFinder orphanFinder, Map<Long, List<Long>> pageToReferencedPages) {
 		if (selectedPageIds.isEmpty()) return selectedPageIds;
 
 		Set<Long> expandedIds = new HashSet<>(selectedPageIds);
@@ -716,6 +725,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		if (allPages == null || allPages.isEmpty()) return expandedIds;
 
+		// Build parent-child relationships based on the parent field
 		Map<Long, List<Long>> parentToChildren = new HashMap<>();
 		for (SimplePage page : allPages) {
 			Long parentId = page.getParent();
@@ -729,13 +739,41 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		while (!toProcess.isEmpty()) {
 			Long currentPageId = toProcess.poll();
-			List<Long> children = parentToChildren.get(currentPageId);
 
+			// Only process this page if it's not an orphan
+			boolean isExplicitlySelected = selectedPageIds.contains(currentPageId);
+			boolean isOrphan = orphanFinder.isOrphan(currentPageId);
+
+			if (isOrphan && !isExplicitlySelected) {
+				log.debug("Skipping orphan page {} during expansion", currentPageId);
+				continue;
+			}
+
+			// Add direct children (based on parent field)
+			List<Long> children = parentToChildren.get(currentPageId);
 			if (children != null) {
 				for (Long childId : children) {
-					if (!expandedIds.contains(childId)) {
+					if (!expandedIds.contains(childId) && !orphanFinder.isOrphan(childId)) {
 						expandedIds.add(childId);
 						toProcess.offer(childId);
+					}
+				}
+			}
+
+			// Add pages referenced by items of type page (subpages)
+			if (!isOrphan) {
+				List<Long> referencedPages = pageToReferencedPages.get(currentPageId);
+				if (referencedPages != null) {
+					for (Long referencedPageId : referencedPages) {
+						if (!expandedIds.contains(referencedPageId)) {
+							// Only include the referenced page if it exists and is valid
+							SimplePage referencedPage = simplePageToolDao.getPage(referencedPageId);
+							if (referencedPage != null && siteId.equals(referencedPage.getSiteId())) {
+								expandedIds.add(referencedPageId);
+								toProcess.offer(referencedPageId);
+								log.debug("Including referenced subpage {} from valid page {}", referencedPageId, currentPageId);
+							}
+						}
 					}
 				}
 			}
@@ -745,18 +783,145 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 
 	/**
-	 * Finds the top-level pages that should become new Lessons from the selected pages
+	 * Handles orphaned subpages that weren't exported due to missing parent field
+	 * but are referenced by SimplePageItems of type PAGE.
 	 */
-	private Set<Long> findTopLevelSelectedPages(Set<Long> selectedPageIds, String siteId) {
-		Set<Long> topLevelPages = new HashSet<>();
+	private Long handleOrphanedSubpage(Long oldSubpageId, String fromSiteId, String toSiteId, Map<Long, Long> pageMap, Long parentPageId) {
+		try {
+			SimplePage orphanedPage = simplePageToolDao.getPage(oldSubpageId);
+			if (orphanedPage == null || !fromSiteId.equals(orphanedPage.getSiteId())) {
+				log.debug("Orphaned subpage {} not found in source site {}", oldSubpageId, fromSiteId);
+				return null;
+			}
 
-		for (Long pageId : selectedPageIds) {
+			// Create a new page in the destination site
+			SimplePage newPage = simplePageToolDao.makePage(toSiteId, null, orphanedPage.getTitle(), parentPageId, null);
+
+			// Copy essential properties
+			if (orphanedPage.getCssSheet() != null) {
+				// Update CSS sheet paths to reference the new site
+				String newCssSheet = orphanedPage.getCssSheet().replace("/group/" + fromSiteId + "/", "/group/" + toSiteId + "/");
+				newPage.setCssSheet(newCssSheet);
+			}
+
+			// Copy other properties
+			newPage.setHidden(orphanedPage.isHidden());
+			newPage.setHiddenFromNavigation(orphanedPage.isHiddenFromNavigation());
+			newPage.setReleaseDate(orphanedPage.getReleaseDate());
+			newPage.setGradebookPoints(orphanedPage.getGradebookPoints());
+			if (orphanedPage.getFolder() != null) {
+				String newFolder = orphanedPage.getFolder().replace("/group/" + fromSiteId + "/", "/group/" + toSiteId + "/");
+				newPage.setFolder(newFolder);
+			}
+
+			// Set the parent to the current page being processed to establish hierarchy
+			newPage.setParent(parentPageId);
+
+			// Find the top-level page for topparent
+			SimplePage parentPage = simplePageToolDao.getPage(parentPageId);
+			Long topParentId = parentPageId;
+			if (parentPage != null) {
+				// Traverse up to find the real top parent
+				while (parentPage.getParent() != null) {
+					parentPage = simplePageToolDao.getPage(parentPage.getParent());
+					if (parentPage != null) {
+						topParentId = parentPage.getPageId();
+					} else {
+						break;
+					}
+				}
+				newPage.setTopParent(topParentId);
+
+				// Set the toolId from the top-level page
+				SimplePage topParentPage = simplePageToolDao.getPage(topParentId);
+				if (topParentPage != null && topParentPage.getToolId() != null) {
+					newPage.setToolId(topParentPage.getToolId());
+				}
+			}
+
+			// Save the page
+			simplePageToolDao.quickSaveItem(newPage);
+
+			// Add to the pageMap so other references to this page work
+			pageMap.put(oldSubpageId, newPage.getPageId());
+
+			log.info("Created orphaned subpage recovery: old page {} -> new page {} with parent {} in site {}", 
+					oldSubpageId, newPage.getPageId(), parentPageId, toSiteId);
+
+			return newPage.getPageId();
+
+		} catch (Exception e) {
+			log.error("Failed to handle orphaned subpage {}: {}", oldSubpageId, e.getMessage(), e);
+			return null;
+		}
+	}
+
+	/**
+	 * Finds pages referenced by SimplePageItems of type PAGE (subpages)
+	 * This helps identify orphaned subpages that should be included in exports
+	 * but lack proper parent/topparent/toolid fields
+	 */
+	private Map<Long, List<Long>> findReferencedPagesByItems(String siteId) {
+		Map<Long, List<Long>> pageToReferencedPages = new HashMap<>();
+		
+		List<SimplePage> allPages = simplePageToolDao.getSitePages(siteId);
+		if (allPages == null || allPages.isEmpty()) {
+			return pageToReferencedPages;
+		}
+		
+		for (SimplePage page : allPages) {
+			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(page.getPageId());
+			if (items != null) {
+				for (SimplePageItem item : items) {
+					if (item.getType() == SimplePageItem.PAGE) {
+						try {
+							Long referencedPageId = Long.valueOf(item.getSakaiId());
+							// Verify that the referenced page exists
+							SimplePage referencedPage = simplePageToolDao.getPage(referencedPageId);
+							if (referencedPage != null && siteId.equals(referencedPage.getSiteId())) {
+								pageToReferencedPages.computeIfAbsent(page.getPageId(), k -> new ArrayList<>())
+									.add(referencedPageId);
+								log.debug("Found subpage reference: page {} references subpage {}", page.getPageId(), referencedPageId);
+							}
+						} catch (NumberFormatException e) {
+							// Invalid sakaiId, skip this item
+							log.debug("Invalid sakaiId for PAGE item: {}", item.getSakaiId());
+						}
+					}
+				}
+			}
+		}
+		
+		return pageToReferencedPages;
+	}
+
+	/**
+	 * Finds the top-level pages that should become new Lessons from the selected pages
+	 * Only considers pages that were originally selected by the user, not those added automatically as references
+	 */
+	private Set<Long> findTopLevelSelectedPages(Set<Long> originalSelectedPageIds, Set<Long> allSelectedPageIds, String siteId, Map<Long, List<Long>> pageToReferencedPages) {
+		Set<Long> topLevelPages = new HashSet<>();
+		Set<Long> referencedBySelectedPages = new HashSet<>();
+		
+		// Find all pages that are referenced by originally selected pages
+		for (Long selectedPageId : originalSelectedPageIds) {
+			List<Long> referencedPages = pageToReferencedPages.get(selectedPageId);
+			if (referencedPages != null) {
+				referencedBySelectedPages.addAll(referencedPages);
+			}
+		}
+
+		for (Long pageId : originalSelectedPageIds) {
 			SimplePage page = simplePageToolDao.getPage(pageId);
 			if (page == null) continue;
 
-			// If this page has no parent or its parent is not selected, it's a top-level page
+			// Check if this page has a parent relationship or is referenced by another selected page
 			Long parentId = page.getParent();
-			if (parentId == null || !selectedPageIds.contains(parentId)) {
+			boolean hasSelectedParent = parentId != null && originalSelectedPageIds.contains(parentId);
+			boolean isReferencedBySelected = referencedBySelectedPages.contains(pageId);
+			
+			// It's a top-level page if it has no selected parent AND is not referenced by a selected page
+			if (!hasSelectedParent && !isReferencedBySelected) {
 				topLevelPages.add(pageId);
 			}
 		}
@@ -960,11 +1125,22 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				}
 			} else if (type == SimplePageItem.PAGE) {
 				// sakaiId should be the new page ID
-				Long newPageId = pageMap.get(Long.valueOf(sakaiId));
+				Long oldSubpageId = Long.valueOf(sakaiId);
+				Long newPageId = pageMap.get(oldSubpageId);
 				// we've seen a few cases where sakaiId of a subpage is 0. It won't be
 				// in the map, so this leaves it zero.
-				if (newPageId != null)
+				if (newPageId != null) {
 					sakaiId = newPageId.toString();
+				} else {
+					// Try to find and import the orphaned subpage from the source site
+					newPageId = handleOrphanedSubpage(oldSubpageId, fromSiteId, siteId, pageMap, pageId);
+					if (newPageId != null) {
+						sakaiId = newPageId.toString();
+						log.info("Successfully recovered orphaned subpage {} as new page {}", oldSubpageId, newPageId);
+					} else {
+						log.warn("Could not recover orphaned subpage {} referenced from page {}", oldSubpageId, pageId);
+					}
+				}
 			}
 
 			if (type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM) {
@@ -1992,23 +2168,34 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	@Override
 	public List<Map<String, String>> getEntityMap(String fromContext) {
-		try {
-			Set<String> navigationToolIds = siteService.getSite(fromContext).getOrderedPages()
-				.stream().map(SitePage::getId).collect(Collectors.toSet());
-			
-			List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
-			if (sitePages == null || sitePages.isEmpty()) {
-				return Collections.emptyList();
+		// Get orphan finder to identify problematic pages
+		SimplePageBean simplePageBean = makeSimplePageBean(fromContext);
+		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(fromContext);
+		
+		// Find pages referenced by items, but only from valid (non-orphan) pages
+		Map<Long, List<Long>> referencedPages = findReferencedPagesByItems(fromContext);
+		Set<Long> validReferencedPageIds = new HashSet<>();
+		
+		for (Map.Entry<Long, List<Long>> entry : referencedPages.entrySet()) {
+			Long referencingPageId = entry.getKey();
+			// Only include references from pages that are not orphans
+			if (!orphanFinder.isOrphan(referencingPageId)) {
+				validReferencedPageIds.addAll(entry.getValue());
 			}
-			
-			return sitePages.stream()
-				.filter(page -> navigationToolIds.contains(page.getToolId()))
-				.map(p -> Map.of("id", Long.toString(p.getPageId()), "title", p.getTitle()))
-				.collect(Collectors.toList());
-		} catch (IdUnusedException e) {
-			log.warn("Could not find site {}: {}", fromContext, e);
-			return Collections.emptyList();
 		}
+
+		return simplePageToolDao.getSitePages(fromContext).stream()
+			.filter(p -> {
+				// Include page if it's not an orphan OR if it's referenced by a valid (non-orphan) page
+				boolean isOrphan = orphanFinder.isOrphan(p.getPageId());
+				boolean isValidlyReferenced = validReferencedPageIds.contains(p.getPageId());
+				return !isOrphan || isValidlyReferenced;
+			})
+			.map(p -> {
+				String title = p.getTitle();
+				return Map.of("id", Long.toString(p.getPageId()), "title", title);
+			})
+			.collect(Collectors.toList());
 	}
 
 	@Override
