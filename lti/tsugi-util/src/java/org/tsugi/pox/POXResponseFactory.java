@@ -34,23 +34,21 @@ public class POXResponseFactory {
      * Create a success response
      * 
      * @param description The success description
-     * @param bodyContent The response body content (optional)
      * @param messageId The message ID (optional, will generate if null)
      * @param operation The operation type
      * @return XML response string
      */
-    public static String createSuccessResponse(String description, String bodyContent, String messageId, String operation) {
+    public static String createSuccessResponse(String description, String messageId, String operation) {
         return POXResponseBuilder.create()
             .withDescription(description)
-            .withBodyContent(bodyContent)
             .withMessageId(messageId)
             .withOperation(operation)
             .asSuccess()
             .buildAsXml();
     }
     
-    public static String createSuccessResponse(String description, String bodyContent, String operation) {
-        return createSuccessResponse(description, bodyContent, null, operation);
+    public static String createSuccessResponse(String description, String operation) {
+        return createSuccessResponse(description, null, operation);
     }
     
     /**
@@ -170,11 +168,10 @@ public class POXResponseFactory {
      * @param messageId The message ID
      * @param operation The operation type
      * @param minorCodes Minor error codes
-     * @param bodyContent The response body content
      * @return XML response string
      */
     public static String createCustomResponse(String description, String major, String severity, 
-            String messageId, String operation, Properties minorCodes, String bodyContent) {
+            String messageId, String operation, Properties minorCodes) {
         return POXResponseBuilder.create()
             .withDescription(description)
             .withMajor(major)
@@ -182,7 +179,6 @@ public class POXResponseFactory {
             .withMessageId(messageId)
             .withOperation(operation)
             .withMinorCodes(minorCodes)
-            .withBodyContent(bodyContent)
             .buildAsXml();
     }
     
@@ -210,11 +206,10 @@ public class POXResponseFactory {
      * @param messageId The message ID
      * @param operation The operation type
      * @param minorFields List of minor code fields
-     * @param bodyContent The response body content
      * @return XML response string
      */
     public static String createResponseWithMinorFields(String description, String major, String severity, 
-            String messageId, String operation, List<POXCodeMinorField> minorFields, String bodyContent) {
+            String messageId, String operation, List<POXCodeMinorField> minorFields) {
         return POXResponseBuilder.create()
             .withDescription(description)
             .withMajor(major)
@@ -222,7 +217,6 @@ public class POXResponseFactory {
             .withMessageId(messageId)
             .withOperation(operation)
             .withMinorCodes(minorFields)
-            .withBodyContent(bodyContent)
             .buildAsXml();
     }
     

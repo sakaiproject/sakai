@@ -213,13 +213,12 @@ public class POXJacksonTest {
 
     @Test
     public void testCreateSuccessResponse() {
-        String bodyContent = "<test>content</test>";
-        String response = POXJacksonParser.createSuccessResponse("Success", bodyContent, "123", "testOp");
+        String response = POXJacksonParser.createSuccessResponse("Success", "123", "testOp");
         
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain success", response.contains("success"));
         assertTrue("Response should contain status severity", response.contains("status"));
-        assertTrue("Response should contain body content", response.contains("test>content</test>"));
+        assertTrue("Response should contain POX body", response.contains("imsx_POXBody"));
     }
 
     @Test
@@ -293,19 +292,18 @@ public class POXJacksonTest {
         minorCodes.setProperty("field2", "value2");
         
         String response = POXJacksonParser.createResponse("Test", "failure", "error", "123", "testOp", 
-                                                        minorCodes, "body");
+                                                        minorCodes);
         
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain minor codes", response.contains("field1"));
         assertTrue("Response should contain minor codes", response.contains("value1"));
-        assertTrue("Response should contain body", response.contains("body"));
     }
 
     @Test
     public void testCreateResponse_WithSpecialCharacters() {
         String description = "Test with <special> & \"characters\"";
         String response = POXJacksonParser.createResponse(description, "failure", "error", "123", "testOp", 
-                                                        null, null);
+                                                        null);
         
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain escaped characters", response.contains("&lt;special&gt;"));

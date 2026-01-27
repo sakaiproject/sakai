@@ -296,15 +296,14 @@ public class POXJacksonParser {
      * Create a success response
      * 
      * @param description The success description
-     * @param bodyString The response body content
      * @param messageId The message ID
      * @param operation The operation type
      * @return XML response string
      */
-    public static String createSuccessResponse(String description, String bodyString, 
+    public static String createSuccessResponse(String description, 
                                              String messageId, String operation) {
         return createResponse(description, MAJOR_SUCCESS, SEVERITY_STATUS, messageId, 
-                            operation, null, bodyString);
+                            operation, null);
     }
 
     /**
@@ -319,7 +318,7 @@ public class POXJacksonParser {
     public static String createFailureResponse(String description, Properties minorCodes,
                                              String messageId, String operation) {
         return createResponse(description, MAJOR_FAILURE, SEVERITY_ERROR, messageId, 
-                            operation, minorCodes, null);
+                            operation, minorCodes);
     }
 
     /**
@@ -332,7 +331,7 @@ public class POXJacksonParser {
      */
     public static String createUnsupportedResponse(String description, String messageId, String operation) {
         return createResponse(description, MAJOR_UNSUPPORTED, SEVERITY_ERROR, messageId, 
-                            operation, null, null);
+                            operation, null);
     }
 
     /**
@@ -344,12 +343,10 @@ public class POXJacksonParser {
      * @param messageId The message ID
      * @param operation The operation type
      * @param minorCodes Minor error codes
-     * @param bodyString The response body content
      * @return XML response string
      */
     public static String createResponse(String description, String major, String severity, 
-                                      String messageId, String operation, Properties minorCodes, 
-                                      String bodyString) {
+                                      String messageId, String operation, Properties minorCodes) {
         if (major == null) major = MAJOR_FAILURE;
         if (severity == null && MAJOR_PROCESSING.equals(major)) severity = SEVERITY_STATUS;
         if (severity == null && MAJOR_SUCCESS.equals(major)) severity = SEVERITY_STATUS;
@@ -379,16 +376,6 @@ public class POXJacksonParser {
             minorString.append("        </imsx_codeMinor>");
         }
 
-        if (bodyString == null) bodyString = "";
-
-        if (bodyString.startsWith("<?xml")) {
-            int pos = bodyString.indexOf("<", 1);
-            if (pos > 0) bodyString = bodyString.substring(pos);
-        }
-        bodyString = bodyString.trim();
-        String newLine = "";
-        if (bodyString.length() > 0) newLine = "\n";
-
         return String.format(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
@@ -406,9 +393,7 @@ public class POXJacksonParser {
             "      </imsx_statusInfo>\n" +
             "    </imsx_POXResponseHeaderInfo>\n" + 
             "  </imsx_POXHeader>\n" +
-            "  <imsx_POXBody>\n" +
-            "%s%s"+
-            "  </imsx_POXBody>\n" +
+            "  <imsx_POXBody/>\n" +
             "</imsx_POXEnvelopeResponse>",
             StringEscapeUtils.escapeXml11(messageId), 
             StringEscapeUtils.escapeXml11(major), 
@@ -416,8 +401,7 @@ public class POXJacksonParser {
             StringEscapeUtils.escapeXml11(description), 
             StringEscapeUtils.escapeXml11(messageId), 
             StringEscapeUtils.escapeXml11(operation), 
-            StringEscapeUtils.escapeXml11(minorString.toString()), 
-            bodyString, newLine
+            StringEscapeUtils.escapeXml11(minorString.toString())
         );
     }
     
@@ -430,12 +414,10 @@ public class POXJacksonParser {
      * @param messageId The message ID
      * @param operation The operation type
      * @param minorCodes Minor error codes
-     * @param bodyString The response body content
      * @return POXEnvelopeResponse object
      */
     public static POXEnvelopeResponse createResponseObject(String description, String major, String severity, 
-                                                          String messageId, String operation, Properties minorCodes, 
-                                                          String bodyString) {
+                                                          String messageId, String operation, Properties minorCodes) {
         return POXResponseBuilder.create()
             .withDescription(description)
             .withMajor(major)
@@ -443,7 +425,6 @@ public class POXJacksonParser {
             .withMessageId(messageId)
             .withOperation(operation)
             .withMinorCodes(minorCodes)
-            .withBodyContent(bodyString)
             .build();
     }
     
@@ -456,14 +437,12 @@ public class POXJacksonParser {
      * @param messageId The message ID
      * @param operation The operation type
      * @param minorFields List of minor code fields
-     * @param bodyString The response body content
      * @return XML response string
      */
     public static String createResponseWithMinorFields(String description, String major, String severity, 
-                                                     String messageId, String operation, List<POXCodeMinorField> minorFields, 
-                                                     String bodyString) {
+                                                     String messageId, String operation, List<POXCodeMinorField> minorFields) {
         return POXResponseFactory.createResponseWithMinorFields(description, major, severity, 
-                messageId, operation, minorFields, bodyString);
+                messageId, operation, minorFields);
     }
     
     /**

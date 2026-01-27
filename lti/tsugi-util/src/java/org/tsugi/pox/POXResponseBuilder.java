@@ -13,6 +13,7 @@ import org.tsugi.lti.objects.POXCodeMinor;
 import org.tsugi.lti.objects.POXCodeMinorField;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,17 +27,17 @@ public class POXResponseBuilder {
     
     static {
         XML_MAPPER = new XmlMapper();
+        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
         XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         XML_MAPPER.setDefaultUseWrapper(false);
     }
     
     private String description;
-    private String major = IMSPOXRequestJackson.MAJOR_FAILURE;
-    private String severity = IMSPOXRequestJackson.SEVERITY_ERROR;
+    private String major = POXRequestHandler.MAJOR_FAILURE;
+    private String severity = POXRequestHandler.SEVERITY_ERROR;
     private String messageId;
     private String operation;
     private POXCodeMinor codeMinor;
-    private String bodyContent;
     
     
     public static POXResponseBuilder create() {
@@ -101,46 +102,28 @@ public class POXResponseBuilder {
         return this;
     }
     
-  
-    public POXResponseBuilder withBodyContent(String bodyContent) {
-        this.bodyContent = bodyContent;
-        return this;
-    }
-    
     public POXResponseBuilder asSuccess() {
-        this.major = IMSPOXRequestJackson.MAJOR_SUCCESS;
-        this.severity = IMSPOXRequestJackson.SEVERITY_STATUS;
+        this.major = POXRequestHandler.MAJOR_SUCCESS;
+        this.severity = POXRequestHandler.SEVERITY_STATUS;
         return this;
     }
     
     public POXResponseBuilder asFailure() {
-        this.major = IMSPOXRequestJackson.MAJOR_FAILURE;
-        this.severity = IMSPOXRequestJackson.SEVERITY_ERROR;
+        this.major = POXRequestHandler.MAJOR_FAILURE;
+        this.severity = POXRequestHandler.SEVERITY_ERROR;
         return this;
     }
     
     public POXResponseBuilder asUnsupported() {
-        this.major = IMSPOXRequestJackson.MAJOR_UNSUPPORTED;
-        this.severity = IMSPOXRequestJackson.SEVERITY_ERROR;
+        this.major = POXRequestHandler.MAJOR_UNSUPPORTED;
+        this.severity = POXRequestHandler.SEVERITY_ERROR;
         return this;
     }
     
     public POXResponseBuilder asProcessing() {
-        this.major = IMSPOXRequestJackson.MAJOR_PROCESSING;
-        this.severity = IMSPOXRequestJackson.SEVERITY_STATUS;
+        this.major = POXRequestHandler.MAJOR_PROCESSING;
+        this.severity = POXRequestHandler.SEVERITY_STATUS;
         return this;
-    }
-    
-    private String cleanBodyContent(String content) {
-        if (content == null || content.trim().isEmpty()) {
-            return "";
-        }
-        String cleanBody = content.trim();
-        if (cleanBody.startsWith("<?xml")) {
-            int pos = cleanBody.indexOf("<", 1);
-            if (pos > 0) cleanBody = cleanBody.substring(pos);
-        }
-        return cleanBody;
     }
     
     public POXEnvelopeResponse build() {
@@ -168,10 +151,8 @@ public class POXResponseBuilder {
         response.setPoxHeader(header);
         
         POXResponseBody body = new POXResponseBody();
-        String cleanBody = cleanBodyContent(bodyContent);
-        if (!cleanBody.isEmpty()) {
-            body.setRawContent(cleanBody);
-        }
+        // Note: POX responses use structured response types
+        // (replaceResultResponse, readResultResponse, etc.) which are typically empty
         response.setPoxBody(body);
         
         return response;
@@ -187,10 +168,9 @@ public class POXResponseBuilder {
         }
     }
 
-    public static String createSuccessResponse(String description, String bodyContent, String messageId, String operation) {
+    public static String createSuccessResponse(String description, String messageId, String operation) {
         return POXResponseBuilder.create()
             .withDescription(description)
-            .withBodyContent(bodyContent)
             .withMessageId(messageId)
             .withOperation(operation)
             .asSuccess()

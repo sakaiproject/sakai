@@ -15,9 +15,9 @@ public class POXResponseBuilderTest {
     
     @Test
     public void testCreateSuccessResponse() {
+        // Most POX success responses don't have body content (e.g., replaceResultResponse is empty)
         String response = POXResponseBuilder.create()
             .withDescription("Test success")
-            .withBodyContent("<test>content</test>")
             .withMessageId("msg123")
             .withOperation("replaceResultRequest")
             .asSuccess()
@@ -27,7 +27,7 @@ public class POXResponseBuilderTest {
         assertTrue("Response should contain success", response.contains("success"));
         assertTrue("Response should contain status severity", response.contains("status"));
         assertTrue("Response should contain description", response.contains("Test success"));
-        assertTrue("Response should contain body content", response.contains("<test>content</test>"));
+        assertTrue("Response should contain POX body", response.contains("imsx_POXBody"));
     }
     
     @Test
@@ -111,9 +111,9 @@ public class POXResponseBuilderTest {
     
     @Test
     public void testBuildResponseObject() {
+        // Most POX responses don't have body content - replaceResultResponse is empty
         POXEnvelopeResponse response = POXResponseBuilder.create()
             .withDescription("Test response object")
-            .withBodyContent("<test>content</test>")
             .withMessageId("msg123")
             .withOperation("replaceResultRequest")
             .asSuccess()
@@ -134,8 +134,9 @@ public class POXResponseBuilderTest {
     
     @Test
     public void testCreateSuccessResponseStatic() {
+        // Most POX success responses don't have body content
         String response = POXResponseBuilder.createSuccessResponse(
-            "Test success", "<test>content</test>", "msg123", "replaceResultRequest");
+            "Test success", "msg123", "replaceResultRequest");
         
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain success", response.contains("success"));
@@ -191,10 +192,10 @@ public class POXResponseBuilderTest {
     }
     
     @Test
-    public void testResponseWithEmptyBodyContent() {
+    public void testResponseWithEmptyBody() {
+        // Empty body is the normal case for most POX responses
         String response = POXResponseBuilder.create()
             .withDescription("Test empty body")
-            .withBodyContent("")
             .withMessageId("msg123")
             .withOperation("replaceResultRequest")
             .asSuccess()
@@ -203,23 +204,6 @@ public class POXResponseBuilderTest {
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain success", response.contains("success"));
         assertTrue("Response should contain POX body", response.contains("imsx_POXBody"));
-    }
-    
-    @Test
-    public void testResponseWithXmlHeaderInBody() {
-        String bodyWithXmlHeader = "<?xml version=\"1.0\"?><test>content</test>";
-        String response = POXResponseBuilder.create()
-            .withDescription("Test XML header in body")
-            .withBodyContent(bodyWithXmlHeader)
-            .withMessageId("msg123")
-            .withOperation("replaceResultRequest")
-            .asSuccess()
-            .buildAsXml();
-        
-        assertNotNull("Response should not be null", response);
-        assertTrue("Response should contain success", response.contains("success"));
-        assertTrue("Response should contain body content", response.contains("<test>content</test>"));
-        assertFalse("Response should not contain XML header in body", response.contains("<?xml version=\"1.0\"?>"));
     }
 }
 

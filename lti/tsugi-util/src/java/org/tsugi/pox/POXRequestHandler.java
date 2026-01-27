@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class IMSPOXRequestJackson {
+public class POXRequestHandler {
 
     public final static String MAJOR_SUCCESS = "success";
     public final static String MAJOR_FAILURE = "failure";
@@ -110,17 +110,17 @@ public class IMSPOXRequestJackson {
         xmlMapper.setDefaultUseWrapper(false);
     }
 
-    public IMSPOXRequestJackson(String oauth_consumer_key, String oauth_secret, HttpServletRequest request) {
+    public POXRequestHandler(String oauth_consumer_key, String oauth_secret, HttpServletRequest request) {
         loadFromRequest(request);
         if (!valid) return;
         validateRequest(oauth_consumer_key, oauth_secret, request);
     }
 
-    public IMSPOXRequestJackson(HttpServletRequest request) {
+    public POXRequestHandler(HttpServletRequest request) {
         loadFromRequest(request);
     }
 
-    public IMSPOXRequestJackson(String bodyString) {
+    public POXRequestHandler(String bodyString) {
         postBody = bodyString;
         parsePostBody();
     }
@@ -400,60 +400,20 @@ public class IMSPOXRequestJackson {
     private String createFallbackResponse(String description, String major, String severity, 
             String messageId, String operation, POXCodeMinor codeMinor, String bodyString) {
         
-        StringBuilder minorString = new StringBuilder();
-        if (codeMinor != null && codeMinor.getCodeMinorFields() != null) {
-            minorString.append("\n        <imsx_codeMinor>\n");
-            for (POXCodeMinorField field : codeMinor.getCodeMinorFields()) {
-                minorString.append("          <imsx_codeMinorField>\n");
-                minorString.append("            <imsx_codeMinorFieldName>");
-                minorString.append(StringEscapeUtils.escapeXml11(field.getFieldName()));
-                minorString.append("</imsx_codeMinorFieldName>\n");
-                minorString.append("            <imsx_codeMinorFieldValue>");
-                minorString.append(StringEscapeUtils.escapeXml11(field.getFieldValue()));
-                minorString.append("</imsx_codeMinorFieldValue>\n");
-                minorString.append("          </imsx_codeMinorField>\n");
-            }
-            minorString.append("        </imsx_codeMinor>");
+        // Use POXResponseBuilder instead of hand-constructed XML
+        POXResponseBuilder builder = POXResponseBuilder.create()
+            .withDescription(description)
+            .withMajor(major)
+            .withSeverity(severity)
+            .withMessageId(messageId)
+            .withOperation(operation);
+        
+        // Add minor codes if present
+        if (codeMinor != null && codeMinor.getCodeMinorFields() != null && !codeMinor.getCodeMinorFields().isEmpty()) {
+            builder.withMinorCodes(codeMinor.getCodeMinorFields());
         }
-
-        if (bodyString == null) bodyString = "";
-        String cleanBody = bodyString.trim();
-        if (cleanBody.startsWith("<?xml")) {
-            int pos = cleanBody.indexOf("<", 1);
-            if (pos > 0) cleanBody = cleanBody.substring(pos);
-        }
-        String newLine = cleanBody.length() > 0 ? "\n" : "";
-
-        return String.format(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
-            "  <imsx_POXHeader>\n" +
-            "    <imsx_POXResponseHeaderInfo>\n" + 
-            "      <imsx_version>V1.0</imsx_version>\n" +
-            "      <imsx_messageIdentifier>%s</imsx_messageIdentifier>\n" + 
-            "      <imsx_statusInfo>\n" +
-            "        <imsx_codeMajor>%s</imsx_codeMajor>\n" +
-            "        <imsx_severity>%s</imsx_severity>\n" +
-            "        <imsx_description>%s</imsx_description>\n" +
-            "        <imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>\n" +       
-            "        <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" + 
-            "%s\n"+ 
-            "      </imsx_statusInfo>\n" +
-            "    </imsx_POXResponseHeaderInfo>\n" + 
-            "  </imsx_POXHeader>\n" +
-            "  <imsx_POXBody>\n" +
-            "%s%s"+
-            "  </imsx_POXBody>\n" +
-            "</imsx_POXEnvelopeResponse>",
-            StringEscapeUtils.escapeXml11(messageId), 
-            StringEscapeUtils.escapeXml11(major), 
-            StringEscapeUtils.escapeXml11(severity), 
-            StringEscapeUtils.escapeXml11(description), 
-            StringEscapeUtils.escapeXml11(messageId), 
-            StringEscapeUtils.escapeXml11(operation), 
-            StringEscapeUtils.escapeXml11(minorString.toString()), 
-            cleanBody, newLine
-        );
+        
+        return builder.buildAsXml();
     }
 
     public boolean inArray(final String[] theArray, final String theString) {
@@ -472,77 +432,11 @@ public class IMSPOXRequestJackson {
         Date dt = new Date();
         String messageId = "" + dt.getTime();
 
-        return String.format(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
-            "    <imsx_POXHeader>\n" +
-            "        <imsx_POXResponseHeaderInfo>\n" + 
-            "            <imsx_version>V1.0</imsx_version>\n" +
-            "            <imsx_messageIdentifier>%s</imsx_messageIdentifier>\n" + 
-            "            <imsx_statusInfo>\n" +
-            "                <imsx_codeMajor>failure</imsx_codeMajor>\n" +
-            "                <imsx_severity>error</imsx_severity>\n" +
-            "                <imsx_description>%s</imsx_description>\n" +
-            "                <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" + 
-            "            </imsx_statusInfo>\n" +
-            "        </imsx_POXResponseHeaderInfo>\n" + 
-            "    </imsx_POXHeader>\n" +
-            "    <imsx_POXBody/>\n" +
-            "</imsx_POXEnvelopeResponse>",
-            StringEscapeUtils.escapeXml11(messageId), 
-            StringEscapeUtils.escapeXml11(description),
-            StringEscapeUtils.escapeXml11(message_id)
-        );
-    }
-
-    static final String inputTestData = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>\n" +  
-        "<imsx_POXEnvelopeRequest xmlns = \"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" + 
-        "<imsx_POXHeader>\n" + 
-        "<imsx_POXRequestHeaderInfo>\n" + 
-        "<imsx_version>V1.0</imsx_version>\n" + 
-        "<imsx_messageIdentifier>999999123</imsx_messageIdentifier>\n" + 
-        "</imsx_POXRequestHeaderInfo>\n" + 
-        "</imsx_POXHeader>\n" + 
-        "<imsx_POXBody>\n" + 
-        "<replaceResultRequest>\n" + 
-        "<resultRecord>\n" + 
-        "<sourcedGUID>\n" + 
-        "<sourcedId>3124567</sourcedId>\n" + 
-        "</sourcedGUID>\n" + 
-        "<result>\n" + 
-        "<resultScore>\n" + 
-        "<language>en-us</language>\n" + 
-        "<textString>A</textString>\n" + 
-        "</resultScore>\n" + 
-        "</result>\n" + 
-        "</resultRecord>\n" + 
-        "</replaceResultRequest>\n" + 
-        "</imsx_POXBody>\n" + 
-        "</imsx_POXEnvelopeRequest>";
-
-    public static void runTest() {
-        log.debug("Running Jackson test.");
-        IMSPOXRequestJackson pox = new IMSPOXRequestJackson(inputTestData);
-        log.debug("Version = {}", pox.getHeaderVersion());
-        log.debug("Operation = {}", pox.getOperation());
-        String guid = POXJacksonParser.getBodySourcedId(pox.getPoxRequest());
-        log.debug("guid={}", guid);
-        String grade = POXJacksonParser.getBodyTextString(pox.getPoxRequest());
-        log.debug("grade={}", grade);
-
-        String desc = "Message received and validated operation=" + pox.getOperation() +
-            " guid=" + guid + " grade=" + grade;
-
-        String output = pox.getResponseUnsupported(desc);
-        log.debug("---- Unsupported ----");
-        log.debug(output);
-
-        Properties props = new Properties();
-        props.setProperty("fred", "zap");
-        props.setProperty("sam", IMSPOXRequestJackson.MINOR_IDALLOC);
-        log.debug("---- Generate logger Error ----");
-        output = pox.getResponseFailure(desc, props);
-        log.debug("---- Failure ----");
-        log.debug(output);
+        return POXResponseBuilder.create()
+            .withDescription(description)
+            .asFailure()
+            .withMessageId(messageId)
+            .withOperation(message_id)
+            .buildAsXml();
     }
 }
