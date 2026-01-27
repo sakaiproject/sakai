@@ -217,7 +217,11 @@ public class SearchQuestionBean implements Serializable {
     }
 
     public ItemDataIfc getData(String itemId) {
-        return new ItemService().getItem(itemId).getData();
+        ItemFacade item = new ItemService().getItem(itemId);
+        if (item == null) {
+            return null;
+        }
+        return item.getData();
     }
 
     public String getSelectedSection() { return selectedSection; }
