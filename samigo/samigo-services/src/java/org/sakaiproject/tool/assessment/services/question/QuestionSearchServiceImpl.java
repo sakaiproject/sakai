@@ -32,6 +32,8 @@ import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.elasticsearch.ElasticSearchService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
@@ -224,7 +226,7 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
                     return titleCache.get(cacheKey);
                 }
 
-                var pool = questionPoolService.getPool(Long.parseLong(qpId), AgentFacade.getAgentString());
+                QuestionPoolFacade pool = questionPoolService.getPool(Long.parseLong(qpId), AgentFacade.getAgentString());
                 if (pool == null) {
                     return "";
                 }
@@ -264,7 +266,7 @@ public class QuestionSearchServiceImpl implements QuestionSearchService {
                 if (titleCache != null && titleCache.containsKey(assessmentCacheKey)) {
                     assessmentTitle = titleCache.get(assessmentCacheKey);
                 } else {
-                    var assessment = assessmentService.getAssessment(assessmentId);
+                    AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
                     if (assessment == null) {
                         return "";
                     }
