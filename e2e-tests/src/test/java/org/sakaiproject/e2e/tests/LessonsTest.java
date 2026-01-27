@@ -75,4 +75,52 @@ class LessonsTest extends SakaiUiTestBase {
         page.locator("#save").click(new Locator.ClickOptions().setForce(true));
         assertThat(page.locator("#content")).isVisible();
     }
+
+    @Test
+    @Order(3)
+    void canPromoteOnlySubpagesToSiteNavigation() {
+        sakai.login("instructor1");
+        page.navigate(sakaiUrl);
+        sakai.toolClick("Lessons");
+
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Content")).first().click(new Locator.ClickOptions().setForce(true));
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add Subpage")).click(new Locator.ClickOptions().setForce(true));
+        page.locator("#subpage-title:visible").fill("Promote Me");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Create")).click(new Locator.ClickOptions().setForce(true));
+
+        sakai.toolClick("Lessons");
+        openAddMorePages();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
+
+        Locator lessonsRadio = page.locator("input[type=radio][title^=\"Lessons \"]").first();
+        assertThat(lessonsRadio).isDisabled();
+        lessonsRadio.evaluate("element => element.removeAttribute('disabled')");
+        lessonsRadio.check();
+        useSelectedItem();
+        assertThat(page.locator("body")).containsText("The page could not be added to site navigation.");
+        Locator currentSiteNavigation = page.locator("li.site-list-item.is-current-site .site-page-list a.btn-nav");
+        assertThat(currentSiteNavigation.filter(new Locator.FilterOptions()
+            .setHasText(Pattern.compile("^\\s*Lessons\\s*$", Pattern.CASE_INSENSITIVE)))).hasCount(1);
+
+        openAddMorePages();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(Pattern.compile("Put existing page", Pattern.CASE_INSENSITIVE))).click();
+        Locator subpageRadio = page.locator("input[type=radio][title^=\"Promote Me \"]").first();
+        assertThat(subpageRadio).isEnabled();
+        subpageRadio.check();
+        useSelectedItem();
+
+        sakai.toolClick("Promote Me");
+        assertThat(page.locator(".neoPortletTitleWrap")).containsText("Promote Me");
+        assertThat(page.locator(".itemclass[role=main]")).isVisible();
+    }
+
+    private void openAddMorePages() {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("More Tools")).click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add More Pages")).click();
+    }
+
+    private void useSelectedItem() {
+        page.locator(".PagePicker").getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions()
+            .setName(Pattern.compile("Use selected item", Pattern.CASE_INSENSITIVE))).click();
+    }
 }
