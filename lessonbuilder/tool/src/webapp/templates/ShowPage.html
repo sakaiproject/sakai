@@ -64,6 +64,7 @@
   <script src="$context/js/checklistDisplay.js"></script>
   <script src="$context/js/forum-summary.js"></script>
   <script src="$context/js/lessons-calendar.js"></script>
+  <script src="$context/js/pdf-js.js"></script>
   <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
 
   <a href="#" rsf:id="redirect-link" id="redirect-link"></a>
@@ -832,10 +833,24 @@
                             </span>
                           </div>
                         </div>
-                        <p class="checkbox pageItem">
-                          <input type="checkbox" id="hide2" rsf:id="hide2" />
-                          <label for="hide2"><span rsf:id="msg=simplepage.hide_page_from_users"></span></label>
-                        </p>
+                        <div class="pageItem mt-3">
+                          <span class="visibility-group-label">
+                            <span rsf:id="msg=simplepage.student_visibility_group"></span>
+                          </span>
+                          <span rsf:id="visibility-select-2" />
+                          <div class="form-group mb-0">
+                            <input type="radio" rsf:id="visibility-visible-2" name="visibility2" value="visible" />
+                            <label for="visibility-visible-2"><span rsf:id="msg=simplepage.visibility_visible"></span></label>
+                          </div>
+                          <div class="form-group mb-0">
+                            <input type="radio" rsf:id="visibility-hide-2" name="visibility2" value="hide" />
+                            <label for="visibility-hide-2"><span rsf:id="msg=simplepage.hide_page_from_users"></span></label>
+                          </div>
+                          <div class="form-group">
+                            <input type="radio" rsf:id="visibility-hideFromNav-2" name="visibility2" value="hideFromNav" />
+                            <label for="visibility-hideFromNav-2"><span rsf:id="msg=simplepage.hide_page_from_navigation"></span></label>
+                          </div>
+                        </div>
                         <p id="editgroups" class="edit-group">
                           <a role="button" href="javascript:void(0);"><span rsf:id="msg=simplepage.edit-group"></span></a>
                         </p>
@@ -2307,10 +2322,24 @@
                     <input rsf:id="release_date" type="text" id="release_date" />
                   </span>
                 </div>
-                <p class="checkbox">
-                  <input type="checkbox" id="hide" rsf:id="hide" />
-                  <label for="hide"><span rsf:id="msg=simplepage.hide_page_from_users"></span></label>
-                </p>
+                <div class="pageItem mt-3">
+                  <span class="visibility-group-label">
+                    <span rsf:id="msg=simplepage.student_visibility_group"></span>
+                  </span>
+                  <span rsf:id="visibility-select" />
+                  <div class="form-group mb-0">
+                    <input type="radio" rsf:id="visibility-visible" name="visibility" value="visible" />
+                    <label for="visibility-visible"><span rsf:id="msg=simplepage.visibility_visible"></span></label>
+                  </div>
+                  <div class="form-group mb-0">
+                    <input type="radio" rsf:id="visibility-hide" name="visibility" value="hide" />
+                    <label for="visibility-hide"><span rsf:id="msg=simplepage.hide_page_from_users"></span></label>
+                  </div>
+                  <div class="form-group">
+                    <input type="radio" rsf:id="visibility-hideFromNav" name="visibility" value="hideFromNav" />
+                    <label for="visibility-hideFromNav"><span rsf:id="msg=simplepage.hide_page_from_navigation"></span></label>
+                  </div>
+                </div>
 
               </div>
 

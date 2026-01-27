@@ -47,6 +47,7 @@
  <!-- content... -->
 <h:form id="takeAssessmentForm">
   <h:inputHidden id="timerId" value="#{delivery.timerId}" rendered="#{delivery.timerId!=null}" />
+  <h:inputHidden id="sebReturnUrl" value="#{delivery.selectURL}" rendered="#{delivery.sebSetup}" />
 
 <!-- Secure Delivery HTML (aka Proctoring or Lockdown)-->
 <h:panelGroup rendered="#{delivery.actionString!='previewAssessment'}">

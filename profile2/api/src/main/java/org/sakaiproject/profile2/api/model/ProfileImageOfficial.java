@@ -39,13 +39,13 @@ import org.sakaiproject.springframework.data.PersistableEntity;
 @Table(name = "PROFILE_IMAGES_OFFICIAL_T")
 public class ProfileImageOfficial implements PersistableEntity<String> {
 
-	@EqualsAndHashCode.Include
+    @EqualsAndHashCode.Include
     @Id
-    @Column(name = "USER_ID", length = 99)
-	private String userId;
+    @Column(name = "USER_UUID", length = 99)
+    private String userId;
 
     @Column(name = "URL", length = 4000, nullable = false)
-	private String url;
+    private String url;
 
     public String getId() {
         return userId;

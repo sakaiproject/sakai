@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -2913,13 +2914,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     private List<User> getSearchedUsers(String searchString, List<User> userList, boolean retain) {
         List<User> rv = new ArrayList<>();
         if (StringUtils.isNotBlank(searchString)) {
-            searchString = searchString.toLowerCase();
+            String normalizedSearchString = normalizeStringForSearch(searchString);
             for (User u : userList) {
                 // search on user sortname, eid, email
                 String[] fields = {u.getSortName(), u.getEid(), u.getEmail()};
                 List<String> l = Arrays.asList(fields);
                 for (String s : l) {
-                    if (StringUtils.containsIgnoreCase(s, searchString)) {
+                    if (s != null && normalizeStringForSearch(s).contains(normalizedSearchString)) {
                         rv.add(u);
                         break;
                     }
@@ -2930,6 +2931,17 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             rv = userList;
         }
         return rv;
+    }
+
+    /**
+     * Normalizes a string for case and accent-insensitive search
+     * @param input the string to normalize
+     * @return the normalized string without accents and in lowercase
+     */
+    private String normalizeStringForSearch(String input) {
+        if (input == null) return null;
+        String decomposed = Normalizer.normalize(input, Normalizer.Form.NFD);
+        return decomposed.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase(Locale.ROOT);
     }
 
     @Override
@@ -3967,14 +3979,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 out.write(pdf);
                                 out.closeEntry();
                             }
-
-                            if (!submittersString.toString().trim().isEmpty()) {
-                                // the comments.txt file to show instructor's comments
-                                final String zipEntryName = submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
-                            	final String textEntryString = formattedText.encodeUnicode(submittersString.toString());
-                            	createTextZipEntry(out, zipEntryName, textEntryString);
-                            }
-
                         } // if
                     } catch (Exception e) {
                         caughtException = e.toString();
@@ -4556,23 +4560,71 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                                 .orElse(null);
                                     }
 
-                                    gradingService.addExternalAssessment(
-                                            nAssignment.getContext(),
-                                            nAssignment.getContext(),
-                                            nAssignmentRef,
-                                            null,
-                                            nAssignment.getTitle(),
-                                            nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor(),
-                                            Date.from(nAssignment.getDueDate()),
-                                            this.getToolId(),
-                                            null,
-                                            false,
-                                            categoryId,
-                                            null);
-                                    if (StringUtils.isNotBlank(nAssignmentRef)) {
-                                        nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                    try {
+                                        gradingService.addExternalAssessment(
+                                                nAssignment.getContext(),
+                                                nAssignment.getContext(),
+                                                nAssignmentRef,
+                                                null,
+                                                nAssignment.getTitle(),
+                                                nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor(),
+                                                Date.from(nAssignment.getDueDate()),
+                                                this.getToolId(),
+                                                null,
+                                                false,
+                                                categoryId,
+                                                null);
+                                        if (StringUtils.isNotBlank(nAssignmentRef)) {
+                                            nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                        }
+                                        nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+                                    } catch (org.sakaiproject.grading.api.ConflictingAssignmentNameException e) {
+                                        // Assignment name conflicts with existing gradebook item
+                                        // Generate a unique title and retry
+                                        log.warn("Assignment '{}' conflicts with existing gradebook item in site {}. Attempting to rename. oAssignmentId={} nAssignmentId={}",
+                                                nAssignment.getTitle(), nAssignment.getContext(), oAssignmentId, nAssignmentId);
+
+                                        String uniqueTitle = generateUniqueAssignmentTitle(nAssignment.getTitle(), nAssignment.getContext());
+                                        nAssignment.setTitle(uniqueTitle);
+                                        nAssignment.setDraft(true); // Set to draft so user can review the renamed assignment
+                                        // Use direct repository merge to avoid duplicate task/notification creation
+                                        // The final updateAssignment() call at the end of this method will handle side effects
+                                        nAssignment.setModifier(sessionManager.getCurrentSessionUserId());
+                                        assignmentRepository.merge(nAssignment);
+
+                                        try {
+                                            // Retry with unique title
+                                            gradingService.addExternalAssessment(
+                                                    nAssignment.getContext(),
+                                                    nAssignment.getContext(),
+                                                    nAssignmentRef,
+                                                    null,
+                                                    uniqueTitle,
+                                                    nAssignment.getMaxGradePoint() / (double) nAssignment.getScaleFactor(),
+                                                    Date.from(nAssignment.getDueDate()),
+                                                    this.getToolId(),
+                                                    null,
+                                                    false,
+                                                    categoryId,
+                                                    null);
+                                            if (StringUtils.isNotBlank(nAssignmentRef)) {
+                                                nProperties.put(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, nAssignmentRef);
+                                            }
+                                            nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
+                                            log.info("Successfully imported assignment with renamed title '{}' in site {}", uniqueTitle, nAssignment.getContext());
+                                        } catch (Exception retryException) {
+                                            // If retry also fails, set to draft and disable gradebook integration
+                                            log.error("Failed to import assignment even after renaming. Setting to draft. Title='{}' oAssignmentId={} nAssignmentId={} Error: {}",
+                                                    uniqueTitle, oAssignmentId, nAssignmentId, retryException.getMessage());
+                                            nAssignment.setDraft(true);
+                                            nProperties.remove(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+                                            nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_NO);
+                                            // Use direct repository merge to avoid duplicate task/notification creation
+                                            // The final updateAssignment() call at the end of this method will handle side effects
+                                            nAssignment.setModifier(sessionManager.getCurrentSessionUserId());
+                                            assignmentRepository.merge(nAssignment);
+                                        }
                                     }
-                                    nProperties.put(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ASSOCIATE);
                                 } else {
                                     // internal gradebook items should have already been created and are linked using a Long or a title
                                     if (newGbAssignment == null) {
@@ -5130,6 +5182,32 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         }
 
         return errorMessage;
+    }
+
+    /**
+     * Generates a unique assignment title by appending a suffix (-1, -2, etc.) if a conflict exists.
+     * This is used during assignment import to avoid duplicate assignment names.
+     *
+     * @param originalTitle the original assignment title
+     * @param context the site context
+     * @return a unique title that doesn't conflict with existing assignments
+     */
+    private String generateUniqueAssignmentTitle(String originalTitle, String context) {
+        Collection<Assignment> existingAssignments = getAssignmentsForContext(context);
+        Set<String> existingTitles = existingAssignments.stream()
+                .map(Assignment::getTitle)
+                .collect(java.util.stream.Collectors.toSet());
+
+        String uniqueTitle = originalTitle;
+        int suffix = 1;
+
+        // Keep incrementing suffix until we find a unique title
+        while (existingTitles.contains(uniqueTitle)) {
+            uniqueTitle = originalTitle + "-" + suffix;
+            suffix++;
+        }
+
+        return uniqueTitle;
     }
 
     private Optional<Long> createCategoryForGbAssignmentIfNecessary(

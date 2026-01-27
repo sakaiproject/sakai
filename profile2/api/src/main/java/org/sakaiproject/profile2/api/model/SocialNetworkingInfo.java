@@ -33,24 +33,24 @@ import lombok.NoArgsConstructor;
 @Table(name = "PROFILE_SOCIAL_INFO_T")
 public class SocialNetworkingInfo implements PersistableEntity<String> {
 
-	@EqualsAndHashCode.Include
+    @EqualsAndHashCode.Include
     @Id
-    @Column(name = "USER_ID", length = 99)
-	private String userId;
+    @Column(name = "USER_UUID", length = 99)
+    private String userId;
 
     @Column(name = "FACEBOOK_URL", length = 255)
-	private String facebookUrl;
+    private String facebookUrl;
 
     @Column(name = "LINKEDIN_URL", length = 255)
-	private String linkedinUrl;
+    private String linkedinUrl;
 
     @Column(name = "INSTAGRAM_URL", length = 255)
-	private String instagramUrl;
-	
-	// additional constructor
-	public SocialNetworkingInfo(String userId) {
-		this.userId = userId;
-	}
+    private String instagramUrl;
+
+    // additional constructor
+    public SocialNetworkingInfo(String userId) {
+        this.userId = userId;
+    }
 
     public String getId() {
         return userId;

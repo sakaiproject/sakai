@@ -52,16 +52,22 @@ export class SakaiRubricsList extends RubricsElement {
     this.repage();
   }
 
+  _normalizeText(text) {
+
+    if (!text) return "";
+    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
   _getFilteredRubrics() {
 
     if (!this._rubrics) return [];
     if (!this._searchTerm) return this._rubrics;
-    const term = this._searchTerm.toLowerCase();
+    const term = this._normalizeText(this._searchTerm);
     return this._rubrics.filter(r =>
       (r.id === this?._lastCreatedRubricId) ||
-      (r?.title.toLowerCase().includes(term)) ||
-      (r?.siteTitle.toLowerCase().includes(term)) ||
-      (r?.creatorDisplayName.toLowerCase().includes(term))
+      (this._normalizeText(r?.title).includes(term)) ||
+      (this._normalizeText(r?.siteTitle).includes(term)) ||
+      (this._normalizeText(r?.creatorDisplayName).includes(term))
     );
   }
 
