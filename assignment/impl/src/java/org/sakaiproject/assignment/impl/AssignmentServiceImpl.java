@@ -3979,14 +3979,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                 out.write(pdf);
                                 out.closeEntry();
                             }
-
-                            if (!submittersString.toString().trim().isEmpty()) {
-                                // the comments.txt file to show instructor's comments
-                                final String zipEntryName = submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE;
-                            	final String textEntryString = formattedText.encodeUnicode(submittersString.toString());
-                            	createTextZipEntry(out, zipEntryName, textEntryString);
-                            }
-
                         } // if
                     } catch (Exception e) {
                         caughtException = e.toString();
