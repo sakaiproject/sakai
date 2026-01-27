@@ -39,7 +39,9 @@ import org.sakaiproject.tags.api.Tag;
 import org.sakaiproject.tags.api.TagService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -67,6 +69,7 @@ public class SearchQuestionBean implements Serializable {
     private String selectedQuestionPool;
     private boolean comesFromPool;
     private String outcome;
+    // Selected question IDs from search results to be copied to a pool or assessment
     private String[] destItems = {};
     private HashMap<String, QuestionSearchResult> results;
     private int resultsSize;
@@ -166,7 +169,7 @@ public class SearchQuestionBean implements Serializable {
                 if (titleCache.containsKey(cacheKey)) {
                     return titleCache.get(cacheKey);
                 }
-                var pool = questionPoolService.getPool(
+                QuestionPoolFacade pool = questionPoolService.getPool(
                     Long.parseLong(result.getQuestionPoolId()), AgentFacade.getAgentString());
                 if (pool == null) {
                     return "";
@@ -192,7 +195,7 @@ public class SearchQuestionBean implements Serializable {
                 if (titleCache.containsKey(assessmentCacheKey)) {
                     assessmentTitle = titleCache.get(assessmentCacheKey);
                 } else {
-                    var assessment = assessmentService.getAssessment(result.getAssessmentId());
+                    AssessmentFacade assessment = assessmentService.getAssessment(result.getAssessmentId());
                     if (assessment == null) {
                         return "";
                     }
