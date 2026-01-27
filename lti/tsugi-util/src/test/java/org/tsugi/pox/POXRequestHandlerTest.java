@@ -341,7 +341,7 @@ public class POXRequestHandlerTest {
         // Use reflection to access the private createFallbackResponse method
         Method method = POXRequestHandler.class.getDeclaredMethod("createFallbackResponse", 
             String.class, String.class, String.class, String.class, String.class, 
-            POXCodeMinor.class, String.class);
+            POXCodeMinor.class, Object.class);
         method.setAccessible(true);
         
         // Test case 1: Basic response without minor codes or body
@@ -394,7 +394,7 @@ public class POXRequestHandlerTest {
         // Use reflection to access the private createFallbackResponse method
         Method method = POXRequestHandler.class.getDeclaredMethod("createFallbackResponse", 
             String.class, String.class, String.class, String.class, String.class, 
-            POXCodeMinor.class, String.class);
+            POXCodeMinor.class, Object.class);
         method.setAccessible(true);
         
         // Test case 2: Response with minor codes
@@ -474,7 +474,7 @@ public class POXRequestHandlerTest {
         // Use reflection to access the private createFallbackResponse method
         Method method = POXRequestHandler.class.getDeclaredMethod("createFallbackResponse", 
             String.class, String.class, String.class, String.class, String.class, 
-            POXCodeMinor.class, String.class);
+            POXCodeMinor.class, Object.class);
         method.setAccessible(true);
         
         // Test case 3: Response with body content (bodyString is ignored by POXResponseBuilder)

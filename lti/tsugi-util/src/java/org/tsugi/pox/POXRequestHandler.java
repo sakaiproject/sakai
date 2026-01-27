@@ -12,17 +12,10 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.tsugi.lti.Base64;
 import org.tsugi.lti.POXJacksonParser;
 import org.tsugi.lti.objects.POXEnvelopeRequest;
-import org.tsugi.lti.objects.POXEnvelopeResponse;
-import org.tsugi.lti.objects.POXRequestHeaderInfo;
 import org.tsugi.lti.objects.POXRequestBody;
-import org.tsugi.lti.objects.POXResponseBody;
-import org.tsugi.lti.objects.POXResponseHeader;
-import org.tsugi.lti.objects.POXResponseHeaderInfo;
-import org.tsugi.lti.objects.POXStatusInfo;
 import org.tsugi.lti.objects.POXCodeMinor;
 import org.tsugi.lti.objects.POXCodeMinorField;
 
@@ -336,9 +329,18 @@ public class POXRequestHandler {
     public String getResponseSuccess(String desc, String bodyString) {
         return getResponse(desc, MAJOR_SUCCESS, null, null, null, bodyString);
     }
+    
+    public String getResponseSuccess(String desc, Object bodyObject) {
+        return getResponse(desc, MAJOR_SUCCESS, null, null, null, bodyObject);
+    }
 
     public String getResponse(String description, String major, String severity, 
             String messageId, Properties minor, String bodyString) {
+        return getResponse(description, major, severity, messageId, minor, (Object) bodyString);
+    }
+    
+    public String getResponse(String description, String major, String severity, 
+            String messageId, Properties minor, Object body) {
         
         StringBuffer internalError = new StringBuffer();
         if (major == null) major = MAJOR_FAILURE;
@@ -388,17 +390,17 @@ public class POXRequestHandler {
             log.warn(internalError.toString());
         }
 
-        return createResponseXml(description, major, severity, messageId, operation, codeMinor, bodyString);
+        return createResponseXml(description, major, severity, messageId, operation, codeMinor, body);
     }
 
     private String createResponseXml(String description, String major, String severity, 
-            String messageId, String operation, POXCodeMinor codeMinor, String bodyString) {
+            String messageId, String operation, POXCodeMinor codeMinor, Object body) {
         
-        return createFallbackResponse(description, major, severity, messageId, operation, codeMinor, bodyString);
+        return createFallbackResponse(description, major, severity, messageId, operation, codeMinor, body);
     }
 
     private String createFallbackResponse(String description, String major, String severity, 
-            String messageId, String operation, POXCodeMinor codeMinor, String bodyString) {
+            String messageId, String operation, POXCodeMinor codeMinor, Object body) {
         
         // Use POXResponseBuilder instead of hand-constructed XML
         POXResponseBuilder builder = POXResponseBuilder.create()
@@ -411,6 +413,19 @@ public class POXRequestHandler {
         // Add minor codes if present
         if (codeMinor != null && codeMinor.getCodeMinorFields() != null && !codeMinor.getCodeMinorFields().isEmpty()) {
             builder.withMinorCodes(codeMinor.getCodeMinorFields());
+        }
+        
+        // Add body content if provided
+        if (body != null) {
+            if (body instanceof String) {
+                String bodyString = (String) body;
+                if (!bodyString.trim().isEmpty()) {
+                    builder.withBodyXml(bodyString);
+                }
+            } else {
+                // Pass the object directly
+                builder.withBodyObject(body);
+            }
         }
         
         return builder.buildAsXml();

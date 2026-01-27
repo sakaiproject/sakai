@@ -11,6 +11,9 @@ import org.tsugi.lti.objects.POXResponseHeaderInfo;
 import org.tsugi.lti.objects.POXStatusInfo;
 import org.tsugi.lti.objects.POXCodeMinor;
 import org.tsugi.lti.objects.POXCodeMinorField;
+import org.tsugi.lti.objects.ReadResultResponse;
+import org.tsugi.lti.objects.ReplaceResultResponse;
+import org.tsugi.lti.objects.DeleteResultResponse;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
@@ -38,6 +41,8 @@ public class POXResponseBuilder {
     private String messageId;
     private String operation;
     private POXCodeMinor codeMinor;
+    private String bodyXml;
+    private Object bodyObject;
     
     
     public static POXResponseBuilder create() {
@@ -126,6 +131,30 @@ public class POXResponseBuilder {
         return this;
     }
     
+    /**
+     * Set body content from XML string
+     * The XML should be the serialized response body (e.g., &lt;readResultResponse&gt;...&lt;/readResultResponse&gt;)
+     * 
+     * @param bodyXml The XML string containing the response body
+     * @return this builder for method chaining
+     */
+    public POXResponseBuilder withBodyXml(String bodyXml) {
+        this.bodyXml = bodyXml;
+        return this;
+    }
+    
+    /**
+     * Set body content from response object directly
+     * Accepts ReadResultResponse, ReplaceResultResponse, or DeleteResultResponse objects
+     * 
+     * @param bodyObject The response object (ReadResultResponse, ReplaceResultResponse, or DeleteResultResponse)
+     * @return this builder for method chaining
+     */
+    public POXResponseBuilder withBodyObject(Object bodyObject) {
+        this.bodyObject = bodyObject;
+        return this;
+    }
+    
     public POXEnvelopeResponse build() {
         if (messageId == null) {
             messageId = String.valueOf(new Date().getTime());
@@ -151,8 +180,50 @@ public class POXResponseBuilder {
         response.setPoxHeader(header);
         
         POXResponseBody body = new POXResponseBody();
-        // Note: POX responses use structured response types
-        // (replaceResultResponse, readResultResponse, etc.) which are typically empty
+        
+        // Set body object directly if provided (preferred method)
+        if (bodyObject != null) {
+            if (bodyObject instanceof ReadResultResponse) {
+                body.setReadResultResponse((ReadResultResponse) bodyObject);
+            } else if (bodyObject instanceof ReplaceResultResponse) {
+                body.setReplaceResultResponse((ReplaceResultResponse) bodyObject);
+            } else if (bodyObject instanceof DeleteResultResponse) {
+                body.setDeleteResultResponse((DeleteResultResponse) bodyObject);
+            } else {
+                log.warn("Unknown body object type: {}", bodyObject.getClass().getName());
+            }
+        } else if (bodyXml != null && !bodyXml.trim().isEmpty()) {
+            // Fallback: Parse body XML if provided (for backward compatibility)
+            try {
+                // Determine which response type based on operation
+                if ("readResultRequest".equals(operation)) {
+                    ReadResultResponse readResponse = XML_MAPPER.readValue(bodyXml.trim(), ReadResultResponse.class);
+                    body.setReadResultResponse(readResponse);
+                } else if ("replaceResultRequest".equals(operation)) {
+                    ReplaceResultResponse replaceResponse = XML_MAPPER.readValue(bodyXml.trim(), ReplaceResultResponse.class);
+                    body.setReplaceResultResponse(replaceResponse);
+                } else if ("deleteResultRequest".equals(operation)) {
+                    DeleteResultResponse deleteResponse = XML_MAPPER.readValue(bodyXml.trim(), DeleteResultResponse.class);
+                    body.setDeleteResultResponse(deleteResponse);
+                } else {
+                    // Try to parse generically - check for known response types
+                    if (bodyXml.contains("<readResultResponse")) {
+                        ReadResultResponse readResponse = XML_MAPPER.readValue(bodyXml.trim(), ReadResultResponse.class);
+                        body.setReadResultResponse(readResponse);
+                    } else if (bodyXml.contains("<replaceResultResponse")) {
+                        ReplaceResultResponse replaceResponse = XML_MAPPER.readValue(bodyXml.trim(), ReplaceResultResponse.class);
+                        body.setReplaceResultResponse(replaceResponse);
+                    } else if (bodyXml.contains("<deleteResultResponse")) {
+                        DeleteResultResponse deleteResponse = XML_MAPPER.readValue(bodyXml.trim(), DeleteResultResponse.class);
+                        body.setDeleteResultResponse(deleteResponse);
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Failed to parse body XML, using empty body: {}", e.getMessage());
+                // Continue with empty body if parsing fails
+            }
+        }
+        
         response.setPoxBody(body);
         
         return response;

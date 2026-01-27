@@ -9,6 +9,7 @@ import lombok.ToString;
 @ToString
 public class POXResponseBody {
     
+    // Only one of these will be present at a time
     @JacksonXmlProperty(localName = "replaceResultResponse")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ReplaceResultResponse replaceResultResponse;

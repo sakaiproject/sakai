@@ -927,27 +927,13 @@ public class ServiceServlet extends HttpServlet {
 
 		if ( !success ) return;
 
-		String bodyXml = buildPoxBodyXml(responsePayload);
-		String output = pox.getResponseSuccess(message, bodyXml);
+		String output = pox.getResponseSuccess(message, responsePayload);
 
 		response.setContentType("application/xml");
 		PrintWriter out = response.getWriter();
 		out.println(output);
 		log.debug(output);
 	}
-
-	private String buildPoxBodyXml(Object payload) {
-		if (payload == null) {
-			return "";
-		}
-		try {
-			return POX_XML_MAPPER.writeValueAsString(payload);
-		} catch (Exception e) {
-			log.warn("Unable to serialize POX payload {}", payload.getClass().getSimpleName(), e);
-			return "";
-		}
-	}
-
 
 	public void destroy() {
 
