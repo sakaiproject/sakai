@@ -919,16 +919,18 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		for (Long pageId : calculatedParentMap.keySet()) {
 			Long currentPageId = pageId;
 			Long topParent = null;
+			boolean cycleDetected = false;
 			Set<Long> visited = new HashSet<>();
 			while (calculatedParentMap.containsKey(currentPageId)) {
 				if (!visited.add(currentPageId)) {
 					log.warn("Cycle detected in page hierarchy at page {}", currentPageId);
+					cycleDetected = true;
 					break;
 				}
 				topParent = calculatedParentMap.get(currentPageId);
 				currentPageId = topParent;
 			}
-			if (topParent != null) {
+			if (!cycleDetected && topParent != null) {
 				calculatedTopParentMap.put(pageId, topParent);
 			}
 		}
