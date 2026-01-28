@@ -86,8 +86,9 @@ $(document).ready(function() {
                 <h:panelGroup rendered="#{ForumTool.showBulkActions && forum.changeSettings}" styleClass="float-end" layout="block">
                     <h:selectBooleanCheckbox value="#{forum.selected}"
                         styleClass="bulk-select"
-                        onclick="updateBulkButtons()"
-                        aria-label="#{msgs.cdfm_bulk_select_forum}" />
+                        id="bulkSelectForum"
+                        onclick="updateBulkButtons()" />
+                    <h:outputLabel for="bulkSelectForum" styleClass="sr-only" value="#{msgs.cdfm_bulk_select_forum}" />
                 </h:panelGroup>
                 <%-- link to forum and decorations --%>
                 <h:outputText styleClass="highlight title draftForum" id="draft" value="#{msgs.cdfm_draft}" rendered="#{forum.forum.draft == 'true'}"/>
@@ -245,8 +246,9 @@ $(document).ready(function() {
                             <h:panelGroup rendered="#{ForumTool.showBulkActions && topic.changeSettings}" styleClass="float-end" layout="block">
                                 <h:selectBooleanCheckbox value="#{topic.selected}"
                                     styleClass="bulk-select"
-                                    onclick="updateBulkButtons()"
-                                    aria-label="#{msgs.cdfm_bulk_select_topic}" />
+                                    id="bulkSelectTopic"
+                                    onclick="updateBulkButtons()" />
+                                <h:outputLabel for="bulkSelectTopic" styleClass="sr-only" value="#{msgs.cdfm_bulk_select_topic}" />
                             </h:panelGroup>
                             
                             <%-- Show warning icon for topics in draft forums instead of regular folder icon --%>

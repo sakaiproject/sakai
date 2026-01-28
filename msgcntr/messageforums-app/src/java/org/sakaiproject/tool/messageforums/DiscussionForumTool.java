@@ -2510,11 +2510,15 @@ public class DiscussionForumTool {
 
       if (!isGradebookGroupEnabled()) {
         String gradeAssign = topicBean.getGradeAssign();
+        gradeAssign = gradeAssign == null ? topic.getDefaultAssignName() : gradeAssign;
         if (!draft) {
-          GradingService gradingService = getGradingService();
-          String gradebookUid = toolManager.getCurrentPlacement().getContext();
-          Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
-          Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+          Date dueDate = null;
+          if (StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign)) {
+            GradingService gradingService = getGradingService();
+            String gradebookUid = toolManager.getCurrentPlacement().getContext();
+            Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
+            dueDate = assignment != null ? assignment.getDueDate() : null;
+          }
           String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId() + TOPIC_REF + topic.getId();
           Optional<Task> optTask = taskService.getTask(reference);
           if (optTask.isPresent()) {
