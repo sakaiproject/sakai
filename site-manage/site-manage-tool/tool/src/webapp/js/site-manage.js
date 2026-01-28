@@ -1544,9 +1544,10 @@ document.addEventListener('DOMContentLoaded', () => {
               const items = sites[siteId];
 
               const toolCheckbox = document.getElementById(`toolSite-${toolId}-${siteId}`);
-              const escapedTitle = $('<div>').text(items[i].title).html();
-              if (items[i]) {
-                const itemId = items[i].id;
+              const item = items[i];
+              if (item) {
+                const escapedTitle = $('<div>').text(item.title ?? "").html();
+                const itemId = item.id;
                 tr += `
                   <td>
                     <input type="checkbox"

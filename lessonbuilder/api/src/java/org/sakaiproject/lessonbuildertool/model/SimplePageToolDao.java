@@ -201,9 +201,17 @@ public interface SimplePageToolDao {
 
 	public SimplePage getPage(long pageId);
 
+	/**
+	 * Find the main SimplePage for a LessonBuilder tool by its site page ID (toolId)
+	 * This method is used by the portal to check if a LessonBuilder page should be hidden from navigation
+	 * @param sitePageId the site page ID (which corresponds to toolId in LessonBuilder)
+	 * @return the SimplePage or null if not found
+	 */
+	public SimplePage findSimplePageBySitePageId(String sitePageId);
+
 	public String getPageUrl(long pageId);
 
-    // list of all pages in the site, not just top level
+	// list of all pages in the site, not just top level
 	public List<SimplePage> getSitePages(String siteId);
 
 	/**

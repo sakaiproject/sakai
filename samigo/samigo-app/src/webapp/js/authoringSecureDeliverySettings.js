@@ -51,8 +51,8 @@ class FormElement {
 
     enable() {
         if (this._isRadio) {
-            const radios = this._input.querySelector(`input[name="${this._inputId}"]`);
-            Array.of(radios).forEach((radio) => radio.disabled = false);
+            const radios = this._input.querySelectorAll(`input[name="${this._inputId}"]`);
+            radios.forEach((radio) => radio.disabled = false);
         } else {
             this.input.disabled = false;
         }
@@ -60,8 +60,8 @@ class FormElement {
 
     disable() {
         if (this._isRadio) {
-            const radios = this._input.querySelector(`input[name="${this._inputId}"]`);
-            Array.of(radios).forEach((radio) => radio.disabled = true);
+            const radios = this._input.querySelectorAll(`input[name="${this._inputId}"]`);
+            radios.forEach((radio) => radio.disabled = true);
         } else {
             this._input.disabled = true;
         }
@@ -301,8 +301,12 @@ function initSecureDeliverySettings(isPublishedSettingsPage) {
             case "SECURE_DELIVERY_NONE_ID":
                 FormElement.hideAll(Object.values(formElements.seb));
                 formElements.secureDeliveryModuleExitPassword.hide();
+                Object.values(configModeHelpTexts).forEach(helpText => helpText?.hide());
                 break;
             default:
+                FormElement.hideAll(Object.values(formElements.seb));
+                Object.values(configModeHelpTexts).forEach(helpText => helpText?.hide());
+                formElements.secureDeliveryModuleExitPassword.show();
                 break;
         }
     }
@@ -366,6 +370,7 @@ function initSecureDeliverySettings(isPublishedSettingsPage) {
     if (isPublishedSettingsPage) {
         // Published assessment Settings
         handleSecureDeliveryModule();
+        formElements.secureDeliveryModule?.onChange(handleSecureDeliveryModule);
 
     } else {
         // Draft assessment Settings

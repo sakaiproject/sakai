@@ -4,7 +4,6 @@ import "@sakai-ui/sakai-picture-changer/sakai-picture-changer.js";
 import "@sakai-ui/sakai-audio-recorder/sakai-audio-recorder.js";
 import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
 import isEmail from "validator/es/lib/isEmail.js";
-import isMobilePhone from "validator/es/lib/isMobilePhone.js";
 import { SocialLinks } from "social-links";
 
 export class SakaiAccount extends SakaiElement {
@@ -185,8 +184,8 @@ export class SakaiAccount extends SakaiElement {
     }
 
     const mobile = this.renderRoot.querySelector("#mobile-input").value;
-
-    if (mobile && !isMobilePhone(mobile)) {
+    const digitsOnly = mobile ? mobile.replace(/\D/g, "") : "";
+    if (mobile && mobile.trim() && (digitsOnly.length < 7 || !/^[\d\s\-().+]+$/.test(mobile))) {
       this._currentError = this._i18n.invalid_mobile;
       this._displayContactInfoErrorBanner = true;
       this._mobileInvalid = true;

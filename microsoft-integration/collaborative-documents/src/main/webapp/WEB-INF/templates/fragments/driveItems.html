@@ -57,7 +57,7 @@
 			<span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
-			<li class="dropdown-item" th:if="${allowCreateFolders}"><a href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).FOLDER}]])" th:text="#{create.folder}" th:aria-label="#{create.folder}">Folder</a></li>
+			<li th:if="${allowCreateFolders}"><a class="dropdown-item" href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).FOLDER}]])" th:text="#{create.folder}" th:aria-label="#{create.folder}">Folder</a></li>
 			<li th:if="${allowCreateFolders} and ${allowCreateFiles}"><hr class="dropdown-divider" /></li>
 			<li th:if="${allowCreateFiles}"><a class="dropdown-item" href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).DOC_WORD}]])" th:text="#{create.word}" th:aria-label="#{create.word}">Word</a></li>
 			<li th:if="${allowCreateFiles}"><a class="dropdown-item" href="#" role="menuitem" tabindex="-1" th:onclick="loadNewItemModal(this, [[${T(org.sakaiproject.microsoft.api.data.MicrosoftDriveItem.TYPE).DOC_EXCEL}]])" th:text="#{create.excel}" th:aria-label="#{create.excel}">Excel</a></li>
@@ -85,7 +85,7 @@
 	</li>
 </th:block>
 
-<div th:fragment="printItemsHeader()" class="table-row" th:with="icon=(${sortBy.endsWith(':1')} ? 'fa fa-sort-down' : 'fa fa-sort-up')" tabindex="0">
+<div th:fragment="printItemsHeader()" class="table-row header" th:with="icon=(${sortBy.endsWith(':1')} ? 'fa fa-sort-down' : 'fa fa-sort-up')" tabindex="0">
 	<a href='#' class="col-4" onclick="sortItems(this, 'name')" role="button" tabindex="-1" th:aria-label="#{header.name}">
 		[[#{header.name}]]
 		<span th:class="${sortBy.startsWith('name')}? ${icon}"></span>
@@ -109,17 +109,18 @@
 			<span th:case="*" class="fa fa-file-o"></span><!-- This never should be visible -->
 			[[${item.name}]]
 		</a>
-		<a href='#'
-			class="dropdown-toggle"
+		<button type="button"
+			class="btn btn-primary dropdown-toggle"
 			aria-expanded="false"
 			th:attr="data-itemid=${item.id}"
 			th:title="#{actions}"
+			th:aria-label="#{actions}"
 			th:onclick="toggleDropdown(this, false)"
 			role="button"
-			tabindex="-1"
-		>
-			...
-		</a>
+			tabindex="-1">
+			<span class="sr-only" th:text="#{actions}">Actions</span>
+			<span th:text="#{actions}">Actions</span>
+		</button>
 	</div>
 
 	<div class="col-4 main-column" th:if="${item.isFolder()}">
@@ -128,18 +129,18 @@
 			<span class="folder-item fa fa-folder-o" th:if="${!item.hasChildren()}"></span>
 			[[${item.name}]]
 		</a>
-		<a href='#'
-			th:if="${allowDeleteFolders}"
-			class="dropdown-toggle"
+		<button type="button"
+			class="btn btn-primary dropdown-toggle"
 			aria-expanded="false"
 			th:attr="data-itemid=${item.id}"
 			th:title="#{actions}"
+			th:aria-label="#{actions}"
 			th:onclick="toggleDropdown(this, true)"
 			role="button"
-			tabindex="-1"
-		>
-			...
-		</a>
+			tabindex="-1">
+			<span class="sr-only" th:text="#{actions}">Actions</span>
+			<span th:text="#{actions}">Actions</span>
+		</button>
 	</div>
 
 	<div class="col-3" th:text="${#temporals.format(item.modifiedAt, df)}"></div>

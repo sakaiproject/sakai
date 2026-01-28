@@ -107,7 +107,8 @@ public class LessonsSubNavBuilder {
         subnavItem.put("sendingPage", spi.getSakaiId());
         subnavItem.put("name", spi.getName());
         subnavItem.put("description", spi.getDescription());
-        subnavItem.put("hidden", String.valueOf(page.isHidden()));
+        subnavItem.put("hidden", String.valueOf(page.isHidden() || page.isHiddenFromNavigation()));
+        subnavItem.put("hiddenFromNavigation", String.valueOf(page.isHiddenFromNavigation()));
         subnavItem.put("required", String.valueOf(spi.isRequired()));
         subnavItem.put("completed", String.valueOf(le != null && le.isComplete()));
         subnavItem.put("prerequisite", String.valueOf(spi.isPrerequisite()));
@@ -134,7 +135,8 @@ public class LessonsSubNavBuilder {
         pageProps.put("toolId", sakaiToolId);
         pageProps.put("siteId", page.getSiteId());
         pageProps.put("name", page.getTitle());
-        pageProps.put("hidden", String.valueOf(page.isHidden()));
+        pageProps.put("hidden", String.valueOf(page.isHidden() || page.isHiddenFromNavigation()));
+        pageProps.put("hiddenFromNavigation", String.valueOf(page.isHiddenFromNavigation()));
         pageProps.put("required", String.valueOf(spi.isRequired()));
         pageProps.put("completed", String.valueOf(le != null && le.isComplete()));
         pageProps.put("prerequisite", String.valueOf(spi.isPrerequisite()));

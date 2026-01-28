@@ -40,7 +40,7 @@ public interface SiteManageService {
      * @return true if the site was successfully queued by the executor, false if there is already another
      * import/copy being performed for this site.
      */
-    boolean importToolsIntoSiteThread(final Site site, final List<String> toolIds, final Map<String, List<String>> toolsToImport, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, final boolean cleanup);
+    boolean importToolsIntoSiteThread(Site site, List<String> toolIds, Map<String, List<String>> toolsToImport, Map<String, Map<String, List<String>>> toolItemMap, Map<String, Map<String, List<String>>> toolOptions, boolean cleanup);
 
     /**
      * Contains the actual workflow for tools to be imported and their references to be updated
