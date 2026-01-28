@@ -887,6 +887,55 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 
 	/**
+	 * Builds a parent map from subpage references, considering only pages in pageMap (for selective import).
+	 *
+	 * @param subpageRefs Map of parent page IDs to lists of child page IDs
+	 * @param pageMap Map of old page IDs to new page IDs (determines which pages are being imported)
+	 * @param calculatedParentMap Output map to populate with child -> parent relationships
+	 */
+	Map<Long, Long> buildParentMapFromReferences(Map<Long, List<Long>> subpageRefs, Map<Long, Long> pageMap, Map<Long, Long> calculatedParentMap) {
+		for (Map.Entry<Long, List<Long>> entry : subpageRefs.entrySet()) {
+			Long oldParentPageId = entry.getKey();
+			List<Long> oldChildPageIds = entry.getValue();
+
+			if (!pageMap.containsKey(oldParentPageId)) continue;
+
+			for (Long oldChildPageId : oldChildPageIds) {
+				if (pageMap.containsKey(oldChildPageId)) {
+					calculatedParentMap.put(oldChildPageId, oldParentPageId);
+				}
+			}
+		}
+		return calculatedParentMap;
+	}
+
+	/**
+	 * Calculates top parent relationships by walking up the parent chain.
+	 *
+	 * @param calculatedParentMap Map of child -> parent relationships
+	 * @param calculatedTopParentMap Output map to populate with page -> top parent relationships
+	 */
+	Map<Long, Long> calculateTopParentMap(Map<Long, Long> calculatedParentMap, Map<Long, Long> calculatedTopParentMap) {
+		for (Long pageId : calculatedParentMap.keySet()) {
+			Long currentPageId = pageId;
+			Long topParent = null;
+			Set<Long> visited = new HashSet<>();
+			while (calculatedParentMap.containsKey(currentPageId)) {
+				if (!visited.add(currentPageId)) {
+					log.warn("Cycle detected in page hierarchy at page {}", currentPageId);
+					break;
+				}
+				topParent = calculatedParentMap.get(currentPageId);
+				currentPageId = topParent;
+			}
+			if (topParent != null) {
+				calculatedTopParentMap.put(pageId, topParent);
+			}
+		}
+		return calculatedTopParentMap;
+	}
+
+	/**
 	 * Finds the top-level pages that should become new Lessons from the selected pages
 	 * Only considers pages that were originally selected by the user, not those added automatically as references
 	 */
@@ -1914,18 +1963,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			Map<Long, List<Long>> subpageRefs = findReferencedPagesByItems(fromSiteId);
 
 			// Build parent map from subpage references
-			for (Map.Entry<Long, List<Long>> entry : subpageRefs.entrySet()) {
-				Long oldParentPageId = entry.getKey();
-				List<Long> oldChildPageIds = entry.getValue();
-
-				if (!pageMap.containsKey(oldParentPageId)) continue;
-
-				for (Long oldChildPageId : oldChildPageIds) {
-					if (pageMap.containsKey(oldChildPageId)) {
-						calculatedParentMap.put(oldChildPageId, oldParentPageId);
-					}
-				}
-			}
+			buildParentMapFromReferences(subpageRefs, pageMap, calculatedParentMap);
 
 			// For cross-server imports, fall back to XML attributes if subpageRefs is empty
 			if (!isSameServer && subpageRefs.isEmpty()) {
@@ -1945,22 +1983,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			}
 
 			// Calculate top parents by walking up the tree
-			for (Long pageId : calculatedParentMap.keySet()) {
-				Long currentPageId = pageId;
-				Long topParent = null;
-				Set<Long> visited = new HashSet<>();
-				while (calculatedParentMap.containsKey(currentPageId)) {
-					if (!visited.add(currentPageId)) {
-						log.warn("Cycle detected in page hierarchy at page {}", currentPageId);
-						break;
-					}
-					topParent = calculatedParentMap.get(currentPageId);
-					currentPageId = topParent;
-				}
-				if (topParent != null) {
-					calculatedTopParentMap.put(pageId, topParent);
-				}
-			}
+			calculateTopParentMap(calculatedParentMap, calculatedTopParentMap);
 
 			// Apply calculated relationships to imported pages
 			int hierarchyUpdates = 0;
