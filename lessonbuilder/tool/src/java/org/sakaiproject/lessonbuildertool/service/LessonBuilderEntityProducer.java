@@ -856,6 +856,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 		
 		for (SimplePage page : allPages) {
+			if ("0".equals(page.getToolId())) {
+				log.debug("Skipping orphaned page {} with toolId='0'", page.getPageId());
+				continue;
+			}
+			
 			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(page.getPageId());
 			if (items != null) {
 				for (SimplePageItem item : items) {
