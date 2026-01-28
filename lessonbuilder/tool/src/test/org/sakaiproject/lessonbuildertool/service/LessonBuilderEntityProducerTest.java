@@ -229,9 +229,9 @@ public class LessonBuilderEntityProducerTest {
         // The method should skip orphaned parents
         Map<Long, List<Long>> result = producer.findReferencedPagesByItems(siteId);
 
-        // Result may be empty or not contain the orphan - depends on implementation
-        // The key point is it shouldn't cause errors
+        // Verify the orphan parent is not included in the result
         assertNotNull("Result should not be null", result);
+        assertFalse("Orphan parent page 200L should not be in result", result.containsKey(200L));
     }
 
     /**
