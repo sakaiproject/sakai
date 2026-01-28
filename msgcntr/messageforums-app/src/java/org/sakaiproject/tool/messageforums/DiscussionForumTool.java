@@ -2337,14 +2337,12 @@ public class DiscussionForumTool {
       return null;
     }
 
-    Set<Long> selectedForumIds = new HashSet<>();
-    for (DiscussionForumBean forumBean : selectedForums) {
-      if (forumBean.getForum() != null && forumBean.getForum().getId() != null) {
-        selectedForumIds.add(forumBean.getForum().getId());
-      }
-    }
+    Set<Long> deletedForumIds = new HashSet<>();
 
     for (DiscussionForumBean forumBean : selectedForums) {
+      if (forumBean.getForum() == null || forumBean.getForum().getId() == null) {
+        continue;
+      }
       DiscussionForum forum = forumManager.getForumById(forumBean.getForum().getId());
       if (forum == null) {
         continue;
@@ -2358,6 +2356,7 @@ public class DiscussionForumTool {
       List topics = forum.getTopics();
 
       forumManager.deleteForum(forum);
+      deletedForumIds.add(forum.getId());
 
       if (beforeChangeHM != null) {
         updateSynopticMessagesForForumComparingOldMessagesCount(
@@ -2387,7 +2386,7 @@ public class DiscussionForumTool {
       if (forum == null) {
         continue;
       }
-      if (selectedForumIds.contains(forum.getId())) {
+      if (deletedForumIds.contains(forum.getId())) {
         continue;
       }
       if (!uiPermissionsManager.isChangeSettings(topic, forum)) {
@@ -2447,6 +2446,25 @@ public class DiscussionForumTool {
         updateSynopticMessagesForForumComparingOldMessagesCount(
             getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
       }
+
+      if (!isGradebookGroupEnabled()) {
+        String gradeAssign = forumBean.getGradeAssign();
+        gradeAssign = gradeAssign == null ? forum.getDefaultAssignName() : gradeAssign;
+
+        if (!draft && gradeAssign != null) {
+          GradingService gradingService = getGradingService();
+          String gradebookUid = toolManager.getCurrentPlacement().getContext();
+          Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
+          Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+          String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
+          Optional<Task> optTask = taskService.getTask(reference);
+          if (optTask.isPresent()) {
+            this.updateTask(optTask.get(), forum.getTitle(), dueDate);
+          } else if (forumBean.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign)) {
+            this.createTask(reference, forum.getTitle(), dueDate);
+          }
+        }
+      }
     }
 
     for (DiscussionTopicBean topicBean : selectedTopics) {
@@ -2488,6 +2506,23 @@ public class DiscussionForumTool {
       if (!draft && beforeForumChangeHM != null) {
         updateSynopticMessagesForForumComparingOldMessagesCount(
             getSiteId(), forum.getId(), null, beforeForumChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      }
+
+      if (!isGradebookGroupEnabled()) {
+        String gradeAssign = topicBean.getGradeAssign();
+        if (!draft) {
+          GradingService gradingService = getGradingService();
+          String gradebookUid = toolManager.getCurrentPlacement().getContext();
+          Assignment assignment = gradingService.getAssignmentByNameOrId(gradebookUid, gradebookUid, gradeAssign);
+          Date dueDate = (assignment != null ? assignment.getDueDate() : null);
+          String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId() + TOPIC_REF + topic.getId();
+          Optional<Task> optTask = taskService.getTask(reference);
+          if (optTask.isPresent()) {
+            this.updateTask(optTask.get(), topic.getTitle(), dueDate);
+          } else if (topicBean.isCreateTask() && StringUtils.isNotBlank(gradeAssign) && !DEFAULT_GB_ITEM.equals(gradeAssign)) {
+            this.createTask(reference, topic.getTitle(), dueDate);
+          }
+        }
       }
     }
 
