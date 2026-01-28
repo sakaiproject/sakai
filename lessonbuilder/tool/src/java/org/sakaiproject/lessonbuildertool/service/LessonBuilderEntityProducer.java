@@ -1895,6 +1895,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			Map<Long, Long> calculatedParentMap = new HashMap<>();
 			Map<Long, Long> calculatedTopParentMap = new HashMap<>();
 
+			// Determine if this is a same-server import
+			Site fromSite = null;
+			try {
+				fromSite = siteService.getSite(fromSiteId);
+			} catch (Exception e) {
+				fromSite = null;
+			}
+			boolean isSameServer = fromSite != null;
+
+
 			// Get parent-child relationships from source site
 			Map<Long, List<Long>> subpageRefs = findReferencedPagesByItems(fromSiteId);
 
@@ -1908,6 +1918,23 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				for (Long oldChildPageId : oldChildPageIds) {
 					if (pageMap.containsKey(oldChildPageId)) {
 						calculatedParentMap.put(oldChildPageId, oldParentPageId);
+					}
+				}
+			}
+
+			// For cross-server imports, fall back to XML attributes if subpageRefs is empty
+			if (!isSameServer && subpageRefs.isEmpty()) {
+				log.debug("Cross-server import: falling back to XML parent attributes");
+				for (Map.Entry<Long, Element> pageEntry : pageElementMap.entrySet()) {
+					Long oldPageId = pageEntry.getKey();
+					Element pageElement = pageEntry.getValue();
+					
+					String parentAttr = pageElement.getAttribute("parent");
+					if (StringUtils.isNotEmpty(parentAttr)) {
+						long parentId = NumberUtils.toLong(parentAttr, 0L);
+						if (parentId > 0 && pageMap.containsKey(parentId) && pageMap.containsKey(oldPageId)) {
+							calculatedParentMap.put(oldPageId, parentId);
+						}
 					}
 				}
 			}
