@@ -8,7 +8,7 @@
 			description="Display the system message of the day">
 
 		<configuration name="days" value="1000" />
-		<configuration name="items" value="3" />
+		<configuration name="items" value="1" />
 		<configuration name="length" value="50000" />
 		<configuration name="show-subject" value="false" />
 		<configuration name="show-newlines" value="true" />

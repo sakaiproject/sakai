@@ -122,13 +122,14 @@
 					</label>
 					<input type="text" id="$days_form"  name="$days_form" value="$days" size="3" />
 				</p>
-
+				#if ($toolId!="sakai.motd")
 				<p class="shorttext">
 					<label for="$items_form">
 						$tlang.getFormattedMessage("cus.numof.items", $all_items)
 					</label>
 					<input type="text" id="$items_form" name="$items_form" value="$items" size="3" />
 				</p>
+				#end
 			#end
 			
 			## Recent Chat tool got the true setting of allow_channel_choice
