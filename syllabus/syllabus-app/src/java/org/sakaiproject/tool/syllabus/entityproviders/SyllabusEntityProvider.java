@@ -321,13 +321,12 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 							if (StringUtils.isNotBlank(content)) {
 								StringBuilder alertMsg = new StringBuilder();
 								String cleanedText = FormattedText.processFormattedText(content, alertMsg);
+								if (cleanedText != null) {
+									data.setAsset(cleanedText);
+									syllabusManager.saveSyllabus(data);
+								}
 								if (alertMsg.length() > 0) {
-									throw new IllegalArgumentException("Error formatting body text: " + alertMsg);
-								} else {
-									if (StringUtils.isNotEmpty(cleanedText)) {
-										data.setAsset(cleanedText);
-										syllabusManager.saveSyllabus(data);
-									}
+									log.debug("Syllabus content sanitized: {}", alertMsg);
 								}
 							}
 						} catch(Exception e) {
@@ -426,13 +425,15 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 			    		try
 			    		{
 			    			cleanedText  =  FormattedText.processFormattedText(body, alertMsg);
-			    			if (alertMsg.length() > 0)
-			    			{
-			    				throw new IllegalArgumentException("Error formatting body text: " + alertMsg);
-			    			}else{
-			    				data.setAsset(cleanedText);
-			    				syllabusManager.saveSyllabus(data);
-			    			}
+		    				if (cleanedText != null)
+		    				{
+		    					data.setAsset(cleanedText);
+		    					syllabusManager.saveSyllabus(data);
+		    				}
+		    				if (alertMsg.length() > 0)
+		    				{
+		    					log.debug("Syllabus content sanitized: {}", alertMsg);
+		    				}
 			    		}catch(Exception e){
 			    			log.error(e.getMessage(), e);
 			    		}
