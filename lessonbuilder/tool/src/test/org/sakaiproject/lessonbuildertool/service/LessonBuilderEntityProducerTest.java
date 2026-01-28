@@ -242,39 +242,24 @@ public class LessonBuilderEntityProducerTest {
      */
     @Test
     public void testHierarchyCalculationFromReferences() {
-        // Simulate the hierarchy calculation logic
-        Map<Long, List<Long>> subpageRefs = new HashMap<>();
-        Map<Long, Long> calculatedParentMap = new HashMap<>();
-        Map<Long, Long> calculatedTopParentMap = new HashMap<>();
-
         // Setup: Page 100 has subpages 101, 102
         //        Page 101 has subpage 103
+        Map<Long, List<Long>> subpageRefs = new HashMap<>();
         subpageRefs.put(100L, List.of(101L, 102L));
         subpageRefs.put(101L, List.of(103L));
 
-        // Build parent map (from subpage references)
-        for (Map.Entry<Long, List<Long>> entry : subpageRefs.entrySet()) {
-            Long parentPageId = entry.getKey();
-            List<Long> childPageIds = entry.getValue();
-            for (Long childPageId : childPageIds) {
-                calculatedParentMap.put(childPageId, parentPageId);
-            }
-        }
+        // Simulate pageMap (all pages are being imported)
+        Map<Long, Long> pageMap = new HashMap<>();
+        pageMap.put(100L, 100L);
+        pageMap.put(101L, 101L);
+        pageMap.put(102L, 102L);
+        pageMap.put(103L, 103L);
 
-        // Calculate top parents (walk up the tree)
-        for (Long pageId : calculatedParentMap.keySet()) {
-            Long currentPageId = pageId;
-            Long topParent = null;
+        Map<Long, Long> calculatedParentMap = new HashMap<>();
+        Map<Long, Long> calculatedTopParentMap = new HashMap<>();
 
-            while (calculatedParentMap.containsKey(currentPageId)) {
-                topParent = calculatedParentMap.get(currentPageId);
-                currentPageId = topParent;
-            }
-
-            if (topParent != null) {
-                calculatedTopParentMap.put(pageId, topParent);
-            }
-        }
+        producer.buildParentMapFromReferences(subpageRefs, pageMap, calculatedParentMap);
+        producer.calculateTopParentMap(calculatedParentMap, calculatedTopParentMap);
 
         // Verify results
         assertEquals("Page 101 parent should be 100", Long.valueOf(100L), calculatedParentMap.get(101L));
@@ -309,19 +294,7 @@ public class LessonBuilderEntityProducerTest {
 
         Map<Long, Long> calculatedParentMap = new HashMap<>();
 
-        // Build parent map - ONLY for pages in pageMap
-        for (Map.Entry<Long, List<Long>> entry : subpageRefs.entrySet()) {
-            Long oldParentPageId = entry.getKey();
-            List<Long> oldChildPageIds = entry.getValue();
-
-            if (!pageMap.containsKey(oldParentPageId)) continue;
-
-            for (Long oldChildPageId : oldChildPageIds) {
-                if (pageMap.containsKey(oldChildPageId)) {
-                    calculatedParentMap.put(oldChildPageId, oldParentPageId);
-                }
-            }
-        }
+        producer.buildParentMapFromReferences(subpageRefs, pageMap, calculatedParentMap);
 
         // Verify: only page 101 should have parent (102 not imported)
         assertEquals("Page 101 should have parent 100", Long.valueOf(100L), calculatedParentMap.get(101L));
