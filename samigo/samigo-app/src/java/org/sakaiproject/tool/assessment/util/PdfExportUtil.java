@@ -23,11 +23,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReport;
+import org.sakaiproject.tool.assessment.ui.model.AssessmentReportCell;
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReportSection;
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReport.AssessmentReportOrientation;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
@@ -48,6 +51,8 @@ public class PdfExportUtil {
     private static final int CELL_VERTICAL_ALIGNMENT = PdfCell.ALIGN_MIDDLE;
     private static final int CELL_HORIZONTAL_ALIGNMENT = PdfCell.ALIGN_LEFT;
     private static final int CELL_PADDING = 3;
+    private static final Font DEFAULT_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL);
+    private static final Font BOLD_FONT = FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD);
 
 
     public static String assessmentReportToPdf(AssessmentReport report) throws IOException {
@@ -71,7 +76,7 @@ public class PdfExportUtil {
 
             for (int i = 0; i < sections.size(); i++) {
                 AssessmentReportSection section = sections.get(i);
-                List<List<String>> tableData = section.getTable();
+                List<List<AssessmentReportCell>> tableData = section.getCellTable();
 
                 // Create title row
                 if (reportTitle.isPresent()) {
@@ -100,14 +105,14 @@ public class PdfExportUtil {
                 // Create table and add section data
                 PdfPTable table = createTable(tableData.get(0).size());
                 for (int j = 0; j < tableData.size(); j++) {
-                    List<String> rowData = tableData.get(j);
+                    List<AssessmentReportCell> rowData = tableData.get(j);
 
                     for (int k = 0; k < rowData.size(); k++) {
                         table.addCell(createCell(rowData.get(k)));
                     }
                     if (rowData.size() < tableData.get(0).size()) {
                         for (int l = 0; l < tableData.get(0).size() - rowData.size(); l++) {
-                            table.addCell(createCell(""));
+                            table.addCell(createCell(AssessmentReportCell.text("")));
                         }
                     }
                 }
@@ -138,7 +143,7 @@ public class PdfExportUtil {
         return table;
     }
 
-    private static PdfPCell createCell(String content) {
+    private static PdfPCell createCell(AssessmentReportCell cellData) {
         PdfPCell cell = new PdfPCell();
 
         // Set cell default
@@ -148,7 +153,8 @@ public class PdfExportUtil {
         cell.setPadding(CELL_PADDING);
 
         // Set content
-        cell.setPhrase(new Phrase(content));
+        Font font = cellData.isBold() ? BOLD_FONT : DEFAULT_FONT;
+        cell.setPhrase(new Phrase(cellData.getValue(), font));
 
         return cell;
     }

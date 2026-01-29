@@ -23,12 +23,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReport;
+import org.sakaiproject.tool.assessment.ui.model.AssessmentReportCell;
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReportSection;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +43,7 @@ public class ExcelExportUtil {
     public static String assessmentReportToXslx(AssessmentReport report) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Workbook workbook = new XSSFWorkbook();
+        CellStyle boldCellStyle = createBoldCellStyle(workbook);
 
         List<AssessmentReportSection> sections = report.getSections();
         List<Sheet> sheets = sections.stream()
@@ -54,7 +58,7 @@ public class ExcelExportUtil {
 
         for (int i = 0; i < sheets.size(); i++) {
             AssessmentReportSection section = sections.get(i);
-            List<List<String>> table = section.getTable();
+            List<List<AssessmentReportCell>> table = section.getCellTable();
             Sheet sheet = sheets.get(i);
 
             // Create title row
@@ -84,11 +88,15 @@ public class ExcelExportUtil {
                 int rowIndex = j + rowOffset;
                 log.debug("Adding row at {} (data)", rowIndex);
                 Row row = sheet.createRow(rowIndex);
-                List<String> rowData = table.get(j);
+                List<AssessmentReportCell> rowData = table.get(j);
 
                 for (int k = 0; k < rowData.size(); k++) {
                     Cell cell = row.createCell(k);
-                    cell.setCellValue(rowData.get(k));
+                    AssessmentReportCell cellData = rowData.get(k);
+                    cell.setCellValue(cellData.getValue());
+                    if (cellData.isBold()) {
+                        cell.setCellStyle(boldCellStyle);
+                    }
                 }
             }
         }
@@ -102,5 +110,13 @@ public class ExcelExportUtil {
 
     private static int nextRowIndex(Sheet sheet) {
         return sheet.getLastRowNum() + 1;
+    }
+
+    private static CellStyle createBoldCellStyle(Workbook workbook) {
+        Font boldFont = workbook.createFont();
+        boldFont.setBold(true);
+        CellStyle style = workbook.createCellStyle();
+        style.setFont(boldFont);
+        return style;
     }
 }

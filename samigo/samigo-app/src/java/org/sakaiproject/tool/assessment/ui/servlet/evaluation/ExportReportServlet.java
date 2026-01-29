@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReport;
+import org.sakaiproject.tool.assessment.ui.model.AssessmentReportCell;
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReportSection;
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReport.AssessmentReportOrientation;
 import org.sakaiproject.tool.assessment.ui.model.AssessmentReport.AssessmentReportType;
@@ -244,40 +245,45 @@ public class ExportReportServlet extends SamigoBaseServlet {
                 .section(AssessmentReportSection.builder()
                         .title(EVALUATION_BUNDLE.getFormattedMessage("highest_sub"))
                         .tableLayout(TableLayout.HORIZONTAL)
-                        .tableHeader(itemAnalysisHeader(highestSubmissionHsBean))
-                        .tableData(itemAnalysisData(highestSubmissionHsBean))
+                        .tableHeaderCells(itemAnalysisHeaderCells(highestSubmissionHsBean))
+                        .tableDataCells(itemAnalysisDataCells(highestSubmissionHsBean))
                         .build())
                 .section(AssessmentReportSection.builder()
                         .title(EVALUATION_BUNDLE.getFormattedMessage("all_sub"))
                         .tableLayout(TableLayout.HORIZONTAL)
-                        .tableHeader(itemAnalysisHeader(allSubmissionsHsBean))
-                        .tableData(itemAnalysisData(allSubmissionsHsBean))
+                        .tableHeaderCells(itemAnalysisHeaderCells(allSubmissionsHsBean))
+                        .tableDataCells(itemAnalysisDataCells(allSubmissionsHsBean))
                         .build())
                 .build();
     }
 
-    private List<List<String>> itemAnalysisData(HistogramScoresBean histogramScoresBean) {
+    private List<List<AssessmentReportCell>> itemAnalysisDataCells(HistogramScoresBean histogramScoresBean) {
         int maxNumberOfAnswers = histogramScoresBean.getMaxNumberOfAnswers();
 
         return histogramScoresBean.getDetailedStatistics().stream()
                 .map(itemStatistics -> {
-                    List<String> dataRow = new ArrayList<>();
+                    List<AssessmentReportCell> dataRow = new ArrayList<>();
 
-                    dataRow.add(itemStatistics.getQuestionLabel());
-                    dataRow.add(String.valueOf(itemStatistics.getNumResponses()));
-                    dataRow.add(itemStatistics.getPercentCorrect());
+                    dataRow.add(AssessmentReportCell.text(itemStatistics.getQuestionLabel()));
+                    dataRow.add(AssessmentReportCell.text(String.valueOf(itemStatistics.getNumResponses())));
+                    dataRow.add(AssessmentReportCell.text(itemStatistics.getPercentCorrect()));
 
                     if (histogramScoresBean.getShowDiscriminationColumn()) {
-                        dataRow.add(itemStatistics.getPercentCorrectFromUpperQuartileStudents());
-                        dataRow.add(itemStatistics.getPercentCorrectFromLowerQuartileStudents());
-                        dataRow.add(itemStatistics.getDiscrimination());
+                        dataRow.add(AssessmentReportCell.text(itemStatistics.getPercentCorrectFromUpperQuartileStudents()));
+                        dataRow.add(AssessmentReportCell.text(itemStatistics.getPercentCorrectFromLowerQuartileStudents()));
+                        dataRow.add(AssessmentReportCell.text(itemStatistics.getDiscrimination()));
                     }
 
-                    if (maxNumberOfAnswers > 0) {
-                        dataRow.add(toCellValue(itemStatistics.getDifficulty()));
-                        dataRow.add(toCellValue(itemStatistics.getNumberOfStudentsWithCorrectAnswers()));
-                        dataRow.add(toCellValue(itemStatistics.getNumberOfStudentsWithIncorrectAnswers()));
-                        dataRow.add(String.valueOf(itemStatistics.getNumberOfStudentsWithZeroAnswers()));
+                    if (histogramScoresBean.getMaxNumberOfAnswers() > 0) {
+                        dataRow.add(AssessmentReportCell.text(toCellValue(itemStatistics.getDifficulty())));
+                        dataRow.add(AssessmentReportCell.text(toCellValue(itemStatistics.getNumberOfStudentsWithCorrectAnswers())));
+                        dataRow.add(AssessmentReportCell.text(toCellValue(itemStatistics.getNumberOfStudentsWithIncorrectAnswers())));
+                        dataRow.add(AssessmentReportCell.text(String.valueOf(itemStatistics.getNumberOfStudentsWithZeroAnswers())));
+                    }
+
+                    if (histogramScoresBean.getShowObjectivesColumn()) {
+                        dataRow.add(AssessmentReportCell.text(StringUtils.defaultString(itemStatistics.getObjectives())));
+                        dataRow.add(AssessmentReportCell.text(StringUtils.defaultString(itemStatistics.getKeywords())));
                     }
 
                     HistogramBarBean[] histogramBars = Optional.ofNullable(itemStatistics.getHistogramBars())
@@ -285,10 +291,13 @@ public class ExportReportServlet extends SamigoBaseServlet {
                     for (int i = 0; i < maxNumberOfAnswers; i++) {
                         if (!itemStatistics.getShowIndividualAnswersInDetailedStatistics()
                                 || i >= histogramBars.length || histogramBars[i] == null) {
-                            dataRow.add("");
+                            dataRow.add(AssessmentReportCell.text(""));
                             continue;
                         }
-                        dataRow.add(String.valueOf(histogramBars[i].getNumStudents()));
+
+                        HistogramBarBean histogramBar = histogramBars[i];
+                        String value = String.valueOf(histogramBar.getNumStudents());
+                        dataRow.add(histogramBar.getIsCorrect() ? AssessmentReportCell.bold(value) : AssessmentReportCell.text(value));
                     }
 
                     return dataRow;
@@ -317,12 +326,22 @@ public class ExportReportServlet extends SamigoBaseServlet {
             header.add(EVALUATION_BUNDLE.getFormattedMessage("total_incorrect"));
             header.add(EVALUATION_BUNDLE.getFormattedMessage("no_answer"));
         }
+        if (histogramScoresBean.getShowObjectivesColumn()) {
+            header.add(EVALUATION_BUNDLE.getFormattedMessage("obj"));
+            header.add(EVALUATION_BUNDLE.getFormattedMessage("keywords"));
+        }
 
         for (int i = 0; i < histogramScoresBean.getMaxNumberOfAnswers(); i++) {
             header.add(String.valueOf(answerLabel(i)));
         }
 
         return header;
+    }
+
+    private List<AssessmentReportCell> itemAnalysisHeaderCells(HistogramScoresBean histogramScoresBean) {
+        return itemAnalysisHeader(histogramScoresBean).stream()
+                .map(AssessmentReportCell::text)
+                .collect(Collectors.toList());
     }
 
     private AssessmentReport statisticsReport(String title, String subject, HistogramScoresBean highestSubmissionHsBean, HistogramScoresBean allSubmissionsHsBean) {
