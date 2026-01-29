@@ -179,8 +179,9 @@ public class StatisticsService {
             case MULTIPLE_CHOICE_ID:
                 return getItemStatisticsForItemWithOneCorrectAnswer(gradingData, answers);
             case MULTIPLE_CORRECT_ID:
-            case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
                 return getItemStatisticsForItemWithMultipleCorrectAnswers(gradingData, answers);
+            case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
+                return getItemStatisticsForItemWithOneCorrectAnswer(gradingData, answers);
             case FILL_IN_BLANK_ID:
             case FILL_IN_NUMERIC_ID:
                 return getItemStatisticsForFillInItem(item, gradingData, answers);
@@ -311,11 +312,11 @@ public class StatisticsService {
 
             // Even if all selected answers are correct, we also need to compare the count
             // to know that all correct answers were selected
-            if (correctAnswers == presentAnswerCount) {
-                correctResponses++;
-            } else if (blankAnswers == presentAnswerCount) {
+            if (blankAnswers == presentAnswerCount) {
                 blankResponses++;
-            } else if (incorrectAnswers != 0) {
+            } else if (correctAnswers == presentAnswerCount) {
+                correctResponses++;
+            } else {
                 incorrectResponses++;
             }
         }
@@ -422,7 +423,8 @@ public class StatisticsService {
 
         for (Set<ItemGradingData> submissionItemGradingData : itemgradingDataByAssessmentGradingId.values()) {
             int selectedAnswerCount = submissionItemGradingData.size();
-            Boolean hasIncorrectAnswer = null;
+            boolean hasIncorrectAnswer = false;
+            boolean hasBlankAnswer = false;
 
             for (ItemGradingData itemGradingData : submissionItemGradingData) {
                 Long selectedAnswerId = itemGradingData.getPublishedAnswerId();
@@ -430,6 +432,7 @@ public class StatisticsService {
                     // With a blank answer there should only one ItemGradingData per submission
                     // But to be safe, let's break out of the loop to avoid double counting
                     blankResponses++;
+                    hasBlankAnswer = true;
                     break;
                 }
 
@@ -446,19 +449,21 @@ public class StatisticsService {
                 }
 
                 if (!answerCorrect) {
-                    // Found incorrect answer, we can count it and break te loop
                     hasIncorrectAnswer = true;
-                    incorrectResponses++;
                     break;
-                } else if (hasIncorrectAnswer == null) {
-                    hasIncorrectAnswer = false;
                 }
+            }
+
+            if (hasBlankAnswer) {
+                continue;
             }
 
             // Even if all selected answers are correct, we also need to compare the count
             // to know that all correct answers were selected
-            if (Boolean.FALSE.equals(hasIncorrectAnswer) && selectedAnswerCount == correctAnswerCount) {
+            if (!hasIncorrectAnswer && selectedAnswerCount == correctAnswerCount) {
                 correctResponses++;
+            } else if (selectedAnswerCount > 0) {
+                incorrectResponses++;
             }
         }
 
