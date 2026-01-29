@@ -2117,7 +2117,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             Instant close = sa.getCloseTime();
             this.visible = Instant.now().isAfter(Optional.ofNullable(due).orElse(Instant.now()))
                 && Instant.now().isAfter(Optional.ofNullable(close).orElse(Instant.now()));
-            if (this.getDateSubmitted() != null || (this.draft && this.visible)) {
+            if (this.submitted || (this.draft && this.visible)) {
                 this.submittedText = as.getSubmittedText();
                 if (this.submitted) {
                     this.dateSubmitted
