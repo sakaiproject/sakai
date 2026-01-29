@@ -2125,9 +2125,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             if (this.submitted || (this.draft && this.visible) || isCurrentUserSubmitter) {
                 this.submittedText = as.getSubmittedText();
                 if (this.submitted) {
-                    this.dateSubmitted
-                        = userTimeService.dateTimeFormat(as.getDateSubmitted(), null, null);
-                    this.dateSubmittedEpochSeconds = as.getDateSubmitted() != null ? as.getDateSubmitted().getEpochSecond() : 0;
+                    Instant dateSubmitted = as.getDateSubmitted();
+                    if (dateSubmitted != null) {
+                        this.dateSubmitted = userTimeService.dateTimeFormat(dateSubmitted, null, null);
+                        this.dateSubmittedEpochSeconds = dateSubmitted.getEpochSecond();
+                    }
                 }
                 if (as.getDateSubmitted() != null) {
                     this.late = as.getDateSubmitted().compareTo(as.getAssignment().getDueDate()) > 0;
