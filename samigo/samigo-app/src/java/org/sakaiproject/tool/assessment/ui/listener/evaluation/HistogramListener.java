@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -117,6 +118,7 @@ public class HistogramListener
 {
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	private static final ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
+	private static final String HOT_SPOT_ITEM_BLANK_VALUE = "undefined";
 
   private GradingService delegate;
   private StatisticsService statisticsService;
@@ -2099,120 +2101,137 @@ public class HistogramListener
 	private void getImageMapQuestionScores(Map publishedItemTextHash, Map publishedAnswerHash,
 	    List scores, HistogramQuestionScoresBean qbean, List labels)
 	  {
-		Map texts = new HashMap();
+		Map<Long, ItemTextIfc> texts = new HashMap<>();
+	    Map<Long, Integer> results = new HashMap<>();
+	    Map<Long, Long> sequenceMap = new HashMap<>();
+	    List<Long> sequenceList = new ArrayList<>();
+
 	    Iterator iter = labels.iterator();
-	    Map results = new HashMap();
-	    Map numStudentRespondedMap= new HashMap();
-	    Map sequenceMap = new HashMap();
 	    while (iter.hasNext())
 	    {
 	      ItemTextIfc label = (ItemTextIfc) iter.next();
 	      texts.put(label.getId(), label);
 	      results.put(label.getId(), Integer.valueOf(0));
 	      sequenceMap.put(label.getSequence(), label.getId());
+	      sequenceList.add(label.getSequence());
 	    }
+
+	    Map<Long, Map<Long, ItemGradingData>> responsesBySubmission = new HashMap<>();
 	    iter = scores.iterator();
-
 	    while (iter.hasNext())
-	    {	      
+	    {
 	      ItemGradingData data = (ItemGradingData) iter.next();
-	      ItemTextIfc text = (ItemTextIfc) publishedItemTextHash.get(data.getPublishedItemTextId());
-	       
-	      if (text != null)
-	      {
-	        Integer num = (Integer) results.get(text.getId());
-	        if (num == null)
-	          num = Integer.valueOf(0);
+	      Long assessmentGradingId = data.getAssessmentGradingId();
+	      Long textId = data.getPublishedItemTextId();
+	      if (assessmentGradingId == null || textId == null) {
+	    	  continue;
+	      }
 
-	        List studentResponseList = (List)numStudentRespondedMap.get(data.getAssessmentGradingId());
-	        if (studentResponseList==null) {
-	            studentResponseList = new ArrayList();
-	        }
-	        studentResponseList.add(data);
-	        numStudentRespondedMap.put(data.getAssessmentGradingId(), studentResponseList);
-	        //if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
-	        if (data.getIsCorrect() != null && data.getIsCorrect().booleanValue())
-	        // only store correct responses in the results
-	        {
-	          results.put(text.getId(), Integer.valueOf(num.intValue() + 1));
-	        }
+	      Map<Long, ItemGradingData> responsesByText = responsesBySubmission.get(assessmentGradingId);
+	      if (responsesByText == null) {
+	    	  responsesByText = new HashMap<>();
+	    	  responsesBySubmission.put(assessmentGradingId, responsesByText);
+	      }
+
+	      ItemGradingData existing = responsesByText.get(textId);
+	      if (existing == null) {
+	    	  responsesByText.put(textId, data);
+	      } else {
+	    	  Date submittedDate = data.getSubmittedDate();
+	    	  Date existingSubmittedDate = existing.getSubmittedDate();
+	    	  if ((existingSubmittedDate == null && submittedDate != null)
+	    			  || (submittedDate != null && submittedDate.after(existingSubmittedDate))
+	    			  || (submittedDate == null && existingSubmittedDate == null
+	    					  && data.getItemGradingId() != null
+	    					  && existing.getItemGradingId() != null
+	    					  && data.getItemGradingId().compareTo(existing.getItemGradingId()) > 0)) {
+	    		  responsesByText.put(textId, data);
+	    	  }
 	      }
 	    }
 
+	    int correctresponses = 0;
+	    int blankResponses = 0;
+	    Set<Long> respondedAssessmentGradingIds = new HashSet<>();
+
+	    for (Map.Entry<Long, Map<Long, ItemGradingData>> entry : responsesBySubmission.entrySet()) {
+	    	Map<Long, ItemGradingData> responsesByText = entry.getValue();
+	    	int correctAnswers = 0;
+	    	int blankAnswers = 0;
+	    	boolean anyAnswered = false;
+	    	String agentId = null;
+
+	    	iter = labels.iterator();
+	    	while (iter.hasNext()) {
+	    		ItemTextIfc label = (ItemTextIfc) iter.next();
+	    		ItemGradingData data = responsesByText.get(label.getId());
+	    		if (agentId == null && data != null) {
+	    			agentId = data.getAgentId();
+	    		}
+
+	    		String answerText = data != null ? data.getAnswerText() : null;
+	    		boolean blank = StringUtils.isBlank(answerText) || StringUtils.contains(answerText, HOT_SPOT_ITEM_BLANK_VALUE);
+	    		if (blank) {
+	    			blankAnswers++;
+	    			continue;
+	    		}
+
+	    		anyAnswered = true;
+	    		if (Boolean.TRUE.equals(data.getIsCorrect())) {
+	    			Integer num = results.get(label.getId());
+	    			if (num == null) {
+	    				num = Integer.valueOf(0);
+	    			}
+	    			results.put(label.getId(), Integer.valueOf(num.intValue() + 1));
+	    			correctAnswers++;
+	    		}
+	    	}
+
+	    	if (!anyAnswered) {
+	    		blankResponses++;
+	    		continue;
+	    	}
+
+	    	respondedAssessmentGradingIds.add(entry.getKey());
+	    	if (correctAnswers == labels.size()) {
+	    		correctresponses = correctresponses + 1;
+	    		if (agentId != null) {
+	    			qbean.addStudentWithAllCorrect(agentId);
+	    		}
+	    	}
+
+	    	if (agentId != null) {
+	    		qbean.addStudentResponded(agentId);
+	    	}
+	    }
+
+	    int responses = respondedAssessmentGradingIds.size();
+	    qbean.setNumResponses(responses);
+	    qbean.setNumberOfStudentsWithZeroAnswers(blankResponses);
+
 	    HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
 	    int[] numarray = new int[results.keySet().size()];
-	    List sequenceList = new ArrayList();
-	    iter = labels.iterator();
-	    while (iter.hasNext())
-	    {
-	      ItemTextIfc label = (ItemTextIfc) iter.next();
-	      sequenceList.add(label.getSequence());
-	    }
-	     
+
 	    Collections.sort(sequenceList);
 	    iter = sequenceList.iterator();
-	    //iter = results.keySet().iterator();
 	    int i = 0;
-	    int correctresponses = 0;
 	    while (iter.hasNext())
 	    {
 	      Long sequenceId = (Long) iter.next();
-	      Long textId = (Long) sequenceMap.get(sequenceId);
-	      ItemTextIfc text = (ItemTextIfc) texts.get(textId);
-	      int num = ((Integer) results.get(textId)).intValue();
+	      Long textId = sequenceMap.get(sequenceId);
+	      ItemTextIfc text = texts.get(textId);
+	      int num = results.get(textId).intValue();
 	      numarray[i] = num;
 	      bars[i] = new HistogramBarBean();
 	      bars[i].setLabel(text.getText());
-	      bars[i].setIsCorrect(((Integer) results.get(textId)) >= 1);
+	      bars[i].setIsCorrect(results.get(textId) >= 1);
 	      bars[i].setNumStudents(num);
 	      bars[i].setNumStudentsText(String.valueOf(num));
 
 	      i++;
 	    }
 
-	    // now calculate correctresponses
-	    // correctresponses = # of students who got all answers correct, 
-	    
-	    for (Iterator it = numStudentRespondedMap.entrySet().iterator(); it.hasNext();) {
-	    	Map.Entry entry = (Map.Entry) it.next();
-	     	List resultsForOneStudent = (List) entry.getValue();
-	    	boolean hasIncorrect = false;
-	    	Iterator listiter = resultsForOneStudent.iterator();
-
-	      // numStudentRespondedMap only stores correct answers, so now we need to 
-	      // check to see if # of  rows in itemgradingdata_t == labels.size() 
-	      // otherwise if a student only answered one correct answer and 
-	      // skipped the rest, it would count as a correct response
-
-	      while (listiter.hasNext())
-	      {
-	        ItemGradingData item = (ItemGradingData)listiter.next();
-	        if (resultsForOneStudent.size()!= labels.size()){
-	          hasIncorrect = true;
-	          break;
-	        }
-	          // now check each answer in Matching 
-	          //AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
-	          if (item.getIsCorrect() == null || (!item.getIsCorrect().booleanValue()))
-	          {
-	            hasIncorrect = true;
-	            break;
-	          }
-	      }
-	      if (!hasIncorrect) {
-	        correctresponses = correctresponses + 1;
-
-	        // gopalrc - Nov 2007
-			qbean.addStudentWithAllCorrect(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId());
-		  }
-		  // gopalrc - Dec 2007
-		  qbean.addStudentResponded(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId());
-	    }
-
-	    //NEW
 	    int[] heights = calColumnHeight(numarray, qbean.getNumResponses());
-	    //  int[] heights = calColumnHeight(numarray);
-	    
 	    for (i=0; i<bars.length; i++) {
 	    	try {
 	    		bars[i].setColumnHeight(Integer.toString(heights[i]));
@@ -2220,11 +2239,12 @@ public class HistogramListener
 	    	catch (NullPointerException npe) {
 	    		log.warn("bars[" + i + "] is null. " + npe);
 	    	}
-	    }	
+	    }
 	    
 	    qbean.setHistogramBars(bars);
-	    if (qbean.getNumResponses() > 0)
+	    if (qbean.getNumResponses() > 0) {
 	      qbean.setPercentCorrect(Integer.toString((int)(((double) correctresponses/(double) qbean.getNumResponses()) * 100)));
+	    }
 	  }
 
   private void getMatchingScores(Map publishedItemTextHash, Map publishedAnswerHash,
