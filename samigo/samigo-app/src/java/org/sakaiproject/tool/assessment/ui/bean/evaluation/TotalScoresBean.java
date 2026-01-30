@@ -68,6 +68,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -279,7 +281,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
       this.setResultsAlreadyCalculated(true);
       // Instance a new PublishedAssessmentService to get all the published Answer for each student
       PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
-      PublishedAssessmentData publishedAssessmentData = pubAssessmentService.getPublishedAssessment(this.getPublishedId());
+      PublishedAssessmentIfc publishedAssessmentData = pubAssessmentService.getPublishedAssessment(this.getPublishedId());
       Map publishedAnswerHash = pubAssessmentService.preparePublishedAnswerHash(publishedAssessmentData);
       Map publishedItemTextHash = pubAssessmentService.preparePublishedItemTextHash(publishedAssessmentData);
       // Instance a new GradingService to get all the student responses
@@ -331,13 +333,13 @@ public class TotalScoresBean implements Serializable, PhaseAware {
         || typeId.equals(TypeIfc.IMAGEMAP_QUESTION));
   }
 
-  private List<PublishedItemData> getTallyableItems(PublishedAssessmentData publishedAssessmentData) {
+  private List<PublishedItemData> getTallyableItems(PublishedAssessmentIfc publishedAssessmentData) {
     List<PublishedItemData> tallyableItems = new ArrayList<>();
     if (publishedAssessmentData == null) {
       return tallyableItems;
     }
     for (Object sectionObject : publishedAssessmentData.getSectionArray()) {
-      PublishedSectionData sectionData = (PublishedSectionData) sectionObject;
+      SectionDataIfc sectionData = (SectionDataIfc) sectionObject;
       for (Object itemObject : sectionData.getItemArray()) {
         PublishedItemData item = (PublishedItemData) itemObject;
         if (isTallyableItemType(item.getTypeId())) {
@@ -546,7 +548,9 @@ public class TotalScoresBean implements Serializable, PhaseAware {
       boolean hasIncorrect = false;
       for (ItemGradingData gradingData : gradingList) {
         Long answerId = gradingData.getPublishedAnswerId();
-        if (answerId == null || StringUtils.isBlank(gradingData.getAnswerText())) {
+        String answerText = gradingData.getAnswerText();
+        boolean isUndefinedAnswer = StringUtils.equalsIgnoreCase("undefined", StringUtils.trimToNull(answerText));
+        if (answerId == null || StringUtils.isBlank(answerText) || isUndefinedAnswer) {
           continue;
         }
         hasAnyResponse = true;

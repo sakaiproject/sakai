@@ -272,13 +272,14 @@ public class StatisticsService {
             int correctAnswers = 0;
             int incorrectAnswers = 0;
             int blankAnswers = 0;
+            boolean hasNullAnswer = false;
 
             for (ItemGradingData itemGradingData : submissionItemGradingData) {
                 Long answerId = itemGradingData.getPublishedAnswerId();
                 if (answerId == null) {
                     // With a blank answer there should only one ItemGradingData per submission
                     // But to be safe, let's break out of the loop to avoid double counting
-                    blankResponses++;
+                    hasNullAnswer = true;
                     break;
                 }
 
@@ -308,6 +309,11 @@ public class StatisticsService {
                     incorrectAnswers++;
                     continue;
                 }
+            }
+
+            if (hasNullAnswer) {
+                blankResponses++;
+                continue;
             }
 
             // Even if all selected answers are correct, we also need to compare the count

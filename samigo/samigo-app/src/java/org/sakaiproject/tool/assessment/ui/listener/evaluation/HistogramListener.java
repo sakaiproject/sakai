@@ -1848,6 +1848,7 @@ public class HistogramListener
 		}
 
 		// build the histogram bar for correct/incorrect answers
+		int totalResponses = results.getOrDefault(CORRECT, 0) + results.getOrDefault(INCORRECT, 0);
 		List<HistogramBarBean> barList = new ArrayList<>();
 		for (Map.Entry<String, Integer> resultEntry : results.entrySet()) {
 			HistogramBarBean bar = new HistogramBarBean();
@@ -1857,8 +1858,8 @@ public class HistogramListener
 			bar.setNumStudentsText(resultEntry.getValue() + " " + resultEntry.getKey());
 			bar.setIsCorrect(resultEntry.getKey().equals(CORRECT));
 			int height = 0;
-			if (!scores.isEmpty()) {
-				height = COLUMN_MAX_HEIGHT * resultEntry.getValue() / scores.size();
+			if (totalResponses > 0) {
+				height = COLUMN_MAX_HEIGHT * resultEntry.getValue() / totalResponses;
 			}
 			bar.setColumnHeight(Integer.toString(height));
 			barList.add(bar);
@@ -1868,9 +1869,8 @@ public class HistogramListener
 		bars = barList.toArray(bars);
 		qbean.setHistogramBars(bars);
 
-		int totalResponses = results.get(CORRECT) + results.get(INCORRECT);
 		if (totalResponses > 0) {
-			double percentCorrect = ((double) results.get(CORRECT) / (double) totalResponses) * 100;
+			double percentCorrect = ((double) results.getOrDefault(CORRECT, 0) / (double) totalResponses) * 100;
 			String percentCorrectStr = Integer.toString((int) percentCorrect);
 			qbean.setPercentCorrect(percentCorrectStr);
 		}
