@@ -1,5 +1,5 @@
 
-package org.tsugi.deeplink.objects;
+package org.tsugi.provision.objects;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.tsugi.jackson.objects.JacksonBase;
 
 import org.tsugi.lti13.objects.BaseJWT;
+import org.tsugi.deeplink.objects.ContentItem;
 
 // https://www.imsglobal.org/spec/lti-dr/v1p0
 

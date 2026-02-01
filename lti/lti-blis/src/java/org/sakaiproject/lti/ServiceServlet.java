@@ -61,7 +61,7 @@ import org.tsugi.lti.objects.ResultData;
 import org.tsugi.lti.objects.ResultRecord;
 import org.tsugi.lti.objects.ResultScore;
 import org.tsugi.lti.objects.POXRequestBody;
-import org.tsugi.pox.IMSPOXRequestJackson;
+import org.tsugi.pox.POXRequestHandler;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
@@ -600,7 +600,7 @@ public class ServiceServlet extends HttpServlet {
 
 	/* IMS POX XML versions of this service */
 	public void doErrorXML(HttpServletRequest request,HttpServletResponse response,
-			IMSPOXRequestJackson pox, String s, String message, Exception e)
+			POXRequestHandler pox, String s, String message, Exception e)
 		throws java.io.IOException
 	{
 		if (e != null) {
@@ -612,7 +612,7 @@ public class ServiceServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		String output = null;
 		if ( pox == null ) {
-			output = IMSPOXRequestJackson.getFatalResponse(msg);
+			output = POXRequestHandler.getFatalResponse(msg);
 		} else {
 			String body = null;
 			String operation = pox.getOperation();
@@ -654,7 +654,7 @@ public class ServiceServlet extends HttpServlet {
 			return;
 		}
 
-		IMSPOXRequestJackson pox = new IMSPOXRequestJackson(request);
+		POXRequestHandler pox = new POXRequestHandler(request);
 		if ( ! pox.valid ) {
 			doErrorXML(request, response, pox, ERROR_POX_INVALID, pox.errorMessage, null);
 			return;
@@ -808,7 +808,7 @@ public class ServiceServlet extends HttpServlet {
 	}
 
 	protected void processOutcomeXml(HttpServletRequest request, HttpServletResponse response,
-			String lti_message_type, String sourcedid, IMSPOXRequestJackson pox)
+			String lti_message_type, String sourcedid, POXRequestHandler pox)
 		throws java.io.IOException
 	{
 		// Things look good - time to process the grade
@@ -927,27 +927,13 @@ public class ServiceServlet extends HttpServlet {
 
 		if ( !success ) return;
 
-		String bodyXml = buildPoxBodyXml(responsePayload);
-		String output = pox.getResponseSuccess(message, bodyXml);
+		String output = pox.getResponseSuccess(message, responsePayload);
 
 		response.setContentType("application/xml");
 		PrintWriter out = response.getWriter();
 		out.println(output);
 		log.debug(output);
 	}
-
-	private String buildPoxBodyXml(Object payload) {
-		if (payload == null) {
-			return "";
-		}
-		try {
-			return POX_XML_MAPPER.writeValueAsString(payload);
-		} catch (Exception e) {
-			log.warn("Unable to serialize POX payload {}", payload.getClass().getSimpleName(), e);
-			return "";
-		}
-	}
-
 
 	public void destroy() {
 
