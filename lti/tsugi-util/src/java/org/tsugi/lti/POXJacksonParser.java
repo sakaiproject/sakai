@@ -3,18 +3,15 @@ package org.tsugi.lti;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.tsugi.lti.objects.*;
 import org.tsugi.pox.POXConstants;
 import org.tsugi.pox.POXResponseBuilder;
 import org.tsugi.pox.POXResponseFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -249,179 +246,6 @@ public class POXJacksonParser {
     }
 
     /**
-     * Create a fatal response
-     * 
-     * @param description The error description
-     * @return XML response string
-     */
-    public static String createFatalResponse(String description) {
-        return createFatalResponse(description, "unknown");
-    }
-
-    /**
-     * Create a fatal response with message ID
-     * 
-     * @param description The error description
-     * @param messageId The message ID
-     * @return XML response string
-     */
-    public static String createFatalResponse(String description, String messageId) {
-        Date dt = new Date();
-        String messageIdValue = "" + dt.getTime();
-
-        return String.format(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
-            "    <imsx_POXHeader>\n" +
-            "        <imsx_POXResponseHeaderInfo>\n" + 
-            "            <imsx_version>V1.0</imsx_version>\n" +
-            "            <imsx_messageIdentifier>%s</imsx_messageIdentifier>\n" + 
-            "            <imsx_statusInfo>\n" +
-            "                <imsx_codeMajor>failure</imsx_codeMajor>\n" +
-            "                <imsx_severity>error</imsx_severity>\n" +
-            "                <imsx_description>%s</imsx_description>\n" +
-            "                <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" + 
-            "            </imsx_statusInfo>\n" +
-            "        </imsx_POXResponseHeaderInfo>\n" + 
-            "    </imsx_POXHeader>\n" +
-            "    <imsx_POXBody/>\n" +
-            "</imsx_POXEnvelopeResponse>",
-            StringEscapeUtils.escapeXml11(messageIdValue), 
-            StringEscapeUtils.escapeXml11(description),
-            StringEscapeUtils.escapeXml11(messageId)
-        );
-    }
-
-    /**
-     * Create a success response
-     * 
-     * @param description The success description
-     * @param bodyString The response body content
-     * @param messageId The message ID
-     * @param operation The operation type
-     * @return XML response string
-     */
-    public static String createSuccessResponse(String description, String bodyString, 
-                                             String messageId, String operation) {
-        return createResponse(description, MAJOR_SUCCESS, SEVERITY_STATUS, messageId, 
-                            operation, null, bodyString);
-    }
-
-    /**
-     * Create a failure response
-     * 
-     * @param description The failure description
-     * @param minorCodes Minor error codes
-     * @param messageId The message ID
-     * @param operation The operation type
-     * @return XML response string
-     */
-    public static String createFailureResponse(String description, Properties minorCodes,
-                                             String messageId, String operation) {
-        return createResponse(description, MAJOR_FAILURE, SEVERITY_ERROR, messageId, 
-                            operation, minorCodes, null);
-    }
-
-    /**
-     * Create an unsupported response
-     * 
-     * @param description The unsupported description
-     * @param messageId The message ID
-     * @param operation The operation type
-     * @return XML response string
-     */
-    public static String createUnsupportedResponse(String description, String messageId, String operation) {
-        return createResponse(description, MAJOR_UNSUPPORTED, SEVERITY_ERROR, messageId, 
-                            operation, null, null);
-    }
-
-    /**
-     * Create a generic response
-     * 
-     * @param description The response description
-     * @param major The major code
-     * @param severity The severity level
-     * @param messageId The message ID
-     * @param operation The operation type
-     * @param minorCodes Minor error codes
-     * @param bodyString The response body content
-     * @return XML response string
-     */
-    public static String createResponse(String description, String major, String severity, 
-                                      String messageId, String operation, Properties minorCodes, 
-                                      String bodyString) {
-        if (major == null) major = MAJOR_FAILURE;
-        if (severity == null && MAJOR_PROCESSING.equals(major)) severity = SEVERITY_STATUS;
-        if (severity == null && MAJOR_SUCCESS.equals(major)) severity = SEVERITY_STATUS;
-        if (severity == null) severity = SEVERITY_ERROR;
-        if (messageId == null) {
-            Date dt = new Date();
-            messageId = "" + dt.getTime();
-        }
-
-        StringBuilder minorString = new StringBuilder();
-        if (minorCodes != null && minorCodes.size() > 0) {
-            minorString.append("\n        <imsx_codeMinor>\n");
-            for (Object okey : minorCodes.keySet()) {
-                String key = (String) okey;
-                String value = minorCodes.getProperty(key);
-                if (key == null || value == null) continue;
-                
-                minorString.append("          <imsx_codeMinorField>\n");
-                minorString.append("            <imsx_codeMinorFieldName>");
-                minorString.append(StringEscapeUtils.escapeXml11(key));
-                minorString.append("</imsx_codeMinorFieldName>\n");
-                minorString.append("            <imsx_codeMinorFieldValue>");
-                minorString.append(StringEscapeUtils.escapeXml11(value));
-                minorString.append("</imsx_codeMinorFieldValue>\n");
-                minorString.append("          </imsx_codeMinorField>\n");
-            }
-            minorString.append("        </imsx_codeMinor>");
-        }
-
-        if (bodyString == null) bodyString = "";
-
-        if (bodyString.startsWith("<?xml")) {
-            int pos = bodyString.indexOf("<", 1);
-            if (pos > 0) bodyString = bodyString.substring(pos);
-        }
-        bodyString = bodyString.trim();
-        String newLine = "";
-        if (bodyString.length() > 0) newLine = "\n";
-
-        return String.format(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
-            "  <imsx_POXHeader>\n" +
-            "    <imsx_POXResponseHeaderInfo>\n" + 
-            "      <imsx_version>V1.0</imsx_version>\n" +
-            "      <imsx_messageIdentifier>%s</imsx_messageIdentifier>\n" + 
-            "      <imsx_statusInfo>\n" +
-            "        <imsx_codeMajor>%s</imsx_codeMajor>\n" +
-            "        <imsx_severity>%s</imsx_severity>\n" +
-            "        <imsx_description>%s</imsx_description>\n" +
-            "        <imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>\n" +       
-            "        <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" + 
-            "%s\n"+ 
-            "      </imsx_statusInfo>\n" +
-            "    </imsx_POXResponseHeaderInfo>\n" + 
-            "  </imsx_POXHeader>\n" +
-            "  <imsx_POXBody>\n" +
-            "%s%s"+
-            "  </imsx_POXBody>\n" +
-            "</imsx_POXEnvelopeResponse>",
-            StringEscapeUtils.escapeXml11(messageId), 
-            StringEscapeUtils.escapeXml11(major), 
-            StringEscapeUtils.escapeXml11(severity), 
-            StringEscapeUtils.escapeXml11(description), 
-            StringEscapeUtils.escapeXml11(messageId), 
-            StringEscapeUtils.escapeXml11(operation), 
-            StringEscapeUtils.escapeXml11(minorString.toString()), 
-            bodyString, newLine
-        );
-    }
-    
-    /**
      * Create a response using POXResponseBuilder for more control
      * 
      * @param description The response description
@@ -430,12 +254,10 @@ public class POXJacksonParser {
      * @param messageId The message ID
      * @param operation The operation type
      * @param minorCodes Minor error codes
-     * @param bodyString The response body content
      * @return POXEnvelopeResponse object
      */
     public static POXEnvelopeResponse createResponseObject(String description, String major, String severity, 
-                                                          String messageId, String operation, Properties minorCodes, 
-                                                          String bodyString) {
+                                                          String messageId, String operation, Properties minorCodes) {
         return POXResponseBuilder.create()
             .withDescription(description)
             .withMajor(major)
@@ -443,7 +265,6 @@ public class POXJacksonParser {
             .withMessageId(messageId)
             .withOperation(operation)
             .withMinorCodes(minorCodes)
-            .withBodyContent(bodyString)
             .build();
     }
     
@@ -456,14 +277,12 @@ public class POXJacksonParser {
      * @param messageId The message ID
      * @param operation The operation type
      * @param minorFields List of minor code fields
-     * @param bodyString The response body content
      * @return XML response string
      */
     public static String createResponseWithMinorFields(String description, String major, String severity, 
-                                                     String messageId, String operation, List<POXCodeMinorField> minorFields, 
-                                                     String bodyString) {
+                                                     String messageId, String operation, List<POXCodeMinorField> minorFields) {
         return POXResponseFactory.createResponseWithMinorFields(description, major, severity, 
-                messageId, operation, minorFields, bodyString);
+                messageId, operation, minorFields);
     }
     
     /**

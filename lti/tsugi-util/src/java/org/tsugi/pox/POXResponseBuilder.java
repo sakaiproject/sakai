@@ -11,8 +11,12 @@ import org.tsugi.lti.objects.POXResponseHeaderInfo;
 import org.tsugi.lti.objects.POXStatusInfo;
 import org.tsugi.lti.objects.POXCodeMinor;
 import org.tsugi.lti.objects.POXCodeMinorField;
+import org.tsugi.lti.objects.ReadResultResponse;
+import org.tsugi.lti.objects.ReplaceResultResponse;
+import org.tsugi.lti.objects.DeleteResultResponse;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,17 +30,19 @@ public class POXResponseBuilder {
     
     static {
         XML_MAPPER = new XmlMapper();
+        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
         XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         XML_MAPPER.setDefaultUseWrapper(false);
     }
     
     private String description;
-    private String major = IMSPOXRequestJackson.MAJOR_FAILURE;
-    private String severity = IMSPOXRequestJackson.SEVERITY_ERROR;
+    private String major = POXRequestHandler.MAJOR_FAILURE;
+    private String severity = POXRequestHandler.SEVERITY_ERROR;
     private String messageId;
     private String operation;
     private POXCodeMinor codeMinor;
-    private String bodyContent;
+    private String bodyXml;
+    private Object bodyObject;
     
     
     public static POXResponseBuilder create() {
@@ -101,46 +107,52 @@ public class POXResponseBuilder {
         return this;
     }
     
-  
-    public POXResponseBuilder withBodyContent(String bodyContent) {
-        this.bodyContent = bodyContent;
-        return this;
-    }
-    
     public POXResponseBuilder asSuccess() {
-        this.major = IMSPOXRequestJackson.MAJOR_SUCCESS;
-        this.severity = IMSPOXRequestJackson.SEVERITY_STATUS;
+        this.major = POXRequestHandler.MAJOR_SUCCESS;
+        this.severity = POXRequestHandler.SEVERITY_STATUS;
         return this;
     }
     
     public POXResponseBuilder asFailure() {
-        this.major = IMSPOXRequestJackson.MAJOR_FAILURE;
-        this.severity = IMSPOXRequestJackson.SEVERITY_ERROR;
+        this.major = POXRequestHandler.MAJOR_FAILURE;
+        this.severity = POXRequestHandler.SEVERITY_ERROR;
         return this;
     }
     
     public POXResponseBuilder asUnsupported() {
-        this.major = IMSPOXRequestJackson.MAJOR_UNSUPPORTED;
-        this.severity = IMSPOXRequestJackson.SEVERITY_ERROR;
+        this.major = POXRequestHandler.MAJOR_UNSUPPORTED;
+        this.severity = POXRequestHandler.SEVERITY_ERROR;
         return this;
     }
     
     public POXResponseBuilder asProcessing() {
-        this.major = IMSPOXRequestJackson.MAJOR_PROCESSING;
-        this.severity = IMSPOXRequestJackson.SEVERITY_STATUS;
+        this.major = POXRequestHandler.MAJOR_PROCESSING;
+        this.severity = POXRequestHandler.SEVERITY_STATUS;
         return this;
     }
     
-    private String cleanBodyContent(String content) {
-        if (content == null || content.trim().isEmpty()) {
-            return "";
-        }
-        String cleanBody = content.trim();
-        if (cleanBody.startsWith("<?xml")) {
-            int pos = cleanBody.indexOf("<", 1);
-            if (pos > 0) cleanBody = cleanBody.substring(pos);
-        }
-        return cleanBody;
+    /**
+     * Set body content from XML string
+     * The XML should be the serialized response body (e.g., &lt;readResultResponse&gt;...&lt;/readResultResponse&gt;)
+     * 
+     * @param bodyXml The XML string containing the response body
+     * @return this builder for method chaining
+     */
+    public POXResponseBuilder withBodyXml(String bodyXml) {
+        this.bodyXml = bodyXml;
+        return this;
+    }
+    
+    /**
+     * Set body content from response object directly
+     * Accepts ReadResultResponse, ReplaceResultResponse, or DeleteResultResponse objects
+     * 
+     * @param bodyObject The response object (ReadResultResponse, ReplaceResultResponse, or DeleteResultResponse)
+     * @return this builder for method chaining
+     */
+    public POXResponseBuilder withBodyObject(Object bodyObject) {
+        this.bodyObject = bodyObject;
+        return this;
     }
     
     public POXEnvelopeResponse build() {
@@ -168,10 +180,50 @@ public class POXResponseBuilder {
         response.setPoxHeader(header);
         
         POXResponseBody body = new POXResponseBody();
-        String cleanBody = cleanBodyContent(bodyContent);
-        if (!cleanBody.isEmpty()) {
-            body.setRawContent(cleanBody);
+        
+        // Set body object directly if provided (preferred method)
+        if (bodyObject != null) {
+            if (bodyObject instanceof ReadResultResponse) {
+                body.setReadResultResponse((ReadResultResponse) bodyObject);
+            } else if (bodyObject instanceof ReplaceResultResponse) {
+                body.setReplaceResultResponse((ReplaceResultResponse) bodyObject);
+            } else if (bodyObject instanceof DeleteResultResponse) {
+                body.setDeleteResultResponse((DeleteResultResponse) bodyObject);
+            } else {
+                log.warn("Unknown body object type: {}", bodyObject.getClass().getName());
+            }
+        } else if (bodyXml != null && !bodyXml.trim().isEmpty()) {
+            // Fallback: Parse body XML if provided (for backward compatibility)
+            try {
+                // Determine which response type based on operation
+                if ("readResultRequest".equals(operation)) {
+                    ReadResultResponse readResponse = XML_MAPPER.readValue(bodyXml.trim(), ReadResultResponse.class);
+                    body.setReadResultResponse(readResponse);
+                } else if ("replaceResultRequest".equals(operation)) {
+                    ReplaceResultResponse replaceResponse = XML_MAPPER.readValue(bodyXml.trim(), ReplaceResultResponse.class);
+                    body.setReplaceResultResponse(replaceResponse);
+                } else if ("deleteResultRequest".equals(operation)) {
+                    DeleteResultResponse deleteResponse = XML_MAPPER.readValue(bodyXml.trim(), DeleteResultResponse.class);
+                    body.setDeleteResultResponse(deleteResponse);
+                } else {
+                    // Try to parse generically - check for known response types
+                    if (bodyXml.contains("<readResultResponse")) {
+                        ReadResultResponse readResponse = XML_MAPPER.readValue(bodyXml.trim(), ReadResultResponse.class);
+                        body.setReadResultResponse(readResponse);
+                    } else if (bodyXml.contains("<replaceResultResponse")) {
+                        ReplaceResultResponse replaceResponse = XML_MAPPER.readValue(bodyXml.trim(), ReplaceResultResponse.class);
+                        body.setReplaceResultResponse(replaceResponse);
+                    } else if (bodyXml.contains("<deleteResultResponse")) {
+                        DeleteResultResponse deleteResponse = XML_MAPPER.readValue(bodyXml.trim(), DeleteResultResponse.class);
+                        body.setDeleteResultResponse(deleteResponse);
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Failed to parse body XML, using empty body: {}", e.getMessage());
+                // Continue with empty body if parsing fails
+            }
         }
+        
         response.setPoxBody(body);
         
         return response;
@@ -185,43 +237,5 @@ public class POXResponseBuilder {
             log.error("Error serializing POXEnvelopeResponse to XML", e);
             throw new RuntimeException("Failed to serialize POXEnvelopeResponse to XML", e);
         }
-    }
-
-    public static String createSuccessResponse(String description, String bodyContent, String messageId, String operation) {
-        return POXResponseBuilder.create()
-            .withDescription(description)
-            .withBodyContent(bodyContent)
-            .withMessageId(messageId)
-            .withOperation(operation)
-            .asSuccess()
-            .buildAsXml();
-    }
-
-    public static String createFailureResponse(String description, Properties minorCodes, String messageId, String operation) {
-        return POXResponseBuilder.create()
-            .withDescription(description)
-            .withMinorCodes(minorCodes)
-            .withMessageId(messageId)
-            .withOperation(operation)
-            .asFailure()
-            .buildAsXml();
-    }
-    
-    public static String createUnsupportedResponse(String description, String messageId, String operation) {
-        return POXResponseBuilder.create()
-            .withDescription(description)
-            .withMessageId(messageId)
-            .withOperation(operation)
-            .asUnsupported()
-            .buildAsXml();
-    }
-
-    public static String createProcessingResponse(String description, String messageId, String operation) {
-        return POXResponseBuilder.create()
-            .withDescription(description)
-            .withMessageId(messageId)
-            .withOperation(operation)
-            .asProcessing()
-            .buildAsXml();
     }
 }

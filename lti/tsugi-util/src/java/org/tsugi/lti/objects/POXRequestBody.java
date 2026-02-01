@@ -24,7 +24,4 @@ public class POXRequestBody {
     @JacksonXmlProperty(localName = "readMembershipRequest")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ReadMembershipRequest readMembershipRequest;
-    
-    @JacksonXmlProperty(localName = "rawContent")
-    private String rawContent;
 }
