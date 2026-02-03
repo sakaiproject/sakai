@@ -8,8 +8,7 @@
      init-method="init" 
      >
      <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
-     <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>    
-     <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
+     <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>
      <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
      <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
      <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>

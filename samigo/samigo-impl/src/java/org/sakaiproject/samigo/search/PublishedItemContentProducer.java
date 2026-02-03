@@ -19,7 +19,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,16 +48,20 @@ public class PublishedItemContentProducer implements EntityContentProducer, Enti
     @Setter EntityProviderManager entityProviderManager;
     PublishedAssessmentService publishedAssessmentService  = new PublishedAssessmentService();
 
+    // Map of events to their corresponding search index actions
+    private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+            "sam.pubassessment.saveitem", SearchBuilderItem.ACTION_ADD,
+            "sam.pubassessment.unindexitem", SearchBuilderItem.ACTION_DELETE
+    );
+
     protected void init() throws Exception {
     }
 
     @Override
     public Set<String> getTriggerFunctions() {
-        Set<String> h = new HashSet<String>();
-        h.add("sam.pubassessment.saveitem");
-        h.add("sam.pubassessment.unindexitem");
-        return h;
+        return EVENT_ACTIONS.keySet();
     }
+
 
     /**
      * Destroy
@@ -88,15 +91,7 @@ public class PublishedItemContentProducer implements EntityContentProducer, Enti
      * {@inheritDoc}
      */
     public Integer getAction(Event event) {
-        String evt = event.getEvent();
-        if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-        if (evt.equals("sam.pubassessment.saveitem")) {
-            return SearchBuilderItem.ACTION_ADD;
-        }
-        if (evt.equals("sam.pubassessment.unindexitem")) {
-            return SearchBuilderItem.ACTION_DELETE;
-        }
-        return SearchBuilderItem.ACTION_UNKNOWN;
+        return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
     }
 
     /**
@@ -370,7 +365,7 @@ public class PublishedItemContentProducer implements EntityContentProducer, Enti
      * {@inheritDoc}
      */
     public boolean matches(Event event) {
-        return matches(getReferenceFromEventResource(event.getResource()));
+        return EVENT_ACTIONS.containsKey(event.getEvent());
     }
 
     private String getReferenceFromEventResource(String resource){

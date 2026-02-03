@@ -22,7 +22,6 @@
 package org.sakaiproject.profile2.impl;
 
 import java.io.Reader;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -66,21 +65,22 @@ public class ProfileContentProducer implements EntityContentProducer, EntityCont
 
     @Autowired private UserDirectoryService userDirectoryService;
 
+    // Map of events to their corresponding search index actions
+    private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+            SakaiPersonManager.PROFILE_UPDATE, SearchBuilderItem.ACTION_ADD,
+            ProfileConstants.EVENT_PROFILE_NEW, SearchBuilderItem.ACTION_ADD,
+            SakaiPersonManager.PROFILE_DELETE, SearchBuilderItem.ACTION_DELETE
+    );
+
     public void init() {
         log.debug("init");
 
-        if (serverConfigurationService.getBoolean("profile2.indexProfiles", true)) {
-            searchIndexBuilder.registerEntityContentProducer(this);
-        }
+        searchIndexBuilder.registerEntityContentProducer(this);
     }
 
+    @Override
     public Set<String> getTriggerFunctions() {
-
-        Set<String> h = new HashSet<>();
-        h.add(ProfileConstants.EVENT_PROFILE_NEW);
-        h.add(SakaiPersonManager.PROFILE_UPDATE);
-        h.add(SakaiPersonManager.PROFILE_DELETE);
-        return h;
+        return EVENT_ACTIONS.keySet();
     }
 
     public boolean canRead(String ref) {
@@ -92,16 +92,7 @@ public class ProfileContentProducer implements EntityContentProducer, EntityCont
     public Integer getAction(Event e) {
 
         log.debug("getAction: {}", e.getEvent());
-        String eventName = e.getEvent();
-
-        if (SakaiPersonManager.PROFILE_UPDATE.equals(eventName)
-                || ProfileConstants.EVENT_PROFILE_NEW.equals(eventName)) {
-            return SearchBuilderItem.ACTION_ADD;
-        } else if (SakaiPersonManager.PROFILE_DELETE.equals(eventName)) {
-            return SearchBuilderItem.ACTION_DELETE;
-        } else {
-            return SearchBuilderItem.ACTION_UNKNOWN;
-        }
+        return EVENT_ACTIONS.getOrDefault(e.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
     }
 
     public String getContainer(String ref) {
@@ -216,7 +207,7 @@ public class ProfileContentProducer implements EntityContentProducer, EntityCont
 
     public boolean matches(Event e) {
         log.debug("matches: {}", e.getEvent());
-        return SakaiPersonManager.PROFILE_UPDATE.equals(e.getEvent());
+        return EVENT_ACTIONS.containsKey(e.getEvent());
     }
 
     public boolean matches(String ref) {
