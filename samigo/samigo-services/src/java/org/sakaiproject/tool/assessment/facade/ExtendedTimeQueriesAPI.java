@@ -93,4 +93,11 @@ public interface ExtendedTimeQueriesAPI {
      * @return
      */
     boolean deleteEntry(ExtendedTime e);
+
+    /**
+     *
+     * @param pub
+     * @return
+     */
+    boolean deleteEntriesForPub(PublishedAssessmentIfc pub);
 }
