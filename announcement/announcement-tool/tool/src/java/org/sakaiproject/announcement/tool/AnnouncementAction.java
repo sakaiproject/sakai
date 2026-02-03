@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -83,6 +84,7 @@ import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageHeader;
+import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -2814,6 +2816,8 @@ public class AnnouncementAction extends PagedResourceActionII
 				
 				channel.commitMessage(msg, noti, "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
 
+				setMotdAttachmentsPublic(header, channelId);
+
 				if (!state.getIsNewAnnouncement())
 				{
 					state.setEdit(null);
@@ -2880,7 +2884,25 @@ public class AnnouncementAction extends PagedResourceActionII
 			sstate.setAttribute(STATE_CURRENT_SORT_ASC, state.getCurrentSortAsc());
 		}
 	} // postOrSaveDraft
-	
+
+	/**
+	 * Sets the public visibilty of attachments for MOTD messages,
+	 * the visibilty is based on the messages draft state.
+	 *
+	 * @param messageHeader
+	 * @param channelId
+	 */
+	private void setMotdAttachmentsPublic(MessageHeaderEdit messageHeader, String channelId) {
+		if (messageHeader != null && channelId != null) {
+			List<Reference> attachments = messageHeader.getAttachments();
+			if (attachments != null && isMotd(channelId)) {
+				attachments.stream().map(Reference::getId)
+						.filter(StringUtils::isNotBlank)
+						.forEach(id -> contentHostingService.setPubView(id, !messageHeader.getDraft()));
+			}
+		}
+	}
+
 	/**
 	 * detect string chagne.
 	 * @param startValue
