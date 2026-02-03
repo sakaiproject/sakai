@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,13 +44,14 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.StoredDigestContentProducer;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
 
 @Slf4j
-public class ContentHostingContentProducer implements EntityContentProducer, StoredDigestContentProducer
+public class ContentHostingContentProducer implements EntityContentProducer, EntityContentProducerEvents, StoredDigestContentProducer
 {
 
 	/**
@@ -904,6 +906,11 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 	public void setSiteService(SiteService siteService)
 	{
 		this.siteService = siteService;
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions() {
+		return EVENT_ACTIONS.keySet();
 	}
 
 }

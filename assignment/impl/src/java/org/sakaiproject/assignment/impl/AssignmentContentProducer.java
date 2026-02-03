@@ -22,7 +22,10 @@
 package org.sakaiproject.assignment.impl;
 
 import java.io.Reader;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
@@ -35,6 +38,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -51,7 +55,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Setter
-public class AssignmentContentProducer implements EntityContentProducer {
+public class AssignmentContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
     private AssignmentService assignmentService;
     private SearchIndexBuilder searchIndexBuilder;
@@ -220,6 +224,11 @@ public class AssignmentContentProducer implements EntityContentProducer {
 
     public String getContainer(String ref) {
         return AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getContainer();
+    }
+
+    @Override
+    public Set<String> getTriggerFunctions() {
+        return EVENT_ACTIONS.keySet();
     }
 }
 

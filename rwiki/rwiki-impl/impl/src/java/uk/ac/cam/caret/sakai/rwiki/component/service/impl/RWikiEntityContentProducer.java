@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +36,7 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -47,7 +49,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
 @Slf4j
-public class RWikiEntityContentProducer implements EntityContentProducer
+public class RWikiEntityContentProducer implements EntityContentProducer, EntityContentProducerEvents
 {
 
 	private RenderService renderService = null;
@@ -428,6 +430,11 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		{
 			return "";
 		}
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions() {
+		return EVENT_ACTIONS.keySet();
 	}
 
 }

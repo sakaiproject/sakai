@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,6 +40,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -49,7 +51,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 @Slf4j
-public class LessonsEntityContentProducer implements EntityContentProducer
+public class LessonsEntityContentProducer implements EntityContentProducer, EntityContentProducerEvents
 {
 	static final String REFERENCE_ROOT = Entity.SEPARATOR + "lessonbuilder";
 
@@ -444,6 +446,11 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 	//Seems like there should be a method for this, but is what most of the code does, lessons length is 4
 	private long idFromRef (String reference) {
 		return idFromRef(reference,4);
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions() {
+		return EVENT_ACTIONS.keySet();
 	}
 
 }

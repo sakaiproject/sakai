@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -40,6 +41,7 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -57,7 +59,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author Generated for syllabus search support
  */
 @Slf4j
-public class SyllabusContentProducer implements EntityContentProducer {
+public class SyllabusContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
 	@Setter @Getter
 	private SearchIndexBuilder searchIndexBuilder = null;
@@ -328,5 +330,10 @@ public class SyllabusContentProducer implements EntityContentProducer {
 	 */
 	private String getReference(String siteId, Long syllabusId) {
 		return SyllabusService.REFERENCE_ROOT + "/" + siteId + "/" + syllabusId.toString();
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions() {
+		return EVENT_ACTIONS.keySet();
 	}
 } 
