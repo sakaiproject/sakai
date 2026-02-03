@@ -130,7 +130,6 @@
 					<input type="text" id="$items_form" name="$items_form" value="$items" size="3" />
 				</p>
 				#end
-				
 			#end
 			
 			## Recent Chat tool got the true setting of allow_channel_choice
