@@ -22,7 +22,10 @@
 package org.sakaiproject.assignment.impl;
 
 import java.io.Reader;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
@@ -35,8 +38,8 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
@@ -52,31 +55,26 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Setter
-public class AssignmentContentProducer implements EntityContentProducer {
+public class AssignmentContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
     private AssignmentService assignmentService;
     private SearchIndexBuilder searchIndexBuilder;
     private ServerConfigurationService serverConfigurationService;
-    private SearchService searchService;
     private SiteService siteService;
     private TransactionTemplate transactionTemplate;
 
-    private List<String> addingEvents = new ArrayList<>();
-    private List<String> removingEvents = new ArrayList<>();
+    // Map of events to their corresponding search index actions
+    private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+            AssignmentConstants.EVENT_ADD_ASSIGNMENT, SearchBuilderItem.ACTION_ADD,
+            AssignmentConstants.EVENT_ADD_ASSIGNMENT_CONTENT, SearchBuilderItem.ACTION_ADD,
+            AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, SearchBuilderItem.ACTION_ADD,
+            AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_TITLE, SearchBuilderItem.ACTION_ADD,
+            AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, SearchBuilderItem.ACTION_DELETE,
+            AssignmentConstants.EVENT_REMOVE_ASSIGNMENT_CONTENT, SearchBuilderItem.ACTION_DELETE
+    );
 
     public void init() {
-
-        if (serverConfigurationService.getBoolean("search.enable", false)) {
-            addingEvents.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT);
-            addingEvents.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT_CONTENT);
-            addingEvents.add(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT);
-            addingEvents.add(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_TITLE);
-            removingEvents.add(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT);
-            removingEvents.add(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT_CONTENT);
-            addingEvents.forEach(e -> searchService.registerFunction(e));
-            removingEvents.forEach(e -> searchService.registerFunction(e));
-            searchIndexBuilder.registerEntityContentProducer(this);
-        }
+        searchIndexBuilder.registerEntityContentProducer(this);
     }
 
     public boolean isContentFromReader(String reference) {
@@ -152,19 +150,11 @@ public class AssignmentContentProducer implements EntityContentProducer {
     }
 
     public Integer getAction(Event event) {
-
-        String evt = event.getEvent();
-
-        if (addingEvents.contains(evt)) return SearchBuilderItem.ACTION_ADD;
-        if (removingEvents.contains(evt)) return SearchBuilderItem.ACTION_DELETE;
-
-        return SearchBuilderItem.ACTION_UNKNOWN;
+        return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
     }
 
     public boolean matches(Event event) {
-
-        String evt = event.getEvent();
-        return addingEvents.contains(evt) || removingEvents.contains(evt);
+        return EVENT_ACTIONS.containsKey(event.getEvent());
     }
 
     public String getTool() {
@@ -234,6 +224,11 @@ public class AssignmentContentProducer implements EntityContentProducer {
 
     public String getContainer(String ref) {
         return AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getContainer();
+    }
+
+    @Override
+    public Set<String> getTriggerFunctions() {
+        return EVENT_ACTIONS.keySet();
     }
 }
 

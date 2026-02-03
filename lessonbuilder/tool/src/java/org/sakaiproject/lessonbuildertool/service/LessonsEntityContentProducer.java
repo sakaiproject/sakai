@@ -24,12 +24,12 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -40,8 +40,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.util.HTMLParser;
@@ -51,17 +51,22 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 @Slf4j
-public class LessonsEntityContentProducer implements EntityContentProducer
+public class LessonsEntityContentProducer implements EntityContentProducer, EntityContentProducerEvents
 {
 	static final String REFERENCE_ROOT = Entity.SEPARATOR + "lessonbuilder";
-
-	private SearchService searchService = null;
 
 	private SearchIndexBuilder searchIndexBuilder = null;
 
 	private EntityManager entityManager = null;
 	
 	private SimplePageToolDao simplePageToolDao;
+	
+	// Map of events to their corresponding search index actions
+	private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+			LessonBuilderEvents.ITEM_CREATE, SearchBuilderItem.ACTION_ADD,
+			LessonBuilderEvents.ITEM_UPDATE, SearchBuilderItem.ACTION_ADD,
+			LessonBuilderEvents.ITEM_DELETE, SearchBuilderItem.ACTION_DELETE
+	);
 	
 	private LessonBuilderAccessAPI lessonBuilderAccessAPI;
     
@@ -113,19 +118,11 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 			ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 					.getInstance();
 			log.info("init()");
-			searchService = (SearchService) load(cm, SearchService.class.getName());
 			searchIndexBuilder = (SearchIndexBuilder) load(cm, SearchIndexBuilder.class
 					.getName());
 			entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 
-			if ( "true".equals(ServerConfigurationService.getString(
-					"search.enable", "false")))
-			{
-				searchService.registerFunction(LessonBuilderEvents.ITEM_CREATE);
-				searchService.registerFunction(LessonBuilderEvents.ITEM_UPDATE);
-				searchService.registerFunction(LessonBuilderEvents.ITEM_DELETE);
-				searchIndexBuilder.registerEntityContentProducer(this);
-			}
+			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 		catch (Throwable t)
 		{
@@ -206,22 +203,12 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 	
 	public Integer getAction(Event event)
 	{
-		String eventName = event.getEvent();
-		if (LessonBuilderEvents.ITEM_CREATE.equals(eventName)
-				|| LessonBuilderEvents.ITEM_UPDATE.equals(eventName))
-		{
-			return SearchBuilderItem.ACTION_ADD;
-		}
-		if (LessonBuilderEvents.ITEM_DELETE.equals(eventName))
-		{
-			return SearchBuilderItem.ACTION_DELETE;
-		}
-		return SearchBuilderItem.ACTION_UNKNOWN;
+		return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
 	}
 
 	public boolean matches(Event event)
 	{
-		return !SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
+		return EVENT_ACTIONS.containsKey(event.getEvent());
 	}
 
 	public String getTool()
@@ -459,6 +446,11 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 	//Seems like there should be a method for this, but is what most of the code does, lessons length is 4
 	private long idFromRef (String reference) {
 		return idFromRef(reference,4);
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions() {
+		return EVENT_ACTIONS.keySet();
 	}
 
 }

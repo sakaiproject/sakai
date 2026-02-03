@@ -1416,6 +1416,12 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
             log.warn("attempting to register a null entity content producer");
             return;
         }
+
+        if (!isEnabled()) {
+            log.debug("Search is not enabled. Skipping registration of entity content producer [{}]", ecp);
+            return;
+        }
+
         log.debug("register entity content producer [{}]", ecp);
         Set<EntityContentProducer> updateProducers = new HashSet<>(producers);
         updateProducers.add(ecp);

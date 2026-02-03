@@ -82,7 +82,6 @@
 		init-method="init">
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="syllabusManager" ref="org.sakaiproject.api.app.syllabus.SyllabusManager"/>
-		<property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
 		<property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
