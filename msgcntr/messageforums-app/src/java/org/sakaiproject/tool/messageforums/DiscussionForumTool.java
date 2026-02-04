@@ -2889,13 +2889,13 @@ public class DiscussionForumTool {
 		setTopicBeanAssign();
 		selectedTopic = getSelectedTopic();
 
-		List msgsList = selectedTopic.getMessages();
+		List<DiscussionMessageBean> msgsList = selectedTopic.getMessages();
 
 		if (msgsList != null && !msgsList.isEmpty())
 			msgsList = filterModeratedMessages(msgsList, selectedTopic.getTopic(),
 					(DiscussionForum) selectedTopic.getTopic().getBaseForum());
 
-		List orderedList = new ArrayList();
+		List<DiscussionMessageBean> orderedList = new ArrayList<>();
 		selectedThread = new ArrayList();
 
 		Boolean foundHead = false;
@@ -2907,20 +2907,20 @@ public class DiscussionForumTool {
 			return MAIN;
 		}
 
-		for (int i = 0; i < msgsList.size(); i++) {
-			if (((DiscussionMessageBean) msgsList.get(i)).getMessage().getId()
+		for (DiscussionMessageBean msg : msgsList) {
+			if (msg.getMessage().getId()
 					.equals(selectedThreadHead.getMessage().getId())) {
-				((DiscussionMessageBean) msgsList.get(i)).setDepth(0);
-				selectedThread.add((DiscussionMessageBean) msgsList.get(i));
+				msg.setDepth(0);
+				selectedThread.add(msg);
 				foundHead = true;
-			} else if (((DiscussionMessageBean) msgsList.get(i)).getMessage().getInReplyTo() == null && foundHead
+			} else if (msg.getMessage().getInReplyTo() == null && foundHead
 					&& !foundAfterHead) {
 				selectedThreadHead.setHasNextThread(true);
-				selectedThreadHead.setNextThreadId(((DiscussionMessageBean) msgsList.get(i)).getMessage().getId());
+				selectedThreadHead.setNextThreadId(msg.getMessage().getId());
 				foundAfterHead = true;
-			} else if (((DiscussionMessageBean) msgsList.get(i)).getMessage().getInReplyTo() == null && !foundHead) {
+			} else if (msg.getMessage().getInReplyTo() == null && !foundHead) {
 				selectedThreadHead.setHasPreThread(true);
-				selectedThreadHead.setPreThreadId(((DiscussionMessageBean) msgsList.get(i)).getMessage().getId());
+				selectedThreadHead.setPreThreadId(msg.getMessage().getId());
 			}
 		}
 		formatMessagesByRemovelastEmptyLines(msgsList);
@@ -2930,11 +2930,11 @@ public class DiscussionForumTool {
 		}
 
 		// mark all as not read
-		for (int i = 0; i < selectedThread.size(); i++) {
+		selectedThread.forEach(msg -> {
 			messageManager.markMessageNotReadForUser(selectedTopic.getTopic().getId(),
-					((DiscussionMessageBean) selectedThread.get(i)).getMessage().getId(), readStatus); // true
-			((DiscussionMessageBean) selectedThread.get(i)).setRead(Boolean.FALSE);
-		}
+					((DiscussionMessageBean) msg).getMessage().getId(), readStatus); // true
+			((DiscussionMessageBean) msg).setRead(Boolean.FALSE);
+		});
 
 		boolean postFirst = getNeedToPostFirst();
 		if (postFirst) {
