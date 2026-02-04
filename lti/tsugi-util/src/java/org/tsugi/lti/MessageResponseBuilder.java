@@ -96,14 +96,17 @@ public class MessageResponseBuilder {
         return buildAsXml(true);
     }
     
+import org.tsugi.pox.POXConstants;
+
     public static MessageResponseBuilder success() {
         return new MessageResponseBuilder()
-            .withStatusInfo("Success", "Status", "fullsuccess", null);
+            .withStatusInfo(POXConstants.MAJOR_SUCCESS, POXConstants.SEVERITY_STATUS,
+                POXConstants.MINOR_FULLSUCCESS, null);
     }
 
     public static MessageResponseBuilder error(String description) {
         return new MessageResponseBuilder()
-            .withStatusInfo("Fail", "Error", null, description);
+            .withStatusInfo(POXConstants.MAJOR_FAILURE, POXConstants.SEVERITY_ERROR, null, description);
     }
 
     public static Member createMember(String userId, String role) {
