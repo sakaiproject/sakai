@@ -29,6 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -247,16 +249,24 @@ public class ForumsEmailService {
 			log.warn("No valid recipients found: "+ toEmailAddress.toString());
 		} finally {
 			if (attachmentList != null && reply.getTopic().getIncludeContentsInEmails()) {
-				// Clean up temporary files that were created for email attachments
+				// Schedule cleanup of temporary files with 10 second delay
 				if (prefixedPath != null && !"".equals(prefixedPath)) {
-					Iterator<Attachment> iter = attachmentList.iterator();
-					while (iter.hasNext()) {
-						a = (Attachment) iter.next();
-						StringBuilder filePath = new StringBuilder(prefixedPath);
-						filePath.append("/email_tmp/");
-						filePath.append(a.getAttachmentId().replace('\\', '/'));
-						deleteAttachedFile(filePath.toString());
-					}
+					final List<Attachment> finalAttachmentList = attachmentList;
+					final String finalPrefixedPath = prefixedPath;
+					Timer timer = new Timer("EmailAttachment-Cleanup", true);
+					timer.schedule(new TimerTask() {
+						@Override
+						public void run() {
+							Iterator<Attachment> iter = finalAttachmentList.iterator();
+							while (iter.hasNext()) {
+								Attachment attachment = iter.next();
+								StringBuilder filePath = new StringBuilder(finalPrefixedPath);
+								filePath.append("/email_tmp/");
+								filePath.append(attachment.getAttachmentId().replace('\\', '/'));
+								deleteAttachedFile(filePath.toString());
+							}
+						}
+					}, 10000);
 				}
 			}
 		}
@@ -309,7 +319,12 @@ public class ForumsEmailService {
 		File file = new File(tunedFilename);
 		boolean success = file.delete();
 		if (!success) {
-			log.error("Fail to delete file: " + tunedFilename);
+			log.warn("Failed to delete file immediately, marking for deletion on exit: {}", tunedFilename);
+			if (file.exists()) {
+				file.deleteOnExit();
+			}
+		} else {
+			log.debug("Successfully deleted file: " + tunedFilename);
 		}
 		// delete the last directory
 		String directoryName = tunedFilename.substring(0, tunedFilename
@@ -317,7 +332,12 @@ public class ForumsEmailService {
 		File dir = new File(directoryName);
 		success = dir.delete();
 		if (!success) {
-			log.error("Fail to delete directory: " + directoryName);
+			log.debug("Failed to delete directory (may not be empty): {}", directoryName);
+			if (dir.exists()) {
+				dir.deleteOnExit();
+			}
+		} else {
+			log.debug("Successfully deleted directory: " + directoryName);
 		}
 	}
 
