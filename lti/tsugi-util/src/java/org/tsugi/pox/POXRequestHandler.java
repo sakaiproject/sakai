@@ -141,21 +141,21 @@ public class POXRequestHandler {
         header = request.getHeader("Authorization");
         oauth_body_hash = null;
         if (header != null) {
-            if (header.startsWith("OAuth ")) header = header.substring(5);
+            if (header.startsWith("OAuth ")) header = header.substring(6);
             String[] parms = header.split(",");
             for (String parm : parms) {
                 parm = parm.trim();
                 if (parm.startsWith("oauth_body_hash=")) {
                     String[] pieces = parm.split("\"");
-                    oauth_body_hash = URLDecoder.decode(pieces[1]);
+                    oauth_body_hash = URLDecoder.decode(pieces[1], StandardCharsets.UTF_8);
                 }
                 if (parm.startsWith("oauth_consumer_key=")) {
                     String[] pieces = parm.split("\"");
-                    oauth_consumer_key = URLDecoder.decode(pieces[1]);
+                    oauth_consumer_key = URLDecoder.decode(pieces[1], StandardCharsets.UTF_8);
                 }
                 if (parm.startsWith("oauth_signature_method=")) {
                     String[] pieces = parm.split("\"");
-                    oauth_signature_method = URLDecoder.decode(pieces[1]);
+                    oauth_signature_method = URLDecoder.decode(pieces[1], StandardCharsets.UTF_8);
                 }
             }
         }

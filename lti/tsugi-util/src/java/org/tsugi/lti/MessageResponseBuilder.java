@@ -11,6 +11,7 @@ import org.tsugi.lti.objects.Result;
 import org.tsugi.lti.objects.ResultData;
 import org.tsugi.lti.objects.ResultScore;
 import org.tsugi.lti.objects.StatusInfo;
+import org.tsugi.pox.POXConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +97,7 @@ public class MessageResponseBuilder {
         return buildAsXml(true);
     }
     
-import org.tsugi.pox.POXConstants;
+
 
     public static MessageResponseBuilder success() {
         return new MessageResponseBuilder()
