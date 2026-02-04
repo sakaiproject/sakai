@@ -16,6 +16,7 @@
             <th th:text="#{index.table.grouptitle}">Group Title</th>
             <th class="d-none d-sm-table-cell" th:if="${anyGroupLocked}" th:text="#{index.table.grouplockedby}">Locked By</th>
             <th th:text="#{index.table.joinableset}">Joinable set</th>
+            <th class="d-none d-sm-table-cell" th:text="#{index.table.restrictions}">Restrictions</th>
             <th class="d-none d-sm-table-cell" th:text="#{index.table.groupsize}">Size (Max)</th>
             <th th:text="#{index.table.groupmembers}">Members</th>
             <th class="d-none d-sm-table-cell" th:if="${anyJoinableSetDate}" th:text="#{joinableset.label.opendate}">Open Date</th>
@@ -33,7 +34,7 @@
             </td>
             <td class="d-none d-sm-table-cell" th:if="${anyGroupLocked}">
               <div th:if="${lockedGroupsEntityMap.get(group.id) != null }">
-                <div th:if="${!lockedGroupsEntityMap.get(group.id).get('assignments').isEmpty()}">
+                <div th:if="${lockedGroupsEntityMap.get(group.id).get('assignments') != null and !lockedGroupsEntityMap.get(group.id).get('assignments').isEmpty()}">
                   <span class="group-locked-info collapsed" data-bs-toggle="collapse" th:data-bs-target="|#lockingassignments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assignments}"></span>
                   <div th:id="|lockingassignments-${group.id}|" class="collapse">
                     <ul th:each=" assigment : ${lockedGroupsEntityMap.get(group.id).get('assignments')}">
@@ -42,7 +43,7 @@
                   </div>
                 </div>
                 <div class="clearfix"></div>
-                <div th:if="${!lockedGroupsEntityMap.get(group.id).get('assessments').isEmpty()}">
+                <div th:if="${lockedGroupsEntityMap.get(group.id).get('assessments') != null and !lockedGroupsEntityMap.get(group.id).get('assessments').isEmpty()}">
                 <span class="group-locked-info collapsed" data-bs-toggle="collapse" th:data-bs-target="|#lockingassessments-${group.id}|" tabindex="0" role="button" th:text="#{index.table.assessments}"></span>
                   <div th:id="|lockingassessments-${group.id}|" class="collapse">
                     <ul th:each=" assessment : ${lockedGroupsEntityMap.get(group.id).get('assessments')}">
@@ -50,9 +51,23 @@
                     </ul>
                   </div>
                 </div>
+                <div class="clearfix"></div>
+                <div th:if="${lockedGroupsEntityMap.get(group.id) != null and lockedGroupsEntityMap.get(group.id).get('joinableSets') != null and !lockedGroupsEntityMap.get(group.id).get('joinableSets').isEmpty()}">
+                <span class="group-locked-info collapsed" data-bs-toggle="collapse" th:data-bs-target="|#lockingjoinablesets-${group.id}|" tabindex="0" role="button" th:text="#{index.table.joinablesets}"></span>
+                  <div th:id="|lockingjoinablesets-${group.id}|" class="collapse">
+                    <ul th:each="joinableSet : ${lockedGroupsEntityMap.get(group.id).get('joinableSets')}">
+                      <li th:text="${joinableSet}"></li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </td>
             <td><a th:if="${groupJoinableSetMap.get(group.id) != null}" th:href="@{/joinableset(joinableSetId=${groupJoinableSetMap.get(group.id)})}" th:text="${groupJoinableSetMap.get(group.id)}"></a></td>
+            <td class="d-none d-sm-table-cell">
+              <span th:if="${groupRestrictionsMap.get(group.id) != null and !groupRestrictionsMap.get(group.id).isEmpty()}" 
+                    th:text="${groupRestrictionsMap.get(group.id)}" 
+                    th:title="#{index.table.restrictions.tooltip}"></span>
+            </td>
             <td class="d-none d-sm-table-cell"><span th:text="${group.getMembers().size()}"></span> <span th:if="${groupJoinableSetSizeMap.get(group.id) != null}" th:text="'('+${groupJoinableSetSizeMap.get(group.id)}+')'"></span></td>
             <td th:text="${groupMemberMap.get(group.id)}"></td>
             <td class="d-none d-sm-table-cell" th:if="${anyJoinableSetDate}" th:text="${joinableSetOpenDateMap.get(groupJoinableSetMap.get(group.id))}"></td>

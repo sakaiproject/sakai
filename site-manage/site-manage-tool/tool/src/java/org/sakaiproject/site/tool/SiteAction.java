@@ -2383,8 +2383,30 @@ public class SiteAction extends PagedResourceActionII {
 							}
 							// Add jGroup if the current user IS NOT part of it.
 							if (!joinableSetsMember.contains(joinableSetProp)) {
-								joinableGroup.setInteractableByDate(isInteractableByDate);
-								joinableGroups.add(joinableGroup);
+								// Check if user is allowed to join based on group restrictions
+								String allowedGroupsProperty = group.getProperties().getProperty("group-prop-joinable-allowed-groups");
+								boolean canJoinGroup = true;
+								
+								if (StringUtils.isNotBlank(allowedGroupsProperty)) {
+									String[] allowedGroupIds = allowedGroupsProperty.split(",");
+									boolean userInAllowedGroup = false;
+									
+									for (String allowedGroupId : allowedGroupIds) {
+										Group allowedGroup = site.getGroup(allowedGroupId.trim());
+										if (allowedGroup != null && allowedGroup.getMember(userId) != null) {
+											userInAllowedGroup = true;
+											break;
+										}
+									}
+									
+									canJoinGroup = userInAllowedGroup;
+								}
+								
+								// Only add the group if user can join it
+								if (canJoinGroup) {
+									joinableGroup.setInteractableByDate(isInteractableByDate);
+									joinableGroups.add(joinableGroup);
+								}
 							}
 						}
 					}
@@ -9164,6 +9186,27 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					boolean isGroupClosedByDate = false;
 					boolean isUserInJoinableSet = false;
 					boolean isGroupFull = false;
+					boolean isUserNotAllowedByGroupRestrictions = false;
+
+					// Check if user is allowed to join based on group restrictions
+					String allowedGroupsProperty = siteGroup.getProperties().getProperty("group-prop-joinable-allowed-groups");
+					if (StringUtils.isNotBlank(allowedGroupsProperty)) {
+						String[] allowedGroupIds = allowedGroupsProperty.split(",");
+						boolean userInAllowedGroup = false;
+						
+						for (String allowedGroupId : allowedGroupIds) {
+							Group allowedGroup = currentSite.getGroup(allowedGroupId.trim());
+							if (allowedGroup != null && allowedGroup.getMember(userId) != null) {
+								userInAllowedGroup = true;
+								break;
+							}
+						}
+						
+						if (!userInAllowedGroup) {
+							isUserNotAllowedByGroupRestrictions = true;
+							addAlert(state, rb.getString("sinfo.list.joinable.restrictedToGroups"));
+						}
+					}
 
 					// 1st. make sure the close date hasn't been reached (if there is)
 					String joinableCloseDate = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
@@ -9191,7 +9234,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					}
 
 					// if all conditions keep being false, the user can be added to the group
-					if(!isUserInJoinableSet && !isGroupClosedByDate && !isGroupFull) {
+					if(!isUserInJoinableSet && !isGroupClosedByDate && !isGroupFull && !isUserNotAllowedByGroupRestrictions) {
 						// add current user as the maintainer
 						Member member = currentSite.getMember(userId);
 						if(member != null) {

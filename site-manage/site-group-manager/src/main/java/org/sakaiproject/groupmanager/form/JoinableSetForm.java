@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.groupmanager.form;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -30,4 +32,6 @@ public class JoinableSetForm {
     private boolean allowPreviewMembership;
     private boolean allowViewMembership;
     private boolean allowUnjoin;
+    private boolean restrictToGroups;
+    private List<String> allowedGroups;
 }
