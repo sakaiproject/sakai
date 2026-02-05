@@ -27,8 +27,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.content.api.ContentResource;
@@ -59,13 +57,6 @@ public class AttachmentHelper {
 		int count = 0;
 			
 		try {
-			try{
-				fullFilePath = URLDecoder.decode(fullFilePath, "UTF-8");
-				filename = URLDecoder.decode(filename, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				log.error(e.getMessage());
-			}
-			
 			if (mimeType.equalsIgnoreCase("text/url")) {
 				content = filename.getBytes();
 				filename = filename.replaceAll("http://","http:__");
