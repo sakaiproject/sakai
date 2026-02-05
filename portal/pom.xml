@@ -50,9 +50,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>jtidy</groupId>
+                <groupId>com.github.jtidy</groupId>
                 <artifactId>jtidy</artifactId>
-                <version>r938</version>
+                <version>1.0.5</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>

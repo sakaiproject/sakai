@@ -47,7 +47,7 @@
             <artifactId>commons-codec</artifactId>
         </dependency>
         <dependency>
-            <groupId>jtidy</groupId>
+            <groupId>com.github.jtidy</groupId>
             <artifactId>jtidy</artifactId>
         </dependency>
         <dependency>
