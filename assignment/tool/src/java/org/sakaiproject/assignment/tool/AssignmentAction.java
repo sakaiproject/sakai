@@ -372,12 +372,14 @@ public class AssignmentAction extends PagedResourceActionII {
      * state sort *
      */
     static final String SORTED_BY = "Assignment.sorted_by";
+    static final String LIST_SORTED_BY = "Assignment.list_sorted_by";
 
     /* **************************** sort assignment ********************** */
     /**
      * state sort ascendingly *
      */
     static final String SORTED_ASC = "Assignment.sorted_asc";
+    static final String LIST_SORTED_ASC = "Assignment.list_sorted_asc";
     /**
      * default sorting
      */
@@ -2904,9 +2906,18 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("LongObject", Instant.now().toEpochMilli());
         context.put("currentTime", Instant.now());
         context.put("filterOptions", AssignmentFilter.values());
-        context.put("currentFilterOption", state.getAttribute(FILTER_OPTION));
+        context.put("currentFilterOption", getFilterOption(state));
         String sortedBy = (String) state.getAttribute(SORTED_BY);
         String sortedAsc = (String) state.getAttribute(SORTED_ASC);
+        String viewKey = getListSortViewKey(state, MODE_LIST_ASSIGNMENTS);
+        String listSortedBy = getListSortedBy(state, viewKey);
+        String listSortedAsc = getListSortedAsc(state, viewKey);
+        if (listSortedBy != null && listSortedAsc != null) {
+            sortedBy = listSortedBy;
+            sortedAsc = listSortedAsc;
+            state.setAttribute(SORTED_BY, sortedBy);
+            state.setAttribute(SORTED_ASC, sortedAsc);
+        }
         // clean sort criteria
         if (SORTED_BY_GROUP_TITLE.equals(sortedBy) || SORTED_BY_GROUP_DESCRIPTION.equals(sortedBy)) {
             sortedBy = SORTED_BY_DUEDATE;
@@ -6217,7 +6228,7 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         try {
             AssignmentFilter selectedFilter = Enum.valueOf(AssignmentFilter.class, data.getParameters().getString(FILTER_OPTION));
-            if(selectedFilter != null && !selectedFilter.equals(state.getAttribute(FILTER_OPTION))) {
+            if (selectedFilter != null && !selectedFilter.equals(getFilterOption(state))) {
                 resetPaging(state);
                 state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
                 state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
@@ -6780,9 +6791,6 @@ public class AssignmentAction extends PagedResourceActionII {
         // back to the student list view of assignments
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 
-        // reset sorting
-        setDefaultSort(state);
-
     } // doCancel_edit_assignment
 
     /**
@@ -6796,9 +6804,6 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // back to the student list view of assignments
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-
-        // reset sorting
-        setDefaultSort(state);
 
     } // doCancel_new_assignment
 
@@ -6893,8 +6898,19 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // back to the student list view of assignments
         state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-        state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
-        state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+        String viewKey = getListSortViewKey(state, MODE_LIST_ASSIGNMENTS);
+        String sortedBy = (String) state.getAttribute(SORTED_BY);
+        String sortedAsc = (String) state.getAttribute(SORTED_ASC);
+        if (sortedBy == null || sortedAsc == null || SORTED_BY_DEFAULT.equals(sortedBy)) {
+            String backupSortedBy = getListSortedBy(state, viewKey);
+            String backupSortedAsc = getListSortedAsc(state, viewKey);
+            if (backupSortedBy != null && backupSortedAsc != null) {
+                state.setAttribute(SORTED_BY, backupSortedBy);
+                state.setAttribute(SORTED_ASC, backupSortedAsc);
+            } else {
+                setDefaultSort(state);
+            }
+        }
 
     } // doList_assignments
 
@@ -9723,6 +9739,95 @@ public class AssignmentAction extends PagedResourceActionII {
     private void setDefaultSort(SessionState state) {
         state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
         state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+    }
+
+    /**
+     * Get the filter option for the list view, if not exist, return the default one
+     *
+     * @param state
+     * @return
+     */
+    private AssignmentFilter getFilterOption(SessionState state) {
+        AssignmentFilter filterOption = AssignmentFilter.ALL;
+        Object filterAttr = state.getAttribute(FILTER_OPTION);
+        if (filterAttr instanceof AssignmentFilter) {
+            filterOption = (AssignmentFilter) filterAttr;
+        } else if (filterAttr != null) {
+            try {
+                filterOption = AssignmentFilter.valueOf(filterAttr.toString());
+                state.setAttribute(FILTER_OPTION, filterOption);
+            } catch (IllegalArgumentException e) {
+                log.warn("Can not parse filterOption: {} as an AssignmentsFilter", filterAttr);
+            }
+        }
+        return filterOption;
+    }
+
+    /**
+      * Get the sort key for the list view, if not exist, return the default one
+      *
+      * @param state
+      * @param defaultView
+      * @return
+      */
+    private String getListSortViewKey(SessionState state, String defaultView) {
+        String viewKey = (String) state.getAttribute(STATE_SELECTED_VIEW);
+        if (StringUtils.isBlank(viewKey)) {
+            viewKey = defaultView;
+        }
+        return viewKey;
+    }
+
+    /**
+     * Get the sort by value for the list view, if not exist, return the default one
+     *
+     * @param state
+     * @param viewKey
+     * @return
+     */
+    private String getListSortedBy(SessionState state, String viewKey) {
+        String key = LIST_SORTED_BY + "." + viewKey;
+        String value = (String) state.getAttribute(key);
+        if (value == null) {
+            value = (String) state.getAttribute(LIST_SORTED_BY);
+            if (value != null) {
+                state.setAttribute(key, value);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Get the sorted asc/desc value for the list view, if not exist, return the default one
+     *
+     * @param state
+     * @param viewKey
+     * @return
+     */
+    private String getListSortedAsc(SessionState state, String viewKey) {
+        String key = LIST_SORTED_ASC + "." + viewKey;
+        String value = (String) state.getAttribute(key);
+        if (value == null) {
+            value = (String) state.getAttribute(LIST_SORTED_ASC);
+            if (value != null) {
+                state.setAttribute(key, value);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Set the sort by and sort asc/desc value for the list view
+     *
+     * @param state
+     * @param sortedBy
+     * @param sortedAsc
+     * @param viewKey
+     */
+    private void setListSortForView(SessionState state, String sortedBy, String sortedAsc, String viewKey) {
+        String resolvedViewKey = viewKey != null ? viewKey : getListSortViewKey(state, MODE_LIST_ASSIGNMENTS);
+        state.setAttribute(LIST_SORTED_BY + "." + resolvedViewKey, sortedBy);
+        state.setAttribute(LIST_SORTED_ASC + "." + resolvedViewKey, sortedAsc);
     }
 
     /**
@@ -12952,6 +13057,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (state.getAttribute(FILTER_OPTION) == null) {
             state.setAttribute(FILTER_OPTION, AssignmentFilter.ALL);
+        } else {
+            getFilterOption(state);
         }
 
         if (state.getAttribute(SORTED_GRADE_SUBMISSION_BY) == null) {
@@ -13576,6 +13683,8 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(SORTED_ASC, asc);
         }
 
+        setListSortForView(state, (String) state.getAttribute(SORTED_BY), (String) state.getAttribute(SORTED_ASC), null);
+
     } // doSort
 
     /**
@@ -13824,7 +13933,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     returnResources = ((List<Assignment>)returnResources).stream().filter(a -> a.getGroups().stream().anyMatch(g -> g.endsWith(selectedGroup))).collect(Collectors.toList());
                 }
 
-                returnResources = filterAssignments(returnResources, (AssignmentFilter) state.getAttribute(FILTER_OPTION)); 
+                returnResources = filterAssignments(returnResources, getFilterOption(state));
 
                 //Filter assignments by tags
                 List<String> selectedTags = state.getAttribute(TAG_SELECTOR) != null ? Arrays.asList(((String) state.getAttribute(TAG_SELECTOR)).split(",")) : new ArrayList<>();
@@ -14006,17 +14115,28 @@ public class AssignmentAction extends PagedResourceActionII {
         String sort = "";
         ascending = (String) state.getAttribute(SORTED_ASC);
         sort = (String) state.getAttribute(SORTED_BY);
+        if (MODE_LIST_ASSIGNMENTS.equals(mode) || MODE_LIST_DELETED_ASSIGNMENTS.equals(mode)) {
+            String viewKey = getListSortViewKey(state, mode);
+            String listSortedBy = getListSortedBy(state, viewKey);
+            String listSortedAsc = getListSortedAsc(state, viewKey);
+            if (listSortedBy != null && listSortedAsc != null) {
+                sort = listSortedBy;
+                ascending = listSortedAsc;
+            }
+        }
 
-        if (MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode)
-                && (sort == null || !sort.startsWith("sorted_grade_submission_by"))) {
-            ascending = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_ASC);
-            sort = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_BY);
-        } else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode) && (sort == null || sort.startsWith("sorted_submission_by"))) {
-            ascending = (String) state.getAttribute(SORTED_SUBMISSION_ASC);
-            sort = (String) state.getAttribute(SORTED_SUBMISSION_BY);
-        } else {
-            ascending = (String) state.getAttribute(SORTED_ASC);
-            sort = (String) state.getAttribute(SORTED_BY);
+        if (!MODE_LIST_ASSIGNMENTS.equals(mode) && !MODE_LIST_DELETED_ASSIGNMENTS.equals(mode)) {
+            if (MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode)
+                    && (sort == null || !sort.startsWith("sorted_grade_submission_by"))) {
+                ascending = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_ASC);
+                sort = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_BY);
+            } else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode) && (sort == null || sort.startsWith("sorted_submission_by"))) {
+                ascending = (String) state.getAttribute(SORTED_SUBMISSION_ASC);
+                sort = (String) state.getAttribute(SORTED_SUBMISSION_BY);
+            } else {
+                ascending = (String) state.getAttribute(SORTED_ASC);
+                sort = (String) state.getAttribute(SORTED_BY);
+            }
         }
 
         if ((returnResources.size() > 1) && !MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(mode)) {
@@ -14053,8 +14173,27 @@ public class AssignmentAction extends PagedResourceActionII {
             // we are changing the view, so start with first page again.
             resetPaging(state);
 
+            String sortedBy = (String) state.getAttribute(SORTED_BY);
+            String sortedAsc = (String) state.getAttribute(SORTED_ASC);
+            Map<String, String> listSortBackup = new HashMap<>();
+            String[] listViews = new String[] { MODE_LIST_ASSIGNMENTS, MODE_STUDENT_VIEW, MODE_LIST_DELETED_ASSIGNMENTS };
+            for (String viewKey : listViews) {
+                String listSortedBy = getListSortedBy(state, viewKey);
+                String listSortedAsc = getListSortedAsc(state, viewKey);
+                if (listSortedBy != null) {
+                    listSortBackup.put(LIST_SORTED_BY + "." + viewKey, listSortedBy);
+                }
+                if (listSortedAsc != null) {
+                    listSortBackup.put(LIST_SORTED_ASC + "." + viewKey, listSortedAsc);
+                }
+            }
+
             // clear search form
             doSearch_clear(data, null);
+
+            for (Map.Entry<String, String> entry : listSortBackup.entrySet()) {
+                state.setAttribute(entry.getKey(), entry.getValue());
+            }
             
             state.removeAttribute(TAG_SELECTOR);
 
@@ -14062,6 +14201,12 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(STATE_SELECTED_VIEW, viewMode);
 
             if (MODE_LIST_ASSIGNMENTS.equals(viewMode)) {
+                if (sortedBy != null) {
+                    state.setAttribute(SORTED_BY, sortedBy);
+                }
+                if (sortedAsc != null) {
+                    state.setAttribute(SORTED_ASC, sortedAsc);
+                }
                 doList_assignments(data);
             } else if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(viewMode)) {
                 doView_students_assignment(data);
