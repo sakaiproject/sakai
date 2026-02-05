@@ -38,6 +38,7 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.GradingService;
@@ -197,9 +198,9 @@ public class GradebookNgEntityProducer implements EntityProducer, EntityTransfer
 
 		Element gradeTypeEl = doc.createElement("GradeType");
 		String gradeTypeCode;
-        if (Objects.equals(settings.getGradeType(), GradingConstants.GRADE_TYPE_PERCENTAGE)) {
+        if (settings.getGradeType() == GradeType.PERCENTAGE) {
             gradeTypeCode = "PERCENTAGE";
-        } else if (Objects.equals(settings.getGradeType(), GradingConstants.GRADE_TYPE_LETTER)) {
+        } else if (settings.getGradeType() == GradeType.LETTER) {
             gradeTypeCode = "LETTER";
         } else {
             gradeTypeCode = "POINTS";
