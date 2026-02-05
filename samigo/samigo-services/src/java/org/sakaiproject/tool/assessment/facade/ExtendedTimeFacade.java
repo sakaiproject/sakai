@@ -89,6 +89,10 @@ public class ExtendedTimeFacade {
         return extendedTimeQueries.getEntry(entryId);
     }
 
+    public boolean deleteEntriesForPub(PublishedAssessmentIfc pub) {
+        return extendedTimeQueries.deleteEntriesForPub(pub);
+    }
+
     private List<ExtendedTime> getEntriesForX(AssessmentBaseIfc ass, PublishedAssessmentIfc pub) {
         List<ExtendedTime> results;
         if(ass == null) {

@@ -1864,6 +1864,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
 			try {
+				ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
+				if (extendedTimeFacade != null) {
+					extendedTimeFacade.deleteEntriesForPub(data);
+				}
 				getHibernateTemplate().delete(data);
 				retryCount = 0;
 			} catch (Exception e) {

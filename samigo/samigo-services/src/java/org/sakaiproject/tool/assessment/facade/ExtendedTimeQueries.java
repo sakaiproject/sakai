@@ -141,6 +141,25 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
        }
     }
 
+    public boolean deleteEntriesForPub(PublishedAssessmentIfc pub) {
+        if (pub == null || pub.getPublishedAssessmentId() == null) {
+            return true;
+        }
+
+        Long publishedAssessmentId = pub.getPublishedAssessmentId();
+        log.debug("Removing ExtendedTime entries for published assessment id: {}", publishedAssessmentId);
+
+        try {
+            getHibernateTemplate().bulkUpdate(
+                    "delete from ExtendedTime e where e.pubAssessment.publishedAssessmentId = ?",
+                    publishedAssessmentId);
+            return true;
+        } catch (DataAccessException de) {
+            log.error("Failed to delete extended time entries for published assessment id: {}.", publishedAssessmentId, de);
+            return false;
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private ExtendedTime getPubAndX(final String query, final PublishedAssessmentIfc pub, final String secondParam, final String secondParamValue) {
         try{
