@@ -1148,7 +1148,6 @@ public class DiscussionForumTool {
     HashMap<String, Integer> beforeChangeHM = null; 
     DiscussionForum forum = selectedForum.getForum();
     Long forumId = forum.getId();
-    List topics = forum.getTopics();
     beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null);
 
     forumManager.deleteForum(selectedForum.getForum());
@@ -1156,18 +1155,6 @@ public class DiscussionForumTool {
     if(beforeChangeHM != null){
         updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
-    
-    // Delete task (forum)
-    String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId;
-    taskService.removeTaskByReference(reference);
-    // Delete task (topics)
-    for (Iterator topicIter = topics.iterator(); topicIter.hasNext();) {
-        DiscussionTopic topic = (DiscussionTopic) topicIter.next();
-        Long topicId = topic.getId();
-        reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId + TOPIC_REF + topicId;
-        taskService.removeTaskByReference(reference);
-    }
-    
 
     reset();
     return gotoMain();
@@ -2308,10 +2295,6 @@ public class DiscussionForumTool {
     if(beforeChangeHM != null){
         updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
     }
-    
-    // Delete task
-    String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forumId + TOPIC_REF + topicId;
-    taskService.removeTaskByReference(reference);
 
     reset();
     return gotoMain();
@@ -2353,7 +2336,6 @@ public class DiscussionForumTool {
 
       HashMap<String, Integer> beforeChangeHM =
           SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), null);
-      List topics = forum.getTopics();
 
       forumManager.deleteForum(forum);
       deletedForumIds.add(forum.getId());
@@ -2361,19 +2343,6 @@ public class DiscussionForumTool {
       if (beforeChangeHM != null) {
         updateSynopticMessagesForForumComparingOldMessagesCount(
             getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
-      }
-
-      // Delete task (forum)
-      String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId();
-      taskService.removeTaskByReference(reference);
-      // Delete task (topics)
-      if (topics != null) {
-        for (Iterator topicIter = topics.iterator(); topicIter.hasNext();) {
-          DiscussionTopic topic = (DiscussionTopic) topicIter.next();
-          Long topicId = topic.getId();
-          reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId() + TOPIC_REF + topicId;
-          taskService.removeTaskByReference(reference);
-        }
       }
     }
 
@@ -2402,10 +2371,6 @@ public class DiscussionForumTool {
         updateSynopticMessagesForForumComparingOldMessagesCount(
             getSiteId(), forum.getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
       }
-
-      // Delete task
-      String reference = DiscussionForumService.REFERENCE_ROOT + SEPARATOR + getSiteId() + SEPARATOR + forum.getId() + TOPIC_REF + topic.getId();
-      taskService.removeTaskByReference(reference);
     }
 
     reset();
