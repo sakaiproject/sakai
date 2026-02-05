@@ -73,6 +73,30 @@
                   <span th:text="#{joinableset.allow.viewmembership}">Allow members to see the other members of these groups after joining</span>
                 </label>
               </div>
+              <hr>
+              <div class="mb-2" th:if="${!#lists.isEmpty(availableGroups)}">
+                <div class="form-check">
+                  <input class="form-check-input" name="restrictToGroups" id="restrictToGroups" type="checkbox" th:field="*{restrictToGroups}"/>
+                  <label for="restrictToGroups" class="form-check-label">
+                    <span th:text="#{joinableset.restrict.groups}">Restrict participation to specific groups</span>
+                  </label>
+                </div>
+                <div id="groupRestrictionOptions" class="mt-3" style="display: none;">
+                  <div class="sak-banner-info mb-3" th:text="#{joinableset.restrict.groups.info}">Only members of the selected groups/sections will be able to join this joinable set. If no groups are selected, all site members can participate.</div>
+                  <div class="form-group">
+                    <label for="allowedGroupsSelect" class="form-label" th:text="#{joinableset.select.groups}">Select allowed groups:</label>
+                    <select multiple class="form-control" id="allowedGroupsSelect" name="allowedGroups" style="width: 100%; height: 150px;">
+                      <option th:each="group : ${availableGroups}" 
+                              th:value="${group.id}" 
+                              th:text="${group.title}" 
+                              th:selected="${joinableSetForm.allowedGroups != null && #lists.contains(joinableSetForm.allowedGroups, group.id)}">
+                        Group Name
+                      </option>
+                    </select>
+                    <small class="form-text text-muted" th:text="#{joinableset.select.groups.help}">Hold Ctrl (Cmd on Mac) to select multiple groups</small>
+                  </div>
+                </div>
+              </div>
               <div th:if="${joinableSetForm.joinableSetId != null}" class="mb-2">
                 <div id="accordion">
                   <div class="card">
