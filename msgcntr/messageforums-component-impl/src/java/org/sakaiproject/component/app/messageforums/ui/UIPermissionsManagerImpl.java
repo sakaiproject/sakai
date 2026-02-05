@@ -64,7 +64,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     private static final Predicate<DBMembershipItem> ifChangeSettings = item -> item.getPermissionLevel().getChangeSettings();
     private static final Predicate<DBMembershipItem> ifDeleteAny = item -> item.getPermissionLevel().getDeleteAny();
     private static final Predicate<DBMembershipItem> ifDeleteOwn = item -> item.getPermissionLevel().getDeleteOwn();
-    private static final Predicate<DBMembershipItem> ifMarkAsRead = item -> item.getPermissionLevel().getMarkAsRead();
+    private static final Predicate<DBMembershipItem> ifMarkAsNotRead = item -> item.getPermissionLevel().getMarkAsNotRead();
     private static final Predicate<DBMembershipItem> ifModeratePostings = item -> item.getPermissionLevel().getModeratePostings();
     private static final Predicate<DBMembershipItem> ifMovePosting = item -> item.getPermissionLevel().getMovePosting();
     private static final Predicate<DBMembershipItem> ifNewResponse = item -> item.getPermissionLevel().getNewResponse();
@@ -359,7 +359,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
 
     @Override
-    public boolean isMarkAsRead(DiscussionTopic topic, DiscussionForum forum) {
+    public boolean isMarkAsNotRead(DiscussionTopic topic, DiscussionForum forum) {
         if (checkBaseConditions(topic, forum)) return true;
 
         if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE)) return false;
@@ -368,7 +368,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
                 && !forum.getLocked()
                 && !topic.getDraft()
                 && !topic.getLocked()) {
-            return getTopicItemsByCurrentUser(topic).stream().anyMatch(ifMarkAsRead);
+            return getTopicItemsByCurrentUser(topic).stream().anyMatch(ifMarkAsNotRead);
         }
         return false;
 
@@ -591,7 +591,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         permission.setChangeSettings(ifTopicOwner || topicItemsByUser.stream().anyMatch(ifChangeSettings));
         permission.setDeleteAny(!ifLockedTopic && !ifLockedForum && !ifDraftForum && !ifDraftTopic && topicItemsByUser.stream().anyMatch(ifDeleteAny));
         permission.setDeleteOwn(!ifLockedTopic && !ifLockedForum && !ifDraftForum && !ifDraftTopic && topicItemsByUser.stream().anyMatch(ifDeleteOwn));
-        permission.setMarkAsRead(!ifLockedTopic && !ifLockedForum && !ifDraftForum && !ifDraftTopic && topicItemsByUser.stream().anyMatch(ifMarkAsRead));
+        permission.setMarkAsNotRead(!ifLockedTopic && !ifLockedForum && !ifDraftForum && !ifDraftTopic && topicItemsByUser.stream().anyMatch(ifMarkAsNotRead));
         permission.setModeratePostings(!ifDraftForum && !ifDraftTopic && topicItemsByUser.stream().anyMatch(ifModeratePostings));
         permission.setMovePostings(!ifLockedTopic && !ifLockedForum && !ifDraftForum && !ifDraftTopic && topicItemsByUser.stream().anyMatch(ifMovePosting));
         permission.setNewResponse(!ifLockedTopic && !ifLockedForum && !ifDraftForum && !ifDraftTopic && topicItemsByUser.stream().anyMatch(ifNewResponse));

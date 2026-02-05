@@ -68,16 +68,16 @@
 <h:panelGrid columns="2" styleClass="navPanel" width="100%">
   <%--
   <h:panelGroup styleClass="specialLink"  style="float:none;text-align:center">  
-		  <h:commandLink action="#{ForumTool.processActionMarkCheckedAsRead}" id="markAsread"  value="#{msgs.cdfm_mark_check_as_read}"
-				rendered="#{ForumTool.selectedTopic.isMarkAsRead && !ForumTool.expandedView}" title="#{msgs.cdfm_mark_check_as_read}"> 
+		  <h:commandLink action="#{ForumTool.processActionMarkCheckedAsNotRead}" id="markAsNotRead"  value="#{msgs.cdfm_mark_check_as_not_read}"
+				rendered="#{ForumTool.selectedTopic.isMarkAsNotRead && !ForumTool.expandedView}" title="#{msgs.cdfm_mark_check_as_not_read}">
   --%>
 				<%--<h:commandLink action="#{ForumTool.processActionMarkCheckedAsUnread}" id="markAsunread"  value="#{msgs.cdfm_mark_check_as_unread}">--%>
   <%--
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 		 </h:commandLink>
-		 <h:commandLink action="#{ForumTool.processActionMarkAllAsRead}" id="markAllAsread"  value="#{msgs.cdfm_mark_all_as_read}"
-				rendered="#{ForumTool.selectedTopic.isMarkAsRead && ForumTool.expandedView}" title="#{msgs.cdfm_mark_all_as_read}"> 
+		 <h:commandLink action="#{ForumTool.processActionMarkAllAsNotRead}" id="markAllAsNotRead"  value="#{msgs.cdfm_mark_all_as_not_read}"
+				rendered="#{ForumTool.selectedTopic.isMarkAsNotRead && ForumTool.expandedView}" title="#{msgs.cdfm_mark_all_as_not_read}"> 
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 		 </h:commandLink>

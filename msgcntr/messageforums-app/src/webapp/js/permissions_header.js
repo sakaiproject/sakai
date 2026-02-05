@@ -25,7 +25,7 @@ function getPermissionElements(checkBox) {
     selectLevel: getTheElement(`${baseId}:level`),
     changeSettings: getTheElement(`${baseId}:changeSetting`),
     deletePostings: getTheElement(`${baseId}:deletePostings`),
-    markAsRead: getTheElement(`${baseId}:markAsRead`),
+    markAsNotRead: getTheElement(`${baseId}:markAsNotRead`),
     newForum: getTheElement(`${baseId}:newForum`),
     newResponse: getTheElement(`${baseId}:newR`),
     r2R: getTheElement(`${baseId}:newRtoR`),
@@ -51,15 +51,15 @@ function getPermissionElements(checkBox) {
 function setCorrespondingLevel(checkBox) {
   const {
     selectLevel, changeSettings, deletePostings, deleteAny, deleteOwn,
-    markAsRead, newForum, newResponse, r2R, newTopic, postGradesChecked,
+    markAsNotRead, newForum, newResponse, r2R, newTopic, postGradesChecked,
     read, revisePostings, reviseAny, reviseOwn, moderatePostings, identifyAnonAuthors
   } = getPermissionElements(checkBox);
 
   if (selectLevel) {
-    if (!(changeSettings && markAsRead && newForum && newResponse && r2R && newTopic && read && revisePostings && moderatePostings && identifyAnonAuthors && deletePostings)) {
+    if (!(changeSettings && markAsNotRead && newForum && newResponse && r2R && newTopic && read && revisePostings && moderatePostings && identifyAnonAuthors && deletePostings)) {
       setIndexWithTextValue(selectLevel, PERMISSION_LEVELS.CUSTOM);
     } else {
-      const newArray = [changeSettings.checked, markAsRead.checked, newForum.checked, newResponse.checked, r2R.checked, newTopic.checked, postGradesChecked, read.checked, reviseAny, reviseOwn, moderatePostings.checked, identifyAnonAuthors.checked, deleteAny, deleteOwn];
+      const newArray = [changeSettings.checked, markAsNotRead.checked, newForum.checked, newResponse.checked, r2R.checked, newTopic.checked, postGradesChecked, read.checked, reviseAny, reviseOwn, moderatePostings.checked, identifyAnonAuthors.checked, deleteAny, deleteOwn];
       setIndexWithTextValue(selectLevel, checkLevel(newArray));
     }
   }
@@ -135,15 +135,15 @@ function setRadioButtonValue(element, newValue) {
 function setCorrespondingCheckboxes(checkBox) {
   const parts = checkBox.split(":");
   const {
-    selectLevel, changeSettings, deletePostings, markAsRead, newForum,
+    selectLevel, changeSettings, deletePostings, markAsNotRead, newForum,
     newResponse, r2R, newTopic, postGrades, read, revisePostings,
     moderatePostings, identifyAnonAuthors
   } = getPermissionElements(checkBox);
 
   if (selectLevel) {
-    if (!(changeSettings && markAsRead && newForum && newResponse && r2R && newTopic && read && revisePostings && moderatePostings && identifyAnonAuthors && deletePostings)) {
+    if (!(changeSettings && markAsNotRead && newForum && newResponse && r2R && newTopic && read && revisePostings && moderatePostings && identifyAnonAuthors && deletePostings)) {
       if (typeof window.noneLevelArray !== 'undefined') {
-        setCheckBoxes(changeSettings, markAsRead, newForum, newResponse, r2R, newTopic, read, revisePostings, postGrades, moderatePostings, identifyAnonAuthors, deletePostings, window.noneLevelArray);
+        setCheckBoxes(changeSettings, markAsNotRead, newForum, newResponse, r2R, newTopic, read, revisePostings, postGrades, moderatePostings, identifyAnonAuthors, deletePostings, window.noneLevelArray);
       }
     }
 
@@ -160,7 +160,7 @@ function setCorrespondingCheckboxes(checkBox) {
     };
 
     if (levelArrayMap[selectedValue]) {
-      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse, r2R, newTopic, read, revisePostings, postGrades, moderatePostings, identifyAnonAuthors, deletePostings, levelArrayMap[selectedValue]);
+      setCheckBoxes(changeSettings, markAsNotRead, newForum, newResponse, r2R, newTopic, read, revisePostings, postGrades, moderatePostings, identifyAnonAuthors, deletePostings, levelArrayMap[selectedValue]);
     } else if (selectedValue === PERMISSION_LEVELS.CUSTOM) {
       const permissionSetId = `${parts[0]}:${parts[1]}:${parts[2]}:permissionSet`;
       const permissionSet = document.getElementById(permissionSetId);
@@ -171,9 +171,9 @@ function setCorrespondingCheckboxes(checkBox) {
   }
 }
 
-function setCheckBoxes(changeSettings, markAsRead, newForum, newResponse, r2R, newTopic, read, revisePostings, postGrades, moderatePostings, identifyAnonAuthors, deletePostings, arrayLevel) {
+function setCheckBoxes(changeSettings, markAsNotRead, newForum, newResponse, r2R, newTopic, read, revisePostings, postGrades, moderatePostings, identifyAnonAuthors, deletePostings, arrayLevel) {
   if (changeSettings) changeSettings.checked = arrayLevel[0];
-  if (markAsRead) markAsRead.checked = arrayLevel[1];
+  if (markAsNotRead) markAsNotRead.checked = arrayLevel[1];
   if (newForum) newForum.checked = arrayLevel[2];
   if (newResponse) newResponse.checked = arrayLevel[3];
   if (r2R) r2R.checked = arrayLevel[4];

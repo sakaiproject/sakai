@@ -46,7 +46,7 @@ public class MessagePermissionsImpl implements MessagePermissions {
 
     private Boolean defaultValue;
 
-    private Boolean markAsRead;
+    private Boolean markAsNotRead;
 
     private Area area;
 
@@ -209,12 +209,12 @@ public class MessagePermissionsImpl implements MessagePermissions {
         this.defaultValue = defaultValue;
     }
 
-    public Boolean getMarkAsRead() {
-        return this.markAsRead;
+    public Boolean getMarkAsNotRead() {
+        return this.markAsNotRead;
     }
 
-    public void setMarkAsRead(Boolean markAsRead) {
-        this.markAsRead = markAsRead;
+    public void setMarkAsNotRead(Boolean markAsNotRead) {
+        this.markAsNotRead = markAsNotRead;
     }
 
 }

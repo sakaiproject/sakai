@@ -23,7 +23,7 @@ public class BulkPermission {
     private boolean changeSettings;
     private boolean deleteAny;
     private boolean deleteOwn;
-    private boolean markAsRead;
+    private boolean markAsNotRead;
     private boolean moderatePostings;
     private boolean movePostings;
     private boolean newResponse;
@@ -35,7 +35,7 @@ public class BulkPermission {
     private boolean reviseOwn;
 
     public void setAllPermissions(boolean toTrueOrFalse) {
-        changeSettings = deleteAny = deleteOwn = markAsRead = moderatePostings = movePostings = newTopic
+        changeSettings = deleteAny = deleteOwn = markAsNotRead = moderatePostings = movePostings = newTopic
                 = newResponse = newResponseToResponse = postToGradebook = read = reviseAny = reviseOwn
                 = toTrueOrFalse;
     }

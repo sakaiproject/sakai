@@ -176,7 +176,7 @@ public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport im
         createdQuestionMessage.setApproved(Boolean.TRUE);
 
         Message savedQuestionMessage = discussionForumManager.saveMessage(createdQuestionMessage);
-        discussionForumManager.markMessageReadStatusForUser(savedQuestionMessage, true, userId);
+        discussionForumManager.markMessageNotReadStatusForUser(savedQuestionMessage, true, userId);
 
         String answer = StringUtils.trim(this.answer);
         if (Boolean.TRUE.equals(canReply) && StringUtils.isNotEmpty(answer)) {
@@ -192,7 +192,7 @@ public class MessageForumPublishToFaqBean extends SpringBeanAutowiringSupport im
             createdAnswerMessage.setInReplyTo(savedQuestionMessage);
 
             Message savedAnswerMessage = discussionForumManager.saveMessage(createdAnswerMessage);
-            discussionForumManager.markMessageReadStatusForUser(savedAnswerMessage, true, userId);
+            discussionForumManager.markMessageNotReadStatusForUser(savedAnswerMessage, true, userId);
         } else {
             log.debug("Not creating answer message");
         }

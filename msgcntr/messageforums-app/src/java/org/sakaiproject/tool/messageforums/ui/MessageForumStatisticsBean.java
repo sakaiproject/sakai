@@ -1115,7 +1115,7 @@ public class MessageForumStatisticsBean {
 			userAuthoredInfo.setMsgDeleted(msg.getDeleted());
 			userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
 			userAuthoredInfo.setMessage(msg.getBody());	
-			messageManager.markMessageReadForUser(msg.getTopic().getId(), msg.getId(), true, getCurrentUserId());
+			messageManager.markMessageNotReadForUser(msg.getTopic().getId(), msg.getId(), false, getCurrentUserId());
 			
 			statistics.add(userAuthoredInfo);
 		}
@@ -1194,7 +1194,7 @@ public class MessageForumStatisticsBean {
 				userAuthoredInfo.setMsgDeleted(mesWithAttach.getDeleted());
 				userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
 
-				messageManager.markMessageReadForUser(t.getId(), mesWithAttach.getId(), true, getCurrentUserId());
+				messageManager.markMessageNotReadForUser(t.getId(), mesWithAttach.getId(), false, getCurrentUserId());
 
 				statistics.add(userAuthoredInfo);
 			}catch(Exception e){

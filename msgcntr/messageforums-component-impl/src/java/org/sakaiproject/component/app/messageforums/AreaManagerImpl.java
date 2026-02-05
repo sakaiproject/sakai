@@ -72,7 +72,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private MessageForumsTypeManager typeManager;
 
     private ServerConfigurationService serverConfigurationService;
-    private Boolean DEFAULT_AUTO_MARK_READ = false;    
+    private Boolean DEFAULT_AUTO_MARK_READ = false;
 
     private SiteService siteService;
     private ToolManager toolManager;

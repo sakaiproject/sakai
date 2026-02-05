@@ -170,7 +170,7 @@ public class PrivateMessagesTool {
   private static final String ENTER_SEARCH_TEXT = "pvt_enter_search_text";
   private static final String ENTER_SEARCH_TAGS = "pvt_enter_search_tags";
   private static final String MOVE_MSG_ERROR = "pvt_move_msg_error";
-  private static final String NO_MARKED_READ_MESSAGE = "pvt_no_message_mark_read";
+  private static final String NO_MARKED_NO_READ_MESSAGE = "pvt_no_message_mark_no_read";
   private static final String NO_MARKED_DELETE_MESSAGE = "pvt_no_message_mark_delete";
   private static final String NO_MARKED_MOVE_MESSAGE = "pvt_no_message_mark_move";
   private static final String MULTIDELETE_SUCCESS_MSG = "pvt_deleted_success";
@@ -4770,7 +4770,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		
 		if (!msgSelected)
 		{
-			setErrorMessage(getResourceBundleString(NO_MARKED_READ_MESSAGE));
+			setErrorMessage(getResourceBundleString(NO_MARKED_NO_READ_MESSAGE));
 			return null;
 		}
 		
