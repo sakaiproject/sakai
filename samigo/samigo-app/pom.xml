@@ -80,16 +80,6 @@
             <artifactId>scheduler-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.search</groupId>
-            <artifactId>search-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opensearch</groupId>
-            <artifactId>opensearch</artifactId>
-            <scope>provided</scope>
-            <version>${sakai.opensearch.version}</version>
-        </dependency>
-        <dependency>
             <groupId>net.htmlparser.jericho</groupId>
             <artifactId>jericho-html</artifactId>
             <version>3.1</version>
