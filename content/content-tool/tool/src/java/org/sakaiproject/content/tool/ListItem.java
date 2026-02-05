@@ -1635,13 +1635,7 @@ public class ListItem
 		String description = params.getString("description" + index);
 		if(description != null)
 		{
-			StringBuilder errorMessages = new StringBuilder();
-			description = ComponentManager.get(FormattedText.class).processFormattedText(description, errorMessages);
-			// what to do with errorMessages
-			if(errorMessages.length() > 0)
-			{
-				log.warn("ListItem.captureDescription() containingCollectionId: " + this.containingCollectionId + " id: " + this.id + " error in FormattedText.processFormattedText(): " + errorMessages.toString());
-			}
+			description = ComponentManager.get(FormattedText.class).processFormattedText(description, null, null);
 			this.setDescription(description);
 		}
 	}

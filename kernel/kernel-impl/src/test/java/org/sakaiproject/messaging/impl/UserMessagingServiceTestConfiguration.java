@@ -93,7 +93,7 @@ public class UserMessagingServiceTestConfiguration extends SakaiTestConfiguratio
     @Bean(name = "org.sakaiproject.util.api.FormattedText")
     public FormattedText formattedText() {
         FormattedText ft = mock(FormattedText.class);
-        when(ft.processFormattedText(any(String.class), any(StringBuilder.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(ft.processFormattedText(any(String.class), null, null)).thenAnswer(invocation -> invocation.getArgument(0));
         when(ft.convertFormattedTextToPlaintext(any(String.class))).thenAnswer(invocation -> invocation.getArgument(0));
         return ft;
     }

@@ -23,7 +23,6 @@ package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -103,28 +102,6 @@ public class AjaxServer extends HttpServlet
 
    public static final String FILTERHTML = "lessonbuilder.filterhtml";
    private static String filterHtml = ServerConfigurationService.getString(FILTERHTML);
-
-    static Class levelClass = null;
-    static Object[] levels = null;
-    static Class ftClass = null;
-    static Method ftMethod = null;
-    static Object ftInstance = setupFtStuff();
-
-    static Object setupFtStuff () {
-	Object ret = null;
-	try {
-	    levelClass = Class.forName("org.sakaiproject.util.api.FormattedText$Level");
-	    levels = levelClass.getEnumConstants();
-	    ftClass = Class.forName("org.sakaiproject.util.api.FormattedText");
-	    ftMethod = ftClass.getMethod("processFormattedText", 
-					 new Class[] { String.class, StringBuilder.class, levelClass }); 
-	    ret = org.sakaiproject.component.cover.ComponentManager.get("org.sakaiproject.util.api.FormattedText");
-	    return ret;
-	} catch (Exception e) {
-	    log.error("Formatted Text with levels not available: " + e);
-	    return null;
-	}
-    }
 
    /**
     * Access the Servlet's information display.
@@ -274,8 +251,6 @@ public class AjaxServer extends HttpServlet
 
     public static String filterHtml(String contents) {
 
-	StringBuilder error = new StringBuilder();
-
 	final Integer FILTER_DEFAULT=0;
 	final Integer FILTER_HIGH=1;
 	final Integer FILTER_LOW=2;
@@ -315,35 +290,20 @@ public class AjaxServer extends HttpServlet
 	    filter = FILTER_DEFAULT;
 
 	FormattedText formattedText = ComponentManager.get(FormattedText.class);
-	if (filter.equals(FILTER_NONE)) {
-	    html = formattedText.processHtmlDocument(contents, error);
-	} else if (filter.equals(FILTER_DEFAULT)) {
-	    html = formattedText.processFormattedText(contents, error);
-	} else if (ftInstance != null) {
-	    try {
-		// now filter is set. Implement it. Depends upon whether we have the anti-samy code
-		Object level = null;
-		if (filter.equals(FILTER_HIGH))
-		    level = levels[1];
-		else
-		    level = levels[2];
-		
-		html = (String)ftMethod.invoke(ftInstance, new Object[] { contents, error, level });
-	    } catch (Exception e) {
-		// this should never happen. If it does, emulate what the anti-samy
-		// code does if antisamy is disabled. It always filters
-		html = formattedText.processFormattedText(contents, error);
-	    }
-	} else {
-	    // don't have antisamy. For LOW, use old instructor behavior, since
-	    // LOW is the default. For high, it makes sense to filter
-	    if (filter.equals(FILTER_HIGH))
-		html = formattedText.processFormattedText(contents, error);
-	    else
-		html = formattedText.processHtmlDocument(contents, error);
-	    
-	}
-	return html;
+		if (filter.equals(FILTER_NONE)) {
+			html = formattedText.processHtmlDocument(contents, null);
+		} else if (filter.equals(FILTER_DEFAULT)) {
+			html = formattedText.processFormattedText(contents, null, null);
+		} else {
+			// don't have antisamy. For LOW, use old instructor behavior, since
+			// LOW is the default. For high, it makes sense to filter
+			if (filter.equals(FILTER_HIGH)) {
+				html = formattedText.processFormattedText(contents, null, null);
+			} else {
+				html = formattedText.processHtmlDocument(contents, null);
+			}
+		}
+		return html;
     }
 
     // argument is comma separated list, locale, site, group, group ...

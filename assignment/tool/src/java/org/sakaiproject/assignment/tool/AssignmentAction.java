@@ -14163,11 +14163,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * @return The formatted text
      */
     private String processFormattedTextFromBrowser(SessionState state, String strFromBrowser, boolean checkForFormattingErrors) {
-        StringBuilder alertMsg = new StringBuilder();
-        boolean replaceWhitespaceTags = true;
-        String text = formattedText.processFormattedText(strFromBrowser, alertMsg, checkForFormattingErrors, replaceWhitespaceTags);
-        if (alertMsg.length() > 0) addAlert(state, alertMsg.toString());
-        return text;
+        return formattedText.processFormattedText(strFromBrowser, null, checkForFormattingErrors, true);
     }
 
     /**

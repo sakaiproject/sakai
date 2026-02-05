@@ -6630,18 +6630,7 @@ extends VelocityPortletStateAction
 	 */
 	private String processFormattedTextFromBrowser(SessionState state, String strFromBrowser)
 	{
-		StringBuilder alertMsg = new StringBuilder();
-		try
-		{
-			String text = ComponentManager.get(FormattedText.class).processFormattedText(strFromBrowser, alertMsg);
-			if (alertMsg.length() > 0) addAlert(state, alertMsg.toString());
-			return text;
-		}
-		catch (Exception e)
-		{
-			log.warn(" ", e);
-			return strFromBrowser;
-		}
+		return ComponentManager.get(FormattedText.class).processFormattedText(strFromBrowser, null, null);
 	}
 	
 	

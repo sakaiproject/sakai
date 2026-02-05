@@ -1014,28 +1014,11 @@ public class SyllabusTool
         	alertMessage = rb.getString("empty_title_validate");
           return "edit";
         }
-        if(entry.getEntry().getAsset()!=null)
-        {
-        	StringBuilder alertMsg = new StringBuilder();
-        	String cleanedText = null;
-    		try
-    		{
-    			cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
-    			if (cleanedText != null)
-    			{
-        			entry.getEntry().setAsset(cleanedText);
-    			}
-    			if (alertMsg.length() > 0)
-    			{
-    			  log.debug("Syllabus content sanitized: {}", alertMsg);
-    			}
-    		 }
-    		catch (Exception e)
-    		{
-    			log.warn(this + " " + cleanedText, e);
-    		}
+        if(entry.getEntry().getAsset()!=null) {
+            String cleanedText = formattedText.processFormattedText(entry.getEntry().getAsset(), null, null);
+            if (cleanedText != null) entry.getEntry().setAsset(cleanedText);
         }
-        if(entry.getEntry().getStartDate() != null 
+        if(entry.getEntry().getStartDate() != null
         		&& entry.getEntry().getEndDate() != null 
         		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
         	alertMessage = rb.getString("invalid_dates");
@@ -1242,24 +1225,8 @@ public class SyllabusTool
         }
         if(entry.getEntry().getAsset()!=null)
         {
-        	StringBuilder alertMsg = new StringBuilder();
-        	String cleanedText = null;
-        	try
-    		{
-    			cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
-    			if (cleanedText != null)
-    			{
-					entry.getEntry().setAsset(cleanedText);
-				}
-    			if (alertMsg.length() > 0)
-    			{
-					log.debug("Syllabus content sanitized: {}", alertMsg);
-    			}
-    		 }
-    		catch (Exception e)
-    		{
-    			log.warn(this + " " + cleanedText, e);
-    		}
+            String cleanedText = formattedText.processFormattedText(entry.getEntry().getAsset(), null, null);
+            if (cleanedText != null) entry.getEntry().setAsset(cleanedText);
         }
         if(entry.getEntry().getStartDate() != null 
         		&& entry.getEntry().getEndDate() != null 
@@ -1522,26 +1489,10 @@ public class SyllabusTool
         }
         if(entry.getEntry().getAsset()!=null)
         {
-        	StringBuilder alertMsg = new StringBuilder();
-        	String cleanedText = null;
-        	try
-    		{
-    			cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
-    			if (cleanedText != null) 
-    			{
-					entry.getEntry().setAsset(cleanedText);
-				}
-    			if (alertMsg.length() > 0)
-    			{
-					log.debug("Syllabus content sanitized: {}", alertMsg);
-    			}
-    		 }
-    		catch (Exception e)
-    		{
-    			log.warn(this + " " + cleanedText, e);
-    		}
+    		String cleanedText = formattedText.processFormattedText(entry.getEntry().getAsset(), null, null);
+            if (cleanedText != null) entry.getEntry().setAsset(cleanedText);
         }
-        if(entry.getEntry().getStartDate() != null 
+        if(entry.getEntry().getStartDate() != null
         		&& entry.getEntry().getEndDate() != null 
         		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
         	alertMessage = rb.getString("invalid_dates");
@@ -1619,24 +1570,8 @@ public class SyllabusTool
         }
         if(entry.getEntry().getAsset()!=null)
         {
-        	StringBuilder alertMsg = new StringBuilder();
-        	String cleanedText = null;
-        	try
-    		{
-				cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
-				if (cleanedText != null)
-				{
-					entry.getEntry().setAsset(cleanedText);
-				}
-    			if (alertMsg.length() > 0)
-    			{
-					log.debug("Syllabus content sanitized: {}", alertMsg);
-    			}
-    		 }
-    		catch (Exception e)
-    		{
-    			log.warn(this + " " + cleanedText, e);
-    		}
+        	String cleanedText = formattedText.processFormattedText(entry.getEntry().getAsset(), null, null);
+            if (cleanedText != null) entry.getEntry().setAsset(cleanedText);
         }
         if(entry.getEntry().getStartDate() != null 
         		&& entry.getEntry().getEndDate() != null 
@@ -1789,25 +1724,9 @@ public class SyllabusTool
     }
     if(entry.getEntry().getAsset()!=null)
     {
-    	StringBuilder alertMsg = new StringBuilder();
-    	String cleanedText = null;
-    	try
-		{
-			cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
-			if (cleanedText != null)
-			{
-				entry.getEntry().setAsset(cleanedText);
-			}
-			if (alertMsg.length() > 0)
-			{
-				log.debug("Syllabus content sanitized: {}", alertMsg);
-			}
-		 }
-		catch (Exception e)
-		{
-			log.warn(this + " " + cleanedText, e);
-		}
-    } 
+        String cleanedText = formattedText.processFormattedText(entry.getEntry().getAsset(), null, null);
+        if (cleanedText != null) entry.getEntry().setAsset(cleanedText);
+    }
     if(entry.getEntry().getStartDate() != null 
     		&& entry.getEntry().getEndDate() != null 
     		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
@@ -1846,25 +1765,9 @@ public class SyllabusTool
     }
     if(entry.getEntry().getAsset()!=null)
     {
-    	StringBuilder alertMsg = new StringBuilder();
-    	String cleanedText = null;
-    	try
-		{
-			cleanedText  =  formattedText.processFormattedText(entry.getEntry().getAsset(), alertMsg);
-			if (cleanedText != null)
-			{
-				entry.getEntry().setAsset(cleanedText);
-			}
-			if (alertMsg.length() > 0)
-			{
-				log.debug("Syllabus content sanitized: {}", alertMsg);
-			}
-		 }
-		catch (Exception e)
-		{
-			log.warn(this + " " + cleanedText, e);
-		}
-    }    
+    	String cleanedText = formattedText.processFormattedText(entry.getEntry().getAsset(), null, null);
+        if (cleanedText != null) entry.getEntry().setAsset(cleanedText);
+    }
     if(entry.getEntry().getStartDate() != null 
     		&& entry.getEntry().getEndDate() != null 
     		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
