@@ -210,10 +210,10 @@ public class POXRequestHandlerTest {
     @Test
     public void testGetFatalResponse() {
         String description = "Test fatal error";
-        String message_id = "testOperation";
+        String operation = "testOperation";
         
         // Call the method (now uses POXResponseBuilder instead of hand-constructed XML)
-        String response = POXRequestHandler.getFatalResponse(description, message_id);
+        String response = POXRequestHandler.getFatalResponse(description, operation);
         
         // Extract the generated messageId from the response (it's time-based)
         Pattern messageIdPattern = Pattern.compile("<imsx_messageIdentifier>(.*?)</imsx_messageIdentifier>");
@@ -226,7 +226,7 @@ public class POXRequestHandlerTest {
             .withDescription(description)
             .asFailure()
             .withMessageId(messageId)
-            .withOperation(message_id)
+            .withOperation(operation)
             .buildAsXml();
         
         // Compare exact XML - should match since both use POXResponseBuilder
@@ -234,14 +234,14 @@ public class POXRequestHandlerTest {
     }
     
     @Test
-    public void testGetFatalResponseWithMessageId() {
+    public void testGetFatalResponseWithOperation() {
         String response = POXRequestHandler.getFatalResponse("Test fatal error", "test123");
         
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain failure", response.contains("failure"));
         assertTrue("Response should contain error severity", response.contains("error"));
         assertTrue("Response should contain description", response.contains("Test fatal error"));
-        assertTrue("Response should contain message ID", response.contains("test123"));
+        assertTrue("Response should contain operation", response.contains("test123"));
     }
     
     @Test
@@ -357,6 +357,8 @@ public class POXRequestHandlerTest {
         
         // Build expected XML using hand-constructed format, adjusted to match Jackson's compact output
         // Jackson produces compact XML with single quotes in declaration and includes empty tags
+        // messageRefIdentifier should reference the original request message ID, not the response messageId
+        String requestMessageId = pox.getHeaderMessageIdentifier();
         String expected = String.format(
             "<?xml version='1.0' encoding='UTF-8'?>" +
             "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">" +
@@ -370,7 +372,6 @@ public class POXRequestHandlerTest {
             "<imsx_description>%s</imsx_description>" +
             "<imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>" +
             "<imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" +
-            "<imsx_codeMinor/>" +
             "</imsx_statusInfo>" +
             "</imsx_POXResponseHeaderInfo>" +
             "</imsx_POXHeader>" +
@@ -380,7 +381,7 @@ public class POXRequestHandlerTest {
             StringEscapeUtils.escapeXml11(major), 
             StringEscapeUtils.escapeXml11(severity), 
             StringEscapeUtils.escapeXml11(description), 
-            StringEscapeUtils.escapeXml11(messageId), 
+            StringEscapeUtils.escapeXml11(requestMessageId), 
             StringEscapeUtils.escapeXml11(operation)
         );
         
@@ -436,6 +437,8 @@ public class POXRequestHandlerTest {
         }
         minorString.append("</imsx_codeMinor>");
         
+        // messageRefIdentifier should reference the original request message ID, not the response messageId
+        String requestMessageId = pox.getHeaderMessageIdentifier();
         String expected = String.format(
             "<?xml version='1.0' encoding='UTF-8'?>" +
             "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">" +
@@ -459,7 +462,7 @@ public class POXRequestHandlerTest {
             StringEscapeUtils.escapeXml11(major), 
             StringEscapeUtils.escapeXml11(severity), 
             StringEscapeUtils.escapeXml11(description), 
-            StringEscapeUtils.escapeXml11(messageId), 
+            StringEscapeUtils.escapeXml11(requestMessageId), 
             StringEscapeUtils.escapeXml11(operation),
             minorString.toString()
         );
@@ -490,6 +493,8 @@ public class POXRequestHandlerTest {
         
         // Build expected XML using hand-constructed format, adjusted to match Jackson's compact output
         // Note: bodyString is ignored by POXResponseBuilder, so body will be empty
+        // messageRefIdentifier should reference the original request message ID, not the response messageId
+        String requestMessageId = pox.getHeaderMessageIdentifier();
         String expected = String.format(
             "<?xml version='1.0' encoding='UTF-8'?>" +
             "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">" +
@@ -503,7 +508,6 @@ public class POXRequestHandlerTest {
             "<imsx_description>%s</imsx_description>" +
             "<imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>" +
             "<imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" +
-            "<imsx_codeMinor/>" +
             "</imsx_statusInfo>" +
             "</imsx_POXResponseHeaderInfo>" +
             "</imsx_POXHeader>" +
@@ -513,7 +517,7 @@ public class POXRequestHandlerTest {
             StringEscapeUtils.escapeXml11(major), 
             StringEscapeUtils.escapeXml11(severity), 
             StringEscapeUtils.escapeXml11(description), 
-            StringEscapeUtils.escapeXml11(messageId), 
+            StringEscapeUtils.escapeXml11(requestMessageId), 
             StringEscapeUtils.escapeXml11(operation)
         );
         
