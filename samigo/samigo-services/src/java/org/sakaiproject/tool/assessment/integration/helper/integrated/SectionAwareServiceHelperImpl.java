@@ -116,6 +116,13 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 			List<String> releaseGroupIds = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getReleaseToGroupIdsForPublishedAssessment(publishedAssessmentId);
 			Set<String> releaseGroupIdsSet = new HashSet<>(releaseGroupIds);
 			Site site = siteService.getSite(siteid); // this follows the way the service is already written but it is a bad practice
+			boolean canSeeAllReleaseGroups = securityService.unlock(SamigoConstants.AUTHZ_ASSESSMENT_ALL_GROUPS, "/site/" + siteid);
+			if (!canSeeAllReleaseGroups) {
+				Set<String> userGroupIds = site.getGroupsWithMember(userUid).stream()
+					.map(Group::getId)
+					.collect(Collectors.toSet());
+				releaseGroupIdsSet.retainAll(userGroupIds);
+			}
 			membersInReleaseGroups = new HashSet<>( site.getMembersInGroups(releaseGroupIdsSet) );
 		} catch (IdUnusedException ex) {
 			// no site found, just log a warning
