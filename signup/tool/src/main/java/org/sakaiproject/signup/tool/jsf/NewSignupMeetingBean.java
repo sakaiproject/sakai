@@ -459,15 +459,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
             }
 
             // Need to filter for bad HTML
-            StringBuilder descriptionErrors = new StringBuilder();
             String filteredDescription = sakaiFacade.getFormattedText()
-                    .processFormattedText(signupMeeting.getDescription(), descriptionErrors, true);
+                    .processFormattedText(signupMeeting.getDescription(), null, true);
             signupMeeting.setDescription(filteredDescription);
-            if (descriptionErrors.length() > 0) {
-                validationError = true;
-                Utilities.addErrorMessage(descriptionErrors.toString());
-                return;
-            }
 
             // set instructor
             signupMeeting.setCreatorUserId(creatorUserId);

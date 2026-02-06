@@ -631,7 +631,6 @@ public final class XmlUtil
       if (StringUtils.isEmpty(value)) {
           return value;
       }
-      StringBuilder alertMsg = new StringBuilder();
       String finalValue = "";
       Matcher matcher = M_htmlPattern.matcher(value);
       boolean hasHtmlPattern = false;
@@ -668,12 +667,9 @@ public final class XmlUtil
       }
       textStringBuilder.append(convertoLTGT(value.substring(index)));
       if (hasHtmlPattern) {
-          finalValue = formattedText.processFormattedText(textStringBuilder.toString(), alertMsg);
+          finalValue = formattedText.processFormattedText(textStringBuilder.toString(), null, null);
       } else {
-          finalValue = formattedText.processFormattedText(convertoLTGT(value), alertMsg);
-      }
-      if (alertMsg.length() > 0) {
-          log.debug(alertMsg.toString());
+          finalValue = formattedText.processFormattedText(convertoLTGT(value), null, null);
       }
       return finalValue;
   }

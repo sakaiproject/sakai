@@ -201,7 +201,7 @@ public class ProfileUtils {
 	 * @return
 	 */
 	public static String processHtml(String s){
-		return ComponentManager.get(FormattedText.class).processFormattedText(s, new StringBuilder(), true, false);
+		return ComponentManager.get(FormattedText.class).processFormattedText(s, null, true, false);
 	}
 	
 	/**

@@ -4143,14 +4143,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			
 			// SAK-17786 Check for XSS
-			StringBuilder alertMsg = new StringBuilder();
-			alias = formattedText.processFormattedText(alias, alertMsg);
-			if (alertMsg.length() > 0) 
-			{
-				addAlert(sstate, alertMsg.toString());
-				state.setStatus(OPTIONS_STATUS);
-				return;
-			}
+			alias = formattedText.processFormattedText(alias, null, null);
 			
 			Reference anncRef = announcementService.getAnnouncementReference(ToolManager.getCurrentPlacement().getContext());
 		
@@ -4268,18 +4261,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	private String processFormattedTextFromBrowser(SessionState state, String strFromBrowser)
 	{
-		StringBuilder alertMsg = new StringBuilder();
-		try
-		{
-			String text = formattedText.processFormattedText(strFromBrowser, alertMsg);
-			if (alertMsg.length() > 0) addAlert(state, alertMsg.toString());
-			return text;
-		}
-		catch (Exception e)
-		{
-			log.error("{}.processFormattedTextFromBrowser ", this, e);
-			return strFromBrowser;
-		}
+        return formattedText.processFormattedText(strFromBrowser, null, null);
 	}
 
 	/*

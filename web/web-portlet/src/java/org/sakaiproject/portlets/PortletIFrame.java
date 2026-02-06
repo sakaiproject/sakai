@@ -345,8 +345,7 @@ public class PortletIFrame extends GenericPortlet {
 						if ( siteInfo == null ) {
 							siteInfo = StringUtils.trimToNull(s.getTitle());
 						}
-						StringBuilder alertMsg = new StringBuilder();
-						if ( siteInfo != null ) siteInfo = formattedText.processFormattedText(siteInfo, alertMsg);
+						if ( siteInfo != null ) siteInfo = formattedText.processFormattedText(siteInfo, null, null);
 						context.put("cdnVersion", PortalUtils.getCDNQuery());
 						context.put("siteInfo", siteInfo);
 						context.put("height",height);
@@ -849,7 +848,7 @@ public class PortletIFrame extends GenericPortlet {
 				try
 				{
 					// Need to save this processed/escaped
-					String processedDescription = formattedText.processFormattedText(description, new StringBuilder());
+					String processedDescription = formattedText.processFormattedText(description, null, null);
 					SiteService.saveSiteInfo(placement.getContext(), processedDescription, infoUrl);
 				}
 				catch (Throwable e)
