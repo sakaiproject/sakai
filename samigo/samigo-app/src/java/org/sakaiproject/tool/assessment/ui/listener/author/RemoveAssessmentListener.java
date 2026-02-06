@@ -183,8 +183,8 @@ public class RemoveAssessmentListener implements ActionListener
 
                 try {
                     publishedAssessmentService.removeAssessment(assessmentId, "remove");
-                    removeFromGradebook(assessmentId);
                     removedPublishedAssessmentIds.add(assessmentId);
+                    removeFromGradebook(assessmentId);
                 } catch (Exception e) {
                     log.error("Failed to remove published assessment {}", assessmentId, e);
                     continue;
