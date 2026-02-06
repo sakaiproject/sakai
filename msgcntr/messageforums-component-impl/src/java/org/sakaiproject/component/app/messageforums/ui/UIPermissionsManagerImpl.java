@@ -20,6 +20,7 @@ package org.sakaiproject.component.app.messageforums.ui;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -161,9 +162,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
         if (forum != null
                 && !forum.getDraft()
-                && !forum.getLocked()
+                && !isLocked(forum)
                 && !topic.getDraft()
-                && !topic.getLocked()) {
+                && !isLocked(topic)) {
             return getTopicItemsByUser(topic, userId, contextId).stream().anyMatch(ifNewResponse);
         }
         return false;
@@ -180,9 +181,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
         if (forum != null
                 && !forum.getDraft()
-                && !forum.getLocked()
+                && !isLocked(forum)
                 && !topic.getDraft()
-                && !topic.getLocked()) {
+                && !isLocked(topic)) {
             return getTopicItemsByUser(topic, userId, contextId).stream().anyMatch(ifNewResponseToResponse);
         }
         return false;
@@ -194,9 +195,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
         if (forum != null
                 && !forum.getDraft()
-                && !forum.getLocked()
+                && !isLocked(forum)
                 && !topic.getDraft()
-                && !topic.getLocked()) {
+                && !isLocked(topic)) {
 
             return getTopicItemsByCurrentUser(topic).stream().anyMatch(ifMovePosting.or(ifReviseAny).or(ifReviseOwn));
         }
@@ -292,9 +293,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         if (checkBaseConditions(topic, forum, userId, contextId)) return true;
 
         return (forum.getDraft() == null || !forum.getDraft())
-                && (forum.getLocked() == null || !forum.getLocked())
+                && !isLocked(forum)
                 && (topic.getDraft() == null || !topic.getDraft())
-                && (topic.getLocked() == null || !topic.getLocked())
+                && !isLocked(topic)
                 && getTopicItemsByUser(topic, userId, contextId).stream().anyMatch(ifReviseAny);
     }
 
@@ -307,12 +308,12 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     public boolean isReviseOwn(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId) {
         if (checkBaseConditions(topic, forum, userId, contextId)) return true;
 
-        if (topic.getLocked() == null || topic.getLocked()) return false;
+        if (isLocked(topic)) return false;
 
         if (!forum.getDraft()
-                && !forum.getLocked()
+                && !isLocked(forum)
                 && !topic.getDraft()
-                && !topic.getLocked()) {
+                && !isLocked(topic)) {
             return getTopicItemsByUser(topic, userId, contextId).stream().anyMatch(ifReviseOwn);
         }
         return false;
@@ -327,12 +328,12 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     public boolean isDeleteAny(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId) {
         if (checkBaseConditions(topic, forum, userId, contextId)) return true;
 
-        if (topic.getLocked() == null || topic.getLocked()) return false;
+        if (isLocked(topic)) return false;
 
         if (!forum.getDraft()
-                && !forum.getLocked()
+                && !isLocked(forum)
                 && !topic.getDraft()
-                && !topic.getLocked()) {
+                && !isLocked(topic)) {
             return getTopicItemsByUser(topic, userId, contextId).stream().anyMatch(ifDeleteAny);
         }
         return false;
@@ -347,12 +348,12 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     public boolean isDeleteOwn(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId) {
         if (checkBaseConditions(topic, forum, userId, contextId)) return true;
 
-        if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE)) return false;
+        if (isLocked(topic)) return false;
 
         if (!forum.getDraft()
-                && !forum.getLocked()
+                && !isLocked(forum)
                 && !topic.getDraft()
-                && !topic.getLocked()) {
+                && !isLocked(topic)) {
             return getTopicItemsByUser(topic, userId, contextId).stream().anyMatch(ifDeleteOwn);
         }
         return false;
@@ -362,12 +363,12 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     public boolean isMarkAsRead(DiscussionTopic topic, DiscussionForum forum) {
         if (checkBaseConditions(topic, forum)) return true;
 
-        if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE)) return false;
+        if (isLocked(topic)) return false;
 
         if (!forum.getDraft()
-                && !forum.getLocked()
+                && !isLocked(forum)
                 && !topic.getDraft()
-                && !topic.getLocked()) {
+                && !isLocked(topic)) {
             return getTopicItemsByCurrentUser(topic).stream().anyMatch(ifMarkAsRead);
         }
         return false;
@@ -581,8 +582,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         }
 
         boolean ifTopicOwner = topic != null && forumManager.isTopicOwner(topic, userId);
-        boolean ifLockedTopic = topic != null && (topic.getLocked() == null || topic.getLocked());
-        boolean ifLockedForum = forum != null && (forum.getLocked() == null || forum.getLocked());
+        boolean ifLockedTopic = isLocked(topic);
+        boolean ifLockedForum = isLocked(forum);
         boolean ifDraftTopic = topic != null && (topic.getDraft() != null && topic.getDraft());
         boolean ifDraftForum = forum != null && (forum.getDraft() != null && forum.getDraft());
 
@@ -690,6 +691,34 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         // if restricted and belongs to group
         return (forum != null && forum.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(forum.getId(), true, contextSiteId, userId))
                 || (topic != null && topic.getRestrictPermissionsForGroups() && isInstructorForAllowedGroup(topic.getId(), false, contextSiteId, userId));
+    }
+
+    private boolean isLockedAfterClose(DiscussionForum forum) {
+        if (forum == null) return false;
+        if (!Boolean.TRUE.equals(forum.getAvailabilityRestricted())) return false;
+        if (!Boolean.TRUE.equals(forum.getLockedAfterClosed())) return false;
+        Date closeDate = forum.getCloseDate();
+        return closeDate != null && closeDate.before(new Date());
+    }
+
+    private boolean isLockedAfterClose(DiscussionTopic topic) {
+        if (topic == null) return false;
+        if (!Boolean.TRUE.equals(topic.getAvailabilityRestricted())) return false;
+        if (!Boolean.TRUE.equals(topic.getLockedAfterClosed())) return false;
+        Date closeDate = topic.getCloseDate();
+        return closeDate != null && closeDate.before(new Date());
+    }
+
+    private boolean isLocked(DiscussionForum forum) {
+        if (forum == null) return true;
+        if (Boolean.TRUE.equals(forum.getLocked())) return true;
+        return isLockedAfterClose(forum);
+    }
+
+    private boolean isLocked(DiscussionTopic topic) {
+        if (topic == null) return true;
+        if (Boolean.TRUE.equals(topic.getLocked())) return true;
+        return isLockedAfterClose(topic);
     }
 
     public void clearMembershipsFromCacheForArea(Area area) {
