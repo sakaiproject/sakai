@@ -443,7 +443,7 @@ public class POXRequestHandler {
         return getFatalResponse(description, "unknown");
     }
 
-    public static String getFatalResponse(String description, String message_id) {
+    public static String getFatalResponse(String description, String operation) {
         Date dt = new Date();
         String messageId = "" + dt.getTime();
 
@@ -451,7 +451,7 @@ public class POXRequestHandler {
             .withDescription(description)
             .asFailure()
             .withMessageId(messageId)
-            .withOperation(message_id)
+            .withOperation(operation)
             .buildAsXml();
     }
 }
