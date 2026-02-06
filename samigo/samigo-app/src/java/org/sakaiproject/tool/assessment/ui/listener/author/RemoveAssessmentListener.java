@@ -191,9 +191,9 @@ public class RemoveAssessmentListener implements ActionListener
                 }
 
                 try {
-                    collectGroupUnlocks(assessmentId, releaseGroupIdsByPublishedAssessmentId.get(assessmentId), assessmentIdsByGroupId);
+                    collectGroupLockRemovals(assessmentId, releaseGroupIdsByPublishedAssessmentId.get(assessmentId), assessmentIdsByGroupId);
                 } catch (Exception e) {
-                    log.warn("Removed published assessment {}, but failed to collect group unlocks.", assessmentId, e);
+                    log.warn("Removed published assessment {}, but failed to collect group lock removals.", assessmentId, e);
                 }
 
                 String calendarDueDateEventId = calendarDueDateEventIdByPublishedAssessmentId.get(assessmentId);
@@ -227,7 +227,7 @@ public class RemoveAssessmentListener implements ActionListener
                 }
             }
 
-            unlockGroupsForDeletion(assessmentIdsByGroupId);
+            clearGroupDeletionLocks(assessmentIdsByGroupId);
             updateInactivePublishedAssessments(author, removedPublishedAssessmentIds);
             assessmentList.removeIf(assessmentFacade -> removedAssessmentIds.contains(assessmentFacade.getAssessmentBaseId().toString()));
             publishedAssessmentList.removeIf(publishedAssessmentFacade -> removedPublishedAssessmentIds.contains(publishedAssessmentFacade.getPublishedAssessmentId().toString()));
@@ -288,7 +288,7 @@ public class RemoveAssessmentListener implements ActionListener
         }
     }
 
-    private void collectGroupUnlocks(String assessmentId, Set<String> selectedGroupIds, Map<String, Set<String>> assessmentIdsByGroupId) {
+    private void collectGroupLockRemovals(String assessmentId, Set<String> selectedGroupIds, Map<String, Set<String>> assessmentIdsByGroupId) {
         if (selectedGroupIds == null || selectedGroupIds.isEmpty()) {
             return;
         }
@@ -298,7 +298,7 @@ public class RemoveAssessmentListener implements ActionListener
         }
     }
 
-    private void unlockGroupsForDeletion(Map<String, Set<String>> assessmentIdsByGroupId) {
+    private void clearGroupDeletionLocks(Map<String, Set<String>> assessmentIdsByGroupId) {
         if (assessmentIdsByGroupId.isEmpty()) {
             return;
         }
@@ -314,6 +314,7 @@ public class RemoveAssessmentListener implements ActionListener
                 groupsById.put(group.getId(), group);
             }
 
+            boolean siteUpdated = false;
             for (Map.Entry<String, Set<String>> unlockEntry : assessmentIdsByGroupId.entrySet()) {
                 Group group = groupsById.get(unlockEntry.getKey());
                 if (group == null) {
@@ -321,13 +322,18 @@ public class RemoveAssessmentListener implements ActionListener
                 }
 
                 for (String assessmentId : unlockEntry.getValue()) {
-                    group.setLockForReference(assessmentId, RealmLockMode.NONE);
+                    if (!RealmLockMode.NONE.equals(group.getLockForReference(assessmentId))) {
+                        group.setLockForReference(assessmentId, RealmLockMode.NONE);
+                        siteUpdated = true;
+                    }
                 }
             }
 
-            siteService.save(site);
+            if (siteUpdated) {
+                siteService.save(site);
+            }
         } catch (Exception e) {
-            log.error("Fatal error unlocking groups for deletion.", e);
+            log.error("Fatal error clearing group deletion lock references.", e);
         }
     }
 
