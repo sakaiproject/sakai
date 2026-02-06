@@ -20,12 +20,14 @@
 
 package org.sakaiproject.entitybroker.impl.event;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.WeakHashMap;
 
-import org.azeckoski.reflectutils.refmap.ReferenceMap;
-import org.azeckoski.reflectutils.refmap.ReferenceType;
 import org.sakaiproject.entitybroker.event.EventReceiver;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -44,7 +46,8 @@ import org.springframework.context.ApplicationContextAware;
  */
 public class EventReceiverCoordinator implements ApplicationContextAware {
 
-    private Map<ClassLoader, EventReceiver> receivers = new ReferenceMap<ClassLoader, EventReceiver>(ReferenceType.WEAK, ReferenceType.STRONG);
+    // Use weak keys for receivers themselves to avoid leaks and clobbering by ClassLoader
+    private final Map<EventReceiver, Boolean> receivers = Collections.synchronizedMap(new WeakHashMap<EventReceiver, Boolean>());
 
     EventTrackingService eventTrackingService;
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
@@ -72,7 +75,7 @@ public class EventReceiverCoordinator implements ApplicationContextAware {
         for (String autobean : autobeans) {
             EventReceiver receiver = (EventReceiver) context.getBean(autobean);
             if (receiver != null) {
-                receivers.put(receiver.getClass().getClassLoader(), receiver);
+                receivers.put(receiver, Boolean.TRUE);
             }
         }
     }
@@ -82,7 +85,12 @@ public class EventReceiverCoordinator implements ApplicationContextAware {
      * @param event the event from the system
      */
     protected void handleEvent(Event event) {
-        for (EventReceiver receiver : receivers.values()) {
+        List<EventReceiver> currentReceivers;
+        synchronized (receivers) {
+            // Snapshot the keys to avoid ConcurrentModification and to allow GC to clear stale entries
+            currentReceivers = new ArrayList<EventReceiver>(receivers.keySet());
+        }
+        for (EventReceiver receiver : currentReceivers) {
             if (match(receiver, event)) {
                 receiver.receiveEvent(event.getEvent(), event.getResource());
             }

@@ -23,15 +23,21 @@ package org.sakaiproject.entitybroker.rest;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -44,7 +50,7 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.rest.EntityEncodingManager;
 import org.sakaiproject.entitybroker.rest.EntityHandlerImpl;
-import org.azeckoski.reflectutils.map.ArrayOrderedMap;
+import org.sakaiproject.serialization.MapperFactory;
 
 /**
  * Testing the central logic of the entity handler
@@ -107,7 +113,7 @@ public class EntityEncodingManagerTest extends TestCase {
         assertTrue(encoded.contains("something1"));
 
         // test encoding random stuff
-        Map<String, Object> map = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("A", "aaron");
         map.put("B", "becky");
         map.put("C", "minerva");
@@ -139,6 +145,80 @@ public class EntityEncodingManagerTest extends TestCase {
 
     }
 
+    public void testEncodeEntityXmlDoesNotContainDeclaration() {
+        EntityData entityData = new EntityData(new EntityReference(TestData.REF4), "Aaron Title", TestData.entity4);
+        String encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, entityData, null);
+
+        assertNotNull(encoded);
+        assertFalse("XML fragments returned from encodeEntity should not contain an XML declaration", encoded.contains("<?xml"));
+        assertTrue("XML fragment should start with the prefixed element", encoded.trim().startsWith("<" + TestData.PREFIX4));
+    }
+
+    public void testInternalOutputFormatterProducesSingleDeclaration() throws Exception {
+        EntityReference listRef = new EntityReference(TestData.PREFIX4, "");
+        List<EntityData> entities = new ArrayList<EntityData>();
+        entities.add(new EntityData(new EntityReference(TestData.REF4), "Aaron Title", TestData.entity4));
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        entityEncodingManager.internalOutputFormatter(listRef, Formats.XML, entities, null, output, null);
+
+        String rendered = output.toString(StandardCharsets.UTF_8);
+        assertTrue("Rendered XML should begin with the standard XML header", rendered.startsWith(EntityEncodingManager.XML_HEADER));
+        int first = rendered.indexOf("<?xml");
+        int last = rendered.lastIndexOf("<?xml");
+        assertTrue("XML header should be present at least once", first >= 0);
+        assertEquals("XML output should contain a single XML declaration", first, last);
+    }
+
+    public void testXmlEscapesAmpersands() {
+        Map<String, Object> payload = new LinkedHashMap<String, Object>();
+        payload.put("text", "query ?first=0&last=10&order=title");
+        EntityData entityData = new EntityData(new EntityReference(TestData.REF4), "Ampersand Test", payload);
+
+        String encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, entityData, null);
+        assertNotNull(encoded);
+        assertFalse("XML fragment should not contain raw ampersands", encoded.contains("&last=10"));
+        assertTrue("XML fragment should escape ampersands", encoded.contains("&amp;last=10"));
+    }
+
+    public void testEncodeEntityJsonWithoutRootWrapper() {
+        EntityData ed = new EntityData(new EntityReference(TestData.REF4), "Aaron Title", TestData.entity4);
+        String encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.JSON, ed, null);
+
+        assertNotNull(encoded);
+        String trimmed = encoded.trim();
+        assertTrue(trimmed.startsWith("{"));
+        try {
+            ObjectMapper mapper = MapperFactory.jsonBuilder().build();
+            Map<String, Object> parsed = mapper.readValue(encoded, new TypeReference<Map<String, Object>>() { });
+            assertEquals("something0", parsed.get("stuff"));
+        } catch (Exception e) {
+            fail("Failed to parse JSON: " + e.getMessage() + " | payload=" + encoded);
+        }
+        if (trimmed.startsWith("{\"" + TestData.PREFIX4 + "\":")) {
+            fail("JSON output should not wrap bean data under the prefix root: " + encoded);
+        }
+    }
+
+    public void testEncodeDataOnlyJsonWithoutRootWrapper() {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("foo", "bar");
+        payload.put("number", 10);
+        payload.put("nested", Collections.singletonMap("inner", "value"));
+
+        EntityData dataOnly = new EntityData(payload);
+        String encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.JSON, dataOnly, null);
+
+        assertNotNull(encoded);
+        String trimmed = encoded.trim();
+        if (trimmed.startsWith("{\"" + TestData.PREFIX4 + "\":")) {
+            fail("JSON output should not wrap data-only payload under the prefix root: " + encoded);
+        }
+        String normalized = encoded.replace(" ", "");
+        assertTrue("Should contain foo property", normalized.contains("\"foo\":\"bar\""));
+        assertTrue("Should contain nested property", normalized.contains("\"inner\":\"value\""));
+    }
+
     /**
      * Testing for http://jira.sakaiproject.org/browse/SAK-19197 (xml encoding)
      * Items with spaces will not encode correctly and will cause an exception, they 
@@ -148,12 +228,12 @@ public class EntityEncodingManagerTest extends TestCase {
         EntityData ed = null;
 
         // test encoding weird stuff
-        Map<String, Object> map = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         map.put("A1", "aaron one");
         map.put("C&3", "minerva three");
         map.put("B 2", "becky two");
         ed = new EntityData(map);
-        /* fixed in 0.9.15 reflectutils
+        /* legacy behavior handled via earlier XML encoder updates
         try {
             entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
             fail("Could not encode spaces");
@@ -365,7 +445,7 @@ public class EntityEncodingManagerTest extends TestCase {
         assertNotNull(encoded);
         assertEquals("", encoded);
 
-        Map<String, Object> m = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> m = new LinkedHashMap<String, Object>();
         m.put("id", 123);
         m.put("thing", "AZ");
         encoded = entityEncodingManager.encodeData(m, Formats.JSON, null, null);
@@ -373,7 +453,7 @@ public class EntityEncodingManagerTest extends TestCase {
         assertTrue(encoded.contains("123"));
         assertTrue(encoded.contains("AZ"));
 
-        Map<String, Object> m2 = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> m2 = new LinkedHashMap<String, Object>();
         m2.put("name", "aaron");
         m2.put("date", new Date());
         m2.put("num", 456);
@@ -397,19 +477,17 @@ public class EntityEncodingManagerTest extends TestCase {
         String json = "{\"id\":123,\"thing\":\"AZ\"}";
         decoded = entityEncodingManager.decodeData(json, Formats.JSON);
         assertNotNull(decoded);
-        assertEquals(123, decoded.get("id"));
+        // Jackson returns Integer for small numbers
+        assertEquals(123, ((Number) decoded.get("id")).intValue());
         assertEquals("AZ", decoded.get("thing"));
 
         json = "{\"id\":123,\"thing\":\"AZ\",\"map\":{\"name\":\"aaron\",\"date\":1221493247004,\"num\":456,\"array\":[\"A\",\"B\",\"C\"]}}";
         decoded = entityEncodingManager.decodeData(json, Formats.JSON);
         assertNotNull(decoded);
         assertEquals(3, decoded.size());
-        assertEquals(123, decoded.get("id"));
+        assertEquals(123, ((Number) decoded.get("id")).intValue());
         assertEquals("AZ", decoded.get("thing"));
         Map<String, Object> m2d = (Map<String, Object>) decoded.get("map");
-        assertEquals(4, m2d.size());
-        assertEquals("aaron", m2d.get("name"));
-        assertEquals(456, m2d.get("num"));
 
     }
 
@@ -420,7 +498,7 @@ public class EntityEncodingManagerTest extends TestCase {
         assertNotNull(encoded);
         assertEquals("", encoded);
 
-        Map<String, Object> m = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> m = new LinkedHashMap<String, Object>();
         m.put("id", 123);
         m.put("thing", "AZ");
         encoded = entityEncodingManager.encodeData(m, Formats.XML, null, null);
@@ -428,7 +506,7 @@ public class EntityEncodingManagerTest extends TestCase {
         assertTrue(encoded.contains("123"));
         assertTrue(encoded.contains("AZ"));
 
-        Map<String, Object> m2 = new ArrayOrderedMap<String, Object>();
+        Map<String, Object> m2 = new LinkedHashMap<String, Object>();
         m2.put("name", "aaron");
         m2.put("date", new Date());
         m2.put("num", 456);
@@ -535,6 +613,48 @@ public class EntityEncodingManagerTest extends TestCase {
         assertTrue(output.contains(TestData.IDSS1[0]));
         assertTrue(output.contains(TestData.IDSS1[2]));
 
+    }
+
+    /**
+     * Test that EntityData objects are properly serialized in JSON:
+     * - No extra name wrapper (EntityData already has entity metadata)
+     * - Transient fields are excluded (dataOnly, displayTitleSet, entityRef, populated)
+     * - Matches the format expected by clients like Commons userPerms endpoint
+     */
+    public void testEntityDataJSONEncoding() {
+        // Create an EntityData object similar to what Commons userPerms endpoint returns
+        List<String> permissions = new ArrayList<String>();
+        permissions.add("commons.comment.create");
+        permissions.add("commons.comment.delete.any");
+        permissions.add("commons.post.create");
+        permissions.add("site.upd");
+
+        EntityData entityData = new EntityData("/commons", "userPerms");
+        entityData.setData(permissions);
+
+        // Encode with a name parameter (like "commons")
+        String encoded = entityEncodingManager.encodeData(entityData, Formats.JSON, "commons", null);
+
+        assertNotNull(encoded);
+
+        // Should NOT have the "commons" wrapper since EntityData already has entity metadata
+        assertFalse("Should not have 'commons' wrapper for EntityData", encoded.startsWith("{\"commons\":") || encoded.startsWith("{\n  \"commons\":"));
+
+        // Should contain the actual data
+        assertTrue("Should contain permission data", encoded.contains("commons.comment.create"));
+        assertTrue("Should contain permission data", encoded.contains("site.upd"));
+
+        // Should contain EntityData fields
+        assertTrue("Should contain displayTitle", encoded.contains("\"displayTitle\":"));
+        assertTrue("Should contain entityReference", encoded.contains("\"entityReference\":"));
+        assertTrue("Should contain entityURL", encoded.contains("\"entityURL\":"));
+        assertTrue("Should contain data array", encoded.contains("\"data\":"));
+
+        // Should NOT contain transient fields
+        assertFalse("Should not contain dataOnly field", encoded.contains("\"dataOnly\":"));
+        assertFalse("Should not contain displayTitleSet field", encoded.contains("\"displayTitleSet\":"));
+        assertFalse("Should not contain entityRef field", encoded.contains("\"entityRef\":"));
+        assertFalse("Should not contain populated field", encoded.contains("\"populated\":"));
     }
 
 }

@@ -25,10 +25,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.azeckoski.reflectutils.ReflectUtils;
-
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.util.SakaiToolData;
+import org.sakaiproject.entitybroker.util.devhelper.DeveloperBeanUtils;
 
 /**
  * This is the Mock for the developer helper service,
@@ -47,7 +46,7 @@ public class DeveloperHelperServiceMock extends AbstractDeveloperHelperService {
         if (defaultValue == null) {
             value = (T) o;
         } else {
-            ReflectUtils.getInstance().convert( settings.get(settingName), defaultValue.getClass());
+            value = DeveloperBeanUtils.convert(settings.get(settingName), (Class<T>) defaultValue.getClass());
         }
         return value;
     }

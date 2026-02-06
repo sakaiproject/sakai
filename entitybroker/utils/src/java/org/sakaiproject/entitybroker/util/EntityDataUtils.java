@@ -21,13 +21,13 @@
 package org.sakaiproject.entitybroker.util;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.azeckoski.reflectutils.ReflectUtils;
-import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -37,6 +37,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
+import org.springframework.util.ReflectionUtils;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.util.model.EntityContent;
@@ -185,14 +186,41 @@ public class EntityDataUtils {
      */
     public static String getEntityId(Object entity) {
         String entityId = null;
-        try {
-            entityId = ReflectUtils.getInstance().getFieldValueAsString(entity, "entityId", EntityId.class);
-        } catch (FieldnameNotFoundException e) {
-            try {
-                // try just id only as well
-                entityId = ReflectUtils.getInstance().getFieldValueAsString(entity, "id", null);
-            } catch (FieldnameNotFoundException e1) {
-                entityId = null;
+        if (entity == null) {
+            return null;
+        }
+        if (entity instanceof Map) {
+            Object value = ((Map<?, ?>) entity).get("entityId");
+            if (value == null) {
+                value = ((Map<?, ?>) entity).get("id");
+            }
+            return value != null ? value.toString() : null;
+        }
+        Field field = findFieldWithAnnotation(entity.getClass(), EntityId.class);
+        if (field == null) {
+            field = findField(entity.getClass(), "entityId");
+        }
+        if (field == null) {
+            field = findField(entity.getClass(), "id");
+        }
+        if (field != null) {
+            Object value = readFieldValue(field, entity);
+            if (value != null) {
+                entityId = value.toString();
+            }
+        } else {
+            Method method = findMethodWithAnnotation(entity.getClass(), EntityId.class);
+            if (method == null) {
+                method = findAccessor(entity.getClass(), "entityId");
+            }
+            if (method == null) {
+                method = findAccessor(entity.getClass(), "id");
+            }
+            if (method != null) {
+                Object value = invokeMethod(method, entity);
+                if (value != null) {
+                    entityId = value.toString();
+                }
             }
         }
         return entityId;
@@ -204,16 +232,35 @@ public class EntityDataUtils {
      * @return the name of the identifier field for this entity OR null if it cannot be determined
      */
     public static String getEntityIdField(Class<?> type) {
-        String entityIdField = ReflectUtils.getInstance().getFieldNameWithAnnotation(type, EntityId.class);
-        if (entityIdField == null) {
-            try {
-                ReflectUtils.getInstance().getFieldType(type, "id");
-                entityIdField = "id";
-            } catch (FieldnameNotFoundException e) {
-                entityIdField = null;
+        if (type == null) {
+            return null;
+        }
+        Field field = findFieldWithAnnotation(type, EntityId.class);
+        if (field != null) {
+            return field.getName();
+        }
+        field = findField(type, "entityId");
+        if (field != null) {
+            return field.getName();
+        }
+        field = findField(type, "id");
+        if (field != null) {
+            return field.getName();
+        }
+        Method method = findMethodWithAnnotation(type, EntityId.class);
+        if (method != null) {
+            String propertyName = extractPropertyName(method);
+            if (propertyName != null) {
+                return propertyName;
             }
         }
-        return entityIdField;
+        if (findAccessor(type, "entityId") != null) {
+            return "entityId";
+        }
+        if (findAccessor(type, "id") != null) {
+            return "id";
+        }
+        return null;
     }
 
     /**
@@ -431,6 +478,126 @@ public class EntityDataUtils {
         }
 
         return tempRd;
+    }
+
+    private static Field findFieldWithAnnotation(Class<?> type, Class<? extends java.lang.annotation.Annotation> annotationType) {
+        if (type == null || annotationType == null) {
+            return null;
+        }
+        for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
+            for (Field field : current.getDeclaredFields()) {
+                if (field.isAnnotationPresent(annotationType)) {
+                    return field;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Field findField(Class<?> type, String fieldName) {
+        if (type == null || fieldName == null) {
+            return null;
+        }
+        for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
+            try {
+                return current.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                // continue searching up the hierarchy
+            }
+        }
+        return null;
+    }
+
+    private static Method findMethodWithAnnotation(Class<?> type, Class<? extends java.lang.annotation.Annotation> annotationType) {
+        if (type == null || annotationType == null) {
+            return null;
+        }
+        for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
+            for (Method method : current.getDeclaredMethods()) {
+                if (method.getParameterCount() == 0 && method.isAnnotationPresent(annotationType)) {
+                    return method;
+                }
+            }
+        }
+        // Also search implemented interfaces (and their parents) to match historical behavior
+        for (Class<?> iface : type.getInterfaces()) {
+            Method method = findMethodWithAnnotation(iface, annotationType);
+            if (method != null) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private static Method findAccessor(Class<?> type, String propertyName) {
+        if (type == null || propertyName == null || propertyName.isEmpty()) {
+            return null;
+        }
+        String capitalized = propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH) + propertyName.substring(1);
+        Method method = findMethod(type, "get" + capitalized);
+        if (method == null) {
+            method = findMethod(type, "is" + capitalized);
+        }
+        return method;
+    }
+
+    private static Method findMethod(Class<?> type, String methodName) {
+        if (type == null || methodName == null) {
+            return null;
+        }
+        Method method = ReflectionUtils.findMethod(type, methodName);
+        return method != null && method.getParameterCount() == 0 ? method : null;
+    }
+
+    private static Object readFieldValue(Field field, Object target) {
+        if (field == null || target == null) {
+            return null;
+        }
+        try {
+            ReflectionUtils.makeAccessible(field);
+            return ReflectionUtils.getField(field, target);
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException("Unable to access field '" + field.getName() + "' on " + target.getClass(),
+                    e.getCause() != null ? e.getCause() : e);
+        }
+    }
+
+    private static Object invokeMethod(Method method, Object target) {
+        if (method == null || target == null) {
+            return null;
+        }
+        try {
+            ReflectionUtils.makeAccessible(method);
+            return ReflectionUtils.invokeMethod(method, target);
+        } catch (IllegalStateException e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            throw new IllegalStateException("Invocation of method '" + method.getName() + "' on " + target.getClass()
+                    + "' failed", cause);
+        }
+    }
+
+    private static String extractPropertyName(Method method) {
+        if (method == null) {
+            return null;
+        }
+        String name = method.getName();
+        if (name.startsWith("get") && name.length() > 3) {
+            return decapitalize(name.substring(3));
+        }
+        if (name.startsWith("is") && name.length() > 2) {
+            return decapitalize(name.substring(2));
+        }
+        return null;
+    }
+
+    private static String decapitalize(String value) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
+        if (value.length() > 1 && Character.isUpperCase(value.charAt(1)) && Character.isUpperCase(value.charAt(0))) {
+            return value;
+        }
+        return value.substring(0, 1).toLowerCase(Locale.ENGLISH) + value.substring(1);
     }
 
 }

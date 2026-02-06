@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
 
-import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -34,7 +34,6 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-@ReflectIgnoreClassFields({"role"})
 public class EntityMember implements Member {
     public final static long serialVersionUID = 1l;
 
@@ -261,6 +260,7 @@ public class EntityMember implements Member {
     /* (non-Javadoc)
      * @see org.sakaiproject.authz.api.Member#getRole()
      */
+    @JsonIgnore
     public Role getRole() {
         if (member != null) {
             return member.getRole();

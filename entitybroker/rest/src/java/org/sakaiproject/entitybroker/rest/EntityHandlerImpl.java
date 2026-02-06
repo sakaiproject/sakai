@@ -25,6 +25,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,8 +37,6 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.azeckoski.reflectutils.ReflectUtils;
-import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -77,10 +78,10 @@ import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.EntityResponse;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
-import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
+import org.springframework.util.ReflectionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -479,7 +480,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                     Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
                                                     if (outputable != null) {
                                                         String[] outputFormats = outputable.getHandledOutputFormats();
-                                                        if (outputFormats != null && ReflectUtils.contains(outputFormats, Formats.FORM) ) {
+                                                        if (contains(outputFormats, Formats.FORM)) {
                                                             // we are handling this type of format for this entity
                                                             RequestUtils.setResponseEncoding(format, res);
                                                             if (EntityView.Method.HEAD.name().equals(view.getMethod())) {
@@ -521,7 +522,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                         }
                                                     }
                                                     String[] outputFormats = outputable.getHandledOutputFormats();
-                                                    if (outputFormats == null || ReflectUtils.contains(outputFormats, format) ) {
+                                                    if (outputFormats == null || contains(outputFormats, format)) {
                                                         // we are handling this type of format for this entity
                                                         RequestUtils.setResponseEncoding(format, res);
 
@@ -644,7 +645,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                 Inputable inputable = (Inputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class);
                                                 if (inputable != null) {
                                                     String[] inputFormats = inputable.getHandledInputFormats();
-                                                    if (inputFormats == null || ReflectUtils.contains(inputFormats, format) ) {
+                                                    if (inputFormats == null || contains(inputFormats, format)) {
                                                         // we are handling this type of format for this entity
                                                         Object entity = null;
                                                         InputStream inputStream = null;
@@ -828,15 +829,15 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         }
         String URL = ev.toString();
         // get the right method to use
-        Method method = Method.GET;
+        HttpRESTUtils.Method method;
         if (EntityView.VIEW_DELETE.equals(ev.getViewKey())) {
-            method = Method.DELETE;
+            method = HttpRESTUtils.Method.DELETE;
         } else if (EntityView.VIEW_EDIT.equals(ev.getViewKey())) {
-            method = Method.PUT;
+            method = HttpRESTUtils.Method.PUT;
         } else if (EntityView.VIEW_NEW.equals(ev.getViewKey())) {
-            method = Method.POST;
+            method = HttpRESTUtils.Method.POST;
         } else {
-            method = Method.GET;
+            method = HttpRESTUtils.Method.GET;
         }
         // handle entity if one was included
         Object data = null;
@@ -922,7 +923,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             // check if this view key is specifically disallowed
             if (AccessViews.class.isAssignableFrom(evAccessProvider.getClass())) {
                 String[] entityViewKeys = ((AccessViews)evAccessProvider).getHandledEntityViews();
-                if (entityViewKeys != null && ! ReflectUtils.contains(entityViewKeys, view.getViewKey()) ) {
+                if (entityViewKeys != null && !contains(entityViewKeys, view.getViewKey())) {
                     throw new EntityException("Access provider for " + view.getEntityReference().getPrefix() 
                             + " will not handle this view ("+view.getViewKey()+"): " + view,
                             view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST);
@@ -931,7 +932,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             // check if this format is specifically disallowed
             if (AccessFormats.class.isAssignableFrom(evAccessProvider.getClass())) {
                 String[] accessFormats = ((AccessFormats)evAccessProvider).getHandledAccessFormats();
-                if (accessFormats != null && ! ReflectUtils.contains(accessFormats, view.getFormat()) ) {
+                if (accessFormats != null && !contains(accessFormats, view.getFormat())) {
                     throw new FormatUnsupportedException("Access provider for " + view.getEntityReference().getPrefix() 
                             + " will not handle this format ("+view.getFormat()+")",
                             view.getEntityReference()+"", view.getFormat());
@@ -1051,7 +1052,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
      * @param ed (optional) some entity data if available
      */
     protected void setLastModifiedHeaders(HttpServletResponse res, EntityData ed, long lastModifiedTime) {
-        long lastModified = System.currentTimeMillis();
+        long lastModified = lastModifiedTime;
         if (ed != null) {
             // try to get from props first
             boolean found = false;
@@ -1066,20 +1067,14 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             if (!found) {
                 if (ed.getData() != null) {
                     // look for the annotation on the entity
-                    try {
-                        lm = ReflectUtils.getInstance().getFieldValue(ed.getData(), "lastModified", EntityLastModified.class);
-                        Long l = makeLastModified(lm);
-                        if (l != null) {
-                            lastModified = l.longValue();
-                            found = true;
-                        }
-                    } catch (FieldnameNotFoundException e1) {
-                        // nothing to do here
+                    lm = findLastModifiedValue(ed.getData());
+                    Long l = makeLastModified(lm);
+                    if (l != null) {
+                        lastModified = l.longValue();
+                        found = true;
                     }
                 }
             }
-        } else {
-            lastModified = lastModifiedTime;
         }
         // ETag or Last-Modified
         res.setDateHeader(ActionReturn.Header.LAST_MODIFIED.toString(), lastModified);
@@ -1111,6 +1106,134 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             }
         }
         return lastModified;
+    }
+
+    private static boolean contains(String[] values, String target) {
+        if (values == null || values.length == 0 || target == null) {
+            return false;
+        }
+        for (String value : values) {
+            if (target.equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Object findLastModifiedValue(Object data) {
+        if (data == null) {
+            return null;
+        }
+        Object value = readProperty(data, "lastModified");
+        if (value != null) {
+            return value;
+        }
+        Field annotatedField = findFieldWithAnnotation(data.getClass(), EntityLastModified.class);
+        value = readFieldValue(annotatedField, data);
+        if (value != null) {
+            return value;
+        }
+        Method annotatedMethod = findMethodWithAnnotation(data.getClass(), EntityLastModified.class);
+        return invokeMethod(annotatedMethod, data);
+    }
+
+    private static Object readProperty(Object target, String name) {
+        if (target == null || name == null || name.isEmpty()) {
+            return null;
+        }
+        Field field = findField(target.getClass(), name);
+        Object value = readFieldValue(field, target);
+        if (value != null) {
+            return value;
+        }
+        Method accessor = findAccessor(target.getClass(), name);
+        return invokeMethod(accessor, target);
+    }
+
+    private static Field findFieldWithAnnotation(Class<?> type, Class<? extends java.lang.annotation.Annotation> annotationType) {
+        if (type == null || annotationType == null) {
+            return null;
+        }
+        for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
+            for (Field field : current.getDeclaredFields()) {
+                if (field.isAnnotationPresent(annotationType)) {
+                    return field;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Method findMethodWithAnnotation(Class<?> type, Class<? extends java.lang.annotation.Annotation> annotationType) {
+        if (type == null || annotationType == null) {
+            return null;
+        }
+        for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
+            for (Method method : current.getDeclaredMethods()) {
+                if (method.getParameterCount() == 0 && method.isAnnotationPresent(annotationType)) {
+                    return method;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Field findField(Class<?> type, String fieldName) {
+        if (type == null || fieldName == null) {
+            return null;
+        }
+        for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
+            try {
+                return current.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                // continue searching up the hierarchy
+            }
+        }
+        return null;
+    }
+
+    private static Method findAccessor(Class<?> type, String propertyName) {
+        if (type == null || propertyName == null || propertyName.isEmpty()) {
+            return null;
+        }
+        String capitalized = propertyName.substring(0, 1).toUpperCase(java.util.Locale.ENGLISH) + propertyName.substring(1);
+        Method method = findMethod(type, "get" + capitalized);
+        if (method == null) {
+            method = findMethod(type, "is" + capitalized);
+        }
+        return method;
+    }
+
+    private static Method findMethod(Class<?> type, String methodName) {
+        if (type == null || methodName == null) {
+            return null;
+        }
+        Method method = ReflectionUtils.findMethod(type, methodName);
+        return method != null && method.getParameterCount() == 0 ? method : null;
+    }
+
+    private static Object readFieldValue(Field field, Object target) {
+        if (field == null || target == null) {
+            return null;
+        }
+        try {
+            ReflectionUtils.makeAccessible(field);
+            return ReflectionUtils.getField(field, target);
+        } catch (IllegalStateException | SecurityException | InaccessibleObjectException e) {
+            return null;
+        }
+    }
+
+    private static Object invokeMethod(Method method, Object target) {
+        if (method == null || target == null) {
+            return null;
+        }
+        try {
+            ReflectionUtils.makeAccessible(method);
+            return ReflectionUtils.invokeMethod(method, target);
+        } catch (IllegalStateException | SecurityException | InaccessibleObjectException e) {
+            return null;
+        }
     }
 
 }

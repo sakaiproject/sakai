@@ -34,8 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.azeckoski.reflectutils.ReflectUtils;
-
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -855,7 +853,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                 if (ownerID == null) {
                     throw new IllegalArgumentException("Invalid userId supplied for owner of site: " + ownerID);
                 }
-                ReflectUtils.getInstance().setFieldValue(s, "m_createdUserId", ownerID);
+                s.setCreatedBy(ownerID);
             }
 
             // attempt to set provider ID as requested. rules are:
@@ -1093,7 +1091,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
                     throw new IllegalArgumentException(
                             "Invalid userId supplied for owner of site: " + site.getOwner());
                 }
-                ReflectUtils.getInstance().setFieldValue(s, "m_createdUserId", ownerUserId);
+                s.setCreatedBy(ownerUserId);
             }
 
             // new publish status

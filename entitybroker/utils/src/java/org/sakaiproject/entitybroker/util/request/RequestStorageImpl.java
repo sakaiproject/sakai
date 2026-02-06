@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorageWrite;
-import org.azeckoski.reflectutils.ReflectUtils;
+import org.sakaiproject.entitybroker.util.devhelper.DeveloperBeanUtils;
 
 
 /**
@@ -124,7 +124,7 @@ public class RequestStorageImpl implements RequestStorageWrite {
                 // type matches the requested one
                 togo = (T) value;
             } else {
-                togo = (T) ReflectUtils.getInstance().convert(value, type);
+                togo = DeveloperBeanUtils.convert(value, type);
             }
         }
         return togo;

@@ -810,17 +810,25 @@ public class BaseSite implements Site
 	/**
 	 * {@inheritDoc}
 	 */
-	public User getCreatedBy()
-	{
-		try
-		{
-			return userDirectoryService.getUser(m_createdUserId);
-		}
-		catch (Exception e)
-		{
-			return userDirectoryService.getAnonymousUser();
-		}
-	}
+        public User getCreatedBy()
+        {
+                try
+                {
+                        return userDirectoryService.getUser(m_createdUserId);
+                }
+                catch (Exception e)
+                {
+                        return userDirectoryService.getAnonymousUser();
+                }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void setCreatedBy(String userId)
+        {
+                m_createdUserId = StringUtils.trimToNull(userId);
+        }
 
 	/**
 	 * {@inheritDoc}

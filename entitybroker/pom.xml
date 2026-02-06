@@ -92,12 +92,6 @@
         <artifactId>entitybroker-utils</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <!-- IMPL dependencies -->
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>reflectutils</artifactId>
-        <version>${reflectutils.version}</version>
-      </dependency>
       <!-- testing -->
       <dependency>
         <groupId>org.mortbay.jetty</groupId>

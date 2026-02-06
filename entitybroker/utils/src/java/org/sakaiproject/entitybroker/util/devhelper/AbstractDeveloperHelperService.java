@@ -20,17 +20,23 @@
 
 package org.sakaiproject.entitybroker.util.devhelper;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.azeckoski.reflectutils.ReflectUtils;
-import org.azeckoski.reflectutils.transcoders.HTMLTranscoder;
-import org.azeckoski.reflectutils.transcoders.JSONTranscoder;
-import org.azeckoski.reflectutils.transcoders.Transcoder;
-import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
+import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
@@ -39,6 +45,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
+import org.sakaiproject.entitybroker.util.devhelper.DeveloperBeanUtils;
+import org.sakaiproject.serialization.MapperFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,11 +81,15 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
     // weak ref to ensure we do not hold anything open
     protected WeakReference<EntityRESTProvider> entityRESTProviderWeak;
     public EntityRESTProvider getEntityRESTProvider() {
-        EntityRESTProvider erp = null;
-        if (this.entityRESTProviderWeak == null) {
-            setEntityRESTProvider( this.entityBrokerManager.getEntityRESTProvider() );
+        EntityRESTProvider provider = entityRESTProviderWeak != null ? entityRESTProviderWeak.get() : null;
+        if (provider == null && entityBrokerManager != null) {
+            EntityRESTProvider resolved = entityBrokerManager.getEntityRESTProvider();
+            if (resolved != null) {
+                setEntityRESTProvider(resolved);
+                provider = resolved;
+            }
         }
-        return erp;
+        return provider;
     }
     /**
      * Set this to include an optional encoding/decoding handler
@@ -85,7 +97,7 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
      */
     public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider) {
         if (entityRESTProvider != null) {
-            this.entityRESTProviderWeak = new WeakReference<EntityRESTProvider>(entityRESTProvider);
+            this.entityRESTProviderWeak = new WeakReference<>(entityRESTProvider);
         } else {
             this.entityRESTProviderWeak = null;
         }
@@ -101,12 +113,11 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
         if (getEntityRESTProvider() == null) {
             log.warn("No entityRESTProvider available for decoding, using basic internal decoder");
             if (data != null) {
-                Transcoder transcoder = getTranscoder(format);
+                EntityCodec codec = getCodec(format);
                 try {
-                    decoded = transcoder.decode(data);
+                    decoded = codec.decode(data);
                 } catch (RuntimeException e) {
-                    // convert failure to UOE
-                    throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);
+                    throw new UnsupportedOperationException("Failure decoding data for format " + format + ": " + e.getMessage(), e);
                 }
             }
         } else {
@@ -126,12 +137,11 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
         if (getEntityRESTProvider() == null) {
             log.warn("No entityRESTProvider available for encoding, using basic internal encoder");
             if (data != null) {
-                Transcoder transcoder = getTranscoder(format);
+                EntityCodec codec = getCodec(format);
                 try {
-                    encoded = transcoder.encode(data, name, properties);
+                    encoded = codec.encode(data, name, properties);
                 } catch (RuntimeException e) {
-                    // convert failure to UOE
-                    throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);
+                    throw new UnsupportedOperationException("Failure encoding data of type " + data.getClass() + " for format " + format + ": " + e.getMessage(), e);
                 }
             }
         } else {
@@ -339,7 +349,7 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
      * @see org.sakaiproject.entitybroker.DeveloperHelperService#cloneBean(java.lang.Object, int, java.lang.String[])
      */
     public <T> T cloneBean(T bean, int maxDepth, String[] propertiesToSkip) {
-        return ReflectUtils.getInstance().clone(bean, maxDepth, propertiesToSkip);
+        return DeveloperBeanUtils.cloneBean(bean, maxDepth, propertiesToSkip);
     }
 
     /* (non-Javadoc)
@@ -347,40 +357,36 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
      */
     public void copyBean(Object orig, Object dest, int maxDepth, String[] fieldNamesToSkip,
             boolean ignoreNulls) {
-        ReflectUtils.getInstance().copy(orig, dest, maxDepth, fieldNamesToSkip, ignoreNulls);
+        DeveloperBeanUtils.copyBean(orig, dest, maxDepth, fieldNamesToSkip, ignoreNulls);
     }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.DeveloperHelperService#populate(java.lang.Object, java.util.Map)
      */
     public List<String> populate(Object object, Map<String, Object> properties) {
-        return ReflectUtils.getInstance().populate(object, properties);
+        return DeveloperBeanUtils.populate(object, properties);
     }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.DeveloperHelperService#convert(java.lang.Object, java.lang.Class)
      */
     public <T> T convert(Object object, Class<T> type) {
-        return ReflectUtils.getInstance().convert(object, type);
+        return DeveloperBeanUtils.convert(object, type);
     }
 
-
-    private Map<String, Transcoder> transcoders;
-    private Transcoder getTranscoder(String format) {
-        if (transcoders == null) {
-            transcoders = new HashMap<String, Transcoder>();
-            JSONTranscoder jt = new JSONTranscoder(true, true, false);
-            transcoders.put(jt.getHandledFormat(), jt);
-            XMLTranscoder xt = new XMLTranscoder(true, true, false, false);
-            transcoders.put(xt.getHandledFormat(), xt);
-            HTMLTranscoder ht = new HTMLTranscoder();
-            transcoders.put(ht.getHandledFormat(), ht);
+    private Map<String, EntityCodec> codecs;
+    private EntityCodec getCodec(String format) {
+        if (codecs == null) {
+            codecs = new ConcurrentHashMap<>();
+            codecs.put(Formats.JSON, new JsonCodec());
+            codecs.put(Formats.XML, new XmlCodec());
+            codecs.put(Formats.HTML, new HtmlCodec());
         }
-        Transcoder transcoder = transcoders.get(format);
-        if (transcoder == null) {
-            throw new IllegalArgumentException("Failed to find a transcoder for format, none exists, cannot encode or decode data for format: " + format);
+        EntityCodec codec = codecs.get(format);
+        if (codec == null) {
+            throw new IllegalArgumentException("Failed to find an encoder/decoder for format: " + format);
         }
-        return transcoder;
+        return codec;
     }
 
     /* (non-Javadoc)
@@ -391,6 +397,154 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
             throw new IllegalStateException("No entityPropertiesHandler available for retrieving properties strings");
         }
         return entityProperties.getProperty(prefix, messageKey);
+    }
+
+    private interface EntityCodec {
+        Map<String, Object> decode(String data);
+
+        String encode(Object data, String name, Map<String, Object> properties);
+    }
+
+    private static final ObjectMapper JSON_MAPPER = MapperFactory.jsonBuilder()
+            .ignoreUnknownProperties()
+            .registerJdk8Module()
+            .excludeNulls()
+            .registerJavaTimeModule()
+            .disableDateTimestamps()
+            .disableFailOnEmptyBeans()
+            .build();
+    private static final ObjectWriter JSON_WRITER = JSON_MAPPER.writer();
+    private static final ObjectWriter JSON_PRETTY_WRITER = JSON_MAPPER.writerWithDefaultPrettyPrinter();
+    private static final XmlMapper XML_MAPPER = MapperFactory.xmlBuilder()
+            .ignoreUnknownProperties()
+            .excludeNulls()
+            .registerJavaTimeModule()
+            .disableDateTimestamps()
+            .disableNamespaceAware()
+            .enableOutputCDataAsText()
+            .disableFailOnEmptyBeans()
+            .build();
+    private static final ObjectWriter XML_WRITER = XML_MAPPER.writer();
+
+    private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<Map<String, Object>>() { };
+
+    private static class JsonCodec implements EntityCodec {
+        @Override
+        public Map<String, Object> decode(String data) {
+            if (data == null || data.isEmpty()) {
+                return new HashMap<>();
+            }
+            try {
+                return JSON_MAPPER.readValue(data, MAP_TYPE);
+            } catch (IOException e) {
+                throw new UncheckedIOException("Unable to decode JSON", e);
+            }
+        }
+
+        @Override
+        public String encode(Object data, String name, Map<String, Object> properties) {
+            if (data == null) {
+                return "";
+            }
+            Object toEncode = preparePayload(data, name, properties);
+            try {
+                if (toEncode instanceof Map<?, ?> map && map.size() > 1) {
+                    return JSON_PRETTY_WRITER.writeValueAsString(toEncode);
+                }
+                return JSON_WRITER.writeValueAsString(toEncode);
+            } catch (JsonProcessingException e) {
+                throw new UncheckedIOException("Unable to encode JSON", e);
+            }
+        }
+    }
+
+    private static class XmlCodec implements EntityCodec {
+        @Override
+        public Map<String, Object> decode(String data) {
+            if (data == null || data.isEmpty()) {
+                return new HashMap<>();
+            }
+            try {
+                return XML_MAPPER.readValue(data, MAP_TYPE);
+            } catch (IOException e) {
+                throw new UncheckedIOException("Unable to decode XML", e);
+            }
+        }
+
+        @Override
+        public String encode(Object data, String name, Map<String, Object> properties) {
+            if (data == null) {
+                return "";
+            }
+            Object toEncode = preparePayload(data, name, properties);
+            try {
+                return XML_WRITER.writeValueAsString(toEncode);
+            } catch (JsonProcessingException e) {
+                throw new UncheckedIOException("Unable to encode XML", e);
+            }
+        }
+    }
+
+    private static class HtmlCodec implements EntityCodec {
+        @Override
+        public Map<String, Object> decode(String data) {
+            Map<String, Object> decoded = new HashMap<>();
+            decoded.put("body", data);
+            return decoded;
+        }
+
+        @Override
+        public String encode(Object data, String name, Map<String, Object> properties) {
+            if (data == null) {
+                return "";
+            }
+            StringBuilder builder = new StringBuilder();
+            builder.append("<div class=\"entity-data\">");
+            if (name != null) {
+                builder.append("<h2>")
+                        .append(StringEscapeUtils.escapeHtml4(name))
+                        .append("</h2>");
+            }
+            builder.append("<pre>")
+                    .append(StringEscapeUtils.escapeHtml4(String.valueOf(data)))
+                    .append("</pre>");
+            if (properties != null && !properties.isEmpty()) {
+                builder.append("<dl>");
+                for (Map.Entry<String, Object> entry : properties.entrySet()) {
+                    builder.append("<dt>")
+                            .append(StringEscapeUtils.escapeHtml4(entry.getKey()))
+                            .append("</dt><dd>")
+                            .append(StringEscapeUtils.escapeHtml4(String.valueOf(entry.getValue())))
+                            .append("</dd>");
+                }
+                builder.append("</dl>");
+            }
+            builder.append("</div>");
+            return builder.toString();
+        }
+    }
+
+    private static Object preparePayload(Object data, String name, Map<String, Object> properties) {
+        if ((name == null || name.isEmpty()) && (properties == null || properties.isEmpty())) {
+            return data;
+        }
+        Map<String, Object> payload = new LinkedHashMap<>();
+        if (name != null && !name.isEmpty()) {
+            payload.put(name, data);
+        } else if (data instanceof Map<?, ?> map) {
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                Object key = entry.getKey();
+                if (key != null) {
+                    payload.put(key.toString(), entry.getValue());
+                }
+            }
+        } else {
+            payload.put("value", data);
+        }
+        if (properties != null && !properties.isEmpty()) {
+            payload.put("properties", new HashMap<>(properties));
+        }
+        return payload;
     }
 
 }

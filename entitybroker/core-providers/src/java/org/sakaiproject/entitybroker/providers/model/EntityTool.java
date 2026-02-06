@@ -18,7 +18,7 @@ package org.sakaiproject.entitybroker.providers.model;
 import java.util.Properties;
 import java.util.Set;
 
-import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.tool.api.Tool;
 
@@ -31,7 +31,6 @@ import org.sakaiproject.tool.api.Tool;
  * Created on Sep 5, 2013
  * 
  */
-@ReflectIgnoreClassFields({"accessSecurity"})
 public class EntityTool implements Tool, Comparable<Tool> {
 
     private static final String ACCESS_SECURITY_PORTAL = "portal";
@@ -120,6 +119,7 @@ public class EntityTool implements Tool, Comparable<Tool> {
     }
 
     @Override
+    @JsonIgnore
     public AccessSecurity getAccessSecurity() {
         if (tool != null) {
             return tool.getAccessSecurity();

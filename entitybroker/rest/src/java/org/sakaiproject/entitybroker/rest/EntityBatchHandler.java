@@ -24,8 +24,9 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -33,8 +34,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.azeckoski.reflectutils.ArrayUtils;
-import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -219,8 +218,8 @@ public class EntityBatchHandler {
 
         // loop through all references
         HashSet<String> processedRefsAndURLs = new HashSet<String>(); // holds all refs which we processed in this batch
-        HashMap<String, String> dataMap = new ArrayOrderedMap<String, String>(); // the returned content data from each ref
-        Map<String, ResponseBase> results = new ArrayOrderedMap<String, ResponseBase>(); // the results of all valid refs
+        Map<String, String> dataMap = new LinkedHashMap<String, String>(); // the returned content data from each ref
+        Map<String, ResponseBase> results = new LinkedHashMap<String, ResponseBase>(); // the results of all valid refs
         boolean successOverall = false; // true if all ok or partial ok, false if exception occurs or all fail
         boolean failure = false;
         for (int i = 0; i < refs.length; i++) {
@@ -371,7 +370,7 @@ public class EntityBatchHandler {
         // die if every ref was invalid
         if (results.size() == 0) {
             throw new EntityException("Invalid request which resulted in no valid references to batch process, original _refs=("
-                    +ArrayUtils.arrayToString(refs)+")", EntityRequestHandler.SLASH_BATCH, HttpServletResponse.SC_BAD_REQUEST);
+                    +Arrays.toString(refs)+")", EntityRequestHandler.SLASH_BATCH, HttpServletResponse.SC_BAD_REQUEST);
         }
 
         // compile all the responses into encoded data
@@ -408,15 +407,15 @@ public class EntityBatchHandler {
     private Map<String, Map<String, String[]>> extractReferenceParams(
             HttpServletRequest req, Method method, String[] refs) {
         // Decode params into a reference map based on the refs for POST/PUT
-        ArrayOrderedMap<String, Map<String, String[]>> referencedParams = null;
+        Map<String, Map<String, String[]>> referencedParams = null;
         if (Method.POST.equals(method) || Method.PUT.equals(method) ) {
-            referencedParams = new ArrayOrderedMap<String, Map<String, String[]>>();
+            referencedParams = new LinkedHashMap<String, Map<String, String[]>>();
             Map<String, String[]> params = req.getParameterMap();
             // create the maps to hold the params
-            referencedParams.put(UNREFERENCED_PARAMS, new ArrayOrderedMap<String, String[]>(params.size()));
+            referencedParams.put(UNREFERENCED_PARAMS, new LinkedHashMap<String, String[]>(params.size()));
             for (int i = 0; i < refs.length; i++) {
                 String refKey = "ref" + i + '.';
-                referencedParams.put(refKey, new ArrayOrderedMap<String, String[]>(params.size()));
+                referencedParams.put(refKey, new LinkedHashMap<String, String[]>(params.size()));
             }
             // put all request params into the map
             for (Entry<String, String[]> entry : params.entrySet()) {
@@ -613,7 +612,7 @@ public class EntityBatchHandler {
         // TODO allow enabling SSL?
         Map<String, String> params = null;
         if (referencedParams != null && ! referencedParams.isEmpty()) {
-            params = new ArrayOrderedMap<String, String>(referencedParams.size());
+            params = new LinkedHashMap<String, String>(referencedParams.size());
             // put all unreferenced params in
             Map<String, String[]> urp = referencedParams.get(UNREFERENCED_PARAMS);
             for (Entry<String, String[]> entry : urp.entrySet()) {
@@ -737,7 +736,7 @@ public class EntityBatchHandler {
      * this may do nothing if there is no content to merge
      * @return the integrated data content
      */
-    private String reintegrateDataContent(String format, HashMap<String, String> dataMap,
+    private String reintegrateDataContent(String format, Map<String, String> dataMap,
             String overallData) {
         StringBuilder sb = new StringBuilder();
         int curLoc = 0;
@@ -773,7 +772,7 @@ public class EntityBatchHandler {
      * @return the dataKey which maps to the real content, need replace the key later OR null if the content is empty or too large
      */
     private String checkContent(String format, String content, String refKey,
-            HashMap<String, String> dataMap) {
+            Map<String, String> dataMap) {
         String dataKey = null;
         if (content != null) {
             content = content.trim();
@@ -851,6 +850,9 @@ public class EntityBatchHandler {
      */
     public static class ResponseError extends ResponseBase {
         public String error;
+        public ResponseError() {
+            // No-arg constructor required for serialization
+        }
         public ResponseError(String reference, String entityURL, String errorMessage) {
             this.reference = reference;
             this.entityURL = entityURL;
@@ -880,6 +882,9 @@ public class EntityBatchHandler {
          * The raw content from the request
          */
         public String content;
+        public ResponseResult() {
+            // No-arg constructor required for serialization
+        }
         public ResponseResult(String reference, String entityURL, int status, Map<String, String[]> headers) {
             this.reference = reference;
             this.entityURL = entityURL;

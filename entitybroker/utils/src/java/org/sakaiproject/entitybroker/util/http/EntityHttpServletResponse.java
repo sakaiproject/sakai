@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,7 +40,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 
 
 /**
@@ -609,7 +609,7 @@ public class EntityHttpServletResponse implements HttpServletResponse {
      * @return all headers in this response as a map of string (name) -> String[] (values)
      */
     public Map<String, String[]> getHeaders() {
-        Map<String, String[]> m = new ArrayOrderedMap<String, String[]>();
+        Map<String, String[]> m = new LinkedHashMap<String, String[]>();
         if (this.headers != null && this.headers.size() > 0) {
             Set<String> keysSet = this.headers.keySet();
             ArrayList<String> keysList = new ArrayList<String>(keysSet);

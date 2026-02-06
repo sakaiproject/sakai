@@ -20,8 +20,15 @@
 
 package org.sakaiproject.entitybroker.impl;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,9 +37,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.azeckoski.reflectutils.ConstructorUtils;
-import org.azeckoski.reflectutils.ReflectUtils;
-import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -65,6 +69,7 @@ import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
+import org.springframework.util.ReflectionUtils;
 
 
 /**
@@ -685,12 +690,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
             String fullURL = makeFullURL( partialURL );
             entityData.setEntityURL( fullURL );
             // check what we are dealing with
-            boolean isPOJO = false;
-            if (entityData.getData() != null) {
-                if ( ConstructorUtils.isClassBean(entityData.getData().getClass()) ) {
-                    isPOJO = true;
-                }
-            }
+            boolean isBeanCandidate = isBeanCandidate(entityData.getData());
             // attempt to set display title if not set
             if (! entityData.isDisplayTitleSet()) {
                 boolean titleNotSet = true;
@@ -703,19 +703,164 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
                     }
                 }
                 // check the object itself next
-                if (isPOJO && titleNotSet) {
-                    try {
-                        String title = ReflectUtils.getInstance().getFieldValueAsString(entityData.getData(), "title", EntityTitle.class);
-                        if (title != null) {
-                            entityData.setDisplayTitle(title);
-                            titleNotSet = false;
-                        }
-                    } catch (FieldnameNotFoundException e) {
-                        // could not find any fields with the title, nothing to do but continue
+                if (isBeanCandidate && titleNotSet) {
+                    String title = extractDisplayTitle(entityData.getData());
+                    if (title != null) {
+                        entityData.setDisplayTitle(title);
+                        titleNotSet = false;
                     }
                 }
             }
             // done with this entity data
+        }
+    }
+
+    private boolean isBeanCandidate(Object value) {
+        if (value == null) {
+            return false;
+        }
+        Class<?> type = value.getClass();
+        if (type.isPrimitive() || type.isArray() || type.isEnum()) {
+            return false;
+        }
+        if (CharSequence.class.isAssignableFrom(type) || Number.class.isAssignableFrom(type)
+                || Boolean.class.equals(type) || Character.class.equals(type)) {
+            return false;
+        }
+        if (java.util.Date.class.isAssignableFrom(type) || java.time.temporal.Temporal.class.isAssignableFrom(type)) {
+            return false;
+        }
+        if (Map.class.isAssignableFrom(type) || java.util.Collection.class.isAssignableFrom(type)) {
+            return false;
+        }
+        // Additional non-bean leaf types: avoid reflection on these
+        if (Class.class.equals(type) || java.util.UUID.class.equals(type)
+                || java.util.Locale.class.equals(type) || java.util.Currency.class.equals(type)) {
+            return false;
+        }
+        String packageName = (type.getPackage() != null ? type.getPackage().getName() : "");
+        if (packageName.startsWith("java.io.") || packageName.startsWith("java.nio.file.")
+                || packageName.startsWith("java.net.")) {
+            return false;
+        }
+        return true;
+    }
+
+    private String extractDisplayTitle(Object bean) {
+        if (bean == null) {
+            return null;
+        }
+        String annotated = findAnnotatedValue(bean, EntityTitle.class);
+        if (annotated != null) {
+            return annotated;
+        }
+        return findNamedValue(bean, "title");
+    }
+
+    private String findAnnotatedValue(Object bean, Class<? extends Annotation> annotationType) {
+        for (Method method : getAllMethods(bean.getClass())) {
+            if (method.getParameterTypes().length == 0 && method.isAnnotationPresent(annotationType)) {
+                Object value = invokeMethod(bean, method);
+                if (value != null) {
+                    return value.toString();
+                }
+            }
+        }
+        for (Field field : getAllFields(bean.getClass())) {
+            if (field.isAnnotationPresent(annotationType)) {
+                Object value = getFieldValue(bean, field);
+                if (value != null) {
+                    return value.toString();
+                }
+            }
+        }
+        return null;
+    }
+
+    private String findNamedValue(Object bean, String propertyName) {
+        try {
+            BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
+            for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
+                if (propertyName.equals(descriptor.getName())) {
+                    Method readMethod = descriptor.getReadMethod();
+                    if (readMethod != null) {
+                        Object value = invokeMethod(bean, readMethod);
+                        if (value != null) {
+                            return value.toString();
+                        }
+                    }
+                }
+            }
+        } catch (IntrospectionException e) {
+            // ignore and fall back to field lookup
+        }
+        for (Field field : getAllFields(bean.getClass())) {
+            if (propertyName.equals(field.getName())) {
+                Object value = getFieldValue(bean, field);
+                if (value != null) {
+                    return value.toString();
+                }
+            }
+        }
+        return null;
+    }
+
+    private List<Method> getAllMethods(Class<?> type) {
+        List<Method> methods = new ArrayList<>();
+        collectMethods(type, methods, new java.util.HashSet<>());
+        return methods;
+    }
+
+    private void collectMethods(Class<?> type, List<Method> methods, java.util.Set<Class<?>> visited) {
+        if (type == null || Object.class.equals(type) || !visited.add(type)) {
+            return;
+        }
+        try {
+            for (Method method : type.getDeclaredMethods()) {
+                methods.add(method);
+            }
+        } catch (SecurityException | java.lang.reflect.InaccessibleObjectException ignore) {
+            // best-effort: keep traversing
+        }
+        collectMethods(type.getSuperclass(), methods, visited);
+        for (Class<?> iface : type.getInterfaces()) {
+            collectMethods(iface, methods, visited);
+        }
+    }
+
+    private List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<Field>();
+        Class<?> current = type;
+        while (current != null && !Object.class.equals(current)) {
+            for (Field field : current.getDeclaredFields()) {
+                fields.add(field);
+            }
+            current = current.getSuperclass();
+        }
+        return fields;
+    }
+
+    private Object invokeMethod(Object bean, Method method) {
+        if (bean == null || method == null) {
+            return null;
+        }
+        try {
+            ReflectionUtils.makeAccessible(method);
+            return ReflectionUtils.invokeMethod(method, bean);
+        } catch (IllegalStateException | SecurityException | java.lang.reflect.InaccessibleObjectException e) {
+            return null;
+        }
+    }
+
+    private Object getFieldValue(Object bean, Field field) {
+        if (bean == null || field == null) {
+            return null;
+        }
+        try {
+            ReflectionUtils.makeAccessible(field);
+            return ReflectionUtils.getField(field, bean);
+        } catch (IllegalStateException | SecurityException | java.lang.reflect.InaccessibleObjectException e) {
+            return null;
         }
     }
 
