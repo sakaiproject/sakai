@@ -54,6 +54,8 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessageMoveHistory;
+import org.sakaiproject.api.app.messageforums.OpenForum;
+import org.sakaiproject.api.app.messageforums.OpenTopic;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -63,6 +65,8 @@ import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
@@ -1757,19 +1761,33 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         log.debug("isForumLocked executing with forumId: " + forumId + ":: topicId: " + topicId);
 
+        final Date now = new Date();
+
         HibernateCallback<Boolean> hcb = session -> {
-            Query q = session.getNamedQuery("findForumLockedAttribute");
-            q.setParameter("id", forumId, LongType.INSTANCE);
-            return (Boolean) q.uniqueResult();
+            OpenForumImpl forum = session.get(OpenForumImpl.class, forumId);
+            OpenTopicImpl topic = session.get(OpenTopicImpl.class, topicId);
+            return isLocked(forum, now) || isLocked(topic, now);
         };
 
-        HibernateCallback<Boolean> hcb2 = session -> {
-            Query q = session.getNamedQuery("findTopicLockedAttribute");
-            q.setParameter("id", topicId, LongType.INSTANCE);
-            return (Boolean) q.uniqueResult();
-        };
-        
-        return getHibernateTemplate().execute(hcb) || getHibernateTemplate().execute(hcb2);
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    private boolean isLocked(OpenForum forum, Date now) {
+        if (forum == null) return true;
+        if (Boolean.TRUE.equals(forum.getLocked())) return true;
+        if (!Boolean.TRUE.equals(forum.getAvailabilityRestricted())) return false;
+        if (!Boolean.TRUE.equals(forum.getLockedAfterClosed())) return false;
+        Date closeDate = forum.getCloseDate();
+        return closeDate != null && closeDate.before(now);
+    }
+
+    private boolean isLocked(OpenTopic topic, Date now) {
+        if (topic == null) return true;
+        if (Boolean.TRUE.equals(topic.getLocked())) return true;
+        if (!Boolean.TRUE.equals(topic.getAvailabilityRestricted())) return false;
+        if (!Boolean.TRUE.equals(topic.getLockedAfterClosed())) return false;
+        Date closeDate = topic.getCloseDate();
+        return closeDate != null && closeDate.before(now);
     }
     
     // helpers

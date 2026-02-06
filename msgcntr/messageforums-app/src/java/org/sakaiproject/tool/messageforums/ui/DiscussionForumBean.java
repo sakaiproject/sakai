@@ -179,21 +179,7 @@ public class DiscussionForumBean
   public Boolean getForumLocked()
   {
     log.debug("getForumLocked()");
-    if (locked == null || "".equals(locked)){
-	    if (forum == null || forum.getLocked() == null
-	        || forum.getLocked().booleanValue() == false)
-	    {
-	      locked = Boolean.FALSE.toString();
-	    }
-	    else
-	    {
-	    	locked = Boolean.TRUE.toString();
-	    }
-    }
-
-    handleLockedAfterClosedCondition();
-
-    return Boolean.parseBoolean(locked);
+    return forum != null && forum.getLocked() != null && forum.getLocked();
   }
 
   /**
@@ -204,17 +190,16 @@ public class DiscussionForumBean
   {
     log.debug("setForumLocked(String"+ locked+")");
     forum.setLocked(locked);
+    this.locked = String.valueOf(Boolean.TRUE.equals(locked));
   }
 
   private void handleLockedAfterClosedCondition() {
     Boolean availabilityRestricted = getForum().getAvailabilityRestricted();
 
-    if(availabilityRestricted && locked.equals(Boolean.FALSE.toString())) {
+    if (Boolean.TRUE.equals(availabilityRestricted) && Boolean.FALSE.toString().equals(locked)) {
       Date closeDate = getForum().getCloseDate();
       if(closeDate != null) {
-        // this seems so dirty.
-        if (getForum().getLockedAfterClosed() && closeDate.before(new Date())) {
-          setForumLocked(true);
+        if (Boolean.TRUE.equals(getForum().getLockedAfterClosed()) && closeDate.before(new Date())) {
           locked = Boolean.TRUE.toString();
         }
       }

@@ -385,20 +385,7 @@ public class DiscussionTopicBean
   public Boolean getTopicLocked()
   {
     log.debug("getTopicLocked()");
-    if (StringUtils.isBlank(locked)){
-	    if (topic == null || topic.getLocked() == null || !topic.getLocked())
-	    {
-	      locked = Boolean.FALSE.toString();
-	    }
-	    else
-	    {
-	      locked =  Boolean.TRUE.toString();
-	    }
-    }
-
-    handleLockedAfterClosedCondition();
-
-    return Boolean.parseBoolean(locked);
+    return topic != null && topic.getLocked() != null && topic.getLocked();
   }
 
   /**
@@ -408,15 +395,15 @@ public class DiscussionTopicBean
   {
     log.debug("setTopicLocked(Boolean {})", locked);
     topic.setLocked(locked);
+    this.locked = String.valueOf(Boolean.TRUE.equals(locked));
   }
 
   private void handleLockedAfterClosedCondition(){
     Boolean availabilityRestricted = getTopic().getAvailabilityRestricted();
 
-    if(availabilityRestricted && locked.equals(Boolean.FALSE.toString())) {
+    if (Boolean.TRUE.equals(availabilityRestricted) && Boolean.FALSE.toString().equals(locked)) {
       Date closeDate = getTopic().getCloseDate();
-      if (closeDate != null && getTopic().getLockedAfterClosed() && closeDate.before(new Date())) {
-        setTopicLocked(true);
+      if (closeDate != null && Boolean.TRUE.equals(getTopic().getLockedAfterClosed()) && closeDate.before(new Date())) {
         locked = Boolean.TRUE.toString();
       }
     }
