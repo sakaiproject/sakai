@@ -51,6 +51,7 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -79,6 +80,8 @@ public class RemoveAssessmentListener implements ActionListener
     private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
     private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
     private SamigoAvailableNotificationService samigoAvailableNotificationService = ComponentManager.get(SamigoAvailableNotificationService.class);
+    private SiteService siteService = ComponentManager.get(SiteService.class);
+    private ToolManager toolManager = ComponentManager.get(ToolManager.class);
     private TaskService taskService;
     
     public RemoveAssessmentListener()
@@ -304,9 +307,6 @@ public class RemoveAssessmentListener implements ActionListener
         }
 
         try {
-            SiteService siteService = (SiteService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.site.api.SiteService");
-            ToolManager toolManager = (ToolManager) SpringBeanLocator.getInstance().getBean("org.sakaiproject.tool.api.ToolManager");
-
             Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
             Collection<Group> groups = site.getGroups();
             Map<String, Group> groupsById = new HashMap<>();
@@ -350,7 +350,7 @@ public class RemoveAssessmentListener implements ActionListener
         for (PublishedAssessmentFacade pa : inactivePublishedAssessmentList) {
             if (!removedPublishedAssessmentIds.contains(pa.getPublishedAssessmentId().toString())) {
                 inactiveList.add(pa);
-                if (Integer.valueOf(3).equals(pa.getStatus())) {
+                if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pa.getStatus())) {
                     isAnyAssessmentRetractForEdit = true;
                 }
             }
