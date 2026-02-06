@@ -210,10 +210,10 @@ public class POXRequestHandlerTest {
     @Test
     public void testGetFatalResponse() {
         String description = "Test fatal error";
-        String message_id = "testOperation";
+        String operation = "testOperation";
         
         // Call the method (now uses POXResponseBuilder instead of hand-constructed XML)
-        String response = POXRequestHandler.getFatalResponse(description, message_id);
+        String response = POXRequestHandler.getFatalResponse(description, operation);
         
         // Extract the generated messageId from the response (it's time-based)
         Pattern messageIdPattern = Pattern.compile("<imsx_messageIdentifier>(.*?)</imsx_messageIdentifier>");
@@ -226,7 +226,7 @@ public class POXRequestHandlerTest {
             .withDescription(description)
             .asFailure()
             .withMessageId(messageId)
-            .withOperation(message_id)
+            .withOperation(operation)
             .buildAsXml();
         
         // Compare exact XML - should match since both use POXResponseBuilder
@@ -234,14 +234,14 @@ public class POXRequestHandlerTest {
     }
     
     @Test
-    public void testGetFatalResponseWithMessageId() {
+    public void testGetFatalResponseWithOperation() {
         String response = POXRequestHandler.getFatalResponse("Test fatal error", "test123");
         
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain failure", response.contains("failure"));
         assertTrue("Response should contain error severity", response.contains("error"));
         assertTrue("Response should contain description", response.contains("Test fatal error"));
-        assertTrue("Response should contain message ID", response.contains("test123"));
+        assertTrue("Response should contain operation", response.contains("test123"));
     }
     
     @Test
