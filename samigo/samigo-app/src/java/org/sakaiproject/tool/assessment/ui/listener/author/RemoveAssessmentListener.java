@@ -161,36 +161,70 @@ public class RemoveAssessmentListener implements ActionListener
                 String siteId = assessmentService.getAssessmentSiteId(assessmentId);
                 String effectiveSiteId = (siteId != null ? siteId : AgentFacade.getCurrentSiteId());
 
-                assessmentService.removeAssessment(assessmentId);
-                removedAssessmentIds.add(assessmentId);
+                try {
+                    assessmentService.removeAssessment(assessmentId);
+                    removedAssessmentIds.add(assessmentId);
+                } catch (Exception e) {
+                    log.error("Failed to remove draft assessment {}", assessmentId, e);
+                    continue;
+                }
 
-                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REMOVE, "assessmentId=" + assessmentId, effectiveSiteId, true, NotificationService.NOTI_NONE));
-                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UNINDEXITEM, "/sam/" + effectiveSiteId + "/unindexed, assessmentId=" + assessmentId, true));
+                try {
+                    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REMOVE, "assessmentId=" + assessmentId, effectiveSiteId, true, NotificationService.NOTI_NONE));
+                    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UNINDEXITEM, "/sam/" + effectiveSiteId + "/unindexed, assessmentId=" + assessmentId, true));
+                } catch (Exception e) {
+                    log.warn("Removed draft assessment {}, but failed to post one or more events.", assessmentId, e);
+                }
             }
 
             final String siteId = AgentFacade.getCurrentSiteId();
             for (String assessmentId : deleteablePublishedAssessmentIds) {
                 log.debug("assessmentId = {}", assessmentId);
 
-                publishedAssessmentService.removeAssessment(assessmentId, "remove");
-                removeFromGradebook(assessmentId);
+                try {
+                    publishedAssessmentService.removeAssessment(assessmentId, "remove");
+                    removeFromGradebook(assessmentId);
+                    removedPublishedAssessmentIds.add(assessmentId);
+                } catch (Exception e) {
+                    log.error("Failed to remove published assessment {}", assessmentId, e);
+                    continue;
+                }
 
-                collectGroupUnlocks(assessmentId, releaseGroupIdsByPublishedAssessmentId.get(assessmentId), assessmentIdsByGroupId);
+                try {
+                    collectGroupUnlocks(assessmentId, releaseGroupIdsByPublishedAssessmentId.get(assessmentId), assessmentIdsByGroupId);
+                } catch (Exception e) {
+                    log.warn("Removed published assessment {}, but failed to collect group unlocks.", assessmentId, e);
+                }
 
                 String calendarDueDateEventId = calendarDueDateEventIdByPublishedAssessmentId.get(assessmentId);
                 if (calendarDueDateEventId != null) {
-                    calendarService.removeCalendarEvent(siteId, calendarDueDateEventId);
+                    try {
+                        calendarService.removeCalendarEvent(siteId, calendarDueDateEventId);
+                    } catch (Exception e) {
+                        log.warn("Removed published assessment {}, but failed to remove due date calendar event {}.", assessmentId, calendarDueDateEventId, e);
+                    }
                 }
 
-                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REMOVE, "siteId=" + siteId + ", publishedAssessmentId=" + assessmentId, true));
-                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_UNINDEXITEM, "/sam/" + siteId + "/unindexed, publishedAssessmentId=" + assessmentId, true));
+                try {
+                    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REMOVE, "siteId=" + siteId + ", publishedAssessmentId=" + assessmentId, true));
+                    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_UNINDEXITEM, "/sam/" + siteId + "/unindexed, publishedAssessmentId=" + assessmentId, true));
+                } catch (Exception e) {
+                    log.warn("Removed published assessment {}, but failed to post one or more events.", assessmentId, e);
+                }
 
                 // Delete task
                 String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + siteId + "/" + assessmentId;
-                taskService.removeTaskByReference(reference);
+                try {
+                    taskService.removeTaskByReference(reference);
+                } catch (Exception e) {
+                    log.warn("Removed published assessment {}, but failed to remove task {}.", assessmentId, reference, e);
+                }
 
-                samigoAvailableNotificationService.removeScheduledAssessmentNotification(assessmentId); // remove the existing scheduled notification for this published assessment if it exists
-                removedPublishedAssessmentIds.add(assessmentId);
+                try {
+                    samigoAvailableNotificationService.removeScheduledAssessmentNotification(assessmentId); // remove the existing scheduled notification for this published assessment if it exists
+                } catch (Exception e) {
+                    log.warn("Removed published assessment {}, but failed to remove scheduled notification.", assessmentId, e);
+                }
             }
 
             unlockGroupsForDeletion(assessmentIdsByGroupId);
