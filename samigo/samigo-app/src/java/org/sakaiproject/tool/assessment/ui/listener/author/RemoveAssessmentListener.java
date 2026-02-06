@@ -154,27 +154,28 @@ public class RemoveAssessmentListener implements ActionListener
         if (errorAssessments.isEmpty()) {
             Set<String> removedAssessmentIds = new HashSet<>();
             Set<String> removedPublishedAssessmentIds = new HashSet<>();
-            Map<String, Set<String>> groupIdsByAssessmentId = new HashMap<>();
+            Map<String, Set<String>> assessmentIdsByGroupId = new HashMap<>();
 
             for (AssessmentFacade assessmentFacade : deleteableAssessments) {
                 String assessmentId = assessmentFacade.getAssessmentBaseId().toString();
+                String siteId = assessmentService.getAssessmentSiteId(assessmentId);
+                String effectiveSiteId = (siteId != null ? siteId : AgentFacade.getCurrentSiteId());
+
                 assessmentService.removeAssessment(assessmentId);
                 removedAssessmentIds.add(assessmentId);
 
-                final String siteId = assessmentService.getAssessmentSiteId(assessmentId);
-                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REMOVE, "assessmentId=" + assessmentId, siteId, true, NotificationService.NOTI_NONE));
-                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UNINDEXITEM, "/sam/" + siteId + "/unindexed, assessmentId=" + assessmentId, true));
+                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REMOVE, "assessmentId=" + assessmentId, effectiveSiteId, true, NotificationService.NOTI_NONE));
+                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UNINDEXITEM, "/sam/" + effectiveSiteId + "/unindexed, assessmentId=" + assessmentId, true));
             }
 
             final String siteId = AgentFacade.getCurrentSiteId();
-            PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
             for (String assessmentId : deleteablePublishedAssessmentIds) {
                 log.debug("assessmentId = {}", assessmentId);
 
-                pubAssessmentService.removeAssessment(assessmentId, "remove");
+                publishedAssessmentService.removeAssessment(assessmentId, "remove");
                 removeFromGradebook(assessmentId);
 
-                collectGroupUnlocks(assessmentId, releaseGroupIdsByPublishedAssessmentId.get(assessmentId), groupIdsByAssessmentId);
+                collectGroupUnlocks(assessmentId, releaseGroupIdsByPublishedAssessmentId.get(assessmentId), assessmentIdsByGroupId);
 
                 String calendarDueDateEventId = calendarDueDateEventIdByPublishedAssessmentId.get(assessmentId);
                 if (calendarDueDateEventId != null) {
@@ -192,7 +193,7 @@ public class RemoveAssessmentListener implements ActionListener
                 removedPublishedAssessmentIds.add(assessmentId);
             }
 
-            unlockGroupsForDeletion(groupIdsByAssessmentId);
+            unlockGroupsForDeletion(assessmentIdsByGroupId);
             updateInactivePublishedAssessments(author, removedPublishedAssessmentIds);
             assessmentList.removeIf(assessmentFacade -> removedAssessmentIds.contains(assessmentFacade.getAssessmentBaseId().toString()));
             publishedAssessmentList.removeIf(publishedAssessmentFacade -> removedPublishedAssessmentIds.contains(publishedAssessmentFacade.getPublishedAssessmentId().toString()));
@@ -253,23 +254,18 @@ public class RemoveAssessmentListener implements ActionListener
         }
     }
 
-    private void collectGroupUnlocks(String assessmentId, Set<String> selectedGroupIds, Map<String, Set<String>> groupIdsByAssessmentId) {
+    private void collectGroupUnlocks(String assessmentId, Set<String> selectedGroupIds, Map<String, Set<String>> assessmentIdsByGroupId) {
         if (selectedGroupIds == null || selectedGroupIds.isEmpty()) {
             return;
         }
 
         for (String groupId : selectedGroupIds) {
-            Set<String> assessmentIds = groupIdsByAssessmentId.get(groupId);
-            if (assessmentIds == null) {
-                assessmentIds = new HashSet<>();
-                groupIdsByAssessmentId.put(groupId, assessmentIds);
-            }
-            assessmentIds.add(assessmentId);
+            assessmentIdsByGroupId.computeIfAbsent(groupId, k -> new HashSet<>()).add(assessmentId);
         }
     }
 
-    private void unlockGroupsForDeletion(Map<String, Set<String>> groupIdsByAssessmentId) {
-        if (groupIdsByAssessmentId.isEmpty()) {
+    private void unlockGroupsForDeletion(Map<String, Set<String>> assessmentIdsByGroupId) {
+        if (assessmentIdsByGroupId.isEmpty()) {
             return;
         }
 
@@ -284,7 +280,7 @@ public class RemoveAssessmentListener implements ActionListener
                 groupsById.put(group.getId(), group);
             }
 
-            for (Map.Entry<String, Set<String>> unlockEntry : groupIdsByAssessmentId.entrySet()) {
+            for (Map.Entry<String, Set<String>> unlockEntry : assessmentIdsByGroupId.entrySet()) {
                 Group group = groupsById.get(unlockEntry.getKey());
                 if (group == null) {
                     continue;
@@ -306,12 +302,12 @@ public class RemoveAssessmentListener implements ActionListener
             return;
         }
 
-        List inactivePublishedAssessmentList = author.getInactivePublishedAssessments();
-        List inactiveList = new ArrayList();
+        @SuppressWarnings("unchecked")
+        List<PublishedAssessmentFacade> inactivePublishedAssessmentList = author.getInactivePublishedAssessments();
+        List<PublishedAssessmentFacade> inactiveList = new ArrayList<>();
         boolean isAnyAssessmentRetractForEdit = false;
 
-        for (int i = 0; i < inactivePublishedAssessmentList.size(); i++) {
-            PublishedAssessmentFacade pa = (PublishedAssessmentFacade) inactivePublishedAssessmentList.get(i);
+        for (PublishedAssessmentFacade pa : inactivePublishedAssessmentList) {
             if (!removedPublishedAssessmentIds.contains(pa.getPublishedAssessmentId().toString())) {
                 inactiveList.add(pa);
                 if (Integer.valueOf(3).equals(pa.getStatus())) {

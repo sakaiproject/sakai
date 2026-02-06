@@ -83,7 +83,10 @@ public class RemovePublishedAssessmentListener
       log.debug("assessmentId = " + assessmentId); 	    
       PublishedAssessmentService assessmentService = new PublishedAssessmentService();
       // get settings without loading sections/items
-      PublishedAssessmentFacade assessment = assessmentService.getSettingsOfPublishedAssessment(assessmentId.toString());
+      PublishedAssessmentFacade assessment = assessmentService.getSettingsOfPublishedAssessment(assessmentId);
+      if (assessment == null) {
+        return;
+      }
 
       AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization"); 
       if (!authzBean.isUserAllowedToDeleteAssessment(assessmentId, assessment.getCreatedBy(), true)) {

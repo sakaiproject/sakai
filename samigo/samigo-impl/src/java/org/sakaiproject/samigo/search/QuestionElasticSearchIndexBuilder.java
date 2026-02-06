@@ -369,7 +369,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         try {
             client.deleteByQuery(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            log.error("Failed to remove all documents from question index for assessment: " + assessmentId + ", " + e);
+            log.error("Failed to remove all documents from question index for assessment: {}", assessmentId, e);
         }
     }
 
