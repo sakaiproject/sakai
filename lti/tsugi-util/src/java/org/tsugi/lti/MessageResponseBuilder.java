@@ -1,6 +1,8 @@
 package org.tsugi.lti;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.tsugi.lti.objects.Group;
 import org.tsugi.lti.objects.GroupSet;
@@ -19,7 +21,14 @@ import java.util.List;
 @Slf4j
 public class MessageResponseBuilder {
     
-    private static final XmlMapper xmlMapper = new XmlMapper();
+    private static final XmlMapper xmlMapper;
+    
+    static {
+        xmlMapper = new XmlMapper();
+        xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
+        xmlMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        xmlMapper.setDefaultUseWrapper(false);
+    }
     
     private MessageResponse response;
     

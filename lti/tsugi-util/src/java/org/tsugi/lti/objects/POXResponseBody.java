@@ -21,8 +21,4 @@ public class POXResponseBody {
     @JacksonXmlProperty(localName = "deleteResultResponse")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private DeleteResultResponse deleteResultResponse;
-    
-    @JacksonXmlProperty(localName = "readMembershipResponse")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private ReadMembershipResponse readMembershipResponse;
 }

@@ -311,9 +311,32 @@ public class POXJacksonTest {
         assertTrue("Response should contain description element", response.contains("imsx_description"));
         // Verify special characters are escaped in the XML (check for escaped forms)
         assertTrue("Response should contain escaped ampersand", response.contains("&amp;"));
-        // Less-than and greater-than must be escaped - check for escaped forms or verify XML is valid
-        assertTrue("Response should be valid XML with escaped characters", 
-            response.contains("&lt;") || response.contains("&gt;") || response.contains("special"));
+        // Extract description content to check for XML escaping of < and >
+        int start = response.indexOf("<imsx_description>");
+        int end = response.indexOf("</imsx_description>");
+        assertTrue(start >= 0 && end > start);
+        
+        String serializedDesc = response.substring(start, end);
+        
+        // Must escape '<' in text content
+        assertTrue("Expected '&lt;' in serialized description", serializedDesc.contains("&lt;"));
+        
+        // Verify raw unescaped markup does NOT appear
+        assertFalse("Raw '<special>' must not appear in serialized description", 
+                serializedDesc.contains("<special>"));
+        assertFalse("Raw unescaped description must not appear", 
+                serializedDesc.contains("Test with <special> & \"characters\""));
+        
+        // Verify escaped forms ARE present
+        // Jackson escapes '<' to '&lt;' but may not escape '>' in text content
+        assertTrue("Expected '&lt;special' in serialized description", 
+                serializedDesc.contains("&lt;special"));
+        assertTrue("Expected '&amp;' in serialized description", 
+                serializedDesc.contains("&amp;"));
+        // Quotes don't need to be escaped in XML element text content (only in attributes)
+        // Verify quotes appear as literal quotes (not escaped)
+        assertTrue("Expected literal quotes in serialized description", 
+                serializedDesc.contains("\""));
     }
 
     @Test

@@ -82,7 +82,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.FormattedText;
 
 import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_ALLOWROSTER;
 import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_ON;
@@ -147,9 +146,8 @@ public class ServiceServlet extends HttpServlet {
 		}
 		String msg = rb.getString(s) + ": " + message;
 		log.info(msg);
-		String escapedMsg = ComponentManager.get(FormattedText.class).escapeHtmlFormattedText(msg);
 		
-		String theXml = MessageResponseBuilder.error(escapedMsg)
+		String theXml = MessageResponseBuilder.error(msg)
 			.buildAsXml(true);
 		
 		PrintWriter out = response.getWriter();
@@ -817,9 +815,27 @@ public class ServiceServlet extends HttpServlet {
 
 		String result_resultscore_textstring = null;
 		String result_resultdata_text = null;
-		String sourced_id = null;
+		
+		// Defensive null check for pox and pox.getPoxRequest()
+		if (pox == null) {
+			log.error("POXRequestHandler is null in processOutcomeXml");
+			doErrorXML(request, response, null, ERROR_POX_INVALID, "POX request handler is null", null);
+			return;
+		}
+		
+		if (pox.getPoxRequest() == null) {
+			log.error("POXRequestHandler.getPoxRequest() returned null in processOutcomeXml, pox={}", pox);
+			doErrorXML(request, response, pox, ERROR_POX_INVALID, "POX request is null", null);
+			return;
+		}
 		
 		POXRequestBody poxBody = pox.getPoxRequest().getPoxBody();
+		if (poxBody == null) {
+			log.error("POXRequestHandler.getPoxRequest().getPoxBody() returned null in processOutcomeXml, pox={}", pox);
+			doErrorXML(request, response, pox, ERROR_POX_INVALID, "POX request body is null", null);
+			return;
+		}
+		
 		ResultRecord resultRecord = null;
 		
 		if (poxBody.getReplaceResultRequest() != null) {
@@ -831,9 +847,6 @@ public class ServiceServlet extends HttpServlet {
 		}
 		
 		if (resultRecord != null) {
-			if (resultRecord.getSourcedGUID() != null) {
-				sourced_id = resultRecord.getSourcedGUID().getSourcedId();
-			}
 			if (resultRecord.getResult() != null) {
 				if (resultRecord.getResult().getResultScore() != null) {
 					result_resultscore_textstring = resultRecord.getResult().getResultScore().getTextString();
@@ -882,19 +895,12 @@ public class ServiceServlet extends HttpServlet {
 
 				}
 
-				ReadResultResponse readResultResponse = new ReadResultResponse();
-				Result result = new Result();
-				result.setSourcedId(sourced_id);
-				ResultScore resultScore = new ResultScore();
-				resultScore.setLanguage("en");
-				resultScore.setTextString(sGrade);
-				result.setResultScore(resultScore);
-				if ( ! strict ) {
-					ResultData resultData = new ResultData();
-					resultData.setText(comment);
-					result.setResultData(resultData);
-				}
-				readResultResponse.setResult(result);
+				// Build readResultResponse according to LTI 1.1.1 spec (Figure 6 / Section 6.1.2)
+				// Uses factory method in ReadResultResponse that handles the structural differences
+				// and ensures spec compliance. See ReadResultResponse.create() for detailed comments
+				// about spec inconsistencies.
+				String commentToInclude = (strict) ? null : comment;
+				ReadResultResponse readResultResponse = ReadResultResponse.create(sGrade, commentToInclude, "en");
 				responsePayload = readResultResponse;
 				message = "Result read";
 			} else if ( isDelete ) {
