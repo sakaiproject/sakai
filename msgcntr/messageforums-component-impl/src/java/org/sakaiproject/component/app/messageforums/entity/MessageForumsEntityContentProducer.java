@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -33,34 +34,34 @@ import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.util.api.FormattedText;
 
 
 @Slf4j
 public class MessageForumsEntityContentProducer implements
-		EntityContentProducer, PortalUrlEnabledProducer {
+		EntityContentProducer, EntityContentProducerEvents, PortalUrlEnabledProducer {
 
 	// runtime dependency
-	private List addEvents = null;
+	private List<String> addEvents = new ArrayList<>();
 
 	// runtime dependency
-	private List removeEvents = null;
-	
+	private List<String> removeEvents = new ArrayList<>();
+
+	// Map of events to their corresponding search index actions - built from Spring configuration
+	private Map<String, Integer> eventActions = new HashMap<>();
+
 	@Setter private FormattedText formattedText;
 	@Setter private DeveloperHelperService developerHelperService;
-	@Setter private ServerConfigurationService serverConfigurationService;
-	@Setter private SearchService searchService;
 	@Setter private EntityBroker entityBroker;
 	@Setter private String toolName = null;
 	@Setter private SearchIndexBuilder searchIndexBuilder = null;
@@ -69,42 +70,35 @@ public class MessageForumsEntityContentProducer implements
 	 */
 	@Setter private MessageForumsMessageManager messageForumsMessageManager;
 	@Setter private DiscussionForumManager discussionForumManager;
-	@Setter private UIPermissionsManager uIPermissionManager; 
-	
-	
+	@Setter private UIPermissionsManager uIPermissionManager;
+
+
 	/**
 	 * @param addEvents
 	 *        The addEvents to set.
 	 */
-	public void setAddEvents(List addEvents)
+	public void setAddEvents(List<String> addEvents)
 	{
 		this.addEvents = addEvents;
 	}
 
-	
-	public void setRemoveEvents(List removeEvents) {
+
+	public void setRemoveEvents(List<String> removeEvents) {
 		this.removeEvents = removeEvents;
 	}
-	
+
 
 	public void init()
 	{
-
-		if ( "true".equals(serverConfigurationService.getString(
-				"search.enable", "false")))
-		{
-			for (Iterator i = addEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
-			
-			for (Iterator i = removeEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
-			
-			searchIndexBuilder.registerEntityContentProducer(this);
+		// Build eventActions map from Spring-configured lists
+		for (String event : addEvents) {
+			eventActions.put(event, SearchBuilderItem.ACTION_ADD);
 		}
+		for (String event : removeEvents) {
+			eventActions.put(event, SearchBuilderItem.ACTION_DELETE);
+		}
+
+		searchIndexBuilder.registerEntityContentProducer(this);
 	}
 	
 	public boolean canRead(String reference) {
@@ -126,25 +120,7 @@ public class MessageForumsEntityContentProducer implements
 	}
 
 	public Integer getAction(Event event) {
-		String evt = event.getEvent();
-		if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-		for (Iterator i = addEvents.iterator(); i.hasNext();)
-		{
-			String match = (String) i.next();
-			if (evt.equals(match))
-			{
-				return SearchBuilderItem.ACTION_ADD;
-			}
-		}
-		for (Iterator i = removeEvents.iterator(); i.hasNext();)
-		{
-			String match = (String) i.next();
-			if (evt.equals(match))
-			{
-				return SearchBuilderItem.ACTION_DELETE;
-			}
-		}
-		return SearchBuilderItem.ACTION_UNKNOWN;
+		return eventActions.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
 	}
 
 	public String getContainer(String ref) {
@@ -327,7 +303,12 @@ public class MessageForumsEntityContentProducer implements
 	}
 
 	public boolean matches(Event event) {
-		return matches(event.getResource());
+		return eventActions.containsKey(event.getEvent());
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions() {
+		return eventActions.keySet();
 	}
 
 }

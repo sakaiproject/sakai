@@ -3,53 +3,45 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="emailMessageAdapter" 
+  <bean id="emailMessageAdapter"
     class="org.sakaiproject.search.component.adapter.message.MessageContentProducer"
     init-method="init" >
-    <property name="messageService" ><ref bean="org.sakaiproject.mailarchive.api.MailArchiveService"/></property>
-    
-     <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>    
-	 <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
-     <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
-     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-     <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-    
-    
-    <property name="toolName" ><value>email</value></property>
-    <property name="addEvents" >
+    <property name="messageService" ref="org.sakaiproject.mailarchive.api.MailArchiveService"/>
+    <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+    <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    <property name="toolName"><value>email</value></property>
+    <property name="addEvents">
       <list>
         <value>mail.new</value>
         <value>mail.revise.own</value>
         <value>mail.revise.any</value>
       </list>
     </property>
-    <property name="removeEvents" >
+    <property name="removeEvents">
       <list>
         <value>mail.delete.own</value>
         <value>mail.delete.any</value>
       </list>
     </property>
   </bean>
-  
-  <bean id="announcementMessageAdapter" 
+
+  <bean id="announcementMessageAdapter"
     class="org.sakaiproject.search.component.adapter.message.MessageContentProducer"
     init-method="init" >
-    <property name="messageService" ><ref bean="org.sakaiproject.announcement.api.AnnouncementService"/></property>
-    
-     <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>    
-	 <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
-     <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
-     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-     <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-    <property name="toolName" ><value>announcement</value></property>
-    <property name="addEvents" >
+    <property name="messageService" ref="org.sakaiproject.announcement.api.AnnouncementService"/>
+    <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+    <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    <property name="toolName"><value>announcement</value></property>
+    <property name="addEvents">
       <list>
         <value>annc.new</value>
         <value>annc.revise.own</value>
         <value>annc.revise.any</value>
       </list>
     </property>
-    <property name="removeEvents" >
+    <property name="removeEvents">
       <list>
         <value>annc.delete.own</value>
         <value>annc.delete.any</value>

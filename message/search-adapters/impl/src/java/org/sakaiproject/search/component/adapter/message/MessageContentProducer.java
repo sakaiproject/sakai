@@ -24,24 +24,21 @@ package org.sakaiproject.search.component.adapter.message;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Method;
-import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -51,13 +48,12 @@ import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageService;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -65,7 +61,7 @@ import org.sakaiproject.util.ResourceLoader;
  * @author ieb
  */
 @Slf4j
-public class MessageContentProducer implements EntityContentProducer
+public class MessageContentProducer implements EntityContentProducer, EntityContentProducerEvents
 {
 
 	private static final String BUNDLE_NAME = "org.sakaiproject.search.component.adapter.message.bundle.Messages"; //$NON-NLS-1$
@@ -76,16 +72,13 @@ public class MessageContentProducer implements EntityContentProducer
 	private String toolName;
 
 	@Setter
-	private List addEvents;
+	private List<String> addEvents = new ArrayList<>();
 
 	@Setter
-	private List removeEvents;
+	private List<String> removeEvents = new ArrayList<>();
 
 	@Setter
 	private MessageService messageService;
-
-	@Setter
-	private SearchService searchService;
 
 	@Setter
 	private SearchIndexBuilder searchIndexBuilder;
@@ -94,30 +87,26 @@ public class MessageContentProducer implements EntityContentProducer
 	private EntityManager entityManager;
 
 	@Setter
-	private ServerConfigurationService serverConfigurationService;
-	
-	@Setter
 	private SiteService siteService;
+
+	// Map of events to their corresponding search index actions - built from Spring configuration
+	private Map<String, Integer> eventActions = new HashMap<>();
 
 	//ContextualDisplayService
 	ContextualUserDisplayService contextualUserDisplayService;
-	
+
 	public void init()
 	{
-
-		if ("true".equals(serverConfigurationService.getString("search.enable", "false")))
-		{
-			for (Iterator i = addEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
-			for (Iterator i = removeEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
-			searchIndexBuilder.registerEntityContentProducer(this);
+		// Build EVENT_ACTIONS map from Spring-configured lists
+		for (String event : addEvents) {
+			eventActions.put(event, SearchBuilderItem.ACTION_ADD);
 		}
-		
+		for (String event : removeEvents) {
+			eventActions.put(event, SearchBuilderItem.ACTION_DELETE);
+		}
+
+		searchIndexBuilder.registerEntityContentProducer(this);
+
 		contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get("org.sakaiproject.user.api.ContextualUserDisplayService");
 	}
 
@@ -368,31 +357,19 @@ public class MessageContentProducer implements EntityContentProducer
 	@Override
 	public Integer getAction(Event event)
 	{
-		String evt = event.getEvent();
-		if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-		for (Iterator i = addEvents.iterator(); i.hasNext();)
-		{
-			String match = (String) i.next();
-			if (evt.equals(match))
-			{
-				return SearchBuilderItem.ACTION_ADD;
-			}
-		}
-		for (Iterator i = removeEvents.iterator(); i.hasNext();)
-		{
-			String match = (String) i.next();
-			if (evt.equals(match))
-			{
-				return SearchBuilderItem.ACTION_DELETE;
-			}
-		}
-		return SearchBuilderItem.ACTION_UNKNOWN;
+		return eventActions.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
 	}
 
 	@Override
 	public boolean matches(Event event)
 	{
-		return matches(event.getResource());
+		return eventActions.containsKey(event.getEvent());
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions()
+	{
+		return eventActions.keySet();
 	}
 
 	@Override

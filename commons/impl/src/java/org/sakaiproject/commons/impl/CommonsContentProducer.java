@@ -37,8 +37,8 @@ import org.sakaiproject.commons.api.datamodel.Post;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
@@ -55,34 +55,29 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Setter
-public class CommonsContentProducer implements EntityContentProducer {
+public class CommonsContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
     private CommonsManager commonsManager;
     private SakaiProxy sakaiProxy;
     private SearchIndexBuilder searchIndexBuilder;
     private ServerConfigurationService serverConfigurationService;
-    private SearchService searchService;
     private SiteService siteService;
     private TransactionTemplate transactionTemplate;
 
-    private List<String> addingEvents = new ArrayList<>();
-    private List<String> removingEvents = new ArrayList<>();
-
     private static final ResourceLoader rl = new ResourceLoader("commons");
 
-    public void init() {
+    // Map of events to their corresponding search index actions
+    private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+            CommonsEvents.POST_CREATED, SearchBuilderItem.ACTION_ADD,
+            CommonsEvents.POST_UPDATED, SearchBuilderItem.ACTION_ADD,
+            CommonsEvents.COMMENT_CREATED, SearchBuilderItem.ACTION_ADD,
+            CommonsEvents.COMMENT_UPDATED, SearchBuilderItem.ACTION_ADD,
+            CommonsEvents.POST_DELETED, SearchBuilderItem.ACTION_DELETE,
+            CommonsEvents.COMMENT_DELETED, SearchBuilderItem.ACTION_DELETE
+    );
 
-        if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
-            addingEvents.add(CommonsEvents.POST_CREATED);
-            addingEvents.add(CommonsEvents.POST_UPDATED);
-            addingEvents.add(CommonsEvents.COMMENT_CREATED);
-            addingEvents.add(CommonsEvents.COMMENT_UPDATED);
-            removingEvents.add(CommonsEvents.POST_DELETED);
-            removingEvents.add(CommonsEvents.COMMENT_DELETED);
-            addingEvents.forEach(e -> searchService.registerFunction(e));
-            removingEvents.forEach(e -> searchService.registerFunction(e));
-            searchIndexBuilder.registerEntityContentProducer(this);
-        }
+    public void init() {
+        searchIndexBuilder.registerEntityContentProducer(this);
     }
 
     @Override
@@ -164,20 +159,17 @@ public class CommonsContentProducer implements EntityContentProducer {
 
     @Override
     public Integer getAction(Event event) {
-
-        String evt = event.getEvent();
-
-        if (addingEvents.contains(evt)) return SearchBuilderItem.ACTION_ADD;
-        if (removingEvents.contains(evt)) return SearchBuilderItem.ACTION_DELETE;
-
-        return SearchBuilderItem.ACTION_UNKNOWN;
+        return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
     }
 
     @Override
     public boolean matches(Event event) {
+        return EVENT_ACTIONS.containsKey(event.getEvent());
+    }
 
-        String evt = event.getEvent();
-        return addingEvents.contains(evt) || removingEvents.contains(evt);
+    @Override
+    public Set<String> getTriggerFunctions() {
+        return EVENT_ACTIONS.keySet();
     }
 
     @Override

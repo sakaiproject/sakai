@@ -395,21 +395,13 @@
     <bean id="forumsAdaptor"
         class="org.sakaiproject.component.app.messageforums.entity.MessageForumsEntityContentProducer"
         init-method="init">
-        <property name="searchService" ref="org.sakaiproject.search.api.SearchService" />
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder" />
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-        <property name="toolName">
-            <value>forums</value>
-        </property>
+        <property name="toolName"><value>forums</value></property>
         <property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
-        <property name="messageForumsMessageManager"
-            ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager" />
-        <property name="UIPermissionManager"
-            ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" />
-        <property name="discussionForumManager"
-            ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
-        <property name="developerHelperService"
-            ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+        <property name="messageForumsMessageManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager" />
+        <property name="UIPermissionManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" />
+        <property name="discussionForumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
         <property name="addEvents">
             <list>
                 <value>forums.new</value>
