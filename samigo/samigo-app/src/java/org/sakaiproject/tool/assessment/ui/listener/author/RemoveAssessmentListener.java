@@ -23,10 +23,12 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -49,22 +51,17 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
-import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -96,156 +93,110 @@ public class RemoveAssessmentListener implements ActionListener
         AssessmentService assessmentService = new AssessmentService();
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
-        AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
         AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
         AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 
-        List assessmentList = author.getAssessments();
-        List publishedAssessmentList = author.getPublishedAssessments();
+        @SuppressWarnings("unchecked")
+        List<AssessmentFacade> assessmentList = (List<AssessmentFacade>) author.getAssessments();
+        @SuppressWarnings("unchecked")
+        List<PublishedAssessmentFacade> publishedAssessmentList = (List<PublishedAssessmentFacade>) author.getPublishedAssessments();
 
-        List<Object> deleteableAssessments = new ArrayList<>();
+        List<AssessmentFacade> deleteableAssessments = new ArrayList<>();
+        List<String> deleteablePublishedAssessmentIds = new ArrayList<>();
+        Map<String, Set<String>> releaseGroupIdsByPublishedAssessmentId = new HashMap<>();
+        Map<String, String> calendarDueDateEventIdByPublishedAssessmentId = new HashMap<>();
         List<String> errorAssessments = new ArrayList<>();
 
         for (Object assessment : author.getAllAssessments()) {
             if (assessment instanceof AssessmentFacade) {
                 final String assessmentId = ((AssessmentFacade) assessment).getAssessmentBaseId().toString();
-                AssessmentFacade assessmentFacade = assessmentService.getAssessment(assessmentId);
 
                 if (((AssessmentFacade) assessment).isSelected()) {
+                    AssessmentFacade assessmentFacade = assessmentService.getBasicInfoOfAnAssessment(assessmentId);
+                    if (assessmentFacade == null) {
+                        continue;
+                    }
+
                     if (!this.isUserAllowedToDeleteAssessment(author, assessmentFacade)) {
                         errorAssessments.add(assessmentFacade.getTitle());
                     } else {
                         deleteableAssessments.add(assessmentFacade);
                     }
-                    assessmentList.remove(assessmentFacade);
                 }
             }
 
             if (assessment instanceof PublishedAssessmentFacade) {
                 final String assessmentId = ((PublishedAssessmentFacade) assessment).getPublishedAssessmentId().toString();
-                PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(assessmentId, true);
 
                 if (((PublishedAssessmentFacade) assessment).isSelected()) {
-                    if (this.isUserAllowedToDeletePublishedAssessment(author, publishedAssessmentService, publishedAssessment) && authorizationBean.isUserAllowedToDeleteAssessment(assessmentId, publishedAssessment.getCreatedBy(), true)) { 
-                        deleteableAssessments.add(publishedAssessment);
+                    PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getSettingsOfPublishedAssessment(assessmentId);
+                    if (publishedAssessment == null) {
+                        continue;
+                    }
+
+                    if (this.isUserAllowedToDeletePublishedAssessment(author, publishedAssessment)) {
+                        Map<String, String> selectedGroups = ((PublishedAssessmentFacade) assessment).getReleaseToGroups();
+                        String calendarDueDateEventId = publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID);
+                        deleteablePublishedAssessmentIds.add(assessmentId);
+                        if (selectedGroups != null && !selectedGroups.isEmpty()) {
+                            releaseGroupIdsByPublishedAssessmentId.put(assessmentId, new HashSet<>(selectedGroups.keySet()));
+                        }
+                        if (calendarDueDateEventId != null) {
+                            calendarDueDateEventIdByPublishedAssessmentId.put(assessmentId, calendarDueDateEventId);
+                        }
                     } else {
                         errorAssessments.add(publishedAssessment.getTitle());
                     }
-                    publishedAssessmentList.remove(assessment);
                 }
             }
         }
 
         if (errorAssessments.isEmpty()) {
-            for (Object deleteableAssessment : deleteableAssessments) {
-                if (deleteableAssessment instanceof AssessmentFacade) {
-                    AssessmentFacade assessmentFacade = (AssessmentFacade) deleteableAssessment;
-                    String assessmentId = assessmentFacade.getAssessmentBaseId().toString();
-                    assessmentService.removeAssessment(assessmentId);
+            Set<String> removedAssessmentIds = new HashSet<>();
+            Set<String> removedPublishedAssessmentIds = new HashSet<>();
+            Map<String, Set<String>> groupIdsByAssessmentId = new HashMap<>();
 
-                    final String siteId = assessmentService.getAssessmentSiteId(assessmentId);
-                    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REMOVE, "assessmentId=" + assessmentId, siteId, true, NotificationService.NOTI_NONE));
+            for (AssessmentFacade assessmentFacade : deleteableAssessments) {
+                String assessmentId = assessmentFacade.getAssessmentBaseId().toString();
+                assessmentService.removeAssessment(assessmentId);
+                removedAssessmentIds.add(assessmentId);
 
-                    try {
-                        Iterator<SectionFacade> sectionFacadeIterator = assessmentFacade.getSectionSet().iterator();
-                        while (sectionFacadeIterator.hasNext()){
-                            SectionFacade sectionFacade = sectionFacadeIterator.next();
-                            Iterator<ItemFacade> itemFacadeIterator = sectionFacade.getItemFacadeSet().iterator();
-                            while (itemFacadeIterator.hasNext()){
-                                ItemFacade itemFacade = itemFacadeIterator.next();
-                                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UNINDEXITEM, "/sam/" + siteId + "/unindexed, itemId=" + itemFacade.getItemIdString(), true));
-                            }
-                        }
-                    } catch(Exception ex) {
-                        //The assessment doesn't exist. No-op in this case.
-                    }
-                }
-                if (deleteableAssessment instanceof PublishedAssessmentFacade) {
-                    PublishedAssessmentFacade publishedAssessment = (PublishedAssessmentFacade) deleteableAssessment;
-                    String assessmentId = publishedAssessment.getPublishedAssessmentId().toString();
-
-                    log.debug("assessmentId = " + assessmentId);
-                    PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
-                    //get assessment to see if it has a calendar event
-
-                    pubAssessmentService.removeAssessment(assessmentId, "remove");
-                    removeFromGradebook(assessmentId);
-
-                    //Block the groups for deletion if the assessment is released to groups, students can lose submissions if the group is deleted.
-                    boolean groupRelease = publishedAssessment.getReleaseToGroups() != null ? !publishedAssessment.getReleaseToGroups().isEmpty() : false;
-
-                    if(groupRelease){
-                        try{
-                            Map<String,String> selectedGroups = publishedAssessment.getReleaseToGroups();
-                            log.debug("Unlocking groups for deletion by the published assessment with id {}.", assessmentId);
-                            log.debug("Unlocking for deletion the following groups {}.", selectedGroups);
-
-                            SiteService siteService = (SiteService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.site.api.SiteService");
-                            ToolManager toolManager = (ToolManager) SpringBeanLocator.getInstance().getBean("org.sakaiproject.tool.api.ToolManager");
-
-                            Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-                            Collection<Group> groups = site.getGroups();
-
-                            for(Group group : groups){
-                                if(selectedGroups.keySet().contains(group.getId())){
-                                    log.debug("Unlocking the group {} for deletion by the the published assessment with id {}.", group.getTitle(), assessmentId);
-                                    group.setLockForReference(assessmentId, RealmLockMode.NONE);
-                                }
-                            }
-
-                            log.debug("Saving the site after unlocking the groups for deletion.");
-                            siteService.save(site);
-                        }catch(Exception e){
-                            log.error("Fatal error unlocking the groups for deletion {}.", e);
-                        }
-                    }
-
-                    String calendarDueDateEventId = publishedAssessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID);
-                    if (calendarDueDateEventId != null) {
-                        calendarService.removeCalendarEvent(AgentFacade.getCurrentSiteId(), calendarDueDateEventId);
-                    }
-                    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REMOVE, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + assessmentId, true));
-                    Iterator<PublishedSectionData> sectionDataIterator = publishedAssessment.getSectionSet().iterator();
-                    while (sectionDataIterator.hasNext()) {
-                        PublishedSectionData sectionData = sectionDataIterator.next();
-                        Iterator<ItemDataIfc> itemDataIfcIterator = sectionData.getItemSet().iterator();
-                        while (itemDataIfcIterator.hasNext()){
-                            ItemDataIfc itemDataIfc = itemDataIfcIterator.next();
-                            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_UNINDEXITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/unindexed, publishedItemId=" + itemDataIfc.getItemIdString(), true));
-                        }
-                    }
-
-                    // Delete task
-                    String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + AgentFacade.getCurrentSiteId() + "/" + publishedAssessment.getPublishedAssessmentId();
-                    taskService.removeTaskByReference(reference);
-
-                    List inactivePublishedAssessmentList = author.getInactivePublishedAssessments();
-                    List inactiveList = new ArrayList();
-                    for (int i=0; i<inactivePublishedAssessmentList.size();i++) {
-                        PublishedAssessmentFacade pa = (PublishedAssessmentFacade) inactivePublishedAssessmentList.get(i);
-                        if (!(assessmentId).equals(pa.getPublishedAssessmentId().toString())) {
-                            inactiveList.add(pa);
-                        }
-                    }
-                    author.setInactivePublishedAssessments(inactiveList);
-                    boolean isAnyAssessmentRetractForEdit = false;
-                    Iterator iter = inactiveList.iterator();
-                    while (iter.hasNext()) {
-                        PublishedAssessmentFacade publishedAssessmentFacade = (PublishedAssessmentFacade) iter.next();
-                        if (Integer.valueOf(3).equals(publishedAssessmentFacade.getStatus())) {
-                            isAnyAssessmentRetractForEdit = true;
-                            break;
-                        }
-                    }
-                    if (isAnyAssessmentRetractForEdit) {
-                        author.setIsAnyAssessmentRetractForEdit(true);
-                    }
-                    else {
-                        author.setIsAnyAssessmentRetractForEdit(false);
-                    }
-                    samigoAvailableNotificationService.removeScheduledAssessmentNotification(assessmentId);	//remove the existing scheduled notification for this published assessment if it exists
-                }
+                final String siteId = assessmentService.getAssessmentSiteId(assessmentId);
+                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REMOVE, "assessmentId=" + assessmentId, siteId, true, NotificationService.NOTI_NONE));
+                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UNINDEXITEM, "/sam/" + siteId + "/unindexed, assessmentId=" + assessmentId, true));
             }
+
+            final String siteId = AgentFacade.getCurrentSiteId();
+            PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
+            for (String assessmentId : deleteablePublishedAssessmentIds) {
+                log.debug("assessmentId = {}", assessmentId);
+
+                pubAssessmentService.removeAssessment(assessmentId, "remove");
+                removeFromGradebook(assessmentId);
+
+                collectGroupUnlocks(assessmentId, releaseGroupIdsByPublishedAssessmentId.get(assessmentId), groupIdsByAssessmentId);
+
+                String calendarDueDateEventId = calendarDueDateEventIdByPublishedAssessmentId.get(assessmentId);
+                if (calendarDueDateEventId != null) {
+                    calendarService.removeCalendarEvent(siteId, calendarDueDateEventId);
+                }
+
+                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REMOVE, "siteId=" + siteId + ", publishedAssessmentId=" + assessmentId, true));
+                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_UNINDEXITEM, "/sam/" + siteId + "/unindexed, publishedAssessmentId=" + assessmentId, true));
+
+                // Delete task
+                String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + siteId + "/" + assessmentId;
+                taskService.removeTaskByReference(reference);
+
+                samigoAvailableNotificationService.removeScheduledAssessmentNotification(assessmentId); // remove the existing scheduled notification for this published assessment if it exists
+                removedPublishedAssessmentIds.add(assessmentId);
+            }
+
+            unlockGroupsForDeletion(groupIdsByAssessmentId);
+            updateInactivePublishedAssessments(author, removedPublishedAssessmentIds);
+            assessmentList.removeIf(assessmentFacade -> removedAssessmentIds.contains(assessmentFacade.getAssessmentBaseId().toString()));
+            publishedAssessmentList.removeIf(publishedAssessmentFacade -> removedPublishedAssessmentIds.contains(publishedAssessmentFacade.getPublishedAssessmentId().toString()));
+
             List allAssessments = new ArrayList<>();
             if (authorizationBean.getEditAnyAssessment() || authorizationBean.getEditOwnAssessment()) {
                 allAssessments.addAll(assessmentList);
@@ -276,7 +227,7 @@ public class RemoveAssessmentListener implements ActionListener
         return true;
     }
 
-    private boolean isUserAllowedToDeletePublishedAssessment(AuthorBean author, PublishedAssessmentService publishedAssessmentService, PublishedAssessmentFacade publishedAssessment) {
+    private boolean isUserAllowedToDeletePublishedAssessment(AuthorBean author, PublishedAssessmentFacade publishedAssessment) {
         AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
         if (!authzBean.isUserAllowedToDeleteAssessment(publishedAssessment.getPublishedAssessmentId().toString(), publishedAssessment.getCreatedBy(), true)) {
             author.setOutcome("removeError");
@@ -300,6 +251,77 @@ public class RemoveAssessmentListener implements ActionListener
             // Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
             log.info("Exception thrown in updateGB():" + e1.getMessage());
         }
+    }
+
+    private void collectGroupUnlocks(String assessmentId, Set<String> selectedGroupIds, Map<String, Set<String>> groupIdsByAssessmentId) {
+        if (selectedGroupIds == null || selectedGroupIds.isEmpty()) {
+            return;
+        }
+
+        for (String groupId : selectedGroupIds) {
+            Set<String> assessmentIds = groupIdsByAssessmentId.get(groupId);
+            if (assessmentIds == null) {
+                assessmentIds = new HashSet<>();
+                groupIdsByAssessmentId.put(groupId, assessmentIds);
+            }
+            assessmentIds.add(assessmentId);
+        }
+    }
+
+    private void unlockGroupsForDeletion(Map<String, Set<String>> groupIdsByAssessmentId) {
+        if (groupIdsByAssessmentId.isEmpty()) {
+            return;
+        }
+
+        try {
+            SiteService siteService = (SiteService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.site.api.SiteService");
+            ToolManager toolManager = (ToolManager) SpringBeanLocator.getInstance().getBean("org.sakaiproject.tool.api.ToolManager");
+
+            Site site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+            Collection<Group> groups = site.getGroups();
+            Map<String, Group> groupsById = new HashMap<>();
+            for (Group group : groups) {
+                groupsById.put(group.getId(), group);
+            }
+
+            for (Map.Entry<String, Set<String>> unlockEntry : groupIdsByAssessmentId.entrySet()) {
+                Group group = groupsById.get(unlockEntry.getKey());
+                if (group == null) {
+                    continue;
+                }
+
+                for (String assessmentId : unlockEntry.getValue()) {
+                    group.setLockForReference(assessmentId, RealmLockMode.NONE);
+                }
+            }
+
+            siteService.save(site);
+        } catch (Exception e) {
+            log.error("Fatal error unlocking groups for deletion.", e);
+        }
+    }
+
+    private void updateInactivePublishedAssessments(AuthorBean author, Set<String> removedPublishedAssessmentIds) {
+        if (removedPublishedAssessmentIds.isEmpty()) {
+            return;
+        }
+
+        List inactivePublishedAssessmentList = author.getInactivePublishedAssessments();
+        List inactiveList = new ArrayList();
+        boolean isAnyAssessmentRetractForEdit = false;
+
+        for (int i = 0; i < inactivePublishedAssessmentList.size(); i++) {
+            PublishedAssessmentFacade pa = (PublishedAssessmentFacade) inactivePublishedAssessmentList.get(i);
+            if (!removedPublishedAssessmentIds.contains(pa.getPublishedAssessmentId().toString())) {
+                inactiveList.add(pa);
+                if (Integer.valueOf(3).equals(pa.getStatus())) {
+                    isAnyAssessmentRetractForEdit = true;
+                }
+            }
+        }
+
+        author.setInactivePublishedAssessments(inactiveList);
+        author.setIsAnyAssessmentRetractForEdit(isAnyAssessmentRetractForEdit);
     }
 
 }
