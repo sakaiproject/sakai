@@ -42,6 +42,7 @@ import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.TermFrequency;
+import org.sakaiproject.search.util.HTMLParser;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -119,10 +120,6 @@ public class ElasticSearchResult implements SearchResult {
     @Override
     public String getSearchResult() {
         try {
-            TermQuery query = new TermQuery(new Term("text",searchTerms));
-
-            Scorer scorer = new QueryScorer(query);
-            Highlighter hightlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
             StringBuilder sb = new StringBuilder();
             // contents no longer contains the digested contents, so we need to
             // fetch it from the EntityContentProducer
@@ -134,15 +131,44 @@ public class ElasticSearchResult implements SearchResult {
                 EntityContentProducer sep = searchIndexBuilder
                         .newEntityContentProducer(reference);
                 if (sep != null) {
-                    sb.append(sep.getContent(reference));
+                    String rawContent = sep.getContent(reference);
+                    // Strip any HTML tags from the content for proper highlighting
+                    if (rawContent != null) {
+                        for (HTMLParser hp = new HTMLParser(rawContent); hp.hasNext();) {
+                            sb.append(hp.next());
+                            sb.append(" ");
+                        }
+                    }
                 }
             }
-            String text = sb.toString();
+            String text = sb.toString().trim();
+            
+            if (text.isEmpty()) {
+                return "";
+            }
+
+            // Try to highlight the search terms in the content
+            TermQuery query = new TermQuery(new Term(SearchService.FIELD_CONTENTS, searchTerms));
+            Scorer scorer = new QueryScorer(query);
+            Highlighter hightlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
+            
             TokenStream tokenStream = analyzer.tokenStream(
                     SearchService.FIELD_CONTENTS, new StringReader(text));
-            return hightlighter.getBestFragments(tokenStream, text, 5, " ... "); //$NON-NLS-1$
+            String highlighted = hightlighter.getBestFragments(tokenStream, text, 5, " ... ");
+            
+            // If highlighting didn't find matches, return a truncated version of the content
+            if (highlighted == null || highlighted.isEmpty()) {
+                // Return first 200 characters as a preview
+                int maxLength = 200;
+                if (text.length() <= maxLength) {
+                    return text;
+                }
+                return text.substring(0, maxLength) + " ...";
+            }
+            
+            return highlighted;
         } catch (IOException e) {
-            return e.getMessage(); //$NON-NLS-1$
+            return e.getMessage();
         } catch (InvalidTokenOffsetsException e) {
             return e.getMessage();
         }
