@@ -94,7 +94,7 @@ public class GradeAssignmentUserNotificationHandler extends AbstractUserNotifica
                         try {
                             String url = assignmentService.getDeepLink(siteId, assignment.getId(), to.getSubmitter());
                             if (StringUtils.isNotBlank(url)) { 
-                                bhEvents.add(new UserNotificationData(from, to.getSubmitter(), siteId, title, url, AssignmentConstants.TOOL_ID));
+                                bhEvents.add(new UserNotificationData(from, to.getSubmitter(), siteId, title, url, AssignmentConstants.TOOL_ID, false, null));
                             }
                         } catch(Exception exc) {
                             log.error("Error retrieving deep link for assignment {} and user {} on site {}", assignment.getId(), to.getSubmitter(), siteId, exc);

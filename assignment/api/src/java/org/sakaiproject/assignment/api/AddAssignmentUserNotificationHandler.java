@@ -127,7 +127,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
                 if (groupIds.isEmpty() || groupsUsers.contains(to)) {
                     if (!from.equals(to) && !securityService.isSuperUser(to)) {
                         String url = assignmentService.getDeepLink(siteId, assignmentId, to);
-                        bhEvents.add(new UserNotificationData(from, to, siteId, title, url, AssignmentConstants.TOOL_ID));
+                        bhEvents.add(new UserNotificationData(from, to, siteId, title, url, AssignmentConstants.TOOL_ID, false, null));
                     }
                 }
             }
@@ -164,7 +164,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
                 String to = u.getId();
                 if (!from.equals(to) && !securityService.isSuperUser(to)) {
                     String url = assignmentService.getDeepLink(siteId, assignmentId, to);
-                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url, AssignmentConstants.TOOL_ID));
+                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url, AssignmentConstants.TOOL_ID, false, null));
                 }
             }
         } else {
@@ -178,7 +178,7 @@ public class AddAssignmentUserNotificationHandler extends AbstractUserNotificati
                 String to = u.getId();
                 if (!from.equals(to) && !securityService.isSuperUser(to)) {
                     String url = assignmentService.getDeepLink(siteId, assignmentId, to);
-                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url, AssignmentConstants.TOOL_ID));
+                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url, AssignmentConstants.TOOL_ID, false, null));
                 }
             }
         }

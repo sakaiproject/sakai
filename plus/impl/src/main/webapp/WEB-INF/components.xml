@@ -68,9 +68,8 @@
     </bean>
 
     <bean id="org.sakaiproject.plus.api.PlusService"
-          class="org.sakaiproject.plus.impl.PlusServiceImpl"
-	  init-method="init"
-	  destroy-method="destroy">
+        class="org.sakaiproject.plus.impl.PlusServiceImpl"
+        init-method="init">
         <!-- all the properties are autowired - Yay -->
     </bean>
 
