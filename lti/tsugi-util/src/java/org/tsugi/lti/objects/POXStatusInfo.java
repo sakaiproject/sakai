@@ -1,5 +1,6 @@
 package org.tsugi.lti.objects;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.Data;
 import lombok.ToString;
@@ -15,6 +16,7 @@ public class POXStatusInfo {
     private String severity;
     
     @JacksonXmlProperty(localName = "imsx_description", namespace = "http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String description;
     
     @JacksonXmlProperty(localName = "imsx_messageRefIdentifier", namespace = "http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0")
@@ -24,5 +26,6 @@ public class POXStatusInfo {
     private String operationRefIdentifier;
     
     @JacksonXmlProperty(localName = "imsx_codeMinor", namespace = "http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private POXCodeMinor codeMinor;
 }

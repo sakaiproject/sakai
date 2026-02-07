@@ -370,7 +370,6 @@ public class POXRequestHandlerTest {
             "<imsx_description>%s</imsx_description>" +
             "<imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>" +
             "<imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" +
-            "<imsx_codeMinor/>" +
             "</imsx_statusInfo>" +
             "</imsx_POXResponseHeaderInfo>" +
             "</imsx_POXHeader>" +
@@ -503,7 +502,6 @@ public class POXRequestHandlerTest {
             "<imsx_description>%s</imsx_description>" +
             "<imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>" +
             "<imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" +
-            "<imsx_codeMinor/>" +
             "</imsx_statusInfo>" +
             "</imsx_POXResponseHeaderInfo>" +
             "</imsx_POXHeader>" +

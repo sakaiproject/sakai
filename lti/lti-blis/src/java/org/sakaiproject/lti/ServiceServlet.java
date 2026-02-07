@@ -882,19 +882,12 @@ public class ServiceServlet extends HttpServlet {
 
 				}
 
-				ReadResultResponse readResultResponse = new ReadResultResponse();
-				Result result = new Result();
-				result.setSourcedId(sourced_id);
-				ResultScore resultScore = new ResultScore();
-				resultScore.setLanguage("en");
-				resultScore.setTextString(sGrade);
-				result.setResultScore(resultScore);
-				if ( ! strict ) {
-					ResultData resultData = new ResultData();
-					resultData.setText(comment);
-					result.setResultData(resultData);
-				}
-				readResultResponse.setResult(result);
+				// Build readResultResponse according to LTI 1.1.1 spec (Figure 6 / Section 6.1.2)
+				// Uses factory method in ReadResultResponse that handles the structural differences
+				// and ensures spec compliance. See ReadResultResponse.create() for detailed comments
+				// about spec inconsistencies.
+				String commentToInclude = (strict) ? null : comment;
+				ReadResultResponse readResultResponse = ReadResultResponse.create(sGrade, commentToInclude, "en");
 				responsePayload = readResultResponse;
 				message = "Result read";
 			} else if ( isDelete ) {
