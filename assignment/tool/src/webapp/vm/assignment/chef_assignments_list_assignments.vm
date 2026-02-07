@@ -166,7 +166,7 @@
 					</th>
 					#if ($!allowGradeSubmission)
 						<th id="$tlang.getString('gen.visible')" scope="col" class="d-none d-sm-table-cell">
-							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
+							#if (!$sortedBy.equals("for"))
 								<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
 								#if ($sortedAsc.equals("true"))
