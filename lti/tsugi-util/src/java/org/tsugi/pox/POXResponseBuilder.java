@@ -39,6 +39,7 @@ public class POXResponseBuilder {
     private String major = POXRequestHandler.MAJOR_FAILURE;
     private String severity = POXRequestHandler.SEVERITY_ERROR;
     private String messageId;
+    private String messageRefIdentifier;
     private String operation;
     private POXCodeMinor codeMinor;
     private String bodyXml;
@@ -67,6 +68,18 @@ public class POXResponseBuilder {
    
     public POXResponseBuilder withMessageId(String messageId) {
         this.messageId = messageId;
+        return this;
+    }
+    
+    /**
+     * Set the message reference identifier (references the original request message ID).
+     * If not set, falls back to using the response messageId.
+     * 
+     * @param messageRefIdentifier The message reference identifier from the original request
+     * @return this builder for method chaining
+     */
+    public POXResponseBuilder withMessageRefIdentifier(String messageRefIdentifier) {
+        this.messageRefIdentifier = messageRefIdentifier;
         return this;
     }
     
@@ -171,7 +184,8 @@ public class POXResponseBuilder {
         statusInfo.setCodeMajor(major);
         statusInfo.setSeverity(severity);
         statusInfo.setDescription(description);
-        statusInfo.setMessageRefIdentifier(messageId);
+        // Use messageRefIdentifier if provided (references original request), otherwise fall back to messageId
+        statusInfo.setMessageRefIdentifier(messageRefIdentifier != null ? messageRefIdentifier : messageId);
         statusInfo.setOperationRefIdentifier(operation);
         statusInfo.setCodeMinor(codeMinor);
         

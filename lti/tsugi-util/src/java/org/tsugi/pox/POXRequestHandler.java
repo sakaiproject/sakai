@@ -434,6 +434,12 @@ public class POXRequestHandler {
             .withMessageId(messageId)
             .withOperation(operation);
         
+        // Set messageRefIdentifier to reference the original request message ID if available
+        String requestMessageId = getHeaderMessageIdentifier();
+        if (requestMessageId != null) {
+            builder.withMessageRefIdentifier(requestMessageId);
+        }
+        
         // Add minor codes if present
         if (codeMinor != null && codeMinor.getCodeMinorFields() != null && !codeMinor.getCodeMinorFields().isEmpty()) {
             builder.withMinorCodes(codeMinor.getCodeMinorFields());
