@@ -247,7 +247,7 @@ public class IMSLTIv1p1p1Test {
         // minOccurs="0"). See the XSD binding here:
         //   https://www.imsglobal.org/xsd/lti/imsoms_v1p0/OMSv1p0_LTIv1p1Profile_SyncXSD_v1p0.xsd
         // as well as the general web services schema binding referenced by the LTI 1.1
-        // specification. :contentReference[oaicite:3]{index=3}
+        // specification.
 
         xml = xml.replaceAll("<imsx_codeMinor/>", "");
         xml = xml.replaceAll("<imsx_codeMinor></imsx_codeMinor>", "");

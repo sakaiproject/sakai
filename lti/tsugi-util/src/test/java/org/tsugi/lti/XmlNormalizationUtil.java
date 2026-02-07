@@ -12,12 +12,15 @@ public class XmlNormalizationUtil {
     /**
      * Normalizes XML for comparison by:
      * - Removing XML declaration
+     * - Removing empty namespace declarations (xmlns="")
      * - Removing whitespace between tags
      * - Normalizing remaining whitespace to single spaces
      * - Trimming leading/trailing whitespace
      * 
      * This is useful for comparing XML strings that may have different
-     * formatting but the same semantic content.
+     * formatting but the same semantic content. Empty namespace declarations
+     * are removed because Jackson may inject xmlns="" attributes that don't
+     * affect semantic equality.
      * 
      * @param xml The XML string to normalize
      * @return The normalized XML string
@@ -29,6 +32,10 @@ public class XmlNormalizationUtil {
         
         // Remove XML declaration
         xml = xml.replaceAll("^<\\?xml[^>]*>\\s*", "");
+        
+        // Remove empty namespace declarations (xmlns="")
+        // Jackson may inject these but they don't affect semantic equality
+        xml = xml.replaceAll("\\s+xmlns=\"\"", "");
         
         // Remove whitespace between tags (including newlines)
         xml = xml.replaceAll(">\\s+<", "><");

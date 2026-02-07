@@ -196,13 +196,14 @@ public class POXResponseBuilder {
             // Fallback: Parse body XML if provided (for backward compatibility)
             try {
                 // Determine which response type based on operation
-                if ("readResultRequest".equals(operation)) {
+                // Accept both "readResult" and "readResultRequest" forms for compatibility
+                if ("readResult".equals(operation) || "readResultRequest".equals(operation)) {
                     ReadResultResponse readResponse = XML_MAPPER.readValue(bodyXml.trim(), ReadResultResponse.class);
                     body.setReadResultResponse(readResponse);
-                } else if ("replaceResultRequest".equals(operation)) {
+                } else if ("replaceResult".equals(operation) || "replaceResultRequest".equals(operation)) {
                     ReplaceResultResponse replaceResponse = XML_MAPPER.readValue(bodyXml.trim(), ReplaceResultResponse.class);
                     body.setReplaceResultResponse(replaceResponse);
-                } else if ("deleteResultRequest".equals(operation)) {
+                } else if ("deleteResult".equals(operation) || "deleteResultRequest".equals(operation)) {
                     DeleteResultResponse deleteResponse = XML_MAPPER.readValue(bodyXml.trim(), DeleteResultResponse.class);
                     body.setDeleteResultResponse(deleteResponse);
                 } else {

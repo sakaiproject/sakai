@@ -147,15 +147,39 @@ public class POXRequestHandler {
                 parm = parm.trim();
                 if (parm.startsWith("oauth_body_hash=")) {
                     String[] pieces = parm.split("\"");
-                    oauth_body_hash = URLDecoder.decode(pieces[1], StandardCharsets.UTF_8);
+                    if (pieces.length > 1) {
+                        oauth_body_hash = URLDecoder.decode(pieces[1], StandardCharsets.UTF_8);
+                    } else {
+                        // Fallback: extract value after '=' and decode
+                        int eqIndex = parm.indexOf('=');
+                        if (eqIndex >= 0 && eqIndex < parm.length() - 1) {
+                            oauth_body_hash = URLDecoder.decode(parm.substring(eqIndex + 1), StandardCharsets.UTF_8);
+                        }
+                    }
                 }
                 if (parm.startsWith("oauth_consumer_key=")) {
                     String[] pieces = parm.split("\"");
-                    oauth_consumer_key = URLDecoder.decode(pieces[1], StandardCharsets.UTF_8);
+                    if (pieces.length > 1) {
+                        oauth_consumer_key = URLDecoder.decode(pieces[1], StandardCharsets.UTF_8);
+                    } else {
+                        // Fallback: extract value after '=' and decode
+                        int eqIndex = parm.indexOf('=');
+                        if (eqIndex >= 0 && eqIndex < parm.length() - 1) {
+                            oauth_consumer_key = URLDecoder.decode(parm.substring(eqIndex + 1), StandardCharsets.UTF_8);
+                        }
+                    }
                 }
                 if (parm.startsWith("oauth_signature_method=")) {
                     String[] pieces = parm.split("\"");
-                    oauth_signature_method = URLDecoder.decode(pieces[1], StandardCharsets.UTF_8);
+                    if (pieces.length > 1) {
+                        oauth_signature_method = URLDecoder.decode(pieces[1], StandardCharsets.UTF_8);
+                    } else {
+                        // Fallback: extract value after '=' and decode
+                        int eqIndex = parm.indexOf('=');
+                        if (eqIndex >= 0 && eqIndex < parm.length() - 1) {
+                            oauth_signature_method = URLDecoder.decode(parm.substring(eqIndex + 1), StandardCharsets.UTF_8);
+                        }
+                    }
                 }
             }
         }
