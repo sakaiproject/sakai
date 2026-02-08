@@ -10,7 +10,6 @@ import org.tsugi.lti.objects.POXRequestBody;
 import org.tsugi.lti.objects.ReplaceResultRequest;
 import org.tsugi.lti.objects.ReadResultRequest;
 import org.tsugi.lti.objects.DeleteResultRequest;
-import org.tsugi.lti.objects.ReadMembershipRequest;
 import org.tsugi.lti.objects.ResultRecord;
 import org.tsugi.lti.objects.SourcedGUID;
 
@@ -81,19 +80,6 @@ public class POXRequestBodyTest {
     }
     
     @Test
-    public void testSerializeWithReadMembershipRequest() throws Exception {
-        POXRequestBody body = new POXRequestBody();
-        ReadMembershipRequest request = new ReadMembershipRequest();
-        request.setSourcedId("123course456");
-        body.setReadMembershipRequest(request);
-        
-        String xml = XML_MAPPER.writeValueAsString(body);
-        
-        assertNotNull("XML should not be null", xml);
-        assertTrue("XML should contain readMembershipRequest", xml.contains("<readMembershipRequest>"));
-    }
-    
-    @Test
     public void testSerializeNullFieldsOmitted() throws Exception {
         POXRequestBody body = new POXRequestBody();
         // All fields are null
@@ -104,7 +90,6 @@ public class POXRequestBodyTest {
         assertFalse("XML should not contain replaceResultRequest when null", xml.contains("<replaceResultRequest>"));
         assertFalse("XML should not contain readResultRequest when null", xml.contains("<readResultRequest>"));
         assertFalse("XML should not contain deleteResultRequest when null", xml.contains("<deleteResultRequest>"));
-        assertFalse("XML should not contain readMembershipRequest when null", xml.contains("<readMembershipRequest>"));
     }
     
     @Test
@@ -126,22 +111,25 @@ public class POXRequestBodyTest {
         assertNotNull("ReplaceResultRequest should not be null", body.getReplaceResultRequest());
         assertNull("ReadResultRequest should be null", body.getReadResultRequest());
         assertNull("DeleteResultRequest should be null", body.getDeleteResultRequest());
-        assertNull("ReadMembershipRequest should be null", body.getReadMembershipRequest());
     }
     
     @Test
     public void testRoundTripSerialization() throws Exception {
         POXRequestBody original = new POXRequestBody();
-        ReadMembershipRequest request = new ReadMembershipRequest();
-        request.setSourcedId("test-course-123");
-        original.setReadMembershipRequest(request);
+        ReadResultRequest request = new ReadResultRequest();
+        ResultRecord resultRecord = new ResultRecord();
+        SourcedGUID sourcedGUID = new SourcedGUID();
+        sourcedGUID.setSourcedId("test-course-123");
+        resultRecord.setSourcedGUID(sourcedGUID);
+        request.setResultRecord(resultRecord);
+        original.setReadResultRequest(request);
         
         String xml = XML_MAPPER.writeValueAsString(original);
         POXRequestBody deserialized = XML_MAPPER.readValue(xml, POXRequestBody.class);
         
         assertNotNull("Deserialized object should not be null", deserialized);
-        assertNotNull("ReadMembershipRequest should not be null", deserialized.getReadMembershipRequest());
-        assertEquals("SourcedId should match", original.getReadMembershipRequest().getSourcedId(),
-                     deserialized.getReadMembershipRequest().getSourcedId());
+        assertNotNull("ReadResultRequest should not be null", deserialized.getReadResultRequest());
+        assertEquals("SourcedId should match", original.getReadResultRequest().getResultRecord().getSourcedGUID().getSourcedId(),
+                     deserialized.getReadResultRequest().getResultRecord().getSourcedGUID().getSourcedId());
     }
 }

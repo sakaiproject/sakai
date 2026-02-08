@@ -61,11 +61,10 @@ public class POXConstants {
     public static final String OPERATION_REPLACE_RESULT = "replaceResultRequest";
     public static final String OPERATION_READ_RESULT = "readResultRequest";
     public static final String OPERATION_DELETE_RESULT = "deleteResultRequest";
-    public static final String OPERATION_READ_MEMBERSHIP = "readMembershipRequest";
     
     public static final List<String> VALID_OPERATIONS = Collections.unmodifiableList(Arrays.asList(
         OPERATION_REPLACE_RESULT, OPERATION_READ_RESULT, 
-        OPERATION_DELETE_RESULT, OPERATION_READ_MEMBERSHIP
+        OPERATION_DELETE_RESULT
     ));
     
     public static final String ROLE_LEARNER = "Learner";

@@ -36,21 +36,6 @@ public class POXJacksonTest {
             "</imsx_POXBody>\n" +
             "</imsx_POXEnvelopeRequest>";
 
-    private static final String SAMPLE_MEMBERSHIP_REQUEST_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<imsx_POXEnvelopeRequest xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
-            "<imsx_POXHeader>\n" +
-            "<imsx_POXRequestHeaderInfo>\n" +
-            "<imsx_version>V1.0</imsx_version>\n" +
-            "<imsx_messageIdentifier>999999124</imsx_messageIdentifier>\n" +
-            "</imsx_POXRequestHeaderInfo>\n" +
-            "</imsx_POXHeader>\n" +
-            "<imsx_POXBody>\n" +
-            "<readMembershipRequest>\n" +
-            "<sourcedId>123course456</sourcedId>\n" +
-            "</readMembershipRequest>\n" +
-            "</imsx_POXBody>\n" +
-            "</imsx_POXEnvelopeRequest>";
-
     private static final String SAMPLE_RESPONSE_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
             "<imsx_POXHeader>\n" +
@@ -107,18 +92,6 @@ public class POXJacksonTest {
         ResultScore score = record.getResult().getResultScore();
         assertEquals("en-us", score.getLanguage());
         assertEquals("A", score.getTextString());
-    }
-
-    @Test
-    public void testParseRequest_ReadMembershipOperation() {
-        POXEnvelopeRequest request = POXJacksonParser.parseRequest(SAMPLE_MEMBERSHIP_REQUEST_XML);
-        
-        assertNotNull("Request should not be null", request);
-        assertEquals("readMembershipRequest", POXJacksonParser.getOperation(request));
-        
-        POXRequestBody body = request.getPoxBody();
-        assertNotNull("Read membership request should not be null", body.getReadMembershipRequest());
-        assertEquals("123course456", body.getReadMembershipRequest().getSourcedId());
     }
 
     @Test
@@ -189,16 +162,6 @@ public class POXJacksonTest {
         assertEquals("en-us", language);
         assertNotNull("TextString should not be null", textString);
         assertEquals("A", textString);
-    }
-
-    @Test
-    public void testGetBodyInfo_ReadMembership() {
-        POXEnvelopeRequest request = POXJacksonParser.parseRequest(SAMPLE_MEMBERSHIP_REQUEST_XML);
-        
-        String sourcedId = POXJacksonParser.getBodySourcedId(request);
-        
-        assertNotNull("SourcedId should not be null", sourcedId);
-        assertEquals("123course456", sourcedId);
     }
 
     @Test

@@ -20,8 +20,4 @@ public class POXRequestBody {
     @JacksonXmlProperty(localName = "deleteResultRequest")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private DeleteResultRequest deleteResultRequest;
-    
-    @JacksonXmlProperty(localName = "readMembershipRequest")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private ReadMembershipRequest readMembershipRequest;
 }

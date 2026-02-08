@@ -247,8 +247,6 @@ public class POXRequestHandler {
                     operation = "readResultRequest";
                 } else if (body.getDeleteResultRequest() != null) {
                     operation = "deleteResultRequest";
-                } else if (body.getReadMembershipRequest() != null) {
-                    operation = "readMembershipRequest";
                 }
             }
 

@@ -10,7 +10,9 @@ import org.tsugi.lti.objects.POXEnvelopeRequest;
 import org.tsugi.lti.objects.POXRequestHeader;
 import org.tsugi.lti.objects.POXRequestHeaderInfo;
 import org.tsugi.lti.objects.POXRequestBody;
-import org.tsugi.lti.objects.ReadMembershipRequest;
+import org.tsugi.lti.objects.ReadResultRequest;
+import org.tsugi.lti.objects.ResultRecord;
+import org.tsugi.lti.objects.SourcedGUID;
 
 /**
  * Unit tests for POXEnvelopeRequest class.
@@ -38,9 +40,13 @@ public class POXEnvelopeRequestTest {
         envelope.setPoxHeader(header);
         
         POXRequestBody body = new POXRequestBody();
-        ReadMembershipRequest request = new ReadMembershipRequest();
-        request.setSourcedId("123course456");
-        body.setReadMembershipRequest(request);
+        ReadResultRequest request = new ReadResultRequest();
+        ResultRecord resultRecord = new ResultRecord();
+        SourcedGUID sourcedGUID = new SourcedGUID();
+        sourcedGUID.setSourcedId("123course456");
+        resultRecord.setSourcedGUID(sourcedGUID);
+        request.setResultRecord(resultRecord);
+        body.setReadResultRequest(request);
         envelope.setPoxBody(body);
         
         String xml = XML_MAPPER.writeValueAsString(envelope);
@@ -63,9 +69,13 @@ public class POXEnvelopeRequestTest {
                      "</imsx_POXRequestHeaderInfo>\n" +
                      "</imsx_POXHeader>\n" +
                      "<imsx_POXBody>\n" +
-                     "<readMembershipRequest>\n" +
+                     "<readResultRequest>\n" +
+                     "<resultRecord>\n" +
+                     "<sourcedGUID>\n" +
                      "<sourcedId>123course456</sourcedId>\n" +
-                     "</readMembershipRequest>\n" +
+                     "</sourcedGUID>\n" +
+                     "</resultRecord>\n" +
+                     "</readResultRequest>\n" +
                      "</imsx_POXBody>\n" +
                      "</imsx_POXEnvelopeRequest>";
         
@@ -75,8 +85,8 @@ public class POXEnvelopeRequestTest {
         assertNotNull("POXHeader should not be null", envelope.getPoxHeader());
         assertNotNull("POXBody should not be null", envelope.getPoxBody());
         assertEquals("Version should match", "V1.0", envelope.getPoxHeader().getRequestHeaderInfo().getVersion());
-        assertNotNull("ReadMembershipRequest should not be null", envelope.getPoxBody().getReadMembershipRequest());
-        assertEquals("SourcedId should match", "123course456", envelope.getPoxBody().getReadMembershipRequest().getSourcedId());
+        assertNotNull("ReadResultRequest should not be null", envelope.getPoxBody().getReadResultRequest());
+        assertEquals("SourcedId should match", "123course456", envelope.getPoxBody().getReadResultRequest().getResultRecord().getSourcedGUID().getSourcedId());
     }
     
     @Test
@@ -91,9 +101,13 @@ public class POXEnvelopeRequestTest {
         original.setPoxHeader(header);
         
         POXRequestBody body = new POXRequestBody();
-        ReadMembershipRequest request = new ReadMembershipRequest();
-        request.setSourcedId("test-course");
-        body.setReadMembershipRequest(request);
+        ReadResultRequest request = new ReadResultRequest();
+        ResultRecord resultRecord = new ResultRecord();
+        SourcedGUID sourcedGUID = new SourcedGUID();
+        sourcedGUID.setSourcedId("test-course");
+        resultRecord.setSourcedGUID(sourcedGUID);
+        request.setResultRecord(resultRecord);
+        body.setReadResultRequest(request);
         original.setPoxBody(body);
         
         String xml = XML_MAPPER.writeValueAsString(original);

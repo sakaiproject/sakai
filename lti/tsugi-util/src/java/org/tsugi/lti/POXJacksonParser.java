@@ -127,8 +127,6 @@ public class POXJacksonParser {
             return POXConstants.OPERATION_READ_RESULT;
         } else if (body.getDeleteResultRequest() != null) {
             return POXConstants.OPERATION_DELETE_RESULT;
-        } else if (body.getReadMembershipRequest() != null) {
-            return POXConstants.OPERATION_READ_MEMBERSHIP;
         }
         
         return null;
@@ -175,7 +173,7 @@ public class POXJacksonParser {
 
     /**
      * Get sourcedId from the POX body.
-     * Works with replaceResultRequest, readResultRequest, deleteResultRequest, and readMembershipRequest.
+     * Works with replaceResultRequest, readResultRequest, and deleteResultRequest.
      * 
      * @param request The parsed POX request
      * @return The sourcedId string, or null if not found
@@ -190,10 +188,6 @@ public class POXJacksonParser {
         
         if (resultRecord != null && resultRecord.getSourcedGUID() != null) {
             return resultRecord.getSourcedGUID().getSourcedId();
-        }
-        
-        if (body.getReadMembershipRequest() != null) {
-            return body.getReadMembershipRequest().getSourcedId();
         }
         
         return null;
@@ -324,7 +318,6 @@ public class POXJacksonParser {
             if (body.getReplaceResultRequest() != null) operationCount++;
             if (body.getReadResultRequest() != null) operationCount++;
             if (body.getDeleteResultRequest() != null) operationCount++;
-            if (body.getReadMembershipRequest() != null) operationCount++;
             
             if (operationCount == 0) {
                 result.addError("No valid operation found in body");
@@ -377,9 +370,6 @@ public class POXJacksonParser {
                 body.getDeleteResultRequest().getResultRecord().getSourcedGUID() != null) {
                 info.setSourcedId(body.getDeleteResultRequest().getResultRecord().getSourcedGUID().getSourcedId());
             }
-        } else if (body.getReadMembershipRequest() != null) {
-            info.setOperationType(POXConstants.OPERATION_READ_MEMBERSHIP);
-            info.setSourcedId(body.getReadMembershipRequest().getSourcedId());
         }
         
         return info;
