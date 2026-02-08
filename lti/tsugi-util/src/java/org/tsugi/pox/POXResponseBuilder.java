@@ -17,6 +17,7 @@ import org.tsugi.lti.objects.DeleteResultResponse;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class POXResponseBuilder {
         XML_MAPPER = new XmlMapper();
         XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
         XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        XML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         XML_MAPPER.setDefaultUseWrapper(false);
     }
     
@@ -211,15 +213,22 @@ public class POXResponseBuilder {
             try {
                 // Determine which response type based on operation
                 // Accept both "readResult" and "readResultRequest" forms for compatibility
+                // Only parse if bodyXml contains the expected root element to avoid creating empty objects
                 if ("readResult".equals(operation) || "readResultRequest".equals(operation)) {
-                    ReadResultResponse readResponse = XML_MAPPER.readValue(bodyXml.trim(), ReadResultResponse.class);
-                    body.setReadResultResponse(readResponse);
+                    if (bodyXml.contains("<readResultResponse")) {
+                        ReadResultResponse readResponse = XML_MAPPER.readValue(bodyXml.trim(), ReadResultResponse.class);
+                        body.setReadResultResponse(readResponse);
+                    }
                 } else if ("replaceResult".equals(operation) || "replaceResultRequest".equals(operation)) {
-                    ReplaceResultResponse replaceResponse = XML_MAPPER.readValue(bodyXml.trim(), ReplaceResultResponse.class);
-                    body.setReplaceResultResponse(replaceResponse);
+                    if (bodyXml.contains("<replaceResultResponse")) {
+                        ReplaceResultResponse replaceResponse = XML_MAPPER.readValue(bodyXml.trim(), ReplaceResultResponse.class);
+                        body.setReplaceResultResponse(replaceResponse);
+                    }
                 } else if ("deleteResult".equals(operation) || "deleteResultRequest".equals(operation)) {
-                    DeleteResultResponse deleteResponse = XML_MAPPER.readValue(bodyXml.trim(), DeleteResultResponse.class);
-                    body.setDeleteResultResponse(deleteResponse);
+                    if (bodyXml.contains("<deleteResultResponse")) {
+                        DeleteResultResponse deleteResponse = XML_MAPPER.readValue(bodyXml.trim(), DeleteResultResponse.class);
+                        body.setDeleteResultResponse(deleteResponse);
+                    }
                 } else {
                     // Try to parse generically - check for known response types
                     if (bodyXml.contains("<readResultResponse")) {
