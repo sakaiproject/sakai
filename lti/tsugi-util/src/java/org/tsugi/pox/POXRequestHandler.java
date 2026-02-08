@@ -18,9 +18,6 @@ import org.tsugi.lti.objects.POXCodeMinor;
 import org.tsugi.lti.objects.POXCodeMinorField;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-
-import javax.xml.stream.XMLInputFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,19 +56,8 @@ public class POXRequestHandler {
     private String operation = null;
     public String errorMessage = null;
 
-    private static final XmlMapper xmlMapper = new XmlMapper();
-
-    static {
-        xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        xmlMapper.setDefaultUseWrapper(false);
-        
-        // Harden against XXE (XML External Entity) attacks
-        XMLInputFactory xmlInputFactory = xmlMapper.getFactory().getXMLInputFactory();
-        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
-        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-        xmlInputFactory.setProperty("javax.xml.stream.isSupportingExternalEntities", Boolean.FALSE);
-        xmlMapper.getFactory().setXMLInputFactory(xmlInputFactory);
-    }
+    // Reuse the shared thread-safe XmlMapper from POXJacksonParser
+    private static final XmlMapper xmlMapper = POXJacksonParser.XML_MAPPER;
 
     public POXRequestHandler(HttpServletRequest request) {
         loadFromRequest(request);

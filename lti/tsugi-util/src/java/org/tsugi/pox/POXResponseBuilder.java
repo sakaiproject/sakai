@@ -14,11 +14,9 @@ import org.tsugi.lti.objects.POXCodeMinorField;
 import org.tsugi.lti.objects.ReadResultResponse;
 import org.tsugi.lti.objects.ReplaceResultResponse;
 import org.tsugi.lti.objects.DeleteResultResponse;
+import org.tsugi.lti.POXJacksonParser;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,15 +25,9 @@ import java.util.ArrayList;
 @Slf4j
 public class POXResponseBuilder {
     
-    private static final XmlMapper XML_MAPPER;
-    
-    static {
-        XML_MAPPER = new XmlMapper();
-        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-        XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        XML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        XML_MAPPER.setDefaultUseWrapper(false);
-    }
+    // Reuse the shared thread-safe XmlMapper from POXJacksonParser
+    // It's configured for both serialization and deserialization with XXE protection
+    private static final XmlMapper XML_MAPPER = POXJacksonParser.XML_MAPPER;
     
     private String description;
     private String major = POXConstants.MAJOR_FAILURE;
@@ -213,7 +205,7 @@ public class POXResponseBuilder {
             // This allows bodyXml to be included even when operation doesn't match known types
             try {
                 String trimmedBodyXml = bodyXml.trim();
-                // Try to parse based on XML content (preferred - more reliable)
+                // Parse based on XML content (preferred - more reliable)
                 // Only parse if XML contains the expected root element to avoid creating empty objects
                 if (trimmedBodyXml.contains("<readResultResponse")) {
                     ReadResultResponse readResponse = XML_MAPPER.readValue(trimmedBodyXml, ReadResultResponse.class);
@@ -225,24 +217,7 @@ public class POXResponseBuilder {
                     DeleteResultResponse deleteResponse = XML_MAPPER.readValue(trimmedBodyXml, DeleteResultResponse.class);
                     body.setDeleteResultResponse(deleteResponse);
                 } else {
-                    // If XML doesn't match known response types, try parsing based on operation as fallback
-                    // Accept both "readResult" and "readResultRequest" forms for compatibility
-                    // Only parse if operation matches AND XML can be parsed as that type
-                    if (("readResult".equals(operation) || "readResultRequest".equals(operation)) 
-                            && trimmedBodyXml.contains("<readResultResponse")) {
-                        ReadResultResponse readResponse = XML_MAPPER.readValue(trimmedBodyXml, ReadResultResponse.class);
-                        body.setReadResultResponse(readResponse);
-                    } else if (("replaceResult".equals(operation) || "replaceResultRequest".equals(operation))
-                            && trimmedBodyXml.contains("<replaceResultResponse")) {
-                        ReplaceResultResponse replaceResponse = XML_MAPPER.readValue(trimmedBodyXml, ReplaceResultResponse.class);
-                        body.setReplaceResultResponse(replaceResponse);
-                    } else if (("deleteResult".equals(operation) || "deleteResultRequest".equals(operation))
-                            && trimmedBodyXml.contains("<deleteResultResponse")) {
-                        DeleteResultResponse deleteResponse = XML_MAPPER.readValue(trimmedBodyXml, DeleteResultResponse.class);
-                        body.setDeleteResultResponse(deleteResponse);
-                    } else {
-                        log.debug("Body XML provided but doesn't match known response types and operation is not a recognized result operation. Body will be empty.");
-                    }
+                    log.debug("Body XML provided but doesn't match known response types. Body will be empty.");
                 }
             } catch (Exception e) {
                 log.warn("Failed to parse body XML, using empty body: {}", e.getMessage());
