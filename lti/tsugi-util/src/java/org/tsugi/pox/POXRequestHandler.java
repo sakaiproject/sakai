@@ -20,6 +20,8 @@ import org.tsugi.lti.objects.POXCodeMinorField;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 
+import javax.xml.stream.XMLInputFactory;
+
 import lombok.extern.slf4j.Slf4j;
 
 import net.oauth.OAuthAccessor;
@@ -62,12 +64,13 @@ public class POXRequestHandler {
     static {
         xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         xmlMapper.setDefaultUseWrapper(false);
-    }
-
-    public POXRequestHandler(String oauth_consumer_key, String oauth_secret, HttpServletRequest request) {
-        loadFromRequest(request);
-        if (!valid) return;
-        validateRequest(oauth_consumer_key, oauth_secret, request);
+        
+        // Harden against XXE (XML External Entity) attacks
+        XMLInputFactory xmlInputFactory = xmlMapper.getFactory().getXMLInputFactory();
+        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        xmlInputFactory.setProperty("javax.xml.stream.isSupportingExternalEntities", Boolean.FALSE);
+        xmlMapper.getFactory().setXMLInputFactory(xmlInputFactory);
     }
 
     public POXRequestHandler(HttpServletRequest request) {
@@ -198,6 +201,12 @@ public class POXRequestHandler {
     }
 
     public void parsePostBody() {
+        // Reset mutable parser state to prevent prior invocation results from leaking
+        valid = false;
+        errorMessage = null;
+        operation = null;
+        poxRequest = null;
+        
         if (postBody == null || postBody.trim().isEmpty()) {
             errorMessage = "Post body is null or empty";
             return;
