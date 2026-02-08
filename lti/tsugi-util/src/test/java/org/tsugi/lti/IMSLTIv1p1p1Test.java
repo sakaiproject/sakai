@@ -6,8 +6,6 @@ import static org.junit.Assert.*;
 import org.tsugi.lti.objects.*;
 import org.tsugi.pox.POXResponseBuilder;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * Test that validates our POX message builders produce XML that matches
@@ -25,14 +23,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 public class IMSLTIv1p1p1Test {
     
-    private static final XmlMapper XML_MAPPER;
-    
-    static {
-        XML_MAPPER = new XmlMapper();
-        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-        XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        XML_MAPPER.setDefaultUseWrapper(false);
-    }
+    private static final XmlMapper XML_MAPPER = TestXmlMapperFactory.createXmlMapper();
     
     // ========================================================================
     // Canonical XML examples from the LTI v1.1.1 Basic Outcomes spec
@@ -250,7 +241,6 @@ public class IMSLTIv1p1p1Test {
         // specification.
 
         xml = xml.replaceAll("<imsx_codeMinor/>", "");
-        xml = xml.replaceAll("<imsx_codeMinor></imsx_codeMinor>", "");
         
         // Step 6: Add XML declaration back in Jackson's style (single quotes)
         // Syntax only: adds declaration in consistent format

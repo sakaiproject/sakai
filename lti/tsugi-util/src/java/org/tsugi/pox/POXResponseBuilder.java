@@ -38,8 +38,8 @@ public class POXResponseBuilder {
     }
     
     private String description;
-    private String major = POXRequestHandler.MAJOR_FAILURE;
-    private String severity = POXRequestHandler.SEVERITY_ERROR;
+    private String major = POXConstants.MAJOR_FAILURE;
+    private String severity = POXConstants.SEVERITY_ERROR;
     private String messageId;
     private String messageRefIdentifier;
     private String operation;
@@ -123,26 +123,26 @@ public class POXResponseBuilder {
     }
     
     public POXResponseBuilder asSuccess() {
-        this.major = POXRequestHandler.MAJOR_SUCCESS;
-        this.severity = POXRequestHandler.SEVERITY_STATUS;
+        this.major = POXConstants.MAJOR_SUCCESS;
+        this.severity = POXConstants.SEVERITY_STATUS;
         return this;
     }
     
     public POXResponseBuilder asFailure() {
-        this.major = POXRequestHandler.MAJOR_FAILURE;
-        this.severity = POXRequestHandler.SEVERITY_ERROR;
+        this.major = POXConstants.MAJOR_FAILURE;
+        this.severity = POXConstants.SEVERITY_ERROR;
         return this;
     }
     
     public POXResponseBuilder asUnsupported() {
-        this.major = POXRequestHandler.MAJOR_UNSUPPORTED;
-        this.severity = POXRequestHandler.SEVERITY_ERROR;
+        this.major = POXConstants.MAJOR_UNSUPPORTED;
+        this.severity = POXConstants.SEVERITY_ERROR;
         return this;
     }
     
     public POXResponseBuilder asProcessing() {
-        this.major = POXRequestHandler.MAJOR_PROCESSING;
-        this.severity = POXRequestHandler.SEVERITY_STATUS;
+        this.major = POXConstants.MAJOR_PROCESSING;
+        this.severity = POXConstants.SEVERITY_STATUS;
         return this;
     }
     

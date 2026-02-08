@@ -1,8 +1,6 @@
 package org.tsugi.lti;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,21 +14,14 @@ import org.tsugi.lti.POXJacksonParser;
  * 
  * This test takes XML input/output produced by the previous version of Sakai when using the 
  * https://www.tsugi.org/lti-test/
- * test tool - this is the XLM sent by the tool and received by the tool using Sakai before
+ * test tool - this is the XML sent by the tool and received by the tool using Sakai before
  * removal of the XML Map. It ensures:
  * 1. Sakai can receive and parse the "WE SENT" XML (requests from the test tool)
  * 2. Sakai's new builders can generate the "POST RETURNS" XML (responses sent the test tool)
  */
-public class SakaiPreObject {
+public class SakaiPreObjectTest {
     
-    private static final XmlMapper XML_MAPPER;
-    
-    static {
-        XML_MAPPER = new XmlMapper();
-        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-        XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        XML_MAPPER.setDefaultUseWrapper(false);
-    }
+    private static final XmlMapper XML_MAPPER = TestXmlMapperFactory.createXmlMapper();
     
     /**
      * Normalize text content for comparison by trimming and collapsing whitespace.
