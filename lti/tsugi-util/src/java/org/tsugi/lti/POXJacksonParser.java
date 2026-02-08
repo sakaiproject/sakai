@@ -41,7 +41,7 @@ public class POXJacksonParser {
     public final static String MINOR_IDALLOC = POXConstants.MINOR_IDALLOC;
     public final static String MINOR_OVERFLOWFAIL = POXConstants.MINOR_OVERFLOWFAIL;
     public final static String MINOR_IDALLOCINUSEFAIL = POXConstants.MINOR_IDALLOCINUSEFAIL;
-    public final static String MINOR_INVALIDDATAFAIL = POXConstants.MINOR_INVALIDDATAFAIL;
+    public final static String MINOR_INVALIDDATA = POXConstants.MINOR_INVALIDDATA;
     public final static String MINOR_INCOMPLETEDATA = POXConstants.MINOR_INCOMPLETEDATA;
     public final static String MINOR_PARTIALSTORAGE = POXConstants.MINOR_PARTIALSTORAGE;
     public final static String MINOR_UNKNOWNOBJECT = POXConstants.MINOR_UNKNOWNOBJECT;
@@ -100,6 +100,12 @@ public class POXJacksonParser {
 
         try {
             POXEnvelopeResponse response = XML_MAPPER.readValue(xmlString.trim(), POXEnvelopeResponse.class);
+            
+            if (response != null && response.getPoxHeader() == null && response.getPoxBody() == null) {
+                log.warn("Parsed response but both header and body are null - likely invalid XML");
+                return null;
+            }
+            
             log.debug("Successfully parsed POX response");
             return response;
 

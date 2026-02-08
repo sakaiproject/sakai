@@ -32,7 +32,7 @@ public class POXConstants {
     public static final String MINOR_IDALLOC = "idalloc";
     public static final String MINOR_OVERFLOWFAIL = "overflowfail";
     public static final String MINOR_IDALLOCINUSEFAIL = "idallocinusefail";
-    public static final String MINOR_INVALIDDATAFAIL = "invaliddata";
+    public static final String MINOR_INVALIDDATA = "invaliddata";
     public static final String MINOR_INCOMPLETEDATA = "incompletedata";
     public static final String MINOR_PARTIALSTORAGE = "partialdatastorage";
     public static final String MINOR_UNKNOWNOBJECT = "unknownobject";
@@ -50,7 +50,7 @@ public class POXConstants {
     
     public static final List<String> VALID_MINOR = Collections.unmodifiableList(Arrays.asList(
         MINOR_FULLSUCCESS, MINOR_NOSOURCEDIDS, MINOR_IDALLOC, MINOR_OVERFLOWFAIL,
-        MINOR_IDALLOCINUSEFAIL, MINOR_INVALIDDATAFAIL, MINOR_INCOMPLETEDATA,
+        MINOR_IDALLOCINUSEFAIL, MINOR_INVALIDDATA, MINOR_INCOMPLETEDATA,
         MINOR_PARTIALSTORAGE, MINOR_UNKNOWNOBJECT, MINOR_DELETEFAILURE,
         MINOR_TARGETREADFAILURE, MINOR_SAVEPOINTERROR, MINOR_SAVEPOINTSYNCERROR,
         MINOR_UNKNOWNQUERY, MINOR_UNKNOWNVOCAB, MINOR_TARGETISBUSY,

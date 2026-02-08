@@ -82,5 +82,6 @@ public class GroupTest {
         assertEquals("Title should match", original.getTitle(), deserialized.getTitle());
         assertNotNull("Set should not be null", deserialized.getSet());
         assertEquals("Set id should match", original.getSet().getId(), deserialized.getSet().getId());
+        assertEquals("Set title should match", original.getSet().getTitle(), deserialized.getSet().getTitle());
     }
 }

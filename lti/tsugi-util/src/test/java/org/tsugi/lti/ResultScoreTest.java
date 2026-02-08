@@ -50,7 +50,7 @@ public class ResultScoreTest {
         
         assertNotNull("XML should not be null", xml);
         assertTrue("XML should contain language element", xml.contains("<language>en</language>"));
-        // TextString is null, so it won't be serialized (no @JsonInclude annotation)
+        // TextString is null and not serialized (Jackson XML omits null fields by default)
         assertFalse("XML should not contain textString element when null", xml.contains("<textString>"));
     }
     
@@ -63,7 +63,7 @@ public class ResultScoreTest {
         
         assertNotNull("XML should not be null", xml);
         assertTrue("XML should contain textString element", xml.contains("<textString>0.92</textString>"));
-        // Language is null, so it won't be serialized (no @JsonInclude annotation)
+        // Language is null and not serialized (Jackson XML omits null fields by default)
         assertFalse("XML should not contain language element when null", xml.contains("<language>"));
     }
     
@@ -75,7 +75,7 @@ public class ResultScoreTest {
         String xml = XML_MAPPER.writeValueAsString(resultScore);
         
         assertNotNull("XML should not be null", xml);
-        // Null fields without @JsonInclude won't be serialized
+        // Null fields are not serialized (Jackson XML omits null fields by default)
         assertFalse("XML should not contain language element when null", xml.contains("<language>"));
         assertFalse("XML should not contain textString element when null", xml.contains("<textString>"));
     }

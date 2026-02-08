@@ -38,51 +38,10 @@ import java.util.List;
 @Slf4j
 public class POXRequestHandler {
 
-    public final static String MAJOR_SUCCESS = "success";
-    public final static String MAJOR_FAILURE = "failure";
-    public final static String MAJOR_UNSUPPORTED = "unsupported";
-    public final static String MAJOR_PROCESSING = "processing";
-
-    public final static String [] validMajor = {
-        MAJOR_SUCCESS, MAJOR_FAILURE, MAJOR_UNSUPPORTED, MAJOR_PROCESSING };
-
-    public final static String SEVERITY_ERROR = "error";
-    public final static String SEVERITY_WARNING = "warning";
-    public final static String SEVERITY_STATUS = "status";
-
-    public final static String [] validSeverity = {
-        SEVERITY_ERROR, SEVERITY_WARNING, SEVERITY_STATUS };
-
-    public final static String MINOR_FULLSUCCESS ="fullsuccess";
-    public final static String MINOR_NOSOURCEDIDS = "nosourcedids";
-    public final static String MINOR_IDALLOC = "idalloc";
-    public final static String MINOR_OVERFLOWFAIL = "overflowfail";
-    public final static String MINOR_IDALLOCINUSEFAIL = "idallocinusefail";
-    public final static String MINOR_INVALIDDATAFAIL = "invaliddata";
-    public final static String MINOR_INCOMPLETEDATA = "incompletedata";
-    public final static String MINOR_PARTIALSTORAGE = "partialdatastorage";
-    public final static String MINOR_UNKNOWNOBJECT = "unknownobject";
-    public final static String MINOR_DELETEFAILURE = "deletefailure";
-    public final static String MINOR_TARGETREADFAILURE = "targetreadfailure";
-    public final static String MINOR_SAVEPOINTERROR = "savepointerror";
-    public final static String MINOR_SAVEPOINTSYNCERROR = "savepointsyncerror";
-    public final static String MINOR_UNKNOWNQUERY = "unknownquery";
-    public final static String MINOR_UNKNOWNVOCAB = "unknownvocab";
-    public final static String MINOR_TARGETISBUSY = "targetisbusy";
-    public final static String MINOR_UNKNOWNEXTENSION = "unknownextension";
-    public final static String MINOR_UNAUTHORIZEDREQUEST = "unauthorizedrequest";
-    public final static String MINOR_LINKFAILURE = "linkfailure";
-    public final static String MINOR_UNSUPPORTED = "unsupported";
-
-    public final static String [] validMinor = {
-        MINOR_FULLSUCCESS, MINOR_NOSOURCEDIDS, MINOR_IDALLOC, MINOR_OVERFLOWFAIL,
-        MINOR_IDALLOCINUSEFAIL, MINOR_INVALIDDATAFAIL, MINOR_INCOMPLETEDATA,
-        MINOR_PARTIALSTORAGE, MINOR_UNKNOWNOBJECT, MINOR_DELETEFAILURE,
-        MINOR_TARGETREADFAILURE, MINOR_SAVEPOINTERROR, MINOR_SAVEPOINTSYNCERROR,
-        MINOR_UNKNOWNQUERY, MINOR_UNKNOWNVOCAB, MINOR_TARGETISBUSY,
-        MINOR_UNKNOWNEXTENSION, MINOR_UNAUTHORIZEDREQUEST, MINOR_LINKFAILURE,
-        MINOR_UNSUPPORTED
-    };
+    // Arrays maintained for backward compatibility with tests
+    public final static String [] validMajor = POXConstants.VALID_MAJOR.toArray(new String[0]);
+    public final static String [] validSeverity = POXConstants.VALID_SEVERITY.toArray(new String[0]);
+    public final static String [] validMinor = POXConstants.VALID_MINOR.toArray(new String[0]);
 
     private POXEnvelopeRequest poxRequest;
     private String postBody;
@@ -232,6 +191,11 @@ public class POXRequestHandler {
     }
 
     public void parsePostBody() {
+        if (postBody == null || postBody.trim().isEmpty()) {
+            errorMessage = "Post body is null or empty";
+            return;
+        }
+        
         try {
             poxRequest = xmlMapper.readValue(postBody, POXEnvelopeRequest.class);
             if (poxRequest == null) {
@@ -337,7 +301,7 @@ public class POXRequestHandler {
     }
 
     public String getResponseUnsupported(String desc) {
-        return getResponse(desc, MAJOR_UNSUPPORTED, null, null, null, null);
+        return getResponse(desc, POXConstants.MAJOR_UNSUPPORTED, null, null, null, null);
     }
 
     public String getResponseFailure(String desc, Properties minor) {
@@ -349,11 +313,11 @@ public class POXRequestHandler {
     }
 
     public String getResponseSuccess(String desc, String bodyString) {
-        return getResponse(desc, MAJOR_SUCCESS, null, null, null, bodyString);
+        return getResponse(desc, POXConstants.MAJOR_SUCCESS, null, null, null, bodyString);
     }
     
     public String getResponseSuccess(String desc, Object bodyObject) {
-        return getResponse(desc, MAJOR_SUCCESS, null, null, null, bodyObject);
+        return getResponse(desc, POXConstants.MAJOR_SUCCESS, null, null, null, bodyObject);
     }
 
     public String getResponse(String description, String major, String severity, 
@@ -365,10 +329,10 @@ public class POXRequestHandler {
             String messageId, Properties minor, Object body) {
         
         StringBuffer internalError = new StringBuffer();
-        if (major == null) major = MAJOR_FAILURE;
-        if (severity == null && MAJOR_PROCESSING.equals(major)) severity = SEVERITY_STATUS;
-        if (severity == null && MAJOR_SUCCESS.equals(major)) severity = SEVERITY_STATUS;
-        if (severity == null) severity = SEVERITY_ERROR;
+        if (major == null) major = POXConstants.MAJOR_FAILURE;
+        if (severity == null && POXConstants.MAJOR_PROCESSING.equals(major)) severity = POXConstants.SEVERITY_STATUS;
+        if (severity == null && POXConstants.MAJOR_SUCCESS.equals(major)) severity = POXConstants.SEVERITY_STATUS;
+        if (severity == null) severity = POXConstants.SEVERITY_ERROR;
         if (messageId == null) {
             Date dt = new Date();
             messageId = "" + dt.getTime();

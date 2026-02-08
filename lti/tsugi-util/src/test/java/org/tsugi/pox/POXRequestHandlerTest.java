@@ -267,7 +267,7 @@ public class POXRequestHandlerTest {
 
         Properties props = new Properties();
         props.setProperty("fred", "zap");  // Invalid minor code - will be filtered out
-        props.setProperty("sam", POXRequestHandler.MINOR_IDALLOC);  // Valid minor code
+        props.setProperty("sam", POXConstants.MINOR_IDALLOC);  // Valid minor code
         
         output = pox.getResponseFailure(desc, props);
         assertNotNull("Failure response should not be null", output);
@@ -276,7 +276,7 @@ public class POXRequestHandlerTest {
         assertTrue("Failure response should contain minor codes", output.contains("imsx_codeMinor"));
         // Only valid minor codes are included in the minor codes section - "sam" with MINOR_IDALLOC should be present
         assertTrue("Failure response should contain sam", output.contains("sam"));
-        assertTrue("Failure response should contain MINOR_IDALLOC", output.contains(POXRequestHandler.MINOR_IDALLOC));
+        assertTrue("Failure response should contain MINOR_IDALLOC", output.contains(POXConstants.MINOR_IDALLOC));
     }
     
     @Test
