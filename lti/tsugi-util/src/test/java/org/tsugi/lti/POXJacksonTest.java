@@ -321,10 +321,22 @@ public class POXJacksonTest {
         // Must escape '<' in text content
         assertTrue("Expected '&lt;' in serialized description", serializedDesc.contains("&lt;"));
         
-        // Do NOT require &gt; unless you deliberately escape it
-        // It's OK either way:
-        assertFalse("Raw '<' must not appear in serialized description text",
-                serializedDesc.contains("x < y"));  // or a stricter check, see below
+        // Verify raw unescaped markup does NOT appear
+        assertFalse("Raw '<special>' must not appear in serialized description", 
+                serializedDesc.contains("<special>"));
+        assertFalse("Raw unescaped description must not appear", 
+                serializedDesc.contains("Test with <special> & \"characters\""));
+        
+        // Verify escaped forms ARE present
+        // Jackson escapes '<' to '&lt;' but may not escape '>' in text content
+        assertTrue("Expected '&lt;special' in serialized description", 
+                serializedDesc.contains("&lt;special"));
+        assertTrue("Expected '&amp;' in serialized description", 
+                serializedDesc.contains("&amp;"));
+        // Quotes don't need to be escaped in XML element text content (only in attributes)
+        // Verify quotes appear as literal quotes (not escaped)
+        assertTrue("Expected literal quotes in serialized description", 
+                serializedDesc.contains("\""));
     }
 
     @Test
