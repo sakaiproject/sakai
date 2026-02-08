@@ -34,6 +34,8 @@ public class POXRequestHeaderTest {
         String xml = XML_MAPPER.writeValueAsString(header);
         
         assertNotNull("XML should not be null", xml);
+        assertTrue("XML should contain root element imsx_POXHeader", xml.contains("<imsx_POXHeader"));
+        assertTrue("XML should contain closing root element tag", xml.contains("</imsx_POXHeader>"));
         assertTrue("XML should contain requestHeaderInfo", xml.contains("imsx_POXRequestHeaderInfo"));
         assertTrue("XML should contain version", xml.contains("V1.0"));
         assertTrue("XML should contain messageIdentifier", xml.contains("999999123"));

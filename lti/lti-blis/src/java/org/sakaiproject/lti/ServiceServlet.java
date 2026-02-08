@@ -82,7 +82,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.FormattedText;
 
 import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_ALLOWROSTER;
 import static org.sakaiproject.lti.util.SakaiLTIUtil.LTI_PORTLET_ON;
@@ -147,9 +146,8 @@ public class ServiceServlet extends HttpServlet {
 		}
 		String msg = rb.getString(s) + ": " + message;
 		log.info(msg);
-		String escapedMsg = ComponentManager.get(FormattedText.class).escapeHtmlFormattedText(msg);
 		
-		String theXml = MessageResponseBuilder.error(escapedMsg)
+		String theXml = MessageResponseBuilder.error(msg)
 			.buildAsXml(true);
 		
 		PrintWriter out = response.getWriter();
@@ -832,6 +830,12 @@ public class ServiceServlet extends HttpServlet {
 		}
 		
 		POXRequestBody poxBody = pox.getPoxRequest().getPoxBody();
+		if (poxBody == null) {
+			log.error("POXRequestHandler.getPoxRequest().getPoxBody() returned null in processOutcomeXml, pox={}", pox);
+			doErrorXML(request, response, pox, ERROR_POX_INVALID, "POX request body is null", null);
+			return;
+		}
+		
 		ResultRecord resultRecord = null;
 		
 		if (poxBody.getReplaceResultRequest() != null) {
