@@ -97,8 +97,8 @@ public class POXRequestHandler {
             baseContentType = contentType.trim();
         }
 
-        if (!"application/xml".equals(baseContentType)) {
-            errorMessage = "Content Type must be application/xml";
+        if (!"application/xml".equals(baseContentType) && !"text/xml".equals(baseContentType)) {
+            errorMessage = "Content Type must be application/xml or text/xml";
             log.info("{}\n{}", errorMessage, contentType);
             return;
         }
@@ -380,10 +380,12 @@ public class POXRequestHandler {
         if (!POXConstants.isValidMajorCode(major)) {
             if (internalError.length() > 0) internalError.append(", ");
             internalError.append("Invalid imsx_codeMajor=").append(major);
+            major = POXConstants.MAJOR_FAILURE;
         }
         if (!POXConstants.isValidSeverity(severity)) {
             if (internalError.length() > 0) internalError.append(", ");
             internalError.append("Invalid imsx_severity=").append(severity);
+            severity = POXConstants.SEVERITY_ERROR;
         }
 
         if (internalError.length() > 0) {
