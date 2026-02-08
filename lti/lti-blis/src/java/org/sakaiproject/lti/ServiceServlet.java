@@ -817,7 +817,6 @@ public class ServiceServlet extends HttpServlet {
 
 		String result_resultscore_textstring = null;
 		String result_resultdata_text = null;
-		String sourced_id = null;
 		
 		// Defensive null check for pox and pox.getPoxRequest()
 		if (pox == null) {
@@ -844,9 +843,6 @@ public class ServiceServlet extends HttpServlet {
 		}
 		
 		if (resultRecord != null) {
-			if (resultRecord.getSourcedGUID() != null) {
-				sourced_id = resultRecord.getSourcedGUID().getSourcedId();
-			}
 			if (resultRecord.getResult() != null) {
 				if (resultRecord.getResult().getResultScore() != null) {
 					result_resultscore_textstring = resultRecord.getResult().getResultScore().getTextString();
