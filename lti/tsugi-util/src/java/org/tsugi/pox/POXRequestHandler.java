@@ -145,7 +145,8 @@ public class POXRequestHandler {
 
         if (oauth_body_hash == null) {
             errorMessage = "Did not find oauth_body_hash";
-            log.info("{}\n{}", errorMessage, header);
+            log.info("{}", errorMessage);
+            log.debug("Authorization header: {}", header);
             return;
         }
 
