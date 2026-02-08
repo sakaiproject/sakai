@@ -1,8 +1,6 @@
 package org.tsugi.lti;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -21,14 +19,7 @@ import java.util.List;
  */
 public class MessageResponseTest {
     
-    private static final XmlMapper XML_MAPPER;
-    
-    static {
-        XML_MAPPER = new XmlMapper();
-        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-        XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        XML_MAPPER.setDefaultUseWrapper(false);
-    }
+    private static final XmlMapper XML_MAPPER = TestXmlMapperFactory.createXmlMapper();
     
     @Test
     public void testSerializeWithAllFields() throws Exception {

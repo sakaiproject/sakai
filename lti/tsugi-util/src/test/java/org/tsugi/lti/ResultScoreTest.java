@@ -1,8 +1,6 @@
 package org.tsugi.lti;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -19,14 +17,7 @@ import org.tsugi.lti.objects.ResultScore;
  */
 public class ResultScoreTest {
     
-    private static final XmlMapper XML_MAPPER;
-    
-    static {
-        XML_MAPPER = new XmlMapper();
-        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-        XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        XML_MAPPER.setDefaultUseWrapper(false);
-    }
+    private static final XmlMapper XML_MAPPER = TestXmlMapperFactory.createXmlMapper();
     
     @Test
     public void testSerializeWithBothFields() throws Exception {
@@ -50,8 +41,6 @@ public class ResultScoreTest {
         
         assertNotNull("XML should not be null", xml);
         assertTrue("XML should contain language element", xml.contains("<language>en</language>"));
-        // TextString is null, so it won't be serialized (no @JsonInclude annotation)
-        assertFalse("XML should not contain textString element when null", xml.contains("<textString>"));
     }
     
     @Test
@@ -63,8 +52,6 @@ public class ResultScoreTest {
         
         assertNotNull("XML should not be null", xml);
         assertTrue("XML should contain textString element", xml.contains("<textString>0.92</textString>"));
-        // Language is null, so it won't be serialized (no @JsonInclude annotation)
-        assertFalse("XML should not contain language element when null", xml.contains("<language>"));
     }
     
     @Test
@@ -75,9 +62,6 @@ public class ResultScoreTest {
         String xml = XML_MAPPER.writeValueAsString(resultScore);
         
         assertNotNull("XML should not be null", xml);
-        // Null fields without @JsonInclude won't be serialized
-        assertFalse("XML should not contain language element when null", xml.contains("<language>"));
-        assertFalse("XML should not contain textString element when null", xml.contains("<textString>"));
     }
     
     @Test

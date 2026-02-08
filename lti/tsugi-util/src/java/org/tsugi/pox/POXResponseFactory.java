@@ -5,22 +5,18 @@ import java.util.Properties;
 
 import org.tsugi.lti.objects.POXEnvelopeResponse;
 import org.tsugi.lti.objects.POXCodeMinorField;
+import org.tsugi.lti.POXJacksonParser;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class POXResponseFactory {
     
-    private static final XmlMapper xmlMapper = new XmlMapper();
-    
-    static {
-        xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-        xmlMapper.configure(com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        xmlMapper.setDefaultUseWrapper(false);
-    }
+    // Reuse the shared thread-safe XmlMapper from POXJacksonParser
+    // It's configured for both serialization and deserialization with XXE protection
+    private static final XmlMapper xmlMapper = POXJacksonParser.XML_MAPPER;
     
     /**
      * Create a success response

@@ -1,8 +1,6 @@
 package org.tsugi.lti;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,21 +14,14 @@ import org.tsugi.lti.POXJacksonParser;
  * 
  * This test takes XML input/output produced by the previous version of Sakai when using the 
  * https://www.tsugi.org/lti-test/
- * test tool - this is the XLM sent by the tool and received by the tool using Sakai before
+ * test tool - this is the XML sent by the tool and received by the tool using Sakai before
  * removal of the XML Map. It ensures:
  * 1. Sakai can receive and parse the "WE SENT" XML (requests from the test tool)
  * 2. Sakai's new builders can generate the "POST RETURNS" XML (responses sent the test tool)
  */
-public class SakaiPreObject {
+public class SakaiPreObjectTest {
     
-    private static final XmlMapper XML_MAPPER;
-    
-    static {
-        XML_MAPPER = new XmlMapper();
-        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-        XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        XML_MAPPER.setDefaultUseWrapper(false);
-    }
+    private static final XmlMapper XML_MAPPER = TestXmlMapperFactory.createXmlMapper();
     
     /**
      * Normalize text content for comparison by trimming and collapsing whitespace.
@@ -110,12 +101,11 @@ public class SakaiPreObject {
             .addMember(member2);
         
         String generatedXml = builder.buildAsXml(false);
+        assertNotNull("Generated XML should not be null", generatedXml);
         
         // Parse both to verify semantic equality
         MessageResponse expected = XML_MAPPER.readValue(expectedXml, MessageResponse.class);
         MessageResponse generated = XML_MAPPER.readValue(generatedXml, MessageResponse.class);
-        
-        assertNotNull("Generated XML should not be null", generatedXml);
         assertEquals("LtiMessageType should match", expected.getLtiMessageType(), generated.getLtiMessageType());
         assertNotNull("Members should not be null", generated.getMembers());
         assertEquals("Member count should match", 2, generated.getMembers().getMember().size());
@@ -203,12 +193,11 @@ public class SakaiPreObject {
             .withOperation("replaceResultRequest")
             .withBodyObject(replaceResultResponse)
             .buildAsXml();
+        assertNotNull("Generated XML should not be null", generatedXml);
         
         // Parse both to verify semantic equality
         POXEnvelopeResponse expected = POXJacksonParser.parseResponse(postReturnsXml);
         POXEnvelopeResponse generated = POXJacksonParser.parseResponse(generatedXml);
-        
-        assertNotNull("Generated XML should not be null", generatedXml);
         assertNotNull("Expected response should not be null", expected);
         assertNotNull("Generated response should not be null", generated);
         
@@ -305,12 +294,11 @@ public class SakaiPreObject {
             .withOperation("readResultRequest")
             .withBodyObject(readResultResponse)
             .buildAsXml();
+        assertNotNull("Generated XML should not be null", generatedXml);
         
         // Parse both to verify semantic equality
         POXEnvelopeResponse expected = POXJacksonParser.parseResponse(postReturnsXml);
         POXEnvelopeResponse generated = POXJacksonParser.parseResponse(generatedXml);
-        
-        assertNotNull("Generated XML should not be null", generatedXml);
         assertNotNull("Expected response should not be null", expected);
         assertNotNull("Generated response should not be null", generated);
         
@@ -405,12 +393,11 @@ public class SakaiPreObject {
             .withOperation("deleteResultRequest")
             .withBodyObject(deleteResultResponse)
             .buildAsXml();
+        assertNotNull("Generated XML should not be null", generatedXml);
         
         // Parse both to verify semantic equality
         POXEnvelopeResponse expected = POXJacksonParser.parseResponse(postReturnsXml);
         POXEnvelopeResponse generated = POXJacksonParser.parseResponse(generatedXml);
-        
-        assertNotNull("Generated XML should not be null", generatedXml);
         assertNotNull("Expected response should not be null", expected);
         assertNotNull("Generated response should not be null", generated);
         

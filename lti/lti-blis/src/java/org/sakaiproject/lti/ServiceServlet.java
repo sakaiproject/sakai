@@ -118,7 +118,6 @@ public class ServiceServlet extends HttpServlet {
 	private static ResourceLoader rb = new ResourceLoader("blis");
 
 	protected static LTIService ltiService = null;
-	private static final XmlMapper POX_XML_MAPPER = new XmlMapper();
 
 	private static final String ERROR_SERVICE_INVALID = "service.invalid";
 	private static final String ERROR_SERVICE_NOTALLOWED = "service.notallowed";
@@ -131,12 +130,6 @@ public class ServiceServlet extends HttpServlet {
 	private static final String ERROR_POX_INVALID = "pox.invalid";
 	private static final String ERROR_MEMBERSHIPS_FAIL = "memberships.fail";
 
-	static {
-		POX_XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-		POX_XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, false);
-		POX_XML_MAPPER.setDefaultUseWrapper(false);
-	}
-
 	public void doError(HttpServletRequest request,HttpServletResponse response,
 			String s, String message, Exception e)
 	throws java.io.IOException
@@ -145,7 +138,7 @@ public class ServiceServlet extends HttpServlet {
 			log.error(e.getLocalizedMessage(), e);
 		}
 		String msg = rb.getString(s) + ": " + message;
-		log.info(msg);
+		log.info("{}", msg);
 		
 		String theXml = MessageResponseBuilder.error(msg)
 			.buildAsXml(true);
@@ -605,7 +598,7 @@ public class ServiceServlet extends HttpServlet {
 			log.error(e.getLocalizedMessage(), e);
 		}
 		String msg = rb.getString(s) + ": " + message;
-		log.info(msg);
+		log.info("{}", msg);
 		response.setContentType("application/xml");
 		PrintWriter out = response.getWriter();
 		String output = null;
@@ -665,8 +658,10 @@ public class ServiceServlet extends HttpServlet {
 		String message_type = null;
 		if ( log.isDebugEnabled() ) {
 			try {
-				Object obj = POX_XML_MAPPER.readValue(pox.getPostBody(), Object.class);
-				String pretty = POX_XML_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+				Object obj = POXJacksonParser.XML_MAPPER.readValue(pox.getPostBody(), Object.class);
+				String pretty = POXJacksonParser.XML_MAPPER.writerWithDefaultPrettyPrinter()
+					.without(ToXmlGenerator.Feature.WRITE_XML_DECLARATION)
+					.writeValueAsString(obj);
 				log.debug("POST\n{}", pretty);
 			} catch (Exception e) {
 				log.debug("POST\n{}", pox.getPostBody());
