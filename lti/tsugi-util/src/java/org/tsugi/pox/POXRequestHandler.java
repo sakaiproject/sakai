@@ -40,6 +40,10 @@ public class POXRequestHandler {
     public final static String [] validMajor = POXConstants.VALID_MAJOR.toArray(new String[0]);
     public final static String [] validSeverity = POXConstants.VALID_SEVERITY.toArray(new String[0]);
     public final static String [] validMinor = POXConstants.VALID_MINOR.toArray(new String[0]);
+    
+    // Maximum request body size: 10MB (conservatively using 10M characters)
+    // For UTF-8, this is approximately 10MB for ASCII content, up to 40MB worst-case
+    private static final long MAX_REQUEST_BODY_SIZE = 10L * 1024 * 1024;
 
     private POXEnvelopeRequest poxRequest;
     private String postBody;
@@ -128,13 +132,19 @@ public class POXRequestHandler {
         log.debug("OSM={}", oauth_signature_method);
         
         final char[] buffer = new char[0x10000];
-        try {
+        try (Reader in = request.getReader()) {
             StringBuilder out = new StringBuilder();
-            Reader in = request.getReader();
+            long totalCharsRead = 0;
             int read;
             do {
                 read = in.read(buffer, 0, buffer.length);
                 if (read > 0) {
+                    totalCharsRead += read;
+                    if (totalCharsRead > MAX_REQUEST_BODY_SIZE) {
+                        errorMessage = "Request body too large";
+                        log.warn("Request body exceeds maximum size: {} characters", totalCharsRead);
+                        return;
+                    }
                     out.append(buffer, 0, read);
                 }
             } while (read >= 0);
@@ -254,6 +264,10 @@ public class POXRequestHandler {
 
     public String getOperation() {
         return operation;
+    }
+
+    public boolean isValid() {
+        return valid;
     }
 
     public String getOAuthConsumerKey() {

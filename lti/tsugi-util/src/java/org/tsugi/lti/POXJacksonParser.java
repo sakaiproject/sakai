@@ -14,6 +14,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javax.xml.stream.XMLInputFactory;
 
 public class POXJacksonParser {
     
@@ -25,6 +26,13 @@ public class POXJacksonParser {
         XML_MAPPER = new XmlMapper();
         XML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         XML_MAPPER.setDefaultUseWrapper(false);
+        
+        // Harden against XXE (XML External Entity) attacks
+        XMLInputFactory xmlInputFactory = XML_MAPPER.getFactory().getXMLInputFactory();
+        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        xmlInputFactory.setProperty("javax.xml.stream.isSupportingExternalEntities", Boolean.FALSE);
+        XML_MAPPER.getFactory().setXMLInputFactory(xmlInputFactory);
     }
     
     public final static String MAJOR_SUCCESS = POXConstants.MAJOR_SUCCESS;

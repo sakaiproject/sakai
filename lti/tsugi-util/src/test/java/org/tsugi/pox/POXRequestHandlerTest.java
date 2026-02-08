@@ -2,7 +2,6 @@ package org.tsugi.pox;
 
 import static org.junit.Assert.*;
 
-import java.util.Date;
 import java.util.Properties;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -15,41 +14,12 @@ import org.tsugi.lti.objects.POXCodeMinor;
 import org.tsugi.lti.objects.POXCodeMinorField;
 import org.tsugi.lti.POXJacksonParser;
 import org.apache.commons.text.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 public class POXRequestHandlerTest {
-    
-    private static final Logger log = LoggerFactory.getLogger(POXRequestHandlerTest.class);
-    
-    private static final String inputTestData = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>\n" +  
-        "<imsx_POXEnvelopeRequest xmlns = \"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" + 
-        "<imsx_POXHeader>\n" + 
-        "<imsx_POXRequestHeaderInfo>\n" + 
-        "<imsx_version>V1.0</imsx_version>\n" + 
-        "<imsx_messageIdentifier>999999123</imsx_messageIdentifier>\n" + 
-        "</imsx_POXRequestHeaderInfo>\n" + 
-        "</imsx_POXHeader>\n" + 
-        "<imsx_POXBody>\n" + 
-        "<replaceResultRequest>\n" + 
-        "<resultRecord>\n" + 
-        "<sourcedGUID>\n" + 
-        "<sourcedId>3124567</sourcedId>\n" + 
-        "</sourcedGUID>\n" + 
-        "<result>\n" + 
-        "<resultScore>\n" + 
-        "<language>en-us</language>\n" + 
-        "<textString>A</textString>\n" + 
-        "</resultScore>\n" + 
-        "</result>\n" + 
-        "</resultRecord>\n" + 
-        "</replaceResultRequest>\n" + 
-        "</imsx_POXBody>\n" + 
-        "</imsx_POXEnvelopeRequest>";
     
     private static final String TEST_XML_REQUEST = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         "<imsx_POXEnvelopeRequest xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
@@ -80,7 +50,7 @@ public class POXRequestHandlerTest {
     public void testConstructorWithXmlString() {
         POXRequestHandler pox = new POXRequestHandler(TEST_XML_REQUEST);
         
-        assertTrue("Request should be valid", pox.valid);
+        assertTrue("Request should be valid", pox.isValid());
         assertEquals("replaceResultRequest", pox.getOperation());
         assertEquals("V1.0", pox.getHeaderVersion());
         assertEquals("999999123", pox.getHeaderMessageIdentifier());
@@ -169,6 +139,8 @@ public class POXRequestHandlerTest {
         assertTrue("Response should contain description", response.contains("Test success"));
         // Note: bodyString parameter is ignored as bodyContent support was removed from POXResponseBuilder
         assertTrue("Response should contain POX body", response.contains("imsx_POXBody"));
+        // Explicitly verify that the bodyString parameter is ignored and not included in the response
+        assertFalse("Response should not contain the ignored bodyString parameter", response.contains("<test>body</test>"));
     }
     
     @Test
@@ -244,7 +216,7 @@ public class POXRequestHandlerTest {
     
     @Test
     public void testRunTest() {
-        POXRequestHandler pox = new POXRequestHandler(inputTestData);
+        POXRequestHandler pox = new POXRequestHandler(TEST_XML_REQUEST);
         
         assertEquals("V1.0", pox.getHeaderVersion());
         assertEquals("replaceResultRequest", pox.getOperation());
@@ -282,7 +254,7 @@ public class POXRequestHandlerTest {
         String invalidXml = "<?xml version=\"1.0\"?><invalid>content</invalid>";
         POXRequestHandler pox = new POXRequestHandler(invalidXml);
         
-        assertFalse("Request should not be valid", pox.valid);
+        assertFalse("Request should not be valid", pox.isValid());
         assertNotNull("Should have error message", pox.errorMessage);
     }
     
@@ -290,7 +262,7 @@ public class POXRequestHandlerTest {
     public void testEmptyXml() {
         POXRequestHandler pox = new POXRequestHandler("");
         
-        assertFalse("Request should not be valid", pox.valid);
+        assertFalse("Request should not be valid", pox.isValid());
         assertNotNull("Should have error message", pox.errorMessage);
     }
     
@@ -298,7 +270,7 @@ public class POXRequestHandlerTest {
     public void testNullXml() {
         POXRequestHandler pox = new POXRequestHandler((String) null);
         
-        assertFalse("Request should not be valid", pox.valid);
+        assertFalse("Request should not be valid", pox.isValid());
         assertNotNull("Should have error message", pox.errorMessage);
     }
     
@@ -320,16 +292,35 @@ public class POXRequestHandlerTest {
     
     @Test
     public void testResponseWithInvalidMinorCodes() {
+        // Test the "filter-and-warn" policy: when invalid minor codes are mixed with valid ones,
+        // POXRequestHandler.getResponse filters out invalid codes, includes valid codes in the response,
+        // and appends an "Internal error" message to the description to alert about the invalid entries.
+        // This ensures the response still succeeds with valid codes while warning about configuration issues.
         POXRequestHandler pox = new POXRequestHandler(TEST_XML_REQUEST);
         Properties minorCodes = new Properties();
-        minorCodes.setProperty("field1", "invalidcode");
-        minorCodes.setProperty("field2", "invaliddata");
+        minorCodes.setProperty("field1", "invalidcode");  // Invalid minor code - will be filtered out
+        minorCodes.setProperty("field2", "invaliddata");  // Valid minor code - will be included
         
         String response = pox.getResponse("Test response", "failure", "error", "msg123", 
                                         minorCodes, null);
         
         assertNotNull("Response should not be null", response);
+        // Invalid codes trigger an internal error message in the description
         assertTrue("Response should contain internal error", response.contains("Internal error"));
+        // The invalid code value appears in the internal error message (expected behavior)
+        assertTrue("Response should contain invalid code in error message", response.contains("Invalid imsx_codeMinorFieldValue=invalidcode"));
+        // Valid minor codes should still be included in the response
+        assertTrue("Response should contain valid minor code", response.contains("invaliddata"));
+        assertTrue("Response should contain field2 with valid code", response.contains("field2"));
+        // Invalid minor codes should be filtered out from the minor codes section
+        assertFalse("Response should not contain field1 in minor codes section", response.contains("<imsx_codeMinorFieldName>field1</imsx_codeMinorFieldName>"));
+        // Verify that invalidcode is not in the minor codes section (only in error message)
+        int minorCodesStart = response.indexOf("<imsx_codeMinor>");
+        int minorCodesEnd = response.indexOf("</imsx_codeMinor>");
+        if (minorCodesStart >= 0 && minorCodesEnd >= 0) {
+            String minorCodesSection = response.substring(minorCodesStart, minorCodesEnd);
+            assertFalse("Invalid code should not appear in minor codes section", minorCodesSection.contains("invalidcode"));
+        }
     }
     
     @Test
