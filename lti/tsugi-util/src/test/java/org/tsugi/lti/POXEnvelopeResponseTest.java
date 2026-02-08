@@ -1,8 +1,6 @@
 package org.tsugi.lti;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -18,14 +16,7 @@ import org.tsugi.lti.objects.ReplaceResultResponse;
  */
 public class POXEnvelopeResponseTest {
     
-    private static final XmlMapper XML_MAPPER;
-    
-    static {
-        XML_MAPPER = new XmlMapper();
-        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-        XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        XML_MAPPER.setDefaultUseWrapper(false);
-    }
+    private static final XmlMapper XML_MAPPER = TestXmlMapperFactory.createXmlMapper();
     
     @Test
     public void testSerializeWithHeaderAndBody() throws Exception {
@@ -122,5 +113,10 @@ public class POXEnvelopeResponseTest {
         assertNotNull("POXBody should not be null", deserialized.getPoxBody());
         assertEquals("Version should match", original.getPoxHeader().getResponseHeaderInfo().getVersion(),
                      deserialized.getPoxHeader().getResponseHeaderInfo().getVersion());
+        assertEquals("CodeMajor should match",
+                     original.getPoxHeader().getResponseHeaderInfo().getStatusInfo().getCodeMajor(),
+                     deserialized.getPoxHeader().getResponseHeaderInfo().getStatusInfo().getCodeMajor());
+        assertNotNull("ReplaceResultResponse should not be null",
+                      deserialized.getPoxBody().getReplaceResultResponse());
     }
 }
