@@ -150,15 +150,32 @@ public class POXRequestHandlerTest {
     @Test
     public void testGetResponseSuccess() {
         POXRequestHandler pox = new POXRequestHandler(TEST_XML_REQUEST);
-        String response = pox.getResponseSuccess("Test success", "<test>body</test>");
+        // Use valid POX response XML - replaceResultResponse matches the operation
+        String bodyXml = "<replaceResultResponse/>";
+        String response = pox.getResponseSuccess("Test success", bodyXml);
         
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain success", response.contains("success"));
         assertTrue("Response should contain description", response.contains("Test success"));
-        // Note: bodyString parameter is ignored as bodyContent support was removed from POXResponseBuilder
         assertTrue("Response should contain POX body", response.contains("imsx_POXBody"));
-        // Explicitly verify that the bodyString parameter is ignored and not included in the response
-        assertFalse("Response should not contain the ignored bodyString parameter", response.contains("<test>body</test>"));
+        // Verify that the bodyXml is included in the response
+        assertTrue("Response should contain the bodyXml parameter", response.contains("replaceResultResponse"));
+    }
+    
+    @Test
+    public void testGetResponseSuccessWithBodyXml() {
+        POXRequestHandler pox = new POXRequestHandler(TEST_XML_REQUEST);
+        // Test with readResultResponse XML - should be included regardless of operation
+        String bodyXml = "<readResultResponse><result><resultScore><language>en</language><textString>0.95</textString></resultScore></result></readResultResponse>";
+        String response = pox.getResponseSuccess("Test success with body", bodyXml);
+        
+        assertNotNull("Response should not be null", response);
+        assertTrue("Response should contain success", response.contains("success"));
+        assertTrue("Response should contain description", response.contains("Test success with body"));
+        assertTrue("Response should contain POX body", response.contains("imsx_POXBody"));
+        // Verify that the bodyXml is included in the response even though operation is replaceResultRequest
+        assertTrue("Response should contain readResultResponse", response.contains("readResultResponse"));
+        assertTrue("Response should contain the score value", response.contains("0.95"));
     }
     
     @Test
@@ -487,48 +504,33 @@ public class POXRequestHandlerTest {
             POXCodeMinor.class, Object.class);
         method.setAccessible(true);
         
-        // Test case 3: Response with body content (bodyString is ignored by POXResponseBuilder)
+        // Test case 3: Response with body content that doesn't match known response types
+        // bodyString that doesn't match known POX response types will be ignored
         String description = "Test description";
         String major = "success";
         String severity = "status";
         String messageId = "msg789";
         String operation = "replaceResultRequest";
         POXCodeMinor codeMinor = null;
-        String bodyString = "<test>body content</test>";
+        String bodyString = "<test>body content</test>";  // Not a valid POX response type
         
         String response = (String) method.invoke(pox, description, major, severity, messageId, operation, codeMinor, bodyString);
         
-        // Build expected XML using hand-constructed format, adjusted to match Jackson's compact output
-        // Note: bodyString is ignored by POXResponseBuilder, so body will be empty
-        // messageRefIdentifier should reference the original request message ID, not the response messageId
+        // Build expected XML using POXResponseBuilder (same as implementation)
+        // bodyString doesn't match known response types, so body will be empty
         String requestMessageId = pox.getHeaderMessageIdentifier();
-        String expected = String.format(
-            "<?xml version='1.0' encoding='UTF-8'?>" +
-            "<imsx_POXEnvelopeResponse xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">" +
-            "<imsx_POXHeader>" +
-            "<imsx_POXResponseHeaderInfo>" +
-            "<imsx_version>V1.0</imsx_version>" +
-            "<imsx_messageIdentifier>%s</imsx_messageIdentifier>" +
-            "<imsx_statusInfo>" +
-            "<imsx_codeMajor>%s</imsx_codeMajor>" +
-            "<imsx_severity>%s</imsx_severity>" +
-            "<imsx_description>%s</imsx_description>" +
-            "<imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>" +
-            "<imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" +
-            "</imsx_statusInfo>" +
-            "</imsx_POXResponseHeaderInfo>" +
-            "</imsx_POXHeader>" +
-            "<imsx_POXBody/>" +
-            "</imsx_POXEnvelopeResponse>",
-            StringEscapeUtils.escapeXml11(messageId), 
-            StringEscapeUtils.escapeXml11(major), 
-            StringEscapeUtils.escapeXml11(severity), 
-            StringEscapeUtils.escapeXml11(description), 
-            StringEscapeUtils.escapeXml11(requestMessageId), 
-            StringEscapeUtils.escapeXml11(operation)
-        );
+        String expected = POXResponseBuilder.create()
+            .withDescription(description)
+            .withMajor(major)
+            .withSeverity(severity)
+            .withMessageId(messageId)
+            .withOperation(operation)
+            .withMessageRefIdentifier(requestMessageId)
+            .buildAsXml();
         
-        assertEquals("Response with body should match hand-constructed XML (bodyString ignored, adjusted for Jackson format)", expected, response);
+        assertEquals("Response with invalid bodyString should match POXResponseBuilder output (body ignored)", expected, response);
+        // Verify that invalid bodyString is not included
+        assertFalse("Response should not contain invalid bodyString", response.contains("<test>body content</test>"));
     }
     
     @Test

@@ -332,6 +332,19 @@ public class POXRequestHandler {
         return getResponse(desc, null, null, null, minor, bodyString);
     }
 
+    /**
+     * Generate a success response with optional body content.
+     * 
+     * @param desc The description message for the response
+     * @param bodyString The XML string containing the response body. Must be valid POX response XML
+     *                   (e.g., &lt;readResultResponse&gt;...&lt;/readResultResponse&gt;,
+     *                   &lt;replaceResultResponse&gt;...&lt;/replaceResultResponse&gt;, or
+     *                   &lt;deleteResultResponse&gt;...&lt;/deleteResultResponse&gt;).
+     *                   The bodyXml will be parsed and included in the response regardless of the
+     *                   operation value, as long as it matches one of the known response types.
+     *                   If bodyString doesn't match known response types, it will be ignored.
+     * @return XML response string
+     */
     public String getResponseSuccess(String desc, String bodyString) {
         return getResponse(desc, POXConstants.MAJOR_SUCCESS, null, null, null, bodyString);
     }
