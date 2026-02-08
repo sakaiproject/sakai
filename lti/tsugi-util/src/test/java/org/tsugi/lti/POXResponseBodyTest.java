@@ -10,7 +10,6 @@ import org.tsugi.lti.objects.POXResponseBody;
 import org.tsugi.lti.objects.ReplaceResultResponse;
 import org.tsugi.lti.objects.ReadResultResponse;
 import org.tsugi.lti.objects.DeleteResultResponse;
-import org.tsugi.lti.objects.ReadMembershipResponse;
 import org.tsugi.lti.objects.Result;
 import org.tsugi.lti.objects.ResultScore;
 
@@ -82,7 +81,6 @@ public class POXResponseBodyTest {
         assertFalse("XML should not contain replaceResultResponse when null", xml.contains("<replaceResultResponse>"));
         assertFalse("XML should not contain readResultResponse when null", xml.contains("<readResultResponse>"));
         assertFalse("XML should not contain deleteResultResponse when null", xml.contains("<deleteResultResponse>"));
-        assertFalse("XML should not contain readMembershipResponse when null", xml.contains("<readMembershipResponse>"));
     }
     
     @Test
@@ -98,7 +96,6 @@ public class POXResponseBodyTest {
         assertNotNull("ReplaceResultResponse should not be null", body.getReplaceResultResponse());
         assertNull("ReadResultResponse should be null", body.getReadResultResponse());
         assertNull("DeleteResultResponse should be null", body.getDeleteResultResponse());
-        assertNull("ReadMembershipResponse should be null", body.getReadMembershipResponse());
     }
     
     @Test
