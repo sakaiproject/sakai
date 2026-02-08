@@ -819,6 +819,19 @@ public class ServiceServlet extends HttpServlet {
 		String result_resultdata_text = null;
 		String sourced_id = null;
 		
+		// Defensive null check for pox and pox.getPoxRequest()
+		if (pox == null) {
+			log.error("POXRequestHandler is null in processOutcomeXml");
+			doErrorXML(request, response, null, ERROR_POX_INVALID, "POX request handler is null", null);
+			return;
+		}
+		
+		if (pox.getPoxRequest() == null) {
+			log.error("POXRequestHandler.getPoxRequest() returned null in processOutcomeXml, pox={}", pox);
+			doErrorXML(request, response, pox, ERROR_POX_INVALID, "POX request is null", null);
+			return;
+		}
+		
 		POXRequestBody poxBody = pox.getPoxRequest().getPoxBody();
 		ResultRecord resultRecord = null;
 		

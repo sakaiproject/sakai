@@ -44,7 +44,10 @@ public class SourcedGUIDTest {
         String xml = XML_MAPPER.writeValueAsString(sourcedGUID);
         
         assertNotNull("XML should not be null", xml);
-        // sourcedId without @JsonInclude won't be serialized when null
+        // XmlMapper omits null values for XML serialization by default, so the sourcedId field
+        // (which is null) will not appear in the XML output. The assertion checks that
+        // xml.contains("<sourcedId>") is false, confirming the null sourcedId field is omitted.
+        // Note: @JsonInclude(NON_NULL) is what suppresses nulls in JSON serialization.
         assertFalse("XML should not contain sourcedId element when null", xml.contains("<sourcedId>"));
     }
     

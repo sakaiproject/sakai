@@ -311,9 +311,20 @@ public class POXJacksonTest {
         assertTrue("Response should contain description element", response.contains("imsx_description"));
         // Verify special characters are escaped in the XML (check for escaped forms)
         assertTrue("Response should contain escaped ampersand", response.contains("&amp;"));
-        // Less-than and greater-than must be escaped - check for escaped forms or verify XML is valid
-        assertTrue("Response should be valid XML with escaped characters", 
-            response.contains("&lt;") || response.contains("&gt;") || response.contains("special"));
+        // Extract description content to check for XML escaping of < and >
+        int start = response.indexOf("<imsx_description>");
+        int end = response.indexOf("</imsx_description>");
+        assertTrue(start >= 0 && end > start);
+        
+        String serializedDesc = response.substring(start, end);
+        
+        // Must escape '<' in text content
+        assertTrue("Expected '&lt;' in serialized description", serializedDesc.contains("&lt;"));
+        
+        // Do NOT require &gt; unless you deliberately escape it
+        // It's OK either way:
+        assertFalse("Raw '<' must not appear in serialized description text",
+                serializedDesc.contains("x < y"));  // or a stricter check, see below
     }
 
     @Test

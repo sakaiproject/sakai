@@ -250,19 +250,6 @@ public class IMSLTIv1p1Test {
     }
     
     /**
-     * Extract messageRefIdentifier from XML for comparison adjustment
-     */
-    private String extractMessageRefIdentifier(String xml) {
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(
-            "<imsx_messageRefIdentifier>([^<]+)</imsx_messageRefIdentifier>");
-        java.util.regex.Matcher matcher = pattern.matcher(xml);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
-    }
-    
-    /**
      * Test replaceResultRequest - matches example from Section 6.1.1 of
      * https://www.imsglobal.org/specs/ltiv1p1/implementation-guide
      */
@@ -320,29 +307,19 @@ public class IMSLTIv1p1Test {
         String specXml = specXml_6_1_1_replaceResultResponse;
         
         // Build using POXResponseBuilder
+        // Set messageRefIdentifier to reference the original request message ID (999999123)
         String generatedXml = POXResponseBuilder.create()
                 .withDescription("Score for 3124567 is now 0.92")
                 .asSuccess()
                 .withMessageId("4560")
+                .withMessageRefIdentifier("999999123")
                 .withOperation("replaceResult")
                 .withBodyObject(new ReplaceResultResponse())
                 .buildAsXml();
         
         // Normalize spec XML to Jackson style and compare
-        // Note: Spec shows messageRefIdentifier=999999123 (from request), but builder uses messageId
-        // This is acceptable - the builder's behavior is correct for generating new responses
         String normalizedSpec = normalizeToJacksonStyle(specXml);
         String normalizedGenerated = normalizeGeneratedXml(generatedXml);
-        
-        // For comparison, we need to allow messageRefIdentifier to differ (it's the response messageId)
-        // Replace messageRefIdentifier in spec with the generated one for comparison
-        String specMessageRef = extractMessageRefIdentifier(normalizedSpec);
-        String genMessageRef = extractMessageRefIdentifier(normalizedGenerated);
-        if (specMessageRef != null && genMessageRef != null && !specMessageRef.equals(genMessageRef)) {
-            normalizedSpec = normalizedSpec.replace(
-                "<imsx_messageRefIdentifier>" + specMessageRef + "</imsx_messageRefIdentifier>",
-                "<imsx_messageRefIdentifier>" + genMessageRef + "</imsx_messageRefIdentifier>");
-        }
         
         assertEquals("replaceResultResponse should match Section 6.1.1 example", 
                 normalizedSpec, normalizedGenerated);
@@ -408,10 +385,12 @@ public class IMSLTIv1p1Test {
         readResultResponse.setResult(result);
         
         // Build using POXResponseBuilder
+        // Set messageRefIdentifier to reference the original request message ID (999999123)
         String generatedXml = POXResponseBuilder.create()
                 .withDescription("Result read")
                 .asSuccess()
                 .withMessageId("1313355158804")
+                .withMessageRefIdentifier("999999123")
                 .withOperation("readResult")
                 .withBodyObject(readResultResponse)
                 .buildAsXml();
@@ -419,15 +398,6 @@ public class IMSLTIv1p1Test {
         // Normalize spec XML to Jackson style and compare
         String normalizedSpec = normalizeToJacksonStyle(specXml);
         String normalizedGenerated = normalizeGeneratedXml(generatedXml);
-        
-        // Adjust messageRefIdentifier if different (builder uses messageId)
-        String specMessageRef = extractMessageRefIdentifier(normalizedSpec);
-        String genMessageRef = extractMessageRefIdentifier(normalizedGenerated);
-        if (specMessageRef != null && genMessageRef != null && !specMessageRef.equals(genMessageRef)) {
-            normalizedSpec = normalizedSpec.replace(
-                "<imsx_messageRefIdentifier>" + specMessageRef + "</imsx_messageRefIdentifier>",
-                "<imsx_messageRefIdentifier>" + genMessageRef + "</imsx_messageRefIdentifier>");
-        }
         
         assertEquals("readResultResponse should match Section 6.1.2 example", 
                 normalizedSpec, normalizedGenerated);
@@ -485,10 +455,12 @@ public class IMSLTIv1p1Test {
         
         // Build using POXResponseBuilder
         // Note: Section 6.1.3 example doesn't include a description field
+        // Set messageRefIdentifier to reference the original request message ID (999999123)
         String generatedXml = POXResponseBuilder.create()
                 .withDescription(null)  // Explicitly null to match spec
                 .asSuccess()
                 .withMessageId("4560")
+                .withMessageRefIdentifier("999999123")
                 .withOperation("deleteResult")
                 .withBodyObject(new DeleteResultResponse())
                 .buildAsXml();
@@ -496,15 +468,6 @@ public class IMSLTIv1p1Test {
         // Normalize spec XML to Jackson style and compare
         String normalizedSpec = normalizeToJacksonStyle(specXml);
         String normalizedGenerated = normalizeGeneratedXml(generatedXml);
-        
-        // Adjust messageRefIdentifier if different (builder uses messageId)
-        String specMessageRef = extractMessageRefIdentifier(normalizedSpec);
-        String genMessageRef = extractMessageRefIdentifier(normalizedGenerated);
-        if (specMessageRef != null && genMessageRef != null && !specMessageRef.equals(genMessageRef)) {
-            normalizedSpec = normalizedSpec.replace(
-                "<imsx_messageRefIdentifier>" + specMessageRef + "</imsx_messageRefIdentifier>",
-                "<imsx_messageRefIdentifier>" + genMessageRef + "</imsx_messageRefIdentifier>");
-        }
         
         assertEquals("deleteResultResponse should match Section 6.1.3 example", 
                 normalizedSpec, normalizedGenerated);

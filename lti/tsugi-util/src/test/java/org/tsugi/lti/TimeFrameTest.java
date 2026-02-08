@@ -17,10 +17,11 @@ public class TimeFrameTest {
     private static final XmlMapper XML_MAPPER;
     
     static {
-        XML_MAPPER = new XmlMapper();
-        XML_MAPPER.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-        XML_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        XML_MAPPER.setDefaultUseWrapper(false);
+        XML_MAPPER = XmlMapper.builder()
+            .configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
+            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+            .defaultUseWrapper(false)
+            .build();
     }
     
     @Test

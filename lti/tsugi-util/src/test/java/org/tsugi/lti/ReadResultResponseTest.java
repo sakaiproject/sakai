@@ -91,8 +91,7 @@ public class ReadResultResponseTest {
      * Uses semantic equality checking by parsing the generated XML via XML_MAPPER
      * and verifying key elements (result/resultScore/language and textString) rather
      * than brittle string comparison that can fail due to Jackson injecting xmlns=""
-     * attributes. XmlNormalizationUtil.normalizeForComparison is referenced for
-     * potential future use if needed for normalization.
+     * attributes.
      */
     @Test
     public void testFactoryMethodMatchesSpec() throws Exception {
