@@ -1,0 +1,113 @@
+package org.tsugi.lti;
+
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.tsugi.lti.objects.POXEnvelopeRequest;
+import org.tsugi.lti.objects.POXRequestHeader;
+import org.tsugi.lti.objects.POXRequestHeaderInfo;
+import org.tsugi.lti.objects.POXRequestBody;
+import org.tsugi.lti.objects.ReadResultRequest;
+import org.tsugi.lti.objects.ResultRecord;
+import org.tsugi.lti.objects.SourcedGUID;
+
+/**
+ * Unit tests for POXEnvelopeRequest class.
+ */
+public class POXEnvelopeRequestTest {
+    
+    private static final XmlMapper XML_MAPPER = TestXmlMapperFactory.createXmlMapper();
+    
+    @Test
+    public void testSerializeWithHeaderAndBody() throws Exception {
+        POXEnvelopeRequest envelope = new POXEnvelopeRequest();
+        
+        POXRequestHeader header = new POXRequestHeader();
+        POXRequestHeaderInfo headerInfo = new POXRequestHeaderInfo();
+        headerInfo.setVersion("V1.0");
+        headerInfo.setMessageIdentifier("999999123");
+        header.setRequestHeaderInfo(headerInfo);
+        envelope.setPoxHeader(header);
+        
+        POXRequestBody body = new POXRequestBody();
+        ReadResultRequest request = new ReadResultRequest();
+        ResultRecord resultRecord = new ResultRecord();
+        SourcedGUID sourcedGUID = new SourcedGUID();
+        sourcedGUID.setSourcedId("123course456");
+        resultRecord.setSourcedGUID(sourcedGUID);
+        request.setResultRecord(resultRecord);
+        body.setReadResultRequest(request);
+        envelope.setPoxBody(body);
+        
+        String xml = XML_MAPPER.writeValueAsString(envelope);
+        
+        assertNotNull("XML should not be null", xml);
+        assertTrue("XML should contain POXHeader", xml.contains("imsx_POXHeader"));
+        assertTrue("XML should contain POXBody", xml.contains("imsx_POXBody"));
+        assertTrue("XML should contain version", xml.contains("V1.0"));
+        assertTrue("XML should contain sourcedId", xml.contains("123course456"));
+    }
+    
+    @Test
+    public void testDeserializeWithHeaderAndBody() throws Exception {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                     "<imsx_POXEnvelopeRequest xmlns=\"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">\n" +
+                     "<imsx_POXHeader>\n" +
+                     "<imsx_POXRequestHeaderInfo>\n" +
+                     "<imsx_version>V1.0</imsx_version>\n" +
+                     "<imsx_messageIdentifier>999999123</imsx_messageIdentifier>\n" +
+                     "</imsx_POXRequestHeaderInfo>\n" +
+                     "</imsx_POXHeader>\n" +
+                     "<imsx_POXBody>\n" +
+                     "<readResultRequest>\n" +
+                     "<resultRecord>\n" +
+                     "<sourcedGUID>\n" +
+                     "<sourcedId>123course456</sourcedId>\n" +
+                     "</sourcedGUID>\n" +
+                     "</resultRecord>\n" +
+                     "</readResultRequest>\n" +
+                     "</imsx_POXBody>\n" +
+                     "</imsx_POXEnvelopeRequest>";
+        
+        POXEnvelopeRequest envelope = XML_MAPPER.readValue(xml, POXEnvelopeRequest.class);
+        
+        assertNotNull("Envelope should not be null", envelope);
+        assertNotNull("POXHeader should not be null", envelope.getPoxHeader());
+        assertNotNull("POXBody should not be null", envelope.getPoxBody());
+        assertEquals("Version should match", "V1.0", envelope.getPoxHeader().getRequestHeaderInfo().getVersion());
+        assertNotNull("ReadResultRequest should not be null", envelope.getPoxBody().getReadResultRequest());
+        assertEquals("SourcedId should match", "123course456", envelope.getPoxBody().getReadResultRequest().getResultRecord().getSourcedGUID().getSourcedId());
+    }
+    
+    @Test
+    public void testRoundTripSerialization() throws Exception {
+        POXEnvelopeRequest original = new POXEnvelopeRequest();
+        
+        POXRequestHeader header = new POXRequestHeader();
+        POXRequestHeaderInfo headerInfo = new POXRequestHeaderInfo();
+        headerInfo.setVersion("V1.0");
+        headerInfo.setMessageIdentifier("123456789");
+        header.setRequestHeaderInfo(headerInfo);
+        original.setPoxHeader(header);
+        
+        POXRequestBody body = new POXRequestBody();
+        ReadResultRequest request = new ReadResultRequest();
+        ResultRecord resultRecord = new ResultRecord();
+        SourcedGUID sourcedGUID = new SourcedGUID();
+        sourcedGUID.setSourcedId("test-course");
+        resultRecord.setSourcedGUID(sourcedGUID);
+        request.setResultRecord(resultRecord);
+        body.setReadResultRequest(request);
+        original.setPoxBody(body);
+        
+        String xml = XML_MAPPER.writeValueAsString(original);
+        POXEnvelopeRequest deserialized = XML_MAPPER.readValue(xml, POXEnvelopeRequest.class);
+        
+        assertNotNull("Deserialized object should not be null", deserialized);
+        assertNotNull("POXHeader should not be null", deserialized.getPoxHeader());
+        assertNotNull("POXBody should not be null", deserialized.getPoxBody());
+        assertEquals("Version should match", original.getPoxHeader().getRequestHeaderInfo().getVersion(),
+                     deserialized.getPoxHeader().getRequestHeaderInfo().getVersion());
+    }
+}
