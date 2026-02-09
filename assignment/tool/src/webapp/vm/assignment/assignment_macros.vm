@@ -93,7 +93,8 @@
 
 ## Macro for the top nav bar HREF and #toolLink/#toolLinkParam
 #macro( navBarHREF $allowAddAssignment $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view $current )
-    <ul class="navIntraTool actionToolBar">
+    <div class="dropdown-toggle dropdown-navIntraTool">$!tlang.getString( "toolOptions" )</div>
+	<ul class="navIntraTool actionToolBar navIntraToolMobile">
         #set( $prevAction = false )
         <li #if( $prevAction == false ) class="firstToolBarItem" #set( $prevAction = true ) #end>
             #if( !$!view.equals( "lisofass1" ) )
