@@ -15,6 +15,8 @@ window.assignments.normalizeSearchText = function(text) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+let currentCustomSearchFunction = null;
+
 window.assignments.byStudent = {};
 
 window.assignments.byStudent.getCustomSearchKey = function(table) {
@@ -114,11 +116,13 @@ window.addEventListener("load", () => {
         searchInput.value = '';
       }
 
-      $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => 
-        !fn.name || fn.name !== 'assignmentsByStudentSearch'
-      );
+      if (currentCustomSearchFunction) {
+        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => 
+          fn !== currentCustomSearchFunction && !fn.__isAssignmentsByStudentSearch
+        );
+      }
 
-      const customSearchFunction = function assignmentsByStudentSearch(settings, searchData, index, rowData, counter) {
+      const customSearchFunction = function(settings, searchData, index, rowData, counter) {
         if (settings.nTable.id !== 'assignmentsByStudent') {
           return true;
         }
@@ -147,6 +151,9 @@ window.addEventListener("load", () => {
         });
       };
 
+      customSearchFunction.__isAssignmentsByStudentSearch = true;
+
+      currentCustomSearchFunction = customSearchFunction;
       $.fn.dataTable.ext.search.push(customSearchFunction);
 
       const handleSearch = function() {
