@@ -221,7 +221,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                         }
                     } else {
                         //this isn't realy possible since we looked up the peer assessments by submission id
-                        log.error("AssignmentPeerAssessmentServiceImpl: found a peer assessment with an invalid session id: {}", p.getId().getSubmissionId());
+                        log.error("AssignmentPeerAssessmentServiceImpl: found a peer assessment with an invalid submission id: {}", p.getId().getSubmissionId());
                     }
                 }
 
@@ -300,7 +300,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 
                 log.info("Peer assessment assignment completed for {}: {} submissions processed, {} reviews assigned, success: {}", opaqueContext, totalSubmissions, totalReviewsAssigned, success);
                 if (!success && totalReviewsAssigned == 0 && totalSubmissions > 0) {
-                    if (shouldScheduleRetry(assignment, totalSubmissions)) {
+                    if (shouldScheduleRetry(assignment)) {
                         log.warn("No reviews were assigned for assignment {} with {} submissions. Scheduling retry.", opaqueContext, totalSubmissions);
                         scheduleRetry(assignment);
                     } else {
@@ -317,7 +317,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 if (StringUtils.isNotBlank(opaqueContext)) {
                     Assignment assignment = assignmentService.getAssignment(opaqueContext);
                     if (assignment != null && assignment.getAllowPeerAssessment() && !assignment.getDraft()) {
-                        if (shouldScheduleRetry(assignment, totalSubmissions)) {
+                        if (shouldScheduleRetry(assignment)) {
                             log.debug("Scheduling retry for failed peer assessment assignment: {}", opaqueContext);
                             scheduleRetry(assignment);
                         }
@@ -645,7 +645,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
     /**
      * Checks if a retry should be scheduled based on retry count limit
      */
-    private boolean shouldScheduleRetry(Assignment assignment, int totalSubmissions) {
+    private boolean shouldScheduleRetry(Assignment assignment) {
         String retryCountKey = "peerAssessmentRetryCount_" + assignment.getId();
         String lastAttemptKey = "peerAssessmentLastAttempt_" + assignment.getId();
 
@@ -667,7 +667,8 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             try {
                 assignmentService.updateAssignment(assignment);
             } catch (Exception e) {
-                log.warn("Could not update assignment properties for retry tracking: {}", e.getMessage());
+                log.error("Could not update assignment properties for retry tracking: {}", e.getMessage());
+                return false;
             }
 
             return true;
