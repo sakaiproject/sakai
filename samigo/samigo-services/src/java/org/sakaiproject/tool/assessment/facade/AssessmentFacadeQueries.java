@@ -1713,6 +1713,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 				for (Entry<String, String> groupId : releaseToGroups.entrySet()) {
 					Group sourceGroup = sourceSite.getGroup(groupId.getKey());
+					if (sourceGroup == null) {
+						continue;
+					}
 					Optional<Group> existingGroup = targetGroups.stream().filter(g -> StringUtils.equals(g.getTitle(), sourceGroup.getTitle())).findAny();
 					Group targetGroup;
 					if (existingGroup.isPresent()) {
@@ -1724,8 +1727,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 						targetGroup.setDescription(sourceGroup.getDescription());
 						targetGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
 						groupsAuthorized.add(targetGroup.getId());
+						siteChanged = true;
                     }
-                    siteChanged = true;
                 }
 				if (siteChanged) {
 					try {
@@ -1735,9 +1738,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 					} catch (PermissionException ex) {
 						log.error("No permission to save site [{}] while importing groups", toContext);
 					}
-					for (String group : groupsAuthorized) {
-						authzQueriesFacadeAPI.createAuthorization(group, "TAKE_ASSESSMENT", assessmentId.toString());
-					}
+				}
+				for (String group : groupsAuthorized) {
+					authzQueriesFacadeAPI.createAuthorization(group, "TAKE_ASSESSMENT", assessmentId.toString());
 				}
 			}
 
@@ -1779,7 +1782,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			copiedCount++;
 			if (copiedCount % 10 == 0) {
 				getHibernateTemplate().flush();
-				getHibernateTemplate().clear();
 			}
 		}
 
@@ -2449,14 +2451,22 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			return releaseToGroupsByAssessmentId;
 		}
 
-		HibernateCallback<List<AuthorizationData>> hcb = session -> {
-			Query q = session.createQuery(
-					"select a from AuthorizationData a where a.functionId = :fid and a.qualifierId in (:ids)");
-			q.setParameter("fid", "TAKE_ASSESSMENT");
-			q.setParameterList("ids", assessmentIds);
-			return q.list();
-		};
-		List<AuthorizationData> authorizations = getHibernateTemplate().execute(hcb);
+		List<AuthorizationData> authorizations = new ArrayList<>();
+		final int batchSize = 500;
+		final String queryString = "select a from AuthorizationData a where a.functionId = :fid and a.qualifierId in (:ids)";
+		for (int i = 0; i < assessmentIds.size(); i += batchSize) {
+			final List<String> batch = assessmentIds.subList(i, Math.min(i + batchSize, assessmentIds.size()));
+			HibernateCallback<List<AuthorizationData>> hcb = session -> {
+				Query q = session.createQuery(queryString);
+				q.setParameter("fid", "TAKE_ASSESSMENT");
+				q.setParameterList("ids", batch);
+				return q.list();
+			};
+			List<AuthorizationData> batchAuthorizations = getHibernateTemplate().execute(hcb);
+			if (CollectionUtils.isNotEmpty(batchAuthorizations)) {
+				authorizations.addAll(batchAuthorizations);
+			}
+		}
 		if (CollectionUtils.isEmpty(authorizations)) {
 			return releaseToGroupsByAssessmentId;
 		}
