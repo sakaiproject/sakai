@@ -111,7 +111,7 @@ function printView(url) {
 						</form>
 					</div>
 					#if ($peerReviewDraftSkippedMessage)
-						<div class="sak-banner-info">$peerReviewDraftSkippedMessage</div>
+						<div class="sak-banner-info">$formattedText.escapeHtml($peerReviewDraftSkippedMessage)</div>
 					#end
 				</div>
 			#end

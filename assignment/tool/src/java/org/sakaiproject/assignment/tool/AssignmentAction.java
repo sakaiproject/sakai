@@ -14646,13 +14646,13 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (applyDefaultGrade || applyPeerReviewGrade) {
                         submission.setGrade(grade);
                         submission.setSubmitted(true);
-	                    submission.setGraded(true);
-	                    submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
-	                    try {
-	                        assignmentService.updateSubmission(submission);
-	                    } catch (PermissionException e) {
-	                        log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
-	                    }
+                        submission.setGraded(true);
+                        submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
+                        try {
+                            assignmentService.updateSubmission(submission);
+                        } catch (PermissionException e) {
+                            log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
+                        }
                     }
                 }
 
