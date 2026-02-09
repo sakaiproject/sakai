@@ -314,7 +314,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             log.error("Error during peer assessment assignment process for assignment {}: {}", opaqueContext, e.getMessage(), e);
 
             try {
-                if (!StringUtils.isBlank(opaqueContext)) {
+                if (StringUtils.isNotBlank(opaqueContext)) {
                     Assignment assignment = assignmentService.getAssignment(opaqueContext);
                     if (assignment != null && assignment.getAllowPeerAssessment() && !assignment.getDraft()) {
                         if (shouldScheduleRetry(assignment, totalSubmissions)) {
