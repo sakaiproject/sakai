@@ -107,7 +107,13 @@ window.addEventListener("load", () => {
 
       const customSearchKey = window.assignments.byStudent.getCustomSearchKey(table);
 
-      let cachedSearchTerm = localStorage.getItem(customSearchKey) || '';
+      let cachedSearchTerm = '';
+      try {
+        cachedSearchTerm = localStorage.getItem(customSearchKey) || '';
+      } catch (e) {
+        // localStorage may be disabled or unavailable, use empty default
+        console.warn('Failed to read from localStorage:', e);
+      }
 
       $(searchInput).off();
       searchInput.removeAttribute('data-dt-search');
@@ -128,7 +134,12 @@ window.addEventListener("load", () => {
         }
 
         if (counter === 0) {
-          const currentStoredValue = localStorage.getItem(customSearchKey) || '';
+          let currentStoredValue = '';
+          try {
+            currentStoredValue = localStorage.getItem(customSearchKey) || '';
+          } catch (e) {
+            // localStorage may be disabled, use cached value
+          }
           if (cachedSearchTerm !== currentStoredValue) {
             cachedSearchTerm = currentStoredValue;
             searchInput.value = currentStoredValue;
@@ -158,7 +169,12 @@ window.addEventListener("load", () => {
 
       const handleSearch = function() {
         cachedSearchTerm = this.value;
-        localStorage.setItem(customSearchKey, cachedSearchTerm);
+        try {
+          localStorage.setItem(customSearchKey, cachedSearchTerm);
+        } catch (e) {
+          // localStorage may be full or disabled, continue without persistence
+          console.warn('Failed to save search term to localStorage:', e);
+        }
         table.draw();
       };
 
