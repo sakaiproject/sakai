@@ -56,9 +56,9 @@ function printView(url) {
 		#set ($showMsg = $!allMsgNumber)
 		#if ($!showMsg || $showMsg != 0)
 		#if ($!typeOfGrade != 1)
-			<div class="navPanel">
-				<div class="viewNav">
-					#if(!$disableGrading)
+			#if(!$disableGrading)
+				<div class="navPanel">
+					<div class="viewNav">
 						<form id="defaultGradeForm" name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
 							<input type="hidden" name="$!form_action" value="setScore" />
 							<fieldset>
@@ -71,6 +71,11 @@ function printView(url) {
 									<label class="textPanelFooter">
 										<input type="checkbox" name="notSubmit" value="true" /> $tlang.getString("defaultGrade.notSubmit")<br />
 									</label>
+									#if ($assignment.AllowPeerAssessment)
+										<label class="textPanelFooter">
+											<input type="checkbox" name="notPeerReview" value="true" /> $tlang.getString("defaultGrade.notPeerReview")<br />
+										</label>
+									#end
 								</div>
 								<div class="flex-wrap">
 									#if ($!typeOfGrade != 3)
@@ -104,9 +109,12 @@ function printView(url) {
 								</div>
 							</fieldset>
 						</form>
+					</div>
+					#if ($peerReviewDraftSkippedMessage)
+						<div class="sak-banner-info">$peerReviewDraftSkippedMessage</div>
 					#end
 				</div>
-			</div>
+			#end
 		#end
 		<form name="viewForm" id="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input type="hidden" name="assignmentId" id = "assignmentId" value=$formattedText.escapeUrl($!assignmentReference) />

@@ -702,6 +702,7 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String GRADE_GREATER_THAN_MAX_ALERT = "grade_greater_than_max_alert";
 
     private static final String DEFAULT_GRADE = "defaultGrade";
+    private static final String STATE_PEER_REVIEW_DRAFT_SKIPPED_MESSAGE = "peer_review_draft_skipped_message";
     /**
      * The list view of assignments
      */
@@ -5340,6 +5341,12 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("download_url_link", downloadUrl);
             context.put("download_url_link_label", rb.getString("download_url_link_label"));
             state.removeAttribute(STATE_DOWNLOAD_URL);
+        }
+
+        String peerReviewDraftSkippedMessage = (String) state.getAttribute(STATE_PEER_REVIEW_DRAFT_SKIPPED_MESSAGE);
+        if (peerReviewDraftSkippedMessage != null) {
+            context.put("peerReviewDraftSkippedMessage", peerReviewDraftSkippedMessage);
+            state.removeAttribute(STATE_PEER_REVIEW_DRAFT_SKIPPED_MESSAGE);
         }
 
         // show "feedback saved" success messages if appropriate
@@ -14497,6 +14504,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String grade = StringUtils.trimToNull(params.getString(DEFAULT_GRADE));
         boolean checkNotGrade = params.getBoolean("notGrade");
         boolean checkNotSubmit = params.getBoolean("notSubmit");
+        boolean checkNotPeerReview = params.getBoolean("notPeerReview");
         if (grade == null) {
             addAlert(state, rb.getString("plespethe2"));
         }
@@ -14549,24 +14557,108 @@ public class AssignmentAction extends PagedResourceActionII {
                 // get the submission list
                 String aRef = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
                 List<AssignmentSubmission> submissions = getFilteredSubmitters(state, aRef);
+                List<String> draftSkipped = new ArrayList<>();
+
+                boolean isPeerReviewAssignment = a.getAllowPeerAssessment()
+                    && a.getPeerAssessmentStudentReview()
+                    && assignmentService.isPeerAssessmentClosed(a);
 
                 for (AssignmentSubmission submission : submissions) {
                     String sGrade = StringUtils.trimToNull(submission.getGrade());
-                    if (sGrade == null || !submission.getGraded()) {
-                        // update the grades for those existing non-submissions
-                        if ((checkNotGrade && sGrade == null && submission.getDateSubmitted() != null) || (checkNotSubmit && submission.getDateSubmitted() == null)) {
-                            submission.setGrade(grade);
-                            submission.setSubmitted(true);
-	                        submission.setGraded(true);
-	                        submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
-	                        try {
-	                            assignmentService.updateSubmission(submission);
-	                        } catch (PermissionException e) {
-	                            log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
-	                        }
 
+                    boolean applyDefaultGrade = false;
+                    if (checkNotGrade || checkNotSubmit) {
+                        if (sGrade == null || !submission.getGraded()) {
+                            // update the grades for those existing non-submissions
+                            applyDefaultGrade = (checkNotGrade && sGrade == null && submission.getDateSubmitted() != null)
+                                    || (checkNotSubmit && submission.getDateSubmitted() == null);
                         }
                     }
+
+                    boolean applyPeerReviewGrade = false;
+                    boolean skipPeerReviewDraft = false;
+                    if (checkNotPeerReview && isPeerReviewAssignment) {
+                        String assessorId = null;
+                        if (a.getIsGroup()) {
+                            assessorId = submission.getGroupId();
+                        } else if (submission.getSubmitters() != null && !submission.getSubmitters().isEmpty()) {
+                            Optional<AssignmentSubmissionSubmitter> submitter = submission.getSubmitters().stream()
+                                    .filter(AssignmentSubmissionSubmitter::getSubmittee)
+                                    .findFirst();
+                            if (submitter.isEmpty()) {
+                                submitter = submission.getSubmitters().stream().findAny();
+                            }
+                            if (submitter.isPresent()) {
+                                assessorId = submitter.get().getSubmitter();
+                            }
+                        }
+
+                        if (StringUtils.isNotBlank(assessorId)) {
+                            boolean hasDraft = false;
+                            boolean hasNotStarted = false;
+                            List<PeerAssessmentItem> peerItems = assignmentPeerAssessmentService.getPeerAssessmentItems(a.getId(), assessorId, a.getScaleFactor());
+                            if (peerItems != null && !peerItems.isEmpty()) {
+                                for (PeerAssessmentItem item : peerItems) {
+                                    if (Boolean.TRUE.equals(item.getRemoved()) || Boolean.TRUE.equals(item.getSubmitted())) {
+                                        continue;
+                                    }
+                                    String comment = StringUtils.trimToNull(item.getComment());
+                                    if (item.getScore() != null || comment != null) {
+                                        hasDraft = true;
+                                    } else {
+                                        hasNotStarted = true;
+                                    }
+                                }
+                            }
+
+                            if (hasNotStarted) {
+                                applyPeerReviewGrade = true;
+                            } else if (hasDraft) {
+                                skipPeerReviewDraft = true;
+                            }
+                        }
+                    }
+
+                    if (skipPeerReviewDraft) {
+                        String displayName = null;
+                        if (a.getIsGroup()) {
+                            String siteId = toolManager.getCurrentPlacement().getContext();
+                            try {
+                                Site site = siteService.getSite(siteId);
+                                Group group = site.getGroup(submission.getGroupId());
+                                if (group != null) {
+                                    displayName = group.getTitle();
+                                }
+                            } catch (IdUnusedException e) {
+                                log.warn("Could not resolve site for group submission: {}", e.getMessage());
+                            }
+                        } else {
+                            Optional<User> submitter = assignmentToolUtils.getSubmitters(submission).findFirst();
+                            if (submitter.isPresent()) {
+                                displayName = submitter.get().getDisplayName();
+                            }
+                        }
+                        if (StringUtils.isNotBlank(displayName) && !draftSkipped.contains(displayName)) {
+                            draftSkipped.add(displayName);
+                        }
+                    }
+
+                    if (applyDefaultGrade || applyPeerReviewGrade) {
+                        submission.setGrade(grade);
+                        submission.setSubmitted(true);
+	                    submission.setGraded(true);
+	                    submission.setGradedBy(userDirectoryService.getCurrentUser() == null ? null : userDirectoryService.getCurrentUser().getId());
+	                    try {
+	                        assignmentService.updateSubmission(submission);
+	                    } catch (PermissionException e) {
+	                        log.warn("Could not update submission: {}, {}", submission.getId(), e.getMessage());
+	                    }
+                    }
+                }
+
+                if (!draftSkipped.isEmpty()) {
+                    String message = rb.getFormattedMessage("peerassessment.defaultgrade.draft.skipped", String.join(", ", draftSkipped));
+                    state.setAttribute(STATE_PEER_REVIEW_DRAFT_SKIPPED_MESSAGE, message);
                 }
             }
         }

@@ -592,12 +592,15 @@
 		padding: 0.6em;
 	}
 
-	.sakai-asn-controlRow {
-		@include justify-content(space-between);
-		@include align-items(flex-end);
-		-webkit-flex-wrap: wrap;
-		flex-wrap: wrap;
-		grader-toggle { margin-left: 20px; }
+	.sakai-asn-controlRow > .navPanel {
+		padding: $standard-spacing;
+		margin-bottom: $standard-spacing;
+		border: 1px solid var(--sakai-border-color);
+		border-radius: $border-radius;
+
+		.sak-banner-info {
+			margin-bottom: 0;
+		}
 	}
 
 	#honor-pledge-agreement {
