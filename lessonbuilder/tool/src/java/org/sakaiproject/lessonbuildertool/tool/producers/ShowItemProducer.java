@@ -341,6 +341,16 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    List<UrlItem> createLinks = forumEntity.createNewUrls(simplePageBean);
 		    Integer i = new Integer(source.substring("CREATE/FORUM/".length()));
 		    source = createLinks.get(i).Url;
+		} else if (source.startsWith("CREATE/SCORM/")) {
+		    // walk the assignment entity chain to find the SCORM entity
+		    for (LessonEntity e = assignmentEntity; e != null; e = e.getNextEntity()) {
+			if ("sakai.scorm.helper".equals(e.getToolId())) {
+			    List<UrlItem> createLinks = e.createNewUrls(simplePageBean);
+			    Integer i = new Integer(source.substring("CREATE/SCORM/".length()));
+			    source = createLinks.get(i).Url;
+			    break;
+			}
+		    }
 		}
 	    } else if (item.getAttribute("multimediaUrl") != null)
 		source = item.getAttribute("multimediaUrl");

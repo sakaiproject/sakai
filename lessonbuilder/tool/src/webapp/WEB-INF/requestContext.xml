@@ -164,6 +164,16 @@
 		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
 
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ScormPickerProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ResourcePickerProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />

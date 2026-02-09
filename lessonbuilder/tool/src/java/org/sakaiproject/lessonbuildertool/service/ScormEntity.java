@@ -24,7 +24,6 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -56,6 +55,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
@@ -111,9 +111,6 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     static ContentPackageDao dao = null;
     static ScormResourceService scormResourceService = null;
     static ScormResultService scormResultService = null;
-
-    static OptSql optSql = null;
-    Method saveMethod = null;
 
     public void init () {
 	dao = (ContentPackageDao)ComponentManager.get("org.sakaiproject.scorm.dao.api.ContentPackageDao");
@@ -186,6 +183,14 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 
     public int getTypeOfGrade() {
 	return 1;
+    }
+
+    public boolean showAdditionalLink() {
+	return false;
+    }
+
+    public String getDescription() {
+	return "";
     }
 
   // hack for forums. not used for assessments, so always ok
@@ -312,7 +317,15 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
     // can't be null                                                                                                                         
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
-	return new ArrayList<UrlItem>();
+	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
+	if (dao == null)
+	    return list;
+	String tool = bean.getCurrentTool("sakai.scorm.tool");
+	if (tool != null) {
+	    String url = ServerConfigurationService.getToolUrl() + "/" + tool;
+	    list.add(new UrlItem(url, messageLocator.getMessage("simplepage.create_scorm")));
+	}
+	return list;
     }
 
 
@@ -408,6 +421,10 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 
     public String getSiteId() {
 	return null;
+    }
+
+    @Override
+    public void preShowItem(SimplePageItem simplePageItem) {
     }
 
 }

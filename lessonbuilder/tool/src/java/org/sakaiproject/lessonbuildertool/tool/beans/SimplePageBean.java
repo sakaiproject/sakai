@@ -245,6 +245,8 @@ public class SimplePageBean {
 
 	public String selectedQuiz = null;
 
+	public String selectedScorm = null;
+
 	public String[] selectedChecklistItems = new String[] {};
 
 	private Map<Long, SubpageBulkEditHelper> subpageBulkEditTitleMap = new HashMap<>();
@@ -3565,6 +3567,10 @@ public class SimplePageBean {
 		this.selectedQuiz = selectedQuiz;
 	}
 
+	public void setSelectedScorm(String selectedScorm) {
+		this.selectedScorm = selectedScorm;
+	}
+
 	public void setSelectedBlti(String selectedBlti) {
 		this.selectedBlti = selectedBlti;
 	}
@@ -4458,6 +4464,71 @@ public class SimplePageBean {
 			    return "failure";
 			} finally {
 			    selectedQuiz = null;
+			}
+		}
+	}
+
+    // called by add scorm dialog. Create a new item that points to a SCORM package
+    // or update an existing item, depending upon whether itemid is set
+
+	public String addScorm() {
+		if (!itemOk(itemId))
+		    return "permission-failed";
+		if (!canEditPage())
+		    return "permission-failed";
+		if (!checkCsrf())
+		    return "permission-failed";
+
+		if (selectedScorm == null) {
+			return "failure";
+		} else {
+			try {
+			    // use the assignment entity chain to resolve SCORM references
+			    LessonEntity selectedObject = assignmentEntity.getEntity(selectedScorm, this);
+			    if (selectedObject == null)
+				return "failure";
+
+			    // editing existing item?
+			    SimplePageItem i;
+			    if (itemId != null && itemId != -1) {
+				i = findItem(itemId);
+				// do getEntity/getreference to normalize, in case sakaiid is old format
+				LessonEntity existing = assignmentEntity.getEntity(i.getSakaiId(), this);
+				String ref = null;
+				if (existing != null)
+				    ref = existing.getReference();
+				// if same scorm package, nothing to do
+				if ((existing == null) || !ref.equals(selectedScorm)) {
+				    // if access controlled, clear restriction from old item and add to new
+				    if (i.isPrerequisite()) {
+					if (existing != null) {
+					    i.setPrerequisite(false);
+					    checkControlGroup(i, false);
+					}
+					// sakaiid and name are used in setting control
+					i.setSakaiId(selectedScorm);
+					i.setName(selectedObject.getTitle());
+					i.setPrerequisite(true);
+					checkControlGroup(i, true);
+				    } else {
+					i.setSakaiId(selectedScorm);
+					i.setName(selectedObject.getTitle());
+				    }
+				    // reset scorm-specific stuff
+				    i.setDescription("");
+
+				    update(i);
+				}
+			    } else { // no, add new item
+				i = appendItem(selectedScorm, selectedObject.getTitle(), SimplePageItem.ASSESSMENT);
+				saveItem(i);
+			    }
+			    return "success";
+			} catch (Exception ex) {
+			    log.error(ex.getMessage(), ex);
+			    return "failure";
+			} finally {
+			    selectedScorm = null;
 			}
 		}
 	}
