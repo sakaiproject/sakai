@@ -20,8 +20,8 @@ let currentCustomSearchFunction = null;
 window.assignments.byStudent = {};
 
 window.assignments.byStudent.getCustomSearchKey = function(table) {
-  const settings = table.settings()[0];
-  const stateKey = 'DataTables_' + settings.sInstance + '_' + window.location.pathname;
+  const tableId = table.table().node().id;
+  const stateKey = 'DataTables_' + tableId + '_' + window.location.pathname;
   return stateKey + '_customSearch';
 };
 
