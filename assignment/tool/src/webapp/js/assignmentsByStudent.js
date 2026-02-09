@@ -97,7 +97,11 @@ window.addEventListener("load", () => {
       }
       searchInput.hasCustomSearch = true;
 
-      let lastSearchTerm = '';
+      const settings = table.settings()[0];
+      const stateKey = 'DataTables_' + settings.sInstance + '_' + window.location.pathname;
+      const customSearchKey = stateKey + '_customSearch';
+      
+      const getSearchTerm = () => localStorage.getItem(customSearchKey) || '';
 
       $(searchInput).off();
       searchInput.removeAttribute('data-dt-search');
@@ -107,11 +111,12 @@ window.addEventListener("load", () => {
           return true;
         }
 
-        if (!lastSearchTerm || lastSearchTerm.trim() === '') {
+        const currentSearchTerm = getSearchTerm();
+        if (!currentSearchTerm || currentSearchTerm.trim() === '') {
           return true;
         }
 
-        const normalizedSearch = window.assignments.normalizeSearchText(lastSearchTerm);
+        const normalizedSearch = window.assignments.normalizeSearchText(currentSearchTerm);
 
         return searchData.some(cellData => {
           if (cellData && typeof cellData === 'string') {
@@ -126,7 +131,7 @@ window.addEventListener("load", () => {
       $.fn.dataTable.ext.search.push(customSearchFunction);
 
       const handleSearch = function() {
-        lastSearchTerm = this.value;
+        localStorage.setItem(customSearchKey, this.value);
         table.draw();
       };
 
@@ -140,8 +145,11 @@ window.addEventListener("load", () => {
       searchInput.addEventListener('keyup', handleSearch);
       searchInput.addEventListener('keydown', handleKeyDown);
 
-      if (searchInput.value) {
-        lastSearchTerm = searchInput.value;
+      const savedSearchTerm = getSearchTerm();
+      if (savedSearchTerm) {
+        table.one('draw.dt', function() {
+          searchInput.value = savedSearchTerm;
+        });
         table.draw();
       }
     }
