@@ -64,6 +64,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport implements AssignmentPeerAssessmentService {
 
+    private static final String PEER_ASSESSMENT_RETRY_COUNT_KEY = "peerAssessmentRetryCount";
+    private static final String PEER_ASSESSMENT_LAST_ATTEMPT_KEY = "peerAssessmentLastAttempt";
+
     private ScheduledInvocationManager scheduledInvocationManager;
     protected AssignmentService assignmentService;
     private SecurityService securityService = null;
@@ -646,12 +649,9 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
      * Checks if a retry should be scheduled based on retry count limit
      */
     private boolean shouldScheduleRetry(Assignment assignment) {
-        String retryCountKey = "peerAssessmentRetryCount_" + assignment.getId();
-        String lastAttemptKey = "peerAssessmentLastAttempt_" + assignment.getId();
-
         try {
             // Get current retry count from assignment properties
-            String retryCountStr = assignment.getProperties().get(retryCountKey);
+            String retryCountStr = assignment.getProperties().get(PEER_ASSESSMENT_RETRY_COUNT_KEY);
             int retryCount = retryCountStr != null ? Integer.parseInt(retryCountStr) : 0;
             int maxRetries = 5;
             if (retryCount >= maxRetries) {
@@ -660,8 +660,8 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             }
 
             // Increment retry count
-            assignment.getProperties().put(retryCountKey, String.valueOf(retryCount + 1));
-            assignment.getProperties().put(lastAttemptKey, String.valueOf(System.currentTimeMillis()));
+            assignment.getProperties().put(PEER_ASSESSMENT_RETRY_COUNT_KEY, String.valueOf(retryCount + 1));
+            assignment.getProperties().put(PEER_ASSESSMENT_LAST_ATTEMPT_KEY, String.valueOf(System.currentTimeMillis()));
 
             // Save the updated assignment properties
             try {
@@ -685,7 +685,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
     private void scheduleRetry(Assignment assignment) {
         try {
             // Get current retry count for exponential backoff
-            String retryCountStr = assignment.getProperties().get("peerAssessmentRetryCount_" + assignment.getId());
+            String retryCountStr = assignment.getProperties().get(PEER_ASSESSMENT_RETRY_COUNT_KEY);
             int retryCount = retryCountStr != null ? Integer.parseInt(retryCountStr) : 1;
 
             // Exponential backoff: 30 seconds * 2^(retryCount-1), max 10 minutes
@@ -707,18 +707,15 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
      */
     private void clearRetryCounters(Assignment assignment) {
         try {
-            String retryCountKey = "peerAssessmentRetryCount_" + assignment.getId();
-            String lastAttemptKey = "peerAssessmentLastAttempt_" + assignment.getId();
-
             boolean needsUpdate = false;
 
-            if (assignment.getProperties().get(retryCountKey) != null) {
-                assignment.getProperties().remove(retryCountKey);
+            if (assignment.getProperties().get(PEER_ASSESSMENT_RETRY_COUNT_KEY) != null) {
+                assignment.getProperties().remove(PEER_ASSESSMENT_RETRY_COUNT_KEY);
                 needsUpdate = true;
             }
 
-            if (assignment.getProperties().get(lastAttemptKey) != null) {
-                assignment.getProperties().remove(lastAttemptKey);
+            if (assignment.getProperties().get(PEER_ASSESSMENT_LAST_ATTEMPT_KEY) != null) {
+                assignment.getProperties().remove(PEER_ASSESSMENT_LAST_ATTEMPT_KEY);
                 needsUpdate = true;
             }
 
