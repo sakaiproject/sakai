@@ -15,33 +15,39 @@ window.assignments.normalizeSearchText = function(text) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+window.assignments.byStudent = {};
+
+window.assignments.byStudent.getCustomSearchKey = function(table) {
+  const settings = table.settings()[0];
+  const stateKey = 'DataTables_' + settings.sInstance + '_' + window.location.pathname;
+  return stateKey + '_customSearch';
+};
+
 // Assignments By Students "global" namespace
-window.assignments.byStudent = {
-  datatablesConfig: {
-    dom: '<<".dt-header-row"<".dt-header-slot">lf><t><".dt-footer-row"ip>>',
-    stateSave: true,
-    columnDefs: [
-      {
-        sortable: false,
-        targets: "no-sort",
-      },
-    ],
-    rowGroup: {
-      dataSrc(row) {
-        const dataCellHtml = row[0].display;
-        return parseDataCell(dataCellHtml).studentUserId;
-      },
-      startRender(rows, group) {
-        const firstRow = rows.data()[0];
-        const dataCellHtml = firstRow[0].display;
+window.assignments.byStudent.datatablesConfig = {
+  dom: '<<".dt-header-row"<".dt-header-slot">lf><t><".dt-footer-row"ip>>',
+  stateSave: true,
+  columnDefs: [
+    {
+      sortable: false,
+      targets: "no-sort",
+    },
+  ],
+  rowGroup: {
+    dataSrc(row) {
+      const dataCellHtml = row[0].display;
+      return parseDataCell(dataCellHtml).studentUserId;
+    },
+    startRender(rows, group) {
+      const firstRow = rows.data()[0];
+      const dataCellHtml = firstRow[0].display;
 
-        const data = parseDataCell(dataCellHtml);
+      const data = parseDataCell(dataCellHtml);
 
-        return renderGrouping(data);
-      },
+      return renderGrouping(data);
     },
   },
-}
+};
 
 // Private functions
 
@@ -97,26 +103,39 @@ window.addEventListener("load", () => {
       }
       searchInput.hasCustomSearch = true;
 
-      const settings = table.settings()[0];
-      const stateKey = 'DataTables_' + settings.sInstance + '_' + window.location.pathname;
-      const customSearchKey = stateKey + '_customSearch';
-      
-      const getSearchTerm = () => localStorage.getItem(customSearchKey) || '';
+      const customSearchKey = window.assignments.byStudent.getCustomSearchKey(table);
+
+      let cachedSearchTerm = localStorage.getItem(customSearchKey) || '';
 
       $(searchInput).off();
       searchInput.removeAttribute('data-dt-search');
 
-      const customSearchFunction = function(settings, searchData, index, rowData, counter) {
+      if (!cachedSearchTerm) {
+        searchInput.value = '';
+      }
+
+      $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => 
+        !fn.name || fn.name !== 'assignmentsByStudentSearch'
+      );
+
+      const customSearchFunction = function assignmentsByStudentSearch(settings, searchData, index, rowData, counter) {
         if (settings.nTable.id !== 'assignmentsByStudent') {
           return true;
         }
 
-        const currentSearchTerm = getSearchTerm();
-        if (!currentSearchTerm || currentSearchTerm.trim() === '') {
+        if (counter === 0) {
+          const currentStoredValue = localStorage.getItem(customSearchKey) || '';
+          if (cachedSearchTerm !== currentStoredValue) {
+            cachedSearchTerm = currentStoredValue;
+            searchInput.value = currentStoredValue;
+          }
+        }
+
+        if (!cachedSearchTerm || cachedSearchTerm.trim() === '') {
           return true;
         }
 
-        const normalizedSearch = window.assignments.normalizeSearchText(currentSearchTerm);
+        const normalizedSearch = window.assignments.normalizeSearchText(cachedSearchTerm);
 
         return searchData.some(cellData => {
           if (cellData && typeof cellData === 'string') {
@@ -131,7 +150,8 @@ window.addEventListener("load", () => {
       $.fn.dataTable.ext.search.push(customSearchFunction);
 
       const handleSearch = function() {
-        localStorage.setItem(customSearchKey, this.value);
+        cachedSearchTerm = this.value;
+        localStorage.setItem(customSearchKey, cachedSearchTerm);
         table.draw();
       };
 
@@ -142,13 +162,11 @@ window.addEventListener("load", () => {
       };
 
       searchInput.addEventListener('input', handleSearch);
-      searchInput.addEventListener('keyup', handleSearch);
       searchInput.addEventListener('keydown', handleKeyDown);
 
-      const savedSearchTerm = getSearchTerm();
-      if (savedSearchTerm) {
+      if (cachedSearchTerm) {
         table.one('draw.dt', function() {
-          searchInput.value = savedSearchTerm;
+          searchInput.value = cachedSearchTerm;
         });
         table.draw();
       }

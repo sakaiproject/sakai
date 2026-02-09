@@ -14,9 +14,7 @@
 		// Unfortunatly resetting the state requres creating a temporary instance
 		if ("$!resetTableState" != "false") {
 			let tempDatatable = table.DataTable();
-			const settings = tempDatatable.settings()[0];
-			const stateKey = 'DataTables_' + settings.sInstance + '_' + window.location.pathname;
-			const customSearchKey = stateKey + '_customSearch';
+			const customSearchKey = assignments.byStudent.getCustomSearchKey(tempDatatable);
 			localStorage.removeItem(customSearchKey);
 			tempDatatable.state.clear();
 			tempDatatable.destroy();
