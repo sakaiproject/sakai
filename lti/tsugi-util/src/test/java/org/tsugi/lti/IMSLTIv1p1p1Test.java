@@ -4,7 +4,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.tsugi.lti.objects.*;
-import org.tsugi.pox.POXResponseBuilder;
+import org.tsugi.lti.POXResponseBuilder;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 /**
