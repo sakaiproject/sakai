@@ -39,6 +39,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -84,6 +86,8 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 	@Setter
 	private AuthzGroupService authzGroupService;
 	@Setter
+	private SessionManager sessionManager;
+	@Setter
 	private SiteService siteService;
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
@@ -123,39 +127,50 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 
 	@Override
 	public void execute(String opaqueContext) {
-		Long messageId = Long.parseLong(opaqueContext);
-		PrivateMessage pvtMsg = (PrivateMessage) prtMsgManager.getMessageById(messageId);
 
-		Map<User, Boolean> recipients = getRecipients(pvtMsg);
+		Session session = sessionManager.getCurrentSession();
+		session.setUserEid("admin");
+		session.setUserId("admin");
 
-		pvtMsg.setScheduler(false);
-		pvtMsg.setDraft(false);
-
-		prtMsgManager.sendPrivateMessage(pvtMsg, recipients, pvtMsg.getExternalEmail(), false);
-
-		// if you are sending a reply
-		Message replying = pvtMsg.getInReplyTo();
-		if (replying != null) {
-			replying = prtMsgManager.getMessageById(replying.getId());
-			if (replying != null) {
-				prtMsgManager.markMessageAsRepliedForUser((PrivateMessage) replying, pvtMsg.getCreatedBy());
-			}
-		}
-
-		synopticMsgcntrManager.incrementSynopticToolInfo(recipients.keySet(), pvtMsg, false);
-
-		LRS_Statement statement = null;
 		try {
-			statement = prtMsgManager.getStatementForUserSentPvtMsg(pvtMsg.getTitle(), SAKAI_VERB.shared, pvtMsg);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			Long messageId = Long.parseLong(opaqueContext);
+			PrivateMessage pvtMsg = (PrivateMessage) prtMsgManager.getMessageById(messageId);
+
+			Map<User, Boolean> recipients = getRecipients(pvtMsg);
+
+			pvtMsg.setScheduler(false);
+			pvtMsg.setDraft(false);
+
+			prtMsgManager.sendPrivateMessage(pvtMsg, recipients, pvtMsg.getExternalEmail(), false);
+
+			// if you are sending a reply
+			Message replying = pvtMsg.getInReplyTo();
+			if (replying != null) {
+				replying = prtMsgManager.getMessageById(replying.getId());
+				if (replying != null) {
+					prtMsgManager.markMessageAsRepliedForUser((PrivateMessage) replying, pvtMsg.getCreatedBy());
+				}
+			}
+
+			synopticMsgcntrManager.incrementSynopticToolInfo(recipients.keySet(), pvtMsg, false);
+
+			LRS_Statement statement = null;
+			try {
+				statement = prtMsgManager.getStatementForUserSentPvtMsg(pvtMsg.getTitle(), SAKAI_VERB.shared, pvtMsg);
+			} catch (Exception e) {
+				log.warn(e.getMessage(), e);
+			}
+			Event event = eventTrackingService.newEvent(replying != null ? DiscussionForumService.EVENT_MESSAGES_RESPONSE : DiscussionForumService.EVENT_MESSAGES_ADD,
+					prtMsgManager.getEventMessage(pvtMsg, DiscussionForumService.MESSAGES_TOOL_ID, pvtMsg.getAuthorId(),
+							((PrivateMessageRecipientImpl) pvtMsg.getRecipients().get(0)).getContextId()),
+					((PrivateMessageRecipientImpl) pvtMsg.getRecipients().get(0)).getContextId(), true,
+					NotificationService.NOTI_OPTIONAL, statement);
+			eventTrackingService.post(event);
+		} finally {
+			session.clear();
+			session.setUserEid(null);
+			session.setUserId(null);
 		}
-		Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE,
-				prtMsgManager.getEventMessage(pvtMsg, DiscussionForumService.MESSAGES_TOOL_ID, pvtMsg.getAuthorId(),
-						((PrivateMessageRecipientImpl) pvtMsg.getRecipients().get(0)).getContextId()),
-				((PrivateMessageRecipientImpl) pvtMsg.getRecipients().get(0)).getContextId(), true,
-				NotificationService.NOTI_OPTIONAL, statement);
-		eventTrackingService.post(event);
 	}
 
 	/**
