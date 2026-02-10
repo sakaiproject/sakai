@@ -50,7 +50,7 @@ import net.oauth.signature.OAuthSignatureMethod;
 
 import org.tsugi.lti.LTIConstants;
 import org.tsugi.lti.LTIUtil;
-import org.tsugi.lti.MessageResponseBuilder;
+import org.tsugi.lti.FormResponseBuilder;
 import org.tsugi.lti.POXJacksonParser;
 import org.tsugi.lti.objects.Groups;
 import org.tsugi.lti.objects.DeleteResultResponse;
@@ -61,7 +61,7 @@ import org.tsugi.lti.objects.ResultData;
 import org.tsugi.lti.objects.ResultRecord;
 import org.tsugi.lti.objects.ResultScore;
 import org.tsugi.lti.objects.POXRequestBody;
-import org.tsugi.pox.POXRequestHandler;
+import org.tsugi.lti.POXRequestHandler;
 import org.tsugi.lti13.LTI13ConstantsUtil;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
@@ -130,7 +130,7 @@ public class ServiceServlet extends HttpServlet {
 	private static final String ERROR_POX_INVALID = "pox.invalid";
 	private static final String ERROR_MEMBERSHIPS_FAIL = "memberships.fail";
 
-	public void doError(HttpServletRequest request,HttpServletResponse response,
+	public void doErrorForm(HttpServletRequest request,HttpServletResponse response,
 			String s, String message, Exception e)
 	throws java.io.IOException
 	{
@@ -140,7 +140,7 @@ public class ServiceServlet extends HttpServlet {
 		String msg = rb.getString(s) + ": " + message;
 		log.info("{}", msg);
 		
-		String theXml = MessageResponseBuilder.error(msg)
+		String theXml = FormResponseBuilder.error(msg)
 			.buildAsXml(true);
 		
 		PrintWriter out = response.getWriter();
@@ -176,15 +176,11 @@ public class ServiceServlet extends HttpServlet {
 
 		log.debug("LTI Service Form request from IP={}", ipAddress);
 
-		String allowOutcomes = ServerConfigurationService.getString(
-				SakaiLTIUtil.LTI_OUTCOMES_ENABLED, SakaiLTIUtil.LTI_OUTCOMES_ENABLED_DEFAULT);
-		if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
-
 		String allowRoster = ServerConfigurationService.getString(
 				SakaiLTIUtil.LTI_ROSTER_ENABLED, SakaiLTIUtil.LTI_ROSTER_ENABLED_DEFAULT);
 		if ( ! "true".equals(allowRoster) ) allowRoster = null;
 
-		if (allowOutcomes == null && allowRoster == null ) {
+		if (allowRoster == null ) {
 			log.warn("LTI Services are disabled IP={}", ipAddress);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
@@ -199,31 +195,17 @@ public class ServiceServlet extends HttpServlet {
 		String lti_message_type = request.getParameter(LTIConstants.LTI_MESSAGE_TYPE);
 		String sourcedid = null;
 		String message_type = null;
-		if( LTIUtil.equals(lti_message_type, "basic-lis-replaceresult") ||
-			LTIUtil.equals(lti_message_type, "basic-lis-createresult") ||
-			LTIUtil.equals(lti_message_type, "basic-lis-updateresult") ||
-			LTIUtil.equals(lti_message_type, "basic-lis-deleteresult") ||
-			LTIUtil.equals(lti_message_type, "basic-lis-readresult") ) {
-			sourcedid = request.getParameter("sourcedid");
-			if ( allowOutcomes != null ) message_type = "basicoutcome";
-		} else if( LTIUtil.equals(lti_message_type, "basic-lis-readmembershipsforcontext") ) {
+		if ( LTIUtil.equals(lti_message_type, "basic-lis-readmembershipsforcontext") ) {
 			sourcedid = request.getParameter("id");
 			if ( allowRoster != null ) message_type = "roster";
 		} else {
-			doError(request, response, ERROR_SERVICE_INVALID, "lti_message_type:"+lti_message_type, null);
+			doErrorForm(request, response, ERROR_SERVICE_INVALID, "lti_message_type:"+lti_message_type, null);
 			return;
 		}
 
 		// If we have not gotten one of our allowed message types, stop now
 		if ( message_type == null ) {
-			doError(request, response, ERROR_SERVICE_INVALID, "lti_message_type="+lti_message_type, null);
-			return;
-		}
-
-		// This is for the pre-LTI 1.x "Sakai Basic Outcomes" and is probably never used
-		// Perform the Outcome here because we use SakaiLTIUtil.handleGradebook()
-		if ( "basicoutcome".equals(message_type) ) {
-			processOutcome(request, response, lti_message_type, sourcedid);
+			doErrorForm(request, response, ERROR_SERVICE_INVALID, "lti_message_type="+lti_message_type, null);
 			return;
 		}
 
@@ -253,7 +235,7 @@ public class ServiceServlet extends HttpServlet {
 				}
 			}
 			if(LTIUtil.isBlank(oauth_consumer_key)) {
-				doError(request, response, ERROR_OUTCOMES_MISSING, "oauth_consumer_key", null);
+				doErrorForm(request, response, ERROR_OUTCOMES_MISSING, "oauth_consumer_key", null);
 				return;
 			}
 		}
@@ -284,7 +266,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a more generic message back to the caller
 		if ( placement_id == null || user_id == null ) {
-			doError(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
+			doErrorForm(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -307,7 +289,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a more generic message back to the caller
 		if (  site == null ) {
-			doError(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
+			doErrorForm(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -341,7 +323,7 @@ public class ServiceServlet extends HttpServlet {
 			if (base_string != null) {
 				log.warn(base_string);
 			}
-			doError(request, response, ERROR_OUTCOME_NO_VALIDATE, oauth_consumer_key, null);
+			doErrorForm(request, response, ERROR_OUTCOME_NO_VALIDATE, oauth_consumer_key, null);
 			return;
 		}
 
@@ -350,7 +332,7 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a generic message back to the caller
 		if ( placement_secret == null ) {
-			doError(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
+			doErrorForm(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
@@ -369,85 +351,11 @@ public class ServiceServlet extends HttpServlet {
 
 		// Send a message back to the caller
 		if ( ! matched ) {
-			doError(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
+			doErrorForm(request, response, ERROR_OUTCOMES_SOURCEDID, "sourcedid", null);
 			return;
 		}
 
 		if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement_id, normalProps, user_id);
-	}
-
-	protected void processOutcome(HttpServletRequest request, HttpServletResponse response,
-			String lti_message_type, String sourcedid)
-		throws java.io.IOException
-	{
-		// Things look good - time to process the grade
-		boolean isRead = LTIUtil.equals(lti_message_type, "basic-lis-readresult");
-		boolean isDelete = LTIUtil.equals(lti_message_type, "basic-lis-deleteresult");
-
-		String result_resultscore_textstring = request.getParameter("result_resultscore_textstring");
-		String result_resultdata_text = request.getParameter("result_resultdata_text");
-
-		if(LTIUtil.isBlank(result_resultscore_textstring) && ! isRead ) {
-			doError(request, response, ERROR_OUTCOMES_MISSING, "result_resultscore_textstring", null);
-			return;
-		}
-
-		String resultScore = null;
-		String resultData = null;
-		boolean success = false;
-		Object retval = null;
-
-		try {
-			Double dGrade;
-			if ( isRead ) {
-				retval = SakaiLTIUtil.getGrade(sourcedid, request, ltiService);
-				if ( retval instanceof Map ) {
-					Map grade = (Map) retval;
-					dGrade = (Double) grade.get("grade");
-					resultScore = dGrade.toString();
-					resultData = (String) grade.get("comment");
-				} else {
-					// Read fail with Good SourceDID is treated as empty
-					Object check = SakaiLTIUtil.checkSourceDid(sourcedid, request, ltiService);
-					if ( check instanceof Boolean && ((Boolean) check) ) {
-						resultScore = "";
-						resultData = "";
-					} else {
-						doError(request, response, ERROR_OUTCOME_FAIL, (String) retval, null);
-						return;
-					}
-				}
-		    } else if ( isDelete ) {
-				retval = SakaiLTIUtil.deleteGrade(sourcedid, request, ltiService);
-				if (retval instanceof String) {
-					doError(request, response, ERROR_OUTCOME_FAIL, (String) retval, null);
-					return;
-				}
-			} else {
-				dGrade = new Double(result_resultscore_textstring);
-				retval = SakaiLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
-				if (retval instanceof String) {
-					doError(request, response, ERROR_OUTCOME_FAIL, (String) retval, null);
-					return;
-				}
-			}
-			success = true;
-		} catch (Exception e) {
-			doError(request, response, ERROR_OUTCOME_GRADE_FAIL, "", e);
-		}
-
-		if ( ! success ) return;
-
-		MessageResponseBuilder builder = MessageResponseBuilder.success()
-			.withLtiMessageType(lti_message_type);
-		
-		if (resultScore != null) {
-			builder.withResult(resultScore, resultData);
-		}
-		
-		String theXml = builder.buildAsXml(true);
-		PrintWriter out = response.getWriter();
-		out.println(theXml);
 	}
 
 	protected void processRoster(HttpServletRequest request, HttpServletResponse response,
@@ -461,7 +369,7 @@ public class ServiceServlet extends HttpServlet {
 		// Check for permission in placement
 		String allowRoster = normalProps.getProperty(LTI_PORTLET_ALLOWROSTER);
 		if ( ! LTI_PORTLET_ON.equals(allowRoster) ) {
-			doError(request, response, ERROR_SERVICE_NOTALLOWED, "lti_message_type="+lti_message_type, null);
+			doErrorForm(request, response, ERROR_SERVICE_NOTALLOWED, "lti_message_type="+lti_message_type, null);
 			return;
 		}
 
@@ -477,9 +385,9 @@ public class ServiceServlet extends HttpServlet {
 
 		SakaiLTIUtil.pushAdvisor();
 		boolean success = false;
-		MessageResponseBuilder builder = null;
+		FormResponseBuilder builder = null;
 		try {
-			builder = MessageResponseBuilder.success()
+			builder = FormResponseBuilder.success()
 				.withLtiMessageType(lti_message_type);
 			
 			Map<String, String> toolRoleMap = SakaiLTIUtil.convertOutboundRoleMapPropToMap(roleMapProp);
@@ -534,7 +442,7 @@ public class ServiceServlet extends HttpServlet {
 				// should be roles. If we can determine that nobody is using
 				// the role tag, we should remove it.
 
-				org.tsugi.lti.objects.Member ltiMember = MessageResponseBuilder.createMember(
+				org.tsugi.lti.objects.Member ltiMember = FormResponseBuilder.createMember(
 					ims_user_id, ims_role);
 				
 				if ( "true".equals(allowOutcomes) && assignment != null ) {
@@ -561,7 +469,7 @@ public class ServiceServlet extends HttpServlet {
 					List<org.tsugi.lti.objects.Group> lgm = new ArrayList<>();
 					for (Object groupObj : groups) {
 						org.sakaiproject.site.api.Group group = (org.sakaiproject.site.api.Group) groupObj;
-						org.tsugi.lti.objects.Group ltiGroup = MessageResponseBuilder.createGroup(
+						org.tsugi.lti.objects.Group ltiGroup = FormResponseBuilder.createGroup(
 							group.getId(), group.getTitle());
 						lgm.add(ltiGroup);
 					}
@@ -574,7 +482,7 @@ public class ServiceServlet extends HttpServlet {
 			}
 			success = true;
 		} catch (Exception e) {
-			doError(request, response, ERROR_MEMBERSHIPS_FAIL, "", e);
+			doErrorForm(request, response, ERROR_MEMBERSHIPS_FAIL, "", e);
 		} finally {
 			SakaiLTIUtil.popAdvisor();
 		}

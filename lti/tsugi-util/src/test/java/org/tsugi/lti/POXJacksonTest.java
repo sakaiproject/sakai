@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.tsugi.lti.objects.*;
-import org.tsugi.pox.POXResponseFactory;
+import org.tsugi.lti.POXResponseHelper;
 
 public class POXJacksonTest {
 
@@ -166,7 +166,7 @@ public class POXJacksonTest {
 
     @Test
     public void testCreateSuccessResponse() {
-        String response = POXResponseFactory.createSuccessResponse("Success", "123", "testOp");
+        String response = POXResponseHelper.createSuccessResponse("Success", "123", "testOp");
         
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain success", response.contains("success"));
@@ -180,7 +180,7 @@ public class POXJacksonTest {
         minorCodes.setProperty("error1", "invaliddata");
         minorCodes.setProperty("error2", "incompletedata");
         
-        String response = POXResponseFactory.createFailureResponse("Failure", minorCodes, "123", "testOp");
+        String response = POXResponseHelper.createFailureResponse("Failure", minorCodes, "123", "testOp");
         
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain failure", response.contains("failure"));
@@ -190,7 +190,7 @@ public class POXJacksonTest {
 
     @Test
     public void testCreateUnsupportedResponse() {
-        String response = POXResponseFactory.createUnsupportedResponse("Unsupported", "123", "testOp");
+        String response = POXResponseHelper.createUnsupportedResponse("Unsupported", "123", "testOp");
         
         assertNotNull("Response should not be null", response);
         assertTrue("Response should contain unsupported", response.contains("unsupported"));
@@ -244,7 +244,7 @@ public class POXJacksonTest {
         minorCodes.setProperty("field1", "invaliddata");
         minorCodes.setProperty("field2", "incompletedata");
         
-        String response = POXResponseFactory.createCustomResponse("Test", "failure", "error", "123", "testOp", 
+        String response = POXResponseHelper.createCustomResponse("Test", "failure", "error", "123", "testOp", 
                                                         minorCodes);
         
         assertNotNull("Response should not be null", response);
@@ -255,7 +255,7 @@ public class POXJacksonTest {
     @Test
     public void testCreateResponse_WithSpecialCharacters() {
         String description = "Test with <special> & \"characters\"";
-        String response = POXResponseFactory.createCustomResponse(description, "failure", "error", "123", "testOp", 
+        String response = POXResponseHelper.createCustomResponse(description, "failure", "error", "123", "testOp", 
                                                         null);
         
         assertNotNull("Response should not be null", response);

@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.tsugi.lti.objects.*;
-import org.tsugi.pox.POXConstants;
-import org.tsugi.pox.POXResponseBuilder;
-import org.tsugi.pox.POXResponseFactory;
+import org.tsugi.lti.POXConstants;
+import org.tsugi.lti.POXResponseBuilder;
+import org.tsugi.lti.POXResponseHelper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -271,7 +271,7 @@ public class POXJacksonParser {
      */
     public static String createResponseWithMinorFields(String description, String major, String severity, 
                                                      String messageId, String operation, List<POXCodeMinorField> minorFields) {
-        return POXResponseFactory.createResponseWithMinorFields(description, major, severity, 
+        return POXResponseHelper.createResponseWithMinorFields(description, major, severity, 
                 messageId, operation, minorFields);
     }
     
