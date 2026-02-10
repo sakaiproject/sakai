@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.sakaiproject.site.api.Site;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -544,6 +545,19 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     void filterContent(Map<String, Object> content, Map<String, Object> tool);
 
+    /**
+     * Bean overload: filter content using tool/content beans (delegates to Map version).
+     * Obtains content map, filters in place, then persists filtered values back to the bean.
+     */
+    default void filterContent(org.sakaiproject.lti.beans.LtiContentBean content, org.sakaiproject.lti.beans.LtiToolBean tool) {
+        if (content == null) {
+            return;
+        }
+        Map<String, Object> contentMap = content.asMap();
+        Map<String, Object> toolMap = (tool != null) ? tool.asMap() : null;
+        filterContent(contentMap, toolMap);
+        content.applyFromMap(contentMap);
+    }
 
     // These can be static and moved to the tool, or at least split off into a Foorm UI
 
@@ -568,6 +582,13 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param filter The filter to remove.
      */
     void removePropertiesFilter(LTISubstitutionsFilter filter);
+
+    /**
+     * Bean overload: filter custom substitutions using tool bean (delegates to Map version).
+     */
+    default void filterCustomSubstitutions(Properties properties, org.sakaiproject.lti.beans.LtiToolBean tool, Site site) {
+        filterCustomSubstitutions(properties, tool != null ? tool.asMap() : null, site);
+    }
 
     List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId);
 
@@ -600,13 +621,30 @@ public interface LTIService extends LTISubstitutionsFilter {
     Element archiveContentByKey(Document doc, Long contentKey, String siteId);
 
     /**
-     * Extract a tool and content from an LTI content element in XML
+     * Extract a tool and content from an LTI content element in XML.
+     * Primary overload; populates the beans in place.
      *
      * @param  element  The sakai-lti-content tag
-     * @param  content  An empty map to return the content item
-     * @param  tool  An empty map to return the tool associated with content item
+     * @param  content  Bean to populate with content (may be null to skip)
+     * @param  tool  Bean to populate with nested tool (may be null to skip)
      */
-    void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool);
+    void mergeContent(Element element, org.sakaiproject.lti.beans.LtiContentBean content, org.sakaiproject.lti.beans.LtiToolBean tool);
+
+    /**
+     * Extract a tool and content from an LTI content element in XML.
+     * Shims to bean overload; populates the maps.
+     */
+    default void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool) {
+        org.sakaiproject.lti.beans.LtiContentBean contentBean = new org.sakaiproject.lti.beans.LtiContentBean();
+        org.sakaiproject.lti.beans.LtiToolBean toolBean = new org.sakaiproject.lti.beans.LtiToolBean();
+        mergeContent(element, contentBean, toolBean);
+        if (content != null) {
+            content.putAll(contentBean.asMap());
+        }
+        if (tool != null) {
+            tool.putAll(toolBean.asMap());
+        }
+    }
 
     /**
      * Import a content item and link it to an existing or new tool
@@ -906,6 +944,43 @@ public interface LTIService extends LTISubstitutionsFilter {
      */
     default List<org.sakaiproject.lti.beans.LtiContentBean> getContentBeans(String search, String order, int first, int last, String siteId) {
         List<Map<String, Object>> contentMaps = getContents(search, order, first, last, siteId);
+        List<org.sakaiproject.lti.beans.LtiContentBean> contentBeans = new java.util.ArrayList<>();
+        for (Map<String, Object> contentMap : contentMaps) {
+            contentBeans.add(org.sakaiproject.lti.beans.LtiContentBean.of(contentMap));
+        }
+        return contentBeans;
+    }
+
+    /**
+     * Get a list of LTI content items as Beans (DAO access, bypasses security).
+     * @param search Search criteria
+     * @param order Sort order
+     * @param first First result index
+     * @param last Last result index
+     * @param siteId The site ID
+     * @return List of LtiContentBean objects
+     */
+    default List<org.sakaiproject.lti.beans.LtiContentBean> getContentsDaoAsBeans(String search, String order, int first, int last, String siteId) {
+        List<Map<String, Object>> contentMaps = getContentsDao(search, order, first, last, siteId);
+        List<org.sakaiproject.lti.beans.LtiContentBean> contentBeans = new java.util.ArrayList<>();
+        for (Map<String, Object> contentMap : contentMaps) {
+            contentBeans.add(org.sakaiproject.lti.beans.LtiContentBean.of(contentMap));
+        }
+        return contentBeans;
+    }
+
+    /**
+     * Get a list of LTI content items as Beans (DAO access, bypasses security).
+     * @param search Search criteria
+     * @param order Sort order
+     * @param first First result index
+     * @param last Last result index
+     * @param siteId The site ID
+     * @param isAdminRole Whether to bypass security checks
+     * @return List of LtiContentBean objects
+     */
+    default List<org.sakaiproject.lti.beans.LtiContentBean> getContentsDaoAsBeans(String search, String order, int first, int last, String siteId, boolean isAdminRole) {
+        List<Map<String, Object>> contentMaps = getContentsDao(search, order, first, last, siteId, isAdminRole);
         List<org.sakaiproject.lti.beans.LtiContentBean> contentBeans = new java.util.ArrayList<>();
         for (Map<String, Object> contentMap : contentMaps) {
             contentBeans.add(org.sakaiproject.lti.beans.LtiContentBean.of(contentMap));

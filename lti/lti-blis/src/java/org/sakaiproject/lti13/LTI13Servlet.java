@@ -1388,7 +1388,7 @@ public class LTI13Servlet extends HttpServlet {
 		int paging = NumberUtils.toInt(pagingstr, -1);
 		if ( paging > 0 && ( limit < 0 || limit > paging ) ) limit = paging;
 
-		// int allowOutcomes = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+		// int allowOutcomes = (tool.allowoutcomes != null && Boolean.TRUE.equals(tool.allowoutcomes)) ? 1 : 0;
 
 		/* SAK-47261 - Scope NRPS to Context, not Resource Link
 		String assignment_name = (String) content.title;

@@ -51,6 +51,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 // lti service
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.beans.LtiContentBean;
 import org.sakaiproject.lti.util.SakaiLTIUtil;
 import org.sakaiproject.portlet.util.JSPHelper;
 import org.sakaiproject.portlet.util.VelocityHelper;
@@ -314,9 +315,9 @@ public class SakaiIFrame extends GenericPortlet {
 		}
 
 		Long contentKey = (Long) retval;
-		Map<String,Object> newContent = m_ltiService.getContent(contentKey, siteId);
-		String contentUrl = m_ltiService.getContentLaunch(newContent);
-		if ( newContent == null || contentUrl == null ) {
+		LtiContentBean newContentBean = m_ltiService.getContentAsBean(contentKey, siteId);
+		String contentUrl = m_ltiService.getContentLaunch(newContentBean);
+		if ( newContentBean == null || contentUrl == null ) {
 			log.error("Unable to set contentUrl tool={} placement={}",tool_id,placement.getId());
 			placement.getPlacementConfig().setProperty(SOURCE,"");
 			placement.save();
@@ -327,7 +328,7 @@ public class SakaiIFrame extends GenericPortlet {
 
 		log.debug("Patched contentUrl tool={} placement={} url={}",tool_id,placement.getId(),contentUrl);
 
-		return newContent;
+		return newContentBean.asMap();
 	}
 
 	public void doEdit(RenderRequest request, RenderResponse response)
@@ -472,9 +473,9 @@ public class SakaiIFrame extends GenericPortlet {
 					return;
 				} else if ( retval instanceof Long ) {
 					Long contentKey = (Long) retval;
-					Map<String,Object> newContent = m_ltiService.getContent(contentKey, siteId);
-					String contentUrl = m_ltiService.getContentLaunch(newContent);
-					if ( newContent == null || contentUrl == null ) {
+					LtiContentBean newContentBean = m_ltiService.getContentAsBean(contentKey, siteId);
+					String contentUrl = m_ltiService.getContentLaunch(newContentBean);
+					if ( newContentBean == null || contentUrl == null ) {
 						log.error("Unable to set contentUrl tool={} placement={}",toolIdStr,placement.getId());
 						addAlert(request, rb.getString("edit.save.url.fail"));
 						return;

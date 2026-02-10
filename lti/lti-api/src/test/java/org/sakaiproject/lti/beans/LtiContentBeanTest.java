@@ -28,7 +28,15 @@ import org.junit.Before;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.beans.LtiContentBean;
 
 /**
@@ -441,5 +449,132 @@ public class LtiContentBeanTest {
         assertEquals("Long.MAX_VALUE should remain Long.MAX_VALUE", Long.valueOf(Long.MAX_VALUE), content.getId());
         assertEquals("Integer.MAX_VALUE should convert to Long", Long.valueOf(Integer.MAX_VALUE), content.getToolId());
         assertEquals("Short.MAX_VALUE should convert to Integer", Integer.valueOf(Short.MAX_VALUE), content.getFrameheight());
+    }
+
+    @Test
+    public void testFromXmlNullInput() throws ParserConfigurationException {
+        assertNull(LtiContentBean.fromXml(null));
+    }
+
+    @Test
+    public void testFromXmlEmptyElement() throws ParserConfigurationException {
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element el = doc.createElement(LTIService.ARCHIVE_LTI_CONTENT_TAG);
+        LtiContentBean content = LtiContentBean.fromXml(el);
+        assertNotNull(content);
+        assertNull(content.getId());
+        assertNull(content.getTitle());
+    }
+
+    @Test
+    public void testFromXmlPopulatesArchivableFields() throws ParserConfigurationException {
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element el = doc.createElement(LTIService.ARCHIVE_LTI_CONTENT_TAG);
+        appendChild(el, "id", "43");
+        appendChild(el, "title", "XML Content Title");
+        appendChild(el, "description", "XML content description");
+        appendChild(el, "launch", "https://xml.example.com/content/launch");
+        appendChild(el, "frameheight", "500");
+        appendChild(el, "custom", "key=value");
+        appendChild(el, "newpage", "1");
+
+        LtiContentBean content = LtiContentBean.fromXml(el);
+        assertNotNull(content);
+        assertEquals(Long.valueOf(43L), content.getId());
+        assertEquals("XML Content Title", content.getTitle());
+        assertEquals("XML content description", content.getDescription());
+        assertEquals("https://xml.example.com/content/launch", content.getLaunch());
+        assertEquals(Integer.valueOf(500), content.getFrameheight());
+        assertEquals("key=value", content.getCustom());
+        assertTrue(content.getNewpage());
+    }
+
+    @Test
+    public void testToXmlAppendsToDocumentWhenStackEmpty() throws ParserConfigurationException {
+        LtiContentBean content = new LtiContentBean();
+        content.setId(199L);
+        content.setTitle("Stack Empty Content");
+        content.setLaunch("https://empty.example/content");
+
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Stack<Element> stack = new Stack<>();
+        Element el = content.toXml(doc, stack);
+
+        assertNotNull(el);
+        assertEquals(LTIService.ARCHIVE_LTI_CONTENT_TAG, el.getTagName());
+        assertNotNull(doc.getFirstChild());
+        assertEquals(el, doc.getFirstChild());
+        assertTrue(stack.isEmpty());
+    }
+
+    @Test
+    public void testToXmlAppendsToStackPeekWhenStackNonEmpty() throws ParserConfigurationException {
+        LtiContentBean content = new LtiContentBean();
+        content.setId(188L);
+        content.setTitle("Stack Peek Content");
+        content.setLaunch("https://peek.example/content");
+
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element root = doc.createElement("root");
+        doc.appendChild(root);
+        Stack<Element> stack = new Stack<>();
+        stack.push(root);
+
+        Element el = content.toXml(doc, stack);
+
+        assertNotNull(el);
+        assertEquals(LTIService.ARCHIVE_LTI_CONTENT_TAG, el.getTagName());
+        assertEquals(el, root.getFirstChild());
+        assertEquals(root, stack.peek());
+    }
+
+    @Test
+    public void testToXmlWithNullStack() throws ParserConfigurationException {
+        LtiContentBean content = new LtiContentBean();
+        content.setId(177L);
+        content.setTitle("Null Stack Content");
+
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element el = content.toXml(doc, null);
+
+        assertNotNull(el);
+        assertEquals(LTIService.ARCHIVE_LTI_CONTENT_TAG, el.getTagName());
+        assertNotNull(doc.getFirstChild());
+    }
+
+    @Test
+    public void testToXmlReturnsNullWhenDocumentNull() {
+        LtiContentBean content = new LtiContentBean();
+        content.setTitle("No Doc Content");
+        assertNull(content.toXml(null, new Stack<>()));
+    }
+
+    @Test
+    public void testToXmlFromXmlRoundTrip() throws ParserConfigurationException {
+        LtiContentBean original = LtiContentBean.of(testMap);
+        assertNotNull(original);
+
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element el = original.toXml(doc, new Stack<>());
+        assertNotNull(el);
+
+        LtiContentBean restored = LtiContentBean.fromXml(el);
+        assertNotNull(restored);
+
+        // Archivable fields should round-trip (only fields with archive=true)
+        assertEquals(original.getId(), restored.getId());
+        assertEquals(original.getTitle(), restored.getTitle());
+        assertEquals(original.getDescription(), restored.getDescription());
+        assertEquals(original.getLaunch(), restored.getLaunch());
+        assertEquals(original.getFrameheight(), restored.getFrameheight());
+        assertEquals(original.getCustom(), restored.getCustom());
+        assertEquals(original.getNewpage(), restored.getNewpage());
+    }
+
+    private static void appendChild(Element parent, String tagName, String textContent) {
+        Document doc = parent.getOwnerDocument();
+        Element child = doc.createElement(tagName);
+        child.setTextContent(textContent);
+        parent.appendChild(child);
     }
 }
