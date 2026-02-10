@@ -1240,9 +1240,7 @@ public class HistogramListener
 				// now check each answer
 				AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item
 						.getPublishedAnswerId());
-				if (answer != null
-						&& (answer.getIsCorrect() == null || (!answer
-								.getIsCorrect().booleanValue()))) {
+				if (answer == null || !Boolean.TRUE.equals(answer.getIsCorrect())) {
 					hasIncorrect = true;
 					break;
 				}
@@ -1316,9 +1314,7 @@ public class HistogramListener
 					ItemGradingData response = (ItemGradingData)studentResponseIter.next();
 					AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(response
 							.getPublishedAnswerId());
-					if (answer != null
-							&& (answer.getIsCorrect() == null || (!answer
-									.getIsCorrect().booleanValue()))) {
+					if (answer == null || !Boolean.TRUE.equals(answer.getIsCorrect())) {
 						hasIncorrect = true;
 						break;
 					}
@@ -1655,9 +1651,7 @@ public class HistogramListener
 
 					AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item
 							.getPublishedAnswerId());
-					if (answer != null
-							&& (answer.getIsCorrect() == null || (!answer
-									.getIsCorrect().booleanValue()))) {
+					if (answer == null || !Boolean.TRUE.equals(answer.getIsCorrect())) {
 						hasIncorrect = true;
 						break;
 					}
