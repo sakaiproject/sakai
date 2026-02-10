@@ -1285,7 +1285,13 @@ public class HistogramListener
 			.get(key);
 			if (studentResponseListForSubQuestion != null && !studentResponseListForSubQuestion.isEmpty()) {
 				ItemGradingData response1 = (ItemGradingData)studentResponseListForSubQuestion.get(0);
-				Long subQuestionId = ((AnswerIfc)publishedAnswerHash.get(response1.getPublishedAnswerId())).getItemText().getId();
+				AnswerIfc firstResponseAnswer = (AnswerIfc) publishedAnswerHash.get(response1.getPublishedAnswerId());
+				if (firstResponseAnswer == null || firstResponseAnswer.getItemText() == null) {
+					log.warn("Could not determine EMI sub-question for ItemGradingData with id {}",
+							response1.getItemGradingId());
+					continue;
+				}
+				Long subQuestionId = firstResponseAnswer.getItemText().getId();
 				
 				Set studentsResponded = (Set)studentsRespondedPerSubQuestion.get(subQuestionId);
 				if (studentsResponded == null) studentsResponded = new TreeSet();
@@ -1295,6 +1301,10 @@ public class HistogramListener
 				boolean hasIncorrect = false;
 				//numCorrectSubQuestionAnswers = (Integer) correctAnswersPerSubQuestion.get(subQuestionId);
 				Integer numCorrectSubQuestionAnswers = (Integer) emiRequiredCorrectAnswersCount.get(subQuestionId);
+				if (numCorrectSubQuestionAnswers == null) {
+					log.warn("No required correct answer count found for EMI sub-question id {}", subQuestionId);
+					continue;
+				}
 				
 				if (studentResponseListForSubQuestion.size() < numCorrectSubQuestionAnswers.intValue()) {
 					hasIncorrect = true;
@@ -2120,18 +2130,18 @@ public class HistogramListener
     	Iterator listiter = resultsForOneStudent.iterator();
     	int correctMatchesCount = 0;
 
-      while (listiter.hasNext()){
-          ItemGradingData item = (ItemGradingData)listiter.next();
-          
-          if (!delegate.isDistractor((ItemTextIfc) publishedItemTextHash.get(item.getPublishedItemTextId()))){
-              // now check each answer in Matching 
-              AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
-              if (answer.getIsCorrect() == null || (!answer.getIsCorrect().booleanValue())){
-                  hasIncorrectMatches = true;
-                  break;
-              }else{
-                  correctMatchesCount++;
-              }
+	      while (listiter.hasNext()){
+	          ItemGradingData item = (ItemGradingData)listiter.next();
+	          
+	          if (!delegate.isDistractor((ItemTextIfc) publishedItemTextHash.get(item.getPublishedItemTextId()))){
+	              // now check each answer in Matching 
+	              AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item.getPublishedAnswerId());
+	              if (answer == null || !Boolean.TRUE.equals(answer.getIsCorrect())){
+	                  hasIncorrectMatches = true;
+	                  break;
+	              }else{
+	                  correctMatchesCount++;
+	              }
           }
       }
       

@@ -583,48 +583,57 @@ public class StatisticsService {
         for (Map<Long, Set<ItemGradingData>> submissionItemGradingData : groupedGradingData.values()) {
             long requiredOptionsCount = 0;
             int correctOptions = 0;
-            boolean isBlank = false;
+            boolean hasAnsweredOption = false;
+            boolean hasIncorrectOption = false;
 
             // One option of an EMI item can have multiple answers, so we need to iterate
             // through the grading data by item text
-            submissionLoop:
             for (Map.Entry<Long, Set<ItemGradingData>> submissionGradingDataEntry : submissionItemGradingData.entrySet()) {
                 Long itemTextId = submissionGradingDataEntry.getKey();
-                ItemTextIfc itemText = itemTextMap.get(itemTextId);
-
                 Set<ItemGradingData> itemTextGradingData = submissionGradingDataEntry.getValue();
-
                 requiredOptionsCount++;
+
+                ItemTextIfc itemText = itemTextMap.get(itemTextId);
+                if (itemText == null) {
+                    log.warn("Could not find ItemText with id {} for EMI grading data", itemTextId);
+                    if (itemTextGradingData.stream().anyMatch(option -> option.getPublishedAnswerId() != null)) {
+                        hasAnsweredOption = true;
+                    }
+                    hasIncorrectOption = true;
+                    continue;
+                }
 
                 Integer requiredAnswerCount = itemText.getRequiredOptionsCount();
                 if (requiredAnswerCount == null) {
                     log.warn("requiredOptionsCount is null on ItemText with id {}", itemTextId);
+                    hasIncorrectOption = true;
                     continue;
                 }
 
                 int correctAnswers = 0;
                 int incorrectAnswers = 0;
+                boolean hasBlankAnswer = false;
 
                 for (ItemGradingData optionGradingData : itemTextGradingData) {
                     Long selectedAnswerId = optionGradingData.getPublishedAnswerId();
                     if (selectedAnswerId == null) {
-                        // With a blank answer there should only one ItemGradingData per submission
-                        // But to be safe, let's break out of the loop to avoid double counting
-                        blankResponses++;
-                        isBlank = true;
-                        break submissionLoop;
+                        hasBlankAnswer = true;
+                        continue;
                     }
+                    hasAnsweredOption = true;
 
                     PublishedAnswer selectedAnswer = answerMap.get(selectedAnswerId);
                     if (selectedAnswer == null) {
                         log.warn(LOG_GRADING_DATA_ANSWER_NOT_FOUND,
                                 selectedAnswerId, optionGradingData.getItemGradingId());
+                        incorrectAnswers++;
                         continue;
                     }
 
                     Boolean answerCorrect = selectedAnswer.getIsCorrect();
                     if (answerCorrect == null) {
                         log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswerId);
+                        incorrectAnswers++;
                         continue;
                     }
 
@@ -635,17 +644,22 @@ public class StatisticsService {
                     }
                 }
 
-                if (incorrectAnswers <= 0 && correctAnswers >= requiredAnswerCount) {
+                if (!hasBlankAnswer && incorrectAnswers <= 0 && correctAnswers >= requiredAnswerCount) {
                     correctOptions++;
+                } else {
+                    hasIncorrectOption = true;
                 }
             }
 
-            if (!isBlank) {
-                if (correctOptions == requiredOptionsCount) {
-                    correctResponses++;
-                } else {
-                    incorrectResponses++;
-                }
+            if (!hasAnsweredOption) {
+                blankResponses++;
+                continue;
+            }
+
+            if (!hasIncorrectOption && correctOptions == requiredOptionsCount) {
+                correctResponses++;
+            } else {
+                incorrectResponses++;
             }
         }
 

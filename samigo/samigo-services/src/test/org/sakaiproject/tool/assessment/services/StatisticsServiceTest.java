@@ -723,6 +723,89 @@ public class StatisticsServiceTest {
         assertEquals(Integer.valueOf(86), itemStatistics.getDifficulty());
     }
 
+    @Test
+    public void testExtendedMatchingItemPartialBlankIsIncorrect() {
+        long itemTextA = 10L;
+        long itemTextB = 11L;
+        Set<ItemTextIfc> itemTexts = Set.of(
+                itemText(itemTextA, 1),
+                itemText(itemTextB, 1)
+        );
+
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.EXTENDED_MATCHING_ITEMS, itemTexts);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(100L, true),
+                answer(101L, false),
+                answer(200L, true),
+                answer(201L, false)
+        );
+
+        Set<ItemGradingData> gradingData = Set.of(
+                // All blank - blank
+                gradingData(0L, null, 0L, itemTextA),
+                gradingData(1L, null, 0L, itemTextB),
+                // One answered, one blank - incorrect
+                gradingData(2L, 100L, 1L, itemTextA),
+                gradingData(3L, null, 1L, itemTextB),
+                // All correct - correct
+                gradingData(4L, 100L, 2L, itemTextA),
+                gradingData(5L, 200L, 2L, itemTextB)
+        );
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testExtendedMatchingItemMissingItemTextIsIncorrectNotCrash() {
+        long itemTextA = 10L;
+        Set<ItemTextIfc> itemTexts = Set.of(itemText(itemTextA, 1));
+
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.EXTENDED_MATCHING_ITEMS, itemTexts);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(100L, true),
+                answer(200L, true)
+        );
+
+        Set<ItemGradingData> gradingData = Set.of(
+                // Normal correct
+                gradingData(0L, 100L, 0L, itemTextA),
+                // Unknown itemText id - incorrect
+                gradingData(1L, 200L, 1L, 999L)
+        );
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(0), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(50), itemStatistics.getDifficulty());
+    }
+
     private void stubData(List<PublishedItemData> items, Map<Long, Set<PublishedAnswer>> answerMap,
             Map<Long, Set<ItemGradingData>> gradingDataMap) {
 

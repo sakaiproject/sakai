@@ -420,15 +420,27 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     if (typeId.equals(TypeIfc.MULTIPLE_CHOICE)
       || typeId.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)
       || typeId.equals(TypeIfc.TRUE_FALSE)) {
-      ItemGradingData gradingData = getFirstAnsweredGrading(gradingList);
-      if (gradingData == null || gradingData.getPublishedAnswerId() == null) {
+      int answeredCount = 0;
+      boolean hasCorrectAnswer = false;
+      boolean hasIncorrectAnswer = false;
+      for (ItemGradingData gradingData : gradingList) {
+        if (gradingData.getPublishedAnswerId() == null) {
+          continue;
+        }
+        answeredCount++;
+        if (isSelectedAnswerCorrect(gradingData, publishedAnswerHash)) {
+          hasCorrectAnswer = true;
+        } else {
+          hasIncorrectAnswer = true;
+          break;
+        }
+      }
+
+      if (answeredCount == 0) {
         return 2;
       }
-      AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(gradingData.getPublishedAnswerId());
-      if (answer == null || answer.getIsCorrect() == null) {
-        return 1;
-      }
-      return answer.getIsCorrect() ? 0 : 1;
+
+      return hasCorrectAnswer && !hasIncorrectAnswer ? 0 : 1;
     }
 
     if (typeId.equals(TypeIfc.MULTIPLE_CORRECT)) {
@@ -583,13 +595,31 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     return -1;
   }
 
-  private ItemGradingData getFirstAnsweredGrading(List<ItemGradingData> gradingList) {
-    for (ItemGradingData gradingData : gradingList) {
-      if (gradingData.getPublishedAnswerId() != null) {
-        return gradingData;
-      }
+  private boolean isSelectedAnswerCorrect(ItemGradingData gradingData, Map publishedAnswerHash) {
+    Long answerId = gradingData.getPublishedAnswerId();
+    if (answerId == null) {
+      return false;
     }
-    return null;
+
+    AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(answerId);
+    if (answer != null && answer.getIsCorrect() != null) {
+      return answer.getIsCorrect();
+    }
+
+    if (gradingData.getIsCorrect() != null) {
+      return gradingData.getIsCorrect();
+    }
+
+    Double autoScore = gradingData.getAutoScore();
+    if (autoScore != null) {
+      return autoScore > 0;
+    }
+
+    if (answer != null && answer.getScore() != null) {
+      return answer.getScore() > 0;
+    }
+
+    return false;
   }
 
   private int getMatchingRequiredChoices(PublishedItemData item, GradingService gradingService) {
