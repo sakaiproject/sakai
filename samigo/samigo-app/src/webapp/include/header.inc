@@ -10,8 +10,6 @@
       String head = (String) request.getAttribute("sakai.html.head");
       head += org.sakaiproject.portal.util.PortalUtils.includeLatestJQuery("Samigo");
       head += "<script>includeWebjarLibrary(\"jquery.tablesorter\", { includeCss: true });</script>\n";
-      head += "<script>includeWebjarLibrary(\"qtip2\", { includeCss: true });</script>\n";
-      head += "<script>includeWebjarLibrary(\"bootstrap\");</script>\n";
       head += "<script src=\"/samigo-app/js/samigo-global.js\"></script>\n";
 
       request.setAttribute("html.head", head);

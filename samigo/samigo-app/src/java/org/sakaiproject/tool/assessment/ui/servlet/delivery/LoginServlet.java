@@ -25,6 +25,7 @@ import javax.faces.component.UICommand;
 import javax.faces.component.UIComponent;
 import javax.faces.event.ActionEvent;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -73,8 +74,13 @@ public class LoginServlet extends HttpServlet {
 
     @Autowired private SiteService siteService;
     @Autowired private UserDirectoryService userDirectoryService;
-    
+
     public LoginServlet() {
+    }
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
@@ -102,6 +108,13 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         PublishedAssessmentService service = new PublishedAssessmentService();
         PublishedAssessmentFacade publishedAssessment = service.getPublishedAssessmentIdByAlias(alias);
+
+        if (publishedAssessment == null) {
+            log.warn("Published assessment not found for alias: {}", alias);
+            RequestDispatcher dispatcher = req.getRequestDispatcher("/jsf/delivery/assessmentNotAvailable.faces");
+            dispatcher.forward(req, res);
+            return;
+        }
 
         String siteId = publishedAssessment.getOwnerSiteId();
         setSkinFolder(req, siteId);
@@ -141,13 +154,10 @@ public class LoginServlet extends HttpServlet {
         HttpSession httpSession = req.getSession(true);
         httpSession.setMaxInactiveInterval(3600); // one hour
         PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet("person", req, res);
-        SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBean("select");
-
         // we are going to use the delivery bean to flag that this access is via url
         // this is the flag that we will use in deliverAssessment.jsp to decide what
         // button to display - daisyf
-        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet(
-                "delivery", req, res);
+        DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
         // For SAK-7132. 
         // As this class is only used for taking assessment via URL, 
         // there should not be any assessment grading data at this point

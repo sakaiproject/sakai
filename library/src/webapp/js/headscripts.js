@@ -816,9 +816,11 @@ function includeWebjarLibrary(library, options = {}) {
 			}
 	}
 
-	const frameContext = (window.top === window.self) ? "top" : "iframe";
-	const frameName = window.frameElement?.name || window.name || "unnamed";
-	window.console && console.log(`Adding webjar library ${library}, version ${libraryVersion} [${frameContext}:${frameName}]`);
+	if (window.console) {
+		const context = (window.top === window.self) ? "top" : "iframe";
+		const name = window.name || "unnamed";
+		console.log(`Adding webjar library ${library}, version ${libraryVersion} [${context}:${name}]`);
+	}
 
 	// Add all the library references to the DOM.
 	jsReferences.forEach( (jsReference) => document.write(`<script src="${webjars}/${library}/${libraryVersion}${jsReference}${ver}"></script>`));
