@@ -583,7 +583,7 @@ public class StatisticsService {
 
     private ItemStatistics getItemStatisticsForCalculatedQuestion(ItemDataIfc item, Set<ItemGradingData> gradingData) {
         Map<Long, Set<ItemGradingData>> itemGradingDataByAssessmentGradingId = gradingData.stream()
-                .sorted(Comparator.comparing(ItemGradingData::getPublishedAnswerId))
+                .sorted(Comparator.comparing(ItemGradingData::getPublishedAnswerId, Comparator.nullsLast(Long::compareTo)))
                 .collect(Collectors.groupingBy(ItemGradingData::getAssessmentGradingId, Collectors.toCollection(LinkedHashSet::new)));
 
         long correctResponses = 0;

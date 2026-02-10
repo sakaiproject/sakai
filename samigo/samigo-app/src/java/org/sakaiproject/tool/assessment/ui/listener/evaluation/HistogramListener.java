@@ -834,31 +834,27 @@ public class HistogramListener
     if (itemScores == null)
       itemScores = new ArrayList<ItemGradingData>();
 
+      Map<Long, Boolean> hasAnswersByAssessmentGradingId = new HashMap<>();
+      for (ItemGradingData itemGradingData : itemScores) {
+          Long assessmentGradingId = itemGradingData.getAssessmentGradingId();
+          if (assessmentGradingId == null) {
+              continue;
+          }
+
+          boolean hasAnswer = hasAnswerForItemType(qbean.getQuestionType(), itemGradingData);
+          hasAnswersByAssessmentGradingId.merge(assessmentGradingId, hasAnswer, Boolean::logicalOr);
+      }
+
       int responses = 0;
-      Set<Long> assessmentGradingIds = new HashSet<Long>();
       int numStudentsWithZeroAnswers = 0;
-      for (ItemGradingData itemGradingData: itemScores) {
-          // only count the unique questions answers
-	  // There may be multiple itemGradingData with the same AssessmentGradingId
-	  // for matching questions (essentially a collection of MC questions)
-          if(!assessmentGradingIds.contains(itemGradingData.getAssessmentGradingId())){
-	      if (itemGradingData.getPublishedAnswerId() != null) {
-	          responses++;
-	          assessmentGradingIds.add(itemGradingData.getAssessmentGradingId());
-	      } else if (!qbean.getQuestionType().equals(TypeIfc.MATCHING.toString())) { 
-	          assessmentGradingIds.add(itemGradingData.getAssessmentGradingId());
-	      }
-
-              assessmentGradingIds.add(itemGradingData.getAssessmentGradingId());
-
-              if (itemGradingData.getSubmittedDate() == null) {
-                  numStudentsWithZeroAnswers++;
-              }
+      for (Boolean hasAnswer : hasAnswersByAssessmentGradingId.values()) {
+          if (Boolean.TRUE.equals(hasAnswer)) {
+              responses++;
+          } else {
+              numStudentsWithZeroAnswers++;
           }
       }
-      if (qbean.getQuestionType().equals(TypeIfc.IMAGEMAP_QUESTION.toString())) {
-          responses = assessmentGradingIds.size();
-      }
+
       qbean.setNumResponses(responses);
       qbean.setNumberOfStudentsWithZeroAnswers(numStudentsWithZeroAnswers);
 
@@ -880,6 +876,31 @@ public class HistogramListener
         qbean.getQuestionType().equals(TypeIfc.AUDIO_RECORDING.toString())) // audio recording
       doScoreStatistics(qbean, itemScores);
 
+  }
+
+  private boolean hasAnswerForItemType(String questionType, ItemGradingData itemGradingData) {
+    Long answerId = itemGradingData.getPublishedAnswerId();
+    String answerText = itemGradingData.getAnswerText();
+
+    if (StringUtils.equalsAny(questionType,
+            TypeIfc.FILL_IN_BLANK.toString(),
+            TypeIfc.FILL_IN_NUMERIC.toString(),
+            TypeIfc.CALCULATED_QUESTION.toString())) {
+      return answerId != null && StringUtils.isNotBlank(answerText);
+    }
+
+    if (StringUtils.equals(questionType, TypeIfc.IMAGEMAP_QUESTION.toString())) {
+      String normalizedAnswerText = StringUtils.trimToNull(answerText);
+      return answerId != null
+              && normalizedAnswerText != null
+              && !StringUtils.equalsIgnoreCase(normalizedAnswerText, "undefined");
+    }
+
+    if (StringUtils.equals(questionType, TypeIfc.MATCHING.toString())) {
+      return answerId != null || StringUtils.isNotBlank(answerText);
+    }
+
+    return answerId != null;
   }
 
   /**
@@ -1483,11 +1504,14 @@ public class HistogramListener
 			sequenceMap.put(answer.getSequence(), answer.getId());
 		}
 		iter = scores.iterator();
+		boolean isFIB = qbean.getQuestionType().equals(TypeIfc.FILL_IN_BLANK.toString());
+		boolean isFIN = qbean.getQuestionType().equals(TypeIfc.FILL_IN_NUMERIC.toString());
 		while (iter.hasNext()) {
 			ItemGradingData data = (ItemGradingData) iter.next();
 			AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data
 					.getPublishedAnswerId());
 			if (answer != null) {
+				boolean hasInput = !isFIB && !isFIN || StringUtils.isNotBlank(data.getAnswerText());
 				// found a response
 				Integer num = null;
 				// num is a counter
@@ -1502,23 +1526,25 @@ public class HistogramListener
 				if (num == null)
 					num = Integer.valueOf(0);
 
-				List studentResponseList = (List) numStudentRespondedMap
-						.get(data.getAssessmentGradingId());
-				if (studentResponseList == null) {
-					studentResponseList = new ArrayList();
+				if (hasInput) {
+					List studentResponseList = (List) numStudentRespondedMap
+							.get(data.getAssessmentGradingId());
+					if (studentResponseList == null) {
+						studentResponseList = new ArrayList();
+					}
+					studentResponseList.add(data);
+					numStudentRespondedMap.put(data.getAssessmentGradingId(),
+							studentResponseList);
 				}
-				studentResponseList.add(data);
-				numStudentRespondedMap.put(data.getAssessmentGradingId(),
-						studentResponseList);
 				// we found a response, and got the existing num , now update
 				// one
-				if (qbean.getQuestionType().equals("8")) {
+				if (isFIB) {
 					// for fib we only count the number of correct responses
-					if (delegate.getFIBResult(data, new HashMap<Long, Set<String>>(), itemData, publishedAnswerHash)) {
+					if (hasInput && delegate.getFIBResult(data, new HashMap<Long, Set<String>>(), itemData, publishedAnswerHash)) {
 						results.merge(answer.getId(), 1, Integer::sum);
 					}
-				} else if (qbean.getQuestionType().equals("11")) {
-					if (delegate.getFINResult(data, itemData, publishedAnswerHash)) {
+				} else if (isFIN) {
+					if (hasInput && delegate.getFINResult(data, itemData, publishedAnswerHash)) {
 						results.merge(answer.getId(), 1, Integer::sum);
 					}
 				} else {
@@ -1802,10 +1828,12 @@ public class HistogramListener
 			}
 
 			for (Map.Entry<Long, List<ItemGradingData>> entry : scoresByAssessment.entrySet()) {
-				List<ItemGradingData> submissionScores = entry.getValue();
+				List<ItemGradingData> submissionScores = new ArrayList<>(entry.getValue());
 				if (submissionScores == null || submissionScores.isEmpty()) {
 					continue;
 				}
+				submissionScores.sort(Comparator.comparing(ItemGradingData::getPublishedAnswerId,
+						Comparator.nullsLast(Long::compareTo)));
 				int totalParts = submissionScores.size();
 				int correctParts = 0;
 				int blankParts = 0;

@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -250,10 +251,22 @@ public class TotalScoresBean implements Serializable, PhaseAware {
 	}
 
   public boolean getIsOneSelectionType() {
-    if (this.getPublishedAssessment() == null) {
-      return false;
+    PublishedAssessmentData currentPublishedAssessment = this.getPublishedAssessment();
+    if (currentPublishedAssessment == null) {
+      String currentPublishedId = StringUtils.trimToNull(getPublishedId());
+      if (currentPublishedId != null && !"0".equals(currentPublishedId)) {
+        PublishedAssessmentFacade publishedAssessmentFacade = new PublishedAssessmentService().getPublishedAssessment(currentPublishedId);
+        if (publishedAssessmentFacade != null && publishedAssessmentFacade.getData() instanceof PublishedAssessmentData) {
+          currentPublishedAssessment = (PublishedAssessmentData) publishedAssessmentFacade.getData();
+          this.publishedAssessment = currentPublishedAssessment;
+        }
+      }
+    }
+
+    if (currentPublishedAssessment == null) {
+      return isOneSelectionType;
     } else {
-      for (Object sectionObject : this.getPublishedAssessment().getSectionArray()) {
+      for (Object sectionObject : currentPublishedAssessment.getSectionArray()) {
         PublishedSectionData sectionData = (PublishedSectionData) sectionObject;
         for (Object itemObject : sectionData.getItemArray()) {
           PublishedItemData item = (PublishedItemData) itemObject;
@@ -512,7 +525,9 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     }
 
     if (typeId.equals(TypeIfc.CALCULATED_QUESTION)) {
-      int totalParts = gradingList.size();
+      List<ItemGradingData> orderedGradings = new ArrayList<>(gradingList);
+      orderedGradings.sort(Comparator.comparing(ItemGradingData::getPublishedAnswerId, Comparator.nullsLast(Long::compareTo)));
+      int totalParts = orderedGradings.size();
       int correctParts = 0;
       int blankParts = 0;
       int answerSequence = 0;
@@ -521,7 +536,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
       LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<>();
       LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<>();
       LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<>();
-      for (ItemGradingData gradingData : gradingList) {
+      for (ItemGradingData gradingData : orderedGradings) {
         Long currentAnswerId = gradingData.getPublishedAnswerId();
         if (currentAnswerId == null || StringUtils.isBlank(gradingData.getAnswerText())) {
           blankParts++;
