@@ -2347,6 +2347,9 @@ public class DiscussionForumTool {
     }
 
     for (DiscussionTopicBean topicBean : selectedTopics) {
+      if (topicBean.getTopic() == null || topicBean.getTopic().getId() == null) {
+        continue;
+      }
       DiscussionTopic topic = forumManager.getTopicById(topicBean.getTopic().getId());
       if (topic == null) {
         continue;
@@ -2388,6 +2391,9 @@ public class DiscussionForumTool {
     }
 
     for (DiscussionForumBean forumBean : selectedForums) {
+      if (forumBean.getForum() == null || forumBean.getForum().getId() == null) {
+        continue;
+      }
       DiscussionForum forum = forumManager.getForumById(forumBean.getForum().getId());
       if (forum == null) {
         continue;
@@ -2433,6 +2439,9 @@ public class DiscussionForumTool {
     }
 
     for (DiscussionTopicBean topicBean : selectedTopics) {
+      if (topicBean.getTopic() == null || topicBean.getTopic().getId() == null) {
+        continue;
+      }
       DiscussionTopic topic = forumManager.getTopicById(topicBean.getTopic().getId());
       if (topic == null) {
         continue;

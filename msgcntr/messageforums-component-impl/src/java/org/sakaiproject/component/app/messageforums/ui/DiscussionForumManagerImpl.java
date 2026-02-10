@@ -1083,10 +1083,12 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       log.debug("setForumManager(DiscussionForum" + forum + ")");
     }
     Long forumId = forum == null ? null : forum.getId();
+    DiscussionForum forumWithTopics = null;
+    String contextId = null;
     List<Long> topicIds = new ArrayList<>();
     if (forumId != null)
     {
-      DiscussionForum forumWithTopics = (DiscussionForum) forumManager.getForumByIdWithTopics(forumId);
+      forumWithTopics = (DiscussionForum) forumManager.getForumByIdWithTopics(forumId);
       if (forumWithTopics != null && forumWithTopics.getTopics() != null)
       {
         for (Iterator iter = forumWithTopics.getTopics().iterator(); iter.hasNext();)
@@ -1098,13 +1100,21 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
           }
         }
       }
+      if (forumWithTopics != null && forumWithTopics.getArea() != null)
+      {
+        contextId = forumWithTopics.getArea().getContextId();
+      }
     }
     forumManager.deleteDiscussionForum(forum);
     flagAreaCacheForClearing(forum);
-    if (forumId != null)
+    if (contextId == null)
+    {
+      contextId = getCurrentContext();
+    }
+    if (forumId != null && contextId != null)
     {
       TaskService taskService = (TaskService) ComponentManager.get("org.sakaiproject.tasks.api.TaskService");
-      String referenceForum = DiscussionForumService.REFERENCE_ROOT + "/" + getCurrentContext() + "/" + forumId;
+      String referenceForum = DiscussionForumService.REFERENCE_ROOT + "/" + contextId + "/" + forumId;
       taskService.removeTaskByReference(referenceForum);
       for (Long topicId : topicIds)
       {
@@ -1282,20 +1292,29 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     Long forumId = null;
     Long topicId = null;
+    String contextId = null;
     if (topic != null)
     {
       topicId = topic.getId();
       if (topic.getBaseForum() != null)
       {
         forumId = topic.getBaseForum().getId();
+        if (topic.getBaseForum().getArea() != null)
+        {
+          contextId = topic.getBaseForum().getArea().getContextId();
+        }
       }
     }
     forumManager.deleteDiscussionForumTopic(topic);
     flagAreaCacheForClearing(topic);
-    if (forumId != null && topicId != null)
+    if (contextId == null)
+    {
+      contextId = getCurrentContext();
+    }
+    if (forumId != null && topicId != null && contextId != null)
     {
       TaskService taskService = (TaskService) ComponentManager.get("org.sakaiproject.tasks.api.TaskService");
-      String referenceTopic = DiscussionForumService.REFERENCE_ROOT + "/" + getCurrentContext() + "/" + forumId + "/topic/" + topicId;
+      String referenceTopic = DiscussionForumService.REFERENCE_ROOT + "/" + contextId + "/" + forumId + "/topic/" + topicId;
       taskService.removeTaskByReference(referenceTopic);
     }
   }
