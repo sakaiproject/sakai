@@ -41,63 +41,76 @@ public interface ExtendedTimeQueriesAPI {
     String USER_ID                          = "userId";
     String GROUP                            = "groupId";
 
+    /**
+     * Gets an extended-time entry by its id.
+     *
+     * @param id the extended-time entry id
+     * @return the matching entry, or {@code null} if none exists
+     */
     ExtendedTime getEntry(String id);
 
     /**
+     * Gets all extended-time entries for an assessment.
      *
-     * @param ass
-     * @return
+     * @param ass the assessment
+     * @return the matching extended-time entries
      */
     List<ExtendedTime> getEntriesForAss(AssessmentBaseIfc ass);
 
     /**
+     * Gets all extended-time entries for a published assessment.
      *
-     * @param pub
-     * @return
+     * @param pub the published assessment
+     * @return the matching extended-time entries
      */
     List<ExtendedTime> getEntriesForPub(PublishedAssessmentIfc pub);
 
     /**
+     * Gets an extended-time entry for a published assessment and user.
      *
-     * @param pub
-     * @param userId
-     * @return
+     * @param pub the published assessment
+     * @param userId the user id
+     * @return the matching entry, or {@code null} if none exists
      */
     ExtendedTime getEntryForPubAndUser(PublishedAssessmentIfc pub, String userId);
 
     /**
+     * Gets an extended-time entry for a published assessment and group.
      *
-     * @param pub
-     * @param groupId
-     * @return
+     * @param pub the published assessment
+     * @param groupId the group id
+     * @return the matching entry, or {@code null} if none exists
      */
     ExtendedTime getEntryForPubAndGroup(PublishedAssessmentIfc pub, String groupId);
 
     /**
+     * Updates an existing extended-time entry.
      *
-     * @param e
-     * @return
+     * @param e the entry to update
+     * @return {@code true} if the update succeeded, {@code false} otherwise
      */
     boolean updateEntry(ExtendedTime e);
 
     /**
+     * Updates a collection of extended-time entries.
      *
-     * @param entries
-     * @return
+     * @param entries the entries to update
      */
     void updateEntries(List<ExtendedTime> entries);
 
     /**
+     * Deletes an extended-time entry.
      *
-     * @param e
-     * @return
+     * @param e the entry to delete
+     * @return {@code true} if the delete succeeded, {@code false} otherwise
      */
     boolean deleteEntry(ExtendedTime e);
 
     /**
+     * Deletes all extended-time entries for a published assessment.
      *
-     * @param pub
-     * @return
+     * @param pub the published assessment
+     * @return {@code true} if the delete succeeded, {@code false} otherwise
      */
     boolean deleteEntriesForPub(PublishedAssessmentIfc pub);
 }
