@@ -20,7 +20,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +30,8 @@ import org.quartz.JobExecutionException;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
@@ -62,27 +63,29 @@ public class LTIReportingJob implements Job {
         String from = context.getMergedJobDataMap().getString("from");
 
 
-        Map<String, Object> tool = ltiService.getToolDao(toolId, null);
+        LtiToolBean tool = ltiService.getToolAsBean(Long.valueOf(toolId), null);
         if (tool == null) {
             log.warn("Failed to find LTI tool for {}", toolId);
             return;
         }
 
-        String toolTitle = (String) tool.get("title");
+        String toolTitle = tool.getTitle();
 
         DateFormat sqlDf = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
         Instant instant = Instant.now().minus(period, ChronoUnit.MILLIS);
         String fromDate = sqlDf.format(Date.from(instant));
 
         String search = "tool_id:"+ "#exact#"+ toolId+ "#&#"+ "created_at:"+ "#date#>"+ fromDate ;
-        List<Map<String, Object>> contents = ltiService.getContentsDao(search, null, 0, 0, null);
+        List<LtiContentBean> contents = ltiService.getContentsDaoAsBeans(search, null, 0, 0, null);
         DateFormat df = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT, rb.getLocale());
 
         boolean sendEmail = false;
         StringBuilder email = new StringBuilder();
         email.append(rb.getFormattedMessage("new.tools.body.header", toolTitle, formatDuration(period)));
-        for(Map<String, Object> content : contents) {
-            String siteId = (String)content.get("SITE_ID");
+        for (LtiContentBean content : contents) {
+            if (content == null) continue;
+            String siteId = content.getSiteId();
+            if (siteId == null) continue;
             try {
                 Site site = siteService.getSite(siteId);
                 // TODO Check the LTI tool is still in the site.

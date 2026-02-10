@@ -1101,16 +1101,16 @@ public abstract class BaseLTIService implements LTIService {
 	public Element archiveContentByKey(Document doc, Long contentKey, String siteId) {
 		if ( contentKey == null ) return null;
 
-		Map<String, Object> content = this.getContent(contentKey.longValue(), siteId);
-		if ( content == null ) return null;
+		org.sakaiproject.lti.beans.LtiContentBean contentBean = this.getContentAsBean(contentKey.longValue(), siteId);
+		if ( contentBean == null ) return null;
 
-		Long toolKey = LTIUtil.toLong(content.get(LTIService.LTI_TOOL_ID));
+		Long toolKey = contentBean.getToolId();
 		if (toolKey == null) return null;
 
-		Map<String, Object> tool = this.getTool(toolKey, siteId);
-		if (tool == null) return null;
+		org.sakaiproject.lti.beans.LtiToolBean toolBean = this.getToolAsBean(toolKey, siteId);
+		if (toolBean == null) return null;
 
-		Element retval = SakaiLTIUtil.archiveContent(doc, content, tool);
+		Element retval = SakaiLTIUtil.archiveContent(doc, contentBean, toolBean);
 
 		return retval;
 	}

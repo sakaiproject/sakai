@@ -913,6 +913,43 @@ public interface LTIService extends LTISubstitutionsFilter {
         return contentBeans;
     }
 
+    /**
+     * Get a list of LTI content items as Beans (DAO access, bypasses security).
+     * @param search Search criteria
+     * @param order Sort order
+     * @param first First result index
+     * @param last Last result index
+     * @param siteId The site ID
+     * @return List of LtiContentBean objects
+     */
+    default List<org.sakaiproject.lti.beans.LtiContentBean> getContentsDaoAsBeans(String search, String order, int first, int last, String siteId) {
+        List<Map<String, Object>> contentMaps = getContentsDao(search, order, first, last, siteId);
+        List<org.sakaiproject.lti.beans.LtiContentBean> contentBeans = new java.util.ArrayList<>();
+        for (Map<String, Object> contentMap : contentMaps) {
+            contentBeans.add(org.sakaiproject.lti.beans.LtiContentBean.of(contentMap));
+        }
+        return contentBeans;
+    }
+
+    /**
+     * Get a list of LTI content items as Beans (DAO access, bypasses security).
+     * @param search Search criteria
+     * @param order Sort order
+     * @param first First result index
+     * @param last Last result index
+     * @param siteId The site ID
+     * @param isAdminRole Whether to bypass security checks
+     * @return List of LtiContentBean objects
+     */
+    default List<org.sakaiproject.lti.beans.LtiContentBean> getContentsDaoAsBeans(String search, String order, int first, int last, String siteId, boolean isAdminRole) {
+        List<Map<String, Object>> contentMaps = getContentsDao(search, order, first, last, siteId, isAdminRole);
+        List<org.sakaiproject.lti.beans.LtiContentBean> contentBeans = new java.util.ArrayList<>();
+        for (Map<String, Object> contentMap : contentMaps) {
+            contentBeans.add(org.sakaiproject.lti.beans.LtiContentBean.of(contentMap));
+        }
+        return contentBeans;
+    }
+
     // ------------------------------------------------------------------------------------
     // TOOL SITE BEAN METHODS
     // ------------------------------------------------------------------------------------

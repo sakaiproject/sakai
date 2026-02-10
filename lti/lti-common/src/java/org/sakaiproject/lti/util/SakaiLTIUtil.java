@@ -77,6 +77,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.grading.api.AssessmentNotFoundException;
@@ -563,7 +565,11 @@ public class SakaiLTIUtil {
 		setProperty(props, LTIConstants.LAUNCH_PRESENTATION_RETURN_URL, returnUrl);
 	}
 
-	public static void addUserInfo(Properties ltiProps, Properties lti13subst, User user, Map<String, Object> tool) {
+	public static void addUserInfo(Properties ltiProps, Properties lti13subst, User user, LtiToolBean tool) {
+		addUserInfo(ltiProps, lti13subst, user, tool != null ? tool.asMap() : null);
+	}
+
+	private static void addUserInfo(Properties ltiProps, Properties lti13subst, User user, Map<String, Object> tool) {
 		int releasename = LTIUtil.toInt(tool.get(LTIService.LTI_SENDNAME));
 		int releaseemail = LTIUtil.toInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 		if (user != null) {
@@ -1065,6 +1071,11 @@ public class SakaiLTIUtil {
 
 		// This must return an HTML message as the [0] in the array
 		// If things are successful - the launch URL is in [1]
+		public static String[] postLaunchHTML(LtiContentBean content, LtiToolBean tool,
+				String state, String nonce, LTIService ltiService, ResourceLoader rb) {
+			return postLaunchHTML(content != null ? content.asMap() : null, tool != null ? tool.asMap() : null, state, nonce, ltiService, rb);
+		}
+
 		public static String[] postLaunchHTML(Map<String, Object> content, Map<String, Object> tool,
 				String state, String nonce, LTIService ltiService, ResourceLoader rb) {
 
@@ -1105,8 +1116,8 @@ public class SakaiLTIUtil {
 			gradingService.initializeGradebooksForSite(context);
 
 			// See if there are the necessary items
-			String secret = getSecret(tool, content);
-			String key = getKey(tool, content);
+			String secret = getSecret(LtiToolBean.of(tool));
+			String key = getKey(LtiToolBean.of(tool));
 
 			if (LTIService.LTI_SECRET_INCOMPLETE.equals(key) && LTIService.LTI_SECRET_INCOMPLETE.equals(secret)) {
 				return postError("<p>" + getRB(rb, "error.tool.partial", "Tool item is incomplete, missing a key and secret.") + "</p>");
@@ -1286,6 +1297,10 @@ public class SakaiLTIUtil {
 		/**
 		 * Create a ContentItem from the current request (may throw runtime)
 		 */
+		public static ContentItem getContentItemFromRequest(LtiToolBean tool) {
+			return getContentItemFromRequest(tool != null ? tool.asMap() : null);
+		}
+
 		public static ContentItem getContentItemFromRequest(Map<String, Object> tool) {
 
 			Placement placement = ToolManager.getCurrentPlacement();
@@ -1326,9 +1341,16 @@ public class SakaiLTIUtil {
 		}
 
 		/**
-		 * getPublicKey - Get the appropriate public key for use for an incoming request
+		 * getPublicKey - Get the appropriate public key for use for an incoming request (bean overload)
 		 */
-		public static Key getPublicKey(Map<String, Object> tool, String id_token)
+	public static Key getPublicKey(LtiToolBean tool, String id_token) {
+		return getPublicKey(tool != null ? tool.asMap() : null, id_token);
+	}
+
+		/**
+		 * getPublicKey - Get the appropriate public key for use for an incoming request (internal Map-based implementation).
+		 */
+		private static Key getPublicKey(Map<String, Object> tool, String id_token)
 		{
 			JSONObject jsonHeader = LTI13JwtUtil.jsonJwtHeader(id_token);
 			if (jsonHeader == null) {
@@ -1361,18 +1383,12 @@ public class SakaiLTIUtil {
 		}
 
 		/**
-		 * getPublicKey - Get the appropriate public key for use for an incoming request
-		 * @param tool the tool bean
-		 * @param id_token the id token
-		 * @return the public key
+		 * Create a DeepLinkResponse from the current request (may throw runtime). Bean overload.
 		 */
-	public static Key getPublicKey(org.sakaiproject.lti.beans.LtiToolBean tool, String id_token) {
-		return getPublicKey(tool != null ? tool.asMap() : null, id_token);
-	}
+		public static DeepLinkResponse getDeepLinkFromToken(LtiToolBean tool, String id_token) {
+			return getDeepLinkFromToken(tool != null ? tool.asMap() : null, id_token);
+		}
 
-		/**
-		 * Create a ContentItem from the current request (may throw runtime)
-		 */
 		public static DeepLinkResponse getDeepLinkFromToken(Map<String, Object> tool, String id_token) {
 
 			Placement placement = ToolManager.getCurrentPlacement();
@@ -1407,11 +1423,13 @@ public class SakaiLTIUtil {
 		}
 
 		/**
-		 * An LTI ContentItemSelectionRequest launch
-		 *
-		 * This must return an HTML message as the [0] in the array If things are
-		 * successful - the launch URL is in [1]
+		 * An LTI ContentItemSelectionRequest launch. Bean overload.
 		 */
+		public static String[] postContentItemSelectionRequest(Long toolKey, LtiToolBean tool,
+				String state, String nonce, ResourceLoader rb, String contentReturn, Properties dataProps) {
+			return postContentItemSelectionRequest(toolKey, tool != null ? tool.asMap() : null, state, nonce, rb, contentReturn, dataProps);
+		}
+
 		public static String[] postContentItemSelectionRequest(Long toolKey, Map<String, Object> tool,
 				String state, String nonce, ResourceLoader rb, String contentReturn, Properties dataProps) {
 			if (tool == null) {
@@ -2196,11 +2214,15 @@ public class SakaiLTIUtil {
 		}
 
 		/*
-		 * get a signed placement from a content item
+		 * get a signed placement from a content item. Bean overload.
 		 */
+		public static String getResourceLinkId(LtiContentBean content) {
+			if (content == null) return null;
+			return "content:" + content.getId();
+		}
+
 		public static String getResourceLinkId(Map<String, Object> content) {
-			String resource_link_id = "content:" + content.get(LTIService.LTI_ID);
-			return resource_link_id;
+			return getResourceLinkId(LtiContentBean.of(content));
 		}
 
 		public static String getSignedPlacement(String context_id, String resource_link_id, String placementSecret) {
@@ -2214,17 +2236,23 @@ public class SakaiLTIUtil {
 		}
 
 		/*
-		 * get a signed placement from a content item
+		 * get a signed placement from a content item. Bean overload.
 		 */
-		public static String getSignedPlacement(Map<String, Object> content) {
-			String context_id = (String) content.get(LTIService.LTI_SITE_ID);
-			String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		public static String getSignedPlacement(LtiContentBean content) {
+			if (content == null) return null;
+			String context_id = content.getSiteId();
+			String placement_secret = content.getPlacementsecret();
 			String resource_link_id = getResourceLinkId(content);
-			String signed_placement = null;
-			if ( placement_secret != null ) {
-				signed_placement = getSignedPlacement(context_id, resource_link_id, placement_secret);
-			}
-			return signed_placement;
+			if (placement_secret == null) return null;
+			return getSignedPlacement(context_id, resource_link_id, placement_secret);
+		}
+
+		public static String getSignedPlacement(Map<String, Object> content) {
+			return getSignedPlacement(LtiContentBean.of(content));
+		}
+
+		public static String trackResourceLinkID(LtiContentBean oldContent) {
+			return trackResourceLinkID(oldContent != null ? oldContent.asMap() : null);
 		}
 
 		public static String trackResourceLinkID(Map<String, Object> oldContent) {
@@ -2238,6 +2266,10 @@ public class SakaiLTIUtil {
 
 			String id_history = LTIUtil.mergeCSV(old_id_history, null, old_resource_link_id);
 			return id_history;
+		}
+
+		public static boolean trackResourceLinkID(LtiContentBean newContent, LtiContentBean oldContent) {
+			return trackResourceLinkID(newContent != null ? newContent.asMap() : null, oldContent != null ? oldContent.asMap() : null);
 		}
 
 		public static boolean trackResourceLinkID(Map<String, Object> newContent, Map<String, Object> oldContent) {
@@ -2767,12 +2799,16 @@ public class SakaiLTIUtil {
 	 * @param scoreObj the score object
 	 * @return the result
 	 */
-	public static Object handleGradebookLTI13(Site site, Long tool_id, org.sakaiproject.lti.beans.LtiContentBean content, String userId, Long lineitem_key, Score scoreObj) {
+	public static Object handleGradebookLTI13(Site site, Long tool_id, LtiContentBean content, String userId, Long lineitem_key, Score scoreObj) {
 		log.debug("siteid: {} tool_id: {} content: {} lineitem_key: {} userId: {} scoreObj: {}", site.getId(), tool_id, (content == null ? "null" : content.id), lineitem_key, userId, scoreObj);
 		return handleGradebookLTI13(site, tool_id, (content == null ? null : content.asMap()), userId, lineitem_key, scoreObj);
 	}
 
-	public static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, Map<String, Object> content) {
+	public static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, LtiContentBean content) {
+		return getAssignment(site, content != null ? content.asMap() : null);
+	}
+
+	private static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, Map<String, Object> content) {
 
 		Long contentId = LTIUtil.toLongNull(content.get(LTIService.LTI_ID));
 		if ( contentId == null ) return null;
@@ -2978,7 +3014,11 @@ public class SakaiLTIUtil {
 		return keyPrefix + next;
 	}
 
-	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem, Long tool_id, Map<String, Object> content) {
+	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem, Long tool_id, LtiContentBean content) {
+		return getGradebookColumn(site, userId, title, lineItem, tool_id, content != null ? content.asMap() : null);
+	}
+
+	private static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem, Long tool_id, Map<String, Object> content) {
 		// Look up the gradebook columns so we can find the max points
 		GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
@@ -3233,52 +3273,44 @@ public class SakaiLTIUtil {
 	/**
 	 * getLaunchCodeKey - Return the launch code key for a content item
 	 */
-	public static String getLaunchCodeKey(org.sakaiproject.lti.beans.LtiContentBean content) {
-		return getLaunchCodeKey(content != null ? content.asMap() : null);
+	public static String getLaunchCodeKey(LtiContentBean content) {
+		if (content == null) return SESSION_LAUNCH_CODE + "0";
+		int id = (content.getId() != null) ? content.getId().intValue() : 0;
+		return SESSION_LAUNCH_CODE + id;
 	}
 
 	public static String getLaunchCodeKey(Map<String, Object> content) {
-		if (content == null) return SESSION_LAUNCH_CODE + "0";
-		int id = LTIUtil.toInt(content.get(LTIService.LTI_ID));
-		return SESSION_LAUNCH_CODE + id;
+		return getLaunchCodeKey(LtiContentBean.of(content));
 	}
 
 	/**
 	 * getLaunchCode - Return the launch code for a content item
 	 */
-	public static String getLaunchCode(org.sakaiproject.lti.beans.LtiContentBean content) {
-		return getLaunchCode(content != null ? content.asMap() : null);
+	public static String getLaunchCode(LtiContentBean content) {
+		if (content == null) return LTI13Util.timeStampSign("0", null);
+		String content_id = (content.getId() != null) ? content.getId().toString() : "0";
+		String placement_secret = content.getPlacementsecret();
+		return LTI13Util.timeStampSign(content_id, placement_secret);
 	}
 
 	public static String getLaunchCode(Map<String, Object> content) {
-		if (content == null) {
-			return LTI13Util.timeStampSign("0", null);
-		}
-		/*
-		long now = (new java.util.Date()).getTime();
-		int id = LTIUtil.toInt(content.get(LTIService.LTI_ID));
-		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
-		String base_string = id + ":" + now + ":" + placement_secret;
-		String signature = LegacyShaUtil.sha256Hash(base_string);
-		String retval = id + ":" + now + ":" + signature;
-		*/
-		String content_id = content.get(LTIService.LTI_ID).toString();
-		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
-		String retval = LTI13Util.timeStampSign(content_id, placement_secret);
-		return retval;
+		return getLaunchCode(LtiContentBean.of(content));
 	}
 
 	/**
-	 * checkLaunchCode - check to see if a launch code is properly signed and not expired
+	 * checkLaunchCode - check to see if a launch code is properly signed and not expired. Bean overload.
 	 */
+	public static boolean checkLaunchCode(LtiContentBean content, String launch_code) {
+		if (content == null) return false;
+		String content_id = (content.getId() != null) ? content.getId().toString() : "0";
+		if (!launch_code.contains(":" + content_id + ":")) return false;
+		String placement_secret = content.getPlacementsecret();
+		int delta = 5 * 60 * 60; // Five minutes
+		return LTI13Util.timeStampCheckSign(launch_code, placement_secret, delta);
+	}
+
 	public static boolean checkLaunchCode(Map<String, Object> content, String launch_code) {
-		String content_id = content.get(LTIService.LTI_ID).toString();
-		// Make sure that the token belongs to this content item
-		if ( ! launch_code.contains(":"+content_id+":") ) return false;
-		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
-		int delta = 5*60*60; // Five minutes
-		boolean retval = LTI13Util.timeStampCheckSign(launch_code, placement_secret, delta);
-		return retval;
+		return checkLaunchCode(LtiContentBean.of(content), launch_code);
 	}
 
 	/**
@@ -3593,179 +3625,164 @@ public class SakaiLTIUtil {
 	}
 
 	/**
-	 *  Check if we are an LTI 1.1 launch or not
+	 *  Check if we are an LTI 1.1 launch or not. Bean overload.
 	 */
-	public static boolean isLTI11(Map<String, Object> tool) {
-		if ( tool == null ) return false;
-		Long toolLTI13 = LTIUtil.toLong(tool.get(LTIService.LTI13));
-		if ( toolLTI13.equals(LTIService.LTI13_LTI11) ) return true;
-		if ( toolLTI13.equals(LTIService.LTI13_LTI13) ) return false;
-		if ( toolLTI13.equals(LTIService.LTI13_BOTH) ) return true;
+	public static boolean isLTI11(LtiToolBean tool) {
+		if (tool == null) return false;
+		Integer lti13 = tool.getLti13();
+		if (lti13 == null) return true;
+		long v = lti13.longValue();
+		if (v == LTIService.LTI13_LTI11) return true;
+		if (v == LTIService.LTI13_LTI13) return false;
+		if (v == LTIService.LTI13_BOTH) return true;
 		return true;
 	}
 
+	/**
+	 *  Check if we are an LTI 1.1 launch or not
+	 */
+	public static boolean isLTI11(Map<String, Object> tool) {
+		return isLTI11(LtiToolBean.of(tool));
+	}
+
+
+	/**
+	 *  Check if we are an LTI 1.3 launch or not. Bean overload.
+	 */
+	public static boolean isLTI13(LtiToolBean tool) {
+		if (tool == null) return false;
+		Integer lti13 = tool.getLti13();
+		if (lti13 == null) return false;
+		long v = lti13.longValue();
+		if (v == LTIService.LTI13_LTI11) return false;
+		if (v == LTIService.LTI13_LTI13) return true;
+		if (v == LTIService.LTI13_BOTH) return true;
+		return false;
+	}
 
 	/**
 	 *  Check if we are an LTI 1.3 launch or not
 	 */
 	public static boolean isLTI13(Map<String, Object> tool) {
-		if ( tool == null ) return false;
-		Long toolLTI13 = LTIUtil.toLong(tool.get(LTIService.LTI13));
-		if ( toolLTI13.equals(LTIService.LTI13_LTI11) ) return false;
-		if ( toolLTI13.equals(LTIService.LTI13_LTI13) ) return true;
-		if ( toolLTI13.equals(LTIService.LTI13_BOTH) ) return true;
-		return false;  // Default of null or other funky value is LTI 1.1
+		return isLTI13(LtiToolBean.of(tool));
 	}
 
 	/**
-	 * Get the secret based on inheritance rules
+	 * Get the secret for the tool. Content does not have secret; only tool is used.
 	 */
-	public static String getSecret(Map<String, Object> tool, Map<String, Object> content) {
-		String secret = null;
-		if ( content != null ) {
-			secret = (String) content.get(LTIService.LTI_SECRET);
-		}
-		if (secret == null) {
-			secret = (String) tool.get(LTIService.LTI_SECRET);
-		}
-		return secret;
+	public static String getSecret(LtiToolBean tool) {
+		return (tool != null) ? tool.getSecret() : null;
 	}
 
 	/**
-	 * Get the consumer key based on inheritance rules
+	 * Get the consumer key for the tool. Content does not have consumerkey; only tool is used.
 	 */
-	public static String getKey(Map<String, Object> tool, Map<String, Object> content) {
-		String key = null;
-		if ( content != null ) {
-			key = (String) content.get(LTIService.LTI_CONSUMERKEY);
-		}
-		if (key == null) {
-			key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
-		}
-		return key;
+	public static String getKey(LtiToolBean tool) {
+		return (tool != null) ? tool.getConsumerkey() : null;
 	}
 
 	/**
 	 * Get the correct frameheight for a content / combination based on inheritance rules
 	 */
-	public static String getFrameHeight(org.sakaiproject.lti.beans.LtiToolBean tool, org.sakaiproject.lti.beans.LtiContentBean content, String defaultValue) {
-		return getFrameHeight(tool != null ? tool.asMap() : null, content != null ? content.asMap() : null, defaultValue);
-	}
-
-	public static String getFrameHeight(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
+	public static String getFrameHeight(LtiToolBean tool, LtiContentBean content, String defaultValue) {
 		String height = defaultValue;
 
 		// Check tool first (default behavior)
-		if ( tool != null ) {
-			Long toolFrameHeight = LTIUtil.toLong(tool.get(LTIService.LTI_FRAMEHEIGHT), -1L);
-			if ( toolFrameHeight > 0 )  height = toolFrameHeight + "px";
+		if (tool != null && tool.getFrameheight() != null && tool.getFrameheight() > 0) {
+			height = tool.getFrameheight() + "px";
 		}
 
 		// Check content second (content overrides tool if not null)
-		if (content != null) {
-			Long contentFrameHeight = LTIUtil.toLong(content.get(LTIService.LTI_FRAMEHEIGHT));
-			if ( contentFrameHeight > 0 ) height = contentFrameHeight + "px";
+		if (content != null && content.getFrameheight() != null && content.getFrameheight() > 0) {
+			height = content.getFrameheight() + "px";
 		}
 
 		return height;
 	}
 
+	public static String getFrameHeight(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
+		return getFrameHeight(LtiToolBean.of(tool), LtiContentBean.of(content), defaultValue);
+	}
+
 	/**
 	 * Get the new page setting for a content / combination based on inheritance rules
 	 */
-	public static boolean getNewpage(org.sakaiproject.lti.beans.LtiToolBean tool, org.sakaiproject.lti.beans.LtiContentBean content, boolean defaultValue) {
-		return getNewpage(tool != null ? tool.asMap() : null, content != null ? content.asMap() : null, defaultValue);
-	}
-
-	public static boolean getNewpage(Map<String, Object> tool, Map<String, Object> content, boolean defaultValue) {
+	public static boolean getNewpage(LtiToolBean tool, LtiContentBean content, boolean defaultValue) {
 		boolean newpage = defaultValue;
 
 		// Check content first (lower priority)
-		if (content != null ) {
-			Object contentNewpageObj = content.get(LTIService.LTI_NEWPAGE);
-			if ( contentNewpageObj != null ) {
-				if (contentNewpageObj instanceof Boolean) {
-					newpage = (Boolean) contentNewpageObj;
-				} else {
-					Long contentNewpage = LTIUtil.toLongNull(contentNewpageObj);
-					if ( contentNewpage != null ) newpage = (contentNewpage != 0);
-				}
-			}
+		if (content != null && content.getNewpage() != null) {
+			newpage = content.getNewpage();
 		}
 
 		// Check tool second (higher priority - overrides content)
-		if ( tool != null ) {
-			Long toolNewpage = LTIUtil.toLongNull(tool.get(LTIService.LTI_NEWPAGE));
-
-			if ( toolNewpage != null ) {
-				// Leave this alone for LTIService.LTI_TOOL_NEWPAGE_CONTENT
-				if ( toolNewpage == LTIService.LTI_TOOL_NEWPAGE_OFF ) newpage = false;
-				if ( toolNewpage == LTIService.LTI_TOOL_NEWPAGE_ON ) newpage = true;
-			}
+		if (tool != null && tool.getNewpage() != null) {
+			if (tool.getNewpage() == LTIService.LTI_TOOL_NEWPAGE_OFF) newpage = false;
+			if (tool.getNewpage() == LTIService.LTI_TOOL_NEWPAGE_ON) newpage = true;
 		}
 		return newpage;
+	}
+
+	public static boolean getNewpage(Map<String, Object> tool, Map<String, Object> content, boolean defaultValue) {
+		return getNewpage(LtiToolBean.of(tool), LtiContentBean.of(content), defaultValue);
 	}
 
 	/**
 	 * Get the debug setting for a content / tool combination based on inheritance rules
 	 */
-	public static boolean getDebug(org.sakaiproject.lti.beans.LtiToolBean tool, org.sakaiproject.lti.beans.LtiContentBean content, boolean defaultValue) {
-		return getDebug(tool != null ? tool.asMap() : null, content != null ? content.asMap() : null, defaultValue);
-	}
-
-	public static boolean getDebug(Map<String, Object> tool, Map<String, Object> content, boolean defaultValue) {
+	public static boolean getDebug(LtiToolBean tool, LtiContentBean content, boolean defaultValue) {
 		boolean debug = defaultValue;
 
 		// Check content first (lower priority)
-		if (content != null ) {
-			Object contentDebugObj = content.get(LTIService.LTI_DEBUG);
-			if ( contentDebugObj != null ) {
-				if (contentDebugObj instanceof Boolean) {
-					debug = (Boolean) contentDebugObj;
-				} else {
-					Long contentDebug = LTIUtil.toLongNull(contentDebugObj);
-					if ( contentDebug != null ) debug = (contentDebug != 0);
-				}
-			}
+		if (content != null && content.getDebug() != null) {
+			debug = content.getDebug();
 		}
 
 		// Check tool second (higher priority - overrides content)
-		if ( tool != null ) {
-			Long toolDebug = LTIUtil.toLongNull(tool.get(LTIService.LTI_DEBUG));
-
-			if ( toolDebug != null ) {
-				// Leave this alone for LTIService.LTI_TOOL_DEBUG_CONTENT
-				if ( toolDebug == LTIService.LTI_TOOL_DEBUG_OFF ) debug = false;
-				if ( toolDebug == LTIService.LTI_TOOL_DEBUG_ON ) debug = true;
-				// toolDebug == 2 (CONTENT) - leave content value as-is
-			}
+		if (tool != null && tool.getDebug() != null) {
+			if (tool.getDebug() == LTIService.LTI_TOOL_DEBUG_OFF) debug = false;
+			if (tool.getDebug() == LTIService.LTI_TOOL_DEBUG_ON) debug = true;
 		}
 		return debug;
+	}
+
+	/** Map shim for backward compatibility; prefer bean overload. */
+	private static boolean getDebug(Map<String, Object> tool, Map<String, Object> content, boolean defaultValue) {
+		return getDebug(LtiToolBean.of(tool), LtiContentBean.of(content), defaultValue);
+	}
+
+	/**
+	 * Get the title for a content / tool combination based on inheritance rules. Bean overload.
+	 */
+	public static String getToolTitle(LtiToolBean tool, LtiContentBean content, String defaultValue) {
+		String title = defaultValue;
+
+		if (tool != null && StringUtils.isNotEmpty(tool.getTitle())) {
+			title = tool.getTitle();
+		}
+
+		if (content != null && StringUtils.isNotEmpty(content.getTitle())) {
+			title = content.getTitle();
+		}
+
+		return title;
 	}
 
 	/**
 	 * Get the title for a content / combination based on inheritance rules
 	 */
 	public static String getToolTitle(Map<String, Object> tool, Map<String, Object> content, String defaultValue) {
-		String title = defaultValue;
+		return getToolTitle(LtiToolBean.of(tool), LtiContentBean.of(content), defaultValue);
+	}
 
-		if ( tool != null ) {
-			String toolTitle = (String) tool.get(LTIService.LTI_TITLE);
-			if ( StringUtils.isNotEmpty(toolTitle) ) title = toolTitle;
-		}
-
-		if (content != null ) {
-			String contentTitle = (String) content.get(LTIService.LTI_TITLE);
-			if ( StringUtils.isNotEmpty(contentTitle) ) title = contentTitle;
-		}
-
-		return title;
+	public static Element archiveTool(Document doc, LtiToolBean tool) {
+		return archiveTool(doc, tool != null ? tool.asMap() : null);
 	}
 
 	public static Element archiveTool(Document doc, Map<String, Object> tool) {
 		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_TOOL_TAG, LTIService.TOOL_MODEL, tool);
 		String checksum = computeToolCheckSum(tool);
-		if ( checksum != null ) {
+		if (checksum != null) {
 			Element newElement = doc.createElement(LTIService.SAKAI_TOOL_CHECKSUM);
 			newElement.setTextContent(checksum);
 			retval.appendChild(newElement);
@@ -3773,31 +3790,43 @@ public class SakaiLTIUtil {
 		return retval;
 	}
 
+	public static Element archiveContent(Document doc, LtiContentBean content, LtiToolBean tool) {
+		return archiveContent(doc, content != null ? content.asMap() : null, tool != null ? tool.asMap() : null);
+	}
+
 	public static Element archiveContent(Document doc, Map<String, Object> content, Map<String, Object> tool) {
 		// Check if the content launchURL is empty - if so, inherit from tool for the future
 		Map<String, Object> contentCopy = new HashMap(content);
 		String launchUrl = (String) contentCopy.get(LTIService.LTI_LAUNCH);
-		if ( tool != null && StringUtils.isEmpty(launchUrl) ) contentCopy.put(LTIService.LTI_LAUNCH, tool.get(LTIService.LTI_LAUNCH));
+		if (tool != null && StringUtils.isEmpty(launchUrl)) contentCopy.put(LTIService.LTI_LAUNCH, tool.get(LTIService.LTI_LAUNCH));
 		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG, LTIService.CONTENT_MODEL, contentCopy);
 
-		if ( tool != null ) {
+		if (tool != null) {
 			Element toolElement = archiveTool(doc, tool);
 			retval.appendChild(toolElement);
 		}
 		return retval;
 	}
 
+	public static void mergeTool(Element element, LtiToolBean tool) {
+		mergeTool(element, tool != null ? tool.asMap() : null);
+	}
+
 	public static void mergeTool(Element element, Map<String, Object> tool) {
 		Foorm.mergeThing(element, LTIService.TOOL_MODEL, tool);
 	}
 
+	public static void mergeContent(Element element, LtiContentBean content, LtiToolBean tool) {
+		mergeContent(element, content != null ? content.asMap() : null, tool != null ? tool.asMap() : null);
+	}
+
 	public static void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool) {
 		Foorm.mergeThing(element, LTIService.CONTENT_MODEL, content);
-		if ( tool != null ) {
+		if (tool != null) {
 			NodeList nl = element.getElementsByTagName(LTIService.ARCHIVE_LTI_TOOL_TAG);
-			if ( nl.getLength() >= 1 ) {
+			if (nl.getLength() >= 1) {
 				Node toolNode = nl.item(0);
-				if ( toolNode.getNodeType() == Node.ELEMENT_NODE ) {
+				if (toolNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element toolElement = (Element) toolNode;
 					mergeTool(toolElement, tool);
 				}
@@ -3805,14 +3834,18 @@ public class SakaiLTIUtil {
 		}
 	}
 
+	public static String computeToolCheckSum(LtiToolBean tool) {
+		return computeToolCheckSum(tool != null ? tool.asMap() : null);
+	}
+
 	public static String computeToolCheckSum(Map<String, Object> tool) {
-		if ( tool == null ) return null;
-		if ( StringUtils.isEmpty((String) tool.get(LTIService.LTI_LAUNCH)) ) return null;
-		if ( StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_CONSUMERKEY)) &&
-			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_SECRET)) ) {
+		if (tool == null) return null;
+		if (StringUtils.isEmpty((String) tool.get(LTIService.LTI_LAUNCH))) return null;
+		if (StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_CONSUMERKEY)) &&
+			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_SECRET))) {
 			// Enough
-		} else if ( StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_CLIENT_ID)) &&
-			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_TOOL_KEYSET)) ) {
+		} else if (StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_CLIENT_ID)) &&
+			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_TOOL_KEYSET))) {
 			// Enough
 		} else {
 			return null;
@@ -3824,9 +3857,7 @@ public class SakaiLTIUtil {
 		sb.append((String) tool.get(LTIService.LTI13_CLIENT_ID));
 		sb.append((String) tool.get(LTIService.LTI13_TOOL_KEYSET));
 		sb.append((String) tool.get(LTIService.LTI_LAUNCH));
-
-		String retval = LTI13Util.sha256(sb.toString());
-		return retval;
+		return LTI13Util.sha256(sb.toString());
 	}
 
 	// /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
@@ -3848,22 +3879,29 @@ public class SakaiLTIUtil {
 		return -1L;
 	}
 
-	public static String getContentLaunch(Map<String, Object> content) {
-		if ( content == null ) return null;
-		int key = LTIUtil.toInt(content.get(LTIService.LTI_ID));
-		String siteId = (String) content.get(LTIService.LTI_SITE_ID);
-		if (key < 0 || siteId == null)
-			return null;
+	public static String getContentLaunch(LtiContentBean content) {
+		if (content == null) return null;
+		Long id = content.getId();
+		int key = (id != null) ? id.intValue() : -1;
+		String siteId = content.getSiteId();
+		if (key < 0 || siteId == null) return null;
 		return LTIService.LAUNCH_PREFIX + siteId + "/content:" + key;
 	}
 
-	public static String getToolLaunch(Map<String, Object> tool, String siteId) {
-		if ( tool == null ) return null;
-		if ( siteId == null ) return null;
-		int key = LTIUtil.toInt(tool.get(LTIService.LTI_ID));
-		if (key < 0 || siteId == null)
-			return null;
+	public static String getContentLaunch(Map<String, Object> content) {
+		return getContentLaunch(LtiContentBean.of(content));
+	}
+
+	public static String getToolLaunch(LtiToolBean tool, String siteId) {
+		if (tool == null || siteId == null) return null;
+		Long id = tool.getId();
+		int key = (id != null) ? id.intValue() : -1;
+		if (key < 0) return null;
 		return LTIService.LAUNCH_PREFIX + siteId + "/tool:" + key;
+	}
+
+	public static String getToolLaunch(Map<String, Object> tool, String siteId) {
+		return getToolLaunch(LtiToolBean.of(tool), siteId);
 	}
 
 	public static String getExportUrl(String siteId, String filterId, ExportType exportType) {
