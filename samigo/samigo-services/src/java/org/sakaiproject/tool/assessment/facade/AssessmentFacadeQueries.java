@@ -1755,13 +1755,15 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 					ItemData item = (ItemData) itemIter.next();
 					//We use this place to add the saveItem Events used by the search index to index all the new questions
 					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + toContext + "/saved itemId=" + item.getItemId().toString(), true));
-					String associationId = sourceAssessmentId + "." + item.getOriginalItemId();
-					if (rubricsInUseAssociationList.contains(associationId)) {
-						log.debug("Rubric association matched with a question by item {}.", associationId);
-						transversalMap.put(
-							ItemEntityProvider.ENTITY_PREFIX + "/" + associationId,
-							ItemEntityProvider.ENTITY_PREFIX + "/" + copiedAssessment.getAssessmentBaseId() + "." + item.getItemId()
-						);
+					if (sourceAssessmentId != null) {
+						String associationId = sourceAssessmentId + "." + item.getOriginalItemId();
+						if (rubricsInUseAssociationList.contains(associationId)) {
+							log.debug("Rubric association matched with a question by item {}.", associationId);
+							transversalMap.put(
+								ItemEntityProvider.ENTITY_PREFIX + "/" + associationId,
+								ItemEntityProvider.ENTITY_PREFIX + "/" + copiedAssessment.getAssessmentBaseId() + "." + item.getItemId()
+							);
+						}
 					}
 					Set<ItemMetaDataIfc> itemMetaDataSet = item.getItemMetaDataSet();
                     for (ItemMetaDataIfc itemMetaDataIfc : itemMetaDataSet) {
@@ -1784,6 +1786,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				getHibernateTemplate().flush();
 			}
 		}
+		getHibernateTemplate().flush();
 
 	}
 	
