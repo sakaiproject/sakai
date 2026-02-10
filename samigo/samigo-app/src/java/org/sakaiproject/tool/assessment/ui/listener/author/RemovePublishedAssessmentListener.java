@@ -39,9 +39,7 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tasks.api.Task;
 import org.sakaiproject.tasks.api.TaskService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -84,8 +82,11 @@ public class RemovePublishedAssessmentListener
     {
       log.debug("assessmentId = " + assessmentId); 	    
       PublishedAssessmentService assessmentService = new PublishedAssessmentService();
-      //get assessment to see if it has a calendar event
-      PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(assessmentId.toString());
+      // get settings without loading sections/items
+      PublishedAssessmentFacade assessment = assessmentService.getSettingsOfPublishedAssessment(assessmentId);
+      if (assessment == null) {
+        return;
+      }
 
       AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization"); 
       if (!authzBean.isUserAllowedToDeleteAssessment(assessmentId, assessment.getCreatedBy(), true)) {
@@ -100,15 +101,7 @@ public class RemovePublishedAssessmentListener
     	  calendarService.removeCalendarEvent(AgentFacade.getCurrentSiteId(), calendarDueDateEventId);
       }
       EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REMOVE, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + assessmentId, true));
-      Iterator<PublishedSectionData> sectionDataIterator = assessment.getSectionSet().iterator();
-        while (sectionDataIterator.hasNext()){
-            PublishedSectionData sectionData = sectionDataIterator.next();
-            Iterator<ItemDataIfc> itemDataIfcIterator = sectionData.getItemSet().iterator();
-            while (itemDataIfcIterator.hasNext()){
-                ItemDataIfc itemDataIfc = itemDataIfcIterator.next();
-                EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_UNINDEXITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/unindexed, publishedItemId=" + itemDataIfc.getItemIdString(), true));
-            }
-        }
+      EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_UNINDEXITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/unindexed, publishedAssessmentId=" + assessmentId, true));
 
       // Delete task
       String reference = AssessmentEntityProducer.REFERENCE_ROOT + "/" + AgentFacade.getCurrentSiteId() + "/" + assessment.getPublishedAssessmentId();

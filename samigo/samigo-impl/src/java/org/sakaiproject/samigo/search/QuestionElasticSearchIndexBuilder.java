@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -93,6 +95,10 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
 
     protected static final String ADD_RESOURCE_VALIDATION_KEY_ITEM = "questionId";
     protected static final String DELETE_RESOURCE_KEY_ITEM = "questionId";
+    private static final String RESOURCE_PREFIX_ASSESSMENT = "/sam_assessment/";
+    private static final String RESOURCE_PREFIX_PUBLISHED_ASSESSMENT = "/sam_publishedassessment/";
+    private static final String RESOURCE_TOKEN_ASSESSMENT_ID = " assessmentId=";
+    private static final String RESOURCE_TOKEN_PUBLISHED_ASSESSMENT_ID = " publishedAssessmentId=";
 
     /**
      * set to true to force an index rebuild at startup time, defaults to false.  This is probably something
@@ -108,6 +114,7 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
     protected boolean useAggregation = true;
     protected static final String AGGREGATION_NAME = "dedup";
     protected static final String AGGREGATION_TOP_HITS = "dedup_docs";
+    private final Set<String> pendingAssessmentDeletes = Collections.synchronizedSet(new HashSet<>());
 
     /**
      * Gives subclasses a chance to initialize configuration prior to reading/processing any
@@ -353,6 +360,48 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
             }
         }
 
+    protected void deleteAllDocumentForAssessment(String assessmentId, String subtype) {
+        log.debug("removing all documents from question index for assessment: {} and subtype: {}", assessmentId, subtype);
+        DeleteByQueryRequest request = new DeleteByQueryRequest(indexName)
+                .setQuery(boolQuery()
+                        .must(termQuery("assessmentId", assessmentId))
+                        .must(termQuery("subtype", subtype)));
+        try {
+            client.deleteByQuery(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            log.error("Failed to remove all documents from question index for assessment: {}", assessmentId, e);
+        }
+    }
+
+    protected void scheduleDeleteAllDocumentForAssessment(String assessmentId, String subtype) {
+        final String deleteKey = subtype + ":" + assessmentId;
+        if (!pendingAssessmentDeletes.add(deleteKey)) {
+            return;
+        }
+
+        if (backgroundScheduler == null) {
+            try {
+                deleteAllDocumentForAssessment(assessmentId, subtype);
+            } finally {
+                pendingAssessmentDeletes.remove(deleteKey);
+            }
+            return;
+        }
+
+        backgroundScheduler.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    deleteAllDocumentForAssessment(assessmentId, subtype);
+                } catch (Throwable t) {
+                    log.error("Failed to remove all documents from question index for assessment: {} and subtype: {}", assessmentId, subtype, t);
+                } finally {
+                    pendingAssessmentDeletes.remove(deleteKey);
+                }
+            }
+        }, 0);
+    }
+
     protected void deleteDocument(String id) {
         final Map<String, Object> params = new HashMap<>();
         params.put("questionId", id);
@@ -554,6 +603,12 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         if (resourceName.indexOf(" publishedItemId=")!=-1){
             resourceName = "/sam_publisheditem/" + resourceName.substring(resourceName.indexOf(" publishedItemId=") + 17);
         }
+        if (resourceName.indexOf(RESOURCE_TOKEN_ASSESSMENT_ID)!=-1){
+            resourceName = RESOURCE_PREFIX_ASSESSMENT + resourceName.substring(resourceName.indexOf(RESOURCE_TOKEN_ASSESSMENT_ID) + RESOURCE_TOKEN_ASSESSMENT_ID.length());
+        }
+        if (resourceName.indexOf(RESOURCE_TOKEN_PUBLISHED_ASSESSMENT_ID)!=-1){
+            resourceName = RESOURCE_PREFIX_PUBLISHED_ASSESSMENT + resourceName.substring(resourceName.indexOf(RESOURCE_TOKEN_PUBLISHED_ASSESSMENT_ID) + RESOURCE_TOKEN_PUBLISHED_ASSESSMENT_ID.length());
+        }
         if (resourceName.length() > 255) {
             throw new IllegalArgumentException("Entity Reference is longer than 255 characters. Reference="
                     + resourceName);
@@ -568,7 +623,9 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
         final String resourceName = (String)validationContext.get(ADD_RESOURCE_VALIDATION_KEY_RESOURCE_NAME);
         String id1;
 
-        if (event.getResource().indexOf(".delete@/") != -1){
+        if (resourceName.startsWith(RESOURCE_PREFIX_ASSESSMENT) || resourceName.startsWith(RESOURCE_PREFIX_PUBLISHED_ASSESSMENT)) {
+            id1 = resourceName;
+        } else if (event.getResource().indexOf(".delete@/") != -1){
             if (event.getResource().indexOf(" itemId=")!=-1){
                 id1 = "/sam_item/" + event.getResource().substring(event.getResource().indexOf(" itemId=") + 8);
             }else if (event.getResource().indexOf(" publishedItemId=")!=-1){
@@ -623,7 +680,13 @@ public class QuestionElasticSearchIndexBuilder extends BaseElasticSearchIndexBui
                 indexAdd(resourceName, ecp);
                 break;
             case DELETE:
-                deleteDocumentWithParams(extractDeleteDocumentParams(validationContext));
+                if (resourceName.startsWith(RESOURCE_PREFIX_ASSESSMENT)) {
+                    scheduleDeleteAllDocumentForAssessment(resourceName.substring(RESOURCE_PREFIX_ASSESSMENT.length()), "item");
+                } else if (resourceName.startsWith(RESOURCE_PREFIX_PUBLISHED_ASSESSMENT)) {
+                    scheduleDeleteAllDocumentForAssessment(resourceName.substring(RESOURCE_PREFIX_PUBLISHED_ASSESSMENT.length()), "publisheditem");
+                } else {
+                    deleteDocumentWithParams(extractDeleteDocumentParams(validationContext));
+                }
                 break;
             default:
                 // Should never happen if validation process was implemented correctly
