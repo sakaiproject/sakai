@@ -2506,9 +2506,20 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 	private String getUniqueImportedTitle(String title, Set<String> usedTitles) {
 		String candidate = (title == null) ? "" : title.trim();
+		String originalTitle = candidate;
 		int count = 0;
-		while (usedTitles.contains(candidate) && count++ <= 99) {
+		while (usedTitles.contains(candidate) && count < 100) {
 			candidate = AssessmentService.renameDuplicate(candidate);
+			count++;
+		}
+		if (usedTitles.contains(candidate)) {
+			String exhaustedCandidate = candidate;
+			do {
+				candidate = exhaustedCandidate + "-" + Long.toHexString(System.nanoTime());
+			} while (usedTitles.contains(candidate));
+			log.warn("getUniqueImportedTitle exhausted AssessmentService.renameDuplicate attempts and generated random fallback; "
+					+ "original title='{}', exhausted candidate='{}', final candidate='{}', attempt count={}",
+					originalTitle, exhaustedCandidate, candidate, count);
 		}
 		usedTitles.add(candidate);
 		return candidate;
