@@ -46,6 +46,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.util.foorm.Foorm;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.beans.LtiContentBean;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.grading.api.GradingService;
@@ -87,6 +88,19 @@ public class LineItemUtil {
 		}
 	}
 	// tool_id|content_id|resourceId|tag|
+	/**
+	 * Construct the GB_EXTERNAL_ID for LTI AGS entries
+	 * @param content - The content item (can be null)
+	 * @param lineItem - The lineItem to insert
+	 * @return The properly formatted external id, or null if content is null or has no tool id
+	 */
+	public static String constructExternalId(LtiContentBean content, SakaiLineItem lineItem) {
+		if (content == null) return null;
+		Long toolId = content.getToolId();
+		if (toolId == null) return null;
+		return constructExternalIdImpl(toolId, content.getId(), lineItem);
+	}
+
 	/**
 	 * Construct the GB_EXTERNAL_ID for LTI AGS entries
 	 * @param content - The content item cannot be null
@@ -336,7 +350,7 @@ public class LineItemUtil {
 				String assignmentReference = org.sakaiproject.assignment.api.AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
 				Integer assignmentContentId = a.getContentId();
 				if ( assignmentContentId == null ) continue;
-				Map<String, Object> content = ltiService.getContent(assignmentContentId.longValue(), context_id);
+				LtiContentBean content = ltiService.getContentAsBean(assignmentContentId.longValue(), context_id);
 				if ( content == null ) continue;
 				retval.put(assignmentReference, constructExternalId(content, null));
 			}
@@ -609,6 +623,23 @@ public class LineItemUtil {
 
 	/*
 	 * This is the statically constructed line item for a content item - if this is used, it will create
+	 * a line item when a score is first received. Bean overload using bean-based SakaiLTIUtil methods.
+	 */
+	public static SakaiLineItem constructLineItem(LtiContentBean content) {
+		if (content == null) return null;
+		String signed_placement = SakaiLTIUtil.getSignedPlacement(content);
+		SakaiLineItem li = new SakaiLineItem();
+		li.label = content.getTitle();
+		li.resourceLinkId = SakaiLTIUtil.getResourceLinkId(content);
+		if ( signed_placement != null ) {
+			li.id = getOurServerUrl() + LTI13_PATH + "lineitem/" + signed_placement;
+		}
+		li.scoreMaximum = 100.0;
+		return li;
+	}
+
+	/*
+	 * This is the statically constructed line item for a content item - if this is used, it will create
 	 * a line item when a score is first received
 	 */
 	public static SakaiLineItem constructLineItem(Map<String, Object> content) {
@@ -650,13 +681,29 @@ public class LineItemUtil {
 	}
 
 	/**
-	 * Gets the default lineItem for a content launch with content bean
+	 * Gets the default lineItem for a content launch with content bean. Uses bean-based SakaiLTIUtil methods.
 	 * @param site the site
 	 * @param content the content bean
 	 * @return the default line item
 	 */
-	public static SakaiLineItem getDefaultLineItem(Site site, org.sakaiproject.lti.beans.LtiContentBean content) {
-		return getDefaultLineItem(site, content != null ? content.asMap() : null);
+	public static SakaiLineItem getDefaultLineItem(Site site, LtiContentBean content) {
+		if (content == null) return null;
+		String signed_placement = SakaiLTIUtil.getSignedPlacement(content);
+		Long tool_id = content.getToolId();
+		log.debug("signed_placement={}; site id={}; tool_id={}", signed_placement, site.getId(), tool_id);
+		List<SakaiLineItem> toolItems = LineItemUtil.getLineItemsForTool(signed_placement, site, tool_id, null /* filter */);
+		String title = content.getTitle();
+		for (SakaiLineItem item : toolItems) {
+			if ( item.label == null) continue;
+			if ( item.label.equals(title) ) {
+				return item;
+			}
+		}
+		String autoConstruct = ServerConfigurationService.getString(LTI_ADVANTAGE_CONSTRUCT_LINE_ITEM, LTI_ADVANTAGE_CONSTRUCT_LINE_ITEM_DEFAULT);
+		if ( LTI_ADVANTAGE_CONSTRUCT_LINE_ITEM_TRUE.equals(autoConstruct) ) {
+			return constructLineItem(content);
+		}
+		return null;
 	}
 
 	/**
