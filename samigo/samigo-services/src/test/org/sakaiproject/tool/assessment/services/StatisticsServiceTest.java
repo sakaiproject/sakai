@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -274,6 +275,97 @@ public class StatisticsServiceTest {
         assertEquals(Long.valueOf(3), itemStatistics.getIncorrectResponses());
         assertEquals(Long.valueOf(2), itemStatistics.getBlankResponses());
         assertEquals(Integer.valueOf(71), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testMultipleChoiceMultipleCorrectSingleSelectionItem() {
+        long itemId = 0L;
+
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(0L, true),
+                answer(1L, false),
+                answer(2L, true),
+                answer(3L, false)
+        );
+
+        Set<ItemGradingData> gradingData = Set.of(
+                // Correct
+                gradingData(0L, 0L, 0L),
+                // Incorrect
+                gradingData(1L, 1L, 1L),
+                // Blank
+                gradingData(2L, null, 2L),
+                // Correct
+                gradingData(3L, 2L, 3L),
+                // Incorrect
+                gradingData(4L, 3L, 4L),
+                // Blank
+                gradingData(5L, null, 5L),
+                // Mixed records in one submission => incorrect
+                gradingData(6L, 0L, 6L),
+                gradingData(7L, 1L, 6L)
+        );
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(5), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(2), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(3), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(2), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(71), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testMultipleChoiceMultipleCorrectSingleSelectionItemUsesFallbackWhenAnswerCorrectFlagMissing() {
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION);
+
+        PublishedAnswer missingCorrectFlagAnswer = new PublishedAnswer();
+        missingCorrectFlagAnswer.setId(0L);
+        missingCorrectFlagAnswer.setIsCorrect(null);
+        missingCorrectFlagAnswer.setScore(1d);
+
+        PublishedAnswer incorrectAnswer = new PublishedAnswer();
+        incorrectAnswer.setId(1L);
+        incorrectAnswer.setIsCorrect(false);
+        incorrectAnswer.setScore(0d);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(missingCorrectFlagAnswer, incorrectAnswer);
+
+        ItemGradingData correctViaAutoScore = gradingData(0L, 0L, 0L);
+        correctViaAutoScore.setAutoScore(1d);
+        ItemGradingData incorrect = gradingData(1L, 1L, 1L);
+        incorrect.setAutoScore(0d);
+        ItemGradingData blank = gradingData(2L, null, 2L);
+
+        Set<ItemGradingData> gradingData = new HashSet<>();
+        gradingData.add(correctViaAutoScore);
+        gradingData.add(incorrect);
+        gradingData.add(blank);
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
     }
 
     @Test

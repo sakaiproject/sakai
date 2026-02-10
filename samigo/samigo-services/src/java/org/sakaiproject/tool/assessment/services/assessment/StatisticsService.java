@@ -181,7 +181,7 @@ public class StatisticsService {
             case MULTIPLE_CORRECT_ID:
                 return getItemStatisticsForItemWithMultipleCorrectAnswers(gradingData, answers);
             case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
-                return getItemStatisticsForItemWithOneCorrectAnswer(gradingData, answers);
+                return getItemStatisticsForMultipleCorrectSingleSelectionItem(gradingData, answers);
             case FILL_IN_BLANK_ID:
             case FILL_IN_NUMERIC_ID:
                 return getItemStatisticsForFillInItem(item, gradingData, answers);
@@ -250,6 +250,95 @@ public class StatisticsService {
                 .blankResponses(blankResponses)
                 .calcDifficulty()
                 .build();
+    }
+
+    // Item is considered correct if the single selected answer is correct.
+    // This method is dedicated to MULTIPLE_CORRECT_SINGLE_SELECTION to keep
+    // per-submission classification stable even with legacy/anomalous grading rows.
+    private ItemStatistics getItemStatisticsForMultipleCorrectSingleSelectionItem(Set<ItemGradingData> gradingData, Set<PublishedAnswer> answers) {
+        Map<Long, Set<ItemGradingData>> itemgradingDataByAssessmentGradingId = gradingData.stream()
+                .collect(Collectors.groupingBy(ItemGradingData::getAssessmentGradingId, Collectors.toSet()));
+
+        Map<Long, PublishedAnswer> answerMap = answers.stream()
+                .collect(Collectors.toMap(PublishedAnswer::getId, Function.identity()));
+
+        long correctResponses = 0;
+        long incorrectResponses = 0;
+        long blankResponses = 0;
+
+        for (Set<ItemGradingData> submissionItemGradingData : itemgradingDataByAssessmentGradingId.values()) {
+            List<ItemGradingData> answeredGradings = submissionItemGradingData.stream()
+                    .filter(itemGradingData -> itemGradingData.getPublishedAnswerId() != null)
+                    .collect(Collectors.toList());
+
+            if (answeredGradings.isEmpty()) {
+                blankResponses++;
+                continue;
+            }
+
+            boolean hasCorrectAnswer = false;
+            boolean hasIncorrectAnswer = false;
+            for (ItemGradingData itemGradingData : answeredGradings) {
+                if (isMcssSelectionCorrect(itemGradingData, answerMap)) {
+                    hasCorrectAnswer = true;
+                } else {
+                    hasIncorrectAnswer = true;
+                }
+
+                if (hasIncorrectAnswer) {
+                    break;
+                }
+            }
+
+            if (hasCorrectAnswer && !hasIncorrectAnswer) {
+                correctResponses++;
+            } else {
+                incorrectResponses++;
+            }
+        }
+
+        long attemptedResponses = correctResponses + incorrectResponses;
+
+        return ItemStatistics.builder()
+                .attemptedResponses(attemptedResponses)
+                .correctResponses(correctResponses)
+                .incorrectResponses(incorrectResponses)
+                .blankResponses(blankResponses)
+                .calcDifficulty()
+                .build();
+    }
+
+    private boolean isMcssSelectionCorrect(ItemGradingData itemGradingData, Map<Long, PublishedAnswer> answerMap) {
+        Long selectedAnswerId = itemGradingData.getPublishedAnswerId();
+        if (selectedAnswerId == null) {
+            return false;
+        }
+
+        PublishedAnswer selectedAnswer = answerMap.get(selectedAnswerId);
+        if (selectedAnswer != null && selectedAnswer.getIsCorrect() != null) {
+            return selectedAnswer.getIsCorrect();
+        }
+
+        if (selectedAnswer == null) {
+            log.warn(LOG_GRADING_DATA_ANSWER_NOT_FOUND, selectedAnswerId, itemGradingData.getItemGradingId());
+        } else {
+            log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswer.getId());
+        }
+
+        if (itemGradingData.getIsCorrect() != null) {
+            return itemGradingData.getIsCorrect();
+        }
+
+        Double autoScore = itemGradingData.getAutoScore();
+        if (autoScore != null) {
+            return autoScore > 0;
+        }
+
+        if (selectedAnswer != null && selectedAnswer.getScore() != null) {
+            return selectedAnswer.getScore() > 0;
+        }
+
+        return false;
     }
 
     // Item is considered correct, if all the selected answers are correct and the
