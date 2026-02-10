@@ -664,18 +664,19 @@ function includeLatestJQuery(where) {
 	if ( window.jQuery ) {
 		console.debug('jQuery already loaded '+jQuery.fn.jquery+' in '+where);
 		if (typeof jQuery.migrateWarnings == 'undefined') { 
-			document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
+			document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>');
 			console.debug('Adding jQuery migrate');
 		}
 		if (typeof jQuery.ui == 'undefined') {
-			document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
+			document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>');
 			document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
 			console.debug('Adding jQuery UI');
 		}
 	} else {
-		document.write('\x3Cscript src="'+webjars+'jquery/1.12.4/jquery.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript src="'+webjars+'jquery/1.12.4/jquery.min.js'+ver+'">'+'\x3C/script>');
+		document.write('\x3Cscript src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>');
+		document.write('\x3Cscript src="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.js'+ver+'">'+'\x3C/script>');
+		document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.12.1/jquery-ui.min.css'+ver+'"/>');
 		console.debug(`jQuery+migrate+UI Loaded by ${where} from ${webjars}`);
 	}
 }
@@ -815,7 +816,9 @@ function includeWebjarLibrary(library, options = {}) {
 			}
 	}
 
-	window.console && console.log(`Adding webjar library ${library}, version ${libraryVersion}`);
+	const frameContext = (window.top === window.self) ? "top" : "iframe";
+	const frameName = window.frameElement?.name || window.name || "unnamed";
+	window.console && console.log(`Adding webjar library ${library}, version ${libraryVersion} [${frameContext}:${frameName}]`);
 
 	// Add all the library references to the DOM.
 	jsReferences.forEach( (jsReference) => document.write(`<script src="${webjars}/${library}/${libraryVersion}${jsReference}${ver}"></script>`));
@@ -1007,4 +1010,3 @@ function lti_frameResizeNow(new_height, element_id) {
 
     DE_BOUNCE_LTI_FRAME_RESIZE_HEIGHT = new_height;
 }
-
