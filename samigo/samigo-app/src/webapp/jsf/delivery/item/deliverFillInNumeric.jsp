@@ -24,13 +24,6 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
-<script src="/library/js/headscripts.js"></script>
-<script>
-  includeLatestJQuery('deliverFillInNumeric');
-  includeWebjarLibrary('qtip2');
-  includeWebjarLibrary('bootstrap');
-</script>
-
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
