@@ -222,19 +222,7 @@ public class StatisticsService {
                 continue;
             }
 
-            PublishedAnswer selectedAnswer = answerMap.get(selectedAnswerId);
-            if (selectedAnswer == null) {
-                log.warn(LOG_GRADING_DATA_ANSWER_NOT_FOUND, selectedAnswerId, itemGradingData.getItemGradingId());
-                continue;
-            }
-
-            Boolean answerCorrect = selectedAnswer.getIsCorrect();
-            if (answerCorrect == null) {
-                log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswer.getId());
-                continue;
-            }
-
-            if (answerCorrect) {
+            if (isSelectedAnswerCorrect(itemGradingData, answerMap)) {
                 correctResponses++;
             } else {
                 incorrectResponses++;
@@ -279,7 +267,7 @@ public class StatisticsService {
             boolean hasCorrectAnswer = false;
             boolean hasIncorrectAnswer = false;
             for (ItemGradingData itemGradingData : answeredGradings) {
-                if (isMcssSelectionCorrect(itemGradingData, answerMap)) {
+                if (isSelectedAnswerCorrect(itemGradingData, answerMap)) {
                     hasCorrectAnswer = true;
                 } else {
                     hasIncorrectAnswer = true;
@@ -308,7 +296,7 @@ public class StatisticsService {
                 .build();
     }
 
-    private boolean isMcssSelectionCorrect(ItemGradingData itemGradingData, Map<Long, PublishedAnswer> answerMap) {
+    private boolean isSelectedAnswerCorrect(ItemGradingData itemGradingData, Map<Long, PublishedAnswer> answerMap) {
         Long selectedAnswerId = itemGradingData.getPublishedAnswerId();
         if (selectedAnswerId == null) {
             return false;
@@ -534,13 +522,15 @@ public class StatisticsService {
                 PublishedAnswer selectedAnswer = answerMap.get(selectedAnswerId);
                 if (selectedAnswer == null) {
                     log.warn(LOG_GRADING_DATA_ANSWER_NOT_FOUND, selectedAnswerId, itemGradingData.getItemGradingId());
-                    continue;
+                    hasIncorrectAnswer = true;
+                    break;
                 }
 
                 Boolean answerCorrect = selectedAnswer.getIsCorrect();
                 if (answerCorrect == null) {
-                    log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, answerCorrect);
-                    continue;
+                    log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswer.getId());
+                    hasIncorrectAnswer = true;
+                    break;
                 }
 
                 if (!answerCorrect) {
@@ -765,7 +755,7 @@ public class StatisticsService {
                     log.warn(LOG_GRADING_DATA_IS_CORRECT_IS_NULL, itemGradingData.getItemGradingId());
                 }
 
-                if (isCorrect) {
+                if (Boolean.TRUE.equals(isCorrect)) {
                     correctAnswers++;
                 }
             }

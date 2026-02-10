@@ -969,7 +969,7 @@ public class HistogramListener
         		while (ansIter.hasNext()) {
         			AnswerIfc answer = (AnswerIfc)ansIter.next();
         			answers.add(answer);
-        			if (requireAllCorrectAnswers && answer.getIsCorrect()) {
+        			if (requireAllCorrectAnswers && Boolean.TRUE.equals(answer.getIsCorrect())) {
         				numCorrectAnswersRequired++;
         			}
         		}
@@ -1223,7 +1223,7 @@ public class HistogramListener
 					while (answeriter.hasNext()) {
 						AnswerIfc answerchoice = (AnswerIfc) answeriter
 								.next();
-						if (answerchoice.getIsCorrect().booleanValue()) {
+						if (Boolean.TRUE.equals(answerchoice.getIsCorrect())) {
 							corranswers++;
 						}
 					}
@@ -1627,7 +1627,7 @@ public class HistogramListener
 						while (answeriter.hasNext()) {
 							AnswerIfc answerchoice = (AnswerIfc) answeriter
 									.next();
-							if (answerchoice.getIsCorrect().booleanValue()) {
+							if (Boolean.TRUE.equals(answerchoice.getIsCorrect())) {
 								corranswers++;
 							}
 						}
