@@ -167,6 +167,8 @@ public class LoginServlet extends HttpServlet {
         PublishedAssessmentFacade pub = service.getPublishedAssessmentIdByAlias(alias);
         if (pub == null) {
             log.warn("The published URL you have entered is incorrect. Please check in Published Settings.");
+            RequestDispatcher dispatcher = req.getRequestDispatcher("/jsf/delivery/assessmentNotAvailable.faces");
+            dispatcher.forward(req, res);
             return;
         }
 
@@ -291,7 +293,14 @@ public class LoginServlet extends HttpServlet {
             if (!isAuthenticated) {
                 relativePath = false;
                 delivery.setActionString(null);
-                path = "/authn/login?url=" + URLEncoder.encode(req.getRequestURL().toString() + "?id=" + alias, StandardCharsets.UTF_8);
+                String originalUrl = req.getRequestURL().toString();
+                String query = req.getQueryString();
+                if (StringUtils.isNotBlank(query)) {
+                    originalUrl += "?" + query;
+                    path = "/authn/login?url=" + URLEncoder.encode(originalUrl, StandardCharsets.UTF_8);
+                } else {
+                    path = "/authn/login?url=" + URLEncoder.encode(originalUrl + "?id=" + alias, StandardCharsets.UTF_8);
+                }
             } else { // isAuthenticated but not authorized
                 path = "/jsf/delivery/accessDenied.faces";
                 if (releaseTo == null || !releaseTo.contains(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
