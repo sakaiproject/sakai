@@ -20,6 +20,10 @@
 
 package org.sakaiproject.lti.beans;
 
+import org.sakaiproject.lti.foorm.FoormBaseBean;
+import org.sakaiproject.lti.foorm.FoormField;
+import org.sakaiproject.lti.foorm.FoormType;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -42,14 +46,18 @@ import org.sakaiproject.lti.api.LTIService;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
 @ToString
-public class LtiMembershipsJobBean extends LTIBaseBean {
+public class LtiMembershipsJobBean extends FoormBaseBean {
 
-    // Fields from MEMBERSHIPS_JOBS_MODEL
-    public String siteId;              // MEMBERSHIPS_JOBS_MODEL: "SITE_ID:text:maxlength=99:required=true"
-    public String membershipsId;       // MEMBERSHIPS_JOBS_MODEL: "memberships_id:text:maxlength=256:required=true"
-    public String membershipsUrl;      // MEMBERSHIPS_JOBS_MODEL: "memberships_url:text:maxlength=4000:required=true"
-    public String consumerkey;         // MEMBERSHIPS_JOBS_MODEL: "consumerkey:text:label=bl_consumerkey:maxlength=1024"
-    public String ltiVersion;          // MEMBERSHIPS_JOBS_MODEL: "lti_version:text:maxlength=32:required=true"
+    @FoormField(value = "SITE_ID", type = FoormType.TEXT, maxlength = 99, required = true)
+    public String siteId;
+    @FoormField(value = "memberships_id", type = FoormType.TEXT, maxlength = 256, required = true)
+    public String membershipsId;
+    @FoormField(value = "memberships_url", type = FoormType.TEXT, maxlength = 4000, required = true)
+    public String membershipsUrl;
+    @FoormField(value = "consumerkey", type = FoormType.TEXT, label = "bl_consumerkey", maxlength = 1024)
+    public String consumerkey;
+    @FoormField(value = "lti_version", type = FoormType.TEXT, maxlength = 32, required = true)
+    public String ltiVersion;
 
     /**
      * Creates an LtiMembershipsJobBean instance from a Map<String, Object>.
