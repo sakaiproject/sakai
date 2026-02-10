@@ -5,8 +5,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.tsugi.lti.objects.*;
-import org.tsugi.pox.POXRequestHandler;
-import org.tsugi.pox.POXResponseBuilder;
+import org.tsugi.lti.FormResponseBuilder;
+import org.tsugi.lti.POXRequestHandler;
+import org.tsugi.lti.POXResponseBuilder;
 import org.tsugi.lti.POXJacksonParser;
 
 /**
@@ -72,7 +73,7 @@ public class SakaiPreObjectTest {
             "  </statusinfo>\n" +
             "</message_response>";
         
-        // Build using MessageResponseBuilder
+        // Build using FormResponseBuilder (formerly MessageResponseBuilder)
         Member member1 = new Member();
         member1.setLisResultSourcedId("9b106027c94ffe1a43dd662245125173616e5ef29f15d6866bcb4fc19428e9ac:::00fc9208-c718-4918-b9e3-4176c27dcfc5:::content:6");
         member1.setPersonContactEmailPrimary("p@p.com");
@@ -95,7 +96,7 @@ public class SakaiPreObjectTest {
         member2.setRoles("Learner,http://purl.imsglobal.org/vocab/lis/v2/membership#Learner");
         member2.setUserId("f2c5d415-e060-4757-83f2-002a853042f9");
         
-        MessageResponseBuilder builder = MessageResponseBuilder.success()
+        FormResponseBuilder builder = FormResponseBuilder.success()
             .withLtiMessageType("basic-lis-readmembershipsforcontext")
             .addMember(member1)
             .addMember(member2);

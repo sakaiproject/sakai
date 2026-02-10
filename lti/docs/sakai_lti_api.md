@@ -171,61 +171,6 @@ by Sakai to insure that it is not modified by the External Tool.
        </statusinfo>
      </message_response>
 
-Basic Outcomes API (Deprecated after LTI 1.1)
-=============================================
-
-If Sakai is willing to allow the external tool to set an outcome for a
-particular user/resource/context combination, it adds the following
-values to the launch:
-
-    ext_ims_lis_basic_outcome_url=http://localhost:8080/imsblis/service/
-    lis_result_sourcedid=7d65a1b397
-
-The **lis\_result\_sourcedid** is not prefixed with "ext\_" because it
-is a valid launch parameter in LTI 1.0 and 1.1.
-
-To set the outcome, the Tool Provider sends the following POST data
-(form encoded) and signed using OAuth to the
-**ext\_ims\_lis\_basic\_outcome\_url**.
-
-    POST http://localhost:8080/imsblis/service/
-
-    lti_message_type=basic-lis-updateresult
-    result_resultscore_textstring=0.10
-    result_resultdata_text=Nice work!
-    sourcedid=7d65a1b397
-    lti_version=LTI-1p0
-    oauth_callback=about:blank
-    oauth_consumer_key=12345
-    oauth_nonce=bdcb2d645ba41255f0bce60bb31e3ace
-    oauth_signature=0G0SXTS1eLMh4FCZ9q4JYlLjSyE=
-    oauth_signature_method=HMAC-SHA1
-    oauth_timestamp=1338868573
-    oauth_version=1.0
-
-**sourcedid**
-
-This is the value from the launch **lis\_result\_sourcedid** for the
-user/resource/context combination. This value is opaque and is
-internally signed by the Sakai to insure that it is not modified by the
-External Tool.
-
-**result\_resultscore\_textstring**
-
-A floating point number between 0.0 and 1.0.
-
-**Returned Data**
-
-    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-    <message_response>
-      <lti_message_type>basic-lis-updateresult</lti_message_type>
-      <statusinfo>
-        <codemajor>Success</codemajor>
-        <codeminor>fullsuccess</codeminor>
-        <severity>Status</severity>
-      </statusinfo>
-    </message_response>
-
 Conclusion
 ==========
 

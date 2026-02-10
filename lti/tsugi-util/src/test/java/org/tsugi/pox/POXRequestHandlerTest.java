@@ -20,6 +20,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import org.tsugi.lti.Base64;
+import org.tsugi.lti.POXConstants;
+import org.tsugi.lti.POXRequestHandler;
+import org.tsugi.lti.POXResponseBuilder;
 import org.tsugi.lti.objects.POXEnvelopeRequest;
 import org.tsugi.lti.objects.POXCodeMinor;
 import org.tsugi.lti.objects.POXCodeMinorField;

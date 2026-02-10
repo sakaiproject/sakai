@@ -1,4 +1,4 @@
-package org.tsugi.pox;
+package org.tsugi.lti;
 
 import java.io.Reader;
 import java.net.URLDecoder;
@@ -10,8 +10,6 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.tsugi.lti.Base64;
-import org.tsugi.lti.POXJacksonParser;
 import org.tsugi.lti.objects.POXEnvelopeRequest;
 import org.tsugi.lti.objects.POXRequestBody;
 import org.tsugi.lti.objects.POXCodeMinor;
@@ -466,3 +464,4 @@ public class POXRequestHandler {
             .buildAsXml();
     }
 }
+

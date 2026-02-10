@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import org.tsugi.lti.POXResponseBuilder;
+import org.tsugi.lti.POXResponseHelper;
 import org.tsugi.lti.objects.POXEnvelopeResponse;
 import org.tsugi.lti.objects.POXCodeMinorField;
 
@@ -135,7 +137,7 @@ public class POXResponseBuilderTest {
     @Test
     public void testCreateSuccessResponseStatic() {
         // Most POX success responses don't have body content
-        String response = POXResponseFactory.createSuccessResponse(
+        String response = POXResponseHelper.createSuccessResponse(
             "Test success", "msg123", "replaceResultRequest");
         
         assertNotNull("Response should not be null", response);
@@ -148,7 +150,7 @@ public class POXResponseBuilderTest {
         Properties minorCodes = new Properties();
         minorCodes.setProperty("error1", "invaliddata");
         
-        String response = POXResponseFactory.createFailureResponse(
+        String response = POXResponseHelper.createFailureResponse(
             "Test failure", minorCodes, "msg123", "replaceResultRequest");
         
         assertNotNull("Response should not be null", response);
@@ -158,7 +160,7 @@ public class POXResponseBuilderTest {
     
     @Test
     public void testCreateUnsupportedResponseStatic() {
-        String response = POXResponseFactory.createUnsupportedResponse(
+        String response = POXResponseHelper.createUnsupportedResponse(
             "Test unsupported", "msg123", "replaceResultRequest");
         
         assertNotNull("Response should not be null", response);
@@ -168,7 +170,7 @@ public class POXResponseBuilderTest {
     
     @Test
     public void testCreateProcessingResponseStatic() {
-        String response = POXResponseFactory.createProcessingResponse(
+        String response = POXResponseHelper.createProcessingResponse(
             "Test processing", "msg123", "replaceResultRequest");
         
         assertNotNull("Response should not be null", response);
