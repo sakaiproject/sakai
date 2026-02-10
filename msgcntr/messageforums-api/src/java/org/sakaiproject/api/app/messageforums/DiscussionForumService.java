@@ -50,7 +50,7 @@ public interface DiscussionForumService extends EntityProducer
 
 	public static final String EVENT_MESSAGES_FORWARD = "messages.forward";
 	
-	public static final String EVENT_MESSAGES_READ_RECEIPT = "message.read.receipt";
+	public static final String EVENT_MESSAGES_READ_RECEIPT = "messages.read.receipt";
 
 	// Events for the (Discussion) Forums tool
 	public static final String EVENT_FORUMS_ADD = "forums.new";

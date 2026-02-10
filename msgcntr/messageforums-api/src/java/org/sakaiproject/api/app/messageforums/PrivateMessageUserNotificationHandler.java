@@ -17,9 +17,11 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -32,6 +34,8 @@ import org.sakaiproject.messaging.api.AbstractUserNotificationHandler;
 import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.stereotype.Component;
 
@@ -52,7 +56,8 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
 
     @Override
     public List<String> getHandledEvents() {
-        return Arrays.asList(DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT);
+        return Arrays.asList(DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT,
+                DiscussionForumService.EVENT_MESSAGES_ADD);
     }
 
     @Override
@@ -63,14 +68,21 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
         String ref = e.getResource();
         String[] pathParts = ref.split("/");
 
+        if (pathParts.length < 6) {
+            log.warn("Invalid reference for event {}", e.getEvent());
+            return Optional.empty();
+        }
+
         String siteId = pathParts[3];
-        String pvtMessageId = pathParts[pathParts.length - 2];
+        String pvtMessageId = pathParts[5];
 
         try {
             PrivateMessage pvtMessage = privateMessageManager.getPrivateMessageByDecryptedId(pvtMessageId);
             switch (e.getEvent()) {
                 case DiscussionForumService.EVENT_MESSAGES_READ_RECEIPT:
-                    return Optional.of(handleAdd(from, siteId, pvtMessage.getCreatedBy(), pvtMessage));
+                    return Optional.of(handleReadReceipt(from, siteId, pvtMessage.getCreatedBy(), pvtMessage));
+                case DiscussionForumService.EVENT_MESSAGES_ADD:
+                    return Optional.of(handleAdd(from, siteId, pvtMessage));
                 default:
                     return Optional.empty();
             }
@@ -81,7 +93,7 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
         return Optional.empty();
     }
 
-    private List<UserNotificationData> handleAdd(String from, String siteId, String userId, PrivateMessage pvtMessage) {
+    private List<UserNotificationData> handleReadReceipt(String from, String siteId, String to, PrivateMessage pvtMessage) {
 
         List<UserNotificationData> notificationEvents = new ArrayList<>();
 
@@ -90,18 +102,45 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
             try {
                 Site site = siteService.getSite(siteId);
                 String title = pvtMessage.getTitle();
-                if (!from.equals(userId)) {
+                if (!from.equals(to)) {
                     String toolId = site.getToolForCommonId(DiscussionForumService.MESSAGES_TOOL_ID).getId();
                     String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
                             + "/tool/" + toolId + "/privateMsg/pvtMsgDirectAccess?current_msg_detail=" + pvtMessage.getId();
-                    notificationEvents.add(new UserNotificationData(from, userId, siteId, title, url, DiscussionForumService.MESSAGES_TOOL_ID, false, null));
+                    notificationEvents.add(new UserNotificationData(from, to, siteId, title, url, DiscussionForumService.MESSAGES_TOOL_ID, false, null));
                 }
             } catch (IdUnusedException idEx) {
-                log.error("Failed to find the site: " + siteId, idEx);
+                log.error("Failed to find the site: {}", siteId, idEx);
             }
             
         }
 
         return notificationEvents;
+    }
+
+    private List<UserNotificationData> handleAdd(String from, String siteId, PrivateMessage pvtMessage) {
+
+        // If the message is not open yet or is draft, return empty.
+        Date openTime = pvtMessage.getCreated();
+        if ((openTime != null && openTime.after(new Date())) || pvtMessage.getDraft()) {
+            return Collections.emptyList();
+        }
+
+        try {
+            Site site = siteService.getSite(siteId);
+            String title = pvtMessage.getTitle();
+            String toolId = site.getToolForCommonId(DiscussionForumService.MESSAGES_TOOL_ID).getId();
+            String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
+                    + "/tool/" + toolId + "/privateMsg/pvtMsgDirectAccess?current_msg_detail=" + pvtMessage.getId();
+
+            return pvtMessage.getRecipients()
+                .stream()
+                .filter(r -> !StringUtils.equals(r.getUserId(), from))
+                .map(r -> new UserNotificationData(from, r.getUserId(), siteId, title, url, DiscussionForumService.MESSAGES_TOOL_ID, false, null))
+                .collect(Collectors.toList());
+        } catch (IdUnusedException idEx) {
+            log.error("No site for id {}: {}", siteId, idEx.toString());
+        }
+
+        return Collections.emptyList();
     }
 }
