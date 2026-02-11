@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.webapi.controllers;
+package org.sakaiproject.webapi.controllers.test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -27,11 +29,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import org.adl.sequencer.IValidRequests;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -47,22 +52,31 @@ import org.sakaiproject.scorm.service.api.launch.ScormTocEntry;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.webapi.controllers.ScormController;
 
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.JUnitRestDocumentation;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.junit.Assert.assertEquals;
 
-public class ScormControllerTest
-{
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { WebApiTestConfiguration.class })
+public class ScormControllerTest extends BaseControllerTests {
+
     private MockMvc mockMvc;
     private ScormLaunchService scormLaunchService;
 
+    @Rule
+    public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation();
+
     @Before
-    public void setUp()
-    {
+    public void setUp() {
+
         scormLaunchService = mock(ScormLaunchService.class);
 
         ScormController controller = new ScormController();
@@ -77,12 +91,14 @@ public class ScormControllerTest
         controller.setPortalService(mock(PortalService.class));
         controller.setSiteService(mock(SiteService.class));
 
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+            .apply(documentationConfiguration(this.restDocumentation))
+            .build();
     }
 
     @Test
-    public void createSessionReturnsContext() throws Exception
-    {
+    public void createSessionReturnsContext() throws Exception {
+
         ScormLaunchContext context = buildLaunchContext();
         when(scormLaunchService.openSession(anyLong(), any(), any())).thenReturn(context);
 
@@ -93,12 +109,13 @@ public class ScormControllerTest
             .andExpect(jsonPath("$.sessionId").value("session-123"))
             .andExpect(jsonPath("$.contentPackageId").value(7))
             .andExpect(jsonPath("$.state").value("READY"))
-            .andExpect(jsonPath("$.launchPath").value("contentpackages/resourceName/demo/index.html"));
+            .andExpect(jsonPath("$.launchPath").value("contentpackages/resourceName/demo/index.html"))
+            .andDo(document("create-scorm-session", preprocessor));
     }
 
     @Test
-    public void runtimeInvocationReturnsPayload() throws Exception
-    {
+    public void runtimeInvocationReturnsPayload() throws Exception {
+
         ArgumentCaptor<ScormRuntimeInvocation> invocationCaptor = ArgumentCaptor.forClass(ScormRuntimeInvocation.class);
 
         when(scormLaunchService.runtime(eq("session-123"), invocationCaptor.capture())).thenReturn(ScormRuntimeResult.builder()
@@ -116,30 +133,31 @@ public class ScormControllerTest
             .andExpect(jsonPath("$.value").value("true"))
             .andExpect(jsonPath("$.errorCode").value("0"))
             .andExpect(jsonPath("$.launchPath").doesNotExist())
-            .andExpect(jsonPath("$.sessionEnded").value(false));
+            .andExpect(jsonPath("$.sessionEnded").value(false))
+            .andDo(document("initialize-runtime", preprocessor));
 
         ScormRuntimeInvocation captured = invocationCaptor.getValue();
         assertEquals("sco-1", captured.getScoId());
     }
 
     @Test
-    public void getSessionReturns404WhenMissing() throws Exception
-    {
-        when(scormLaunchService.getSession("missing")).thenReturn(java.util.Optional.empty());
+    public void getSessionReturns404WhenMissing() throws Exception {
+
+        when(scormLaunchService.getSession("missing")).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/scorm/sessions/missing"))
             .andExpect(status().isNotFound());
     }
 
     @Test
-    public void closeSessionReturnsNoContent() throws Exception
-    {
+    public void closeSessionReturnsNoContent() throws Exception {
+
         mockMvc.perform(delete("/scorm/sessions/session-123"))
             .andExpect(status().isOk());
     }
 
-    private ScormLaunchContext buildLaunchContext()
-    {
+    private ScormLaunchContext buildLaunchContext() {
+
         SessionBean sessionBean = new SessionBean();
         sessionBean.setAttemptNumber(1L);
         sessionBean.setCompletionUrl("/complete");

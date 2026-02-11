@@ -12,7 +12,7 @@ src/main/asciidoc/webapi.adoc using include directives. This approach allows us 
 authored docs with auto generated snippets as an output of our test process.
 
 Once you've run a successful build and deployed the webapi project, the docs will be available at
-<http://localhost/docs/webapi.html>
+<http://localhost/api/docs/webapi.html>
 
 This documentation approach is a work in progress and we will be adding
 the rest endpoints one by one.
