@@ -49,6 +49,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTISubstitutionsFilter;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -1116,8 +1118,8 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
-	public void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool) {
-		SakaiLTIUtil.mergeContent(element, content, tool);
+	public void mergeContent(Element element, LtiContentBean content, LtiToolBean tool) {
+		SakaiLTIUtil.mergeContentBean(element, content, tool);
 	}
 
 	@Override
@@ -1129,67 +1131,62 @@ public abstract class BaseLTIService implements LTIService {
 		Node toolNode = nl.item(0);
 		if ( toolNode.getNodeType() != Node.ELEMENT_NODE ) return null;
 
-		Element toolElement = (Element) toolNode;
-		Map<String, Object> content = new HashMap();
-		Map<String, Object> tool = new HashMap();
-		this.mergeContent(toolElement, content, tool);
-		String contentErrors = this.validateContent(content);
+		Element contentElement = (Element) toolNode;
+		LtiContentBean contentBean = new LtiContentBean();
+		LtiToolBean toolBean = new LtiToolBean();
+		mergeContent(contentElement, contentBean, toolBean);
+
+		String contentErrors = validateContent(contentBean.asMap());
 		if ( contentErrors != null ) {
 			log.warn("import found invalid content tag {}", contentErrors);
 			return null;
 		}
 
-		String toolErrors = this.validateTool(tool);
+		String toolErrors = validateTool(toolBean.asMap());
 		if ( toolErrors != null ) {
 			log.warn("import found invalid tool tag {}", toolErrors);
 			return null;
 		}
 
-		// Lets find the right tool to associate with
-		// See also lessonbuilder/tool/src/java/org/sakaiproject/lessonbuildertool/service/BltiEntity.java
-		String launchUrl = (String) content.get(LTIService.LTI_LAUNCH);
+		String launchUrl = contentBean.getLaunch();
 		if ( launchUrl == null ) {
 			log.warn("lti content import could not find launch url");
 			return null;
 		}
 
-		log.debug("LTI Import launchUrl {}",launchUrl);
-		String toolCheckSum = (String) tool.get(LTIService.SAKAI_TOOL_CHECKSUM);
-		List<Map<String,Object>> tools = this.getTools(null,null,0,0, siteId);
-		Map<String, Object> theTool = SakaiLTIUtil.findBestToolMatch(launchUrl, toolCheckSum, tools);
+		log.debug("LTI Import launchUrl {}", launchUrl);
+		String toolCheckSum = toolBean.getSakaiToolChecksum();
+		List<LtiToolBean> toolBeans = getToolsAsBeans(null, null, 0, 0, siteId);
+		LtiToolBean theTool = SakaiLTIUtil.findBestToolMatchBean(launchUrl, toolCheckSum, toolBeans);
 		if ( theTool == null ) {
-				Object result = this.insertTool(tool, siteId);
-				if ( ! (result instanceof Long) ) {
-					log.info("Could not insert tool {}", result);
-					return null;
-				}
-				theTool = this.getTool((Long) result, siteId);
+			Object result = insertTool(toolBean, siteId);
+			if ( ! (result instanceof Long) ) {
+				log.info("Could not insert tool {}", result);
+				return null;
+			}
+			theTool = getToolAsBean((Long) result, siteId);
 		}
 
-		Map<String, Object> theContent = null;
 		if ( theTool == null ) {
 			log.info("No tool to associate to content item {}", launchUrl);
 			return null;
-		} else {
-			Long toolId = LTIUtil.toLongNull(theTool.get(LTIService.LTI_ID));
-			log.debug("Matched toolId={} for launchUrl={}", toolId, launchUrl);
-			content.put(LTIService.LTI_TOOL_ID, toolId.intValue());
-			Object result = this.insertContent(convertToProperties(content), siteId);
-			if ( ! (result instanceof Long) ) {
-				log.info("Could not insert content {}", result);
-				return null;
-			}
-
-			theContent = this.getContent((Long) result, siteId);
-			if ( theContent == null) {
-				log.warn("Could not re-retrieve inserted content item {}", launchUrl);
-				return null;
-			} else {
-				Long contentKey = LTIUtil.toLongNull(theContent.get(LTIService.LTI_ID));
-				log.debug("Created contentKey={} for launchUrl={}", contentKey, launchUrl);
-				return contentKey;
-			}
 		}
+		Long toolId = theTool.getId();
+		log.debug("Matched toolId={} for launchUrl={}", toolId, launchUrl);
+		contentBean.setToolId(toolId);
+		Object result = insertContent(contentBean, siteId);
+		if ( ! (result instanceof Long) ) {
+			log.info("Could not insert content {}", result);
+			return null;
+		}
+		LtiContentBean theContent = getContentAsBean((Long) result, siteId);
+		if ( theContent == null ) {
+			log.warn("Could not re-retrieve inserted content item {}", launchUrl);
+			return null;
+		}
+		Long contentKey = theContent.getId();
+		log.debug("Created contentKey={} for launchUrl={}", contentKey, launchUrl);
+		return contentKey;
 	}
 
 	@Override

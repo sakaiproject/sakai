@@ -614,13 +614,30 @@ public interface LTIService extends LTISubstitutionsFilter {
     Element archiveContentByKey(Document doc, Long contentKey, String siteId);
 
     /**
-     * Extract a tool and content from an LTI content element in XML
+     * Extract a tool and content from an LTI content element in XML.
+     * Primary overload; populates the beans in place.
      *
      * @param  element  The sakai-lti-content tag
-     * @param  content  An empty map to return the content item
-     * @param  tool  An empty map to return the tool associated with content item
+     * @param  content  Bean to populate with content (may be null to skip)
+     * @param  tool  Bean to populate with nested tool (may be null to skip)
      */
-    void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool);
+    void mergeContent(Element element, org.sakaiproject.lti.beans.LtiContentBean content, org.sakaiproject.lti.beans.LtiToolBean tool);
+
+    /**
+     * Extract a tool and content from an LTI content element in XML.
+     * Shims to bean overload; populates the maps.
+     */
+    default void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool) {
+        org.sakaiproject.lti.beans.LtiContentBean contentBean = new org.sakaiproject.lti.beans.LtiContentBean();
+        org.sakaiproject.lti.beans.LtiToolBean toolBean = new org.sakaiproject.lti.beans.LtiToolBean();
+        mergeContent(element, contentBean, toolBean);
+        if (content != null) {
+            content.putAll(contentBean.asMap());
+        }
+        if (tool != null) {
+            tool.putAll(toolBean.asMap());
+        }
+    }
 
     /**
      * Import a content item and link it to an existing or new tool
