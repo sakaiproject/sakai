@@ -10,18 +10,6 @@
     }
   }
 
-  #conv-nothing-selected {
-    display: flex;
-    margin-top: 60px;
-    justify-content: center;
-    font-weight: 300;
-    font-size: 24px;
-  }
-
-  #conv-desktop {
-    display: flex;
-  }
-
   #conv-settings {
     font-weight: bold;
     font-size: 12px;
@@ -44,6 +32,15 @@
 
     &.setting-active > button {
       font-weight: 550;
+    }
+  }
+
+  #conv-add-topic {
+    i {
+      display: none;
+    }
+    span {
+      display: inline;
     }
   }
 
@@ -116,16 +113,6 @@
     }
   }
 
-  #conv-topic-list-wrapper {
-    width: 432px;
-  }
-
-  #conv-content {
-    padding: 20px;
-    flex: 1;
-    color: var(--sakai-text-color);
-  }
-
   .topic-tags > .tag:nth-child(1) {
     margin-left: 0;
   }
@@ -159,51 +146,24 @@
     }
   }
 
-  @media (min-width: 801px) {
-    #conv-mobile {
-      display: none;
-    }
-    .add-topic-text {
-      display: inline;
-    }
-    .add-topic-icon {
-      display: none;
-    }
-  }
-
   @media (max-width: 800px) {
 
-    #conv-desktop {
-      display: none;
-    }
-    #conv-mobile {
-      display: block;
-    }
-    .add-topic-text {
-      display: none;
-    }
-    .add-topic-icon {
-      display: inline;
-      color: green;
+    #conv-add-topic {
+      i {
+        display: inline;
+        font-size: 24px;
+      }
+      span {
+        display: none;
+      }
     }
 
     #conv-topic-list-wrapper {
       width: 100%;
     }
 
-    .topic-list {
-      width: 100%;
-    }
-
     #topic-list-topics {
       border: inherit;
-    }
-
-    .conv-add-topic {
-      border-radius: inherit;
-      padding: inherit;
-      background: inherit;
-      margin-left: 14px;
     }
 
     .topic-status-text {
