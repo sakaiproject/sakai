@@ -859,12 +859,17 @@ public class SakaiLTIUtilTest {
 		expectedContent.put("frameheight", "42");
 		expectedContent.put("newpage", "1");
 		expectedContent.put("launch", "http://localhost:a-launch?x=42");
-		assertContentXmlEquivalent(doc, expectedContent, null);
+		assertElementXmlEquivalent(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG, expectedContent, LTIService.ARCHIVE_LTI_TOOL_TAG);
 
 		Map<String, Object> content2  = new HashMap();
 		SakaiLTIUtil.mergeContent(element, content2, null);
-		content.remove(LTIService.LTI_TOOL_ID);
-		assertMapsEquivalent(content, content2);
+		Map<String, Object> expectedContentMap = new HashMap();
+		expectedContentMap.put(LTIService.LTI_FRAMEHEIGHT, 42);
+		expectedContentMap.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		expectedContentMap.put(LTIService.LTI_TITLE, "An LTI title");
+		expectedContentMap.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		expectedContentMap.put(LTIService.LTI_NEWPAGE, 1);
+		assertEquals(expectedContentMap, content2);
 	}
 
 	@Test
@@ -896,7 +901,7 @@ public class SakaiLTIUtilTest {
 		expectedToolElements.put("sendname", "0");  // Bean path normalizes non-boolean to 0
 		expectedToolElements.put("lti13", "1");
 		expectedToolElements.put("sakai_tool_checksum", "Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=");
-		assertToolXmlEquivalent(doc, expectedToolElements);
+		assertElementXmlEquivalent(doc, LTIService.ARCHIVE_LTI_TOOL_TAG, expectedToolElements, null);
 
 		Map<String, Object> tool2 = new HashMap();
 		SakaiLTIUtil.mergeTool(element, tool2);
@@ -909,7 +914,14 @@ public class SakaiLTIUtilTest {
 		tool.remove(LTIService.LTI_SENDNAME);
 		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
 		tool2.remove(LTIService.LTI_SENDNAME);  // Bean path exports "0"; exclude for equivalence
-		assertMapsEquivalent(tool, tool2);
+		Map<String, Object> expectedTool = new HashMap();
+		expectedTool.put(LTIService.LTI_FRAMEHEIGHT, 42);
+		expectedTool.put(LTIService.LTI13, 1);
+		expectedTool.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		expectedTool.put(LTIService.LTI_TITLE, "An LTI title");
+		expectedTool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		expectedTool.put(LTIService.LTI_NEWPAGE, 1);
+		assertEquals(expectedTool, tool2);
 	}
 
 	@Test
@@ -940,7 +952,7 @@ public class SakaiLTIUtilTest {
 		expectedToolElements.put("sendname", "0");
 		expectedToolElements.put("lti13", "1");
 		expectedToolElements.put("sakai_tool_checksum", "Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=");
-		assertToolXmlEquivalent(doc, expectedToolElements);
+		assertElementXmlEquivalent(doc, LTIService.ARCHIVE_LTI_TOOL_TAG, expectedToolElements, null);
 
 		// Round-trip: merge XML back into a map and verify we get the same tool data.
 		// mergeTool parses the sakai-lti-tool element and populates tool2 with element values.
@@ -953,90 +965,37 @@ public class SakaiLTIUtilTest {
 		expected.put(LTIService.LTI_TITLE, "An LTI title");
 		expected.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
 		expected.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
-		expected.put(LTIService.LTI_NEWPAGE, 1L);
-		expected.put(LTIService.LTI_FRAMEHEIGHT, 42L);
-		expected.put(LTIService.LTI_SENDNAME, 0L);
-		expected.put(LTIService.LTI13, 1L);
-		assertMapsEquivalent(expected, tool2);
+		expected.put(LTIService.LTI_NEWPAGE, 1);
+		expected.put(LTIService.LTI_FRAMEHEIGHT, 42);
+		expected.put(LTIService.LTI_SENDNAME, 0);
+		expected.put(LTIService.LTI13, 1);
+		assertEquals(expected, tool2);
 	}
 
 	/**
-	 * Asserts that two maps are equivalent (same keys, equivalent values).
-	 * Numeric values are compared by their long value (1 equals 1L).
+	 * Asserts that the first element with the given tag in doc has child elements equivalent
+	 * to expected (same tag names and text content, ignoring order). Optionally excludes
+	 * a nested child tag when building the map (e.g. exclude sakai-lti-tool when checking
+	 * content element's direct fields).
 	 */
-	private void assertMapsEquivalent(Map<String, Object> expected, Map<String, Object> actual) {
-		assertEquals("Map key sets should match", expected.keySet(), actual.keySet());
-		for (String key : expected.keySet()) {
-			Object exp = expected.get(key);
-			Object act = actual.get(key);
-			if (exp instanceof Number && act instanceof Number) {
-				assertEquals("Value for " + key + " should be numerically equivalent",
-						((Number) exp).longValue(), ((Number) act).longValue());
-			} else {
-				assertEquals("Value for " + key, exp, act);
-			}
-		}
-	}
-
-	/**
-	 * Asserts that the sakai-lti-content element in doc has child elements equivalent to expected
-	 * (same tag names and text content, ignoring order). If expectedTool is non-null, also
-	 * asserts the nested sakai-lti-tool element matches expectedTool.
-	 */
-	private void assertContentXmlEquivalent(Document doc, Map<String, String> expectedContent, Map<String, String> expectedTool) {
-		NodeList contentNodes = doc.getElementsByTagName(LTIService.ARCHIVE_LTI_CONTENT_TAG);
-		assertNotNull("sakai-lti-content element should exist", contentNodes);
-		assertTrue("sakai-lti-content element should exist", contentNodes.getLength() >= 1);
-		Element contentEl = (Element) contentNodes.item(0);
-		Map<String, String> actualContent = new HashMap<>();
-		NodeList children = contentEl.getChildNodes();
-		Element toolEl = null;
-		for (int i = 0; i < children.getLength(); i++) {
-			Node n = children.item(i);
-			if (n.getNodeType() == Node.ELEMENT_NODE) {
-				Element e = (Element) n;
-				if (LTIService.ARCHIVE_LTI_TOOL_TAG.equals(e.getTagName())) {
-					toolEl = e;
-				} else {
-					actualContent.put(e.getTagName(), e.getTextContent());
-				}
-			}
-		}
-		assertEquals("Content XML elements should be equivalent (order-independent)", expectedContent, actualContent);
-		if (expectedTool != null) {
-			assertNotNull("sakai-lti-tool child should exist", toolEl);
-			Map<String, String> actualTool = new HashMap<>();
-			NodeList toolChildren = toolEl.getChildNodes();
-			for (int i = 0; i < toolChildren.getLength(); i++) {
-				Node n = toolChildren.item(i);
-				if (n.getNodeType() == Node.ELEMENT_NODE) {
-					Element e = (Element) n;
-					actualTool.put(e.getTagName(), e.getTextContent());
-				}
-			}
-			assertEquals("Tool XML elements should be equivalent (order-independent)", expectedTool, actualTool);
-		}
-	}
-
-	/**
-	 * Asserts that the sakai-lti-tool element in doc has child elements equivalent to expected
-	 * (same tag names and text content, ignoring order).
-	 */
-	private void assertToolXmlEquivalent(Document doc, Map<String, String> expected) {
-		NodeList toolNodes = doc.getElementsByTagName(LTIService.ARCHIVE_LTI_TOOL_TAG);
-		assertNotNull("sakai-lti-tool element should exist", toolNodes);
-		assertTrue("sakai-lti-tool element should exist", toolNodes.getLength() >= 1);
-		Element toolEl = (Element) toolNodes.item(0);
+	private void assertElementXmlEquivalent(Document doc, String tagName, Map<String, String> expected, String excludeChildTag) {
+		NodeList nodes = doc.getElementsByTagName(tagName);
+		assertNotNull(tagName + " element should exist", nodes);
+		assertTrue(tagName + " element should exist", nodes.getLength() >= 1);
+		Element el = (Element) nodes.item(0);
 		Map<String, String> actual = new HashMap<>();
-		NodeList children = toolEl.getChildNodes();
+		NodeList children = el.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node n = children.item(i);
 			if (n.getNodeType() == Node.ELEMENT_NODE) {
 				Element e = (Element) n;
+				if (excludeChildTag != null && excludeChildTag.equals(e.getTagName())) {
+					continue;
+				}
 				actual.put(e.getTagName(), e.getTextContent());
 			}
 		}
-		assertEquals("Tool XML elements should be equivalent (order-independent)", expected, actual);
+		assertEquals(tagName + " XML elements should be equivalent (order-independent)", expected, actual);
 	}
 
 	public void mapDump(String header, Map<String, Object> dump)
@@ -1087,16 +1046,28 @@ public class SakaiLTIUtilTest {
 		expectedTool.put("frameheight", "42");
 		expectedTool.put("lti13", "1");
 		expectedTool.put("sakai_tool_checksum", "BF6JwVmB1Y1kgPxP4WnAS30BnWzJP46IpmKKrKCSfaw=");
-		assertContentXmlEquivalent(doc, expectedContent, expectedTool);
+		assertElementXmlEquivalent(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG, expectedContent, LTIService.ARCHIVE_LTI_TOOL_TAG);
+		assertElementXmlEquivalent(doc, LTIService.ARCHIVE_LTI_TOOL_TAG, expectedTool, null);
 
 		Map<String, Object> content2  = new HashMap();
 		Map<String, Object> tool2  = new HashMap();
 		SakaiLTIUtil.mergeContent(element, content2, tool2);
-		assertMapsEquivalent(content, content2);
-		tool.remove(LTIService.LTI_CONSUMERKEY);
-		tool.remove(LTIService.LTI_SECRET);
+		Map<String, Object> expectedContentMap = new HashMap();
+		expectedContentMap.put(LTIService.LTI_FRAMEHEIGHT, 42);
+		expectedContentMap.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		expectedContentMap.put(LTIService.LTI_TITLE, "An LTI title");
+		expectedContentMap.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		expectedContentMap.put(LTIService.LTI_NEWPAGE, 1);
+		assertEquals(expectedContentMap, content2);
 		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
-		assertMapsEquivalent(tool, tool2);
+		Map<String, Object> expectedToolMap = new HashMap();
+		expectedToolMap.put(LTIService.LTI_FRAMEHEIGHT, 42);
+		expectedToolMap.put(LTIService.LTI13, 1);
+		expectedToolMap.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		expectedToolMap.put(LTIService.LTI_TITLE, "An LTI title");
+		expectedToolMap.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		expectedToolMap.put(LTIService.LTI_NEWPAGE, 1);
+		assertEquals(expectedToolMap, tool2);
 	}
 
 	@Test
