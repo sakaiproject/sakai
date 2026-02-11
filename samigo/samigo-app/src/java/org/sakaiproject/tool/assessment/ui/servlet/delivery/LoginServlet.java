@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -64,19 +65,49 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>Title: Samigo</p>
- * <p>Description: Sakai Assessment Manager</p>
- * @author Ed Smiley
- * @version $Id$
+ * Servlet for handling assessment delivery via published URL.
+ *
+ * <p>This servlet processes requests to access published assessments through direct URLs,
+ * handling both anonymous and authenticated access. It manages authentication, authorization,
+ * group membership validation, and routes users to the appropriate assessment delivery interface
+ * or review pages.</p>
+ *
+ * <p>Key responsibilities:</p>
+ * <ul>
+ *   <li>Validates assessment alias from URL parameters</li>
+ *   <li>Authenticates users (including anonymous access when configured)</li>
+ *   <li>Authorizes access based on site membership and group releases</li>
+ *   <li>Routes to assessment taking or review interfaces</li>
+ *   <li>Handles preview mode for instructors</li>
+ *   <li>Manages assessment delivery state and session configuration</li>
+ * </ul>
  */
 @Slf4j
 public class LoginServlet extends HttpServlet {
 
+    private static final String PARAM_ID = "id";
+    private static final String PARAM_ACTION = "action";
+    private static final String PARAM_FROM_DIRECT = "fromDirect";
+    private static final String ACTION_REVIEW = "review";
+
+    private static final String PATH_ASSESSMENT_NOT_AVAILABLE = "/jsf/delivery/assessmentNotAvailable.faces";
+    private static final String PATH_BEGIN_TAKING_ASSESSMENT = "/jsf/delivery/beginTakingAssessment.faces";
+    private static final String PATH_REVIEW_INDEX = "/jsf/review/reviewIndex.faces";
+    private static final String PATH_IS_REMOVED = "/jsf/delivery/isRemoved.faces";
+    private static final String PATH_IS_RETRACTED = "/jsf/delivery/isRetracted.faces";
+    private static final String PATH_IS_RETRACTED_FOR_EDIT = "/jsf/delivery/isRetractedForEdit.faces";
+    private static final String PATH_DISCREPANCY_IN_DATA = "/jsf/delivery/discrepancyInData.faces";
+    private static final String PATH_ASSESSMENT_SUBMITTED = "/jsf/delivery/assessmentHasBeenSubmitted.faces";
+    private static final String PATH_NO_SUBMISSION_LEFT = "/jsf/delivery/noSubmissionLeft.faces";
+    private static final String PATH_NO_LATE_SUBMISSION = "/jsf/delivery/noLateSubmission.faces";
+    private static final String PATH_TIME_EXPIRED = "/jsf/delivery/timeExpired.faces";
+    private static final String PATH_ACCESS_DENIED = "/jsf/delivery/accessDenied.faces";
+    private static final String PATH_SECURE_DELIVERY_ERROR = "/jsf/delivery/secureDeliveryError.faces";
+    private static final String PATH_DELIVER_ASSESSMENT = "/jsf/delivery/deliverAssessment.faces";
+    private static final String PATH_AUTHN_LOGIN = "/authn/login";
+
     @Autowired private SiteService siteService;
     @Autowired private UserDirectoryService userDirectoryService;
-
-    public LoginServlet() {
-    }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -84,20 +115,23 @@ public class LoginServlet extends HttpServlet {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
+    @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         doPost(req, res);
     }
 
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-        String alias = req.getParameter("id");
+        String alias = req.getParameter(PARAM_ID);
         if (StringUtils.isEmpty(alias)) {
-            log.warn("The published URL you have entered is missing an id parameter");
+            log.warn("Missing required id parameter for published URL");
+            forwardTo(req, res, PATH_ASSESSMENT_NOT_AVAILABLE);
             return;
         }
 
-        String action = req.getParameter("action");
-        if ("review".equals(action)) {
+        String action = req.getParameter(PARAM_ACTION);
+        if (ACTION_REVIEW.equals(action)) {
             doReviewAssessment(req, res, alias);
         } else {
             doTakeAssessment(req, res, alias);
@@ -111,8 +145,7 @@ public class LoginServlet extends HttpServlet {
 
         if (publishedAssessment == null) {
             log.warn("Published assessment not found for alias: {}", alias);
-            RequestDispatcher dispatcher = req.getRequestDispatcher("/jsf/delivery/assessmentNotAvailable.faces");
-            dispatcher.forward(req, res);
+            forwardTo(req, res, PATH_ASSESSMENT_NOT_AVAILABLE);
             return;
         }
 
@@ -144,8 +177,7 @@ public class LoginServlet extends HttpServlet {
         listener.processAction(null);
 
         // Redirect to review-view
-        RequestDispatcher dispatcher = req.getRequestDispatcher("/jsf/review/reviewIndex.faces");
-        dispatcher.forward(req, res);
+        forwardTo(req, res, PATH_REVIEW_INDEX);
     }
 
     public void doTakeAssessment(HttpServletRequest req, HttpServletResponse res, String alias)
@@ -166,9 +198,8 @@ public class LoginServlet extends HttpServlet {
         PublishedAssessmentService service = new PublishedAssessmentService();
         PublishedAssessmentFacade pub = service.getPublishedAssessmentIdByAlias(alias);
         if (pub == null) {
-            log.warn("The published URL you have entered is incorrect. Please check in Published Settings.");
-            RequestDispatcher dispatcher = req.getRequestDispatcher("/jsf/delivery/assessmentNotAvailable.faces");
-            dispatcher.forward(req, res);
+            log.warn("No published assessment found with id [{}]", alias);
+            forwardTo(req, res, PATH_ASSESSMENT_NOT_AVAILABLE);
             return;
         }
 
@@ -197,7 +228,6 @@ public class LoginServlet extends HttpServlet {
 
         // set path
         delivery.setContextPath(req.getContextPath());
-
 
         // 1. get publishedAssessment and check if anonymous is allowed
         // 2. If so, goto welcome.faces
@@ -251,65 +281,26 @@ public class LoginServlet extends HttpServlet {
             person.setAnonymousId(null);
         }
 
-        log.debug("*** agentIdString: {}", agentIdString);
+        log.debug("Resolved agent id: {}", agentIdString);
 
         String nextAction = delivery.checkFromViaUrlLogin();
-        log.debug("nextAction = {}", nextAction);
+        log.debug("Resolved delivery nextAction: {}", nextAction);
         if (isAuthorized) {
-            // Assessment has been permanently removed
-            if ("isRemoved".equals(nextAction)) {
-                path = "/jsf/delivery/isRemoved.faces";
-            }
-            // Assessment is available for taking
-            else if ("safeToProceed".equals(nextAction)) {
-                // if assessment is available, set it in delivery bean for display in deliverAssessment.jsp
-                path = "/jsf/delivery/beginTakingAssessment.faces";
-            }
-            // Assessment is currently not available (e.g., retracted for edit, due date has passed, submission limit has been reached, etc.)
-            else if ("assessmentNotAvailable".equals(nextAction)) {
-                path = "/jsf/delivery/assessmentNotAvailable.faces";
-            } else if ("isRetracted".equals(nextAction)) {
-                path = "/jsf/delivery/isRetracted.faces";
-            } else if ("isRetractedForEdit".equals(nextAction)) {
-                path = "/jsf/delivery/isRetractedForEdit.faces";
-            } else if ("discrepancyInData".equals(nextAction)) {
-                path = "/jsf/delivery/discrepancyInData.faces";
-            } else if ("assessmentHasBeenSubmitted".equals(nextAction)) {
-                path = "/jsf/delivery/assessmentHasBeenSubmitted.faces";
-            } else if ("noSubmissionLeft".equals(nextAction)) {
-                path = "/jsf/delivery/noSubmissionLeft.faces";
-            } else if ("noLateSubmission".equals(nextAction)) {
-                path = "/jsf/delivery/noLateSubmission.faces";
-            } else if ("timeExpired".equals(nextAction)) {
-                path = "/jsf/delivery/timeExpired.faces";
-            } else if ("accessDenied".equals(nextAction)) {
-                path = "/jsf/delivery/accessDenied.faces";
-            } else if ("secureDeliveryError".equals(nextAction)) {
-                path = "/jsf/delivery/secureDeliveryError.faces";
-            } else {
-                path = "/jsf/delivery/assessmentNotAvailable.faces";
-            }
+            path = resolveAuthorizedPath(nextAction);
         } else { // notAuthorized
             if (!isAuthenticated) {
                 relativePath = false;
                 delivery.setActionString(null);
-                String originalUrl = req.getRequestURL().toString();
-                String query = req.getQueryString();
-                if (StringUtils.isNotBlank(query)) {
-                    originalUrl += "?" + query;
-                    path = "/authn/login?url=" + URLEncoder.encode(originalUrl, StandardCharsets.UTF_8);
-                } else {
-                    path = "/authn/login?url=" + URLEncoder.encode(originalUrl + "?id=" + alias, StandardCharsets.UTF_8);
-                }
+                path = buildLoginRedirectPath(req, alias);
             } else { // isAuthenticated but not authorized
-                path = "/jsf/delivery/accessDenied.faces";
+                path = PATH_ACCESS_DENIED;
                 if (releaseTo == null || !releaseTo.contains(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
                     // log access denied because they are not in a valid group for the quiz
                     delivery.updatEventLog("error_access_denied");
                 }
             }
         }
-        if ("true".equals(req.getParameter("fromDirect"))) {
+        if ("true".equals(req.getParameter(PARAM_FROM_DIRECT))) {
             String deliveryValidate = delivery.validate();
             // This has to be set up if it's coming from direct otherwise it doesn't start right
             UIComponent uic = new UICommand();
@@ -325,22 +316,19 @@ public class LoginServlet extends HttpServlet {
                 deliveryListener.processAction(ae);
             }
 
-            // TODO: Should be something a bit more robust as validate() can return a lot of things...
             if ("takeAssessment".equals(deliveryValidate)) {
-                path = "/jsf/delivery/deliverAssessment.faces";
+                path = PATH_DELIVER_ASSESSMENT;
             }
-
         }
-        log.debug("***path = {}", path);
+        log.debug("Resolved view path: {}", path);
         if (relativePath) {
-            RequestDispatcher dispatcher = req.getRequestDispatcher(path);
-            dispatcher.forward(req, res);
+            forwardTo(req, res, path);
         } else {
-            log.info("** servlet path = {}", req.getRequestURL().toString());
+            log.info("Servlet request URL: {}", req.getRequestURL().toString());
             String url = req.getRequestURL().toString();
             String context = req.getContextPath();
             String finalUrl = url.substring(0, url.lastIndexOf(context)) + path;
-            log.info("**** finalUrl = {}", finalUrl);
+            log.info("Redirecting to final URL: {}", finalUrl);
             res.sendRedirect(finalUrl);
         }
     }
@@ -366,15 +354,11 @@ public class LoginServlet extends HttpServlet {
                 getAuthorizationByFunctionAndQualifier("OWN_PUBLISHED_ASSESSMENT",
                         pub.getPublishedAssessmentId().toString());
         if (aData == null || aData.isEmpty()) return false;
-        
+
         String siteId = aData.get(0).getAgentIdString();
-        Collection<Group> siteGroupsContainingUser = null;
         String currentUserId = userDirectoryService.getCurrentUser().getId();
-        try {
-            siteGroupsContainingUser = siteService.getSite(siteId).getGroupsWithMember(currentUserId);
-        } catch (IdUnusedException ex) {
-            // no site found
-        }
+
+        Collection<Group> siteGroupsContainingUser = siteService.getOptionalSite(siteId).map(s -> s.getGroupsWithMember(currentUserId)).orElse(Collections.emptyList());
 
         // get a list of groups that this published assessment has been released to
         aData = PersistenceService.getInstance().getAuthzQueriesFacade().
@@ -390,6 +374,62 @@ public class LoginServlet extends HttpServlet {
     private boolean isUserInAuthorizedGroup(String authorizedGroupId, Collection<Group> userGroups) {
         if (userGroups == null || StringUtils.isBlank(authorizedGroupId)) return false;
         return userGroups.stream().anyMatch(group -> group.getId().equals(authorizedGroupId));
+    }
+
+    private String resolveAuthorizedPath(String nextAction) {
+        if ("safeToProceed".equals(nextAction)) {
+            return PATH_BEGIN_TAKING_ASSESSMENT;
+        }
+        if ("assessmentNotAvailable".equals(nextAction)) {
+            return PATH_ASSESSMENT_NOT_AVAILABLE;
+        }
+        if ("isRemoved".equals(nextAction)) {
+            return PATH_IS_REMOVED;
+        }
+        if ("isRetracted".equals(nextAction)) {
+            return PATH_IS_RETRACTED;
+        }
+        if ("isRetractedForEdit".equals(nextAction)) {
+            return PATH_IS_RETRACTED_FOR_EDIT;
+        }
+        if ("discrepancyInData".equals(nextAction)) {
+            return PATH_DISCREPANCY_IN_DATA;
+        }
+        if ("assessmentHasBeenSubmitted".equals(nextAction)) {
+            return PATH_ASSESSMENT_SUBMITTED;
+        }
+        if ("noSubmissionLeft".equals(nextAction)) {
+            return PATH_NO_SUBMISSION_LEFT;
+        }
+        if ("noLateSubmission".equals(nextAction)) {
+            return PATH_NO_LATE_SUBMISSION;
+        }
+        if ("timeExpired".equals(nextAction)) {
+            return PATH_TIME_EXPIRED;
+        }
+        if ("accessDenied".equals(nextAction)) {
+            return PATH_ACCESS_DENIED;
+        }
+        if ("secureDeliveryError".equals(nextAction)) {
+            return PATH_SECURE_DELIVERY_ERROR;
+        }
+        return PATH_ASSESSMENT_NOT_AVAILABLE;
+    }
+
+    private String buildLoginRedirectPath(HttpServletRequest req, String alias) {
+        String originalUrl = req.getRequestURL().toString();
+        String query = req.getQueryString();
+        if (StringUtils.isNotBlank(query)) {
+            originalUrl += "?" + query;
+        } else {
+            originalUrl += "?" + PARAM_ID + "=" + alias;
+        }
+        return PATH_AUTHN_LOGIN + "?url=" + URLEncoder.encode(originalUrl, StandardCharsets.UTF_8);
+    }
+
+    private void forwardTo(HttpServletRequest req, HttpServletResponse res, String path) throws ServletException, IOException {
+        RequestDispatcher dispatcher = req.getRequestDispatcher(path);
+        dispatcher.forward(req, res);
     }
 
     private void setSkinFolder(HttpServletRequest req, String siteId) {
