@@ -63,7 +63,7 @@ public class LTIReportingJob implements Job {
         String from = context.getMergedJobDataMap().getString("from");
 
 
-        LtiToolBean tool = ltiService.getToolAsBean(Long.valueOf(toolId), null);
+        LtiToolBean tool = ltiService.getToolDaoAsBean(Long.valueOf(toolId), null, true);
         if (tool == null) {
             log.warn("Failed to find LTI tool for {}", toolId);
             return;

@@ -49,7 +49,7 @@ import org.sakaiproject.lti.api.LTIService;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
-@ToString(exclude = {"secret", "lti13AutoToken"})
+@ToString(exclude = {"secret", "lti13AutoToken", "toolState", "platformState", "relaunchUrl", "origSiteIdNull"})
 public class LtiToolBean extends LTIBaseBean {
 
     // Core fields from TOOL_MODEL

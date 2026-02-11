@@ -1357,7 +1357,7 @@ public class SakaiLTIUtil {
 				throw new RuntimeException("Could not find tool keyset url");
 			}
 
-			log.debug("Retrieving kid=" + incoming_kid + " from " + tool_keyset);
+			log.debug("Retrieving kid={} from {}", incoming_kid, tool_keyset);
 			try {
 				return LTI13KeySetUtil.getKeyFromKeySet(incoming_kid, tool_keyset);
 			} catch (Exception e) {
