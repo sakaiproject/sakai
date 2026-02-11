@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.MessageHelper;
 import org.sakaiproject.grading.api.model.Gradebook;
@@ -172,8 +173,8 @@ public class CourseGradeFormatter {
 				// otherwise check the settings
 				if (shouldDisplayFullCourseGrade() || this.gradebook.getCoursePointsDisplayed()) {
 					if (pointsEarned != null && totalPointsPossible != null) {
-						final String pointsEarnedDisplayString = FormatHelper.formatGradeForDisplay(pointsEarned);
-						final String totalPointsPossibleDisplayString = FormatHelper.formatGradeForDisplay(totalPointsPossible);
+						final String pointsEarnedDisplayString = FormatHelper.formatGradeForDisplay(pointsEarned, gradebook.getGradeType());
+						final String totalPointsPossibleDisplayString = FormatHelper.formatGradeForDisplay(totalPointsPossible, gradebook.getGradeType());
 						if (parts.isEmpty()) {
 							parts.add(MessageHelper.getString("coursegrade.display.points-first", RL.getLocale(), pointsEarnedDisplayString,
 									totalPointsPossibleDisplayString));

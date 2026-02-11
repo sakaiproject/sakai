@@ -71,6 +71,10 @@
 			<artifactId>sakai-assignment-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.sakaiproject.lessonbuilder</groupId>
+			<artifactId>lessonbuilder-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.sakaiproject.rubrics</groupId>
 			<artifactId>rubrics-api</artifactId>
 		</dependency>
