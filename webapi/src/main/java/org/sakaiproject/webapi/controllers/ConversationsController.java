@@ -92,7 +92,7 @@ public class ConversationsController extends AbstractSakaiApiController {
 	@GetMapping(value = "/sites/{siteId}/conversations", produces = MediaType.APPLICATION_JSON_VALUE)
     public EntityModel<ConversationsRestBean> getSiteConversations(@PathVariable String siteId) throws ConversationsPermissionsException, IdUnusedException {
 
-		String currentUserId = checkSakaiSession().getUserId();
+        String currentUserId = checkSakaiSession().getUserId();
 
         Site site = siteService.getSite(siteId);
         String siteRef = siteService.siteReference(siteId);

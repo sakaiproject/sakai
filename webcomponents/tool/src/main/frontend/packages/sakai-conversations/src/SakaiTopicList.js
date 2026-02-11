@@ -9,7 +9,7 @@ export class SakaiTopicList extends SakaiElement {
 
     aboutRef: { attribute: "about-ref", type: String },
     siteId: { attribute: "site-id", type: String },
-    data: { type: Array },
+    data: { type: Object },
 
     _filteredPinnedTopics: { state: true },
     _filteredDraftTopics: { state: true },

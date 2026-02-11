@@ -194,7 +194,7 @@ export class SakaiAddTopic extends SakaiElement {
 
     const tagId = this.selectedTagId;
 
-    !this.topic.tags && (this.topic.tags = []);
+    this.topic.tags ??= [];
 
     const existingIndex = this.topic.tags.findIndex(t => t?.id == tagId);
     if (existingIndex !== -1) {
