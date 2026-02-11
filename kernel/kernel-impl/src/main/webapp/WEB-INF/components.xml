@@ -11,7 +11,7 @@
 
      <context:annotation-config />
      <!-- We need to scan these to pick up the bullhorn handlers for MessagingServiceImpl -->
-     <context:component-scan base-package="org.sakaiproject.messaging.api.testhandler,org.sakaiproject.announcement.api, org.sakaiproject.profile2.model, org.sakaiproject.commons.api, org.sakaiproject.lessonbuildertool.api" />
+     <context:component-scan base-package="org.sakaiproject.messaging.api.testhandler,org.sakaiproject.announcement.api, org.sakaiproject.profile2.model, org.sakaiproject.commons.api, org.sakaiproject.lessonbuildertool.api,  org.sakaiproject.api.app.messageforums" />
      <tx:annotation-driven/>
 
      <import resource="component-components.xml" />
