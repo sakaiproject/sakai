@@ -14,10 +14,7 @@ export class SakaiTopicSummary extends SakaiElement {
     this.loadTranslations("conversations");
   }
 
-  _topicSelected(e) {
-
-    e.target.focus();
-    document.querySelector(".portal-main-container")?.scrollTo({ top: 0, behavior: "smooth" });
+  _topicSelected() {
     this.dispatchEvent(new CustomEvent("topic-selected", { detail: { topic: this.topic }, bubbles: true }));
   }
 
@@ -29,10 +26,7 @@ export class SakaiTopicSummary extends SakaiElement {
 
     return html`
       <a href="javascript:;" @click=${this._topicSelected} class="topic-summary-link">
-        <div class="topic-summary
-              ${this.topic.numberOfUnreadPosts > 0 && !this.topic.selected ? " unread" : ""}
-              ${this.topic.selected ? "selected" : ""}"
-        >
+        <div class="topic-summary ${this.topic.numberOfUnreadPosts > 0 ? " unread" : ""}">
           <div class="type-icon">
             ${this.topic.type === QUESTION ? html`
               <sakai-icon type="questioncircle"
