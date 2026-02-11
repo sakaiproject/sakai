@@ -20,22 +20,23 @@
 
 package org.sakaiproject.lti.beans;
 
+import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Base class providing common type conversion utilities for LTI Beans.
- * These methods handle the robust conversion of Object types from database results
- * to strongly-typed Bean fields, similar to the LTIUtil conversion methods.
- *
- * Implementation assistance provided by Claude AI for comprehensive type conversion
- * and robust database number handling across SQLite, Oracle, and MySQL systems.
+ * Base class for beans with {@link FoormField} annotations and type conversion utilities.
+ * Provides robust conversion of Object types from database results to strongly-typed fields,
+ * and reflection-based access by canonical field name for Foorm-annotated subclasses.
+ * <p>
+ * Named in homage to the someday long-gone Foorm code.
  */
 @Slf4j
-public abstract class LTIBaseBean {
+public abstract class FoormBaseBean {
 
     /**
      * Safely converts a map value to a String.
@@ -308,5 +309,49 @@ public abstract class LTIBaseBean {
         if (value != null) {
             map.put(key, value ? Integer.valueOf(1) : Integer.valueOf(0));
         }
+    }
+
+    // --- FoormField reflection (for archive, etc.) ---
+
+    private static final Map<Class<?>, Map<String, Field>> FIELDS_CACHE = new ConcurrentHashMap<>();
+
+    protected static Map<String, Field> getFieldsForClass(Class<?> clazz) {
+        return FIELDS_CACHE.computeIfAbsent(clazz, c -> {
+            Map<String, Field> map = new ConcurrentHashMap<>();
+            for (Field f : c.getDeclaredFields()) {
+                FoormField ann = f.getAnnotation(FoormField.class);
+                if (ann != null) {
+                    f.setAccessible(true);
+                    map.put(ann.value(), f);
+                }
+            }
+            return map;
+        });
+    }
+
+    /**
+     * Returns the value of the property identified by its canonical field name.
+     *
+     * @param fieldName Canonical name from {@link FoormField} (e.g. {@code deployment_id}, {@code SITE_ID})
+     * @return The property value, or null if the field is unknown or its value is null
+     */
+    public Object getValueByFieldName(String fieldName) {
+        Field f = getFieldsForClass(getClass()).get(fieldName);
+        if (f == null) {
+            return null;
+        }
+        try {
+            return f.get(this);
+        } catch (IllegalAccessException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the {@link FoormField} annotation for a field name, or null if unknown.
+     */
+    public FoormField getFoormFieldByFieldName(String fieldName) {
+        Field f = getFieldsForClass(getClass()).get(fieldName);
+        return f != null ? f.getAnnotation(FoormField.class) : null;
     }
 }

@@ -26,16 +26,57 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Foorm model field metadata for a bean property.
+ * Declarative field metadata for form generation, validation, archive, and persistence.
  * <p>
- * Associates the Java field with its canonical name (archive XML element, DB column).
- * Over time this annotation may grow to hold the full Foorm model line (e.g.
- * {@code field:type:label=...:archive=true}) to drive UI generation, validation, and persistence.
+ * Replaces the Foorm model string format with strongly typed attributes.
+ * Multi-valued attributes like {@link #choices()} and {@link #fields()} use arrays to preserve order.
  * </p>
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FoormField {
-	/** The canonical field name (e.g. {@code deployment_id}, {@code SITE_ID}). */
+	/** Canonical field name (archive XML element, DB column). */
 	String value();
+
+	/** Field type. */
+	FoormType type() default FoormType.TEXT;
+
+	/** Label key for UI. */
+	String label() default "";
+
+	/** Whether the field is required. */
+	boolean required() default false;
+
+	/** Max length (0 = no limit). */
+	int maxlength() default 0;
+
+	/** Whether the field is included in archive XML. */
+	boolean archive() default false;
+
+	/** Whether the field is hidden in forms. */
+	boolean hidden() default false;
+
+	/** Role required to edit (e.g. "admin"). */
+	String role() default "";
+
+	/** Whether the field is read-only. */
+	boolean readonly() default false;
+
+	/** Whether the field is persisted (false for computed/transient). */
+	boolean persist() default true;
+
+	/** For radio: ordered choices. */
+	String[] choices() default {};
+
+	/** For header: ordered child field names. */
+	String[] fields() default {};
+
+	/** For textarea: rows. */
+	int rows() default 0;
+
+	/** For textarea: cols. */
+	int cols() default 0;
+
+	/** Whether shown in advanced section. */
+	boolean advanced() default false;
 }

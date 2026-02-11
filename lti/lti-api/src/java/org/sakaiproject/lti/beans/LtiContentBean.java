@@ -43,7 +43,7 @@ import org.sakaiproject.lti.api.LTIService;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
 @ToString(exclude = {"placementsecret", "oldplacementsecret"})
-public class LtiContentBean extends LTIBaseBean {
+public class LtiContentBean extends FoormBaseBean {
 
     // Core fields from CONTENT_MODEL
     public Long id;                    // CONTENT_MODEL: "id:key:archive=true"

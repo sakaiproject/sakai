@@ -42,7 +42,7 @@ import org.sakaiproject.lti.api.LTIService;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
 @ToString
-public class LtiMembershipsJobBean extends LTIBaseBean {
+public class LtiMembershipsJobBean extends FoormBaseBean {
 
     // Fields from MEMBERSHIPS_JOBS_MODEL
     public String siteId;              // MEMBERSHIPS_JOBS_MODEL: "SITE_ID:text:maxlength=99:required=true"

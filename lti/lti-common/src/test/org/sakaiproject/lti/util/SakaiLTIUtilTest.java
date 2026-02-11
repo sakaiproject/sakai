@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.json.simple.JSONObject;
 
@@ -881,8 +883,16 @@ public class SakaiLTIUtilTest {
 
 		Element element = SakaiLTIUtil.archiveTool(doc, tool);
 		root.appendChild(element);
-		String xmlOut = Xml.writeDocumentToString(doc);
-		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-tool><title>An LTI title</title><description>An LTI DESCRIPTION</description><launch>http://localhost:a-launch?x=42</launch><newpage>1</newpage><frameheight>42</frameheight><sendname>please</sendname><lti13>1</lti13><sakai_tool_checksum>Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=</sakai_tool_checksum></sakai-lti-tool></root>");
+		Map<String, String> expectedToolElements = new HashMap<>();
+		expectedToolElements.put("title", "An LTI title");
+		expectedToolElements.put("description", "An LTI DESCRIPTION");
+		expectedToolElements.put("launch", "http://localhost:a-launch?x=42");
+		expectedToolElements.put("newpage", "1");
+		expectedToolElements.put("frameheight", "42");
+		expectedToolElements.put("sendname", "please");
+		expectedToolElements.put("lti13", "1");
+		expectedToolElements.put("sakai_tool_checksum", "Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=");
+		assertToolXmlEquivalent(doc, expectedToolElements);
 
 		Map<String, Object> tool2 = new HashMap();
 		SakaiLTIUtil.mergeTool(element, tool2);
@@ -918,9 +928,20 @@ public class SakaiLTIUtilTest {
 
 		Element element = SakaiLTIUtil.archiveToolBean(doc, tool);
 		root.appendChild(element);
-		String xmlOut = Xml.writeDocumentToString(doc);
-		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-tool><title>An LTI title</title><description>An LTI DESCRIPTION</description><launch>http://localhost:a-launch?x=42</launch><newpage>1</newpage><frameheight>42</frameheight><sendname>0</sendname><lti13>1</lti13><sakai_tool_checksum>Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=</sakai_tool_checksum></sakai-lti-tool></root>");
+		Map<String, String> expectedToolElements = new HashMap<>();
+		expectedToolElements.put("title", "An LTI title");
+		expectedToolElements.put("description", "An LTI DESCRIPTION");
+		expectedToolElements.put("launch", "http://localhost:a-launch?x=42");
+		expectedToolElements.put("newpage", "1");
+		expectedToolElements.put("frameheight", "42");
+		expectedToolElements.put("sendname", "0");
+		expectedToolElements.put("lti13", "1");
+		expectedToolElements.put("sakai_tool_checksum", "Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=");
+		assertToolXmlEquivalent(doc, expectedToolElements);
 
+		// Round-trip: merge XML back into a map and verify we get the same tool data.
+		// mergeTool parses the sakai-lti-tool element and populates tool2 with element values.
+		// We assert checksum matches, then compare the rest (excluding checksum) to expected.
 		Map<String, Object> tool2 = new HashMap();
 		SakaiLTIUtil.mergeTool(element, tool2);
 		assertEquals((String) (tool2.get(LTIService.SAKAI_TOOL_CHECKSUM)), "Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=");
@@ -934,6 +955,27 @@ public class SakaiLTIUtilTest {
 		expected.put(LTIService.LTI_SENDNAME, 0L);
 		expected.put(LTIService.LTI13, 1L);
 		assertEquals(expected, tool2);
+	}
+
+	/**
+	 * Asserts that the sakai-lti-tool element in doc has child elements equivalent to expected
+	 * (same tag names and text content, ignoring order).
+	 */
+	private void assertToolXmlEquivalent(Document doc, Map<String, String> expected) {
+		NodeList toolNodes = doc.getElementsByTagName(LTIService.ARCHIVE_LTI_TOOL_TAG);
+		assertNotNull("sakai-lti-tool element should exist", toolNodes);
+		assertTrue("sakai-lti-tool element should exist", toolNodes.getLength() >= 1);
+		Element toolEl = (Element) toolNodes.item(0);
+		Map<String, String> actual = new HashMap<>();
+		NodeList children = toolEl.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			Node n = children.item(i);
+			if (n.getNodeType() == Node.ELEMENT_NODE) {
+				Element e = (Element) n;
+				actual.put(e.getTagName(), e.getTextContent());
+			}
+		}
+		assertEquals("Tool XML elements should be equivalent (order-independent)", expected, actual);
 	}
 
 	public void mapDump(String header, Map<String, Object> dump)

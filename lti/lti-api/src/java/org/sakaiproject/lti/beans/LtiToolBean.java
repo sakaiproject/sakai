@@ -27,11 +27,9 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.sakaiproject.lti.api.LTIService;
 
@@ -51,152 +49,120 @@ import org.sakaiproject.lti.api.LTIService;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
 @ToString(exclude = {"secret", "lti13AutoToken", "toolState", "platformState", "relaunchUrl", "origSiteIdNull", "sakaiToolChecksum"})
-public class LtiToolBean extends LTIBaseBean {
+public class LtiToolBean extends FoormBaseBean {
 
-	/** Map from canonical field name to Field for reflective access. */
-	private static final Map<String, Field> FIELDS_BY_NAME = buildFieldMap();
-
-	private static Map<String, Field> buildFieldMap() {
-		Map<String, Field> map = new ConcurrentHashMap<>();
-		for (Field f : LtiToolBean.class.getDeclaredFields()) {
-			FoormField ann = f.getAnnotation(FoormField.class);
-			if (ann != null) {
-				map.put(ann.value(), f);
-			}
-		}
-		return map;
-	}
-
-	/**
-	 * Returns the value of the property identified by its canonical field name.
-	 *
-	 * @param fieldName Canonical name from {@link FoormField} (e.g. {@code deployment_id}, {@code SITE_ID})
-	 * @return The property value, or null if the field is unknown or its value is null
-	 */
-	public Object getValueByFieldName(String fieldName) {
-		Field f = FIELDS_BY_NAME.get(fieldName);
-		if (f == null) {
-			return null;
-		}
-		try {
-			return f.get(this);
-		} catch (IllegalAccessException e) {
-			return null;
-		}
-	}
-
-    // TOOL_MODEL
-    // "id:key:archive=true"
-    @FoormField("id") public Long id;
-    // "SITE_ID:text:maxlength=99:role=admin"
-    @FoormField("SITE_ID") public String siteId;
-    // "title:text:label=bl_title:required=true:maxlength=1024:archive=true"
-    @FoormField("title") public String title;
-    // "description:textarea:label=bl_description:maxlength=4096:archive=true"
-    @FoormField("description") public String description;
-    // "status:radio:label=bl_status:choices=enable,disable"
-    @FoormField("status") public String status;
-    // "visible:radio:label=bl_visible:choices=visible,stealth:role=admin"
-    @FoormField("visible") public String visible;
-    // "deployment_id:integer:hidden=true:archive=true"
-    @FoormField("deployment_id") public Long deploymentId;
-    // "launch:url:label=bl_launch:maxlength=1024:required=true:archive=true"
-    @FoormField("launch") public String launch;
-    // "newpage:radio:label=bl_newpage:choices=off,on,content:archive=true"
-    @FoormField("newpage") public Integer newpage;
-    // "frameheight:integer:label=bl_frameheight:archive=true"
-    @FoormField("frameheight") public Integer frameheight;
-    // "fa_icon:text:label=bl_fa_icon:maxlength=1024:archive=true"
-    @FoormField("fa_icon") public String faIcon;
+    @FoormField(value = "id", type = FoormType.KEY, archive = true)
+    public Long id;
+    @FoormField(value = "SITE_ID", type = FoormType.TEXT, maxlength = 99, role = "admin")
+    public String siteId;
+    @FoormField(value = "title", type = FoormType.TEXT, label = "bl_title", required = true, maxlength = 1024, archive = true)
+    public String title;
+    @FoormField(value = "description", type = FoormType.TEXTAREA, label = "bl_description", maxlength = 4096, archive = true)
+    public String description;
+    @FoormField(value = "status", type = FoormType.RADIO, label = "bl_status", choices = {"enable", "disable"})
+    public String status;
+    @FoormField(value = "visible", type = FoormType.RADIO, label = "bl_visible", choices = {"visible", "stealth"}, role = "admin")
+    public String visible;
+    @FoormField(value = "deployment_id", type = FoormType.INTEGER, hidden = true, archive = true)
+    public Long deploymentId;
+    @FoormField(value = "launch", type = FoormType.URL, label = "bl_launch", maxlength = 1024, required = true, archive = true)
+    public String launch;
+    @FoormField(value = "newpage", type = FoormType.RADIO, label = "bl_newpage", choices = {"off", "on", "content"}, archive = true)
+    public Integer newpage;
+    @FoormField(value = "frameheight", type = FoormType.INTEGER, label = "bl_frameheight", archive = true)
+    public Integer frameheight;
+    @FoormField(value = "fa_icon", type = FoormType.TEXT, label = "bl_fa_icon", maxlength = 1024, archive = true)
+    public String faIcon;
     
-    // "pl_launch:checkbox:label=bl_pl_launch:archive=true"
-    @FoormField("pl_launch") public Boolean plLaunch;
-    // "pl_linkselection:checkbox:label=bl_pl_linkselection:archive=true"
-    @FoormField("pl_linkselection") public Boolean plLinkselection;
-    // "pl_contextlaunch:checkbox:label=bl_pl_contextlaunch:hidden=true"
-    @FoormField("pl_contextlaunch") public Boolean plContextlaunch;
+    @FoormField(value = "pl_launch", type = FoormType.CHECKBOX, label = "bl_pl_launch", archive = true)
+    public Boolean plLaunch;
+    @FoormField(value = "pl_linkselection", type = FoormType.CHECKBOX, label = "bl_pl_linkselection", archive = true)
+    public Boolean plLinkselection;
+    @FoormField(value = "pl_contextlaunch", type = FoormType.CHECKBOX, label = "bl_pl_contextlaunch", hidden = true)
+    public Boolean plContextlaunch;
 
-    // "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection:archive=true"
-    @FoormField("pl_lessonsselection") public Boolean plLessonsselection;
-    // "pl_contenteditor:checkbox:label=bl_pl_contenteditor:archive=true"
-    @FoormField("pl_contenteditor") public Boolean plContenteditor;
-    // "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:archive=true"
-    @FoormField("pl_assessmentselection") public Boolean plAssessmentselection;
-    // "pl_coursenav:checkbox:label=bl_pl_coursenav:archive=true"
-    @FoormField("pl_coursenav") public Boolean plCoursenav;
-    // "pl_importitem:checkbox:label=bl_pl_importitem:role=admin:archive=true"
-    @FoormField("pl_importitem") public Boolean plImportitem;
-    // "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true:archive=true"
-    @FoormField("pl_fileitem") public Boolean plFileitem;
+    @FoormField(value = "pl_lessonsselection", type = FoormType.CHECKBOX, label = "bl_pl_lessonsselection", archive = true)
+    public Boolean plLessonsselection;
+    @FoormField(value = "pl_contenteditor", type = FoormType.CHECKBOX, label = "bl_pl_contenteditor", archive = true)
+    public Boolean plContenteditor;
+    @FoormField(value = "pl_assessmentselection", type = FoormType.CHECKBOX, label = "bl_pl_assessmentselection", archive = true)
+    public Boolean plAssessmentselection;
+    @FoormField(value = "pl_coursenav", type = FoormType.CHECKBOX, label = "bl_pl_coursenav", archive = true)
+    public Boolean plCoursenav;
+    @FoormField(value = "pl_importitem", type = FoormType.CHECKBOX, label = "bl_pl_importitem", role = "admin", archive = true)
+    public Boolean plImportitem;
+    @FoormField(value = "pl_fileitem", type = FoormType.CHECKBOX, label = "bl_pl_fileitem", role = "admin", hidden = true, archive = true)
+    public Boolean plFileitem;
     
-    // "sendname:checkbox:label=bl_sendname:archive=true"
-    @FoormField("sendname") public Boolean sendname;
-    // "sendemailaddr:checkbox:label=bl_sendemailaddr:archive=true"
-    @FoormField("sendemailaddr") public Boolean sendemailaddr;
-    // "pl_privacy:checkbox:label=bl_pl_privacy:role=admin"
-    @FoormField("pl_privacy") public Boolean plPrivacy;
+    @FoormField(value = "sendname", type = FoormType.CHECKBOX, label = "bl_sendname", archive = true)
+    public Boolean sendname;
+    @FoormField(value = "sendemailaddr", type = FoormType.CHECKBOX, label = "bl_sendemailaddr", archive = true)
+    public Boolean sendemailaddr;
+    @FoormField(value = "pl_privacy", type = FoormType.CHECKBOX, label = "bl_pl_privacy", role = "admin")
+    public Boolean plPrivacy;
 
-    // "allowoutcomes:checkbox:label=bl_allowoutcomes:archive=true"
-    @FoormField("allowoutcomes") public Boolean allowoutcomes;
-    // "allowlineitems:checkbox:label=bl_allowlineitems:archive=true"
-    @FoormField("allowlineitems") public Boolean allowlineitems;
-    // "allowroster:checkbox:label=bl_allowroster:archive=true"
-    @FoormField("allowroster") public Boolean allowroster;
+    @FoormField(value = "allowoutcomes", type = FoormType.CHECKBOX, label = "bl_allowoutcomes", archive = true)
+    public Boolean allowoutcomes;
+    @FoormField(value = "allowlineitems", type = FoormType.CHECKBOX, label = "bl_allowlineitems", archive = true)
+    public Boolean allowlineitems;
+    @FoormField(value = "allowroster", type = FoormType.CHECKBOX, label = "bl_allowroster", archive = true)
+    public Boolean allowroster;
     
-    // "debug:radio:label=bl_debug:choices=off,on,content"
-    @FoormField("debug") public Integer debug;
-    // "siteinfoconfig:radio:label=bl_siteinfoconfig:advanced:choices=bypass,config"
-    @FoormField("siteinfoconfig") public String siteinfoconfig;
-    // "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384"
-    @FoormField("splash") public String splash;
-    // "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384:archive=true"
-    @FoormField("custom") public String custom;
-    // "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin:archive=true"
-    @FoormField("rolemap") public String rolemap;
-    // "lti13:radio:label=bl_lti13:choices=off,on,both:role=admin:archive=true"
-    @FoormField("lti13") public Integer lti13;
+    @FoormField(value = "debug", type = FoormType.RADIO, label = "bl_debug", choices = {"off", "on", "content"})
+    public Integer debug;
+    @FoormField(value = "siteinfoconfig", type = FoormType.RADIO, label = "bl_siteinfoconfig", advanced = true, choices = {"bypass", "config"})
+    public String siteinfoconfig;
+    @FoormField(value = "splash", type = FoormType.TEXTAREA, label = "bl_splash", rows = 5, cols = 25, maxlength = 16384)
+    public String splash;
+    @FoormField(value = "custom", type = FoormType.TEXTAREA, label = "bl_custom", rows = 5, cols = 25, maxlength = 16384, archive = true)
+    public String custom;
+    @FoormField(value = "rolemap", type = FoormType.TEXTAREA, label = "bl_rolemap", rows = 5, cols = 25, maxlength = 16384, role = "admin", archive = true)
+    public String rolemap;
+    @FoormField(value = "lti13", type = FoormType.RADIO, label = "bl_lti13", choices = {"off", "on", "both"}, role = "admin", archive = true)
+    public Integer lti13;
     
-    // "lti13_tool_keyset:text:label=bl_lti13_tool_keyset:maxlength=1024:role=admin"
-    @FoormField("lti13_tool_keyset") public String lti13ToolKeyset;
-    // "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin"
-    @FoormField("lti13_oidc_endpoint") public String lti13OidcEndpoint;
-    // "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin"
-    @FoormField("lti13_oidc_redirect") public String lti13OidcRedirect;
+    @FoormField(value = "lti13_tool_keyset", type = FoormType.TEXT, label = "bl_lti13_tool_keyset", maxlength = 1024, role = "admin")
+    public String lti13ToolKeyset;
+    @FoormField(value = "lti13_oidc_endpoint", type = FoormType.TEXT, label = "bl_lti13_oidc_endpoint", maxlength = 1024, role = "admin")
+    public String lti13OidcEndpoint;
+    @FoormField(value = "lti13_oidc_redirect", type = FoormType.TEXT, label = "bl_lti13_oidc_redirect", maxlength = 1024, role = "admin")
+    public String lti13OidcRedirect;
 
-    // "lti13_lms_issuer:text:label=bl_lti13_lms_issuer:readonly=true:persist=false:maxlength=1024:role=admin"
-    @FoormField("lti13_lms_issuer") public String lti13LmsIssuer;
-    // "lti13_client_id:text:label=bl_lti13_client_id:readonly=true:maxlength=1024:role=admin"
-    @FoormField("lti13_client_id") public String lti13ClientId;
-    // "lti13_lms_deployment_id:text:label=bl_lti13_lms_deployment_id:readonly=true:maxlength=1024:role=admin"
-    @FoormField("lti13_lms_deployment_id") public String lti13LmsDeploymentId;
-    // "lti13_lms_keyset:text:label=bl_lti13_lms_keyset:readonly=true:persist=false:maxlength=1024:role=admin"
-    @FoormField("lti13_lms_keyset") public String lti13LmsKeyset;
-    // "lti13_lms_endpoint:text:label=bl_lti13_lms_endpoint:readonly=true:persist=false:maxlength=1024:role=admin"
-    @FoormField("lti13_lms_endpoint") public String lti13LmsEndpoint;
-    // "lti13_lms_token:text:label=bl_lti13_lms_token:readonly=true:persist=false:maxlength=1024:role=admin"
-    @FoormField("lti13_lms_token") public String lti13LmsToken;
+    @FoormField(value = "lti13_lms_issuer", type = FoormType.TEXT, label = "bl_lti13_lms_issuer", readonly = true, persist = false, maxlength = 1024, role = "admin")
+    public String lti13LmsIssuer;
+    @FoormField(value = "lti13_client_id", type = FoormType.TEXT, label = "bl_lti13_client_id", readonly = true, maxlength = 1024, role = "admin")
+    public String lti13ClientId;
+    @FoormField(value = "lti13_lms_deployment_id", type = FoormType.TEXT, label = "bl_lti13_lms_deployment_id", readonly = true, maxlength = 1024, role = "admin")
+    public String lti13LmsDeploymentId;
+    @FoormField(value = "lti13_lms_keyset", type = FoormType.TEXT, label = "bl_lti13_lms_keyset", readonly = true, persist = false, maxlength = 1024, role = "admin")
+    public String lti13LmsKeyset;
+    @FoormField(value = "lti13_lms_endpoint", type = FoormType.TEXT, label = "bl_lti13_lms_endpoint", readonly = true, persist = false, maxlength = 1024, role = "admin")
+    public String lti13LmsEndpoint;
+    @FoormField(value = "lti13_lms_token", type = FoormType.TEXT, label = "bl_lti13_lms_token", readonly = true, persist = false, maxlength = 1024, role = "admin")
+    public String lti13LmsToken;
     
-    // "consumerkey:text:label=bl_consumerkey:maxlength=1024"
-    @FoormField("consumerkey") public String consumerkey;
-    // "secret:text:label=bl_secret:maxlength=1024"
-    @FoormField("secret") public String secret;
-    // "xmlimport:textarea:hidden=true:maxlength=1M"
-    @FoormField("xmlimport") public String xmlimport;
-    // "lti13_auto_token:text:hidden=true:maxlength=1024"
-    @FoormField("lti13_auto_token") public String lti13AutoToken;
-    // "lti13_auto_state:integer:hidden=true"
-    @FoormField("lti13_auto_state") public Integer lti13AutoState;
-    // "lti13_auto_registration:textarea:hidden=true:maxlength=1M"
-    @FoormField("lti13_auto_registration") public String lti13AutoRegistration;
+    @FoormField(value = "consumerkey", type = FoormType.TEXT, label = "bl_consumerkey", maxlength = 1024)
+    public String consumerkey;
+    @FoormField(value = "secret", type = FoormType.TEXT, label = "bl_secret", maxlength = 1024)
+    public String secret;
+    @FoormField(value = "xmlimport", type = FoormType.TEXTAREA, hidden = true)
+    public String xmlimport;
+    @FoormField(value = "lti13_auto_token", type = FoormType.TEXT, hidden = true, maxlength = 1024)
+    public String lti13AutoToken;
+    @FoormField(value = "lti13_auto_state", type = FoormType.INTEGER, hidden = true)
+    public Integer lti13AutoState;
+    @FoormField(value = "lti13_auto_registration", type = FoormType.TEXTAREA, hidden = true)
+    public String lti13AutoRegistration;
 
-    // "created_at:autodate"
-    @FoormField("created_at") public Date createdAt;
-    // "updated_at:autodate"
-    @FoormField("updated_at") public Date updatedAt;
+    @FoormField(value = "created_at", type = FoormType.AUTODATE)
+    public Date createdAt;
+    @FoormField(value = "updated_at", type = FoormType.AUTODATE)
+    public Date updatedAt;
 
-    // Live attributes (from joins, not in TOOL_MODEL)
-    @FoormField("lti_content_count") public Long ltiContentCount;
-    @FoormField("lti_site_count") public Long ltiSiteCount;
+    @FoormField(value = "lti_content_count", type = FoormType.INTEGER)
+    public Long ltiContentCount;
+    @FoormField(value = "lti_site_count", type = FoormType.INTEGER)
+    public Long ltiSiteCount;
 
     /**
      * Launch-flow only fields.
@@ -223,13 +189,16 @@ public class LtiToolBean extends LTIBaseBean {
      *       round-trips in {@link #asMap()} and {@link #of(java.util.Map)} but is never stored.</li>
      * </ul>
      */
-    // Launch-flow only (not in TOOL_MODEL)
-    @FoormField("tool_state") public String toolState;
-    @FoormField("platform_state") public String platformState;
-    @FoormField("relaunch_url") public String relaunchUrl;
-    @FoormField("orig_site_id_null") public String origSiteIdNull;
-    // "sakai_tool_checksum:text:maxlength=99:hidden=true:persist=false:archive=true"
-    @FoormField("sakai_tool_checksum") public String sakaiToolChecksum;
+    @FoormField(value = "tool_state", type = FoormType.TEXT)
+    public String toolState;
+    @FoormField(value = "platform_state", type = FoormType.TEXT)
+    public String platformState;
+    @FoormField(value = "relaunch_url", type = FoormType.TEXT)
+    public String relaunchUrl;
+    @FoormField(value = "orig_site_id_null", type = FoormType.TEXT)
+    public String origSiteIdNull;
+    @FoormField(value = "sakai_tool_checksum", type = FoormType.TEXT, maxlength = 99, hidden = true, persist = false, archive = true)
+    public String sakaiToolChecksum;
 
     /**
      * Creates an LtiToolBean instance from a Map<String, Object>.

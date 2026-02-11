@@ -78,6 +78,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
+import org.sakaiproject.lti.beans.FoormField;
+import org.sakaiproject.lti.beans.FoormType;
 import org.sakaiproject.lti.beans.LtiContentBean;
 import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.portal.util.CSSUtils;
@@ -3777,21 +3779,17 @@ public class SakaiLTIUtil {
 			return null;
 		}
 		Element retval = doc.createElement(LTIService.ARCHIVE_LTI_TOOL_TAG);
-		java.util.Properties info = new java.util.Properties();
-		for (String formInput : LTIService.TOOL_MODEL) {
-			info = parseArchiveFieldInfo(formInput, info);
-			String field = info.getProperty("field", null);
-			String type = info.getProperty("type", null);
-			if (!"true".equals(info.getProperty("archive", null))) {
+		for (java.lang.reflect.Field f : LtiToolBean.class.getDeclaredFields()) {
+			FoormField ann = f.getAnnotation(FoormField.class);
+			if (ann == null || !ann.archive() || LTIService.SAKAI_TOOL_CHECKSUM.equals(ann.value())) {
 				continue;
 			}
-			if (LTIService.SAKAI_TOOL_CHECKSUM.equals(field)) {
-				continue; // added separately below
-			}
+			String field = ann.value();
 			Object o = tool.getValueByFieldName(field);
 			if (o == null) {
 				continue;
 			}
+			FoormType type = ann.type();
 			String text = formatArchiveValue(o, type);
 			if (text == null) {
 				continue;
@@ -3809,25 +3807,12 @@ public class SakaiLTIUtil {
 		return retval;
 	}
 
-	private static java.util.Properties parseArchiveFieldInfo(String formInput, java.util.Properties out) {
-		out.clear();
-		String[] pairs = formInput.split(":");
-		String[] positional = { "field", "type" };
-		int i = 0;
-		for (String s : pairs) {
-			String[] kv = s.split("=");
-			if (kv.length == 2) {
-				out.setProperty(kv[0], kv[1]);
-			} else if (kv.length == 1 && i < positional.length) {
-				out.setProperty(positional[i++], kv[0]);
-			}
-		}
-		return out;
-	}
-
-	private static String formatArchiveValue(Object o, String type) {
+	private static String formatArchiveValue(Object o, FoormType type) {
 		if (o == null) return null;
-		if ("checkbox".equals(type) || "radio".equals(type) || "integer".equals(type) || "key".equals(type)) {
+		if (type == FoormType.CHECKBOX
+				|| type == FoormType.RADIO
+				|| type == FoormType.INTEGER
+				|| type == FoormType.KEY) {
 			if (o instanceof Boolean) {
 				return Boolean.TRUE.equals(o) ? "1" : "0";
 			}
