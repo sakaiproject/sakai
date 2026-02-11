@@ -39,15 +39,20 @@ import org.sakaiproject.lti.api.LTIService;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
-public class LtiToolSiteBean extends LTIBaseBean {
+public class LtiToolSiteBean extends FoormBaseBean {
 
-    // Fields from TOOL_SITE_MODEL
-    public Long id;                    // TOOL_SITE_MODEL: "id:key"
-    public Long toolId;                // TOOL_SITE_MODEL: "tool_id:integer:hidden=true"
-    public String siteId;              // TOOL_SITE_MODEL: "SITE_ID:text:label=bl_tool_site_SITE_ID:required=true:maxlength=99:role=admin"
-    public String notes;               // TOOL_SITE_MODEL: "notes:text:label=bl_tool_site_notes:maxlength=1024"
-    public Date createdAt;             // TOOL_SITE_MODEL: "created_at:autodate"
-    public Date updatedAt;             // TOOL_SITE_MODEL: "updated_at:autodate"
+    @FoormField(value = "id", type = FoormType.KEY)
+    public Long id;
+    @FoormField(value = "tool_id", type = FoormType.INTEGER, hidden = true)
+    public Long toolId;
+    @FoormField(value = "SITE_ID", type = FoormType.TEXT, label = "bl_tool_site_SITE_ID", required = true, maxlength = 99, role = "admin")
+    public String siteId;
+    @FoormField(value = "notes", type = FoormType.TEXT, label = "bl_tool_site_notes", maxlength = 1024)
+    public String notes;
+    @FoormField(value = "created_at", type = FoormType.AUTODATE)
+    public Date createdAt;
+    @FoormField(value = "updated_at", type = FoormType.AUTODATE)
+    public Date updatedAt;
 
     /**
      * Creates an LtiToolSiteBean instance from a Map<String, Object>.

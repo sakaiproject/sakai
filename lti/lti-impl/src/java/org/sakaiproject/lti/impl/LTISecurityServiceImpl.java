@@ -73,6 +73,8 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.lti.api.LTIExportService;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 
@@ -290,10 +292,8 @@ public class LTISecurityServiceImpl implements EntityProducer {
 					identifier the End-User might use to log in (if necessary).
 	*/
 	private void redirectOIDC(HttpServletRequest req, HttpServletResponse res,
-		Map<String, Object> content, Map<String, Object> tool, String oidc_endpoint, ResourceLoader rb)
+		LtiContentBean content, LtiToolBean tool, String oidc_endpoint, ResourceLoader rb)
 	{
-		// req.getRequestURL()=http://localhost:8080/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
-		// req.getRequestURI()=/access/lti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		String login_hint = req.getRequestURI();
 		String query_string = req.getQueryString();
 		String messageTypeParm = req.getParameter(SakaiLTIUtil.MESSAGE_TYPE_PARAMETER);
@@ -302,14 +302,12 @@ public class LTISecurityServiceImpl implements EntityProducer {
 			login_hint = login_hint + "?" + query_string;
 		}
 
-
-		String launch_url = StringUtils.trimToNull((String) tool.get(LTIService.LTI_LAUNCH));
+		String launch_url = StringUtils.trimToNull(tool.launch);
 		if ( content != null ) {
-			String content_launch_url = StringUtils.trimToNull((String) content.get(LTIService.LTI_LAUNCH));
+			String content_launch_url = StringUtils.trimToNull(content.launch);
 			if ( content_launch_url != null ) launch_url = content_launch_url;
 
-			// See if we have a lineItem associated with this launch in case we need it later
-			String lineItemStr = (String) content.get(LTIService.LTI_LINEITEM);
+			String lineItemStr = content.contentitem;
 			SakaiLineItem sakaiLineItem = LineItemUtil.parseLineItem(lineItemStr);
 
 			if ( SakaiLTIUtil.MESSAGE_TYPE_PARAMETER_CONTENT_REVIEW.equals(messageTypeParm)) {
@@ -317,7 +315,7 @@ public class LTISecurityServiceImpl implements EntityProducer {
 			}
 		}
 
-		String client_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_CLIENT_ID));
+		String client_id = StringUtils.trimToNull(tool.lti13ClientId);
 		String deployment_id = ServerConfigurationService.getString(SakaiLTIUtil.LTI13_DEPLOYMENT_ID, SakaiLTIUtil.LTI13_DEPLOYMENT_ID_DEFAULT);
 
 		// Use Base64DoubleUrlEncodeSafe to ensure proper URL-safe encoding
@@ -342,13 +340,12 @@ public class LTISecurityServiceImpl implements EntityProducer {
 	}
 
 	/**
-	 * Do some sanity checking on the aunch data to make sure we have enough to accomplish the launch
+	 * Do some sanity checking on the launch data to make sure we have enough to accomplish the launch
 	 */
 	private boolean sanityCheck(HttpServletRequest req, HttpServletResponse res,
-		Map<String, Object> content, Map<String, Object> tool, ResourceLoader rb)
+		LtiContentBean content, LtiToolBean tool, ResourceLoader rb)
 	{
-
-		String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
+		String oidc_endpoint = tool.lti13OidcEndpoint;
 		if (SakaiLTIUtil.isLTI13(tool) && StringUtils.isBlank(oidc_endpoint) ) {
 			String errorMessage = "<p>" + SakaiLTIUtil.getRB(rb, "error.no.oidc_endpoint", "Missing oidc_endpoint value for LTI 1.3 launch") + "</p>";
 			org.tsugi.lti.LTIUtil.sendHTMLPage(res, errorMessage);
@@ -378,8 +375,6 @@ public class LTISecurityServiceImpl implements EntityProducer {
 				String [] retval = null;
 				if ( refId.startsWith("tool:") && refId.length() > 5 )
 				{
-					Map<String,Object> tool;
-
 					String toolStr = refId.substring(5);
 					String contentReturn = req.getParameter("contentReturn");
 					Enumeration attrs =  req.getParameterNames();
@@ -397,93 +392,92 @@ public class LTISecurityServiceImpl implements EntityProducer {
 						throw new EntityNotDefinedException("Could not load tool");
 					}
 
-					tool = ltiService.getToolDao(toolKey, ref.getContext());
-					if (tool == null ) {
+					LtiToolBean toolBean = ltiService.getToolDaoAsBean(toolKey, ref.getContext(), true);
+					if (toolBean == null ) {
 						throw new EntityNotDefinedException("Could not load tool");
 					}
 
 					// Save for LTI 13 Issuer
-					String orig_site_id = StringUtils.trimToNull((String) tool.get(LTIService.LTI_SITE_ID));
-					if ( orig_site_id == null ) {
-						tool.put("orig_site_id_null", "true");
+					if ( StringUtils.isBlank(toolBean.siteId) ) {
+						toolBean.origSiteIdNull = "true";
 					}
-					tool.put(LTIService.LTI_SITE_ID, ref.getContext());
+					toolBean.siteId = ref.getContext();
+
+					// Launch-flow only: pass through from request so they are sent back in the launch
+					String toolStateParam = req.getParameter("tool_state");
+					if (toolStateParam != null) toolBean.toolState = toolStateParam;
+					String platformStateParam = req.getParameter("platform_state");
+					if (platformStateParam != null) toolBean.platformState = platformStateParam;
+					String relaunchUrlParam = req.getParameter("relaunch_url");
+					if (relaunchUrlParam != null) toolBean.relaunchUrl = relaunchUrlParam;
 
 					String state = req.getParameter("state");
 					String nonce = req.getParameter("nonce");
 
-					String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
+					String oidc_endpoint = toolBean.lti13OidcEndpoint;
 					log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
 
-					// Sanity check for missing config data
-					if ( ! sanityCheck(req, res, null, tool, rb) ) return;
+					if ( ! sanityCheck(req, res, null, toolBean, rb) ) return;
 
-					if (SakaiLTIUtil.isLTI13(tool) && StringUtils.isNotBlank(oidc_endpoint) &&
-							( StringUtils.isEmpty(state) || StringUtils.isEmpty(state) ) ) {
-						redirectOIDC(req, res, null, tool, oidc_endpoint, rb);
+					if (SakaiLTIUtil.isLTI13(toolBean) && StringUtils.isNotBlank(oidc_endpoint) &&
+							( StringUtils.isEmpty(state) || StringUtils.isEmpty(nonce) ) ) {
+						redirectOIDC(req, res, null, toolBean, oidc_endpoint, rb);
 						return;
 					}
 
-					retval = SakaiLTIUtil.postContentItemSelectionRequest(toolKey, tool, state, nonce, rb, contentReturn, propData);
+					retval = SakaiLTIUtil.postContentItemSelectionRequest(toolKey, toolBean, state, nonce, rb, contentReturn, propData);
 
 				}
 				else if ( refId.startsWith("content:") && refId.length() > 8 )
 				{
-					Map<String,Object> content;
-					Map<String,Object> tool = null;
-
 					String contentStr = refId.substring(8);
 					Long contentKey = LTIUtil.toLongKey(contentStr);
 					if (contentKey < 1 ) {
 						throw new EntityNotDefinedException("Could not load content item");
 					}
 
-					content = ltiService.getContentDao(contentKey,ref.getContext());
-					if (content == null ) {
+					LtiContentBean contentBean = ltiService.getContentAsBean(contentKey, ref.getContext());
+					if (contentBean == null ) {
 						throw new EntityNotDefinedException("Could not load content item");
 					}
 
 					// Check to see if we need launch protection
-					int protect = LTIUtil.toInt(content.get(LTIService.LTI_PROTECT));
-					String launch_code_key = SakaiLTIUtil.getLaunchCodeKey(content);
+					int protect = contentBean.protect != null ? (contentBean.protect ? 1 : 0) : -1;
+					String launch_code_key = SakaiLTIUtil.getLaunchCodeKey(contentBean);
 					Session session = sessionManager.getCurrentSession();
 
 					// SAK-43709 - Prior to Sakai-21 there is no protect field in Content
-					// If there is no protect value, we fall back to the pre-21 description in JSON
 					if ( protect < 0 ) {
-						String content_settings = (String) content.get(LTIService.LTI_SETTINGS);
+						String content_settings = contentBean.settings;
 						JSONObject content_json = org.tsugi.lti.LTIUtil.parseJSONObject(content_settings);
 						protect = LTIUtil.toInt(content_json.get(LTIService.LTI_PROTECT));
 					}
 
 					if ( protect > 0 && ! checkSiteUpdate(ref) ) {
 						String launch_code = (String) session.getAttribute(launch_code_key);
-
-						// We don't remove the token until later because LTI 1.3 pass through this twice
-						if ( launch_code == null || ! SakaiLTIUtil.checkLaunchCode(content, launch_code) ) {
+						if ( launch_code == null || ! SakaiLTIUtil.checkLaunchCode(contentBean, launch_code) ) {
 							throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
 						}
 					}
 
-					String siteId = (String) content.get(LTIService.LTI_SITE_ID);
+					String siteId = contentBean.siteId;
 					if ( siteId == null || ! siteId.equals(ref.getContext()) )
 					{
 						throw new EntityNotDefinedException("Incorrect site");
 					}
 
-					Long toolKey = LTIUtil.toLongKey(content.get(LTIService.LTI_TOOL_ID));
-					if ( toolKey >= 0 ) tool = ltiService.getTool(toolKey, ref.getContext());
+					LtiToolBean toolBean = null;
+					Long toolKey = contentBean.toolId != null ? contentBean.toolId : -1L;
+					if ( toolKey >= 0 ) toolBean = ltiService.getToolAsBean(toolKey, ref.getContext());
 
-					ltiService.filterContent(content, tool);
+					ltiService.filterContent(contentBean, toolBean);
 
 					String splash = null;
-					if ( tool != null ) splash = (String) tool.get("splash");
+					if ( toolBean != null ) splash = toolBean.splash;
 					String splashParm = req.getParameter("splash");
-					siteId = null;
-					if ( tool != null ) siteId = (String) tool.get(LTIService.LTI_SITE_ID);
+					siteId = toolBean != null ? toolBean.siteId : null;
 					if ( splashParm == null && splash != null && splash.trim().length() > 1 )
 					{
-							// XSS Note: Administrator-created tools can put HTML in the splash.
 							if ( siteId != null ) splash = formattedText.escapeHtml(splash,false);
 							doSplash(req, res, splash, rb);
 							return;
@@ -491,24 +485,22 @@ public class LTISecurityServiceImpl implements EntityProducer {
 					String state = req.getParameter("state");
 					String nonce = req.getParameter("nonce");
 
-					if ( tool != null ) {
-						String oidc_endpoint = (String) tool.get(LTIService.LTI13_TOOL_ENDPOINT);
+					if ( toolBean != null ) {
+						String oidc_endpoint = toolBean.lti13OidcEndpoint;
 						log.debug("State={} nonce={} oidc_endpoint={}",state, nonce, oidc_endpoint);
 
-						// Sanity check for missing config data
-						if ( ! sanityCheck(req, res, content, tool, rb) ) return;
+						if ( ! sanityCheck(req, res, contentBean, toolBean, rb) ) return;
 
-						if (SakaiLTIUtil.isLTI13(tool) && StringUtils.isNotBlank(oidc_endpoint) &&
+						if (SakaiLTIUtil.isLTI13(toolBean) && StringUtils.isNotBlank(oidc_endpoint) &&
 								(StringUtils.isEmpty(state) || StringUtils.isEmpty(nonce) ) ) {
-							redirectOIDC(req, res, content, tool, oidc_endpoint, rb);
+							redirectOIDC(req, res, contentBean, toolBean, oidc_endpoint, rb);
 							return;
 						}
 					}
 
-					retval = SakaiLTIUtil.postLaunchHTML(content, tool, state, nonce, ltiService, rb);
+					retval = SakaiLTIUtil.postLaunchHTML(contentBean, toolBean, state, nonce, ltiService, rb);
 
-					// Once we are ready to do the actual launch, remove the assignments protection key
-					session.removeAttribute(launch_code_key);  // You get one try
+					session.removeAttribute(launch_code_key);
 				}
 				else if (refId.startsWith("export:") && refId.length() > 7)
 				{

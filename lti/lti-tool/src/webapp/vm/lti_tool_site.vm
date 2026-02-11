@@ -177,10 +177,9 @@ ${includeLatestJQuery}
 				#if ($contentBean.launch)
 					 #set($launch = $formattedText.escapeHtml($contentBean.launch))
 				#else
-					#set($tool=false)
-					#set($tool=$ltiService.getTool($contentBean.toolId, $contentBean.siteId))
-					#if ($!tool)
-						#set($launch = $formattedText.escapeHtml($tool.get("launch")))
+					#set($toolBean = $ltiService.getToolAsBean($contentBean.toolId, $contentBean.siteId))
+					#if ($!toolBean && $!toolBean.launch)
+						#set($launch = $formattedText.escapeHtml($toolBean.launch))
 					#end
 				#end
 				#set($toolUrl = $toolUrlMap.get($contentBean.id))
