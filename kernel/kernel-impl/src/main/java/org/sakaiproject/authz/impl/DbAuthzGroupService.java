@@ -39,8 +39,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +60,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseDbFlatStorage;
@@ -126,6 +125,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	protected boolean m_promoteUsersToProvided = true;
 	protected boolean m_promoteUsersToProvidedRole = false;
 	private MemoryService m_memoryService;
+
+	protected abstract SchedulingService schedulingService();
+
 	// KNL-600 CACHING for the realm role groups
 	private Cache m_realmRoleGRCache;
 	
@@ -150,9 +152,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	 * if threshold is reached delay processing the queue
 	 */
 	private long refreshMaxTime = 15;
-
-	/** Executor used to schedule processing */
-	private ScheduledExecutorService refreshScheduler;
 
 	/** Queue of authzgroups to refresh used by refreshAuthzGroupTask */
 	private Map<String, AuthzGroup> refreshQueue;
@@ -289,8 +288,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
             refreshQueue = Collections.synchronizedMap(new LinkedHashMap<>());
 
-            refreshScheduler = Executors.newSingleThreadScheduledExecutor();
-            refreshScheduler.scheduleWithFixedDelay(
+            schedulingService().scheduleWithFixedDelay(
                 new RefreshAuthzGroupTask(),
                 120, // minimally wait 2 mins for sakai to start
                 refreshTaskInterval, // delay before running again
@@ -325,8 +323,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	*/
 	public void destroy()
 	{
-		refreshScheduler.shutdown();
-
 		// done with event watching
 		eventTrackingService().deleteObserver(this);
 
@@ -716,13 +712,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				long longestRefreshed = 0;
 				String longestName = null;
 				
-				List<AuthzGroup> queueList = new ArrayList<AuthzGroup>(refreshQueue.values());
-
-				Iterator<AuthzGroup> it = queueList.iterator();
-				while (it.hasNext()) {
-					AuthzGroup azGroup = it.next();
-					String azGroupId = azGroup.getId();
-					if (log.isDebugEnabled()) log.debug("RefreshAuthzGroupTask.run() start refresh of azgroup: " + azGroupId);
+				while (true) {
+					AuthzGroup azGroup;
+					String azGroupId;
+					synchronized (refreshQueue) {
+						if (refreshQueue.isEmpty()) {
+							break;
+						}
+						azGroup = refreshQueue.values().iterator().next();
+						azGroupId = azGroup.getId();
+						refreshQueue.remove(azGroupId);
+					}
+					log.debug("RefreshAuthzGroupTask.run() start refresh of azgroup: {}", azGroupId);
 
 					numberRefreshed++;
 					long time = 0;
@@ -730,11 +731,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					try {
 						((DbStorage) m_storage).refreshAuthzGroupInternal((BaseAuthzGroup) azGroup);
 					} catch (Throwable e) {
-						log.error("RefreshAuthzGroupTask.run() Problem refreshing azgroup: " + azGroupId, e);
+						log.error("RefreshAuthzGroupTask.run() Problem refreshing azgroup: {}", azGroupId, e);
 					} finally {
 						time = (System.currentTimeMillis() - start);
-						refreshQueue.remove(azGroupId);
-						if (log.isDebugEnabled()) log.debug("RefreshAuthzGroupTask.run() refresh of azgroup: " + azGroupId + " took " + time/1e3 + " seconds");
+						log.debug("RefreshAuthzGroupTask.run() refresh of azgroup: {} took {} seconds", azGroupId, time/1e3);
 					}
 					timeRefreshed += time;
 					if (time > longestRefreshed) {
@@ -742,7 +742,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 						longestName = azGroupId;
 					}
 					
-					if (it.hasNext() && (time > (refreshMaxTime * 1000L))) {
+					if (time > (refreshMaxTime * 1000L)) {
 						log.warn("RefreshAuthzGroupTask.run() " + azGroupId + " took " + time/1e3 + 
 								" seconds which is longer than the maximum allowed of " + refreshMaxTime + 
 								" seconds, delay processing the rest of the queue");

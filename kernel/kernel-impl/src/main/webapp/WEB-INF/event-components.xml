@@ -34,6 +34,7 @@
         <lookup-method name="usageSessionService"        bean="org.sakaiproject.event.api.UsageSessionService"/>
         <lookup-method name="sessionManager"             bean="org.sakaiproject.tool.api.SessionManager"/>
         <lookup-method name="securityService"            bean="org.sakaiproject.authz.api.SecurityService"/>
+        <lookup-method name="schedulingService"          bean="org.sakaiproject.scheduling.api.SchedulingService"/>
         <lookup-method name="toolManager"                bean="org.sakaiproject.tool.api.ToolManager"/>
         <lookup-method name="entityManager"              bean="org.sakaiproject.entity.api.EntityManager"/>
         <lookup-method name="memoryService"              bean="org.sakaiproject.memory.api.MemoryService"/>

@@ -72,7 +72,7 @@ public class AddLessonsCommentUserNotificationHandlerImpl implements UserNotific
                 for (User receiver : receivers) {
                     String to = receiver.getId();
                     if (!to.equals(from)) {
-                        bhEvents.add(new UserNotificationData(from, to, context, resourceLoader.getString("lessons_comment"), url, LessonBuilderConstants.TOOL_ID));
+                        bhEvents.add(new UserNotificationData(from, to, context, resourceLoader.getString("lessons_comment"), url, LessonBuilderConstants.TOOL_ID, false, null));
                         done.add(to);
                     }
                 }
@@ -87,7 +87,7 @@ public class AddLessonsCommentUserNotificationHandlerImpl implements UserNotific
                     for (SimplePageComment c : comments) {
                         String to = c.getAuthor();
                         if (!to.equals(from) && !done.contains(to)) {
-                            bhEvents.add(new UserNotificationData(from, to, context, resourceLoader.getString("lessons_comment"), url, LessonBuilderConstants.TOOL_ID));
+                            bhEvents.add(new UserNotificationData(from, to, context, resourceLoader.getString("lessons_comment"), url, LessonBuilderConstants.TOOL_ID, false, null));
                             done.add(to);
                         }
                     }

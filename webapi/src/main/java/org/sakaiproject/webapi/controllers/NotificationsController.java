@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.sakaiproject.messaging.api.UserMessagingService;
-import org.sakaiproject.messaging.api.model.UserNotification;
+import org.sakaiproject.messaging.api.UserNotificationTransferBean;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public class NotificationsController extends AbstractSakaiApiController {
     private UserMessagingService userMessagingService;
 
     @GetMapping(value = "/users/me/notifications", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<UserNotification> getNotifications() {
+    public List<UserNotificationTransferBean> getNotifications() {
 
         checkSakaiSession();
 

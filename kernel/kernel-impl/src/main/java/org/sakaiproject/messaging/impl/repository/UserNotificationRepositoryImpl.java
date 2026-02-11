@@ -17,6 +17,7 @@ package org.sakaiproject.messaging.impl.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.Instant;
 
 import org.hibernate.Session;
 
@@ -37,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<UserNotification, Long> implements UserNotificationRepository {
 
-    @Transactional(readOnly = true)
     public List<UserNotification> findByToUser(String userId) {
 
         Session session = sessionFactory.getCurrentSession();
@@ -47,6 +47,33 @@ public class UserNotificationRepositoryImpl extends SpringCrudRepositoryImpl<Use
         Root<UserNotification> un = query.from(UserNotification.class);
         query.where(cb.and(cb.equal(un.get("deferred"), false), cb.equal(un.get("toUser"), userId))).orderBy(cb.desc(un.get("eventDate")));
         return session.createQuery(query).list();
+    }
+
+    public List<UserNotification> findByBroadcast(boolean broadcast) {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Instant now = Instant.now();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<UserNotification> query = cb.createQuery(UserNotification.class);
+        Root<UserNotification> un = query.from(UserNotification.class);
+        query.where(cb.equal(un.get("broadcast"), broadcast), cb.greaterThan(un.get("endDate"), now)).orderBy(cb.desc(un.get("eventDate")));
+        return session.createQuery(query).list();
+    }
+
+    @Transactional
+    public int deleteExpiredNotifications() {
+
+        Session session = sessionFactory.getCurrentSession();
+
+        Instant now = Instant.now();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<UserNotification> delete = cb.createCriteriaDelete(UserNotification.class);
+        Root<UserNotification> un = delete.from(UserNotification.class);
+        delete.where(cb.lessThan(un.get("endDate"), now));
+        return session.createQuery(delete).executeUpdate();
     }
 
     @Transactional

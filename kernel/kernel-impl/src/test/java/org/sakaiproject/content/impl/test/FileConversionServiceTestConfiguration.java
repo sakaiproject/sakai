@@ -26,6 +26,7 @@ import org.sakaiproject.content.api.persistence.FileConversionQueueItem;
 import org.sakaiproject.content.api.persistence.FileConversionServiceRepository;
 import org.sakaiproject.content.impl.FileConversionServiceImpl;
 import org.sakaiproject.content.impl.persistence.FileConversionServiceRepositoryImpl;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl;
 import org.sakaiproject.test.SakaiTestConfiguration;
@@ -64,6 +65,11 @@ public class FileConversionServiceTestConfiguration extends SakaiTestConfigurati
 
         ContentHostingService chs = mock(ContentHostingService.class);
         return chs;
+    }
+
+    @Bean(name = "org.sakaiproject.scheduling.api.SchedulingService")
+    public SchedulingService schedulingService() {
+        return mock(SchedulingService.class);
     }
 
     @Bean(name = "org.sakaiproject.content.api.persistence.FileConversionServiceRepository")

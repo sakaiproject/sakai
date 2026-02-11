@@ -25,8 +25,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +41,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SimpleEvent;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.scheduling.api.SchedulingService;
 
 /**
  * <p>
@@ -81,7 +80,6 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 
 	private String serverInstance;
 	private String serverId;
-	private ScheduledExecutorService scheduler;
 
 	/*************************************************************************************************************************************************
 	 * Dependencies
@@ -102,10 +100,9 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	/** is caching enabled? - KNL-1184 */
 	private boolean cachingEnabled;
 
-	/**
-	 * @return the MemoryService collaborator.
-	 */
 	protected abstract SqlService sqlService();
+
+	protected abstract SchedulingService schedulingService();
 
 	/**
 	 * @return the ServerConfigurationService collaborator.
@@ -192,7 +189,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	}
 
 	/*************************************************************************************************************************************************
-	 * Init and Destroy
+	 * Init
 	 ************************************************************************************************************************************************/
 
 	/**
@@ -225,9 +222,8 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			{
 				initLastEvent();
 
-				scheduler = Executors.newSingleThreadScheduledExecutor();
 				// schedule task for every pollDelaySeconds
-				scheduler.scheduleWithFixedDelay(
+				schedulingService().scheduleWithFixedDelay(
 						this,
 						60, // minimally wait 60 seconds for sakai to start
 						m_period, // run every
@@ -296,17 +292,6 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
         }
         return m_totalEventsCount;
     }
-
-
-
-	/**
-	 * Final cleanup.
-	 */
-	public void destroy()
-	{
-		scheduler.shutdown();
-		super.destroy();
-	}
 
 	/*************************************************************************************************************************************************
 	 * Event post / flow
