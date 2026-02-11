@@ -2624,14 +2624,19 @@ public class SakaiLTIUtil {
 	 * If the scoreGiven is null, we are clearing out the grade value.
 	 * Note that scoreObj.userId is subject, not userId (naming inconsistency in IMS specs but we have to follow here).
 	 */
-	public static Object handleGradebookLTI13(Site site,  Long tool_id, Map<String, Object> content, String userId,
+	public static Object handleGradebookLTI13(Site site, Long tool_id, Map<String, Object> content, String userId,
+			Long lineitem_key, Score scoreObj) {
+		return handleGradebookLTI13(site, tool_id, LtiContentBean.of(content), userId, lineitem_key, scoreObj);
+	}
+
+	public static Object handleGradebookLTI13(Site site, Long tool_id, LtiContentBean content, String userId,
 			Long lineitem_key, Score scoreObj) {
 
 		Object retval;
 		String title;
 
-		log.debug("siteid: {} tool_id: {} content: {} lineitem_key: {} userId: {} scoreObj: {}", 
-			site.getId(), tool_id, (content == null ? "null" : content.get(LTIService.LTI_ID)), lineitem_key, userId, scoreObj);
+		log.debug("siteid: {} tool_id: {} content: {} lineitem_key: {} userId: {} scoreObj: {}",
+			site.getId(), tool_id, (content == null ? "null" : content.id), lineitem_key, userId, scoreObj);
 
 		// An empty / null score given means to delete the score
 		SakaiLineItem lineItem = new SakaiLineItem();
@@ -2664,16 +2669,16 @@ public class SakaiLTIUtil {
 			} finally {
 				popAdvisor(); // Remove security advisor
 			}
-			title = (String) content.get(LTIService.LTI_TITLE);
+			title = content.title;
 			if (title == null || title.length() < 1) {
-				log.error("Could not determine content title {}", content.get(LTIService.LTI_ID));
-				return "Could not determine content title key="+content.get(LTIService.LTI_ID);
+				log.error("Could not determine content title {}", content.id);
+				return "Could not determine content title key=" + content.id;
 			}
 			gradebookColumn = getGradebookColumn(site, userId, title, lineItem, tool_id, content);
 		} else {
 			gradebookColumn = LineItemUtil.getColumnByKeyDAO(siteId, tool_id, lineitem_key);
 			if ( gradebookColumn == null || gradebookColumn.getName() == null ) {
-				log.error("Could not determine assignment_name title {}", content.get(LTIService.LTI_ID));
+				log.error("Could not determine assignment_name title {}", (content != null ? content.id : null));
 				return "Unable to load column for lineitem_key="+lineitem_key;
 			}
 
@@ -2788,18 +2793,12 @@ public class SakaiLTIUtil {
 	 * @param scoreObj the score object
 	 * @return the result
 	 */
-	public static Object handleGradebookLTI13(Site site, Long tool_id, LtiContentBean content, String userId, Long lineitem_key, Score scoreObj) {
-		log.debug("siteid: {} tool_id: {} content: {} lineitem_key: {} userId: {} scoreObj: {}", site.getId(), tool_id, (content == null ? "null" : content.id), lineitem_key, userId, scoreObj);
-		return handleGradebookLTI13(site, tool_id, (content == null ? null : content.asMap()), userId, lineitem_key, scoreObj);
+	public static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, Map<String, Object> content) {
+		return getAssignment(site, LtiContentBean.of(content));
 	}
 
 	public static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, LtiContentBean content) {
-		return getAssignment(site, content != null ? content.asMap() : null);
-	}
-
-	private static org.sakaiproject.assignment.api.model.Assignment getAssignment(Site site, Map<String, Object> content) {
-
-		Long contentId = LTIUtil.toLongNull(content.get(LTIService.LTI_ID));
+		Long contentId = (content != null) ? content.getId() : null;
 		if ( contentId == null ) return null;
 
 		pushAdvisor();
@@ -2811,7 +2810,7 @@ public class SakaiLTIUtil {
 			for (org.sakaiproject.assignment.api.model.Assignment a : assignments) {
 				Integer assignmentContentId = a.getContentId();
 				if ( assignmentContentId == null ) continue;
-				if ( ! assignmentContentId.equals(contentId.intValue()) ) continue;
+				if ( contentId.longValue() != assignmentContentId.longValue() ) continue;
 				return a;
 			}
 			return null;
@@ -3003,11 +3002,11 @@ public class SakaiLTIUtil {
 		return keyPrefix + next;
 	}
 
-	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem, Long tool_id, LtiContentBean content) {
-		return getGradebookColumn(site, userId, title, lineItem, tool_id, content != null ? content.asMap() : null);
+	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem, Long tool_id, Map<String, Object> content) {
+		return getGradebookColumn(site, userId, title, lineItem, tool_id, LtiContentBean.of(content));
 	}
 
-	private static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem, Long tool_id, Map<String, Object> content) {
+	public static org.sakaiproject.grading.api.Assignment getGradebookColumn(Site site, String userId, String title, SakaiLineItem lineItem, Long tool_id, LtiContentBean content) {
 		// Look up the gradebook columns so we can find the max points
 		GradingService gradingService = (GradingService) ComponentManager.get("org.sakaiproject.grading.api.GradingService");
 
@@ -3050,7 +3049,7 @@ public class SakaiLTIUtil {
 				returnColumn.setExternallyMaintained(false);
 				returnColumn.setName(title);
 				if ( tool_id != null && content != null ) {
-					String external_id = LineItemUtil.constructExternalId(tool_id, content, lineItem);
+					String external_id = LineItemUtil.constructExternalId(content, lineItem);
 					returnColumn.setExternalAppName(LineItemUtil.GB_EXTERNAL_APP_NAME);
 					returnColumn.setExternalId(external_id);
 				}
