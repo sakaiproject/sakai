@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.sakaiproject.site.api.Site;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -544,6 +545,12 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     void filterContent(Map<String, Object> content, Map<String, Object> tool);
 
+    /**
+     * Bean overload: filter content using tool/content beans (delegates to Map version).
+     */
+    default void filterContent(org.sakaiproject.lti.beans.LtiContentBean content, org.sakaiproject.lti.beans.LtiToolBean tool) {
+        filterContent(content != null ? content.asMap() : null, tool != null ? tool.asMap() : null);
+    }
 
     // These can be static and moved to the tool, or at least split off into a Foorm UI
 
@@ -568,6 +575,13 @@ public interface LTIService extends LTISubstitutionsFilter {
      * @param filter The filter to remove.
      */
     void removePropertiesFilter(LTISubstitutionsFilter filter);
+
+    /**
+     * Bean overload: filter custom substitutions using tool bean (delegates to Map version).
+     */
+    default void filterCustomSubstitutions(Properties properties, org.sakaiproject.lti.beans.LtiToolBean tool, Site site) {
+        filterCustomSubstitutions(properties, tool != null ? tool.asMap() : null, site);
+    }
 
     List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId);
 

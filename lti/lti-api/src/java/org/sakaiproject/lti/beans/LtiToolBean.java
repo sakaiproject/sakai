@@ -36,6 +36,13 @@ import org.sakaiproject.lti.api.LTIService;
 /**
  * Transfer object for LTI Tools.
  * Based on the TOOL_MODEL from LTIService.
+ * <p>
+ * Includes a few <em>launch-flow only</em> fields ({@link #toolState}, {@link #platformState},
+ * {@link #relaunchUrl}, {@link #origSiteIdNull}) that are not persisted. They round-trip between
+ * bean and map in {@link #of(java.util.Map)} and {@link #asMap()} but are never stored; they are
+ * set from the request during launch and passed through so they can be included in the outbound
+ * launch.
+ * </p>
  */
 @Getter
 @Setter
@@ -118,6 +125,34 @@ public class LtiToolBean extends LTIBaseBean {
     // Live attributes - computed fields that may be present in Map data
     public Long ltiContentCount;       // Live attribute: "lti_content_count" from database joins
     public Long ltiSiteCount;          // Live attribute: "lti_site_count" from database joins
+
+    /**
+     * Launch-flow only fields.
+     * <p>
+     * These fields are <strong>not persisted</strong> to the tool record. They round-trip between
+     * bean and map in {@link #of(java.util.Map)} and {@link #asMap()}, but are never stored in the
+     * database. They are used only during the launch request/response flow. The platform may
+     * receive them as request parameters (e.g. when building a Content Item or LTI 1.1 launch URL)
+     * and should pass them through so they can be sent back to the tool in the launch payload,
+     * allowing the tool to restore context or continue a flow.
+     * </p>
+     * <ul>
+     *   <li><strong>toolState</strong> – Opaque value set by the tool (e.g. in a Content Item
+     *       request) and returned in the launch so the tool can resume state.</li>
+     *   <li><strong>platformState</strong> – Opaque value set by the platform and returned in the
+     *       launch for platform-specific state.</li>
+     *   <li><strong>relaunchUrl</strong> – URL the platform may use for a "relaunch" or "open in new
+     *       window" action; returned in the launch so the tool can offer a consistent relaunch
+     *       link.</li>
+     *   <li><strong>origSiteIdNull</strong> – Internal: set to {@code "true"} when the tool’s
+     *       stored site id was null before the launch context was applied; used by the LTI 1.3
+     *       OIDC redirect flow.</li>
+     * </ul>
+     */
+    public String toolState;          // "tool_state" in launch
+    public String platformState;      // "platform_state" in launch
+    public String relaunchUrl;        // "relaunch_url" in launch
+    public String origSiteIdNull;     // "orig_site_id_null" (internal, LTI 1.3 redirect)
 
     /**
      * Creates an LtiToolBean instance from a Map<String, Object>.
@@ -206,6 +241,12 @@ public class LtiToolBean extends LTIBaseBean {
         tool.setLtiContentCount(getLongValue(map, "lti_content_count"));
         tool.setLtiSiteCount(getLongValue(map, "lti_site_count"));
         
+        // Launch-flow only (not persisted)
+        tool.setToolState(getStringValue(map, "tool_state"));
+        tool.setPlatformState(getStringValue(map, "platform_state"));
+        tool.setRelaunchUrl(getStringValue(map, "relaunch_url"));
+        tool.setOrigSiteIdNull(getStringValue(map, "orig_site_id_null"));
+        
         return tool;
     }
 
@@ -290,6 +331,12 @@ public class LtiToolBean extends LTIBaseBean {
         // Live attributes - computed fields that may be present in Map data
         putIfNotNull(map, "lti_content_count", ltiContentCount);
         putIfNotNull(map, "lti_site_count", ltiSiteCount);
+        
+        // Launch-flow only (not persisted)
+        putIfNotNull(map, "tool_state", toolState);
+        putIfNotNull(map, "platform_state", platformState);
+        putIfNotNull(map, "relaunch_url", relaunchUrl);
+        putIfNotNull(map, "orig_site_id_null", origSiteIdNull);
         
         return map;
     }

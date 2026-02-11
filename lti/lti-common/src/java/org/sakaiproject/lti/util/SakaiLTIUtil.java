@@ -1251,10 +1251,7 @@ public class SakaiLTIUtil {
 			toolCustom = adjustCustom(toolCustom);
 			mergeLTI1Custom(custom, toolCustom);
 
-			// See if there are any locally deployed substitutions (map-only API)
-			Map<String, Object> contentMap = content.asMap();
-			Map<String, Object> toolMap = tool.asMap();
-			ltiService.filterCustomSubstitutions(lti13subst, toolMap, site);
+			ltiService.filterCustomSubstitutions(lti13subst, tool, site);
 
 			log.debug("lti13subst={}", lti13subst);
 			log.debug("before custom={}", custom);
@@ -1268,7 +1265,7 @@ public class SakaiLTIUtil {
 			LTI13Util.addCustomToLaunch(ltiProps, custom);
 
 			if (isLTI13) {
-				return postLaunchJWT(toolProps, ltiProps, site, toolMap, contentMap, rb);
+				return postLaunchJWT(toolProps, ltiProps, site, tool, content, rb);
 			}
 			return postLaunchHTML(toolProps, ltiProps, rb);
 		}
@@ -1297,15 +1294,14 @@ public class SakaiLTIUtil {
 		 * Create a ContentItem from the current request (may throw runtime)
 		 */
 		public static ContentItem getContentItemFromRequest(LtiToolBean tool) {
-			return getContentItemFromRequest(tool != null ? tool.asMap() : null);
-		}
-
-		public static ContentItem getContentItemFromRequest(Map<String, Object> tool) {
+			if (tool == null) {
+				throw new RuntimeException("Tool is null");
+			}
 
 			Placement placement = ToolManager.getCurrentPlacement();
 			String siteId = placement.getContext();
 
-			String toolSiteId = (String) tool.get(LTIService.LTI_SITE_ID);
+			String toolSiteId = tool.siteId;
 			if (toolSiteId != null && !toolSiteId.equals(siteId)) {
 				throw new RuntimeException("Incorrect site id");
 			}
@@ -1324,7 +1320,7 @@ public class SakaiLTIUtil {
 			ContentItem contentItem = new ContentItem(req);
 
 			String oauth_consumer_key = req.getParameter("oauth_consumer_key");
-			String oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
+			String oauth_secret = getSecret(tool);
 			oauth_secret = decryptSecret(oauth_secret);
 
 			String URL = getOurServletPath(req);
@@ -1339,61 +1335,54 @@ public class SakaiLTIUtil {
 			return contentItem;
 		}
 
+		public static ContentItem getContentItemFromRequest(Map<String, Object> tool) {
+			return getContentItemFromRequest(LtiToolBean.of(tool));
+		}
+
 		/**
 		 * getPublicKey - Get the appropriate public key for use for an incoming request (bean overload)
 		 */
-	public static Key getPublicKey(LtiToolBean tool, String id_token) {
-		return getPublicKey(tool != null ? tool.asMap() : null, id_token);
-	}
-
-		/**
-		 * getPublicKey - Get the appropriate public key for use for an incoming request (internal Map-based implementation).
-		 */
-		private static Key getPublicKey(Map<String, Object> tool, String id_token)
-		{
+		public static Key getPublicKey(LtiToolBean tool, String id_token) {
+			if (tool == null) {
+				throw new RuntimeException("Tool is null");
+			}
 			JSONObject jsonHeader = LTI13JwtUtil.jsonJwtHeader(id_token);
 			if (jsonHeader == null) {
 				throw new RuntimeException("Could not parse Jwt Header in client_assertion");
 			}
 			String incoming_kid = (String) jsonHeader.get("kid");
 
-			String tool_keyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
+			String tool_keyset = tool.lti13ToolKeyset;
 			if (tool_keyset == null) {
 				throw new RuntimeException("Could not find tool keyset url");
 			}
 
-			Key publicKey = null;
-			if ( tool_keyset != null ) {
-				log.debug("Retrieving kid="+incoming_kid+" from "+tool_keyset);
-
-				// TODO: Read from Earle's super-cluster-cache one day - SAK-43700
-				try {
-					publicKey = LTI13KeySetUtil.getKeyFromKeySet(incoming_kid, tool_keyset);
-				} catch (Exception e) {
-					log.error(e.toString(), e);
-					log.debug("Stacktrace:", e);
-					// Sorry - too many exceptions to explain here - lets keep it simple after logging it
-					throw new RuntimeException("Unable to retrieve kid="+incoming_kid+" from "+tool_keyset+" detail="+e.toString());
-				}
-				// TODO: Store in Earle's super-cluster-cache one day - SAK-43700
-
+			log.debug("Retrieving kid=" + incoming_kid + " from " + tool_keyset);
+			try {
+				return LTI13KeySetUtil.getKeyFromKeySet(incoming_kid, tool_keyset);
+			} catch (Exception e) {
+				log.error(e.toString(), e);
+				log.debug("Stacktrace:", e);
+				throw new RuntimeException("Unable to retrieve kid=" + incoming_kid + " from " + tool_keyset + " detail=" + e.toString());
 			}
-			return publicKey;
+		}
+
+		private static Key getPublicKey(Map<String, Object> tool, String id_token) {
+			return getPublicKey(LtiToolBean.of(tool), id_token);
 		}
 
 		/**
 		 * Create a DeepLinkResponse from the current request (may throw runtime). Bean overload.
 		 */
 		public static DeepLinkResponse getDeepLinkFromToken(LtiToolBean tool, String id_token) {
-			return getDeepLinkFromToken(tool != null ? tool.asMap() : null, id_token);
-		}
-
-		public static DeepLinkResponse getDeepLinkFromToken(Map<String, Object> tool, String id_token) {
+			if (tool == null) {
+				throw new RuntimeException("Tool is null");
+			}
 
 			Placement placement = ToolManager.getCurrentPlacement();
 			String siteId = placement.getContext();
 
-			String toolSiteId = (String) tool.get(LTIService.LTI_SITE_ID);
+			String toolSiteId = tool.siteId;
 			if (toolSiteId != null && !toolSiteId.equals(siteId)) {
 				throw new RuntimeException("Incorrect site id");
 			}
@@ -1409,10 +1398,8 @@ public class SakaiLTIUtil {
 				log.warn(lti_errorlog);
 			}
 
-			// May throw a RunTimeException on our behalf :)
 			Key publicKey = SakaiLTIUtil.getPublicKey(tool, id_token);
 
-			// Fill up the object, validate and return
 			DeepLinkResponse dlr = new DeepLinkResponse(id_token);
 			if ( ! dlr.validate(publicKey) ) {
 				throw new RuntimeException("Could not verify signature");
@@ -1421,29 +1408,26 @@ public class SakaiLTIUtil {
 			return dlr;
 		}
 
+		public static DeepLinkResponse getDeepLinkFromToken(Map<String, Object> tool, String id_token) {
+			return getDeepLinkFromToken(LtiToolBean.of(tool), id_token);
+		}
+
 		/**
 		 * An LTI ContentItemSelectionRequest launch. Bean overload.
 		 */
 		public static String[] postContentItemSelectionRequest(Long toolKey, LtiToolBean tool,
 				String state, String nonce, ResourceLoader rb, String contentReturn, Properties dataProps) {
-			return postContentItemSelectionRequest(toolKey, tool != null ? tool.asMap() : null, state, nonce, rb, contentReturn, dataProps);
-		}
-
-		public static String[] postContentItemSelectionRequest(Long toolKey, Map<String, Object> tool,
-				String state, String nonce, ResourceLoader rb, String contentReturn, Properties dataProps) {
 			if (tool == null) {
 				return postError("<p>" + getRB(rb, "error.tool.missing", "Tool is missing or improperly configured.") + "</p>");
 			}
 
-			String launch_url = (String) tool.get("launch");
+			String launch_url = tool.launch;
 			if (launch_url == null) {
 				return postError("<p>" + getRB(rb, "error.tool.noreg", "This tool is has no launch url.") + "</p>");
 			}
 
-			String consumerkey = (String) tool.get(LTIService.LTI_CONSUMERKEY);
-			String secret = (String) tool.get(LTIService.LTI_SECRET);
-
-			// If secret is encrypted, decrypt it
+			String consumerkey = tool.consumerkey;
+			String secret = getSecret(tool);
 			secret = decryptSecret(secret);
 
 			boolean isLTI13 = isLTI13(tool);
@@ -1515,7 +1499,7 @@ public class SakaiLTIUtil {
 			setProperty(ltiProps, LTIConstants.CONTENT_ITEM_RETURN_URL, contentReturn);
 
 			// This must always be there
-			String context = (String) tool.get(LTIService.LTI_SITE_ID);
+			String context = tool.siteId;
 			Site site;
 			try {
 				site = SiteService.getSite(context);
@@ -1534,9 +1518,9 @@ public class SakaiLTIUtil {
 			Properties lti13subst = new Properties();
 			addGlobalData(site, ltiProps, lti13subst, rb);
 			addSiteInfo(ltiProps, lti13subst, site);
-			addRoleInfo(ltiProps, lti13subst, user, context, LtiToolBean.of(tool));
+			addRoleInfo(ltiProps, lti13subst, user, context, tool);
 
-			addUserInfo(ltiProps, lti13subst, user, LtiToolBean.of(tool));
+			addUserInfo(ltiProps, lti13subst, user, tool);
 
 			// Don't sent the normal return URL when we are doing ContentItem launch
 			// Certification Issue
@@ -1545,16 +1529,15 @@ public class SakaiLTIUtil {
 				ltiProps.remove(LTIConstants.LAUNCH_PRESENTATION_RETURN_URL);
 			}
 
-			boolean dodebug = LTIUtil.toInt(tool.get(LTIService.LTI_DEBUG)) == 1;
+			boolean dodebug = (tool.debug != null && tool.debug == 1);
 
 			// Merge all the sources of custom vaues and run the substitution
 			Properties custom = new Properties();
 
-			String toolCustom = (String) tool.get(LTIService.LTI_CUSTOM);
+			String toolCustom = tool.custom;
 			toolCustom = adjustCustom(toolCustom);
 			mergeLTI1Custom(custom, toolCustom);
 
-			// See if there are any locally deployed substitutions
 			LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 			ltiService.filterCustomSubstitutions(lti13subst, tool, site);
 
@@ -1576,17 +1559,13 @@ public class SakaiLTIUtil {
 				setProperty(toolProps, "nonce", nonce);  // So far LTI 1.3 only
 				toolProps.put(LTIService.LTI_DEBUG, dodebug ? "1" : "0");
 
-				Map<String, Object> content = null;
-				return postLaunchJWT(toolProps, ltiProps, site, tool, content, rb);
+				return postLaunchJWT(toolProps, ltiProps, site, tool, null, rb);
 			}
 
 			// LTI 1.1.2
-			String tool_state = (String) tool.get("tool_state");
-			if ( StringUtils.isNotEmpty(tool_state) ) setProperty(ltiProps, "tool_state", tool_state);
-			String platform_state = (String) tool.get("platform_state");
-			if ( StringUtils.isNotEmpty(platform_state) ) setProperty(ltiProps, "platform_state", platform_state);
-			String relaunch_url = (String) tool.get("relaunch_url");
-			if ( StringUtils.isNotEmpty(relaunch_url) ) setProperty(ltiProps, "relaunch_url", relaunch_url);
+			if ( StringUtils.isNotEmpty(tool.toolState) ) setProperty(ltiProps, "tool_state", tool.toolState);
+			if ( StringUtils.isNotEmpty(tool.platformState) ) setProperty(ltiProps, "platform_state", tool.platformState);
+			if ( StringUtils.isNotEmpty(tool.relaunchUrl) ) setProperty(ltiProps, "relaunch_url", tool.relaunchUrl);
 
 			String submit_form_id = java.util.UUID.randomUUID().toString() + "";
 			boolean autosubmit = !dodebug;
@@ -1606,6 +1585,11 @@ public class SakaiLTIUtil {
 
 			String[] retval = {postData, launch_url};
 			return retval;
+		}
+
+		public static String[] postContentItemSelectionRequest(Long toolKey, Map<String, Object> tool,
+				String state, String nonce, ResourceLoader rb, String contentReturn, Properties dataProps) {
+			return postContentItemSelectionRequest(toolKey, LtiToolBean.of(tool), state, nonce, rb, contentReturn, dataProps);
 		}
 
 		// This must return an HTML message as the [0] in the array
@@ -1772,7 +1756,15 @@ public class SakaiLTIUtil {
 
 		public static String[] postLaunchJWT(Properties toolProps, Properties ltiProps,
 				Site site, Map<String, Object> tool, Map<String, Object> content, ResourceLoader rb) {
+			return postLaunchJWT(toolProps, ltiProps, site, LtiToolBean.of(tool), LtiContentBean.of(content), rb);
+		}
+
+		public static String[] postLaunchJWT(Properties toolProps, Properties ltiProps,
+				Site site, LtiToolBean tool, LtiContentBean content, ResourceLoader rb) {
 			log.debug("postLaunchJWT LTI 1.3");
+			if (tool == null) {
+				return postError("<p>" + getRB(rb, "error.missing", "Not configured") + "</p>");
+			}
 			String launch_url = toolProps.getProperty("secure_launch_url");
 			if (launch_url == null) {
 				launch_url = toolProps.getProperty("launch_url");
@@ -1783,16 +1775,16 @@ public class SakaiLTIUtil {
 
 			HttpServletRequest req = ToolUtils.getRequestFromThreadLocal();
 
-			String orig_site_id_null = (String) tool.get("orig_site_id_null");
+			String orig_site_id_null = tool.origSiteIdNull;
 			String site_id = null;
 			if ( ! "true".equals(orig_site_id_null) ) {
-				site_id = (String) tool.get(LTIService.LTI_SITE_ID);
+				site_id = tool.siteId;
 			}
 
-			String client_id = (String) tool.get(LTIService.LTI13_CLIENT_ID);
+			String client_id = tool.lti13ClientId;
 			String placement_secret = null;
 			if (content != null) {
-				placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+				placement_secret = content.placementsecret;
 			}
 
 		/*
@@ -1844,7 +1836,7 @@ public class SakaiLTIUtil {
 
 			SakaiLineItem sakaiLineItem = null;
 			if ( content != null ) {
-				String lineItemStr = (String) content.get(LTIService.LTI_LINEITEM);
+				String lineItemStr = content.contentitem;
 				sakaiLineItem = LineItemUtil.parseLineItem(lineItemStr);
 			}
 
@@ -1896,8 +1888,8 @@ public class SakaiLTIUtil {
 
 			// Construct the LTI 1.1 -> LTIAdvantage transition claim
 			// https://www.imsglobal.org/spec/lti/v1p3/migr#lti-1-1-migration-claim
-			String oauth_consumer_key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
-			String oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
+			String oauth_consumer_key = tool.consumerkey;
+			String oauth_secret = getSecret(tool);
 			oauth_secret = decryptSecret(oauth_secret);
 			if ( oauth_consumer_key != null && oauth_secret != null ) {
 				lj.lti11_transition = new LTI11Transition();
@@ -1954,9 +1946,9 @@ public class SakaiLTIUtil {
 				lj.custom.put(custom_key, custom_val);
 			}
 
-			int allowOutcomes = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
-			int allowRoster = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWROSTER));
-			int allowLineItems = LTIUtil.toInt(tool.get(LTIService.LTI_ALLOWLINEITEMS));
+			int allowOutcomes = (tool.allowoutcomes != null && Boolean.TRUE.equals(tool.allowoutcomes)) ? 1 : 0;
+			int allowRoster = (tool.allowroster != null && Boolean.TRUE.equals(tool.allowroster)) ? 1 : 0;
+			int allowLineItems = (tool.allowlineitems != null && Boolean.TRUE.equals(tool.allowlineitems)) ? 1 : 0;
 
 			String sourcedid = ltiProps.getProperty("lis_result_sourcedid");
 
@@ -2134,7 +2126,7 @@ public class SakaiLTIUtil {
 			state = StringUtils.trimToNull(state);
 
 			// This is a comma separated list of valid redirect URLs - lame as heck
-			String lti13_tool_redirect = StringUtils.trimToNull((String) tool.get(LTIService.LTI13_TOOL_REDIRECT));
+			String lti13_tool_redirect = StringUtils.trimToNull(tool.lti13OidcRedirect);
 
 			// If we have been told to send this to a redirect_uri instead of a launch...
 			String redirect_uri = req.getParameter("redirect_uri");
@@ -3832,29 +3824,26 @@ public class SakaiLTIUtil {
 	}
 
 	public static String computeToolCheckSum(LtiToolBean tool) {
-		return computeToolCheckSum(tool != null ? tool.asMap() : null);
-	}
-
-	public static String computeToolCheckSum(Map<String, Object> tool) {
 		if (tool == null) return null;
-		if (StringUtils.isEmpty((String) tool.get(LTIService.LTI_LAUNCH))) return null;
-		if (StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_CONSUMERKEY)) &&
-			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_SECRET))) {
-			// Enough
-		} else if (StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_CLIENT_ID)) &&
-			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_TOOL_KEYSET))) {
-			// Enough
+		if (StringUtils.isEmpty(tool.launch)) return null;
+		if (StringUtils.isNotEmpty(tool.consumerkey) && StringUtils.isNotEmpty(tool.secret)) {
+			// LTI 1.1
+		} else if (StringUtils.isNotEmpty(tool.lti13ClientId) && StringUtils.isNotEmpty(tool.lti13ToolKeyset)) {
+			// LTI 1.3
 		} else {
 			return null;
 		}
-
 		StringBuffer sb = new StringBuffer();
-		sb.append((String) tool.get(LTIService.LTI_SECRET));
-		sb.append((String) tool.get(LTIService.LTI_CONSUMERKEY));
-		sb.append((String) tool.get(LTIService.LTI13_CLIENT_ID));
-		sb.append((String) tool.get(LTIService.LTI13_TOOL_KEYSET));
-		sb.append((String) tool.get(LTIService.LTI_LAUNCH));
+		sb.append(tool.secret != null ? tool.secret : "");
+		sb.append(tool.consumerkey != null ? tool.consumerkey : "");
+		sb.append(tool.lti13ClientId != null ? tool.lti13ClientId : "");
+		sb.append(tool.lti13ToolKeyset != null ? tool.lti13ToolKeyset : "");
+		sb.append(tool.launch != null ? tool.launch : "");
 		return LTI13Util.sha256(sb.toString());
+	}
+
+	public static String computeToolCheckSum(Map<String, Object> tool) {
+		return computeToolCheckSum(LtiToolBean.of(tool));
 	}
 
 	// /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
@@ -3879,7 +3868,7 @@ public class SakaiLTIUtil {
 	public static String getContentLaunch(LtiContentBean content) {
 		if (content == null) return null;
 		Long id = content.getId();
-		int key = (id != null) ? id.intValue() : -1;
+		long key = (id != null) ? id.longValue() : -1L;
 		String siteId = content.getSiteId();
 		if (key < 0 || siteId == null) return null;
 		return LTIService.LAUNCH_PREFIX + siteId + "/content:" + key;
@@ -3892,7 +3881,7 @@ public class SakaiLTIUtil {
 	public static String getToolLaunch(LtiToolBean tool, String siteId) {
 		if (tool == null || siteId == null) return null;
 		Long id = tool.getId();
-		int key = (id != null) ? id.intValue() : -1;
+		long key = (id != null) ? id.longValue() : -1L;
 		if (key < 0) return null;
 		return LTIService.LAUNCH_PREFIX + siteId + "/tool:" + key;
 	}
