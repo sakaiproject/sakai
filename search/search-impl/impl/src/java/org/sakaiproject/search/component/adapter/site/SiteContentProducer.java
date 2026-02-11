@@ -28,10 +28,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -40,8 +40,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.util.HTMLParser;
@@ -52,22 +52,25 @@ import org.sakaiproject.site.api.SiteService;
  * @author ieb
  */
 @Slf4j
-public class SiteContentProducer implements EntityContentProducer
+public class SiteContentProducer implements EntityContentProducer, EntityContentProducerEvents
 {
 
 	private EntityManager entityManager;
 
-	private List<String> addEvents;
-
-	private List<String> removeEvents;
-
 	private SiteService siteService;
 
-	private ServerConfigurationService serverConfigurationService;
-
-	private SearchService searchService;
-
 	private SearchIndexBuilder searchIndexBuilder;
+
+	// Map of events to their corresponding search index actions
+	private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+			SiteService.SECURE_ADD_COURSE_SITE, SearchBuilderItem.ACTION_ADD,
+			SiteService.SECURE_ADD_SITE, SearchBuilderItem.ACTION_ADD,
+			SiteService.SECURE_ADD_USER_SITE, SearchBuilderItem.ACTION_ADD,
+			SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, SearchBuilderItem.ACTION_ADD,
+			SiteService.SECURE_UPDATE_SITE, SearchBuilderItem.ACTION_ADD,
+			SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, SearchBuilderItem.ACTION_ADD,
+			SiteService.SECURE_REMOVE_SITE, SearchBuilderItem.ACTION_DELETE
+	);
 
 	/**
 	 * @return the entityManager
@@ -102,39 +105,6 @@ public class SiteContentProducer implements EntityContentProducer
 	}
 
 	/**
-	 * @return the searchService
-	 */
-	public SearchService getSearchService()
-	{
-		return searchService;
-	}
-
-	/**
-	 * @param searchService the searchService to set
-	 */
-	public void setSearchService(SearchService searchService)
-	{
-		this.searchService = searchService;
-	}
-
-	/**
-	 * @return the serverConfigurationService
-	 */
-	public ServerConfigurationService getServerConfigurationService()
-	{
-		return serverConfigurationService;
-	}
-
-	/**
-	 * @param serverConfigurationService the serverConfigurationService to set
-	 */
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
-	/**
 	 * @return the siteService
 	 */
 	public SiteService getSiteService()
@@ -152,30 +122,7 @@ public class SiteContentProducer implements EntityContentProducer
 
 	public void init()
 	{
-		addEvents = new ArrayList<String>();
-		removeEvents = new ArrayList<String>();
-
-		addEvents.add(SiteService.SECURE_ADD_COURSE_SITE);
-		addEvents.add(SiteService.SECURE_ADD_SITE);
-		addEvents.add(SiteService.SECURE_ADD_USER_SITE);
-		addEvents.add(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP);
-		addEvents.add(SiteService.SECURE_UPDATE_SITE);
-		addEvents.add(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP);
-		removeEvents.add(SiteService.SECURE_REMOVE_SITE);
-
-		if ("true".equals(serverConfigurationService.getString("search.enable", "false")))
-		{
-			for (Iterator i = addEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
-			for (Iterator i = removeEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
-			}
-			searchIndexBuilder.registerEntityContentProducer(this);
-		}
-
+		searchIndexBuilder.registerEntityContentProducer(this);
 	}
 
 	/*
@@ -241,25 +188,7 @@ public class SiteContentProducer implements EntityContentProducer
 	 */
 	public Integer getAction(Event event)
 	{
-		String evt = event.getEvent();
-		if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-		for (Iterator i = addEvents.iterator(); i.hasNext();)
-		{
-			String match = (String) i.next();
-			if (evt.equals(match))
-			{
-				return SearchBuilderItem.ACTION_ADD;
-			}
-		}
-		for (Iterator i = removeEvents.iterator(); i.hasNext();)
-		{
-			String match = (String) i.next();
-			if (evt.equals(match))
-			{
-				return SearchBuilderItem.ACTION_DELETE;
-			}
-		}
-		return SearchBuilderItem.ACTION_UNKNOWN;
+		return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
 	}
 
 	/*
@@ -534,8 +463,13 @@ public class SiteContentProducer implements EntityContentProducer
 	 */
 	public boolean matches(Event event)
 	{
-		return addEvents.contains(event.getEvent())
-				|| removeEvents.contains(event.getEvent());
+		return EVENT_ACTIONS.containsKey(event.getEvent());
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions()
+	{
+		return EVENT_ACTIONS.keySet();
 	}
 
 }

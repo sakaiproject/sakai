@@ -55,7 +55,6 @@
         <property name="commonsManager" ref="org.sakaiproject.commons.api.CommonsManager" />
         <property name="sakaiProxy" ref="org.sakaiproject.commons.api.SakaiProxy" />
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder" />
-        <property name="searchService" ref="org.sakaiproject.search.api.SearchService" />
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="transactionTemplate">

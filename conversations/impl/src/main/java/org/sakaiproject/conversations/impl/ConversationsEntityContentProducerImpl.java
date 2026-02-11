@@ -15,14 +15,14 @@
  */
 package org.sakaiproject.conversations.impl;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jsoup.Jsoup;
 
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.ConversationsEvents;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
 import static org.sakaiproject.conversations.api.ConversationsReferenceReckoner.ConversationsReference;
@@ -36,8 +36,8 @@ import org.sakaiproject.conversations.api.repository.TagRepository;
 import org.sakaiproject.conversations.api.repository.ConversationsTopicRepository;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -48,7 +48,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ConversationsEntityContentProducerImpl implements EntityContentProducer {
+public class ConversationsEntityContentProducerImpl implements EntityContentProducer, EntityContentProducerEvents {
 
     @Autowired private ConversationsCommentRepository commentRepository;
     @Autowired private ConversationsService conversationsService;
@@ -59,61 +59,45 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
 
     @Setter
     private SearchIndexBuilder searchIndexBuilder;
-    @Autowired
-    private SearchService searchService;
-    @Autowired
-    private ServerConfigurationService serverConfigurationService;
 
-    private List<String> addingEvents = new ArrayList<>();
-    private List<String> deletingEvents = new ArrayList<>();
+    // Map of events to their corresponding search index actions
+    private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+            ConversationsEvents.TOPIC_CREATED.label, SearchBuilderItem.ACTION_ADD,
+            ConversationsEvents.TOPIC_UPDATED.label, SearchBuilderItem.ACTION_ADD,
+            ConversationsEvents.POST_CREATED.label, SearchBuilderItem.ACTION_ADD,
+            ConversationsEvents.POST_UPDATED.label, SearchBuilderItem.ACTION_ADD,
+            ConversationsEvents.COMMENT_CREATED.label, SearchBuilderItem.ACTION_ADD,
+            ConversationsEvents.COMMENT_UPDATED.label, SearchBuilderItem.ACTION_ADD,
+            ConversationsEvents.TOPIC_DELETED.label, SearchBuilderItem.ACTION_DELETE,
+            ConversationsEvents.POST_DELETED.label, SearchBuilderItem.ACTION_DELETE,
+            ConversationsEvents.COMMENT_DELETED.label, SearchBuilderItem.ACTION_DELETE
+    );
 
     public void init() {
-
-        if ("true".equals(serverConfigurationService.getString("search.enable", "false"))) {
-            addingEvents.add(ConversationsEvents.TOPIC_CREATED.label);
-            addingEvents.add(ConversationsEvents.TOPIC_UPDATED.label);
-            addingEvents.add(ConversationsEvents.POST_CREATED.label);
-            addingEvents.add(ConversationsEvents.POST_UPDATED.label);
-            addingEvents.add(ConversationsEvents.COMMENT_CREATED.label);
-            addingEvents.add(ConversationsEvents.COMMENT_UPDATED.label);
-            deletingEvents.add(ConversationsEvents.TOPIC_DELETED.label);
-            deletingEvents.add(ConversationsEvents.POST_DELETED.label);
-            deletingEvents.add(ConversationsEvents.COMMENT_DELETED.label);
-            addingEvents.forEach(searchService::registerFunction);
-            deletingEvents.forEach(searchService::registerFunction);
-
-            searchIndexBuilder.registerEntityContentProducer(this);
-        }
+        searchIndexBuilder.registerEntityContentProducer(this);
     }
 
     @Override
     public Integer getAction(Event event) {
-
         log.debug("getAction({})", event.getEvent());
-
-        String evt = event.getEvent();
-
-        if (addingEvents.contains(evt)) return SearchBuilderItem.ACTION_ADD;
-        if (deletingEvents.contains(evt)) return SearchBuilderItem.ACTION_DELETE;
-
-        return SearchBuilderItem.ACTION_UNKNOWN;
+        return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
     }
 
     @Override
     public boolean matches(String reference) {
-
         log.debug("matches({})", reference);
-
         return reference != null && reference.startsWith(ConversationsService.REFERENCE_ROOT);
     }
 
     @Override
     public boolean matches(Event event) {
-
         log.debug("matches({})", event.getEvent());
+        return EVENT_ACTIONS.containsKey(event.getEvent());
+    }
 
-        String evt = event.getEvent();
-        return addingEvents.contains(evt) || deletingEvents.contains(evt);
+    @Override
+    public Set<String> getTriggerFunctions() {
+        return EVENT_ACTIONS.keySet();
     }
 
     @Override

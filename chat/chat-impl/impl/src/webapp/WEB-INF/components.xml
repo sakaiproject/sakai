@@ -98,31 +98,9 @@
     <bean id="chatSearchAdapter"
     	class="org.sakaiproject.chat2.model.impl.ChatContentProducer"
     	init-method="init" destroy-method="destroy">
-    	<property name="addEvents">
-    		<list>
-    			<value>chat.new</value>
-    			<value>chat.revise.own</value>
-    			<value>chat.revise.any</value>
-    		</list>
-    	</property>
-    	<property name="removeEvents">
-    		<list>
-    			<value>chat.delete.own</value>
-    			<value>chat.delete.any</value>
-    		</list>
-    	</property>
-    	<property name="entityManager">
-         <ref bean="org.sakaiproject.entity.api.EntityManager"/>
-      </property>
-      <property name="chatManager">
-      	<ref bean="org.sakaiproject.chat2.model.ChatManager"/>
-      </property>
-      <property name="searchService">
-      	<ref bean="org.sakaiproject.search.api.SearchService" />
-      </property>
-      <property name="searchIndexBuilder">
-      	<ref bean="org.sakaiproject.search.api.SearchIndexBuilder" />
-      </property>
+    	<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+      <property name="chatManager" ref="org.sakaiproject.chat2.model.ChatManager"/>
+      <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
       <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
       <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>

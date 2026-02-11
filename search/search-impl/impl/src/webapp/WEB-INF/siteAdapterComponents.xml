@@ -8,9 +8,7 @@
           init-method="init">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
-        <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
         <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
 </beans>

@@ -18,13 +18,11 @@ package org.sakaiproject.chat2.model.impl;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +30,6 @@ import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -40,8 +37,8 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
@@ -55,43 +52,32 @@ import org.sakaiproject.util.ResourceLoader;
  *
  */
 @Slf4j
-public class ChatContentProducer implements EntityContentProducer {
+public class ChatContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
-   @Setter @Getter private SearchService searchService = null;
-   @Setter @Getter private SearchIndexBuilder searchIndexBuilder = null;
-   @Setter @Getter  private EntityManager entityManager = null;
-   @Setter @Getter private ChatManager chatManager = null;
-   @Setter @Getter private List<String> addEvents = new ArrayList<>();
-   @Setter @Getter private List<String> removeEvents = new ArrayList<>();
-   
+   @Setter private SearchIndexBuilder searchIndexBuilder = null;
+   @Setter private EntityManager entityManager = null;
+   @Setter private ChatManager chatManager = null;
+
    private ResourceLoader toolBundle;
-   
+
    private ContextualUserDisplayService contextualUserDisplayService;
-   
+
    @Setter private SiteService siteService;
    @Setter private UserDirectoryService userDirectoryService;
 
+   // Map of events to their corresponding search index actions
+   private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+           "chat.new", SearchBuilderItem.ACTION_ADD,
+           "chat.revise.own", SearchBuilderItem.ACTION_ADD,
+           "chat.revise.any", SearchBuilderItem.ACTION_ADD,
+           "chat.delete.own", SearchBuilderItem.ACTION_DELETE,
+           "chat.delete.any", SearchBuilderItem.ACTION_DELETE
+   );
 
-protected void init() throws Exception {
+   protected void init() throws Exception {
       log.info("init()");
-      
-      if ("true".equals(ServerConfigurationService.getString( //$NON-NLS-1$
-            "search.enable", "false"))) //$NON-NLS-1$ //$NON-NLS-2$
-      {
-         for (Iterator<String> i = addEvents.iterator(); i.hasNext();)
-         {
-            getSearchService().registerFunction((String) i.next());
-         }
-         for (Iterator<String> i = removeEvents.iterator(); i.hasNext();)
-         {
-            getSearchService().registerFunction((String) i.next());
-         }
-         getSearchIndexBuilder().registerEntityContentProducer(this);
-         
-      }
-      
+      searchIndexBuilder.registerEntityContentProducer(this);
       contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get("org.sakaiproject.user.api.ContextualUserDisplayService");
-
    }
    
    /**
@@ -148,27 +134,8 @@ protected void init() throws Exception {
    }
 
    @Override
-   public Integer getAction(Event event)
-   {
-      String evt = event.getEvent();
-      if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-      for (Iterator<String> i = addEvents.iterator(); i.hasNext();)
-      {
-         String match = (String) i.next();
-         if (evt.equals(match))
-         {
-            return SearchBuilderItem.ACTION_ADD;
-         }
-      }
-      for (Iterator<String> i = removeEvents.iterator(); i.hasNext();)
-      {
-         String match = (String) i.next();
-         if (evt.equals(match))
-         {
-            return SearchBuilderItem.ACTION_DELETE;
-         }
-      }
-      return SearchBuilderItem.ACTION_UNKNOWN;
+   public Integer getAction(Event event) {
+      return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
    }
 
    @Override
@@ -470,9 +437,17 @@ protected void init() throws Exception {
    }
 
    @Override
-   public boolean matches(Event event)
-   {
-      return matches(event.getResource());
+   public boolean matches(Event event) {
+      return EVENT_ACTIONS.containsKey(event.getEvent());
    }
 
+   @Override
+   public Set<String> getTriggerFunctions() {
+      return EVENT_ACTIONS.keySet();
+   }
+
+   // Keep getter methods for backward compatibility with Spring injection
+   public ChatManager getChatManager() {
+      return chatManager;
+   }
 }
