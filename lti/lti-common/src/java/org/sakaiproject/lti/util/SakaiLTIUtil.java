@@ -3822,26 +3822,71 @@ public class SakaiLTIUtil {
 	}
 
 	public static void mergeTool(Element element, LtiToolBean tool) {
-		mergeTool(element, tool != null ? tool.asMap() : null);
+		mergeToolBean(element, tool);
+	}
+
+	/**
+	 * Populates a tool bean from an archive XML element. Primary implementation.
+	 */
+	public static void mergeToolBean(Element element, LtiToolBean tool) {
+		if (element != null && tool != null) {
+			tool.populateFromArchiveElement(element);
+		}
 	}
 
 	public static void mergeTool(Element element, Map<String, Object> tool) {
-		Foorm.mergeThing(element, LTIService.TOOL_MODEL, tool);
+		if (element == null || tool == null) {
+			return;
+		}
+		LtiToolBean bean = new LtiToolBean();
+		mergeToolBean(element, bean);
+		tool.putAll(bean.asMap());
 	}
 
 	public static void mergeContent(Element element, LtiContentBean content, LtiToolBean tool) {
-		mergeContent(element, content != null ? content.asMap() : null, tool != null ? tool.asMap() : null);
+		mergeContentBean(element, content, tool);
 	}
 
-	public static void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool) {
-		Foorm.mergeThing(element, LTIService.CONTENT_MODEL, content);
+	/**
+	 * Populates content and tool beans from an archive XML element. Primary implementation.
+	 */
+	public static void mergeContentBean(Element element, LtiContentBean content, LtiToolBean tool) {
+		if (element == null) {
+			return;
+		}
+		if (content != null) {
+			content.populateFromArchiveElement(element);
+		}
 		if (tool != null) {
 			NodeList nl = element.getElementsByTagName(LTIService.ARCHIVE_LTI_TOOL_TAG);
 			if (nl.getLength() >= 1) {
 				Node toolNode = nl.item(0);
 				if (toolNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element toolElement = (Element) toolNode;
-					mergeTool(toolElement, tool);
+					mergeToolBean(toolElement, tool);
+				}
+			}
+		}
+	}
+
+	public static void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool) {
+		if (element == null) {
+			return;
+		}
+		if (content != null) {
+			LtiContentBean contentBean = new LtiContentBean();
+			mergeContentBean(element, contentBean, null);
+			content.putAll(contentBean.asMap());
+		}
+		if (tool != null) {
+			NodeList nl = element.getElementsByTagName(LTIService.ARCHIVE_LTI_TOOL_TAG);
+			if (nl.getLength() >= 1) {
+				Node toolNode = nl.item(0);
+				if (toolNode.getNodeType() == Node.ELEMENT_NODE) {
+					Element toolElement = (Element) toolNode;
+					LtiToolBean toolBean = new LtiToolBean();
+					mergeToolBean(toolElement, toolBean);
+					tool.putAll(toolBean.asMap());
 				}
 			}
 		}

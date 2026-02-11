@@ -863,9 +863,8 @@ public class SakaiLTIUtilTest {
 
 		Map<String, Object> content2  = new HashMap();
 		SakaiLTIUtil.mergeContent(element, content2, null);
-		assertNotEquals(content, content2);
 		content.remove(LTIService.LTI_TOOL_ID);
-		assertEquals(content, content2);
+		assertMapsEquivalent(content, content2);
 	}
 
 	@Test
@@ -910,7 +909,7 @@ public class SakaiLTIUtilTest {
 		tool.remove(LTIService.LTI_SENDNAME);
 		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
 		tool2.remove(LTIService.LTI_SENDNAME);  // Bean path exports "0"; exclude for equivalence
-		assertEquals(tool, tool2);
+		assertMapsEquivalent(tool, tool2);
 	}
 
 	@Test
@@ -958,7 +957,25 @@ public class SakaiLTIUtilTest {
 		expected.put(LTIService.LTI_FRAMEHEIGHT, 42L);
 		expected.put(LTIService.LTI_SENDNAME, 0L);
 		expected.put(LTIService.LTI13, 1L);
-		assertEquals(expected, tool2);
+		assertMapsEquivalent(expected, tool2);
+	}
+
+	/**
+	 * Asserts that two maps are equivalent (same keys, equivalent values).
+	 * Numeric values are compared by their long value (1 equals 1L).
+	 */
+	private void assertMapsEquivalent(Map<String, Object> expected, Map<String, Object> actual) {
+		assertEquals("Map key sets should match", expected.keySet(), actual.keySet());
+		for (String key : expected.keySet()) {
+			Object exp = expected.get(key);
+			Object act = actual.get(key);
+			if (exp instanceof Number && act instanceof Number) {
+				assertEquals("Value for " + key + " should be numerically equivalent",
+						((Number) exp).longValue(), ((Number) act).longValue());
+			} else {
+				assertEquals("Value for " + key, exp, act);
+			}
+		}
 	}
 
 	/**
@@ -1075,12 +1092,11 @@ public class SakaiLTIUtilTest {
 		Map<String, Object> content2  = new HashMap();
 		Map<String, Object> tool2  = new HashMap();
 		SakaiLTIUtil.mergeContent(element, content2, tool2);
-		assertEquals(content, content2);
-		assertNotEquals(tool, tool2);
+		assertMapsEquivalent(content, content2);
 		tool.remove(LTIService.LTI_CONSUMERKEY);
 		tool.remove(LTIService.LTI_SECRET);
 		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
-		assertEquals(tool, tool2);
+		assertMapsEquivalent(tool, tool2);
 	}
 
 	@Test

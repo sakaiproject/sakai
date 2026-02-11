@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -423,5 +425,83 @@ public abstract class FoormBaseBean {
             return String.valueOf(((Date) o).getTime());
         }
         return o.toString();
+    }
+
+    /**
+     * Populates this bean from an archive XML element. Iterates over child elements,
+     * and for each tag name matching an archivable {@link FoormField}, parses the
+     * text content and sets the corresponding field. Skips excluded fields and
+     * children that are not archivable (e.g. nested {@code sakai-lti-tool}).
+     *
+     * @param element The archive element (e.g. {@code sakai-lti-tool}) containing children
+     */
+    public void populateFromArchiveElement(Element element) {
+        if (element == null) {
+            return;
+        }
+        Map<String, Field> fieldsByName = getFieldsForClass(getClass());
+        NodeList children = element.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node n = children.item(i);
+            if (n.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            Element child = (Element) n;
+            String tagName = child.getTagName();
+            Field f = fieldsByName.get(tagName);
+            if (f == null) {
+                continue;
+            }
+            FoormField ann = f.getAnnotation(FoormField.class);
+            if (ann == null || !ann.archive()) {
+                continue;
+            }
+            String text = child.getTextContent();
+            if (text == null || text.isEmpty()) {
+                continue;
+            }
+            Object value = parseArchiveValue(text.trim(), f);
+            if (value == null) {
+                continue;
+            }
+            try {
+                f.set(this, value);
+            } catch (IllegalAccessException e) {
+                log.debug("Could not set field {}: {}", tagName, e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Parses archive XML text content into the correct type for the given field.
+     */
+    protected static Object parseArchiveValue(String text, Field f) {
+        if (text == null || text.isEmpty()) {
+            return null;
+        }
+        Class<?> type = f.getType();
+        try {
+            if (type == Boolean.class || type == boolean.class) {
+                return "1".equals(text) || "true".equalsIgnoreCase(text) || "yes".equalsIgnoreCase(text);
+            }
+            if (type == Integer.class || type == int.class) {
+                if (text.contains(".")) {
+                    return Integer.valueOf((int) Double.parseDouble(text));
+                }
+                return Integer.valueOf(text);
+            }
+            if (type == Long.class || type == long.class) {
+                if (text.contains(".")) {
+                    return Long.valueOf((long) Double.parseDouble(text));
+                }
+                return Long.valueOf(text);
+            }
+            if (type == Date.class) {
+                return new Date(Long.parseLong(text));
+            }
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        return text;
     }
 }
