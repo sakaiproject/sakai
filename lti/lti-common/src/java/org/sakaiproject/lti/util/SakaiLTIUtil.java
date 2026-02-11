@@ -3788,7 +3788,7 @@ public class SakaiLTIUtil {
 			if (LTIService.SAKAI_TOOL_CHECKSUM.equals(field)) {
 				continue; // added separately below
 			}
-			Object o = getBeanArchiveValue(tool, field);
+			Object o = tool.getValueByFieldName(field);
 			if (o == null) {
 				continue;
 			}
@@ -3823,62 +3823,6 @@ public class SakaiLTIUtil {
 			}
 		}
 		return out;
-	}
-
-	private static Object getBeanArchiveValue(LtiToolBean tool, String field) {
-		switch (field) {
-			case "id": return tool.getId();
-			case "SITE_ID": return tool.getSiteId();
-			case "title": return tool.getTitle();
-			case "description": return tool.getDescription();
-			case "status": return tool.getStatus();
-			case "visible": return tool.getVisible();
-			case "deployment_id": return tool.getDeploymentId();
-			case "launch": return tool.getLaunch();
-			case "newpage": return tool.getNewpage();
-			case "frameheight": return tool.getFrameheight();
-			case "fa_icon": return tool.getFaIcon();
-			case "pl_launch": return tool.getPlLaunch();
-			case "pl_linkselection": return tool.getPlLinkselection();
-			case "pl_contextlaunch": return tool.getPlContextlaunch();
-			case "pl_lessonsselection": return tool.getPlLessonsselection();
-			case "pl_contenteditor": return tool.getPlContenteditor();
-			case "pl_assessmentselection": return tool.getPlAssessmentselection();
-			case "pl_coursenav": return tool.getPlCoursenav();
-			case "pl_importitem": return tool.getPlImportitem();
-			case "pl_fileitem": return tool.getPlFileitem();
-			case "sendname": return tool.getSendname();
-			case "sendemailaddr": return tool.getSendemailaddr();
-			case "pl_privacy": return tool.getPlPrivacy();
-			case "allowoutcomes": return tool.getAllowoutcomes();
-			case "allowlineitems": return tool.getAllowlineitems();
-			case "allowroster": return tool.getAllowroster();
-			case "debug": return tool.getDebug();
-			case "siteinfoconfig": return tool.getSiteinfoconfig();
-			case "splash": return tool.getSplash();
-			case "custom": return tool.getCustom();
-			case "rolemap": return tool.getRolemap();
-			case "lti13": return tool.getLti13();
-			case "lti13_tool_keyset": return tool.getLti13ToolKeyset();
-			case "lti13_oidc_endpoint": return tool.getLti13OidcEndpoint();
-			case "lti13_oidc_redirect": return tool.getLti13OidcRedirect();
-			case "lti13_lms_issuer": return tool.getLti13LmsIssuer();
-			case "lti13_client_id": return tool.getLti13ClientId();
-			case "lti13_lms_deployment_id": return tool.getLti13LmsDeploymentId();
-			case "lti13_lms_keyset": return tool.getLti13LmsKeyset();
-			case "lti13_lms_endpoint": return tool.getLti13LmsEndpoint();
-			case "lti13_lms_token": return tool.getLti13LmsToken();
-			case "consumerkey": return tool.getConsumerkey();
-			case "secret": return tool.getSecret();
-			case "xmlimport": return tool.getXmlimport();
-			case "lti13_auto_token": return tool.getLti13AutoToken();
-			case "lti13_auto_state": return tool.getLti13AutoState();
-			case "lti13_auto_registration": return tool.getLti13AutoRegistration();
-			case "sakai_tool_checksum": return tool.getSakaiToolChecksum();
-			case "created_at": return tool.getCreatedAt();
-			case "updated_at": return tool.getUpdatedAt();
-			default: return null;
-		}
 	}
 
 	private static String formatArchiveValue(Object o, String type) {

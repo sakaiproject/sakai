@@ -27,9 +27,11 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.sakaiproject.lti.api.LTIService;
 
@@ -51,78 +53,150 @@ import org.sakaiproject.lti.api.LTIService;
 @ToString(exclude = {"secret", "lti13AutoToken", "toolState", "platformState", "relaunchUrl", "origSiteIdNull", "sakaiToolChecksum"})
 public class LtiToolBean extends LTIBaseBean {
 
-    // Core fields from TOOL_MODEL
-    public Long id;                    // TOOL_MODEL: "id:key:archive=true"
-    public String siteId;              // TOOL_MODEL: "SITE_ID:text:maxlength=99:role=admin"
-    public String title;               // TOOL_MODEL: "title:text:label=bl_title:required=true:maxlength=1024:archive=true"
-    public String description;         // TOOL_MODEL: "description:textarea:label=bl_description:maxlength=4096:archive=true"
-    public String status;              // TOOL_MODEL: "status:radio:label=bl_status:choices=enable,disable"
-    public String visible;             // TOOL_MODEL: "visible:radio:label=bl_visible:choices=visible,stealth:role=admin"
-    public Long deploymentId;          // TOOL_MODEL: "deployment_id:integer:hidden=true:archive=true"
-    public String launch;              // TOOL_MODEL: "launch:url:label=bl_launch:maxlength=1024:required=true:archive=true"
-    public Integer newpage;            // TOOL_MODEL: "newpage:radio:label=bl_newpage:choices=off,on,content:archive=true"
-    public Integer frameheight;        // TOOL_MODEL: "frameheight:integer:label=bl_frameheight:archive=true"
-    public String faIcon;              // TOOL_MODEL: "fa_icon:text:label=bl_fa_icon:maxlength=1024:archive=true"
+	/** Map from canonical field name to Field for reflective access. */
+	private static final Map<String, Field> FIELDS_BY_NAME = buildFieldMap();
+
+	private static Map<String, Field> buildFieldMap() {
+		Map<String, Field> map = new ConcurrentHashMap<>();
+		for (Field f : LtiToolBean.class.getDeclaredFields()) {
+			FoormField ann = f.getAnnotation(FoormField.class);
+			if (ann != null) {
+				map.put(ann.value(), f);
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * Returns the value of the property identified by its canonical field name.
+	 *
+	 * @param fieldName Canonical name from {@link FoormField} (e.g. {@code deployment_id}, {@code SITE_ID})
+	 * @return The property value, or null if the field is unknown or its value is null
+	 */
+	public Object getValueByFieldName(String fieldName) {
+		Field f = FIELDS_BY_NAME.get(fieldName);
+		if (f == null) {
+			return null;
+		}
+		try {
+			return f.get(this);
+		} catch (IllegalAccessException e) {
+			return null;
+		}
+	}
+
+    // TOOL_MODEL
+    // "id:key:archive=true"
+    @FoormField("id") public Long id;
+    // "SITE_ID:text:maxlength=99:role=admin"
+    @FoormField("SITE_ID") public String siteId;
+    // "title:text:label=bl_title:required=true:maxlength=1024:archive=true"
+    @FoormField("title") public String title;
+    // "description:textarea:label=bl_description:maxlength=4096:archive=true"
+    @FoormField("description") public String description;
+    // "status:radio:label=bl_status:choices=enable,disable"
+    @FoormField("status") public String status;
+    // "visible:radio:label=bl_visible:choices=visible,stealth:role=admin"
+    @FoormField("visible") public String visible;
+    // "deployment_id:integer:hidden=true:archive=true"
+    @FoormField("deployment_id") public Long deploymentId;
+    // "launch:url:label=bl_launch:maxlength=1024:required=true:archive=true"
+    @FoormField("launch") public String launch;
+    // "newpage:radio:label=bl_newpage:choices=off,on,content:archive=true"
+    @FoormField("newpage") public Integer newpage;
+    // "frameheight:integer:label=bl_frameheight:archive=true"
+    @FoormField("frameheight") public Integer frameheight;
+    // "fa_icon:text:label=bl_fa_icon:maxlength=1024:archive=true"
+    @FoormField("fa_icon") public String faIcon;
     
-    // Message Types (pl_ prefix for backwards compatibility) from TOOL_MODEL
-    public Boolean plLaunch;           // TOOL_MODEL: "pl_launch:checkbox:label=bl_pl_launch:archive=true"
-    public Boolean plLinkselection;    // TOOL_MODEL: "pl_linkselection:checkbox:label=bl_pl_linkselection:archive=true"
-    public Boolean plContextlaunch;    // TOOL_MODEL: "pl_contextlaunch:checkbox:label=bl_pl_contextlaunch:hidden=true"
+    // "pl_launch:checkbox:label=bl_pl_launch:archive=true"
+    @FoormField("pl_launch") public Boolean plLaunch;
+    // "pl_linkselection:checkbox:label=bl_pl_linkselection:archive=true"
+    @FoormField("pl_linkselection") public Boolean plLinkselection;
+    // "pl_contextlaunch:checkbox:label=bl_pl_contextlaunch:hidden=true"
+    @FoormField("pl_contextlaunch") public Boolean plContextlaunch;
+
+    // "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection:archive=true"
+    @FoormField("pl_lessonsselection") public Boolean plLessonsselection;
+    // "pl_contenteditor:checkbox:label=bl_pl_contenteditor:archive=true"
+    @FoormField("pl_contenteditor") public Boolean plContenteditor;
+    // "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:archive=true"
+    @FoormField("pl_assessmentselection") public Boolean plAssessmentselection;
+    // "pl_coursenav:checkbox:label=bl_pl_coursenav:archive=true"
+    @FoormField("pl_coursenav") public Boolean plCoursenav;
+    // "pl_importitem:checkbox:label=bl_pl_importitem:role=admin:archive=true"
+    @FoormField("pl_importitem") public Boolean plImportitem;
+    // "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true:archive=true"
+    @FoormField("pl_fileitem") public Boolean plFileitem;
     
-    // Placements from TOOL_MODEL
-    public Boolean plLessonsselection;     // TOOL_MODEL: "pl_lessonsselection:checkbox:label=bl_pl_lessonsselection:archive=true"
-    public Boolean plContenteditor;        // TOOL_MODEL: "pl_contenteditor:checkbox:label=bl_pl_contenteditor:archive=true"
-    public Boolean plAssessmentselection;  // TOOL_MODEL: "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:archive=true"
-    public Boolean plCoursenav;            // TOOL_MODEL: "pl_coursenav:checkbox:label=bl_pl_coursenav:archive=true"
-    public Boolean plImportitem;           // TOOL_MODEL: "pl_importitem:checkbox:label=bl_pl_importitem:role=admin:archive=true"
-    public Boolean plFileitem;             // TOOL_MODEL: "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin:hidden=true:archive=true"
+    // "sendname:checkbox:label=bl_sendname:archive=true"
+    @FoormField("sendname") public Boolean sendname;
+    // "sendemailaddr:checkbox:label=bl_sendemailaddr:archive=true"
+    @FoormField("sendemailaddr") public Boolean sendemailaddr;
+    // "pl_privacy:checkbox:label=bl_pl_privacy:role=admin"
+    @FoormField("pl_privacy") public Boolean plPrivacy;
+
+    // "allowoutcomes:checkbox:label=bl_allowoutcomes:archive=true"
+    @FoormField("allowoutcomes") public Boolean allowoutcomes;
+    // "allowlineitems:checkbox:label=bl_allowlineitems:archive=true"
+    @FoormField("allowlineitems") public Boolean allowlineitems;
+    // "allowroster:checkbox:label=bl_allowroster:archive=true"
+    @FoormField("allowroster") public Boolean allowroster;
     
-    // Privacy from TOOL_MODEL
-    public Boolean sendname;           // TOOL_MODEL: "sendname:checkbox:label=bl_sendname:archive=true"
-    public Boolean sendemailaddr;      // TOOL_MODEL: "sendemailaddr:checkbox:label=bl_sendemailaddr:archive=true"
-    public Boolean plPrivacy;          // TOOL_MODEL: "pl_privacy:checkbox:label=bl_pl_privacy:role=admin"
+    // "debug:radio:label=bl_debug:choices=off,on,content"
+    @FoormField("debug") public Integer debug;
+    // "siteinfoconfig:radio:label=bl_siteinfoconfig:advanced:choices=bypass,config"
+    @FoormField("siteinfoconfig") public String siteinfoconfig;
+    // "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384"
+    @FoormField("splash") public String splash;
+    // "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384:archive=true"
+    @FoormField("custom") public String custom;
+    // "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin:archive=true"
+    @FoormField("rolemap") public String rolemap;
+    // "lti13:radio:label=bl_lti13:choices=off,on,both:role=admin:archive=true"
+    @FoormField("lti13") public Integer lti13;
     
-    // Services from TOOL_MODEL
-    public Boolean allowoutcomes;      // TOOL_MODEL: "allowoutcomes:checkbox:label=bl_allowoutcomes:archive=true"
-    public Boolean allowlineitems;     // TOOL_MODEL: "allowlineitems:checkbox:label=bl_allowlineitems:archive=true"
-    public Boolean allowroster;        // TOOL_MODEL: "allowroster:checkbox:label=bl_allowroster:archive=true"
+    // "lti13_tool_keyset:text:label=bl_lti13_tool_keyset:maxlength=1024:role=admin"
+    @FoormField("lti13_tool_keyset") public String lti13ToolKeyset;
+    // "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin"
+    @FoormField("lti13_oidc_endpoint") public String lti13OidcEndpoint;
+    // "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin"
+    @FoormField("lti13_oidc_redirect") public String lti13OidcRedirect;
+
+    // "lti13_lms_issuer:text:label=bl_lti13_lms_issuer:readonly=true:persist=false:maxlength=1024:role=admin"
+    @FoormField("lti13_lms_issuer") public String lti13LmsIssuer;
+    // "lti13_client_id:text:label=bl_lti13_client_id:readonly=true:maxlength=1024:role=admin"
+    @FoormField("lti13_client_id") public String lti13ClientId;
+    // "lti13_lms_deployment_id:text:label=bl_lti13_lms_deployment_id:readonly=true:maxlength=1024:role=admin"
+    @FoormField("lti13_lms_deployment_id") public String lti13LmsDeploymentId;
+    // "lti13_lms_keyset:text:label=bl_lti13_lms_keyset:readonly=true:persist=false:maxlength=1024:role=admin"
+    @FoormField("lti13_lms_keyset") public String lti13LmsKeyset;
+    // "lti13_lms_endpoint:text:label=bl_lti13_lms_endpoint:readonly=true:persist=false:maxlength=1024:role=admin"
+    @FoormField("lti13_lms_endpoint") public String lti13LmsEndpoint;
+    // "lti13_lms_token:text:label=bl_lti13_lms_token:readonly=true:persist=false:maxlength=1024:role=admin"
+    @FoormField("lti13_lms_token") public String lti13LmsToken;
     
-    // Configuration fields from TOOL_MODEL
-    public Integer debug;              // TOOL_MODEL: "debug:radio:label=bl_debug:choices=off,on,content"
-    public String siteinfoconfig;      // TOOL_MODEL: "siteinfoconfig:radio:label=bl_siteinfoconfig:advanced:choices=bypass,config"
-    public String splash;              // TOOL_MODEL: "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384"
-    public String custom;              // TOOL_MODEL: "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384:archive=true"
-    public String rolemap;             // TOOL_MODEL: "rolemap:textarea:label=bl_rolemap:rows=5:cols=25:maxlength=16384:role=admin:archive=true"
-    public Integer lti13;              // TOOL_MODEL: "lti13:radio:label=bl_lti13:choices=off,on,both:role=admin:archive=true"
-    
-    // LTI 1.3 security values from the tool from TOOL_MODEL
-    public String lti13ToolKeyset;     // TOOL_MODEL: "lti13_tool_keyset:text:label=bl_lti13_tool_keyset:maxlength=1024:role=admin"
-    public String lti13OidcEndpoint;   // TOOL_MODEL: "lti13_oidc_endpoint:text:label=bl_lti13_oidc_endpoint:maxlength=1024:role=admin"
-    public String lti13OidcRedirect;   // TOOL_MODEL: "lti13_oidc_redirect:text:label=bl_lti13_oidc_redirect:maxlength=1024:role=admin"
-    
-    // LTI 1.3 security values from the LMS from TOOL_MODEL
-    public String lti13LmsIssuer;      // TOOL_MODEL: "lti13_lms_issuer:text:label=bl_lti13_lms_issuer:readonly=true:persist=false:maxlength=1024:role=admin"
-    public String lti13ClientId;       // TOOL_MODEL: "lti13_client_id:text:label=bl_lti13_client_id:readonly=true:maxlength=1024:role=admin"
-    public String lti13LmsDeploymentId; // TOOL_MODEL: "lti13_lms_deployment_id:text:label=bl_lti13_lms_deployment_id:readonly=true:maxlength=1024:role=admin"
-    public String lti13LmsKeyset;      // TOOL_MODEL: "lti13_lms_keyset:text:label=bl_lti13_lms_keyset:readonly=true:persist=false:maxlength=1024:role=admin"
-    public String lti13LmsEndpoint;    // TOOL_MODEL: "lti13_lms_endpoint:text:label=bl_lti13_lms_endpoint:readonly=true:persist=false:maxlength=1024:role=admin"
-    public String lti13LmsToken;       // TOOL_MODEL: "lti13_lms_token:text:label=bl_lti13_lms_token:readonly=true:persist=false:maxlength=1024:role=admin"
-    
-    // LTI 1.1 security arrangement from TOOL_MODEL
-    public String consumerkey;         // TOOL_MODEL: "consumerkey:text:label=bl_consumerkey:maxlength=1024"
-    public String secret;              // TOOL_MODEL: "secret:text:label=bl_secret:maxlength=1024"
-    public String xmlimport;           // TOOL_MODEL: "xmlimport:textarea:hidden=true:maxlength=1M"
-    public String lti13AutoToken;      // TOOL_MODEL: "lti13_auto_token:text:hidden=true:maxlength=1024"
-    public Integer lti13AutoState;     // TOOL_MODEL: "lti13_auto_state:integer:hidden=true"
-    public String lti13AutoRegistration; // TOOL_MODEL: "lti13_auto_registration:textarea:hidden=true:maxlength=1M"
-    
-    // Timestamps from TOOL_MODEL
-    public Date createdAt;             // TOOL_MODEL: "created_at:autodate"
-    public Date updatedAt;             // TOOL_MODEL: "updated_at:autodate"
-    
-    // Live attributes - computed fields that may be present in Map data
-    public Long ltiContentCount;       // Live attribute: "lti_content_count" from database joins
-    public Long ltiSiteCount;          // Live attribute: "lti_site_count" from database joins
+    // "consumerkey:text:label=bl_consumerkey:maxlength=1024"
+    @FoormField("consumerkey") public String consumerkey;
+    // "secret:text:label=bl_secret:maxlength=1024"
+    @FoormField("secret") public String secret;
+    // "xmlimport:textarea:hidden=true:maxlength=1M"
+    @FoormField("xmlimport") public String xmlimport;
+    // "lti13_auto_token:text:hidden=true:maxlength=1024"
+    @FoormField("lti13_auto_token") public String lti13AutoToken;
+    // "lti13_auto_state:integer:hidden=true"
+    @FoormField("lti13_auto_state") public Integer lti13AutoState;
+    // "lti13_auto_registration:textarea:hidden=true:maxlength=1M"
+    @FoormField("lti13_auto_registration") public String lti13AutoRegistration;
+
+    // "created_at:autodate"
+    @FoormField("created_at") public Date createdAt;
+    // "updated_at:autodate"
+    @FoormField("updated_at") public Date updatedAt;
+
+    // Live attributes (from joins, not in TOOL_MODEL)
+    @FoormField("lti_content_count") public Long ltiContentCount;
+    @FoormField("lti_site_count") public Long ltiSiteCount;
 
     /**
      * Launch-flow only fields.
@@ -149,11 +223,13 @@ public class LtiToolBean extends LTIBaseBean {
      *       round-trips in {@link #asMap()} and {@link #of(java.util.Map)} but is never stored.</li>
      * </ul>
      */
-    public String toolState;          // "tool_state" in launch
-    public String platformState;      // "platform_state" in launch
-    public String relaunchUrl;        // "relaunch_url" in launch
-    public String origSiteIdNull;     // "orig_site_id_null" (internal, LTI 1.3 redirect)
-    public String sakaiToolChecksum;  // "sakai_tool_checksum" in archive XML (non-persisted)
+    // Launch-flow only (not in TOOL_MODEL)
+    @FoormField("tool_state") public String toolState;
+    @FoormField("platform_state") public String platformState;
+    @FoormField("relaunch_url") public String relaunchUrl;
+    @FoormField("orig_site_id_null") public String origSiteIdNull;
+    // "sakai_tool_checksum:text:maxlength=99:hidden=true:persist=false:archive=true"
+    @FoormField("sakai_tool_checksum") public String sakaiToolChecksum;
 
     /**
      * Creates an LtiToolBean instance from a Map<String, Object>.
