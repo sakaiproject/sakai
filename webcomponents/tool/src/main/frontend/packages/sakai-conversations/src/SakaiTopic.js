@@ -518,6 +518,7 @@ export class SakaiTopic extends reactionsAndUpvotingMixin(SakaiElement) {
   }
 
   shouldUpdate() {
+    console.log("shouldUpdate");
     return this._i18n && this.topic;
   }
 
