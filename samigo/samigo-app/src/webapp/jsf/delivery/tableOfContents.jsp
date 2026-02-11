@@ -81,22 +81,23 @@ function saveTime()
 </script>
 
 
-<!-- DONE BUTTON FOR PREVIEW ASSESSMENT -->
 <h:form id="tableOfContentsForm">
 
 <h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
 <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
 
+<!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="sak-banner-info"></f:verbatim>
-     <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
-     <h:commandButton value="#{deliveryMessages.exit_preview}"
-        styleClass="exitPreviewButton"
-        action="#{person.cleanResourceIdListInPreview}"
-        type="submit"
-        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
- <f:verbatim></div></f:verbatim>
+  <div class="sak-banner-info mb-5">
+    <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
+    <br><br>
+    <h:commandButton value="#{deliveryMessages.exit_preview}"
+      styleClass="exitPreviewButton ms-0 mt-2"
+      action="#{person.cleanResourceIdListInPreview}"
+      type="submit"
+      onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
+    </div>
 </h:panelGroup>
 
 <h3><h:outputText value="#{delivery.assessmentTitle} " escape="false"/></h3>
@@ -257,13 +258,6 @@ function saveTime()
   </h:commandButton>
 </p>
 
-<!-- DONE BUTTON FOR PREVIEW ASSESSMENT ONLY -->
-<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
-  <h:commandButton value="#{deliveryMessages.exit_preview}"
-     action="#{person.cleanResourceIdListInPreview}"
-     type="submit"
-     onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
-</h:panelGroup>
 
 </h:form>
 <!-- end content -->

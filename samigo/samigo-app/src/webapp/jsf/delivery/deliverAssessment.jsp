@@ -250,14 +250,15 @@ document.links[newindex].onclick();
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
-  <div class="sak-banner-info">
-     <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
-     <h:commandButton value="#{deliveryMessages.exit_preview}"
-        styleClass="exitPreviewButton"
-        action="#{person.cleanResourceIdListInPreview}"
-        type="submit"
-        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
-  </div>
+  <div class="sak-banner-info mb-5">
+    <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
+    <br><br>
+    <h:commandButton value="#{deliveryMessages.exit_preview}"
+      styleClass="exitPreviewButton ms-0 mt-2"
+      action="#{person.cleanResourceIdListInPreview}"
+      type="submit"
+      onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
+    </div>
 </h:panelGroup>
 
 <div id="delivPageWrapper">
@@ -683,14 +684,6 @@ document.links[newindex].onclick();
 <f:verbatim></div>
 </f:verbatim>
 <%@ include file="/jsf/delivery/questionProgress.jspf" %>
-
-<!-- DONE BUTTON IN PREVIEW -->
-<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
-  <h:commandButton value="#{deliveryMessages.exit_preview}"
-     action="#{person.cleanResourceIdListInPreview}"
-     type="submit"
-     onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
-</h:panelGroup>
 
 </h:form>
 <!-- end content -->
