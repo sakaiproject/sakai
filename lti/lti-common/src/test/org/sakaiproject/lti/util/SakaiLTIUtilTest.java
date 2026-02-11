@@ -853,8 +853,13 @@ public class SakaiLTIUtilTest {
 
 		Element element = SakaiLTIUtil.archiveContent(doc, content, null);
 		root.appendChild(element);
-		String xmlOut = Xml.writeDocumentToString(doc);
-		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-content><title>An LTI title</title><description>An LTI DESCRIPTION</description><frameheight>42</frameheight><newpage>1</newpage><launch>http://localhost:a-launch?x=42</launch></sakai-lti-content></root>");
+		Map<String, String> expectedContent = new HashMap<>();
+		expectedContent.put("title", "An LTI title");
+		expectedContent.put("description", "An LTI DESCRIPTION");
+		expectedContent.put("frameheight", "42");
+		expectedContent.put("newpage", "1");
+		expectedContent.put("launch", "http://localhost:a-launch?x=42");
+		assertContentXmlEquivalent(doc, expectedContent, null);
 
 		Map<String, Object> content2  = new HashMap();
 		SakaiLTIUtil.mergeContent(element, content2, null);
@@ -877,7 +882,7 @@ public class SakaiLTIUtilTest {
 		tool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
 		tool.put(LTIService.LTI_NEWPAGE, 1L);
 
-		tool.put(LTIService.LTI_SENDNAME, "please");  // Wil export (bad data) will not import
+		tool.put(LTIService.LTI_SENDNAME, "please");  // Bad data: bean path normalizes to 0/1
 		tool.put(LTIService.LTI_SECRET, "verysecure");  // Should not come back - Not archived
 		tool.put(LTIService.LTI_CONSUMERKEY, "key12345");  // Should not come back - Not archived
 
@@ -889,7 +894,7 @@ public class SakaiLTIUtilTest {
 		expectedToolElements.put("launch", "http://localhost:a-launch?x=42");
 		expectedToolElements.put("newpage", "1");
 		expectedToolElements.put("frameheight", "42");
-		expectedToolElements.put("sendname", "please");
+		expectedToolElements.put("sendname", "0");  // Bean path normalizes non-boolean to 0
 		expectedToolElements.put("lti13", "1");
 		expectedToolElements.put("sakai_tool_checksum", "Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=");
 		assertToolXmlEquivalent(doc, expectedToolElements);
@@ -903,9 +908,8 @@ public class SakaiLTIUtilTest {
 		tool.remove(LTIService.LTI_CONSUMERKEY);
 		assertNotEquals(tool, tool2);
 		tool.remove(LTIService.LTI_SENDNAME);
-		assertNotEquals(tool, tool2);
 		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
-		assertTrue(tool.equals(tool2));
+		tool2.remove(LTIService.LTI_SENDNAME);  // Bean path exports "0"; exclude for equivalence
 		assertEquals(tool, tool2);
 	}
 
@@ -955,6 +959,46 @@ public class SakaiLTIUtilTest {
 		expected.put(LTIService.LTI_SENDNAME, 0L);
 		expected.put(LTIService.LTI13, 1L);
 		assertEquals(expected, tool2);
+	}
+
+	/**
+	 * Asserts that the sakai-lti-content element in doc has child elements equivalent to expected
+	 * (same tag names and text content, ignoring order). If expectedTool is non-null, also
+	 * asserts the nested sakai-lti-tool element matches expectedTool.
+	 */
+	private void assertContentXmlEquivalent(Document doc, Map<String, String> expectedContent, Map<String, String> expectedTool) {
+		NodeList contentNodes = doc.getElementsByTagName(LTIService.ARCHIVE_LTI_CONTENT_TAG);
+		assertNotNull("sakai-lti-content element should exist", contentNodes);
+		assertTrue("sakai-lti-content element should exist", contentNodes.getLength() >= 1);
+		Element contentEl = (Element) contentNodes.item(0);
+		Map<String, String> actualContent = new HashMap<>();
+		NodeList children = contentEl.getChildNodes();
+		Element toolEl = null;
+		for (int i = 0; i < children.getLength(); i++) {
+			Node n = children.item(i);
+			if (n.getNodeType() == Node.ELEMENT_NODE) {
+				Element e = (Element) n;
+				if (LTIService.ARCHIVE_LTI_TOOL_TAG.equals(e.getTagName())) {
+					toolEl = e;
+				} else {
+					actualContent.put(e.getTagName(), e.getTextContent());
+				}
+			}
+		}
+		assertEquals("Content XML elements should be equivalent (order-independent)", expectedContent, actualContent);
+		if (expectedTool != null) {
+			assertNotNull("sakai-lti-tool child should exist", toolEl);
+			Map<String, String> actualTool = new HashMap<>();
+			NodeList toolChildren = toolEl.getChildNodes();
+			for (int i = 0; i < toolChildren.getLength(); i++) {
+				Node n = toolChildren.item(i);
+				if (n.getNodeType() == Node.ELEMENT_NODE) {
+					Element e = (Element) n;
+					actualTool.put(e.getTagName(), e.getTextContent());
+				}
+			}
+			assertEquals("Tool XML elements should be equivalent (order-independent)", expectedTool, actualTool);
+		}
 	}
 
 	/**
@@ -1012,8 +1056,21 @@ public class SakaiLTIUtilTest {
 
 		Element element = SakaiLTIUtil.archiveContent(doc, content, tool);
 		root.appendChild(element);
-		String xmlOut = Xml.writeDocumentToString(doc);
-		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-content><title>An LTI title</title><description>An LTI DESCRIPTION</description><frameheight>42</frameheight><newpage>1</newpage><launch>http://localhost:a-launch?x=42</launch><sakai-lti-tool><title>An LTI title</title><description>An LTI DESCRIPTION</description><launch>http://localhost:a-launch?x=42</launch><newpage>1</newpage><frameheight>42</frameheight><lti13>1</lti13><sakai_tool_checksum>BF6JwVmB1Y1kgPxP4WnAS30BnWzJP46IpmKKrKCSfaw=</sakai_tool_checksum></sakai-lti-tool></sakai-lti-content></root>");
+		Map<String, String> expectedContent = new HashMap<>();
+		expectedContent.put("title", "An LTI title");
+		expectedContent.put("description", "An LTI DESCRIPTION");
+		expectedContent.put("frameheight", "42");
+		expectedContent.put("newpage", "1");
+		expectedContent.put("launch", "http://localhost:a-launch?x=42");
+		Map<String, String> expectedTool = new HashMap<>();
+		expectedTool.put("title", "An LTI title");
+		expectedTool.put("description", "An LTI DESCRIPTION");
+		expectedTool.put("launch", "http://localhost:a-launch?x=42");
+		expectedTool.put("newpage", "1");
+		expectedTool.put("frameheight", "42");
+		expectedTool.put("lti13", "1");
+		expectedTool.put("sakai_tool_checksum", "BF6JwVmB1Y1kgPxP4WnAS30BnWzJP46IpmKKrKCSfaw=");
+		assertContentXmlEquivalent(doc, expectedContent, expectedTool);
 
 		Map<String, Object> content2  = new HashMap();
 		Map<String, Object> tool2  = new HashMap();

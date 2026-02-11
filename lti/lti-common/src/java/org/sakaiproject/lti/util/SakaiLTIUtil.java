@@ -78,8 +78,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
-import org.sakaiproject.lti.beans.FoormField;
-import org.sakaiproject.lti.beans.FoormType;
 import org.sakaiproject.lti.beans.LtiContentBean;
 import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.portal.util.CSSUtils;
@@ -3766,38 +3764,18 @@ public class SakaiLTIUtil {
 	}
 
 	public static Element archiveTool(Document doc, LtiToolBean tool) {
-		return archiveTool(doc, tool != null ? tool.asMap() : null);
+		return archiveToolBean(doc, tool);
 	}
 
 	/**
-	 * Archive an LTI tool from a bean without using asMap or Foorm.
-	 * Produces the same element as {@link #archiveTool(Document, Map)}.
-	 * This is a Foorm-free code path for future migration away from Foorm.
+	 * Archive an LTI tool from a bean. Primary implementation; all other archiveTool
+	 * overloads delegate here.
 	 */
 	public static Element archiveToolBean(Document doc, LtiToolBean tool) {
 		if (tool == null) {
 			return null;
 		}
-		Element retval = doc.createElement(LTIService.ARCHIVE_LTI_TOOL_TAG);
-		for (java.lang.reflect.Field f : LtiToolBean.class.getDeclaredFields()) {
-			FoormField ann = f.getAnnotation(FoormField.class);
-			if (ann == null || !ann.archive() || LTIService.SAKAI_TOOL_CHECKSUM.equals(ann.value())) {
-				continue;
-			}
-			String field = ann.value();
-			Object o = tool.getValueByFieldName(field);
-			if (o == null) {
-				continue;
-			}
-			FoormType type = ann.type();
-			String text = formatArchiveValue(o, type);
-			if (text == null) {
-				continue;
-			}
-			Element child = doc.createElement(field);
-			child.setTextContent(text);
-			retval.appendChild(child);
-		}
+		Element retval = tool.toArchiveElement(doc, LTIService.ARCHIVE_LTI_TOOL_TAG);
 		String checksum = computeToolCheckSum(tool);
 		if (checksum != null) {
 			Element checksumEl = doc.createElement(LTIService.SAKAI_TOOL_CHECKSUM);
@@ -3807,49 +3785,40 @@ public class SakaiLTIUtil {
 		return retval;
 	}
 
-	private static String formatArchiveValue(Object o, FoormType type) {
-		if (o == null) return null;
-		if (type == FoormType.CHECKBOX
-				|| type == FoormType.RADIO
-				|| type == FoormType.INTEGER
-				|| type == FoormType.KEY) {
-			if (o instanceof Boolean) {
-				return Boolean.TRUE.equals(o) ? "1" : "0";
-			}
-		}
-		if (o instanceof java.util.Date) {
-			return String.valueOf(((java.util.Date) o).getTime());
-		}
-		return o.toString();
-	}
-
 	public static Element archiveTool(Document doc, Map<String, Object> tool) {
-		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_TOOL_TAG, LTIService.TOOL_MODEL, tool);
-		String checksum = computeToolCheckSum(tool);
-		if (checksum != null) {
-			Element newElement = doc.createElement(LTIService.SAKAI_TOOL_CHECKSUM);
-			newElement.setTextContent(checksum);
-			retval.appendChild(newElement);
-		}
-		return retval;
+		return archiveToolBean(doc, tool != null ? LtiToolBean.of(tool) : null);
 	}
 
 	public static Element archiveContent(Document doc, LtiContentBean content, LtiToolBean tool) {
-		return archiveContent(doc, content != null ? content.asMap() : null, tool != null ? tool.asMap() : null);
+		return archiveContentBean(doc, content, tool);
 	}
 
-	public static Element archiveContent(Document doc, Map<String, Object> content, Map<String, Object> tool) {
-		// Check if the content launchURL is empty - if so, inherit from tool for the future
-		Map<String, Object> contentCopy = new HashMap(content);
-		String launchUrl = (String) contentCopy.get(LTIService.LTI_LAUNCH);
-		if (tool != null && StringUtils.isEmpty(launchUrl)) contentCopy.put(LTIService.LTI_LAUNCH, tool.get(LTIService.LTI_LAUNCH));
-		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG, LTIService.CONTENT_MODEL, contentCopy);
-
+	/**
+	 * Archive LTI content (and optional nested tool). Primary implementation;
+	 * all other archiveContent overloads delegate here.
+	 */
+	public static Element archiveContentBean(Document doc, LtiContentBean content, LtiToolBean tool) {
+		if (content == null) {
+			return null;
+		}
+		LtiContentBean contentToArchive = content;
+		if (tool != null && StringUtils.isEmpty(content.getLaunch()) && StringUtils.isNotEmpty(tool.getLaunch())) {
+			Map<String, Object> contentMap = content.asMap();
+			contentMap.put(LTIService.LTI_LAUNCH, tool.getLaunch());
+			contentToArchive = LtiContentBean.of(contentMap);
+		}
+		Element retval = contentToArchive.toArchiveElement(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG);
 		if (tool != null) {
-			Element toolElement = archiveTool(doc, tool);
+			Element toolElement = archiveToolBean(doc, tool);
 			retval.appendChild(toolElement);
 		}
 		return retval;
+	}
+
+	public static Element archiveContent(Document doc, Map<String, Object> content, Map<String, Object> tool) {
+		return archiveContentBean(doc,
+				content != null ? LtiContentBean.of(content) : null,
+				tool != null ? LtiToolBean.of(tool) : null);
 	}
 
 	public static void mergeTool(Element element, LtiToolBean tool) {

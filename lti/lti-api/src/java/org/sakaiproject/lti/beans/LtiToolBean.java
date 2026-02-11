@@ -30,6 +30,7 @@ import lombok.ToString;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.sakaiproject.lti.api.LTIService;
 
@@ -50,6 +51,11 @@ import org.sakaiproject.lti.api.LTIService;
 @EqualsAndHashCode(callSuper=false)
 @ToString(exclude = {"secret", "lti13AutoToken", "toolState", "platformState", "relaunchUrl", "origSiteIdNull", "sakaiToolChecksum"})
 public class LtiToolBean extends FoormBaseBean {
+
+    @Override
+    protected Set<String> getExcludedArchiveFieldNames() {
+        return Set.of(LTIService.SAKAI_TOOL_CHECKSUM);
+    }
 
     @FoormField(value = "id", type = FoormType.KEY, archive = true)
     public Long id;

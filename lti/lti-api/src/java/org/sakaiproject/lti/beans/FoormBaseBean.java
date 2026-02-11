@@ -22,9 +22,14 @@ package org.sakaiproject.lti.beans;
 
 import java.lang.reflect.Field;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -353,5 +358,70 @@ public abstract class FoormBaseBean {
     public FoormField getFoormFieldByFieldName(String fieldName) {
         Field f = getFieldsForClass(getClass()).get(fieldName);
         return f != null ? f.getAnnotation(FoormField.class) : null;
+    }
+
+    /**
+     * Field names to omit from archive output. Override in subclasses (e.g. to exclude
+     * computed fields like checksum that are appended separately).
+     */
+    protected Set<String> getExcludedArchiveFieldNames() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Produces an archive XML element for this bean. Iterates over fields with
+     * {@link FoormField#archive()}{@code == true}, excluding any in
+     * {@link #getExcludedArchiveFieldNames()}, and appends child elements.
+     *
+     * @param doc     The document to create elements in
+     * @param tagName Root element tag name (e.g. {@code sakai-lti-tool})
+     * @return The root element with archivable fields as children, or null if doc is null
+     */
+    public Element toArchiveElement(Document doc, String tagName) {
+        if (doc == null) {
+            return null;
+        }
+        Set<String> excluded = getExcludedArchiveFieldNames();
+        Element root = doc.createElement(tagName);
+        for (Field f : getClass().getDeclaredFields()) {
+            FoormField ann = f.getAnnotation(FoormField.class);
+            if (ann == null || !ann.archive() || excluded.contains(ann.value())) {
+                continue;
+            }
+            String field = ann.value();
+            Object o = getValueByFieldName(field);
+            if (o == null) {
+                continue;
+            }
+            String text = formatArchiveValue(o, ann.type());
+            if (text == null) {
+                continue;
+            }
+            Element child = doc.createElement(field);
+            child.setTextContent(text);
+            root.appendChild(child);
+        }
+        return root;
+    }
+
+    /**
+     * Formats a value for archive XML based on its FoormType.
+     */
+    protected static String formatArchiveValue(Object o, FoormType type) {
+        if (o == null) {
+            return null;
+        }
+        if (type == FoormType.CHECKBOX
+                || type == FoormType.RADIO
+                || type == FoormType.INTEGER
+                || type == FoormType.KEY) {
+            if (o instanceof Boolean) {
+                return Boolean.TRUE.equals(o) ? "1" : "0";
+            }
+        }
+        if (o instanceof Date) {
+            return String.valueOf(((Date) o).getTime());
+        }
+        return o.toString();
     }
 }
