@@ -292,7 +292,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
         try {
             securityService.pushAdvisor(securityAdvisor);
-            g.setAssignmentScoreString(gradebookUId, gradebookUId, assignmentId, ag.getAgentId(), points, null, null);
+            g.setAssignmentScoreString(gradebookUId, siteId, assignmentId, ag.getAgentId(), points, null, null);
         } catch (Exception e) {
             log.error("Error while grading submission {} for agent {}", assignmentId, ag.getAgentId());
         } finally {
@@ -305,16 +305,33 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     }
   }
   
-  public void updateExternalAssessmentComment(Long publishedAssessmentId, String studentUid, String comment,
+  public void updateExternalAssessmentComment(AssessmentGradingData ag, String studentUid, String comment,
           GradingService g) throws Exception {
 	  boolean testErrorHandling=false;
 	  PublishedAssessmentService pubService = new PublishedAssessmentService();
-
+	  Long publishedAssessmentId = ag.getPublishedAssessmentId();
 	  String gradebookUId = pubService.getPublishedAssessmentOwner(publishedAssessmentId);
-	  String siteId = gradebookUId;
+
 	  if (gradebookUId == null) {
 		  return;
-	  }	
+	  }
+
+	  String siteId = GradebookFacade.getGradebookUId();
+
+	  if (g.isGradebookGroupEnabled(siteId)) {
+		  PublishedAssessmentFacade pAF = pubService.getPublishedAssessment(publishedAssessmentId.toString());
+		  if (pAF != null) {
+			  List<String> userGradebookList = g.getGradebookInstancesForUser(AgentFacade.getCurrentSiteId(), ag.getAgentId());
+			  Map<String, String> releaseToGroupsMap = pAF.getReleaseToGroups();
+			  for (String userGradebook : userGradebookList) {
+				  if (releaseToGroupsMap.containsKey(userGradebook)) {
+					  gradebookUId = userGradebook;
+					  break;
+				  }
+			  }
+		  }
+	  }
+
 	  g.updateExternalAssessmentComment(gradebookUId, siteId, publishedAssessmentId.toString(), studentUid, comment);
 
 	  if (testErrorHandling){
@@ -414,7 +431,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
           if (EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {
             updateExternalAssessmentScore(ag, gradingService);
-            updateExternalAssessmentComment(ag.getPublishedAssessmentId(), ag.getAgentId() , ag.getComments(), gradingService);
+            updateExternalAssessmentComment(ag, ag.getAgentId() , ag.getComments(), gradingService);
           }
 
           if (EvaluationModelIfc.TO_SELECTED_GRADEBOOK.toString().equals(evaluation.getToGradeBook())) {

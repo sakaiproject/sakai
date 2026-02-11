@@ -61,7 +61,7 @@ public interface GradebookServiceHelper extends Serializable
   public void updateExternalAssessmentScore(AssessmentGradingData ag,
 		  GradingService g) throws Exception;
   
-  public void updateExternalAssessmentComment(Long publishedAssessmentId, String studentUid, String comment, 
+  public void updateExternalAssessmentComment(AssessmentGradingData ag, String studentUid, String comment, 
 		  GradingService g) throws Exception;
   
   public Long getExternalAssessmentCategoryId(String gradebookUId,
