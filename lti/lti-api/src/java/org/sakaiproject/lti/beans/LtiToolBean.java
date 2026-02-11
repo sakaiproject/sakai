@@ -37,11 +37,10 @@ import org.sakaiproject.lti.api.LTIService;
  * Transfer object for LTI Tools.
  * Based on the TOOL_MODEL from LTIService.
  * <p>
- * Includes a few <em>launch-flow only</em> fields ({@link #toolState}, {@link #platformState},
- * {@link #relaunchUrl}, {@link #origSiteIdNull}) that are not persisted. They round-trip between
- * bean and map in {@link #of(java.util.Map)} and {@link #asMap()} but are never stored; they are
- * set from the request during launch and passed through so they can be included in the outbound
- * launch.
+ * Includes <em>non-persisted</em> fields that round-trip between bean and map in
+ * {@link #of(java.util.Map)} and {@link #asMap()} but are never stored: launch-flow fields
+ * ({@link #toolState}, {@link #platformState}, {@link #relaunchUrl}, {@link #origSiteIdNull}) and
+ * archive-only {@link #sakaiToolChecksum}.
  * </p>
  */
 @Getter
@@ -49,7 +48,7 @@ import org.sakaiproject.lti.api.LTIService;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper=false)
-@ToString(exclude = {"secret", "lti13AutoToken", "toolState", "platformState", "relaunchUrl", "origSiteIdNull"})
+@ToString(exclude = {"secret", "lti13AutoToken", "toolState", "platformState", "relaunchUrl", "origSiteIdNull", "sakaiToolChecksum"})
 public class LtiToolBean extends LTIBaseBean {
 
     // Core fields from TOOL_MODEL
@@ -116,7 +115,6 @@ public class LtiToolBean extends LTIBaseBean {
     public String lti13AutoToken;      // TOOL_MODEL: "lti13_auto_token:text:hidden=true:maxlength=1024"
     public Integer lti13AutoState;     // TOOL_MODEL: "lti13_auto_state:integer:hidden=true"
     public String lti13AutoRegistration; // TOOL_MODEL: "lti13_auto_registration:textarea:hidden=true:maxlength=1M"
-    public String sakaiToolChecksum;   // TOOL_MODEL: "sakai_tool_checksum:text:maxlength=99:hidden=true:persist=false:archive=true"
     
     // Timestamps from TOOL_MODEL
     public Date createdAt;             // TOOL_MODEL: "created_at:autodate"
@@ -147,12 +145,15 @@ public class LtiToolBean extends LTIBaseBean {
      *   <li><strong>origSiteIdNull</strong> – Internal: set to {@code "true"} when the tool’s
      *       stored site id was null before the launch context was applied; used by the LTI 1.3
      *       OIDC redirect flow.</li>
+     *   <li><strong>sakaiToolChecksum</strong> – Computed checksum for tool import/export archives;
+     *       round-trips in {@link #asMap()} and {@link #of(java.util.Map)} but is never stored.</li>
      * </ul>
      */
     public String toolState;          // "tool_state" in launch
     public String platformState;      // "platform_state" in launch
     public String relaunchUrl;        // "relaunch_url" in launch
     public String origSiteIdNull;     // "orig_site_id_null" (internal, LTI 1.3 redirect)
+    public String sakaiToolChecksum;  // "sakai_tool_checksum" in archive XML (non-persisted)
 
     /**
      * Creates an LtiToolBean instance from a Map<String, Object>.
@@ -322,7 +323,6 @@ public class LtiToolBean extends LTIBaseBean {
         putIfNotNull(map, "lti13_auto_token", lti13AutoToken);
         putIfNotNull(map, "lti13_auto_state", lti13AutoState);
         putIfNotNull(map, "lti13_auto_registration", lti13AutoRegistration);
-        putIfNotNull(map, "sakai_tool_checksum", sakaiToolChecksum);
         
         // Timestamps
         putIfNotNull(map, LTIService.LTI_CREATED_AT, createdAt);
@@ -332,11 +332,12 @@ public class LtiToolBean extends LTIBaseBean {
         putIfNotNull(map, "lti_content_count", ltiContentCount);
         putIfNotNull(map, "lti_site_count", ltiSiteCount);
         
-        // Launch-flow only (not persisted)
+        // Non-persisted
         putIfNotNull(map, "tool_state", toolState);
         putIfNotNull(map, "platform_state", platformState);
         putIfNotNull(map, "relaunch_url", relaunchUrl);
         putIfNotNull(map, "orig_site_id_null", origSiteIdNull);
+        putIfNotNull(map, "sakai_tool_checksum", sakaiToolChecksum);
         
         return map;
     }

@@ -899,6 +899,43 @@ public class SakaiLTIUtilTest {
 		assertEquals(tool, tool2);
 	}
 
+	@Test
+	public void testArchiveMergeToolBean() {
+		Document doc = Xml.createDocument();
+		Element root = doc.createElement("root");
+		doc.appendChild(root);
+
+		LtiToolBean tool = new LtiToolBean();
+		tool.setFrameheight(42);
+		tool.setLti13(LTIService.LTI13_LTI13.intValue());
+		tool.setLaunch("http://localhost:a-launch?x=42");
+		tool.setTitle("An LTI title");
+		tool.setDescription("An LTI DESCRIPTION");
+		tool.setNewpage(1);
+		tool.setSendname(false);
+		tool.setSecret("verysecure");
+		tool.setConsumerkey("key12345");
+
+		Element element = SakaiLTIUtil.archiveToolBean(doc, tool);
+		root.appendChild(element);
+		String xmlOut = Xml.writeDocumentToString(doc);
+		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-tool><title>An LTI title</title><description>An LTI DESCRIPTION</description><launch>http://localhost:a-launch?x=42</launch><newpage>1</newpage><frameheight>42</frameheight><sendname>0</sendname><lti13>1</lti13><sakai_tool_checksum>Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=</sakai_tool_checksum></sakai-lti-tool></root>");
+
+		Map<String, Object> tool2 = new HashMap();
+		SakaiLTIUtil.mergeTool(element, tool2);
+		assertEquals((String) (tool2.get(LTIService.SAKAI_TOOL_CHECKSUM)), "Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=");
+		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
+		Map<String, Object> expected = new HashMap();
+		expected.put(LTIService.LTI_TITLE, "An LTI title");
+		expected.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		expected.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		expected.put(LTIService.LTI_NEWPAGE, 1L);
+		expected.put(LTIService.LTI_FRAMEHEIGHT, 42L);
+		expected.put(LTIService.LTI_SENDNAME, 0L);
+		expected.put(LTIService.LTI13, 1L);
+		assertEquals(expected, tool2);
+	}
+
 	public void mapDump(String header, Map<String, Object> dump)
 	{
 		System.out.println(header);
