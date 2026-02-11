@@ -882,12 +882,12 @@ public class SakaiLTIUtilTest {
 		Element element = SakaiLTIUtil.archiveTool(doc, tool);
 		root.appendChild(element);
 		String xmlOut = Xml.writeDocumentToString(doc);
-		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-tool><title>An LTI title</title><description>An LTI DESCRIPTION</description><launch>http://localhost:a-launch?x=42</launch><newpage>1</newpage><frameheight>42</frameheight><sendname>please</sendname><lti13>1</lti13><sakai_tool_checksum>85RP91sSzHqtxBIkTrknaShQlL52r0JLOfKvaLJT4Gc=</sakai_tool_checksum></sakai-lti-tool></root>");
+		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-tool><title>An LTI title</title><description>An LTI DESCRIPTION</description><launch>http://localhost:a-launch?x=42</launch><newpage>1</newpage><frameheight>42</frameheight><sendname>please</sendname><lti13>1</lti13><sakai_tool_checksum>Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=</sakai_tool_checksum></sakai-lti-tool></root>");
 
 		Map<String, Object> tool2 = new HashMap();
 		SakaiLTIUtil.mergeTool(element, tool2);
 		assertNotEquals(tool, tool2);
-		assertEquals((String) (tool2.get(LTIService.SAKAI_TOOL_CHECKSUM)), "85RP91sSzHqtxBIkTrknaShQlL52r0JLOfKvaLJT4Gc=");
+		assertEquals((String) (tool2.get(LTIService.SAKAI_TOOL_CHECKSUM)), "Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=");
 		tool.remove(LTIService.LTI_SECRET);
 		assertNotEquals(tool, tool2);
 		tool.remove(LTIService.LTI_CONSUMERKEY);
@@ -934,7 +934,7 @@ public class SakaiLTIUtilTest {
 		Element element = SakaiLTIUtil.archiveContent(doc, content, tool);
 		root.appendChild(element);
 		String xmlOut = Xml.writeDocumentToString(doc);
-		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-content><title>An LTI title</title><description>An LTI DESCRIPTION</description><frameheight>42</frameheight><newpage>1</newpage><launch>http://localhost:a-launch?x=42</launch><sakai-lti-tool><title>An LTI title</title><description>An LTI DESCRIPTION</description><launch>http://localhost:a-launch?x=42</launch><newpage>1</newpage><frameheight>42</frameheight><lti13>1</lti13><sakai_tool_checksum>ASRHSVgrhBjDbhkLEZpWa/IueI9FwFwTxSjnU5uNCB0=</sakai_tool_checksum></sakai-lti-tool></sakai-lti-content></root>");
+		assertEquals(xmlOut, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><sakai-lti-content><title>An LTI title</title><description>An LTI DESCRIPTION</description><frameheight>42</frameheight><newpage>1</newpage><launch>http://localhost:a-launch?x=42</launch><sakai-lti-tool><title>An LTI title</title><description>An LTI DESCRIPTION</description><launch>http://localhost:a-launch?x=42</launch><newpage>1</newpage><frameheight>42</frameheight><lti13>1</lti13><sakai_tool_checksum>BF6JwVmB1Y1kgPxP4WnAS30BnWzJP46IpmKKrKCSfaw=</sakai_tool_checksum></sakai-lti-tool></sakai-lti-content></root>");
 
 		Map<String, Object> content2  = new HashMap();
 		Map<String, Object> tool2  = new HashMap();
@@ -967,7 +967,7 @@ public class SakaiLTIUtilTest {
 		tool.put(LTIService.LTI_CONSUMERKEY, "key12345");
 
 		test = SakaiLTIUtil.computeToolCheckSum(tool);
-		assertEquals(test, "ASRHSVgrhBjDbhkLEZpWa/IueI9FwFwTxSjnU5uNCB0=");
+		assertEquals(test, "BF6JwVmB1Y1kgPxP4WnAS30BnWzJP46IpmKKrKCSfaw=");
 	}
 
 	@Test
