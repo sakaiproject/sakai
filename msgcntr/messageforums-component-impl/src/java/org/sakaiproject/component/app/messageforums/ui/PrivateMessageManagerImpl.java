@@ -2293,10 +2293,9 @@ return topicTypeUuid;
 	  PrivateMessage rrepMsg = createResponseMessage(currentMessage, msg, from);
 
 	  
-      StringBuilder alertMsg = new StringBuilder();
       StringBuilder cleanBody;
 	  if (StringUtils.isNotBlank(bodyBuf[1].toString())) {
-		  cleanBody = new StringBuilder(formattedText.processFormattedText(bodyBuf[1].toString(), alertMsg));
+		  cleanBody = new StringBuilder(formattedText.processFormattedText(bodyBuf[1].toString(), null, null));
 	  } else {
 		  cleanBody = new StringBuilder(formattedText.escapeHtml(bodyBuf[0].toString()));
 		  if(StringUtils.isNotBlank(cleanBody)) {

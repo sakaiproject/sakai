@@ -58,7 +58,7 @@ public class QTIServiceTest {
     public void setUp() throws Exception {
         componentManagerMock = Mockito.mockStatic(ComponentManager.class);
         componentManagerMock.when(() -> ComponentManager.get(FormattedText.class)).thenReturn(formattedText);
-        Mockito.when(formattedText.processFormattedText(ArgumentMatchers.anyString(), (StringBuilder) ArgumentMatchers.any()))
+        Mockito.when(formattedText.processFormattedText(ArgumentMatchers.anyString(), ArgumentMatchers.isNull(), ArgumentMatchers.isNull()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
     }
 

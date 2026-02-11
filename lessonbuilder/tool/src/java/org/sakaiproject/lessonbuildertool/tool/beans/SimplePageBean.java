@@ -141,7 +141,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLConnection;
@@ -768,28 +767,6 @@ public class SimplePageBean {
 
 
 
-	static Class levelClass = null;
-	static Object[] levels = null;
-	static Class ftClass = null;
-	static Method ftMethod = null;
-	static Object ftInstance = setupFtStuff();
-
-	static Object setupFtStuff () {
-	    Object ret;
-	    try {
-		levelClass = Class.forName("org.sakaiproject.util.api.FormattedText$Level");
-		levels = levelClass.getEnumConstants();
-		ftClass = Class.forName("org.sakaiproject.util.api.FormattedText");
-		ftMethod = ftClass.getMethod("processFormattedText", 
-		   new Class[] { String.class, StringBuilder.class, levelClass }); 
-		ret = org.sakaiproject.component.cover.ComponentManager.get("org.sakaiproject.util.api.FormattedText");
-		return ret;
-	    } catch (Exception e) {
-		log.error("Formatted Text with levels not available: {}", e.toString());
-		return null;
-	    }
-	}
-	
  	/**
  	 *  almost ISO format. real thing can't be done until Java 7. uses -0400 rather than -04:00
      *  DateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -1517,8 +1494,6 @@ public class SimplePageBean {
 
 // WARNING: keep in sync with code in AjaxFilter.java
 
-			StringBuilder error = new StringBuilder();
-
 			// there's an issue with HTML security in the Sakai community.
 			// a lot of people feel users shouldn't be able to add javascript, etc
 			// to their HTML. I think enforcing that makes Sakai less than useful.
@@ -1530,32 +1505,14 @@ public class SimplePageBean {
 			Integer filter = getFilterLevel(placement);
 
 			if (filter.equals(FILTER_NONE)) {
-			    html = formattedText.processHtmlDocument(contents, error);
+			    html = formattedText.processHtmlDocument(contents, null);
 			} else if (filter.equals(FILTER_DEFAULT)) {
-			    html = formattedText.processFormattedText(contents, error);
-			} else if (ftInstance != null) {
-			    try {
-				// now filter is set. Implement it. Depends upon whether we have the anti-samy code
-				Object level;
-				if (filter.equals(FILTER_HIGH))
-				    level = levels[1];
-				else
-				    level = levels[2];
-
-				html = (String)ftMethod.invoke(ftInstance, new Object[] { contents, error, level });
-			    } catch (Exception e) {
-				// this should never happen. If it does, emulate what the anti-samy
-				// code does if antisamy is disabled. It always filters
-				html = formattedText.processFormattedText(contents, error);
-			    }
+			    html = formattedText.processFormattedText(contents, null, null);
 			} else {
-			    // don't have antisamy. For LOW, use old instructor behavior, since
-			    // LOW is the default. For high, it makes sense to filter
-			    if (filter.equals(FILTER_HIGH))
-				html = formattedText.processFormattedText(contents, error);
-			    else
-				html = formattedText.processHtmlDocument(contents, error);
-
+			    FormattedText.Level level = filter.equals(FILTER_HIGH)
+				    ? FormattedText.Level.HIGH
+				    : FormattedText.Level.LOW;
+			    html = formattedText.processFormattedText(contents, null, level);
 			}
 
 // WARNING: keep in sync with code in AjaxFilter.java
@@ -1586,10 +1543,6 @@ public class SimplePageBean {
 				rv = "cancel";
 			}
 			// placement.save();
-
-			String errString = error.toString();
-			if (errString != null && errString.length() > 0)
-			    setErrMessage(errString);
 
 		} else {
 			rv = "cancel";
@@ -7498,8 +7451,7 @@ public class SimplePageBean {
 			html = true;
 		}
 		
-		StringBuilder error = new StringBuilder();
-		comment = formattedText.processFormattedText(comment, error);
+		comment = formattedText.processFormattedText(comment, null, null);
 		
 		// get this from itemId to avoid issues if someone has opened
 		// a different page in another window
@@ -9470,8 +9422,7 @@ public class SimplePageBean {
 				html = true;
 			}
 			
-			StringBuilder error = new StringBuilder();
-			comment = formattedText.processFormattedText(comment, error);
+		comment = formattedText.processFormattedText(comment, null, null);
 			
 			if(StringUtils.isBlank(comment)) {
 				setErrMessage(messageLocator.getMessage("simplepage.empty-comment-error"));

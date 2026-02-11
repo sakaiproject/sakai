@@ -316,21 +316,13 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 
 						SyllabusData data = syllabusManager.createSyllabusDataObject(title, new Integer(initPosition), null, null, published, "none", null, null, Boolean.FALSE, null, null, item);
 						data.setView("no");
-						try {
-							String content = (String) params.get("content");
-							if (StringUtils.isNotBlank(content)) {
-								StringBuilder alertMsg = new StringBuilder();
-								String cleanedText = FormattedText.processFormattedText(content, alertMsg);
-								if (cleanedText != null) {
-									data.setAsset(cleanedText);
-									syllabusManager.saveSyllabus(data);
-								}
-								if (alertMsg.length() > 0) {
-									log.debug("Syllabus content sanitized: {}", alertMsg);
-								}
+						String content = (String) params.get("content");
+						if (StringUtils.isNotBlank(content)) {
+							String cleanedText = FormattedText.processFormattedText(content, null, null);
+							if (cleanedText != null) {
+								data.setAsset(cleanedText);
+								syllabusManager.saveSyllabus(data);
 							}
-						} catch(Exception e) {
-							log.error(e.getMessage(), e);
 						}
 						syllabusManager.addSyllabusToSyllabusItem(item, data);
 					}
@@ -420,23 +412,12 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 						}
 					}else if("body".equals(params.get("name"))){
 						String body = (String) params.get("value");
-						StringBuilder alertMsg = new StringBuilder();
 			        	String cleanedText;
-			    		try
-			    		{
-			    			cleanedText  =  FormattedText.processFormattedText(body, alertMsg);
-		    				if (cleanedText != null)
-		    				{
-		    					data.setAsset(cleanedText);
-		    					syllabusManager.saveSyllabus(data);
-		    				}
-		    				if (alertMsg.length() > 0)
-		    				{
-		    					log.debug("Syllabus content sanitized: {}", alertMsg);
-		    				}
-			    		}catch(Exception e){
-			    			log.error(e.getMessage(), e);
-			    		}
+						cleanedText  =  FormattedText.processFormattedText(body, null, null);
+						if (cleanedText != null) {
+							data.setAsset(cleanedText);
+							syllabusManager.saveSyllabus(data);
+						}
 					}else if("startDate".equals(params.get("name"))){
 						String startDate = (String) params.get("value");
 						if(startDate == null || "".equals(startDate)){

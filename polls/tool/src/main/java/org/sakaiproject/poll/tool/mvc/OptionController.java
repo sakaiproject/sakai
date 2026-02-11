@@ -158,7 +158,7 @@ public class OptionController {
         // Process and sanitize HTML in option text
         String sanitizedText = formattedText.processFormattedText(
             optionForm.getText(),
-            new StringBuilder(),
+            null,
             true,
             true
         );

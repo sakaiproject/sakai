@@ -329,7 +329,7 @@ public class ExternalLogicImpl implements ExternalLogic
 			MailArchiveMessageHeaderEdit header = edit.getMailArchiveHeaderEdit();
 			edit.setBody(body);
 			header.replaceAttachments(null);
-			header.setSubject(formattedText.processFormattedText(subject, new StringBuilder()));
+			header.setSubject(formattedText.processFormattedText(subject, null, null));
 			header.setFromAddress(sender);
 			header.setInstantSent(Instant.now());
 			header.setMailHeaders(mailHeaders);

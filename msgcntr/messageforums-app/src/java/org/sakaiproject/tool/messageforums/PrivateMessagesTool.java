@@ -2028,9 +2028,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     if (aMsg != null)
     {
-      StringBuilder alertMsg = new StringBuilder();
       aMsg.setTitle(getComposeSubject());
-      aMsg.setBody(formattedText.processFormattedText(getComposeBody(), alertMsg));
+      aMsg.setBody(formattedText.processFormattedText(getComposeBody(), null, null));
       
       aMsg.setAuthor(getAuthorString());
       aMsg.setDraft(Boolean.FALSE);      
@@ -2571,9 +2570,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
-    	StringBuilder alertMsg = new StringBuilder();
     	rrepMsg.setTitle(getReplyToSubject());
-    	rrepMsg.setBody(formattedText.processFormattedText(getReplyToBody(), alertMsg));
+    	rrepMsg.setBody(formattedText.processFormattedText(getReplyToBody(), null, null));
     	rrepMsg.setDraft(Boolean.FALSE);
     	rrepMsg.setDeleted(Boolean.FALSE);
 
@@ -2770,14 +2768,13 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
-    	StringBuilder alertMsg = new StringBuilder();
     	rrepMsg.setTitle(getForwardSubject());
     	rrepMsg.setDraft(Boolean.FALSE);
     	rrepMsg.setDeleted(Boolean.FALSE);
 
     	rrepMsg.setAuthor(getAuthorString());
     	rrepMsg.setApproved(Boolean.FALSE);
-    	rrepMsg.setBody(formattedText.processFormattedText(getForwardBody(), alertMsg));
+    	rrepMsg.setBody(formattedText.processFormattedText(getForwardBody(), null, null));
 
     	rrepMsg.setLabel(getSelectedLabel());
 
@@ -3011,7 +3008,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
 
-	  StringBuilder alertMsg = new StringBuilder();
 	  rrepMsg.setTitle(getReplyToAllSubject());
 	  rrepMsg.setDraft(isDraft);
 	  rrepMsg.setDeleted(Boolean.FALSE);
@@ -3021,7 +3017,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  String replyAllbody=getReplyToAllBody();
 
 
-	  rrepMsg.setBody(formattedText.processFormattedText(replyAllbody, alertMsg));
+	  rrepMsg.setBody(formattedText.processFormattedText(replyAllbody, null, null));
 	  rrepMsg.setLabel(getSelectedLabel());
 	  rrepMsg.setInReplyTo(currentMessage) ;
 
@@ -3840,8 +3836,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     log.debug("processPvtMsgFldCreate()");
     
     String createFolder=getAddFolder() ;   
-    StringBuilder alertMsg = new StringBuilder();
-    createFolder = formattedText.processFormattedText(createFolder, alertMsg);
+    createFolder = formattedText.processFormattedText(createFolder, null, null);
     if(StringUtils.isEmpty(createFolder)) {
     	setErrorMessage(getResourceBundleString(ENTER_FOLDER_NAME));
       	return null ;

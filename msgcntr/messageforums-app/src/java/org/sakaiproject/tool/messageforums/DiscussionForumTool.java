@@ -1064,8 +1064,7 @@ public class DiscussionForumTool {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DELETE_FORUM));
       return gotoMain();
     }
-    StringBuilder alertMsg = new StringBuilder();
-    selectedForum.getForum().setExtendedDescription(formattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
+    selectedForum.getForum().setExtendedDescription(formattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), null, null));
     selectedForum.setMarkForDeletion(true);
     return FORUM_SETTING;
   }
@@ -1569,8 +1568,7 @@ public class DiscussionForumTool {
     	beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), null);
     }
     
-    StringBuilder alertMsg = new StringBuilder();
-    forum.setExtendedDescription(formattedText.processFormattedText(forum.getExtendedDescription(), alertMsg));
+    forum.setExtendedDescription(formattedText.processFormattedText(forum.getExtendedDescription(), null, null));
 	if(forum.getShortDescription()!=null && forum.getShortDescription().length() > 255){
 		forum.setShortDescription(forum.getShortDescription().substring(0, 255));
 	}
@@ -2108,8 +2106,7 @@ public class DiscussionForumTool {
           topic.setShortDescription(topic.getShortDescription().substring(0, 255));
         }
 
-        StringBuilder alertMsg = new StringBuilder();
-        topic.setExtendedDescription(formattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
+        topic.setExtendedDescription(formattedText.processFormattedText(topic.getExtendedDescription(), null, null));
 
         if ("<br/>".equals(topic.getExtendedDescription()))
         {
@@ -2232,8 +2229,7 @@ public class DiscussionForumTool {
       return gotoMain();
     }
     //in case XSS was slipped in, make sure we remove it:
-    StringBuilder alertMsg = new StringBuilder();
-    selectedTopic.getTopic().setExtendedDescription(formattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
+    selectedTopic.getTopic().setExtendedDescription(formattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), null, null));
     selectedTopic.setMarkForDeletion(true);
     return TOPIC_SETTING;
   }
@@ -4248,9 +4244,8 @@ public class DiscussionForumTool {
     
     if (aMsg != null)
     {
-      StringBuilder alertMsg = new StringBuilder();
       aMsg.setTitle(getComposeTitle());
-      aMsg.setBody(formattedText.processFormattedText(getComposeBody(), alertMsg));
+      aMsg.setBody(formattedText.processFormattedText(getComposeBody(), null, null));
       
       if(getUserNameOrEid()!=null){
       aMsg.setAuthor(getUserNameOrEid());
@@ -5077,9 +5072,8 @@ public class DiscussionForumTool {
 			currentBody = revisedInfo.concat(currentBody);
 		} 
 
-		StringBuilder alertMsg = new StringBuilder();
 		dMsg.setTitle(getComposeTitle());
-		dMsg.setBody(formattedText.processFormattedText(currentBody, alertMsg));
+		dMsg.setBody(formattedText.processFormattedText(currentBody, null, null));
 		dMsg.setDraft(Boolean.FALSE);
 		dMsg.setModified(new Date());
 
@@ -8051,8 +8045,7 @@ public class DiscussionForumTool {
       return gotoMain();
     }
     //in case XSS was slipped in, make sure we remove it:
-    StringBuilder alertMsg = new StringBuilder();
-    selectedForum.getForum().setExtendedDescription(formattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
+    selectedForum.getForum().setExtendedDescription(formattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), null, null));
     selectedForum.getForum().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object [] {selectedForum.getForum().getTitle()} ));
 
     selectedForum.setMarkForDuplication(true);
@@ -8127,8 +8120,7 @@ public class DiscussionForumTool {
       return gotoMain();
     }
     //in case XSS was slipped in, make sure we remove it:
-    StringBuilder alertMsg = new StringBuilder();
-    selectedTopic.getTopic().setExtendedDescription(formattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
+    selectedTopic.getTopic().setExtendedDescription(formattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), null, null));
     selectedTopic.getTopic().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedTopic.getTopic().getTitle()}));
     selectedTopic.setMarkForDuplication(true);
     return TOPIC_SETTING;

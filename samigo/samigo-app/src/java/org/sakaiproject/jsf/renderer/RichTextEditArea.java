@@ -291,18 +291,7 @@ public class RichTextEditArea extends Renderer
 		finalValue = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(newValue);
 	}
 	else {
-		StringBuilder alertMsg = new StringBuilder();
-		try
-		{
-			finalValue = ComponentManager.get(FormattedText.class).processFormattedText(newValue, alertMsg);
-			if (alertMsg.length() > 0)
-			{
-				log.debug(alertMsg.toString());
-			}
-		}catch (Exception e)
-		{
-			log.info(e.getMessage());
-		}
+        finalValue = ComponentManager.get(FormattedText.class).processFormattedText(newValue, null, null);
 	}
 
 	if (StringUtils.startsWithAny(componentId, "assessmentSettingsAction:", "modifyPartForm:", "itemForm:")) {

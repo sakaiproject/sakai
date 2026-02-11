@@ -19,6 +19,8 @@ import javax.annotation.Resource;
 
 import static org.mockito.Mockito.*;
 
+import org.mockito.ArgumentMatcher;
+import org.mockito.ArgumentMatchers;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.sakaiproject.email.api.DigestService;
@@ -93,7 +95,7 @@ public class UserMessagingServiceTestConfiguration extends SakaiTestConfiguratio
     @Bean(name = "org.sakaiproject.util.api.FormattedText")
     public FormattedText formattedText() {
         FormattedText ft = mock(FormattedText.class);
-        when(ft.processFormattedText(any(String.class), any(StringBuilder.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(ft.processFormattedText(any(String.class), isNull(), isNull())).thenAnswer(invocation -> invocation.getArgument(0));
         when(ft.convertFormattedTextToPlaintext(any(String.class))).thenAnswer(invocation -> invocation.getArgument(0));
         return ft;
     }
