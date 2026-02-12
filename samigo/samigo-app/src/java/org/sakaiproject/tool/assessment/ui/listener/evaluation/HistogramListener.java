@@ -1004,7 +1004,7 @@ public class HistogramListener
     boolean isSurveyType = StringUtils.equalsAny(qbean.getQuestionType(),
             TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
             TypeIfc.MATRIX_CHOICES_SURVEY.toString());
-    long respondedCount = Optional.ofNullable(qbean.getStudentsResponded()).map(Set::size).orElse(0);
+    long respondedCount = qbean.getNumResponses();
     long correctCount = Optional.ofNullable(qbean.getStudentsWithAllCorrect()).map(Set::size).orElse(0);
     long blankCount = Optional.ofNullable(qbean.getNumberOfStudentsWithZeroAnswers()).orElse(0);
     long totalCount = respondedCount + blankCount;
