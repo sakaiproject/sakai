@@ -53,9 +53,6 @@ public class StatisticsServiceTest {
     private QuestionPoolService questionPoolService;
     private MemoryService memoryService;
 
-    // TODO: Additional test idea:
-    // - Test ignored item types are ignored
-
     @Before
     public void setUp() {
         GradingService gradingService = new GradingService();
@@ -98,6 +95,53 @@ public class StatisticsServiceTest {
         assertFalse(StatisticsService.supportsAnswerStatistics("invalid-type"));
         assertFalse(StatisticsService.supportsScoreStatistics("9999"));
         assertTrue(StatisticsService.getQuestionTypeCapabilities(9999L).isEmpty());
+    }
+
+    @Test
+    public void testIgnoredItemTypesDoNotAffectQuestionPoolAggregates() {
+        long gradedItemId = 0L;
+        long ignoredItemId = 1L;
+
+        PublishedItemData gradedItem = item(gradedItemId, TypeIfc.TRUE_FALSE);
+        PublishedItemData ignoredItem = item(ignoredItemId, TypeIfc.ESSAY_QUESTION);
+
+        Set<PublishedAnswer> gradedItemAnswers = Set.of(
+                answer(0L, true),
+                answer(1L, false)
+        );
+
+        Set<ItemGradingData> gradedItemData = Set.of(
+                gradingData(0L, 0L),    // correct
+                gradingData(1L, 1L),    // incorrect
+                gradingData(2L, null)   // blank
+        );
+
+        ItemGradingData ignoredSubmissionA = gradingData(10L, null, 10L);
+        ignoredSubmissionA.setAnswerText("essay answer a");
+        ItemGradingData ignoredSubmissionB = gradingData(11L, null, 11L);
+        ignoredSubmissionB.setAnswerText("essay answer b");
+        Set<ItemGradingData> ignoredItemData = Set.of(ignoredSubmissionA, ignoredSubmissionB);
+
+        List<PublishedItemData> items = List.of(gradedItem, ignoredItem);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(
+                gradedItemId, gradedItemAnswers,
+                ignoredItemId, Collections.emptySet()
+        );
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(
+                gradedItemId, gradedItemData,
+                ignoredItemId, ignoredItemData
+        );
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
     }
 
     @Test
