@@ -14560,7 +14560,6 @@ public class AssignmentAction extends PagedResourceActionII {
                 List<String> draftSkipped = new ArrayList<>();
 
                 boolean isPeerReviewAssignment = a.getAllowPeerAssessment()
-                    && a.getPeerAssessmentStudentReview()
                     && assignmentService.isPeerAssessmentClosed(a);
 
                 for (AssignmentSubmission submission : submissions) {
@@ -14577,7 +14576,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                     boolean applyPeerReviewGrade = false;
                     boolean skipPeerReviewDraft = false;
-                    if (checkNotPeerReview && isPeerReviewAssignment) {
+                    if (checkNotPeerReview && !checkNotSubmit && isPeerReviewAssignment) {
                         String assessorId = null;
                         if (a.getIsGroup()) {
                             assessorId = submission.getGroupId();
@@ -14619,7 +14618,9 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
 
-                    if (skipPeerReviewDraft) {
+                    boolean applyGrade = applyDefaultGrade || (applyPeerReviewGrade && !skipPeerReviewDraft);
+
+                    if (skipPeerReviewDraft && !applyDefaultGrade) {
                         String displayName = null;
                         if (a.getIsGroup()) {
                             String siteId = toolManager.getCurrentPlacement().getContext();
@@ -14643,7 +14644,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
 
-                    if (applyDefaultGrade || applyPeerReviewGrade) {
+                    if (applyGrade) {
                         submission.setGrade(grade);
                         submission.setSubmitted(true);
                         submission.setGraded(true);
