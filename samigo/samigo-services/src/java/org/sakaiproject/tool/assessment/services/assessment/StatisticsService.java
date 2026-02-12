@@ -255,19 +255,16 @@ public class StatisticsService {
         long blankResponses = 0;
 
         for (Set<ItemGradingData> submissionItemGradingData : itemgradingDataByAssessmentGradingId.values()) {
-            List<ItemGradingData> answeredGradings = submissionItemGradingData.stream()
-                    .filter(itemGradingData -> itemGradingData.getPublishedAnswerId() != null)
-                    .collect(Collectors.toList());
-
-            if (answeredGradings.isEmpty()) {
-                blankResponses++;
-                continue;
-            }
-
+            boolean hasAnsweredOption = false;
             boolean hasCorrectAnswer = false;
             boolean hasIncorrectAnswer = false;
-            for (ItemGradingData itemGradingData : answeredGradings) {
-                if (isSelectedAnswerCorrect(itemGradingData, answerMap)) {
+            for (ItemGradingData itemGradingData : submissionItemGradingData) {
+                if (!isMcssResponsePresent(itemGradingData)) {
+                    continue;
+                }
+
+                hasAnsweredOption = true;
+                if (isMcssSelectionCorrect(itemGradingData, answerMap)) {
                     hasCorrectAnswer = true;
                 } else {
                     hasIncorrectAnswer = true;
@@ -276,6 +273,11 @@ public class StatisticsService {
                 if (hasIncorrectAnswer) {
                     break;
                 }
+            }
+
+            if (!hasAnsweredOption) {
+                blankResponses++;
+                continue;
             }
 
             if (hasCorrectAnswer && !hasIncorrectAnswer) {
@@ -294,6 +296,56 @@ public class StatisticsService {
                 .blankResponses(blankResponses)
                 .calcDifficulty()
                 .build();
+    }
+
+    private boolean isMcssResponsePresent(ItemGradingData itemGradingData) {
+        if (itemGradingData.getPublishedAnswerId() != null) {
+            return true;
+        }
+
+        if (StringUtils.isNotBlank(itemGradingData.getAnswerText())) {
+            return true;
+        }
+
+        if (itemGradingData.getIsCorrect() != null) {
+            return true;
+        }
+
+        Double autoScore = itemGradingData.getAutoScore();
+        return autoScore != null && Double.compare(autoScore, 0d) != 0;
+    }
+
+    private boolean isMcssSelectionCorrect(ItemGradingData itemGradingData, Map<Long, PublishedAnswer> answerMap) {
+        if (itemGradingData.getIsCorrect() != null) {
+            return itemGradingData.getIsCorrect();
+        }
+
+        Double autoScore = itemGradingData.getAutoScore();
+        if (autoScore != null) {
+            return autoScore > 0;
+        }
+
+        Long selectedAnswerId = itemGradingData.getPublishedAnswerId();
+        if (selectedAnswerId == null) {
+            return false;
+        }
+
+        PublishedAnswer selectedAnswer = answerMap.get(selectedAnswerId);
+        if (selectedAnswer != null && selectedAnswer.getIsCorrect() != null) {
+            return selectedAnswer.getIsCorrect();
+        }
+
+        if (selectedAnswer == null) {
+            log.warn(LOG_GRADING_DATA_ANSWER_NOT_FOUND, selectedAnswerId, itemGradingData.getItemGradingId());
+        } else {
+            log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswer.getId());
+        }
+
+        if (selectedAnswer != null && selectedAnswer.getScore() != null) {
+            return selectedAnswer.getScore() > 0;
+        }
+
+        return false;
     }
 
     private boolean isSelectedAnswerCorrect(ItemGradingData itemGradingData, Map<Long, PublishedAnswer> answerMap) {

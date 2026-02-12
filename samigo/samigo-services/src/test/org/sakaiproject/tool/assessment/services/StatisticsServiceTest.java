@@ -369,6 +369,82 @@ public class StatisticsServiceTest {
     }
 
     @Test
+    public void testMultipleChoiceMultipleCorrectSingleSelectionUsesGradingFallbackWithoutAnswerId() {
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(0L, true),
+                answer(1L, false)
+        );
+
+        ItemGradingData correctWithoutAnswerId = gradingData(0L, null, 0L);
+        correctWithoutAnswerId.setAnswerText("selected");
+        correctWithoutAnswerId.setIsCorrect(true);
+        correctWithoutAnswerId.setAutoScore(1d);
+
+        ItemGradingData incorrect = gradingData(1L, 1L, 1L);
+        incorrect.setAutoScore(0d);
+
+        ItemGradingData blank = gradingData(2L, null, 2L);
+
+        Set<ItemGradingData> gradingData = Set.of(correctWithoutAnswerId, incorrect, blank);
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testMultipleChoiceMultipleCorrectSingleSelectionUsesGradingCorrectnessBeforeAnswerMetadata() {
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(0L, false),
+                answer(1L, false)
+        );
+
+        ItemGradingData correctViaItemGrading = gradingData(0L, 0L, 0L);
+        correctViaItemGrading.setIsCorrect(true);
+        correctViaItemGrading.setAutoScore(1d);
+
+        ItemGradingData incorrect = gradingData(1L, 1L, 1L);
+        incorrect.setIsCorrect(false);
+        incorrect.setAutoScore(0d);
+
+        ItemGradingData blank = gradingData(2L, null, 2L);
+
+        Set<ItemGradingData> gradingData = Set.of(correctViaItemGrading, incorrect, blank);
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
+    }
+
+    @Test
     public void testMultipleChoiceSingleSelectionUsesFallbackWhenAnswerDataIsIncomplete() {
         long itemId = 0L;
         PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CHOICE);
