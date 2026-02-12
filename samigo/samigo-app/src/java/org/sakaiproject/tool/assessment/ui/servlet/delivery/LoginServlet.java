@@ -40,8 +40,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SiteService;
@@ -309,7 +307,7 @@ public class LoginServlet extends HttpServlet {
             ActionEvent ae = new ActionEvent(uic);
 
             // send the user directly into taking the assessment... they already clicked start from the direct servlet
-            if (Strings.CS.equals("1", StringUtils.trim(delivery.getNavigation()))) {
+            if ("1".equals(StringUtils.trim(delivery.getNavigation()))) {
                 LinearAccessDeliveryActionListener linearDeliveryListener = new LinearAccessDeliveryActionListener();
                 linearDeliveryListener.processAction(ae);
             } else {
