@@ -117,6 +117,7 @@ public class StatisticsService {
                 QuestionTypeCapability.SUBMISSION_OUTCOME,
                 QuestionTypeCapability.TOTAL_SCORES_TALLY,
                 QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
                 QuestionTypeCapability.ANSWER_STATISTICS);
         registerTypeCapabilities(capabilities, TypeId.MATCHING_ID,
                 QuestionTypeCapability.SUBMISSION_OUTCOME,
@@ -131,6 +132,7 @@ public class StatisticsService {
                 QuestionTypeCapability.SUBMISSION_OUTCOME,
                 QuestionTypeCapability.TOTAL_SCORES_TALLY,
                 QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
                 QuestionTypeCapability.ANSWER_STATISTICS);
         registerTypeCapabilities(capabilities, TypeId.IMAGEMAP_QUESTION_ID,
                 QuestionTypeCapability.SUBMISSION_OUTCOME,

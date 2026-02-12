@@ -98,6 +98,19 @@ public class StatisticsServiceTest {
     }
 
     @Test
+    public void testQuestionTypeCapabilityRegistryForNumericAndCalculatedShowsDetailedAnswerColumns() {
+        assertTrue(StatisticsService.includesInDetailedStatistics(TypeIfc.FILL_IN_NUMERIC.toString()));
+        assertTrue(StatisticsService.showsIndividualAnswersInDetailedStatistics(TypeIfc.FILL_IN_NUMERIC.toString()));
+        assertTrue(StatisticsService.supportsSubmissionOutcome(TypeIfc.FILL_IN_NUMERIC));
+        assertTrue(StatisticsService.supportsTotalScoresTally(TypeIfc.FILL_IN_NUMERIC));
+
+        assertTrue(StatisticsService.includesInDetailedStatistics(TypeIfc.CALCULATED_QUESTION.toString()));
+        assertTrue(StatisticsService.showsIndividualAnswersInDetailedStatistics(TypeIfc.CALCULATED_QUESTION.toString()));
+        assertTrue(StatisticsService.supportsSubmissionOutcome(TypeIfc.CALCULATED_QUESTION));
+        assertTrue(StatisticsService.supportsTotalScoresTally(TypeIfc.CALCULATED_QUESTION));
+    }
+
+    @Test
     public void testIgnoredItemTypesDoNotAffectQuestionPoolAggregates() {
         long gradedItemId = 0L;
         long ignoredItemId = 1L;
