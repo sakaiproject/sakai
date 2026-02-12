@@ -59,12 +59,12 @@
   <div class="sak-banner-info mb-5">
     <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
     <h:panelGroup rendered="#{delivery.sebSetup}" layout="block">
-      <br><br>
+      <br/><br/>
       <h:outputText value="#{deliveryMessages.seb_preview_info}" escape="false" />
     </h:panelGroup>
-    <br><br>
+    <br/>
     <h:commandButton value="#{deliveryMessages.exit_preview}"
-      styleClass="exitPreviewButton ms-0 mt-2"
+      styleClass="exit-preview-button"
       action="#{person.cleanResourceIdListInPreview}"
       type="submit"
       onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />

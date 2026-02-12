@@ -43,9 +43,9 @@
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
   <div class="sak-banner-info mb-5">
     <h:outputText value="#{deliveryMessages.ass_preview}" escape="false" />
-    <br><br>
+    <br/>
     <h:commandButton value="#{deliveryMessages.exit_preview}"
-      styleClass="exitPreviewButton ms-0 mt-2"
+      styleClass="exit-preview-button"
       action="#{person.cleanResourceIdListInPreview}"
       type="submit"
       onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
