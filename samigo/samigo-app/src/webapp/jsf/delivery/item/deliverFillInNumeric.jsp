@@ -24,8 +24,6 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
-<script>includeWebjarLibrary("qtip2");</script>
-
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
