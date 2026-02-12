@@ -116,6 +116,7 @@ public class HistogramListener
 	private static final ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 
   private GradingService delegate;
+  private StatisticsService statisticsService;
 
   /**
    * Standard process action method.
@@ -1108,8 +1109,6 @@ public class HistogramListener
 
   private void applyCanonicalSubmissionTallies(HistogramQuestionScoresBean qbean, ItemDataIfc item,
       List<ItemGradingData> scores, Map<Long, AnswerIfc> answersById) {
-    StatisticsService statisticsService = new StatisticsService();
-
     Map<Long, List<ItemGradingData>> scoresByAssessment = new HashMap<>();
     for (ItemGradingData score : scores) {
       if (score == null || score.getAssessmentGradingId() == null) {
@@ -1123,7 +1122,7 @@ public class HistogramListener
     Set<String> studentsResponded = new TreeSet<>();
     Set<String> studentsWithAllCorrect = new TreeSet<>();
     for (List<ItemGradingData> submissionScores : scoresByAssessment.values()) {
-      SubmissionOutcome submissionOutcome = statisticsService.classifySubmission(item, submissionScores, answersById);
+      SubmissionOutcome submissionOutcome = getStatisticsService().classifySubmission(item, submissionScores, answersById);
       String agentId = getSubmissionAgentId(submissionScores);
       if (submissionOutcome == SubmissionOutcome.CORRECT) {
         respondedCount++;
@@ -1145,6 +1144,17 @@ public class HistogramListener
     qbean.setNumberOfStudentsWithZeroAnswers(blankCount);
     qbean.setStudentsResponded(studentsResponded);
     qbean.setStudentsWithAllCorrect(studentsWithAllCorrect);
+  }
+
+  private StatisticsService getStatisticsService() {
+    if (statisticsService == null) {
+      statisticsService = new StatisticsService();
+    }
+    return statisticsService;
+  }
+
+  void setStatisticsService(StatisticsService statisticsService) {
+    this.statisticsService = statisticsService;
   }
 
   private String getSubmissionAgentId(List<ItemGradingData> submissionScores) {
