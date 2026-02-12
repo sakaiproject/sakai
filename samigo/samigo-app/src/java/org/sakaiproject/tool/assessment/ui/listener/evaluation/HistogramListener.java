@@ -1949,7 +1949,7 @@ public class HistogramListener
 		final String INCORRECT = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","incorrect");
 		final int COLUMN_MAX_HEIGHT = 100;
 
-		Map<String, Integer> results = new HashMap<>();
+		Map<String, Integer> results = new LinkedHashMap<>();
 		results.put(CORRECT, Integer.valueOf(0));
 		results.put(INCORRECT, Integer.valueOf(0));
 
