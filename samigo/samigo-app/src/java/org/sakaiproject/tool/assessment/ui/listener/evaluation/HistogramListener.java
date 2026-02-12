@@ -1968,7 +1968,7 @@ public class HistogramListener
 
 			for (Map.Entry<Long, List<ItemGradingData>> entry : scoresByAssessment.entrySet()) {
 				List<ItemGradingData> submissionScores = new ArrayList<>(entry.getValue());
-				if (submissionScores == null || submissionScores.isEmpty()) {
+				if (submissionScores.isEmpty()) {
 					continue;
 				}
 				submissionScores.sort(Comparator.comparing(ItemGradingData::getPublishedAnswerId,
@@ -2021,7 +2021,6 @@ public class HistogramListener
 			HistogramBarBean bar = new HistogramBarBean();
 			bar.setLabel(resultEntry.getKey());
 			bar.setNumStudents(resultEntry.getValue());
-			bar.setNumStudentsText(String.valueOf(resultEntry.getValue()));
 			bar.setNumStudentsText(resultEntry.getValue() + " " + resultEntry.getKey());
 			bar.setIsCorrect(resultEntry.getKey().equals(CORRECT));
 			int height = 0;
