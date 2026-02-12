@@ -70,6 +70,8 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.StatisticsService;
+import org.sakaiproject.tool.assessment.services.assessment.StatisticsService.SubmissionOutcome;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
@@ -626,27 +628,9 @@ public class HistogramListener
 			  Iterator infoIter = info.iterator();
 				  while (infoIter.hasNext()) {
 					  HistogramQuestionScoresBean questionScores = (HistogramQuestionScoresBean)infoIter.next();
-					  boolean includeInDetailedStatistics = questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE.toString())
-							  || questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT.toString())
-							  || questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString())
-							  || questionScores.getQuestionType().equals(TypeIfc.TRUE_FALSE.toString())
-							  || questionScores.getQuestionType().equals(TypeIfc.FILL_IN_BLANK.toString())
-							  || questionScores.getQuestionType().equals(TypeIfc.MATCHING.toString())
-							  || questionScores.getQuestionType().equals(TypeIfc.FILL_IN_NUMERIC.toString())
-							  || questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString())
-							  || questionScores.getQuestionType().equals(TypeIfc.CALCULATED_QUESTION.toString())
-							  || questionScores.getQuestionType().equals("16")
-							  || questionScores.getQuestionType().equals(TypeIfc.MATRIX_CHOICES_SURVEY.toString());
+					  boolean includeInDetailedStatistics = isDetailedStatisticsQuestionType(questionScores.getQuestionType());
 					  if (includeInDetailedStatistics) {
-						  boolean showIndividualAnswers = questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE.toString())
-								  || questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT.toString())
-								  || questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString())
-								  || questionScores.getQuestionType().equals(TypeIfc.TRUE_FALSE.toString())
-								  || questionScores.getQuestionType().equals(TypeIfc.FILL_IN_BLANK.toString())
-								  || questionScores.getQuestionType().equals(TypeIfc.MATCHING.toString())
-								  || questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString())
-								  || questionScores.getQuestionType().equals("16")
-								  || questionScores.getQuestionType().equals(TypeIfc.MATRIX_CHOICES_SURVEY.toString());
+						  boolean showIndividualAnswers = showsIndividualAnswersInDetailedStatistics(questionScores.getQuestionType());
 						  questionScores.setShowIndividualAnswersInDetailedStatistics(showIndividualAnswers);
 						  detailedStatistics.add(questionScores);
 						  if (showIndividualAnswers && questionScores.getHistogramBars() != null) {
@@ -858,24 +842,62 @@ public class HistogramListener
       qbean.setNumResponses(responses);
       qbean.setNumberOfStudentsWithZeroAnswers(numStudentsWithZeroAnswers);
 
-    if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE.toString()) ||  // mcsc
-        qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT.toString()) ||  // mcmcms
-        qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString()) ||  // mcmcss
-        qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()) ||  // mc survey
-        qbean.getQuestionType().equals(TypeIfc.TRUE_FALSE.toString()) || // tf
-        qbean.getQuestionType().equals(TypeIfc.MATCHING.toString()) || // matching
-        qbean.getQuestionType().equals(TypeIfc.FILL_IN_BLANK.toString()) || // Fill in the blank
-        qbean.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString()) || // Extended Matching Items
-    	qbean.getQuestionType().equals(TypeIfc.FILL_IN_NUMERIC.toString()) ||  //  Numeric Response
-        qbean.getQuestionType().equals(TypeIfc.CALCULATED_QUESTION.toString()) || // CALCULATED_QUESTION
-        qbean.getQuestionType().equals(TypeIfc.IMAGEMAP_QUESTION.toString()) || // IMAGEMAP_QUESTION
-    	qbean.getQuestionType().equals(TypeIfc.MATRIX_CHOICES_SURVEY.toString()))  // matrix survey 
+    if (isAnswerStatisticsQuestionType(qbean.getQuestionType()))
       doAnswerStatistics(pub, qbean, itemScores);
-    if (qbean.getQuestionType().equals(TypeIfc.ESSAY_QUESTION.toString()) || // essay
-        qbean.getQuestionType().equals(TypeIfc.FILE_UPLOAD.toString()) || // file upload
-        qbean.getQuestionType().equals(TypeIfc.AUDIO_RECORDING.toString())) // audio recording
+    if (isScoreStatisticsQuestionType(qbean.getQuestionType()))
       doScoreStatistics(qbean, itemScores);
 
+  }
+
+  private boolean isDetailedStatisticsQuestionType(String questionType) {
+    return StringUtils.equalsAny(questionType,
+            TypeIfc.MULTIPLE_CHOICE.toString(),
+            TypeIfc.MULTIPLE_CORRECT.toString(),
+            TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
+            TypeIfc.TRUE_FALSE.toString(),
+            TypeIfc.FILL_IN_BLANK.toString(),
+            TypeIfc.MATCHING.toString(),
+            TypeIfc.FILL_IN_NUMERIC.toString(),
+            TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString(),
+            TypeIfc.CALCULATED_QUESTION.toString(),
+            TypeIfc.IMAGEMAP_QUESTION.toString(),
+            TypeIfc.MATRIX_CHOICES_SURVEY.toString());
+  }
+
+  private boolean showsIndividualAnswersInDetailedStatistics(String questionType) {
+    return StringUtils.equalsAny(questionType,
+            TypeIfc.MULTIPLE_CHOICE.toString(),
+            TypeIfc.MULTIPLE_CORRECT.toString(),
+            TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
+            TypeIfc.TRUE_FALSE.toString(),
+            TypeIfc.FILL_IN_BLANK.toString(),
+            TypeIfc.MATCHING.toString(),
+            TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString(),
+            TypeIfc.IMAGEMAP_QUESTION.toString(),
+            TypeIfc.MATRIX_CHOICES_SURVEY.toString());
+  }
+
+  private boolean isAnswerStatisticsQuestionType(String questionType) {
+    return StringUtils.equalsAny(questionType,
+            TypeIfc.MULTIPLE_CHOICE.toString(),
+            TypeIfc.MULTIPLE_CORRECT.toString(),
+            TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString(),
+            TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
+            TypeIfc.TRUE_FALSE.toString(),
+            TypeIfc.MATCHING.toString(),
+            TypeIfc.FILL_IN_BLANK.toString(),
+            TypeIfc.EXTENDED_MATCHING_ITEMS.toString(),
+            TypeIfc.FILL_IN_NUMERIC.toString(),
+            TypeIfc.CALCULATED_QUESTION.toString(),
+            TypeIfc.IMAGEMAP_QUESTION.toString(),
+            TypeIfc.MATRIX_CHOICES_SURVEY.toString());
+  }
+
+  private boolean isScoreStatisticsQuestionType(String questionType) {
+    return StringUtils.equalsAny(questionType,
+            TypeIfc.ESSAY_QUESTION.toString(),
+            TypeIfc.FILE_UPLOAD.toString(),
+            TypeIfc.AUDIO_RECORDING.toString());
   }
 
   private boolean hasAnswerForItemType(String questionType, ItemGradingData itemGradingData) {
@@ -1005,6 +1027,18 @@ public class HistogramListener
             TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
             TypeIfc.MATRIX_CHOICES_SURVEY.toString())
             || isSurveyLikeQuestionWithoutAnswerKey(qbean.getQuestionType(), answers);
+
+    if (!isSurveyType) {
+      Map<Long, AnswerIfc> answersById = new HashMap<>();
+      for (Object answerObject : publishedAnswerHash.values()) {
+        AnswerIfc answer = (AnswerIfc) answerObject;
+        if (answer != null && answer.getId() != null) {
+          answersById.put(answer.getId(), answer);
+        }
+      }
+      applyCanonicalSubmissionTallies(qbean, item, scores, answersById);
+    }
+
     long respondedCount = qbean.getNumResponses();
     long correctCount = Optional.ofNullable(qbean.getStudentsWithAllCorrect()).map(Set::size).orElse(0);
     long blankCount = Optional.ofNullable(qbean.getNumberOfStudentsWithZeroAnswers()).orElse(0);
@@ -1057,6 +1091,57 @@ public class HistogramListener
     }
 
     return hasAnswersWithNullCorrectness;
+  }
+
+  private void applyCanonicalSubmissionTallies(HistogramQuestionScoresBean qbean, ItemDataIfc item,
+      List<ItemGradingData> scores, Map<Long, AnswerIfc> answersById) {
+    StatisticsService statisticsService = new StatisticsService();
+
+    Map<Long, List<ItemGradingData>> scoresByAssessment = new HashMap<>();
+    for (ItemGradingData score : scores) {
+      if (score == null || score.getAssessmentGradingId() == null) {
+        continue;
+      }
+      scoresByAssessment.computeIfAbsent(score.getAssessmentGradingId(), key -> new ArrayList<>()).add(score);
+    }
+
+    int respondedCount = 0;
+    int blankCount = 0;
+    Set<String> studentsResponded = new TreeSet<>();
+    Set<String> studentsWithAllCorrect = new TreeSet<>();
+    for (List<ItemGradingData> submissionScores : scoresByAssessment.values()) {
+      SubmissionOutcome submissionOutcome = statisticsService.classifySubmission(item, submissionScores, answersById);
+      String agentId = getSubmissionAgentId(submissionScores);
+      if (submissionOutcome == SubmissionOutcome.CORRECT) {
+        respondedCount++;
+        if (agentId != null) {
+          studentsResponded.add(agentId);
+          studentsWithAllCorrect.add(agentId);
+        }
+      } else if (submissionOutcome == SubmissionOutcome.INCORRECT) {
+        respondedCount++;
+        if (agentId != null) {
+          studentsResponded.add(agentId);
+        }
+      } else if (submissionOutcome == SubmissionOutcome.BLANK) {
+        blankCount++;
+      }
+    }
+
+    qbean.setNumResponses(respondedCount);
+    qbean.setNumberOfStudentsWithZeroAnswers(blankCount);
+    qbean.setStudentsResponded(studentsResponded);
+    qbean.setStudentsWithAllCorrect(studentsWithAllCorrect);
+  }
+
+  private String getSubmissionAgentId(List<ItemGradingData> submissionScores) {
+    for (ItemGradingData score : submissionScores) {
+      String agentId = score.getAgentId();
+      if (StringUtils.isNotBlank(agentId)) {
+        return agentId;
+      }
+    }
+    return null;
   }
 
   /**

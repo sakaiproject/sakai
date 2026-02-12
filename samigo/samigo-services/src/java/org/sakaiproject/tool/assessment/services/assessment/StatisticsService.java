@@ -39,6 +39,7 @@ import org.sakaiproject.tool.assessment.business.entity.QuestionPoolStatistics;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -57,6 +58,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StatisticsService {
+
+    public enum SubmissionOutcome {
+        CORRECT,
+        INCORRECT,
+        BLANK,
+        NOT_APPLICABLE
+    }
 
 
     public static final String QP_STATISTICS_CACHE_NAME = StatisticsService.class.getPackageName() + "." + QuestionPoolStatistics.CACHE_NAME;
@@ -167,43 +175,233 @@ public class StatisticsService {
                 .count();
     }
 
+    public SubmissionOutcome classifySubmission(ItemDataIfc item, Collection<ItemGradingData> submissionGradingData,
+            Map<Long, ? extends AnswerIfc> answerMap) {
+        Long itemType = item == null ? null : item.getTypeId();
+        if (itemType == null || !TypeId.isValidId(itemType.longValue())) {
+            return SubmissionOutcome.NOT_APPLICABLE;
+        }
+
+        Set<ItemGradingData> submissionSet = submissionGradingData == null ? Collections.emptySet() : submissionGradingData
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (submissionSet.isEmpty()) {
+            switch (TypeId.getInstance(itemType)) {
+                case TRUE_FALSE_ID:
+                case MULTIPLE_CHOICE_ID:
+                case MULTIPLE_CORRECT_ID:
+                case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
+                case FILL_IN_BLANK_ID:
+                case FILL_IN_NUMERIC_ID:
+                case MATCHING_ID:
+                case EXTENDED_MATCHING_ITEMS_ID:
+                case CALCULATED_QUESTION_ID:
+                case IMAGEMAP_QUESTION_ID:
+                    return SubmissionOutcome.BLANK;
+                default:
+                    return SubmissionOutcome.NOT_APPLICABLE;
+            }
+        }
+
+        Set<PublishedAnswer> publishedAnswers = toPublishedAnswerSet(item, submissionSet, answerMap);
+        ItemStatistics itemStatistics;
+
+        switch (TypeId.getInstance(itemType)) {
+            case TRUE_FALSE_ID:
+            case MULTIPLE_CHOICE_ID:
+                itemStatistics = getItemStatisticsForItemWithOneCorrectAnswer(submissionSet, publishedAnswers);
+                break;
+            case MULTIPLE_CORRECT_ID:
+                itemStatistics = getItemStatisticsForItemWithMultipleCorrectAnswers(submissionSet, publishedAnswers);
+                break;
+            case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
+                itemStatistics = getItemStatisticsForMultipleCorrectSingleSelectionItem(submissionSet, publishedAnswers);
+                break;
+            case FILL_IN_BLANK_ID:
+            case FILL_IN_NUMERIC_ID:
+                itemStatistics = getItemStatisticsForFillInItem(item, submissionSet, publishedAnswers);
+                break;
+            case MATCHING_ID:
+                itemStatistics = getItemStatisticsForMatchingItem(submissionSet, publishedAnswers);
+                break;
+            case EXTENDED_MATCHING_ITEMS_ID:
+                itemStatistics = getItemStatisticsForExtendedMatchingItem(item, submissionSet, publishedAnswers);
+                break;
+            case CALCULATED_QUESTION_ID:
+                itemStatistics = getItemStatisticsForCalculatedQuestion(item, submissionSet);
+                break;
+            case IMAGEMAP_QUESTION_ID:
+                itemStatistics = getItemStatisticsForHotSpotItem(item, submissionSet);
+                break;
+            default:
+                return SubmissionOutcome.NOT_APPLICABLE;
+        }
+
+        return toSubmissionOutcome(itemStatistics);
+    }
+
+    private SubmissionOutcome toSubmissionOutcome(ItemStatistics itemStatistics) {
+        if (itemStatistics == null) {
+            return SubmissionOutcome.NOT_APPLICABLE;
+        }
+
+        long incorrectResponses = itemStatistics.getIncorrectResponses() == null ? 0 : itemStatistics.getIncorrectResponses();
+        if (incorrectResponses > 0) {
+            return SubmissionOutcome.INCORRECT;
+        }
+
+        long correctResponses = itemStatistics.getCorrectResponses() == null ? 0 : itemStatistics.getCorrectResponses();
+        if (correctResponses > 0) {
+            return SubmissionOutcome.CORRECT;
+        }
+
+        long blankResponses = itemStatistics.getBlankResponses() == null ? 0 : itemStatistics.getBlankResponses();
+        if (blankResponses > 0) {
+            return SubmissionOutcome.BLANK;
+        }
+
+        return SubmissionOutcome.NOT_APPLICABLE;
+    }
+
+    private Set<PublishedAnswer> toPublishedAnswerSet(ItemDataIfc item, Set<ItemGradingData> submissionSet,
+            Map<Long, ? extends AnswerIfc> answerMap) {
+        Map<Long, PublishedAnswer> publishedAnswers = new HashMap<>();
+        Long itemId = item == null ? null : item.getItemId();
+        Set<Long> selectedAnswerIds = submissionSet.stream()
+                .map(ItemGradingData::getPublishedAnswerId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        List<AnswerIfc> itemAnswers = getItemAnswers(item);
+        boolean hasItemAnswers = !itemAnswers.isEmpty();
+
+        for (AnswerIfc answer : itemAnswers) {
+            PublishedAnswer publishedAnswer = toPublishedAnswer(answer);
+            if (publishedAnswer != null && publishedAnswer.getId() != null) {
+                publishedAnswers.put(publishedAnswer.getId(), publishedAnswer);
+            }
+        }
+
+        if (answerMap != null) {
+            if (hasItemAnswers) {
+                for (Long answerId : selectedAnswerIds) {
+                    AnswerIfc answer = answerMap.get(answerId);
+                    PublishedAnswer publishedAnswer = toPublishedAnswer(answer);
+                    if (publishedAnswer != null && publishedAnswer.getId() != null) {
+                        publishedAnswers.put(publishedAnswer.getId(), publishedAnswer);
+                    }
+                }
+            } else {
+                for (AnswerIfc answer : answerMap.values()) {
+                    if (answer == null || answer.getId() == null) {
+                        continue;
+                    }
+                    boolean sameItem = answer.getItem() != null && itemId != null
+                            && itemId.equals(answer.getItem().getItemId());
+                    if (!sameItem && !selectedAnswerIds.contains(answer.getId())) {
+                        continue;
+                    }
+                    PublishedAnswer publishedAnswer = toPublishedAnswer(answer);
+                    if (publishedAnswer != null) {
+                        publishedAnswers.put(publishedAnswer.getId(), publishedAnswer);
+                    }
+                }
+            }
+        }
+
+        return new LinkedHashSet<>(publishedAnswers.values());
+    }
+
+    private List<AnswerIfc> getItemAnswers(ItemDataIfc item) {
+        List<AnswerIfc> answers = new ArrayList<>();
+        if (item == null || item.getItemTextSet() == null) {
+            return answers;
+        }
+
+        for (ItemTextIfc itemText : item.getItemTextSet()) {
+            if (itemText == null || itemText.getAnswerSet() == null) {
+                continue;
+            }
+            for (Object answerObject : itemText.getAnswerSet()) {
+                AnswerIfc answer = (AnswerIfc) answerObject;
+                if (answer != null) {
+                    answers.add(answer);
+                }
+            }
+        }
+        return answers;
+    }
+
+    private PublishedAnswer toPublishedAnswer(AnswerIfc answer) {
+        if (answer == null) {
+            return null;
+        }
+
+        if (answer instanceof PublishedAnswer) {
+            return (PublishedAnswer) answer;
+        }
+
+        PublishedAnswer publishedAnswer = new PublishedAnswer();
+        publishedAnswer.setId(answer.getId());
+        publishedAnswer.setIsCorrect(answer.getIsCorrect());
+        publishedAnswer.setScore(answer.getScore());
+        return publishedAnswer;
+    }
+
     private ItemStatistics getItemStatistics(ItemDataIfc item, Set<ItemGradingData> gradingData, Set<PublishedAnswer> answers) {
-        Long itemType = item.getTypeId();
+        Long itemType = item == null ? null : item.getTypeId();
         if (itemType == null || !TypeId.isValidId(itemType.longValue())) {
             log.warn("Can not create TypeId from type id {}", itemType);
             return null;
         }
 
-        switch (TypeId.getInstance(itemType)) {
-            case TRUE_FALSE_ID:
-            case MULTIPLE_CHOICE_ID:
-                return getItemStatisticsForItemWithOneCorrectAnswer(gradingData, answers);
-            case MULTIPLE_CORRECT_ID:
-                return getItemStatisticsForItemWithMultipleCorrectAnswers(gradingData, answers);
-            case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
-                return getItemStatisticsForMultipleCorrectSingleSelectionItem(gradingData, answers);
-            case FILL_IN_BLANK_ID:
-            case FILL_IN_NUMERIC_ID:
-                return getItemStatisticsForFillInItem(item, gradingData, answers);
-            case MATCHING_ID:
-                return getItemStatisticsForMatchingItem(gradingData, answers);
-            case EXTENDED_MATCHING_ITEMS_ID:
-                return getItemStatisticsForExtendedMatchingItem(item, gradingData, answers);
-            case CALCULATED_QUESTION_ID:
-                return getItemStatisticsForCalculatedQuestion(item, gradingData);
-            case IMAGEMAP_QUESTION_ID:
-                return getItemStatisticsForHotSpotItem(item, gradingData);
-            case ESSAY_QUESTION_ID:
-            case FILE_UPLOAD_ID:
-            case AUDIO_RECORDING_ID:
-            case MATRIX_CHOICES_SURVEY_ID:
-            case MULTIPLE_CHOICE_SURVEY_ID:
-                log.debug("Ignored type with id {}", itemType);
-                return ItemStatistics.builder().build();
-            default:
-                log.warn("Unhandled type with id {}", itemType);
-                return ItemStatistics.builder().build();
+        Map<Long, PublishedAnswer> answerMap = answers.stream()
+                .collect(Collectors.toMap(PublishedAnswer::getId, Function.identity(), (existing, replacement) -> existing, HashMap::new));
+
+        Map<Long, List<ItemGradingData>> gradingBySubmission = groupGradingDataBySubmission(gradingData);
+        long correctResponses = 0;
+        long incorrectResponses = 0;
+        long blankResponses = 0;
+
+        for (List<ItemGradingData> submissionGradingData : gradingBySubmission.values()) {
+            SubmissionOutcome submissionOutcome = classifySubmission(item, submissionGradingData, answerMap);
+            if (submissionOutcome == SubmissionOutcome.CORRECT) {
+                correctResponses++;
+            } else if (submissionOutcome == SubmissionOutcome.INCORRECT) {
+                incorrectResponses++;
+            } else if (submissionOutcome == SubmissionOutcome.BLANK) {
+                blankResponses++;
+            }
         }
+
+        long attemptedResponses = correctResponses + incorrectResponses;
+
+        return ItemStatistics.builder()
+                .attemptedResponses(attemptedResponses)
+                .correctResponses(correctResponses)
+                .incorrectResponses(incorrectResponses)
+                .blankResponses(blankResponses)
+                .calcDifficulty()
+                .build();
+    }
+
+    private Map<Long, List<ItemGradingData>> groupGradingDataBySubmission(Set<ItemGradingData> gradingData) {
+        Map<Long, List<ItemGradingData>> grouped = new HashMap<>();
+        long syntheticKey = Long.MIN_VALUE;
+        for (ItemGradingData itemGradingData : gradingData) {
+            if (itemGradingData == null) {
+                continue;
+            }
+
+            Long assessmentGradingId = itemGradingData.getAssessmentGradingId();
+            if (assessmentGradingId == null) {
+                Long itemGradingId = itemGradingData.getItemGradingId();
+                assessmentGradingId = itemGradingId == null ? syntheticKey++ : -Math.abs(itemGradingId);
+            }
+
+            grouped.computeIfAbsent(assessmentGradingId, key -> new ArrayList<>()).add(itemGradingData);
+        }
+        return grouped;
     }
 
     // Item is considered correct if one of the answers is correct

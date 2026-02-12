@@ -80,6 +80,8 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.StatisticsService;
+import org.sakaiproject.tool.assessment.services.assessment.StatisticsService.SubmissionOutcome;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 import org.sakaiproject.tool.assessment.shared.impl.grading.GradingSectionAwareServiceImpl;
 import org.sakaiproject.tool.assessment.ui.bean.util.TotalScoresExportBean;
@@ -296,12 +298,18 @@ public class TotalScoresBean implements Serializable, PhaseAware {
       PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
       PublishedAssessmentIfc publishedAssessmentData = pubAssessmentService.getPublishedAssessment(this.getPublishedId());
       Map publishedAnswerHash = pubAssessmentService.preparePublishedAnswerHash(publishedAssessmentData);
-      Map publishedItemTextHash = pubAssessmentService.preparePublishedItemTextHash(publishedAssessmentData);
       // Instance a new GradingService to get all the student responses
       GradingService gradingService = new GradingService();
+      StatisticsService statisticsService = new StatisticsService();
       Map<Long, List<Integer>> resultsByUser = new HashMap<>();
       List<PublishedItemData> tallyableItems = getTallyableItems(publishedAssessmentData);
-      Map<Long, Integer> correctAnswerCountByItem = getCorrectAnswerCountByItem(publishedAnswerHash);
+      Map<Long, AnswerIfc> answersById = new HashMap<>();
+      for (Object answerObject : publishedAnswerHash.values()) {
+        AnswerIfc answer = (AnswerIfc) answerObject;
+        if (answer != null && answer.getId() != null) {
+          answersById.put(answer.getId(), answer);
+        }
+      }
       // For each agent (student) we will search the correct/incorrect/empty responses
       for (Object object : agents) {
         AgentResults agentResults = (AgentResults) object;
@@ -316,12 +324,12 @@ public class TotalScoresBean implements Serializable, PhaseAware {
             if (hasRandomDrawPart && gradingList == null) {
               continue;
             }
-            int tallyResult = tallyItem(item, gradingList, publishedAnswerHash, publishedItemTextHash, correctAnswerCountByItem, gradingService);
-            if (tallyResult == 0) {
+            SubmissionOutcome submissionOutcome = statisticsService.classifySubmission(item, gradingList, answersById);
+            if (submissionOutcome == SubmissionOutcome.CORRECT) {
               resultsAux.set(0, resultsAux.get(0) + 1);
-            } else if (tallyResult == 1) {
+            } else if (submissionOutcome == SubmissionOutcome.INCORRECT) {
               resultsAux.set(1, resultsAux.get(1) + 1);
-            } else if (tallyResult == 2) {
+            } else if (submissionOutcome == SubmissionOutcome.BLANK) {
               resultsAux.set(2, resultsAux.get(2) + 1);
             }
           }
@@ -403,235 +411,6 @@ public class TotalScoresBean implements Serializable, PhaseAware {
       gradingList.add(gradingData);
     }
     return gradingByItem;
-  }
-
-  private int tallyItem(PublishedItemData item, List<ItemGradingData> gradingList, Map publishedAnswerHash,
-                        Map publishedItemTextHash, Map<Long, Integer> correctAnswerCountByItem,
-                        GradingService gradingService) {
-    if (gradingList == null || gradingList.isEmpty()) {
-      return 2;
-    }
-
-    Long typeId = item.getTypeId();
-    if (typeId == null) {
-      return -1;
-    }
-
-    if (typeId.equals(TypeIfc.MULTIPLE_CHOICE)
-      || typeId.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)
-      || typeId.equals(TypeIfc.TRUE_FALSE)) {
-      int answeredCount = 0;
-      boolean hasCorrectAnswer = false;
-      boolean hasIncorrectAnswer = false;
-      for (ItemGradingData gradingData : gradingList) {
-        if (gradingData.getPublishedAnswerId() == null) {
-          continue;
-        }
-        answeredCount++;
-        if (isSelectedAnswerCorrect(gradingData, publishedAnswerHash)) {
-          hasCorrectAnswer = true;
-        } else {
-          hasIncorrectAnswer = true;
-          break;
-        }
-      }
-
-      if (answeredCount == 0) {
-        return 2;
-      }
-
-      return hasCorrectAnswer && !hasIncorrectAnswer ? 0 : 1;
-    }
-
-    if (typeId.equals(TypeIfc.MULTIPLE_CORRECT)) {
-      int selectedAnswerCount = 0;
-      boolean hasIncorrect = false;
-      for (ItemGradingData gradingData : gradingList) {
-        Long answerId = gradingData.getPublishedAnswerId();
-        if (answerId == null) {
-          continue;
-        }
-        selectedAnswerCount++;
-        AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(answerId);
-        if (answer == null || answer.getIsCorrect() == null || !answer.getIsCorrect()) {
-          hasIncorrect = true;
-          break;
-        }
-      }
-      if (selectedAnswerCount == 0) {
-        return 2;
-      }
-      if (hasIncorrect) {
-        return 1;
-      }
-      Integer correctAnswerCount = correctAnswerCountByItem.get(item.getItemId());
-      if (correctAnswerCount != null && selectedAnswerCount == correctAnswerCount.intValue()) {
-        return 0;
-      }
-      return 1;
-    }
-
-    if (typeId.equals(TypeIfc.MATCHING)) {
-      int requiredChoices = getMatchingRequiredChoices(item, gradingService);
-      int answeredRequired = 0;
-      boolean hasAnyResponse = false;
-      boolean hasIncorrect = false;
-      for (ItemGradingData gradingData : gradingList) {
-        ItemTextIfc itemText = (ItemTextIfc) publishedItemTextHash.get(gradingData.getPublishedItemTextId());
-        if (itemText == null || gradingService.isDistractor(itemText)) {
-          continue;
-        }
-        Long answerId = gradingData.getPublishedAnswerId();
-        if (answerId == null) {
-          continue;
-        }
-        hasAnyResponse = true;
-        answeredRequired++;
-        AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(answerId);
-        if (answer == null || answer.getIsCorrect() == null || !answer.getIsCorrect()) {
-          hasIncorrect = true;
-          break;
-        }
-      }
-      if (!hasAnyResponse) {
-        return 2;
-      }
-      if (hasIncorrect) {
-        return 1;
-      }
-      return answeredRequired == requiredChoices ? 0 : 1;
-    }
-
-    if (typeId.equals(TypeIfc.FILL_IN_BLANK) || typeId.equals(TypeIfc.FILL_IN_NUMERIC)) {
-      int totalParts = gradingList.size();
-      int answeredParts = 0;
-      int correctParts = 0;
-      boolean hasIncorrect = false;
-      Map<Long, Set<String>> fibMap = new HashMap<>();
-      for (ItemGradingData gradingData : gradingList) {
-        Long answerId = gradingData.getPublishedAnswerId();
-        String answerText = gradingData.getAnswerText();
-        if (answerId == null || StringUtils.isBlank(answerText)) {
-          continue;
-        }
-        answeredParts++;
-        boolean isCorrect;
-        if (typeId.equals(TypeIfc.FILL_IN_BLANK)) {
-          isCorrect = gradingService.getFIBResult(gradingData, fibMap, item, publishedAnswerHash);
-        } else {
-          isCorrect = gradingService.getFINResult(gradingData, item, publishedAnswerHash);
-        }
-        if (isCorrect) {
-          correctParts++;
-        } else {
-          hasIncorrect = true;
-        }
-      }
-      if (answeredParts == 0) {
-        return 2;
-      }
-      if (!hasIncorrect && answeredParts == totalParts && correctParts == totalParts) {
-        return 0;
-      }
-      return 1;
-    }
-
-    if (typeId.equals(TypeIfc.CALCULATED_QUESTION)) {
-      List<ItemGradingData> orderedGradings = new ArrayList<>(gradingList);
-      orderedGradings.sort(Comparator.comparing(ItemGradingData::getPublishedAnswerId, Comparator.nullsLast(Long::compareTo)));
-      int totalParts = orderedGradings.size();
-      int correctParts = 0;
-      int blankParts = 0;
-      int answerSequence = 0;
-      Long previousAnswerId = null;
-      Map<Integer, String> answerMap = new HashMap<>();
-      LinkedHashMap<String, String> answersMapValues = new LinkedHashMap<>();
-      LinkedHashMap<String, String> globalanswersMapValues = new LinkedHashMap<>();
-      LinkedHashMap<String, String> mainvariablesWithValues = new LinkedHashMap<>();
-      for (ItemGradingData gradingData : orderedGradings) {
-        Long currentAnswerId = gradingData.getPublishedAnswerId();
-        if (currentAnswerId == null || StringUtils.isBlank(gradingData.getAnswerText())) {
-          blankParts++;
-          continue;
-        }
-        if (!Objects.equals(previousAnswerId, currentAnswerId)) {
-          answerSequence++;
-          previousAnswerId = currentAnswerId;
-        }
-        gradingService.extractCalcQAnswersArray(answerMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues,
-          item, gradingData.getAssessmentGradingId(), gradingData.getAgentId());
-        if (gradingService.getCalcQResult(gradingData, item, answerMap, answerSequence)) {
-          correctParts++;
-        }
-      }
-      if (blankParts == totalParts) {
-        return 2;
-      }
-      int attemptedParts = totalParts - blankParts;
-      return correctParts == attemptedParts ? 0 : 1;
-    }
-
-    if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
-      boolean hasAnyResponse = false;
-      boolean hasIncorrect = false;
-      for (ItemGradingData gradingData : gradingList) {
-        Long answerId = gradingData.getPublishedAnswerId();
-        String answerText = gradingData.getAnswerText();
-        boolean isUndefinedAnswer = StringUtils.equalsIgnoreCase("undefined", StringUtils.trimToNull(answerText));
-        if (answerId == null || StringUtils.isBlank(answerText) || isUndefinedAnswer) {
-          continue;
-        }
-        hasAnyResponse = true;
-        if (gradingData.getIsCorrect() == null || !gradingData.getIsCorrect()) {
-          hasIncorrect = true;
-          break;
-        }
-      }
-      if (!hasAnyResponse) {
-        return 2;
-      }
-      return hasIncorrect ? 1 : 0;
-    }
-
-    return -1;
-  }
-
-  private boolean isSelectedAnswerCorrect(ItemGradingData gradingData, Map publishedAnswerHash) {
-    Long answerId = gradingData.getPublishedAnswerId();
-    if (answerId == null) {
-      return false;
-    }
-
-    AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(answerId);
-    if (answer != null && answer.getIsCorrect() != null) {
-      return answer.getIsCorrect();
-    }
-
-    if (gradingData.getIsCorrect() != null) {
-      return gradingData.getIsCorrect();
-    }
-
-    Double autoScore = gradingData.getAutoScore();
-    if (autoScore != null) {
-      return autoScore > 0;
-    }
-
-    if (answer != null && answer.getScore() != null) {
-      return answer.getScore() > 0;
-    }
-
-    return false;
-  }
-
-  private int getMatchingRequiredChoices(PublishedItemData item, GradingService gradingService) {
-    int requiredChoices = 0;
-    for (Object itemTextObject : item.getItemTextArraySorted()) {
-      ItemTextIfc itemText = (ItemTextIfc) itemTextObject;
-      if (!gradingService.isDistractor(itemText)) {
-        requiredChoices++;
-      }
-    }
-    return requiredChoices;
   }
  
 	// Following three methods are for interface PhaseAware
