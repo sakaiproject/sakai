@@ -1003,7 +1003,8 @@ public class HistogramListener
 
     boolean isSurveyType = StringUtils.equalsAny(qbean.getQuestionType(),
             TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
-            TypeIfc.MATRIX_CHOICES_SURVEY.toString());
+            TypeIfc.MATRIX_CHOICES_SURVEY.toString())
+            || isSurveyLikeQuestionWithoutAnswerKey(qbean.getQuestionType(), answers);
     long respondedCount = qbean.getNumResponses();
     long correctCount = Optional.ofNullable(qbean.getStudentsWithAllCorrect()).map(Set::size).orElse(0);
     long blankCount = Optional.ofNullable(qbean.getNumberOfStudentsWithZeroAnswers()).orElse(0);
@@ -1030,6 +1031,30 @@ public class HistogramListener
         qbean.setNumberOfStudentsWithCorrectAnswers(null);
         qbean.setNumberOfStudentsWithIncorrectAnswers(null);
     }
+  }
+
+  private boolean isSurveyLikeQuestionWithoutAnswerKey(String questionType, List answers) {
+    if (!StringUtils.equalsAny(questionType,
+            TypeIfc.MULTIPLE_CHOICE.toString(),
+            TypeIfc.MULTIPLE_CORRECT.toString(),
+            TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString(),
+            TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
+            TypeIfc.TRUE_FALSE.toString())) {
+      return false;
+    }
+
+    if (answers == null || answers.isEmpty()) {
+      return false;
+    }
+
+    for (Object answerObj : answers) {
+      AnswerIfc answer = (AnswerIfc) answerObj;
+      if (Boolean.TRUE.equals(answer.getIsCorrect())) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -1858,8 +1883,7 @@ public class HistogramListener
 						answerSequence++;
 						previousAnswerId = currentAnswerId;
 					}
-					delegate.extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues, item, score.getAssessmentGradingId(), score.getAgentId());
-					if (delegate.getCalcQResult(score, item, answersMap, answerSequence)) {
+					if (isCalculatedPartCorrect(score, item, answerSequence, answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues)) {
 						correctParts++;
 					}
 				}
@@ -1907,6 +1931,24 @@ public class HistogramListener
 			String percentCorrectStr = Integer.toString((int) percentCorrect);
 			qbean.setPercentCorrect(percentCorrectStr);
 		}
+	}
+
+	private boolean isCalculatedPartCorrect(ItemGradingData score, ItemDataIfc item, int answerSequence,
+			Map<Integer, String> answersMap, LinkedHashMap<String, String> answersMapValues,
+			LinkedHashMap<String, String> globalanswersMapValues, LinkedHashMap<String, String> mainvariablesWithValues) {
+		if (score.getIsCorrect() != null) {
+			return score.getIsCorrect();
+		}
+
+		Double autoScore = score.getAutoScore();
+		if (autoScore != null) {
+			return autoScore > 0;
+		}
+
+		// Legacy safety fallback when no persisted correctness is available.
+		delegate.extractCalcQAnswersArray(answersMap, answersMapValues, globalanswersMapValues, mainvariablesWithValues,
+				item, score.getAssessmentGradingId(), score.getAgentId());
+		return delegate.getCalcQResult(score, item, answersMap, answerSequence);
 	}
 
 	private void getImageMapQuestionScores(Map publishedItemTextHash, Map publishedAnswerHash,
