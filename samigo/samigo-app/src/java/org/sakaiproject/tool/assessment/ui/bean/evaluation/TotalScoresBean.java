@@ -314,7 +314,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
         AgentResults agentResults = (AgentResults) object;
         if (agentResults.getAssessmentGradingId() != -1) {
           // Getting the responses for that student (agentResults)
-          AssessmentGradingData assessmentGradingAux = gradingService.load(agentResults.getAssessmentGradingId().toString());
+	          AssessmentGradingData assessmentGradingAux = gradingService.load(agentResults.getAssessmentGradingId().toString(), false);
           List<Integer> resultsAux = new ArrayList<>(Collections.nCopies(3, 0));
           Map<Long, List<ItemGradingData>> gradingByItem = groupGradingsByItem(assessmentGradingAux);
           for (PublishedItemData item : tallyableItems) {
