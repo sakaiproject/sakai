@@ -1837,7 +1837,7 @@ public class HistogramListener
 					continue;
 				}
 				submissionScores.sort(Comparator.comparing(ItemGradingData::getPublishedAnswerId,
-						Comparator.nullsLast(Long::compareTo)));
+					Comparator.nullsLast(Long::compareTo)));
 				int totalParts = submissionScores.size();
 				int correctParts = 0;
 				int blankParts = 0;
@@ -1864,13 +1864,14 @@ public class HistogramListener
 					}
 				}
 
-				if (blankParts == totalParts) {
+				int attemptedParts = totalParts - blankParts;
+				if (attemptedParts <= 0) {
 					continue;
 				}
 
 				String agentId = submissionScores.get(0).getAgentId();
 				qbean.addStudentResponded(agentId);
-				if (correctParts == totalParts) {
+				if (correctParts == attemptedParts) {
 					results.merge(CORRECT, 1, Integer::sum);
 					qbean.addStudentWithAllCorrect(agentId);
 				} else {

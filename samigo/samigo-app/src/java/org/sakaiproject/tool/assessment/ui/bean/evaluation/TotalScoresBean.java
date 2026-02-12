@@ -567,7 +567,8 @@ public class TotalScoresBean implements Serializable, PhaseAware {
       if (blankParts == totalParts) {
         return 2;
       }
-      return correctParts == totalParts ? 0 : 1;
+      int attemptedParts = totalParts - blankParts;
+      return correctParts == attemptedParts ? 0 : 1;
     }
 
     if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {

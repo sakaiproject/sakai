@@ -715,10 +715,11 @@ public class StatisticsService {
             }
 
             int maxAnswerSize = submissionItemGradingData.size();
-            if (maxAnswerSize == correctAnswers) {
-                correctResponses++;
-            } else if (maxAnswerSize == blankAnswers) {
+            long attemptedAnswers = maxAnswerSize - blankAnswers;
+            if (attemptedAnswers <= 0) {
                 blankResponses++;
+            } else if (attemptedAnswers == correctAnswers) {
+                correctResponses++;
             } else {
                 incorrectResponses++;
             }
@@ -775,10 +776,11 @@ public class StatisticsService {
             }
 
             int maxAnswerSize = submissionItemGradingData.size();
-            if (maxAnswerSize == correctAnswers) {
-                correctResponses++;
-            } else if (maxAnswerSize == blankAnswers) {
+            long attemptedAnswers = maxAnswerSize - blankAnswers;
+            if (attemptedAnswers <= 0) {
                 blankResponses++;
+            } else if (attemptedAnswers == correctAnswers) {
+                correctResponses++;
             } else {
                 incorrectResponses++;
             }
