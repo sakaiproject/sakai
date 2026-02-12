@@ -1047,14 +1047,16 @@ public class HistogramListener
       return false;
     }
 
+    boolean hasAnswersWithNullCorrectness = false;
     for (Object answerObj : answers) {
       AnswerIfc answer = (AnswerIfc) answerObj;
-      if (Boolean.TRUE.equals(answer.getIsCorrect())) {
+      if (answer.getIsCorrect() != null) {
         return false;
       }
+      hasAnswersWithNullCorrectness = true;
     }
 
-    return true;
+    return hasAnswersWithNullCorrectness;
   }
 
   /**
