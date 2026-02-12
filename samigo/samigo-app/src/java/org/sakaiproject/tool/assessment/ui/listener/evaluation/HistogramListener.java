@@ -928,7 +928,6 @@ public class HistogramListener
     return questionTypeId == TypeId.MULTIPLE_CHOICE_ID
             || questionTypeId == TypeId.MULTIPLE_CORRECT_ID
             || questionTypeId == TypeId.MULTIPLE_CORRECT_SINGLE_SELECTION_ID
-            || questionTypeId == TypeId.MULTIPLE_CHOICE_SURVEY_ID
             || questionTypeId == TypeId.TRUE_FALSE_ID;
   }
 

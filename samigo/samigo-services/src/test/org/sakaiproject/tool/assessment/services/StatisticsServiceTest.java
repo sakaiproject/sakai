@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -42,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueries;
 import org.sakaiproject.tool.assessment.services.assessment.StatisticsService;
+import org.sakaiproject.tool.assessment.services.assessment.StatisticsService.SubmissionOutcome;
 
 public class StatisticsServiceTest {
 
@@ -51,10 +53,8 @@ public class StatisticsServiceTest {
     private QuestionPoolService questionPoolService;
     private MemoryService memoryService;
 
-    // TODO: Additional test ideas:
-    // - Test calculated questions
-    // - Test hot spot items
-    // - Test ignored item types are ignores
+    // TODO: Additional test idea:
+    // - Test ignored item types are ignored
 
     @Before
     public void setUp() {
@@ -583,6 +583,67 @@ public class StatisticsServiceTest {
         assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
         assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
         assertEquals(Integer.valueOf(100), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testClassifyCalculatedSubmissionTreatsBlankPartsAsBlank() {
+        GradingService gradingService = mock(GradingService.class);
+        StatisticsService service = new StatisticsService(gradingService, memoryService, questionPoolService, statisticsFacadeQueries);
+
+        PublishedItemData item = item(0L, TypeIfc.CALCULATED_QUESTION);
+
+        ItemGradingData withNullAnswerId = gradingData(0L, null, 0L);
+        withNullAnswerId.setAnswerText("");
+
+        ItemGradingData withAnswerIdButBlankText = gradingData(1L, 10L, 0L);
+        withAnswerIdButBlankText.setAnswerText(" ");
+
+        SubmissionOutcome outcome = service.classifySubmission(item,
+                List.of(withNullAnswerId, withAnswerIdButBlankText), Collections.emptyMap());
+
+        assertEquals(SubmissionOutcome.BLANK, outcome);
+    }
+
+    @Test
+    public void testClassifyCalculatedSubmissionCanBeCorrect() {
+        GradingService gradingService = mock(GradingService.class);
+        doReturn(true).when(gradingService).getCalcQResult(any(), any(), any(), anyInt());
+        StatisticsService service = new StatisticsService(gradingService, memoryService, questionPoolService, statisticsFacadeQueries);
+
+        PublishedItemData item = item(0L, TypeIfc.CALCULATED_QUESTION);
+        ItemGradingData attemptedPart = gradingData(0L, 10L, 0L);
+        attemptedPart.setAnswerText("42");
+
+        SubmissionOutcome outcome = service.classifySubmission(item,
+                Collections.singletonList(attemptedPart), Collections.emptyMap());
+
+        assertEquals(SubmissionOutcome.CORRECT, outcome);
+    }
+
+    @Test
+    public void testClassifyHotSpotSubmissionWithTrueCorrectnessIsCorrect() {
+        PublishedItemData item = item(0L, TypeIfc.IMAGEMAP_QUESTION);
+        ItemGradingData grading = gradingData(0L, 0L, 0L);
+        grading.setAnswerText("10,10");
+        grading.setIsCorrect(Boolean.TRUE);
+
+        SubmissionOutcome outcome = statisticsService.classifySubmission(item,
+                Collections.singletonList(grading), Collections.emptyMap());
+
+        assertEquals(SubmissionOutcome.CORRECT, outcome);
+    }
+
+    @Test
+    public void testClassifyHotSpotSubmissionUndefinedCoordinatesIsBlank() {
+        PublishedItemData item = item(0L, TypeIfc.IMAGEMAP_QUESTION);
+        ItemGradingData grading = gradingData(0L, 0L, 0L);
+        grading.setAnswerText("undefined");
+        grading.setIsCorrect(Boolean.TRUE);
+
+        SubmissionOutcome outcome = statisticsService.classifySubmission(item,
+                Collections.singletonList(grading), Collections.emptyMap());
+
+        assertEquals(SubmissionOutcome.BLANK, outcome);
     }
 
     @Test
