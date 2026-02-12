@@ -28,6 +28,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries;
@@ -216,5 +217,56 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringCont
 		vals = queries.getAllItemGradingDataForItemInGrading(savedId , 2L);
 		Assert.assertNotNull(vals);
 		Assert.assertEquals(1, vals.size());
+	}
+
+	@Test
+	public void testResolveOneSelectionCorrectnessPrefersAnswerFlag() {
+		PublishedAnswer answer = new PublishedAnswer();
+		answer.setIsCorrect(Boolean.TRUE);
+
+		ItemGradingData grade = new ItemGradingData();
+		grade.setIsCorrect(Boolean.FALSE);
+		grade.setAutoScore(0d);
+
+		Boolean result = queries.resolveOneSelectionCorrectness(answer, grade);
+		Assert.assertEquals(Boolean.TRUE, result);
+	}
+
+	@Test
+	public void testResolveOneSelectionCorrectnessFallsBackToGradeFlag() {
+		PublishedAnswer answer = new PublishedAnswer();
+		answer.setIsCorrect(null);
+
+		ItemGradingData grade = new ItemGradingData();
+		grade.setIsCorrect(Boolean.FALSE);
+
+		Boolean result = queries.resolveOneSelectionCorrectness(answer, grade);
+		Assert.assertEquals(Boolean.FALSE, result);
+	}
+
+	@Test
+	public void testResolveOneSelectionCorrectnessFallsBackToAutoScore() {
+		PublishedAnswer answer = new PublishedAnswer();
+		answer.setIsCorrect(null);
+
+		ItemGradingData grade = new ItemGradingData();
+		grade.setIsCorrect(null);
+		grade.setAutoScore(1d);
+
+		Boolean result = queries.resolveOneSelectionCorrectness(answer, grade);
+		Assert.assertEquals(Boolean.TRUE, result);
+	}
+
+	@Test
+	public void testResolveOneSelectionCorrectnessReturnsNullWhenUnknown() {
+		PublishedAnswer answer = new PublishedAnswer();
+		answer.setIsCorrect(null);
+
+		ItemGradingData grade = new ItemGradingData();
+		grade.setIsCorrect(null);
+		grade.setAutoScore(null);
+
+		Boolean result = queries.resolveOneSelectionCorrectness(answer, grade);
+		Assert.assertNull(result);
 	}
 }
