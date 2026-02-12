@@ -16,6 +16,8 @@
 package org.sakaiproject.tool.assessment.services;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -65,6 +67,37 @@ public class StatisticsServiceTest {
                 questionPoolService, statisticsFacadeQueries));
 
         doReturn(Collections.emptySet()).when(questionPoolService).getAllItemHashes(any());
+    }
+
+    @Test
+    public void testQuestionTypeCapabilityRegistryForGradedObjectiveQuestion() {
+        assertTrue(StatisticsService.supportsSubmissionOutcome(TypeIfc.MULTIPLE_CHOICE));
+        assertTrue(StatisticsService.supportsTotalScoresTally(TypeIfc.MULTIPLE_CHOICE));
+        assertTrue(StatisticsService.includesInDetailedStatistics(TypeIfc.MULTIPLE_CHOICE.toString()));
+        assertTrue(StatisticsService.showsIndividualAnswersInDetailedStatistics(TypeIfc.MULTIPLE_CHOICE.toString()));
+        assertTrue(StatisticsService.supportsAnswerStatistics(TypeIfc.MULTIPLE_CHOICE.toString()));
+        assertFalse(StatisticsService.supportsScoreStatistics(TypeIfc.MULTIPLE_CHOICE.toString()));
+        assertFalse(StatisticsService.isSurveyQuestionType(TypeIfc.MULTIPLE_CHOICE.toString()));
+    }
+
+    @Test
+    public void testQuestionTypeCapabilityRegistryForSurveyAndManualScoreTypes() {
+        assertFalse(StatisticsService.supportsSubmissionOutcome(TypeIfc.MULTIPLE_CHOICE_SURVEY));
+        assertFalse(StatisticsService.supportsTotalScoresTally(TypeIfc.MULTIPLE_CHOICE_SURVEY));
+        assertTrue(StatisticsService.includesInDetailedStatistics(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()));
+        assertTrue(StatisticsService.showsIndividualAnswersInDetailedStatistics(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()));
+        assertTrue(StatisticsService.supportsAnswerStatistics(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()));
+        assertTrue(StatisticsService.isSurveyQuestionType(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()));
+
+        assertFalse(StatisticsService.supportsAnswerStatistics(TypeIfc.ESSAY_QUESTION.toString()));
+        assertTrue(StatisticsService.supportsScoreStatistics(TypeIfc.ESSAY_QUESTION.toString()));
+    }
+
+    @Test
+    public void testQuestionTypeCapabilityRegistryHandlesUnknownValues() {
+        assertFalse(StatisticsService.supportsAnswerStatistics("invalid-type"));
+        assertFalse(StatisticsService.supportsScoreStatistics("9999"));
+        assertTrue(StatisticsService.getQuestionTypeCapabilities(9999L).isEmpty());
     }
 
     @Test

@@ -65,6 +65,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc.TypeId;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -850,54 +851,84 @@ public class HistogramListener
   }
 
   private boolean isDetailedStatisticsQuestionType(String questionType) {
-    return StringUtils.equalsAny(questionType,
-            TypeIfc.MULTIPLE_CHOICE.toString(),
-            TypeIfc.MULTIPLE_CORRECT.toString(),
-            TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
-            TypeIfc.TRUE_FALSE.toString(),
-            TypeIfc.FILL_IN_BLANK.toString(),
-            TypeIfc.MATCHING.toString(),
-            TypeIfc.FILL_IN_NUMERIC.toString(),
-            TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString(),
-            TypeIfc.CALCULATED_QUESTION.toString(),
-            TypeIfc.IMAGEMAP_QUESTION.toString(),
-            TypeIfc.MATRIX_CHOICES_SURVEY.toString());
+    return StatisticsService.includesInDetailedStatistics(questionType);
   }
 
   private boolean showsIndividualAnswersInDetailedStatistics(String questionType) {
-    return StringUtils.equalsAny(questionType,
-            TypeIfc.MULTIPLE_CHOICE.toString(),
-            TypeIfc.MULTIPLE_CORRECT.toString(),
-            TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
-            TypeIfc.TRUE_FALSE.toString(),
-            TypeIfc.FILL_IN_BLANK.toString(),
-            TypeIfc.MATCHING.toString(),
-            TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString(),
-            TypeIfc.IMAGEMAP_QUESTION.toString(),
-            TypeIfc.MATRIX_CHOICES_SURVEY.toString());
+    return StatisticsService.showsIndividualAnswersInDetailedStatistics(questionType);
   }
 
   private boolean isAnswerStatisticsQuestionType(String questionType) {
-    return StringUtils.equalsAny(questionType,
-            TypeIfc.MULTIPLE_CHOICE.toString(),
-            TypeIfc.MULTIPLE_CORRECT.toString(),
-            TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString(),
-            TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
-            TypeIfc.TRUE_FALSE.toString(),
-            TypeIfc.MATCHING.toString(),
-            TypeIfc.FILL_IN_BLANK.toString(),
-            TypeIfc.EXTENDED_MATCHING_ITEMS.toString(),
-            TypeIfc.FILL_IN_NUMERIC.toString(),
-            TypeIfc.CALCULATED_QUESTION.toString(),
-            TypeIfc.IMAGEMAP_QUESTION.toString(),
-            TypeIfc.MATRIX_CHOICES_SURVEY.toString());
+    return StatisticsService.supportsAnswerStatistics(questionType);
   }
 
   private boolean isScoreStatisticsQuestionType(String questionType) {
-    return StringUtils.equalsAny(questionType,
-            TypeIfc.ESSAY_QUESTION.toString(),
-            TypeIfc.FILE_UPLOAD.toString(),
-            TypeIfc.AUDIO_RECORDING.toString());
+    return StatisticsService.supportsScoreStatistics(questionType);
+  }
+
+  private TypeId resolveQuestionTypeId(String questionType) {
+    if (StringUtils.isBlank(questionType)) {
+      return null;
+    }
+
+    long parsedQuestionTypeId;
+    try {
+      parsedQuestionTypeId = Long.parseLong(questionType);
+    } catch (NumberFormatException e) {
+      return null;
+    }
+
+    if (!TypeId.isValidId(parsedQuestionTypeId)) {
+      return null;
+    }
+    return TypeId.getInstance(parsedQuestionTypeId);
+  }
+
+  private void dispatchAnswerStatistics(TypeId questionTypeId, Map publishedItemHash, Map publishedItemTextHash,
+      Map publishedAnswerHash, List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ItemDataIfc item, List text,
+      List answers, Map emiRequiredCorrectAnswersCount) {
+    if (questionTypeId == null) {
+      return;
+    }
+
+    switch (questionTypeId) {
+      case MULTIPLE_CHOICE_ID:
+      case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
+      case MULTIPLE_CHOICE_SURVEY_ID:
+      case TRUE_FALSE_ID:
+        getTFMCScores(publishedAnswerHash, scores, qbean, answers);
+        break;
+      case MULTIPLE_CORRECT_ID:
+      case FILL_IN_BLANK_ID:
+      case FILL_IN_NUMERIC_ID:
+        getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers, item);
+        break;
+      case MATCHING_ID:
+        getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
+        break;
+      case EXTENDED_MATCHING_ITEMS_ID:
+        getEMIScores(publishedItemHash, publishedAnswerHash, emiRequiredCorrectAnswersCount, scores, qbean, answers);
+        break;
+      case MATRIX_CHOICES_SURVEY_ID:
+        getMatrixSurveyScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
+        break;
+      case CALCULATED_QUESTION_ID:
+        getCalculatedQuestionScores(scores, qbean, item);
+        break;
+      case IMAGEMAP_QUESTION_ID:
+        getImageMapQuestionScores(publishedItemTextHash, publishedAnswerHash, (List) scores, qbean, (List) text);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private boolean isSurveyLikeAnswerKeyCandidate(TypeId questionTypeId) {
+    return questionTypeId == TypeId.MULTIPLE_CHOICE_ID
+            || questionTypeId == TypeId.MULTIPLE_CORRECT_ID
+            || questionTypeId == TypeId.MULTIPLE_CORRECT_SINGLE_SELECTION_ID
+            || questionTypeId == TypeId.MULTIPLE_CHOICE_SURVEY_ID
+            || questionTypeId == TypeId.TRUE_FALSE_ID;
   }
 
   private boolean hasAnswerForItemType(String questionType, ItemGradingData itemGradingData) {
@@ -968,13 +999,14 @@ public class HistogramListener
     	
 
     //int numAnswers = 0;
+    TypeId questionTypeId = resolveQuestionTypeId(qbean.getQuestionType());
     ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(qbean.getItemId());
     List text = item.getItemTextArraySorted();
     List answers = null;
     
-	//keys number of correct answers required by sub-question (ItemText)
+		//keys number of correct answers required by sub-question (ItemText)
 	Map emiRequiredCorrectAnswersCount = null;
-    if (qbean.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString())) { //EMI
+    if (questionTypeId == TypeId.EXTENDED_MATCHING_ITEMS_ID) { //EMI
     	emiRequiredCorrectAnswersCount = new HashMap();
     	answers = new ArrayList();
     	for (int i=0; i<text.size(); i++) { 
@@ -999,33 +1031,18 @@ public class HistogramListener
     	    }
     	}
     }
-    else if (!qbean.getQuestionType().equals(TypeIfc.MATCHING.toString())) // matching
+    else if (questionTypeId != TypeId.MATCHING_ID) // matching
     {
       if (text.size() > 0) {
         ItemTextIfc firstText = (ItemTextIfc) publishedItemTextHash.get(((ItemTextIfc) text.toArray()[0]).getId());
         answers = firstText.getAnswerArraySorted();
       }
     }
-   
-    if (StringUtils.equalsAny(qbean.getQuestionType(), TypeIfc.MULTIPLE_CHOICE.toString(), TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString(), TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(), TypeIfc.TRUE_FALSE.toString())) {
-      getTFMCScores(publishedAnswerHash, scores, qbean, answers);
-    } else if (StringUtils.equalsAny(qbean.getQuestionType(), TypeIfc.MULTIPLE_CORRECT.toString(), TypeIfc.FILL_IN_BLANK.toString(), TypeIfc.FILL_IN_NUMERIC.toString())) {
-      getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers, item);
-    } else if (qbean.getQuestionType().equals(TypeIfc.MATCHING.toString())) {
-      getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
-    } else if (qbean.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString())) {
-      getEMIScores(publishedItemHash, publishedAnswerHash, emiRequiredCorrectAnswersCount, scores, qbean, answers);
-    } else if (qbean.getQuestionType().equals(TypeIfc.MATRIX_CHOICES_SURVEY.toString())) {
-      getMatrixSurveyScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
-    } else if (qbean.getQuestionType().equals(TypeIfc.CALCULATED_QUESTION.toString())) {
-      getCalculatedQuestionScores(scores, qbean, item);
-    } else if (qbean.getQuestionType().equals(TypeIfc.IMAGEMAP_QUESTION.toString())) {
-      getImageMapQuestionScores(publishedItemTextHash, publishedAnswerHash, (List) scores, qbean, (List) text);
-    }
 
-    boolean isSurveyType = StringUtils.equalsAny(qbean.getQuestionType(),
-            TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
-            TypeIfc.MATRIX_CHOICES_SURVEY.toString())
+    dispatchAnswerStatistics(questionTypeId, publishedItemHash, publishedItemTextHash, publishedAnswerHash, scores, qbean,
+            item, text, answers, emiRequiredCorrectAnswersCount);
+
+    boolean isSurveyType = StatisticsService.isSurveyQuestionType(qbean.getQuestionType())
             || isSurveyLikeQuestionWithoutAnswerKey(qbean.getQuestionType(), answers);
 
     if (!isSurveyType) {
@@ -1068,12 +1085,8 @@ public class HistogramListener
   }
 
   private boolean isSurveyLikeQuestionWithoutAnswerKey(String questionType, List answers) {
-    if (!StringUtils.equalsAny(questionType,
-            TypeIfc.MULTIPLE_CHOICE.toString(),
-            TypeIfc.MULTIPLE_CORRECT.toString(),
-            TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString(),
-            TypeIfc.MULTIPLE_CHOICE_SURVEY.toString(),
-            TypeIfc.TRUE_FALSE.toString())) {
+    TypeId questionTypeId = resolveQuestionTypeId(questionType);
+    if (!isSurveyLikeAnswerKeyCandidate(questionTypeId)) {
       return false;
     }
 

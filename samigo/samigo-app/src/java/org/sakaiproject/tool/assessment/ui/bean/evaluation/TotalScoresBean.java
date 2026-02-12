@@ -73,7 +73,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -342,16 +341,7 @@ public class TotalScoresBean implements Serializable, PhaseAware {
   }
 
   private boolean isTallyableItemType(Long typeId) {
-    return typeId != null
-      && (typeId.equals(TypeIfc.MULTIPLE_CHOICE)
-        || typeId.equals(TypeIfc.MULTIPLE_CORRECT)
-        || typeId.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)
-        || typeId.equals(TypeIfc.TRUE_FALSE)
-        || typeId.equals(TypeIfc.MATCHING)
-        || typeId.equals(TypeIfc.FILL_IN_BLANK)
-        || typeId.equals(TypeIfc.FILL_IN_NUMERIC)
-        || typeId.equals(TypeIfc.CALCULATED_QUESTION)
-        || typeId.equals(TypeIfc.IMAGEMAP_QUESTION));
+    return StatisticsService.supportsTotalScoresTally(typeId);
   }
 
   private List<PublishedItemData> getTallyableItems(PublishedAssessmentIfc publishedAssessmentData) {

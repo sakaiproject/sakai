@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -64,6 +66,181 @@ public class StatisticsService {
         INCORRECT,
         BLANK,
         NOT_APPLICABLE
+    }
+
+    public enum QuestionTypeCapability {
+        SUBMISSION_OUTCOME,
+        TOTAL_SCORES_TALLY,
+        DETAILED_STATISTICS,
+        DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+        ANSWER_STATISTICS,
+        SCORE_STATISTICS,
+        SURVEY
+    }
+
+    private static final EnumMap<TypeId, EnumSet<QuestionTypeCapability>> QUESTION_TYPE_CAPABILITIES = buildQuestionTypeCapabilities();
+
+    private static EnumMap<TypeId, EnumSet<QuestionTypeCapability>> buildQuestionTypeCapabilities() {
+        EnumMap<TypeId, EnumSet<QuestionTypeCapability>> capabilities = new EnumMap<>(TypeId.class);
+
+        registerTypeCapabilities(capabilities, TypeId.TRUE_FALSE_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.MULTIPLE_CHOICE_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.MULTIPLE_CORRECT_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.MULTIPLE_CORRECT_SINGLE_SELECTION_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.FILL_IN_BLANK_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.FILL_IN_NUMERIC_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.MATCHING_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.EXTENDED_MATCHING_ITEMS_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.CALCULATED_QUESTION_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.IMAGEMAP_QUESTION_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.MULTIPLE_CHOICE_SURVEY_ID,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS,
+                QuestionTypeCapability.SURVEY);
+        registerTypeCapabilities(capabilities, TypeId.MATRIX_CHOICES_SURVEY_ID,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS,
+                QuestionTypeCapability.SURVEY);
+        registerTypeCapabilities(capabilities, TypeId.ESSAY_QUESTION_ID, QuestionTypeCapability.SCORE_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.FILE_UPLOAD_ID, QuestionTypeCapability.SCORE_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.AUDIO_RECORDING_ID, QuestionTypeCapability.SCORE_STATISTICS);
+
+        return capabilities;
+    }
+
+    private static void registerTypeCapabilities(EnumMap<TypeId, EnumSet<QuestionTypeCapability>> capabilities,
+            TypeId typeId, QuestionTypeCapability... questionTypeCapabilities) {
+        capabilities.put(typeId, EnumSet.copyOf(List.of(questionTypeCapabilities)));
+    }
+
+    public static boolean hasQuestionTypeCapability(Long typeId, QuestionTypeCapability capability) {
+        return hasQuestionTypeCapability(toTypeId(typeId), capability);
+    }
+
+    public static boolean hasQuestionTypeCapability(String typeId, QuestionTypeCapability capability) {
+        return hasQuestionTypeCapability(toTypeId(typeId), capability);
+    }
+
+    private static boolean hasQuestionTypeCapability(TypeId typeId, QuestionTypeCapability capability) {
+        if (typeId == null || capability == null) {
+            return false;
+        }
+
+        EnumSet<QuestionTypeCapability> capabilities = QUESTION_TYPE_CAPABILITIES.get(typeId);
+        return capabilities != null && capabilities.contains(capability);
+    }
+
+    public static Set<QuestionTypeCapability> getQuestionTypeCapabilities(Long typeId) {
+        TypeId resolvedTypeId = toTypeId(typeId);
+        if (resolvedTypeId == null) {
+            return Collections.emptySet();
+        }
+
+        EnumSet<QuestionTypeCapability> capabilities = QUESTION_TYPE_CAPABILITIES.get(resolvedTypeId);
+        if (capabilities == null || capabilities.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return EnumSet.copyOf(capabilities);
+    }
+
+    public static boolean supportsSubmissionOutcome(Long typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.SUBMISSION_OUTCOME);
+    }
+
+    public static boolean supportsTotalScoresTally(Long typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.TOTAL_SCORES_TALLY);
+    }
+
+    public static boolean includesInDetailedStatistics(String typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.DETAILED_STATISTICS);
+    }
+
+    public static boolean showsIndividualAnswersInDetailedStatistics(String typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS);
+    }
+
+    public static boolean supportsAnswerStatistics(String typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.ANSWER_STATISTICS);
+    }
+
+    public static boolean supportsScoreStatistics(String typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.SCORE_STATISTICS);
+    }
+
+    public static boolean isSurveyQuestionType(String typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.SURVEY);
+    }
+
+    private static TypeId toTypeId(Long typeId) {
+        if (typeId == null || !TypeId.isValidId(typeId.longValue())) {
+            return null;
+        }
+        return TypeId.getInstance(typeId.longValue());
+    }
+
+    private static TypeId toTypeId(String typeId) {
+        if (StringUtils.isBlank(typeId)) {
+            return null;
+        }
+
+        long parsedTypeId;
+        try {
+            parsedTypeId = Long.parseLong(typeId);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        if (!TypeId.isValidId(parsedTypeId)) {
+            return null;
+        }
+        return TypeId.getInstance(parsedTypeId);
     }
 
 
@@ -178,7 +355,7 @@ public class StatisticsService {
     public SubmissionOutcome classifySubmission(ItemDataIfc item, Collection<ItemGradingData> submissionGradingData,
             Map<Long, ? extends AnswerIfc> answerMap) {
         Long itemType = item == null ? null : item.getTypeId();
-        if (itemType == null || !TypeId.isValidId(itemType.longValue())) {
+        if (!supportsSubmissionOutcome(itemType)) {
             return SubmissionOutcome.NOT_APPLICABLE;
         }
 
@@ -187,27 +364,17 @@ public class StatisticsService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         if (submissionSet.isEmpty()) {
-            switch (TypeId.getInstance(itemType)) {
-                case TRUE_FALSE_ID:
-                case MULTIPLE_CHOICE_ID:
-                case MULTIPLE_CORRECT_ID:
-                case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
-                case FILL_IN_BLANK_ID:
-                case FILL_IN_NUMERIC_ID:
-                case MATCHING_ID:
-                case EXTENDED_MATCHING_ITEMS_ID:
-                case CALCULATED_QUESTION_ID:
-                case IMAGEMAP_QUESTION_ID:
-                    return SubmissionOutcome.BLANK;
-                default:
-                    return SubmissionOutcome.NOT_APPLICABLE;
-            }
+            return SubmissionOutcome.BLANK;
         }
 
         Set<PublishedAnswer> publishedAnswers = toPublishedAnswerSet(item, submissionSet, answerMap);
         ItemStatistics itemStatistics;
+        TypeId resolvedTypeId = toTypeId(itemType);
+        if (resolvedTypeId == null) {
+            return SubmissionOutcome.NOT_APPLICABLE;
+        }
 
-        switch (TypeId.getInstance(itemType)) {
+        switch (resolvedTypeId) {
             case TRUE_FALSE_ID:
             case MULTIPLE_CHOICE_ID:
                 itemStatistics = getItemStatisticsForItemWithOneCorrectAnswer(submissionSet, publishedAnswers);
