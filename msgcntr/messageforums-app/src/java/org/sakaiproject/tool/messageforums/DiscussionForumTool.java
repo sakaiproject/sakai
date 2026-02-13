@@ -2411,7 +2411,7 @@ public class DiscussionForumTool {
         beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), null);
       }
 
-      forumManager.saveForum(forum, draft, getSiteId(), true, getUserId());
+      forum = forumManager.saveForum(forum, draft, getSiteId(), true, getUserId());
 
       if (updateCounts && beforeChangeHM != null) {
         updateSynopticMessagesForForumComparingOldMessagesCount(
