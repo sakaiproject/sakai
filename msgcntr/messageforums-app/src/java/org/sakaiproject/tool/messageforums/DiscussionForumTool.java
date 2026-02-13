@@ -305,7 +305,7 @@ public class DiscussionForumTool {
   private static final String FAILED_REND_MESSAGE = "cdfm_failed_rend_message";
   private static final String VIEW_UNDER_CONSTRUCT = "cdfm_view_under_construct";
   private static final String LOST_ASSOCIATE = "cdfm_lost_association";
-  private static final String NO_MARKED_READ_MESSAGE = "cdfm_no_message_mark_read";
+  private static final String NO_MARKED_NO_READ_MESSAGE = "cdfm_no_message_mark_no_read";
   private static final String GRADE_SUCCESSFUL = "cdfm_grade_successful";
   private static final String GRADE_GREATER_ZERO = "cdfm_grade_greater_than_zero";
   private static final String GRADE_DECIMAL_WARN = "cdfm_grade_decimal_warn";
@@ -354,6 +354,7 @@ public class DiscussionForumTool {
   private boolean showShortDescription = true;
   private boolean collapsePermissionPanel = false;
   private boolean showProfileInfo = false;
+  private boolean showThreadChanges = true;
 
   // compose
   @ManagedProperty(value="#{Components[\"org.sakaiproject.api.app.messageforums.MessageForumsMessageManager\"]}")
@@ -2876,9 +2877,10 @@ public class DiscussionForumTool {
 	    
 	    // now process the complete list of messages in the selected thread to possibly flag as read
 	    // if this topic is flagged to autoMarkThreadsRead, mark each message in the thread as read
+	    // mark all as read
 	    if (selectedTopic.getTopic().getAutoMarkThreadsRead()) {
 	    	for (int i = 0; i < selectedThread.size(); i++) {
-	    		messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), ((DiscussionMessageBean)selectedThread.get(i)).getMessage().getId(), true);
+	    		messageManager.markMessageNotReadForUser(selectedTopic.getTopic().getId(), ((DiscussionMessageBean)selectedThread.get(i)).getMessage().getId(), false);
 	    		((DiscussionMessageBean)selectedThread.get(i)).setRead(Boolean.TRUE);
 	    	}
 	    }
@@ -2888,9 +2890,77 @@ public class DiscussionForumTool {
 	    	//user can't view this message until they have posted a message:
 	    	selectedMessage = null;
 	    }
-	    
+
+		showThreadChanges = true;
 	    return THREAD_VIEW;
   }
+
+	public String processActionGetDisplayThread(boolean readStatus) {
+		if (selectedTopic == null) {
+			log.debug("no topic is selected in processActionGetDisplayThread.");
+			return gotoMain();
+		}
+		selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+
+		setTopicBeanAssign();
+		selectedTopic = getSelectedTopic();
+
+		List<DiscussionMessageBean> msgsList = selectedTopic.getMessages();
+
+		if (msgsList != null && !msgsList.isEmpty())
+			msgsList = filterModeratedMessages(msgsList, selectedTopic.getTopic(),
+					(DiscussionForum) selectedTopic.getTopic().getBaseForum());
+
+		List<DiscussionMessageBean> orderedList = new ArrayList<>();
+		selectedThread = new ArrayList();
+
+		Boolean foundHead = false;
+		Boolean foundAfterHead = false;
+		threadMoved = didThreadMove();
+
+		// determine to make sure that selectedThreadHead does exist!
+		if (selectedThreadHead == null) {
+			return MAIN;
+		}
+
+		for (DiscussionMessageBean msg : msgsList) {
+			if (msg.getMessage().getId()
+					.equals(selectedThreadHead.getMessage().getId())) {
+				msg.setDepth(0);
+				selectedThread.add(msg);
+				foundHead = true;
+			} else if (msg.getMessage().getInReplyTo() == null && foundHead
+					&& !foundAfterHead) {
+				selectedThreadHead.setHasNextThread(true);
+				selectedThreadHead.setNextThreadId(msg.getMessage().getId());
+				foundAfterHead = true;
+			} else if (msg.getMessage().getInReplyTo() == null && !foundHead) {
+				selectedThreadHead.setHasPreThread(true);
+				selectedThreadHead.setPreThreadId(msg.getMessage().getId());
+			}
+		}
+		formatMessagesByRemovelastEmptyLines(msgsList);
+		if (!threadMoved) {
+			recursiveGetThreadedMsgsFromList(msgsList, orderedList, selectedThreadHead);
+			selectedThread.addAll(orderedList);
+		}
+
+		// mark all as not read
+		selectedThread.forEach(msg -> {
+			messageManager.markMessageNotReadForUser(selectedTopic.getTopic().getId(),
+					((DiscussionMessageBean) msg).getMessage().getId(), readStatus); // true
+			((DiscussionMessageBean) msg).setRead(Boolean.FALSE);
+		});
+
+		boolean postFirst = getNeedToPostFirst();
+		if (postFirst) {
+			// user can't view this message until they have posted a message:
+			selectedMessage = null;
+		}
+
+		showThreadChanges = false;
+		return THREAD_VIEW;
+	}
 
     private boolean didThreadMove() {
         threadMoved = false;
@@ -3027,8 +3097,8 @@ public class DiscussionForumTool {
       return gotoMain();
     }
     // Message message=forumManager.getMessageById(Long.valueOf(messageId));
-    messageManager.markMessageReadForUser(Long.valueOf(topicId),
-            Long.valueOf(messageId), true);
+    messageManager.markMessageNotReadForUser(Long.valueOf(topicId),
+            Long.valueOf(messageId), false);
     Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
         messageId));
 
@@ -3158,8 +3228,8 @@ public class DiscussionForumTool {
 			selectedMessage.setHasNext(thisDmb.getHasNext());
 			selectedMessage.setHasPre(thisDmb.getHasPre());
 			
-	    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(),
-	        selectedMessage.getMessage().getId(), true);
+	    messageManager.markMessageNotReadForUser(selectedTopic.getTopic().getId(),
+	        selectedMessage.getMessage().getId(), false);
 	    
 	    refreshSelectedMessageSettings(message);  
     }
@@ -3202,8 +3272,8 @@ public class DiscussionForumTool {
 			selectedMessage.setHasNext(thisDmb.getHasNext());
 			selectedMessage.setHasPre(thisDmb.getHasPre());
 			
-	    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(),
-	        selectedMessage.getMessage().getId(), true);
+	    messageManager.markMessageNotReadForUser(selectedTopic.getTopic().getId(),
+	        selectedMessage.getMessage().getId(), false);
 	    
 	    refreshSelectedMessageSettings(message);  
     }
@@ -4098,7 +4168,7 @@ public class DiscussionForumTool {
     	/** mark message creator as having read the message */
     	//update synopticLite tool information:
     	incrementSynopticToolInfo(dMsg, true);
-    	messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), true);        
+    	messageManager.markMessageNotReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), false);
 
     	this.composeBody = null;
     	this.composeLabel = null;
@@ -4428,8 +4498,8 @@ public class DiscussionForumTool {
 	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
 	    Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
 	        messageId));
-	    messageManager.markMessageReadForUser(Long.valueOf(topicId),
-	        Long.valueOf(messageId), true);
+	    messageManager.markMessageNotReadForUser(Long.valueOf(topicId),
+	        Long.valueOf(messageId), false);
 	    if (message == null)
 	    {
 	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
@@ -4445,7 +4515,7 @@ public class DiscussionForumTool {
   /**
    * @return
    */
-  public String processDfMsgMarkMsgAsReadFromThread()
+  public String processDfMsgMarkMsgAsNotReadFromThread()
   {
 	    String messageId = getExternalParameterByKey(MESSAGE_ID);
 	    String topicId = getExternalParameterByKey(TOPIC_ID);
@@ -4462,8 +4532,8 @@ public class DiscussionForumTool {
 	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
 	    Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
 	        messageId));
-	    messageManager.markMessageReadForUser(Long.valueOf(topicId),
-	        Long.valueOf(messageId), true);
+	    messageManager.markMessageNotReadForUser(Long.valueOf(topicId),
+	        Long.valueOf(messageId), false);
 	    if (message == null)
 	    {
 	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
@@ -4503,7 +4573,7 @@ public class DiscussionForumTool {
 		}
 	    
 	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
-	    messageManager.markMessageReadForUser(topicId, messageId, true);
+	    messageManager.markMessageNotReadForUser(topicId, messageId, false);
 	    Message message = messageManager.getMessageByIdWithAttachments(messageId);
 	    if (message == null)
 	    {
@@ -4654,7 +4724,7 @@ public class DiscussionForumTool {
 		  String returnStr = processDfMsgGrdHelper(createdById, msgAssignmentName);
 
 		  // mark this message as read
-		  messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), selectedMessage.getMessage().getId(), true);
+		  messageManager.markMessageNotReadForUser(selectedTopic.getTopic().getId(), selectedMessage.getMessage().getId(), false);
 		  
 		  return returnStr;
 	  }
@@ -4923,7 +4993,7 @@ public class DiscussionForumTool {
   		//selectedTopic.addMessage(new DiscussionMessageBean(dMsg, messageManager));
   		selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
   		selectedTopic.getTopic().addMessage(dMsg);
-  		messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), true);
+  		messageManager.markMessageNotReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), false);
 
   		this.composeBody = null;
   		this.composeLabel = null;
@@ -5112,7 +5182,7 @@ public class DiscussionForumTool {
 		LRS_Statement statement = forumManager.getStatementForUserPosted(dMsg.getTitle(), SAKAI_VERB.responded).orElse(null);
 		Message persistedMessage = forumManager.saveMessage(dMsg, new ForumsMessageEventParams(ForumsMessageEventParams.MessageEvent.REVISE, statement));
 
-		messageManager.markMessageReadForUser(dfTopic.getId(), persistedMessage.getId(), true);
+		messageManager.markMessageNotReadForUser(dfTopic.getId(), persistedMessage.getId(), false);
 
 		List messageList = selectedTopic.getMessages();
 		for (int i = 0; i < messageList.size(); i++)
@@ -5499,7 +5569,7 @@ public class DiscussionForumTool {
 			  
 			  messageManager.markMessageApproval(msg.getId(), approved);			  
 			  
-			  messageManager.markMessageReadForUser(msg.getTopic().getId(), msg.getId(), true);
+			  messageManager.markMessageNotReadForUser(msg.getTopic().getId(), msg.getId(), false);
 			  numSelected++;
 			  numPendingMessages--;
 
@@ -5732,7 +5802,7 @@ public class DiscussionForumTool {
 	  
 	  // we also must mark this message as unread for the author to let them
 	  // know there is a comment
-	  forumManager.markMessageReadStatusForUser(persistedMessage, false, persistedMessage.getCreatedBy());
+	  forumManager.markMessageNotReadStatusForUser(persistedMessage, true, persistedMessage.getCreatedBy());
 	  
 	  return MESSAGE_VIEW;
   }
@@ -6779,17 +6849,17 @@ public class DiscussionForumTool {
   /**
    * @return
    */
-  public String processActionMarkAllAsRead()
+  public String processActionMarkAllAsNotRead()
   {
-	  return markAllMessages(true);
+	  return markAllMessagesAsNoRead(true);
   }
   
   /**
    * @return
    */
-  public String processActionMarkAllThreadAsRead()
+  public String processActionMarkAllThreadAsNotRead()
   {
-	  return markAllThreadAsRead(true);
+	  return markAllThreadAsNotRead(true);
   }
   
   /**
@@ -6818,7 +6888,7 @@ public class DiscussionForumTool {
     List messages = selectedTopic.getMessages();
     if (messages == null || messages.size() < 1)
     {
-      setErrorMessage(getResourceBundleString(NO_MARKED_READ_MESSAGE));
+      setErrorMessage(getResourceBundleString(NO_MARKED_NO_READ_MESSAGE));
       return ALL_MESSAGES;
     }
     Iterator iter = messages.iterator();
@@ -6827,13 +6897,13 @@ public class DiscussionForumTool {
       DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
       if (decoMessage.isSelected())
       {
-        forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
+        forumManager.markMessageAsNoRead(decoMessage.getMessage(), readStatus);
       }
     }
     return displayTopicById(TOPIC_ID); // reconstruct topic again;
   }
 
-  private String markAllMessages(boolean readStatus)
+  private String markAllMessagesAsNoRead(boolean readStatus)
   {
 	  if (selectedTopic == null)
 	    {
@@ -6843,38 +6913,39 @@ public class DiscussionForumTool {
 	    List messages = selectedTopic.getMessages();
 	    if (messages == null || messages.size() < 1)
 	    {
-	      setErrorMessage(getResourceBundleString(NO_MARKED_READ_MESSAGE));
+	      setErrorMessage(getResourceBundleString(NO_MARKED_NO_READ_MESSAGE));
 	      return ALL_MESSAGES;
 	    }
 	    Iterator iter = messages.iterator();
 	    while (iter.hasNext())
 	    {
 	      DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
-	      forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
+	      forumManager.markMessageAsNoRead(decoMessage.getMessage(), readStatus);
 
 	    }
 	    //return displayTopicById(TOPIC_ID); // reconstruct topic again;
 	    setSelectedForumForCurrentTopic(selectedTopic.getTopic());
         selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+		showThreadChanges = false;
 	    return processActionDisplayFlatView();
   }
   
-  private String markAllThreadAsRead(boolean readStatus)
+  private String markAllThreadAsNotRead(boolean readStatus)
   {
 	  if(selectedThreadHead == null){
 		  setErrorMessage(getResourceBundleString(LOST_ASSOCIATE));
 	      return ALL_MESSAGES;
 	  }
 	  if(selectedThread == null || selectedThread.size() < 1){
-		  setErrorMessage(getResourceBundleString(NO_MARKED_READ_MESSAGE));
+		  setErrorMessage(getResourceBundleString(NO_MARKED_NO_READ_MESSAGE));
 	      return ALL_MESSAGES;
 	  }
 	  Iterator iter = selectedThread.iterator();
 	  while (iter.hasNext()){
 		  DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
-		  forumManager.markMessageAs(decoMessage.getMessage(), readStatus);
+		  forumManager.markMessageAsNoRead(decoMessage.getMessage(), readStatus);
 	  }
-	  return processActionGetDisplayThread();
+	  return processActionGetDisplayThread(readStatus);
   }
   
   /**
@@ -7223,7 +7294,7 @@ public class DiscussionForumTool {
 		mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
 		mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
 		mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
-		mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
+		mask.put(PermissionLevel.MARK_AS_NOT_READ,Boolean.valueOf(permBean.getMarkAsNotRead()));
 		mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
 		mask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(permBean.getIdentifyAnonAuthors()));
 		mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
@@ -7478,6 +7549,7 @@ public class DiscussionForumTool {
 		if (messages != null && !messages.isEmpty())
 			messages = filterModeratedMessages(messages, selectedTopic.getTopic(), selectedForum.getForum());
 
+		showThreadChanges = true;
 		return messages;
 	}
 
@@ -7648,15 +7720,18 @@ public class DiscussionForumTool {
 						+ Entity.SEPARATOR + "statistics" + Entity.SEPARATOR 
 						+ "printFriendlyDisplayInThread";
 	  }
-	 
-	 public Boolean isMessageReadForUser(Long topicId, Long messageId)
+
+	public Boolean isMessageReadForUser(Long topicId, Long messageId) {
+		return messageManager.isMessageReadForUser(topicId, messageId);
+	}
+
+	public Boolean isMessageNotReadForUser(Long topicId, Long messageId) {
+		return !messageManager.isMessageReadForUser(topicId, messageId);
+	}
+
+	 public void markMessageNotReadForUser(Long topicId, Long messageId, Boolean read)
 	 {
-		 return messageManager.isMessageReadForUser(topicId, messageId);
-	 }
-	 
-	 public void markMessageReadForUser(Long topicId, Long messageId, Boolean read)
-	 {
-		 messageManager.markMessageReadForUser(topicId, messageId, read);
+		 messageManager.markMessageNotReadForUser(topicId, messageId, read);
 		 if(selectedThreadHead != null){
 			 //reset the thread to show unread
 			 processActionGetDisplayThread();
@@ -7779,7 +7854,7 @@ public class DiscussionForumTool {
 			 Iterator messageIter = messageList.iterator();
 			 while(messageIter.hasNext()){
 				 Message mes = (Message) messageIter.next();					
-				 messageManager.markMessageReadForUser(topic.getId(), mes.getId(), true, getUserId());
+				 messageManager.markMessageNotReadForUser(topic.getId(), mes.getId(), false, getUserId());
 			 }
 		 }
 
@@ -8784,7 +8859,11 @@ public class DiscussionForumTool {
 	public boolean getShowProfileInfo() {
 	    return showProfileInfo;
 	}
-	
+
+	public boolean getShowThreadChanges() {
+		return showThreadChanges;
+	}
+
 	public Locale getUserLocale(){
 		return new ResourceLoader().getLocale();
 	}
@@ -9737,7 +9816,7 @@ public class DiscussionForumTool {
       bean.setChangeSettings(permissions.isChangeSettings());
       bean.setIsDeleteAny(permissions.isDeleteAny());
       bean.setIsDeleteOwn(permissions.isDeleteOwn());
-      bean.setIsMarkAsRead(permissions.isMarkAsRead());
+      bean.setIsMarkAsNotRead(permissions.isMarkAsNotRead());
       bean.setIsMovePostings(permissions.isMovePostings());
       bean.setIsModeratePostings(permissions.isModeratePostings());
       bean.setIsModeratedAndHasPerm(topic.getModerated() && permissions.isModeratePostings());

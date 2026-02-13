@@ -31,7 +31,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 	private Boolean changeSettings;
 	private Boolean deleteAny;
 	private Boolean deleteOwn;
-	private Boolean markAsRead;
+	private Boolean markAsNotRead;
 	private Boolean movePosting;	
 	private Boolean newForum;
 	private Boolean newResponse;
@@ -85,12 +85,12 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		this.deleteOwn = deleteOwn;
 	}
 
-	public Boolean getMarkAsRead() {
-		return markAsRead;
+	public Boolean getMarkAsNotRead() {
+		return markAsNotRead;
 	}
 
-	public void setMarkAsRead(Boolean markAsRead) {
-		this.markAsRead = markAsRead;
+	public void setMarkAsNotRead(Boolean markAsNotRead) {
+		this.markAsNotRead = markAsNotRead;
 	}
 
 	public Boolean getModeratePostings() {
@@ -195,7 +195,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 	public String toString() {		
 		StringBuilder buffer = new StringBuilder("[");
 		buffer.append(changeSettings);		
-		buffer.append(",").append(markAsRead);
+		buffer.append(",").append(markAsNotRead);
 		//buffer.append(",").append(movePosting);
 		buffer.append(",").append(newForum);
 		buffer.append(",").append(newResponse);
@@ -239,12 +239,12 @@ public class PermissionLevelImpl extends MutableEntityImpl
     returnValue = (bThis == null) ? obj.getDeleteAny() == null : bThis.equals(obj.getDeleteAny());
     if(!returnValue)
     	return returnValue;
-	bThis = this.getDeleteOwn();         
+	bThis = this.getDeleteOwn();
     returnValue = (bThis == null) ? obj.getDeleteOwn() == null : bThis.equals(obj.getDeleteOwn());
     if(!returnValue)
     	return returnValue;
-	bThis = this.getMarkAsRead();         
-    returnValue = (bThis == null) ? obj.getMarkAsRead() == null : bThis.equals(obj.getMarkAsRead());
+	bThis = this.getMarkAsNotRead();
+    returnValue = (bThis == null) ? obj.getMarkAsNotRead() == null : bThis.equals(obj.getMarkAsNotRead());
     if(!returnValue)
     	return returnValue;
 	bThis = this.getMovePosting();         
@@ -315,7 +315,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
     		bThis = this.getDeleteOwn();         
     		temp = (bThis == null) ? 0 : bThis.hashCode();
     		result = result + temp;
-    		bThis = this.getMarkAsRead();         
+    		bThis = this.getMarkAsNotRead();
     		temp = (bThis == null) ? 0 : bThis.hashCode();
     		result = result + temp;
     		bThis = this.getMovePosting();         
@@ -368,7 +368,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		pli.setDeleteAny(this.getDeleteAny());
 		pli.setDeleteOwn(this.getDeleteOwn());
 		pli.setId(this.getId());
-		pli.setMarkAsRead(this.getMarkAsRead());
+		pli.setMarkAsNotRead(this.getMarkAsNotRead());
 		pli.setModeratePostings(this.getModeratePostings());
 		pli.setIdentifyAnonAuthors(this.getIdentifyAnonAuthors());
 		pli.setModified(this.getModified());
