@@ -257,6 +257,7 @@ public class ExportReportServlet extends SamigoBaseServlet {
     }
 
     private List<List<String>> itemAnalysisData(HistogramScoresBean histogramScoresBean) {
+        int maxNumberOfAnswers = histogramScoresBean.getMaxNumberOfAnswers();
 
         return histogramScoresBean.getDetailedStatistics().stream()
                 .map(itemStatistics -> {
@@ -272,20 +273,30 @@ public class ExportReportServlet extends SamigoBaseServlet {
                         dataRow.add(itemStatistics.getDiscrimination());
                     }
 
-                    if (histogramScoresBean.getMaxNumberOfAnswers() > 0) {
-                        dataRow.add(itemStatistics.getDifficulty().toString());
-                        dataRow.add(itemStatistics.getNumberOfStudentsWithCorrectAnswers().toString());
-                        dataRow.add(itemStatistics.getNumberOfStudentsWithIncorrectAnswers().toString());
+                    if (maxNumberOfAnswers > 0) {
+                        dataRow.add(toCellValue(itemStatistics.getDifficulty()));
+                        dataRow.add(toCellValue(itemStatistics.getNumberOfStudentsWithCorrectAnswers()));
+                        dataRow.add(toCellValue(itemStatistics.getNumberOfStudentsWithIncorrectAnswers()));
                         dataRow.add(String.valueOf(itemStatistics.getNumberOfStudentsWithZeroAnswers()));
                     }
 
-                    HistogramBarBean[] histogramBars = itemStatistics.getHistogramBars();
-                    for (int i = 0; i < histogramBars.length; i++) {
+                    HistogramBarBean[] histogramBars = Optional.ofNullable(itemStatistics.getHistogramBars())
+                            .orElse(new HistogramBarBean[0]);
+                    for (int i = 0; i < maxNumberOfAnswers; i++) {
+                        if (!itemStatistics.getShowIndividualAnswersInDetailedStatistics()
+                                || i >= histogramBars.length || histogramBars[i] == null) {
+                            dataRow.add("");
+                            continue;
+                        }
                         dataRow.add(String.valueOf(histogramBars[i].getNumStudents()));
                     }
 
                     return dataRow;
                 }).collect(Collectors.toList());
+    }
+
+    private String toCellValue(Object value) {
+        return value == null ? "" : String.valueOf(value);
     }
 
     private List<String> itemAnalysisHeader(HistogramScoresBean histogramScoresBean) {

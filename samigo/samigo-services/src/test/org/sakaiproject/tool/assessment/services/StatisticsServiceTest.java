@@ -16,12 +16,16 @@
 package org.sakaiproject.tool.assessment.services;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.StatisticsFacadeQueries;
 import org.sakaiproject.tool.assessment.services.assessment.StatisticsService;
+import org.sakaiproject.tool.assessment.services.assessment.StatisticsService.SubmissionOutcome;
 
 public class StatisticsServiceTest {
 
@@ -47,11 +52,6 @@ public class StatisticsServiceTest {
     private StatisticsFacadeQueries statisticsFacadeQueries;
     private QuestionPoolService questionPoolService;
     private MemoryService memoryService;
-
-    // TODO: Additional test ideas:
-    // - Test calculated questions
-    // - Test hot spot items
-    // - Test ignored item types are ignores
 
     @Before
     public void setUp() {
@@ -64,6 +64,97 @@ public class StatisticsServiceTest {
                 questionPoolService, statisticsFacadeQueries));
 
         doReturn(Collections.emptySet()).when(questionPoolService).getAllItemHashes(any());
+    }
+
+    @Test
+    public void testQuestionTypeCapabilityRegistryForGradedObjectiveQuestion() {
+        assertTrue(StatisticsService.supportsSubmissionOutcome(TypeIfc.MULTIPLE_CHOICE));
+        assertTrue(StatisticsService.supportsTotalScoresTally(TypeIfc.MULTIPLE_CHOICE));
+        assertTrue(StatisticsService.includesInDetailedStatistics(TypeIfc.MULTIPLE_CHOICE.toString()));
+        assertTrue(StatisticsService.showsIndividualAnswersInDetailedStatistics(TypeIfc.MULTIPLE_CHOICE.toString()));
+        assertTrue(StatisticsService.supportsAnswerStatistics(TypeIfc.MULTIPLE_CHOICE.toString()));
+        assertFalse(StatisticsService.supportsScoreStatistics(TypeIfc.MULTIPLE_CHOICE.toString()));
+        assertFalse(StatisticsService.isSurveyQuestionType(TypeIfc.MULTIPLE_CHOICE.toString()));
+    }
+
+    @Test
+    public void testQuestionTypeCapabilityRegistryForSurveyAndManualScoreTypes() {
+        assertFalse(StatisticsService.supportsSubmissionOutcome(TypeIfc.MULTIPLE_CHOICE_SURVEY));
+        assertFalse(StatisticsService.supportsTotalScoresTally(TypeIfc.MULTIPLE_CHOICE_SURVEY));
+        assertTrue(StatisticsService.includesInDetailedStatistics(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()));
+        assertTrue(StatisticsService.showsIndividualAnswersInDetailedStatistics(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()));
+        assertTrue(StatisticsService.supportsAnswerStatistics(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()));
+        assertTrue(StatisticsService.isSurveyQuestionType(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()));
+
+        assertFalse(StatisticsService.supportsAnswerStatistics(TypeIfc.ESSAY_QUESTION.toString()));
+        assertTrue(StatisticsService.supportsScoreStatistics(TypeIfc.ESSAY_QUESTION.toString()));
+    }
+
+    @Test
+    public void testQuestionTypeCapabilityRegistryHandlesUnknownValues() {
+        assertFalse(StatisticsService.supportsAnswerStatistics("invalid-type"));
+        assertFalse(StatisticsService.supportsScoreStatistics("9999"));
+        assertTrue(StatisticsService.getQuestionTypeCapabilities(9999L).isEmpty());
+    }
+
+    @Test
+    public void testQuestionTypeCapabilityRegistryForNumericAndCalculatedShowsDetailedAnswerColumns() {
+        assertTrue(StatisticsService.includesInDetailedStatistics(TypeIfc.FILL_IN_NUMERIC.toString()));
+        assertTrue(StatisticsService.showsIndividualAnswersInDetailedStatistics(TypeIfc.FILL_IN_NUMERIC.toString()));
+        assertTrue(StatisticsService.supportsSubmissionOutcome(TypeIfc.FILL_IN_NUMERIC));
+        assertTrue(StatisticsService.supportsTotalScoresTally(TypeIfc.FILL_IN_NUMERIC));
+
+        assertTrue(StatisticsService.includesInDetailedStatistics(TypeIfc.CALCULATED_QUESTION.toString()));
+        assertTrue(StatisticsService.showsIndividualAnswersInDetailedStatistics(TypeIfc.CALCULATED_QUESTION.toString()));
+        assertTrue(StatisticsService.supportsSubmissionOutcome(TypeIfc.CALCULATED_QUESTION));
+        assertTrue(StatisticsService.supportsTotalScoresTally(TypeIfc.CALCULATED_QUESTION));
+    }
+
+    @Test
+    public void testIgnoredItemTypesDoNotAffectQuestionPoolAggregates() {
+        long gradedItemId = 0L;
+        long ignoredItemId = 1L;
+
+        PublishedItemData gradedItem = item(gradedItemId, TypeIfc.TRUE_FALSE);
+        PublishedItemData ignoredItem = item(ignoredItemId, TypeIfc.ESSAY_QUESTION);
+
+        Set<PublishedAnswer> gradedItemAnswers = Set.of(
+                answer(0L, true),
+                answer(1L, false)
+        );
+
+        Set<ItemGradingData> gradedItemData = Set.of(
+                gradingData(0L, 0L),    // correct
+                gradingData(1L, 1L),    // incorrect
+                gradingData(2L, null)   // blank
+        );
+
+        ItemGradingData ignoredSubmissionA = gradingData(10L, null, 10L);
+        ignoredSubmissionA.setAnswerText("essay answer a");
+        ItemGradingData ignoredSubmissionB = gradingData(11L, null, 11L);
+        ignoredSubmissionB.setAnswerText("essay answer b");
+        Set<ItemGradingData> ignoredItemData = Set.of(ignoredSubmissionA, ignoredSubmissionB);
+
+        List<PublishedItemData> items = List.of(gradedItem, ignoredItem);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(
+                gradedItemId, gradedItemAnswers,
+                ignoredItemId, Collections.emptySet()
+        );
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(
+                gradedItemId, gradedItemData,
+                ignoredItemId, ignoredItemData
+        );
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
     }
 
     @Test
@@ -274,6 +365,342 @@ public class StatisticsServiceTest {
         assertEquals(Long.valueOf(3), itemStatistics.getIncorrectResponses());
         assertEquals(Long.valueOf(2), itemStatistics.getBlankResponses());
         assertEquals(Integer.valueOf(71), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testMultipleChoiceMultipleCorrectSingleSelectionItem() {
+        long itemId = 0L;
+
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(0L, true),
+                answer(1L, false),
+                answer(2L, true),
+                answer(3L, false)
+        );
+
+        Set<ItemGradingData> gradingData = Set.of(
+                // Correct
+                gradingData(0L, 0L, 0L),
+                // Incorrect
+                gradingData(1L, 1L, 1L),
+                // Blank
+                gradingData(2L, null, 2L),
+                // Correct
+                gradingData(3L, 2L, 3L),
+                // Incorrect
+                gradingData(4L, 3L, 4L),
+                // Blank
+                gradingData(5L, null, 5L),
+                // Mixed records in one submission => incorrect
+                gradingData(6L, 0L, 6L),
+                gradingData(7L, 1L, 6L)
+        );
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(5), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(2), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(3), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(2), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(71), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testMultipleChoiceMultipleCorrectSingleSelectionItemUsesFallbackWhenAnswerCorrectFlagMissing() {
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION);
+
+        PublishedAnswer missingCorrectFlagAnswer = new PublishedAnswer();
+        missingCorrectFlagAnswer.setId(0L);
+        missingCorrectFlagAnswer.setIsCorrect(null);
+        missingCorrectFlagAnswer.setScore(1d);
+
+        PublishedAnswer incorrectAnswer = new PublishedAnswer();
+        incorrectAnswer.setId(1L);
+        incorrectAnswer.setIsCorrect(false);
+        incorrectAnswer.setScore(0d);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(missingCorrectFlagAnswer, incorrectAnswer);
+
+        ItemGradingData correctViaAutoScore = gradingData(0L, 0L, 0L);
+        correctViaAutoScore.setAutoScore(1d);
+        ItemGradingData incorrect = gradingData(1L, 1L, 1L);
+        incorrect.setAutoScore(0d);
+        ItemGradingData blank = gradingData(2L, null, 2L);
+
+        Set<ItemGradingData> gradingData = new HashSet<>();
+        gradingData.add(correctViaAutoScore);
+        gradingData.add(incorrect);
+        gradingData.add(blank);
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testMultipleChoiceMultipleCorrectSingleSelectionUsesGradingFallbackWithoutAnswerId() {
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(0L, true),
+                answer(1L, false)
+        );
+
+        ItemGradingData correctWithoutAnswerId = gradingData(0L, null, 0L);
+        correctWithoutAnswerId.setAnswerText("selected");
+        correctWithoutAnswerId.setIsCorrect(true);
+        correctWithoutAnswerId.setAutoScore(1d);
+
+        ItemGradingData incorrect = gradingData(1L, 1L, 1L);
+        incorrect.setAutoScore(0d);
+
+        ItemGradingData blank = gradingData(2L, null, 2L);
+
+        Set<ItemGradingData> gradingData = Set.of(correctWithoutAnswerId, incorrect, blank);
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testMultipleChoiceMultipleCorrectSingleSelectionUsesGradingCorrectnessBeforeAnswerMetadata() {
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(0L, false),
+                answer(1L, false)
+        );
+
+        ItemGradingData correctViaItemGrading = gradingData(0L, 0L, 0L);
+        correctViaItemGrading.setIsCorrect(true);
+        correctViaItemGrading.setAutoScore(1d);
+
+        ItemGradingData incorrect = gradingData(1L, 1L, 1L);
+        incorrect.setIsCorrect(false);
+        incorrect.setAutoScore(0d);
+
+        ItemGradingData blank = gradingData(2L, null, 2L);
+
+        Set<ItemGradingData> gradingData = Set.of(correctViaItemGrading, incorrect, blank);
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testMultipleChoiceSingleSelectionUsesFallbackWhenAnswerDataIsIncomplete() {
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CHOICE);
+
+        PublishedAnswer missingCorrectFlagAnswer = new PublishedAnswer();
+        missingCorrectFlagAnswer.setId(0L);
+        missingCorrectFlagAnswer.setIsCorrect(null);
+        missingCorrectFlagAnswer.setScore(1d);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(missingCorrectFlagAnswer);
+
+        ItemGradingData correctViaAutoScore = gradingData(0L, 0L, 0L);
+        correctViaAutoScore.setAutoScore(1d);
+
+        ItemGradingData correctViaIsCorrect = gradingData(1L, 99L, 1L);
+        correctViaIsCorrect.setIsCorrect(true);
+
+        ItemGradingData incorrectViaFallback = gradingData(2L, 98L, 2L);
+        incorrectViaFallback.setAutoScore(0d);
+
+        ItemGradingData blank = gradingData(3L, null, 3L);
+
+        Set<ItemGradingData> gradingData = Set.of(correctViaAutoScore, correctViaIsCorrect, incorrectViaFallback, blank);
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(3), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(2), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(50), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testMultipleChoiceMultipleSelectionsTreatsUnknownAnswerCorrectnessAsIncorrect() {
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.MULTIPLE_CORRECT);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(0L, true),
+                answer(1L, true)
+        );
+
+        Set<ItemGradingData> gradingData = Set.of(
+                // Correct submission
+                gradingData(0L, 0L, 0L),
+                gradingData(1L, 1L, 0L),
+                // Submission with one correct and one unresolved selected answer -> incorrect
+                gradingData(2L, 0L, 1L),
+                gradingData(3L, 99L, 1L),
+                // Blank submission
+                gradingData(4L, null, 2L)
+        );
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testImageMapQuestionWithNullCorrectnessIsCountedAsIncorrect() {
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.IMAGEMAP_QUESTION);
+
+        ItemGradingData incorrect = gradingData(0L, 0L, 0L);
+        incorrect.setAnswerText("10,10");
+        incorrect.setIsCorrect(null);
+
+        ItemGradingData blank = gradingData(1L, null, 1L);
+        blank.setAnswerText("undefined");
+
+        Set<ItemGradingData> gradingData = Set.of(incorrect, blank);
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, Collections.emptySet());
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(1), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(0), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(100), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testClassifyCalculatedSubmissionTreatsBlankPartsAsBlank() {
+        GradingService gradingService = mock(GradingService.class);
+        StatisticsService service = new StatisticsService(gradingService, memoryService, questionPoolService, statisticsFacadeQueries);
+
+        PublishedItemData item = item(0L, TypeIfc.CALCULATED_QUESTION);
+
+        ItemGradingData withNullAnswerId = gradingData(0L, null, 0L);
+        withNullAnswerId.setAnswerText("");
+
+        ItemGradingData withAnswerIdButBlankText = gradingData(1L, 10L, 0L);
+        withAnswerIdButBlankText.setAnswerText(" ");
+
+        SubmissionOutcome outcome = service.classifySubmission(item,
+                List.of(withNullAnswerId, withAnswerIdButBlankText), Collections.emptyMap());
+
+        assertEquals(SubmissionOutcome.BLANK, outcome);
+    }
+
+    @Test
+    public void testClassifyCalculatedSubmissionCanBeCorrect() {
+        GradingService gradingService = mock(GradingService.class);
+        doReturn(true).when(gradingService).getCalcQResult(any(), any(), any(), anyInt());
+        StatisticsService service = new StatisticsService(gradingService, memoryService, questionPoolService, statisticsFacadeQueries);
+
+        PublishedItemData item = item(0L, TypeIfc.CALCULATED_QUESTION);
+        ItemGradingData attemptedPart = gradingData(0L, 10L, 0L);
+        attemptedPart.setAnswerText("42");
+
+        SubmissionOutcome outcome = service.classifySubmission(item,
+                Collections.singletonList(attemptedPart), Collections.emptyMap());
+
+        assertEquals(SubmissionOutcome.CORRECT, outcome);
+    }
+
+    @Test
+    public void testClassifyHotSpotSubmissionWithTrueCorrectnessIsCorrect() {
+        PublishedItemData item = item(0L, TypeIfc.IMAGEMAP_QUESTION);
+        ItemGradingData grading = gradingData(0L, 0L, 0L);
+        grading.setAnswerText("10,10");
+        grading.setIsCorrect(Boolean.TRUE);
+
+        SubmissionOutcome outcome = statisticsService.classifySubmission(item,
+                Collections.singletonList(grading), Collections.emptyMap());
+
+        assertEquals(SubmissionOutcome.CORRECT, outcome);
+    }
+
+    @Test
+    public void testClassifyHotSpotSubmissionUndefinedCoordinatesIsBlank() {
+        PublishedItemData item = item(0L, TypeIfc.IMAGEMAP_QUESTION);
+        ItemGradingData grading = gradingData(0L, 0L, 0L);
+        grading.setAnswerText("undefined");
+        grading.setIsCorrect(Boolean.TRUE);
+
+        SubmissionOutcome outcome = statisticsService.classifySubmission(item,
+                Collections.singletonList(grading), Collections.emptyMap());
+
+        assertEquals(SubmissionOutcome.BLANK, outcome);
     }
 
     @Test
@@ -521,6 +948,89 @@ public class StatisticsServiceTest {
         assertEquals(Long.valueOf(4), itemStatistics.getIncorrectResponses());
         assertEquals(Long.valueOf(2), itemStatistics.getBlankResponses());
         assertEquals(Integer.valueOf(86), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testExtendedMatchingItemPartialBlankIsIncorrect() {
+        long itemTextA = 10L;
+        long itemTextB = 11L;
+        Set<ItemTextIfc> itemTexts = Set.of(
+                itemText(itemTextA, 1),
+                itemText(itemTextB, 1)
+        );
+
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.EXTENDED_MATCHING_ITEMS, itemTexts);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(100L, true),
+                answer(101L, false),
+                answer(200L, true),
+                answer(201L, false)
+        );
+
+        Set<ItemGradingData> gradingData = Set.of(
+                // All blank - blank
+                gradingData(0L, null, 0L, itemTextA),
+                gradingData(1L, null, 0L, itemTextB),
+                // One answered, one blank - incorrect
+                gradingData(2L, 100L, 1L, itemTextA),
+                gradingData(3L, null, 1L, itemTextB),
+                // All correct - correct
+                gradingData(4L, 100L, 2L, itemTextA),
+                gradingData(5L, 200L, 2L, itemTextB)
+        );
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(67), itemStatistics.getDifficulty());
+    }
+
+    @Test
+    public void testExtendedMatchingItemMissingItemTextIsIncorrectNotCrash() {
+        long itemTextA = 10L;
+        Set<ItemTextIfc> itemTexts = Set.of(itemText(itemTextA, 1));
+
+        long itemId = 0L;
+        PublishedItemData item = item(itemId, TypeIfc.EXTENDED_MATCHING_ITEMS, itemTexts);
+
+        Set<PublishedAnswer> itemAnswers = Set.of(
+                answer(100L, true),
+                answer(200L, true)
+        );
+
+        Set<ItemGradingData> gradingData = Set.of(
+                // Normal correct
+                gradingData(0L, 100L, 0L, itemTextA),
+                // Unknown itemText id - incorrect
+                gradingData(1L, 200L, 1L, 999L)
+        );
+
+        List<PublishedItemData> items = Collections.singletonList(item);
+        Map<Long, Set<ItemGradingData>> gradingDataMap = Map.of(itemId, gradingData);
+        Map<Long, Set<PublishedAnswer>> answerMap = Map.of(itemId, itemAnswers);
+
+        stubData(items, answerMap, gradingDataMap);
+
+        QuestionPoolStatistics poolStatistics = statisticsService.getQuestionPoolStatistics(0L);
+        ItemStatistics itemStatistics = poolStatistics.getAggregatedItemStatistics();
+
+        assertEquals(Long.valueOf(2), itemStatistics.getAttemptedResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getCorrectResponses());
+        assertEquals(Long.valueOf(1), itemStatistics.getIncorrectResponses());
+        assertEquals(Long.valueOf(0), itemStatistics.getBlankResponses());
+        assertEquals(Integer.valueOf(50), itemStatistics.getDifficulty());
     }
 
     private void stubData(List<PublishedItemData> items, Map<Long, Set<PublishedAnswer>> answerMap,

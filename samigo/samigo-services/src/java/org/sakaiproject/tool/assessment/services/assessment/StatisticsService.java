@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -39,6 +41,7 @@ import org.sakaiproject.tool.assessment.business.entity.QuestionPoolStatistics;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -57,6 +60,190 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StatisticsService {
+
+    public enum SubmissionOutcome {
+        CORRECT,
+        INCORRECT,
+        BLANK,
+        NOT_APPLICABLE
+    }
+
+    public enum QuestionTypeCapability {
+        SUBMISSION_OUTCOME,
+        TOTAL_SCORES_TALLY,
+        DETAILED_STATISTICS,
+        DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+        ANSWER_STATISTICS,
+        SCORE_STATISTICS,
+        SURVEY
+    }
+
+    private static final EnumMap<TypeId, EnumSet<QuestionTypeCapability>> QUESTION_TYPE_CAPABILITIES = buildQuestionTypeCapabilities();
+
+    private static EnumMap<TypeId, EnumSet<QuestionTypeCapability>> buildQuestionTypeCapabilities() {
+        EnumMap<TypeId, EnumSet<QuestionTypeCapability>> capabilities = new EnumMap<>(TypeId.class);
+
+        registerTypeCapabilities(capabilities, TypeId.TRUE_FALSE_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.MULTIPLE_CHOICE_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.MULTIPLE_CORRECT_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.MULTIPLE_CORRECT_SINGLE_SELECTION_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.FILL_IN_BLANK_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.FILL_IN_NUMERIC_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.MATCHING_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.EXTENDED_MATCHING_ITEMS_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.CALCULATED_QUESTION_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.IMAGEMAP_QUESTION_ID,
+                QuestionTypeCapability.SUBMISSION_OUTCOME,
+                QuestionTypeCapability.TOTAL_SCORES_TALLY,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.MULTIPLE_CHOICE_SURVEY_ID,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS,
+                QuestionTypeCapability.SURVEY);
+        registerTypeCapabilities(capabilities, TypeId.MATRIX_CHOICES_SURVEY_ID,
+                QuestionTypeCapability.DETAILED_STATISTICS,
+                QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS,
+                QuestionTypeCapability.ANSWER_STATISTICS,
+                QuestionTypeCapability.SURVEY);
+        registerTypeCapabilities(capabilities, TypeId.ESSAY_QUESTION_ID, QuestionTypeCapability.SCORE_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.FILE_UPLOAD_ID, QuestionTypeCapability.SCORE_STATISTICS);
+        registerTypeCapabilities(capabilities, TypeId.AUDIO_RECORDING_ID, QuestionTypeCapability.SCORE_STATISTICS);
+
+        return capabilities;
+    }
+
+    private static void registerTypeCapabilities(EnumMap<TypeId, EnumSet<QuestionTypeCapability>> capabilities,
+            TypeId typeId, QuestionTypeCapability... questionTypeCapabilities) {
+        capabilities.put(typeId, EnumSet.copyOf(List.of(questionTypeCapabilities)));
+    }
+
+    public static boolean hasQuestionTypeCapability(Long typeId, QuestionTypeCapability capability) {
+        return hasQuestionTypeCapability(toTypeId(typeId), capability);
+    }
+
+    public static boolean hasQuestionTypeCapability(String typeId, QuestionTypeCapability capability) {
+        return hasQuestionTypeCapability(toTypeId(typeId), capability);
+    }
+
+    private static boolean hasQuestionTypeCapability(TypeId typeId, QuestionTypeCapability capability) {
+        if (typeId == null || capability == null) {
+            return false;
+        }
+
+        EnumSet<QuestionTypeCapability> capabilities = QUESTION_TYPE_CAPABILITIES.get(typeId);
+        return capabilities != null && capabilities.contains(capability);
+    }
+
+    public static Set<QuestionTypeCapability> getQuestionTypeCapabilities(Long typeId) {
+        TypeId resolvedTypeId = toTypeId(typeId);
+        if (resolvedTypeId == null) {
+            return Collections.emptySet();
+        }
+
+        EnumSet<QuestionTypeCapability> capabilities = QUESTION_TYPE_CAPABILITIES.get(resolvedTypeId);
+        if (capabilities == null || capabilities.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return EnumSet.copyOf(capabilities);
+    }
+
+    public static boolean supportsSubmissionOutcome(Long typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.SUBMISSION_OUTCOME);
+    }
+
+    public static boolean supportsTotalScoresTally(Long typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.TOTAL_SCORES_TALLY);
+    }
+
+    public static boolean includesInDetailedStatistics(String typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.DETAILED_STATISTICS);
+    }
+
+    public static boolean showsIndividualAnswersInDetailedStatistics(String typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.DETAILED_STATISTICS_INDIVIDUAL_ANSWERS);
+    }
+
+    public static boolean supportsAnswerStatistics(String typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.ANSWER_STATISTICS);
+    }
+
+    public static boolean supportsScoreStatistics(String typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.SCORE_STATISTICS);
+    }
+
+    public static boolean isSurveyQuestionType(String typeId) {
+        return hasQuestionTypeCapability(typeId, QuestionTypeCapability.SURVEY);
+    }
+
+    private static TypeId toTypeId(Long typeId) {
+        if (typeId == null || !TypeId.isValidId(typeId.longValue())) {
+            return null;
+        }
+        return TypeId.getInstance(typeId.longValue());
+    }
+
+    private static TypeId toTypeId(String typeId) {
+        if (StringUtils.isBlank(typeId)) {
+            return null;
+        }
+
+        long parsedTypeId;
+        try {
+            parsedTypeId = Long.parseLong(typeId);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        if (!TypeId.isValidId(parsedTypeId)) {
+            return null;
+        }
+        return TypeId.getInstance(parsedTypeId);
+    }
 
 
     public static final String QP_STATISTICS_CACHE_NAME = StatisticsService.class.getPackageName() + "." + QuestionPoolStatistics.CACHE_NAME;
@@ -167,42 +354,223 @@ public class StatisticsService {
                 .count();
     }
 
+    public SubmissionOutcome classifySubmission(ItemDataIfc item, Collection<ItemGradingData> submissionGradingData,
+            Map<Long, ? extends AnswerIfc> answerMap) {
+        Long itemType = item == null ? null : item.getTypeId();
+        if (!supportsSubmissionOutcome(itemType)) {
+            return SubmissionOutcome.NOT_APPLICABLE;
+        }
+
+        Set<ItemGradingData> submissionSet = submissionGradingData == null ? Collections.emptySet() : submissionGradingData
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (submissionSet.isEmpty()) {
+            return SubmissionOutcome.BLANK;
+        }
+
+        Set<PublishedAnswer> publishedAnswers = toPublishedAnswerSet(item, submissionSet, answerMap);
+        ItemStatistics itemStatistics;
+        TypeId resolvedTypeId = toTypeId(itemType);
+        if (resolvedTypeId == null) {
+            return SubmissionOutcome.NOT_APPLICABLE;
+        }
+
+        switch (resolvedTypeId) {
+            case TRUE_FALSE_ID:
+            case MULTIPLE_CHOICE_ID:
+                itemStatistics = getItemStatisticsForItemWithOneCorrectAnswer(submissionSet, publishedAnswers);
+                break;
+            case MULTIPLE_CORRECT_ID:
+                itemStatistics = getItemStatisticsForItemWithMultipleCorrectAnswers(submissionSet, publishedAnswers);
+                break;
+            case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
+                itemStatistics = getItemStatisticsForMultipleCorrectSingleSelectionItem(submissionSet, publishedAnswers);
+                break;
+            case FILL_IN_BLANK_ID:
+            case FILL_IN_NUMERIC_ID:
+                itemStatistics = getItemStatisticsForFillInItem(item, submissionSet, publishedAnswers);
+                break;
+            case MATCHING_ID:
+                itemStatistics = getItemStatisticsForMatchingItem(submissionSet, publishedAnswers);
+                break;
+            case EXTENDED_MATCHING_ITEMS_ID:
+                itemStatistics = getItemStatisticsForExtendedMatchingItem(item, submissionSet, publishedAnswers);
+                break;
+            case CALCULATED_QUESTION_ID:
+                itemStatistics = getItemStatisticsForCalculatedQuestion(item, submissionSet);
+                break;
+            case IMAGEMAP_QUESTION_ID:
+                itemStatistics = getItemStatisticsForHotSpotItem(item, submissionSet);
+                break;
+            default:
+                return SubmissionOutcome.NOT_APPLICABLE;
+        }
+
+        return toSubmissionOutcome(itemStatistics);
+    }
+
+    private SubmissionOutcome toSubmissionOutcome(ItemStatistics itemStatistics) {
+        if (itemStatistics == null) {
+            return SubmissionOutcome.NOT_APPLICABLE;
+        }
+
+        long incorrectResponses = itemStatistics.getIncorrectResponses() == null ? 0 : itemStatistics.getIncorrectResponses();
+        if (incorrectResponses > 0) {
+            return SubmissionOutcome.INCORRECT;
+        }
+
+        long correctResponses = itemStatistics.getCorrectResponses() == null ? 0 : itemStatistics.getCorrectResponses();
+        if (correctResponses > 0) {
+            return SubmissionOutcome.CORRECT;
+        }
+
+        long blankResponses = itemStatistics.getBlankResponses() == null ? 0 : itemStatistics.getBlankResponses();
+        if (blankResponses > 0) {
+            return SubmissionOutcome.BLANK;
+        }
+
+        return SubmissionOutcome.NOT_APPLICABLE;
+    }
+
+    private Set<PublishedAnswer> toPublishedAnswerSet(ItemDataIfc item, Set<ItemGradingData> submissionSet,
+            Map<Long, ? extends AnswerIfc> answerMap) {
+        Map<Long, PublishedAnswer> publishedAnswers = new HashMap<>();
+        Long itemId = item == null ? null : item.getItemId();
+        Set<Long> selectedAnswerIds = submissionSet.stream()
+                .map(ItemGradingData::getPublishedAnswerId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        List<AnswerIfc> itemAnswers = getItemAnswers(item);
+        boolean hasItemAnswers = !itemAnswers.isEmpty();
+
+        for (AnswerIfc answer : itemAnswers) {
+            PublishedAnswer publishedAnswer = toPublishedAnswer(answer);
+            if (publishedAnswer != null && publishedAnswer.getId() != null) {
+                publishedAnswers.put(publishedAnswer.getId(), publishedAnswer);
+            }
+        }
+
+        if (answerMap != null) {
+            if (hasItemAnswers) {
+                for (Long answerId : selectedAnswerIds) {
+                    AnswerIfc answer = answerMap.get(answerId);
+                    PublishedAnswer publishedAnswer = toPublishedAnswer(answer);
+                    if (publishedAnswer != null && publishedAnswer.getId() != null) {
+                        publishedAnswers.put(publishedAnswer.getId(), publishedAnswer);
+                    }
+                }
+            } else {
+                for (AnswerIfc answer : answerMap.values()) {
+                    if (answer == null || answer.getId() == null) {
+                        continue;
+                    }
+                    boolean sameItem = answer.getItem() != null && itemId != null
+                            && itemId.equals(answer.getItem().getItemId());
+                    if (!sameItem && !selectedAnswerIds.contains(answer.getId())) {
+                        continue;
+                    }
+                    PublishedAnswer publishedAnswer = toPublishedAnswer(answer);
+                    if (publishedAnswer != null) {
+                        publishedAnswers.put(publishedAnswer.getId(), publishedAnswer);
+                    }
+                }
+            }
+        }
+
+        return new LinkedHashSet<>(publishedAnswers.values());
+    }
+
+    private List<AnswerIfc> getItemAnswers(ItemDataIfc item) {
+        List<AnswerIfc> answers = new ArrayList<>();
+        if (item == null || item.getItemTextSet() == null) {
+            return answers;
+        }
+
+        for (ItemTextIfc itemText : item.getItemTextSet()) {
+            if (itemText == null || itemText.getAnswerSet() == null) {
+                continue;
+            }
+            for (Object answerObject : itemText.getAnswerSet()) {
+                AnswerIfc answer = (AnswerIfc) answerObject;
+                if (answer != null) {
+                    answers.add(answer);
+                }
+            }
+        }
+        return answers;
+    }
+
+    private PublishedAnswer toPublishedAnswer(AnswerIfc answer) {
+        if (answer == null) {
+            return null;
+        }
+
+        if (answer instanceof PublishedAnswer) {
+            return (PublishedAnswer) answer;
+        }
+
+        PublishedAnswer publishedAnswer = new PublishedAnswer();
+        publishedAnswer.setId(answer.getId());
+        publishedAnswer.setIsCorrect(answer.getIsCorrect());
+        publishedAnswer.setScore(answer.getScore());
+        return publishedAnswer;
+    }
+
     private ItemStatistics getItemStatistics(ItemDataIfc item, Set<ItemGradingData> gradingData, Set<PublishedAnswer> answers) {
-        Long itemType = item.getTypeId();
+        Long itemType = item == null ? null : item.getTypeId();
         if (itemType == null || !TypeId.isValidId(itemType.longValue())) {
             log.warn("Can not create TypeId from type id {}", itemType);
             return null;
         }
 
-        switch (TypeId.getInstance(itemType)) {
-            case TRUE_FALSE_ID:
-            case MULTIPLE_CHOICE_ID:
-                return getItemStatisticsForItemWithOneCorrectAnswer(gradingData, answers);
-            case MULTIPLE_CORRECT_ID:
-            case MULTIPLE_CORRECT_SINGLE_SELECTION_ID:
-                return getItemStatisticsForItemWithMultipleCorrectAnswers(gradingData, answers);
-            case FILL_IN_BLANK_ID:
-            case FILL_IN_NUMERIC_ID:
-                return getItemStatisticsForFillInItem(item, gradingData, answers);
-            case MATCHING_ID:
-                return getItemStatisticsForMatchingItem(gradingData, answers);
-            case EXTENDED_MATCHING_ITEMS_ID:
-                return getItemStatisticsForExtendedMatchingItem(item, gradingData, answers);
-            case CALCULATED_QUESTION_ID:
-                return getItemStatisticsForCalculatedQuestion(item, gradingData);
-            case IMAGEMAP_QUESTION_ID:
-                return getItemStatisticsForHotSpotItem(item, gradingData);
-            case ESSAY_QUESTION_ID:
-            case FILE_UPLOAD_ID:
-            case AUDIO_RECORDING_ID:
-            case MATRIX_CHOICES_SURVEY_ID:
-            case MULTIPLE_CHOICE_SURVEY_ID:
-                log.debug("Ignored type with id {}", itemType);
-                return ItemStatistics.builder().build();
-            default:
-                log.warn("Unhandled type with id {}", itemType);
-                return ItemStatistics.builder().build();
+        Map<Long, PublishedAnswer> answerMap = answers.stream()
+                .collect(Collectors.toMap(PublishedAnswer::getId, Function.identity(), (existing, replacement) -> existing, HashMap::new));
+
+        Map<Long, List<ItemGradingData>> gradingBySubmission = groupGradingDataBySubmission(gradingData);
+        long correctResponses = 0;
+        long incorrectResponses = 0;
+        long blankResponses = 0;
+
+        for (List<ItemGradingData> submissionGradingData : gradingBySubmission.values()) {
+            SubmissionOutcome submissionOutcome = classifySubmission(item, submissionGradingData, answerMap);
+            if (submissionOutcome == SubmissionOutcome.CORRECT) {
+                correctResponses++;
+            } else if (submissionOutcome == SubmissionOutcome.INCORRECT) {
+                incorrectResponses++;
+            } else if (submissionOutcome == SubmissionOutcome.BLANK) {
+                blankResponses++;
+            }
         }
+
+        long attemptedResponses = correctResponses + incorrectResponses;
+
+        return ItemStatistics.builder()
+                .attemptedResponses(attemptedResponses)
+                .correctResponses(correctResponses)
+                .incorrectResponses(incorrectResponses)
+                .blankResponses(blankResponses)
+                .calcDifficulty()
+                .build();
+    }
+
+    private Map<Long, List<ItemGradingData>> groupGradingDataBySubmission(Set<ItemGradingData> gradingData) {
+        Map<Long, List<ItemGradingData>> grouped = new HashMap<>();
+        long syntheticKey = Long.MIN_VALUE;
+        for (ItemGradingData itemGradingData : gradingData) {
+            if (itemGradingData == null) {
+                continue;
+            }
+
+            Long assessmentGradingId = itemGradingData.getAssessmentGradingId();
+            if (assessmentGradingId == null) {
+                Long itemGradingId = itemGradingData.getItemGradingId();
+                assessmentGradingId = itemGradingId == null ? syntheticKey++ : -Math.abs(itemGradingId);
+            }
+
+            grouped.computeIfAbsent(assessmentGradingId, key -> new ArrayList<>()).add(itemGradingData);
+        }
+        return grouped;
     }
 
     // Item is considered correct if one of the answers is correct
@@ -221,19 +589,7 @@ public class StatisticsService {
                 continue;
             }
 
-            PublishedAnswer selectedAnswer = answerMap.get(selectedAnswerId);
-            if (selectedAnswer == null) {
-                log.warn(LOG_GRADING_DATA_ANSWER_NOT_FOUND, selectedAnswerId, itemGradingData.getItemGradingId());
-                continue;
-            }
-
-            Boolean answerCorrect = selectedAnswer.getIsCorrect();
-            if (answerCorrect == null) {
-                log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswer.getId());
-                continue;
-            }
-
-            if (answerCorrect) {
+            if (isSelectedAnswerCorrect(itemGradingData, answerMap)) {
                 correctResponses++;
             } else {
                 incorrectResponses++;
@@ -249,6 +605,147 @@ public class StatisticsService {
                 .blankResponses(blankResponses)
                 .calcDifficulty()
                 .build();
+    }
+
+    // Item is considered correct if the single selected answer is correct.
+    // This method is dedicated to MULTIPLE_CORRECT_SINGLE_SELECTION to keep
+    // per-submission classification stable even with legacy/anomalous grading rows.
+    private ItemStatistics getItemStatisticsForMultipleCorrectSingleSelectionItem(Set<ItemGradingData> gradingData, Set<PublishedAnswer> answers) {
+        Map<Long, Set<ItemGradingData>> itemgradingDataByAssessmentGradingId = gradingData.stream()
+                .collect(Collectors.groupingBy(ItemGradingData::getAssessmentGradingId, Collectors.toSet()));
+
+        Map<Long, PublishedAnswer> answerMap = answers.stream()
+                .collect(Collectors.toMap(PublishedAnswer::getId, Function.identity()));
+
+        long correctResponses = 0;
+        long incorrectResponses = 0;
+        long blankResponses = 0;
+
+        for (Set<ItemGradingData> submissionItemGradingData : itemgradingDataByAssessmentGradingId.values()) {
+            boolean hasAnsweredOption = false;
+            boolean hasCorrectAnswer = false;
+            boolean hasIncorrectAnswer = false;
+            for (ItemGradingData itemGradingData : submissionItemGradingData) {
+                if (!isMcssResponsePresent(itemGradingData)) {
+                    continue;
+                }
+
+                hasAnsweredOption = true;
+                if (isMcssSelectionCorrect(itemGradingData, answerMap)) {
+                    hasCorrectAnswer = true;
+                } else {
+                    hasIncorrectAnswer = true;
+                }
+
+                if (hasIncorrectAnswer) {
+                    break;
+                }
+            }
+
+            if (!hasAnsweredOption) {
+                blankResponses++;
+                continue;
+            }
+
+            if (hasCorrectAnswer && !hasIncorrectAnswer) {
+                correctResponses++;
+            } else {
+                incorrectResponses++;
+            }
+        }
+
+        long attemptedResponses = correctResponses + incorrectResponses;
+
+        return ItemStatistics.builder()
+                .attemptedResponses(attemptedResponses)
+                .correctResponses(correctResponses)
+                .incorrectResponses(incorrectResponses)
+                .blankResponses(blankResponses)
+                .calcDifficulty()
+                .build();
+    }
+
+    private boolean isMcssResponsePresent(ItemGradingData itemGradingData) {
+        if (itemGradingData.getPublishedAnswerId() != null) {
+            return true;
+        }
+
+        if (StringUtils.isNotBlank(itemGradingData.getAnswerText())) {
+            return true;
+        }
+
+        if (itemGradingData.getIsCorrect() != null) {
+            return true;
+        }
+
+        Double autoScore = itemGradingData.getAutoScore();
+        return autoScore != null && Double.compare(autoScore, 0d) != 0;
+    }
+
+    private boolean isMcssSelectionCorrect(ItemGradingData itemGradingData, Map<Long, PublishedAnswer> answerMap) {
+        if (itemGradingData.getIsCorrect() != null) {
+            return itemGradingData.getIsCorrect();
+        }
+
+        Double autoScore = itemGradingData.getAutoScore();
+        if (autoScore != null) {
+            return autoScore > 0;
+        }
+
+        Long selectedAnswerId = itemGradingData.getPublishedAnswerId();
+        if (selectedAnswerId == null) {
+            return false;
+        }
+
+        PublishedAnswer selectedAnswer = answerMap.get(selectedAnswerId);
+        if (selectedAnswer != null && selectedAnswer.getIsCorrect() != null) {
+            return selectedAnswer.getIsCorrect();
+        }
+
+        if (selectedAnswer == null) {
+            log.warn(LOG_GRADING_DATA_ANSWER_NOT_FOUND, selectedAnswerId, itemGradingData.getItemGradingId());
+        } else {
+            log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswer.getId());
+        }
+
+        if (selectedAnswer != null && selectedAnswer.getScore() != null) {
+            return selectedAnswer.getScore() > 0;
+        }
+
+        return false;
+    }
+
+    private boolean isSelectedAnswerCorrect(ItemGradingData itemGradingData, Map<Long, PublishedAnswer> answerMap) {
+        Long selectedAnswerId = itemGradingData.getPublishedAnswerId();
+        if (selectedAnswerId == null) {
+            return false;
+        }
+
+        PublishedAnswer selectedAnswer = answerMap.get(selectedAnswerId);
+        if (selectedAnswer != null && selectedAnswer.getIsCorrect() != null) {
+            return selectedAnswer.getIsCorrect();
+        }
+
+        if (selectedAnswer == null) {
+            log.warn(LOG_GRADING_DATA_ANSWER_NOT_FOUND, selectedAnswerId, itemGradingData.getItemGradingId());
+        } else {
+            log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswer.getId());
+        }
+
+        if (itemGradingData.getIsCorrect() != null) {
+            return itemGradingData.getIsCorrect();
+        }
+
+        Double autoScore = itemGradingData.getAutoScore();
+        if (autoScore != null) {
+            return autoScore > 0;
+        }
+
+        if (selectedAnswer != null && selectedAnswer.getScore() != null) {
+            return selectedAnswer.getScore() > 0;
+        }
+
+        return false;
     }
 
     // Item is considered correct, if all the selected answers are correct and the
@@ -271,13 +768,14 @@ public class StatisticsService {
             int correctAnswers = 0;
             int incorrectAnswers = 0;
             int blankAnswers = 0;
+            boolean hasNullAnswer = false;
 
             for (ItemGradingData itemGradingData : submissionItemGradingData) {
                 Long answerId = itemGradingData.getPublishedAnswerId();
                 if (answerId == null) {
                     // With a blank answer there should only one ItemGradingData per submission
                     // But to be safe, let's break out of the loop to avoid double counting
-                    blankResponses++;
+                    hasNullAnswer = true;
                     break;
                 }
 
@@ -309,13 +807,18 @@ public class StatisticsService {
                 }
             }
 
+            if (hasNullAnswer) {
+                blankResponses++;
+                continue;
+            }
+
             // Even if all selected answers are correct, we also need to compare the count
             // to know that all correct answers were selected
-            if (correctAnswers == presentAnswerCount) {
-                correctResponses++;
-            } else if (blankAnswers == presentAnswerCount) {
+            if (blankAnswers == presentAnswerCount) {
                 blankResponses++;
-            } else if (incorrectAnswers != 0) {
+            } else if (correctAnswers == presentAnswerCount) {
+                correctResponses++;
+            } else {
                 incorrectResponses++;
             }
         }
@@ -422,7 +925,8 @@ public class StatisticsService {
 
         for (Set<ItemGradingData> submissionItemGradingData : itemgradingDataByAssessmentGradingId.values()) {
             int selectedAnswerCount = submissionItemGradingData.size();
-            Boolean hasIncorrectAnswer = null;
+            boolean hasIncorrectAnswer = false;
+            boolean hasBlankAnswer = false;
 
             for (ItemGradingData itemGradingData : submissionItemGradingData) {
                 Long selectedAnswerId = itemGradingData.getPublishedAnswerId();
@@ -430,35 +934,40 @@ public class StatisticsService {
                     // With a blank answer there should only one ItemGradingData per submission
                     // But to be safe, let's break out of the loop to avoid double counting
                     blankResponses++;
+                    hasBlankAnswer = true;
                     break;
                 }
 
                 PublishedAnswer selectedAnswer = answerMap.get(selectedAnswerId);
                 if (selectedAnswer == null) {
                     log.warn(LOG_GRADING_DATA_ANSWER_NOT_FOUND, selectedAnswerId, itemGradingData.getItemGradingId());
-                    continue;
+                    hasIncorrectAnswer = true;
+                    break;
                 }
 
                 Boolean answerCorrect = selectedAnswer.getIsCorrect();
                 if (answerCorrect == null) {
-                    log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, answerCorrect);
-                    continue;
+                    log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswer.getId());
+                    hasIncorrectAnswer = true;
+                    break;
                 }
 
                 if (!answerCorrect) {
-                    // Found incorrect answer, we can count it and break te loop
                     hasIncorrectAnswer = true;
-                    incorrectResponses++;
                     break;
-                } else if (hasIncorrectAnswer == null) {
-                    hasIncorrectAnswer = false;
                 }
+            }
+
+            if (hasBlankAnswer) {
+                continue;
             }
 
             // Even if all selected answers are correct, we also need to compare the count
             // to know that all correct answers were selected
-            if (Boolean.FALSE.equals(hasIncorrectAnswer) && selectedAnswerCount == correctAnswerCount) {
+            if (!hasIncorrectAnswer && selectedAnswerCount == correctAnswerCount) {
                 correctResponses++;
+            } else if (selectedAnswerCount > 0) {
+                incorrectResponses++;
             }
         }
 
@@ -493,48 +1002,57 @@ public class StatisticsService {
         for (Map<Long, Set<ItemGradingData>> submissionItemGradingData : groupedGradingData.values()) {
             long requiredOptionsCount = 0;
             int correctOptions = 0;
-            boolean isBlank = false;
+            boolean hasAnsweredOption = false;
+            boolean hasIncorrectOption = false;
 
             // One option of an EMI item can have multiple answers, so we need to iterate
             // through the grading data by item text
-            submissionLoop:
             for (Map.Entry<Long, Set<ItemGradingData>> submissionGradingDataEntry : submissionItemGradingData.entrySet()) {
                 Long itemTextId = submissionGradingDataEntry.getKey();
-                ItemTextIfc itemText = itemTextMap.get(itemTextId);
-
                 Set<ItemGradingData> itemTextGradingData = submissionGradingDataEntry.getValue();
-
                 requiredOptionsCount++;
+
+                ItemTextIfc itemText = itemTextMap.get(itemTextId);
+                if (itemText == null) {
+                    log.warn("Could not find ItemText with id {} for EMI grading data", itemTextId);
+                    if (itemTextGradingData.stream().anyMatch(option -> option.getPublishedAnswerId() != null)) {
+                        hasAnsweredOption = true;
+                    }
+                    hasIncorrectOption = true;
+                    continue;
+                }
 
                 Integer requiredAnswerCount = itemText.getRequiredOptionsCount();
                 if (requiredAnswerCount == null) {
                     log.warn("requiredOptionsCount is null on ItemText with id {}", itemTextId);
+                    hasIncorrectOption = true;
                     continue;
                 }
 
                 int correctAnswers = 0;
                 int incorrectAnswers = 0;
+                boolean hasBlankAnswer = false;
 
                 for (ItemGradingData optionGradingData : itemTextGradingData) {
                     Long selectedAnswerId = optionGradingData.getPublishedAnswerId();
                     if (selectedAnswerId == null) {
-                        // With a blank answer there should only one ItemGradingData per submission
-                        // But to be safe, let's break out of the loop to avoid double counting
-                        blankResponses++;
-                        isBlank = true;
-                        break submissionLoop;
+                        hasBlankAnswer = true;
+                        continue;
                     }
+                    hasAnsweredOption = true;
 
                     PublishedAnswer selectedAnswer = answerMap.get(selectedAnswerId);
                     if (selectedAnswer == null) {
                         log.warn(LOG_GRADING_DATA_ANSWER_NOT_FOUND,
                                 selectedAnswerId, optionGradingData.getItemGradingId());
+                        incorrectAnswers++;
                         continue;
                     }
 
                     Boolean answerCorrect = selectedAnswer.getIsCorrect();
                     if (answerCorrect == null) {
                         log.warn(LOG_ANSWER_IS_CORRECT_IS_NULL, selectedAnswerId);
+                        incorrectAnswers++;
                         continue;
                     }
 
@@ -545,17 +1063,22 @@ public class StatisticsService {
                     }
                 }
 
-                if (incorrectAnswers <= 0 && correctAnswers >= requiredAnswerCount) {
+                if (!hasBlankAnswer && incorrectAnswers <= 0 && correctAnswers >= requiredAnswerCount) {
                     correctOptions++;
+                } else {
+                    hasIncorrectOption = true;
                 }
             }
 
-            if (!isBlank) {
-                if (correctOptions == requiredOptionsCount) {
-                    correctResponses++;
-                } else {
-                    incorrectResponses++;
-                }
+            if (!hasAnsweredOption) {
+                blankResponses++;
+                continue;
+            }
+
+            if (!hasIncorrectOption && correctOptions == requiredOptionsCount) {
+                correctResponses++;
+            } else {
+                incorrectResponses++;
             }
         }
 
@@ -572,7 +1095,7 @@ public class StatisticsService {
 
     private ItemStatistics getItemStatisticsForCalculatedQuestion(ItemDataIfc item, Set<ItemGradingData> gradingData) {
         Map<Long, Set<ItemGradingData>> itemGradingDataByAssessmentGradingId = gradingData.stream()
-                .sorted(Comparator.comparing(ItemGradingData::getPublishedAnswerId))
+                .sorted(Comparator.comparing(ItemGradingData::getPublishedAnswerId, Comparator.nullsLast(Long::compareTo)))
                 .collect(Collectors.groupingBy(ItemGradingData::getAssessmentGradingId, Collectors.toCollection(LinkedHashSet::new)));
 
         long correctResponses = 0;
@@ -611,10 +1134,11 @@ public class StatisticsService {
             }
 
             int maxAnswerSize = submissionItemGradingData.size();
-            if (maxAnswerSize == correctAnswers) {
-                correctResponses++;
-            } else if (maxAnswerSize == blankAnswers) {
+            long attemptedAnswers = maxAnswerSize - blankAnswers;
+            if (attemptedAnswers <= 0) {
                 blankResponses++;
+            } else if (attemptedAnswers == correctAnswers) {
+                correctResponses++;
             } else {
                 incorrectResponses++;
             }
@@ -665,16 +1189,17 @@ public class StatisticsService {
                     log.warn(LOG_GRADING_DATA_IS_CORRECT_IS_NULL, itemGradingData.getItemGradingId());
                 }
 
-                if (isCorrect) {
+                if (Boolean.TRUE.equals(isCorrect)) {
                     correctAnswers++;
                 }
             }
 
             int maxAnswerSize = submissionItemGradingData.size();
-            if (maxAnswerSize == correctAnswers) {
-                correctResponses++;
-            } else if (maxAnswerSize == blankAnswers) {
+            long attemptedAnswers = maxAnswerSize - blankAnswers;
+            if (attemptedAnswers <= 0) {
                 blankResponses++;
+            } else if (attemptedAnswers == correctAnswers) {
+                correctResponses++;
             } else {
                 incorrectResponses++;
             }
