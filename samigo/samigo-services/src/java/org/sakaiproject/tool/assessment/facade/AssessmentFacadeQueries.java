@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +54,7 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.RubricsService;
 import org.sakaiproject.rubrics.api.beans.RubricTransferBean;
@@ -2454,22 +2456,20 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			return releaseToGroupsByAssessmentId;
 		}
 
-		List<AuthorizationData> authorizations = new ArrayList<>();
-		final int batchSize = 500;
-		final String queryString = "select a from AuthorizationData a where a.functionId = :fid and a.qualifierId in (:ids)";
-		for (int i = 0; i < assessmentIds.size(); i += batchSize) {
-			final List<String> batch = assessmentIds.subList(i, Math.min(i + batchSize, assessmentIds.size()));
-			HibernateCallback<List<AuthorizationData>> hcb = session -> {
-				Query q = session.createQuery(queryString);
-				q.setParameter("fid", "TAKE_ASSESSMENT");
-				q.setParameterList("ids", batch);
-				return q.list();
-			};
-			List<AuthorizationData> batchAuthorizations = getHibernateTemplate().execute(hcb);
-			if (CollectionUtils.isNotEmpty(batchAuthorizations)) {
-				authorizations.addAll(batchAuthorizations);
-			}
-		}
+		HibernateCallback<List<AuthorizationData>> hcb = session -> {
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<AuthorizationData> cq = cb.createQuery(AuthorizationData.class);
+			Root<AuthorizationData> root = cq.from(AuthorizationData.class);
+
+			Predicate functionIdPredicate = cb.equal(root.get("functionId"), "TAKE_ASSESSMENT");
+			Predicate qualifierIdPredicate =
+					HibernateCriterionUtils.PredicateInSplitter(cb, root.<String>get("qualifierId"), assessmentIds);
+
+			cq.select(root).where(cb.and(functionIdPredicate, qualifierIdPredicate));
+			return session.createQuery(cq).getResultList();
+		};
+
+		List<AuthorizationData> authorizations = getHibernateTemplate().execute(hcb);
 		if (CollectionUtils.isEmpty(authorizations)) {
 			return releaseToGroupsByAssessmentId;
 		}
