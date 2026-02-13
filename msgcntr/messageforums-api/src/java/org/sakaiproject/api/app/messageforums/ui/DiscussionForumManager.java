@@ -436,15 +436,15 @@ public interface DiscussionForumManager
    * @param message
    * @param readStatus TODO
    */
-  public void markMessageAs(Message message, boolean readStatus);
+  public void markMessageAsNoRead(Message message, boolean readStatus);
   
   /**
-   * Mark the read status for a given message for a given user
+   * Mark the not read status for a given message for a given user
    * @param message
    * @param readStatus
    * @param userId
    */
-  public void markMessageReadStatusForUser(Message message, boolean readStatus, String userId);
+  public void markMessageNotReadStatusForUser(Message message, boolean readStatus, String userId);
 
    
   /**

@@ -1134,37 +1134,37 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	return message.getTopic() != null;
     }
     
-    public void markMessageReadForUser(Long topicId, Long messageId, boolean read) {
+    public void markMessageNotReadForUser(Long topicId, Long messageId, boolean read) {
         if (messageId == null || topicId == null) {
-            log.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId);
+            log.error("markMessageReadNotForUser failed with topicId: " + topicId + ", messageId: " + messageId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        log.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
+        log.debug("markMessageNotReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
 
         if(getCurrentUser()!=null){
-        markMessageReadForUser(topicId, messageId, read, getCurrentUser());
+        markMessageNotReadForUser(topicId, messageId, read, getCurrentUser());
         }
         else return;
     }
     
-    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId)
+    public void markMessageNotReadForUser(Long topicId, Long messageId, boolean read, String userId)
     {
-    	markMessageReadForUser(topicId, messageId, read, userId, toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentTool().getId());
+    	markMessageNotReadForUser(topicId, messageId, read, userId, toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentTool().getId());
     }
     
-    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId, String context, String toolId)
+    public void markMessageNotReadForUser(Long topicId, Long messageId, boolean read, String userId, String context, String toolId)
     {
     	// to only add to event log if not read
     	boolean trulyUnread;
     	boolean originalReadStatus;
     	
     	if (messageId == null || topicId == null || userId == null) {
-            log.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId + ", userId: " + userId);
+            log.error("markMessageNotReadForUser failed with topicId: " + topicId + ", messageId: " + messageId + ", userId: " + userId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        log.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
+        log.debug("markMessageNotReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
 
         UnreadStatus status = findUnreadStatusByUserId(topicId, messageId, userId);
         if (status == null) {
@@ -1181,21 +1181,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         status.setTopicId(topicId);
         status.setMessageId(messageId);
         status.setUserId(userId);
-        status.setRead(Boolean.valueOf(read));
+        status.setRead(!Boolean.valueOf(read));
 
         Message message = (Message) getMessageById(messageId);
         boolean isMessageFromForums = isMessageFromForums(message);
-        if (trulyUnread) {
-        	//increment the message count 	 
-            	Integer nr = message.getNumReaders(); 	 
-            	if (nr == null) 	 
-                    nr = Integer.valueOf(0); 	 
-            	nr = Integer.valueOf(nr.intValue() + 1); 	 
-            	message.setNumReaders(nr); 	 
-            	log.debug("set Message readers count to: " + nr); 	 
-            	//baseForum is probably null 	 
-            	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null) 	 
-                    message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum()); 	 
+        Integer nr = message.getNumReaders();
+        if (trulyUnread && !read) {
+        	//increment the message count
+            	if (nr == null)
+                    nr = Integer.valueOf(0);
+            	nr = Integer.valueOf(nr.intValue() + 1);
+            	message.setNumReaders(nr);
+            	log.debug("set Message readers count to: " + nr);
+            	//baseForum is probably null
+            	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null)
+                    message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum());
 	 
             	message = this.saveOrUpdateMessage(message, false, toolId, userId, context, true);
 
@@ -1203,8 +1203,18 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message, toolId, userId, context), false));
         	else
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(message, toolId, userId, context), false));
+        } else if (!trulyUnread && read) {
+            //decrement the message count
+            if (nr == null)
+                nr = Integer.valueOf(0);
+            if (nr > 0 ) {
+                nr = Integer.valueOf(nr.intValue() - 1);
+            }
+            message.setNumReaders(nr);
+            log.debug("set message readers count to [{}]", nr);
+            message = this.saveOrUpdateMessage(message, false, toolId, userId, context, true);
         }
-        	
+
         getHibernateTemplate().saveOrUpdate(status);
        
         
