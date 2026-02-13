@@ -2117,12 +2117,19 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             Instant close = sa.getCloseTime();
             this.visible = Instant.now().isAfter(Optional.ofNullable(due).orElse(Instant.now()))
                 && Instant.now().isAfter(Optional.ofNullable(close).orElse(Instant.now()));
-            if (this.getDateSubmitted() != null || (this.draft && this.visible)) {
+
+            String currentUserId = userDirectoryService.getCurrentUser().getId();
+            boolean isCurrentUserSubmitter = as.getSubmitters().stream()
+                .anyMatch(ass -> currentUserId.equals(ass.getSubmitter()));
+
+            if (this.submitted || (this.draft && this.visible) || isCurrentUserSubmitter) {
                 this.submittedText = as.getSubmittedText();
                 if (this.submitted) {
-                    this.dateSubmitted
-                        = userTimeService.dateTimeFormat(as.getDateSubmitted(), null, null);
-                    this.dateSubmittedEpochSeconds = as.getDateSubmitted() != null ? as.getDateSubmitted().getEpochSecond() : 0;
+                    Instant dateSubmitted = as.getDateSubmitted();
+                    if (dateSubmitted != null) {
+                        this.dateSubmitted = userTimeService.dateTimeFormat(dateSubmitted, null, null);
+                        this.dateSubmittedEpochSeconds = dateSubmitted.getEpochSecond();
+                    }
                 }
                 if (as.getDateSubmitted() != null) {
                     this.late = as.getDateSubmitted().compareTo(as.getAssignment().getDueDate()) > 0;

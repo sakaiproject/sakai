@@ -54,6 +54,8 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.MessageMoveHistory;
+import org.sakaiproject.api.app.messageforums.OpenForum;
+import org.sakaiproject.api.app.messageforums.OpenTopic;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -63,6 +65,8 @@ import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
@@ -1130,37 +1134,37 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	return message.getTopic() != null;
     }
     
-    public void markMessageReadForUser(Long topicId, Long messageId, boolean read) {
+    public void markMessageNotReadForUser(Long topicId, Long messageId, boolean read) {
         if (messageId == null || topicId == null) {
-            log.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId);
+            log.error("markMessageReadNotForUser failed with topicId: " + topicId + ", messageId: " + messageId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        log.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
+        log.debug("markMessageNotReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
 
         if(getCurrentUser()!=null){
-        markMessageReadForUser(topicId, messageId, read, getCurrentUser());
+        markMessageNotReadForUser(topicId, messageId, read, getCurrentUser());
         }
         else return;
     }
     
-    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId)
+    public void markMessageNotReadForUser(Long topicId, Long messageId, boolean read, String userId)
     {
-    	markMessageReadForUser(topicId, messageId, read, userId, toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentTool().getId());
+    	markMessageNotReadForUser(topicId, messageId, read, userId, toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentTool().getId());
     }
     
-    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId, String context, String toolId)
+    public void markMessageNotReadForUser(Long topicId, Long messageId, boolean read, String userId, String context, String toolId)
     {
     	// to only add to event log if not read
     	boolean trulyUnread;
     	boolean originalReadStatus;
     	
     	if (messageId == null || topicId == null || userId == null) {
-            log.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId + ", userId: " + userId);
+            log.error("markMessageNotReadForUser failed with topicId: " + topicId + ", messageId: " + messageId + ", userId: " + userId);
             throw new IllegalArgumentException("Null Argument");
         }
 
-        log.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
+        log.debug("markMessageNotReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
 
         UnreadStatus status = findUnreadStatusByUserId(topicId, messageId, userId);
         if (status == null) {
@@ -1177,21 +1181,21 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         status.setTopicId(topicId);
         status.setMessageId(messageId);
         status.setUserId(userId);
-        status.setRead(Boolean.valueOf(read));
+        status.setRead(!Boolean.valueOf(read));
 
         Message message = (Message) getMessageById(messageId);
         boolean isMessageFromForums = isMessageFromForums(message);
-        if (trulyUnread) {
-        	//increment the message count 	 
-            	Integer nr = message.getNumReaders(); 	 
-            	if (nr == null) 	 
-                    nr = Integer.valueOf(0); 	 
-            	nr = Integer.valueOf(nr.intValue() + 1); 	 
-            	message.setNumReaders(nr); 	 
-            	log.debug("set Message readers count to: " + nr); 	 
-            	//baseForum is probably null 	 
-            	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null) 	 
-                    message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum()); 	 
+        Integer nr = message.getNumReaders();
+        if (trulyUnread && !read) {
+        	//increment the message count
+            	if (nr == null)
+                    nr = Integer.valueOf(0);
+            	nr = Integer.valueOf(nr.intValue() + 1);
+            	message.setNumReaders(nr);
+            	log.debug("set Message readers count to: " + nr);
+            	//baseForum is probably null
+            	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null)
+                    message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum());
 	 
             	message = this.saveOrUpdateMessage(message, false, toolId, userId, context, true);
 
@@ -1199,8 +1203,18 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message, toolId, userId, context), false));
         	else
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(message, toolId, userId, context), false));
+        } else if (!trulyUnread && read) {
+            //decrement the message count
+            if (nr == null)
+                nr = Integer.valueOf(0);
+            if (nr > 0 ) {
+                nr = Integer.valueOf(nr.intValue() - 1);
+            }
+            message.setNumReaders(nr);
+            log.debug("set message readers count to [{}]", nr);
+            message = this.saveOrUpdateMessage(message, false, toolId, userId, context, true);
         }
-        	
+
         getHibernateTemplate().saveOrUpdate(status);
        
         
@@ -1757,19 +1771,33 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         log.debug("isForumLocked executing with forumId: " + forumId + ":: topicId: " + topicId);
 
+        final Date now = new Date();
+
         HibernateCallback<Boolean> hcb = session -> {
-            Query q = session.getNamedQuery("findForumLockedAttribute");
-            q.setParameter("id", forumId, LongType.INSTANCE);
-            return (Boolean) q.uniqueResult();
+            OpenForumImpl forum = session.get(OpenForumImpl.class, forumId);
+            OpenTopicImpl topic = session.get(OpenTopicImpl.class, topicId);
+            return isLocked(forum, now) || isLocked(topic, now);
         };
 
-        HibernateCallback<Boolean> hcb2 = session -> {
-            Query q = session.getNamedQuery("findTopicLockedAttribute");
-            q.setParameter("id", topicId, LongType.INSTANCE);
-            return (Boolean) q.uniqueResult();
-        };
-        
-        return getHibernateTemplate().execute(hcb) || getHibernateTemplate().execute(hcb2);
+        return getHibernateTemplate().execute(hcb);
+    }
+
+    private boolean isLocked(OpenForum forum, Date now) {
+        if (forum == null) return true;
+        if (Boolean.TRUE.equals(forum.getLocked())) return true;
+        if (!Boolean.TRUE.equals(forum.getAvailabilityRestricted())) return false;
+        if (!Boolean.TRUE.equals(forum.getLockedAfterClosed())) return false;
+        Date closeDate = forum.getCloseDate();
+        return closeDate != null && closeDate.before(now);
+    }
+
+    private boolean isLocked(OpenTopic topic, Date now) {
+        if (topic == null) return true;
+        if (Boolean.TRUE.equals(topic.getLocked())) return true;
+        if (!Boolean.TRUE.equals(topic.getAvailabilityRestricted())) return false;
+        if (!Boolean.TRUE.equals(topic.getLockedAfterClosed())) return false;
+        Date closeDate = topic.getCloseDate();
+        return closeDate != null && closeDate.before(now);
     }
     
     // helpers

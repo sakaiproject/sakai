@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,20 +44,15 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.StoredDigestContentProducer;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
 
 @Slf4j
-public class ContentHostingContentProducer implements EntityContentProducer, StoredDigestContentProducer
+public class ContentHostingContentProducer implements EntityContentProducer, EntityContentProducerEvents, StoredDigestContentProducer
 {
-
-	/**
-	 * resolved dep
-	 */
-	private SearchService searchService = null;
 
 	/**
 	 * resolved dep
@@ -99,6 +95,12 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 
 	private ServerConfigurationService serverConfigurationService;
 	
+	// Map of events to their corresponding search index actions
+	private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+			ContentHostingService.EVENT_RESOURCE_ADD, SearchBuilderItem.ACTION_ADD,
+			ContentHostingService.EVENT_RESOURCE_WRITE, SearchBuilderItem.ACTION_ADD,
+			ContentHostingService.EVENT_RESOURCE_REMOVE, SearchBuilderItem.ACTION_DELETE
+	);
 	
 	public ContentHostingContentProducer() {
 		customProperties = new ArrayList<String>();
@@ -143,18 +145,7 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 		try
 		{
 
-			if ("true".equals(serverConfigurationService.getString("search.enable",
-					"false")))
-			{
-
-				searchService.registerFunction(ContentHostingService.EVENT_RESOURCE_ADD);
-				searchService
-						.registerFunction(ContentHostingService.EVENT_RESOURCE_WRITE);
-				searchService
-						.registerFunction(ContentHostingService.EVENT_RESOURCE_REMOVE);
-				searchIndexBuilder.registerEntityContentProducer(this);
-
-			}
+			searchIndexBuilder.registerEntityContentProducer(this);
 
 		}
 		catch (Throwable t)
@@ -421,28 +412,30 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 	public Integer getAction(Event event)
 	{
 		boolean debug = log.isDebugEnabled();
-		String eventName = event.getEvent();
-		if (ContentHostingService.EVENT_RESOURCE_ADD.equals(eventName)
-				|| ContentHostingService.EVENT_RESOURCE_WRITE.equals(eventName))
-		{
+		Integer action = EVENT_ACTIONS.get(event.getEvent());
+		
+		if (action != null && action.equals(SearchBuilderItem.ACTION_ADD)) {
 			if (debug)
 			{
 				log.debug("ContentHosting.getAction" + event + ":add");
 			}
-			if ( isForIndex(event.getResource())) {
+			if (isForIndex(event.getResource())) {
 				return SearchBuilderItem.ACTION_ADD;
 			}
+			return SearchBuilderItem.ACTION_UNKNOWN;
 		}
-		if (ContentHostingService.EVENT_RESOURCE_REMOVE.equals(eventName))
-		{
+		
+		if (action != null && action.equals(SearchBuilderItem.ACTION_DELETE)) {
 			if (debug)
 			{
 				log.debug("ContentHosting.getAction" + event + ":delete");
 			}
-			if ( isForIndexDelete(event.getResource())) {
+			if (isForIndexDelete(event.getResource())) {
 				return SearchBuilderItem.ACTION_DELETE;
 			}
+			return SearchBuilderItem.ACTION_UNKNOWN;
 		}
+		
 		if (debug)
 		{
 			log.debug("ContentHosting.getAction" + event + ":unknown");
@@ -453,7 +446,7 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 	public boolean matches(Event event)
 	{
 		boolean debug = log.isDebugEnabled();
-		boolean m = !SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
+		boolean m = EVENT_ACTIONS.containsKey(event.getEvent());
 		if (debug)
 		{
 			log.debug("ContentHosting.matches" + event + ":" + m);
@@ -883,22 +876,6 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 	}
 
 	/**
-	 * @return the searchService
-	 */
-	public SearchService getSearchService()
-	{
-		return searchService;
-	}
-
-	/**
-	 * @param searchService the searchService to set
-	 */
-	public void setSearchService(SearchService searchService)
-	{
-		this.searchService = searchService;
-	}
-
-	/**
 	 * @return the serverConfigurationService
 	 */
 	public ServerConfigurationService getServerConfigurationService()
@@ -929,6 +906,11 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 	public void setSiteService(SiteService siteService)
 	{
 		this.siteService = siteService;
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions() {
+		return EVENT_ACTIONS.keySet();
 	}
 
 }

@@ -435,7 +435,7 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
 		  }else{
 			  String toolId = DiscussionForumService.FORUMS_TOOL_ID;
 			  String topicId = msg.getTopic().getId().toString();
-			  messageManager.markMessageReadForUser(new Long(topicId), new Long(readMessageId), true, userId, siteId, toolId); 
+			  messageManager.markMessageNotReadForUser(new Long(topicId), new Long(readMessageId), false, userId, siteId, toolId); 
 		  }
 	  } catch (HibernateOptimisticLockingFailureException holfe) {
 

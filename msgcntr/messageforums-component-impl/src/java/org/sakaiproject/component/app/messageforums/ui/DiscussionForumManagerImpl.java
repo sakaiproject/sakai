@@ -1758,15 +1758,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return false; 
   }
 
-  public void markMessageAs(Message message, boolean readStatus)
+  public void markMessageAsNoRead(Message message, boolean readStatus)
   {
     if (log.isDebugEnabled())
     {
-      log.debug("markMessageAsRead(Message" + message + ")");
+      log.debug("markMessageAsNotRead(Message" + message + ")");
     }
     try
     {
-      messageManager.markMessageReadForUser(message.getTopic().getId(), message
+      messageManager.markMessageNotReadForUser(message.getTopic().getId(), message
           .getId(), readStatus);
     }
     catch (Exception e)
@@ -1776,15 +1776,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   }
   
-  public void markMessageReadStatusForUser(Message message, boolean readStatus, String userId)
+  public void markMessageNotReadStatusForUser(Message message, boolean readStatus, String userId)
   {
 	  if (log.isDebugEnabled())
 	  {
-		  log.debug("markMessageReadStatusForUser(Message" + message + " readStatus:" + readStatus + " userId: " + userId + ")");
+		  log.debug("markMessageNoReadStatusForUser(Message" + message + " readStatus:" + readStatus + " userId: " + userId + ")");
 	  }
 	  try
 	  {
-		  messageManager.markMessageReadForUser(message.getTopic().getId(), message
+		  messageManager.markMessageNotReadForUser(message.getTopic().getId(), message
 				  .getId(), readStatus, userId);
 	  }
 	  catch (Exception e)

@@ -934,13 +934,8 @@ public class SakaiLTIUtil {
 					}
 					setProperty(props, "ext_outcome_data_values_accepted", "text");  // SAK-25696
 
-					// New Basic Outcomes URL
-					String outcome_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lis_basic_outcome_url", null);
-					if (outcome_url == null) {
-						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
-					}
-					setProperty(props, "ext_ims_lis_basic_outcome_url", outcome_url);
-					outcome_url = ServerConfigurationService.getString("lti.consumer." + LTIConstants.LIS_OUTCOME_SERVICE_URL, null);
+					// Standard Outcomes service URL
+					String outcome_url = ServerConfigurationService.getString("lti.consumer." + LTIConstants.LIS_OUTCOME_SERVICE_URL, null);
 					if (outcome_url == null) {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
@@ -1217,13 +1212,9 @@ public class SakaiLTIUtil {
 				log.debug("theRole={}", theRole);
 				if (allowoutcomes == 1) {
 					setProperty(ltiProps, "ext_outcome_data_values_accepted", "text");  // SAK-25696
-					// New Basic Outcomes URL
-					String outcome_url = ServerConfigurationService.getString("lti.consumer.ext_ims_lis_basic_outcome_url", null);
-					if (outcome_url == null) {
-						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
-					}
-					setProperty(ltiProps, "ext_ims_lis_basic_outcome_url", outcome_url);
-					outcome_url = ServerConfigurationService.getString("lti.consumer." + LTIConstants.LIS_OUTCOME_SERVICE_URL, null);
+
+					// Standard Outcomes service URL
+					String outcome_url = ServerConfigurationService.getString("lti.consumer." + LTIConstants.LIS_OUTCOME_SERVICE_URL, null);
 					if (outcome_url == null) {
 						outcome_url = getOurServerUrl() + LTI11_SERVICE_PATH;
 					}
@@ -1797,7 +1788,6 @@ public class SakaiLTIUtil {
 	context_type: Group
 	custom_x=42
 	custom_y=043040450
-	ext_ims_lis_basic_outcome_url: http://localhost:8080/imsblis/service/
 	ext_ims_lis_memberships_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3
 	ext_ims_lis_memberships_url: http://localhost:8080/imsblis/service/
 	ext_ims_lti_tool_setting_id: c1007fb6345a87cd651785422a2925114d0707fad32c66edb6bfefbf2165819a:::admin:::content:3

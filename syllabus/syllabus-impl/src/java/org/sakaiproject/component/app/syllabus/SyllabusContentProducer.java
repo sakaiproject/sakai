@@ -26,6 +26,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -39,8 +41,8 @@ import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
@@ -57,11 +59,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author Generated for syllabus search support
  */
 @Slf4j
-public class SyllabusContentProducer implements EntityContentProducer {
+public class SyllabusContentProducer implements EntityContentProducer, EntityContentProducerEvents {
 
-	@Setter @Getter
-	private SearchService searchService = null;
-	
 	@Setter @Getter
 	private SearchIndexBuilder searchIndexBuilder = null;
 	
@@ -71,11 +70,14 @@ public class SyllabusContentProducer implements EntityContentProducer {
 	@Setter @Getter
 	private SyllabusManager syllabusManager = null;
 	
-	@Setter @Getter
-	private List<String> addEvents = new ArrayList<>();
-	
-	@Setter @Getter
-	private List<String> removeEvents = new ArrayList<>();
+	// Map of events to their corresponding search index actions
+	private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+			SyllabusService.EVENT_SYLLABUS_POST_NEW, SearchBuilderItem.ACTION_ADD,
+			SyllabusService.EVENT_SYLLABUS_POST_CHANGE, SearchBuilderItem.ACTION_ADD,
+			SyllabusService.EVENT_SYLLABUS_DRAFT_NEW, SearchBuilderItem.ACTION_ADD,
+			SyllabusService.EVENT_SYLLABUS_DRAFT_CHANGE, SearchBuilderItem.ACTION_ADD,
+			SyllabusService.EVENT_SYLLABUS_DELETE_POST, SearchBuilderItem.ACTION_DELETE
+	);
 	
 	@Setter
 	private SiteService siteService;
@@ -87,23 +89,7 @@ public class SyllabusContentProducer implements EntityContentProducer {
 	private ServerConfigurationService serverConfigurationService;
 
 	public void init() {
-		
-		if (serverConfigurationService != null && serverConfigurationService.getBoolean("search.enable", false)) {
-			
-			addEvents.add(SyllabusService.EVENT_SYLLABUS_POST_NEW);
-			addEvents.add(SyllabusService.EVENT_SYLLABUS_POST_CHANGE);
-			addEvents.add(SyllabusService.EVENT_SYLLABUS_DRAFT_NEW);
-			addEvents.add(SyllabusService.EVENT_SYLLABUS_DRAFT_CHANGE);
-			
-			removeEvents.add(SyllabusService.EVENT_SYLLABUS_DELETE_POST);
-			
-			// Register all events with search service
-			addEvents.forEach(e -> searchService.registerFunction(e));
-			removeEvents.forEach(e -> searchService.registerFunction(e));
-			
-			// Register this content producer with the search index builder
-			searchIndexBuilder.registerEntityContentProducer(this);
-		}
+		searchIndexBuilder.registerEntityContentProducer(this);
 	}
 
 	private Reference getReference(String reference) {
@@ -148,20 +134,7 @@ public class SyllabusContentProducer implements EntityContentProducer {
 
 	@Override
 	public Integer getAction(Event event) {
-		String evt = event.getEvent();
-		if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-		
-		for (String match : addEvents) {
-			if (evt.equals(match)) {
-				return SearchBuilderItem.ACTION_ADD;
-			}
-		}
-		for (String match : removeEvents) {
-			if (evt.equals(match)) {
-				return SearchBuilderItem.ACTION_DELETE;
-			}
-		}
-		return SearchBuilderItem.ACTION_UNKNOWN;
+		return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
 	}
 
 	@Override
@@ -334,7 +307,7 @@ public class SyllabusContentProducer implements EntityContentProducer {
 
 	@Override
 	public boolean matches(Event event) {
-		return matches(event.getResource());
+		return EVENT_ACTIONS.containsKey(event.getEvent());
 	}
 
 	/**
@@ -357,5 +330,10 @@ public class SyllabusContentProducer implements EntityContentProducer {
 	 */
 	private String getReference(String siteId, Long syllabusId) {
 		return SyllabusService.REFERENCE_ROOT + "/" + siteId + "/" + syllabusId.toString();
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions() {
+		return EVENT_ACTIONS.keySet();
 	}
 } 

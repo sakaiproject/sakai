@@ -78,7 +78,7 @@ public class DiscussionTopicBean
   private Boolean isReviseOwn = null;
   private Boolean isDeleteAny = null;
   private Boolean isDeleteOwn = null;
-  private Boolean isMarkAsRead = null;
+  private Boolean isMarkAsNotRead = null;
   private Boolean isModeratedAndHasPerm = null;
   private Boolean isModeratePostings = null;
 
@@ -386,20 +386,7 @@ public class DiscussionTopicBean
   public Boolean getTopicLocked()
   {
     log.debug("getTopicLocked()");
-    if (StringUtils.isBlank(locked)){
-	    if (topic == null || topic.getLocked() == null || !topic.getLocked())
-	    {
-	      locked = Boolean.FALSE.toString();
-	    }
-	    else
-	    {
-	      locked =  Boolean.TRUE.toString();
-	    }
-    }
-
-    handleLockedAfterClosedCondition();
-
-    return Boolean.parseBoolean(locked);
+    return topic != null && topic.getLocked() != null && topic.getLocked();
   }
 
   /**
@@ -409,15 +396,15 @@ public class DiscussionTopicBean
   {
     log.debug("setTopicLocked(Boolean {})", locked);
     topic.setLocked(locked);
+    this.locked = String.valueOf(Boolean.TRUE.equals(locked));
   }
 
   private void handleLockedAfterClosedCondition(){
     Boolean availabilityRestricted = getTopic().getAvailabilityRestricted();
 
-    if(availabilityRestricted && locked.equals(Boolean.FALSE.toString())) {
+    if (Boolean.TRUE.equals(availabilityRestricted) && Boolean.FALSE.toString().equals(locked)) {
       Date closeDate = getTopic().getCloseDate();
-      if (closeDate != null && getTopic().getLockedAfterClosed() && closeDate.before(new Date())) {
-        setTopicLocked(true);
+      if (closeDate != null && Boolean.TRUE.equals(getTopic().getLockedAfterClosed()) && closeDate.before(new Date())) {
         locked = Boolean.TRUE.toString();
       }
     }
@@ -887,15 +874,15 @@ public class DiscussionTopicBean
     this.isDeleteOwn = isDeleteOwn;
   }
 
-  public boolean getIsMarkAsRead()
+  public boolean getIsMarkAsNotRead()
   {
-    log.debug("getIsMarkAsRead()");
-    return isMarkAsRead.booleanValue();
+    log.debug("getIsMarkAsNotRead()");
+    return isMarkAsNotRead != null ? isMarkAsNotRead : false;
   }
 
-  public void setIsMarkAsRead(Boolean isMarkAsRead) {
-    log.debug("setIsMarkAsRead({})", isMarkAsRead);
-    this.isMarkAsRead = isMarkAsRead;
+  public void setIsMarkAsNotRead(Boolean isMarkAsNotRead) {
+    log.debug("setIsMarkAsNotRead({})", isMarkAsNotRead);
+    this.isMarkAsNotRead = isMarkAsNotRead;
   }
 
   public boolean getIsModeratedAndHasPerm()
@@ -975,7 +962,7 @@ public class DiscussionTopicBean
 	/*		if(uiPermissionsManager.isChangeSettings(topic, (DiscussionForum)topic.getBaseForum()) 
 					|| uiPermissionsManager.isDeleteAny(topic, (DiscussionForum)topic.getBaseForum())
 					|| uiPermissionsManager.isDeleteOwn(topic, (DiscussionForum)topic.getBaseForum())
-					|| uiPermissionsManager.isMarkAsRead(topic, (DiscussionForum)topic.getBaseForum())
+					|| uiPermissionsManager.isMarkAsNotRead(topic, (DiscussionForum)topic.getBaseForum())
 					|| uiPermissionsManager.isMovePostings(topic, (DiscussionForum)topic.getBaseForum())
 					|| uiPermissionsManager.isNewResponse(topic, (DiscussionForum)topic.getBaseForum())
 					|| uiPermissionsManager.isNewResponseToResponse(topic, (DiscussionForum)topic.getBaseForum())

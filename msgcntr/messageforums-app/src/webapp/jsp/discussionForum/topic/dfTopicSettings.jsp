@@ -51,10 +51,10 @@
 		<div class="topicBloc" style="padding:0 .5em"><h:messages styleClass="sak-banner-warn" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 			<p>
 				<span class="title">
-					<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.locked=='true'}">
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.locked=='true'}">
 						<span class="bi bi-lock-fill" aria-hidden="true" style="margin-right:.3em"></span>
 					</h:panelGroup>
-					<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.locked=='false'}">
+					<h:panelGroup rendered="#{ForumTool.selectedTopic.locked=='false'}">
 						<span class="bi bi-unlock-fill" aria-hidden="true" style="margin-right:.3em"></span>
 					</h:panelGroup>
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" rendered="#{!ForumTool.selectedTopic.markForDuplication}"/>

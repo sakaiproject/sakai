@@ -98,11 +98,11 @@ public interface MessageForumsMessageManager {
     
     public void markMessageApproval(Long messageId, boolean approved);
 
-    public void markMessageReadForUser(Long topicId, Long messageId, boolean read);
+    public void markMessageNotReadForUser(Long topicId, Long messageId, boolean read);
     
-    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId);
+    public void markMessageNotReadForUser(Long topicId, Long messageId, boolean read, String userId);
     
-    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId, String context, String toolId);
+    public void markMessageNotReadForUser(Long topicId, Long messageId, boolean read, String userId, String context, String toolId);
 
     public boolean isMessageReadForUser(Long topicId, Long messageId);
 

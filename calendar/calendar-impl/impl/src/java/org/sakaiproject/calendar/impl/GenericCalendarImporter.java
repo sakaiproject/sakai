@@ -27,17 +27,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -46,8 +44,8 @@ import org.sakaiproject.calendar.api.CalendarImporterService;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.impl.readers.CSVReader;
-import org.sakaiproject.calendar.impl.readers.OutlookReader;
 import org.sakaiproject.calendar.impl.readers.IcalendarReader;
+import org.sakaiproject.calendar.impl.readers.OutlookReader;
 import org.sakaiproject.calendar.impl.readers.Reader;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -59,6 +57,10 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class provides common importing functionality after a lower-level reader has taken care of the peculiarities of a given import format.
@@ -97,10 +99,15 @@ public class GenericCalendarImporter implements CalendarImporterService
 	@Setter private static ResourceLoader rb = new ResourceLoader("calendar");
 
 	public static DateTimeFormatter timeFormatter() {
-		return DateTimeFormatter.ofPattern("h:mm[:ss] a");
+		// Case-insensitive parser that accepts AM/PM in English regardless of system locale
+		return new DateTimeFormatterBuilder()
+				.parseCaseInsensitive()
+				.appendPattern("h:mm[:ss] a")
+				.toFormatter(Locale.ENGLISH);
 	}
 
 	public static DateTimeFormatter time24HourFormatter() {
+		// 24-hour format works the same in all locales
 		return DateTimeFormatter.ofPattern("HH:mm[:ss]");
 	}
 

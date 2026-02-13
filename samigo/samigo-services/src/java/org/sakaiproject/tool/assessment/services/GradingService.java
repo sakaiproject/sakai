@@ -1736,10 +1736,9 @@ public class GradingService
     }
     
     try {
-        	Long publishedAssessmentId = data.getPublishedAssessmentId();
         	String agent = data.getAgentId();
         	String comment = data.getComments();
-        	gbsHelper.updateExternalAssessmentComment(publishedAssessmentId, agent, comment, gradingService);
+        	gbsHelper.updateExternalAssessmentComment(data, agent, comment, gradingService);
     }
     catch (Exception ex) {
           log.warn("Error sending comments to gradebook: {}", ex.getMessage());

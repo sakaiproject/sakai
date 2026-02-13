@@ -25,19 +25,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.util.HTMLParser;
@@ -49,18 +49,23 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
 @Slf4j
-public class RWikiEntityContentProducer implements EntityContentProducer
+public class RWikiEntityContentProducer implements EntityContentProducer, EntityContentProducerEvents
 {
 
 	private RenderService renderService = null;
 
 	private RWikiObjectService objectService = null;
 
-	private SearchService searchService = null;
-
 	private SearchIndexBuilder searchIndexBuilder = null;
 
 	private EntityManager entityManager = null;
+
+	// Map of events to their corresponding search index actions
+	private static final Map<String, Integer> EVENT_ACTIONS = Map.of(
+			RWikiObjectService.EVENT_RESOURCE_ADD, SearchBuilderItem.ACTION_ADD,
+			RWikiObjectService.EVENT_RESOURCE_WRITE, SearchBuilderItem.ACTION_ADD,
+			RWikiObjectService.EVENT_RESOURCE_REMOVE, SearchBuilderItem.ACTION_DELETE
+	);
 
 	public void init()
 	{
@@ -71,19 +76,11 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 			renderService = (RenderService) load(cm, RenderService.class.getName());
 			objectService = (RWikiObjectService) load(cm, RWikiObjectService.class
 					.getName());
-			searchService = (SearchService) load(cm, SearchService.class.getName());
 			searchIndexBuilder = (SearchIndexBuilder) load(cm, SearchIndexBuilder.class
 					.getName());
 			entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 
-			if ( "true".equals(ServerConfigurationService.getString(
-					"search.enable", "false")))
-			{
-
-				searchService.registerFunction(RWikiObjectService.EVENT_RESOURCE_ADD);
-				searchService.registerFunction(RWikiObjectService.EVENT_RESOURCE_WRITE);
-				searchIndexBuilder.registerEntityContentProducer(this);
-			}
+			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 		catch (Throwable t)
 		{
@@ -180,22 +177,12 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 
 	public Integer getAction(Event event)
 	{
-		String eventName = event.getEvent();
-		if (RWikiObjectService.EVENT_RESOURCE_ADD.equals(eventName)
-				|| RWikiObjectService.EVENT_RESOURCE_WRITE.equals(eventName))
-		{
-			return SearchBuilderItem.ACTION_ADD;
-		}
-		if (RWikiObjectService.EVENT_RESOURCE_REMOVE.equals(eventName))
-		{
-			return SearchBuilderItem.ACTION_DELETE;
-		}
-		return SearchBuilderItem.ACTION_UNKNOWN;
+		return EVENT_ACTIONS.getOrDefault(event.getEvent(), SearchBuilderItem.ACTION_UNKNOWN);
 	}
 
 	public boolean matches(Event event)
 	{
-		return !SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
+		return EVENT_ACTIONS.containsKey(event.getEvent());
 	}
 
 	public String getTool()
@@ -443,6 +430,11 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		{
 			return "";
 		}
+	}
+
+	@Override
+	public Set<String> getTriggerFunctions() {
+		return EVENT_ACTIONS.keySet();
 	}
 
 }
