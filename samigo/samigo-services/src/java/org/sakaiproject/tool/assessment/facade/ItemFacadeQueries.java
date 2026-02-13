@@ -21,12 +21,6 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
-import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ALL_HASH_BACKFILLABLE_ITEM_IDS_HQL;
-import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ID_PARAMS_PLACEHOLDER;
-import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ITEMS_BY_ID_HQL;
-import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.TOTAL_HASH_BACKFILLABLE_ITEM_COUNT_HQL;
-import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.TOTAL_ITEM_COUNT_HQL;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -177,33 +171,25 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         }
     }
 
-      private static final Map<String,String> BACKFILL_HASHES_HQL = new HashMap<String,String>() {{
-        this.put(TOTAL_ITEM_COUNT_HQL, "select count(*) from ItemData");
-        this.put(TOTAL_HASH_BACKFILLABLE_ITEM_COUNT_HQL, "select count(*) from ItemData as item where item.hash is null");
-        this.put(ALL_HASH_BACKFILLABLE_ITEM_IDS_HQL, "select item.id from ItemData as item where item.hash is null");
-        this.put(ITEMS_BY_ID_HQL, "select item from ItemData as item where item.id in (" + ID_PARAMS_PLACEHOLDER + ")");
-    }};
-
     @Override
     public BackfillItemHashResult backfillItemHashes(int batchSize) {
         return itemHashUtil.backfillItemHashes(
                 batchSize,
-                BACKFILL_HASHES_HQL,
+                false,
                 ItemData.class,
                 i -> {
                     final String hash = itemHashUtil.hashItemUnchecked(i);
                     i.setHash(hash);
                     return i;
-                },
-                getHibernateTemplate());
+                });
     }
 
   public ItemFacade getItem(Long itemId) {
-	  ItemData item = null;
+	  ItemData item;
 	  try {
-		  item = (ItemData) getHibernateTemplate().load(ItemData.class, itemId);
+		  item = getHibernateTemplate().load(ItemData.class, itemId);
 	  } catch (DataAccessException e) {
-		  log.warn("unable to retrieve item " + itemId + " due to:", e);
+		  log.warn("unable to retrieve item [{}] due to:", itemId, e);
 		  return null;
 	  }
 	  return new ItemFacade(item);
