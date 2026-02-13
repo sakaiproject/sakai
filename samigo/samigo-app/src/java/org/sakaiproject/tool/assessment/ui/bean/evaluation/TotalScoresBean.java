@@ -361,25 +361,6 @@ public class TotalScoresBean implements Serializable, PhaseAware {
     return tallyableItems;
   }
 
-  private Map<Long, Integer> getCorrectAnswerCountByItem(Map publishedAnswerHash) {
-    Map<Long, Integer> correctAnswerCountByItem = new HashMap<>();
-    if (publishedAnswerHash == null) {
-      return correctAnswerCountByItem;
-    }
-    for (Object answerObject : publishedAnswerHash.values()) {
-      AnswerIfc answer = (AnswerIfc) answerObject;
-      if (answer == null || answer.getItem() == null) {
-        continue;
-      }
-      if (Boolean.TRUE.equals(answer.getIsCorrect())) {
-        Long itemId = answer.getItem().getItemId();
-        Integer count = correctAnswerCountByItem.get(itemId);
-        correctAnswerCountByItem.put(itemId, count == null ? 1 : count + 1);
-      }
-    }
-    return correctAnswerCountByItem;
-  }
-
   private Map<Long, List<ItemGradingData>> groupGradingsByItem(AssessmentGradingData assessmentGradingData) {
     Map<Long, List<ItemGradingData>> gradingByItem = new HashMap<>();
     if (assessmentGradingData == null || assessmentGradingData.getItemGradingSet() == null) {
