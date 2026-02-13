@@ -3862,17 +3862,21 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                 if (i.getHeight() != null && !i.getHeight().equals(""))
                     height = i.getHeight().replace("px","");  // just in case
 
-                UIComponent iframe = UIOutput.make(container, "blti-iframe")
-                        .decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
-                if (lessonEntity != null)
-                    iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
-
                 String h = "300";
                 if (height != null && !height.trim().equals(""))
                     h = height;
 
-                iframe.decorate(new UIFreeAttributeDecorator("height", h));
-                iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
+                String launchUrl = (lessonEntity != null) ? lessonEntity.getUrl() : "about:blank";
+                String allow = ServerConfigurationService.getBrowserFeatureAllowString();
+                String bltiIframeHtml = "<sakai-lti-iframe name=\"BltiIFrame\" class=\"portletMainIframe multimedia\" "
+                        + "frameborder=\"0\" marginwidth=\"0\" width=\"100%\" marginheight=\"0\" scrolling=\"auto\" "
+                        + "allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" "
+                        + "id=\"blti-iframe\" launch-url=\"" + StringEscapeUtils.escapeHtml4(launchUrl) + "\" "
+                        + "allow=\"" + StringEscapeUtils.escapeHtml4(allow) + "\" "
+                        + "allow-resize=\"yes\" height=\"" + StringEscapeUtils.escapeHtml4(h) + "\" "
+                        + "title=\"" + StringEscapeUtils.escapeHtml4(i.getName()) + "\">"
+                        + "</sakai-lti-iframe>";
+                UIVerbatim.make(container, "blti-iframe", bltiIframeHtml);
                 // normally we get the name from the link text, but there's no link text here
                 UIOutput.make(container, "item-name", i.getName());
             } else if (!"window".equals(i.getFormat()) && (i.getFormat() != null)) {

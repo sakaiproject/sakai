@@ -7,6 +7,7 @@ export class SakaiLTIIframe extends SakaiElement {
 
     allow: { attribute: "allow", type: String },
     allowResize: { attribute: "allow-resize", type: String },
+    height: { attribute: "height", type: String },
     newWindowText: { attribute: "new-window-text", type: String },
     launchUrl: { attribute: "launch-url", type: String },
   };
@@ -105,6 +106,12 @@ export class SakaiLTIIframe extends SakaiElement {
     return this._i18n && this.newWindowText && this.launchUrl;
   }
 
+  get _heightStyle() {
+    if (!this.height) return "";
+    return /^\d+$/.test(this.height) ? `${this.height}px` : this.height;
+  }
+
+
   launchPopup() {
 
     window.open(this.launchUrl, "_blank");
@@ -119,10 +126,10 @@ export class SakaiLTIIframe extends SakaiElement {
           <button @click="${this.launchPopup}" class="btn btn-primary">${this.newWindowText}</button>
         </p>
       </div>
-      <div class="sakai-iframe-launch">
+      <div class="sakai-iframe-launch" style="${this._heightStyle ? `height: ${this._heightStyle};` : ""}">
         <iframe src="${this.launchUrl}"
             id="sakai-lti-iframe-${this.randomId}"
-            style="width: 100%; height: 100%; min-height: 80vh;"
+            style="width: 100%; height: 100%; ${this._heightStyle ? `min-height: ${this._heightStyle};` : "min-height: 80vh;"}"
             width="100%"
             aria-label="${this.newWindowText}"
             frameborder="0"
