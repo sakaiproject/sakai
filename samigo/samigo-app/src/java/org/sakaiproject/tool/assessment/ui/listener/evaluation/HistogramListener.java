@@ -920,6 +920,9 @@ public class HistogramListener
         getImageMapQuestionScores(publishedItemTextHash, publishedAnswerHash, (List) scores, qbean, (List) text);
         break;
       default:
+        log.warn("No answer-statistics dispatcher for question type [{}] (parsed id: {}). "
+                + "Question type supports answer statistics but is not handled in dispatchAnswerStatistics.",
+                qbean.getQuestionType(), questionTypeId);
         break;
     }
   }
