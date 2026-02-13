@@ -21,6 +21,7 @@ export class SakaiGrader extends graderRenderingMixin(gradableDataMixin(SakaiEle
     userListUrl: { attribute: "user-list-url", type: String },
     enablePdfExport: { attribute: "enable-pdf-export", type: Boolean },
     ltiGradebleLaunch: { attribute: "lti-gradable-launch", type: String },
+    allow: { attribute: "allow", type: String },
 
     _saving: { state: true },
     _submittedTextMode: { state: true },

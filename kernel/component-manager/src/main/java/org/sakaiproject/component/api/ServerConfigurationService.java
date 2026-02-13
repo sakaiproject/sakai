@@ -192,6 +192,21 @@ public interface ServerConfigurationService
 	String[] getStrings(String name);
 
 	/**
+	 * Get the browser.feature.allow configuration as a semicolon-separated string suitable
+	 * for the iframe {@code allow} attribute. Used by LTI, Assignments, Lessons, Web Content,
+	 * and other tools that embed external content. Includes local-network-access for Chrome 142+.
+	 *
+	 * @return The joined allow string, or a default including local-network-access if unconfigured
+	 */
+	default String getBrowserFeatureAllowString() {
+		String[] allow = getStrings("browser.feature.allow");
+		if (allow != null && allow.length > 0) {
+			return String.join(";", allow);
+		}
+		return "camera; fullscreen; microphone; local-network-access *";
+	}
+
+	/**
 	 * Access some named configuration value as a long
 	 *
 	 * @param name

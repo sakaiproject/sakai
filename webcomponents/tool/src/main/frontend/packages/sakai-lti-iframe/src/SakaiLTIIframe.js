@@ -5,6 +5,7 @@ export class SakaiLTIIframe extends SakaiElement {
 
   static properties = {
 
+    allow: { attribute: "allow", type: String },
     allowResize: { attribute: "allow-resize", type: String },
     newWindowText: { attribute: "new-window-text", type: String },
     launchUrl: { attribute: "launch-url", type: String },
@@ -129,7 +130,7 @@ export class SakaiLTIIframe extends SakaiElement {
             data-allow-resize="${this.allowResize}"
             marginheight="0"
             scrolling="auto"
-            allow="camera; fullscreen; microphone">
+            allow="${this.allow || "camera; fullscreen; microphone; local-network-access *"}">
         </iframe>
       </div>
     `;
