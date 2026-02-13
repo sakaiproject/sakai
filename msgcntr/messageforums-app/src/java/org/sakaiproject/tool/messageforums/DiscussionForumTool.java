@@ -2470,7 +2470,7 @@ public class DiscussionForumTool {
             getSiteId(), forum.getId(), null);
       }
 
-      forumManager.saveTopic(topic, draft);
+      topic = forumManager.saveTopic(topic, draft);
 
       if (updateCounts && beforeChangeHM != null) {
         updateSynopticMessagesForForumComparingOldMessagesCount(
