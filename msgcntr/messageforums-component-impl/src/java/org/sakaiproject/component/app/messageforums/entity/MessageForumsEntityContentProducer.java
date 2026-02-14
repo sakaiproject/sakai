@@ -156,8 +156,6 @@ public class MessageForumsEntityContentProducer implements
 		log.debug("getting content for " + reference);
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
 		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
-		// Return only the body content
-		// Title is indexed separately via getTitle() and FIELD_TITLE
 		if (m != null) {
 			return m.getBody() != null ? m.getBody() : "";
 		}
