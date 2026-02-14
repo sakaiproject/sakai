@@ -149,15 +149,16 @@ public class ElasticSearchResult implements SearchResult {
                 return "";
             }
 
+            String escapedTerms = QueryParser.escape(searchTerms);
             QueryParser queryParser = new QueryParser(SearchService.FIELD_CONTENTS, analyzer);
-            Query query = queryParser.parse(searchTerms);
+            Query query = queryParser.parse(escapedTerms);
             Scorer scorer = new QueryScorer(query);
             Highlighter highlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
 
             TokenStream tokenStream = analyzer.tokenStream(
                     SearchService.FIELD_CONTENTS, new StringReader(text));
             String highlighted = highlighter.getBestFragments(tokenStream, text, MAX_HIGHLIGHT_FRAGMENTS, " ... ");
-            
+
             return highlighted != null ? highlighted : "";
         } catch (IOException | InvalidTokenOffsetsException | ParseException e) {
             log.warn("Failed to highlight search result for [{}]: {}", searchTerms, e.getMessage());
