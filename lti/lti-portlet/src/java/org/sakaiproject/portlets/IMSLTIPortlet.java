@@ -226,6 +226,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 						text.append("</script>\n");
 					}
 			                String submit_uuid = UUID.randomUUID().toString().replace("-","_");
+					String allowAttr = ServerConfigurationService.getBrowserFeatureAllowString();
 					text.append("<iframe id=\"LtiLaunchFrame_");
 					text.append(submit_uuid);
 					text.append("\" height=\"");
@@ -235,7 +236,7 @@ public class IMSLTIPortlet extends GenericPortlet {
 					text.append("width=\"100%\" frameborder=\"0\" marginwidth=\"0\"\n");
 					text.append("marginheight=\"0\" scrolling=\"auto\"\n");
 					text.append(" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\"\n");
-					text.append(" allow=\"camera; microphone\"\n");
+					text.append(" allow=\"").append(allowAttr).append("\"\n");
 					text.append("src=\""+iframeUrl+"\">\n");
 					text.append(rb.getString("noiframes"));
 					text.append("<br>");

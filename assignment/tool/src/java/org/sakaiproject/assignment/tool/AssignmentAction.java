@@ -2027,7 +2027,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 // Ignore the Content Item - use the value in the assignment if tool allows
                 context.put("newpage", Boolean.valueOf(SakaiLTIUtil.getNewpage(tool, null, newpage)));
                 context.put("height",SakaiLTIUtil.getFrameHeight(tool, content, "1200px"));
-                context.put("browser-feature-allow", String.join(";", serverConfigurationService.getStrings("browser.feature.allow")));
+                context.put("browser-feature-allow", serverConfigurationService.getBrowserFeatureAllowString());
 
                 // Copy title, description, and dates from Assignment to content if mis-match
                 int protect = LTIUtil.toInt(content.get(LTIService.LTI_PROTECT));
@@ -2101,7 +2101,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        context.put("browser-feature-allow", String.join(";", serverConfigurationService.getStrings("browser.feature.allow")));
+        context.put("browser-feature-allow", serverConfigurationService.getBrowserFeatureAllowString());
 
         String template = getContext(data).get("template");
         return template + TEMPLATE_VIEW_LAUNCH;
@@ -4555,6 +4555,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
+        context.put("browser-feature-allow", serverConfigurationService.getBrowserFeatureAllowString());
         String template = (String) getContext(data).get("template");
         if (useSakaiGrader()) {
             if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(state.getAttribute(FROM_VIEW))) {

@@ -12,7 +12,7 @@
   allow-resize="yes"
   launch-url="$!source"
   height="$!height"
-  allow="$!browser-feature-allow">
+  allow="${browser-feature-allow}">
 </sakai-lti-iframe>
 </p>
 #end

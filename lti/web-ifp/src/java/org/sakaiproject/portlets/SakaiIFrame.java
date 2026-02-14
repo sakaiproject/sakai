@@ -228,7 +228,7 @@ public class SakaiIFrame extends GenericPortlet {
 				context.put("source",source);
 				context.put("height",height);
 				context.put("newpage", Boolean.valueOf(newpage));
-				context.put("browser-feature-allow", String.join(";", ServerConfigurationService.getStrings("browser.feature.allow")));
+				context.put("browser-feature-allow", ServerConfigurationService.getBrowserFeatureAllowString());
 				sendAlert(request,context);
 
 				vHelper.doTemplate(vengine, "/vm/main.vm", context, out);
