@@ -15,12 +15,6 @@
  */
 package org.sakaiproject.tool.assessment.facade;
 
-import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ALL_HASH_BACKFILLABLE_ITEM_IDS_HQL;
-import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ID_PARAMS_PLACEHOLDER;
-import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ITEMS_BY_ID_HQL;
-import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.TOTAL_HASH_BACKFILLABLE_ITEM_COUNT_HQL;
-import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.TOTAL_ITEM_COUNT_HQL;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,25 +144,11 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		getHibernateTemplate().bulkUpdate("delete PublishedItemTag it where it.tagCollectionId = ?", tagCollectionId);
 	}
 
-	private static final Map<String,String> BACKFILL_ALL_HASHES_HQL = new HashMap<String,String>() {{
-		this.put(TOTAL_ITEM_COUNT_HQL, "select count(*) from PublishedItemData");
-		this.put(TOTAL_HASH_BACKFILLABLE_ITEM_COUNT_HQL, "select count(*) from PublishedItemData as item where item.hash is null or item.itemHash is null");
-		this.put(ALL_HASH_BACKFILLABLE_ITEM_IDS_HQL, "select item.id from PublishedItemData as item where item.hash is null or item.itemHash is null");
-		this.put(ITEMS_BY_ID_HQL, "select item from PublishedItemData as item where item.id in (" + ID_PARAMS_PLACEHOLDER + ")");
-	}};
-
-	private static final Map<String,String> BACKFILL_CURRENT_HASHES_HQL = new HashMap<String,String>() {{
-		this.put(TOTAL_ITEM_COUNT_HQL, "select count(*) from PublishedItemData");
-		this.put(TOTAL_HASH_BACKFILLABLE_ITEM_COUNT_HQL, "select count(*) from PublishedItemData as item where item.hash is null");
-		this.put(ALL_HASH_BACKFILLABLE_ITEM_IDS_HQL, "select item.id from PublishedItemData as item where item.hash is null");
-		this.put(ITEMS_BY_ID_HQL, "select item from PublishedItemData as item where item.id in (" + ID_PARAMS_PLACEHOLDER + ")");
-	}};
-
 	@Override
 	public BackfillItemHashResult backfillItemHashes(int batchSize, boolean backfillBaselineHashes) {
 		return itemHashUtil.backfillItemHashes(
 				batchSize,
-				backfillBaselineHashes ? BACKFILL_ALL_HASHES_HQL : BACKFILL_CURRENT_HASHES_HQL,
+				backfillBaselineHashes,
 				PublishedItemData.class,
 				i -> {
 					final String hash = itemHashUtil.hashItemUnchecked(i);
@@ -181,8 +161,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 						}
 					}
 					return i;
-				},
-				getHibernateTemplate());
+				});
 	}
 
 	@Override

@@ -20,12 +20,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.collections.Sets;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -53,7 +53,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -77,41 +76,21 @@ public class ItemHashUtilTest {
 
     private ItemHashUtil itemHashUtil = new ItemHashUtil();
 
-    @Mock
-    private ContentHostingService contentHostingService;
-    @Mock
-    private ServerConfigurationService serverConfigurationService;
-    private Field serverConfigurationServiceCache;
-    private ServerConfigurationService originalServerConfigurationService;
+    @Mock private ContentHostingService contentHostingService;
+    @Mock private SecurityService securityService;
+    @Mock private ServerConfigurationService serverConfigurationService;
 
     @Before
-    public void setUp() throws NoSuchFieldException, IllegalAccessException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         injectDependencies();
-        overrideServerConfigurationServiceCover();
     }
 
-    @After
-    public void tearDown() throws IllegalAccessException {
-        restoreServerConfigurationServiceCover();
-    }
-
-    private void injectDependencies() throws NoSuchFieldException, IllegalAccessException {
-        overrideServerConfigurationServiceCover();
+    private void injectDependencies() {
         itemHashUtil.setContentHostingService(contentHostingService);
+        itemHashUtil.setServerConfigurationService(serverConfigurationService);
+        itemHashUtil.setSecurityService(securityService);
     }
-
-    private void overrideServerConfigurationServiceCover() throws NoSuchFieldException, IllegalAccessException {
-        serverConfigurationServiceCache = org.sakaiproject.component.cover.ServerConfigurationService.class.getDeclaredField("m_instance");
-        serverConfigurationServiceCache.setAccessible(true);
-        originalServerConfigurationService = (ServerConfigurationService)serverConfigurationServiceCache.get(null);
-        serverConfigurationServiceCache.set(null, serverConfigurationService);
-    }
-
-    private void restoreServerConfigurationServiceCover() throws IllegalAccessException {
-        serverConfigurationServiceCache.set(null, originalServerConfigurationService);
-    }
-
 
     // Only need a small number of "top level" testHashItem*() checks on the final hash value b/c rest of the tests in this class
     // verify all the variations on how the hash *base* should be constructed. Do at least need to do enough to verify
@@ -784,8 +763,7 @@ public class ItemHashUtilTest {
 
         // for a straight-up attachment (as opposed to an inlined HTML doc containing question or answer text),
         // we hash the attachment contents, not a doc referring to the attachment.
-        final StringBuilder expectedHashBase = new StringBuilder()
-                .append(expectedContentResourceHash1(CONTENT_RESOURCES[0]));
+        final StringBuilder expectedHashBase = new StringBuilder().append(expectedContentResourceHash1(CONTENT_RESOURCES[0]));
 
         expectServerUrlLookup();
         expectResourceLookup(CONTENT_RESOURCES[0]);

@@ -74,12 +74,14 @@ public class BackfillItemHashesJob extends AbstractConfigurableJob {
         } finally {
             try {
                 if (error == null) {
-                    log.info("Backfill question hashing - Job exiting " + elapsedTimeMessage(start)
-                            + " " + jobResultMessage(itemBackfillResult, publishedItemBackfillResult, " "));
+                    log.info("Backfill question hashing - Job exiting \n{}\n{}",
+                            elapsedTimeMessage(start),
+                            jobResultMessage(itemBackfillResult, publishedItemBackfillResult, " "));
                 } else {
                     // we know Quartz will not log exceptions by default, so we do it here
-                    log.info("Backfill question hashing - Job exiting with error. " + elapsedTimeMessage(start)
-                            + " " + jobResultMessage(itemBackfillResult, publishedItemBackfillResult, " "), error);
+                    log.info("Backfill question hashing - Job exiting with error.\n{}\n{}",
+                            elapsedTimeMessage(start),
+                            jobResultMessage(itemBackfillResult, publishedItemBackfillResult, " "), error);
                 }
                 sentNotification(itemBackfillResult, publishedItemBackfillResult, error);
             } catch ( RuntimeException e ) {

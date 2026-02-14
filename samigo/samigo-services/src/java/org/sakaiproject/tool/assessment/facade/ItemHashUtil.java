@@ -15,6 +15,10 @@
  */
 package org.sakaiproject.tool.assessment.facade;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -22,6 +26,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -34,12 +39,15 @@ import java.util.stream.Collectors;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.FlushMode;
-import org.hibernate.query.Query;
+import org.hibernate.SessionFactory;
 import org.hibernate.Session;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.hibernate.HibernateCriterionUtils;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -47,12 +55,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.springframework.orm.hibernate5.HibernateTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -60,16 +65,14 @@ import lombok.extern.slf4j.Slf4j;
  * any scope, e.g. published and un-published.
  */
 @Slf4j
-class ItemHashUtil {
+public class ItemHashUtil {
 
-    static final String TOTAL_ITEM_COUNT_HQL = "total.item.count.hql";
-    static final String TOTAL_HASH_BACKFILLABLE_ITEM_COUNT_HQL = "total.hash.backfillable.item.count.hql";
-    static final String ALL_HASH_BACKFILLABLE_ITEM_IDS_HQL = "all.backfillable.item.ids.hql";
-    static final String ITEMS_BY_ID_HQL = "items.by.id.hql";
-    static final String ID_PARAMS_PLACEHOLDER = "{ID_PARAMS}";
-
-    private ContentHostingService contentHostingService;
-    private PlatformTransactionManager transactionManager;
+    @Setter private ContentHostingService contentHostingService;
+    @Setter private SecurityService securityService;
+    @Setter private ServerConfigurationService serverConfigurationService;
+    @Setter private SessionFactory sessionFactory;
+    @Setter private TransactionTemplate transactionTemplate;
+    @Setter private TransactionTemplate requiresNewTransactionTemplate;
 
     /**
      * Bit of a hack to allow reuse between {@link ItemFacadeQueries} and {@link PublishedItemFacadeQueries}.
@@ -77,26 +80,22 @@ class ItemHashUtil {
      * between item and published item processing, as well as the common utilities/service dependencies.
      *
      * @param batchSize
-     * @param hqlQueries
+     * @param backfillBaselineHashes
      * @param concreteType
      * @param hashAndAssignCallback
-     * @param hibernateTemplate
      * @return
      */
     BackfillItemHashResult backfillItemHashes(int batchSize,
-                                                       Map<String,String> hqlQueries,
-                                                       Class<? extends ItemDataIfc> concreteType,
-                                                       Function<ItemDataIfc,ItemDataIfc> hashAndAssignCallback,
-                                                       HibernateTemplate hibernateTemplate) {
+                                              boolean backfillBaselineHashes,
+                                              Class<? extends ItemDataIfc> concreteType,
+                                              Function<ItemDataIfc, ItemDataIfc> hashAndAssignCallback) {
 
         final long startTime = System.currentTimeMillis();
-        log.debug("Hash backfill starting for items of type [" + concreteType.getSimpleName() + "]");
+        log.debug("Hash backfill starting for items of type [{}]", concreteType.getSimpleName());
 
-        if ( batchSize <= 0 ) {
-            batchSize = 100;
-        }
+        if ( batchSize <= 0 ) batchSize = 100;
+
         final int flushSize = batchSize;
-
         final AtomicInteger totalItems = new AtomicInteger(0);
         final AtomicInteger totalItemsNeedingBackfill = new AtomicInteger(0);
         final AtomicInteger batchNumber = new AtomicInteger(0);
@@ -114,13 +113,13 @@ class ItemHashUtil {
         // Get the item totals up front since a) we know any questions created while the job is running will be
         // assigned hashes and thus won't need to be handled by the job and b) makes bookkeeping within the job much
         // easier
-        hibernateTemplate.execute(session -> {
-            session.setDefaultReadOnly(true);
-            totalItems.set(countItems(hqlQueries, session));
-            totalItemsNeedingBackfill.set(countItemsNeedingHashBackfill(hqlQueries, session));
-            log.debug("Hash backfill required for [" + totalItemsNeedingBackfill + "] of [" + totalItems
-                    + "] items of type [" + concreteType.getSimpleName() + "]");
-            return null;
+
+        transactionTemplate.executeWithoutResult(status -> {
+            Session session = sessionFactory.getCurrentSession();
+            totalItems.set(countItems(concreteType, session));
+            totalItemsNeedingBackfill.set(countItemsNeedingHashBackfill(concreteType, backfillBaselineHashes, session));
+            log.debug("Hash backfill required for [{}] of [{}] items of type [{}]",
+                    totalItemsNeedingBackfill, totalItems, concreteType.getSimpleName());
         });
 
         while (areMoreItems.get()) {
@@ -135,72 +134,72 @@ class ItemHashUtil {
             // there's a per-batch transaction, and each batch re-runs the same two item lookup querys, one to
             // get the list of IDs for the next page of items, and one to resolve those IDs to items
             try {
-                new TransactionTemplate(transactionManager, requireNewTransaction()).execute(status -> {
-                    hibernateTemplate.execute(session -> {
-                        List<ItemDataIfc> itemsInBatch = null;
-                        try { // resource cleanup block
-                            session.setFlushMode(FlushMode.MANUAL);
-                            try { // initial read block (failures here are fatal)
+                requiresNewTransactionTemplate.executeWithoutResult(status -> {
+                    List<ItemDataIfc> itemsInBatch;
+                    Session session = null;
+                    try { // resource cleanup block
+                        session = sessionFactory.getCurrentSession();
+                        session.setFlushMode(FlushMode.MANUAL);
+                        List<Long> itemIds;
+                        try { // initial read block (failures here are fatal)
 
                             // set up the actual result set for this batch of items. use error count to skip over failed items
-                            final List<Long> itemIds = itemIdsNeedingHashBackfill(hqlQueries, flushSize, hashingErrors.size(), session);
-                            itemsInBatch = itemsById(itemIds, hqlQueries, session);
+                            itemIds = itemIdsNeedingHashBackfill(concreteType, backfillBaselineHashes, flushSize, hashingErrors.size(), session);
+                            itemsInBatch = itemsById(itemIds, concreteType, session);
 
-                            } catch (RuntimeException e) {
-                                // Panic on failure to read counts and/or the actual items in the batch.
-                                // Otherwise would potentially loop indefinitely since this design has no way way to
-                                // skip this page of results.
-                                log.error("Failed to read batch of hashable items. Giving up at record [" + recordsRead
-                                        + "] of [" + totalItemsNeedingBackfill + "] Type: [" + concreteType.getSimpleName()
-                                        + "]", e);
-                                areMoreItems.set(false); // force overall loop to exit
-                                throw e; // force txn to give up
-                            }
-
-                            for ( ItemDataIfc item : itemsInBatch ) {
-                                recordsRead.getAndIncrement();
-                                itemsReadInBatch.getAndIncrement();
-
-                                // Assign the item's hash/es
-                                try {
-                                    log.debug("Backfilling hash for item [" + recordsRead + "] of ["
-                                            + totalItemsNeedingBackfill + "] Type: [" + concreteType.getSimpleName()
-                                            + "] ID: [" + item.getItemId() + "]");
-                                    hashAndAssignCallback.apply(item);
-                                    itemsHashedInBatch.getAndIncrement();
-                                } catch (Throwable t) {
-                                    // Failures considered ignorable here... probably some unexpected item state
-                                    // that prevented hash calculation.
-                                    //
-                                    // Re the log statement... yes, the caller probably logs exceptions, but likely
-                                    // without stack traces, and we'd like to advertise failures as quickly as possible,
-                                    // so we go ahead and emit an error log here.
-                                    log.error("Item hash calculation failed for item [" + recordsRead + "] of ["
-                                            + totalItemsNeedingBackfill + "] Type: [" + concreteType.getSimpleName()
-                                            + "] ID: [" + (item == null ? "?" : item.getItemId()) + "]", t);
-                                    hashingErrors.put(item.getItemId(), t);
-                                }
-
-                            }
-                            if (itemsHashedInBatch.get() > 0) {
-                                session.flush();
-                                recordsUpdated.getAndAdd(itemsHashedInBatch.get());
-                            }
-                            areMoreItems.set(itemsInBatch.size() >= flushSize);
-
-                        } finally {
-                            quietlyClear(session); // potentially very large, so clear aggressively
+                        } catch (RuntimeException e) {
+                            // Panic on failure to read counts and/or the actual items in the batch.
+                            // Otherwise would potentially loop indefinitely since this design has no way way to
+                            // skip this page of results.
+                            log.error("Failed to read batch of hashable items. Giving up at record [{}] of [{}] Type: [{}]",
+                                    recordsRead.get(), totalItemsNeedingBackfill.get(), concreteType.getSimpleName(), e);
+                            areMoreItems.set(false); // force overall loop to exit
+                            throw e; // force txn to give up
                         }
-                        return null;
-                    }); // end session
-                    return null;
-                }); // end transaction
-            } catch ( Throwable t ) {
+
+                        for (ItemDataIfc item : itemsInBatch) {
+                            if (item == null) continue;
+                            Long itemId = item.getItemId();
+                            if (itemId == null) continue;
+                            recordsRead.getAndIncrement();
+                            itemsReadInBatch.getAndIncrement();
+
+                            // Assign the item's hash/es
+                            try {
+                                log.debug("Backfilling hash for item [{}] of [{}] Type: [{}] ID: [{}]",
+                                        recordsRead, totalItemsNeedingBackfill, concreteType.getSimpleName(), itemId);
+                                hashAndAssignCallback.apply(item);
+                                itemsHashedInBatch.getAndIncrement();
+                            } catch (Exception e) {
+                                // Failures considered ignorable here... probably some unexpected item state
+                                // that prevented hash calculation.
+                                //
+                                // Re the log statement... yes, the caller probably logs exceptions, but likely
+                                // without stack traces, and we'd like to advertise failures as quickly as possible,
+                                // so we go ahead and emit an error log here.
+                                log.error("Item hash calculation failed for item [{}] of [{}] Type: [{}] ID: [{}]",
+                                        recordsRead, totalItemsNeedingBackfill, concreteType.getSimpleName(), itemId, e);
+                                hashingErrors.put(itemId, e);
+                            }
+
+                        }
+                        if (itemsHashedInBatch.get() > 0) {
+                            session.flush();
+                            recordsUpdated.getAndAdd(itemsHashedInBatch.get());
+                        }
+                        areMoreItems.set(itemIds.size() >= flushSize);
+
+                    } finally {
+                        // potentially very large, so clear aggressively
+                        if (session != null) session.clear();
+                    }
+                });
+            } catch (Exception e) {
                 // We're still in the loop over all batches, but something caused the current batch (and its
                 // transaction) to exit abnormally. Logging of both success and failure cases is quite detailed,
                 // and needs the same timing calcs, so is consolidated into the  'finally' block below.
-                failure.set(t);
-                otherErrors.put(batchNumber.get(), t);
+                failure.set(e);
+                otherErrors.put(batchNumber.get(), e);
             } finally {
                 // Detailed batch-level reporting
                 final long batchElapsed = (System.currentTimeMillis() - batchStartTime);
@@ -208,94 +207,149 @@ class ItemHashUtil {
                 currentAvgBatchElapsedTime.set(new DecimalFormat("#.00")
                         .format(batchElapsedTimes.stream().collect(Collectors.averagingLong(l -> l))));
                 if (failure.get() == null) {
-                    log.debug("Item hash backfill batch flushed to database. Type: ["
-                            + concreteType.getSimpleName() + "] Batch number: ["
-                            + batchNumber + "] Items attempted in batch: [" + itemsReadInBatch
-                            + "] Items succeeded in batch: [" + itemsHashedInBatch
-                            + "] Total items attempted: [" + recordsRead + "] Total items succeeded: ["
-                            + recordsUpdated + "] Total attemptable items: [" + totalItemsNeedingBackfill
-                            + "] Elapsed batch time: [" + batchElapsed
-                            + "ms] Avg time/batch: ["
-                            + currentAvgBatchElapsedTime + "ms]");
+                    log.debug("""
+                                    Item hash backfill batch flushed to database.
+                                    Type: [{}]
+                                    Batch number: [{}]
+                                    Items attempted in batch: [{}]
+                                    Items succeeded in batch: [{}]
+                                    Total items attempted: [{}]
+                                    Total items succeeded: [{}]
+                                    Total attemptable items: [{}]
+                                    Elapsed batch time: [{}ms]
+                                    Avg time/batch: [{}ms]""",
+                            concreteType.getSimpleName(),
+                            batchNumber,
+                            itemsReadInBatch,
+                            itemsHashedInBatch,
+                            recordsRead,
+                            recordsUpdated,
+                            totalItemsNeedingBackfill,
+                            batchElapsed,
+                            currentAvgBatchElapsedTime);
                 } else {
                     // yes, caller probably logs exceptions later, but probably without stack traces, and we'd
                     // like to advertise failures as quickly as possible, so we go ahead and emit an error log
                     // here.
-                    log.error("Item hash backfill failed. Type: ["
-                            + concreteType.getSimpleName() + "] Batch number: ["
-                            + batchNumber + "] Items attempted in batch: [" + itemsReadInBatch
-                            + "] Items flushable (but failed) in batch: [" + itemsHashedInBatch
-                            + "] Total items attempted: [" + recordsRead + "] Total items succeeded: ["
-                            + recordsUpdated + "] Total attemptable items: [" + totalItemsNeedingBackfill
-                            + "] Elapsed batch time: [" + batchElapsed
-                            + "ms] Avg time/batch: ["
-                            + currentAvgBatchElapsedTime + "ms]", failure.get());
+                    log.error("""
+                                    Item hash backfill failed.
+                                    Type: [{}]
+                                    Batch number: [{}]
+                                    Items attempted in batch: [{}]
+                                    Items flushable (but failed) in batch: [{}]
+                                    Total items attempted: [{}]
+                                    Total items succeeded: [{}]
+                                    Total attemptable items: [{}]
+                                    Elapsed batch time: [{}ms]
+                                    Avg time/batch: [{}ms]""",
+                            concreteType.getSimpleName(),
+                            batchNumber,
+                            itemsReadInBatch,
+                            itemsHashedInBatch,
+                            recordsRead,
+                            recordsUpdated,
+                            totalItemsNeedingBackfill,
+                            batchElapsed,
+                            currentAvgBatchElapsedTime,
+                            failure.get());
                 }
             }
         } // end loop over all batches
 
         final long elapsedTime = System.currentTimeMillis() - startTime;
-        log.debug("Hash backfill completed for items of type [" + concreteType.getSimpleName()
-                + "]. Total items attempted: [" + recordsRead
-                + "] Total items succeeded: [" + recordsUpdated + "] Target attemptable items: ["
-                + totalItemsNeedingBackfill + "] Total elapsed time: [" + elapsedTime
-                + "ms] Total batches: [" + batchNumber + "] Avg time/batch: ["
-                + currentAvgBatchElapsedTime + "ms]");
-
+        log.debug("""
+                        Hash backfill completed for items of type [{}].
+                        Total items attempted: [{}]
+                        Total items succeeded: [{}]
+                        Target attemptable items: [{}]
+                        Total elapsed time: [{}ms]
+                        Total batches: [{}]
+                        Avg time/batch: [{}ms]""",
+                concreteType.getSimpleName(),
+                recordsRead,
+                recordsUpdated,
+                totalItemsNeedingBackfill,
+                elapsedTime,
+                batchNumber,
+                currentAvgBatchElapsedTime);
         return new BackfillItemHashResult(elapsedTime, totalItems.get(), totalItemsNeedingBackfill.get(),
                 recordsRead.get(), recordsUpdated.get(), flushSize, hashingErrors, otherErrors);
     }
 
-    private int countItems(Map<String, String> hqlQueries, Session session) {
-        @SuppressWarnings("unchecked")
-        final List<Integer> totalItemsResult = session
-                .createQuery(hqlQueries.get(TOTAL_ITEM_COUNT_HQL))
-                .setReadOnly(true).list();
-        return totalItemsResult.get(0);
+    private int countItems(Class<? extends ItemDataIfc> concreteType, Session session) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<? extends ItemDataIfc> root = cq.from(concreteType);
+        cq.select(cb.count(root));
+
+        Long totalItemsResult = session.createQuery(cq)
+                .setReadOnly(true)
+                .getSingleResult();
+        return totalItemsResult.intValue();
     }
 
-    private int countItemsNeedingHashBackfill(Map<String, String> hqlQueries, Session session) {
-        @SuppressWarnings("unchecked")
-        final List<Integer> totalItemsNeedingBackfillResult = session
-                .createQuery(hqlQueries.get(TOTAL_HASH_BACKFILLABLE_ITEM_COUNT_HQL))
-                .setReadOnly(true).list();
-        return totalItemsNeedingBackfillResult.get(0);
+    private int countItemsNeedingHashBackfill(Class<? extends ItemDataIfc> concreteType, boolean backfillBaselineHashes, Session session) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<? extends ItemDataIfc> root = cq.from(concreteType);
+
+        Predicate hashIsNull = cb.isNull(root.get("hash"));
+
+        Predicate filter = backfillBaselineHashes && concreteType == PublishedItemData.class
+                ? cb.or(hashIsNull, cb.isNull(root.get("itemHash")))
+                : hashIsNull;
+
+        cq.select(cb.count(root))
+                .where(filter);
+
+        Long totalItemsNeedingBackfillResult = session.createQuery(cq)
+                .setReadOnly(true)
+                .getSingleResult();
+        return totalItemsNeedingBackfillResult.intValue();
     }
 
-    private List<Long> itemIdsNeedingHashBackfill(Map<String, String> hqlQueries, int pageSize, int pageStart, Session session) {
-        return session
-                .createQuery(hqlQueries.get(ALL_HASH_BACKFILLABLE_ITEM_IDS_HQL))
+    private List<Long> itemIdsNeedingHashBackfill(Class<? extends ItemDataIfc> concreteType,
+                                                  boolean backfillBaselineHashes,
+                                                  int pageSize,
+                                                  int pageStart,
+                                                  Session session) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<? extends ItemDataIfc> root = cq.from(concreteType);
+
+        Predicate hashIsNull = cb.isNull(root.get("hash"));
+
+        Predicate filter = backfillBaselineHashes && concreteType == PublishedItemData.class
+                ? cb.or(hashIsNull, cb.isNull(root.get("itemHash")))
+                : hashIsNull;
+
+        cq.select(root.get("itemId"))
+                .where(filter)
+                .orderBy(cb.asc(root.get("itemId")));
+
+        return session.createQuery(cq)
                 .setFirstResult(pageStart)
                 .setMaxResults(pageSize)
                 .list();
     }
 
-    private List<ItemDataIfc> itemsById(List<Long> itemIds, Map<String, String> hqlQueries, Session session) {
-        if ( itemIds == null || itemIds.isEmpty() ) {
-            return new ArrayList<>(0);
-            }
+    private List<ItemDataIfc> itemsById(List<Long> itemIds,
+                                        Class<? extends ItemDataIfc> concreteType,
+                                        Session session) {
 
-        final String paramPlaceholders = StringUtils.repeat("?", ",", itemIds.size());
-        final Query query = session.createQuery(hqlQueries.get(ITEMS_BY_ID_HQL).replace(ID_PARAMS_PLACEHOLDER, paramPlaceholders));
-        final AtomicInteger position = new AtomicInteger(0);
-        itemIds.forEach(id -> query.setParameter(position.getAndIncrement(), id));
-        return query.list();
+        if (itemIds == null || itemIds.isEmpty()) return Collections.emptyList();
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<ItemDataIfc> cq = (CriteriaQuery<ItemDataIfc>) cb.createQuery(concreteType);
+        Root<ItemDataIfc> root = (Root<ItemDataIfc>) cq.from(concreteType);
+        Predicate itemIdPredicate = HibernateCriterionUtils.PredicateInSplitter(cb, root.get( "itemId"), itemIds);
+
+        cq.select(root)
+                .where(itemIdPredicate)
+                .orderBy(cb.asc(root.get("itemId")));
+
+        return session.createQuery(cq).list();
     }
-
-    private TransactionDefinition requireNewTransaction() {
-        return new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-    }
-
-    private void quietlyClear(Session session) {
-        if ( session != null ) {
-            try {
-                session.clear();
-            } catch (Exception e) {
-                // nothing to do
-            }
-        }
-    }
-
 
     String hashItem(ItemDataIfc item) throws NoSuchAlgorithmException, IOException, ServerOverloadException {
         StringBuilder hashBase = hashBaseForItem(item);
@@ -345,7 +399,7 @@ class ItemHashUtil {
     StringBuilder hashBaseForItemAttachments(ItemDataIfc item, StringBuilder into)
             throws NoSuchAlgorithmException, IOException, ServerOverloadException {
 
-        final AssessmentService service = new AssessmentService();
+        final AssessmentService service = new AssessmentService(securityService);
         final List<String> attachmentResourceIds = service.getItemResourceIdList(item);
 
         if ( attachmentResourceIds == null ) {
@@ -536,7 +590,7 @@ class ItemHashUtil {
             if (textToParse != null) {
                 int beginIndex = textToParse.indexOf(startSrc);
                 if (beginIndex > 0) {
-                    String sakaiSiteResourcePath = ServerConfigurationService.getServerUrl() + siteContentPath;
+                    String sakaiSiteResourcePath = serverConfigurationService.getServerUrl() + siteContentPath;
                     // have to loop because there may be more than one site of origin for the content
                     while (beginIndex > 0) {
                         int correctionIndex = 0;
@@ -582,13 +636,4 @@ class ItemHashUtil {
         }
 
     }
-
-    public void setContentHostingService(ContentHostingService contentHostingService) {
-        this.contentHostingService = contentHostingService;
-    }
-
-    public void setTransactionManager(PlatformTransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-    }
-
 }
