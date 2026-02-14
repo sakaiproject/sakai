@@ -15,6 +15,7 @@
   <link rsf:id="scr=portal-matter" href="/library/skin/default-skin/tool.css" type="text/css" rel="stylesheet" media="all" />
   <title rsf:id="msg=simplepage.showpage"></title>
 
+  <script type="module" src="/webcomponents/bundles/lti.js"></script>
   <script rsf:id="iframeJavascript">
     function resizeiframe_showpage(id) {
 
@@ -2500,8 +2501,7 @@
                     </div>
                     <!-- /link-div -->
                     <div rsf:id="item-group-titles-div"></div>
-                    <iframe name="BltiIFrame" class="portletMainIframe multimedia" frameborder="0" marginwidth="0" width="100%" height="300" marginheight="0" scrolling="auto" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" rsf:id="blti-iframe" id="blti-iframe">
-                    </iframe>
+                    <div rsf:id="blti-iframe" class="blti-iframe-container"></div>
 
                     <div class="rowdescription itemdescription" rsf:id="description"></div>
                   </div> <!-- /contentCol -->

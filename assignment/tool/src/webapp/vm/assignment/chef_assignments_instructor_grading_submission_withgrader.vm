@@ -12,6 +12,7 @@
     <sakai-grader
         id="sakai-grader-$assignment.Id"
         tool="assignments"
+        allow="${browser-feature-allow}"
         gradable-id="$assignment.Id"
         submission-id="$submission.Id"
         user-list-url="#toolLinkParam("$action" "$method" "$urlParams")"

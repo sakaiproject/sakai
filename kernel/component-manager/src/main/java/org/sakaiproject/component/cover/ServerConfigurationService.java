@@ -208,6 +208,14 @@ public class ServerConfigurationService
 		return service.getStrings(param0);
 	}
 
+	public static java.lang.String getBrowserFeatureAllowString()
+	{
+		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
+		if (service == null) return "camera; fullscreen; microphone; local-network-access *";
+
+		return service.getBrowserFeatureAllowString();
+	}
+
 	public static java.util.List getToolOrder(java.lang.String param0)
 	{
 		org.sakaiproject.component.api.ServerConfigurationService service = getInstance();
