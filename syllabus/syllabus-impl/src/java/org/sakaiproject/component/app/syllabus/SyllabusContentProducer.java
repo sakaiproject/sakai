@@ -154,10 +154,8 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
 		SyllabusData syllabusData = getSyllabusData(ref);
 		if (syllabusData == null) return "";
 		
-		// Return only the main content (asset field)
-		// Title is indexed separately via getTitle() and FIELD_TITLE
-		String asset = syllabusData.getAsset();
-		return asset != null ? asset : "";
+		String content = syllabusData.getAsset();
+		return content != null ? content : "";
  	}
 
 	@Override

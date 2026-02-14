@@ -26,8 +26,9 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
@@ -61,6 +62,7 @@ public class ElasticSearchResult implements SearchResult {
     private Terms facet;
     private ElasticSearchIndexBuilder searchIndexBuilder;
     private static Analyzer analyzer = new StandardAnalyzer();
+    private static final int MAX_HIGHLIGHT_FRAGMENTS = 5;
     private String searchTerms;
 
     public ElasticSearchResult(SearchHit hit, Terms facet, ElasticSearchIndexBuilder searchIndexBuilder, String searchTerms) {
@@ -147,30 +149,19 @@ public class ElasticSearchResult implements SearchResult {
                 return "";
             }
 
-            // Try to highlight the search terms in the content
-            TermQuery query = new TermQuery(new Term(SearchService.FIELD_CONTENTS, searchTerms));
+            QueryParser queryParser = new QueryParser(SearchService.FIELD_CONTENTS, analyzer);
+            Query query = queryParser.parse(searchTerms);
             Scorer scorer = new QueryScorer(query);
-            Highlighter hightlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
-            
+            Highlighter highlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
+
             TokenStream tokenStream = analyzer.tokenStream(
                     SearchService.FIELD_CONTENTS, new StringReader(text));
-            String highlighted = hightlighter.getBestFragments(tokenStream, text, 5, " ... ");
+            String highlighted = highlighter.getBestFragments(tokenStream, text, MAX_HIGHLIGHT_FRAGMENTS, " ... ");
             
-            // If highlighting didn't find matches, return a truncated version of the content
-            if (highlighted == null || highlighted.isEmpty()) {
-                // Return first 200 characters as a preview
-                int maxLength = 200;
-                if (text.length() <= maxLength) {
-                    return text;
-                }
-                return text.substring(0, maxLength) + " ...";
-            }
-            
-            return highlighted;
-        } catch (IOException e) {
-            return e.getMessage();
-        } catch (InvalidTokenOffsetsException e) {
-            return e.getMessage();
+            return highlighted != null ? highlighted : "";
+        } catch (IOException | InvalidTokenOffsetsException | ParseException e) {
+            log.warn("Failed to highlight search result for [{}]: {}", searchTerms, e.getMessage());
+            return "";
         }
 
     }
