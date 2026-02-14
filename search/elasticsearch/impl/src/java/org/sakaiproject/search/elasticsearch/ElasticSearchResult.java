@@ -26,8 +26,9 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
@@ -42,6 +43,7 @@ import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.TermFrequency;
+import org.sakaiproject.search.util.HTMLParser;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,6 +62,7 @@ public class ElasticSearchResult implements SearchResult {
     private Terms facet;
     private ElasticSearchIndexBuilder searchIndexBuilder;
     private static Analyzer analyzer = new StandardAnalyzer();
+    private static final int MAX_HIGHLIGHT_FRAGMENTS = 5;
     private String searchTerms;
 
     public ElasticSearchResult(SearchHit hit, Terms facet, ElasticSearchIndexBuilder searchIndexBuilder, String searchTerms) {
@@ -119,10 +122,6 @@ public class ElasticSearchResult implements SearchResult {
     @Override
     public String getSearchResult() {
         try {
-            TermQuery query = new TermQuery(new Term("text",searchTerms));
-
-            Scorer scorer = new QueryScorer(query);
-            Highlighter hightlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
             StringBuilder sb = new StringBuilder();
             // contents no longer contains the digested contents, so we need to
             // fetch it from the EntityContentProducer
@@ -134,17 +133,36 @@ public class ElasticSearchResult implements SearchResult {
                 EntityContentProducer sep = searchIndexBuilder
                         .newEntityContentProducer(reference);
                 if (sep != null) {
-                    sb.append(sep.getContent(reference));
+                    String rawContent = sep.getContent(reference);
+                    // Strip any HTML tags from the content for proper highlighting
+                    if (rawContent != null) {
+                        for (HTMLParser hp = new HTMLParser(rawContent); hp.hasNext();) {
+                            sb.append(hp.next());
+                            sb.append(" ");
+                        }
+                    }
                 }
             }
-            String text = sb.toString();
+            String text = sb.toString().trim();
+            
+            if (text.isEmpty()) {
+                return "";
+            }
+
+            String escapedTerms = QueryParser.escape(searchTerms);
+            QueryParser queryParser = new QueryParser(SearchService.FIELD_CONTENTS, analyzer);
+            Query query = queryParser.parse(escapedTerms);
+            Scorer scorer = new QueryScorer(query);
+            Highlighter highlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
+
             TokenStream tokenStream = analyzer.tokenStream(
                     SearchService.FIELD_CONTENTS, new StringReader(text));
-            return hightlighter.getBestFragments(tokenStream, text, 5, " ... "); //$NON-NLS-1$
-        } catch (IOException e) {
-            return e.getMessage(); //$NON-NLS-1$
-        } catch (InvalidTokenOffsetsException e) {
-            return e.getMessage();
+            String highlighted = highlighter.getBestFragments(tokenStream, text, MAX_HIGHLIGHT_FRAGMENTS, " ... ");
+
+            return highlighted != null ? highlighted : "";
+        } catch (IOException | InvalidTokenOffsetsException | ParseException e) {
+            log.warn("Failed to highlight search result for [{}]: {}", searchTerms, e.getMessage());
+            return "";
         }
 
     }

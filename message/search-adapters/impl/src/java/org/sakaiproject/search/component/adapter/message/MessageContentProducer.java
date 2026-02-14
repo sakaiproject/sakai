@@ -55,7 +55,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.search.util.HTMLParser;
+
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
@@ -216,11 +216,7 @@ public class MessageContentProducer implements EntityContentProducer
 				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.11")); //$NON-NLS-1$
 				String mBody = m.getBody();
 
-				for (HTMLParser hp = new HTMLParser(mBody); hp.hasNext();)
-				{
-					SearchUtils.appendCleanString(hp.next(), sb);
-					sb.append(" ");
-				}
+				SearchUtils.appendCleanString(mBody, sb);
 
 				sb.append("\n"); //$NON-NLS-1$
 				log.debug("Message Content for " + ref.getReference() + " is " //$NON-NLS-1$ //$NON-NLS-2$
