@@ -93,7 +93,11 @@ export class SakaiLTIIframe extends SakaiElement {
         if ( typeof message == "string" ) message = JSON.parse(e.data);
         if ( message.subject == "lti.frameResize" ) {
           const height = message.height;
-          document.getElementById(idval).height = height;
+          const frame = document.getElementById(idval);
+          if (frame) {
+            const heightStyle = this._normalizeHeightForCss(height);
+            if (heightStyle) frame.style.height = heightStyle;
+          }
           console.debug(`Received lti.frameResize height=${height} frame=${idval}`);
         }
       } catch (error) {
@@ -106,11 +110,20 @@ export class SakaiLTIIframe extends SakaiElement {
     return this._i18n && this.newWindowText && this.launchUrl;
   }
 
-  get _heightStyle() {
-    if (!this.height) return "";
-    return /^\d+$/.test(this.height) ? `${this.height}px` : this.height;
+  /**
+   * Normalizes a height value for use in CSS. If value is a bare number
+   * (e.g., "500" or 500), appends "px"; otherwise uses the value as-is (e.g.,
+   * "80vh", "100%", "500px"). Returns empty string when value is not set.
+   */
+  _normalizeHeightForCss(value) {
+    if (value === undefined || value === null || value === "") return "";
+    const str = String(value);
+    return /^\d+$/.test(str) ? `${str}px` : str;
   }
 
+  get _heightStyle() {
+    return this._normalizeHeightForCss(this.height);
+  }
 
   launchPopup() {
 

@@ -82,7 +82,7 @@ $tlang.getString("gen.trouble.loading")
     marginheight="0"
     scrolling="auto"
     allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
-    allow="$!browser-feature-allow"
+    allow="${browser-feature-allow}"
     src="$!source">
 </iframe>
 <script>
