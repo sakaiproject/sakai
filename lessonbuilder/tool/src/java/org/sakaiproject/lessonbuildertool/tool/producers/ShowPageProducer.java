@@ -4248,6 +4248,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 
+		    UIOutput.make(tofill, "scorm-li");
+		    createToolBarLink(ScormPickerProducer.VIEW_ID, tofill, "add-scorm", "simplepage.scorm-descrip", currentPage, "simplepage.scorm.tooltip");
+
 		    //Adding 'Embed forum conversations' component
 		    UIOutput.make(tofill, "forum-summary-li");
 		    UILink forumSummaryLink = UIInternalLink.makeURL(tofill, "forum-summary-link", "#");
@@ -4402,6 +4405,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params.setSendingPage(currentPage.getPageId());
 		params.viewID = QuizPickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-quiz", messageLocator.getMessage("simplepage.change_quiz"), params);
+
+		params = new GeneralViewParameters();
+		params.setSendingPage(currentPage.getPageId());
+		params.viewID = ScormPickerProducer.VIEW_ID;
+		UIInternalLink.make(form, "change-scorm", messageLocator.getMessage("simplepage.change_scorm"), params);
 
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
