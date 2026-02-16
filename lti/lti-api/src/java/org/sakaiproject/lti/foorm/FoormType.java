@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.lti.beans;
+package org.sakaiproject.lti.foorm;
 
 /**
  * Foorm field type for form generation, validation, archive, and persistence.

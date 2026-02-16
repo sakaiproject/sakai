@@ -20,6 +20,10 @@
 
 package org.sakaiproject.lti.beans;
 
+import org.sakaiproject.lti.foorm.FoormBaseBean;
+import org.sakaiproject.lti.foorm.FoormField;
+import org.sakaiproject.lti.foorm.FoormType;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -31,6 +35,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.Stack;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import org.sakaiproject.lti.api.LTIService;
 
@@ -391,6 +399,53 @@ public class LtiToolBean extends FoormBaseBean {
         putIfNotNull(map, "sakai_tool_checksum", sakaiToolChecksum);
         
         return map;
+    }
+
+    /**
+     * Creates an LtiToolBean from an archive XML element.
+     * Uses the same format as {@link #toXml} (child elements per archivable field).
+     * For use in archive/import flows.
+     *
+     * @param element the sakai-lti-tool element (or equivalent)
+     * @return new bean populated from the element, or null if element is null
+     */
+    public static LtiToolBean fromXml(Element element) {
+        if (element == null) {
+            return null;
+        }
+        LtiToolBean bean = new LtiToolBean();
+        bean.populateFromArchiveElement(element);
+        return bean;
+    }
+
+    /**
+     * Serializes this bean to an XML element in archive format.
+     * Uses the same structure as the existing archive process (child elements per archivable field).
+     * For use in archive/export flows. The checksum is not included; add it separately if needed
+     * (e.g. via SakaiLTIUtil.archiveToolBean).
+     *
+     * @param doc   the document to create elements in
+     * @param stack parent stack; if null or empty, the element is appended to doc; otherwise to stack.peek()
+     * @return the created element, or null if doc is null
+     */
+    public Element toXml(Document doc, Stack<Element> stack) {
+        if (doc == null) {
+            return null;
+        }
+        Element el = toArchiveElement(doc, LTIService.ARCHIVE_LTI_TOOL_TAG);
+        if (el == null) {
+            return null;
+        }
+        if (stack == null || stack.isEmpty()) {
+            doc.appendChild(el);
+        } else {
+            stack.peek().appendChild(el);
+        }
+        if (stack != null) {
+            stack.push(el);
+            stack.pop();
+        }
+        return el;
     }
 
 }

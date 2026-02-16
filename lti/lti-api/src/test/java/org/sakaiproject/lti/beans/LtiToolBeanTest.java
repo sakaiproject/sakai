@@ -28,7 +28,15 @@ import org.junit.Before;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.beans.LtiToolBean;
 
 /**
@@ -676,5 +684,132 @@ public class LtiToolBeanTest {
         assertEquals("Only id and title should be in map", 2, convertedMap.size());
         assertEquals(Long.valueOf(999L), convertedMap.get("id"));
         assertEquals("Test Tool with Missing Booleans", convertedMap.get("title"));
+    }
+
+    @Test
+    public void testFromXmlNullInput() throws ParserConfigurationException {
+        assertNull(LtiToolBean.fromXml(null));
+    }
+
+    @Test
+    public void testFromXmlEmptyElement() throws ParserConfigurationException {
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element el = doc.createElement(LTIService.ARCHIVE_LTI_TOOL_TAG);
+        LtiToolBean tool = LtiToolBean.fromXml(el);
+        assertNotNull(tool);
+        assertNull(tool.getId());
+        assertNull(tool.getTitle());
+    }
+
+    @Test
+    public void testFromXmlPopulatesArchivableFields() throws ParserConfigurationException {
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element el = doc.createElement(LTIService.ARCHIVE_LTI_TOOL_TAG);
+        appendChild(el, "id", "42");
+        appendChild(el, "title", "XML Tool Title");
+        appendChild(el, "description", "XML description");
+        appendChild(el, "launch", "https://xml.example.com/launch");
+        appendChild(el, "frameheight", "600");
+        appendChild(el, "newpage", "1");
+        appendChild(el, "lti13", "1");
+
+        LtiToolBean tool = LtiToolBean.fromXml(el);
+        assertNotNull(tool);
+        assertEquals(Long.valueOf(42L), tool.getId());
+        assertEquals("XML Tool Title", tool.getTitle());
+        assertEquals("XML description", tool.getDescription());
+        assertEquals("https://xml.example.com/launch", tool.getLaunch());
+        assertEquals(Integer.valueOf(600), tool.getFrameheight());
+        assertEquals(Integer.valueOf(1), tool.getNewpage());
+        assertEquals(Integer.valueOf(1), tool.getLti13());
+    }
+
+    @Test
+    public void testToXmlAppendsToDocumentWhenStackEmpty() throws ParserConfigurationException {
+        LtiToolBean tool = new LtiToolBean();
+        tool.setId(99L);
+        tool.setTitle("Stack Empty Tool");
+        tool.setLaunch("https://empty.example/launch");
+
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Stack<Element> stack = new Stack<>();
+        Element el = tool.toXml(doc, stack);
+
+        assertNotNull(el);
+        assertEquals(LTIService.ARCHIVE_LTI_TOOL_TAG, el.getTagName());
+        assertNotNull(doc.getFirstChild());
+        assertEquals(el, doc.getFirstChild());
+        assertTrue(stack.isEmpty());
+    }
+
+    @Test
+    public void testToXmlAppendsToStackPeekWhenStackNonEmpty() throws ParserConfigurationException {
+        LtiToolBean tool = new LtiToolBean();
+        tool.setId(88L);
+        tool.setTitle("Stack Peek Tool");
+        tool.setLaunch("https://peek.example/launch");
+
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element root = doc.createElement("root");
+        doc.appendChild(root);
+        Stack<Element> stack = new Stack<>();
+        stack.push(root);
+
+        Element el = tool.toXml(doc, stack);
+
+        assertNotNull(el);
+        assertEquals(LTIService.ARCHIVE_LTI_TOOL_TAG, el.getTagName());
+        assertEquals(el, root.getFirstChild());
+        assertEquals(root, stack.peek());
+    }
+
+    @Test
+    public void testToXmlWithNullStack() throws ParserConfigurationException {
+        LtiToolBean tool = new LtiToolBean();
+        tool.setId(77L);
+        tool.setTitle("Null Stack Tool");
+
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element el = tool.toXml(doc, null);
+
+        assertNotNull(el);
+        assertEquals(LTIService.ARCHIVE_LTI_TOOL_TAG, el.getTagName());
+        assertNotNull(doc.getFirstChild());
+    }
+
+    @Test
+    public void testToXmlReturnsNullWhenDocumentNull() {
+        LtiToolBean tool = new LtiToolBean();
+        tool.setTitle("No Doc Tool");
+        assertNull(tool.toXml(null, new Stack<>()));
+    }
+
+    @Test
+    public void testToXmlFromXmlRoundTrip() throws ParserConfigurationException {
+        LtiToolBean original = LtiToolBean.of(testMap);
+        assertNotNull(original);
+
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Element el = original.toXml(doc, new Stack<>());
+        assertNotNull(el);
+
+        LtiToolBean restored = LtiToolBean.fromXml(el);
+        assertNotNull(restored);
+
+        // Archivable fields should round-trip (only fields with archive=true)
+        assertEquals(original.getId(), restored.getId());
+        assertEquals(original.getTitle(), restored.getTitle());
+        assertEquals(original.getDescription(), restored.getDescription());
+        assertEquals(original.getLaunch(), restored.getLaunch());
+        assertEquals(original.getFrameheight(), restored.getFrameheight());
+        assertEquals(original.getNewpage(), restored.getNewpage());
+        assertEquals(original.getLti13(), restored.getLti13());
+    }
+
+    private static void appendChild(Element parent, String tagName, String textContent) {
+        Document doc = parent.getOwnerDocument();
+        Element child = doc.createElement(tagName);
+        child.setTextContent(textContent);
+        parent.appendChild(child);
     }
 }

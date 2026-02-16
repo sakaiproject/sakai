@@ -20,6 +20,10 @@
 
 package org.sakaiproject.lti.beans;
 
+import org.sakaiproject.lti.foorm.FoormBaseBean;
+import org.sakaiproject.lti.foorm.FoormField;
+import org.sakaiproject.lti.foorm.FoormType;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -30,6 +34,10 @@ import lombok.ToString;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Stack;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import org.sakaiproject.lti.api.LTIService;
 
@@ -189,6 +197,52 @@ public class LtiContentBean extends FoormBaseBean {
         putIfNotNull(map, "searchURL", searchUrl);
         
         return map;
+    }
+
+    /**
+     * Creates an LtiContentBean from an archive XML element.
+     * Uses the same format as {@link #toXml} (child elements per archivable field).
+     * For use in archive/import flows.
+     *
+     * @param element the sakai-lti-content element (or equivalent)
+     * @return new bean populated from the element, or null if element is null
+     */
+    public static LtiContentBean fromXml(Element element) {
+        if (element == null) {
+            return null;
+        }
+        LtiContentBean bean = new LtiContentBean();
+        bean.populateFromArchiveElement(element);
+        return bean;
+    }
+
+    /**
+     * Serializes this bean to an XML element in archive format.
+     * Uses the same structure as the existing archive process (child elements per archivable field).
+     * For use in archive/export flows.
+     *
+     * @param doc   the document to create elements in
+     * @param stack parent stack; if null or empty, the element is appended to doc; otherwise to stack.peek()
+     * @return the created element, or null if doc is null
+     */
+    public Element toXml(Document doc, Stack<Element> stack) {
+        if (doc == null) {
+            return null;
+        }
+        Element el = toArchiveElement(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG);
+        if (el == null) {
+            return null;
+        }
+        if (stack == null || stack.isEmpty()) {
+            doc.appendChild(el);
+        } else {
+            stack.peek().appendChild(el);
+        }
+        if (stack != null) {
+            stack.push(el);
+            stack.pop();
+        }
+        return el;
     }
 
 }

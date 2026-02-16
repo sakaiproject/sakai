@@ -2240,27 +2240,36 @@ public class SakaiLTIUtil {
 			return getSignedPlacement(LtiContentBean.of(content));
 		}
 
+		/**
+		 * Get the id_history string for oldContent. Primary implementation.
+		 */
 		public static String trackResourceLinkID(LtiContentBean oldContent) {
-			return trackResourceLinkID(oldContent != null ? oldContent.asMap() : null);
-		}
-
-		public static String trackResourceLinkID(Map<String, Object> oldContent) {
-			boolean retval = false;
-
-			String old_settings = (String) oldContent.get(LTIService.LTI_SETTINGS);
+			if (oldContent == null) {
+				return null;
+			}
+			String old_settings = oldContent.getSettings();
 			JSONObject old_json = LTIUtil.parseJSONObject(old_settings);
-			String old_id_history = (String) old_json.get(LTIService.LTI_ID_HISTORY);
+			String old_id_history = old_json != null ? (String) old_json.get(LTIService.LTI_ID_HISTORY) : null;
 
 			String old_resource_link_id = getResourceLinkId(oldContent);
 
-			String id_history = LTIUtil.mergeCSV(old_id_history, null, old_resource_link_id);
-			return id_history;
+			return LTIUtil.mergeCSV(old_id_history, null, old_resource_link_id);
+		}
+
+		/** Map shim for backward compatibility; prefer bean overload. */
+		public static String trackResourceLinkID(Map<String, Object> oldContent) {
+			return trackResourceLinkID(LtiContentBean.of(oldContent));
 		}
 
 		public static boolean trackResourceLinkID(LtiContentBean newContent, LtiContentBean oldContent) {
 			return trackResourceLinkID(newContent != null ? newContent.asMap() : null, oldContent != null ? oldContent.asMap() : null);
 		}
 
+		/**
+		 * Not yet bean-primary: mutates {@code newContent} in place (puts updated LTI_SETTINGS).
+		 * Callers expect the same map reference to be updated for persistence. Will be migrated
+		 * when the persistence layer is audited.
+		 */
 		public static boolean trackResourceLinkID(Map<String, Object> newContent, Map<String, Object> oldContent) {
 			boolean retval = false;
 
@@ -3382,26 +3391,34 @@ public class SakaiLTIUtil {
 		}
 	}
 
-	public static Map<String, Object> findBestToolMatch(boolean global, String launchUrl, String importCheckSum, List<Map<String,Object>> tools)
+	/**
+	 * Find the best tool match. Primary implementation; operates on beans.
+	 */
+	public static LtiToolBean findBestToolMatchBean(boolean global, String launchUrl, String importCheckSum, List<LtiToolBean> tools)
 	{
-		boolean local = ! global;  // Makes it easier to read :)
+		if (tools == null) {
+			return null;
+		}
+		boolean local = ! global;
 
 		// Next we look for a tool with a checksum match
 		if ( StringUtils.isNotEmpty(importCheckSum) ) {
-			for ( Map<String,Object> tool : tools ) {
+			for ( LtiToolBean tool : tools ) {
+				if (tool == null) continue;
 				String toolCheckSum = computeToolCheckSum(tool);
 				if ( StringUtils.isEmpty(toolCheckSum) ) continue;
 				if ( toolCheckSum.equals(importCheckSum) ) {
-					log.debug("Found tool {} with matching checksum {}", tool.get(LTIService.LTI_ID), toolCheckSum);
+					log.debug("Found tool {} with matching checksum {}", tool.getId(), toolCheckSum);
 					return tool;
 				}
 			}
 		}
 
 		// Next we look for a tool with an exact match
-		for ( Map<String,Object> tool : tools ) {
-			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+		for ( LtiToolBean tool : tools ) {
+			if (tool == null) continue;
+			String toolLaunch = tool.getLaunch();
+			String toolSite = tool.getSiteId();
 
 			if ( local && StringUtils.trimToNull(toolSite) == null ) continue;
 			if ( global && StringUtils.trimToNull(toolSite) != null ) continue;
@@ -3415,11 +3432,11 @@ public class SakaiLTIUtil {
 		// Next we snip off the query string and check again
 		String launchUrlBase = stripOffQuery(launchUrl);
 
-		// Look for tool with an query-less match
-		// https://www.py4e.com/mod/gift/
-		for ( Map<String,Object> tool : tools ) {
-			String toolLaunchBase = stripOffQuery((String) tool.get(LTIService.LTI_LAUNCH));
-			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+		// Look for tool with query-less match
+		for ( LtiToolBean tool : tools ) {
+			if (tool == null) continue;
+			String toolLaunchBase = stripOffQuery(tool.getLaunch());
+			String toolSite = tool.getSiteId();
 
 			if ( local && StringUtils.trimToNull(toolSite) == null ) continue;
 			if ( global && StringUtils.trimToNull(toolSite) != null ) continue;
@@ -3431,13 +3448,12 @@ public class SakaiLTIUtil {
 		}
 
 		// Find the longest prefix
-		// https://www.py4e.com/mod/   <-- Selected
-		// https://www.py4e.com/
 		String bestPrefix = "";
-		Map<String,Object> bestTool = null;
-		for ( Map<String,Object> tool : tools ) {
-			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
+		LtiToolBean bestTool = null;
+		for ( LtiToolBean tool : tools ) {
+			if (tool == null) continue;
+			String toolLaunch = tool.getLaunch();
+			String toolSite = tool.getSiteId();
 
 			if ( local && StringUtils.trimToNull(toolSite) == null ) continue;
 			if ( global && StringUtils.trimToNull(toolSite) != null ) continue;
@@ -3461,45 +3477,49 @@ public class SakaiLTIUtil {
 			}
 		}
 
-		// After all that - still nothing
 		return null;
-
-	}
-
-	public static Map<String, Object> findBestToolMatch(String launchUrl, String toolCheckSum, List<Map<String,Object>> tools)
-	{
-		// Example launch URL:
-		// https://www.py4e.com/mod/gift/?quiz=02-Python.txt
-
-		boolean global = true;
-		Map<String,Object> retval = findBestToolMatch(!global, launchUrl, toolCheckSum, tools);
-
-		if ( retval != null ) return retval;
-
-		retval = findBestToolMatch(global, launchUrl, toolCheckSum, tools);
-		return retval;
 	}
 
 	/**
-	 * Bean overload for findBestToolMatch
+	 * Find the best tool match. Tries local then global. Primary implementation.
 	 */
-	public static org.sakaiproject.lti.beans.LtiToolBean findBestToolMatchBean(String launchUrl, String toolCheckSum, List<org.sakaiproject.lti.beans.LtiToolBean> tools)
+	public static LtiToolBean findBestToolMatchBean(String launchUrl, String toolCheckSum, List<LtiToolBean> tools)
 	{
-		// Guard against null tools parameter
 		if (tools == null) {
 			return null;
 		}
-		
-		// Convert Beans to maps for the existing logic
-		List<Map<String,Object>> toolMaps = new ArrayList<>();
-		for (org.sakaiproject.lti.beans.LtiToolBean tool : tools) {
+		boolean global = true;
+		LtiToolBean retval = findBestToolMatchBean(!global, launchUrl, toolCheckSum, tools);
+		if ( retval != null ) return retval;
+		return findBestToolMatchBean(global, launchUrl, toolCheckSum, tools);
+	}
+
+	/** Map shim for backward compatibility; prefer bean overload. */
+	public static Map<String, Object> findBestToolMatch(boolean global, String launchUrl, String importCheckSum, List<Map<String,Object>> tools)
+	{
+		if (tools == null) return null;
+		List<LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> tool : tools) {
 			if (tool != null) {
-				toolMaps.add(tool.asMap());
+				toolBeans.add(LtiToolBean.of(tool));
 			}
 		}
+		LtiToolBean result = findBestToolMatchBean(global, launchUrl, importCheckSum, toolBeans);
+		return result != null ? result.asMap() : null;
+	}
 
-		Map<String,Object> result = findBestToolMatch(launchUrl, toolCheckSum, toolMaps);
-		return result != null ? org.sakaiproject.lti.beans.LtiToolBean.of(result) : null;
+	/** Map shim for backward compatibility; prefer bean overload. */
+	public static Map<String, Object> findBestToolMatch(String launchUrl, String toolCheckSum, List<Map<String,Object>> tools)
+	{
+		if (tools == null) return null;
+		List<LtiToolBean> toolBeans = new ArrayList<>();
+		for (Map<String, Object> tool : tools) {
+			if (tool != null) {
+				toolBeans.add(LtiToolBean.of(tool));
+			}
+		}
+		LtiToolBean result = findBestToolMatchBean(launchUrl, toolCheckSum, toolBeans);
+		return result != null ? result.asMap() : null;
 	}
 
 	public static String getStringNull(Object value) {
@@ -3834,6 +3854,11 @@ public class SakaiLTIUtil {
 		}
 	}
 
+	/**
+	 * Not yet bean-primary: mutates {@code tool} in place via putAll.
+	 * Callers pass their Map for archive import and expect it populated. Will be migrated
+	 * when the persistence/archive layer is audited.
+	 */
 	public static void mergeTool(Element element, Map<String, Object> tool) {
 		if (element == null || tool == null) {
 			return;
@@ -3869,6 +3894,11 @@ public class SakaiLTIUtil {
 		}
 	}
 
+	/**
+	 * Not yet bean-primary: mutates {@code content} and {@code tool} in place via putAll.
+	 * Callers pass their Maps for archive import and expect them populated. Will be migrated
+	 * when the persistence/archive layer is audited.
+	 */
 	public static void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool) {
 		if (element == null) {
 			return;

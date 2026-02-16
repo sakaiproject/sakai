@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.lti.beans;
+package org.sakaiproject.lti.foorm;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

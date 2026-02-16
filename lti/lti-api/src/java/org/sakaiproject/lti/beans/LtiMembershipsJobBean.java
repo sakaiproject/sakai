@@ -20,6 +20,10 @@
 
 package org.sakaiproject.lti.beans;
 
+import org.sakaiproject.lti.foorm.FoormBaseBean;
+import org.sakaiproject.lti.foorm.FoormField;
+import org.sakaiproject.lti.foorm.FoormType;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;

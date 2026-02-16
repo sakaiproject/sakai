@@ -18,7 +18,7 @@
  * permissions and limitations under the License.
  */
 
-package org.sakaiproject.lti.beans;
+package org.sakaiproject.lti.foorm;
 
 import java.lang.reflect.Field;
 import java.util.Calendar;
