@@ -120,7 +120,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	if (scormResourceService == null ||
 	    scormResultService == null)
 	    dao = null;
-	log.info("init() " + dao);
+	log.info("init() {}", dao);
     }
 
     public void destroy()
@@ -221,7 +221,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	String siteId = ToolManager.getCurrentPlacement().getContext();
 
 	List<ContentPackage> packages = dao.find(siteId);
-	log.info("pckages " + packages.size());
+	log.info("packages {}", packages.size());
 
 	for (ContentPackage contentPackage: packages) {
 	    if (contentPackage.isDeleted())
