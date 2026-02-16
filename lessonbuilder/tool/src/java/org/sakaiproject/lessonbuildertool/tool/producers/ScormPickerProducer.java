@@ -54,7 +54,6 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 
 /**
@@ -67,7 +66,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
-	private LessonEntity assignmentEntity;
+	private LessonEntity scormEntity;
 	public MessageLocator messageLocator;
 	public LocaleGetter localeGetter;
 
@@ -79,26 +78,12 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 		simplePageToolDao = (SimplePageToolDao) dao;
 	}
 
-	public void setAssignmentEntity(LessonEntity l) {
-		assignmentEntity = l;
+	public void setScormEntity(LessonEntity l) {
+		scormEntity = l;
 	}
 
 	public String getViewID() {
 		return VIEW_ID;
-	}
-
-	/**
-	 * Walk the assignment entity chain to find the SCORM entity.
-	 * ScormEntity uses tool id "sakai.scorm.helper".
-	 * Returns null if SCORM is not deployed.
-	 */
-	private LessonEntity findScormEntity() {
-		for (LessonEntity e = assignmentEntity; e != null; e = e.getNextEntity()) {
-			if ("sakai.scorm.helper".equals(e.getToolId())) {
-				return e;
-			}
-		}
-		return null;
 	}
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
@@ -123,17 +108,17 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			SimplePage page = simplePageBean.getCurrentPage();
 
 			String currentItem = null; // default value, normally current
+			SimplePageItem existingItem = null;
 			if (itemId != null && itemId != -1) {
-			    SimplePageItem i = simplePageToolDao.findItem(itemId);
-			    if (i == null)
+			    existingItem = simplePageToolDao.findItem(itemId);
+			    if (existingItem == null)
 				return;
 			    // trying to hack on item not on this page
-			    if (i.getPageId() != page.getPageId())
+			    if (existingItem.getPageId() != page.getPageId())
 				return;
-			    currentItem = i.getSakaiId();
+			    currentItem = existingItem.getSakaiId();
 			}
 
-			LessonEntity scormEntity = findScormEntity();
 			if (scormEntity == null) {
 			    UIOutput.make(tofill, "error-div");
 			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_scorm_tool"));
@@ -187,15 +172,26 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			    currentItem = plist.get(0).getReference();
 
 			UISelect select = UISelect.make(form, "scorm-span", values.toArray(new String[1]), "#{simplePageBean.selectedScorm}", currentItem);
-			for (LessonEntity a : plist) {
+			for (int idx = 0; idx < plist.size(); idx++) {
+				LessonEntity a = plist.get(idx);
+				UIBranchContainer row = UIBranchContainer.make(form, "scorm:", String.valueOf(idx));
 
-				UIBranchContainer row = UIBranchContainer.make(form, "scorm:", String.valueOf(plist.indexOf(a)));
-
-				UISelectChoice.make(row, "select", select.getFullID(), plist.indexOf(a)).
+				UISelectChoice.make(row, "select", select.getFullID(), idx).
 				    decorate(new UIFreeAttributeDecorator("title", a.getTitle()));
 
 				UILink.make(row, "link", a.getTitle(), a.getUrl());
 			}
+
+			// Display Options: default to "window"
+			String currentFormat = "window";
+			if (existingItem != null && existingItem.getFormat() != null && !existingItem.getFormat().isEmpty()) {
+			    currentFormat = existingItem.getFormat();
+			}
+			UISelect formatSelect = UISelect.make(form, "format-span",
+			    new String[] {"window", "inline"},
+			    "#{simplePageBean.format}", currentFormat);
+			UISelectChoice.make(form, "format-window", formatSelect.getFullID(), 0);
+			UISelectChoice.make(form, "format-inline", formatSelect.getFullID(), 1);
 
 			UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
 			UIInput.make(form, "add-before", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());

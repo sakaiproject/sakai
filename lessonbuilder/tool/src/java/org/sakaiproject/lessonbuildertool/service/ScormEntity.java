@@ -263,22 +263,16 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return null;
-	log.info("title " + assignment.getTitle());
 	return assignment.getTitle();
     }
 
-    // http://heidelberg.rutgers.edu/portal/tool/575de542-a928-41a8-aab0-348a67e2ccc1/student-submit/5
     public String getUrl() {
 	if (assignment == null)
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return null;
 
-	log.info("simplepagebean " + simplePageBean);
-	log.info(simplePageBean.getCurrentTool("sakai.scorm.tool"));
-	log.info(assignment.getResourceId());
-	log.info(assignment.getTitle());
-	return ServerConfigurationService.getToolUrl() + "/" + simplePageBean.getCurrentTool("sakai.scorm.tool") + "/?wicket:bookmarkablePage=ScormPlayer:org.sakaiproject.scorm.ui.player.pages.PlayerPage&contentPackageId=" + id + "&resourceId=" + assignment.getResourceId() + "&title=" + assignment.getTitle();
+	return ServerConfigurationService.getToolUrl() + "/" + simplePageBean.getCurrentTool("sakai.scorm.tool") + "/scormPlayerPage?contentPackageId=" + id;
     }
 
     public Date getDueDate() {

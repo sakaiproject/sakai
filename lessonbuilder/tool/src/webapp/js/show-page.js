@@ -347,6 +347,8 @@ $(document).ready(function () {
       var row = $(this).closest('div.item');
       $("#change-assignment-p").hide();
       $("#change-quiz-p").hide();
+      $("#change-scorm-p").hide();
+      $("#configure-scorm-p").hide();
       $("#change-forum-p").hide();
       $("#change-resource-p").hide();
       $("#change-resource-version-p").hide();
@@ -1563,6 +1565,8 @@ $(document).ready(function () {
       $("#assignment-points-label").hide();
       $("#change-assignment-p").hide();
       $("#change-quiz-p").hide();
+      $("#change-scorm-p").hide();
+      $("#configure-scorm-p").hide();
       $("#change-forum-p").hide();
       $("#change-resource-p").hide();
       $("#change-blti-p").hide();
@@ -1811,6 +1815,22 @@ $(document).ready(function () {
           $("#edit-item-settings").attr("href",
             $("#edit-item-settings").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
           $("#edit-item-settings-text").text(msg("simplepage.edit_quiz_settings"));
+
+        } else if (type === 's'){
+          // SCORM package
+          $("#change-scorm-p").show();
+          $("#change-scorm").attr("href",
+                $("#change-scorm").attr("href").replace("itemId=-1", "itemId=" + itemid));
+          if ($("#configure-scorm").length > 0) {
+            $("#configure-scorm-p").show();
+          }
+          if (format != 'window' && format != 'inline') format = 'window';
+          $(".format").prop("checked", false);
+          $("#format-" + format).prop("checked", true);
+          $("#formatstuff").show();
+          $("#format-window").show();
+          // Hide "page" option for SCORM - it has its own internal navigation
+          $("#format-page").parent().hide();
 
         } else if (type === '8'){
           $("#change-forum-p").show();
