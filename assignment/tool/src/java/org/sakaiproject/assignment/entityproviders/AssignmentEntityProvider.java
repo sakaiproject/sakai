@@ -80,6 +80,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
+import org.tsugi.lti.LTIUtil;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -1088,6 +1090,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
 
             Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
+            Long toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
+            Map<String, Object> tool = (toolKey != null) ? ltiService.getTool(toolKey, site.getId()) : null;
+            simpleAssignment.ltiFrameHeight = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
             String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
 
             for (Map<String, Object> submission : submissionMaps) {
@@ -1880,6 +1885,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String maxGradePoint;
 
         private String ltiGradableLaunch;
+
+        private String ltiFrameHeight;
 
         private List<SimpleSubmission> submissions;
 

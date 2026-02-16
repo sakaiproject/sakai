@@ -122,11 +122,11 @@ export class SakaiLTIIframe extends SakaiElement {
   }
 
   get _heightStyle() {
-    return this._normalizeHeightForCss(this.height);
+    const normalized = this._normalizeHeightForCss(this.height);
+    return normalized || "1200px";
   }
 
   launchPopup() {
-
     window.open(this.launchUrl, "_blank");
     return false;
   }
@@ -139,10 +139,10 @@ export class SakaiLTIIframe extends SakaiElement {
           <button @click="${this.launchPopup}" class="btn btn-primary">${this.newWindowText}</button>
         </p>
       </div>
-      <div class="sakai-iframe-launch" style="${this._heightStyle ? `height: ${this._heightStyle};` : ""}">
+      <div class="sakai-iframe-launch">
         <iframe src="${this.launchUrl}"
             id="sakai-lti-iframe-${this.randomId}"
-            style="width: 100%; height: 100%; ${this._heightStyle ? `min-height: ${this._heightStyle};` : "min-height: 80vh;"}"
+            style="width: 100%; height: ${this._heightStyle}; overflow: scroll;"
             width="100%"
             aria-label="${this.newWindowText}"
             frameborder="0"
