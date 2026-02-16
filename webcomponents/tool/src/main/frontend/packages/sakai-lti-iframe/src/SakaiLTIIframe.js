@@ -142,7 +142,7 @@ export class SakaiLTIIframe extends SakaiElement {
       <div class="sakai-iframe-launch">
         <iframe src="${this.launchUrl}"
             id="sakai-lti-iframe-${this.randomId}"
-            style="width: 100%; height: ${this._heightStyle}; overflow: scroll;"
+            style="width: 100%; height: ${this._heightStyle}; overflow: auto;"
             width="100%"
             aria-label="${this.newWindowText}"
             frameborder="0"
