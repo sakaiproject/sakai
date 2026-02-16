@@ -512,6 +512,11 @@ public class SimplePageBean {
     		bltiEntity = (LessonEntity)e;
     	}
 
+    	private LessonEntity scormEntity = null;
+    	public void setScormEntity(Object e) {
+    		scormEntity = (LessonEntity)e;
+    	}
+
         // End Injection
 
         DateFormat isoDateFormat;
@@ -3363,7 +3368,8 @@ public class SimplePageBean {
 			else
 			    i.setSameWindow(false);
 
-			if (i.getType() == SimplePageItem.BLTI) {
+			if (i.getType() == SimplePageItem.BLTI ||
+			    (i.getType() == SimplePageItem.ASSESSMENT && i.getSakaiId() != null && i.getSakaiId().startsWith("/" + LessonEntity.SCORM + "/"))) {
 			    if (StringUtils.isBlank(format))
 				i.setFormat("");
 			    else
@@ -3374,7 +3380,8 @@ public class SimplePageBean {
 			    else
 				i.setSameWindow(true);
 
-			    i.setHeight(height);
+			    if (i.getType() == SimplePageItem.BLTI)
+				i.setHeight(height);
 			}
 
 			if (i.getType() == SimplePageItem.PAGE) {
@@ -4483,17 +4490,19 @@ public class SimplePageBean {
 			return "failure";
 		} else {
 			try {
-			    // use the assignment entity chain to resolve SCORM references
-			    LessonEntity selectedObject = assignmentEntity.getEntity(selectedScorm, this);
+			    LessonEntity selectedObject = scormEntity.getEntity(selectedScorm, this);
 			    if (selectedObject == null)
 				return "failure";
+
+			    // validate format: only "window" or "inline" for SCORM
+			    String fmt = "inline".equals(format) ? "inline" : "window";
 
 			    // editing existing item?
 			    SimplePageItem i;
 			    if (itemId != null && itemId != -1) {
 				i = findItem(itemId);
 				// do getEntity/getreference to normalize, in case sakaiid is old format
-				LessonEntity existing = assignmentEntity.getEntity(i.getSakaiId(), this);
+				LessonEntity existing = scormEntity.getEntity(i.getSakaiId(), this);
 				String ref = null;
 				if (existing != null)
 				    ref = existing.getReference();
@@ -4514,13 +4523,15 @@ public class SimplePageBean {
 					i.setSakaiId(selectedScorm);
 					i.setName(selectedObject.getTitle());
 				    }
-				    // reset scorm-specific stuff
 				    i.setDescription("");
-
-				    update(i);
 				}
+				i.setFormat(fmt);
+				i.setSameWindow(!"window".equals(fmt));
+				update(i);
 			    } else { // no, add new item
 				i = appendItem(selectedScorm, selectedObject.getTitle(), SimplePageItem.ASSESSMENT);
+				i.setFormat(fmt);
+				i.setSameWindow(!"window".equals(fmt));
 				saveItem(i);
 			    }
 			    return "success";

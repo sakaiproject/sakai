@@ -101,6 +101,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    bltiEntity = (LessonEntity)e;
         }
 
+	private LessonEntity scormEntity = null;
+	public void setScormEntity(Object e) {
+		scormEntity = (LessonEntity)e;
+	}
+
 	static final String ICONSTYLE = "\n.portletTitle .action .help img {\n        background: url({}/help.gif) center right no-repeat !important;\n}\n.portletTitle .action .help img:hover, .portletTitle .action .help img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
 
 	public static final String VIEW_ID = "ShowItem";
@@ -342,15 +347,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    Integer i = new Integer(source.substring("CREATE/FORUM/".length()));
 		    source = createLinks.get(i).Url;
 		} else if (source.startsWith("CREATE/SCORM/")) {
-		    // walk the assignment entity chain to find the SCORM entity
-		    for (LessonEntity e = assignmentEntity; e != null; e = e.getNextEntity()) {
-			if ("sakai.scorm.helper".equals(e.getToolId())) {
-			    List<UrlItem> createLinks = e.createNewUrls(simplePageBean);
-			    Integer i = new Integer(source.substring("CREATE/SCORM/".length()));
-			    source = createLinks.get(i).Url;
-			    break;
-			}
-		    }
+		    List<UrlItem> createLinks = scormEntity.createNewUrls(simplePageBean);
+		    Integer i = new Integer(source.substring("CREATE/SCORM/".length()));
+		    source = createLinks.get(i).Url;
 		}
 	    } else if (item.getAttribute("multimediaUrl") != null)
 		source = item.getAttribute("multimediaUrl");
@@ -378,7 +377,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			    lessonEntity = assignmentEntity.getEntity(item.getSakaiId());
 			    break;
 		    case SimplePageItem.ASSESSMENT:
-			    lessonEntity = quizEntity.getEntity(item.getSakaiId(),simplePageBean);
+			    if (item.getSakaiId() != null && item.getSakaiId().startsWith("/scorm/")) {
+				lessonEntity = scormEntity.getEntity(item.getSakaiId(), simplePageBean);
+			    } else {
+				lessonEntity = quizEntity.getEntity(item.getSakaiId(), simplePageBean);
+			    }
 			    break;
 		    case SimplePageItem.FORUM:
 			    lessonEntity = forumEntity.getEntity(item.getSakaiId());

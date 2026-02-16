@@ -27,7 +27,7 @@
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="messageLocator" ref="messageLocator"/>
     <property name="gradingService" ref="org.sakaiproject.grading.api.GradingService"/>
-    <property name = "prevEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity" />
+    <property name = "prevEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity" />
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.ccexport.Assignment2Export"

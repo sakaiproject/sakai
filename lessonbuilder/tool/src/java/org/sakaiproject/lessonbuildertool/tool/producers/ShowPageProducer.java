@@ -186,6 +186,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static LessonEntity quizEntity;
 	private static LessonEntity assignmentEntity;
 	private static LessonEntity bltiEntity;
+	private static LessonEntity scormEntity;
 	public MessageLocator messageLocator;
 	private static LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
@@ -1352,7 +1353,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				// The item's internal format value
 				// "window" = popup, "page" = iframe on separate lessons page, "inline" = iframe on *this* page
-				boolean isInline = (i.getType() == SimplePageItem.BLTI && "inline".equals(i.getFormat()));
+				boolean isScormItem = (i.getType() == SimplePageItem.ASSESSMENT && i.getSakaiId() != null && i.getSakaiId().startsWith("/" + LessonEntity.SCORM + "/"));
+				boolean isInline = ((i.getType() == SimplePageItem.BLTI || isScormItem) && "inline".equals(i.getFormat()));
 
 				// toolNewPage "0" = never launch in popup, "1" = always launch in popup, "2" = delegate to content
 				if ( "0".equals(ltiToolNewPage) ) {
@@ -1442,7 +1444,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						itemicon.decorate(new UIStyleDecorator("si si-sakai-assignment-grades"));
 						break;
 					    case SimplePageItem.ASSESSMENT:
-						itemicon.decorate(new UIStyleDecorator("si si-sakai-samigo"));
+						if (i.getSakaiId() != null && i.getSakaiId().startsWith("/" + LessonEntity.SCORM + "/")) {
+						    itemicon.decorate(new UIStyleDecorator("si si-sakai-scorm-tool"));
+						} else {
+						    itemicon.decorate(new UIStyleDecorator("si si-sakai-samigo"));
+						}
 						break;
 						case SimplePageItem.BLTI:
 							String bltiIcon = "fa-globe";
@@ -1586,12 +1592,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 							UIOutput.make(tableRow, "requirement-text", requirement);
 						} else if (i.getType() == SimplePageItem.ASSESSMENT) {
-							UIOutput.make(tableRow, "type", "6"); // Not used by
-							// assignments,
-							// so it is
-							// safe to dedicate to assessments
+							boolean isScorm = i.getSakaiId() != null && i.getSakaiId().startsWith("/" + LessonEntity.SCORM + "/");
+							if (isScorm) {
+								UIOutput.make(tableRow, "type", "s");
+								UIOutput.make(tableRow, "item-format", i.getFormat() != null ? i.getFormat() : "");
+							} else {
+								UIOutput.make(tableRow, "type", "6"); // Not used by
+								// assignments,
+								// so it is
+								// safe to dedicate to assessments
+							}
 							UIOutput.make(tableRow, "requirement-text", (i.getSubrequirement() ? i.getRequirementText() : "false"));
-							LessonEntity quiz = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
+							LessonEntity quiz = isScorm
+								? scormEntity.getEntity(i.getSakaiId(), simplePageBean)
+								: quizEntity.getEntity(i.getSakaiId(), simplePageBean);
 							if (quiz != null) {
 								String editUrl = quiz.editItemUrl(simplePageBean);
 								if (editUrl != null) {
@@ -1606,7 +1620,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								if (!quiz.objectExists())
 								    entityDeleted = true;
 
-							} else
+							} else if (!isScorm)
 							    notPublished = quizEntity.notPublished(i.getSakaiId());
 						} else if (i.getType() == SimplePageItem.BLTI) {
 						    UIOutput.make(tableRow, "type", "b");
@@ -1696,12 +1710,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								notPublished = true;
 							    break;
 							case SimplePageItem.ASSESSMENT:
-							    lessonEntity = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
+							    if (i.getSakaiId() != null && i.getSakaiId().startsWith("/" + LessonEntity.SCORM + "/")) {
+								lessonEntity = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
+							    } else {
+								lessonEntity = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
+							    }
 							    if (lessonEntity != null)
 								itemGroupString = simplePageBean.getItemGroupString(i, lessonEntity, true);
-							    else 
+							    else if (!(i.getSakaiId() != null && i.getSakaiId().startsWith("/" + LessonEntity.SCORM + "/")))
 								notPublished = quizEntity.notPublished(i.getSakaiId());
-							    if (!lessonEntity.objectExists())
+							    if (lessonEntity != null && !lessonEntity.objectExists())
 								entityDeleted = true;
 							    break;
 							case SimplePageItem.FORUM:
@@ -3784,12 +3802,45 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				fake = true; // need to set this in case it's available for missing entity
 			}
 		} else if (i.getType() == SimplePageItem.ASSESSMENT) {
+		    boolean isScorm = i.getSakaiId() != null && i.getSakaiId().startsWith("/" + LessonEntity.SCORM + "/");
 		    // assignments won't let us get the entity if we're not in the group, so set up permissions before other tests
 			if (usable && i.isPrerequisite()) {
 			    simplePageBean.checkItemPermissions(i, true);
 			}
-			LessonEntity lessonEntity = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
-			if (usable && lessonEntity != null && (canEditPage || !quizEntity.notPublished(i.getSakaiId()))) {
+			LessonEntity lessonEntity = isScorm
+				? scormEntity.getEntity(i.getSakaiId(), simplePageBean)
+				: quizEntity.getEntity(i.getSakaiId(), simplePageBean);
+			if (isScorm && "inline".equals(i.getFormat())) {
+				// SCORM inline: embed iframe directly on the page
+				if (usable && lessonEntity != null) {
+					UIComponent iframe = UIOutput.make(container, "blti-iframe")
+						.decorate(new UIFreeAttributeDecorator("allow", String.join(";",
+							Optional.ofNullable(ServerConfigurationService.getStrings("browser.feature.allow"))
+								.orElseGet(() -> new String[]{}))));
+					iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
+					iframe.decorate(new UIFreeAttributeDecorator("height", "600"));
+					iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
+					UIOutput.make(container, "item-name", i.getName());
+				} else {
+					fake = true;
+				}
+			} else if (isScorm) {
+				// SCORM default/window: open in new window
+				if (usable && lessonEntity != null) {
+					URL = lessonEntity.getUrl();
+					UILink link = UILink.make(container, ID, URL);
+					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+					link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
+					if (! available)
+						fakeDisableLink(link, messageLocator);
+					if (notDone)
+						link.decorate(new UIFreeAttributeDecorator("onclick",
+							"setTimeout(function(){window.location.reload(true)},3000); return true"));
+				} else {
+					fake = true;
+				}
+			} else if (usable && lessonEntity != null && (canEditPage || !quizEntity.notPublished(i.getSakaiId()))) {
+				// Default: quiz - show via ShowItemProducer
 				// we've hacked Samigo to look at a special lesson builder
 				// session
 				// attribute. otherwise at the end of the test, Samigo replaces
@@ -3974,7 +4025,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.ASSIGNMENT:
 					linkText = getLinkText(linkText, i.getSakaiId());
 				case SimplePageItem.ASSESSMENT:
-					lessonEntity = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
+					if (i.getSakaiId() != null && i.getSakaiId().startsWith("/" + LessonEntity.SCORM + "/")) {
+					    lessonEntity = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
+					} else {
+					    lessonEntity = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
+					}
 					linkAdditionalText = messageLocator.getMessage("simplepage.assignment.review_submissions");
 				default:
 					UIOutput.make(container, ID + "-text", linkText)
@@ -4141,6 +4196,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public void setBltiEntity(LessonEntity e) {
 	    	if (bltiEntity == null)
 			bltiEntity = e;
+	}
+
+	public void setScormEntity(LessonEntity e) {
+		if (scormEntity == null)
+			scormEntity = e;
 	}
 
 	//Create a latest forum conversations dialog where user can enter other settings for the forum summary div
@@ -4410,6 +4470,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params.setSendingPage(currentPage.getPageId());
 		params.viewID = ScormPickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-scorm", messageLocator.getMessage("simplepage.change_scorm"), params);
+
+		// Configure SCORM package link - points to SCORM Player tool
+		String scormTool = simplePageBean.getCurrentTool("sakai.scorm.tool");
+		if (scormTool != null) {
+		    String scormToolUrl = ServerConfigurationService.getToolUrl() + "/" + scormTool;
+		    UILink.make(form, "configure-scorm", messageLocator.getMessage("simplepage.configure_scorm"), scormToolUrl);
+		}
 
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());

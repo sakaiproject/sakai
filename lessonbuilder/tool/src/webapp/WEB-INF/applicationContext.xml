@@ -287,7 +287,6 @@ simplePageBean.addForumSummary,
         init-method="init"
         destroy-method="destroy">
     <property name="messageLocator" ref="messageLocator"/>
-    <property name="prevEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity" />
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.BltiEntity"
