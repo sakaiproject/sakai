@@ -190,7 +190,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (available) {
 		if (type == SimplePageItem.RESOURCE || type == SimplePageItem.BLTI)
 		    simplePageBean.track(params.getItemId(), null);
-		else if (item.isPrerequisite() && (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM))
+		else if (item.isPrerequisite() && (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.SCORM || type == SimplePageItem.FORUM))
 		    simplePageBean.checkItemPermissions(item, true); // set acl, etc		
 
 	    }
@@ -369,6 +369,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			break;
 		case SimplePageItem.ASSIGNMENT:
 		case SimplePageItem.ASSESSMENT:
+		case SimplePageItem.SCORM:
 		case SimplePageItem.FORUM:
 		case SimplePageItem.BLTI:
 		    LessonEntity lessonEntity = null;
@@ -377,11 +378,10 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			    lessonEntity = assignmentEntity.getEntity(item.getSakaiId());
 			    break;
 		    case SimplePageItem.ASSESSMENT:
-			    if (item.getSakaiId() != null && item.getSakaiId().startsWith("/scorm/")) {
-				lessonEntity = scormEntity.getEntity(item.getSakaiId(), simplePageBean);
-			    } else {
-				lessonEntity = quizEntity.getEntity(item.getSakaiId(), simplePageBean);
-			    }
+			    lessonEntity = quizEntity.getEntity(item.getSakaiId(), simplePageBean);
+			    break;
+		    case SimplePageItem.SCORM:
+			    lessonEntity = scormEntity.getEntity(item.getSakaiId(), simplePageBean);
 			    break;
 		    case SimplePageItem.FORUM:
 			    lessonEntity = forumEntity.getEntity(item.getSakaiId());

@@ -315,6 +315,7 @@ simplePageBean.addForumSummary,
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+    <property name="scormEntity" ref="org.sakaiproject.lessonbuildertool.service.ScormEntity"/>
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
     <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />

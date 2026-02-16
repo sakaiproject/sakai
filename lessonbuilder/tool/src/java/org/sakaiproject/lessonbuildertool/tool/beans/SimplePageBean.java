@@ -2460,6 +2460,7 @@ public class SimplePageBean {
 			int itemType = nextItem.getType();
 			if (itemType == SimplePageItem.ASSIGNMENT ||
 					itemType == SimplePageItem.ASSESSMENT ||
+					itemType == SimplePageItem.SCORM ||
 					itemType == SimplePageItem.FORUM ||
 					itemType == SimplePageItem.PAGE ||
 			                itemType == SimplePageItem.BLTI ||
@@ -3369,7 +3370,7 @@ public class SimplePageBean {
 			    i.setSameWindow(false);
 
 			if (i.getType() == SimplePageItem.BLTI ||
-			    (i.getType() == SimplePageItem.ASSESSMENT && i.getSakaiId() != null && i.getSakaiId().startsWith("/" + LessonEntity.SCORM + "/"))) {
+			    i.getType() == SimplePageItem.SCORM) {
 			    if (StringUtils.isBlank(format))
 				i.setFormat("");
 			    else
@@ -3419,9 +3420,10 @@ public class SimplePageBean {
 		    return;
 		}
 
-	    	if (i.getType() != SimplePageItem.ASSESSMENT && 
-		    i.getType() != SimplePageItem.ASSIGNMENT && 
-		    i.getType() != SimplePageItem.FORUM) {
+	    	if (i.getType() != SimplePageItem.ASSESSMENT &&
+		    i.getType() != SimplePageItem.ASSIGNMENT &&
+		    i.getType() != SimplePageItem.FORUM &&
+		    i.getType() != SimplePageItem.SCORM) {
 			// We only do this for assignments and assessments
 		        // currently we can't actually set it for forum topics
 			return;
@@ -3449,6 +3451,8 @@ public class SimplePageBean {
 					    lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
 					case SimplePageItem.FORUM:
 					    lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
+					case SimplePageItem.SCORM:
+					    lessonEntity = scormEntity.getEntity(i.getSakaiId(),this); break;
 					}
 					if (lessonEntity != null) {
 					    String groups = getItemGroupString (i, lessonEntity, true);
@@ -3490,6 +3494,8 @@ public class SimplePageBean {
 				    lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
 				case SimplePageItem.FORUM:
 				    lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
+				case SimplePageItem.SCORM:
+				    lessonEntity = scormEntity.getEntity(i.getSakaiId(),this); break;
 				}
 				if (lessonEntity != null) {
 				    String groups = group.getGroups();
@@ -3961,6 +3967,8 @@ public class SimplePageBean {
 		   entity = assignmentEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.ASSESSMENT:
 		   entity = quizEntity.getEntity(i.getSakaiId(),this); break;
+	       case SimplePageItem.SCORM:
+		   entity = scormEntity.getEntity(i.getSakaiId(),this); break;
 	       case SimplePageItem.FORUM:
 		   entity = forumEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.MULTIMEDIA:
@@ -4196,6 +4204,8 @@ public class SimplePageBean {
 	       lessonEntity = assignmentEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.ASSESSMENT:
 	       lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
+	   case SimplePageItem.SCORM:
+	       lessonEntity = scormEntity.getEntity(i.getSakaiId(),this); break;
 	   case SimplePageItem.FORUM:
 	       lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.MULTIMEDIA:
@@ -4529,7 +4539,7 @@ public class SimplePageBean {
 				i.setSameWindow(!"window".equals(fmt));
 				update(i);
 			    } else { // no, add new item
-				i = appendItem(selectedScorm, selectedObject.getTitle(), SimplePageItem.ASSESSMENT);
+				i = appendItem(selectedScorm, selectedObject.getTitle(), SimplePageItem.SCORM);
 				i.setFormat(fmt);
 				i.setSameWindow(!"window".equals(fmt));
 				saveItem(i);
@@ -5789,6 +5799,11 @@ public class SimplePageBean {
 				if (entity == null || entity.notPublished())
 				return false;
 			    break;
+			case SimplePageItem.SCORM:
+			    entity = scormEntity.getEntity(item.getSakaiId(), this);
+			    if (entity == null || entity.notPublished())
+				return false;
+			    break;
 			case SimplePageItem.FORUM:
 			    entity = forumEntity.getEntity(item.getSakaiId());
 			    if (entity == null || entity.notPublished())
@@ -5997,6 +6012,35 @@ public class SimplePageBean {
 			    	return false;
 			    }
 			}
+		} else if (item.getType() == SimplePageItem.SCORM) {
+			if (item.getSakaiId().equals(SimplePageItem.DUMMY)) {
+			    completeCache.put(itemId, false);
+			    return false;
+			}
+			LessonEntity scorm = scormEntity.getEntity(item.getSakaiId(),this);
+			if (scorm == null) {
+			    completeCache.put(itemId, false);
+			    return false;
+			}
+			User user;
+			try {
+			    user = userDirectoryService.getUser(getCurrentUserId());
+			} catch (Exception ignore) {
+			    completeCache.put(itemId, false);
+			    return false;
+			}
+
+			LessonSubmission submission = scorm.getSubmission(user.getId());
+
+			if (submission == null) {
+				completeCache.put(itemId, false);
+				return false;
+			} else if (!item.getSubrequirement()) {
+				completeCache.put(itemId, true);
+				return true;
+			} else {
+				return isAssignmentComplete(item.getType(), scorm, submission, item.getRequirementText());
+			}
 		} else if (item.getType() == SimplePageItem.COMMENTS) {
 			List<SimplePageComment>comments = simplePageToolDao.findCommentsOnItemByAuthor((long)itemId, getCurrentUserId());
 			boolean found = false;
@@ -6061,7 +6105,7 @@ public class SimplePageBean {
 	private boolean isAssignmentComplete(int type, LessonEntity assEntity, LessonSubmission submission, String requirementString) {
 		String grade = submission.getGradeString();
 
-		if (type == SimplePageItem.ASSESSMENT) {
+		if (type == SimplePageItem.ASSESSMENT || type == SimplePageItem.SCORM) {
 			return grade.equals("Pass");
 		} else if (type == SimplePageItem.TEXT) {
 			return grade.equals("Checked");
@@ -6363,6 +6407,11 @@ public class SimplePageBean {
 			if (quiz == null)
 				return null;
 			return quiz.getTitle();
+		} else if (i.getType() == SimplePageItem.SCORM) {
+		    LessonEntity scorm = scormEntity.getEntity(i.getSakaiId(),this);
+			if (scorm == null)
+				return null;
+			return scorm.getTitle();
 		} else if (i.getType() == SimplePageItem.BLTI) {
 		    if (bltiEntity == null)
 			return null;
