@@ -20,7 +20,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.conversations.api.ConversationsEvents;
+import org.sakaiproject.conversations.api.ConversationsEvent;
 import org.sakaiproject.conversations.api.ConversationsService;
 import org.sakaiproject.conversations.api.ConversationsStat;
 import org.sakaiproject.conversations.api.ConversationsPermissionsException;
@@ -992,12 +992,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             when(securityService.unlock(Permissions.POST_UPVOTE.label, site1Ref)).thenReturn(true);
 
             Event event = mock(Event.class);
-            when(event.getEvent()).thenReturn(ConversationsEvents.POST_UPVOTED.label);
+            when(event.getEvent()).thenReturn(ConversationsEvent.POST_UPVOTED.label);
             when(event.getResource()).thenReturn(ref);
             when(event.getContext()).thenReturn(postBean.siteId);
             when(event.getPriority()).thenReturn(NotificationService.NOTI_OPTIONAL);
 
-            when(eventTrackingService.newEvent(ConversationsEvents.POST_UPVOTED.label, ref, postBean.siteId, true, NotificationService.NOTI_OPTIONAL)).thenReturn(event);
+            when(eventTrackingService.newEvent(ConversationsEvent.POST_UPVOTED.label, ref, postBean.siteId, true, NotificationService.NOTI_OPTIONAL)).thenReturn(event);
 
             postBean = conversationsService.upvotePost(postBean.siteId, postBean.topic, postBean.id);
             assertEquals(1, postBean.upvotes);
@@ -1615,12 +1615,12 @@ public class ConversationsServiceTests extends AbstractTransactionalJUnit4Spring
             String ref = ConversationsReferenceReckoner.reckoner().post(threadPost).reckon().getReference();
 
             Event event = mock(Event.class);
-            when(event.getEvent()).thenReturn(ConversationsEvents.REACTED_TO_POST.label);
+            when(event.getEvent()).thenReturn(ConversationsEvent.REACTED_TO_POST.label);
             when(event.getResource()).thenReturn(ref);
             when(event.getContext()).thenReturn(threadBean.siteId);
             when(event.getPriority()).thenReturn(NotificationService.NOTI_OPTIONAL);
 
-            when(eventTrackingService.newEvent(ConversationsEvents.REACTED_TO_POST.label, ref, threadBean.siteId, false, NotificationService.NOTI_OPTIONAL)).thenReturn(event);
+            when(eventTrackingService.newEvent(ConversationsEvent.REACTED_TO_POST.label, ref, threadBean.siteId, false, NotificationService.NOTI_OPTIONAL)).thenReturn(event);
 
             conversationsService.savePostReactions(topicBean.id, savedThreadBean.id, reactions);
 
