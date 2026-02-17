@@ -41,7 +41,6 @@
       <script src="/samigo-app/js/saveForm.js"></script>
       <script src="/samigo-app/js/deliveryQuestionCancellation.js"></script>
       <script type="module" src="/webcomponents/bundles/rubric-association-requirements.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
-      <script src="/library/webjars/bootstrap/5.2.0/js/bootstrap.min.js<h:outputText value="#{questionScores.CDNQuery}" />"></script>
 
     <h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{(delivery.actionString=='takeAssessmentViaUrl' ||  delivery.actionString=='previewAssessment') and delivery.isMathJaxEnabled}"/>
       </head>
