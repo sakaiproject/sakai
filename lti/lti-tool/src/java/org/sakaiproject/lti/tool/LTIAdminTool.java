@@ -3570,7 +3570,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_tool_system";
 		}
 		Long key = Long.valueOf(id);
-		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentBean(key, getSiteId(state));
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsBean(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
 			return "lti_tool_system";
@@ -3632,7 +3632,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_tool_system";
 		}
 		Long key = Long.valueOf(id);
-		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentBean(key, getSiteId(state));
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsBean(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
 			return "lti_tool_system";
@@ -3685,7 +3685,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 			return "lti_error";
 		}
 		Long key = Long.valueOf(id);
-		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentBean(key, getSiteId(state));
+		org.sakaiproject.lti.beans.LtiContentBean content = ltiService.getContentAsBean(key, getSiteId(state));
 		if (content == null) {
 			addAlert(state, rb.getString("error.content.not.found"));
 			return "lti_error";
