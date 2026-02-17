@@ -190,7 +190,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (available) {
 		if (type == SimplePageItem.RESOURCE || type == SimplePageItem.BLTI)
 		    simplePageBean.track(params.getItemId(), null);
-		else if (item.isPrerequisite() && (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.SCORM || type == SimplePageItem.FORUM))
+		else if (item.isPrerequisite() && (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM))
 		    simplePageBean.checkItemPermissions(item, true); // set acl, etc		
 
 	    }

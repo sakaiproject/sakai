@@ -3819,10 +3819,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				fake = true; // need to set this in case it's available for missing entity
 			}
 		} else if (i.getType() == SimplePageItem.SCORM) {
-		    // assignments won't let us get the entity if we're not in the group, so set up permissions before other tests
-			if (usable && i.isPrerequisite()) {
-			    simplePageBean.checkItemPermissions(i, true);
-			}
 			LessonEntity lessonEntity = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
 			if ("inline".equals(i.getFormat())) {
 				// SCORM inline: embed iframe directly on the page

@@ -4522,21 +4522,8 @@ public class SimplePageBean {
 				    ref = existing.getReference();
 				// if same scorm package, nothing to do
 				if ((existing == null) || !ref.equals(selectedScorm)) {
-				    // if access controlled, clear restriction from old item and add to new
-				    if (i.isPrerequisite()) {
-					if (existing != null) {
-					    i.setPrerequisite(false);
-					    checkControlGroup(i, false);
-					}
-					// sakaiid and name are used in setting control
-					i.setSakaiId(selectedScorm);
-					i.setName(selectedObject.getTitle());
-					i.setPrerequisite(true);
-					checkControlGroup(i, true);
-				    } else {
-					i.setSakaiId(selectedScorm);
-					i.setName(selectedObject.getTitle());
-				    }
+				    i.setSakaiId(selectedScorm);
+				    i.setName(selectedObject.getTitle());
 				    i.setDescription("");
 				}
 				i.setFormat(fmt);

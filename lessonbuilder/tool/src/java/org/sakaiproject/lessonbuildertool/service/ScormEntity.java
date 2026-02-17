@@ -160,7 +160,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     protected int level;
     // not required fields. If we need to look up
     // the actual objects, lets us cache them
-    protected ContentPackage assignment;;
+    protected ContentPackage assignment;
 
     // ref looks like /scorm/id
     public ContentPackage getAssignment(Long id) {
@@ -221,7 +221,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	String siteId = ToolManager.getCurrentPlacement().getContext();
 
 	List<ContentPackage> packages = dao.find(siteId);
-	log.info("packages {}", packages.size());
+	log.debug("packages {}", packages.size());
 
 	for (ContentPackage contentPackage: packages) {
 	    if (contentPackage.isDeleted())
@@ -339,7 +339,9 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
    public boolean objectExists() {
        if (dao == null)
 	   return false;
-       return true;
+       if (assignment == null)
+	   assignment = getAssignment(id);
+       return assignment != null;
    }
 
     public boolean notPublished(String ref) {
@@ -353,8 +355,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {
-	List<String>ret = new ArrayList<String>();
-	return ret;
+	return null;
     }
   
     // set the item to be accessible only to the specific groups.
