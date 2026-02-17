@@ -92,27 +92,34 @@ import org.sakaiproject.tool.cover.ToolManager;
 public class AssessmentService {
 	public static final int UPDATE_SUCCESS = 0;
 	public static final int UPDATE_ERROR_DRAW_SIZE_TOO_LARGE = 1;
-	private SecurityService securityService = ComponentManager.get(SecurityService.class);
-
 	// versioning title string that it will look for/use, followed by a number
 	private static final String VERSION_START = "  - ";
+
+	private SecurityService securityService;
 
 	/**
 	 * Creates a new QuestionPoolService object.
 	 */
 	public AssessmentService() {
+		this(ComponentManager.get(SecurityService.class));
 	}
 
-	public AssessmentTemplateFacade getAssessmentTemplate(
-			String assessmentTemplateId) {
+	public AssessmentService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	public AssessmentTemplateFacade getAssessmentTemplate(String assessmentTemplateId) {
 		try {
-			return PersistenceService.getInstance()
-					.getAssessmentFacadeQueries().getAssessmentTemplate(
-							new Long(assessmentTemplateId));
+			Long id = Long.valueOf(assessmentTemplateId);
+			return PersistenceService.getInstance().getAssessmentFacadeQueries().getAssessmentTemplate(id);
+		} catch (NumberFormatException nfe) {
+			log.warn("assessment template id [{}] could not be parsed, {}", assessmentTemplateId, nfe.toString());
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			log.error("assessment template with id [{}] caused an error", assessmentTemplateId, e);
 			throw new RuntimeException(e);
 		}
+		log.debug("no assessment template with id [{}]", assessmentTemplateId);
+		return null;
 	}
 
 	public AssessmentFacade getAssessment(String assessmentId) {

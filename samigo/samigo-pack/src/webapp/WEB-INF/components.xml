@@ -223,7 +223,20 @@
     <bean id="org.sakaiproject.tool.assessment.facade.ItemHashUtil"
           class="org.sakaiproject.tool.assessment.facade.ItemHashUtil">
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-        <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+        <property name="transactionTemplate">
+            <bean class="org.springframework.transaction.support.TransactionTemplate">
+                <constructor-arg ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+            </bean>
+        </property>
+        <property name="requiresNewTransactionTemplate">
+            <bean class="org.springframework.transaction.support.TransactionTemplate">
+                <constructor-arg ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+                <property name="propagationBehaviorName" value="PROPAGATION_REQUIRES_NEW"/>
+            </bean>
+        </property>
     </bean>
 
 
