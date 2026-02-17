@@ -1389,29 +1389,29 @@ public class SakaiLTIUtilTest {
 		contentMap.put("id", 123L);
 		contentMap.put("placementsecret", "test-secret");
 
-		// Test getNewpage delegation (bean path; Map data via of())
+		// Test getNewpage delegation: Bean overload vs direct Map-based method
 		boolean pojoResult = SakaiLTIUtil.getNewpage(toolBean, contentBean, false);
-		boolean mapResult = SakaiLTIUtil.getNewpage(LtiToolBean.of(toolMap), LtiContentBean.of(contentMap), false);
+		boolean mapResult = SakaiLTIUtil.getNewpage(toolMap, contentMap, false);
 		assertEquals("Bean and Map getNewpage should produce same result", pojoResult, mapResult);
 
-		// Test getFrameHeight delegation
+		// Test getFrameHeight delegation: Bean overload vs direct Map-based method
 		String pojoHeight = SakaiLTIUtil.getFrameHeight(toolBean, contentBean, "400px");
-		String mapHeight = SakaiLTIUtil.getFrameHeight(LtiToolBean.of(toolMap), LtiContentBean.of(contentMap), "400px");
+		String mapHeight = SakaiLTIUtil.getFrameHeight(toolMap, contentMap, "400px");
 		assertEquals("Bean and Map getFrameHeight should produce same result", pojoHeight, mapHeight);
 
-		// Test getLaunchCodeKey delegation
+		// Test getLaunchCodeKey delegation: Bean overload vs direct Map-based method
 		String pojoKey = SakaiLTIUtil.getLaunchCodeKey(contentBean);
-		String mapKey = SakaiLTIUtil.getLaunchCodeKey(LtiContentBean.of(contentMap));
+		String mapKey = SakaiLTIUtil.getLaunchCodeKey(contentMap);
 		assertEquals("Bean and Map getLaunchCodeKey should produce same result", pojoKey, mapKey);
 
-		// Test getLaunchCode delegation - both should produce valid codes
+		// Test getLaunchCode delegation: Bean overload vs direct Map-based method
 		String pojoCode = SakaiLTIUtil.getLaunchCode(contentBean);
-		String mapCode = SakaiLTIUtil.getLaunchCode(LtiContentBean.of(contentMap));
-		
+		String mapCode = SakaiLTIUtil.getLaunchCode(contentMap);
+
 		// Both codes should be valid (time-dependent, so they won't be identical)
 		assertTrue("Bean getLaunchCode should produce valid code", SakaiLTIUtil.checkLaunchCode(contentBean, pojoCode));
-		assertTrue("Map getLaunchCode should produce valid code", SakaiLTIUtil.checkLaunchCode(LtiContentBean.of(contentMap), mapCode));
-		
+		assertTrue("Map getLaunchCode should produce valid code", SakaiLTIUtil.checkLaunchCode(contentMap, mapCode));
+
 		// Both codes should contain the content ID
 		assertTrue("Bean code should contain content ID", pojoCode.contains(":123:"));
 		assertTrue("Map code should contain content ID", mapCode.contains(":123:"));
