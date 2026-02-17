@@ -91,7 +91,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 		    try {
 			simplePageBean.updatePageObject(((GeneralViewParameters) viewparams).getSendingPage());
 		    } catch (Exception e) {
-			log.info("ScormPicker permission exception {}", e.toString());
+			log.warn("ScormPicker permission exception {}", e.toString());
 			return;
 		    }
 		}

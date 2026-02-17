@@ -1598,19 +1598,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "type", "s");
 							UIOutput.make(tableRow, "item-format", i.getFormat() != null ? i.getFormat() : "");
 							UIOutput.make(tableRow, "requirement-text", (i.getSubrequirement() ? i.getRequirementText() : "false"));
-							LessonEntity quiz = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
-							if (quiz != null) {
-								String editUrl = quiz.editItemUrl(simplePageBean);
+							LessonEntity scorm = scormEntity.getEntity(i.getSakaiId(), simplePageBean);
+							if (scorm != null) {
+								String editUrl = scorm.editItemUrl(simplePageBean);
 								if (editUrl != null) {
 									UIOutput.make(tableRow, "edit-url", editUrl);
 								}
-								editUrl = quiz.editItemSettingsUrl(simplePageBean);
+								editUrl = scorm.editItemSettingsUrl(simplePageBean);
 								if (editUrl != null) {
 									UIOutput.make(tableRow, "edit-settings-url", editUrl);
 								}
-								itemGroupString = simplePageBean.getItemGroupString(i, quiz, true);
+								itemGroupString = simplePageBean.getItemGroupString(i, scorm, true);
 								UIOutput.make(tableRow, "item-groups", itemGroupString);
-								if (!quiz.objectExists())
+								if (!scorm.objectExists())
 								    entityDeleted = true;
 							}
 						} else if (i.getType() == SimplePageItem.ASSESSMENT) {
