@@ -3253,7 +3253,7 @@ public class SakaiLTIUtil {
 	 */
 	public static String getLaunchCodeKey(LtiContentBean content) {
 		if (content == null) return SESSION_LAUNCH_CODE + "0";
-		int id = (content.getId() != null) ? content.getId().intValue() : 0;
+		String id = (content.getId() != null) ? content.getId().toString() : "0";
 		return SESSION_LAUNCH_CODE + id;
 	}
 
