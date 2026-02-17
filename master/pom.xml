@@ -1366,7 +1366,7 @@
         <groupId>org.opensearch</groupId>
         <artifactId>opensearch-task-commons</artifactId>
         <version>${sakai.opensearch.version}</version>
-        <scope>compile</scope>
+        <scope>provided</scope>
       </dependency>
 
       <!-- netty (opensearch) -->
