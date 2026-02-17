@@ -864,11 +864,11 @@ public class SakaiLTIUtilTest {
 		Map<String, Object> content2  = new HashMap();
 		SakaiLTIUtil.mergeContent(element, content2, null);
 		Map<String, Object> expectedContentMap = new HashMap();
-		expectedContentMap.put(LTIService.LTI_FRAMEHEIGHT, 42);
+		expectedContentMap.put(LTIService.LTI_FRAMEHEIGHT, 42L);
 		expectedContentMap.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
 		expectedContentMap.put(LTIService.LTI_TITLE, "An LTI title");
 		expectedContentMap.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		expectedContentMap.put(LTIService.LTI_NEWPAGE, 1);
+		expectedContentMap.put(LTIService.LTI_NEWPAGE, 1L);
 		assertEquals(expectedContentMap, content2);
 	}
 
@@ -886,7 +886,7 @@ public class SakaiLTIUtilTest {
 		tool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
 		tool.put(LTIService.LTI_NEWPAGE, 1L);
 
-		tool.put(LTIService.LTI_SENDNAME, "please");  // Bad data: bean path normalizes to 0/1
+		tool.put(LTIService.LTI_SENDNAME, "please");  // Map/Foorm path preserves raw value
 		tool.put(LTIService.LTI_SECRET, "verysecure");  // Should not come back - Not archived
 		tool.put(LTIService.LTI_CONSUMERKEY, "key12345");  // Should not come back - Not archived
 
@@ -898,7 +898,7 @@ public class SakaiLTIUtilTest {
 		expectedToolElements.put("launch", "http://localhost:a-launch?x=42");
 		expectedToolElements.put("newpage", "1");
 		expectedToolElements.put("frameheight", "42");
-		expectedToolElements.put("sendname", "0");  // Bean path normalizes non-boolean to 0
+		expectedToolElements.put("sendname", "please");  // Map/Foorm path preserves raw value
 		expectedToolElements.put("lti13", "1");
 		expectedToolElements.put("sakai_tool_checksum", "Jon1MG0AtWlH0fcbHrOJ9L/PNb+mti8syZ2b6OGf0Rw=");
 		assertElementXmlEquivalent(doc, LTIService.ARCHIVE_LTI_TOOL_TAG, expectedToolElements, null);
@@ -913,14 +913,14 @@ public class SakaiLTIUtilTest {
 		assertNotEquals(tool, tool2);
 		tool.remove(LTIService.LTI_SENDNAME);
 		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
-		tool2.remove(LTIService.LTI_SENDNAME);  // Bean path exports "0"; exclude for equivalence
+		tool2.remove(LTIService.LTI_SENDNAME);  // Exclude for equivalence (archived value may vary)
 		Map<String, Object> expectedTool = new HashMap();
-		expectedTool.put(LTIService.LTI_FRAMEHEIGHT, 42);
-		expectedTool.put(LTIService.LTI13, 1);
+		expectedTool.put(LTIService.LTI_FRAMEHEIGHT, 42L);
+		expectedTool.put(LTIService.LTI13, 1L);
 		expectedTool.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
 		expectedTool.put(LTIService.LTI_TITLE, "An LTI title");
 		expectedTool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		expectedTool.put(LTIService.LTI_NEWPAGE, 1);
+		expectedTool.put(LTIService.LTI_NEWPAGE, 1L);
 		assertEquals(expectedTool, tool2);
 	}
 
@@ -930,18 +930,18 @@ public class SakaiLTIUtilTest {
 		Element root = doc.createElement("root");
 		doc.appendChild(root);
 
-		LtiToolBean tool = new LtiToolBean();
-		tool.setFrameheight(42);
-		tool.setLti13(LTIService.LTI13_LTI13.intValue());
-		tool.setLaunch("http://localhost:a-launch?x=42");
-		tool.setTitle("An LTI title");
-		tool.setDescription("An LTI DESCRIPTION");
-		tool.setNewpage(1);
-		tool.setSendname(false);
-		tool.setSecret("verysecure");
-		tool.setConsumerkey("key12345");
+		Map<String, Object> tool = new HashMap();
+		tool.put(LTIService.LTI_FRAMEHEIGHT, 42);
+		tool.put(LTIService.LTI13, LTIService.LTI13_LTI13);
+		tool.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
+		tool.put(LTIService.LTI_TITLE, "An LTI title");
+		tool.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
+		tool.put(LTIService.LTI_NEWPAGE, 1);
+		tool.put(LTIService.LTI_SENDNAME, 0);
+		tool.put(LTIService.LTI_SECRET, "verysecure");
+		tool.put(LTIService.LTI_CONSUMERKEY, "key12345");
 
-		Element element = SakaiLTIUtil.archiveToolBean(doc, tool);
+		Element element = SakaiLTIUtil.archiveTool(doc, tool);
 		root.appendChild(element);
 		Map<String, String> expectedToolElements = new HashMap<>();
 		expectedToolElements.put("title", "An LTI title");
@@ -959,16 +959,16 @@ public class SakaiLTIUtilTest {
 		// Checksum is excluded from rehydration (getExcludedArchiveFieldNames), so we assert it is null.
 		Map<String, Object> tool2 = new HashMap();
 		SakaiLTIUtil.mergeTool(element, tool2);
-		assertNull("Checksum is excluded from rehydration (getExcludedArchiveFieldNames)", tool2.get(LTIService.SAKAI_TOOL_CHECKSUM));
+		assertNull("Checksum is excluded from rehydration", tool2.get(LTIService.SAKAI_TOOL_CHECKSUM));
 		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
 		Map<String, Object> expected = new HashMap();
 		expected.put(LTIService.LTI_TITLE, "An LTI title");
 		expected.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
 		expected.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
-		expected.put(LTIService.LTI_NEWPAGE, 1);
-		expected.put(LTIService.LTI_FRAMEHEIGHT, 42);
-		expected.put(LTIService.LTI_SENDNAME, 0);
-		expected.put(LTIService.LTI13, 1);
+		expected.put(LTIService.LTI_NEWPAGE, 1L);
+		expected.put(LTIService.LTI_FRAMEHEIGHT, 42L);
+		expected.put(LTIService.LTI_SENDNAME, 0L);
+		expected.put(LTIService.LTI13, 1L);
 		assertEquals(expected, tool2);
 	}
 
@@ -1053,26 +1053,26 @@ public class SakaiLTIUtilTest {
 		Map<String, Object> tool2  = new HashMap();
 		SakaiLTIUtil.mergeContent(element, content2, tool2);
 		Map<String, Object> expectedContentMap = new HashMap();
-		expectedContentMap.put(LTIService.LTI_FRAMEHEIGHT, 42);
+		expectedContentMap.put(LTIService.LTI_FRAMEHEIGHT, 42L);
 		expectedContentMap.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
 		expectedContentMap.put(LTIService.LTI_TITLE, "An LTI title");
 		expectedContentMap.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		expectedContentMap.put(LTIService.LTI_NEWPAGE, 1);
+		expectedContentMap.put(LTIService.LTI_NEWPAGE, 1L);
 		assertEquals(expectedContentMap, content2);
 		tool2.remove(LTIService.SAKAI_TOOL_CHECKSUM);
 		Map<String, Object> expectedToolMap = new HashMap();
-		expectedToolMap.put(LTIService.LTI_FRAMEHEIGHT, 42);
-		expectedToolMap.put(LTIService.LTI13, 1);
+		expectedToolMap.put(LTIService.LTI_FRAMEHEIGHT, 42L);
+		expectedToolMap.put(LTIService.LTI13, 1L);
 		expectedToolMap.put(LTIService.LTI_LAUNCH, "http://localhost:a-launch?x=42");
 		expectedToolMap.put(LTIService.LTI_TITLE, "An LTI title");
 		expectedToolMap.put(LTIService.LTI_DESCRIPTION, "An LTI DESCRIPTION");
-		expectedToolMap.put(LTIService.LTI_NEWPAGE, 1);
+		expectedToolMap.put(LTIService.LTI_NEWPAGE, 1L);
 		assertEquals(expectedToolMap, tool2);
 	}
 
 	@Test
 	public void testToolCheckSum() {
-		String test = SakaiLTIUtil.computeToolCheckSum((LtiToolBean) null);
+		String test = SakaiLTIUtil.computeToolCheckSum((Map<String, Object>) null);
 		assertEquals(test, null);
 
 		Map<String, Object> tool = new HashMap();
@@ -1418,22 +1418,15 @@ public class SakaiLTIUtilTest {
 	}
 
 	@Test
-	public void testFindBestToolMatchBeanNullHandling() {
+	public void testFindBestToolMatchNullHandling() {
 		// Test null tools parameter
-		LtiToolBean result = SakaiLTIUtil.findBestToolMatchBean("http://example.com/launch", "checksum", null);
-		assertNull("findBestToolMatchBean should return null when tools is null", result);
-		
+		Map<String, Object> result = SakaiLTIUtil.findBestToolMatch("http://example.com/launch", "checksum", null);
+		assertNull("findBestToolMatch should return null when tools is null", result);
+
 		// Test empty tools list
-		List<LtiToolBean> emptyTools = new ArrayList<>();
-		result = SakaiLTIUtil.findBestToolMatchBean("http://example.com/launch", "checksum", emptyTools);
-		assertNull("findBestToolMatchBean should return null when tools list is empty", result);
-		
-		// Test tools list with null entries
-		List<LtiToolBean> toolsWithNulls = new ArrayList<>();
-		toolsWithNulls.add(null);
-		toolsWithNulls.add(null);
-		result = SakaiLTIUtil.findBestToolMatchBean("http://example.com/launch", "checksum", toolsWithNulls);
-		assertNull("findBestToolMatchBean should return null when all tools are null", result);
+		List<Map<String, Object>> emptyTools = new ArrayList<>();
+		result = SakaiLTIUtil.findBestToolMatch("http://example.com/launch", "checksum", emptyTools);
+		assertNull("findBestToolMatch should return null when tools list is empty", result);
 	}
 }
 
