@@ -24,10 +24,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.comparator.AlphaNumericComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -61,14 +60,10 @@ import org.sakaiproject.util.comparator.UserSortNameComparator;
 @Controller
 public class GroupController {
 
-    @Inject
-    private MessageSource messageSource;
-
-    @Autowired
-    private SakaiService sakaiService;
-    
-    @Autowired
-    private MicrosoftMessagingService microsoftMessagingService;
+    @Autowired private FormattedText formattedText;
+    @Autowired private MessageSource messageSource;
+    @Autowired private MicrosoftMessagingService microsoftMessagingService;
+    @Autowired private SakaiService sakaiService;
 
     private static List<User> selectableMemberList;
 
@@ -90,8 +85,8 @@ public class GroupController {
 
         // The form values which are optional.
         GroupForm groupForm = new GroupForm();
-        groupForm.setGroupTitle(StringUtils.isNotBlank(currentTitle) ? currentTitle : StringUtils.EMPTY);
-        groupForm.setGroupDescription(StringUtils.isNotBlank(currentDescription) ? currentDescription : StringUtils.EMPTY);
+        groupForm.setGroupTitle(currentTitle);
+        groupForm.setGroupDescription(currentDescription);
         groupForm.setJoinableSetName(StringUtils.EMPTY);
         groupForm.setJoinableSetNumOfMembers(String.valueOf(1));
         groupForm.setGroupAllowPreviewMembership(false);
@@ -148,8 +143,8 @@ public class GroupController {
 
                 // After finding the group, assign all the existing values to the form.
                 groupForm.setGroupId(groupId);
-                groupForm.setGroupTitle(group.getTitle());
-                groupForm.setGroupDescription(group.getDescription());
+                if (StringUtils.isBlank(currentTitle)) groupForm.setGroupTitle(group.getTitle());
+                if (StringUtils.isBlank(currentDescription)) groupForm.setGroupDescription(group.getDescription());
                 groupForm.setGroupAllowViewMembership(group.getProperties().get(Group.GROUP_PROP_VIEW_MEMBERS) != null && Boolean.valueOf(group.getProperties().getProperty(Group.GROUP_PROP_VIEW_MEMBERS)).booleanValue());
                 if (StringUtils.isEmpty(filterByGroupId) && StringUtils.isNotBlank(optionalFilteredBy)) {
                     groupForm.setFilterByGroupId(optionalFilteredBy);
@@ -281,6 +276,13 @@ public class GroupController {
             return showGroup(model, groupId, filterByGroupId, groupTitle, groupDescription, joinableShowAllUsers);
         }
 
+        String sanitizedTitle = formattedText.stripHtmlFromText(groupTitle, true, true);
+        if (!groupTitle.equals(sanitizedTitle)) {
+            // if they're not equal, then the title contains HTML
+            model.addAttribute("errorMessage", messageSource.getMessage("groups.error.invalidTitle", null, userLocale));
+            return showGroup(model, groupId, filterByGroupId, sanitizedTitle, groupDescription, joinableShowAllUsers);
+        }
+
         // If a joinable set is selected, validate the maximum number of members.
         if (StringUtils.isNoneBlank(joinableSetName, groupForm.getJoinableSetNumOfMembers())) {
             try {
@@ -339,7 +341,10 @@ public class GroupController {
 
         // Set the title, description and properties of the group.
         group.setTitle(groupTitle);
-        group.setDescription(groupForm.getGroupDescription());
+        if (StringUtils.isNotBlank(groupDescription)) {
+            // here we simply sanitize the description without providing feedback
+            group.setDescription(formattedText.processFormattedText(groupDescription, null, null));
+        }
         group.getProperties().addProperty(Group.GROUP_PROP_VIEW_MEMBERS, String.valueOf(groupForm.isGroupAllowViewMembership()));
 
         // Assign a group filter
