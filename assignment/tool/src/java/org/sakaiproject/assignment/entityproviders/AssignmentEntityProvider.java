@@ -80,6 +80,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.util.SakaiLTIUtil;
+import org.tsugi.lti.LTIUtil;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
@@ -1088,39 +1090,46 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
 
             Map<String, Object> content = ltiService.getContent(contentKey.longValue(), site.getId());
-            String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
+            if (content != null) {
+                Long toolKey = LTIUtil.toLongNull(content.get(LTIService.LTI_TOOL_ID));
+                Map<String, Object> tool = (toolKey != null) ? ltiService.getTool(toolKey, site.getId()) : null;
+                simpleAssignment.ltiFrameHeight = SakaiLTIUtil.getFrameHeight(tool, content, "1200px");
+                String contentItem = StringUtils.trimToEmpty((String) content.get(LTIService.LTI_CONTENTITEM));
 
-            for (Map<String, Object> submission : submissionMaps) {
-                if (!submission.containsKey("userSubmission")) continue;
-                String ltiSubmissionLaunch = null;
-                
-                try {
-                    String subId = (String) submission.get("id");
-                    if (StringUtils.isNotBlank(subId)) {
-                        AssignmentSubmission as = assignmentService.getSubmission(subId);
-                        
-                        String submitterId = null;
-                        Optional<AssignmentSubmissionSubmitter> submittee = assignmentService.getSubmissionSubmittee(as);
-                        if (submittee.isPresent()) {
-                            submitterId = submittee.get().getSubmitter();
-                            log.debug("LTI found submittee: {}", submitterId);
-                        }
-                        
-                        
-                        if (StringUtils.isNotBlank(submitterId)) {
-                            ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitterId;
-                            
-                            // Check for submission review capability
-                            if (contentItem.indexOf("\"submissionReview\"") > 0) {
-                                ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                for (Map<String, Object> submission : submissionMaps) {
+                    if (!submission.containsKey("userSubmission")) continue;
+                    String ltiSubmissionLaunch = null;
+
+                    try {
+                        String subId = (String) submission.get("id");
+                        if (StringUtils.isNotBlank(subId)) {
+                            AssignmentSubmission as = assignmentService.getSubmission(subId);
+
+                            String submitterId = null;
+                            Optional<AssignmentSubmissionSubmitter> submittee = assignmentService.getSubmissionSubmittee(as);
+                            if (submittee.isPresent()) {
+                                submitterId = submittee.get().getSubmitter();
+                                log.debug("LTI found submittee: {}", submitterId);
+                            }
+
+                            if (StringUtils.isNotBlank(submitterId)) {
+                                ltiSubmissionLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey + "?for_user=" + submitterId;
+
+                                // Check for submission review capability
+                                if (contentItem.indexOf("\"submissionReview\"") > 0) {
+                                    ltiSubmissionLaunch = ltiSubmissionLaunch + "&message_type=content_review";
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        log.warn("Could not get submitter ID for LTI: {}", e.toString());
                     }
-                } catch (Exception e) {
-                    log.warn("Could not get submitter ID for LTI: {}", e.toString());
+
+                    if (ltiSubmissionLaunch != null && !ltiSubmissionLaunch.isBlank()
+                            && submission.get("ltiSubmissionLaunch") == null) {
+                        submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
+                    }
                 }
-                
-                submission.put("ltiSubmissionLaunch", ltiSubmissionLaunch);
             }
         }
 
@@ -1880,6 +1889,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private String maxGradePoint;
 
         private String ltiGradableLaunch;
+
+        private String ltiFrameHeight;
 
         private List<SimpleSubmission> submissions;
 
