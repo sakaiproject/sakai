@@ -1,6 +1,6 @@
 #define($viewSelectOptions)
     #foreach($key in $filterEntries.keySet())
-        <option value="$key"#if($key.equals($selectedFilter)) selected="selected"#end>$filterEntries.get($key)</option>
+        <option value="$formattedText.escapeHtml($key)"#if($key.equals($selectedFilter)) selected="selected"#end>$formattedText.escapeHtml($filterEntries.get($key))</option>
     #end
 #end
 
