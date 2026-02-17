@@ -2240,36 +2240,17 @@ public class SakaiLTIUtil {
 			return getSignedPlacement(LtiContentBean.of(content));
 		}
 
-		/**
-		 * Get the id_history string for oldContent. Primary implementation.
-		 */
-		public static String trackResourceLinkID(LtiContentBean oldContent) {
-			if (oldContent == null) {
-				return null;
-			}
-			String old_settings = oldContent.getSettings();
+		public static String trackResourceLinkID(Map<String, Object> oldContent) {
+			String old_settings = (String) oldContent.get(LTIService.LTI_SETTINGS);
 			JSONObject old_json = LTIUtil.parseJSONObject(old_settings);
-			String old_id_history = old_json != null ? (String) old_json.get(LTIService.LTI_ID_HISTORY) : null;
+			String old_id_history = (String) old_json.get(LTIService.LTI_ID_HISTORY);
 
 			String old_resource_link_id = getResourceLinkId(oldContent);
 
-			return LTIUtil.mergeCSV(old_id_history, null, old_resource_link_id);
+			String id_history = LTIUtil.mergeCSV(old_id_history, null, old_resource_link_id);
+			return id_history;
 		}
 
-		/** Map shim for backward compatibility; prefer bean overload. */
-		public static String trackResourceLinkID(Map<String, Object> oldContent) {
-			return trackResourceLinkID(LtiContentBean.of(oldContent));
-		}
-
-		public static boolean trackResourceLinkID(LtiContentBean newContent, LtiContentBean oldContent) {
-			return trackResourceLinkID(newContent != null ? newContent.asMap() : null, oldContent != null ? oldContent.asMap() : null);
-		}
-
-		/**
-		 * Not yet bean-primary: mutates {@code newContent} in place (puts updated LTI_SETTINGS).
-		 * Callers expect the same map reference to be updated for persistence. Will be migrated
-		 * when the persistence layer is audited.
-		 */
 		public static boolean trackResourceLinkID(Map<String, Object> newContent, Map<String, Object> oldContent) {
 			boolean retval = false;
 
@@ -3391,34 +3372,29 @@ public class SakaiLTIUtil {
 		}
 	}
 
-	/**
-	 * Find the best tool match. Primary implementation; operates on beans.
-	 */
-	public static LtiToolBean findBestToolMatchBean(boolean global, String launchUrl, String importCheckSum, List<LtiToolBean> tools)
+	public static Map<String, Object> findBestToolMatch(boolean global, String launchUrl, String importCheckSum, List<Map<String,Object>> tools)
 	{
 		if (tools == null) {
 			return null;
 		}
-		boolean local = ! global;
+		boolean local = ! global;  // Makes it easier to read :)
 
 		// Next we look for a tool with a checksum match
 		if ( StringUtils.isNotEmpty(importCheckSum) ) {
-			for ( LtiToolBean tool : tools ) {
-				if (tool == null) continue;
+			for ( Map<String,Object> tool : tools ) {
 				String toolCheckSum = computeToolCheckSum(tool);
 				if ( StringUtils.isEmpty(toolCheckSum) ) continue;
 				if ( toolCheckSum.equals(importCheckSum) ) {
-					log.debug("Found tool {} with matching checksum {}", tool.getId(), toolCheckSum);
+					log.debug("Found tool {} with matching checksum {}", tool.get(LTIService.LTI_ID), toolCheckSum);
 					return tool;
 				}
 			}
 		}
 
 		// Next we look for a tool with an exact match
-		for ( LtiToolBean tool : tools ) {
-			if (tool == null) continue;
-			String toolLaunch = tool.getLaunch();
-			String toolSite = tool.getSiteId();
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
 
 			if ( local && StringUtils.trimToNull(toolSite) == null ) continue;
 			if ( global && StringUtils.trimToNull(toolSite) != null ) continue;
@@ -3432,11 +3408,11 @@ public class SakaiLTIUtil {
 		// Next we snip off the query string and check again
 		String launchUrlBase = stripOffQuery(launchUrl);
 
-		// Look for tool with query-less match
-		for ( LtiToolBean tool : tools ) {
-			if (tool == null) continue;
-			String toolLaunchBase = stripOffQuery(tool.getLaunch());
-			String toolSite = tool.getSiteId();
+		// Look for tool with an query-less match
+		// https://www.py4e.com/mod/gift/
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunchBase = stripOffQuery((String) tool.get(LTIService.LTI_LAUNCH));
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
 
 			if ( local && StringUtils.trimToNull(toolSite) == null ) continue;
 			if ( global && StringUtils.trimToNull(toolSite) != null ) continue;
@@ -3448,12 +3424,13 @@ public class SakaiLTIUtil {
 		}
 
 		// Find the longest prefix
+		// https://www.py4e.com/mod/   <-- Selected
+		// https://www.py4e.com/
 		String bestPrefix = "";
-		LtiToolBean bestTool = null;
-		for ( LtiToolBean tool : tools ) {
-			if (tool == null) continue;
-			String toolLaunch = tool.getLaunch();
-			String toolSite = tool.getSiteId();
+		Map<String,Object> bestTool = null;
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			String toolSite = (String) tool.get(LTIService.LTI_SITE_ID);
 
 			if ( local && StringUtils.trimToNull(toolSite) == null ) continue;
 			if ( global && StringUtils.trimToNull(toolSite) != null ) continue;
@@ -3477,49 +3454,26 @@ public class SakaiLTIUtil {
 			}
 		}
 
+		// After all that - still nothing
 		return null;
+
 	}
 
-	/**
-	 * Find the best tool match. Tries local then global. Primary implementation.
-	 */
-	public static LtiToolBean findBestToolMatchBean(String launchUrl, String toolCheckSum, List<LtiToolBean> tools)
+	public static Map<String, Object> findBestToolMatch(String launchUrl, String toolCheckSum, List<Map<String,Object>> tools)
 	{
 		if (tools == null) {
 			return null;
 		}
+		// Example launch URL:
+		// https://www.py4e.com/mod/gift/?quiz=02-Python.txt
+
 		boolean global = true;
-		LtiToolBean retval = findBestToolMatchBean(!global, launchUrl, toolCheckSum, tools);
+		Map<String,Object> retval = findBestToolMatch(!global, launchUrl, toolCheckSum, tools);
+
 		if ( retval != null ) return retval;
-		return findBestToolMatchBean(global, launchUrl, toolCheckSum, tools);
-	}
 
-	/** Map shim for backward compatibility; prefer bean overload. */
-	public static Map<String, Object> findBestToolMatch(boolean global, String launchUrl, String importCheckSum, List<Map<String,Object>> tools)
-	{
-		if (tools == null) return null;
-		List<LtiToolBean> toolBeans = new ArrayList<>();
-		for (Map<String, Object> tool : tools) {
-			if (tool != null) {
-				toolBeans.add(LtiToolBean.of(tool));
-			}
-		}
-		LtiToolBean result = findBestToolMatchBean(global, launchUrl, importCheckSum, toolBeans);
-		return result != null ? result.asMap() : null;
-	}
-
-	/** Map shim for backward compatibility; prefer bean overload. */
-	public static Map<String, Object> findBestToolMatch(String launchUrl, String toolCheckSum, List<Map<String,Object>> tools)
-	{
-		if (tools == null) return null;
-		List<LtiToolBean> toolBeans = new ArrayList<>();
-		for (Map<String, Object> tool : tools) {
-			if (tool != null) {
-				toolBeans.add(LtiToolBean.of(tool));
-			}
-		}
-		LtiToolBean result = findBestToolMatchBean(launchUrl, toolCheckSum, toolBeans);
-		return result != null ? result.asMap() : null;
+		retval = findBestToolMatch(global, launchUrl, toolCheckSum, tools);
+		return retval;
 	}
 
 	public static String getStringNull(Object value) {
@@ -3783,166 +3737,79 @@ public class SakaiLTIUtil {
 		return getToolTitle(LtiToolBean.of(tool), LtiContentBean.of(content), defaultValue);
 	}
 
-	public static Element archiveTool(Document doc, LtiToolBean tool) {
-		return archiveToolBean(doc, tool);
-	}
-
-	/**
-	 * Archive an LTI tool from a bean. Primary implementation; all other archiveTool
-	 * overloads delegate here.
-	 */
-	public static Element archiveToolBean(Document doc, LtiToolBean tool) {
-		if (tool == null) {
-			return null;
-		}
-		Element retval = tool.toArchiveElement(doc, LTIService.ARCHIVE_LTI_TOOL_TAG);
-		String checksum = computeToolCheckSum(tool);
-		if (checksum != null) {
-			Element checksumEl = doc.createElement(LTIService.SAKAI_TOOL_CHECKSUM);
-			checksumEl.setTextContent(checksum);
-			retval.appendChild(checksumEl);
-		}
-		return retval;
-	}
-
 	public static Element archiveTool(Document doc, Map<String, Object> tool) {
-		return archiveToolBean(doc, tool != null ? LtiToolBean.of(tool) : null);
-	}
-
-	public static Element archiveContent(Document doc, LtiContentBean content, LtiToolBean tool) {
-		return archiveContentBean(doc, content, tool);
-	}
-
-	/**
-	 * Archive LTI content (and optional nested tool). Primary implementation;
-	 * all other archiveContent overloads delegate here.
-	 */
-	public static Element archiveContentBean(Document doc, LtiContentBean content, LtiToolBean tool) {
-		if (content == null) {
-			return null;
-		}
-		LtiContentBean contentToArchive = content;
-		if (tool != null && StringUtils.isEmpty(content.getLaunch()) && StringUtils.isNotEmpty(tool.getLaunch())) {
-			Map<String, Object> contentMap = content.asMap();
-			contentMap.put(LTIService.LTI_LAUNCH, tool.getLaunch());
-			contentToArchive = LtiContentBean.of(contentMap);
-		}
-		Element retval = contentToArchive.toArchiveElement(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG);
-		if (tool != null) {
-			Element toolElement = archiveToolBean(doc, tool);
-			retval.appendChild(toolElement);
+		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_TOOL_TAG, LTIService.TOOL_MODEL, tool);
+		String checksum = computeToolCheckSum(tool);
+		if ( checksum != null ) {
+			Element newElement = doc.createElement(LTIService.SAKAI_TOOL_CHECKSUM);
+			newElement.setTextContent(checksum);
+			retval.appendChild(newElement);
 		}
 		return retval;
 	}
 
 	public static Element archiveContent(Document doc, Map<String, Object> content, Map<String, Object> tool) {
-		return archiveContentBean(doc,
-				content != null ? LtiContentBean.of(content) : null,
-				tool != null ? LtiToolBean.of(tool) : null);
-	}
+		// Check if the content launchURL is empty - if so, inherit from tool for the future
+		Map<String, Object> contentCopy = new HashMap(content);
+		String launchUrl = (String) contentCopy.get(LTIService.LTI_LAUNCH);
+		if ( tool != null && StringUtils.isEmpty(launchUrl) ) contentCopy.put(LTIService.LTI_LAUNCH, tool.get(LTIService.LTI_LAUNCH));
+		Element retval = Foorm.archiveThing(doc, LTIService.ARCHIVE_LTI_CONTENT_TAG, LTIService.CONTENT_MODEL, contentCopy);
 
-	public static void mergeTool(Element element, LtiToolBean tool) {
-		mergeToolBean(element, tool);
-	}
-
-	/**
-	 * Populates a tool bean from an archive XML element. Primary implementation.
-	 */
-	public static void mergeToolBean(Element element, LtiToolBean tool) {
-		if (element != null && tool != null) {
-			tool.populateFromArchiveElement(element);
+		if ( tool != null ) {
+			Element toolElement = archiveTool(doc, tool);
+			retval.appendChild(toolElement);
 		}
+		return retval;
 	}
 
-	/**
-	 * Not yet bean-primary: mutates {@code tool} in place via putAll.
-	 * Callers pass their Map for archive import and expect it populated. Will be migrated
-	 * when the persistence/archive layer is audited.
-	 */
 	public static void mergeTool(Element element, Map<String, Object> tool) {
-		if (element == null || tool == null) {
-			return;
-		}
-		LtiToolBean bean = new LtiToolBean();
-		mergeToolBean(element, bean);
-		tool.putAll(bean.asMap());
-	}
-
-	public static void mergeContent(Element element, LtiContentBean content, LtiToolBean tool) {
-		mergeContentBean(element, content, tool);
-	}
-
-	/**
-	 * Populates content and tool beans from an archive XML element. Primary implementation.
-	 */
-	public static void mergeContentBean(Element element, LtiContentBean content, LtiToolBean tool) {
-		if (element == null) {
-			return;
-		}
-		if (content != null) {
-			content.populateFromArchiveElement(element);
-		}
+		Foorm.mergeThing(element, LTIService.TOOL_MODEL, tool);
 		if (tool != null) {
-			NodeList nl = element.getElementsByTagName(LTIService.ARCHIVE_LTI_TOOL_TAG);
-			if (nl.getLength() >= 1) {
-				Node toolNode = nl.item(0);
-				if (toolNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element toolElement = (Element) toolNode;
-					mergeToolBean(toolElement, tool);
-				}
-			}
+			tool.remove(LTIService.SAKAI_TOOL_CHECKSUM);
 		}
 	}
 
-	/**
-	 * Not yet bean-primary: mutates {@code content} and {@code tool} in place via putAll.
-	 * Callers pass their Maps for archive import and expect them populated. Will be migrated
-	 * when the persistence/archive layer is audited.
-	 */
 	public static void mergeContent(Element element, Map<String, Object> content, Map<String, Object> tool) {
-		if (element == null) {
-			return;
-		}
-		if (content != null) {
-			LtiContentBean contentBean = new LtiContentBean();
-			mergeContentBean(element, contentBean, null);
-			content.putAll(contentBean.asMap());
-		}
-		if (tool != null) {
+		Foorm.mergeThing(element, LTIService.CONTENT_MODEL, content);
+		if ( tool != null ) {
 			NodeList nl = element.getElementsByTagName(LTIService.ARCHIVE_LTI_TOOL_TAG);
-			if (nl.getLength() >= 1) {
+			if ( nl.getLength() >= 1 ) {
 				Node toolNode = nl.item(0);
-				if (toolNode.getNodeType() == Node.ELEMENT_NODE) {
+				if ( toolNode.getNodeType() == Node.ELEMENT_NODE ) {
 					Element toolElement = (Element) toolNode;
-					LtiToolBean toolBean = new LtiToolBean();
-					mergeToolBean(toolElement, toolBean);
-					tool.putAll(toolBean.asMap());
+					mergeTool(toolElement, tool);
 				}
 			}
 		}
-	}
-
-	public static String computeToolCheckSum(LtiToolBean tool) {
-		if (tool == null) return null;
-		if (StringUtils.isEmpty(tool.launch)) return null;
-		if (StringUtils.isNotEmpty(tool.consumerkey) && StringUtils.isNotEmpty(tool.secret)) {
-			// LTI 1.1
-		} else if (StringUtils.isNotEmpty(tool.lti13ClientId) && StringUtils.isNotEmpty(tool.lti13ToolKeyset)) {
-			// LTI 1.3
-		} else {
-			return null;
-		}
-		StringBuffer sb = new StringBuffer();
-		sb.append(tool.secret != null ? tool.secret : "");
-		sb.append(tool.consumerkey != null ? tool.consumerkey : "");
-		sb.append(tool.lti13ClientId != null ? tool.lti13ClientId : "");
-		sb.append(tool.lti13ToolKeyset != null ? tool.lti13ToolKeyset : "");
-		sb.append(tool.launch != null ? tool.launch : "");
-		return LTI13Util.sha256(sb.toString());
 	}
 
 	public static String computeToolCheckSum(Map<String, Object> tool) {
-		return computeToolCheckSum(LtiToolBean.of(tool));
+		if ( tool == null ) return null;
+		if ( StringUtils.isEmpty((String) tool.get(LTIService.LTI_LAUNCH)) ) return null;
+		if ( StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_CONSUMERKEY)) &&
+			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI_SECRET)) ) {
+			// Enough
+		} else if ( StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_CLIENT_ID)) &&
+			StringUtils.isNotEmpty((String) tool.get(LTIService.LTI13_TOOL_KEYSET)) ) {
+			// Enough
+		} else {
+			return null;
+		}
+
+		StringBuffer sb = new StringBuffer();
+		String secret = (String) tool.get(LTIService.LTI_SECRET);
+		sb.append(secret != null ? secret : "");
+		String consumerkey = (String) tool.get(LTIService.LTI_CONSUMERKEY);
+		sb.append(consumerkey != null ? consumerkey : "");
+		String lti13ClientId = (String) tool.get(LTIService.LTI13_CLIENT_ID);
+		sb.append(lti13ClientId != null ? lti13ClientId : "");
+		String lti13ToolKeyset = (String) tool.get(LTIService.LTI13_TOOL_KEYSET);
+		sb.append(lti13ToolKeyset != null ? lti13ToolKeyset : "");
+		String launch = (String) tool.get(LTIService.LTI_LAUNCH);
+		sb.append(launch != null ? launch : "");
+
+		String retval = LTI13Util.sha256(sb.toString());
+		return retval;
 	}
 
 	// /access/lti/site/22153323-3037-480f-b979-c630e3e2b3cf/content:1
