@@ -555,15 +555,7 @@ public interface LTIService extends LTISubstitutionsFilter {
      * Bean overload: filter content using tool/content beans (delegates to Map version).
      * Obtains content map, filters in place, then persists filtered values back to the bean.
      */
-    default void filterContent(LtiContentBean content, LtiToolBean tool) {
-        if (content == null) {
-            return;
-        }
-        Map<String, Object> contentMap = content.asMap();
-        Map<String, Object> toolMap = (tool != null) ? tool.asMap() : null;
-        filterContent(contentMap, toolMap);
-        content.applyFromMap(contentMap);
-    }
+    void filterContent(LtiContentBean content, LtiToolBean tool);
 
     // These can be static and moved to the tool, or at least split off into a Foorm UI
 
@@ -592,9 +584,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     /**
      * Bean overload: filter custom substitutions using tool bean (delegates to Map version).
      */
-    default void filterCustomSubstitutions(Properties properties, LtiToolBean tool, Site site) {
-        filterCustomSubstitutions(properties, tool != null ? tool.asMap() : null, site);
-    }
+    void filterCustomSubstitutions(Properties properties, LtiToolBean tool, Site site);
 
     List<Map<String, Object>> getToolSitesByToolId(String toolId, String siteId);
 
