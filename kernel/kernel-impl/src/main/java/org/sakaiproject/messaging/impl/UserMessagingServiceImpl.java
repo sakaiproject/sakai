@@ -389,11 +389,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
         String processedTitle = title;
         if (processedTitle != null) {
-            try {
-                processedTitle = formattedText.processFormattedText(processedTitle, new StringBuilder());
-            } catch (Exception e) {
-                log.warn("Failed to process notification title for ref {}", ref, e);
-            }
+            processedTitle = formattedText.processFormattedText(processedTitle, null, null);
         }
         final String finalTitle = processedTitle;
 

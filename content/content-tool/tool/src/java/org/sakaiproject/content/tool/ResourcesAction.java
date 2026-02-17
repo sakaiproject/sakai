@@ -8898,22 +8898,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		return rv;
 
 	}	// prepPage
-	
-	/**
-	 * Processes the HTML document that is coming back from the browser
-	 * (from the formatted text editing widget).
-	 * @param state Used to pass in any user-visible alerts or errors when processing the text
-	 * @param strFromBrowser The string from the browser
-	 * @return The formatted text
-	 */
-	private String processHtmlDocumentFromBrowser(SessionState state, String strFromBrowser)
-	{
-		log.debug("{}.processHtmlDocumentFromBrowser()", this);
-		StringBuilder alertMsg = new StringBuilder();
-		String text = ComponentManager.get(FormattedText.class).processHtmlDocument(strFromBrowser, alertMsg);
-		if (alertMsg.length() > 0) addAlert(state, alertMsg.toString());
-		return text;
-	}
 
 	/**
 	* Develop a list of all the site collections that there are to page.

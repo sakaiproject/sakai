@@ -8820,7 +8820,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 
 		//Process description so it doesn't give an error on home
-		siteInfo.description = formattedText.processFormattedText(siteInfo.description, new StringBuilder());
+		siteInfo.description = formattedText.processFormattedText(siteInfo.description, null, null);
 		
 		Site.setDescription(siteInfo.description);
 		Site.setShortDescription(siteInfo.short_description);
@@ -11412,9 +11412,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 				
 		if (params.getString("description") != null) {
-			StringBuilder alertMsg = new StringBuilder();
 			String description = params.getString("description");
-			siteInfo.description = formattedText.processFormattedText(description, alertMsg);
+			siteInfo.description = formattedText.processFormattedText(description, null, null);
 		}
 		if (params.getString("short_description") != null) {
 			siteInfo.short_description = params.getString("short_description");

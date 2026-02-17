@@ -233,7 +233,8 @@ public class PollEditorController {
         // Process and sanitize HTML in description
         String sanitizedDescription = formattedText.processFormattedText(
             form.getDetails() != null ? form.getDetails() : "",
-            new StringBuilder()
+            null,
+                null
         );
         poll.setDescription(org.sakaiproject.poll.api.util.PollUtils.cleanupHtmlPtags(sanitizedDescription));
 

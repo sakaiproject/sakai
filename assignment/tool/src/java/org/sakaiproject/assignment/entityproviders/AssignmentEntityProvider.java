@@ -529,9 +529,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
 
         String comment = (String) params.get("tsComment");
-        StringBuilder alertMsg = new StringBuilder();
-        comment = formattedText.processFormattedText(comment, alertMsg);
-        if (StringUtils.isBlank(comment) || alertMsg.length() > 0) {
+        comment = formattedText.processFormattedText(comment, null, null);
+        if (StringUtils.isBlank(comment)) {
             log.warn("Comment field format is not valid");
             throw new EntityException("Comment field format is not valid", "", HttpServletResponse.SC_BAD_REQUEST);
         }

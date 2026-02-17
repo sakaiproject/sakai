@@ -909,16 +909,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		else if(ResourceType.TYPE_HTML.equals(resourceType) || ResourceType.MIME_TYPE_HTML.equals(mimetype))
 		{
-			StringBuilder alertMsg = new StringBuilder();
-			content = ComponentManager.get(FormattedText.class).processHtmlDocument(content, alertMsg);
+			content = ComponentManager.get(FormattedText.class).processHtmlDocument(content, null);
 			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_HTML);
 			pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
 			pipe.setNotification(noti);
-			if (alertMsg.length() > 0)
-			{
-				addAlert(state, alertMsg.toString());
-				return;
-			}
 		}
 		else if(ResourceType.TYPE_URL.equals(resourceType))
 		{

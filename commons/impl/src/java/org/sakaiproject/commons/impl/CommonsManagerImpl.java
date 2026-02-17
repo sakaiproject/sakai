@@ -106,7 +106,7 @@ public class CommonsManagerImpl implements CommonsManager {
 
         if (commonsSecurityManager.canCurrentUserEditPost(post)) {
             try {
-                post.setContent(formattedText.processFormattedText(post.getContent(), new StringBuilder(), true, false));
+                post.setContent(formattedText.processFormattedText(post.getContent(), null, true, false));
                 Post newOrUpdatedPost = persistenceManager.savePost(post);
                 if (newOrUpdatedPost != null) {
                     String commonsId = post.getCommonsId();

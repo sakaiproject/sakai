@@ -1161,7 +1161,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		try {
 			String addSectionHTML = params.getString("addSectionHTML");
 			int locationId = params.getInt("locationId");
-			String cleanAddSectionHTML = getFormattedText().processFormattedText(addSectionHTML, new StringBuilder(), true, true);
+			String cleanAddSectionHTML = getFormattedText().processFormattedText(addSectionHTML, null, true, true);
 			cleanAddSectionHTML = cleanAddSectionHTML.replaceAll("'", "&apos;"); // escape single quotes so they can be used in attributes
 
 			CitationCollectionOrder.SectionType sectionType = CitationCollectionOrder.SectionType.valueOf(params.getString("sectionType"));
@@ -1198,7 +1198,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		try {
 			String resourceId = this.getContentService().resolveUuid(resourceUuid);
 			String introduction = params.get("addSectionHTML");
-			introduction = getFormattedText().processFormattedText(introduction, new StringBuilder(), true, true);
+			introduction = getFormattedText().processFormattedText(introduction, null, true, true);
 			introduction = introduction.replaceAll("'", "&apos;");
 			getContentService().addProperty(resourceId, CitationService.PROP_INTRODUCTION, introduction);
 			message = rb.getString("resource.updated");
