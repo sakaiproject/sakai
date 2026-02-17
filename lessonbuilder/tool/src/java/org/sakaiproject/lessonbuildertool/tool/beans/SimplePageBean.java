@@ -3322,7 +3322,7 @@ public class SimplePageBean {
 			else
 			    i.setSameWindow(false);
 
-			if (i.getType() == SimplePageItem.BLTI) {
+			if (i.getType() == SimplePageItem.BLTI || i.getType() == SimplePageItem.SCORM) {
 			    if (StringUtils.isBlank(format))
 				i.setFormat("");
 			    else
@@ -3333,18 +3333,9 @@ public class SimplePageBean {
 			    else
 				i.setSameWindow(true);
 
-			    i.setHeight(height);
-			}
-
-			if (i.getType() == SimplePageItem.SCORM) {
-			    if (StringUtils.isBlank(format))
-				i.setFormat("");
-			    else
-				i.setFormat(format);
-			    if ("window".equals(format))
-				i.setSameWindow(false);
-			    else
-				i.setSameWindow(true);
+			    if (i.getType() == SimplePageItem.BLTI) {
+				i.setHeight(height);
+			    }
 			}
 
 			if (i.getType() == SimplePageItem.PAGE) {

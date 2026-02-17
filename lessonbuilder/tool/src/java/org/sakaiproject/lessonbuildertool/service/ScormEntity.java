@@ -164,10 +164,6 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 
     // ref looks like /scorm/id
     public ContentPackage getAssignment(Long id) {
-	return getAssignment(id, false);
-    }
-
-    public ContentPackage getAssignment(Long id, boolean nocache) {
 	assignment = dao.load(id);
 	return assignment;
     }
