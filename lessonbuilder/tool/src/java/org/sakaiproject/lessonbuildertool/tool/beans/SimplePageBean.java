@@ -3369,8 +3369,7 @@ public class SimplePageBean {
 			else
 			    i.setSameWindow(false);
 
-			if (i.getType() == SimplePageItem.BLTI ||
-			    i.getType() == SimplePageItem.SCORM) {
+			if (i.getType() == SimplePageItem.BLTI) {
 			    if (StringUtils.isBlank(format))
 				i.setFormat("");
 			    else
@@ -3381,8 +3380,18 @@ public class SimplePageBean {
 			    else
 				i.setSameWindow(true);
 
-			    if (i.getType() == SimplePageItem.BLTI)
-				i.setHeight(height);
+			    i.setHeight(height);
+			}
+
+			if (i.getType() == SimplePageItem.SCORM) {
+			    if (StringUtils.isBlank(format))
+				i.setFormat("");
+			    else
+				i.setFormat(format);
+			    if ("window".equals(format))
+				i.setSameWindow(false);
+			    else
+				i.setSameWindow(true);
 			}
 
 			if (i.getType() == SimplePageItem.PAGE) {
@@ -3420,10 +3429,9 @@ public class SimplePageBean {
 		    return;
 		}
 
-	    	if (i.getType() != SimplePageItem.ASSESSMENT &&
-		    i.getType() != SimplePageItem.ASSIGNMENT &&
-		    i.getType() != SimplePageItem.FORUM &&
-		    i.getType() != SimplePageItem.SCORM) {
+	    	if (i.getType() != SimplePageItem.ASSESSMENT && 
+		    i.getType() != SimplePageItem.ASSIGNMENT && 
+		    i.getType() != SimplePageItem.FORUM) {
 			// We only do this for assignments and assessments
 		        // currently we can't actually set it for forum topics
 			return;
@@ -3451,8 +3459,6 @@ public class SimplePageBean {
 					    lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
 					case SimplePageItem.FORUM:
 					    lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
-					case SimplePageItem.SCORM:
-					    lessonEntity = scormEntity.getEntity(i.getSakaiId(),this); break;
 					}
 					if (lessonEntity != null) {
 					    String groups = getItemGroupString (i, lessonEntity, true);
@@ -3494,8 +3500,6 @@ public class SimplePageBean {
 				    lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
 				case SimplePageItem.FORUM:
 				    lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
-				case SimplePageItem.SCORM:
-				    lessonEntity = scormEntity.getEntity(i.getSakaiId(),this); break;
 				}
 				if (lessonEntity != null) {
 				    String groups = group.getGroups();
@@ -6030,16 +6034,16 @@ public class SimplePageBean {
 			    return false;
 			}
 
+			// SCORM only tracks whether the user attempted the package,
+			// not grades, so completion = has any attempt
 			LessonSubmission submission = scorm.getSubmission(user.getId());
 
 			if (submission == null) {
 				completeCache.put(itemId, false);
 				return false;
-			} else if (!item.getSubrequirement()) {
+			} else {
 				completeCache.put(itemId, true);
 				return true;
-			} else {
-				return isAssignmentComplete(item.getType(), scorm, submission, item.getRequirementText());
 			}
 		} else if (item.getType() == SimplePageItem.COMMENTS) {
 			List<SimplePageComment>comments = simplePageToolDao.findCommentsOnItemByAuthor((long)itemId, getCurrentUserId());
@@ -6105,7 +6109,7 @@ public class SimplePageBean {
 	private boolean isAssignmentComplete(int type, LessonEntity assEntity, LessonSubmission submission, String requirementString) {
 		String grade = submission.getGradeString();
 
-		if (type == SimplePageItem.ASSESSMENT || type == SimplePageItem.SCORM) {
+		if (type == SimplePageItem.ASSESSMENT) {
 			return grade.equals("Pass");
 		} else if (type == SimplePageItem.TEXT) {
 			return grade.equals("Checked");

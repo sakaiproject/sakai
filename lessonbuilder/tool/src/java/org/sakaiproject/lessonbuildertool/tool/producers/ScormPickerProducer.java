@@ -113,7 +113,6 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			    existingItem = simplePageToolDao.findItem(itemId);
 			    if (existingItem == null)
 				return;
-			    // trying to hack on item not on this page
 			    if (existingItem.getPageId() != page.getPageId())
 				return;
 			    currentItem = existingItem.getSakaiId();
@@ -140,11 +139,6 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			    UIInternalLink.make(link, "scorm-create-link", createLink.label , view);
 			}
 
-			UIForm form = UIForm.make(tofill, "scorm-picker");
-			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
-			if (sessionToken != null)
-			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
-
 			List<LessonEntity> plist = scormEntity.getEntitiesInSite(simplePageBean);
 
 			if (createLinks.size() == 0) {
@@ -160,6 +154,11 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 			    return;
 			}
+
+			UIForm form = UIForm.make(tofill, "scorm-picker");
+			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+			if (sessionToken != null)
+			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
 			ArrayList<String> values = new ArrayList<String>();
 

@@ -36,14 +36,13 @@
 		<div id="list" border="0" role="list" class="listHier" cellpadding="0" cellspacing="0" style="width:auto">
 			<div rsf:id="scorm:" role="listitem">
 				<span><input type="radio" rsf:id="select"/></span>
-				<span rsf:id="name"></span>
-				<span><a href="#" rsf:id="link" target="_blank"></a></span>
+				<span><a href="#" rsf:id="link" target="_blank"></a> <span class="sr-only" rsf:id="msg=simplepage.opens-in-new"></span></span>
 			</div>
 		</div>
 		
-		<h3 rsf:id="msg=simplepage.format.heading"></h3>
+		<h3 id="scorm-format-heading" rsf:id="msg=simplepage.format.heading"></h3>
 		<span rsf:id="format-span"/>
-		<div>
+		<div role="radiogroup" aria-labelledby="scorm-format-heading">
 			<input type="radio" rsf:id="format-window" name="scorm-format" value="window" id="format-window" />
 			<label for="format-window" rsf:id="msg=simplepage.format.window"></label>
 			<br />

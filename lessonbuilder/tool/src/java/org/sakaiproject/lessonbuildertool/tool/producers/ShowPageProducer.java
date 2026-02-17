@@ -1619,7 +1619,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							// so it is
 							// safe to dedicate to assessments
 							UIOutput.make(tableRow, "requirement-text", (i.getSubrequirement() ? i.getRequirementText() : "false"));
-							LessonEntity quiz = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
+							LessonEntity quiz = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
 							if (quiz != null) {
 								String editUrl = quiz.editItemUrl(simplePageBean);
 								if (editUrl != null) {
@@ -1724,12 +1724,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								notPublished = true;
 							    break;
 							case SimplePageItem.ASSESSMENT:
-							    lessonEntity = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
+							    lessonEntity = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
 							    if (lessonEntity != null)
 								itemGroupString = simplePageBean.getItemGroupString(i, lessonEntity, true);
-							    else
+							    else 
 								notPublished = quizEntity.notPublished(i.getSakaiId());
-							    if (lessonEntity != null && !lessonEntity.objectExists())
+							    if (!lessonEntity.objectExists())
 								entityDeleted = true;
 							    break;
 							case SimplePageItem.SCORM:
@@ -3845,6 +3845,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UILink link = UILink.make(container, ID, URL);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 					link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
+					link.decorate(new UIFreeAttributeDecorator("aria-label",
+						i.getName() + " " + messageLocator.getMessage("simplepage.opens-in-new")));
 					if (! available)
 						fakeDisableLink(link, messageLocator);
 					if (notDone)
@@ -3859,7 +3861,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			if (usable && i.isPrerequisite()) {
 			    simplePageBean.checkItemPermissions(i, true);
 			}
-			LessonEntity lessonEntity = quizEntity.getEntity(i.getSakaiId(), simplePageBean);
+			LessonEntity lessonEntity = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
 			if (usable && lessonEntity != null && (canEditPage || !quizEntity.notPublished(i.getSakaiId()))) {
 				// Default: quiz - show via ShowItemProducer
 				// we've hacked Samigo to look at a special lesson builder

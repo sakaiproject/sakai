@@ -378,7 +378,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			    lessonEntity = assignmentEntity.getEntity(item.getSakaiId());
 			    break;
 		    case SimplePageItem.ASSESSMENT:
-			    lessonEntity = quizEntity.getEntity(item.getSakaiId(), simplePageBean);
+			    lessonEntity = quizEntity.getEntity(item.getSakaiId(),simplePageBean);
 			    break;
 		    case SimplePageItem.SCORM:
 			    lessonEntity = scormEntity.getEntity(item.getSakaiId(), simplePageBean);
