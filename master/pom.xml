@@ -29,7 +29,7 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
-    <sakai.opensearch.version>2.16.0</sakai.opensearch.version>
+    <sakai.opensearch.version>2.19.4</sakai.opensearch.version>
     <sakai.hibernate.version>5.6.15.Final</sakai.hibernate.version>
     <sakai.hikaricp.version>6.0.0</sakai.hikaricp.version>
     <sakai.httpclient.version>4.5.14</sakai.httpclient.version>
@@ -48,8 +48,8 @@
     <sakai.jaxb.version>2.3.6</sakai.jaxb.version>
     <sakai.jstl.version>1.2</sakai.jstl.version>
     <sakai.lombok.version>1.18.42</sakai.lombok.version>
-    <sakai.lucene.version>9.11.1</sakai.lucene.version>
-    <sakai.netty.version>4.1.112.Final</sakai.netty.version>
+    <sakai.lucene.version>9.12.3</sakai.lucene.version>
+    <sakai.netty.version>4.1.131.Final</sakai.netty.version>
     <sakai.node.version>v22.14.0</sakai.node.version>
     <sakai.org.json.version>20210307</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
@@ -1362,6 +1362,12 @@
         <version>${sakai.opensearch.version}</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-task-commons</artifactId>
+        <version>${sakai.opensearch.version}</version>
+        <scope>compile</scope>
+      </dependency>
 
       <!-- netty (opensearch) -->
       <dependency>
@@ -1584,7 +1590,7 @@
       <dependency>
         <groupId>io.projectreactor</groupId>
         <artifactId>reactor-core</artifactId>
-        <version>3.5.19</version>
+        <version>3.7.5</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

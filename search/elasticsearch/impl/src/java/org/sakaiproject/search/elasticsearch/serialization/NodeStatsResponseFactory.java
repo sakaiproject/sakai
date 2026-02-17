@@ -292,6 +292,7 @@ public class NodeStatsResponseFactory {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     osso = new OutputStreamStreamOutput(baos);
                     commonStats.writeTo(osso);
+                    osso.writeBoolean(false); // no statsByIndex
                     osso.writeBoolean(false); // no statsByShard
                     osso.flush();
                     isso = new InputStreamStreamInput(new BytesStreamInput(baos.toByteArray()));
@@ -301,6 +302,7 @@ public class NodeStatsResponseFactory {
                             discoveryNode,
                             node.timestamp,
                             indicesStats,
+                            null,
                             null,
                             null,
                             null,

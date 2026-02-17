@@ -276,6 +276,11 @@
             <artifactId>mapper-extras-client</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.opensearch</groupId>
+            <artifactId>opensearch-task-commons</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- netty (opensearch) -->
         <dependency>
