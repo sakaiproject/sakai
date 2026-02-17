@@ -843,7 +843,9 @@ public class SakaiLTIUtil {
 		ToolConfiguration placement = SiteService.findTool(placementId);
 		Properties config = placement.getConfig();
 		String roleMapProp = StringUtils.trimToNull(getCorrectProperty(config, LTIService.LTI_ROLEMAP, placement));
-		addRoleInfo(props, null, user, context, LtiToolBean.of(roleMapProp != null ? Collections.singletonMap(LTIService.LTI_ROLEMAP, roleMapProp) : null));
+		// Deliberately minimal/ephemeral bean used only to supply tool.rolemap to addRoleInfo (LtiToolBean.of, roleMapProp, LTIService.LTI_ROLEMAP)
+		LtiToolBean minimalToolWithRoleMap = LtiToolBean.of(roleMapProp != null ? Collections.singletonMap(LTIService.LTI_ROLEMAP, roleMapProp) : null);
+		addRoleInfo(props, null, user, context, minimalToolWithRoleMap);
 		addSiteInfo(props, null, site);
 
 		// Add Placement Information
@@ -3593,10 +3595,10 @@ public class SakaiLTIUtil {
 		if (tool == null) return false;
 		Integer lti13 = tool.getLti13();
 		if (lti13 == null) return true;
-		long v = lti13.longValue();
-		if (v == LTIService.LTI13_LTI11) return true;
-		if (v == LTIService.LTI13_LTI13) return false;
-		if (v == LTIService.LTI13_BOTH) return true;
+		int v = lti13.intValue();
+		if (v == LTIService.LTI13_LTI11.intValue()) return true;
+		if (v == LTIService.LTI13_LTI13.intValue()) return false;
+		if (v == LTIService.LTI13_BOTH.intValue()) return true;
 		return true;
 	}
 
@@ -3615,10 +3617,10 @@ public class SakaiLTIUtil {
 		if (tool == null) return false;
 		Integer lti13 = tool.getLti13();
 		if (lti13 == null) return false;
-		long v = lti13.longValue();
-		if (v == LTIService.LTI13_LTI11) return false;
-		if (v == LTIService.LTI13_LTI13) return true;
-		if (v == LTIService.LTI13_BOTH) return true;
+		int v = lti13.intValue();
+		if (v == LTIService.LTI13_LTI11.intValue()) return false;
+		if (v == LTIService.LTI13_LTI13.intValue()) return true;
+		if (v == LTIService.LTI13_BOTH.intValue()) return true;
 		return false;
 	}
 

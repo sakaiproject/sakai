@@ -49,6 +49,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lti.api.LTIExportService.ExportType;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.LTISubstitutionsFilter;
+import org.sakaiproject.lti.beans.LtiContentBean;
+import org.sakaiproject.lti.beans.LtiToolBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -402,6 +404,17 @@ public abstract class BaseLTIService implements LTIService {
 		int newpage = getInt(tool.get(LTIService.LTI_NEWPAGE));
 		if ( newpage == 2 ) newpage = getInt(content.get(LTIService.LTI_NEWPAGE));
 		content.put(LTIService.LTI_NEWPAGE, newpage+"");
+	}
+
+	@Override
+	public void filterContent(LtiContentBean content, LtiToolBean tool) {
+		if (content == null) {
+			return;
+		}
+		Map<String, Object> contentMap = content.asMap();
+		Map<String, Object> toolMap = (tool != null) ? tool.asMap() : null;
+		filterContent(contentMap, toolMap);
+		content.applyFromMap(contentMap);
 	}
 
 	public static Integer getCorrectProperty(String propName, Map<String, Object> content,
@@ -1062,6 +1075,11 @@ public abstract class BaseLTIService implements LTIService {
 	@Override
 	public void filterCustomSubstitutions(Properties properties, Map<String, Object> tool, Site site) {
 		filters.forEach(filter -> filter.filterCustomSubstitutions(properties, tool, site));
+	}
+
+	@Override
+	public void filterCustomSubstitutions(Properties properties, LtiToolBean tool, Site site) {
+		filterCustomSubstitutions(properties, tool != null ? tool.asMap() : null, site);
 	}
 
 	@Override
