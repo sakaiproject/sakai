@@ -43,6 +43,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
+import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 import org.sakaiproject.site.api.Site;
@@ -291,13 +292,16 @@ public class SiteContentProducer implements EntityContentProducer
 			{
 				SiteService ss = (SiteService) ep;
 				Site s = ss.getSite(ref.getId());
-				StringBuilder sb = new StringBuilder();
 				// Only include descriptions, not the title
 				// Title is indexed separately via getTitle() and FIELD_TITLE
-				SearchUtils.appendCleanString(s.getShortDescription(), sb);
-				sb.append(" ");
-				SearchUtils.appendCleanString(s.getDescription(), sb);
-				sb.append(" ");
+				StringBuilder sb = new StringBuilder();
+				if (s.getShortDescription() != null) {
+					sb.append(HTMLParser.stripHtml(s.getShortDescription()));
+					sb.append(" ");
+				}
+				if (s.getDescription() != null) {
+					sb.append(HTMLParser.stripHtml(s.getDescription()));
+				}
 				return sb.toString();
 
 			}

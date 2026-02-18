@@ -33,6 +33,7 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
@@ -105,7 +106,7 @@ public class AssignmentContentProducer implements EntityContentProducer, EntityC
         // Title is indexed separately via getTitle() and FIELD_TITLE
         if (opAssignment.isPresent()) {
             String instructions = opAssignment.get().getInstructions();
-            return instructions != null ? instructions : "";
+            return HTMLParser.stripHtml(instructions);
         } else {
             return "";
         }

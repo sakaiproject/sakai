@@ -43,7 +43,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchUtils;
+import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -155,7 +155,7 @@ public class SyllabusContentProducer implements EntityContentProducer, EntityCon
 		if (syllabusData == null) return "";
 		
 		String content = syllabusData.getAsset();
-		return content != null ? content : "";
+		return HTMLParser.stripHtml(content);
  	}
 
 	@Override
