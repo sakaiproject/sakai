@@ -43,8 +43,6 @@ import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.TermFrequency;
-import org.sakaiproject.search.util.HTMLParser;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -133,13 +131,10 @@ public class ElasticSearchResult implements SearchResult {
                 EntityContentProducer sep = searchIndexBuilder
                         .newEntityContentProducer(reference);
                 if (sep != null) {
-                    String rawContent = sep.getContent(reference);
-                    // Strip any HTML tags from the content for proper highlighting
-                    if (rawContent != null) {
-                        for (HTMLParser hp = new HTMLParser(rawContent); hp.hasNext();) {
-                            sb.append(hp.next());
-                            sb.append(" ");
-                        }
+                    // Content producers return clean text with HTML already stripped
+                    String content = sep.getContent(reference);
+                    if (content != null) {
+                        sb.append(content);
                     }
                 }
             }

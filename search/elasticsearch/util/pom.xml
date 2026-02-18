@@ -69,10 +69,6 @@
             <artifactId>search-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.search</groupId>
-            <artifactId>search-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>

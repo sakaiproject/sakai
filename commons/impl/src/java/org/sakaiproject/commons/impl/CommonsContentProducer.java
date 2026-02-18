@@ -39,8 +39,8 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -103,18 +103,16 @@ public class CommonsContentProducer implements EntityContentProducer {
         if (CommonsConstants.PostType.COMMENT == r.getType()) {
             Optional<Comment> opComment = commonsManager.getComment(r.getCommentId());
             if (opComment.isPresent()) {
-                StringBuilder sb = new StringBuilder();
-                SearchUtils.appendCleanString(opComment.get().getContent(), sb);
-                return sb.toString();
+                String content = opComment.get().getContent();
+                return content != null ? HTMLParser.stripHtml(content) : "";
             }
         }
 
         if (CommonsConstants.PostType.POST == r.getType()) {
             Optional<Post> opPost = commonsManager.getPost(r.getPostId(), false);
             if (opPost.isPresent()) {
-                StringBuilder sb = new StringBuilder();
-                SearchUtils.appendCleanString(opPost.get().getContent(), sb);
-                return sb.toString();
+                String content = opPost.get().getContent();
+                return content != null ? HTMLParser.stripHtml(content) : "";
             }
         }
 

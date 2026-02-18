@@ -45,7 +45,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
-
+import org.sakaiproject.search.util.HTMLParser;
 
 @Slf4j
 public class MessageForumsEntityContentProducer implements
@@ -157,7 +157,7 @@ public class MessageForumsEntityContentProducer implements
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
 		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
 		if (m != null) {
-			return m.getBody() != null ? m.getBody() : "";
+			return HTMLParser.stripHtml(m.getBody());
 		}
 		return "";
 	}

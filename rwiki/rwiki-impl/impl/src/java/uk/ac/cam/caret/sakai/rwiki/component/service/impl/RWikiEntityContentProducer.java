@@ -40,6 +40,7 @@ import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.util.HTMLParser;
 
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -119,7 +120,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer, Entity
 		String pageSpace = NameHelper.localizeSpace(pageName, rwo.getRealm());
 		String renderedPage = renderService.renderPage(rwo, pageSpace, objectService
 				.getComponentPageLinkRender(pageSpace,true));
-		String r = renderedPage;
+		String r = HTMLParser.stripHtml(renderedPage);
 		if (log.isDebugEnabled())
 		{
 			log.debug("Wiki.getContent:" + reference + ":" + r);
