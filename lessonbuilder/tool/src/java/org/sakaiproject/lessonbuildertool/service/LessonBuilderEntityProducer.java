@@ -2188,7 +2188,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			}
 		}
 
-		return simplePageToolDao.getSitePages(fromContext).stream()
+		List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
+		if (sitePages == null || sitePages.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		return sitePages.stream()
 			.filter(p -> {
 				// Include page if it's not an orphan OR if it's referenced by a valid (non-orphan) page
 				boolean isOrphan = orphanFinder.isOrphan(p.getPageId());
