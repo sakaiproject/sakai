@@ -129,38 +129,78 @@
 
     const groupTitle = document.getElementById("groupTitle");
     const groupNumber = document.getElementById("groupNumber");
-    const isGroupMemberRequired = groupNumber.dataset.required === 'true';
+    const isGroupMemberRequired = groupNumber && groupNumber.dataset.required === 'true';
     const groupMaxMembers = document.getElementById("groupMaxMembers");
     const joinableOpenDate = document.getElementById("joinableOpenDate");
     const joinableCloseDate = document.getElementById("joinableCloseDate");
     const setReminder = document.getElementById("setReminder");
     const setReminderLbl = document.getElementById("setReminderLbl");
+    const restrictToGroups = document.getElementById("restrictToGroups");
+    const restrictToGroupsEdit = document.getElementById("restrictToGroupsEdit");
+    const groupRestrictionOptions = document.getElementById("groupRestrictionOptions");
+    const groupRestrictionOptionsEdit = document.getElementById("groupRestrictionOptionsEdit");
+
+    // Handle group restriction checkbox for new joinable sets
+    if (restrictToGroups) {
+      if (restrictToGroups.checked) {
+        groupRestrictionOptions && (groupRestrictionOptions.style.display = "block");
+      }
+      
+      restrictToGroups.addEventListener("change", function() {
+        if (groupRestrictionOptions) {
+          groupRestrictionOptions.style.display = this.checked ? "block" : "none";
+        }
+      });
+    }
+
+    // Handle group restriction checkbox for editing joinable sets
+    if (restrictToGroupsEdit) {
+      if (restrictToGroupsEdit.checked) {
+        groupRestrictionOptionsEdit && (groupRestrictionOptionsEdit.style.display = "block");
+      }
+      
+      restrictToGroupsEdit.addEventListener("change", function() {
+        if (groupRestrictionOptionsEdit) {
+          groupRestrictionOptionsEdit.style.display = this.checked ? "block" : "none";
+        }
+      });
+    }
 
     // Immediately invoked function
     (function() {
-      setReminder.disabled = !joinableCloseDate.value;
+      if (setReminder && joinableCloseDate) {
+        setReminder.disabled = !joinableCloseDate.value;
+      }
     })();
 
-    joinableCloseDate.addEventListener("blur", e => {
-      if (joinableCloseDate.validity.badInput) {
-        setReminder.disabled = true;
-        setReminderLbl.classList.add("disabled");
-      } else {
-        setReminder.disabled = false;
-        setReminderLbl.classList.remove("disabled");
-      }
-    });
+    if (joinableCloseDate) {
+      joinableCloseDate.addEventListener("blur", e => {
+        if (setReminder && setReminderLbl) {
+          if (joinableCloseDate.validity.badInput) {
+            setReminder.disabled = true;
+            setReminderLbl.classList.add("disabled");
+          } else {
+            setReminder.disabled = false;
+            setReminderLbl.classList.remove("disabled");
+          }
+        }
+      });
+    }
 
     //Enable or disable the submit button depending on the required fields
     [groupTitle, groupNumber, groupMaxMembers, joinableOpenDate, joinableCloseDate].forEach(field => {
+      if (field) {
+        field.addEventListener("keyup", () => {
 
-      field.addEventListener("keyup", () => {
-
-        document.querySelectorAll('#createnewjoinableset-form input[type="submit"]').forEach(submit => {
-            submit.disabled = !groupTitle.value || (isGroupMemberRequired && groupNumber.value <= 0) ||
-              groupMaxMembers.value <= 0 || joinableOpenDate.validity.badInput || joinableCloseDate.validity.badInput;
+          document.querySelectorAll('#createnewjoinableset-form input[type="submit"]').forEach(submit => {
+              submit.disabled = !groupTitle.value || 
+                (isGroupMemberRequired && groupNumber && groupNumber.value <= 0) ||
+                (groupMaxMembers && groupMaxMembers.value <= 0) || 
+                (joinableOpenDate && joinableOpenDate.validity.badInput) || 
+                (joinableCloseDate && joinableCloseDate.validity.badInput);
+          });
         });
-      });
+      }
     });
 
     // Button spinners

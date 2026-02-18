@@ -44,6 +44,10 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 @Slf4j
 @Controller
 public class JoinableSetController {    
@@ -69,6 +73,12 @@ public class JoinableSetController {
         JoinableSetForm joinableSetForm = new JoinableSetForm();
         List<Group> joinableSetGroups = new ArrayList<Group>();
         List<User> notJoinedUserList = new ArrayList<User>();
+        
+        // Get all regular groups (non-joinable sets) available for restriction
+        List<Group> availableGroups = site.getGroups().stream()
+            .filter(g -> StringUtils.isBlank(g.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET)))
+            .sorted((g1, g2) -> g1.getTitle().compareToIgnoreCase(g2.getTitle()))
+            .collect(Collectors.toList());
 
         if (StringUtils.isNotBlank(joinableSetId)) {
             //Set the joinable set Id
@@ -100,9 +110,17 @@ public class JoinableSetController {
                 Group joinableGroup = joinableSetGroups.get(0);
                 String joinableOpenDate = joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
                 String joinableCloseDate = joinableGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
-                // Apply the correct time zone to datetimes before being displayed, nulls will be represented as ampty cells.
+                String allowedGroupsProperty = joinableGroup.getProperties().getProperty(GroupManagerConstants.GROUP_PROP_JOINABLE_ALLOWED_GROUPS);
+
+                // Apply the correct time zone to datetimes before being displayed, nulls will be represented as empty cells.
                 joinableSetForm.setJoinableOpenDate(sakaiService.dateFromUtcToUserTimeZone(joinableOpenDate, false));
                 joinableSetForm.setJoinableCloseDate(sakaiService.dateFromUtcToUserTimeZone(joinableCloseDate, false));
+
+                if (StringUtils.isNotBlank(allowedGroupsProperty)) {
+                    List<String> allowedGroupIds = Arrays.asList(allowedGroupsProperty.split(","));
+                    joinableSetForm.setRestrictToGroups(true);
+                    joinableSetForm.setAllowedGroups(allowedGroupIds);
+                }
             }
             joinableSetForm.setGroupNumber(0);
             joinableSetForm.setGroupMaxMembers(1);
@@ -112,6 +130,7 @@ public class JoinableSetController {
         model.addAttribute("joinableSetForm", joinableSetForm);
         model.addAttribute("joinableSetGroups", joinableSetGroups);
         model.addAttribute("notJoinedUserList", notJoinedUserList);
+        model.addAttribute("availableGroups", availableGroups);
 
         return GroupManagerConstants.JOINABLE_SET_TEMPLATE;
     }
@@ -141,6 +160,8 @@ public class JoinableSetController {
         String allowPreviewMembership = Boolean.toString(joinableSetForm.isAllowPreviewMembership());
         String allowUnjoin = Boolean.toString(joinableSetForm.isAllowUnjoin());
         String allowViewMembership = Boolean.toString(joinableSetForm.isAllowViewMembership());
+        boolean restrictToGroups = joinableSetForm.isRestrictToGroups();
+        List<String> allowedGroups = joinableSetForm.getAllowedGroups();
         List<String> groupTitles = new ArrayList<String>();
         List<Group> siteGroups = new ArrayList<Group>(site.getGroups());
         siteGroups.forEach(g -> groupTitles.add(g.getTitle()));
@@ -183,6 +204,12 @@ public class JoinableSetController {
             model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.wrongdateorder", null, userLocale));
             return showJoinableSet(model, joinableSetId);
         }
+        // Validate group restrictions if enabled
+        if (restrictToGroups && (allowedGroups == null || allowedGroups.isEmpty())) {
+            model.addAttribute("errorMessage", messageSource.getMessage("joinableset.error.selectgroups", null, userLocale));
+            return showJoinableSet(model, editingJoinableSet ? joinableSetId : null);
+        }
+
         if (utcOpenDate != null) {
             joinableOpenDate = utcOpenDate.toString();
         }
@@ -225,6 +252,13 @@ public class JoinableSetController {
                 } else {
                     group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE, joinableCloseDate);
                 }
+                
+                // Handle group restrictions
+                if (restrictToGroups && allowedGroups != null && !allowedGroups.isEmpty()) {
+                    group.getProperties().addProperty(GroupManagerConstants.GROUP_PROP_JOINABLE_ALLOWED_GROUPS, String.join(",", allowedGroups));
+                } else {
+                    group.getProperties().removeProperty(GroupManagerConstants.GROUP_PROP_JOINABLE_ALLOWED_GROUPS);
+                }
             }
         }
 
@@ -251,6 +285,12 @@ public class JoinableSetController {
             if (StringUtils.isNotBlank(joinableCloseDate)) {
                 newGroup.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE, joinableCloseDate);
             }
+            
+            // Add group restrictions
+            if (restrictToGroups && allowedGroups != null && !allowedGroups.isEmpty()) {
+                newGroup.getProperties().addProperty(GroupManagerConstants.GROUP_PROP_JOINABLE_ALLOWED_GROUPS, String.join(",", allowedGroups));
+            }
+            
             newGroup.setTitle(groupTitle);
             joinableSetNewGroupNumber++;
         }
@@ -307,6 +347,7 @@ public class JoinableSetController {
                 group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE);
                 group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_OPEN_DATE);
                 group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_CLOSE_DATE);
+                group.getProperties().removeProperty(GroupManagerConstants.GROUP_PROP_JOINABLE_ALLOWED_GROUPS);
                 anyGroupUpdated = true;
             }
         }

@@ -36,4 +36,5 @@ public class GroupManagerConstants {
     public static final String WIZARD_STEP1_ACTION = "step1";
     public static final String WIZARD_STEP2_ACTION = "step2";
     public static final String WIZARD_STEP3_ACTION = "step3";
+    public static final String GROUP_PROP_JOINABLE_ALLOWED_GROUPS = "group-prop-joinable-allowed-groups";
 }
