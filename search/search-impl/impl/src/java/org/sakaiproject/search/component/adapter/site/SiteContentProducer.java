@@ -296,13 +296,13 @@ public class SiteContentProducer implements EntityContentProducer
 				// Title is indexed separately via getTitle() and FIELD_TITLE
 				StringBuilder sb = new StringBuilder();
 				if (s.getShortDescription() != null) {
-					sb.append(HTMLParser.stripHtml(s.getShortDescription()));
+					sb.append(s.getShortDescription());
 					sb.append(" ");
 				}
 				if (s.getDescription() != null) {
-					sb.append(HTMLParser.stripHtml(s.getDescription()));
+					sb.append(s.getDescription());
 				}
-				return sb.toString();
+				return HTMLParser.stripHtml(sb.toString());
 
 			}
 			catch (IdUnusedException e)
