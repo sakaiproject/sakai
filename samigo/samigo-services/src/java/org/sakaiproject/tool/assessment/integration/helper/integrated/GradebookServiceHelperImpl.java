@@ -236,7 +236,14 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     PublishedAssessmentService pubService = new PublishedAssessmentService();
 
     String siteId = GradebookFacade.getGradebookUId();
-    boolean isGradebookGroupEnabled = g.isGradebookGroupEnabled(AgentFacade.getCurrentSiteId());
+
+    if (siteId == null) {
+        PublishedAssessmentFacade pub = pubService.getPublishedAssessment(ag.getPublishedAssessmentId().toString());
+        // Get the siteId from the assessment, as it also works in an no-site context
+        siteId = pub.getOwnerSiteId();
+    }
+
+    boolean isGradebookGroupEnabled = g.isGradebookGroupEnabled(siteId);
 
     String gradebookUId = siteId;
 
@@ -251,7 +258,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
       if (pAF != null) {
         if (assignmentId == null) {
-          List<String> userGradebookList = g.getGradebookInstancesForUser(AgentFacade.getCurrentSiteId(), ag.getAgentId());
+          List<String> userGradebookList = g.getGradebookInstancesForUser(siteId, ag.getAgentId());
           Map<String, String> releaseToGroupsMap = pAF.getReleaseToGroups();
 
           for (String userGradebook : userGradebookList) {
@@ -261,7 +268,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
             }
           }
         } else {
-          String foundGradebookUid = g.getGradebookUidByAssignmentById(AgentFacade.getCurrentSiteId(), assignmentId);
+          String foundGradebookUid = g.getGradebookUidByAssignmentById(siteId, assignmentId);
 
           if (foundGradebookUid != null && !StringUtils.isBlank(foundGradebookUid)) {
             gradebookUId = foundGradebookUid;
@@ -276,7 +283,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
         //SAM-1562 We need to round the double score and covert to a double -DH
         double fScore = Precision.round(ag.getFinalScore(), 2);
         Double score = Double.valueOf(fScore).doubleValue();
-        points = getFormattedScore(score, AgentFacade.getCurrentSiteId());
+        points = getFormattedScore(score, siteId);
         log.debug("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
     }
 
@@ -318,10 +325,16 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 
 	  String siteId = GradebookFacade.getGradebookUId();
 
+	  if (siteId == null) {
+		  PublishedAssessmentFacade pub = pubService.getPublishedAssessment(ag.getPublishedAssessmentId().toString());
+		  // Get the siteId from the assessment, as it also works in an no-site context
+		  siteId = pub.getOwnerSiteId();
+	  }
+
 	  if (g.isGradebookGroupEnabled(siteId)) {
 		  PublishedAssessmentFacade pAF = pubService.getPublishedAssessment(publishedAssessmentId.toString());
 		  if (pAF != null) {
-			  List<String> userGradebookList = g.getGradebookInstancesForUser(AgentFacade.getCurrentSiteId(), ag.getAgentId());
+			  List<String> userGradebookList = g.getGradebookInstancesForUser(siteId, ag.getAgentId());
 			  Map<String, String> releaseToGroupsMap = pAF.getReleaseToGroups();
 			  for (String userGradebook : userGradebookList) {
 				  if (releaseToGroupsMap.containsKey(userGradebook)) {
