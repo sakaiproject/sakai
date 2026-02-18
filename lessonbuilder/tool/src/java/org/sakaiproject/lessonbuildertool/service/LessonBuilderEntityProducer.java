@@ -856,9 +856,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	 * but lack proper parent/topparent/toolid fields
 	 */
 	private Map<Long, List<Long>> findReferencedPagesByItems(String siteId) {
+		List<SimplePage> allPages = simplePageToolDao.getSitePages(siteId);
+		return findReferencedPagesByItems(siteId, allPages);
+	}
+
+	/**
+	 * Finds pages referenced by SimplePageItems of type PAGE (subpages)
+	 */
+	private Map<Long, List<Long>> findReferencedPagesByItems(String siteId, List<SimplePage> allPages) {
 		Map<Long, List<Long>> pageToReferencedPages = new HashMap<>();
 		
-		List<SimplePage> allPages = simplePageToolDao.getSitePages(siteId);
 		if (allPages == null || allPages.isEmpty()) {
 			return pageToReferencedPages;
 		}
@@ -2176,8 +2183,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		SimplePageBean simplePageBean = makeSimplePageBean(fromContext);
 		OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(fromContext);
 		
+		List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
+		if (sitePages == null || sitePages.isEmpty()) {
+			return Collections.emptyList();
+		}
+		
 		// Find pages referenced by items, but only from valid (non-orphan) pages
-		Map<Long, List<Long>> referencedPages = findReferencedPagesByItems(fromContext);
+		Map<Long, List<Long>> referencedPages = findReferencedPagesByItems(fromContext, sitePages);
 		Set<Long> validReferencedPageIds = new HashSet<>();
 		
 		for (Map.Entry<Long, List<Long>> entry : referencedPages.entrySet()) {
@@ -2188,11 +2200,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			}
 		}
 
-		List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
-		if (sitePages == null || sitePages.isEmpty()) {
-			return Collections.emptyList();
-		}
-
 		return sitePages.stream()
 			.filter(p -> {
 				// Include page if it's not an orphan OR if it's referenced by a valid (non-orphan) page
@@ -2201,7 +2208,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 				return !isOrphan || isValidlyReferenced;
 			})
 			.map(p -> {
-				String title = p.getTitle();
+				String title = p.getTitle() != null ? p.getTitle() : "";
 				return Map.of("id", Long.toString(p.getPageId()), "title", title);
 			})
 			.collect(Collectors.toList());
