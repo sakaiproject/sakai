@@ -28,6 +28,7 @@ import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.api.UserFinderOrCreator;
 import org.sakaiproject.lti.api.UserLocaleSetter;
 import org.sakaiproject.lti.api.UserPictureSetter;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiTestConfiguration;
 
@@ -95,5 +96,10 @@ public class PlusTestConfiguration extends SakaiTestConfiguration {
     @Bean(name = "org.sakaiproject.site.api.SiteService")
     public SiteService siteConfigurationService() {
         return mock(SiteService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.scheduling.api.SchedulingService")
+    public SchedulingService schedulingService() {
+        return mock(SchedulingService.class);
     }
 }

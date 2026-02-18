@@ -16,20 +16,25 @@
 package org.sakaiproject.messaging.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import nl.martijndwars.webpush.Notification;
 import nl.martijndwars.webpush.PushService;
 import nl.martijndwars.webpush.Subscription;
 import nl.martijndwars.webpush.Utils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpResponse;
+
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.interfaces.ECPrivateKey;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
@@ -43,12 +48,15 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.messaging.api.Message;
 import org.sakaiproject.messaging.api.MessageMedium;
 import org.sakaiproject.messaging.api.UserMessagingService;
+import org.sakaiproject.messaging.api.UserNotificationData;
 import org.sakaiproject.messaging.api.UserNotificationHandler;
+import org.sakaiproject.messaging.api.UserNotificationTransferBean;
 import org.sakaiproject.messaging.api.model.PushSubscription;
 import org.sakaiproject.messaging.api.model.UserNotification;
 import org.sakaiproject.messaging.api.repository.PushSubscriptionRepository;
 import org.sakaiproject.messaging.api.repository.UserNotificationRepository;
 import org.sakaiproject.serialization.MapperFactory;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -63,8 +71,12 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -92,7 +104,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.sakaiproject.messaging.api.MessageMedium.DIGEST;
 import static org.sakaiproject.messaging.api.MessageMedium.EMAIL;
@@ -100,7 +114,7 @@ import static org.sakaiproject.messaging.api.MessageMedium.EMAIL;
 @Slf4j
 public class UserMessagingServiceImpl implements UserMessagingService, Observer {
 
-    public static final Integer DEFAULT_THREAD_POOL_SIZE = 20;
+    private static final int DEFAULT_THREADPOOL_SIZE = 10;
 
     @Autowired private DigestService digestService;
     @Autowired private EmailService emailService;
@@ -108,6 +122,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     @Autowired private EventTrackingService eventTrackingService;
     @Autowired private PreferencesService preferencesService;
     @Autowired private PushSubscriptionRepository pushSubscriptionRepository;
+    @Autowired private SchedulingService schedulingService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
@@ -129,6 +144,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     private PushService pushService;
 
     public UserMessagingServiceImpl() {
+
         objectMapper = MapperFactory.createDefaultJsonMapper();
         Map<String, UserNotificationHandler> handlerMap = new HashMap<>();
         // Site publish is handled specially. It should probably be extracted from the logic below,
@@ -141,13 +157,31 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     public void init() {
+
         // Initialize the executor with configurable thread pool size
-        int threadPoolSize = serverConfigurationService.getInt("messaging.threadpool.size", DEFAULT_THREAD_POOL_SIZE);
+        int threadPoolSize = serverConfigurationService.getInt("messaging.threadpool.size", DEFAULT_THREADPOOL_SIZE);
+        if (threadPoolSize <= 0) {
+            log.warn("Invalid messaging.threadpool.size configured. Defaulting to {}", DEFAULT_THREADPOOL_SIZE);
+            threadPoolSize = DEFAULT_THREADPOOL_SIZE;
+        }
         executor = Executors.newFixedThreadPool(threadPoolSize);
         log.info("Initialized messaging thread pool with {} threads", threadPoolSize);
 
-        if(serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
+        if (serverConfigurationService.getBoolean("portal.bullhorns.enabled", true)) {
             eventTrackingService.addLocalObserver(this);
+
+            long deleteExpiredPeriod = serverConfigurationService.getLong("messaging.delete.expired.periodminutes", 30);
+
+            // Clean up expired notifications every deleteExpiredPeriod minutes
+            schedulingService.scheduleWithFixedDelay(() -> {
+
+                try {
+                    userNotificationRepository.deleteExpiredNotifications();
+                } catch (Exception e) {
+                    log.warn("Exception whilst deleting expired notifications", e);
+                }
+            }, 0, deleteExpiredPeriod, TimeUnit.MINUTES);
+
             pushEnabled = serverConfigurationService.getBoolean("portal.notifications.push.enabled", true);
 
             if (pushEnabled) {
@@ -203,6 +237,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     public void destroy() {
+
         if (executor != null) {
             try {
                 // Attempt a graceful shutdown
@@ -287,6 +322,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     @Override
     public void registerHandler(UserNotificationHandler handler) {
+
         Map<String, UserNotificationHandler> newMap = new HashMap<>(notificationHandlers);
 
         // Update the copy with new handlers only if the key doesn't exist
@@ -309,6 +345,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     @Override
     public void unregisterHandler(UserNotificationHandler handler) {
+
         Map<String, UserNotificationHandler> newMap = new HashMap<>(notificationHandlers);
 
         // Remove handlers for each event this handler handles
@@ -352,28 +389,30 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
                     UserNotificationHandler handler = notificationHandlers.get(event);
                     if (handler != null) {
                         handler.handleEvent(e).ifPresent(notifications ->
-                                notifications.forEach(bd -> {
-                                    UserNotification un = doInsert(from,
-                                            bd.getTo(),
-                                            event,
-                                            ref,
-                                            bd.getTitle(),
-                                            bd.getSiteId(),
-                                            e.getEventTime(),
-                                            finalDeferred,
-                                            bd.getUrl(),
-                                            bd.getCommonToolId());
-                            if (!finalDeferred && this.pushEnabled) {
-                                un.setTool(bd.getCommonToolId());
-                                push(decorateNotification(un));
-                            }
-                        }));
-                    } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
-                        final String siteId = pathParts[2];
+                            notifications.forEach(und -> {
 
+                                UserNotificationTransferBean bean
+                                    = UserNotificationTransferBean.of(doInsert(from,
+                                        und,
+                                        event,
+                                        ref,
+                                        e.getEventTime(),
+                                        finalDeferred)
+                                    );
+
+                                if (!finalDeferred) {
+                                    if (und.isBroadcast()) {
+                                        pushToAllUsers(decorateNotification(bean));
+                                    } else {
+                                        pushToSingleUser(decorateNotification(bean));
+                                    }
+                                }
+                            })
+                        );
+                    } else if (SiteService.EVENT_SITE_PUBLISH.equals(event)) {
                         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                                userNotificationRepository.setDeferredBySiteId(siteId, false);
+                                userNotificationRepository.setDeferredBySiteId(pathParts[2], false);
                             }
                         });
                     }
@@ -384,27 +423,32 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         }
     }
 
-    private UserNotification doInsert(String from, String to, String event, String ref, String title,
-                                      String siteId, Date eventDate, boolean deferred, String url, String tool) {
+    private UserNotification doInsert(String from, UserNotificationData und, String event, String ref,
+                                      Date eventDate, boolean deferred) {
 
-        String processedTitle = title;
+        String processedTitle = und.getTitle();
         if (processedTitle != null) {
             processedTitle = formattedText.processFormattedText(processedTitle, null, null);
         }
         final String finalTitle = processedTitle;
 
         return transactionTemplate.execute(status -> {
+
             UserNotification ba = new UserNotification();
             ba.setFromUser(from);
-            ba.setToUser(to);
+            ba.setToUser(und.getTo());
             ba.setEvent(event);
             ba.setRef(ref);
 
             ba.setTitle(finalTitle);
-            ba.setSiteId(siteId);
+            ba.setSiteId(und.getSiteId());
             ba.setEventDate(eventDate.toInstant());
-            ba.setUrl(url);
-            ba.setTool(tool);
+            if (und.getTtl() != null) {
+                ba.setEndDate(eventDate.toInstant().plus(und.getTtl()));
+            }
+            ba.setUrl(und.getUrl());
+            ba.setTool(und.getCommonToolId());
+            ba.setBroadcast(und.isBroadcast());
             ba.setDeferred(deferred);
             return userNotificationRepository.save(ba);
         });
@@ -416,6 +460,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
      * @return the current user ID or null if no user is logged in
      */
     private String getCurrentUserId() {
+
         String userId = sessionManager.getCurrentSessionUserId();
         if (StringUtils.isBlank(userId)) {
             log.warn("No current user");
@@ -426,6 +471,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     @Transactional  
     public boolean clearNotification(long id) {
+
         String userId = getCurrentUserId();
         if (userId == null) return false;
 
@@ -446,16 +492,21 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         return false;
     }
 
-    public List<UserNotification> getNotifications() {
+    public List<UserNotificationTransferBean> getNotifications() {
+
         String userId = getCurrentUserId();
         if (userId == null) return Collections.emptyList();
 
-        return userNotificationRepository.findByToUser(userId)
-                .stream().map(this::decorateNotification).collect(Collectors.toList());
+        List<UserNotificationTransferBean> beans = Stream.concat(userNotificationRepository.findByToUser(userId).stream(),
+                userNotificationRepository.findByBroadcast(true).stream())
+            .map(UserNotificationTransferBean::of).map(this::decorateNotification).collect(Collectors.toList());
+
+        return beans;
     }
 
     @Transactional
     public boolean clearAllNotifications() {
+
         String userId = getCurrentUserId();
         if (userId == null) return false;
 
@@ -465,6 +516,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     @Transactional
     public boolean markAllNotificationsViewed(String siteId, String toolId) {
+
         String userId = getCurrentUserId();
         if (userId == null) return false;
 
@@ -472,23 +524,23 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
         return true;
     }
 
-    private UserNotification decorateNotification(UserNotification notification) {
+    private UserNotificationTransferBean decorateNotification(UserNotificationTransferBean notification) {
 
         try {
-            User fromUser = userDirectoryService.getUser(notification.getFromUser());
-            notification.setFromDisplayName(fromUser.getDisplayName());
-            notification.setFormattedEventDate(userTimeService.dateTimeFormat(notification.getEventDate(), null, null));
-            if (StringUtils.isNotBlank(notification.getSiteId())) {
-                notification.setSiteTitle(siteService.getSite(notification.getSiteId()).getTitle());
+            User fromUser = userDirectoryService.getUser(notification.from);
+            notification.fromDisplayName = fromUser.getDisplayName();
+            notification.formattedEventDate = userTimeService.dateTimeFormat(notification.eventDate, null, null);
+            if (StringUtils.isNotBlank(notification.siteId)) {
+                notification.siteTitle = siteService.getSite(notification.siteId).getTitle();
             }
         } catch (UserNotDefinedException unde) {
-            notification.setFromDisplayName(notification.getFromUser());
+            notification.fromDisplayName = notification.from;
         } catch (IdUnusedException iue) {
-            notification.setSiteTitle(notification.getSiteId());
+            notification.siteTitle = notification.siteId;
         }
 
-        if (notification.getTitle() != null) {
-            notification.setTitle(formattedText.convertFormattedTextToPlaintext(notification.getTitle()));
+        if (StringUtils.isNotBlank(notification.title)) {
+            notification.title = formattedText.convertFormattedTextToPlaintext(notification.title);
         }
 
         return notification;
@@ -496,6 +548,7 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
 
     @Transactional
     public void subscribeToPush(String endpoint, String auth, String userKey, String browserFingerprint) {
+
         String userId = getCurrentUserId();
         if (userId == null) return;
 
@@ -513,25 +566,56 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
     }
 
     public void sendTestNotification() {
+
         String userId = getCurrentUserId();
         if (userId == null) return;
 
-        UserNotification un = new UserNotification();
-        un.setFromUser(userId);
-        un.setToUser(userId);
-        un.setEvent("test.notification");
-        un.setTitle(resourceLoader.getString("test_notification_title"));
-        un.setEventDate(Instant.now());
+        UserNotificationTransferBean un = new UserNotificationTransferBean();
+        un.from = userId;
+        un.to = userId;
+        un.event = "test.notification";
+        un.title = resourceLoader.getString("test_notification_title");
+        un.eventDate = Instant.now();
 
-        push(decorateNotification(un));
+        pushToSingleUser(decorateNotification(un));
     }
 
     /**
-     * Send a push notification to a user
+     * Pushes the supplied notification to all the users with push subscriptions
+     */
+    private void pushToAllUsers(UserNotificationTransferBean bean) {
+
+        if (!pushEnabled || pushService == null) {
+            log.debug("Push service is not enabled or not initialized");
+            return;
+        }
+
+        executor.execute(() -> {
+
+            int current = 0;
+            int pageSize = 100;
+            Page<PushSubscription> page = pushSubscriptionRepository.findAll(PageRequest.of(current, pageSize));
+            while (page.getNumberOfElements() > 0) {
+
+                page.getContent().forEach(ps -> {
+                    bean.to = ps.getUserId();
+                    push(ps, bean);
+                });
+
+                current++;
+                page = pushSubscriptionRepository.findAll(PageRequest.of(current, pageSize));
+            }
+        });
+    }
+
+    /**
+     * Send a push notification to a user. This may result in a few pushes as every user can have
+     * multiple devices and thus multiple subscriptions
      * 
      * @param un the UserNotification to push
      */
-    private void push(UserNotification un) {
+    private void pushToSingleUser(UserNotificationTransferBean un) {
+
         if (un == null) {
             log.warn("Cannot push null notification");
             return;
@@ -542,53 +626,68 @@ public class UserMessagingServiceImpl implements UserMessagingService, Observer 
             return;
         }
 
-        pushSubscriptionRepository.findByUser(un.getToUser()).forEach(pushSubscription -> {
-            String pushEndpoint = pushSubscription.getEndpoint();
-            String pushUserKey = pushSubscription.getUserKey();
-            String pushAuth = pushSubscription.getAuth();
+        pushSubscriptionRepository.findByUser(un.to).forEach(ps -> this.push(ps, un));
+    }
 
-            // We only push if the user has given permission for notifications
-            // and successfully set their subscription details
-            if (StringUtils.isAnyBlank(pushEndpoint, pushUserKey, pushAuth)) {
-                log.debug("Skipping push notification due to missing subscription details for user {}", un.getToUser());
-                return;
-            }
+    /**
+     * Push the user notification un to the subscription
+     */
+    private void push(PushSubscription subscription, UserNotificationTransferBean un) {
 
-            Subscription sub = new Subscription(pushEndpoint, new Subscription.Keys(pushUserKey, pushAuth));
-            try {
-                String notificationJson = objectMapper.writeValueAsString(un);
-                HttpResponse pushResponse = pushService.send(new Notification(sub, notificationJson));
+        String pushEndpoint = subscription.getEndpoint();
+        String pushUserKey = subscription.getUserKey();
+        String pushAuth = subscription.getAuth();
 
-                int statusCode = pushResponse.getStatusLine().getStatusCode();
-                if (statusCode >= 200 && statusCode < 300) {
-                    log.debug("Successfully sent push notification to {} with status {}", 
-                            pushEndpoint, statusCode);
-                } else {
-                    String reason = pushResponse.getStatusLine().getReasonPhrase();
-                    log.warn("Push notification to {} failed with status {} and reason {}", 
-                            pushEndpoint, statusCode, reason);
-                    
-                    // Handle subscription cleanup for permanent failures
-                    if (statusCode == 410 || statusCode == 404 || statusCode == 400) {
+        // We only push if the user has given permission for notifications
+        // and successfully set their subscription details
+        if (StringUtils.isAnyBlank(pushEndpoint, pushUserKey, pushAuth)) {
+            log.debug("Skipping push notification due to missing subscription details for user {}", un.to);
+            return;
+        }
+
+        Subscription sub = new Subscription(pushEndpoint, new Subscription.Keys(pushUserKey, pushAuth));
+        try {
+            String notificationJson = objectMapper.writeValueAsString(un);
+            HttpResponse pushResponse = pushService.send(new Notification(sub, notificationJson));
+
+            int statusCode = pushResponse.getStatusLine().getStatusCode();
+            if (statusCode >= 200 && statusCode < 300) {
+                log.debug("Successfully sent push notification to {} with status {}", 
+                        pushEndpoint, statusCode);
+            } else {
+                String reason = pushResponse.getStatusLine().getReasonPhrase();
+                log.warn("Push notification to {} failed with status {} and reason {}", 
+                        pushEndpoint, statusCode, reason);
+
+                switch (statusCode) {
+                    case 410:
+                    case 404:
+                    case 400:
                         log.info("Removing invalid push subscription for user {} due to status {}", 
-                                un.getToUser(), statusCode);
+                            un.to, statusCode);
                         // Clear the invalid subscription
-                        clearPushSubscription(pushSubscription);
-                    } else if (statusCode == 403) {
-                        log.warn("Push authentication failed (403) - check VAPID configuration");
-                    }
+                        clearPushSubscription(subscription);
+                        break;
+                    case 403:
+                        log.warn("Push failed with {}. Check VAPID configuration", statusCode);
+                        break;
+                    case 429:
+                        log.warn("Push failed with {}. Check rate of push message sending", statusCode);
+                        break;
+                    default:
+                        log.warn("Push failed with {}", statusCode);
                 }
-            } catch (Exception e) {
-                log.error("Failed to serialize notification for push: {}", e.toString());
-                log.debug("Stacktrace", e);
             }
-        });
+        } catch (Exception e) {
+            log.warn("Failed to serialize notification for push", e);
+        }
     }
 
     /**
      * Removes the specific push subscription
      */
     private void clearPushSubscription(PushSubscription subscription) {
+
         pushSubscriptionRepository.delete(subscription);
         log.info("Removed invalid push subscription {} for user {}", subscription.getEndpoint(), subscription.getUserId());
     }

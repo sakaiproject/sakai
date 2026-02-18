@@ -27,6 +27,7 @@ import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.api.EmailTemplateService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.test.SakaiTestConfiguration;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.user.api.PreferencesService;
@@ -85,10 +86,15 @@ public class UserMessagingServiceTestConfiguration extends SakaiTestConfiguratio
         return mock(UserTimeService.class);
     }
 
+    @Bean(name = "org.sakaiproject.scheduling.api.SchedulingService")
+    public SchedulingService schedulingService() {
+        return mock(SchedulingService.class);
+    }
+
     @Bean(name = "org.sakaiproject.component.api.ServerConfigurationService")
     public ServerConfigurationService serverConfigurationService() {
         ServerConfigurationService scs = mock(ServerConfigurationService.class);
-        when(scs.getInt("messaging.threadpool.size", 20)).thenReturn(20);
+        when(scs.getInt("messaging.threadpool.size", 10)).thenReturn(10);
         return scs;
     }
 

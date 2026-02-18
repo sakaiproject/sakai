@@ -19,6 +19,7 @@
 		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
 		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
 		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="schedulingService" bean="org.sakaiproject.scheduling.api.SchedulingService" />
 		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
 		<lookup-method name="timeService" bean="org.sakaiproject.time.api.TimeService" />
  		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />

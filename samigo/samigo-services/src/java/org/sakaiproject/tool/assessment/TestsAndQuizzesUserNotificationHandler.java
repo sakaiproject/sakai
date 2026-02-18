@@ -165,7 +165,7 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
             if ((releaseTo.equals(site.getTitle()) || (groupsUsers != null && groupsUsers.contains(to))) && (!from.equals(to) && !securityService.isSuperUser(to)) && checkTime(startDateInstant,extendedTimes, to, siteId) && !bhAlreadyExistsForUser(ref, to)) {
                 //link to tool
                 String url = site.getUrl() + "/tool/" + site.getToolForCommonId(TOOL_ID).getId();
-                bhEvents.add(new UserNotificationData(from, to, siteId, title, url, TOOL_ID));
+                bhEvents.add(new UserNotificationData(from, to, siteId, title, url, TOOL_ID, false, null));
             }
         }
         return bhEvents;
@@ -207,7 +207,7 @@ public class TestsAndQuizzesUserNotificationHandler extends AbstractUserNotifica
                 if ((releaseTo.equals(siteId) || (groupsUsers != null && groupsUsers.contains(to))) && (!from.equals(to) && !securityService.isSuperUser(to)) && checkTime(startDateInstant, extendedTimes, to, siteId) && !bhAlreadyExistsForUser(ref, to)) {
                     //link to tool
                     String url = site.getUrl() + "/tool/" + site.getToolForCommonId(TOOL_ID).getId();
-                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url, TOOL_ID));
+                    bhEvents.add(new UserNotificationData(from, to, siteId, title, url, TOOL_ID, false, null));
                 }
             }
             return bhEvents;

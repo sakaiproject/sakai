@@ -85,7 +85,6 @@ export class SakaiNotifications extends SakaiElement {
     console.debug("_loadInitialNotifications");
 
     fetch(this.url, {
-      credentials: "include",
       cache: "no-cache",
       headers: { "Content-Type": "application/json" },
     })
@@ -146,9 +145,7 @@ export class SakaiNotifications extends SakaiElement {
       const dot = decorated.event.indexOf(".");
       const toolEventPrefix = dot === -1 ? decorated.event : decorated.event.slice(0, dot);
 
-      if (!this._filteredNotifications.has(toolEventPrefix)) {
-        this._filteredNotifications.set(toolEventPrefix, []);
-      }
+      !this._filteredNotifications.has(toolEventPrefix) && this._filteredNotifications.set(toolEventPrefix, []);
 
       this._filteredNotifications.get(toolEventPrefix).push(decorated);
     });
@@ -404,7 +401,7 @@ export class SakaiNotifications extends SakaiElement {
                   <sakai-user-photo user-id="${noti.fromUser}" classes="mh-100 me-2" profile-popup="on"></sakai-user-photo>
                   <strong class="me-auto">${noti.fromDisplayName}</strong>
                   <small>${noti.formattedEventDate}</small>
-                  ${prefix !== "test" ? html`
+                  ${prefix !== "motd" && prefix !== "test" ? html`
                     <button type="button"
                         class="btn-close"
                         aria-label="${this._i18n.clear_this_notification}"

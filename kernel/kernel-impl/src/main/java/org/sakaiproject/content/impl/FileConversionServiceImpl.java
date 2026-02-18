@@ -25,7 +25,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
@@ -42,6 +41,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -55,6 +55,7 @@ public class FileConversionServiceImpl implements FileConversionService {
 
     @Autowired private ContentHostingService contentHostingService;
     @Autowired private FileConversionServiceRepository repository;
+    @Autowired private SchedulingService schedulingService;
     @Autowired private SecurityService securityService;
     @Autowired private ServerConfigurationService serverConfigurationService;
     @Setter private TransactionTemplate transactionTemplate;
@@ -63,7 +64,6 @@ public class FileConversionServiceImpl implements FileConversionService {
     private boolean conversionEnabled;
     private boolean submitEnabled;
     private List<String> fromTypes;
-    private ScheduledExecutorService master;
     private int pause;
     private int queueIntervalMinutes;
     private int maxAttemptsAllowed;
@@ -82,7 +82,6 @@ public class FileConversionServiceImpl implements FileConversionService {
         if (conversionEnabled) {
             converterBaseUrl = serverConfigurationService.getString("fileconversion.converterurl", "http://localhost:9980");
             workers = Executors.newFixedThreadPool(serverConfigurationService.getInt("fileconversion.workerthreads", 5));
-            master = Executors.newScheduledThreadPool(1);
             queueIntervalMinutes = serverConfigurationService.getInt("fileconversion.queueintervalminutes", 1);
             pause = serverConfigurationService.getInt("fileconversion.pausemillis", 1000);
             maxAttemptsAllowed = serverConfigurationService.getInt("fileconversion.maxattempts", 5);
@@ -112,7 +111,7 @@ public class FileConversionServiceImpl implements FileConversionService {
             }
         };
 
-        master.scheduleWithFixedDelay(() -> {
+        schedulingService.scheduleWithFixedDelay(() -> {
 
             List<FileConversionQueueItem> items
                 = repository.findByStatus(FileConversionQueueItem.Status.NOT_STARTED);
@@ -209,7 +208,6 @@ public class FileConversionServiceImpl implements FileConversionService {
     public void destroy() {
 
         workers.shutdownNow();
-        master.shutdownNow();
     }
 
     public boolean canConvert(String fromType) {

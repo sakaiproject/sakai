@@ -25,7 +25,6 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.sakaiproject.springframework.data.PersistableEntity;
 
@@ -68,12 +67,16 @@ public class UserNotification implements PersistableEntity<Long> {
     @Column(name="SITE_ID", length = 99)
     private String siteId;
 
-    @Column(name="URL", length = 2048, nullable = false)
+    @Column(name="URL", length = 2048)
     private String url;
 
     @Column(name="EVENT_DATE", nullable = false)
     @Type(type = "org.hibernate.type.InstantType")
     private Instant eventDate;
+
+    @Column(name="END_DATE")
+    @Type(type = "org.hibernate.type.InstantType")
+    private Instant endDate;
 
     @Column(name="DEFERRED", nullable = false)
     private Boolean deferred = Boolean.FALSE;
@@ -84,12 +87,6 @@ public class UserNotification implements PersistableEntity<Long> {
     @Column(name = "TOOL", length = 99)
     private String tool;
 
-    @Transient
-    private String fromDisplayName;
-
-    @Transient
-    private String formattedEventDate;
-
-    @Transient
-    private String siteTitle;
+    @Column(name = "BROADCAST")
+    private Boolean broadcast = Boolean.FALSE;
 }

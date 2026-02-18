@@ -28,6 +28,7 @@ import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.messaging.api.MicrosoftMessagingService;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -45,6 +46,14 @@ public class AuthzGroupServiceTest extends DbAuthzGroupService
 	 * @return the ServerConfigurationService collaborator.
 	 */
 	protected SqlService sqlService()
+	{
+		return null;
+	}
+
+	/**
+	 * @return the SchedulingService collaborator.
+	 */
+	protected SchedulingService schedulingService()
 	{
 		return null;
 	}

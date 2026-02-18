@@ -111,6 +111,7 @@ import org.sakaiproject.microsoft.api.persistence.MicrosoftConfigRepository;
 import org.sakaiproject.microsoft.api.persistence.MicrosoftLoggingRepository;
 import org.sakaiproject.microsoft.provider.AdminAuthProvider;
 import org.sakaiproject.util.api.FormattedText;
+import org.sakaiproject.scheduling.api.SchedulingService;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -191,6 +192,7 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 	@Setter private MicrosoftConfigRepository microsoftConfigRepository;
 	@Setter private MicrosoftLoggingRepository microsoftLoggingRepository;
 	@Setter private MicrosoftMessagingService microsoftMessagingService;
+	@Setter private SchedulingService schedulingService;
 	@Setter private SakaiProxy sakaiProxy;
 	@Setter private FormattedText formattedText;
 
@@ -970,33 +972,27 @@ public class MicrosoftCommonServiceImpl implements MicrosoftCommonService {
 						//send message to (ignite) MicrosoftMessagingService (wait 30 sec before sending the message)
 						Thread.sleep(30000);
 						microsoftMessagingService.send(MicrosoftMessage.Topic.TEAM_CREATION, builder.status(1).build());
-						
-						executor.shutdown();
 					} catch(MicrosoftCredentialsException e) {
 						log.error("Error creating Team (credentials): " + e.getMessage());
 						//send message to (ignite) MicrosoftMessagingService
 						microsoftMessagingService.send(MicrosoftMessage.Topic.TEAM_CREATION, builder.status(0).build());
-						
-						executor.shutdown();
 					} catch (Exception e) {
 						if (counter.get() < MAX_RETRY) {
 							//IMPORTANT: do not remove this debug message
 							log.debug("Attempt number: {} failed", counter.getAndIncrement());
-							executor.schedule(this, 10, TimeUnit.SECONDS);
+							schedulingService.schedule(this, 10, TimeUnit.SECONDS);
 						}
 						else {
 							log.error("Error creating Team: " + e.getMessage());
 							//send message to (ignite) MicrosoftMessagingService
 							microsoftMessagingService.send(MicrosoftMessage.Topic.TEAM_CREATION, builder.status(0).build());
-							
-							executor.shutdown();
 						}
 					}
 				}
 			}
 		};
 		//wait 30 sec before first try
-		executor.schedule(task, 30, TimeUnit.SECONDS);
+		schedulingService.schedule(task, 30, TimeUnit.SECONDS);
 	}
 	
 	@Override

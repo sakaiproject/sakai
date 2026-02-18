@@ -37,4 +37,5 @@
      <import resource="tasks-components.xml" />
      <import resource="timesheet-components.xml" />
      <import resource="messaging-components.xml" />
+     <import resource="scheduling-components.xml" />
 </beans>
