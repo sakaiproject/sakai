@@ -43,6 +43,7 @@ import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.TermFrequency;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -60,7 +61,6 @@ public class ElasticSearchResult implements SearchResult {
     private Terms facet;
     private ElasticSearchIndexBuilder searchIndexBuilder;
     private static Analyzer analyzer = new StandardAnalyzer();
-    private static final int MAX_HIGHLIGHT_FRAGMENTS = 5;
     private String searchTerms;
 
     public ElasticSearchResult(SearchHit hit, Terms facet, ElasticSearchIndexBuilder searchIndexBuilder, String searchTerms) {
@@ -123,15 +123,12 @@ public class ElasticSearchResult implements SearchResult {
             StringBuilder sb = new StringBuilder();
             // contents no longer contains the digested contents, so we need to
             // fetch it from the EntityContentProducer
-
             String reference = getFieldFromSearchHit(SearchService.FIELD_REFERENCE);
 
             if (reference != null) {
-
                 EntityContentProducer sep = searchIndexBuilder
                         .newEntityContentProducer(reference);
                 if (sep != null) {
-                    // Content producers return clean text with HTML already stripped
                     String content = sep.getContent(reference);
                     if (content != null) {
                         sb.append(content);
@@ -139,7 +136,7 @@ public class ElasticSearchResult implements SearchResult {
                 }
             }
             String text = sb.toString().trim();
-            
+
             if (text.isEmpty()) {
                 return "";
             }
@@ -152,7 +149,7 @@ public class ElasticSearchResult implements SearchResult {
 
             TokenStream tokenStream = analyzer.tokenStream(
                     SearchService.FIELD_CONTENTS, new StringReader(text));
-            String highlighted = highlighter.getBestFragments(tokenStream, text, MAX_HIGHLIGHT_FRAGMENTS, " ... ");
+            String highlighted = highlighter.getBestFragments(tokenStream, text, 5, " ... ");
 
             return highlighted != null ? highlighted : "";
         } catch (IOException | InvalidTokenOffsetsException | ParseException e) {
