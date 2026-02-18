@@ -101,21 +101,17 @@ public class AssignmentContentProducer implements EntityContentProducer, EntityC
 
     public String getContent(String ref) {
 
-        Optional<Assignment> opAssignment = getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon());
-        // Return only the instructions/body content
         // Title is indexed separately via getTitle() and FIELD_TITLE
-        if (opAssignment.isPresent()) {
-            String instructions = opAssignment.get().getInstructions();
-            return HTMLParser.stripHtml(instructions);
-        } else {
-            return "";
-        }
+        return getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon())
+                .map(a -> HTMLParser.stripHtml(a.getInstructions()))
+                .orElse("");
     }
 
     public String getTitle(String ref) {
 
-        Optional<Assignment> opAssignment = getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon());
-        return (opAssignment.isPresent()) ? opAssignment.get().getTitle() : "";
+        return getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon())
+                .map(Assignment::getTitle)
+                .orElse("");
     }
 
     public String getUrl(String ref) {

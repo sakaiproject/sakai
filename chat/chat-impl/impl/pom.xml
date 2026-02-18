@@ -62,6 +62,10 @@
       <artifactId>search-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
       <artifactId>entitybroker-api</artifactId>
     </dependency>

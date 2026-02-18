@@ -113,31 +113,43 @@ public class ElasticSearchResult implements SearchResult {
 
     @Override
     public String getTitle() {
-        return getFieldFromSearchHit(SearchService.FIELD_TITLE);
+        String title = getFieldFromSearchHit(SearchService.FIELD_TITLE);
+        if (title == null || title.isEmpty() || searchTerms == null || searchTerms.isEmpty()) {
+            return title;
+        }
+        try {
+            String escapedTerms = QueryParser.escape(searchTerms);
+            QueryParser queryParser = new QueryParser(SearchService.FIELD_CONTENTS, analyzer);
+            Query query = queryParser.parse(escapedTerms);
+            Scorer scorer = new QueryScorer(query);
+            Highlighter highlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
+            try (TokenStream tokenStream = analyzer.tokenStream(
+                    SearchService.FIELD_CONTENTS, new StringReader(title))) {
+                String highlighted = highlighter.getBestFragment(tokenStream, title);
+                return highlighted != null ? highlighted : title;
+            }
+        } catch (Exception e) {
+            log.debug("Could not highlight title: {}", e.getMessage());
+            return title;
+        }
     }
 
 
     @Override
     public String getSearchResult() {
         try {
-            StringBuilder sb = new StringBuilder();
-            // contents no longer contains the digested contents, so we need to
-            // fetch it from the EntityContentProducer
             String reference = getFieldFromSearchHit(SearchService.FIELD_REFERENCE);
-
-            if (reference != null) {
-                EntityContentProducer sep = searchIndexBuilder
-                        .newEntityContentProducer(reference);
-                if (sep != null) {
-                    String content = sep.getContent(reference);
-                    if (content != null) {
-                        sb.append(content);
-                    }
-                }
+            if (reference == null) {
+                return "";
             }
-            String text = sb.toString().trim();
 
-            if (text.isEmpty()) {
+            EntityContentProducer sep = searchIndexBuilder.newEntityContentProducer(reference);
+            if (sep == null) {
+                return "";
+            }
+
+            String content = sep.getContent(reference);
+            if (content == null || content.trim().isEmpty()) {
                 return "";
             }
 
@@ -147,16 +159,15 @@ public class ElasticSearchResult implements SearchResult {
             Scorer scorer = new QueryScorer(query);
             Highlighter highlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
 
-            TokenStream tokenStream = analyzer.tokenStream(
-                    SearchService.FIELD_CONTENTS, new StringReader(text));
-            String highlighted = highlighter.getBestFragments(tokenStream, text, 5, " ... ");
-
-            return highlighted != null ? highlighted : "";
+            try (TokenStream tokenStream = analyzer.tokenStream(
+                    SearchService.FIELD_CONTENTS, new StringReader(content))) {
+                String highlighted = highlighter.getBestFragments(tokenStream, content, 5, " ... ");
+                return highlighted != null ? highlighted : "";
+            }
         } catch (IOException | InvalidTokenOffsetsException | ParseException e) {
             log.warn("Failed to highlight search result for [{}]: {}", searchTerms, e.getMessage());
             return "";
         }
-
     }
 
     @Override

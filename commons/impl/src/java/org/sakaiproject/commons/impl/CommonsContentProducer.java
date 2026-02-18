@@ -101,19 +101,15 @@ public class CommonsContentProducer implements EntityContentProducer {
         CommonsReference r = CommonsReferenceReckoner.reckoner().reference(ref).reckon();
 
         if (CommonsConstants.PostType.COMMENT == r.getType()) {
-            Optional<Comment> opComment = commonsManager.getComment(r.getCommentId());
-            if (opComment.isPresent()) {
-                String content = opComment.get().getContent();
-                return content != null ? HTMLParser.stripHtml(content) : "";
-            }
+            return commonsManager.getComment(r.getCommentId())
+                    .map(c -> HTMLParser.stripHtml(c.getContent()))
+                    .orElse("");
         }
 
         if (CommonsConstants.PostType.POST == r.getType()) {
-            Optional<Post> opPost = commonsManager.getPost(r.getPostId(), false);
-            if (opPost.isPresent()) {
-                String content = opPost.get().getContent();
-                return content != null ? HTMLParser.stripHtml(content) : "";
-            }
+            return commonsManager.getPost(r.getPostId(), false)
+                    .map(p -> HTMLParser.stripHtml(p.getContent()))
+                    .orElse("");
         }
 
         return "";
