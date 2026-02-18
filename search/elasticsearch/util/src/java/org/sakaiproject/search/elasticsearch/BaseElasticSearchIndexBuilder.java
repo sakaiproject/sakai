@@ -803,7 +803,6 @@ public abstract class BaseElasticSearchIndexBuilder implements ElasticSearchInde
                                          EntityContentProducer ecp,
                                          boolean includeContent) throws NoContentException, IOException {
         if (includeContent || testMode) {
-            // Content producers are responsible for stripping HTML before returning
             String content = ecp.getContent(resourceName);
             // some of the ecp impls produce content with nothing but whitespace, its waste of time to index those
             if (StringUtils.isNotBlank(content)) {
