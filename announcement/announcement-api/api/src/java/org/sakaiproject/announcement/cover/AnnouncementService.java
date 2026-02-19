@@ -546,7 +546,7 @@ public class AnnouncementService
 	 * @param ascending Sort order. True for oldest-first, false for newest-first.
 	 * @return list of visible MOTD announcements.
 	 */
-	public static java.util.List getVisibleMessagesOfTheDay(org.sakaiproject.time.api.Time afterDate, int numberOfAnnouncements, boolean ascending)
+	public static java.util.List<AnnouncementMessage> getVisibleMessagesOfTheDay(org.sakaiproject.time.api.Time afterDate, int numberOfAnnouncements, boolean ascending)
 	{
 		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
 		if (service == null) return null;

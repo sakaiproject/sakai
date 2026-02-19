@@ -16,7 +16,6 @@
 package org.sakaiproject.webapi.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,7 +33,6 @@ import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.api.common.type.Type;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Preferences;
@@ -94,7 +92,7 @@ public class DashboardControllerTests {
     }
 
     @Test
-    public void testGetUserDashboardExcludesDraftMotd() throws Exception {
+    public void testGetUserDashboardMapsVisibleMotdBodies() throws Exception {
 
         Session session = mock(Session.class);
         when(session.getUserId()).thenReturn("admin-user");
@@ -111,17 +109,17 @@ public class DashboardControllerTests {
         when(preferences.getProperties("dashboard-config")).thenReturn(null);
 
         AnnouncementMessage visibleMessage = mock(AnnouncementMessage.class);
-        MessageHeader visibleHeader = mock(MessageHeader.class);
-        when(visibleHeader.getDraft()).thenReturn(false);
-        when(visibleMessage.getHeader()).thenReturn(visibleHeader);
         when(visibleMessage.getBody()).thenReturn("I'm here!");
 
-        when(announcementService.getVisibleMessagesOfTheDay(null, 5, false)).thenReturn(List.of(visibleMessage));
+        AnnouncementMessage secondVisibleMessage = mock(AnnouncementMessage.class);
+        when(secondVisibleMessage.getBody()).thenReturn("Still here!");
+
+        when(announcementService.getVisibleMessagesOfTheDay(null, 5, false))
+            .thenReturn(List.of(visibleMessage, secondVisibleMessage));
 
         DashboardRestBean bean = dashboardController.getUserDashboard("admin-user");
 
-        assertEquals("I'm here!", bean.getMotd());
-        assertFalse(bean.getMotd().contains("can't see me"));
+        assertEquals("I'm here!\nStill here!", bean.getMotd());
     }
 
     @Test

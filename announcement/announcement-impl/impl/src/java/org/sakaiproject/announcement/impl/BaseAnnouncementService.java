@@ -1113,6 +1113,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				ascending));
 		}
 
+		// PrivacyFilter can allow superusers/creators through; enforce release/retract visibility for MOTD here.
 		return motdMessages.stream()
 			.filter(this::isMessageViewable)
 			.limit(safeLimit)

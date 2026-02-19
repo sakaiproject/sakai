@@ -189,7 +189,7 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
             String motd = motdMessages.stream()
                 .map(AnnouncementMessage::getBody)
-                .collect(Collectors.joining());
+                .collect(Collectors.joining("\n"));
 
             bean.setMotd(motd);
         } catch (Exception e) {

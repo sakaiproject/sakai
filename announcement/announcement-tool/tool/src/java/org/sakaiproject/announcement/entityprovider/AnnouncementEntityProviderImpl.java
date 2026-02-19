@@ -642,10 +642,17 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		Time afterDate = timeService.newTime(getTimeForDaysInPast(numberOfDaysInThePast).getTime());
 		String siteTitle = rb.getString("motd.title");
 
-		List<AnnouncementMessage> motdMessages = announcementService.getVisibleMessagesOfTheDay(
-			afterDate,
-			numberOfAnnouncements,
-			announcementSortAsc);
+		List<AnnouncementMessage> motdMessages;
+		try {
+			motdMessages = announcementService.getVisibleMessagesOfTheDay(
+				afterDate,
+				numberOfAnnouncements,
+				announcementSortAsc);
+		} catch (Exception e) {
+			String currentUserId = sessionManager.getCurrentSessionUserId();
+			log.warn("Failed to load MOTD announcements for user: {}. Returning no MOTD announcements.", currentUserId, e);
+			return Collections.emptyList();
+		}
 
 		List<DecoratedAnnouncement> decoratedAnnouncements = new ArrayList<>();
 		for (AnnouncementMessage message : motdMessages) {
