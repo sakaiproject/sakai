@@ -115,7 +115,7 @@ public class ElasticSearchResult implements SearchResult {
             return title;
         }
         String highlighted = highlight(title, 1);
-        return highlighted != null ? highlighted : title;
+        return highlighted != null ? highlighted : StringEscapeUtils.escapeHtml4(title);
     }
 
     @Override
