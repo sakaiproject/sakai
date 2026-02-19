@@ -101,7 +101,6 @@ public class AssignmentContentProducer implements EntityContentProducer, EntityC
 
     public String getContent(String ref) {
 
-        // Title is indexed separately via getTitle() and FIELD_TITLE
         return getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon())
                 .map(a -> HTMLParser.stripHtml(a.getInstructions()))
                 .orElse("");

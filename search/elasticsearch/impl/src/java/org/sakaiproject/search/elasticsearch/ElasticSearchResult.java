@@ -18,8 +18,10 @@ package org.sakaiproject.search.elasticsearch;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.text.StringEscapeUtils;
@@ -149,8 +151,13 @@ public class ElasticSearchResult implements SearchResult {
             return null;
         }
         try {
-            Query query = new QueryParser(SearchService.FIELD_CONTENTS, analyzer)
-                    .parse(QueryParser.escape(searchTerms));
+            String prefixQuery = Arrays.stream(searchTerms.split("\\s+"))
+                    .filter(t -> !t.isEmpty())
+                    .map(QueryParser::escape)
+                    .map(t -> t.length() >= 3 ? t + "*" : t)
+                    .collect(Collectors.joining(" "));
+
+            Query query = new QueryParser(SearchService.FIELD_CONTENTS, analyzer).parse(prefixQuery);
             Highlighter highlighter = new Highlighter(
                     new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), new QueryScorer(query));
             try (TokenStream tokenStream = analyzer.tokenStream(
