@@ -637,7 +637,20 @@ ASN.handleEnterKeyPress = function(ev)
 
 ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, param0, param1, param2, param3, clickedElement)
 {
-    var extraInfoArray = [];
+    const extraInfoArray = [];
+    let selectedViewString = param1;
+    let includeNotSubmitted = false;
+
+    if (document.getElementById('downloadViewString'))
+    {
+        selectedViewString = document.getElementById('downloadViewString').value;
+    }
+
+    if (document.getElementById('downloadSubmissionStatus'))
+    {
+        includeNotSubmitted = document.getElementById('downloadSubmissionStatus').value === "all";
+    }
+
     if (document.getElementById('studentSubmissionText') && document.getElementById('studentSubmissionText').checked)
     {
         extraInfoArray[extraInfoArray.length]="studentSubmissionText=true";
@@ -672,10 +685,6 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
     {
         extraInfoArray[extraInfoArray.length]="rubrics=true";
     }
-    if (document.getElementById('includeNotSubmitted') && document.getElementById('includeNotSubmitted').checked)
-    {
-        extraInfoArray[extraInfoArray.length]="includeNotSubmitted=true";
-    }
     if (extraInfoArray.length === 0)
     {
         alert(alertMessage);
@@ -690,14 +699,19 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
         }
 
         accessPointUrl = accessPointUrl + "?";
-        for(i=0; i<extraInfoArray.length; i++) 
+        if (includeNotSubmitted)
+        {
+            extraInfoArray[extraInfoArray.length]="includeNotSubmitted=true";
+        }
+
+        for (let i = 0; i < extraInfoArray.length; i++)
         { 
             accessPointUrl = accessPointUrl + extraInfoArray[i] + "&"; 
         }
         // cut the & in the end
         accessPointUrl = accessPointUrl.substring(0, accessPointUrl.length-1);
         // attach the assignment reference
-        accessPointUrl = accessPointUrl + "&contextString=" + param0 + "&viewString=" + param1 + "&searchString=" + param2 + "&searchFilterOnly=" + param3;
+        accessPointUrl = accessPointUrl + "&contextString=" + param0 + "&viewString=" + selectedViewString + "&searchString=" + param2 + "&searchFilterOnly=" + param3;
         window.location.href=accessPointUrl;
         document.getElementById('downloadUrl').value=accessPointUrl; 
         document.getElementById('uploadAllForm').action=actionString; 
