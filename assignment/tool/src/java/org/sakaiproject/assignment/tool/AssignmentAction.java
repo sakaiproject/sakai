@@ -6148,9 +6148,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("hasSubmissionText", hasSubmissionText);
         context.put("hasSubmissionAttachment", hasSubmissionAttachment);
         context.put("hasGradeFile", hasGradeFile);
-        String gradeFileFormat = downloadMode
-                ? "csv"
-                : StringUtils.defaultString((String) state.getAttribute(UPLOAD_ALL_GRADEFILE_FORMAT), "csv");
+        String gradeFileFormat = resolveDownloadUploadSelection(state, UPLOAD_ALL_GRADEFILE_FORMAT, downloadMode, "csv");
         context.put("gradeFileFormat", gradeFileFormat);
         context.put("hasComments", hasComments);
         context.put("hasFeedbackText", hasFeedbackText);
@@ -6223,6 +6221,17 @@ public class AssignmentAction extends PagedResourceActionII {
             return (Boolean) value;
         }
         return false;
+    }
+
+    private String resolveDownloadUploadSelection(SessionState state, String key, boolean downloadMode, String defaultDownloadValue) {
+        if (downloadMode) {
+            return defaultDownloadValue;
+        }
+        Object value = state.getAttribute(key);
+        if (value instanceof String) {
+            return (String) value;
+        }
+        return defaultDownloadValue;
     }
 
     public void doSearchTags(RunData data) {
