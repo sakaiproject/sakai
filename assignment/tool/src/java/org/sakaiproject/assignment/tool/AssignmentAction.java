@@ -6198,8 +6198,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     && hasComments
                     && hasFeedbackAttachment
                     && (!includeSubmissionText || (hasSubmissionText && hasFeedbackText))
-                    && (!includeSubmissionAttachment || hasSubmissionAttachment)
-                    && (!downloadMode || !hasRubric || includeRubrics);
+                    && (!includeSubmissionAttachment || hasSubmissionAttachment);
             context.put("allDataSelected", allDataSelected);
 
             if (a.getContentReview())

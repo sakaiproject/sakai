@@ -662,12 +662,10 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
     }
     if (document.getElementById('gradeFile') && document.getElementById('gradeFile').checked)
     {
-        if (document.getElementById('gradeFileFormat_excel').checked)
-        {
-            extraInfoArray.push("gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_excel').value);
-        } else {
-            extraInfoArray.push("gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_csv').value);
-        }
+        const selectedGradeFileFormat = document.getElementById('gradeFileFormat_excel').checked
+            ? document.getElementById('gradeFileFormat_excel').value
+            : document.getElementById('gradeFileFormat_csv').value;
+        extraInfoArray.push("gradeFile=true&gradeFileFormat=" + encodeURIComponent(selectedGradeFileFormat));
     }
     if (document.getElementById('feedbackTexts') && document.getElementById('feedbackTexts').checked)
     {
