@@ -6169,7 +6169,7 @@ public class AssignmentAction extends PagedResourceActionII {
             boolean hasRubric = optAssociation.isPresent() && optAssociation.get().getRubricId() != null;
             boolean includeRubrics = downloadMode && hasRubric;
             context.put("hasRubric", hasRubric);
-            context.put("hasRubrics", includeRubrics);
+            context.put("includeRubrics", includeRubrics);
 
             context.put("accessPointUrl", serverConfigurationService.getAccessUrl().concat(assignmentRef));
 
@@ -6213,25 +6213,19 @@ public class AssignmentAction extends PagedResourceActionII {
     } // build_instructor_upload_all
 
     private boolean resolveDownloadUploadSelection(SessionState state, String key, boolean downloadMode, boolean defaultDownloadValue) {
-        if (downloadMode) {
-            return defaultDownloadValue;
-        }
         Object value = state.getAttribute(key);
         if (value instanceof Boolean) {
             return (Boolean) value;
         }
-        return false;
+        return defaultDownloadValue;
     }
 
-    private String resolveDownloadUploadSelection(SessionState state, String key, boolean downloadMode, String defaultDownloadValue) {
-        if (downloadMode) {
-            return defaultDownloadValue;
-        }
+    private String resolveDownloadUploadSelection(SessionState state, String key, boolean downloadMode, String fallbackValue) {
         Object value = state.getAttribute(key);
         if (value instanceof String) {
             return (String) value;
         }
-        return defaultDownloadValue;
+        return fallbackValue;
     }
 
     public void doSearchTags(RunData data) {
