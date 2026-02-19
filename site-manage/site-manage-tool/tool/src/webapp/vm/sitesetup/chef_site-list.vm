@@ -4,14 +4,17 @@
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
 		sakai.setupSelectList('siteList','toggleAllSelected','selectedSelected');
 		setupRecentSite();
-		$('.siteSelectCheckbox, #toggleAllSelected').click(function(){
-			if($('.siteSelectCheckbox:checked').length >= 1){
-				$('.sakai-table-buttonContainer .actionButton').prop('disabled', false);
-			}
-			else{
-				$('.sakai-table-buttonContainer .actionButton').prop('disabled', true);
-			}
-		})
+
+		// Use event delegation so dynamically replaced rows (from AJAX search) are handled
+		$(document).on('click', '.siteSelectCheckbox, #toggleAllSelected', function(){
+			$('.sakai-table-buttonContainer .actionButton').prop('disabled', $('.siteSelectCheckbox:checked').length < 1);
+		});
+
+		document.addEventListener('sfp:updated', function() {
+			sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
+			sakai.setupSelectList('siteList','toggleAllSelected','selectedSelected');
+			$('.sakai-table-buttonContainer .actionButton').prop('disabled', true);
+		});
 	});
 </script>
 <div class="portletBody container-fluid">
