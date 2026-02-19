@@ -64,10 +64,6 @@
             <artifactId>commons-collections4</artifactId>
         </dependency>
         <dependency>
-            <groupId>jtidy</groupId>
-            <artifactId>jtidy</artifactId>
-        </dependency>
-        <dependency>
             <groupId>httpunit</groupId>
             <artifactId>httpunit</artifactId>
             <version>1.6.2</version>
