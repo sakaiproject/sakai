@@ -698,20 +698,19 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
             extraInfoArray.push("withoutFolders=true");
         }
 
-        accessPointUrl = accessPointUrl + "?";
         if (includeNotSubmitted)
         {
             extraInfoArray.push("includeNotSubmitted=true");
         }
 
-        for (let i = 0; i < extraInfoArray.length; i++)
-        { 
-            accessPointUrl = accessPointUrl + extraInfoArray[i] + "&"; 
-        }
-        // cut the & in the end
-        accessPointUrl = accessPointUrl.substring(0, accessPointUrl.length-1);
+        const extraInfoQuery = extraInfoArray.join("&");
+        accessPointUrl = accessPointUrl + "?" + extraInfoQuery;
+        const encodedContextString = encodeURIComponent(param0 != null ? param0 : "");
+        const encodedViewString = encodeURIComponent(selectedViewString != null ? selectedViewString : "");
+        const encodedSearchString = encodeURIComponent(param2 != null ? param2 : "");
+        const encodedSearchFilterOnly = encodeURIComponent(param3 != null ? param3 : "");
         // attach the assignment reference
-        accessPointUrl = accessPointUrl + "&contextString=" + param0 + "&viewString=" + selectedViewString + "&searchString=" + param2 + "&searchFilterOnly=" + param3;
+        accessPointUrl = accessPointUrl + "&contextString=" + encodedContextString + "&viewString=" + encodedViewString + "&searchString=" + encodedSearchString + "&searchFilterOnly=" + encodedSearchFilterOnly;
         window.location.href=accessPointUrl;
         document.getElementById('downloadUrl').value=accessPointUrl; 
         document.getElementById('uploadAllForm').action=actionString; 

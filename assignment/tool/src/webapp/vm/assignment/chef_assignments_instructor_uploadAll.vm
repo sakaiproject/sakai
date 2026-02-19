@@ -96,20 +96,20 @@
 			#if ($download)
 			<hr/>
 			<h4>$tlang.getString("downloadall.options.students")</h4>
-			<p class="shorttext">
-				<label for="downloadSubmissionStatus">$tlang.getString("downloadall.options.students.status")</label><br/>
-				<select id="downloadSubmissionStatus" name="downloadSubmissionStatus">
-					<option value="all" selected="selected">$tlang.getString("downloadall.options.students.status.all")</option>
-					<option value="submitted">$tlang.getString("downloadall.options.students.status.submitted")</option>
-				</select>
-			</p>
-			<p class="shorttext">
-				<label for="downloadViewString">$tlang.getString("downloadall.options.students.group")</label><br/>
-					<select id="downloadViewString" name="downloadViewString">
-						<option value="all" #if(!$viewString || $viewString == "all")selected="selected"#end>$tlang.getString("range.allgroups")</option>
-						#foreach ($group in $groups)
-							<option value="$group.Id" #if($viewString == $group.Id)selected="selected"#end>$formattedText.escapeHtml($group.Title)</option>
-						#end
+				<p class="shorttext">
+					<label for="downloadSubmissionStatus">$tlang.getString("downloadall.options.students.status")</label><br/>
+					<select id="downloadSubmissionStatus" name="downloadSubmissionStatus" class="form-select">
+						<option value="all" #if(!$downloadSubmissionStatus || $downloadSubmissionStatus == "all")selected="selected"#end>$tlang.getString("downloadall.options.students.status.all")</option>
+						<option value="submitted" #if($downloadSubmissionStatus == "submitted")selected="selected"#end>$tlang.getString("downloadall.options.students.status.submitted")</option>
+					</select>
+				</p>
+				<p class="shorttext">
+					<label for="downloadViewString">$tlang.getString("downloadall.options.students.group")</label><br/>
+						<select id="downloadViewString" name="downloadViewString" class="form-select">
+							<option value="all" #if(!$viewString || $viewString == "all")selected="selected"#end>$tlang.getString("range.allgroups")</option>
+							#foreach ($group in $groups)
+								<option value="$group.Id" #if($viewString == $group.Id)selected="selected"#end>$formattedText.escapeHtml($group.Title)</option>
+							#end
 					</select>
 			</p>
 			#end
