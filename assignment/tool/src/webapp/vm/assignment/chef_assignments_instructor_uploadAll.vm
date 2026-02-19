@@ -71,8 +71,8 @@
 				<label for="gradeFile" class="indnt1"><input id="gradeFile" type="checkbox" value="gradeFile" name="choices" class="toggleSelectedAll" #if($!hasGradeFile)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.gradeFile")</label><br/>
 			</p>
 			<p class="radio">
-				<label for="gradeFileFormat_csv" class="innerRadio"><input id="gradeFileFormat_csv" type="radio" value="csv" name="gradeFileFormat" #if($gradeFileFormat=="csv")checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.gradeFile.csv")</label><br/>
-				<label for="gradeFileFormat_excel" class="innerRadio"><input id="gradeFileFormat_excel" type="radio" value="excel" name="gradeFileFormat" #if($gradeFileFormat=="excel")checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.gradeFile.excel")</label><br/>
+				<label for="gradeFileFormat_csv" class="innerRadio"><input id="gradeFileFormat_csv" type="radio" value="csv" name="gradeFileFormat" #if($gradeFileFormat=="csv")checked="checked"#end /> $tlang.getString("uploadall.choose.file.gradeFile.csv")</label><br/>
+				<label for="gradeFileFormat_excel" class="innerRadio"><input id="gradeFileFormat_excel" type="radio" value="excel" name="gradeFileFormat" #if($gradeFileFormat=="excel")checked="checked"#end /> $tlang.getString("uploadall.choose.file.gradeFile.excel")</label><br/>
 			</p>
 			<p class="checkbox">
 				#if ($!includeSubmissionText)

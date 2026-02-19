@@ -653,37 +653,37 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
 
     if (document.getElementById('studentSubmissionText') && document.getElementById('studentSubmissionText').checked)
     {
-        extraInfoArray[extraInfoArray.length]="studentSubmissionText=true";
+        extraInfoArray.push("studentSubmissionText=true");
     }
 
      if (document.getElementById('studentSubmissionAttachment') && document.getElementById('studentSubmissionAttachment').checked)
     {
-        extraInfoArray[extraInfoArray.length]="studentSubmissionAttachment=true";
+        extraInfoArray.push("studentSubmissionAttachment=true");
     }
     if (document.getElementById('gradeFile') && document.getElementById('gradeFile').checked)
     {
         if (document.getElementById('gradeFileFormat_excel').checked)
         {
-            extraInfoArray[extraInfoArray.length]="gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_excel').value;
+            extraInfoArray.push("gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_excel').value);
         } else {
-            extraInfoArray[extraInfoArray.length]="gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_csv').value;
+            extraInfoArray.push("gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_csv').value);
         }
     }
     if (document.getElementById('feedbackTexts') && document.getElementById('feedbackTexts').checked)
     {
-        extraInfoArray[extraInfoArray.length]="feedbackTexts=true";
+        extraInfoArray.push("feedbackTexts=true");
     }
     if (document.getElementById('feedbackComments') && document.getElementById('feedbackComments').checked)
     {
-        extraInfoArray[extraInfoArray.length]="feedbackComments=true";
+        extraInfoArray.push("feedbackComments=true");
     }
     if (document.getElementById('feedbackAttachments') && document.getElementById('feedbackAttachments').checked)
     {
-        extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";
+        extraInfoArray.push("feedbackAttachments=true");
     }
     if (document.getElementById('rubrics') && document.getElementById('rubrics').checked)
     {
-        extraInfoArray[extraInfoArray.length]="rubrics=true";
+        extraInfoArray.push("rubrics=true");
     }
     if (extraInfoArray.length === 0)
     {
@@ -695,13 +695,13 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
 
         if (document.getElementById('withoutFolders') && document.getElementById('withoutFolders').checked)
         {
-            extraInfoArray[extraInfoArray.length]="withoutFolders=true";
+            extraInfoArray.push("withoutFolders=true");
         }
 
         accessPointUrl = accessPointUrl + "?";
         if (includeNotSubmitted)
         {
-            extraInfoArray[extraInfoArray.length]="includeNotSubmitted=true";
+            extraInfoArray.push("includeNotSubmitted=true");
         }
 
         for (let i = 0; i < extraInfoArray.length; i++)

@@ -6169,9 +6169,9 @@ public class AssignmentAction extends PagedResourceActionII {
         if (a != null) {
             Optional<AssociationTransferBean> optAssociation = rubricsService.getAssociationForToolAndItem(AssignmentConstants.TOOL_ID, a.getId(), a.getContext());
             boolean hasRubric = optAssociation.isPresent() && optAssociation.get().getRubricId() != null;
-            boolean hasRubrics = downloadMode && hasRubric;
+            boolean includeRubrics = downloadMode && hasRubric;
             context.put("hasRubric", hasRubric);
-            context.put("hasRubrics", hasRubrics);
+            context.put("hasRubrics", includeRubrics);
 
             context.put("accessPointUrl", serverConfigurationService.getAccessUrl().concat(assignmentRef));
 
@@ -6193,12 +6193,13 @@ public class AssignmentAction extends PagedResourceActionII {
             Collection<Group> groups = getCurrentUserGroupsInSite(a.getContext());
             context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString())));
 
+            // true when every applicable download option is checked; drives the "Select all" toggle state.
             boolean allDataSelected = hasGradeFile
                     && hasComments
                     && hasFeedbackAttachment
                     && (!includeSubmissionText || (hasSubmissionText && hasFeedbackText))
                     && (!includeSubmissionAttachment || hasSubmissionAttachment)
-                    && (!hasRubric || hasRubrics);
+                    && (!hasRubric || includeRubrics);
             context.put("allDataSelected", allDataSelected);
 
             if (a.getContentReview())
