@@ -84,14 +84,6 @@ public class HTMLParser implements Iterator<String>
 
 	private int last = 0;
 
-	/**
-	 * Strips all HTML tags from the given string and returns plain text.
-	 * Also decodes HTML entities. Content inside script, head, and style
-	 * tags is excluded.
-	 *
-	 * @param html the HTML string to strip, may be null
-	 * @return plain text with HTML removed, or empty string if input is null/empty
-	 */
 	public static String stripHtml(String html) {
 		if (html == null || html.isEmpty()) {
 			return "";

@@ -177,9 +177,7 @@ public class MessageContentProducer implements EntityContentProducer
 			{
 				MessageService ms = (MessageService) ep;
 				Message m = ms.getMessage(ref);
-				// Return only the body content
-				// Title/subject is indexed separately via getTitle() and FIELD_TITLE
-				// Attachments are indexed separately via ContentHostingContentProducer
+
 				return HTMLParser.stripHtml(m.getBody());
 			}
 			catch (IdUnusedException e)

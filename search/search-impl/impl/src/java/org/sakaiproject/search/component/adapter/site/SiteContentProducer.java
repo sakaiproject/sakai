@@ -292,8 +292,7 @@ public class SiteContentProducer implements EntityContentProducer
 			{
 				SiteService ss = (SiteService) ep;
 				Site s = ss.getSite(ref.getId());
-				// Only include descriptions, not the title
-				// Title is indexed separately via getTitle() and FIELD_TITLE
+
 				StringBuilder sb = new StringBuilder();
 				if (s.getShortDescription() != null) {
 					sb.append(s.getShortDescription());
