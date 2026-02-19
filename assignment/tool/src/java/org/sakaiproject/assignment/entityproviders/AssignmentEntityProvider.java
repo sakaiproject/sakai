@@ -1855,6 +1855,17 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         private boolean allowResubmission;
 
         /**
+         * Number of allowed re-submissions, using the current
+         * function in AssignmentAction assignment_resubmission_option_into_context()
+         */
+        private String resubmissionNumber = "0";
+
+        /**
+         * Honor Pledge is set or not
+         */
+        private boolean honorPledge;
+
+        /**
          * Supplement items: model answer text
          */
         private String modelAnswerText;
@@ -1987,6 +1998,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             // Translate grade scale from its numeric value to its description.
             this.gradeScale = a.getTypeOfGrade().toString();
 
+            this.honorPledge = a.getHonorPledge();
+
             // If grade scale is "points" we also capture the maximum points allowed.
             if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
                 Integer scaleFactor = a.getScaleFactor() != null ? a.getScaleFactor() : assignmentService.getScaleFactor();
@@ -1995,6 +2008,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
             // Use the number of submissions allowed as an indicator that re-submission is permitted.
             if (a.getProperties().get(ALLOW_RESUBMIT_NUMBER) != null && a.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
+                Integer allowResubmitNumber = Integer.parseInt(
+                    a.getProperties().get(ALLOW_RESUBMIT_NUMBER)
+                );
+
+                this.resubmissionNumber =
+                    allowResubmitNumber == -1
+                    ? rb.getString("allow.resubmit.number.unlimited")
+                    : allowResubmitNumber.toString();
+
                 this.allowResubmission = true;
             }
             this.submissionType = a.getTypeOfSubmission().toString();
