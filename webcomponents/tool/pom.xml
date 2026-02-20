@@ -43,6 +43,7 @@
                                 <include>bundles/**</include>
                                 <include>node_modules/**</include>
                                 <include>packages/*/node_modules/**</include>
+                                <include>deployed-js-deps.json</include>
                             </includes>
                         </fileset>
                     </filesets>
@@ -54,12 +55,18 @@
                 <configuration>
                     <warSourceDirectory>src/main/webapp</warSourceDirectory>
                     <packagingExcludes>
-                        node_modules/**,
-                        package.json,
-                        package-lock.json,
+                        bundles/meta.json,
+                        deployed-deps.mjs,
+                        deployed-js-deps.json,
+                        dismiss-nondeployed-dependabot-alerts.mjs,
                         eslint.config.mjs,
                         lint-staged.config.mjs,
-                        packages/**
+                        node_modules/**,
+                        package-lock.json,
+                        package.json,
+                        packages/**,
+                        test-static-assets/**,
+                        web-test-runner.config.mjs
                     </packagingExcludes>
                     <webResources>
                         <resource>
@@ -74,6 +81,8 @@
                                 <exclude>.eslintrc.js</exclude>
                                 <exclude>.husky/**</exclude>
                                 <exclude>lerna.json</exclude>
+                                <exclude>bundles/meta.json</exclude>
+                                <exclude>deployed-js-deps.json</exclude>
                             </excludes>
                         </resource>
                     </webResources>
@@ -140,6 +149,15 @@
                         </goals>
                         <configuration>
                             <arguments>run bundle</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report deployed dependencies</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run deps:report</arguments>
                         </configuration>
                     </execution>
                 </executions>
