@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
@@ -648,25 +649,40 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             String date = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withZone(userTimeService.getLocalTimeZone().toZoneId()).format(ZonedDateTime.now());
                             String queryString = req.getQueryString();
                             if (StringUtils.isNotBlank(refReckoner.getId())) {
-                                // if subtype is assignment then were downloading all submissions for an assignment
-                                try {
-                                    Assignment a = getAssignment(refReckoner.getId());
-                                    String filename = escapeInvalidCharsEntry(a.getTitle()) + "_" + date;
-                                    res.setContentType("application/zip");
-                                    res.setHeader("Content-Disposition", "attachment; filename = \"" + filename + ".zip\"");
-
-                                    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                                        @Override
-                                        protected void doInTransactionWithoutResult(TransactionStatus status) {
-                                            try (OutputStream out = res.getOutputStream()) {
-                                                getSubmissionsZip(out, ref.getReference(), queryString);
-                                            } catch (Exception e) {
-                                                log.warn("Could not stream the submissions for reference: {}", ref.getReference(), e);
-                                            }
+                                // Check if this is just a validation request
+                                if (queryString != null && queryString.contains("checkOnly=true")) {
+                                    try {
+                                        boolean hasSubmissions = hasSubmittedSubmissions(refReckoner.getId(), queryString);
+                                        res.setContentType("application/json");
+                                        res.setCharacterEncoding("UTF-8");
+                                        try (OutputStream out = res.getOutputStream()) {
+                                            String json = "{\"hasSubmissions\": " + hasSubmissions + "}";
+                                            out.write(json.getBytes(StandardCharsets.UTF_8));
                                         }
-                                    });
-                                } catch (Exception e) {
-                                    log.warn("Could not find assignment for ref = {}", ref.getReference(), e);
+                                    } catch (Exception e) {
+                                        log.warn("Could not check submissions for reference: {}", ref.getReference(), e);
+                                    }
+                                } else {
+                                    // if subtype is assignment then were downloading all submissions for an assignment
+                                    try {
+                                        Assignment a = getAssignment(refReckoner.getId());
+                                        String filename = escapeInvalidCharsEntry(a.getTitle()) + "_" + date;
+                                        res.setContentType("application/zip");
+                                        res.setHeader("Content-Disposition", "attachment; filename = \"" + filename + ".zip\"");
+
+                                        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                                            @Override
+                                            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                                                try (OutputStream out = res.getOutputStream()) {
+                                                    getSubmissionsZip(out, ref.getReference(), queryString);
+                                                } catch (Exception e) {
+                                                    log.warn("Could not stream the submissions for reference: {}", ref.getReference(), e);
+                                                }
+                                            }
+                                        });
+                                    } catch (Exception e) {
+                                        log.warn("Could not find assignment for ref = {}", ref.getReference(), e);
+                                    }
                                 }
                             } else {
                                 String filename = "bulk_download_" + date;
@@ -2283,82 +2299,22 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public void getSubmissionsZip(OutputStream out, String reference, String query) throws IdUnusedException, PermissionException {
-        boolean withStudentSubmissionText = false;
-        boolean withStudentSubmissionAttachment = false;
-        boolean withGradeFile = false;
-        boolean withFeedbackText = false;
-        boolean withFeedbackComment = false;
-        boolean withFeedbackAttachment = false;
-        boolean withRubrics = false;
-        boolean withoutFolders = false;
-        boolean includeNotSubmitted = false;
-        String gradeFileFormat = "csv";
-        String viewString = "";
-        String contextString = "";
-        String searchString = "";
-        String searchFilterOnly = "";
+        DownloadOptions options = parseDownloadOptions(query);
 
-        if (query != null) {
-            StringTokenizer queryTokens = new StringTokenizer(query, "&");
-
-            // Parsing the range list
-            while (queryTokens.hasMoreTokens()) {
-                String token = queryTokens.nextToken().trim();
-
-                // check against the content elements selection
-                if (token.contains("studentSubmissionText")) {
-                    // should contain student submission text information
-                    withStudentSubmissionText = true;
-                } else if (token.contains("studentSubmissionAttachment")) {
-                    // should contain student submission attachment information
-                    withStudentSubmissionAttachment = true;
-                } else if (token.contains("gradeFile")) {
-                    // should contain grade file
-                    withGradeFile = true;
-                    if (token.contains("gradeFileFormat=csv")) {
-                        gradeFileFormat = "csv";
-                    } else if (token.contains("gradeFileFormat=excel")) {
-                        gradeFileFormat = "excel";
-                    }
-                } else if (token.contains("feedbackTexts")) {
-                    // inline text
-                    withFeedbackText = true;
-                } else if (token.contains("feedbackComments")) {
-                    // comments  should be available
-                    withFeedbackComment = true;
-                } else if (token.contains("feedbackAttachments")) {
-                    // feedback attachment
-                    withFeedbackAttachment = true;
-                } else if (token.contains("rubrics")) {
-                    withRubrics = true;
-                } else if (token.contains("withoutFolders")) {
-                    // feedback attachment
-                    withoutFolders = true;
-                } else if (token.contains("includeNotSubmitted")) {
-                    // include empty submissions
-                    includeNotSubmitted = true;
-                } else if (token.contains("contextString")) {
-                    // context
-                    contextString = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
-                    try {
-                        // The siteId comes encoded in a URL.
-                        // If the siteId contains encoded symbols (like spaces) the siteService may not get the site properly resulting in an invalid ZIP file, it needs to be decoded.
-                        contextString = URLDecoder.decode(contextString, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        log.warn("The site {} cannot be decoded {}.", e);
-                    }
-                } else if (token.contains("viewString")) {
-                    // view
-                    viewString = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
-                } else if (token.contains("searchString")) {
-                    // search
-                    searchString = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
-                } else if (token.contains("searchFilterOnly")) {
-                    // search and group filter only
-                    searchFilterOnly = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
-                }
-            }
-        }
+        boolean withStudentSubmissionText = options.withStudentSubmissionText;
+        boolean withStudentSubmissionAttachment = options.withStudentSubmissionAttachment;
+        boolean withGradeFile = options.withGradeFile;
+        boolean withFeedbackText = options.withFeedbackText;
+        boolean withFeedbackComment = options.withFeedbackComment;
+        boolean withFeedbackAttachment = options.withFeedbackAttachment;
+        boolean withRubrics = options.withRubrics;
+        boolean withoutFolders = options.withoutFolders;
+        boolean includeNotSubmitted = options.includeNotSubmitted;
+        String gradeFileFormat = options.gradeFileFormat;
+        String viewString = options.viewString;
+        String contextString = options.contextString;
+        String searchString = options.searchString;
+        String searchFilterOnly = options.searchFilterOnly;
 
         byte[] rv = null;
 
@@ -2382,6 +2338,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                             submissions.add(sub);
                         }
                     }
+
+                    if (!includeNotSubmitted && !submissions.isEmpty()) {
+                        if (checkSubmissionsRequired(options) && !hasAnySubmittedSubmission(submissions)) {
+                            log.info("No submitted submissions found for group assignment reference: {}", reference);
+                            return;
+                        }
+                    }
+
                     StringBuilder exceptionMessage = new StringBuilder();
 
                     if (allowGradeSubmission(reference)) {
@@ -2419,6 +2383,14 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 if (!submitters.isEmpty()) {
                     List<AssignmentSubmission> submissions = new ArrayList<AssignmentSubmission>(submitters.values());
 
+                    // safety check in case frontend validation was bypassed
+                    if (!includeNotSubmitted && !submissions.isEmpty()) {
+                        if (checkSubmissionsRequired(options) && !hasAnySubmittedSubmission(submissions)) {
+                            log.info("No submitted submissions found for assignment reference: {}", reference);
+                            return;
+                        }
+                    }
+
                     StringBuilder exceptionMessage = new StringBuilder();
                     SortedIterator sortedIterator;
                     if (assignmentUsesAnonymousGrading(assignment)){
@@ -2455,6 +2427,170 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
         } catch (Exception e) {
             log.warn("Cannot create submissions zip file for reference = {}", reference, e);
         }
+    }
+
+    /**
+     * Inner class to encapsulate download options parsed from query string
+     */
+    private static class DownloadOptions {
+        boolean includeNotSubmitted = false;
+        boolean withStudentSubmissionText = false;
+        boolean withStudentSubmissionAttachment = false;
+        boolean withGradeFile = false;
+        boolean withFeedbackText = false;
+        boolean withFeedbackComment = false;
+        boolean withFeedbackAttachment = false;
+        boolean withRubrics = false;
+        boolean withoutFolders = false;
+        String gradeFileFormat = "csv";
+        String viewString = "";
+        String contextString = "";
+        String searchString = "";
+        String searchFilterOnly = "";
+    }
+
+    /**
+     * Parse query string into DownloadOptions
+     * @param query the query string
+     * @return DownloadOptions with parsed values
+     */
+    private DownloadOptions parseDownloadOptions(String query) {
+        DownloadOptions options = new DownloadOptions();
+        
+        if (query == null) {
+            return options;
+        }
+        
+        StringTokenizer queryTokens = new StringTokenizer(query, "&");
+        while (queryTokens.hasMoreTokens()) {
+            String token = queryTokens.nextToken().trim();
+            
+            if (token.contains("includeNotSubmitted")) {
+                options.includeNotSubmitted = true;
+            } else if (token.contains("studentSubmissionText")) {
+                options.withStudentSubmissionText = true;
+            } else if (token.contains("studentSubmissionAttachment")) {
+                options.withStudentSubmissionAttachment = true;
+            } else if (token.contains("gradeFile")) {
+                options.withGradeFile = true;
+                if (token.contains("gradeFileFormat=excel")) {
+                    options.gradeFileFormat = "excel";
+                }
+            } else if (token.contains("feedbackTexts")) {
+                options.withFeedbackText = true;
+            } else if (token.contains("feedbackComments")) {
+                options.withFeedbackComment = true;
+            } else if (token.contains("feedbackAttachments")) {
+                options.withFeedbackAttachment = true;
+            } else if (token.contains("rubrics")) {
+                options.withRubrics = true;
+            } else if (token.contains("withoutFolders")) {
+                options.withoutFolders = true;
+            } else if (token.contains("contextString")) {
+                options.contextString = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
+                try {
+                    options.contextString = URLDecoder.decode(options.contextString, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    log.warn("The site {} cannot be decoded.", options.contextString, e);
+                }
+            } else if (token.contains("viewString")) {
+                options.viewString = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
+            } else if (token.contains("searchString")) {
+                options.searchString = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
+            } else if (token.contains("searchFilterOnly")) {
+                options.searchFilterOnly = token.contains("=") ? token.substring(token.indexOf("=") + 1) : "";
+            }
+        }
+        
+        return options;
+    }
+
+    /**
+     * Check if the selected download options require submissions
+     * @param options the download options
+     * @return true if submissions are required for the selected options
+     */
+    private boolean checkSubmissionsRequired(DownloadOptions options) {
+        return options.withStudentSubmissionText || options.withStudentSubmissionAttachment 
+                || options.withFeedbackText || options.withFeedbackComment 
+                || options.withFeedbackAttachment || options.withRubrics;
+    }
+
+    /**
+     * Check if there is at least one submitted submission in the list
+     * @param submissions list of submissions to check
+     * @return true if at least one submission is submitted and user submission
+     */
+    private boolean hasAnySubmittedSubmission(List<AssignmentSubmission> submissions) {
+        return submissions.stream()
+                .anyMatch(s -> s.getSubmitted() && s.getUserSubmission());
+    }
+
+    /**
+     * Check if there are any submitted submissions for an assignment
+     * @param assignmentId the assignment id
+     * @param query the query string with parameters
+     * @return true if there are submitted submissions, false otherwise
+     */
+    private boolean hasSubmittedSubmissions(String assignmentId, String query) {
+        DownloadOptions options = parseDownloadOptions(query);
+        
+        // If includeNotSubmitted is true, there will always be something to download
+        if (options.includeNotSubmitted) {
+            return true;
+        }
+        
+        // Check if the selected options require submissions
+        boolean needsSubmissions = checkSubmissionsRequired(options);
+        
+        // If only gradeFile is selected (no submission-dependent options), allow download
+        if (!needsSubmissions) {
+            return true;
+        }
+        
+        // Check if there are actual submitted submissions
+        try {
+            Assignment assignment = getAssignment(assignmentId);
+            String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+            String contextString = options.contextString.isEmpty() ? assignment.getContext() : options.contextString;
+            String viewString = options.viewString.isEmpty() ? AssignmentConstants.ALL : options.viewString;
+            
+            if (assignment.getIsGroup()) {
+                Collection<Group> submitterGroups = getSubmitterGroupList(
+                        options.searchFilterOnly,
+                        viewString,
+                        options.searchString,
+                        assignmentId,
+                        contextString);
+                        
+                if (submitterGroups != null && !submitterGroups.isEmpty()) {
+                    for (Group g : submitterGroups) {
+                        AssignmentSubmission sub = getSubmission(assignmentId, g.getId());
+                        if (sub != null && sub.getSubmitted() && sub.getUserSubmission()) {
+                            return true;
+                        }
+                    }
+                }
+            } else {
+                Map<User, AssignmentSubmission> submitters = getSubmitterMap(
+                        options.searchFilterOnly,
+                        viewString,
+                        options.searchString,
+                        reference,
+                        contextString);
+                        
+                if (!submitters.isEmpty()) {
+                    List<AssignmentSubmission> submissions = new ArrayList<>(submitters.values());
+                    if (hasAnySubmittedSubmission(submissions)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Error checking for submitted submissions for assignment id = {}", assignmentId, e);
+        }
+        
+        return false;
     }
 
     @Override

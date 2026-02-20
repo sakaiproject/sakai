@@ -44,6 +44,7 @@
 			<input type="hidden" name="assignmentReference" id="assignmentReference" value="$aRef" />
 			<input type="hidden" name="view" id="view" value="$view" />
 			<input type="hidden" name="downloadUrl" id="downloadUrl" value="" />
+			<input type="hidden" id="downloadall-no-submissions-message" value="$tlang.getString('downloadall.alert.no.submissions')&quot;$tlang.getString('uploadall.choose.file.includeNotSubmitted')&quot;." />
 			<div class="highlightPanel">
 				#if (!$!download)
 					<div class="shorttext">

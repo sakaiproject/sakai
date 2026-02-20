@@ -638,15 +638,21 @@ ASN.handleEnterKeyPress = function(ev)
 ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, param0, param1, param2, param3, clickedElement)
 {
     var extraInfoArray = [];
+    var hasSubmissionContent = false;
+
     if (document.getElementById('studentSubmissionText') && document.getElementById('studentSubmissionText').checked)
     {
         extraInfoArray[extraInfoArray.length]="studentSubmissionText=true";
+        hasSubmissionContent = true;
     }
 
-     if (document.getElementById('studentSubmissionAttachment') && document.getElementById('studentSubmissionAttachment').checked)
+    if (document.getElementById('studentSubmissionAttachment') && document.getElementById('studentSubmissionAttachment').checked)
     {
         extraInfoArray[extraInfoArray.length]="studentSubmissionAttachment=true";
+        hasSubmissionContent = true;
     }
+
+    var hasGradeFile = false;
     if (document.getElementById('gradeFile') && document.getElementById('gradeFile').checked)
     {
         if (document.getElementById('gradeFileFormat_excel').checked)
@@ -655,54 +661,129 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
         } else {
             extraInfoArray[extraInfoArray.length]="gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_csv').value;
         }
+        hasGradeFile = true;
     }
+
     if (document.getElementById('feedbackTexts') && document.getElementById('feedbackTexts').checked)
     {
         extraInfoArray[extraInfoArray.length]="feedbackTexts=true";
+        hasSubmissionContent = true;
     }
     if (document.getElementById('feedbackComments') && document.getElementById('feedbackComments').checked)
     {
         extraInfoArray[extraInfoArray.length]="feedbackComments=true";
+        hasSubmissionContent = true;
     }
     if (document.getElementById('feedbackAttachments') && document.getElementById('feedbackAttachments').checked)
     {
         extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";
+        hasSubmissionContent = true;
     }
     if (document.getElementById('rubrics') && document.getElementById('rubrics').checked)
     {
         extraInfoArray[extraInfoArray.length]="rubrics=true";
+        hasSubmissionContent = true;
     }
+
+    var includeNotSubmitted = false;
     if (document.getElementById('includeNotSubmitted') && document.getElementById('includeNotSubmitted').checked)
     {
         extraInfoArray[extraInfoArray.length]="includeNotSubmitted=true";
+        includeNotSubmitted = true;
     }
+
     if (extraInfoArray.length === 0)
     {
         alert(alertMessage);
     }
     else
     {
-        SPNR.disableControlsAndSpin( clickedElement, null );
-
         if (document.getElementById('withoutFolders') && document.getElementById('withoutFolders').checked)
         {
             extraInfoArray[extraInfoArray.length]="withoutFolders=true";
         }
 
-        accessPointUrl = accessPointUrl + "?";
+        var finalUrl = accessPointUrl + "?";
         for(i=0; i<extraInfoArray.length; i++) 
-        { 
-            accessPointUrl = accessPointUrl + extraInfoArray[i] + "&"; 
+        {
+            finalUrl = finalUrl + extraInfoArray[i] + "&"; 
         }
         // cut the & in the end
-        accessPointUrl = accessPointUrl.substring(0, accessPointUrl.length-1);
+        finalUrl = finalUrl.substring(0, finalUrl.length-1);
         // attach the assignment reference
-        accessPointUrl = accessPointUrl + "&contextString=" + param0 + "&viewString=" + param1 + "&searchString=" + param2 + "&searchFilterOnly=" + param3;
-        window.location.href=accessPointUrl;
-        document.getElementById('downloadUrl').value=accessPointUrl; 
-        document.getElementById('uploadAllForm').action=actionString; 
-        setTimeout("ASN.submitForm( 'uploadAllForm', null, null, null )", 1500);
+        finalUrl = finalUrl + "&contextString=" + param0 + "&viewString=" + param1 + "&searchString=" + param2 + "&searchFilterOnly=" + param3;
+
+        // Check if there are submissions before downloading
+        // Only validate if:
+        // 1. includeNotSubmitted is NOT checked
+        // 2. User selected options that require submissions (not ONLY gradeFile)
+        var needsSubmissionCheck = !includeNotSubmitted && hasSubmissionContent;
+
+        if (needsSubmissionCheck) {
+            var checkUrl = finalUrl + "&checkOnly=true";
+
+            if (typeof jQuery !== 'undefined') {
+                jQuery.ajax({
+                    url: checkUrl,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.hasSubmissions) {
+                            // Proceed with download
+                            SPNR.disableControlsAndSpin( clickedElement, null );
+                            ASN.proceedWithDownload(finalUrl, actionString);
+                        } else {
+                            alert($('#downloadall-no-submissions-message').val() || 'No submissions have been made. If you would like to download the student folders, please check the box "Include students who have not yet submitted".');
+                        }
+                    },
+                    error: function() {
+                        // On error, proceed with download anyway
+                        SPNR.disableControlsAndSpin( clickedElement, null );
+                        ASN.proceedWithDownload(finalUrl, actionString);
+                    }
+                });
+            } else {
+                // Fallback to XMLHttpRequest
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', checkUrl, true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            try {
+                                var data = JSON.parse(xhr.responseText);
+                                if (data.hasSubmissions) {
+                                    SPNR.disableControlsAndSpin( clickedElement, null );
+                                    ASN.proceedWithDownload(finalUrl, actionString);
+                                } else {
+                                    alert($('#downloadall-no-submissions-message').val() || 'No submissions have been made. If you would like to download the student folders, please check the box "Include students who have not yet submitted".');
+                                }
+                            } catch (e) {
+                                // On error, proceed with download anyway
+                                SPNR.disableControlsAndSpin( clickedElement, null );
+                                ASN.proceedWithDownload(finalUrl, actionString);
+                            }
+                        } else {
+                            // On error, proceed with download anyway
+                            SPNR.disableControlsAndSpin( clickedElement, null );
+                            ASN.proceedWithDownload(finalUrl, actionString);
+                        }
+                    }
+                };
+                xhr.send();
+            }
+        } else {
+            // If only gradeFile is selected or includeNotSubmitted is checked, proceed directly with download
+            SPNR.disableControlsAndSpin( clickedElement, null );
+            ASN.proceedWithDownload(finalUrl, actionString);
+        }
     }
+};
+
+ASN.proceedWithDownload = function(accessPointUrl, actionString) {
+    window.location.href = accessPointUrl;
+    document.getElementById('downloadUrl').value = accessPointUrl;
+    document.getElementById('uploadAllForm').action = actionString;
+    setTimeout("ASN.submitForm( 'uploadAllForm', null, null, null )", 1500);
 };
 
 /* Enables the submit/resubmit button. If checkForFile is true, then it disables the submit/resubmit button if the clonableUpload button has no value*/
