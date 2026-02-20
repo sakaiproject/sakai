@@ -6136,19 +6136,19 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     private String build_instructor_download_upload_all(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
         boolean downloadMode = MODE_INSTRUCTOR_DOWNLOAD_ALL.equals(state.getAttribute(STATE_MODE));
-        boolean hasSubmissionText = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_SUBMISSION_TEXT, downloadMode, true);
-        boolean hasSubmissionAttachment = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT, downloadMode, true);
-        boolean hasGradeFile = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_GRADEFILE, downloadMode, true);
-        boolean hasComments = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_COMMENTS, downloadMode, true);
-        boolean hasFeedbackText = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_FEEDBACK_TEXT, downloadMode, true);
-        boolean hasFeedbackAttachment = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, downloadMode, true);
-        boolean withoutFolders = resolveDownloadUploadSelection(state, UPLOAD_ALL_WITHOUT_FOLDERS, downloadMode, false);
+        boolean hasSubmissionText = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_SUBMISSION_TEXT, true);
+        boolean hasSubmissionAttachment = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT, true);
+        boolean hasGradeFile = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_GRADEFILE, true);
+        boolean hasComments = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_COMMENTS, true);
+        boolean hasFeedbackText = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_FEEDBACK_TEXT, true);
+        boolean hasFeedbackAttachment = resolveDownloadUploadSelection(state, UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, true);
+        boolean withoutFolders = resolveDownloadUploadSelection(state, UPLOAD_ALL_WITHOUT_FOLDERS, false);
 
         context.put("download", downloadMode);
         context.put("hasSubmissionText", hasSubmissionText);
         context.put("hasSubmissionAttachment", hasSubmissionAttachment);
         context.put("hasGradeFile", hasGradeFile);
-        String gradeFileFormat = resolveDownloadUploadSelection(state, UPLOAD_ALL_GRADEFILE_FORMAT, downloadMode, "csv");
+        String gradeFileFormat = resolveDownloadUploadSelection(state, UPLOAD_ALL_GRADEFILE_FORMAT, "csv");
         context.put("gradeFileFormat", gradeFileFormat);
         context.put("hasComments", hasComments);
         context.put("hasFeedbackText", hasFeedbackText);
@@ -6212,20 +6212,20 @@ public class AssignmentAction extends PagedResourceActionII {
         return template + TEMPLATE_INSTRUCTOR_UPLOAD_ALL;
     } // build_instructor_upload_all
 
-    private boolean resolveDownloadUploadSelection(SessionState state, String key, boolean downloadMode, boolean defaultDownloadValue) {
+    private boolean resolveDownloadUploadSelection(SessionState state, String key, boolean defaultValue) {
         Object value = state.getAttribute(key);
         if (value instanceof Boolean) {
             return (Boolean) value;
         }
-        return defaultDownloadValue;
+        return defaultValue;
     }
 
-    private String resolveDownloadUploadSelection(SessionState state, String key, boolean downloadMode, String fallbackValue) {
+    private String resolveDownloadUploadSelection(SessionState state, String key, String defaultValue) {
         Object value = state.getAttribute(key);
         if (value instanceof String) {
             return (String) value;
         }
-        return fallbackValue;
+        return defaultValue;
     }
 
     public void doSearchTags(RunData data) {
