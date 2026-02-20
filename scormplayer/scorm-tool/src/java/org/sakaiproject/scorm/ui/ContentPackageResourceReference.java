@@ -15,7 +15,12 @@
  */
 package org.sakaiproject.scorm.ui;
 
-import lombok.extern.slf4j.Slf4j;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.wicket.request.HttpHeaderCollection;
@@ -30,19 +35,14 @@ import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import static org.sakaiproject.scorm.api.ScormConstants.ROOT_DIRECTORY;
 import org.sakaiproject.scorm.service.sakai.impl.ContentPackageSakaiResource;
 import org.sakaiproject.scorm.ui.player.util.CompressingContentPackageResourceStream;
 import org.sakaiproject.scorm.ui.player.util.ContentPackageWebResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static org.sakaiproject.scorm.api.ScormConstants.ROOT_DIRECTORY;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -77,7 +77,7 @@ public class ContentPackageResourceReference extends ResourceReference
             final String resourceId = attributes.getParameters().get("resourceID").toOptionalString();
             final String resourceName = attributes.getParameters().get("resourceName").toOptionalString();
 
-            log.debug("Process request for resource id/name [{}/{}]", resourceId, resourceName);
+            log.debug("Process request for resource id/resource [{}/{}]", resourceId, resourceName);
             if (StringUtils.isNoneBlank(resourceId, resourceName)) {
 
                 String base = ROOT_DIRECTORY + resourceId + "/" + resourceName;
@@ -89,6 +89,8 @@ public class ContentPackageResourceReference extends ResourceReference
                         .collect(Collectors.joining());
 
                 String path = base + suffix;
+
+                String fileName = path.substring(path.lastIndexOf('/') + 1);
 
                 // resource not found in shared resources, so attempt to get resource from Sakai
                 ContentPackageSakaiResource cpResource = new ContentPackageSakaiResource(path, path);
@@ -111,7 +113,7 @@ public class ContentPackageResourceReference extends ResourceReference
                     if (directLink != null) {
                         resourceResponse.setAcceptRange(AbstractResource.ContentRangeType.NONE);
                         resourceResponse.setContentType(stream.getContentType());
-                        resourceResponse.setFileName(resourceName);
+                        resourceResponse.setFileName(fileName);
                         resourceResponse.setContentLength(0);
                         resourceResponse.setWriteCallback(NO_OP_WRITE_CALLBACK);
 
@@ -136,7 +138,7 @@ public class ContentPackageResourceReference extends ResourceReference
                     resourceResponse.setContentType(contentType);
                     if (Strings.CI.startsWith(contentType, "text/")) resourceResponse.setTextEncoding(StandardCharsets.UTF_8.name());
                     resourceResponse.setAcceptRange(AbstractResource.ContentRangeType.NONE);
-                    resourceResponse.setFileName(resourceName);
+                    resourceResponse.setFileName(fileName);
                     resourceResponse.setLastModified(stream.lastModifiedTime());
 
                     resourceResponse.setContentLength(size);
@@ -151,7 +153,7 @@ public class ContentPackageResourceReference extends ResourceReference
                 }
             }
             // if we couldn't serve the requested resource then return a http 404
-            log.debug("Could not serve resource [{}], return http 404 Not Found", resourceName);
+            log.debug("Could not serve resource from [{}], return http 404 Not Found", resourceName);
             ResourceResponse resourceResponse = new ResourceResponse();
             resourceResponse.setError(HttpStatus.NOT_FOUND.value(), "Resource not found");
             return resourceResponse;
