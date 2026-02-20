@@ -3,3 +3,4 @@ src/sass/_customization-lib.scss
 src/sass/_customization-main.scss
 src/js/_customization-lib.js
 src/js/_customization-main.js
+deployed-js-deps.json

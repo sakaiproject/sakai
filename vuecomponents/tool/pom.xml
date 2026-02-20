@@ -63,7 +63,8 @@
                 <configuration>
                     <warSourceDirectory>src/main/webapp</warSourceDirectory>
                     <packagingExcludes>
-                        js/*.html
+                        js/*.html,
+                        js/report.json
                     </packagingExcludes>
                     <webResources>
                         <resource>
@@ -109,6 +110,17 @@
                         <configuration>
                             <arguments>
                                 run build
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report deployed dependencies</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>
+                                run deps:report
                             </arguments>
                         </configuration>
                     </execution>

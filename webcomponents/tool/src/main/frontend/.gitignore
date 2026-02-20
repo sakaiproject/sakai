@@ -10,5 +10,5 @@ coverage/
 /storybook-static/
 /screenshots/.current/
 /screenshots/.diff/
-meta.json
+deployed-js-deps.json
 .nvmrc

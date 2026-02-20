@@ -549,6 +549,18 @@
 									</arguments>
 								</configuration>
 							</execution>
+							<execution>
+								<id>report deployed dependencies</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>
+										run deps:report
+									</arguments>
+								</configuration>
+							</execution>
 						</executions>
 					</plugin>
 					<plugin>

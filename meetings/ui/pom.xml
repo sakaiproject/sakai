@@ -88,6 +88,16 @@
                         </configuration>
                         <phase>process-resources</phase>
                     </execution>
+                    <execution>
+                        <id>report deployed dependencies</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run deps:report</arguments>
+                        </configuration>
+                        <phase>process-resources</phase>
+                    </execution>
                 </executions>
                 <configuration>
                     <workingDirectory>src/main/frontend</workingDirectory>

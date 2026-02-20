@@ -59,6 +59,8 @@
                         package-lock.json,
                         eslint.config.mjs,
                         lint-staged.config.mjs,
+                        bundles/meta.json,
+                        deployed-js-deps.json,
                         packages/**
                     </packagingExcludes>
                     <webResources>
@@ -74,6 +76,8 @@
                                 <exclude>.eslintrc.js</exclude>
                                 <exclude>.husky/**</exclude>
                                 <exclude>lerna.json</exclude>
+                                <exclude>bundles/meta.json</exclude>
+                                <exclude>deployed-js-deps.json</exclude>
                             </excludes>
                         </resource>
                     </webResources>
@@ -140,6 +144,15 @@
                         </goals>
                         <configuration>
                             <arguments>run bundle</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report deployed dependencies</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run deps:report</arguments>
                         </configuration>
                     </execution>
                 </executions>
