@@ -79,8 +79,8 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 
 	public Map<String, ItemFacade> getPublishedItemsByHash(String hash) {
 		final HibernateCallback<List<PublishedItemData>> hcb = session -> {
-				Query q = session.createQuery("from PublishedItemData where hash = ? ");
-				q.setParameter(0, hash);
+				Query q = session.createQuery("from PublishedItemData where hash = :hash");
+				q.setParameter("hash", hash);
 				return q.list();
 		};
 		List<PublishedItemData> list1 = getHibernateTemplate().execute(hcb);
@@ -111,10 +111,14 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		// TODO when we add item search indexing, this is going to have to change to
 		// first read in all the affected item IDs so we can generate events for each
 		// (similar to what we do in the tag service)
-		getHibernateTemplate().bulkUpdate("update PublishedItemTag it " +
-				"set it.tagLabel = ?, it.tagCollectionId = ?, it.tagCollectionName = ? " +
-				"where it.tagId = ?",
-				tagView.tagLabel, tagView.tagCollectionId, tagView.tagCollectionName, tagView.tagId);
+		getHibernateTemplate().execute(session -> session.createQuery("update PublishedItemTag it " +
+						"set it.tagLabel = :tagLabel, it.tagCollectionId = :tagCollectionId, it.tagCollectionName = :tagCollectionName " +
+						"where it.tagId = :tagId")
+				.setParameter("tagLabel", tagView.tagLabel)
+				.setParameter("tagCollectionId", tagView.tagCollectionId)
+				.setParameter("tagCollectionName", tagView.tagCollectionName)
+				.setParameter("tagId", tagView.tagId)
+				.executeUpdate());
 	}
 
 	@Override
@@ -122,7 +126,9 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		// TODO when we add item search indexing, this is going to have to change to
 		// first read in all the affected item IDs so we can generate events for each
 		// (similar to what we do in the tag service)
-		getHibernateTemplate().bulkUpdate("delete PublishedItemTag it where it.tagId = ?", tagId);
+		getHibernateTemplate().execute(session -> session.createQuery("delete PublishedItemTag it where it.tagId = :tagId")
+				.setParameter("tagId", tagId)
+				.executeUpdate());
 	}
 
 	@Override
@@ -130,10 +136,12 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		// TODO when we add item search indexing, this is going to have to change to
 		// first read in all the affected item IDs so we can generate events for each
 		// (similar to what we do in the tag service)
-		getHibernateTemplate().bulkUpdate("update PublishedItemTag it " +
-						"set it.tagCollectionName = ? " +
-						"where it.tagCollectionId = ?",
-				tagCollectionView.tagCollectionName, tagCollectionView.tagCollectionId);
+		getHibernateTemplate().execute(session -> session.createQuery("update PublishedItemTag it " +
+						"set it.tagCollectionName = :tagCollectionName " +
+						"where it.tagCollectionId = :tagCollectionId")
+				.setParameter("tagCollectionName", tagCollectionView.tagCollectionName)
+				.setParameter("tagCollectionId", tagCollectionView.tagCollectionId)
+				.executeUpdate());
 	}
 
 	@Override
@@ -141,7 +149,9 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		// TODO when we add item search indexing, this is going to have to change to
 		// first read in all the affected item IDs so we can generate events for each
 		// (similar to what we do in the tag service)
-		getHibernateTemplate().bulkUpdate("delete PublishedItemTag it where it.tagCollectionId = ?", tagCollectionId);
+		getHibernateTemplate().execute(session -> session.createQuery("delete PublishedItemTag it where it.tagCollectionId = :tagCollectionId")
+				.setParameter("tagCollectionId", tagCollectionId)
+				.executeUpdate());
 	}
 
 	@Override
@@ -167,8 +177,8 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 	@Override
 	public Long getPublishedAssessmentId(Long itemId) {
 		final HibernateCallback<List<Long>> hcb = session -> {
-			Query q = session.createQuery("select s.assessment.publishedAssessmentId from PublishedSectionData s, PublishedItemData i where s.id = i.section AND i.itemId = ?");
-			q.setParameter(0, itemId);
+			Query q = session.createQuery("select s.assessment.publishedAssessmentId from PublishedSectionData s, PublishedItemData i where s.id = i.section AND i.itemId = :itemId");
+			q.setParameter("itemId", itemId);
 			return q.list();
 		};
 		List<Long> list1 = getHibernateTemplate().execute(hcb);

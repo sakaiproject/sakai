@@ -150,9 +150,11 @@ public class ExtendedTimeQueries extends HibernateDaoSupport implements Extended
         log.debug("Removing ExtendedTime entries for published assessment id: {}", publishedAssessmentId);
 
         try {
-            getHibernateTemplate().bulkUpdate(
-                    "delete from ExtendedTime e where e.pubAssessment.publishedAssessmentId = ?",
-                    publishedAssessmentId);
+            HibernateCallback<Integer> hcb = session -> session
+                    .createQuery("delete from ExtendedTime e where e.pubAssessment.publishedAssessmentId = :publishedAssessmentId")
+                    .setParameter("publishedAssessmentId", publishedAssessmentId)
+                    .executeUpdate();
+            getHibernateTemplate().execute(hcb);
             return true;
         } catch (DataAccessException de) {
             log.error("Failed to delete extended time entries for published assessment id: {}.", publishedAssessmentId, de);
