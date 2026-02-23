@@ -10,8 +10,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
+import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
@@ -20,6 +24,7 @@ import org.sakaiproject.user.api.User;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 /**
  * Unit tests for the PrivacyFilter class in BaseAnnouncementService.
@@ -149,6 +154,64 @@ public class PrivacyFilterTest {
         // Message should be accessible for regular user
         assertTrue("Regular user should be able to access message with valid dates", 
                 filter.accept(message));
+    }
+
+    @Test
+    public void testGetVisibleMessagesOfTheDayFiltersAndLimits() throws Exception {
+
+        TestBaseAnnouncementService spyService = spy(service);
+
+        AnnouncementMessage visibleMessage1 = mock(AnnouncementMessage.class);
+        AnnouncementMessage hiddenMessage = mock(AnnouncementMessage.class);
+        AnnouncementMessage visibleMessage2 = mock(AnnouncementMessage.class);
+
+        String motdReference = "/announcement/channel/!site/motd";
+        doReturn(motdReference).when(spyService).getSummarizableReference(null, AnnouncementService.MOTD_TOOL_ID);
+        doReturn(List.of(visibleMessage1, hiddenMessage, visibleMessage2))
+            .when(spyService).getMessages(eq(motdReference), any(Filter.class), eq(false), eq(false));
+
+        doReturn(true).when(spyService).isMessageViewable(visibleMessage1);
+        doReturn(false).when(spyService).isMessageViewable(hiddenMessage);
+        doReturn(true).when(spyService).isMessageViewable(visibleMessage2);
+
+        List<AnnouncementMessage> result = spyService.getVisibleMessagesOfTheDay(null, 2, false);
+
+        assertEquals(2, result.size());
+        assertSame(visibleMessage1, result.get(0));
+        assertSame(visibleMessage2, result.get(1));
+    }
+
+    @Test
+    public void testGetVisibleMessagesOfTheDayWithNegativeLimit() throws Exception {
+
+        TestBaseAnnouncementService spyService = spy(service);
+
+        List<AnnouncementMessage> result = spyService.getVisibleMessagesOfTheDay(null, -1, false);
+
+        assertTrue(result.isEmpty());
+        verify(spyService, never()).getMessages(anyString(), any(Filter.class), anyBoolean(), anyBoolean());
+    }
+
+    @Test
+    public void testGetVisibleMessagesOfTheDayFallsBackToPublicWhenReadDenied() throws Exception {
+
+        TestBaseAnnouncementService spyService = spy(service);
+        MessageChannel publicMotdChannel = mock(MessageChannel.class);
+        AnnouncementMessage publicMotdMessage = mock(AnnouncementMessage.class);
+
+        String motdReference = "/announcement/channel/!site/motd";
+        doReturn(motdReference).when(spyService).getSummarizableReference(null, AnnouncementService.MOTD_TOOL_ID);
+        doThrow(new PermissionException("user", "annc.read", motdReference))
+            .when(spyService).getMessages(eq(motdReference), any(Filter.class), eq(false), eq(false));
+        doReturn(publicMotdChannel).when(spyService).getChannelPublic(motdReference);
+        when(publicMotdChannel.getMessagesPublic(any(Filter.class), eq(false))).thenReturn(List.of(publicMotdMessage));
+        doReturn(true).when(spyService).isMessageViewable(publicMotdMessage);
+
+        List<AnnouncementMessage> result = spyService.getVisibleMessagesOfTheDay(null, 1, false);
+
+        assertEquals(1, result.size());
+        assertSame(publicMotdMessage, result.get(0));
+        verify(publicMotdChannel).getMessagesPublic(any(Filter.class), eq(false));
     }
     
     /**
