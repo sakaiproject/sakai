@@ -1088,6 +1088,38 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			.collect(Collectors.toList());
 	} // getMessages
 
+	public List<AnnouncementMessage> getVisibleMessagesOfTheDay(Time afterDate, int numberOfAnnouncements, boolean ascending) {
+
+		int safeLimit = Math.max(0, numberOfAnnouncements);
+		if (safeLimit == 0) {
+			return Collections.emptyList();
+		}
+
+		String motdChannelReference = getSummarizableReference(null, MOTD_TOOL_ID);
+		List<AnnouncementMessage> motdMessages;
+		try {
+			motdMessages = getMessages(
+				motdChannelReference,
+				new ViewableFilter(null, afterDate, Integer.MAX_VALUE, this),
+				ascending,
+				false);
+		} catch (IdUnusedException | PermissionException pe) {
+			MessageChannel motdChannel = getChannelPublic(motdChannelReference);
+			if (motdChannel == null) {
+				return Collections.emptyList();
+			}
+			motdMessages = ((List<AnnouncementMessage>) motdChannel.getMessagesPublic(
+				new ViewableFilter(null, afterDate, Integer.MAX_VALUE, this),
+				ascending));
+		}
+
+		// PrivacyFilter can allow superusers/creators through; enforce release/retract visibility for MOTD here.
+		return motdMessages.stream()
+			.filter(this::isMessageViewable)
+			.limit(safeLimit)
+			.collect(Collectors.toList());
+	}
+
 	private class AnnouncementChannelReferenceMaker implements MergedList.ChannelReferenceMaker {
 
 		public String makeReference(String siteId) {
