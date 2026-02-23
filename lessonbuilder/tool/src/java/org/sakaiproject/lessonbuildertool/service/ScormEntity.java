@@ -209,10 +209,10 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	    if (nextEntity != null) 
 		return nextEntity.getEntitiesInSite();
 	    else
-		return new ArrayList<LessonEntity>();
+		return new ArrayList<>();
 	}
 
-	List<LessonEntity> lessons = new ArrayList<LessonEntity>();
+	List<LessonEntity> lessons = new ArrayList<>();
 
 	String siteId = ToolManager.getCurrentPlacement().getContext();
 
@@ -307,7 +307,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
     // can't be null                                                                                                                         
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
-	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
+	List<UrlItem> list = new ArrayList<>();
 	if (dao == null)
 	    return list;
 	String tool = bean.getCurrentTool("sakai.scorm.tool");
