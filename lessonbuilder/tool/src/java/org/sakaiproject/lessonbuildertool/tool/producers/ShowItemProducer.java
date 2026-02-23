@@ -53,6 +53,7 @@ import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIComponent;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
+import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
@@ -387,19 +388,16 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			lessonEntity.preShowItem(item);
 		}
 
-	    String height = "350";
+	    UIComponent iframe = UILink.make(tofill, "iframe1", source)
+				.decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
 	    if (item != null && item.getType() == SimplePageItem.BLTI) {
-		String itemHeight = item.getHeight();
-		height = (itemHeight == null || itemHeight.equals("")) ? "1200" : itemHeight;
+		String height = item.getHeight();
+		if (height == null || height.equals(""))
+			iframe.decorate(new UIFreeAttributeDecorator("height", "1200"));
+		else
+		    iframe.decorate(new UIFreeAttributeDecorator("height", height));
+		iframe.decorate(new UIFreeAttributeDecorator("onload", ""));
 	    }
-	    String allow = ServerConfigurationService.getBrowserFeatureAllowString();
-	    String iframeHtml = "<sakai-lti-iframe role=\"main\" name=\"iframe1\" id=\"iframe1\" width=\"100%\" "
-		    + "launch-url=\"" + StringEscapeUtils.escapeHtml4(source) + "\" "
-		    + "allow=\"" + StringEscapeUtils.escapeHtml4(allow) + "\" "
-		    + "allow-resize=\"yes\" height=\"" + StringEscapeUtils.escapeHtml4(height) + "\" "
-		    + "allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\">"
-		    + "</sakai-lti-iframe>";
-	    UIVerbatim.make(tofill, "iframe1", iframeHtml);
 	}
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
