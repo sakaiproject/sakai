@@ -848,8 +848,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 	public List getQuestionsIdList(final Long assessmentId) {
 		HibernateCallback<List<Long>> hcb = session -> session
-				.createQuery("select i.itemId from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId=?")
-				.setParameter(0, assessmentId.longValue())
+				.createQuery("select i.itemId from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId = :id")
+				.setParameter("id", assessmentId)
 				.list();
 		return getHibernateTemplate().execute(hcb);
 	}
