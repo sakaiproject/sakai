@@ -351,4 +351,14 @@
     .poweredby__image {
         filter: invert(1) hue-rotate(180deg);
     }
+
+    /*
+     * SAK-52376
+     * External iframes should NOT inherit dark mode surface.
+     * Force a light background so transparent embedded pages remain readable.
+     */
+    iframe.sakai-iframe-force-light {
+        background: #fff !important;
+        color-scheme: light;
+    }
 }

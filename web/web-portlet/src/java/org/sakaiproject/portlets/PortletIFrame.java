@@ -81,6 +81,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -392,6 +393,7 @@ public class PortletIFrame extends GenericPortlet {
 				context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("PortletIFrame"));
 				context.put("validator", formattedText);
 				context.put("source",url);
+				context.put("iframeForceLight", Boolean.valueOf(!IframeUrlUtil.isLocalToSakai(url, ServerConfigurationService.getServerUrl())));
 				context.put("height",height);
 				context.put("browser-feature-allow", ServerConfigurationService.getBrowserFeatureAllowString());
 				sendAlert(request,context);
