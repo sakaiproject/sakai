@@ -160,7 +160,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 			if (sessionToken != null)
 			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
-			ArrayList<String> values = new ArrayList<String>();
+			List<String> values = new ArrayList<>();
 
 			for (LessonEntity s: plist) {
 			    values.add(s.getReference());
@@ -205,7 +205,7 @@ public class ScormPickerProducer implements ViewComponentProducer, NavigationCas
 	}
 
 	public List reportNavigationCases() {
-		List<NavigationCase> togo = new ArrayList<NavigationCase>();
+		List<NavigationCase> togo = new ArrayList<>();
 		togo.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 		togo.add(new NavigationCase("failure", new SimpleViewParameters(ScormPickerProducer.VIEW_ID)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
