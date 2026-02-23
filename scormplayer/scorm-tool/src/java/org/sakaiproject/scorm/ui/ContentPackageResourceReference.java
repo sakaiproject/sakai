@@ -90,7 +90,8 @@ public class ContentPackageResourceReference extends ResourceReference
 
                 String path = base + suffix;
 
-                String fileName = path.substring(path.lastIndexOf('/') + 1);
+                String rawFileName = path.substring(path.lastIndexOf('/') + 1);
+                String fileName = StringUtils.defaultIfBlank(rawFileName, resourceName);
 
                 // resource not found in shared resources, so attempt to get resource from Sakai
                 ContentPackageSakaiResource cpResource = new ContentPackageSakaiResource(path, path);
