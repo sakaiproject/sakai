@@ -647,6 +647,7 @@ public class HistogramListener
 					  // Get the percentage correct by objective
 					  String obj = questionScores.getObjectives();
 					  if (StringUtils.isNotBlank(obj)) {
+						  Double pctCorrectForObjectives = resolveMetadataPercentCorrect(questionScores, "objectives");
 						  String[] objs = obj.split(",");
 						  for (int i = 0; i < objs.length; i++) {
 							  String objective = StringUtils.trimToNull(objs[i]);
@@ -654,7 +655,6 @@ public class HistogramListener
 								  continue;
 							  }
 
-							  Double pctCorrect = resolveMetadataPercentCorrect(questionScores, "objectives");
 							  Double newAvg = 0.0d;
 							  int divisor = 1;
 
@@ -662,10 +662,10 @@ public class HistogramListener
 							  if (existingObjectiveAvg != null) {
 								  int currentCount = objectivesCounter.getOrDefault(objective, 0);
 								  divisor = currentCount + 1;
-								  newAvg = existingObjectiveAvg + ((pctCorrect - existingObjectiveAvg) / divisor);
+								  newAvg = existingObjectiveAvg + ((pctCorrectForObjectives - existingObjectiveAvg) / divisor);
 								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
 							  } else {
-								  newAvg = new BigDecimal(pctCorrect).setScale(2, RoundingMode.HALF_UP).doubleValue();
+								  newAvg = new BigDecimal(pctCorrectForObjectives).setScale(2, RoundingMode.HALF_UP).doubleValue();
 							  }
 
 							  objectivesCounter.put(objective, divisor);
@@ -676,6 +676,7 @@ public class HistogramListener
 					  // Get the percentage correct by keyword
 					  String key = questionScores.getKeywords();
 					  if (StringUtils.isNotBlank(key)) {
+						  Double pctCorrectForKeywords = resolveMetadataPercentCorrect(questionScores, "keywords");
 						  String [] keys = key.split(",");
 						  for (int i = 0; i < keys.length; i++) {
 							  String keyword = StringUtils.trimToNull(keys[i]);
@@ -683,20 +684,16 @@ public class HistogramListener
 								  continue;
 							  }
 
-							  // Keep metadata rows for non-answer-statistics questions (e.g. essay/file/audio)
-							  // by treating missing/invalid percent-correct values as 0.
-							  Double pctCorrect = resolveMetadataPercentCorrect(questionScores, "keywords");
-
 							  Double existingKeywordAvg = keywordsCorrect.get(keyword);
 							  if (existingKeywordAvg != null) {
 								  int divisor = keywordsCounter.getOrDefault(keyword, 0) + 1;
-								  Double newAvg = existingKeywordAvg + ((pctCorrect - existingKeywordAvg) / divisor);
+								  Double newAvg = existingKeywordAvg + ((pctCorrectForKeywords - existingKeywordAvg) / divisor);
 								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
 
 								  keywordsCounter.put(keyword, divisor);
 								  keywordsCorrect.put(keyword, newAvg);
 							  } else {
-								  Double newAvg = new BigDecimal(pctCorrect).setScale(2, RoundingMode.HALF_UP).doubleValue();
+								  Double newAvg = new BigDecimal(pctCorrectForKeywords).setScale(2, RoundingMode.HALF_UP).doubleValue();
 								  keywordsCounter.put(keyword, 1);
 								  keywordsCorrect.put(keyword, newAvg);
 							  }
@@ -820,7 +817,14 @@ public class HistogramListener
 	  }
 
 	  try {
-		  return Double.parseDouble(percentCorrect);
+		  double parsedPercentCorrect = Double.parseDouble(percentCorrect);
+		  if (parsedPercentCorrect < 0.0d) {
+			  return 0.0d;
+		  }
+		  if (parsedPercentCorrect > 100.0d) {
+			  return 100.0d;
+		  }
+		  return parsedPercentCorrect;
 	  } catch (NumberFormatException nfe) {
 		  log.debug("Ignoring non-numeric percentCorrect [{}] for metadata type [{}]", percentCorrect, metadataType);
 		  return 0.0d;
@@ -2554,12 +2558,7 @@ public class HistogramListener
   }
 
   private int resolveScoreStatisticsPercentCorrect(HistogramQuestionScoresBean qbean) {
-    if (qbean == null || qbean.getNumResponses() <= 0) {
-      return 0;
-    }
-    double meanScore = NumberUtils.toDouble(qbean.getMean(), 0d);
-    double maxScoreForQuestion = NumberUtils.toDouble(qbean.getTotalScore(), 0d);
-    return calculatePercentCorrect(meanScore, maxScoreForQuestion);
+    return (int) Math.round(resolveScoreStatisticsPercentCorrectValue(qbean));
   }
 
   private double resolveScoreStatisticsPercentCorrectValue(HistogramQuestionScoresBean qbean) {
@@ -2572,7 +2571,7 @@ public class HistogramListener
   }
 
   private int calculatePercentCorrect(double numerator, double denominator) {
-    return (int) calculatePercentCorrectValue(numerator, denominator);
+    return (int) Math.round(calculatePercentCorrectValue(numerator, denominator));
   }
 
   private double calculatePercentCorrectValue(double numerator, double denominator) {

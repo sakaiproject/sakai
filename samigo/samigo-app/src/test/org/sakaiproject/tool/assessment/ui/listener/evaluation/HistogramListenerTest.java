@@ -92,6 +92,8 @@ public class HistogramListenerTest {
         HistogramListener listener = new HistogramListener();
 
         assertEquals(73.5d, invokeParseMetadataPercentCorrect(listener, "73.5", "keywords"), 0.0d);
+        assertEquals(0.0d, invokeParseMetadataPercentCorrect(listener, "-1", "keywords"), 0.0d);
+        assertEquals(100.0d, invokeParseMetadataPercentCorrect(listener, "120", "keywords"), 0.0d);
     }
 
     @Test
@@ -106,14 +108,14 @@ public class HistogramListenerTest {
     }
 
     @Test
-    public void testResolveScoreStatisticsPercentCorrectTwoOfThreeTruncatesTo66() throws Exception {
+    public void testResolveScoreStatisticsPercentCorrectTwoOfThreeRoundsTo67() throws Exception {
         HistogramListener listener = new HistogramListener();
         HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
         qbean.setNumResponses(1);
         qbean.setMean("2.0");
         qbean.setTotalScore("3.0");
 
-        assertEquals(66, invokeResolveScoreStatisticsPercentCorrect(listener, qbean));
+        assertEquals(67, invokeResolveScoreStatisticsPercentCorrect(listener, qbean));
     }
 
     @Test
