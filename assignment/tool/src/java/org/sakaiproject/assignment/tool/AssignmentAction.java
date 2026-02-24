@@ -7950,6 +7950,11 @@ public class AssignmentAction extends PagedResourceActionII {
         Assignment.SubmissionType submissionType = Assignment.SubmissionType.values()[params.getInt(NEW_ASSIGNMENT_SUBMISSION_TYPE)];
         state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, submissionType.ordinal());
 
+        if (submissionType != Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
+            state.setAttribute(NEW_ASSIGNMENT_CONTENT_ID, null);
+            state.setAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW, Boolean.FALSE);
+        }
+
         // ------------------- BEGIN GRADING PARAMS -------------------
 
         // grade type and grade points
@@ -9051,6 +9056,11 @@ public class AssignmentAction extends PagedResourceActionII {
             String contentTitle = (String) state.getAttribute(NEW_ASSIGNMENT_CONTENT_TITLE);
 
             Boolean contentLaunchNewWindow = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CONTENT_LAUNCH_NEW_WINDOW);
+
+            if (submissionType != Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION) {
+                contentId = null;
+                contentLaunchNewWindow = Boolean.FALSE;
+            }
 
             String description = (String) state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION);
 

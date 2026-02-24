@@ -683,7 +683,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             // it does not accept group IDs directly. For group assignments, we use
             // a representative user ID from the group.
 
-            if (submitters.size() >= 1) {
+            if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION && submitters.size() >= 1) {
                 String submitterId = null;
                 Optional<AssignmentSubmissionSubmitter> submittee = assignmentService.getSubmissionSubmittee(as);
                 if (submittee.isPresent()) {
@@ -1083,7 +1083,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         submissionMaps.removeAll(Collections.singleton(null));
 
         Integer contentKey = assignment.getContentId();
-        if (contentKey != null) {
+        if (assignment.getTypeOfSubmission() == Assignment.SubmissionType.EXTERNAL_TOOL_SUBMISSION && contentKey != null) {
             // Default assignment-wide launch to tool if there is not a SubmissionReview launch in a submission
             simpleAssignment.ltiGradableLaunch = "/access/lti/site/" + siteId + "/content:" + contentKey;
 
