@@ -802,7 +802,12 @@ public class HistogramListener
 	  }
 
 	  if (isScoreStatisticsQuestionType(questionScores.getQuestionType())) {
-		  return resolveScoreStatisticsPercentCorrect(questionScores);
+		  return resolveScoreStatisticsPercentCorrectValue(questionScores);
+	  }
+
+	  Long numberOfStudentsWithCorrectAnswers = questionScores.getNumberOfStudentsWithCorrectAnswers();
+	  if (numberOfStudentsWithCorrectAnswers != null && questionScores.getNumResponses() > 0) {
+		  return calculatePercentCorrectValue(numberOfStudentsWithCorrectAnswers.doubleValue(), questionScores.getNumResponses());
 	  }
 
 	  return parseMetadataPercentCorrect(questionScores.getPercentCorrect(), metadataType);
@@ -2490,6 +2495,7 @@ public class HistogramListener
   private void doScoreStatistics(HistogramQuestionScoresBean qbean, List scores)
   {
     // here scores contain ItemGradingData
+    String totalPossibleScoreForQuestion = qbean.getTotalScore();
     Map assessmentMap = getAssessmentStatisticsMap(scores);
 
     // test to see if it gets back empty map
@@ -2507,7 +2513,10 @@ public class HistogramListener
       qbean.setQ2( (String) assessmentMap.get("q2"));
       qbean.setQ3( (String) assessmentMap.get("q3"));
       qbean.setQ4( (String) assessmentMap.get("q4"));
-      //qbean.setTotalScore( (String) assessmentMap.get("maxScore"));
+      if (StringUtils.isNotBlank(totalPossibleScoreForQuestion)) {
+        // Keep question max points (set before determineResults) instead of summed student scores.
+        qbean.setTotalScore(totalPossibleScoreForQuestion);
+      }
 
 
 
@@ -2547,21 +2556,32 @@ public class HistogramListener
     if (qbean == null || qbean.getNumResponses() <= 0) {
       return 0;
     }
+    return (int) resolveScoreStatisticsPercentCorrectValue(qbean);
+  }
+
+  private double resolveScoreStatisticsPercentCorrectValue(HistogramQuestionScoresBean qbean) {
+    if (qbean == null || qbean.getNumResponses() <= 0) {
+      return 0d;
+    }
     double meanScore = NumberUtils.toDouble(qbean.getMean(), 0d);
     double maxScoreForQuestion = NumberUtils.toDouble(qbean.getTotalScore(), 0d);
-    return calculatePercentCorrect(meanScore, maxScoreForQuestion);
+    return calculatePercentCorrectValue(meanScore, maxScoreForQuestion);
   }
 
   private int calculatePercentCorrect(double numerator, double denominator) {
+    return (int) calculatePercentCorrectValue(numerator, denominator);
+  }
+
+  private double calculatePercentCorrectValue(double numerator, double denominator) {
     if (denominator <= 0d) {
-      return 0;
+      return 0d;
     }
-    int percentCorrect = (int) ((numerator / denominator) * 100d);
+    double percentCorrect = (numerator / denominator) * 100d;
     if (percentCorrect < 0) {
-      return 0;
+      return 0d;
     }
     if (percentCorrect > 100) {
-      return 100;
+      return 100d;
     }
     return percentCorrect;
   }
