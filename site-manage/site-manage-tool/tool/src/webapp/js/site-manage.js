@@ -172,14 +172,11 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
     utils.checkEnableUnjoin();
   };
 
-  // Highlight any server-side pre-checked rows on load
   $list.find(':checked').closest('tr').addClass(highlightClass);
   syncAllControl();
 
-  // Re-sync after AJAX tbody swap (allcontrol visibility + state reset)
   document.addEventListener('sfp:updated', syncAllControl);
 
-  // allcontrol lives in thead — not swapped, direct binding is fine
   $allcontrol.off('click.selectList').on('click.selectList', function() {
     if (this.checked) {
       $list.find('input:checkbox').prop('checked', true).closest('tr').addClass(highlightClass);
@@ -190,7 +187,6 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
     utils.checkEnableUnjoin();
   });
 
-  // Delegate from the table element — survives tbody innerHTML swaps
   $list.off('click.selectList').on('click.selectList', 'input:checkbox', function() {
     const $this = $(this);
     $this.closest('tr').toggleClass(highlightClass, $this.prop('checked'));

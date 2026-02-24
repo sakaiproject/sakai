@@ -5,7 +5,6 @@
 		sakai.setupSelectList('siteList','toggleAllSelected','selectedSelected');
 		setupRecentSite();
 
-		// Use event delegation so dynamically replaced rows (from AJAX search) are handled
 		$(document).on('click', '.siteSelectCheckbox, #toggleAllSelected', function(){
 			$('.sakai-table-buttonContainer .actionButton').prop('disabled', $('.siteSelectCheckbox:checked').length < 1);
 		});
