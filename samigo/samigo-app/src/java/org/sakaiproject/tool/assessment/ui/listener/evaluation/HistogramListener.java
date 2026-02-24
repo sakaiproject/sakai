@@ -686,10 +686,10 @@ public class HistogramListener
 							  // by treating missing/invalid percent-correct values as 0.
 							  Double pctCorrect = resolveMetadataPercentCorrect(questionScores, "keywords");
 
-							  if (keywordsCorrect.get(keyword) != null) {
+							  Double existingKeywordAvg = keywordsCorrect.get(keyword);
+							  if (existingKeywordAvg != null) {
 								  int divisor = keywordsCounter.get(keyword) + 1;
-								  Double newAvg = keywordsCorrect.get(keyword)
-										  + ((pctCorrect - keywordsCorrect.get(keyword)) / divisor);
+								  Double newAvg = existingKeywordAvg + ((pctCorrect - existingKeywordAvg) / divisor);
 								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
 
 								  keywordsCounter.put(keyword, divisor);
