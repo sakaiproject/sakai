@@ -72,7 +72,10 @@ $tlang.getString("gen.trouble.loading")
 <p class="closeMe"><a href="#" style="text-decoration:none !important;font-size:110%;color:#c00 !important" title="$tlang.getString("dissmiss.page.relaunch.message")">x <span class="skip">$tlang.getString("dissmiss.page.relaunch.message")</span></a></p> 
 </div>
 <div class="wcwomenu"> ##style="padding:0; margin:-.3em -2em -1em -2em">
-<iframe 
+<iframe
+#if ($iframeForceLight)
+    class="sakai-iframe-force-light"
+#end
     id="id$placement"
     title="$tlang.getString("gen.info.title.message")"
     width="100%"
