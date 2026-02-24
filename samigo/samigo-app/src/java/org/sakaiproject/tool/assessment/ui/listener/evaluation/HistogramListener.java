@@ -658,10 +658,11 @@ public class HistogramListener
 							  Double newAvg = 0.0d;
 							  int divisor = 1;
 
-							  if (objectivesCorrect.get(objective) != null) {
-								  Double objCorrect = objectivesCorrect.get(objective);
-								  divisor = objCorrect.intValue() + 1;
-								  newAvg = objCorrect + ((pctCorrect - objCorrect) / divisor);
+							  Double existingObjectiveAvg = objectivesCorrect.get(objective);
+							  if (existingObjectiveAvg != null) {
+								  int currentCount = objectivesCounter.getOrDefault(objective, 0);
+								  divisor = currentCount + 1;
+								  newAvg = existingObjectiveAvg + ((pctCorrect - existingObjectiveAvg) / divisor);
 								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
 							  } else {
 								  newAvg = new BigDecimal(pctCorrect).setScale(2, RoundingMode.HALF_UP).doubleValue();
