@@ -830,7 +830,8 @@ function printView(url) {
 	var escapeList = [ 'toggleModel' ];
 	$(document).ready(function () {
 
-		$('#submissionList input:checkbox').click(function () {
+		// Delegate from the table so the handler survives tbody swaps from AJAX search
+		$('#submissionList').on('click', 'input:checkbox', function () {
 
 			var feedbackPanel = document.getElementById("sendFeedbackPanelContent");
 			var resubPanel = document.getElementById("allowResubmissionPanelContent");

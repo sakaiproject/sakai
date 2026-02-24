@@ -12,60 +12,35 @@ $.ajaxSetup({
  calling template has dom placeholder for one or more dialogs,
  args:class of trigger(s), id of dialog (will get a site id suffix), message strings
  */
+const _siteInfoCache = {};
 sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold) {
-  $("." + trigger).each(function(){
+  // Delegate from document so clicks work after AJAX tbody swaps
+  $(document).off('click.getSiteInfo').on('click.getSiteInfo', '.' + trigger, function(e) {
+    e.preventDefault();
     const siteId = $(this).attr('id');
-    if (!siteId) {
-      return;
-    }
+    if (!siteId) return;
 
-    const dialogTargetSite = dialogTarget + "_" + siteId;
+    const dialogTargetSite = dialogTarget + '_' + siteId;
 
-    $(this).click(function(e){
-       e.preventDefault();
-       bootstrap.Modal.getOrCreateInstance(document.getElementById(dialogTargetSite)).show();
-     });
+    const show = (content) => {
+      $('#' + CSS.escape(dialogTargetSite))
+        .html(content).attr('aria-hidden', 'true').attr('tabindex', '-1')
+        .attr('role', 'dialog').addClass('modal fade');
+      bootstrap.Modal.getOrCreateInstance(document.getElementById(dialogTargetSite)).show();
+    };
 
-    const siteURL = `/direct/site/${siteId}/info.json`;
-    jQuery.getJSON(siteURL, function (data) {
-      var desc = '', shortdesc = '', title = '', owner = '', email = '';
-      if (data.description) {
-        desc = $('<div>').text(data.description).html();
-      }
-      else {
-        desc = nold;
-      }
-      if (data.shortDescription) {
-        shortdesc = data.shortDescription.escapeHTML();
-      }
-      else {
-        shortdesc = nosd;
-      }
+    // Lazy fetch — skip network call if already cached
+    if (_siteInfoCache[siteId]) { show(_siteInfoCache[siteId]); return; }
 
-      if (data.contactName) {
-        owner = data.contactName.escapeHTML();
-      }
+    $.getJSON(`/direct/site/${siteId}/info.json`, function(data) {
+      const desc = data.description ? $('<div>').text(data.description).html() : nold;
+      const shortdesc = data.shortDescription ? data.shortDescription.escapeHTML() : nosd;
 
-      if (data.contactEmail) {
-        email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
-      }
-
-      if (data.props) {
-        if (data.props['contact-name']) {
-          owner = data.props['contact-name'].escapeHTML();
-        }
-
-        if (data.props['contact-email']) {
-          email = "(<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
-        }
-      }
-
-      sitetitle = data.title.escapeHTML();
-      content = (
+      const content = (
         '<div class="modal-dialog modal-md">' +
           '<div class="modal-content">' +
             '<div class="modal-header">' +
-              '<h5 class="modal-title">' + sitetitle + '</h5>' +
+              '<h5 class="modal-title">' + data.title.escapeHTML() + '</h5>' +
               '<button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
             '</div>' +
             '<div class="modal-body">' +
@@ -75,8 +50,8 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold) {
           '</div>' +
         '</div>'
       );
-      $("#" + CSS.escape(dialogTargetSite)).html(content).attr('aria-hidden','true').attr('tabindex', '-1').attr('role', 'dialog').addClass('modal fade');
-      return false;
+      _siteInfoCache[siteId] = content;
+      show(content);
     });
   });
 };
@@ -188,46 +163,40 @@ sakai.setupMessageListener = function(messageHolder, messageMode){
  args: id of table, id of select all checkbox, highlight row class
  */
 sakai.setupSelectList = function(list, allcontrol, highlightClass){
-  $('#' + list + ' :checked').parent("td").parent("tr").addClass(highlightClass);
+  const $list = $('#' + list);
+  const $allcontrol = $('#' + allcontrol);
 
-  if ($('#' + list + ' td input:checkbox').length === 0) {
-    $('#' + allcontrol).hide();
-  }
-  $('#' + allcontrol).click(function(){
+  const syncAllControl = () => {
+    const $checkboxes = $list.find('td input:checkbox');
+    $allcontrol.toggle($checkboxes.length > 0).prop('checked', false);
+    utils.checkEnableUnjoin();
+  };
+
+  // Highlight any server-side pre-checked rows on load
+  $list.find(':checked').closest('tr').addClass(highlightClass);
+  syncAllControl();
+
+  // Re-sync after AJAX tbody swap (allcontrol visibility + state reset)
+  document.addEventListener('sfp:updated', syncAllControl);
+
+  // allcontrol lives in thead — not swapped, direct binding is fine
+  $allcontrol.off('click.selectList').on('click.selectList', function() {
     if (this.checked) {
-      $('#' + list + ' input:checkbox').prop('checked', true);
-      $('#' + list + ' input:checkbox').parent('td').parent('tr').addClass(highlightClass);
-    }
-    else {
-      $('#' + list + ' input:checkbox').prop('checked', false);
-      $('#' + list + ' tbody tr').removeClass(highlightClass);
+      $list.find('input:checkbox').prop('checked', true).closest('tr').addClass(highlightClass);
+    } else {
+      $list.find('input:checkbox').prop('checked', false);
+      $list.find('tbody tr').removeClass(highlightClass);
     }
     utils.checkEnableUnjoin();
   });
 
-  $('#' + list + ' input:checkbox').click(function(){
-    var someChecked = false;
-    if (this.checked) {
-      $(this).parents('tr').addClass(highlightClass);
-    }
-    else {
-      $(this).parents('tr').removeClass(highlightClass);
-    }
-    $('#' + list + ' input:checkbox').each(function(){
-      if (this.checked) {
-        someChecked = true;
-      }
-    });
-    if (!someChecked) {
-      $('#' + allcontrol).prop('checked', false);
-    }
-    if ($('#' + list + ' :checked').length !== $('#' + list + ' input:checkbox').length) {
-      $('#' + allcontrol).prop('checked', false);
-    }
-
-    if ($('#' + list + '  :checked').length === $('#' + list + '  input:checkbox').length) {
-      $('#' + allcontrol).prop('checked', true);
-    }
+  // Delegate from the table element — survives tbody innerHTML swaps
+  $list.off('click.selectList').on('click.selectList', 'input:checkbox', function() {
+    const $this = $(this);
+    $this.closest('tr').toggleClass(highlightClass, $this.prop('checked'));
+    const $checkboxes = $list.find('input:checkbox');
+    $allcontrol.prop('checked', $checkboxes.filter(':checked').length === $checkboxes.length);
+    utils.checkEnableUnjoin();
   });
 };
 
@@ -235,7 +204,7 @@ sakai.siteTypeSetup = function(){
   var templateControls='';
   //from sakai.properties - json with what controls to display (and in what state) for each site type
   if ($('#templateControls').val() !== '') {
-    templateControls = eval('(' + $('#templateControls').val() + ')');
+    templateControls = JSON.parse($('#templateControls').val());
   }
   else {
     templateControls ='';

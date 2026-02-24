@@ -105,7 +105,7 @@ table{
 
 		.sakai-table-searchFilter-inputWrapper
 		{
-			.sakai-table-searchFilter-searchField
+			&:has(.sakai-table-searchFilter-clearBtn) .sakai-table-searchFilter-searchField
 			{
 				padding-right: 1.5em;
 			}

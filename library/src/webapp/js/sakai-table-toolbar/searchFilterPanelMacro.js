@@ -5,6 +5,7 @@
     const targets = document.querySelectorAll(sel);
 
     const doFetch = async (url, field) => {
+        if (!url) return;
         field._ac?.abort();
         field._ac = new AbortController();
         try {
@@ -21,7 +22,7 @@
         }
     };
 
-    document.querySelectorAll('.sakai-table-searchFilter-searchField').forEach(field => {
+    document.querySelectorAll('.sakai-table-searchFilter-searchField[data-search-url]').forEach(field => {
         const clearBtn = field.nextElementSibling;
         let debounceTimer;
 
@@ -29,7 +30,7 @@
 
         const search = () => {
             if (!field.value) return doFetch(field.dataset.clearUrl, field);
-            if (field.dataset.searchUrl) doFetch(`${field.dataset.searchUrl}&search=${encodeURIComponent(field.value)}`, field);
+            doFetch(`${field.dataset.searchUrl}&search=${encodeURIComponent(field.value)}`, field);
         };
 
         field.addEventListener('input', () => {
