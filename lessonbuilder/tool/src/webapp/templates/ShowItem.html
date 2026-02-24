@@ -191,20 +191,21 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 		<script>
 //<![CDATA[
 		window.addEventListener('message', function(e) {
+			var idval = 'iframe1';
+			var height = undefined;
 			try {
 				var message = e.data;
 				if ( typeof message == 'string' ) message = JSON.parse(e.data);
-				var idval = 'iframe1';
 				if ( message.subject == 'lti.frameResize' && typeof(message.height) == 'number' ) {
-					var height = message.height;
+					height = message.height;
 					document.getElementById(idval).height = height;
-					console.debug('Reveived lti.frameResize height='+height);
+					console.debug('Received lti.frameResize height='+height);
 				}
 				else if ( message.subject == 'lti.pageRefresh' ) {
                                         location.reload(true);
 				}
 			} catch (error) {
-				console.debug('lti.frameResize of '+idval+' failed height='+height);
+				console.debug('lti.frameResize of '+idval+' failed height='+height, error);
 				console.debug(e.data);
 			}
 		});

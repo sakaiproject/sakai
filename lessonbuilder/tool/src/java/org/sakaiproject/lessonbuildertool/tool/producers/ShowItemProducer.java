@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
@@ -53,7 +54,6 @@ import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIComponent;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
-import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
@@ -388,8 +388,18 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			lessonEntity.preShowItem(item);
 		}
 
-	    UIComponent iframe = UILink.make(tofill, "iframe1", source)
+	    UIComponent iframe = UIOutput.make(tofill, "iframe1")
+				.decorate(new UIFreeAttributeDecorator("src", source))
 				.decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
+
+		// Non LTI URLs
+		if (!IframeUrlUtil.isLocalToSakai(source, ServerConfigurationService.getServerUrl())) {
+			iframe.decorate(new UIFreeAttributeDecorator("class", "sakai-iframe-force-light"));
+		// All LTI Urls go to /access so they seem local but should be treated as non local
+		} else if (item != null && item.getType() == SimplePageItem.BLTI) {
+			iframe.decorate(new UIFreeAttributeDecorator("class", "sakai-iframe-force-light"));
+		}
+
 	    if (item != null && item.getType() == SimplePageItem.BLTI) {
 		String height = item.getHeight();
 		if (height == null || height.equals(""))
