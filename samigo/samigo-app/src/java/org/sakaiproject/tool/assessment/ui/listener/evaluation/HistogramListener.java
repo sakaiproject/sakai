@@ -689,7 +689,7 @@ public class HistogramListener
 
 							  Double existingKeywordAvg = keywordsCorrect.get(keyword);
 							  if (existingKeywordAvg != null) {
-								  int divisor = keywordsCounter.get(keyword) + 1;
+								  int divisor = keywordsCounter.getOrDefault(keyword, 0) + 1;
 								  Double newAvg = existingKeywordAvg + ((pctCorrect - existingKeywordAvg) / divisor);
 								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
 
@@ -2557,7 +2557,9 @@ public class HistogramListener
     if (qbean == null || qbean.getNumResponses() <= 0) {
       return 0;
     }
-    return (int) resolveScoreStatisticsPercentCorrectValue(qbean);
+    double meanScore = NumberUtils.toDouble(qbean.getMean(), 0d);
+    double maxScoreForQuestion = NumberUtils.toDouble(qbean.getTotalScore(), 0d);
+    return calculatePercentCorrect(meanScore, maxScoreForQuestion);
   }
 
   private double resolveScoreStatisticsPercentCorrectValue(HistogramQuestionScoresBean qbean) {
