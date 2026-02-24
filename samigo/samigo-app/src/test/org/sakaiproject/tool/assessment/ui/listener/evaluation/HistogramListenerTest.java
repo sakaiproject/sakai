@@ -77,6 +77,34 @@ public class HistogramListenerTest {
         assertEquals(new TreeSet<>(Collections.singleton("student-1")), qbean.getStudentsWithAllCorrect());
     }
 
+    @Test
+    public void testParseMetadataPercentCorrectDefaultsToZeroForBlank() throws Exception {
+        HistogramListener listener = new HistogramListener();
+
+        assertEquals(0.0d, invokeParseMetadataPercentCorrect(listener, "", "keywords"), 0.0d);
+        assertEquals(0.0d, invokeParseMetadataPercentCorrect(listener, null, "keywords"), 0.0d);
+        assertEquals(0.0d, invokeParseMetadataPercentCorrect(listener, "N/A", "objectives"), 0.0d);
+        assertEquals(0.0d, invokeParseMetadataPercentCorrect(listener, "not-a-number", "keywords"), 0.0d);
+    }
+
+    @Test
+    public void testParseMetadataPercentCorrectParsesNumericValues() throws Exception {
+        HistogramListener listener = new HistogramListener();
+
+        assertEquals(73.5d, invokeParseMetadataPercentCorrect(listener, "73.5", "keywords"), 0.0d);
+    }
+
+    @Test
+    public void testResolveScoreStatisticsPercentCorrectUsesMeanOverItemScore() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setNumResponses(1);
+        qbean.setMean("2.0");
+        qbean.setTotalScore("2.0");
+
+        assertEquals(100, invokeResolveScoreStatisticsPercentCorrect(listener, qbean));
+    }
+
     private StatisticsService createStatisticsService() {
         GradingService gradingService = new GradingService();
         MemoryService memoryService = mock(MemoryService.class);
@@ -110,5 +138,17 @@ public class HistogramListenerTest {
                 HistogramQuestionScoresBean.class, ItemDataIfc.class, List.class, Map.class);
         method.setAccessible(true);
         method.invoke(listener, qbean, item, scores, answersById);
+    }
+
+    private double invokeParseMetadataPercentCorrect(HistogramListener listener, String percentCorrect, String metadataType) throws Exception {
+        Method method = HistogramListener.class.getDeclaredMethod("parseMetadataPercentCorrect", String.class, String.class);
+        method.setAccessible(true);
+        return (Double) method.invoke(listener, percentCorrect, metadataType);
+    }
+
+    private int invokeResolveScoreStatisticsPercentCorrect(HistogramListener listener, HistogramQuestionScoresBean qbean) throws Exception {
+        Method method = HistogramListener.class.getDeclaredMethod("resolveScoreStatisticsPercentCorrect", HistogramQuestionScoresBean.class);
+        method.setAccessible(true);
+        return (Integer) method.invoke(listener, qbean);
     }
 }
