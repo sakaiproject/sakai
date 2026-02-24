@@ -105,6 +105,17 @@ public class HistogramListenerTest {
         assertEquals(100, invokeResolveScoreStatisticsPercentCorrect(listener, qbean));
     }
 
+    @Test
+    public void testResolveScoreStatisticsPercentCorrectTwoOfThree() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setNumResponses(1);
+        qbean.setMean("2.0");
+        qbean.setTotalScore("3.0");
+
+        assertEquals(66, invokeResolveScoreStatisticsPercentCorrect(listener, qbean));
+    }
+
     private StatisticsService createStatisticsService() {
         GradingService gradingService = new GradingService();
         MemoryService memoryService = mock(MemoryService.class);

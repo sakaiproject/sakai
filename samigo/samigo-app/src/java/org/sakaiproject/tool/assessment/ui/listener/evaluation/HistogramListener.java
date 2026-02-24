@@ -49,6 +49,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -2542,23 +2543,12 @@ public class HistogramListener
 	}
   }
 
-  private double parseDoubleSafely(String numberAsText) {
-    if (StringUtils.isBlank(numberAsText)) {
-      return 0d;
-    }
-    try {
-      return Double.parseDouble(numberAsText);
-    } catch (NumberFormatException e) {
-      return 0d;
-    }
-  }
-
   private int resolveScoreStatisticsPercentCorrect(HistogramQuestionScoresBean qbean) {
     if (qbean == null || qbean.getNumResponses() <= 0) {
       return 0;
     }
-    double meanScore = parseDoubleSafely(qbean.getMean());
-    double maxScoreForQuestion = parseDoubleSafely(qbean.getTotalScore());
+    double meanScore = NumberUtils.toDouble(qbean.getMean(), 0d);
+    double maxScoreForQuestion = NumberUtils.toDouble(qbean.getTotalScore(), 0d);
     return calculatePercentCorrect(meanScore, maxScoreForQuestion);
   }
 
