@@ -81,19 +81,19 @@ public class HistogramListenerTest {
     public void testParseMetadataPercentCorrectDefaultsToZeroForBlank() throws Exception {
         HistogramListener listener = new HistogramListener();
 
-        assertEquals(0.0d, invokeParseMetadataPercentCorrect(listener, "", "keywords"), 0.0d);
-        assertEquals(0.0d, invokeParseMetadataPercentCorrect(listener, null, "keywords"), 0.0d);
-        assertEquals(0.0d, invokeParseMetadataPercentCorrect(listener, "N/A", "objectives"), 0.0d);
-        assertEquals(0.0d, invokeParseMetadataPercentCorrect(listener, "not-a-number", "keywords"), 0.0d);
+        assertEquals(0.0d, listener.parseMetadataPercentCorrect("", "keywords"), 0.0d);
+        assertEquals(0.0d, listener.parseMetadataPercentCorrect(null, "keywords"), 0.0d);
+        assertEquals(0.0d, listener.parseMetadataPercentCorrect("N/A", "objectives"), 0.0d);
+        assertEquals(0.0d, listener.parseMetadataPercentCorrect("not-a-number", "keywords"), 0.0d);
     }
 
     @Test
     public void testParseMetadataPercentCorrectParsesNumericValues() throws Exception {
         HistogramListener listener = new HistogramListener();
 
-        assertEquals(73.5d, invokeParseMetadataPercentCorrect(listener, "73.5", "keywords"), 0.0d);
-        assertEquals(0.0d, invokeParseMetadataPercentCorrect(listener, "-1", "keywords"), 0.0d);
-        assertEquals(100.0d, invokeParseMetadataPercentCorrect(listener, "120", "keywords"), 0.0d);
+        assertEquals(73.5d, listener.parseMetadataPercentCorrect("73.5", "keywords"), 0.0d);
+        assertEquals(0.0d, listener.parseMetadataPercentCorrect("-1", "keywords"), 0.0d);
+        assertEquals(100.0d, listener.parseMetadataPercentCorrect("120", "keywords"), 0.0d);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class HistogramListenerTest {
         qbean.setMean("2.0");
         qbean.setTotalScore("2.0");
 
-        assertEquals(100, invokeResolveScoreStatisticsPercentCorrect(listener, qbean));
+        assertEquals(100, listener.resolveScoreStatisticsPercentCorrect(qbean));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class HistogramListenerTest {
         qbean.setMean("2.0");
         qbean.setTotalScore("3.0");
 
-        assertEquals(67, invokeResolveScoreStatisticsPercentCorrect(listener, qbean));
+        assertEquals(67, listener.resolveScoreStatisticsPercentCorrect(qbean));
     }
 
     @Test
@@ -126,7 +126,7 @@ public class HistogramListenerTest {
         qbean.setMean("2.0");
         qbean.setTotalScore("3.0");
 
-        assertEquals(0, invokeResolveScoreStatisticsPercentCorrect(listener, qbean));
+        assertEquals(0, listener.resolveScoreStatisticsPercentCorrect(qbean));
     }
 
     @Test
@@ -137,7 +137,7 @@ public class HistogramListenerTest {
         qbean.setMean("2.0");
         qbean.setTotalScore("0.0");
 
-        assertEquals(0, invokeResolveScoreStatisticsPercentCorrect(listener, qbean));
+        assertEquals(0, listener.resolveScoreStatisticsPercentCorrect(qbean));
     }
 
     @Test
@@ -155,10 +155,31 @@ public class HistogramListenerTest {
         second.setAutoScore(1.0d);
         scores.add(second);
 
-        invokeDoScoreStatistics(listener, qbean, scores);
+        listener.doScoreStatistics(qbean, scores);
 
         assertEquals("75", qbean.getPercentCorrect());
         assertEquals("2.0", qbean.getTotalScore());
+    }
+
+    @Test
+    public void testDoScoreStatisticsKeepsBlankQuestionTotalPossibleScore() {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setTotalScore("");
+
+        List<ItemGradingData> scores = new ArrayList<>();
+        ItemGradingData first = new ItemGradingData();
+        first.setAutoScore(2.0d);
+        scores.add(first);
+
+        ItemGradingData second = new ItemGradingData();
+        second.setAutoScore(1.0d);
+        scores.add(second);
+
+        listener.doScoreStatistics(qbean, scores);
+
+        assertEquals("0", qbean.getPercentCorrect());
+        assertEquals("N/A", qbean.getTotalScore());
     }
 
     @Test
@@ -170,7 +191,7 @@ public class HistogramListenerTest {
         qbean.setNumberOfStudentsWithCorrectAnswers(1L);
         qbean.setPercentCorrect("33");
 
-        assertEquals(33.333d, invokeResolveMetadataPercentCorrect(listener, qbean, "objectives"), 0.001d);
+        assertEquals(33.333d, listener.resolveMetadataPercentCorrect(qbean, "objectives"), 0.001d);
     }
 
     @Test
@@ -182,7 +203,7 @@ public class HistogramListenerTest {
         qbean.setMean("1.0");
         qbean.setTotalScore("3.0");
 
-        assertEquals(33.333d, invokeResolveMetadataPercentCorrect(listener, qbean, "objectives"), 0.001d);
+        assertEquals(33.333d, listener.resolveMetadataPercentCorrect(qbean, "objectives"), 0.001d);
     }
 
     private StatisticsService createStatisticsService() {
@@ -220,29 +241,4 @@ public class HistogramListenerTest {
         method.invoke(listener, qbean, item, scores, answersById);
     }
 
-    private double invokeParseMetadataPercentCorrect(HistogramListener listener, String percentCorrect, String metadataType) throws Exception {
-        Method method = HistogramListener.class.getDeclaredMethod("parseMetadataPercentCorrect", String.class, String.class);
-        method.setAccessible(true);
-        return (Double) method.invoke(listener, percentCorrect, metadataType);
-    }
-
-    private int invokeResolveScoreStatisticsPercentCorrect(HistogramListener listener, HistogramQuestionScoresBean qbean) throws Exception {
-        Method method = HistogramListener.class.getDeclaredMethod("resolveScoreStatisticsPercentCorrect", HistogramQuestionScoresBean.class);
-        method.setAccessible(true);
-        return (Integer) method.invoke(listener, qbean);
-    }
-
-    private void invokeDoScoreStatistics(HistogramListener listener, HistogramQuestionScoresBean qbean,
-            List<ItemGradingData> scores) throws Exception {
-        Method method = HistogramListener.class.getDeclaredMethod("doScoreStatistics", HistogramQuestionScoresBean.class, List.class);
-        method.setAccessible(true);
-        method.invoke(listener, qbean, scores);
-    }
-
-    private double invokeResolveMetadataPercentCorrect(HistogramListener listener, HistogramQuestionScoresBean qbean,
-            String metadataType) throws Exception {
-        Method method = HistogramListener.class.getDeclaredMethod("resolveMetadataPercentCorrect", HistogramQuestionScoresBean.class, String.class);
-        method.setAccessible(true);
-        return (Double) method.invoke(listener, qbean, metadataType);
-    }
 }

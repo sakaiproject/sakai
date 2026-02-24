@@ -794,7 +794,7 @@ public class HistogramListener
 	  return true;
   }
 
-  private double resolveMetadataPercentCorrect(HistogramQuestionScoresBean questionScores, String metadataType) {
+  double resolveMetadataPercentCorrect(HistogramQuestionScoresBean questionScores, String metadataType) {
 	  if (questionScores == null) {
 		  return 0.0d;
 	  }
@@ -811,7 +811,7 @@ public class HistogramListener
 	  return parseMetadataPercentCorrect(questionScores.getPercentCorrect(), metadataType);
   }
 
-  private double parseMetadataPercentCorrect(String percentCorrect, String metadataType) {
+  double parseMetadataPercentCorrect(String percentCorrect, String metadataType) {
 	  if (StringUtils.isBlank(percentCorrect) || "N/A".equalsIgnoreCase(percentCorrect)) {
 		  return 0.0d;
 	  }
@@ -868,10 +868,16 @@ public class HistogramListener
       qbean.setNumResponses(responses);
       qbean.setNumberOfStudentsWithZeroAnswers(numStudentsWithZeroAnswers);
 
-    if (isAnswerStatisticsQuestionType(qbean.getQuestionType()))
+    if (isAnswerStatisticsQuestionType(qbean.getQuestionType())) {
       doAnswerStatistics(pub, qbean, itemScores);
-    if (isScoreStatisticsQuestionType(qbean.getQuestionType()))
+    }
+    if (isScoreStatisticsQuestionType(qbean.getQuestionType())) {
+      if (StringUtils.isBlank(qbean.getTotalScore())) {
+        log.warn("Missing total possible score before score statistics for item [{}], type [{}]", qbean.getItemId(),
+            qbean.getQuestionType());
+      }
       doScoreStatistics(qbean, itemScores);
+    }
 
   }
 
@@ -2497,10 +2503,11 @@ public class HistogramListener
 	  qbean.setNumResponses(numStudentRespondedMap.size());
   }	
 
-  private void doScoreStatistics(HistogramQuestionScoresBean qbean, List scores)
+  void doScoreStatistics(HistogramQuestionScoresBean qbean, List<ItemGradingData> scores)
   {
     // here scores contain ItemGradingData
-    String totalPossibleScoreForQuestion = qbean.getTotalScore();
+    String savedTotalScore = qbean.getTotalScore();
+    String totalPossibleScoreForQuestion = savedTotalScore;
     Map assessmentMap = getAssessmentStatisticsMap(scores);
 
     // test to see if it gets back empty map
@@ -2521,6 +2528,8 @@ public class HistogramListener
       if (StringUtils.isNotBlank(totalPossibleScoreForQuestion)) {
         // Keep question max points (set before determineResults) instead of summed student scores.
         qbean.setTotalScore(totalPossibleScoreForQuestion);
+      } else {
+        qbean.setTotalScore(savedTotalScore);
       }
 
 
@@ -2557,7 +2566,7 @@ public class HistogramListener
 	}
   }
 
-  private int resolveScoreStatisticsPercentCorrect(HistogramQuestionScoresBean qbean) {
+  int resolveScoreStatisticsPercentCorrect(HistogramQuestionScoresBean qbean) {
     return (int) Math.round(resolveScoreStatisticsPercentCorrectValue(qbean));
   }
 
