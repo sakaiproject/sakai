@@ -19,12 +19,6 @@ let currentCustomSearchFunction = null;
 
 window.assignments.byStudent = {};
 
-window.assignments.byStudent.getCustomSearchKey = function(table) {
-  const tableId = table.table().node().id;
-  const stateKey = 'DataTables_' + tableId + '_' + window.location.pathname;
-  return stateKey + '_customSearch';
-};
-
 // Assignments By Students "global" namespace
 window.assignments.byStudent.datatablesConfig = {
   dom: '<<".dt-header-row"<".dt-header-slot">lf><t><".dt-footer-row"ip>>',
@@ -105,15 +99,14 @@ window.addEventListener("load", () => {
       }
       searchInput.hasCustomSearch = true;
 
-      const customSearchKey = window.assignments.byStudent.getCustomSearchKey(table);
+      // Load custom search term from DataTables state
+      const savedState = table.state.loaded();
+      let cachedSearchTerm = (savedState && savedState.customSearch) ? savedState.customSearch : '';
 
-      let cachedSearchTerm = '';
-      try {
-        cachedSearchTerm = localStorage.getItem(customSearchKey) || '';
-      } catch (e) {
-        // localStorage may be disabled or unavailable, use empty default
-        console.warn('Failed to read from localStorage:', e);
-      }
+      // Hook into state save to persist custom search
+      table.on('stateSaveParams.dt', function(e, settings, data) {
+        data.customSearch = cachedSearchTerm;
+      });
 
       $(searchInput).off();
       searchInput.removeAttribute('data-dt-search');
@@ -131,19 +124,6 @@ window.addEventListener("load", () => {
       const customSearchFunction = function(settings, searchData, index, rowData, counter) {
         if (settings.nTable.id !== 'assignmentsByStudent') {
           return true;
-        }
-
-        if (counter === 0) {
-          let currentStoredValue = '';
-          try {
-            currentStoredValue = localStorage.getItem(customSearchKey) || '';
-          } catch (e) {
-            // localStorage may be disabled, use cached value
-          }
-          if (cachedSearchTerm !== currentStoredValue) {
-            cachedSearchTerm = currentStoredValue;
-            searchInput.value = currentStoredValue;
-          }
         }
 
         if (!cachedSearchTerm || cachedSearchTerm.trim() === '') {
@@ -169,12 +149,7 @@ window.addEventListener("load", () => {
 
       const handleSearch = function() {
         cachedSearchTerm = this.value;
-        try {
-          localStorage.setItem(customSearchKey, cachedSearchTerm);
-        } catch (e) {
-          // localStorage may be full or disabled, continue without persistence
-          console.warn('Failed to save search term to localStorage:', e);
-        }
+        table.state.save();
         table.draw();
       };
 

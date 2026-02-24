@@ -14,13 +14,6 @@
 		// Unfortunatly resetting the state requres creating a temporary instance
 		if ("$!resetTableState" != "false") {
 			let tempDatatable = table.DataTable();
-			const customSearchKey = assignments.byStudent.getCustomSearchKey(tempDatatable);
-			try {
-				localStorage.removeItem(customSearchKey);
-			} catch (e) {
-				// localStorage may be disabled, continue with reset anyway
-				console.warn('Failed to clear search term from localStorage:', e);
-			}
 			tempDatatable.state.clear();
 			tempDatatable.destroy();
 		}
