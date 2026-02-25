@@ -347,7 +347,8 @@ $Id$
 
         <h:panelGroup rendered="#{histogramScores.showObjectivesColumn=='true'}">
           <div class="objectives">
-            <h:dataTable styleClass="table" value="#{histogramScores.objectives}" var="obj">
+            <h:dataTable styleClass="table" value="#{histogramScores.objectives}" var="obj"
+              columnClasses="w-75,w-25 text-end text-nowrap">
               <h:column>
                 <f:facet name="header">
                   <h:outputText escape="false" value="#{evaluationMessages.obj}" />
@@ -366,7 +367,8 @@ $Id$
 
         <h:panelGroup rendered="#{histogramScores.showObjectivesColumn=='true'}">
           <div class="keywords">
-            <h:dataTable styleClass="table" value="#{histogramScores.keywords}" var="keyword_s">
+            <h:dataTable styleClass="table" value="#{histogramScores.keywords}" var="keyword_s"
+              columnClasses="w-75,w-25 text-end text-nowrap">
               <h:column>
                 <f:facet name="header">
                   <h:outputText escape="false" value="#{evaluationMessages.keywords}" />
@@ -415,7 +417,7 @@ $Id$
 
               <h:dataTable columnClasses="stats-answers,stats-correctness"
                 styleClass="table panel-body stats-bod stats-bar" value="#{item.histogramBars}" var="bar"
-                rendered="#{item.questionType == '1' or item.questionType == '2' or item.questionType == '12' or item.questionType == '4' or item.questionType == '15'}">
+                rendered="#{item.displaysAnswerStatsWithCorrectnessColumn}">
                 <!-- MULTIPLE_CHOICE (1) -->
                 <!-- MULTIPLE_CORRECT (2) -->
                 <!-- TRUE_FALSE (4) -->
@@ -463,7 +465,7 @@ $Id$
 
               <h:dataTable columnClasses="stats-answers" styleClass="table panel-body stats-bod stats-bar"
                 value="#{item.histogramBars}" var="bar"
-                rendered="#{item.questionType == '8'}">
+                rendered="#{item.displaysFillInBlankStats}">
                 <!-- FILL_IN_BLANK (8) -->
                 <h:column>
                   <f:facet name="header">
@@ -499,7 +501,7 @@ $Id$
 
               <h:dataTable columnClasses="stats-answers" styleClass="table panel-body stats-bod stats-bar"
                 value="#{item.histogramBars}" var="bar"
-                rendered="#{item.questionType == '9' or item.questionType == '11' or item.questionType == '14' or item.questionType == '16'}">
+                rendered="#{item.displaysAnswerStatsWithoutCorrectnessColumn}">
                 <!-- MATCHING (9) -->
                 <!-- FILL_IN_NUMERIC (11) -->
                 <!-- EXTENDED_MATCHING_ITEMS (14) -->
@@ -538,7 +540,7 @@ $Id$
 
               <h:dataTable columnClasses="stats-answers" styleClass="table panel-body stats-bod stats-bar"
                 value="#{item.histogramBars}" var="bar"
-                rendered="#{item.questionType == '6' or item.questionType == '5' or item.questionType == '7'}">
+                rendered="#{item.displaysScoreStats}">
                 <!-- ESSAY_QUESTION (5) -->
                 <!-- FILE_UPLOAD (6) -->
                 <!-- AUDIO_RECORDING (7) -->
@@ -576,7 +578,7 @@ $Id$
 
               <h:dataTable columnClasses="stats-answers" styleClass="table panel-body stats-bod stats-bar"
                 value="#{item.histogramBars}" var="bar"
-                rendered="#{item.questionType == '3'}">
+                rendered="#{item.displaysMultipleChoiceSurveyStats}">
                 <!-- MULTIPLE_CHOICE_SURVEY (3) -->
                 <h:column>
                   <f:facet name="header">
@@ -611,7 +613,7 @@ $Id$
               </h:dataTable>
 
               <h:dataTable columnClasses="stats-answers" styleClass="table panel-body stats-bod stats-bar"
-                value="#{item.histogramBars}" var="bar" rendered="#{item.questionType == '13'}">
+                value="#{item.histogramBars}" var="bar" rendered="#{item.displaysMatrixSurveyStats}">
                 <!-- MATRIX_CHOICES_SURVEY (13) -->
                 <h:column>
                   <f:facet name="header">
@@ -681,7 +683,7 @@ $Id$
               </h:dataTable>
               <!-- 1-2=mcmc 3=mcsc 4=tf 5=essay 6=file 7=audio 8=FIB 9=matching 14=emi -->
 
-	      <h:panelGrid styleClass="table table-condensed table-striped" columns="5" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}">
+              <h:panelGrid styleClass="table table-condensed table-striped" columns="5" rendered="#{item.displaysScoreStats}">
                   <h:outputLabel value="#{evaluationMessages.responses}" />
                   <h:outputLabel value="#{evaluationMessages.tot_poss_eq}" />
                   <h:outputLabel value="#{evaluationMessages.mean_eq}" />
@@ -695,12 +697,12 @@ $Id$
               </h:panelGrid>
 
               <h:panelGrid styleClass="table table-striped" columns="2"
-                rendered="#{item.questionType == '3' or item.questionType == '13'}">
+                rendered="#{item.displaysSurveySummary}">
                 <h:outputText escape="false" id="responses1"
                   value="<strong>#{item.numResponses}</strong> #{evaluationMessages.responses}" />
               </h:panelGrid>
               <h:panelGrid styleClass="table table-striped" columns="2"
-                rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9' or item.questionType == '11' or item.questionType == '12' or item.questionType == '14' or item.questionType == '15' or item.questionType == '16'}"
+                rendered="#{item.displaysAnswerStatsSummary}"
                 columnClasses="alignLeft,aligntRight">
                 <h:outputText rendered="#{item.numResponses != 0}" escape="false"
                   value="<strong>#{item.numResponses}</strong> #{evaluationMessages.responses}, <strong>#{item.percentCorrect}%</strong> #{evaluationMessages.percentCorrect}" />

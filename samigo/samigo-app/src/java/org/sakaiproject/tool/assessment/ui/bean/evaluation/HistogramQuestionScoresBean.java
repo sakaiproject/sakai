@@ -40,7 +40,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.assessment.StatisticsService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
@@ -1158,6 +1160,50 @@ public class HistogramQuestionScoresBean implements Serializable {
   
   public boolean getShowPercentageCorrectAndDiscriminationFigures() {
 	  return !getQuestionType().equals("3");
+  }
+
+  private boolean isQuestionType(Long typeId) {
+	  return typeId != null && typeId.toString().equals(getQuestionType());
+  }
+
+  public boolean getDisplaysAnswerStatsWithCorrectnessColumn() {
+	  return isQuestionType(TypeIfc.MULTIPLE_CHOICE)
+			  || isQuestionType(TypeIfc.MULTIPLE_CORRECT)
+			  || isQuestionType(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION)
+			  || isQuestionType(TypeIfc.TRUE_FALSE)
+			  || isQuestionType(TypeIfc.CALCULATED_QUESTION);
+  }
+
+  public boolean getDisplaysFillInBlankStats() {
+	  return isQuestionType(TypeIfc.FILL_IN_BLANK);
+  }
+
+  public boolean getDisplaysAnswerStatsWithoutCorrectnessColumn() {
+	  return isQuestionType(TypeIfc.MATCHING)
+			  || isQuestionType(TypeIfc.FILL_IN_NUMERIC)
+			  || isQuestionType(TypeIfc.EXTENDED_MATCHING_ITEMS)
+			  || isQuestionType(TypeIfc.IMAGEMAP_QUESTION);
+  }
+
+  public boolean getDisplaysScoreStats() {
+	  return StatisticsService.supportsScoreStatistics(getQuestionType());
+  }
+
+  public boolean getDisplaysMultipleChoiceSurveyStats() {
+	  return isQuestionType(TypeIfc.MULTIPLE_CHOICE_SURVEY);
+  }
+
+  public boolean getDisplaysMatrixSurveyStats() {
+	  return isQuestionType(TypeIfc.MATRIX_CHOICES_SURVEY);
+  }
+
+  public boolean getDisplaysSurveySummary() {
+	  return StatisticsService.isSurveyQuestionType(getQuestionType());
+  }
+
+  public boolean getDisplaysAnswerStatsSummary() {
+	  return StatisticsService.supportsAnswerStatistics(getQuestionType())
+			  && !StatisticsService.isSurveyQuestionType(getQuestionType());
   }
 
   public int getSumOfStudentResponsesInUndisplayedItemAnalysisColumns() {

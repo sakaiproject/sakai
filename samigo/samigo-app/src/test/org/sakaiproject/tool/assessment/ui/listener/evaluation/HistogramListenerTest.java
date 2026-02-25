@@ -77,6 +77,135 @@ public class HistogramListenerTest {
         assertEquals(new TreeSet<>(Collections.singleton("student-1")), qbean.getStudentsWithAllCorrect());
     }
 
+    @Test
+    public void testParseMetadataPercentCorrectDefaultsToZeroForBlank() throws Exception {
+        HistogramListener listener = new HistogramListener();
+
+        assertEquals(0.0d, listener.parseMetadataPercentCorrect("", "keywords"), 0.0d);
+        assertEquals(0.0d, listener.parseMetadataPercentCorrect(null, "keywords"), 0.0d);
+        assertEquals(0.0d, listener.parseMetadataPercentCorrect("N/A", "objectives"), 0.0d);
+        assertEquals(0.0d, listener.parseMetadataPercentCorrect("not-a-number", "keywords"), 0.0d);
+    }
+
+    @Test
+    public void testParseMetadataPercentCorrectParsesNumericValues() throws Exception {
+        HistogramListener listener = new HistogramListener();
+
+        assertEquals(73.5d, listener.parseMetadataPercentCorrect("73.5", "keywords"), 0.0d);
+        assertEquals(0.0d, listener.parseMetadataPercentCorrect("-1", "keywords"), 0.0d);
+        assertEquals(100.0d, listener.parseMetadataPercentCorrect("120", "keywords"), 0.0d);
+    }
+
+    @Test
+    public void testResolveScoreStatisticsPercentCorrectUsesMeanOverItemScore() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setNumResponses(1);
+        qbean.setMean("2.0");
+        qbean.setTotalScore("2.0");
+
+        assertEquals(100, listener.resolveScoreStatisticsPercentCorrect(qbean));
+    }
+
+    @Test
+    public void testResolveScoreStatisticsPercentCorrectTwoOfThreeRoundsTo67() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setNumResponses(1);
+        qbean.setMean("2.0");
+        qbean.setTotalScore("3.0");
+
+        assertEquals(67, listener.resolveScoreStatisticsPercentCorrect(qbean));
+    }
+
+    @Test
+    public void testResolveScoreStatisticsPercentCorrectReturnsZeroWhenNoResponses() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setNumResponses(0);
+        qbean.setMean("2.0");
+        qbean.setTotalScore("3.0");
+
+        assertEquals(0, listener.resolveScoreStatisticsPercentCorrect(qbean));
+    }
+
+    @Test
+    public void testResolveScoreStatisticsPercentCorrectReturnsZeroWhenTotalPossibleScoreZero() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setNumResponses(1);
+        qbean.setMean("2.0");
+        qbean.setTotalScore("0.0");
+
+        assertEquals(0, listener.resolveScoreStatisticsPercentCorrect(qbean));
+    }
+
+    @Test
+    public void testDoScoreStatisticsPreservesQuestionTotalPossibleScoreForPercentCorrect() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setTotalScore("2.0");
+
+        List<ItemGradingData> scores = new ArrayList<>();
+        ItemGradingData first = new ItemGradingData();
+        first.setAutoScore(2.0d);
+        scores.add(first);
+
+        ItemGradingData second = new ItemGradingData();
+        second.setAutoScore(1.0d);
+        scores.add(second);
+
+        listener.doScoreStatistics(qbean, scores);
+
+        assertEquals("75", qbean.getPercentCorrect());
+        assertEquals("2.0", qbean.getTotalScore());
+    }
+
+    @Test
+    public void testDoScoreStatisticsKeepsBlankQuestionTotalPossibleScore() {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setTotalScore("");
+
+        List<ItemGradingData> scores = new ArrayList<>();
+        ItemGradingData first = new ItemGradingData();
+        first.setAutoScore(2.0d);
+        scores.add(first);
+
+        ItemGradingData second = new ItemGradingData();
+        second.setAutoScore(1.0d);
+        scores.add(second);
+
+        listener.doScoreStatistics(qbean, scores);
+
+        assertEquals("0", qbean.getPercentCorrect());
+        assertEquals("N/A", qbean.getTotalScore());
+    }
+
+    @Test
+    public void testResolveMetadataPercentCorrectUsesPreciseAnswerRatio() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setQuestionType(TypeIfc.MULTIPLE_CHOICE.toString());
+        qbean.setNumResponses(3);
+        qbean.setNumberOfStudentsWithCorrectAnswers(1L);
+        qbean.setPercentCorrect("33");
+
+        assertEquals(33.333d, listener.resolveMetadataPercentCorrect(qbean, "objectives"), 0.001d);
+    }
+
+    @Test
+    public void testResolveMetadataPercentCorrectUsesPreciseScoreRatio() throws Exception {
+        HistogramListener listener = new HistogramListener();
+        HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
+        qbean.setQuestionType(TypeIfc.ESSAY_QUESTION.toString());
+        qbean.setNumResponses(1);
+        qbean.setMean("1.0");
+        qbean.setTotalScore("3.0");
+
+        assertEquals(33.333d, listener.resolveMetadataPercentCorrect(qbean, "objectives"), 0.001d);
+    }
+
     private StatisticsService createStatisticsService() {
         GradingService gradingService = new GradingService();
         MemoryService memoryService = mock(MemoryService.class);
@@ -111,4 +240,5 @@ public class HistogramListenerTest {
         method.setAccessible(true);
         method.invoke(listener, qbean, item, scores, answersById);
     }
+
 }
