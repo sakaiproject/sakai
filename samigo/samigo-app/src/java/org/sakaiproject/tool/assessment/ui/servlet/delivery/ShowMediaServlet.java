@@ -147,14 +147,17 @@ public class ShowMediaServlet extends HttpServlet
       dispatcher.forward(req, res);
     }
     else {
+      boolean forceDownload = StringUtils.equals(mediaData.getMimeType(), "application/octet-stream")
+              || StringUtils.equals(setMimeType, "false");
+      String responseContentType = !forceDownload && StringUtils.isNotBlank(mediaData.getMimeType())
+              ? mediaData.getMimeType()
+              : "application/octet-stream";
       String displayType="inline";
-      if (!StringUtils.equals(mediaData.getMimeType(), "application/octet-stream") && !StringUtils.equals(setMimeType, "false")) {
-          res.setContentType(mediaData.getMimeType());
-      }
-      else {
+      if (forceDownload) {
         displayType="attachment";
-        res.setContentType("application/octet-stream");
       }
+      res.setContentType(responseContentType);
+      res.setHeader("Content-Type", responseContentType);
       log.debug("****"+displayType+";filename=\""+fileName+"\";");
       res.setHeader("Content-Disposition", displayType+";filename=\""+fileName+"\";");
 
@@ -174,8 +177,9 @@ public class ShowMediaServlet extends HttpServlet
                     res.addHeader("X-Sendfile", linkPath);
                     return;
                 }
-                else if (serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
+                else if (!forceDownload && serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
                     log.debug("cloud.content.directurl; path={}", directLink.toString());
+                    res.setContentLength(0);
                     res.sendRedirect(directLink.toString());
                     return;
                 }
