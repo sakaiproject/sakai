@@ -560,11 +560,11 @@
 									#end
 									$!service.getSubmissionStatus($!submissionId, true)
 
-									#if ($!submission && $submission.properties.get("auto_submitted").equalsIgnoreCase("true"))
+									#if ($submission && $submission.Properties && $submission.Properties.get("auto_submitted").equalsIgnoreCase("true"))
 										<br/>
-										<span class="badge bg-info" title="$tlang.getString('auto.submit.indicator.label')">
+										<span class="badge bg-info" title="$tlang.getString('auto_submit_indicator')">
 											<span class="bi bi-clock-history me-1" aria-hidden="true"></span>
-											$tlang.getString("auto.submit.indicator.label")
+											$tlang.getString("auto_submit_indicator")
 										</span>
 									#end
 								#end

@@ -237,7 +237,8 @@ public class AutoSubmitAssignmentsJob implements Job {
                     }
 
                     String submitterInfo = String.join(", ", submission.submitterIds != null ? submission.submitterIds : List.of("Unknown"));
-                    eventTrackingService.post(eventTrackingService.newEvent(EVENT_AUTO_SUBMIT_SUBMISSION, "Assignment: " + assignmentEntity.getTitle() + " Submitter: " + submitterInfo, true));
+                    String eventDetail = "Assignment: " + assignmentEntity.getTitle() + " Submitter: " + submitterInfo;
+                    eventTrackingService.post(eventTrackingService.newEvent(EVENT_AUTO_SUBMIT_SUBMISSION, safeEventLength(eventDetail), true));
                 } else {
                     log.warn("No submitter found for submission {}", submission.id);
                 }
@@ -301,7 +302,7 @@ public class AutoSubmitAssignmentsJob implements Job {
         UsageSession session = usageSessionService.startSession(whoAs, serverName, "AutoSubmitAssignmentsJob");
         if (session == null) {
             eventTrackingService.post(eventTrackingService.newEvent(EVENT_AUTO_SUBMIT_JOB_ERROR, whoAs + " unable to log into " + serverName, true));
-            return;
+            throw new RuntimeException("Unable to start session for " + whoAs);
         }
 
         Session sakaiSession = sessionManager.getCurrentSession();

@@ -3351,8 +3351,9 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
-        context.put("allowAutoSubmit", serverConfigurationService.getBoolean("assignment.autoSubmit.enabled", false));
-        if ((Boolean) serverConfigurationService.getBoolean("assignment.autoSubmit.enabled", false)) {
+        boolean allowAutoSubmit = serverConfigurationService.getBoolean("assignment.autoSubmit.enabled", false);
+        context.put("allowAutoSubmit", allowAutoSubmit);
+        if (allowAutoSubmit) {
             context.put("name_CheckAutoSubmit", NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT);
         }
 
@@ -3536,7 +3537,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 
-        if ((Boolean) serverConfigurationService.getBoolean("assignment.autoSubmit.enabled", false)) {
+        if (serverConfigurationService.getBoolean("assignment.autoSubmit.enabled", false)) {
             context.put("value_CheckAutoSubmit", state.getAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT));
         }
 
