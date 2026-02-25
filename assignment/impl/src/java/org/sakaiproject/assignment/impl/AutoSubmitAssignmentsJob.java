@@ -17,9 +17,11 @@ package org.sakaiproject.assignment.impl;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.mail.internet.InternetAddress;
 
@@ -28,6 +30,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -56,6 +59,7 @@ public class AutoSubmitAssignmentsJob implements Job {
 
     @Setter private AssignmentRepository assignmentRepository;
     @Setter private AssignmentService assignmentService;
+    @Setter private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
     @Setter private AuthzGroupService authzGroupService;
     @Setter private EmailService emailService;
     @Setter private EventTrackingService eventTrackingService;
@@ -124,6 +128,7 @@ public class AutoSubmitAssignmentsJob implements Job {
 
         int failures = 0;
         int batchSize = serverConfigurationService.getInt("assignment.autoSubmit.batchSize", 1000); // Increased batch size
+        Set<String> assignmentsWithAutoSubmits = new HashSet<>();
 
         try {
             // OPTIMIZATION: Get all auto-submit eligible submissions in one query instead of nested loops
@@ -148,8 +153,12 @@ public class AutoSubmitAssignmentsJob implements Job {
                 
                 for (SimpleSubmissionDraft submission : batch) {
                     try {
-                        autoSubmitSubmissionDTO(submission);
-                        totalProcessed++;
+                        boolean success = autoSubmitSubmissionDTO(submission);
+                        if (success) {
+                            totalProcessed++;
+                            // Track which assignment had an auto-submit
+                            assignmentsWithAutoSubmits.add(submission.gradableId);
+                        }
                     } catch (Exception e) {
                         log.error("Error auto-submitting submission {}: {}", submission.id, e.getMessage(), e);
                         failures++;
@@ -158,6 +167,11 @@ public class AutoSubmitAssignmentsJob implements Job {
             }
 
             log.info("Auto-submit completed: {} processed, {} failures", totalProcessed, failures);
+
+            // Re-assign peer reviews for assignments that had auto-submits
+            if (!assignmentsWithAutoSubmits.isEmpty()) {
+                reassignPeerReviewsForAutoSubmittedAssignments(assignmentsWithAutoSubmits);
+            }
 
         } catch (Exception e) {
             log.error("Error in optimized auto-submit process: {}", e.getMessage(), e);
@@ -172,8 +186,9 @@ public class AutoSubmitAssignmentsJob implements Job {
     /**
      * Auto-submit a draft submission (OPTIMIZED VERSION)
      * @param submission the submission to auto-submit
+     * @return true if submission was successfully auto-submitted, false otherwise
      */
-    private void autoSubmitSubmissionDTO(SimpleSubmissionDraft submission) {
+    private boolean autoSubmitSubmissionDTO(SimpleSubmissionDraft submission) {
 
         try {
             log.debug("Auto-submitting draft submission {}", submission.id);
@@ -182,20 +197,20 @@ public class AutoSubmitAssignmentsJob implements Job {
             AssignmentSubmission entity = assignmentRepository.findSubmission(submission.id);
             if (entity == null) {
                 log.warn("Submission {} not found for auto-submit", submission.id);
-                return;
+                return false;
             }
 
             // Check if submission is already submitted to avoid duplicates
             if (entity.getSubmitted()) {
                 log.debug("Submission {} is already submitted, skipping auto-submit", submission.id);
-                return;
+                return false;
             }
 
             // Get assignment info from the entity directly (no need for separate parameter)
             Assignment assignmentEntity = entity.getAssignment();
             if (assignmentEntity == null) {
                 log.warn("Assignment not found for submission {}", submission.id);
-                return;
+                return false;
             }
 
             // Get the original session context to restore later
@@ -239,8 +254,10 @@ public class AutoSubmitAssignmentsJob implements Job {
                     String submitterInfo = String.join(", ", submission.submitterIds != null ? submission.submitterIds : List.of("Unknown"));
                     String eventDetail = "Assignment: " + assignmentEntity.getTitle() + " Submitter: " + submitterInfo;
                     eventTrackingService.post(eventTrackingService.newEvent(EVENT_AUTO_SUBMIT_SUBMISSION, safeEventLength(eventDetail), true));
+                    return true;
                 } else {
                     log.warn("No submitter found for submission {}", submission.id);
+                    return false;
                 }
             } finally {
                 sessionManager.getCurrentSession().setUserId(originalUserId);
@@ -250,6 +267,36 @@ public class AutoSubmitAssignmentsJob implements Job {
             log.error("Error auto-submitting submission {}: {}", submission.id, e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Re-assign peer reviews for assignments that had auto-submitted drafts
+     * @param assignmentIds Set of assignment IDs that had auto-submits
+     */
+    private void reassignPeerReviewsForAutoSubmittedAssignments(Set<String> assignmentIds) {
+        if (assignmentPeerAssessmentService == null) {
+            log.warn("AssignmentPeerAssessmentService not available, skipping peer review re-assignment");
+            return;
+        }
+
+        log.info("Checking {} assignments for peer review re-assignment", assignmentIds.size());
+        int reassignedCount = 0;
+
+        for (String assignmentId : assignmentIds) {
+            try {
+                Assignment assignment = assignmentService.getAssignment(assignmentId);
+                if (assignment != null && assignment.getAllowPeerAssessment() && !assignment.getDraft()) {
+                    log.info("Re-scheduling peer review assignment for assignment: {} ({})", assignment.getTitle(), assignmentId);
+                    // Re-schedule peer review to trigger immediate re-assignment
+                    assignmentPeerAssessmentService.schedulePeerReview(assignmentId);
+                    reassignedCount++;
+                }
+            } catch (Exception e) {
+                log.error("Error re-scheduling peer review for assignment {}: {}", assignmentId, e.getMessage(), e);
+            }
+        }
+
+        log.info("Peer review re-assignment completed: {} assignments processed", reassignedCount);
     }
 
     /**

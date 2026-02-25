@@ -313,6 +313,7 @@
           class="org.sakaiproject.assignment.impl.AutoSubmitAssignmentsJob">
         <property name="assignmentRepository" ref="org.sakaiproject.assignment.api.persistence.AssignmentRepository"/>
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
         <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.api.EmailTemplateService"/>
