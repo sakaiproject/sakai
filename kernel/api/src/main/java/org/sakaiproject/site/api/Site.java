@@ -85,6 +85,8 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	public final static String PROP_LTI_INBOUND_ROLE_MAP = "lti_inbound_role_map";
 
 	public final static String PROP_COURSE_IMAGE_URL = "course_image_url";
+	public final static String PROP_COURSE_CARD_BACKGROUND_COLOR = "course_card_background_color";
+	public final static String PROP_COURSE_CARD_FOREGROUND_COLOR = "course_card_foreground_color";
 
 	/**
 	 * @return the user who created this.

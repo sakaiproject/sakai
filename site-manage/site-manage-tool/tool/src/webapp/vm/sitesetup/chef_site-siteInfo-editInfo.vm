@@ -269,6 +269,17 @@
 				<input type="text" name="siteContactEmail" id="siteContactEmail" size="20" maxlength="99" value="$!form_site_contact_email" />
 			</div>
 		</div>
+		#if ($siteId)
+			<div class="row">
+				<div class="form-control-label">
+					<div class="my-1">$tlang.getString("sitediinf.card")</div>
+					<div class="sak-banner-info">$tlang.getString("sitediinf.cardinfo")</div>
+				</div>
+				<div class="col-12 col-sm-10 col-md-8 col-xl-6 col-xxl-4">
+					<sakai-course-card site-id="$siteId"></sakai-course-card>
+				</div>
+			</div>
+		#end
 		#if ($isMathJaxInstalled)
 			#if ($isMathJaxEnabledForSite)
 				<input type="hidden" name="isMathJaxEnabledForSite" id="isMathJaxEnabledForSite" value="on"/>

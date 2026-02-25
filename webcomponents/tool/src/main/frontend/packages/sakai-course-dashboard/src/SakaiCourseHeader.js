@@ -31,8 +31,8 @@ export class SakaiCourseHeader extends SakaiElement {
 
     return html`
       <div id="container">
-        <div id="image-block">
-          <img id="course-image" src="${this.site.image}"></img>
+        <div>
+          <img src="${this.site.image}" class="w-100" />
           ${this.editing ? html`
           <image-editor-launcher image-url="${this.site.image}" @image-edited=${this._imageEdited}></image-editor-launcher>
           ` : nothing}
