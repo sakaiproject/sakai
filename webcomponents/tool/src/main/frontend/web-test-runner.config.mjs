@@ -4,6 +4,32 @@ import proxy from 'koa-proxies';
 export default {
   files: './packages/**/test/**/*.test.js',
   nodeResolve: true,
+  importMap: {
+    imports: {
+      'glob-to-regexp': '/test/glob-to-regexp.js',
+    },
+  },
+  plugins: [
+    {
+      name: 'fetch-mock-glob-to-regexp-shim',
+      transform(context) {
+        if (!context.path.endsWith('/node_modules/fetch-mock/dist/esm/Matchers.js')) {
+          return;
+        }
+
+        const updated = context.body.replace(
+          "from 'glob-to-regexp'",
+          "from '/test/glob-to-regexp.js'",
+        );
+
+        if (updated === context.body) {
+          return;
+        }
+
+        return { body: updated };
+      },
+    },
+  ],
   middleware: [
     proxy('/api/users/adrian/profile/image/thumb', {
       target: '/test-static-assets/images/topov.jpg',

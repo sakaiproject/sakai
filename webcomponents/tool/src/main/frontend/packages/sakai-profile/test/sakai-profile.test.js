@@ -2,17 +2,23 @@ import "../sakai-profile.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import * as pronunciationPlayerData from "../../sakai-pronunciation-player/test/data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-profile tests", () => {
 
-  window.top.portal = { siteId: data.siteId };
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(pronunciationPlayerData.i18nUrl, pronunciationPlayerData.i18n)
+      .get(data.profileUrl, data.profile)
+      .get("*", 500);
+  });
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(pronunciationPlayerData.i18nUrl, pronunciationPlayerData.i18n, { overwriteRoutes: true })
-    .get(data.profileUrl, data.profile, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
+  window.top.portal = { siteId: data.siteId };
 
   it ("renders correctly", async () => {
  

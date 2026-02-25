@@ -2,18 +2,27 @@ import "../sakai-add-topic.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import * as graderData from "../../sakai-grader/test/data.js";
-import fetchMock from "fetch-mock/esm/client";
-import * as constants from "../src/sakai-conversations-constants.js";
+import fetchMock from "fetch-mock";
 
+import * as constants from "../src/sakai-conversations-constants.js";
 describe("add-topic tests", () => {
 
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(graderData.i18nUrl, graderData.i18n)
+      .get(`/api/sites/${data.siteId}/grading/item-data`, {})
+      .post(data.topicsUrl, ({ url, options }) => JSON.parse(options.body))
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
+
   window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { timezone: "Europe/London" } };
-  fetchMock
-    .get(data.i18nUrl, data.i18n)
-    .get(graderData.i18nUrl, graderData.i18n)
-    .get(`/api/sites/${data.siteId}/grading/item-data`, {})
-    .post(data.topicsUrl, (url, opts) => JSON.parse(opts.body))
-    .get("*", 500, { overwriteRoutes: true });
 
   it ("creates a new discussion topic", async () => {
 

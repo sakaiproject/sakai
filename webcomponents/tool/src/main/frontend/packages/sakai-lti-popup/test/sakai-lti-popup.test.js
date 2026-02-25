@@ -2,16 +2,21 @@ import "../sakai-lti-popup.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import { stub } from "sinon";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-lti-popup tests", () => {
 
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   window.top.portal = { siteId: data.siteId };
-
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
 
   it ("renders buttons with the i18n default values", async () => {
  

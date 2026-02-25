@@ -3,11 +3,11 @@ import { elementUpdated, expect, fixture, oneEvent, waitUntil } from "@open-wc/t
 import { html } from "lit";
 import * as data from "./data.js";
 import * as groupPickerData from "../../sakai-group-picker/test/data.js";
-import fetchMock from "fetch-mock/esm/client";
+import fetchMock from "fetch-mock";
+
 import * as sinon from "sinon";
 import { faker } from "@faker-js/faker/locale/en_GB";
 import { generateSubmission } from "./submission-generator.js";
-
 describe("sakai-grader tests", () => {
 
   window.top.portal = { locale: "en_GB", siteId: data.siteId, siteTitle: data.siteTitle };
@@ -20,14 +20,14 @@ describe("sakai-grader tests", () => {
   const assignmentCloseTime = data.closeTime;
 
   beforeEach(async () => {
-
+    fetchMock.mockGlobal();
     fetchMock.get(data.i18nUrl, data.i18n)
       .get(groupPickerData.i18nUrl, groupPickerData.i18n)
       .get(data.filePickerI18nUrl, data.filePickerI18n);
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it ("loads a set of submissions and displays the specified submission correctly", async () => {
@@ -130,9 +130,9 @@ describe("sakai-grader tests", () => {
     expect(formData.get("feedbackComment")).to.equal(feedbackComment);
     expect(formData.get("privateNotes")).to.equal(privateNotes);
 
-    fetchMock.post("/direct/assignment/setGrade.json", (url, opts) => {
+    fetchMock.post("/direct/assignment/setGrade.json", ({ url, options }) => {
 
-      const submission = { ...Object.fromEntries(opts.body), graded: true };
+      const submission = { ...Object.fromEntries(options.body), graded: true };
       return {
         submission,
         assignmentCloseTime: data.closeTime,

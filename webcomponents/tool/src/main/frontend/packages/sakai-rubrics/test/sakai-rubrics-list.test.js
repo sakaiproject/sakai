@@ -1,13 +1,30 @@
 import "../sakai-rubrics-list.js";
 import * as data from "./data.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
-fetchMock
-  .get(data.rubricsUrl, data.rubrics, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
+import fetchMock from "fetch-mock";
 
 describe("sakai-rubrics-list pagination", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.rubricsUrl, data.rubrics)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
+  function setRoutes(rubrics) {
+    fetchMock.removeRoutes();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.rubricsUrl, rubrics)
+      .get("*", 500);
+  }
+
   it("should paginate rubrics correctly", async () => {
     // This test checks that pagination works as expected for the main rubrics list
     // Create 25 rubrics for pagination
@@ -16,7 +33,7 @@ describe("sakai-rubrics-list pagination", () => {
       id: String(i + 1),
       title: `Rubric ${i + 1}`
     }));
-    fetchMock.get(data.rubricsUrl, rubrics, { overwriteRoutes: true });
+    setRoutes(rubrics);
     const el = await fixture(html`<sakai-rubrics-list site-id="${data.siteId}"></sakai-rubrics-list>`);
     await waitUntil(() => el._rubrics?.length === rubrics.length, "Rubrics not loaded");
     await elementUpdated(el);
@@ -41,7 +58,7 @@ describe("sakai-rubrics-list pagination", () => {
       id: String(i + 1),
       title: `Rubric ${i + 1}`
     }));
-    fetchMock.get(data.rubricsUrl, rubrics, { overwriteRoutes: true });
+    setRoutes(rubrics);
     const el = await fixture(html`<sakai-rubrics-list site-id="${data.siteId}"></sakai-rubrics-list>`);
     await waitUntil(() => el._rubrics?.length === rubrics.length, "Rubrics not loaded");
     await elementUpdated(el);
@@ -65,7 +82,7 @@ describe("sakai-rubrics-list pagination", () => {
       id: String(i + 1),
       title: `Rubric ${i + 1}`
     }));
-    fetchMock.get(data.rubricsUrl, rubrics, { overwriteRoutes: true });
+    setRoutes(rubrics);
     const el = await fixture(html`<sakai-rubrics-list site-id="${data.siteId}"></sakai-rubrics-list>`);
     await waitUntil(() => el._rubrics && el._rubrics.length === 25, "Rubrics not loaded");
     await elementUpdated(el);
@@ -84,7 +101,7 @@ describe("sakai-rubrics-list pagination", () => {
       id: String(i + 1),
       title: `Rubric ${i + 1}`
     }));
-    fetchMock.get(data.rubricsUrl, rubrics, { overwriteRoutes: true });
+    setRoutes(rubrics);
     const el = await fixture(html`<sakai-rubrics-list site-id="${data.siteId}"></sakai-rubrics-list>`);
     await waitUntil(() => el._rubrics && el._rubrics.length === 25, "Rubrics not loaded");
     await elementUpdated(el);
@@ -103,7 +120,7 @@ describe("sakai-rubrics-list pagination", () => {
       id: String(i + 1),
       title: `Rubric ${i + 1}`
     }));
-    fetchMock.get(data.rubricsUrl, rubrics, { overwriteRoutes: true });
+    setRoutes(rubrics);
     const el = await fixture(html`<sakai-rubrics-list site-id="${data.siteId}"></sakai-rubrics-list>`);
     await waitUntil(() => el._rubrics && el._rubrics.length === 25, "Rubrics not loaded");
     await elementUpdated(el);

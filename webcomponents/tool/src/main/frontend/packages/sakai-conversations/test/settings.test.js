@@ -1,23 +1,29 @@
 import "../sakai-conversations-settings.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-import sinon from "sinon";
+import fetchMock from "fetch-mock";
 
 describe("sakai-conversations-settings tests", () => {
 
-  window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .post(`/api/sites/${data.siteId}/conversations/settings/allowReactions`, 200)
+      .post(`/api/sites/${data.siteId}/conversations/settings/allowUpvoting`, 200)
+      .post(`/api/sites/${data.siteId}/conversations/settings/allowAnonPosting`, 200)
+      .post(`/api/sites/${data.siteId}/conversations/settings/allowBookmarking`, 200)
+      .post(`/api/sites/${data.siteId}/conversations/settings/allowPinning`, 200)
+      .post(`/api/sites/${data.siteId}/conversations/settings/siteLocked`, 200)
+      .post(`/api/sites/${data.siteId}/conversations/settings/requireGuidelinesAgreement`, 200)
+      .post(`/api/sites/${data.siteId}/conversations/settings/guidelines`, 200);
+  });
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n)
-    .post(`/api/sites/${data.siteId}/conversations/settings/allowReactions`, 200)
-    .post(`/api/sites/${data.siteId}/conversations/settings/allowUpvoting`, 200)
-    .post(`/api/sites/${data.siteId}/conversations/settings/allowAnonPosting`, 200)
-    .post(`/api/sites/${data.siteId}/conversations/settings/allowBookmarking`, 200)
-    .post(`/api/sites/${data.siteId}/conversations/settings/allowPinning`, 200)
-    .post(`/api/sites/${data.siteId}/conversations/settings/siteLocked`, 200)
-    .post(`/api/sites/${data.siteId}/conversations/settings/requireGuidelinesAgreement`, 200)
-    .post(`/api/sites/${data.siteId}/conversations/settings/guidelines`, 200);
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
+  window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
 
   const settingsData = {
     allowReactions: true,

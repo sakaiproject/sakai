@@ -1,15 +1,21 @@
 import "../sakai-pronunciation-player.js";
 import { elementUpdated, fixture, expect, html } from "@open-wc/testing";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-pronunciation-player tests", () => {
 
-  window.top.portal = { siteId: data.siteId };
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get("*", 500);
+  });
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
+  window.top.portal = { siteId: data.siteId };
 
   it ("renders correctly", async () => {
  

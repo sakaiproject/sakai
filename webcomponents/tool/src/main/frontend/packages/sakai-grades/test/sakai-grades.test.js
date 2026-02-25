@@ -2,23 +2,21 @@ import "../sakai-grades.js";
 import * as data from "./data.js";
 import * as sitePickerData from "../../sakai-site-picker/test/data.js";
 import { elementUpdated, fixture, expect, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 import { ASSIGNMENT_A_TO_Z, ASSIGNMENT_Z_TO_A, COURSE_A_TO_Z
   , COURSE_Z_TO_A, UNGRADED_MOST_TO_LEAST, UNGRADED_LEAST_TO_MOST
   , SCORE_LOW_TO_HIGH, SCORE_HIGH_TO_LOW } from "../src/sakai-grades-constants.js";
-
 describe("sakai-grades tests", () => {
 
   beforeEach(async () => {
-
+    fetchMock.mockGlobal();
     fetchMock
       .get(data.i18nUrl, data.i18n)
       .get(sitePickerData.i18nUrl, sitePickerData.i18n);
   });
 
   afterEach(async () => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it ("renders in user mode correctly", async () => {

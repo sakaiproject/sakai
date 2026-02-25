@@ -5,24 +5,32 @@ import * as announcementsData from "../../sakai-announcements/test/data.js";
 import * as forumsData from "../../sakai-forums/test/data.js";
 import * as sitePickerData from "../../sakai-site-picker/test/data.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-widget-panel tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   window.top.portal = { locale: "en_GB" };
 
   fetchMock
-    .get(data.i18nUrl, data.i18n, {overwriteRoutes: true})
-    .get(data.dashboardWidgetI18nUrl, data.dashboardWidgetI18n, {overwriteRoutes: true})
-    .get(data.toolnamesI18nUrl, data.toolnamesI18n, {overwriteRoutes: true})
-    .get(data.widgetpickerI18nUrl, data.widgetpickerI18n, {overwriteRoutes: true})
-    .get(gradesData.i18nUrl, gradesData.i18n, {overwriteRoutes: true})
-    .get(gradesData.gradesUrl, { grades: gradesData.grades, sites: sitePickerData.sites }, {overwriteRoutes: true})
-    .get(announcementsData.i18nUrl, announcementsData.i18n, {overwriteRoutes: true})
-    .get(announcementsData.announcementsUrl, { announcements: announcementsData.announcements, sites: sitePickerData.sites }, {overwriteRoutes: true})
-    .get(forumsData.i18nUrl, forumsData.i18n, {overwriteRoutes: true})
-    .get(sitePickerData.i18nUrl, sitePickerData.i18n, { overwriteRoutes: true })
-    .get("*", 500, {overwriteRoutes: true});
+    .get(data.i18nUrl, data.i18n)
+    .get(data.dashboardWidgetI18nUrl, data.dashboardWidgetI18n)
+    .get(data.toolnamesI18nUrl, data.toolnamesI18n)
+    .get(data.widgetpickerI18nUrl, data.widgetpickerI18n)
+    .get(gradesData.i18nUrl, gradesData.i18n)
+    .get(gradesData.gradesUrl, { grades: gradesData.grades, sites: sitePickerData.sites })
+    .get(announcementsData.i18nUrl, announcementsData.i18n)
+    .get(announcementsData.announcementsUrl, { announcements: announcementsData.announcements, sites: sitePickerData.sites })
+    .get(forumsData.i18nUrl, forumsData.i18n)
+    .get(sitePickerData.i18nUrl, sitePickerData.i18n)
+    .get("*", 500);
 
   it ("renders in user mode correctly", async () => {
 

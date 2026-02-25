@@ -1,26 +1,34 @@
 import "../sakai-notifications.js";
 import * as data from "./data.js";
 import { elementUpdated, expect, fixture, html, aTimeout, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-notifications tests", () => {
 
   beforeEach(() =>  {
-
+    fetchMock.mockGlobal();
     window.top.portal = { siteId: data.siteId };
     window.top.portal.notifications = {
       registerPushCallback: (type, callback) => {},
       setup: Promise.resolve(),
     };
-
-    fetchMock
-      .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-      .get(data.profileI18nUrl, data.profileI18n, { overwriteRoutes: true })
-      .get(data.notificationsUrl, data.notifications, { overwriteRoutes: true })
-      .post("/api/users/me/notifications/noti2/clear", 200, { overwriteRoutes: true })
-      .post("/api/users/me/notifications/clear", 200, { overwriteRoutes: true })
-      .get("*", 500, { overwriteRoutes: true });
+    setRoutes(data.notifications);
   });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
+  function setRoutes(notificationsPayload) {
+    fetchMock.removeRoutes();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.profileI18nUrl, data.profileI18n)
+      .get(data.notificationsUrl, notificationsPayload)
+      .post("/api/users/me/notifications/noti2/clear", 200)
+      .post("/api/users/me/notifications/clear", 200)
+      .get("*", 500);
+  }
+
 
   it ("renders correctly", async () => {
 
@@ -86,7 +94,7 @@ describe("sakai-notifications tests", () => {
       url: "http://example.com/assignments/1",
     };
 
-    fetchMock.get(data.notificationsUrl, [assignmentNotification], { overwriteRoutes: true });
+    setRoutes([assignmentNotification]);
 
     const el = await fixture(html`
       <sakai-notifications url="${data.notificationsUrl}"></sakai-notifications>

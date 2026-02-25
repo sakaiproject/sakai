@@ -2,11 +2,19 @@ import { expect } from "@open-wc/testing";
 import { elementUpdated, fixture, html, waitUntil } from "@open-wc/testing";
 import "../sakai-conversations-guidelines.js";
 import  * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
-fetchMock.get(data.i18nUrl, data.i18n);
+import fetchMock from "fetch-mock";
 
 describe("sakai-conversations-guidelines tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock.get(data.i18nUrl, data.i18n);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it("renders with default guidelines", async () => {
 

@@ -2,18 +2,18 @@ import "../sakai-account.js";
 import * as data from "./data.js";
 import * as audioRecorderData from "../../sakai-audio-recorder/test/data.js";
 import { waitUntil, elementUpdated, expect, fixture, html } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
+import fetchMock from "fetch-mock";
 import { spy } from "sinon";
-
 describe("sakai-account tests", () => {
 
   beforeEach(async () => {
+    fetchMock.mockGlobal();
     fetchMock.get(data.i18nUrl, data.i18n)
     .get(audioRecorderData.i18nUrl, audioRecorderData.i18n);
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it ("allows a user to enter their basic details", async () => {
@@ -52,8 +52,9 @@ describe("sakai-account tests", () => {
     saveButton.click();
 
     // Now we can inspect the fetch call
-    expect(fetchMock.calls("patchRequest").length).to.equal(1);
-    const patch = JSON.parse(fetchMock.calls("patchRequest")[0][1].body);
+    const patchCalls = fetchMock.callHistory.calls("patchRequest");
+    expect(patchCalls.length).to.equal(1);
+    const patch = JSON.parse(patchCalls[0].options.body);
     expect(patch[0].value).to.equal(firstName);
     expect(patch[1].value).to.equal(lastName);
     expect(patch[2].value).to.equal(nickname);
@@ -99,8 +100,9 @@ describe("sakai-account tests", () => {
     await waitUntil(() => !el._editingPronunciationInfo);
 
     // Now we can inspect the fetch call
-    expect(fetchMock.calls("patchRequest").length).to.equal(1);
-    const patch = JSON.parse(fetchMock.calls("patchRequest")[0][1].body);
+    const patchCalls = fetchMock.callHistory.calls("patchRequest");
+    expect(patchCalls.length).to.equal(1);
+    const patch = JSON.parse(patchCalls[0].options.body);
     expect(patch[0].value).to.equal(phoneticName);
 
     await waitUntil(() => !el.editingPronunciationInfo);
@@ -139,8 +141,9 @@ describe("sakai-account tests", () => {
     saveButton.click();
 
     // Now we can inspect the fetch call
-    expect(fetchMock.calls("patchRequest").length).to.equal(1);
-    const patch = JSON.parse(fetchMock.calls("patchRequest")[0][1].body);
+    const patchCalls = fetchMock.callHistory.calls("patchRequest");
+    expect(patchCalls.length).to.equal(1);
+    const patch = JSON.parse(patchCalls[0].options.body);
     expect(patch[0].value).to.equal(email);
     expect(patch[1].value).to.equal(mobile);
 
@@ -185,8 +188,9 @@ describe("sakai-account tests", () => {
     saveButton.click();
 
     // Now we can inspect the fetch call
-    expect(fetchMock.calls("patchRequest").length).to.equal(1);
-    const patch = JSON.parse(fetchMock.calls("patchRequest")[0][1].body);
+    const patchCalls = fetchMock.callHistory.calls("patchRequest");
+    expect(patchCalls.length).to.equal(1);
+    const patch = JSON.parse(patchCalls[0].options.body);
     expect(patch[0].value).to.equal(facebookUrl);
     expect(patch[1].value).to.equal(instagramUrl);
     expect(patch[2].value).to.equal(linkedinUrl);

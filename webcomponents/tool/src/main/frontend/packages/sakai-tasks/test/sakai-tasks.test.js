@@ -2,27 +2,33 @@ import "../sakai-tasks.js";
 import * as data from "./data.js";
 import * as dialogContentData from "../../sakai-dialog-content/test/data.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-tasks tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(dialogContentData.baseI18nUrl, dialogContentData.baseI18n)
+      .get(data.tasksUrl, data.tasks)
+      .post(data.tasksUrl, ({ url, options }) => {
+
+        return Object.assign({
+          id: "" + Math.floor(Math.random() * 20) + 1,
+          creator: "adrian",
+          created: Date.now(),
+          creatorDisplayName: "Adrian Fish",
+        }, JSON.parse(options.body));
+      })
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   const minusFiveHours = -5 * 60 * 60 * 1000;
   window.top.portal = { user: { offsetFromServerMillis: minusFiveHours, timezone: "America/New_York" } };
-
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(dialogContentData.baseI18nUrl, dialogContentData.baseI18n, { overwriteRoutes: true })
-    .get(data.tasksUrl, data.tasks, { overwriteRoutes: true })
-    .post(data.tasksUrl, (url, opts) => {
-
-      return Object.assign({
-        id: "" + Math.floor(Math.random() * 20) + 1,
-        creator: "adrian",
-        created: Date.now(),
-        creatorDisplayName: "Adrian Fish",
-      }, JSON.parse(opts.body));
-    }, {overwriteRoutes: true})
-    .get("*", 500, { overwriteRoutes: true });
 
   it ("renders in user mode correctly", async () => {
 

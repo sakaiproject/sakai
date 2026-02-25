@@ -2,12 +2,19 @@ import "../sakai-topic-summary.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import * as constants from "../src/sakai-conversations-constants.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-topic-summary tests", () => {
 
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock.get(data.i18nUrl, data.i18n);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
   window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
-  fetchMock.get(data.i18nUrl, data.i18n);
 
   it("renders a discussion topic summary", async () => {
 
