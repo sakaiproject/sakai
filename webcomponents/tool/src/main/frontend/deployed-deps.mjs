@@ -66,8 +66,7 @@ try {
   console.warn(
     `Failed to read or parse deployed deps metadata. meta=${META_PATH} lock=${LOCK_PATH}: ${message}`
   );
-  meta = {};
-  lock = {};
+  process.exit(0);
 }
 
 const inputs = Object.keys(meta.inputs ?? {});
