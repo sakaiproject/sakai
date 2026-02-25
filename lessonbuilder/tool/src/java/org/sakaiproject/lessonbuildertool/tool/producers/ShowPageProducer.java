@@ -43,6 +43,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
@@ -2277,6 +2278,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    item = UIOutput.make(tableRow, "iframe")
 									.decorate(new UIFreeAttributeDecorator("src", itemUrl))
 									.decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
+						    if (!IframeUrlUtil.isLocalToSakai(itemUrl, ServerConfigurationService.getServerUrl())) {
+								item.decorate(new UIFreeAttributeDecorator("class", "sakai-iframe-force-light"));
+						    }
 						    // if user specifies auto, use Javascript to resize the
 						    // iframe when the
 						    // content changes. This only works for URLs with the
@@ -3866,6 +3870,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                         .decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
                 if (lessonEntity != null)
                     iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
+                // LTI: always force light (URLs go through /access so appear local but are cross-origin)
+                iframe.decorate(new UIFreeAttributeDecorator("class", "portletMainIframe multimedia sakai-iframe-force-light"));
 
                 String h = "300";
                 if (height != null && !height.trim().equals(""))
