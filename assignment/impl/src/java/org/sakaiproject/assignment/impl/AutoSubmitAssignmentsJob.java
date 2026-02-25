@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -46,6 +47,9 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +70,10 @@ public class AutoSubmitAssignmentsJob implements Job {
     @Setter private ServerConfigurationService serverConfigurationService;
     @Setter private SessionManager sessionManager;
     @Setter private UsageSessionService usageSessionService;
+    @Setter private UserDirectoryService userDirectoryService;
+    @Setter private EmailTemplateService emailTemplateService;
+
+    private volatile boolean emailTemplateRegistered = false;
 
     /*
      * Quartz job to check for assignment draft submissions that should be autosubmitted
@@ -80,8 +88,6 @@ public class AutoSubmitAssignmentsJob implements Job {
             log.debug("Assignment auto submit is disabled");
             return;
         }
-
-        loginToSakai("admin");
 
         String jobName = jobInfo.getJobDetail().getKey().getName();
         String triggerName = jobInfo.getTrigger().getKey().getName();
@@ -104,53 +110,63 @@ public class AutoSubmitAssignmentsJob implements Job {
             whoAmI.append(actualfire.toString());
         }
 
-        eventTrackingService.post(eventTrackingService.newEvent(EVENT_AUTO_SUBMIT_JOB, safeEventLength(whoAmI.toString()), true));
-
         log.info("Start Job: {}", whoAmI);
 
-        int failures = autoSubmitDraftSubmissions();
+        boolean loggedIn = false;
+        try {
+            loginToSakai("admin");
+            loggedIn = true;
 
-        if (failures > 0) {
-            notifyAutoSubmitFailures(failures);
+            eventTrackingService.post(eventTrackingService.newEvent(EVENT_AUTO_SUBMIT_JOB, safeEventLength(whoAmI.toString()), true));
+
+            int failures = autoSubmitDraftSubmissions();
+
+            if (failures > 0) {
+                notifyAutoSubmitFailures(failures);
+            }
+
+            log.info("End Job: {} ({} failures)", whoAmI, failures);
+        } finally {
+            if (loggedIn) {
+                logoutFromSakai();
+            }
         }
-
-        log.info("End Job: {} ({} failures)", whoAmI, failures);
-
-        logoutFromSakai();
     }
 
     /**
      * Process all sites and auto-submit draft submissions that meet the criteria
-     * OPTIMIZED: Uses bulk processing instead of nested loops for better performance
      * @return number of failures encountered
      */
     private int autoSubmitDraftSubmissions() {
 
         int failures = 0;
-        int batchSize = serverConfigurationService.getInt("assignment.autoSubmit.batchSize", 1000); // Increased batch size
+        int batchSize = serverConfigurationService.getInt("assignment.autoSubmit.batchSize", 1000);
+
+        if (batchSize <= 0) {
+            log.warn("Invalid batchSize configuration: {}. Using default value of 1000.", batchSize);
+            batchSize = 1000;
+        }
+
         Set<String> assignmentsWithAutoSubmits = new HashSet<>();
 
         try {
-            // OPTIMIZATION: Get all auto-submit eligible submissions in one query instead of nested loops
-            log.debug("Starting optimized auto-submit process");
-            
-            List<SimpleSubmissionDraft> allEligibleSubmissions = assignmentService.getAllEligibleDraftSubmissions();
-            
-            if (allEligibleSubmissions.isEmpty()) {
-                log.debug("No eligible draft submissions found for auto-submit");
-                return 0;
-            }
+            log.debug("Starting auto-submit process");
 
-            log.info("Found {} eligible draft submissions for auto-submit", allEligibleSubmissions.size());
-
-            // OPTIMIZATION: Process submissions in batches to avoid memory issues
             int totalProcessed = 0;
-            for (int i = 0; i < allEligibleSubmissions.size(); i += batchSize) {
-                int endIndex = Math.min(i + batchSize, allEligibleSubmissions.size());
-                List<SimpleSubmissionDraft> batch = allEligibleSubmissions.subList(i, endIndex);
-                
-                log.debug("Processing batch {}-{} of {} submissions", i + 1, endIndex, allEligibleSubmissions.size());
-                
+            int offset = 0;
+            List<SimpleSubmissionDraft> batch;
+            int batchNumber = 1;
+
+            do {
+                batch = assignmentService.getAllEligibleDraftSubmissions(batchSize, offset);
+
+                if (batch.isEmpty()) {
+                    log.debug("No more eligible draft submissions found for auto-submit");
+                    break;
+                }
+
+                log.debug("Processing batch {} ({} submissions)", batchNumber, batch.size());
+
                 for (SimpleSubmissionDraft submission : batch) {
                     try {
                         boolean success = autoSubmitSubmissionDTO(submission);
@@ -164,7 +180,11 @@ public class AutoSubmitAssignmentsJob implements Job {
                         failures++;
                     }
                 }
-            }
+
+                offset += batch.size();
+                batchNumber++;
+
+            } while (batch.size() == batchSize);
 
             log.info("Auto-submit completed: {} processed, {} failures", totalProcessed, failures);
 
@@ -174,17 +194,15 @@ public class AutoSubmitAssignmentsJob implements Job {
             }
 
         } catch (Exception e) {
-            log.error("Error in optimized auto-submit process: {}", e.getMessage(), e);
+            log.error("Error in auto-submit process: {}", e.getMessage(), e);
             failures++;
         }
-        
+
         return failures;
     }
 
-
-
     /**
-     * Auto-submit a draft submission (OPTIMIZED VERSION)
+     * Auto-submit a draft submission
      * @param submission the submission to auto-submit
      * @return true if submission was successfully auto-submitted, false otherwise
      */
@@ -206,26 +224,35 @@ public class AutoSubmitAssignmentsJob implements Job {
                 return false;
             }
 
-            // Get assignment info from the entity directly (no need for separate parameter)
             Assignment assignmentEntity = entity.getAssignment();
             if (assignmentEntity == null) {
                 log.warn("Assignment not found for submission {}", submission.id);
                 return false;
             }
 
-            // Get the original session context to restore later
             String originalUserId = sessionManager.getCurrentSessionUserId();
             String originalUserEid = sessionManager.getCurrentSession().getUserEid();
 
             try {
                 // For group submissions, use the first submitter; for individual, use the single submitter
-                String submitterToRunAs = submission.submitterIds != null && !submission.submitterIds.isEmpty() ? submission.submitterIds.iterator().next() : null;
+                String submitterToRunAs = submission.submitterIds != null && !submission.submitterIds.isEmpty()
+                        ? submission.submitterIds.stream().sorted().findFirst().orElse(null)
+                        : null;
 
                 if (submitterToRunAs != null) {
                     log.debug("Auto-submitting as user: {} for submission {}", submitterToRunAs, submission.id);
 
                     sessionManager.getCurrentSession().setUserId(submitterToRunAs);
-                    sessionManager.getCurrentSession().setUserEid(submitterToRunAs);
+
+                    try {
+                        User user = userDirectoryService.getUser(submitterToRunAs);
+                        String userEid = user.getEid();
+                        sessionManager.getCurrentSession().setUserEid(userEid);
+                        log.debug("Resolved user {} to EID: {}", submitterToRunAs, userEid);
+                    } catch (UserNotDefinedException e) {
+                        log.warn("Could not resolve EID for user {} - using userId as fallback: {}", submitterToRunAs, e.getMessage());
+                        sessionManager.getCurrentSession().setUserEid(submitterToRunAs);
+                    }
 
                     // Mark as submitted and set submission time to the draft's last modified time
                     entity.setSubmitted(true);
@@ -237,15 +264,15 @@ public class AutoSubmitAssignmentsJob implements Job {
                     if (props == null) {
                         props = new HashMap<>();
                         entity.setProperties(props);
+                    } else {
+                        Hibernate.initialize(props);
                     }
-                    props.size(); // This triggers Hibernate to load the collection
                     props.put(AssignmentConstants.PROP_SUBMISSION_AUTO_SUBMITTED, "true");
 
                     log.debug("Setting auto-submit flag for submission {}: {}", submission.id, props.get(AssignmentConstants.PROP_SUBMISSION_AUTO_SUBMITTED));
 
                     assignmentService.updateSubmission(entity);
 
-                    // CRITICAL: Handle Turnitin/content review submission - this is what the normal student flow does!
                     if (assignmentEntity.getContentReview() && !entity.getAttachments().isEmpty()) {
                         log.debug("Posting reviewable attachments to content review service for submission {}", submission.id);
                         assignmentService.postReviewableSubmissionAttachments(entity);
@@ -305,14 +332,32 @@ public class AutoSubmitAssignmentsJob implements Job {
      */
     private void notifyAutoSubmitFailures(int count) {
 
-        // Register XML file email template with the service
-        ClassLoader cl = AutoSubmitAssignmentsJob.class.getClassLoader();
-        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream("templates/" + AssignmentConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME), AssignmentConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS);
-
         boolean notifyOn = serverConfigurationService.getBoolean(AssignmentConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED, AssignmentConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED_DFLT);
         if (!notifyOn) {
             return;
         }
+
+        // Register XML file email template with the service
+        if (!emailTemplateRegistered) {
+            synchronized (this) {
+                if (!emailTemplateRegistered) {
+                    try {
+                        ClassLoader cl = AutoSubmitAssignmentsJob.class.getClassLoader();
+                        java.io.InputStream templateStream = cl.getResourceAsStream("templates/" + AssignmentConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME);
+                        if (templateStream != null) {
+                            emailTemplateService.importTemplateFromXmlFile(templateStream, AssignmentConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS);
+                            emailTemplateRegistered = true;
+                            log.debug("Email template registered: {}", AssignmentConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS);
+                        } else {
+                            log.warn("Email template file not found: templates/{}", AssignmentConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME);
+                        }
+                    } catch (Exception e) {
+                        log.error("Error importing email template: {}", e.getMessage(), e);
+                    }
+                }
+            }
+        }
+
         String fromAddress = serverConfigurationService.getSmtpFrom();
         String supportAddress = serverConfigurationService.getString(AssignmentConstants.SAK_PROP_SUPPORT_EMAIL_ADDRESS, fromAddress);
         String toAddress = serverConfigurationService.getString(AssignmentConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS, supportAddress);
@@ -386,6 +431,4 @@ public class AutoSubmitAssignmentsJob implements Job {
 
         return StringUtils.abbreviate(target, 255);
     }
-
-    @Setter private EmailTemplateService emailTemplateService;
 }

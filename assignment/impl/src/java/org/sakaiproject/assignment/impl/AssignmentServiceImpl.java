@@ -5492,8 +5492,9 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     dto.closeTime = a.getCloseDate();
                     dto.context = a.getContext();
                     dto.draft = a.getDraft();
-                    dto.isGroup = Boolean.TRUE.equals(a.getIsGroup());
-                    dto.properties = a.getProperties();
+                    dto.group = Boolean.TRUE.equals(a.getIsGroup());
+                    dto.properties = Collections.unmodifiableMap(
+                        a.getProperties() != null ? new HashMap<>(a.getProperties()) : Collections.emptyMap());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -5511,10 +5512,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     dto.submitted = Boolean.TRUE.equals(s.getSubmitted());
                     dto.draft = !Boolean.TRUE.equals(s.getSubmitted());
                     dto.submittedText = s.getSubmittedText();
-                    dto.attachments = s.getAttachments();
-                    dto.properties = s.getProperties();
+                    dto.attachments = Collections.unmodifiableSet(
+                        s.getAttachments() != null ? new HashSet<>(s.getAttachments()) : Collections.emptySet());
+                    dto.properties = Collections.unmodifiableMap(
+                        s.getProperties() != null ? new HashMap<>(s.getProperties()) : Collections.emptyMap());
                     dto.submitterIds = s.getSubmitters() != null ?
-                        s.getSubmitters().stream().map(sub -> sub.getSubmitter()).collect(Collectors.toSet()) : null;
+                        Collections.unmodifiableSet(s.getSubmitters().stream().map(sub -> sub.getSubmitter()).collect(Collectors.toSet())) :
+                        Collections.emptySet();
                     dto.dateModified = s.getDateModified();
                     return dto;
                 })
@@ -5522,8 +5526,8 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public List<SimpleSubmissionDraft> getAllEligibleDraftSubmissions() {
-        List<AssignmentSubmission> submissions = assignmentRepository.findAllEligibleDraftSubmissions();
+    public List<SimpleSubmissionDraft> getAllEligibleDraftSubmissions(int limit, int offset) {
+        List<AssignmentSubmission> submissions = assignmentRepository.findAllEligibleDraftSubmissions(limit, offset);
         return submissions.stream()
                 .map(s -> {
                     SimpleSubmissionDraft dto = new SimpleSubmissionDraft();
@@ -5532,10 +5536,13 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     dto.submitted = Boolean.TRUE.equals(s.getSubmitted());
                     dto.draft = !Boolean.TRUE.equals(s.getSubmitted());
                     dto.submittedText = s.getSubmittedText();
-                    dto.attachments = s.getAttachments();
-                    dto.properties = s.getProperties();
+                    dto.attachments = Collections.unmodifiableSet(
+                        s.getAttachments() != null ? new HashSet<>(s.getAttachments()) : Collections.emptySet());
+                    dto.properties = Collections.unmodifiableMap(
+                        s.getProperties() != null ? new HashMap<>(s.getProperties()) : Collections.emptyMap());
                     dto.submitterIds = s.getSubmitters() != null ?
-                        s.getSubmitters().stream().map(sub -> sub.getSubmitter()).collect(Collectors.toSet()) : null;
+                        Collections.unmodifiableSet(s.getSubmitters().stream().map(sub -> sub.getSubmitter()).collect(Collectors.toSet())) :
+                        Collections.emptySet();
                     dto.dateModified = s.getDateModified();
                     return dto;
                 })

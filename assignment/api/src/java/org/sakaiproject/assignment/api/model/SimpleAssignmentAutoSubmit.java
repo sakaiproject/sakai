@@ -28,6 +28,6 @@ public class SimpleAssignmentAutoSubmit {
     public Instant closeTime;
     public String context;
     public boolean draft;
-    public boolean isGroup;
+    public boolean group;
     public Map<String, String> properties;
 }

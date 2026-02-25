@@ -832,7 +832,7 @@ export const graderRenderingMixin = Base => class extends Base {
               ` : nothing }
             </div>
             ${this._submission.autoSubmitted ? html`
-              <span class="badge bg-info" title="${this._i18n.auto_submit_indicator}">
+              <span class="badge bg-info" title="${this._i18n.auto.auto_submit_indicator}">
                 <span class="bi bi-clock-history me-1" aria-hidden="true"></span>
                 ${this._i18n.auto_submit_indicator}
               </span>

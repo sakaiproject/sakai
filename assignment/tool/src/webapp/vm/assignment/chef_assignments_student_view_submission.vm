@@ -1105,8 +1105,12 @@ $(document).ready(function(){
 										<span class="sak-banner-warn">$tlang.getString("stuviewsubm.submitreminder")</span>
 									#end
 
-									#if ($!assignment && $assignment.Properties.get("auto_submit_enabled").equalsIgnoreCase("true"))
-										<span class="sak-banner-warn">$tlang.getString("auto.submit.warning.message")</span>
+									#if ($submission && $submission.Properties)
+										#set($isAutoSubmitEnabled = "false")
+										#set($isAutoSubmitEnabled = $submission.Properties.get("auto_submit_enabled"))
+										#if ($isAutoSubmitEnabled.equalsIgnoreCase("true"))
+											<span class="sak-banner-warn">$tlang.getString("auto.submit.warning.message")</span>
+										#end
 									#end
 								</div>
 							</div>

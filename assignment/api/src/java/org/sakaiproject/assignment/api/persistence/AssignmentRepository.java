@@ -112,9 +112,10 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
     List<AssignmentSubmission> findDraftSubmissionsForAssignment(String assignmentId);
 
     /**
-     * Finds all draft submissions that are eligible for auto-submit across all sites.
-     * OPTIMIZED METHOD: Returns all eligible submissions in one query to improve performance.
-     * @return a list of all eligible AssignmentSubmission entities
+     * Finds draft submissions that are eligible for auto-submit across all sites.
+     * @param limit maximum number of results to return
+     * @param offset number of results to skip
+     * @return a list of eligible AssignmentSubmission entities bounded by limit and offset
      */
-    List<AssignmentSubmission> findAllEligibleDraftSubmissions();
+    List<AssignmentSubmission> findAllEligibleDraftSubmissions(int limit, int offset);
 }

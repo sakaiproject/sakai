@@ -3351,7 +3351,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
-        boolean allowAutoSubmit = serverConfigurationService.getBoolean("assignment.autoSubmit.enabled", false);
+        boolean allowAutoSubmit = serverConfigurationService.getBoolean(SAK_PROP_AUTO_SUBMIT_ENABLED, SAK_PROP_AUTO_SUBMIT_ENABLED_DFLT);
         context.put("allowAutoSubmit", allowAutoSubmit);
         if (allowAutoSubmit) {
             context.put("name_CheckAutoSubmit", NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT);
@@ -3537,7 +3537,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 
-        if (serverConfigurationService.getBoolean("assignment.autoSubmit.enabled", false)) {
+        if (allowAutoSubmit) {
             context.put("value_CheckAutoSubmit", state.getAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT));
         }
 
@@ -9101,7 +9101,8 @@ public class AssignmentAction extends PagedResourceActionII {
             String valueOpenDateNotification = (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION);
 
             Boolean checkAddHonorPledge = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
-            Boolean checkAutoSubmit = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT);
+            Boolean checkAutoSubmit = state.getAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT) != null ? 
+                (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT) : Boolean.FALSE;
 
             Boolean checkAddInstructorTags = state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS) != null ? (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_INSTRUCTOR_TAGS) : null;
             Boolean checkAddGroupTags = state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS) != null ? (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_GROUP_TAGS) : null;
@@ -13465,7 +13466,7 @@ public class AssignmentAction extends PagedResourceActionII {
             state.removeAttribute(NEW_ASSIGNMENT_CATEGORY);
         }
 
-        state.removeAttribute(AssignmentConstants.ASSIGNMENT_AUTO_SUBMIT_ENABLED);
+        state.removeAttribute(NEW_ASSIGNMENT_CHECK_AUTO_SUBMIT);
     } // resetAssignment
 
     /**

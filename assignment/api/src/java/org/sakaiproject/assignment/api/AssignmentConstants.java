@@ -406,7 +406,7 @@ public final class AssignmentConstants {
      * Sakai property for enabling/disabling email notifications for auto-submit errors
      */
     public static final String SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED = "assignment.email.autoSubmit.errorNotification.enabled";
-    public static final boolean SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED_DFLT = true;
+    public static final boolean SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED_DFLT = false;
 
     /*
      * Sakai property for the email address to send auto-submit error notifications

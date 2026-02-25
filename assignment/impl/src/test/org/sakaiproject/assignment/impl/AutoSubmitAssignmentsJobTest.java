@@ -56,6 +56,9 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * Test for AutoSubmitAssignmentsJob
@@ -71,6 +74,7 @@ public class AutoSubmitAssignmentsJobTest {
     @Mock private ServerConfigurationService serverConfigurationService;
     @Mock private SessionManager sessionManager;
     @Mock private UsageSessionService usageSessionService;
+    @Mock private UserDirectoryService userDirectoryService;
 
     @Mock private JobExecutionContext jobContext;
     @Mock private JobDetail jobDetail;
@@ -81,6 +85,7 @@ public class AutoSubmitAssignmentsJobTest {
     @Mock private Assignment assignment;
     @Mock private AssignmentSubmission submission;
     @Mock private RenderedTemplate template;
+    @Mock private User user;
 
     private AutoSubmitAssignmentsJob job;
 
@@ -98,6 +103,7 @@ public class AutoSubmitAssignmentsJobTest {
         job.setServerConfigurationService(serverConfigurationService);
         job.setSessionManager(sessionManager);
         job.setUsageSessionService(usageSessionService);
+        job.setUserDirectoryService(userDirectoryService);
     }
 
     @Test
@@ -119,9 +125,10 @@ public class AutoSubmitAssignmentsJobTest {
         // Auto-submit enabled
         when(serverConfigurationService.getBoolean(AssignmentConstants.SAK_PROP_AUTO_SUBMIT_ENABLED, AssignmentConstants.SAK_PROP_AUTO_SUBMIT_ENABLED_DFLT)).thenReturn(true);
         when(serverConfigurationService.getServerName()).thenReturn("localhost");
+        when(serverConfigurationService.getInt("assignment.autoSubmit.batchSize", 1000)).thenReturn(1000);
 
         // No eligible submissions to process - return empty list
-        when(assignmentService.getAllEligibleDraftSubmissions()).thenReturn(Collections.emptyList());
+        when(assignmentService.getAllEligibleDraftSubmissions(1000, 0)).thenReturn(Collections.emptyList());
 
         job.execute(jobContext);
 
@@ -141,12 +148,12 @@ public class AutoSubmitAssignmentsJobTest {
         setupEnabledJob();
         
         // Return empty list to test the job flow without actual processing
-        when(assignmentService.getAllEligibleDraftSubmissions()).thenReturn(Collections.emptyList());
+        when(assignmentService.getAllEligibleDraftSubmissions(1000, 0)).thenReturn(Collections.emptyList());
 
         job.execute(jobContext);
 
         // Verify the job executed successfully without processing any submissions
-        verify(assignmentService).getAllEligibleDraftSubmissions();
+        verify(assignmentService).getAllEligibleDraftSubmissions(1000, 0);
         verify(eventTrackingService, atLeast(2)).post(any(Event.class)); // login and job start events
         verify(usageSessionService).logout();
     }
@@ -165,7 +172,7 @@ public class AutoSubmitAssignmentsJobTest {
         draftDTO.draft = true;
         draftDTO.dateModified = Instant.now().minusSeconds(1800);
         
-        when(assignmentService.getAllEligibleDraftSubmissions()).thenReturn(List.of(draftDTO));
+        when(assignmentService.getAllEligibleDraftSubmissions(1000, 0)).thenReturn(List.of(draftDTO));
         
         // Setup submission entity with all required mocks
         when(assignmentRepository.findSubmission("draft1")).thenReturn(submission);
@@ -182,6 +189,14 @@ public class AutoSubmitAssignmentsJobTest {
         when(sessionManager.getCurrentSessionUserId()).thenReturn("system");
         when(sessionManager.getCurrentSession()).thenReturn(session);
         when(session.getUserEid()).thenReturn("system");
+        
+        // Setup user directory service
+        try {
+            when(userDirectoryService.getUser("student1")).thenReturn(user);
+            when(user.getEid()).thenReturn("student1-eid");
+        } catch (UserNotDefinedException e) {
+            // Won't happen in mock
+        }
 
         job.execute(jobContext);
 
@@ -204,7 +219,7 @@ public class AutoSubmitAssignmentsJobTest {
         draftDTO.submitted = false;
         draftDTO.draft = true;
         
-        when(assignmentService.getAllEligibleDraftSubmissions()).thenReturn(List.of(draftDTO));
+        when(assignmentService.getAllEligibleDraftSubmissions(1000, 0)).thenReturn(List.of(draftDTO));
         
         // Submission is already submitted
         when(assignmentRepository.findSubmission("draft1")).thenReturn(submission);
@@ -229,7 +244,7 @@ public class AutoSubmitAssignmentsJobTest {
         draftDTO.draft = true;
         draftDTO.dateModified = Instant.now().minusSeconds(1800);
         
-        when(assignmentService.getAllEligibleDraftSubmissions()).thenReturn(List.of(draftDTO));
+        when(assignmentService.getAllEligibleDraftSubmissions(1000, 0)).thenReturn(List.of(draftDTO));
         
         // Setup submission with attachments and content review enabled
         when(assignmentRepository.findSubmission("draft1")).thenReturn(submission);
@@ -242,6 +257,14 @@ public class AutoSubmitAssignmentsJobTest {
         when(sessionManager.getCurrentSessionUserId()).thenReturn("system");
         when(sessionManager.getCurrentSession()).thenReturn(session);
         when(session.getUserEid()).thenReturn("system");
+        
+        // Setup user directory service
+        try {
+            when(userDirectoryService.getUser("student1")).thenReturn(user);
+            when(user.getEid()).thenReturn("student1-eid");
+        } catch (UserNotDefinedException e) {
+            // Won't happen in mock
+        }
 
         job.execute(jobContext);
 
@@ -263,7 +286,7 @@ public class AutoSubmitAssignmentsJobTest {
         draftDTO.draft = true;
         draftDTO.dateModified = Instant.now().minusSeconds(1800);
         
-        when(assignmentService.getAllEligibleDraftSubmissions()).thenReturn(List.of(draftDTO));
+        when(assignmentService.getAllEligibleDraftSubmissions(1000, 0)).thenReturn(List.of(draftDTO));
         
         Map<String, String> properties = new HashMap<>();
         when(assignmentRepository.findSubmission("draft1")).thenReturn(submission);
@@ -275,6 +298,14 @@ public class AutoSubmitAssignmentsJobTest {
         when(sessionManager.getCurrentSessionUserId()).thenReturn("system");
         when(sessionManager.getCurrentSession()).thenReturn(session);
         when(session.getUserEid()).thenReturn("system");
+        
+        // Setup user directory service
+        try {
+            when(userDirectoryService.getUser("student1")).thenReturn(user);
+            when(user.getEid()).thenReturn("student1-eid");
+        } catch (UserNotDefinedException e) {
+            // Won't happen in mock
+        }
 
         job.execute(jobContext);
 
@@ -289,6 +320,7 @@ public class AutoSubmitAssignmentsJobTest {
         // Auto-submit enabled
         when(serverConfigurationService.getBoolean(AssignmentConstants.SAK_PROP_AUTO_SUBMIT_ENABLED, AssignmentConstants.SAK_PROP_AUTO_SUBMIT_ENABLED_DFLT)).thenReturn(true);
         when(serverConfigurationService.getServerName()).thenReturn("localhost");
+        when(serverConfigurationService.getInt("assignment.autoSubmit.batchSize", 1000)).thenReturn(1000);
 
         // Email notification enabled
         when(serverConfigurationService.getBoolean(AssignmentConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED, AssignmentConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED_DFLT)).thenReturn(true);
@@ -301,7 +333,7 @@ public class AutoSubmitAssignmentsJobTest {
         when(emailTemplateService.getRenderedTemplate(any(), any(), any())).thenReturn(template);
 
         // Force failure by throwing exception when getting eligible submissions
-        when(assignmentService.getAllEligibleDraftSubmissions()).thenThrow(new RuntimeException("Simulated failure"));
+        when(assignmentService.getAllEligibleDraftSubmissions(1000, 0)).thenThrow(new RuntimeException("Simulated failure"));
 
         job.execute(jobContext);
 

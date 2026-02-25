@@ -911,8 +911,10 @@ public interface AssignmentService extends EntityProducer {
     List<SimpleSubmissionDraft> getDraftSubmissionsForAssignment(String assignmentId);
 
     /**
-     * Get all draft submissions that are eligible for auto-submit across all sites.
-     * OPTIMIZED METHOD: Returns all eligible submissions in one query to improve performance.
+     * Get draft submissions that are eligible for auto-submit across all sites.
+     * @param limit maximum number of results to return
+     * @param offset number of results to skip
+     * @return a list of eligible SimpleSubmissionDraft DTOs bounded by limit and offset
      */
-    List<SimpleSubmissionDraft> getAllEligibleDraftSubmissions();
+    List<SimpleSubmissionDraft> getAllEligibleDraftSubmissions(int limit, int offset);
 }

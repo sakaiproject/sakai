@@ -418,26 +418,24 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<AssignmentSubmission> findAllEligibleDraftSubmissions() {
-        // OPTIMIZED QUERY: Get all draft submissions from assignments with auto-submit enabled and past close date
+    public List<AssignmentSubmission> findAllEligibleDraftSubmissions(int limit, int offset) {
         java.time.Instant now = java.time.Instant.now();
-        
+
         List<AssignmentSubmission> submissions = geCurrentSession().createCriteria(AssignmentSubmission.class)
                 .createAlias("assignment", "a")
-                .add(Restrictions.eq("submitted", Boolean.FALSE)) // Draft submissions only  
+                .createAlias("a.properties", "prop")
+                .add(Restrictions.eq("submitted", Boolean.FALSE)) // Draft submissions only
                 .add(Restrictions.eq("a.draft", Boolean.FALSE)) // Published assignments only
                 .add(Restrictions.eq("a.deleted", Boolean.FALSE)) // Non-deleted assignments only
                 .add(Restrictions.le("a.closeDate", now)) // Past close date
+                .add(Restrictions.eq("prop." + CollectionPropertyNames.COLLECTION_INDICES, AssignmentConstants.ASSIGNMENT_AUTO_SUBMIT_ENABLED))
+                .add(Restrictions.eq("prop." + CollectionPropertyNames.COLLECTION_ELEMENTS, "true"))
+                .setFirstResult(offset)
+                .setMaxResults(limit)
                 .list();
-                
+
         return submissions.stream()
                 .filter(s -> {
-                    // Filter for assignments with auto-submit enabled
-                    String autoSubmit = s.getAssignment().getProperties().get(AssignmentConstants.ASSIGNMENT_AUTO_SUBMIT_ENABLED);
-                    if (!"true".equals(autoSubmit)) {
-                        return false;
-                    }
-                    
                     // Filter for submissions with content (text or attachments)
                     boolean hasText = s.getSubmittedText() != null && !s.getSubmittedText().trim().isEmpty();
                     boolean hasAttachments = s.getAttachments() != null && !s.getAttachments().isEmpty();
