@@ -91,6 +91,8 @@ import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
+import org.sakaiproject.assignment.api.model.SimpleAssignmentAutoSubmit;
+import org.sakaiproject.assignment.api.model.SimpleSubmissionDraft;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
@@ -5478,19 +5480,65 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     @Override
-    public List<AssignmentRepository.SimpleAssignmentAutoSubmit> getAutoSubmitAssignmentsForContext(String context) {
+    public List<SimpleAssignmentAutoSubmit> getAutoSubmitAssignmentsForContext(String context) {
         if (StringUtils.isBlank(context)) return List.of();
-        return assignmentRepository.findAutoSubmitAssignmentsBySite(context, java.time.Instant.now());
+        List<Assignment> assignments = assignmentRepository.findAutoSubmitAssignmentsBySite(context, java.time.Instant.now());
+        return assignments.stream()
+                .map(a -> {
+                    SimpleAssignmentAutoSubmit dto = new SimpleAssignmentAutoSubmit();
+                    dto.id = a.getId();
+                    dto.title = a.getTitle();
+                    dto.dueTime = a.getDueDate();
+                    dto.closeTime = a.getCloseDate();
+                    dto.context = a.getContext();
+                    dto.draft = a.getDraft();
+                    dto.isGroup = Boolean.TRUE.equals(a.getIsGroup());
+                    dto.properties = a.getProperties();
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<AssignmentRepository.SimpleSubmissionDraft> getDraftSubmissionsForAssignment(String assignmentId) {
+    public List<SimpleSubmissionDraft> getDraftSubmissionsForAssignment(String assignmentId) {
         if (StringUtils.isBlank(assignmentId)) return List.of();
-        return assignmentRepository.findDraftSubmissionsForAssignment(assignmentId);
+        List<AssignmentSubmission> submissions = assignmentRepository.findDraftSubmissionsForAssignment(assignmentId);
+        return submissions.stream()
+                .map(s -> {
+                    SimpleSubmissionDraft dto = new SimpleSubmissionDraft();
+                    dto.id = s.getId();
+                    dto.gradableId = s.getAssignment().getId();
+                    dto.submitted = Boolean.TRUE.equals(s.getSubmitted());
+                    dto.draft = !Boolean.TRUE.equals(s.getSubmitted());
+                    dto.submittedText = s.getSubmittedText();
+                    dto.attachments = s.getAttachments();
+                    dto.properties = s.getProperties();
+                    dto.submitterIds = s.getSubmitters() != null ?
+                        s.getSubmitters().stream().map(sub -> sub.getSubmitter()).collect(Collectors.toSet()) : null;
+                    dto.dateModified = s.getDateModified();
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<AssignmentRepository.SimpleSubmissionDraft> getAllEligibleDraftSubmissions() {
-        return assignmentRepository.findAllEligibleDraftSubmissions();
+    public List<SimpleSubmissionDraft> getAllEligibleDraftSubmissions() {
+        List<AssignmentSubmission> submissions = assignmentRepository.findAllEligibleDraftSubmissions();
+        return submissions.stream()
+                .map(s -> {
+                    SimpleSubmissionDraft dto = new SimpleSubmissionDraft();
+                    dto.id = s.getId();
+                    dto.gradableId = s.getAssignment().getId();
+                    dto.submitted = Boolean.TRUE.equals(s.getSubmitted());
+                    dto.draft = !Boolean.TRUE.equals(s.getSubmitted());
+                    dto.submittedText = s.getSubmittedText();
+                    dto.attachments = s.getAttachments();
+                    dto.properties = s.getProperties();
+                    dto.submitterIds = s.getSubmitters() != null ?
+                        s.getSubmitters().stream().map(sub -> sub.getSubmitter()).collect(Collectors.toSet()) : null;
+                    dto.dateModified = s.getDateModified();
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

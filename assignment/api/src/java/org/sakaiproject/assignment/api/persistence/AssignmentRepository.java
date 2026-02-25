@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.assignment.api.persistence;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -101,43 +100,21 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
      * Finds assignments that are set to auto-submit based on the current time.
      * @param siteId the id of the site
      * @param now the current time to filter closeDate
+     * @return list of Assignment entities with auto-submit enabled
      */
-    List<SimpleAssignmentAutoSubmit> findAutoSubmitAssignmentsBySite(String siteId, java.time.Instant now);
+    List<Assignment> findAutoSubmitAssignmentsBySite(String siteId, java.time.Instant now);
 
     /**
      * Finds draft submissions for a given assignment.
      * @param assignmentId the id of the assignment
-     * @return a list of draft submissions for the assignment
+     * @return a list of AssignmentSubmission entities that are drafts
      */
-    List<SimpleSubmissionDraft> findDraftSubmissionsForAssignment(String assignmentId);
+    List<AssignmentSubmission> findDraftSubmissionsForAssignment(String assignmentId);
 
     /**
      * Finds all draft submissions that are eligible for auto-submit across all sites.
      * OPTIMIZED METHOD: Returns all eligible submissions in one query to improve performance.
-     * @return a list of all eligible draft submissions
+     * @return a list of all eligible AssignmentSubmission entities
      */
-    List<SimpleSubmissionDraft> findAllEligibleDraftSubmissions();
-
-    class SimpleAssignmentAutoSubmit {
-        public String id;
-        public String title;
-        public Instant dueTime;
-        public Instant closeTime;
-        public String context;
-        public boolean draft;
-        public boolean isGroup;
-        public Map<String, String> properties;
-    }
-
-    class SimpleSubmissionDraft {
-        public String id;
-        public String gradableId;
-        public Set<String> submitterIds;
-        public String submittedText;
-        public Set<String> attachments;
-        public boolean submitted;
-        public boolean draft;
-        public Map<String, String> properties;
-        public Instant dateModified;
-    }
+    List<AssignmentSubmission> findAllEligibleDraftSubmissions();
 }

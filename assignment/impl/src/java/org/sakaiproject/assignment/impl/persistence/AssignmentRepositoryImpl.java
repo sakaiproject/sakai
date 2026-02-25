@@ -49,8 +49,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.assignment.api.persistence.AssignmentRepository;
-import org.sakaiproject.assignment.api.persistence.AssignmentRepository.SimpleAssignmentAutoSubmit;
-import org.sakaiproject.assignment.api.persistence.AssignmentRepository.SimpleSubmissionDraft;
 import org.sakaiproject.hibernate.HibernateCriterionUtils;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -389,7 +387,8 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     }
 
     @Override
-    public List<SimpleAssignmentAutoSubmit> findAutoSubmitAssignmentsBySite(String siteId, java.time.Instant now) {
+    @SuppressWarnings("unchecked")
+    public List<Assignment> findAutoSubmitAssignmentsBySite(String siteId, java.time.Instant now) {
         List<Assignment> assignments = startCriteriaQuery()
                 .add(Restrictions.eq("context", siteId))
                 .add(Restrictions.eq("deleted", Boolean.FALSE))
@@ -401,23 +400,12 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                     String autoSubmit = a.getProperties().get(AssignmentConstants.ASSIGNMENT_AUTO_SUBMIT_ENABLED);
                     return "true".equals(autoSubmit);
                 })
-                .map(a -> {
-                    SimpleAssignmentAutoSubmit dto = new SimpleAssignmentAutoSubmit();
-                    dto.id = a.getId();
-                    dto.title = a.getTitle();
-                    dto.dueTime = a.getDueDate();
-                    dto.closeTime = a.getCloseDate();
-                    dto.context = a.getContext();
-                    dto.draft = a.getDraft();
-                    dto.isGroup = Boolean.TRUE.equals(a.getIsGroup());
-                    dto.properties = a.getProperties();
-                    return dto;
-                })
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<SimpleSubmissionDraft> findDraftSubmissionsForAssignment(String assignmentId) {
+    @SuppressWarnings("unchecked")
+    public List<AssignmentSubmission> findDraftSubmissionsForAssignment(String assignmentId) {
         List<AssignmentSubmission> submissions = geCurrentSession().createCriteria(AssignmentSubmission.class)
                 .add(Restrictions.eq("assignment.id", assignmentId))
                 .list();
@@ -425,26 +413,12 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .filter(s -> !Boolean.TRUE.equals(s.getSubmitted()) &&
                         ((s.getSubmittedText() != null && !s.getSubmittedText().isEmpty()) ||
                          (s.getAttachments() != null && !s.getAttachments().isEmpty())))
-                .map(s -> {
-                    SimpleSubmissionDraft dto = new SimpleSubmissionDraft();
-                    dto.id = s.getId();
-                    dto.gradableId = s.getAssignment().getId();
-                    dto.submitted = Boolean.TRUE.equals(s.getSubmitted());
-                    dto.draft = !Boolean.TRUE.equals(s.getSubmitted());
-                    dto.submittedText = s.getSubmittedText();
-                    dto.attachments = s.getAttachments();
-                    dto.properties = s.getProperties();
-                    dto.submitterIds = s.getSubmitters() != null ?
-                        s.getSubmitters().stream().map(sub -> sub.getSubmitter()).collect(Collectors.toSet()) : null;
-                    dto.dateModified = s.getDateModified();
-                    return dto;
-                })
                 .collect(Collectors.toList());
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<SimpleSubmissionDraft> findAllEligibleDraftSubmissions() {
+    public List<AssignmentSubmission> findAllEligibleDraftSubmissions() {
         // OPTIMIZED QUERY: Get all draft submissions from assignments with auto-submit enabled and past close date
         java.time.Instant now = java.time.Instant.now();
         
@@ -468,20 +442,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                     boolean hasText = s.getSubmittedText() != null && !s.getSubmittedText().trim().isEmpty();
                     boolean hasAttachments = s.getAttachments() != null && !s.getAttachments().isEmpty();
                     return hasText || hasAttachments;
-                })
-                .map(s -> {
-                    SimpleSubmissionDraft dto = new SimpleSubmissionDraft();
-                    dto.id = s.getId();
-                    dto.gradableId = s.getAssignment().getId();
-                    dto.submitted = Boolean.TRUE.equals(s.getSubmitted());
-                    dto.draft = !Boolean.TRUE.equals(s.getSubmitted());
-                    dto.submittedText = s.getSubmittedText();
-                    dto.attachments = s.getAttachments();
-                    dto.properties = s.getProperties();
-                    dto.submitterIds = s.getSubmitters() != null ?
-                        s.getSubmitters().stream().map(sub -> sub.getSubmitter()).collect(Collectors.toSet()) : null;
-                    dto.dateModified = s.getDateModified();
-                    return dto;
                 })
                 .collect(Collectors.toList());
     }
