@@ -111,14 +111,13 @@ public class ShowMediaServlet extends HttpServlet
     MediaData mediaData = gradingService.getMedia(mediaId);
     String mediaLocation = mediaData.getLocation();
     int fileSize = mediaData.getFileSize().intValue();
-    log.debug("media file size={}", fileSize);
 
     String fileName = escapeInvalidCharsEntry(mediaData.getFilename());
 
     //if setMimeType="false" in query string, implies, we want to do a forced download
     //in this case, we set contentType='application/octet-stream'
     String setMimeType = req.getParameter("setMimeType");
-    log.debug("setMimeType={}", setMimeType);
+    log.debug("ShowMedia request: mediaId={}, fileSize={}, setMimeType={}", mediaId, fileSize, setMimeType);
 
     // get assessment's ownerId
     // String assessmentCreatedBy = req.getParameter("createdBy");
