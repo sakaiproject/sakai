@@ -36,6 +36,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 
@@ -82,6 +83,10 @@ public class IFrameWindowProducer implements ViewComponentProducer, ViewParamsRe
 			iframe.decorate(new UIFreeAttributeDecorator("name", ((GeneralViewParameters) params).getId()));
 			iframe.decorate(new UIFreeAttributeDecorator("id", ((GeneralViewParameters) params).getId()));
 			iframe.decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
+			String source = ((GeneralViewParameters) params).getSource();
+			if (!IframeUrlUtil.isLocalToSakai(source, ServerConfigurationService.getServerUrl())) {
+				iframe.decorate(new UIFreeAttributeDecorator("class", "portletMainIframe sakai-iframe-force-light"));
+			}
 		}
 	}
 
