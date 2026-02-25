@@ -55,14 +55,18 @@
                 <configuration>
                     <warSourceDirectory>src/main/webapp</warSourceDirectory>
                     <packagingExcludes>
-                        node_modules/**,
-                        package.json,
-                        package-lock.json,
+                        bundles/meta.json,
+                        deployed-deps.mjs,
+                        deployed-js-deps.json,
+                        dismiss-nondeployed-dependabot-alerts.mjs,
                         eslint.config.mjs,
                         lint-staged.config.mjs,
-                        bundles/meta.json,
-                        deployed-js-deps.json,
-                        packages/**
+                        node_modules/**,
+                        package-lock.json,
+                        package.json,
+                        packages/**,
+                        test-static-assets/**,
+                        web-test-runner.config.mjs
                     </packagingExcludes>
                     <webResources>
                         <resource>
