@@ -143,6 +143,11 @@ const out = {
   deployedPackages: deployed,
 };
 
-await fs.writeFile(OUT_PATH, JSON.stringify(out, null, 2) + "\n", "utf8");
-
-console.log(`Wrote ${path.relative(FRONTEND_ROOT, OUT_PATH)} (${deployed.length} packages)`);
+try {
+  await fs.mkdir(path.dirname(OUT_PATH), { recursive: true });
+  await fs.writeFile(OUT_PATH, JSON.stringify(out, null, 2) + "\n", "utf8");
+  console.log(`Wrote ${path.relative(FRONTEND_ROOT, OUT_PATH)} (${deployed.length} packages)`);
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.warn(`Failed to write report to ${OUT_PATH}: ${message}`);
+}

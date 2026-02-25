@@ -49,10 +49,13 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>src/main/frontend/node_modules</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/target</directory>
+                            <directory>src/main/frontend</directory>
+                            <followSymlinks>false</followSymlinks>
+                            <includes>
+                                <include>node_modules/**</include>
+                                <include>target/**</include>
+                                <include>deployed-js-deps.json</include>
+                            </includes>
                         </fileset>
                     </filesets>
                 </configuration>

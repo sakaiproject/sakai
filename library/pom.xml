@@ -568,16 +568,19 @@
 						<configuration>
 							<filesets>
 								<fileset>
-									<directory>${basedir}/src/webapp/skin/${sakai.skin.target}</directory>
+									<directory>src/skins/default</directory>
+									<followSymlinks>false</followSymlinks>
+									<includes>
+										<include>node_modules/**</include>
+										<include>target/**</include>
+										<include>deployed-js-deps.json</include>
+									</includes>
 								</fileset>
 								<fileset>
-									<directory>${basedir}/src/webapp/assets</directory>
+									<directory>src/webapp/skin/${sakai.skin.target}</directory>
 								</fileset>
 								<fileset>
-									<directory>${basedir}/src/skins/default/node_modules</directory>
-								</fileset>
-								<fileset>
-									<directory>${basedir}/src/skins/default/target</directory>
+									<directory>src/webapp/assets</directory>
 								</fileset>
 							</filesets>
 						</configuration>

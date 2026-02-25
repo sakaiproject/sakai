@@ -50,13 +50,25 @@ function packageNameFromNodeModulesKey(key) {
   return parts[0];
 }
 
-const [metaRaw, lockRaw] = await Promise.all([
-  fs.readFile(META_PATH, "utf8"),
-  fs.readFile(LOCK_PATH, "utf8"),
-]);
-
-const meta = JSON.parse(metaRaw);
-const lock = JSON.parse(lockRaw);
+let metaRaw = null;
+let lockRaw = null;
+let meta = {};
+let lock = {};
+try {
+  [metaRaw, lockRaw] = await Promise.all([
+    fs.readFile(META_PATH, "utf8"),
+    fs.readFile(LOCK_PATH, "utf8"),
+  ]);
+  meta = JSON.parse(metaRaw);
+  lock = JSON.parse(lockRaw);
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.warn(
+    `Failed to read or parse deployed deps metadata. meta=${META_PATH} lock=${LOCK_PATH}: ${message}`
+  );
+  meta = {};
+  lock = {};
+}
 
 const inputs = Object.keys(meta.inputs ?? {});
 const pkgs = new Map();
@@ -121,6 +133,11 @@ const out = {
   deployedPackages: deployed,
 };
 
-await fs.writeFile(OUT_PATH, JSON.stringify(out, null, 2) + "\n", "utf8");
-
-console.log(`Wrote ${path.relative(FRONTEND_ROOT, OUT_PATH)} (${deployed.length} packages)`);
+try {
+  await fs.mkdir(path.dirname(OUT_PATH), { recursive: true });
+  await fs.writeFile(OUT_PATH, JSON.stringify(out, null, 2) + "\n", "utf8");
+  console.log(`Wrote ${path.relative(FRONTEND_ROOT, OUT_PATH)} (${deployed.length} packages)`);
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.warn(`Failed to write report to ${OUT_PATH}: ${message}`);
+}

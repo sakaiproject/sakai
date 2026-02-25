@@ -44,10 +44,14 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>src/main/frontend/node</directory>
-                        </fileset>
-                        <fileset>
-                            <directory>src/main/frontend/node_modules</directory>
+                            <directory>src/main/frontend</directory>
+                            <followSymlinks>false</followSymlinks>
+                            <includes>
+                                <include>node/**</include>
+                                <include>node_modules/**</include>
+                                <include>target/**</include>
+                                <include>deployed-js-deps.json</include>
+                            </includes>
                         </fileset>
                     </filesets>
                 </configuration>

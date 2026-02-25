@@ -43,6 +43,7 @@
                                 <include>bundles/**</include>
                                 <include>node_modules/**</include>
                                 <include>packages/*/node_modules/**</include>
+                                <include>deployed-js-deps.json</include>
                             </includes>
                         </fileset>
                     </filesets>

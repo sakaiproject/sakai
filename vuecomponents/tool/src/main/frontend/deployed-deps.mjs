@@ -7,10 +7,19 @@ const LOCK_PATH = path.join(FRONTEND_ROOT, "package-lock.json");
 const OUT_PATH = path.join(FRONTEND_ROOT, "deployed-js-deps.json");
 const BUNDLE_DIR = path.join(FRONTEND_ROOT, "target", "js");
 
-const lockRaw = await fs.readFile(LOCK_PATH, "utf8");
-
-const lock = JSON.parse(lockRaw);
-const packagesSection = lock.packages ?? {};
+let lockRaw = null;
+let lock = {};
+let packagesSection = {};
+try {
+  lockRaw = await fs.readFile(LOCK_PATH, "utf8");
+  lock = JSON.parse(lockRaw);
+  packagesSection = lock.packages ?? {};
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.warn(`Failed to read or parse lockfile at ${LOCK_PATH}: ${message}`);
+  packagesSection = {};
+  lock = {};
+}
 
 const NODE_MODULES_SEGMENT = "node_modules/";
 
@@ -32,17 +41,28 @@ function extractPackageName(modulePath) {
 }
 
 async function findReportPath() {
+  async function tryCandidate(candidate) {
+    try {
+      const stat = await fs.stat(candidate);
+      if (!stat.isFile()) {
+        console.warn(`Report candidate is not a file: ${candidate}`);
+        return null;
+      }
+      return candidate;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(`Report candidate missing: ${candidate}: ${message}`);
+      return null;
+    }
+  }
+
   const candidates = [
     path.join(BUNDLE_DIR, "report.json"),
     path.join(FRONTEND_ROOT, "target", "report.json"),
   ];
   for (const candidate of candidates) {
-    try {
-      await fs.access(candidate);
-      return candidate;
-    } catch {
-      // ignore missing
-    }
+    const resolved = await tryCandidate(candidate);
+    if (resolved) return resolved;
   }
 
   try {
@@ -52,17 +72,18 @@ async function findReportPath() {
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
       const candidate = path.join(FRONTEND_ROOT, "target", entry.name, "report.json");
-      try {
-        await fs.access(candidate);
-        return candidate;
-      } catch {
-        // ignore missing
-      }
+      const resolved = await tryCandidate(candidate);
+      if (resolved) return resolved;
     }
-  } catch {
-    // ignore
+  } catch (error) {
+    const dir = path.join(FRONTEND_ROOT, "target");
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`Failed to read target directory for webpack report. dir=${dir}: ${message}`);
+    return null;
   }
 
+  const message = "Webpack report file not found in target/ directories.";
+  console.warn(message);
   return null;
 }
 
@@ -107,18 +128,23 @@ function collectModulePaths(report) {
 const reportPath = await findReportPath();
 const dependencyNames = new Set();
 if (reportPath) {
-  const reportRaw = await fs.readFile(reportPath, "utf8");
-  const report = JSON.parse(reportRaw);
-  const modulePaths = collectModulePaths(report);
-  for (const modulePath of modulePaths) {
-    const name = extractPackageName(modulePath);
-    if (name) dependencyNames.add(name);
+  try {
+    const reportRaw = await fs.readFile(reportPath, "utf8");
+    const report = JSON.parse(reportRaw);
+    const modulePaths = collectModulePaths(report);
+    for (const modulePath of modulePaths) {
+      const name = extractPackageName(modulePath);
+      if (name) dependencyNames.add(name);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(
+      `Failed to read or parse webpack report at ${path.relative(FRONTEND_ROOT, reportPath)}: ${message}`
+    );
   }
 }
 
-if (!reportPath) {
-  console.warn("No webpack report file found; report will be empty.");
-} else if (dependencyNames.size === 0) {
+if (dependencyNames.size === 0) {
   console.warn("No node_modules entries found in webpack report; report will be empty.");
 }
 
@@ -144,6 +170,11 @@ const out = {
   deployedPackages: deployed,
 };
 
-await fs.writeFile(OUT_PATH, JSON.stringify(out, null, 2) + "\n", "utf8");
-
-console.log(`Wrote ${path.relative(FRONTEND_ROOT, OUT_PATH)} (${deployed.length} packages)`);
+try {
+  await fs.mkdir(path.dirname(OUT_PATH), { recursive: true });
+  await fs.writeFile(OUT_PATH, JSON.stringify(out, null, 2) + "\n", "utf8");
+  console.log(`Wrote ${path.relative(FRONTEND_ROOT, OUT_PATH)} (${deployed.length} packages)`);
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.warn(`Failed to write report to ${OUT_PATH}: ${message}`);
+}
