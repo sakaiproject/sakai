@@ -6182,7 +6182,7 @@ public class AssignmentAction extends PagedResourceActionII {
             boolean includeSubmissionAttachment = Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType || Assignment.SubmissionType.SINGLE_ATTACHMENT_SUBMISSION == submissionType;
             context.put("includeSubmissionAttachment", includeSubmissionAttachment);
 
-            String viewString = StringUtils.defaultString((String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION), AssignmentConstants.ALL);
+            String viewString = StringUtils.defaultIfBlank((String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION), AssignmentConstants.ALL);
             context.put("viewString", viewString);
 
             context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH) != null ? state.getAttribute(VIEW_SUBMISSION_SEARCH) : "");
@@ -6196,7 +6196,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     && hasComments
                     && hasFeedbackAttachment
                     && (!includeSubmissionText || (hasSubmissionText && hasFeedbackText))
-                    && (!includeSubmissionAttachment || hasSubmissionAttachment);
+                    && (!includeSubmissionAttachment || hasSubmissionAttachment)
+                    && (!hasRubric || includeRubrics);
             context.put("allDataSelected", allDataSelected);
 
             if (a.getContentReview())

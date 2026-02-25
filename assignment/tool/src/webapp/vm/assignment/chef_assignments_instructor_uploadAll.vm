@@ -126,10 +126,12 @@
 			#end
 			<p class="act">
 				#if ($!download)
-					#set($alertMessage = $tlang.getString('downloadall.alert.choose.element'))
+					#set($alertMessage = $formattedText.escapeJsQuoted($tlang.getString('downloadall.alert.choose.element')))
+					#set($safeSearchString = $formattedText.escapeJsQuoted($!searchString))
+					#set($safeViewString = $formattedText.escapeJsQuoted($!viewString))
 					#set($actionString="#toolLinkParam($action 'doDownload_all')")
 				<input type="button" name="downloadButton" id="downloadButton"  accesskey="d" class="active"
-						onclick="ASN.invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage', '$contextString', '$viewString', '$searchString', '$showSubmissionByFilterSearchOnly', this);" value="$tlang.getString('downloadall.button.download')" />
+						onclick="ASN.invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage', '$contextString', '$safeViewString', '$safeSearchString', '$showSubmissionByFilterSearchOnly', this);" value="$tlang.getString('downloadall.button.download')" />
 			#else
 				<input type="button" name="uploadButton" id="uploadButton"  accesskey="s" class="active"
 						onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('uploadAllForm').action='#toolLinkParam($action "doUpload_all" "sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")'; ASN.submitForm( 'uploadAllForm', null, null, null );" value="$tlang.getString('uploadall.button.upload')" />
