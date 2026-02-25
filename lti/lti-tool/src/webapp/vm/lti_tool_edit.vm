@@ -36,7 +36,7 @@
 
 #if ($isEdit && $isAdmin && $autoStartUrl )
     <div id="modal-iframe-div" style="display:none" tabindex="-1" role="dialog">
-        <iframe name="sakai-lti-admin-iframe" id="sakai-lti-admin-iframe" src="/library/image/sakai/spinner.gif" style="min-height: 80vh;" tabindex="0"></iframe>
+        <iframe name="sakai-lti-admin-iframe" id="sakai-lti-admin-iframe" class="sakai-iframe-force-light" src="/library/image/sakai/spinner.gif" style="min-height: 80vh;" tabindex="0"></iframe>
     </div>
 <script>
 function showIframe(title, doreload) {
