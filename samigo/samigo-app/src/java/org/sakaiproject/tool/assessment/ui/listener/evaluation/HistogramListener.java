@@ -49,6 +49,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -526,10 +527,12 @@ public class HistogramListener
 
 					  // Should be set before determineResults
 					  questionScores.setN(String.valueOf(numSubmissions));
+					  if (item.getScore() != null) {
+						  questionScores.setTotalScore(item.getScore().toString());
+					  }
 
 					  //for each question (item) in the published assessment's current part/section
 					  determineResults(pub, questionScores, (List) itemScores.get(item.getItemId()));
-					  questionScores.setTotalScore(item.getScore().toString());
 
 					  questionScores.setItemId(item.getItemId());
 					  Set studentsWithAllCorrect = questionScores.getStudentsWithAllCorrect();
@@ -644,6 +647,7 @@ public class HistogramListener
 					  // Get the percentage correct by objective
 					  String obj = questionScores.getObjectives();
 					  if (StringUtils.isNotBlank(obj)) {
+						  Double pctCorrectForObjectives = resolveMetadataPercentCorrect(questionScores, "objectives");
 						  String[] objs = obj.split(",");
 						  for (int i = 0; i < objs.length; i++) {
 							  String objective = StringUtils.trimToNull(objs[i]);
@@ -651,28 +655,17 @@ public class HistogramListener
 								  continue;
 							  }
 
-							  // SAM-2508 set a default value to avoid the NumberFormatException issues
-							  Double pctCorrect = 0.0d;
 							  Double newAvg = 0.0d;
 							  int divisor = 1;
 
-							  try {
-								  if (questionScores.getPercentCorrect() != null && !"N/A".equalsIgnoreCase(questionScores.getPercentCorrect())) {
-									  pctCorrect = Double.parseDouble(questionScores.getPercentCorrect());
-								  }
-							  }
-							  catch (NumberFormatException nfe) {
-								  log.error("NFE when looking at metadata and objectives", nfe);
-							  }
-
-							  if (objectivesCorrect.get(objective) != null) {
-								  Double objCorrect = objectivesCorrect.get(objective);
-								  divisor = objCorrect.intValue() + 1;
-
-								  newAvg = objCorrect + ((pctCorrect - objCorrect) / divisor);
+							  Double existingObjectiveAvg = objectivesCorrect.get(objective);
+							  if (existingObjectiveAvg != null) {
+								  int currentCount = objectivesCounter.getOrDefault(objective, 0);
+								  divisor = currentCount + 1;
+								  newAvg = existingObjectiveAvg + ((pctCorrectForObjectives - existingObjectiveAvg) / divisor);
 								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
 							  } else {
-								  newAvg = new BigDecimal(pctCorrect).setScale(2, RoundingMode.HALF_UP).doubleValue();
+								  newAvg = new BigDecimal(pctCorrectForObjectives).setScale(2, RoundingMode.HALF_UP).doubleValue();
 							  }
 
 							  objectivesCounter.put(objective, divisor);
@@ -683,30 +676,24 @@ public class HistogramListener
 					  // Get the percentage correct by keyword
 					  String key = questionScores.getKeywords();
 					  if (StringUtils.isNotBlank(key)) {
+						  Double pctCorrectForKeywords = resolveMetadataPercentCorrect(questionScores, "keywords");
 						  String [] keys = key.split(",");
 						  for (int i = 0; i < keys.length; i++) {
 							  String keyword = StringUtils.trimToNull(keys[i]);
 							  if (keyword == null) {
 								  continue;
 							  }
-							  String percentCorrect = questionScores.getPercentCorrect();
-							  if (StringUtils.isBlank(percentCorrect) || "N/A".equalsIgnoreCase(percentCorrect)) {
-								  continue;
-							  }
-							  if (keywordsCorrect.get(keyword) != null) {
-								  int divisor = keywordsCounter.get(keyword) + 1;
-								  Double newAvg = keywordsCorrect.get(keyword) + (
-									  (Double.parseDouble(percentCorrect) - keywordsCorrect.get(keyword)
-									  ) / divisor);
 
+							  Double existingKeywordAvg = keywordsCorrect.get(keyword);
+							  if (existingKeywordAvg != null) {
+								  int divisor = keywordsCounter.getOrDefault(keyword, 0) + 1;
+								  Double newAvg = existingKeywordAvg + ((pctCorrectForKeywords - existingKeywordAvg) / divisor);
 								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
 
 								  keywordsCounter.put(keyword, divisor);
 								  keywordsCorrect.put(keyword, newAvg);
 							  } else {
-								  Double newAvg = Double.parseDouble(percentCorrect);
-								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
-
+								  Double newAvg = new BigDecimal(pctCorrectForKeywords).setScale(2, RoundingMode.HALF_UP).doubleValue();
 								  keywordsCounter.put(keyword, 1);
 								  keywordsCorrect.put(keyword, newAvg);
 							  }
@@ -807,9 +794,46 @@ public class HistogramListener
 	  return true;
   }
 
+  double resolveMetadataPercentCorrect(HistogramQuestionScoresBean questionScores, String metadataType) {
+	  if (questionScores == null) {
+		  return 0.0d;
+	  }
+
+	  if (isScoreStatisticsQuestionType(questionScores.getQuestionType())) {
+		  return resolveScoreStatisticsPercentCorrectValue(questionScores);
+	  }
+
+	  Long numberOfStudentsWithCorrectAnswers = questionScores.getNumberOfStudentsWithCorrectAnswers();
+	  if (numberOfStudentsWithCorrectAnswers != null && questionScores.getNumResponses() > 0) {
+		  return calculatePercentCorrectValue(numberOfStudentsWithCorrectAnswers.doubleValue(), questionScores.getNumResponses());
+	  }
+
+	  return parseMetadataPercentCorrect(questionScores.getPercentCorrect(), metadataType);
+  }
+
+  double parseMetadataPercentCorrect(String percentCorrect, String metadataType) {
+	  if (StringUtils.isBlank(percentCorrect) || "N/A".equalsIgnoreCase(percentCorrect)) {
+		  return 0.0d;
+	  }
+
+	  try {
+		  double parsedPercentCorrect = Double.parseDouble(percentCorrect);
+		  if (parsedPercentCorrect < 0.0d) {
+			  return 0.0d;
+		  }
+		  if (parsedPercentCorrect > 100.0d) {
+			  return 100.0d;
+		  }
+		  return parsedPercentCorrect;
+	  } catch (NumberFormatException nfe) {
+		  log.debug("Ignoring non-numeric percentCorrect [{}] for metadata type [{}]", percentCorrect, metadataType);
+		  return 0.0d;
+	  }
+  }
+
   /**
    * For each question (item) in the published assessment's current part/section
-   * determine the results by calculating statistics for whole question or 
+   * determine the results by calculating statistics for whole question or
    * individual answers depending on the question type
    * @param pub
    * @param qbean
@@ -844,10 +868,16 @@ public class HistogramListener
       qbean.setNumResponses(responses);
       qbean.setNumberOfStudentsWithZeroAnswers(numStudentsWithZeroAnswers);
 
-    if (isAnswerStatisticsQuestionType(qbean.getQuestionType()))
+    if (isAnswerStatisticsQuestionType(qbean.getQuestionType())) {
       doAnswerStatistics(pub, qbean, itemScores);
-    if (isScoreStatisticsQuestionType(qbean.getQuestionType()))
+    }
+    if (isScoreStatisticsQuestionType(qbean.getQuestionType())) {
+      if (StringUtils.isBlank(qbean.getTotalScore())) {
+        log.warn("Missing total possible score before score statistics for item [{}], type [{}]", qbean.getItemId(),
+            qbean.getQuestionType());
+      }
       doScoreStatistics(qbean, itemScores);
+    }
 
   }
 
@@ -1065,25 +1095,26 @@ public class HistogramListener
     long totalCount = respondedCount + blankCount;
     long incorrectCount = respondedCount - correctCount;
     if (incorrectCount < 0) {
-        incorrectCount = 0;
+      incorrectCount = 0;
     }
 
     if (!isSurveyType) {
-        // Ideally totalCount should not be 0, if it happens we should handle it to avoid division by 0
-        if (totalCount > 0) {
-            int difficulty = calcDifficulty(totalCount, incorrectCount, blankCount);
-            qbean.setDifficulty(difficulty);
-        } else {
-            log.warn("respondedCount is 0 for item with id=[{}], title=[{}], type=[{}]",
-                    qbean.getItemId(), qbean.getTitle(), qbean.getQuestionType());
-        }
+      qbean.setPercentCorrect(Integer.toString(calculatePercentCorrect(correctCount, respondedCount)));
+      // Ideally totalCount should not be 0, if it happens we should handle it to avoid division by 0
+      if (totalCount > 0) {
+        int difficulty = calcDifficulty(totalCount, incorrectCount, blankCount);
+        qbean.setDifficulty(difficulty);
+      } else {
+        log.warn("respondedCount is 0 for item with id=[{}], title=[{}], type=[{}]",
+                qbean.getItemId(), qbean.getTitle(), qbean.getQuestionType());
+      }
 
-        qbean.setNumberOfStudentsWithCorrectAnswers(correctCount);
-        qbean.setNumberOfStudentsWithIncorrectAnswers(incorrectCount);
+      qbean.setNumberOfStudentsWithCorrectAnswers(correctCount);
+      qbean.setNumberOfStudentsWithIncorrectAnswers(incorrectCount);
     } else {
-        qbean.setDifficulty(null);
-        qbean.setNumberOfStudentsWithCorrectAnswers(null);
-        qbean.setNumberOfStudentsWithIncorrectAnswers(null);
+      qbean.setDifficulty(null);
+      qbean.setNumberOfStudentsWithCorrectAnswers(null);
+      qbean.setNumberOfStudentsWithIncorrectAnswers(null);
     }
   }
 
@@ -2472,9 +2503,11 @@ public class HistogramListener
 	  qbean.setNumResponses(numStudentRespondedMap.size());
   }	
 
-  private void doScoreStatistics(HistogramQuestionScoresBean qbean, List scores)
+  void doScoreStatistics(HistogramQuestionScoresBean qbean, List<ItemGradingData> scores)
   {
     // here scores contain ItemGradingData
+    String savedTotalScore = qbean.getTotalScore();
+    String totalPossibleScoreForQuestion = savedTotalScore;
     Map assessmentMap = getAssessmentStatisticsMap(scores);
 
     // test to see if it gets back empty map
@@ -2492,16 +2525,21 @@ public class HistogramListener
       qbean.setQ2( (String) assessmentMap.get("q2"));
       qbean.setQ3( (String) assessmentMap.get("q3"));
       qbean.setQ4( (String) assessmentMap.get("q4"));
-      //qbean.setTotalScore( (String) assessmentMap.get("maxScore"));
+      if (StringUtils.isNotBlank(totalPossibleScoreForQuestion)) {
+        // Keep question max points (set before determineResults) instead of summed student scores.
+        qbean.setTotalScore(totalPossibleScoreForQuestion);
+      } else {
+        qbean.setTotalScore(savedTotalScore);
+      }
 
 
 
 
       HistogramBarBean[] bars =
         new HistogramBarBean[qbean.getColumnHeight().length];
-   
 
-      // SAK-1933: if there is no response, do not show bars at all 
+
+      // SAK-1933: if there is no response, do not show bars at all
       // do not check if assessmentMap is empty, because it's never empty.
       if (scores.size() == 0) {
       bars = new HistogramBarBean[0];
@@ -2519,12 +2557,44 @@ public class HistogramListener
       }
     }
       qbean.setHistogramBars(bars);
+      qbean.setPercentCorrect(Integer.toString(resolveScoreStatisticsPercentCorrect(qbean)));
     }
       catch (IllegalAccessException e) {
 		log.error(e.getMessage(), e);
 	} catch (InvocationTargetException e) {
 		log.error(e.getMessage(), e);
 	}
+  }
+
+  int resolveScoreStatisticsPercentCorrect(HistogramQuestionScoresBean qbean) {
+    return (int) Math.round(resolveScoreStatisticsPercentCorrectValue(qbean));
+  }
+
+  private double resolveScoreStatisticsPercentCorrectValue(HistogramQuestionScoresBean qbean) {
+    if (qbean == null || qbean.getNumResponses() <= 0) {
+      return 0d;
+    }
+    double meanScore = NumberUtils.toDouble(qbean.getMean(), 0d);
+    double maxScoreForQuestion = NumberUtils.toDouble(qbean.getTotalScore(), 0d);
+    return calculatePercentCorrectValue(meanScore, maxScoreForQuestion);
+  }
+
+  private int calculatePercentCorrect(double numerator, double denominator) {
+    return (int) Math.round(calculatePercentCorrectValue(numerator, denominator));
+  }
+
+  private double calculatePercentCorrectValue(double numerator, double denominator) {
+    if (denominator <= 0d) {
+      return 0d;
+    }
+    double percentCorrect = (numerator / denominator) * 100d;
+    if (percentCorrect < 0) {
+      return 0d;
+    }
+    if (percentCorrect > 100) {
+      return 100d;
+    }
+    return percentCorrect;
   }
 
   private Map getAssessmentStatisticsMap(List scoreList)

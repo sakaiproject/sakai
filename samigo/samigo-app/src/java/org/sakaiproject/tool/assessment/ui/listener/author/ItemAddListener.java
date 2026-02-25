@@ -2615,7 +2615,7 @@ public class ItemAddListener implements ActionListener {
 			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getKeyword()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.RUBRIC)){
-			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getKeyword()));
+			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getRubric()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.OBJECTIVE)){
 			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(bean.getObjective()));
