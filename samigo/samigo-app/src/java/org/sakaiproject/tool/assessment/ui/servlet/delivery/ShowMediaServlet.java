@@ -147,22 +147,27 @@ public class ShowMediaServlet extends HttpServlet
       dispatcher.forward(req, res);
     }
     else {
-      boolean forceDownload = StringUtils.equals(mediaData.getMimeType(), "application/octet-stream")
-              || StringUtils.equals(setMimeType, "false");
-      String responseContentType = !forceDownload && StringUtils.isNotBlank(mediaData.getMimeType())
-              ? mediaData.getMimeType()
-              : "application/octet-stream";
+      ContentResource cr = mediaData.getContentResource();
+      String responseContentType = StringUtils.trimToNull(cr != null ? cr.getContentType() : null);
+      if (StringUtils.isBlank(responseContentType)) {
+          responseContentType = StringUtils.trimToNull(mediaData.getMimeType());
+      }
+      boolean unknownOrGenericContentType = StringUtils.isBlank(responseContentType)
+              || StringUtils.equals(responseContentType, "application/octet-stream");
+      boolean forceDownload = unknownOrGenericContentType || StringUtils.equals(setMimeType, "false");
       String displayType="inline";
       if (forceDownload) {
         displayType="attachment";
       }
-      res.setContentType(responseContentType);
-      res.setHeader("Content-Type", responseContentType);
+      if (!unknownOrGenericContentType) {
+        res.setContentType(responseContentType);
+        res.setHeader("Content-Type", responseContentType);
+        res.setHeader("X-Content-Type-Options", "nosniff");
+      }
       log.debug("****"+displayType+";filename=\""+fileName+"\";");
       res.setHeader("Content-Disposition", displayType+";filename=\""+fileName+"\";");
 
       // See if we can bypass handling a large byte array
-      ContentResource cr = mediaData.getContentResource();
         try {
             URI directLink = AssessmentService.getContentHostingService().getDirectLinkToAsset(cr);
             if (directLink != null) {
