@@ -29,7 +29,7 @@ import com.sun.faces.util.MessageFactory;
 
 public class MessageTitleValidator implements Validator
 {
-	public static final String MESSAGE_KEY = "cdfm_invalidMessageTitleString";
+	public static final String MESSAGE_KEY = "cdfm_empty_title_error";
 	
 	public MessageTitleValidator() {}
 	
