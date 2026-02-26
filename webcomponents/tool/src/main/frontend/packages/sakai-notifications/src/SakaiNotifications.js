@@ -125,9 +125,15 @@ export class SakaiNotifications extends SakaiElement {
       this._filteredNotifications.get(toolEventPrefix).push(decorated);
     });
 
-    // Make sure the motd bundle is at the top.
+    // Sort alphabetically by title, with motd always at the top
     const entries = Array.from(this._filteredNotifications.entries());
-    entries.sort((a, b) => (a[0] === "motd" ? -1 : b[0] === "motd" ? 1 : 0));
+    entries.sort((a, b) => {
+      if (a[0] === "motd") return -1;
+      if (b[0] === "motd") return 1;
+      const titleA = this._i18n[a[0]] || a[0];
+      const titleB = this._i18n[b[0]] || b[0];
+      return titleA.localeCompare(titleB);
+    });
     this._filteredNotifications = new Map(entries);
 
     this._state = NOTIFICATIONS;
