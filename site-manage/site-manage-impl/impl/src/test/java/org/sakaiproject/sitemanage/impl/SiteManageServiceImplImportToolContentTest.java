@@ -39,7 +39,10 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SiteManageServiceImplTest {
+/**
+ * Focused unit tests for SiteManageServiceImpl#importToolContent site info URL behavior.
+ */
+public class SiteManageServiceImplImportToolContentTest {
 
     private SiteManageServiceImpl siteManageService;
     private SiteService siteService;
