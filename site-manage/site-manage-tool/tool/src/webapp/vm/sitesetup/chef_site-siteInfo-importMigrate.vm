@@ -26,7 +26,7 @@
 									<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
 									<span class="d-block w-100">
 										<span class="fw-medium d-block">$formattedText.escapeHtml($templateSite.getTitle())</span>
-										<span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($templateSite.getId())</span>
+										<span class="small text-body-secondary font-monospace d-block text-break">$tlang.getString("java.siteid") $formattedText.escapeHtml($templateSite.getId())</span>
 										#if("$!templateDescription" != "")
 											<span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($templateDescription)">$formattedText.escapeHtml($templateDescription)</span>
 										#end
@@ -49,7 +49,7 @@
 									<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
 									<span class="d-block w-100">
 										<span class="fw-medium d-block">$formattedText.escapeHtml($site.getTitle())</span>
-										<span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($site.getId())</span>
+										<span class="small text-body-secondary font-monospace d-block text-break">$tlang.getString("java.siteid") $formattedText.escapeHtml($site.getId())</span>
 										#if("$!siteDescription" != "")
 											<span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($siteDescription)">$formattedText.escapeHtml($siteDescription)</span>
 										#end
@@ -62,28 +62,39 @@
 
 			#if ($!hiddenSites && $hiddenSites.size() > 0)
 				<div class="mb-4">
-					<details class="border rounded-3 p-2">
-						<summary class="fw-bold mb-2">$tlang.getString("sitinfimp.hiddensites")</summary>
-						<div class="pt-2">
-							#foreach($hiddenSite in $hiddenSites)
-								#if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
-									#set($hiddenSiteDescription = $formattedText.stripHtmlFromText($!hiddenSite.description, true))
-									<div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
-										<label class="d-flex align-items-start gap-2 mb-0 w-100">
-											<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
-											<span class="d-block w-100">
-												<span class="fw-medium d-block">$formattedText.escapeHtml($hiddenSite.getTitle())</span>
-												<span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($hiddenSite.getId())</span>
-												#if("$!hiddenSiteDescription" != "")
-													<span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($hiddenSiteDescription)">$formattedText.escapeHtml($hiddenSiteDescription)</span>
-												#end
-											</span>
-										</label>
-									</div>
-								#end
-							#end
+					<div class="accordion border rounded-3 p-2" id="hiddenSitesAccordion">
+						<div class="accordion-item border-0">
+							<h5 class="accordion-header" id="hiddenSitesHeading">
+								<button class="accordion-button collapsed fw-bold p-0 bg-transparent shadow-none" type="button"
+									data-bs-toggle="collapse" data-bs-target="#hiddenSitesCollapse"
+									aria-expanded="false" aria-controls="hiddenSitesCollapse">
+									$tlang.getString("sitinfimp.hiddensites")
+								</button>
+							</h5>
+							<div id="hiddenSitesCollapse" class="accordion-collapse collapse"
+								aria-labelledby="hiddenSitesHeading" data-bs-parent="#hiddenSitesAccordion">
+								<div class="accordion-body pt-2 px-0 pb-0">
+									#foreach($hiddenSite in $hiddenSites)
+										#if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
+											#set($hiddenSiteDescription = $formattedText.stripHtmlFromText($!hiddenSite.description, true))
+											<div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
+												<label class="d-flex align-items-start gap-2 mb-0 w-100">
+													<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
+													<span class="d-block w-100">
+														<span class="fw-medium d-block">$formattedText.escapeHtml($hiddenSite.getTitle())</span>
+														<span class="small text-body-secondary font-monospace d-block text-break">$tlang.getString("java.siteid") $formattedText.escapeHtml($hiddenSite.getId())</span>
+														#if("$!hiddenSiteDescription" != "")
+															<span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($hiddenSiteDescription)">$formattedText.escapeHtml($hiddenSiteDescription)</span>
+														#end
+													</span>
+												</label>
+											</div>
+										#end
+									#end
+								</div>
+							</div>
 						</div>
-					</details>
+					</div>
 				</div>
 			#end
 
