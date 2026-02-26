@@ -48,17 +48,21 @@
 
 			#if ($!hiddenSites && $hiddenSites.size() > 0)
 				<div class="mb-4">
-					<div class="fw-bold mb-2">$tlang.getString("sitinfimp.hiddensites")</div>
-					#foreach($hiddenSite in $hiddenSites)
-						#if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
-							<div class="radio">
-								<label>
-									<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
-									$formattedText.escapeHtml($hiddenSite.getTitle())
-								</label>
-							</div>
-						#end
-					#end
+					<details class="border rounded-3 p-2">
+						<summary class="fw-bold mb-2">$tlang.getString("sitinfimp.hiddensites")</summary>
+						<div class="pt-2">
+							#foreach($hiddenSite in $hiddenSites)
+								#if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
+									<div class="radio mb-1">
+										<label>
+											<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
+											$formattedText.escapeHtml($hiddenSite.getTitle())
+										</label>
+									</div>
+								#end
+							#end
+						</div>
+					</details>
 				</div>
 			#end
 
