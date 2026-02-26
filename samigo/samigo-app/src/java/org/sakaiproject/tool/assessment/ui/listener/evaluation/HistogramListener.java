@@ -26,7 +26,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -644,60 +646,16 @@ public class HistogramListener
 					  }
 				  
 				  if (showObjectivesColumn) {
-					  // Get the percentage correct by objective
-					  String obj = questionScores.getObjectives();
-					  if (StringUtils.isNotBlank(obj)) {
-						  Double pctCorrectForObjectives = resolveMetadataPercentCorrect(questionScores, "objectives");
-						  String[] objs = obj.split(",");
-						  for (int i = 0; i < objs.length; i++) {
-							  String objective = StringUtils.trimToNull(objs[i]);
-							  if (objective == null) {
-								  continue;
-							  }
-
-							  Double newAvg = 0.0d;
-							  int divisor = 1;
-
-							  Double existingObjectiveAvg = objectivesCorrect.get(objective);
-							  if (existingObjectiveAvg != null) {
-								  int currentCount = objectivesCounter.getOrDefault(objective, 0);
-								  divisor = currentCount + 1;
-								  newAvg = existingObjectiveAvg + ((pctCorrectForObjectives - existingObjectiveAvg) / divisor);
-								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
-							  } else {
-								  newAvg = new BigDecimal(pctCorrectForObjectives).setScale(2, RoundingMode.HALF_UP).doubleValue();
-							  }
-
-							  objectivesCounter.put(objective, divisor);
-							  objectivesCorrect.put(objective, newAvg);
-						  }
+					  List<String> objectives = parseMetadataValues(questionScores.getObjectives());
+					  if (!objectives.isEmpty()) {
+						  double pctCorrectForObjectives = resolveMetadataPercentCorrect(questionScores, "objectives");
+						  updateMetadataAverage(objectivesCorrect, objectivesCounter, objectives, pctCorrectForObjectives);
 					  }
 
-					  // Get the percentage correct by keyword
-					  String key = questionScores.getKeywords();
-					  if (StringUtils.isNotBlank(key)) {
-						  Double pctCorrectForKeywords = resolveMetadataPercentCorrect(questionScores, "keywords");
-						  String [] keys = key.split(",");
-						  for (int i = 0; i < keys.length; i++) {
-							  String keyword = StringUtils.trimToNull(keys[i]);
-							  if (keyword == null) {
-								  continue;
-							  }
-
-							  Double existingKeywordAvg = keywordsCorrect.get(keyword);
-							  if (existingKeywordAvg != null) {
-								  int divisor = keywordsCounter.getOrDefault(keyword, 0) + 1;
-								  Double newAvg = existingKeywordAvg + ((pctCorrectForKeywords - existingKeywordAvg) / divisor);
-								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
-
-								  keywordsCounter.put(keyword, divisor);
-								  keywordsCorrect.put(keyword, newAvg);
-							  } else {
-								  Double newAvg = new BigDecimal(pctCorrectForKeywords).setScale(2, RoundingMode.HALF_UP).doubleValue();
-								  keywordsCounter.put(keyword, 1);
-								  keywordsCorrect.put(keyword, newAvg);
-							  }
-						  }
+					  List<String> keywords = parseMetadataValues(questionScores.getKeywords());
+					  if (!keywords.isEmpty()) {
+						  double pctCorrectForKeywords = resolveMetadataPercentCorrect(questionScores, "keywords");
+						  updateMetadataAverage(keywordsCorrect, keywordsCounter, keywords, pctCorrectForKeywords);
 					  }
 				  }
 				  //i.e. for EMI questions we add detailed stats for the whole
@@ -829,6 +787,51 @@ public class HistogramListener
 		  log.debug("Ignoring non-numeric percentCorrect [{}] for metadata type [{}]", percentCorrect, metadataType);
 		  return 0.0d;
 	  }
+  }
+
+  List<String> parseMetadataValues(String metadataValues) {
+	  Set<String> parsedValues = new LinkedHashSet<>();
+	  if (StringUtils.isBlank(metadataValues)) {
+		  return new ArrayList<>();
+	  }
+
+	  String[] splitValues = metadataValues.split(",");
+	  for (int i = 0; i < splitValues.length; i++) {
+		  String normalizedValue = normalizeMetadataValue(splitValues[i]);
+		  if (normalizedValue != null) {
+			  parsedValues.add(normalizedValue);
+		  }
+	  }
+	  return new ArrayList<>(parsedValues);
+  }
+
+  void updateMetadataAverage(Map<String, Double> metadataCorrect, Map<String, Integer> metadataCounter,
+		  List<String> metadataValues, double percentCorrect) {
+	  for (String metadataValue : metadataValues) {
+		  Double existingMetadataAvg = metadataCorrect.get(metadataValue);
+		  int divisor = metadataCounter.getOrDefault(metadataValue, 0) + 1;
+		  double newAvg = percentCorrect;
+		  if (existingMetadataAvg != null) {
+			  newAvg = existingMetadataAvg + ((percentCorrect - existingMetadataAvg) / divisor);
+		  }
+		  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
+		  metadataCounter.put(metadataValue, divisor);
+		  metadataCorrect.put(metadataValue, newAvg);
+	  }
+  }
+
+  private String normalizeMetadataValue(String metadataValue) {
+	  if (metadataValue == null) {
+		  return null;
+	  }
+
+	  String normalizedValue = metadataValue.replace('\u00A0', ' ').strip();
+	  if (normalizedValue.isEmpty()) {
+		  return null;
+	  }
+
+	  normalizedValue = normalizedValue.replaceAll("\\s+", " ");
+	  return normalizedValue.toLowerCase(Locale.ROOT);
   }
 
   /**

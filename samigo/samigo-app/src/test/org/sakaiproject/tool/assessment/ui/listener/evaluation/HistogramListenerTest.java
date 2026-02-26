@@ -97,6 +97,52 @@ public class HistogramListenerTest {
     }
 
     @Test
+    public void testParseMetadataValuesNormalizesWhitespaceCaseAndDeduplicates() {
+        HistogramListener listener = new HistogramListener();
+
+        List<String> values = listener.parseMetadataValues("  Rose,\u00A0flowers,, red   rose, ROSE, FLOWERS ");
+
+        assertEquals(Arrays.asList("rose", "flowers", "red rose"), values);
+    }
+
+    @Test
+    public void testUpdateMetadataAverageMergesReorderedObjectivesAndKeywords() {
+        HistogramListener listener = new HistogramListener();
+        Map<String, Double> objectivesCorrect = new HashMap<>();
+        Map<String, Integer> objectivesCounter = new HashMap<>();
+        Map<String, Double> keywordsCorrect = new HashMap<>();
+        Map<String, Integer> keywordsCounter = new HashMap<>();
+
+        listener.updateMetadataAverage(objectivesCorrect, objectivesCounter, listener.parseMetadataValues("1.1, 1.2"), 100.0d);
+        listener.updateMetadataAverage(objectivesCorrect, objectivesCounter, listener.parseMetadataValues("1.2,\u00A01.1"), 0.0d);
+
+        listener.updateMetadataAverage(keywordsCorrect, keywordsCounter, listener.parseMetadataValues("Flowers, Rose"), 100.0d);
+        listener.updateMetadataAverage(keywordsCorrect, keywordsCounter, listener.parseMetadataValues("rose,\u00A0flowers"), 0.0d);
+
+        assertEquals(2, objectivesCorrect.size());
+        assertEquals(50.0d, objectivesCorrect.get("1.1"), 0.0d);
+        assertEquals(50.0d, objectivesCorrect.get("1.2"), 0.0d);
+
+        assertEquals(2, keywordsCorrect.size());
+        assertEquals(50.0d, keywordsCorrect.get("flowers"), 0.0d);
+        assertEquals(50.0d, keywordsCorrect.get("rose"), 0.0d);
+    }
+
+    @Test
+    public void testUpdateMetadataAverageDeduplicatesRepeatedTagsWithinQuestion() {
+        HistogramListener listener = new HistogramListener();
+        Map<String, Double> keywordsCorrect = new HashMap<>();
+        Map<String, Integer> keywordsCounter = new HashMap<>();
+
+        listener.updateMetadataAverage(keywordsCorrect, keywordsCounter, listener.parseMetadataValues("Rose, rose, ROSE"), 100.0d);
+        listener.updateMetadataAverage(keywordsCorrect, keywordsCounter, listener.parseMetadataValues("rose"), 0.0d);
+
+        assertEquals(1, keywordsCorrect.size());
+        assertEquals(2, (int) keywordsCounter.get("rose"));
+        assertEquals(50.0d, keywordsCorrect.get("rose"), 0.0d);
+    }
+
+    @Test
     public void testResolveScoreStatisticsPercentCorrectUsesMeanOverItemScore() throws Exception {
         HistogramListener listener = new HistogramListener();
         HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();
