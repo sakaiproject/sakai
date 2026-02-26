@@ -10,12 +10,10 @@ describe("sakai-course-card tests", () => {
       .get(data.i18nUrl, data.i18n)
       .get(data.toolnameMappingsUrl, data.toolnameMappings)
       .get("*", 500);
-
   });
+
   afterEach(() => {
     fetchMock.hardReset();
-
-
   });
 
   window.top.portal = { siteId: data.siteId };

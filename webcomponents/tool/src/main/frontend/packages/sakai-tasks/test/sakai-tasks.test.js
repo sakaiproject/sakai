@@ -14,7 +14,7 @@ describe("sakai-tasks tests", () => {
       .post(data.tasksUrl, ({ url, options }) => {
 
         return Object.assign({
-          id: "" + Math.floor(Math.random() * 20) + 1,
+          id: "" + (Math.floor(Math.random() * 20) + 1),
           creator: "adrian",
           created: Date.now(),
           creatorDisplayName: "Adrian Fish",
