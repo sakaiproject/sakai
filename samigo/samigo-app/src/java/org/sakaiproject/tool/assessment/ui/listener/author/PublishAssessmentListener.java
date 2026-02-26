@@ -195,6 +195,7 @@ public class PublishAssessmentListener
 
             // Assume this is a bulk publishing operation
             List assessmentList = author.getAllAssessments();
+            PublishedAssessmentService bulkPublishedAssessmentService = new PublishedAssessmentService();
             for (Object assessment : assessmentList) {
                 if (assessment instanceof AssessmentFacade) {
                     final String assessmentId = ((AssessmentFacade) assessment).getAssessmentBaseId().toString();
@@ -202,6 +203,7 @@ public class PublishAssessmentListener
 
                     if (((AssessmentFacade) assessment).isSelected()) {
                         assessmentList.remove(assessmentFacade);
+                        assessmentFacade = ensureUniquePublishedTitleForBulkPublish(assessmentFacade, assessmentService, bulkPublishedAssessmentService);
                         assessmentSettings.setAssessment(assessmentFacade);
                         publishOne(author, assessmentFacade, assessmentSettings, assessmentService, authorization, repeatedPublish);
                     }
@@ -247,6 +249,50 @@ public class PublishAssessmentListener
             context.addMessage(null, new FacesMessage(err));
         }
     }
+  }
+
+  private AssessmentFacade ensureUniquePublishedTitleForBulkPublish(AssessmentFacade assessment, AssessmentService assessmentService,
+                                                                    PublishedAssessmentService publishedAssessmentService) {
+    String currentTitle = assessment.getTitle();
+    if (StringUtils.isBlank(currentTitle)) {
+      return assessment;
+    }
+
+    String assessmentId = assessment.getAssessmentBaseId().toString();
+    String candidateTitle = currentTitle.trim();
+    String formattedCandidateTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(candidateTitle);
+
+    int count = 0;
+    while ((!publishedAssessmentService.publishedAssessmentTitleIsUnique(assessmentId, formattedCandidateTitle)
+            || !assessmentService.assessmentTitleIsUnique(assessmentId, formattedCandidateTitle, false))
+            && count < 100) {
+      candidateTitle = AssessmentService.renameDuplicate(candidateTitle);
+      formattedCandidateTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(candidateTitle);
+      count++;
+    }
+
+    if (!publishedAssessmentService.publishedAssessmentTitleIsUnique(assessmentId, formattedCandidateTitle)
+            || !assessmentService.assessmentTitleIsUnique(assessmentId, formattedCandidateTitle, false)) {
+      String exhaustedCandidate = formattedCandidateTitle;
+      do {
+        candidateTitle = exhaustedCandidate + "-" + Long.toHexString(System.nanoTime());
+        formattedCandidateTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(candidateTitle);
+      } while (!publishedAssessmentService.publishedAssessmentTitleIsUnique(assessmentId, formattedCandidateTitle)
+                || !assessmentService.assessmentTitleIsUnique(assessmentId, formattedCandidateTitle, false));
+
+      log.warn("Bulk publish title dedup exhausted AssessmentService.renameDuplicate and generated fallback; "
+              + "assessment id='{}', original title='{}', fallback title='{}', attempt count={}",
+              assessmentId, currentTitle, formattedCandidateTitle, count);
+    }
+
+    if (!StringUtils.equals(currentTitle, formattedCandidateTitle)) {
+      assessment.setTitle(formattedCandidateTitle);
+      assessmentService.saveAssessment(assessment);
+      log.debug("Renamed bulk-published assessment title from '{}' to '{}' for assessment id {}.",
+              currentTitle, formattedCandidateTitle, assessmentId);
+    }
+
+    return assessment;
   }
 
   private void publish(AssessmentFacade assessment, AssessmentSettingsBean assessmentSettings) {
