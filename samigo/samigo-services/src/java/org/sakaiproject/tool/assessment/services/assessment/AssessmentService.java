@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.Set;
+import java.util.UUID;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +83,7 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
 
 /**
@@ -718,6 +720,53 @@ public class AssessmentService {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.assessmentTitleIsUnique(new Long(assessmentBaseId), title,
 						Boolean.valueOf(isTemplate));
+	}
+
+	public AssessmentFacade ensureUniquePublishedTitleForPublish(AssessmentFacade assessment) {
+		if (assessment == null || StringUtils.isBlank(assessment.getTitle()) || assessment.getAssessmentBaseId() == null) {
+			return assessment;
+		}
+
+		Long assessmentBaseId = assessment.getAssessmentBaseId();
+		String currentTitle = assessment.getTitle();
+		String normalizedCurrentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(currentTitle.trim());
+		String candidateTitle = currentTitle.trim();
+		String formattedCandidateTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(candidateTitle);
+
+		final int maxRenameAttempts = 100;
+
+		int count = 0;
+		while (!isTitleAvailableForPublish(assessmentBaseId, formattedCandidateTitle) && count < maxRenameAttempts) {
+			candidateTitle = renameDuplicate(candidateTitle);
+			formattedCandidateTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(candidateTitle);
+			count++;
+		}
+
+		if (!isTitleAvailableForPublish(assessmentBaseId, formattedCandidateTitle)) {
+			String exhaustedCandidate = formattedCandidateTitle;
+			candidateTitle = exhaustedCandidate + "-" + UUID.randomUUID();
+			formattedCandidateTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(candidateTitle);
+
+			log.warn("Publish title dedup exhausted AssessmentService.renameDuplicate and switched to UUID suffix; "
+					+ "assessment id='{}', original title='{}', fallback title='{}', attempt count={}",
+					assessmentBaseId, currentTitle, formattedCandidateTitle, count);
+		}
+
+		if (!StringUtils.equals(normalizedCurrentTitle, formattedCandidateTitle)) {
+			assessment.setTitle(formattedCandidateTitle);
+			saveAssessment(assessment);
+			log.debug("Renamed assessment title from '{}' to '{}' before publish for assessment id {}.",
+					currentTitle, formattedCandidateTitle, assessmentBaseId);
+		}
+
+		return assessment;
+	}
+
+	private boolean isTitleAvailableForPublish(Long assessmentBaseId, String title) {
+		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+				.publishedAssessmentTitleIsUnique(assessmentBaseId, title)
+				&& PersistenceService.getInstance().getAssessmentFacadeQueries()
+				.assessmentTitleIsUnique(assessmentBaseId, title, Boolean.FALSE);
 	}
 
 	public List getAssessmentByTemplate(String templateId) {
