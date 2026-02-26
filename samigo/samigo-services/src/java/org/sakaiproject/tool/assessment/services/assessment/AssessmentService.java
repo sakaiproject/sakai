@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.Set;
+import java.util.UUID;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -728,11 +729,14 @@ public class AssessmentService {
 
 		Long assessmentBaseId = assessment.getAssessmentBaseId();
 		String currentTitle = assessment.getTitle();
+		String normalizedCurrentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(currentTitle.trim());
 		String candidateTitle = currentTitle.trim();
 		String formattedCandidateTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(candidateTitle);
 
+		final int maxRenameAttempts = 100;
+
 		int count = 0;
-		while (!isTitleAvailableForPublish(assessmentBaseId, formattedCandidateTitle) && count < 100) {
+		while (!isTitleAvailableForPublish(assessmentBaseId, formattedCandidateTitle) && count < maxRenameAttempts) {
 			candidateTitle = renameDuplicate(candidateTitle);
 			formattedCandidateTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(candidateTitle);
 			count++;
@@ -740,17 +744,15 @@ public class AssessmentService {
 
 		if (!isTitleAvailableForPublish(assessmentBaseId, formattedCandidateTitle)) {
 			String exhaustedCandidate = formattedCandidateTitle;
-			do {
-				candidateTitle = exhaustedCandidate + "-" + Long.toHexString(System.nanoTime());
-				formattedCandidateTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(candidateTitle);
-			} while (!isTitleAvailableForPublish(assessmentBaseId, formattedCandidateTitle));
+			candidateTitle = exhaustedCandidate + "-" + UUID.randomUUID();
+			formattedCandidateTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(candidateTitle);
 
-			log.warn("Publish title dedup exhausted AssessmentService.renameDuplicate and generated fallback; "
+			log.warn("Publish title dedup exhausted AssessmentService.renameDuplicate and switched to UUID suffix; "
 					+ "assessment id='{}', original title='{}', fallback title='{}', attempt count={}",
 					assessmentBaseId, currentTitle, formattedCandidateTitle, count);
 		}
 
-		if (!StringUtils.equals(currentTitle, formattedCandidateTitle)) {
+		if (!StringUtils.equals(normalizedCurrentTitle, formattedCandidateTitle)) {
 			assessment.setTitle(formattedCandidateTitle);
 			saveAssessment(assessment);
 			log.debug("Renamed assessment title from '{}' to '{}' before publish for assessment id {}.",
