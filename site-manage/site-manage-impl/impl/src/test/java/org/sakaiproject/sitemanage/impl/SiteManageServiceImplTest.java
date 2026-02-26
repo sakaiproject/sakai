@@ -18,6 +18,7 @@ package org.sakaiproject.sitemanage.impl;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -38,6 +39,23 @@ import static org.mockito.Mockito.when;
 
 public class SiteManageServiceImplTest {
 
+    private SiteManageServiceImpl siteManageService;
+    private SiteService siteService;
+    private AuthzGroupService authzGroupService;
+    private FunctionManager functionManager;
+
+    @Before
+    public void setUp() {
+        siteManageService = spy(new SiteManageServiceImpl());
+        siteService = mock(SiteService.class);
+        authzGroupService = mock(AuthzGroupService.class);
+        functionManager = mock(FunctionManager.class);
+
+        siteManageService.setSiteService(siteService);
+        siteManageService.setAuthzGroupService(authzGroupService);
+        siteManageService.setFunctionManager(functionManager);
+    }
+
     @Test
     public void importToolContentUsesSourceSiteInfoUrl() throws Exception {
 
@@ -46,14 +64,6 @@ public class SiteManageServiceImplTest {
         final String sourceSiteInfoUrl = "https://sakai.example.edu/portal/site/site-old";
         final String destinationSiteInfoUrl = "https://sakai.example.edu/portal/site/should-not-be-used";
         final String importedSiteInfoUrl = "https://sakai.example.edu/portal/site/site-new";
-
-        SiteManageServiceImpl siteManageService = spy(new SiteManageServiceImpl());
-        SiteService siteService = mock(SiteService.class);
-        AuthzGroupService authzGroupService = mock(AuthzGroupService.class);
-        FunctionManager functionManager = mock(FunctionManager.class);
-        siteManageService.setSiteService(siteService);
-        siteManageService.setAuthzGroupService(authzGroupService);
-        siteManageService.setFunctionManager(functionManager);
 
         Site sourceSite = mock(Site.class);
         Site destinationSite = mock(Site.class);
@@ -90,14 +100,6 @@ public class SiteManageServiceImplTest {
         final String newSiteId = "site-new";
         final String sourceSiteInfoUrl = "https://sakai.example.edu/portal/site/site-old";
         final String expectedSiteInfoUrl = "https://sakai.example.edu/portal/site/site-new";
-
-        SiteManageServiceImpl siteManageService = spy(new SiteManageServiceImpl());
-        SiteService siteService = mock(SiteService.class);
-        AuthzGroupService authzGroupService = mock(AuthzGroupService.class);
-        FunctionManager functionManager = mock(FunctionManager.class);
-        siteManageService.setSiteService(siteService);
-        siteManageService.setAuthzGroupService(authzGroupService);
-        siteManageService.setFunctionManager(functionManager);
 
         Site sourceSite = mock(Site.class);
         Site destinationSite = mock(Site.class);
