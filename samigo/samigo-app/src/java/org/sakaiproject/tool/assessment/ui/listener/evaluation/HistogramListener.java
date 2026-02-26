@@ -796,8 +796,8 @@ public class HistogramListener
 	  }
 
 	  String[] splitValues = metadataValues.split(",");
-	  for (int i = 0; i < splitValues.length; i++) {
-		  String normalizedValue = normalizeMetadataValue(splitValues[i]);
+	  for (String splitValue : splitValues) {
+		  String normalizedValue = normalizeMetadataValue(splitValue);
 		  if (normalizedValue != null) {
 			  parsedValues.add(normalizedValue);
 		  }
@@ -825,6 +825,7 @@ public class HistogramListener
 		  return null;
 	  }
 
+	  // Replace non-breaking spaces copied from rich text editors before trimming/collapsing whitespace.
 	  String normalizedValue = metadataValue.replace('\u00A0', ' ').strip();
 	  if (normalizedValue.isEmpty()) {
 		  return null;
