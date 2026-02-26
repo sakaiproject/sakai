@@ -20,10 +20,17 @@
 					<div class="fw-bold mb-2">$tlang.getString("sitinfimp.templatesites")</div>
 					#foreach($templateSite in $templateSites)
 						#if ($!currentSite && ($templateSite.Id != $!currentSite.Id))
-							<div class="radio">
-								<label>
-									<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
-									$formattedText.escapeHtml($templateSite.getTitle())
+							#set($templateDescription = $formattedText.stripHtmlFromText($!templateSite.description, true))
+							<div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
+								<label class="d-flex align-items-start gap-2 mb-0 w-100">
+									<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
+									<span class="d-block w-100">
+										<span class="fw-medium d-block">$formattedText.escapeHtml($templateSite.getTitle())</span>
+										<span class="small text-body-secondary font-monospace d-block">Site ID: $formattedText.escapeHtml($templateSite.getId())</span>
+										#if("$!templateDescription" != "")
+											<span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($templateDescription)">$formattedText.escapeHtml($templateDescription)</span>
+										#end
+									</span>
 								</label>
 							</div>
 						#end
@@ -36,10 +43,17 @@
 
 					#foreach($site in $sites)
 						#if ($!currentSite && ($site.Id != $!currentSite.Id))
-							<div class="radio">
-								<label>
-									<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
-									$formattedText.escapeHtml($site.getTitle())
+							#set($siteDescription = $formattedText.stripHtmlFromText($!site.description, true))
+							<div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
+								<label class="d-flex align-items-start gap-2 mb-0 w-100">
+									<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
+									<span class="d-block w-100">
+										<span class="fw-medium d-block">$formattedText.escapeHtml($site.getTitle())</span>
+										<span class="small text-body-secondary font-monospace d-block">Site ID: $formattedText.escapeHtml($site.getId())</span>
+										#if("$!siteDescription" != "")
+											<span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($siteDescription)">$formattedText.escapeHtml($siteDescription)</span>
+										#end
+									</span>
 								</label>
 							</div>
 						#end
@@ -53,10 +67,17 @@
 						<div class="pt-2">
 							#foreach($hiddenSite in $hiddenSites)
 								#if ($!currentSite && ($hiddenSite.Id != $!currentSite.Id))
-									<div class="radio mb-1">
-										<label>
-											<input type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
-											$formattedText.escapeHtml($hiddenSite.getTitle())
+									#set($hiddenSiteDescription = $formattedText.stripHtmlFromText($!hiddenSite.description, true))
+									<div class="py-2 px-2 rounded #if ($velocityCount % 2 == 0) bg-body-tertiary #end">
+										<label class="d-flex align-items-start gap-2 mb-0 w-100">
+											<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
+											<span class="d-block w-100">
+												<span class="fw-medium d-block">$formattedText.escapeHtml($hiddenSite.getTitle())</span>
+												<span class="small text-body-secondary font-monospace d-block">Site ID: $formattedText.escapeHtml($hiddenSite.getId())</span>
+												#if("$!hiddenSiteDescription" != "")
+													<span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($hiddenSiteDescription)">$formattedText.escapeHtml($hiddenSiteDescription)</span>
+												#end
+											</span>
 										</label>
 									</div>
 								#end
