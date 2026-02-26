@@ -123,6 +123,7 @@ public class SiteManageServiceImplImportToolContentTest {
 
     private void mockImportContext(String oldSiteId, String newSiteId, String sourceSiteInfoUrl, String destinationSiteInfoUrl, Site sourceSite, Site destinationSite) throws Exception {
         SitePage siteInfoPage = mockSiteInfoPage();
+        String destinationSiteRef = "/site/" + newSiteId;
 
         when(sourceSite.getInfoUrl()).thenReturn(sourceSiteInfoUrl);
         when(sourceSite.getRoles()).thenReturn(Collections.emptySet());
@@ -132,10 +133,10 @@ public class SiteManageServiceImplImportToolContentTest {
         when(destinationSite.getPages()).thenReturn(List.of(siteInfoPage));
 
         when(siteService.getSite(oldSiteId)).thenReturn(sourceSite);
-        when(siteService.siteReference(newSiteId)).thenReturn("/site/" + newSiteId);
+        when(siteService.siteReference(newSiteId)).thenReturn(destinationSiteRef);
 
         AuthzGroup destinationRealm = mock(AuthzGroup.class);
         when(functionManager.getRegisteredFunctions()).thenReturn(Collections.emptyList());
-        when(authzGroupService.getAuthzGroup("/site/" + newSiteId)).thenReturn(destinationRealm);
+        when(authzGroupService.getAuthzGroup(destinationSiteRef)).thenReturn(destinationRealm);
     }
 }
