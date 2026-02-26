@@ -60,5 +60,7 @@ public class AssignmentServiceImplLinkMappingTest {
                 transversalMap.get("assignmentReference=" + encodedFromReference));
         assertEquals("assignmentReference%3D" + encodedToReference,
                 transversalMap.get("assignmentReference%3D" + encodedFromReference));
+        assertEquals("assignmentId%3D" + toAssignmentId,
+                transversalMap.get("assignmentId%3D" + fromAssignmentId));
     }
 }
