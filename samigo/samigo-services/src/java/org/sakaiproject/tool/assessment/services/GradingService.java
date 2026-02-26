@@ -58,6 +58,7 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.Precision;
+import org.jsoup.Jsoup;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -3794,6 +3795,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return true if the text if malformed
    */
   public boolean checkPairErrorsFIB(String text, String markers_pair) {
+      String textWithoutHtml = Jsoup.parse(StringUtils.defaultString(text)).text();
 	  int index=0;
 	  boolean FIBerror=false;
 	  boolean hasOpen=false;
@@ -3801,8 +3803,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  int closecount=0;
 	  boolean notEmpty=false;
 	  int indexOfOpen=-1;
-	  while(index<text.length()){
-		  char c=text.charAt(index);
+	  while(index<textWithoutHtml.length()){
+		  char c=textWithoutHtml.charAt(index);
 		  if (c == markers_pair.charAt(0)){
 			  opencount++;
 			  if(hasOpen){
@@ -3821,7 +3823,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 				  break;
 			  }
 			  else{
-				  if(notEmpty && (indexOfOpen+1 != index) && (!(text.substring(indexOfOpen+1,index).equals("</p><p>")))){
+				  if(notEmpty && (indexOfOpen+1 != index) && (!(textWithoutHtml.substring(indexOfOpen+1,index).equals("</p><p>")))){
 					  hasOpen=false;
 					  notEmpty=false;
 				  }
