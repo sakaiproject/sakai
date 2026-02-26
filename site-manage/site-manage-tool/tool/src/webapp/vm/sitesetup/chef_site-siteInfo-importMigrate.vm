@@ -26,7 +26,7 @@
 									<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!templateSite)) checked="checked" #end value="$templateSite.getId()"/>
 									<span class="d-block w-100">
 										<span class="fw-medium d-block">$formattedText.escapeHtml($templateSite.getTitle())</span>
-										<span class="small text-body-secondary font-monospace d-block">Site ID: $formattedText.escapeHtml($templateSite.getId())</span>
+										<span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($templateSite.getId())</span>
 										#if("$!templateDescription" != "")
 											<span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($templateDescription)">$formattedText.escapeHtml($templateDescription)</span>
 										#end
@@ -49,7 +49,7 @@
 									<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!site)) checked="checked"#end value="$site.getId()"/>
 									<span class="d-block w-100">
 										<span class="fw-medium d-block">$formattedText.escapeHtml($site.getTitle())</span>
-										<span class="small text-body-secondary font-monospace d-block">Site ID: $formattedText.escapeHtml($site.getId())</span>
+										<span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($site.getId())</span>
 										#if("$!siteDescription" != "")
 											<span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($siteDescription)">$formattedText.escapeHtml($siteDescription)</span>
 										#end
@@ -73,7 +73,7 @@
 											<input class="form-check-input mt-1" type="radio" name="importSites" #if ($!importSiteList.containsKey($!hiddenSite)) checked="checked" #end value="$hiddenSite.getId()"/>
 											<span class="d-block w-100">
 												<span class="fw-medium d-block">$formattedText.escapeHtml($hiddenSite.getTitle())</span>
-												<span class="small text-body-secondary font-monospace d-block">Site ID: $formattedText.escapeHtml($hiddenSite.getId())</span>
+												<span class="small text-body-secondary font-monospace d-block">$tlang.getString("java.siteid") $formattedText.escapeHtml($hiddenSite.getId())</span>
 												#if("$!hiddenSiteDescription" != "")
 													<span class="small text-muted d-block text-truncate" title="$formattedText.escapeHtml($hiddenSiteDescription)">$formattedText.escapeHtml($hiddenSiteDescription)</span>
 												#end
