@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -31,6 +32,7 @@ import org.sakaiproject.sitemanage.api.SiteManageConstants;
 import org.sakaiproject.tool.api.Tool;
 
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -63,7 +65,8 @@ public class SiteManageServiceImplTest {
         final String newSiteId = "site-new";
         final String sourceSiteInfoUrl = "https://sakai.example.edu/portal/site/site-old";
         final String destinationSiteInfoUrl = "https://sakai.example.edu/portal/site/should-not-be-used";
-        final String importedSiteInfoUrl = "https://sakai.example.edu/portal/site/site-new";
+        final String transferResultSiteInfoUrl = "https://sakai.example.edu/access/content/group/site-new/site-info?from-transfer=true";
+        final String expectedSiteInfoUrl = transferResultSiteInfoUrl;
 
         Site sourceSite = mock(Site.class);
         Site destinationSite = mock(Site.class);
@@ -83,13 +86,13 @@ public class SiteManageServiceImplTest {
         when(functionManager.getRegisteredFunctions()).thenReturn(Collections.emptyList());
         when(authzGroupService.getAuthzGroup("/site/" + newSiteId)).thenReturn(destinationRealm);
 
-        doReturn(importedSiteInfoUrl).when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
+        doReturn(transferResultSiteInfoUrl).when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
 
         siteManageService.importToolContent(oldSiteId, destinationSite, false);
 
         verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
         verify(siteManageService, never()).transferSiteResource(oldSiteId, newSiteId, destinationSiteInfoUrl);
-        verify(destinationSite).setInfoUrl(importedSiteInfoUrl);
+        verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
         verify(siteService).save(destinationSite);
     }
 
@@ -123,8 +126,10 @@ public class SiteManageServiceImplTest {
 
         siteManageService.importToolContent(oldSiteId, destinationSite, false);
 
-        verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
-        verify(siteService).save(destinationSite);
+        InOrder inOrder = inOrder(siteManageService, destinationSite, siteService);
+        inOrder.verify(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
+        inOrder.verify(destinationSite).setInfoUrl(expectedSiteInfoUrl);
+        inOrder.verify(siteService).save(destinationSite);
     }
 
     private SitePage mockSiteInfoPage() {
