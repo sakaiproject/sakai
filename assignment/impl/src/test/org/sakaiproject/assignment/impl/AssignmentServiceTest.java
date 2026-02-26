@@ -175,7 +175,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void addAssignmentLinkMappingsIncludesDeepLinkPatterns() throws Exception {
-        AssignmentServiceImpl assignmentServiceImpl = new AssignmentServiceImpl();
+        AssignmentServiceImpl assignmentServiceImpl = AopTestUtils.getTargetObject(assignmentService);
         Map<String, String> transversalMap = new HashMap<>();
 
         String fromContext = "old-site";
