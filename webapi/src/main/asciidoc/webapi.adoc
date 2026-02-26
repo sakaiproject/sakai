@@ -65,3 +65,19 @@ include::{snippets}/get-site-calendar/curl-request.adoc[]
 
 The site1 calendar JSON response:
 include::{snippets}/get-site-calendar/response-body.adoc[]
+
+=== Scorm API
+
+__See the login api about session cookies__
+
+Create a Scorm session:
+include::{snippets}/create-scorm-session/http-request.adoc[]
+
+The Scorm session JSON response:
+include::{snippets}/create-scorm-session/response-body.adoc[]
+
+Initialize a runtime:
+include::{snippets}/initialize-runtime/http-request.adoc[]
+
+The initialize runtime JSON response:
+include::{snippets}/initialize-runtime/response-body.adoc[]
