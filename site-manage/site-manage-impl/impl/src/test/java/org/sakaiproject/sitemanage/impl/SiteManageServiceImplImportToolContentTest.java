@@ -73,21 +73,7 @@ public class SiteManageServiceImplImportToolContentTest {
 
         Site sourceSite = mock(Site.class);
         Site destinationSite = mock(Site.class);
-        SitePage siteInfoPage = mockSiteInfoPage();
-
-        when(sourceSite.getInfoUrl()).thenReturn(sourceSiteInfoUrl);
-        when(sourceSite.getRoles()).thenReturn(Collections.emptySet());
-
-        when(destinationSite.getId()).thenReturn(newSiteId);
-        when(destinationSite.getInfoUrl()).thenReturn(destinationSiteInfoUrl);
-        when(destinationSite.getPages()).thenReturn(List.of(siteInfoPage));
-
-        when(siteService.getSite(oldSiteId)).thenReturn(sourceSite);
-        when(siteService.siteReference(newSiteId)).thenReturn("/site/" + newSiteId);
-
-        AuthzGroup destinationRealm = mock(AuthzGroup.class);
-        when(functionManager.getRegisteredFunctions()).thenReturn(Collections.emptyList());
-        when(authzGroupService.getAuthzGroup("/site/" + newSiteId)).thenReturn(destinationRealm);
+        mockImportContext(oldSiteId, newSiteId, sourceSiteInfoUrl, destinationSiteInfoUrl, sourceSite, destinationSite);
 
         doReturn(transferResultSiteInfoUrl).when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
 
@@ -105,24 +91,12 @@ public class SiteManageServiceImplImportToolContentTest {
         final String oldSiteId = "site-old";
         final String newSiteId = "site-new";
         final String sourceSiteInfoUrl = "https://sakai.example.edu/portal/site/site-old";
+        final String destinationSiteInfoUrl = "https://sakai.example.edu/portal/site/site-new";
         final String expectedSiteInfoUrl = "https://sakai.example.edu/portal/site/site-new";
 
         Site sourceSite = mock(Site.class);
         Site destinationSite = mock(Site.class);
-        SitePage siteInfoPage = mockSiteInfoPage();
-
-        when(sourceSite.getInfoUrl()).thenReturn(sourceSiteInfoUrl);
-        when(sourceSite.getRoles()).thenReturn(Collections.emptySet());
-
-        when(destinationSite.getId()).thenReturn(newSiteId);
-        when(destinationSite.getPages()).thenReturn(List.of(siteInfoPage));
-
-        when(siteService.getSite(oldSiteId)).thenReturn(sourceSite);
-        when(siteService.siteReference(newSiteId)).thenReturn("/site/" + newSiteId);
-
-        AuthzGroup destinationRealm = mock(AuthzGroup.class);
-        when(functionManager.getRegisteredFunctions()).thenReturn(Collections.emptyList());
-        when(authzGroupService.getAuthzGroup("/site/" + newSiteId)).thenReturn(destinationRealm);
+        mockImportContext(oldSiteId, newSiteId, sourceSiteInfoUrl, destinationSiteInfoUrl, sourceSite, destinationSite);
 
         // Simulate no update from transferSiteResource (non-resource URL case).
         doReturn(sourceSiteInfoUrl).when(siteManageService).transferSiteResource(oldSiteId, newSiteId, sourceSiteInfoUrl);
@@ -145,5 +119,23 @@ public class SiteManageServiceImplImportToolContentTest {
         when(page.getTools()).thenReturn(List.of(toolConfiguration));
 
         return page;
+    }
+
+    private void mockImportContext(String oldSiteId, String newSiteId, String sourceSiteInfoUrl, String destinationSiteInfoUrl, Site sourceSite, Site destinationSite) throws Exception {
+        SitePage siteInfoPage = mockSiteInfoPage();
+
+        when(sourceSite.getInfoUrl()).thenReturn(sourceSiteInfoUrl);
+        when(sourceSite.getRoles()).thenReturn(Collections.emptySet());
+
+        when(destinationSite.getId()).thenReturn(newSiteId);
+        when(destinationSite.getInfoUrl()).thenReturn(destinationSiteInfoUrl);
+        when(destinationSite.getPages()).thenReturn(List.of(siteInfoPage));
+
+        when(siteService.getSite(oldSiteId)).thenReturn(sourceSite);
+        when(siteService.siteReference(newSiteId)).thenReturn("/site/" + newSiteId);
+
+        AuthzGroup destinationRealm = mock(AuthzGroup.class);
+        when(functionManager.getRegisteredFunctions()).thenReturn(Collections.emptyList());
+        when(authzGroupService.getAuthzGroup("/site/" + newSiteId)).thenReturn(destinationRealm);
     }
 }
