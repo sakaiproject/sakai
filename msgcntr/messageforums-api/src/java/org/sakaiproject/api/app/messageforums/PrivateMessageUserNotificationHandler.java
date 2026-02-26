@@ -87,7 +87,7 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
                     return Optional.empty();
             }
         } catch (Exception ex) {
-            log.error("Failed to find the privateMessage: " + pvtMessageId, ex);
+            log.error("Failed to find the privateMessage: {}", pvtMessageId, ex);
         }
 
         return Optional.empty();
@@ -98,11 +98,11 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
         List<UserNotificationData> notificationEvents = new ArrayList<>();
 
         Date openTime = pvtMessage.getCreated();
-        if (openTime == null || openTime.before(new Date()) && !pvtMessage.getDraft()) {
+        if ((openTime == null || openTime.before(new Date())) && !pvtMessage.getDraft()) {
             try {
                 Site site = siteService.getSite(siteId);
                 String title = pvtMessage.getTitle();
-                if (!from.equals(to)) {
+                if (!StringUtils.equals(from, to)) {
                     String toolId = site.getToolForCommonId(DiscussionForumService.MESSAGES_TOOL_ID).getId();
                     String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId
                             + "/tool/" + toolId + "/privateMsg/pvtMsgDirectAccess?current_msg_detail=" + pvtMessage.getId();
@@ -138,7 +138,7 @@ public class PrivateMessageUserNotificationHandler extends AbstractUserNotificat
                 .map(r -> new UserNotificationData(from, r.getUserId(), siteId, title, url, DiscussionForumService.MESSAGES_TOOL_ID, false, null))
                 .collect(Collectors.toList());
         } catch (IdUnusedException idEx) {
-            log.error("No site for id {}: {}", siteId, idEx.toString());
+            log.error("No site for id {}", siteId, idEx);
         }
 
         return Collections.emptyList();

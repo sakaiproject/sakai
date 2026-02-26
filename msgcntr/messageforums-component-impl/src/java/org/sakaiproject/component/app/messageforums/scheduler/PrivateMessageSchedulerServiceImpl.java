@@ -129,10 +129,13 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 	public void execute(String opaqueContext) {
 
 		Session session = sessionManager.getCurrentSession();
-		session.setUserEid("admin");
-		session.setUserId("admin");
+		String originalUserId = session.getUserId();
+		String originalUserEid = session.getUserEid();
 
 		try {
+			session.setUserId(UserDirectoryService.ADMIN_ID);
+			session.setUserEid(UserDirectoryService.ADMIN_EID);
+
 			Long messageId = Long.parseLong(opaqueContext);
 			PrivateMessage pvtMsg = (PrivateMessage) prtMsgManager.getMessageById(messageId);
 
@@ -141,35 +144,40 @@ public class PrivateMessageSchedulerServiceImpl implements PrivateMessageSchedul
 			pvtMsg.setScheduler(false);
 			pvtMsg.setDraft(false);
 
-			prtMsgManager.sendPrivateMessage(pvtMsg, recipients, pvtMsg.getExternalEmail(), false);
+				prtMsgManager.sendPrivateMessage(pvtMsg, recipients, pvtMsg.getExternalEmail(), false);
 
-			// if you are sending a reply
-			Message replying = pvtMsg.getInReplyTo();
-			if (replying != null) {
-				replying = prtMsgManager.getMessageById(replying.getId());
-				if (replying != null) {
-					prtMsgManager.markMessageAsRepliedForUser((PrivateMessage) replying, pvtMsg.getCreatedBy());
+				// if you are sending a reply
+				Message replying = pvtMsg.getInReplyTo();
+				boolean isReply = replying != null;
+				if (isReply) {
+					Message fetchedReply = prtMsgManager.getMessageById(replying.getId());
+					if (fetchedReply != null) {
+						prtMsgManager.markMessageAsRepliedForUser((PrivateMessage) fetchedReply, pvtMsg.getCreatedBy());
+					}
 				}
-			}
 
 			synopticMsgcntrManager.incrementSynopticToolInfo(recipients.keySet(), pvtMsg, false);
 
 			LRS_Statement statement = null;
 			try {
 				statement = prtMsgManager.getStatementForUserSentPvtMsg(pvtMsg.getTitle(), SAKAI_VERB.shared, pvtMsg);
-			} catch (Exception e) {
-				log.warn(e.getMessage(), e);
-			}
-			Event event = eventTrackingService.newEvent(replying != null ? DiscussionForumService.EVENT_MESSAGES_RESPONSE : DiscussionForumService.EVENT_MESSAGES_ADD,
-					prtMsgManager.getEventMessage(pvtMsg, DiscussionForumService.MESSAGES_TOOL_ID, pvtMsg.getAuthorId(),
-							((PrivateMessageRecipientImpl) pvtMsg.getRecipients().get(0)).getContextId()),
-					((PrivateMessageRecipientImpl) pvtMsg.getRecipients().get(0)).getContextId(), true,
-					NotificationService.NOTI_OPTIONAL, statement);
-			eventTrackingService.post(event);
+				} catch (Exception e) {
+					log.warn(e.getMessage(), e);
+				}
+				if (CollectionUtils.isEmpty(pvtMsg.getRecipients())) {
+					log.warn("Skipping private message event for message {} because it has no recipients", pvtMsg.getId());
+					return;
+				}
+
+				String contextId = ((PrivateMessageRecipientImpl) pvtMsg.getRecipients().get(0)).getContextId();
+				Event event = eventTrackingService.newEvent(isReply ? DiscussionForumService.EVENT_MESSAGES_RESPONSE : DiscussionForumService.EVENT_MESSAGES_ADD,
+						prtMsgManager.getEventMessage(pvtMsg, DiscussionForumService.MESSAGES_TOOL_ID, pvtMsg.getAuthorId(), contextId),
+						contextId, true,
+						NotificationService.NOTI_OPTIONAL, statement);
+				eventTrackingService.post(event);
 		} finally {
-			session.clear();
-			session.setUserEid(null);
-			session.setUserId(null);
+			session.setUserEid(originalUserEid);
+			session.setUserId(originalUserId);
 		}
 	}
 
