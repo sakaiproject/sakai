@@ -814,7 +814,7 @@ public class HistogramListener
 		  if (existingMetadataAvg != null) {
 			  newAvg = existingMetadataAvg + ((percentCorrect - existingMetadataAvg) / divisor);
 		  }
-		  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
+		  newAvg = BigDecimal.valueOf(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
 		  metadataCounter.put(metadataValue, divisor);
 		  metadataCorrect.put(metadataValue, newAvg);
 	  }
@@ -2640,7 +2640,7 @@ public class HistogramListener
     double[] scores = new double[doubles.size()];
     int i = 0;
     for (Double d : doubles) {
-        BigDecimal bd = new BigDecimal(d);
+        BigDecimal bd = BigDecimal.valueOf(d);
         bd = bd.setScale(2, RoundingMode.HALF_UP);
         scores[i++] = bd.doubleValue();
     }
