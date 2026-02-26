@@ -195,7 +195,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public PublishedItemText loadPublishedItemText(Long itemTextId);
 
   // added by daisy - please check the logic - I based this on the getBasicInfoOfAllActiveAssessment
-  public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, String siteId);
+  public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, String title, String siteId);
 
   public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String orderBy, boolean ascending, String siteId);
   

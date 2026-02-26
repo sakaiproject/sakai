@@ -93,9 +93,15 @@ public class PublishedAssessmentService extends AssessmentService{
     // 2. get all takeable assessment available
     return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
-        getBasicInfoOfAllPublishedAssessments(orderBy, ascending, siteId);
+        getBasicInfoOfAllPublishedAssessments(orderBy, ascending, null, siteId);
   }
-  
+
+  public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessmentsByTitle(String agentId, String orderBy, boolean ascending, String title, String siteId) {
+    return PersistenceService.getInstance().
+        getPublishedAssessmentFacadeQueries().
+        getBasicInfoOfAllPublishedAssessments(orderBy, ascending, title, siteId);
+  }
+
   public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String orderBy, boolean ascending, String siteId) {
 
 	  // 2. get all takeable assessment available

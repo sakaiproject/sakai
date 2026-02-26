@@ -1107,7 +1107,7 @@ public class AssessmentService {
 				.copyAllAssessments(fromContext, toContext, ids, transversalMap);
 			List<PublishedAssessmentFacade> publist =
 			    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
-			    .getBasicInfoOfAllPublishedAssessments(PublishedAssessmentFacadeQueries.DUE, true, fromContext);
+			    .getBasicInfoOfAllPublishedAssessments(PublishedAssessmentFacadeQueries.DUE, true, null, fromContext);
 			for (PublishedAssessmentFacade facade: publist) {
 			    PublishedAssessmentData data = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().loadPublishedAssessment(facade.getPublishedAssessmentId());
 			    if (data != null) {

@@ -115,6 +115,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 
 	public static final String DUE = "dueDate";
 
+	public static final String TIME_LIMIT = "timeLimit";
+
 	public static final String RAW = "totalAutoScore";
 
 	public static final String TIME = "timeElapsed";
@@ -1297,18 +1299,29 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		return getHibernateTemplate().load(PublishedItemText.class, itemTextId);
 	}
 
-	
-	// added by daisy - please check the logic - I based this on the
-	// getBasicInfoOfAllActiveAssessment
-	// to include release to selected groups
 	/**
-	 * 
-	 * @param orderBy
-	 * @param ascending
-	 * @param siteId
-	 * @return
-	 */
-	public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, final String siteId) {
+		* Retrieves the basic information of all published assessments available
+		* to the current user within the given site.
+ 		*
+ 		* <p>
+		* The result is filtered by:
+		* <ul>
+		*   <li>User authorization (must have TAKE_PUBLISHED_ASSESSMENT permission)</li>
+		*   <li>Site or group membership</li>
+		*   <li>Assessment status (Active or Edit)</li>
+		*   <li>Optional title search filter</li>
+		* </ul>
+		* </p>
+		*
+		* @param orderBy   Field used for sorting (e.g. TITLE, DUE, TIME_LIMIT).
+		* @param ascending True for ascending order, false for descending.
+		* @param title     Optional title filter (case-insensitive, partial match).
+		* @param siteId    Identifier of the site from which assessments are retrieved.
+		*
+		* @return A list of {@link PublishedAssessmentFacade} containing the minimal
+		*         data required to display available published assessments.
+	*/
+	public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, String title, final String siteId) {
 
 		final List<String> groupIds = getSiteGroupIdsForCurrentUser(siteId);
 		String query = "";
@@ -1323,8 +1336,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				+ " and p.publishedAssessmentId = f.assessment.publishedAssessmentId "
 				+ " and p.publishedAssessmentId = em.assessment.publishedAssessmentId "
 				+ " and (p.status=:activeStatus or p.status=:editStatus) and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
-				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
-				+ " order by ";
+				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId";
 		}
 		else {
 			query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
@@ -1337,23 +1349,31 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				+ " and p.publishedAssessmentId = f.assessment.publishedAssessmentId "
 				+ " and p.publishedAssessmentId = em.assessment.publishedAssessmentId "
 				+ " and (p.status=:activeStatus or p.status=:editStatus) and az.agentIdString=:siteId "
-				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
-				+ " order by ";
+				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId";
 		}
-		if (ascending == false) {
 
-			if (orderBy.equals(DUE)) {
-				query += " c." + orderBy + " desc";
-			} else {
-				query += " p." + orderBy + " desc";
-			}
-		} else {
-			if (orderBy.equals(DUE)) {
-				query += " c." + orderBy + " asc";
-			} else {
-				query += " p." + orderBy + " asc";
-			}
+		if (title != null && !title.trim().isEmpty()) {
+			query += " and lower(p.title) like :title";
 		}
+
+		query += " order by ";
+
+		switch (orderBy) {
+			case DUE:
+				query += " c." + DUE;
+				break;
+			case TIME_LIMIT:
+				query += " c." + TIME_LIMIT;
+				break;
+			case TITLE:
+				query += " p." + TITLE;
+				break;
+			default:
+				query += " p." + orderBy;
+				break;
+		}
+
+		query += (ascending ? " asc" : " desc");
 
 		final String hql = query;
 		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> {
@@ -1365,6 +1385,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
                 q.setParameterList("groupIds", groupIds);
             }
             q.setParameter("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+
+			if (title != null && !title.trim().isEmpty()) {
+				q.setParameter("title", "%" + title.toLowerCase() + "%");
+			}
+
             return q.list();
         };
 		List<PublishedAssessmentData> list = getHibernateTemplate().execute(hcb);

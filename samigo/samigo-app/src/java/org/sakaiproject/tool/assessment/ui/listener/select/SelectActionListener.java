@@ -146,33 +146,14 @@ public class SelectActionListener implements ActionListener {
     // filter out the one that the given user do not have right to access
     List<PublishedAssessmentFacade> takeableList = getTakeableList(publishedAssessmentList, h, updatedAssessmentNeedResubmitList, updatedAssessmentList);
 
-    // 1c. prepare delivery bean
-    List<DeliveryBeanie> takeablePublishedList = new ArrayList<>();
-    for (PublishedAssessmentFacade f : takeableList) {
-      // note that this object is PublishedAssessmentFacade(assessmentBaseId,
-      // title, releaseTo, startDate, dueDate, retractDate,lateHandling,
-      // unlimitedSubmissions, submissionsAllowed). It
-      // carries the min. info to create an index list. - daisyf
-      DeliveryBeanie delivery = new DeliveryBeanie();
-      delivery.setAssessmentId(f.getPublishedAssessmentId().toString());
-      delivery.setAssessmentTitle(f.getTitle());
-      delivery.setDueDate(f.getDueDate());
-      delivery.setTimeRunning(false);// set to true in BeginDeliveryActionListener
+    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
 
-      setTimedAssessment(delivery, f);
-
-      // check pastDue
-      delivery.setPastDue(f.getDueDate() != null && new Date().after(f.getDueDate()));
-
-      delivery.setAssessmentUpdatedNeedResubmit(
-        updatedAssessmentNeedResubmitList.contains(f.getPublishedAssessmentId())
-      );
-
-      delivery.setAssessmentUpdated(
-        updatedAssessmentList.contains(f.getPublishedAssessmentId())
-      );
-
-      takeablePublishedList.add(delivery);
+    if (secureDelivery.isSecureDeliveryAvaliable()) {
+      HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+      select.setSecureDeliveryHTMLFragments(secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
+    } else {
+      // If secure delivery modules are installed, then insert their html fragments
+      select.setSecureDeliveryHTMLFragments( "" );
     }
 
     // --------------- prepare Submitted assessment grading list --------------
@@ -404,30 +385,7 @@ public class SelectActionListener implements ActionListener {
       Collections.reverse(submittedAssessmentGradingList);
     }
 
-    // If secure delivery modules are installed, then insert their html fragments
-    select.setSecureDeliveryHTMLFragments( "" );
-    SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-
-    if (secureDelivery.isSecureDeliveryAvaliable()) {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        select.setSecureDeliveryHTMLFragments( secureDelivery.getInitialHTMLFragments(request, new ResourceLoader().getLocale() ) );
-
-        for (DeliveryBeanie db : takeablePublishedList) {
-            // We have to refetch the published assessment because the hash above doesn't have the metadata
-            PublishedAssessmentFacade paf = publishedAssessmentService.getPublishedAssessmentQuick(db.getAssessmentId());
-            final String moduleId = paf.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY);
-
-            db.setAlternativeDeliveryUrl(secureDelivery.getAlternativeDeliveryUrl(
-                    moduleId,
-                    Long.valueOf(db.getAssessmentId()),
-                    AgentFacade.getAgentString()
-                ).orElse("")
-            );
-        }
-    }
-
     // set the managed beanlist properties that we need
-    select.setTakeableAssessments(takeablePublishedList);
     select.setReviewableAssessments(submittedAssessmentGradingList);
 
     if ("3".equals(select.getDisplayAllAssessments()) && !submittedAssessmentGradingList.isEmpty()) {
