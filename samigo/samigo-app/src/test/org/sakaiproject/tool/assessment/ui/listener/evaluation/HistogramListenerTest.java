@@ -143,6 +143,18 @@ public class HistogramListenerTest {
     }
 
     @Test
+    public void testUpdateMetadataAverageKeepsFullPrecisionUntilPresentation() {
+        HistogramListener listener = new HistogramListener();
+        Map<String, Double> objectivesCorrect = new HashMap<>();
+        Map<String, Integer> objectivesCounter = new HashMap<>();
+
+        listener.updateMetadataAverage(objectivesCorrect, objectivesCounter, listener.parseMetadataValues("1.1"), 33.335d);
+        listener.updateMetadataAverage(objectivesCorrect, objectivesCounter, listener.parseMetadataValues("1.1"), 33.335d);
+
+        assertEquals(33.335d, objectivesCorrect.get("1.1"), 0.0d);
+    }
+
+    @Test
     public void testResolveScoreStatisticsPercentCorrectUsesMeanOverItemScore() throws Exception {
         HistogramListener listener = new HistogramListener();
         HistogramQuestionScoresBean qbean = new HistogramQuestionScoresBean();

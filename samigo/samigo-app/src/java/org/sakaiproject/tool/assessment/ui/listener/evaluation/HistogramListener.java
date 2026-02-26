@@ -814,7 +814,6 @@ public class HistogramListener
 		  if (existingMetadataAvg != null) {
 			  newAvg = existingMetadataAvg + ((percentCorrect - existingMetadataAvg) / divisor);
 		  }
-		  newAvg = BigDecimal.valueOf(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
 		  metadataCounter.put(metadataValue, divisor);
 		  metadataCorrect.put(metadataValue, newAvg);
 	  }
