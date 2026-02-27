@@ -24,7 +24,6 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -56,6 +55,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
@@ -112,9 +112,6 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     static ScormResourceService scormResourceService = null;
     static ScormResultService scormResultService = null;
 
-    static OptSql optSql = null;
-    Method saveMethod = null;
-
     public void init () {
 	dao = (ContentPackageDao)ComponentManager.get("org.sakaiproject.scorm.dao.api.ContentPackageDao");
 	scormResourceService = (ScormResourceService)ComponentManager.get("org.sakaiproject.scorm.service.api.ScormResourceService");
@@ -123,7 +120,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	if (scormResourceService == null ||
 	    scormResultService == null)
 	    dao = null;
-	log.info("init() " + dao);
+	log.info("init() {}", dao);
     }
 
     public void destroy()
@@ -163,14 +160,10 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     protected int level;
     // not required fields. If we need to look up
     // the actual objects, lets us cache them
-    protected ContentPackage assignment;;
+    protected ContentPackage assignment;
 
     // ref looks like /scorm/id
     public ContentPackage getAssignment(Long id) {
-	return getAssignment(id, false);
-    }
-
-    public ContentPackage getAssignment(Long id, boolean nocache) {
 	assignment = dao.load(id);
 	return assignment;
     }
@@ -186,6 +179,14 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 
     public int getTypeOfGrade() {
 	return 1;
+    }
+
+    public boolean showAdditionalLink() {
+	return false;
+    }
+
+    public String getDescription() {
+	return "";
     }
 
   // hack for forums. not used for assessments, so always ok
@@ -208,15 +209,15 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	    if (nextEntity != null) 
 		return nextEntity.getEntitiesInSite();
 	    else
-		return new ArrayList<LessonEntity>();
+		return new ArrayList<>();
 	}
 
-	List<LessonEntity> lessons = new ArrayList<LessonEntity>();
+	List<LessonEntity> lessons = new ArrayList<>();
 
 	String siteId = ToolManager.getCurrentPlacement().getContext();
 
 	List<ContentPackage> packages = dao.find(siteId);
-	log.info("pckages " + packages.size());
+	log.debug("packages {}", packages.size());
 
 	for (ContentPackage contentPackage: packages) {
 	    if (contentPackage.isDeleted())
@@ -258,22 +259,16 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return null;
-	log.info("title " + assignment.getTitle());
 	return assignment.getTitle();
     }
 
-    // http://heidelberg.rutgers.edu/portal/tool/575de542-a928-41a8-aab0-348a67e2ccc1/student-submit/5
     public String getUrl() {
 	if (assignment == null)
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return null;
 
-	log.info("simplepagebean " + simplePageBean);
-	log.info(simplePageBean.getCurrentTool("sakai.scorm.tool"));
-	log.info(assignment.getResourceId());
-	log.info(assignment.getTitle());
-	return ServerConfigurationService.getToolUrl() + "/" + simplePageBean.getCurrentTool("sakai.scorm.tool") + "/?wicket:bookmarkablePage=ScormPlayer:org.sakaiproject.scorm.ui.player.pages.PlayerPage&contentPackageId=" + id + "&resourceId=" + assignment.getResourceId() + "&title=" + assignment.getTitle();
+	return ServerConfigurationService.getToolUrl() + "/" + simplePageBean.getCurrentTool("sakai.scorm.tool") + "/scormPlayerPage?contentPackageId=" + id;
     }
 
     public Date getDueDate() {
@@ -312,7 +307,15 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
     // can't be null                                                                                                                         
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
-	return new ArrayList<UrlItem>();
+	List<UrlItem> list = new ArrayList<>();
+	if (dao == null)
+	    return list;
+	String tool = bean.getCurrentTool("sakai.scorm.tool");
+	if (tool != null) {
+	    String url = ServerConfigurationService.getToolUrl() + "/" + tool;
+	    list.add(new UrlItem(url, messageLocator.getMessage("simplepage.create_scorm")));
+	}
+	return list;
     }
 
 
@@ -332,7 +335,9 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
    public boolean objectExists() {
        if (dao == null)
 	   return false;
-       return true;
+       if (assignment == null)
+	   assignment = getAssignment(id);
+       return assignment != null;
    }
 
     public boolean notPublished(String ref) {
@@ -346,8 +351,7 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {
-	List<String>ret = new ArrayList<String>();
-	return ret;
+	return null;
     }
   
     // set the item to be accessible only to the specific groups.
@@ -408,6 +412,10 @@ public class ScormEntity implements LessonEntity, AssignmentInterface {
 
     public String getSiteId() {
 	return null;
+    }
+
+    @Override
+    public void preShowItem(SimplePageItem simplePageItem) {
     }
 
 }

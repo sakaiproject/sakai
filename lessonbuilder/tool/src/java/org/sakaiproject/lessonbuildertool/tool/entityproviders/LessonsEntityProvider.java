@@ -1086,6 +1086,9 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 				case SimplePageItem.ASSESSMENT:
 					lesson = new GradedDecoratedLesson(item);
 					break;
+				case SimplePageItem.SCORM:
+					lesson = new GradedDecoratedLesson(item);
+					break;
 				case SimplePageItem.STUDENT_CONTENT:
 					lesson = new DecoratedStudentContent(item);
 					break;

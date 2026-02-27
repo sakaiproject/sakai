@@ -244,6 +244,8 @@ public class SimplePageBean {
 
 	public String selectedQuiz = null;
 
+	public String selectedScorm = null;
+
 	public String[] selectedChecklistItems = new String[] {};
 
 	private Map<Long, SubpageBulkEditHelper> subpageBulkEditTitleMap = new HashMap<>();
@@ -507,6 +509,11 @@ public class SimplePageBean {
     	private LessonEntity bltiEntity = null;
     	public void setBltiEntity(Object e) {
     		bltiEntity = (LessonEntity)e;
+    	}
+
+    	private LessonEntity scormEntity = null;
+    	public void setScormEntity(Object e) {
+    		scormEntity = (LessonEntity)e;
     	}
 
         // End Injection
@@ -2406,6 +2413,7 @@ public class SimplePageBean {
 			int itemType = nextItem.getType();
 			if (itemType == SimplePageItem.ASSIGNMENT ||
 					itemType == SimplePageItem.ASSESSMENT ||
+					itemType == SimplePageItem.SCORM ||
 					itemType == SimplePageItem.FORUM ||
 					itemType == SimplePageItem.PAGE ||
 			                itemType == SimplePageItem.BLTI ||
@@ -3314,7 +3322,7 @@ public class SimplePageBean {
 			else
 			    i.setSameWindow(false);
 
-			if (i.getType() == SimplePageItem.BLTI) {
+			if (i.getType() == SimplePageItem.BLTI || i.getType() == SimplePageItem.SCORM) {
 			    if (StringUtils.isBlank(format))
 				i.setFormat("");
 			    else
@@ -3325,7 +3333,9 @@ public class SimplePageBean {
 			    else
 				i.setSameWindow(true);
 
-			    i.setHeight(height);
+			    if (i.getType() == SimplePageItem.BLTI) {
+				i.setHeight(height);
+			    }
 			}
 
 			if (i.getType() == SimplePageItem.PAGE) {
@@ -3516,6 +3526,10 @@ public class SimplePageBean {
 
 	public void setSelectedQuiz(String selectedQuiz) {
 		this.selectedQuiz = selectedQuiz;
+	}
+
+	public void setSelectedScorm(String selectedScorm) {
+		this.selectedScorm = selectedScorm;
 	}
 
 	public void setSelectedBlti(String selectedBlti) {
@@ -3901,6 +3915,8 @@ public class SimplePageBean {
 		   entity = assignmentEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.ASSESSMENT:
 		   entity = quizEntity.getEntity(i.getSakaiId(),this); break;
+	       case SimplePageItem.SCORM:
+		   entity = scormEntity.getEntity(i.getSakaiId(),this); break;
 	       case SimplePageItem.FORUM:
 		   entity = forumEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.MULTIMEDIA:
@@ -4136,6 +4152,8 @@ public class SimplePageBean {
 	       lessonEntity = assignmentEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.ASSESSMENT:
 	       lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
+	   case SimplePageItem.SCORM:
+	       lessonEntity = scormEntity.getEntity(i.getSakaiId(),this); break;
 	   case SimplePageItem.FORUM:
 	       lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.MULTIMEDIA:
@@ -4411,6 +4429,62 @@ public class SimplePageBean {
 			    return "failure";
 			} finally {
 			    selectedQuiz = null;
+			}
+		}
+	}
+
+    // called by add scorm dialog. Create a new item that points to a SCORM package
+    // or update an existing item, depending upon whether itemid is set
+
+	public String addScorm() {
+		if (!itemOk(itemId))
+		    return "permission-failed";
+		if (!canEditPage())
+		    return "permission-failed";
+		if (!checkCsrf())
+		    return "permission-failed";
+
+		if (selectedScorm == null) {
+			return "failure";
+		} else {
+			try {
+			    LessonEntity selectedObject = scormEntity.getEntity(selectedScorm, this);
+			    if (selectedObject == null)
+				return "failure";
+
+			    // validate format: only "window" or "inline" for SCORM
+			    String fmt = "inline".equals(format) ? "inline" : "window";
+
+			    // editing existing item?
+			    SimplePageItem i;
+			    if (itemId != null && itemId != -1) {
+				i = findItem(itemId);
+				// do getEntity/getreference to normalize, in case sakaiid is old format
+				LessonEntity existing = scormEntity.getEntity(i.getSakaiId(), this);
+				String ref = null;
+				if (existing != null)
+				    ref = existing.getReference();
+				// if same scorm package, nothing to do
+				if ((existing == null) || !ref.equals(selectedScorm)) {
+				    i.setSakaiId(selectedScorm);
+				    i.setName(selectedObject.getTitle());
+				    i.setDescription("");
+				}
+				i.setFormat(fmt);
+				i.setSameWindow(!"window".equals(fmt));
+				update(i);
+			    } else { // no, add new item
+				i = appendItem(selectedScorm, selectedObject.getTitle(), SimplePageItem.SCORM);
+				i.setFormat(fmt);
+				i.setSameWindow(!"window".equals(fmt));
+				saveItem(i);
+			    }
+			    return "success";
+			} catch (Exception ex) {
+			    log.error(ex.getMessage(), ex);
+			    return "failure";
+			} finally {
+			    selectedScorm = null;
 			}
 		}
 	}
@@ -5660,6 +5734,11 @@ public class SimplePageBean {
 				if (entity == null || entity.notPublished())
 				return false;
 			    break;
+			case SimplePageItem.SCORM:
+			    entity = scormEntity.getEntity(item.getSakaiId(), this);
+			    if (entity == null || entity.notPublished())
+				return false;
+			    break;
 			case SimplePageItem.FORUM:
 			    entity = forumEntity.getEntity(item.getSakaiId());
 			    if (entity == null || entity.notPublished())
@@ -5867,6 +5946,35 @@ public class SimplePageBean {
 			    	completeCache.put(itemId, false);
 			    	return false;
 			    }
+			}
+		} else if (item.getType() == SimplePageItem.SCORM) {
+			if (item.getSakaiId().equals(SimplePageItem.DUMMY)) {
+			    completeCache.put(itemId, false);
+			    return false;
+			}
+			LessonEntity scorm = scormEntity.getEntity(item.getSakaiId(),this);
+			if (scorm == null) {
+			    completeCache.put(itemId, false);
+			    return false;
+			}
+			User user;
+			try {
+			    user = userDirectoryService.getUser(getCurrentUserId());
+			} catch (Exception ignore) {
+			    completeCache.put(itemId, false);
+			    return false;
+			}
+
+			// SCORM only tracks whether the user attempted the package,
+			// not grades, so completion = has any attempt
+			LessonSubmission submission = scorm.getSubmission(user.getId());
+
+			if (submission == null) {
+				completeCache.put(itemId, false);
+				return false;
+			} else {
+				completeCache.put(itemId, true);
+				return true;
 			}
 		} else if (item.getType() == SimplePageItem.COMMENTS) {
 			List<SimplePageComment>comments = simplePageToolDao.findCommentsOnItemByAuthor((long)itemId, getCurrentUserId());
@@ -6234,6 +6342,11 @@ public class SimplePageBean {
 			if (quiz == null)
 				return null;
 			return quiz.getTitle();
+		} else if (i.getType() == SimplePageItem.SCORM) {
+		    LessonEntity scorm = scormEntity.getEntity(i.getSakaiId(),this);
+			if (scorm == null)
+				return null;
+			return scorm.getTitle();
 		} else if (i.getType() == SimplePageItem.BLTI) {
 		    if (bltiEntity == null)
 			return null;

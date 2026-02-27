@@ -706,6 +706,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                 return new UIStyleDecorator("icon-sakai--sakai-assignment-grades");
             case SimplePageItem.ASSESSMENT:
                 return new UIStyleDecorator("icon-sakai--sakai-samigo");
+            case SimplePageItem.SCORM:
+                return new UIStyleDecorator("icon-sakai--sakai-scorm-tool");
             case SimplePageItem.QUESTION:
                 return new UIStyleDecorator("fa-question");
             case SimplePageItem.COMMENTS:

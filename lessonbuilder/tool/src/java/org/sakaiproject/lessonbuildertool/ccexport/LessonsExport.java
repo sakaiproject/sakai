@@ -138,6 +138,8 @@ public class LessonsExport {
                     }
                     res = ccConfig.getSamigoMap().get(sakaiId);
                     break;
+                case SimplePageItem.SCORM:
+                    break;
                 case SimplePageItem.TEXT:
                     res = ccConfig.getFileMap().get("/text/" + item.getId());
                     break;
