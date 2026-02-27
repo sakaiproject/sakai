@@ -1,4 +1,4 @@
-import { css, html } from "lit";
+import { html } from "lit";
 import { SakaiDashboardWidget } from "./SakaiDashboardWidget.js";
 import { sakaiWidgets } from "./SakaiWidgets.js";
 
@@ -60,6 +60,16 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
     this.dispatchEvent(new CustomEvent("remove", { detail: { newState: "view" }, bubbles: true }));
   }
 
+  firstUpdated() {
+
+    const container = this.shadowRoot.getElementById("container");
+    // The picker is temporary and easy to miss in the grid, so we add a strong border to signal "selection mode".
+    container?.classList.add("border", "border-2", "border-primary", "shadow-sm");
+
+    const titleBar = this.shadowRoot.getElementById("title-bar");
+    titleBar?.classList.add("bg-primary-subtle", "border-bottom", "border-primary");
+  }
+
   shouldUpdate(changed) {
     return super.shouldUpdate(changed) && this.toolnames;
   }
@@ -68,26 +78,22 @@ export class SakaiWidgetPicker extends SakaiDashboardWidget {
 
     return html`
       ${this.available.length ? html`
-        <div>${this._i18n.pick_instruction}</div>
-        ${this.available.map(w => html`
-          <div class="widget-option"><a href="javascript:;" id="${w}" @click=${this.widgetPicked}>${this.lookupWidgetName(w)}</a></div>
-        `)}
+        <div class="alert alert-primary py-2 mb-2 fw-semibold" role="status">${this._i18n.pick_instruction}</div>
+        <div class="d-grid gap-2">
+          ${this.available.map(w => html`
+            <button type="button"
+                class="btn btn-outline-primary text-start fs-5"
+                id="${w}"
+                @click=${this.widgetPicked}>
+              ${this.lookupWidgetName(w)}
+            </button>
+          `)}
+        </div>
       ` : html`
-        <div class="widget-option">${this._i18n.all_displayed}</div>
+        <div class="alert alert-info py-2 mb-0">${this._i18n.all_displayed}</div>
       `}
     `;
   }
 
-  static styles = [
-    SakaiDashboardWidget.styles,
-    css`
-      .widget-option {
-        margin-left: 12px;
-      }
-      .widget-option a {
-        text-decoration: none;
-        font-size: 18px;
-      }
-    `,
-  ];
+  static styles = [ SakaiDashboardWidget.styles ];
 }

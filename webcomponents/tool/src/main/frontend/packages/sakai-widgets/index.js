@@ -1,5 +1,6 @@
 export { SakaiAnnouncementsWidget } from './src/SakaiAnnouncementsWidget.js';
 export { SakaiCalendarWidget } from './src/SakaiCalendarWidget.js';
+export { SakaiCoursesWidget } from './src/SakaiCoursesWidget.js';
 export { SakaiDashboardWidget } from './src/SakaiDashboardWidget.js';
 export { SakaiForumsWidget } from './src/SakaiForumsWidget.js';
 export { SakaiGradesWidget } from './src/SakaiGradesWidget.js';
