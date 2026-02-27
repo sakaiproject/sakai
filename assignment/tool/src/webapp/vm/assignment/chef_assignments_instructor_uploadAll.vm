@@ -53,53 +53,69 @@
 						<h4><span class="reqStar">*</span>$tlang.getString("uploadall.choose.file2")</h4>
 					</div>
 			#end
-			<p class="checkbox">
-			 ## select-all box
-			 <label for="selectall"><input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="ASN.toggleSelectAll(this, 'choices')" /> $tlang.getString("all")</label><br/>
+				#if ($!download)
+					<h4>$tlang.getString("downloadall.options.data")</h4>
+				#end
+				<p class="checkbox">
+				 ## select-all box
+				 <label for="selectall"><input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" #if($!download && $allDataSelected)checked="checked"#end onclick="ASN.toggleSelectAll(this, 'choices')" /> $tlang.getString("all")</label><br/>
 			 #if ($!includeSubmissionText)
 					## student submission text
-					<label for="studentSubmissionText"><input id="studentSubmissionText" type="checkbox" value="studentSubmissionText" name="choices" class="toggleSelectedAll" #if($!hasSubmissionText)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.studentSubmissionText")</label><br/>
+					<label for="studentSubmissionText" class="indnt1"><input id="studentSubmissionText" type="checkbox" value="studentSubmissionText" name="choices" class="toggleSelectedAll" #if($!hasSubmissionText)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.studentSubmissionText")</label><br/>
 				#end
 				#if ($!includeSubmissionAttachment)
 					## student submission attachment
-					<label for="studentSubmissionAttachment"><input id="studentSubmissionAttachment" type="checkbox" value="studentSubmissionAttachment" name="choices" class="toggleSelectedAll" #if($!hasSubmissionAttachment)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.studentSubmissionAttachment")</label><br/>
+					<label for="studentSubmissionAttachment" class="indnt1"><input id="studentSubmissionAttachment" type="checkbox" value="studentSubmissionAttachment" name="choices" class="toggleSelectedAll" #if($!hasSubmissionAttachment)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.studentSubmissionAttachment")</label><br/>
 				#end
 				## grade files
-				<label for="gradeFile"><input id="gradeFile" type="checkbox" value="gradeFile" name="choices" class="toggleSelectedAll" #if($!hasGradeFile)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.gradeFile")</label><br/>
+				<label for="gradeFile" class="indnt1"><input id="gradeFile" type="checkbox" value="gradeFile" name="choices" class="toggleSelectedAll" #if($!hasGradeFile)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.gradeFile")</label><br/>
 			</p>
-				<p class="radio">
-					<label for="gradeFileFormat_csv" class="innerRadio"><input id="gradeFileFormat_csv" type="radio" value="csv" name="gradeFileFormat" #if($gradeFileFormat=="csv")checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.gradeFile.csv")</label><br/>
-					<label for="gradeFileFormat_excel" class="innerRadio"><input id="gradeFileFormat_excel" type="radio" value="excel" name="gradeFileFormat" #if($gradeFileFormat=="excel")checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.gradeFile.excel")</label><br/>
-				</p>
+			<p class="radio">
+				<label for="gradeFileFormat_csv" class="innerRadio"><input id="gradeFileFormat_csv" type="radio" value="csv" name="gradeFileFormat" #if($gradeFileFormat=="csv")checked="checked"#end /> $tlang.getString("uploadall.choose.file.gradeFile.csv")</label><br/>
+				<label for="gradeFileFormat_excel" class="innerRadio"><input id="gradeFileFormat_excel" type="radio" value="excel" name="gradeFileFormat" #if($gradeFileFormat=="excel")checked="checked"#end /> $tlang.getString("uploadall.choose.file.gradeFile.excel")</label><br/>
+			</p>
 			<p class="checkbox">
 				#if ($!includeSubmissionText)
 					## feedback text
-					<label for="feedbackTexts"><input id="feedbackTexts" type="checkbox" value="feedbackTexts" name="choices" class="toggleSelectedAll" #if($!hasFeedbackText)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.feedbackTexts")</label><br/>	
+					<label for="feedbackTexts" class="indnt1"><input id="feedbackTexts" type="checkbox" value="feedbackTexts" name="choices" class="toggleSelectedAll" #if($!hasFeedbackText)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.feedbackTexts")</label><br/>	
 				#end
 			 ## feedback comments
-				<label for="feedbackComments"><input id="feedbackComments" type="checkbox" value="feedbackComments" name="choices" class="toggleSelectedAll" #if($!hasComments)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.feedbackComments")</label><br/>	
+				<label for="feedbackComments" class="indnt1"><input id="feedbackComments" type="checkbox" value="feedbackComments" name="choices" class="toggleSelectedAll" #if($!hasComments)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.feedbackComments")</label><br/>	
 			 ## feedback attachments
-				<label for="feedbackAttachments"><input id="feedbackAttachments" type="checkbox" value="feedbackAttachments" name="choices" class="toggleSelectedAll" #if($!hasFeedbackAttachment)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("download.feedback.attachment")</label><br/>
+				<label for="feedbackAttachments" class="indnt1"><input id="feedbackAttachments" type="checkbox" value="feedbackAttachments" name="choices" class="toggleSelectedAll" #if($!hasFeedbackAttachment)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("download.feedback.attachment")</label><br/>
 			 ## rubrics
 			 #if ($hasRubric)
-				<label for="rubrics"><input id="rubrics" type="checkbox" value="rubrics" name="choices" class="toggleSelectedAll" onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.rubrics")</label><br/>
+				<label for="rubrics" class="indnt1"><input id="rubrics" type="checkbox" value="rubrics" name="choices" class="toggleSelectedAll" #if($!includeRubrics)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.rubrics")</label><br/>
 			 #end
 			<br/>
 			## SAK-19147 output without folders
 			#if ($!download && $enableFlatDownload)
 				<label for="withoutFolders"><input id="withoutFolders" type="checkbox" value="withoutFolders" name="choices" class="toggleNotSelectedAll" #if($!withoutFolders)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.folders.no")</label><br/>
 			#end
-			## include empty submissions, old behavior
-			##Only show this on the download, upload takes it all
-			#if ($download)
-			<hr/>
-				<label for="includeNotSubmitted" style="font-weight:bold;"><input id="includeNotSubmitted" type="checkbox" value="includeNotSubmitted" name="choices" #if($!hasIncludeNotSubmitted)checked="checked"#end /> $tlang.getString("uploadall.choose.file.includeNotSubmitted")</label><br/>
-			#end
-
 			</p>
-				
-			#if (!$download)
-				<h4>$tlang.getString("uploadall.releaseOption")</h4>
+				#if ($!download)
+				<hr/>
+				<h4>$tlang.getString("downloadall.options.students")</h4>
+				<p class="shorttext">
+					<label for="downloadSubmissionStatus">$tlang.getString("downloadall.options.students.status")</label><br/>
+					<select id="downloadSubmissionStatus" name="downloadSubmissionStatus" class="form-select">
+						<option value="all" #if(!$downloadSubmissionStatus || $downloadSubmissionStatus == "all")selected="selected"#end>$tlang.getString("downloadall.options.students.status.all")</option>
+						<option value="submitted" #if($downloadSubmissionStatus == "submitted")selected="selected"#end>$tlang.getString("downloadall.options.students.status.submitted")</option>
+					</select>
+				</p>
+				<p class="shorttext">
+					<label for="downloadViewString">$tlang.getString("downloadall.options.students.group")</label><br/>
+						<select id="downloadViewString" name="downloadViewString" class="form-select">
+							<option value="all" #if(!$viewString || $viewString == "all")selected="selected"#end>$tlang.getString("range.allgroups")</option>
+								#foreach ($group in $groups)
+									<option value="$formattedText.escapeHtml($group.Id)" #if($viewString == $group.Id)selected="selected"#end>$formattedText.escapeHtml($group.Title)</option>
+								#end
+						</select>
+				</p>
+				#end
+					
+				#if (!$!download)
+					<h4>$tlang.getString("uploadall.releaseOption")</h4>
 				<p class="radio">
 					## release uploaded info
 					<label for="release_true"><input type="radio" name="release" id="release_true" value="true" #if($!releaseGrades)checked="checked"#end /> $tlang.getString("uploadall.releaseOption.yes")</label>
@@ -109,11 +125,13 @@
 				</p>
 			#end
 			<p class="act">
-			#if ($download)
-				#set($alertMessage = $tlang.getString('downloadall.alert.choose.element'))
-				#set($actionString="#toolLinkParam($action 'doDownload_all')")
+				#if ($!download)
+					#set($alertMessage = $formattedText.escapeJsQuoted($tlang.getString('downloadall.alert.choose.element')))
+					#set($safeSearchString = $formattedText.escapeJsQuoted($!searchString))
+					#set($safeViewString = $formattedText.escapeJsQuoted($!viewString))
+					#set($actionString="#toolLinkParam($action 'doDownload_all')")
 				<input type="button" name="downloadButton" id="downloadButton"  accesskey="d" class="active"
-						onclick="ASN.invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage', '$contextString', '$viewString', '$searchString', '$showSubmissionByFilterSearchOnly', this);" value="$tlang.getString('downloadall.button.download')" />
+						onclick="ASN.invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage', '$contextString', '$safeViewString', '$safeSearchString', '$showSubmissionByFilterSearchOnly', this);" value="$tlang.getString('downloadall.button.download')" />
 			#else
 				<input type="button" name="uploadButton" id="uploadButton"  accesskey="s" class="active"
 						onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('uploadAllForm').action='#toolLinkParam($action "doUpload_all" "sakai_csrf_token=$formattedText.escapeUrl($sakai_csrf_token)")'; ASN.submitForm( 'uploadAllForm', null, null, null );" value="$tlang.getString('uploadall.button.upload')" />

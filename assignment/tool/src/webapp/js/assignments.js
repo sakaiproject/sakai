@@ -637,44 +637,51 @@ ASN.handleEnterKeyPress = function(ev)
 
 ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, param0, param1, param2, param3, clickedElement)
 {
-    var extraInfoArray = [];
+    const extraInfoArray = [];
+    let selectedViewString = param1;
+    let includeNotSubmitted = false;
+
+    if (document.getElementById('downloadViewString'))
+    {
+        selectedViewString = document.getElementById('downloadViewString').value;
+    }
+
+    if (document.getElementById('downloadSubmissionStatus'))
+    {
+        includeNotSubmitted = document.getElementById('downloadSubmissionStatus').value === "all";
+    }
+
     if (document.getElementById('studentSubmissionText') && document.getElementById('studentSubmissionText').checked)
     {
-        extraInfoArray[extraInfoArray.length]="studentSubmissionText=true";
+        extraInfoArray.push("studentSubmissionText=true");
     }
 
      if (document.getElementById('studentSubmissionAttachment') && document.getElementById('studentSubmissionAttachment').checked)
     {
-        extraInfoArray[extraInfoArray.length]="studentSubmissionAttachment=true";
+        extraInfoArray.push("studentSubmissionAttachment=true");
     }
     if (document.getElementById('gradeFile') && document.getElementById('gradeFile').checked)
     {
-        if (document.getElementById('gradeFileFormat_excel').checked)
-        {
-            extraInfoArray[extraInfoArray.length]="gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_excel').value;
-        } else {
-            extraInfoArray[extraInfoArray.length]="gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_csv').value;
-        }
+        const selectedGradeFileFormat = document.getElementById('gradeFileFormat_excel').checked
+            ? document.getElementById('gradeFileFormat_excel').value
+            : document.getElementById('gradeFileFormat_csv').value;
+        extraInfoArray.push("gradeFile=true&gradeFileFormat=" + encodeURIComponent(selectedGradeFileFormat));
     }
     if (document.getElementById('feedbackTexts') && document.getElementById('feedbackTexts').checked)
     {
-        extraInfoArray[extraInfoArray.length]="feedbackTexts=true";
+        extraInfoArray.push("feedbackTexts=true");
     }
     if (document.getElementById('feedbackComments') && document.getElementById('feedbackComments').checked)
     {
-        extraInfoArray[extraInfoArray.length]="feedbackComments=true";
+        extraInfoArray.push("feedbackComments=true");
     }
     if (document.getElementById('feedbackAttachments') && document.getElementById('feedbackAttachments').checked)
     {
-        extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";
+        extraInfoArray.push("feedbackAttachments=true");
     }
     if (document.getElementById('rubrics') && document.getElementById('rubrics').checked)
     {
-        extraInfoArray[extraInfoArray.length]="rubrics=true";
-    }
-    if (document.getElementById('includeNotSubmitted') && document.getElementById('includeNotSubmitted').checked)
-    {
-        extraInfoArray[extraInfoArray.length]="includeNotSubmitted=true";
+        extraInfoArray.push("rubrics=true");
     }
     if (extraInfoArray.length === 0)
     {
@@ -686,18 +693,22 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
 
         if (document.getElementById('withoutFolders') && document.getElementById('withoutFolders').checked)
         {
-            extraInfoArray[extraInfoArray.length]="withoutFolders=true";
+            extraInfoArray.push("withoutFolders=true");
         }
 
-        accessPointUrl = accessPointUrl + "?";
-        for(i=0; i<extraInfoArray.length; i++) 
-        { 
-            accessPointUrl = accessPointUrl + extraInfoArray[i] + "&"; 
+        if (includeNotSubmitted)
+        {
+            extraInfoArray.push("includeNotSubmitted=true");
         }
-        // cut the & in the end
-        accessPointUrl = accessPointUrl.substring(0, accessPointUrl.length-1);
+
+        const extraInfoQuery = extraInfoArray.join("&");
+        accessPointUrl = accessPointUrl + "?" + extraInfoQuery;
+        const encodedContextString = encodeURIComponent(param0 != null ? param0 : "");
+        const encodedViewString = encodeURIComponent(selectedViewString != null ? selectedViewString : "");
+        const encodedSearchString = encodeURIComponent(param2 != null ? param2 : "");
+        const encodedSearchFilterOnly = encodeURIComponent(param3 != null ? param3 : "");
         // attach the assignment reference
-        accessPointUrl = accessPointUrl + "&contextString=" + param0 + "&viewString=" + param1 + "&searchString=" + param2 + "&searchFilterOnly=" + param3;
+        accessPointUrl = accessPointUrl + "&contextString=" + encodedContextString + "&viewString=" + encodedViewString + "&searchString=" + encodedSearchString + "&searchFilterOnly=" + encodedSearchFilterOnly;
         window.location.href=accessPointUrl;
         document.getElementById('downloadUrl').value=accessPointUrl; 
         document.getElementById('uploadAllForm').action=actionString; 
