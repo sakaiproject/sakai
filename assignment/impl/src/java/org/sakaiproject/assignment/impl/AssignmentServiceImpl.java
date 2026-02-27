@@ -4750,6 +4750,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             return;
         }
 
+        // Scope imported due-date events to the imported assignment, not the source site's event metadata.
+        CalendarEvent.EventAccess importedEventAccess = importedAssignment.getTypeOfAccess() == GROUP
+            ? CalendarEvent.EventAccess.GROUPED
+            : CalendarEvent.EventAccess.SITE;
+        Collection<Group> importedEventGroups = getImportedAssignmentGroups(importedAssignment);
+
         Calendar toCalendar;
         String toCalendarId = calendarService.calendarReference(importedAssignment.getContext(), SiteService.MAIN_CONTAINER);
         try {
@@ -4777,9 +4783,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 String fromCalendarId = calendarService.calendarReference(sourceAssignment.getContext(), SiteService.MAIN_CONTAINER);
                 Calendar fromCalendar = calendarService.getCalendar(fromCalendarId);
                 CalendarEvent fromEvent = fromCalendar.getEvent(sourceCalendarEventId);
+                // Reuse timing/title/content from the source event while applying destination access/groups.
                 importedEvent = toCalendar.addEvent(fromEvent.getRange(), fromEvent.getDisplayName(),
                     fromEvent.getDescription(), fromEvent.getType(), fromEvent.getLocation(),
-                    fromEvent.getAccess(), fromEvent.getGroups(), fromEvent.getAttachments());
+                    importedEventAccess, importedEventGroups, fromEvent.getAttachments());
             } catch (IdUnusedException | PermissionException e) {
                 log.warn("Failed copying calendar event {} while importing assignment {} into {}",
                     sourceCalendarEventId, sourceAssignment.getId(), importedAssignment.getId(), e);
@@ -4798,7 +4805,7 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                     timeService.newTimeRange(importedAssignment.getDueDate().toEpochMilli(), 0),
                     dueTitle + " " + importedAssignment.getTitle(),
                     dueDescription,
-                    "Deadline", "", CalendarEvent.EventAccess.SITE, Collections.emptyList(), null);
+                    "Deadline", "", importedEventAccess, importedEventGroups, null);
             } catch (PermissionException e) {
                 log.warn("Failed recreating due date calendar event while importing assignment {} into {}",
                     sourceAssignment.getId(), importedAssignment.getId(), e);
@@ -4809,6 +4816,30 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             importedProperties.put(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, importedEvent.getId());
             importedProperties.put(AssignmentConstants.NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
             importedProperties.put(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
+        }
+    }
+
+    private Collection<Group> getImportedAssignmentGroups(Assignment importedAssignment) {
+
+        if (importedAssignment.getTypeOfAccess() != GROUP || CollectionUtils.isEmpty(importedAssignment.getGroups())) {
+            return Collections.emptyList();
+        }
+
+        try {
+            Site site = siteService.getSite(importedAssignment.getContext());
+            Collection<Group> groups = new ArrayList<>();
+            for (String groupRef : importedAssignment.getGroups()) {
+                // Imported assignment groups are already destination refs after transferCopyEntities group remap.
+                Group group = site.getGroup(groupRef);
+                if (group != null) {
+                    groups.add(group);
+                }
+            }
+            return groups;
+        } catch (IdUnusedException e) {
+            log.warn("Failed resolving groups for imported assignment {} in site {}",
+                importedAssignment.getId(), importedAssignment.getContext(), e);
+            return Collections.emptyList();
         }
     }
 
