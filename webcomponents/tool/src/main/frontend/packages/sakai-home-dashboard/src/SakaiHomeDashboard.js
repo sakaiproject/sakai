@@ -3,7 +3,6 @@ import { SakaiElement } from "@sakai-ui/sakai-element";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import "@sakai-ui/sakai-icon/sakai-icon.js";
-import "@sakai-ui/sakai-course-list/sakai-course-list.js";
 import "@sakai-ui/sakai-widgets";
 import "@sakai-ui/sakai-widgets/sakai-widget-panel.js";
 import "@sakai-ui/sakai-button/sakai-button.js";
@@ -200,14 +199,7 @@ export class SakaiHomeDashboard extends SakaiElement {
             </div>
           </div>
         ` : nothing}
-        <div class="row">
-          <div class="col-12 col-md-4">
-            <sakai-course-list user-id="${this.userId}"></sakai-course-list>
-          </div>
-          <div class="col-12 col-md-8">
-          ${this._renderWidgetPanel()}
-          </div>
-        </div>
+        ${this._renderWidgetPanel()}
       </div>
     `;
   }

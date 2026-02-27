@@ -1,6 +1,6 @@
 export const sakaiWidgets = {
 
-  getIds: () => [ "announcements", "calendar", "forums", "grades", "tasks" ],
+  getIds: () => [ "announcements", "calendar", "courses", "forums", "grades", "tasks" ],
   getWidgets: () => {
 
     return [
@@ -13,6 +13,11 @@ export const sakaiWidgets = {
         id: "calendar",
         roles: [ "instructor", "student" ],
         tag: "sakai-calendar-widget",
+      },
+      {
+        id: "courses",
+        roles: [ "instructor", "student" ],
+        tag: "sakai-courses-widget",
       },
       {
         id: "forums",
@@ -31,4 +36,3 @@ export const sakaiWidgets = {
     ];
   },
 };
-

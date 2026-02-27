@@ -131,11 +131,11 @@ public class DashboardController extends AbstractSakaiApiController implements E
 
         homeWidgets = new ArrayList<>(serverConfigurationService.getStringList("dashboard.home.widgets", null));
         if (homeWidgets.isEmpty()) {
-            homeWidgets = new ArrayList<>(List.of("tasks", "announcements", "calendar","forums", "grades"));
+            homeWidgets = new ArrayList<>(List.of("courses", "tasks", "announcements", "calendar","forums", "grades"));
         }
         if (!tasksEnabled) homeWidgets.remove("tasks");
 
-        defaultHomeLayout = new ArrayList<>(List.of("tasks","announcements", "calendar", "grades", "forums"));
+        defaultHomeLayout = new ArrayList<>(List.of("courses", "tasks", "announcements", "calendar", "grades", "forums"));
         if (!tasksEnabled) defaultHomeLayout.remove("tasks");
 
         List<String> courseWidgetLayout1 = new ArrayList<>(serverConfigurationService.getStringList("dashboard.course.widget.layout1", null));
