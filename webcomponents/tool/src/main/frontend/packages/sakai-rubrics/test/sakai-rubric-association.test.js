@@ -2,14 +2,7 @@ import "../sakai-rubric-association.js";
 import "../sakai-rubrics-utils.js";
 import * as data from "./data.js";
 import { expect, fixture, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
-fetchMock
-  .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  .get(data.rubricsUrl, data.rubrics, { overwriteRoutes: true })
-  .get(data.rubric1Url, data.rubric1, { overwriteRoutes: true })
-  .get(data.associationUrl, data.association, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
+import fetchMock from "fetch-mock";
 
 window.sakai = window.sakai || {
   editor: {
@@ -18,6 +11,21 @@ window.sakai = window.sakai || {
 };
 
 describe("sakai-rubric-association tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.rubricsUrl, data.rubrics)
+      .get(data.rubric1Url, data.rubric1)
+      .get(data.associationUrl, data.association)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it ("renders a rubric association correctly", async () => {
 

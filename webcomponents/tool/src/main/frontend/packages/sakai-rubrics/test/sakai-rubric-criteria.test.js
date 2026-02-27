@@ -3,15 +3,7 @@ import "../sakai-rubric-criteria.js";
 import "../sakai-rubric-criterion-edit.js";
 import * as data from "./data.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
-fetchMock
-  .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  .put(data.rubric4CriteriaSortUrl, 200, { overwriteRoutes: true })
-  .patch(data.rubric4OwnerUrl, 200, { overwriteRoutes: true })
-  .patch(data.rubric4Criteria5Url, 200, { overwriteRoutes: true })
-  .patch(data.rubric4Criteria6Url, 200, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
+import fetchMock from "fetch-mock";
 
 window.sakai = window.sakai || {
   editor: {
@@ -20,6 +12,22 @@ window.sakai = window.sakai || {
 };
 
 describe("sakai-rubric-criteria tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .put(data.rubric4CriteriaSortUrl, 200)
+      .patch(data.rubric4OwnerUrl, 200)
+      .patch(data.rubric4Criteria5Url, 200)
+      .patch(data.rubric4Criteria6Url, 200)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it ("Criterion reorder, then mark as draft", async () => {
 

@@ -1,10 +1,10 @@
 import "../sakai-topic.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
+import fetchMock from "fetch-mock";
+
 import sinon from "sinon";
 import * as constants from "../src/sakai-conversations-constants.js";
-
 describe("sakai-topic tests", () => {
 
   window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle, user: { id: "user1", timezone: "Europe/London" } };
@@ -14,6 +14,7 @@ describe("sakai-topic tests", () => {
   const markViewedUrl = data.discussionTopic.links.find(l => l.rel === "markpostsviewed").href;
 
   beforeEach(() => {
+    fetchMock.mockGlobal();
 
     fetchMock
       .get(data.i18nUrl, data.i18n)
@@ -22,7 +23,7 @@ describe("sakai-topic tests", () => {
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("renders a discussion topic", async () => {
@@ -157,7 +158,7 @@ describe("sakai-topic tests", () => {
     const topic = { ...data.discussionTopic };
 
     fetchMock.post(topic.links.find(l => l.rel === "posts").href,
-      (url, opts) => ({ ...JSON.parse(opts.body), id: "posted1", viewed: true }));
+      ({ url, options }) => ({ ...JSON.parse(options.body), id: "posted1", viewed: true }));
 
     const el = await fixture(html`
       <sakai-topic .topic=${topic}>
@@ -241,7 +242,7 @@ describe("sakai-topic tests", () => {
 
     // Setup lock URL mock
     const lockUrl = topic.links.find(l => l.rel === "lock").href;
-    fetchMock.post(lockUrl, (url, opts) => {
+    fetchMock.post(lockUrl, ({ url, options }) => {
       return { ...topic, locked: !data.discussionTopic.locked, selected: true };
     });
 
@@ -304,7 +305,6 @@ describe("sakai-topic tests", () => {
     // Restore original confirm
     window.confirm = originalConfirm;
 
-    fetchMock.restore();
   });
 
   it("fires topic-updated event when _postUpdated is called", async () => {
@@ -418,9 +418,9 @@ describe("sakai-topic tests", () => {
     const topic = { ...data.discussionTopic, allowAnonymousPosts: true };
 
     // Mock the post endpoint
-    fetchMock.post(topic.links.find(l => l.rel === "posts").href, (url, opts) => {
+    fetchMock.post(topic.links.find(l => l.rel === "posts").href, ({ url, options }) => {
 
-      const postData = JSON.parse(opts.body);
+      const postData = JSON.parse(options.body);
       return { ...postData,
         creatorDisplayName: postData.anonymous ? "Anonymous" : "Regular User",
         viewed: true

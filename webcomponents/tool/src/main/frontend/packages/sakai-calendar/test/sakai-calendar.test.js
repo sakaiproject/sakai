@@ -2,15 +2,21 @@ import "../sakai-calendar.js";
 import * as data from "./data.js";
 import * as sitePickerData from "../../sakai-site-picker/test/data.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
+import fetchMock from "fetch-mock";
 
 describe("sakai-calendar tests", () => {
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(sitePickerData.i18nUrl, sitePickerData.i18n, { overwriteRoutes: true })
-    .get(data.userCalendarUrl, { "events": data.userCalendarEvents.events, "sites": sitePickerData.sites }, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  beforeEach(() => {
+    fetchMock.mockGlobal()
+      .get(data.i18nUrl, data.i18n)
+      .get(sitePickerData.i18nUrl, sitePickerData.i18n)
+      .get(data.userCalendarUrl, { "events": data.userCalendarEvents.events, "sites": sitePickerData.sites })
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   it ("renders in user mode correctly", async () => {
 

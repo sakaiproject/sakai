@@ -1,13 +1,21 @@
 import "../sakai-rubric-pdf.js";
 import * as data from "./data.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
-fetchMock
-  .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
+import fetchMock from "fetch-mock";
 
 describe("sakai-rubric-pdf tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it ("tests that a rubric pdf component does not render if no site-id or rubric-id are supplied", async () => {
 

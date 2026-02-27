@@ -1,15 +1,23 @@
 import "../sakai-rubrics-manager.js";
 import * as data from "./data.js";
 import { expect, fixture, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
-fetchMock
-  .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  .get(data.sharedRubricsUrl, data.sharedRubrics, { overwriteRoutes: true })
-  .get(data.rubricsUrl, data.rubrics, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
+import fetchMock from "fetch-mock";
 
 describe("sakai-rubric-manager tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.sharedRubricsUrl, data.sharedRubrics)
+      .get(data.rubricsUrl, data.rubrics)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it ("manager renders correctly", async () => {
 

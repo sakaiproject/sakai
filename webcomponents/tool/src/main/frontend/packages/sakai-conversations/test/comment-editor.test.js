@@ -3,11 +3,17 @@ import "../sakai-comment-editor.js";
 import * as data from "./data.js";
 import sinon from "sinon";
 import * as constants from "../src/sakai-conversations-constants.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-comment-editor tests", () => {
 
-  fetchMock.get(data.i18nUrl, data.i18n);
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock.get(data.i18nUrl, data.i18n);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   it("renders in add mode correctly", async () => {
 
@@ -76,8 +82,8 @@ describe("sakai-comment-editor tests", () => {
   it("creates a new comment", async () => {
 
     const newId = "new-comment-id";
-    fetchMock.post("/api/sites/site1/topics/topic1/posts/post1/comments", (url, opts) => {
-      return { ...JSON.parse(opts.body), id: newId };
+    fetchMock.post("/api/sites/site1/topics/topic1/posts/post1/comments", ({ url, options }) => {
+      return { ...JSON.parse(options.body), id: newId };
     });
 
     const el = await fixture(html`
@@ -123,7 +129,7 @@ describe("sakai-comment-editor tests", () => {
 
   it("updates an existing comment", async () => {
 
-    fetchMock.put(`/api/sites/site1/topics/topic1/posts/${data.post1.id}/comments/${data.comment.id}`, (url, opts) => JSON.parse(opts.body));
+    fetchMock.put(`/api/sites/site1/topics/topic1/posts/${data.post1.id}/comments/${data.comment.id}`, ({ url, options }) => JSON.parse(options.body));
 
     const el = await fixture(html`
       <sakai-comment-editor

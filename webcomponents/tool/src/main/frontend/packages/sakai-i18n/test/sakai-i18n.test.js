@@ -2,16 +2,28 @@ import { loadProperties, tr } from '../src/sakai-i18n.js';
 import { expect } from '@open-wc/testing';
 import { spy, stub } from "sinon";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-i18n tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    setRoutes(data.i18n);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   window.top.portal = { locale: 'en_GB' };
 
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  const setRoutes = (i18nPayload) => {
+    fetchMock.removeRoutes();
+    fetchMock
+      .get(data.i18nUrl, i18nPayload)
+      .get("*", 500);
+  };
 
   it ("loads properties successfully", async () => {
 
@@ -77,7 +89,7 @@ describe("sakai-i18n tests", () => {
     expect(i18n.drink).to.equal(value);
 
     // Now override fetch to return a different result.
-    fetchMock.get(data.i18nUrl, `drink=bacon`, { overwriteRoutes: true });
+    setRoutes(`drink=bacon`);
 
     // This should return from sessionStorage, not fetching at all.
     i18n = await loadProperties('test');

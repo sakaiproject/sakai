@@ -1,8 +1,7 @@
 import "../sakai-rubric-grading.js";
 import * as data from "./data.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 window.sakai = window.sakai || {
   editor: {
     launch: () => ({ focus: () => "", on: () => "", setData: () => "" })
@@ -12,11 +11,12 @@ window.sakai = window.sakai || {
 describe("sakai-rubric-grading tests", () => {
 
   beforeEach(async () => {
+    fetchMock.mockGlobal();
     fetchMock.get(data.i18nUrl, data.i18n);
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it ("rubric grading renders correctly", async () => {
@@ -24,14 +24,14 @@ describe("sakai-rubric-grading tests", () => {
     fetchMock.get(data.rubric1Url, data.rubric1)
       .get(data.associationUrl, data.association)
       .get(data.evaluationUrl, data.evaluation)
-      .post(`/api/sites/${data.siteId}/rubric-evaluations`, (url, opts) => {
+      .post(`/api/sites/${data.siteId}/rubric-evaluations`, ({ url, options }) => {
 
         return Object.assign({
           id: "" + Math.floor(Math.random() * 20) + 1,
           creator: "adrian",
           created: Date.now(),
           creatorDisplayName: "Adrian Fish",
-        }, JSON.parse(opts.body));
+        }, JSON.parse(options.body));
       });
 
     const el = await fixture(html`

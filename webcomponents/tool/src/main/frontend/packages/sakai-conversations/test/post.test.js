@@ -2,14 +2,13 @@ import "../sakai-post.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import { DISCUSSION, QUESTION, REACTION_ICONS } from "../src/sakai-conversations-constants.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 window.top.portal = { user: { id: "user1" }};
 
 describe("post tests", () => {
 
   beforeEach(() => {
-
+    fetchMock.mockGlobal();
     fetchMock.get(data.i18nUrl, data.i18n);
 
     delete data.answer.isInstructor;
@@ -24,7 +23,7 @@ describe("post tests", () => {
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it ("does not render if no post is supplied", async () => {
@@ -119,7 +118,7 @@ describe("post tests", () => {
 
     editor.setContent(newMessage);
 
-    fetchMock.put(data.answer.links.find(l => l.rel === "self").href, (url, opts) => JSON.parse(opts.body));
+    fetchMock.put(data.answer.links.find(l => l.rel === "self").href, ({ url, options }) => JSON.parse(options.body));
 
     el.querySelector(".post-editor-block input[type='button']").click();
 
@@ -249,7 +248,7 @@ describe("post tests", () => {
     await elementUpdated(el);
 
     expect(el.querySelector(".discussion-post-reply-block")).to.not.exist;
-    fetchMock.post(data.post1.links.find(l => l.rel === "reply").href, (url, opts) => JSON.parse(opts.body));
+    fetchMock.post(data.post1.links.find(l => l.rel === "reply").href, ({ url, options }) => JSON.parse(options.body));
 
     // Click on reply
     const replyButton = el.querySelector(".post-reply-button");
@@ -349,7 +348,7 @@ describe("post tests", () => {
     expect(lockedButton).to.exist;
 
     fetchMock.post(data.post1.links.find(l => l.rel === "lock").href,
-      (url, opts) => ({ ...data.post1, locked: JSON.parse(opts.body) }));
+      ({ url, options }) => ({ ...data.post1, locked: JSON.parse(options.body) }));
 
     lockedButton.click();
     ({ detail } = await oneEvent(el, "post-updated"));

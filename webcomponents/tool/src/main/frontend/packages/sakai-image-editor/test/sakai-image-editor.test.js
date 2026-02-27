@@ -2,14 +2,20 @@ import "../sakai-image-editor.js";
 import * as data from "./data.js";
 import * as dialogContentData from "../../sakai-dialog-content/test/data.js";
 import { expect, fixture, html, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-image-editor tests", () => {
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(dialogContentData.baseI18nUrl, dialogContentData.baseI18n, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(dialogContentData.baseI18nUrl, dialogContentData.baseI18n)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   it ("renders correctly", async () => {
 

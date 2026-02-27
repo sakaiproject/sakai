@@ -2,17 +2,8 @@ import "../sakai-rubric-criterion-edit.js";
 import "../sakai-rubrics-utils.js";
 import * as data from "./data.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 window.top.portal = { locale: "en_GB" };
-
-fetchMock
-  .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-  .get(data.rubric1Url, data.rubric1, { overwriteRoutes: true })
-  .get(data.associationUrl, data.association, { overwriteRoutes: true })
-  .get(data.evaluationUrl, data.evaluation, { overwriteRoutes: true })
-  .put(data.rubric4CriteriaSortUrl, 200, { overwriteRoutes: true })
-  .get("*", 500, { overwriteRoutes: true });
 
 window.sakai = window.sakai || {
   editor: {
@@ -21,6 +12,22 @@ window.sakai = window.sakai || {
 };
 
 describe("sakai-rubric-criterion-edit tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.rubric1Url, data.rubric1)
+      .get(data.associationUrl, data.association)
+      .get(data.evaluationUrl, data.evaluation)
+      .put(data.rubric4CriteriaSortUrl, 200)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
+
 
   it ("criterion edit with textarea works correctly", async () => {
 

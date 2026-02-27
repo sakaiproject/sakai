@@ -1,14 +1,20 @@
 import '../sakai-group-picker.js';
 import { elementUpdated, expect, fixture, html, oneEvent } from '@open-wc/testing';
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-group-picker tests", () => {
 
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get(data.groupsUrl, data.groups, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get(data.groupsUrl, data.groups)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   it ("renders with site and group id", async () => {
 

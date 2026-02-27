@@ -2,8 +2,7 @@ import { elementUpdated, fixture, expect, html, aTimeout, waitUntil } from "@ope
 import "../conversations-statistics.js";
 import * as constants from "../src/sakai-conversations-constants.js";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("conversations-statistics", () => {
 
   const statsData = {
@@ -39,6 +38,8 @@ describe("conversations-statistics", () => {
   const statsUrl = "/stats-url";
 
   beforeEach(async () => {
+    fetchMock.mockGlobal();
+
 
     // Mock the stats endpoint
     fetchMock.get(data.i18nUrl, data.i18n)
@@ -46,7 +47,7 @@ describe("conversations-statistics", () => {
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("renders the statistics table with correct data", async () => {
@@ -93,9 +94,9 @@ describe("conversations-statistics", () => {
     await waitUntil(() => el._stats);
 
     // Verify initial fetch was made with THIS_WEEK interval
-    expect(fetchMock.called(statsUrl)).to.be.true;
-    const initialCall = fetchMock.lastCall(statsUrl);
-    const initialBody = JSON.parse(initialCall[1].body);
+    expect(fetchMock.callHistory.called(statsUrl)).to.be.true;
+    const initialCall = fetchMock.callHistory.lastCall(statsUrl);
+    const initialBody = JSON.parse(initialCall.options.body);
     expect(initialBody.interval).to.equal(constants.THIS_WEEK);
 
     // Click the "All Time" radio button
@@ -107,9 +108,9 @@ describe("conversations-statistics", () => {
 
     // Verify the interval was changed and a new fetch was made
     expect(el.interval).to.equal(constants.ALL_TIME);
-    expect(fetchMock.called(statsUrl)).to.be.true;
-    const allTimeCall = fetchMock.lastCall(statsUrl);
-    const allTimeBody = JSON.parse(allTimeCall[1].body);
+    expect(fetchMock.callHistory.called(statsUrl)).to.be.true;
+    const allTimeCall = fetchMock.callHistory.lastCall(statsUrl);
+    const allTimeBody = JSON.parse(allTimeCall.options.body);
     expect(allTimeBody.interval).to.equal(constants.ALL_TIME);
   });
 
@@ -132,13 +133,13 @@ describe("conversations-statistics", () => {
     await aTimeout(100);
 
     // Verify the sort was changed and a new fetch was made
-    expect(fetchMock.called(statsUrl)).to.be.true;
-    const sortCall = fetchMock.lastCall(statsUrl);
-    const sortBody = JSON.parse(sortCall[1].body);
+    expect(fetchMock.callHistory.called(statsUrl)).to.be.true;
+    const sortCall = fetchMock.callHistory.lastCall(statsUrl);
+    const sortBody = JSON.parse(sortCall.options.body);
     expect(sortBody.sort).to.equal("nameDescending");
 
     // Reset the mock to track the next call
-    fetchMock.resetHistory();
+    fetchMock.clearHistory();
 
     // Click it again to toggle the sort direction
     nameSortHeader.click();
@@ -148,9 +149,9 @@ describe("conversations-statistics", () => {
     await aTimeout(100);
 
     // Verify the sort was toggled and a new fetch was made
-    expect(fetchMock.called(statsUrl)).to.be.true;
-    const toggleCall = fetchMock.lastCall(statsUrl);
-    const toggleBody = JSON.parse(toggleCall[1].body);
+    expect(fetchMock.callHistory.called(statsUrl)).to.be.true;
+    const toggleCall = fetchMock.callHistory.lastCall(statsUrl);
+    const toggleBody = JSON.parse(toggleCall.options.body);
     expect(toggleBody.sort).to.equal("nameAscending");
   });
 
@@ -172,9 +173,9 @@ describe("conversations-statistics", () => {
     await aTimeout(100);
 
     // Verify a new fetch was made with the correct page
-    expect(fetchMock.called(statsUrl)).to.be.true;
-    const pageCall = fetchMock.lastCall(statsUrl);
-    const pageBody = JSON.parse(pageCall[1].body);
+    expect(fetchMock.callHistory.called(statsUrl)).to.be.true;
+    const pageCall = fetchMock.callHistory.lastCall(statsUrl);
+    const pageBody = JSON.parse(pageCall.options.body);
     expect(pageBody.page).to.equal(2);
   });
 });

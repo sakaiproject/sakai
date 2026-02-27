@@ -4,7 +4,11 @@ import "@sakai-ui/sakai-picture-changer/sakai-picture-changer.js";
 import "@sakai-ui/sakai-audio-recorder/sakai-audio-recorder.js";
 import "@sakai-ui/sakai-pronunciation-player/sakai-pronunciation-player.js";
 import isEmail from "validator/es/lib/isEmail.js";
-import { SocialLinks } from "social-links";
+const SOCIAL_HOSTS = {
+  facebook: ["facebook.com"],
+  instagram: ["instagram.com"],
+  linkedin: ["linkedin.com"],
+};
 
 export class SakaiAccount extends SakaiElement {
 
@@ -225,15 +229,33 @@ export class SakaiAccount extends SakaiElement {
     this._mobileInvalid = false;
   }
 
+  _isValidSocialUrl(provider, value) {
+
+    if (!value) {
+      return false;
+    }
+
+    const trimmed = value.trim();
+    let url;
+    try {
+      const normalized = /^(https?:)?\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+      url = new URL(normalized);
+    } catch (e) {
+      return false;
+    }
+
+    const host = url.hostname.toLowerCase();
+    const allowedHosts = SOCIAL_HOSTS[provider] || [];
+    return allowedHosts.some(allowedHost => host === allowedHost || host.endsWith(`.${allowedHost}`));
+  }
+
   _saveSocialInfo() {
 
     const facebookUrl = this.renderRoot.querySelector("#facebook-input");
     const instagramUrl = this.renderRoot.querySelector("#instagram-input");
     const linkedinUrl = this.renderRoot.querySelector("#linkedin-input");
 
-    const socialLinks = new SocialLinks();
-
-    if (facebookUrl.value && !socialLinks.isValid("facebook", facebookUrl.value)) {
+    if (facebookUrl.value && !this._isValidSocialUrl("facebook", facebookUrl.value)) {
       this._currentError = this._i18n.invalid_facebook;
       this._displaySocialInfoErrorBanner = true;
       this._facebookUrlInvalid = true;
@@ -241,7 +263,7 @@ export class SakaiAccount extends SakaiElement {
       return;
     }
 
-    if (instagramUrl.value && !socialLinks.isValid("instagram", instagramUrl.value)) {
+    if (instagramUrl.value && !this._isValidSocialUrl("instagram", instagramUrl.value)) {
       this._currentError = this._i18n.invalid_instagram;
       this._displaySocialInfoErrorBanner = true;
       this._instagramUrlInvalid = true;
@@ -249,7 +271,7 @@ export class SakaiAccount extends SakaiElement {
       return;
     }
 
-    if (linkedinUrl.value && !socialLinks.isValid("linkedin", linkedinUrl.value)) {
+    if (linkedinUrl.value && !this._isValidSocialUrl("linkedin", linkedinUrl.value)) {
       this._currentError = this._i18n.invalid_linkedin;
       this._displaySocialInfoErrorBanner = true;
       this._linkedinUrlInvalid = true;

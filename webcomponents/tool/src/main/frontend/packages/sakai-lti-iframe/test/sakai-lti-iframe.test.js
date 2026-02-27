@@ -1,17 +1,23 @@
 import "../sakai-lti-iframe.js";
 import { elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-lti-iframe tests", () => {
+
+  beforeEach(() => {
+    fetchMock.mockGlobal();
+    fetchMock
+      .get(data.i18nUrl, data.i18n)
+      .get("*", 500);
+  });
+
+  afterEach(() => {
+    fetchMock.hardReset();
+  });
 
   const launchUrl = "http://eggs.com";
 
   window.top.portal = { siteId: data.siteId };
-
-  fetchMock
-    .get(data.i18nUrl, data.i18n, { overwriteRoutes: true })
-    .get("*", 500, { overwriteRoutes: true });
 
   it ("renders correctly", async () => {
  

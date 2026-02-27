@@ -1,18 +1,18 @@
 import "../sakai-conversations-tag-manager.js";
 import { elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
-import fetchMock from "fetch-mock/esm/client";
-
+import fetchMock from "fetch-mock";
 describe("sakai-conversations-tag-manager tests", () => {
 
   window.top.portal = { siteId: data.siteId, siteTitle: data.siteTitle };
 
   beforeEach(() => {
-    fetchMock.get(data.i18nUrl, data.i18n, { overwriteRoutes: true });
+    fetchMock.mockGlobal();
+    fetchMock.get(data.i18nUrl, data.i18n);
   });
 
   afterEach(() => {
-    fetchMock.restore(); // Restores original fetch behavior and clears all mocks
+    fetchMock.hardReset();
   });
 
   it("renders correctly with tags", async () => {
@@ -254,7 +254,7 @@ describe("sakai-conversations-tag-manager tests", () => {
     const uniqueTagResponse = { label: uniqueTagLabel, siteId: data.siteId, id: "3" };
 
     // Simpler mock: just match the URL and method, respond with the expected created tag.
-    fetchMock.post(createTagsUrl, [ uniqueTagResponse ], { overwriteRoutes: true });
+    fetchMock.post(createTagsUrl, [ uniqueTagResponse ]);
 
     const el = await fixture(html`
       <sakai-conversations-tag-manager
@@ -279,7 +279,7 @@ describe("sakai-conversations-tag-manager tests", () => {
     await tagsCreatedListener;
 
     // Direct inspection of what was sent
-    const calls = fetchMock.calls(createTagsUrl, "POST");
+    const calls = fetchMock.callHistory.calls(createTagsUrl, "POST");
     expect(calls.length).to.equal(1, "Fetch should have been called once for tag creation");
 
     const lastCall = calls[0];
