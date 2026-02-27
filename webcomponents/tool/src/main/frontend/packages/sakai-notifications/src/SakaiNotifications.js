@@ -418,7 +418,7 @@ export class SakaiNotifications extends SakaiElement {
                 </div>
                 <div class="toast-body">
                   <div class="d-flex justify-content-between">
-                    <div>${noti.title}</div>
+                    <div class="me-1">${noti.title}</div>
                     <div>
                       ${prefix !== "motd" && prefix !== "test" ? html`
                         <a href="${noti.url}">

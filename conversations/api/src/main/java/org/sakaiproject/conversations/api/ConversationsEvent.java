@@ -15,16 +15,19 @@
  */
 package org.sakaiproject.conversations.api;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
-public enum ConversationsEvents {
+public enum ConversationsEvent {
     TOPIC_CREATED("conversations.topic.created"),
     TOPIC_DELETED("conversations.topic.deleted"),
     REACTED_TO_TOPIC("conversations.topic.reacted"),
     UNREACTED_TO_TOPIC("conversations.topic.unreacted"),
+    POSTED_TO_TOPIC("conversations.topic.posted"),
     TOPIC_UPDATED("conversations.topic.updated"),
     TOPIC_UPVOTED("conversations.topic.upvoted"),
     POST_CREATED("conversations.post.created"),
+    POST_REPLIED("conversations.post.replied"),
     POST_VIEWED("conversations.post.viewed"),
     POST_DELETED("conversations.post.deleted"),
     REACTED_TO_POST("conversations.post.reacted"),
@@ -37,11 +40,21 @@ public enum ConversationsEvents {
 
     public final String label;
 
-    private ConversationsEvents(String label) {
+    private ConversationsEvent(String label) {
         this.label = label;
     }
 
-    public static Stream<ConversationsEvents> stream() {
-        return Stream.of(ConversationsEvents.values());
+    public static Stream<ConversationsEvent> stream() {
+        return Stream.of(ConversationsEvent.values());
+    }
+
+    public static Optional<ConversationsEvent> from(String label) {
+
+        for (ConversationsEvent ce : ConversationsEvent.values()) {
+            if (ce.label.equalsIgnoreCase(label)) {
+                return Optional.of(ce);
+            }
+        }
+        return Optional.empty();
     }
 }
