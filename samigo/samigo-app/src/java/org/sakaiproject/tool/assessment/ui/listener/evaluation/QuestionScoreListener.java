@@ -939,6 +939,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 						AgentFacade agent = new AgentFacade(gdata.getAgentId());
 						results.setLastName(agent.getLastName());
 						results.setFirstName(agent.getFirstName());
+						results.setDisplayName(agent.getDisplayName());
 						results.setEmail(agent.getEmail());
 						if (results.getLastName() != null
 								&& results.getLastName().length() > 0)
