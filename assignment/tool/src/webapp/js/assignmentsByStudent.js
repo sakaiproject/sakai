@@ -15,33 +15,35 @@ window.assignments.normalizeSearchText = function(text) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+let currentCustomSearchFunction = null;
+
+window.assignments.byStudent = {};
+
 // Assignments By Students "global" namespace
-window.assignments.byStudent = {
-  datatablesConfig: {
-    dom: '<<".dt-header-row"<".dt-header-slot">lf><t><".dt-footer-row"ip>>',
-    stateSave: true,
-    columnDefs: [
-      {
-        sortable: false,
-        targets: "no-sort",
-      },
-    ],
-    rowGroup: {
-      dataSrc(row) {
-        const dataCellHtml = row[0].display;
-        return parseDataCell(dataCellHtml).studentUserId;
-      },
-      startRender(rows, group) {
-        const firstRow = rows.data()[0];
-        const dataCellHtml = firstRow[0].display;
+window.assignments.byStudent.datatablesConfig = {
+  dom: '<<".dt-header-row"<".dt-header-slot">lf><t><".dt-footer-row"ip>>',
+  stateSave: true,
+  columnDefs: [
+    {
+      sortable: false,
+      targets: "no-sort",
+    },
+  ],
+  rowGroup: {
+    dataSrc(row) {
+      const dataCellHtml = row[0].display;
+      return parseDataCell(dataCellHtml).studentUserId;
+    },
+    startRender(rows, group) {
+      const firstRow = rows.data()[0];
+      const dataCellHtml = firstRow[0].display;
 
-        const data = parseDataCell(dataCellHtml);
+      const data = parseDataCell(dataCellHtml);
 
-        return renderGrouping(data);
-      },
+      return renderGrouping(data);
     },
   },
-}
+};
 
 // Private functions
 
@@ -97,21 +99,38 @@ window.addEventListener("load", () => {
       }
       searchInput.hasCustomSearch = true;
 
-      let lastSearchTerm = '';
+      // Load custom search term from DataTables state
+      const savedState = table.state.loaded();
+      let cachedSearchTerm = (savedState && savedState.customSearch) ? savedState.customSearch : '';
+
+      // Hook into state save to persist custom search
+      table.on('stateSaveParams.dt', function(e, settings, data) {
+        data.customSearch = cachedSearchTerm;
+      });
 
       $(searchInput).off();
       searchInput.removeAttribute('data-dt-search');
+
+      if (!cachedSearchTerm) {
+        searchInput.value = '';
+      }
+
+      if (currentCustomSearchFunction) {
+        $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => 
+          fn !== currentCustomSearchFunction && !fn.__isAssignmentsByStudentSearch
+        );
+      }
 
       const customSearchFunction = function(settings, searchData, index, rowData, counter) {
         if (settings.nTable.id !== 'assignmentsByStudent') {
           return true;
         }
 
-        if (!lastSearchTerm || lastSearchTerm.trim() === '') {
+        if (!cachedSearchTerm || cachedSearchTerm.trim() === '') {
           return true;
         }
 
-        const normalizedSearch = window.assignments.normalizeSearchText(lastSearchTerm);
+        const normalizedSearch = window.assignments.normalizeSearchText(cachedSearchTerm);
 
         return searchData.some(cellData => {
           if (cellData && typeof cellData === 'string') {
@@ -123,10 +142,14 @@ window.addEventListener("load", () => {
         });
       };
 
+      customSearchFunction.__isAssignmentsByStudentSearch = true;
+
+      currentCustomSearchFunction = customSearchFunction;
       $.fn.dataTable.ext.search.push(customSearchFunction);
 
       const handleSearch = function() {
-        lastSearchTerm = this.value;
+        cachedSearchTerm = this.value;
+        table.state.save();
         table.draw();
       };
 
@@ -137,11 +160,12 @@ window.addEventListener("load", () => {
       };
 
       searchInput.addEventListener('input', handleSearch);
-      searchInput.addEventListener('keyup', handleSearch);
       searchInput.addEventListener('keydown', handleKeyDown);
 
-      if (searchInput.value) {
-        lastSearchTerm = searchInput.value;
+      if (cachedSearchTerm) {
+        table.one('draw.dt', function() {
+          searchInput.value = cachedSearchTerm;
+        });
         table.draw();
       }
     }
