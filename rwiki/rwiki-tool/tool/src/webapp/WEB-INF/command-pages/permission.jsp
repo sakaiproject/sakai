@@ -43,7 +43,7 @@
 		<div id="rwiki_container">
 			<div class="portletBody">
 					<div class="navIntraTool actionToolBar">
-						<form action="?#" method="get" class="rwiki_searchForm">
+						<div class="rwiki_searchForm">
 							    	  	<rwiki:commandlinks 
 							useHomeLink="true"
 							useViewLink="false"
@@ -58,7 +58,7 @@
 							resourceLoaderBean="${rlb}"
 						        />
 						
-						</form>
+						</div>
 					</div>
 	<jsp:directive.include file="breadcrumb.jsp"/>
 	<h3><c:out value="${rlb.jsp_permission_denied}"/></h3>

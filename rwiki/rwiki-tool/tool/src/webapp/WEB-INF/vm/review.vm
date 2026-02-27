@@ -11,14 +11,14 @@
 #header(${title} ${historyBean} "" )  
 <div id="rwiki_container">
   <div class="portletBody">
-	  <form action="?#" method="get" class="rwiki_searchForm">
+	  <div class="rwiki_searchForm">
 		<ul class="navIntraTool actionToolBar">	  	
 	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
 	    ##  $homeBean $viewBean $resourceLoaderBean )
 	  	 #commandlinks(true true false ${rlb.jsp_view}	false  false true false false	${homeBean} ${historyBean} ${rlb} ) 
 		</ul>	 
-	  </form>
+	  </div>
 	
 	#if (${rightRenderBean.hasContent})
 		#set( $rwikiContentStyle = "withsidebar" )

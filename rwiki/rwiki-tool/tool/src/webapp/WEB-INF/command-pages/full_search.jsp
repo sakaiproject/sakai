@@ -48,7 +48,7 @@
     		
     	<div class="portletBody">    		
       <div class="navIntraTool actionToolBar">
-	<form action="?#" method="get" class="rwiki_searchForm">
+	<div class="rwiki_searchForm">
 		<rwiki:commandlinks 
 							useHomeLink="true"
 							useViewLink="false"
@@ -60,12 +60,9 @@
 							resourceLoaderBean="${rlb}"
 						        />
 	  <span class="rwiki_searchBox">
-	    <c:out value="${rlb.jsp_search}"/>: 
-	    <input type="hidden" name="action" value="full_search" />
-	    <input type="hidden" name="panel" value="Main" />
-	    <input type="text" name="search" />
-	  </span>
-	</form>
+	      <button type="button" class="btn btn-secondary" onclick="openWikiSearch()"><c:out value="${rlb.jsp_search}"/></button>
+	    </span>
+	</div>
       </div>
 
       	

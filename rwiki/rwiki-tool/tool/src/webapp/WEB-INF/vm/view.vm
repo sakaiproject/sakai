@@ -11,7 +11,7 @@
 #header(${title} ${viewBean} "" )  
 <div id="rwiki_container">
   <div class="portletBody">
-  <form action="?#" method="get" class="rwiki_searchForm inlineForm">
+  <div class="rwiki_searchForm inlineForm">
 	<script type="text/javascript">
 		$(document).ready(function(){
 			rearrangeBreadCrumb();
@@ -31,14 +31,8 @@
 		#else
 			#commandlinks(true true true ${rlb.jsp_view}   true  true true true ${requestScope.Withnotification}   ${homeBean} ${viewBean} ${rlb} )
 		#end
-	    <li class="rwiki_searchBox">
-	      <label for="searchField">${rlb.jsp_search}:</label>
-	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
-	      <input type="hidden" name="panel" value="Main" />
-	      <input type="text" id="searchField" name="search" />
-	    </li>
 	</ul>
-	  </form>
+	  </div>
 
 
 	#if (${rightRenderBean.hasContent})
