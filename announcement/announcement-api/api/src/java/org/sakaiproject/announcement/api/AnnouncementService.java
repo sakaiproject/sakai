@@ -31,7 +31,6 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.message.api.MessageService;
-import org.sakaiproject.time.api.Time;
 
 /**
  * <p>
@@ -223,15 +222,4 @@ public interface AnnouncementService extends MessageService
 	public List<AnnouncementMessage> getChannelMessages(String channelReference, Filter filter, boolean ascending,
 												String mergedChannelDelimitedList, boolean allUserSites,
 												boolean isSynopticTool, String siteId, Integer maxAgeInDays) throws PermissionException;
-
-	/**
-	 * Returns visible MOTD announcements from the MOTD channel.
-	 * Visibility is enforced by {@link #isMessageViewable(org.sakaiproject.message.api.Message)}.
-	 *
-	 * @param afterDate Optional lower-bound date filter. Messages before this are excluded when possible.
-	 * @param numberOfAnnouncements Maximum number of messages to return. Values less than 0 are treated as 0.
-	 * @param ascending Sort order. True for oldest-first, false for newest-first.
-	 * @return list of visible MOTD announcements.
-	 */
-	public List<AnnouncementMessage> getVisibleMessagesOfTheDay(Time afterDate, int numberOfAnnouncements, boolean ascending);
 }

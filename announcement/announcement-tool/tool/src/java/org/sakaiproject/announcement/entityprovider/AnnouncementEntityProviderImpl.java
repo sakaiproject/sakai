@@ -620,45 +620,9 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	@EntityCustomAction(action="motd",viewKey=EntityView.VIEW_LIST)
 	public List<?> getMessagesOfTheDay(EntityView view, Map<String, Object> params) {
 
-		// Keep existing API params behavior:
-		// n = max items, d = days in the past, a = ascending sort (1 = true).
-		int numberOfAnnouncements = NumberUtils.toInt((String) params.get("n"), 0);
-		int numberOfDaysInThePast = NumberUtils.toInt((String) params.get("d"), 0);
-		boolean announcementSortAsc = NumberUtils.toInt((String) params.get("a"), 0) == 1;
-
-		if (numberOfAnnouncements == 0) {
-			numberOfAnnouncements = DEFAULT_NUM_ANNOUNCEMENTS;
-		}
-		if (numberOfDaysInThePast == 0) {
-			numberOfDaysInThePast = DEFAULT_DAYS_IN_PAST;
-		}
-
-		Time afterDate = timeService.newTime(getTimeForDaysInPast(numberOfDaysInThePast).getTime());
-		String siteTitle = rb.getString("motd.title");
-
-		List<AnnouncementMessage> motdMessages;
-		try {
-			motdMessages = announcementService.getVisibleMessagesOfTheDay(
-				afterDate,
-				numberOfAnnouncements,
-				announcementSortAsc);
-		} catch (Exception e) {
-			String currentUserId = sessionManager.getCurrentSessionUserId();
-			log.warn("Failed to load MOTD announcements for user: {}. Returning no MOTD announcements.", currentUserId, e);
-			return Collections.emptyList();
-		}
-
-		List<DecoratedAnnouncement> decoratedAnnouncements = new ArrayList<>();
-		for (AnnouncementMessage message : motdMessages) {
-			try {
-				decoratedAnnouncements.add(createDecoratedAnnouncement(message, siteTitle));
-			} catch (Exception e) {
-				String currentUserId = sessionManager.getCurrentSessionUserId();
-				log.info("Exception caught processing MOTD announcement: {} for user: {}. Skipping...", message.getId(), currentUserId);
-			}
-		}
-
-		return decoratedAnnouncements;
+		//MOTD announcements are published to a special site
+		List<?> l = getAnnouncements(MOTD_SITEID, params, false);
+		return l;
 	}
 	
 	// The reason this is EntityView.VIEW_LIST, is we want the URL pattern to be /announcement/channel/.... rather

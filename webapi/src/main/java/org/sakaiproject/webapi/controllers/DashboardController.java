@@ -25,6 +25,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.webapi.beans.DashboardRestBean;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.announcement.api.ViewableFilter;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -70,7 +71,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -185,13 +185,19 @@ public class DashboardController extends AbstractSakaiApiController implements E
                 .ifPresent(bean::setGivenName);
 
         try {
-            List<AnnouncementMessage> motdMessages = announcementService.getVisibleMessagesOfTheDay(null, maxNumberMotd, false);
+            List<AnnouncementMessage> motdMessages = announcementService.getMessages(
+                announcementService.getSummarizableReference(null, announcementService.MOTD_TOOL_ID),
+                new ViewableFilter(null, null, maxNumberMotd, announcementService),
+                false,
+                false);
 
-            String motd = motdMessages.stream()
-                .map(AnnouncementMessage::getBody)
-                .collect(Collectors.joining("\n"));
-
-            bean.setMotd(motd);
+            StringBuffer sb = new StringBuffer();
+            for (AnnouncementMessage motdMessage : motdMessages) {
+                sb.append(motdMessage.getBody());
+            }
+            bean.setMotd(sb.toString());
+        } catch (IdUnusedException idue) {
+            log.debug("No MOTD set.");
         } catch (Exception e) {
             log.warn("Failed to set the MOTD for {}", userId, e);
         }

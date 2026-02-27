@@ -538,20 +538,5 @@ public class AnnouncementService
 		
 		return service.getMessages(channelReference,filter, order, merged);	
 	}
-
-	/**
-	 * Returns visible MOTD announcements from the MOTD channel.
-	 * @param afterDate Optional lower-bound date filter.
-	 * @param numberOfAnnouncements Maximum number of messages to return.
-	 * @param ascending Sort order. True for oldest-first, false for newest-first.
-	 * @return list of visible MOTD announcements.
-	 */
-	public static java.util.List<AnnouncementMessage> getVisibleMessagesOfTheDay(org.sakaiproject.time.api.Time afterDate, int numberOfAnnouncements, boolean ascending)
-	{
-		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
-		if (service == null) return null;
-
-		return service.getVisibleMessagesOfTheDay(afterDate, numberOfAnnouncements, ascending);
-	}
 	
 }
