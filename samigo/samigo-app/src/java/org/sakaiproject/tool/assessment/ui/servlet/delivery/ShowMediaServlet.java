@@ -111,14 +111,13 @@ public class ShowMediaServlet extends HttpServlet
     MediaData mediaData = gradingService.getMedia(mediaId);
     String mediaLocation = mediaData.getLocation();
     int fileSize = mediaData.getFileSize().intValue();
-    log.info("****1. media file size="+fileSize);
 
     String fileName = escapeInvalidCharsEntry(mediaData.getFilename());
 
     //if setMimeType="false" in query string, implies, we want to do a forced download
     //in this case, we set contentType='application/octet-stream'
     String setMimeType = req.getParameter("setMimeType");
-    log.info("****2. setMimeType="+setMimeType);
+    log.debug("ShowMedia request: mediaId={}, fileSize={}, setMimeType={}", mediaId, fileSize, setMimeType);
 
     // get assessment's ownerId
     // String assessmentCreatedBy = req.getParameter("createdBy");
@@ -147,19 +146,27 @@ public class ShowMediaServlet extends HttpServlet
       dispatcher.forward(req, res);
     }
     else {
-      String displayType="inline";
-      if (!StringUtils.equals(mediaData.getMimeType(), "application/octet-stream") && !StringUtils.equals(setMimeType, "false")) {
-          res.setContentType(mediaData.getMimeType());
+      ContentResource cr = mediaData.getContentResource();
+      String responseContentType = StringUtils.trimToNull(cr != null ? cr.getContentType() : null);
+      if (StringUtils.isBlank(responseContentType)) {
+          responseContentType = StringUtils.trimToNull(mediaData.getMimeType());
       }
-      else {
+      boolean unknownOrGenericContentType = StringUtils.isBlank(responseContentType)
+              || StringUtils.equals(responseContentType, "application/octet-stream");
+      boolean forceDownload = unknownOrGenericContentType || StringUtils.equals(setMimeType, "false");
+      String displayType="inline";
+      if (forceDownload) {
         displayType="attachment";
-        res.setContentType("application/octet-stream");
+      }
+      if (!unknownOrGenericContentType) {
+        res.setContentType(responseContentType);
+        res.setHeader("Content-Type", responseContentType);
+        res.setHeader("X-Content-Type-Options", "nosniff");
       }
       log.debug("****"+displayType+";filename=\""+fileName+"\";");
       res.setHeader("Content-Disposition", displayType+";filename=\""+fileName+"\";");
 
       // See if we can bypass handling a large byte array
-      ContentResource cr = mediaData.getContentResource();
         try {
             URI directLink = AssessmentService.getContentHostingService().getDirectLinkToAsset(cr);
             if (directLink != null) {
@@ -174,8 +181,9 @@ public class ShowMediaServlet extends HttpServlet
                     res.addHeader("X-Sendfile", linkPath);
                     return;
                 }
-                else if (serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
+                else if (!forceDownload && serverConfigurationService.getBoolean("cloud.content.directurl", true)) {
                     log.debug("cloud.content.directurl; path={}", directLink.toString());
+                    res.setContentLength(0);
                     res.sendRedirect(directLink.toString());
                     return;
                 }
