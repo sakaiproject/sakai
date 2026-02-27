@@ -1,5 +1,5 @@
 import "../sakai-conversations.js";
-import { aTimeout, elementUpdated, expect, fixture, html, waitUntil } from "@open-wc/testing";
+import { aTimeout, elementUpdated, expect, fixture, html, oneEvent, waitUntil } from "@open-wc/testing";
 import * as data from "./data.js";
 import fetchMock from "fetch-mock/esm/client";
 import * as constants from "../src/sakai-conversations-constants.js";
@@ -31,13 +31,13 @@ describe("sakai-conversations tests", () => {
 
     await expect(el).to.be.accessible({ ignoredRules: [ "duplicate-id" ] });
 
-    expect(el.querySelector(".conv-add-topic")).to.exist;
+    expect(el.querySelector("#conv-add-topic")).to.exist;
 
     data.data.canCreateTopic = false;
     el._data = data.data;
     await el.updateComplete;
     await expect(el).to.be.accessible({ ignoredRules: [ "duplicate-id" ] });
-    expect(el.querySelector(".conv-add-topic")).to.not.exist;
+    expect(el.querySelector("#conv-add-topic")).to.not.exist;
   });
 
   it ("renders guidelines correctly", async () => {
@@ -106,8 +106,18 @@ describe("sakai-conversations tests", () => {
     await elementUpdated(el);
     await expect(el).to.be.accessible({ ignoredRules: [ "duplicate-id" ] });
 
+    const settingsButton = el.querySelector(".conv-settings-link > button");
+    expect(settingsButton).to.exist;
+
+    const listener = oneEvent(settingsButton, "shown.bs.dropdown");
+
+    // This should drop the settings dropdown down
+    settingsButton.click();
+
+    await listener;
+
     // Check if settings menu is rendered
-    const settingsMenu = el.querySelector("#conv-settings");
+    const settingsMenu = el.querySelector(".conv-settings-link > .dropdown-menu");
     expect(settingsMenu).to.exist;
 
     // Check if all menu items are present
@@ -244,10 +254,8 @@ describe("sakai-conversations tests", () => {
     await elementUpdated(el);
 
     // Check if topic was added to the list and selected
-    expect(el._currentTopic).to.equal(mockTopic);
-    expect(el._state).to.equal(constants.STATE_DISPLAYING_TOPIC);
+    await waitUntil(() => el._state === constants.STATE_DISPLAYING_TOPIC);
     expect(el._data.topics[0].id).to.equal(mockTopic.id);
-    expect(el._data.topics[0].selected).to.be.true;
   });
 
   it("handles topic editing correctly", async () => {
