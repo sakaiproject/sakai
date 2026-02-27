@@ -103,16 +103,32 @@ table{
 	{
 		@include flex-grow(1);
 
-		.sakai-table-searchFilter-searchField
+		.sakai-table-searchFilter-inputWrapper
 		{
-			margin-right: 4px;
-			width: 200px;
-			@include flex-grow(1);
+			&:has(.sakai-table-searchFilter-clearBtn) .sakai-table-searchFilter-searchField
+			{
+				padding-right: 1.5em;
+			}
+
+			.sakai-table-searchFilter-clearBtn
+			{
+				position: absolute;
+				right: 4px;
+				top: 50%;
+				transform: translateY(-50%);
+				cursor: pointer;
+				color: var(--sakai-text-color-2);
+				font-size: 0.85em;
+
+				&:hover
+				{
+					color: var(--sakai-text-color-1);
+				}
+			}
 		}
 
 		input[type=button], input[type=submit],
-		input[type=button]:disabled, input[type=submit]:disabled,
-		button, button:disabled
+		input[type=button]:disabled, input[type=submit]:disabled
 		{
 			margin: 0 4px 0 0;
 		}
@@ -247,9 +263,9 @@ table{
 			padding-left: 0;
 		}
 
-		.sakai-table-searchFilter .sakai-table-searchFilter-searchField
+		.sakai-table-searchFilter .sakai-table-searchFilter-inputWrapper
 		{
-			width: 150px;
+			min-width: 150px;
 		}
 	}
 
@@ -285,9 +301,9 @@ table{
 			@include align-items(flex-start);
 		}
 
-		.sakai-table-searchFilter .sakai-table-searchFilter-searchField
+		.sakai-table-searchFilter .sakai-table-searchFilter-inputWrapper
 		{
-			width: 100px;
+			min-width: 100px;
 		}
 	}
 }

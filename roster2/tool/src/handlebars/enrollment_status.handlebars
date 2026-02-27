@@ -25,7 +25,9 @@
         <div class="sakai-table-searchFilter">
             <label for="roster-search-field">{{tr 'roster_search_text'}}</label>
             <div class="sakai-table-searchFilterControls">
-                <input id="roster-search-field" type="text" value="{{#if searchQuery}}{{searchQuery}}{{/if}}" class="sakai-table-searchFilter-searchField" />
+                <div class="sakai-table-searchFilter-inputWrapper position-relative d-flex align-items-center flex-grow-1">
+                    <input id="roster-search-field" type="text" value="{{#if searchQuery}}{{searchQuery}}{{/if}}" class="sakai-table-searchFilter-searchField w-100" />
+                </div>
                 <input id="roster-search-button" class="active" type="button" value="{{tr 'roster_search_button'}}" />
                 <input id="roster_form_clear_button" type="button" value="{{tr 'roster_clear_button'}}" />
             </div>
