@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build --base=/meetings-ui/ --outDir ../../../target/webapp/",
+    "build": "cross-env GENERATE_STATS=1 vite build --base=/meetings-ui/ --outDir ../../../target/webapp/",
+    "deps:report": "node deployed-deps.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -19,6 +20,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.5",
+    "cross-env": "^7.0.3",
+    "rollup-plugin-visualizer": "^5.14.0",
     "sass": "^1.62.1",
     "vite": "^5.3.1"
   }
