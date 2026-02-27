@@ -4755,6 +4755,12 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
             ? CalendarEvent.EventAccess.GROUPED
             : CalendarEvent.EventAccess.SITE;
         Collection<Group> importedEventGroups = getImportedAssignmentGroups(importedAssignment);
+        if (importedAssignment.getTypeOfAccess() == GROUP && CollectionUtils.isEmpty(importedEventGroups)) {
+            log.warn("No groups resolved for grouped imported assignment {} in site {}. "
+                    + "Skipping due date calendar event import to avoid creating a no-audience event.",
+                importedAssignment.getId(), importedAssignment.getContext());
+            return;
+        }
 
         Calendar toCalendar;
         String toCalendarId = calendarService.calendarReference(importedAssignment.getContext(), SiteService.MAIN_CONTAINER);
@@ -4873,24 +4879,16 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 header.setSubject(subject);
 
                 if (importedAssignment.getTypeOfAccess() == GROUP) {
-                    try {
-                        Site site = siteService.getSite(importedAssignment.getContext());
-                        Collection<Group> groups = new ArrayList<>();
-                        for (String groupRef : importedAssignment.getGroups()) {
-                            Group group = site.getGroup(groupRef);
-                            if (group != null) {
-                                groups.add(group);
-                            }
-                        }
-                        header.setGroupAccess(groups);
-                    } catch (IdUnusedException e) {
-                        log.warn("Failed setting group access on imported announcement for assignment {} in site {}. "
-                                + "Canceling pending announcement edit to avoid broad access.",
-                            importedAssignment.getId(), importedAssignment.getContext(), e);
+                    Collection<Group> groups = getImportedAssignmentGroups(importedAssignment);
+                    if (CollectionUtils.isEmpty(groups)) {
+                        log.warn("No groups resolved for grouped imported assignment {} in site {}. "
+                                + "Canceling pending announcement edit to avoid creating a no-audience announcement.",
+                            importedAssignment.getId(), importedAssignment.getContext());
                         channel.cancelMessage(message);
                         message = null;
                         return;
                     }
+                    header.setGroupAccess(groups);
                 } else {
                     header.clearGroupAccess();
                 }
