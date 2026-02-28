@@ -9,6 +9,11 @@ parent.location = "$returnUrl";
 <script type="text/javascript">
 // The CKEDITOR has a bit of code that collapses our enclosing frame down in Chrome SAK-45044 - so we put it back up right before we redirect
 try { window.frameElement.style.height= '450px'; } catch(e) { };
+#if ( $forceLight )
+try { if (window.frameElement) window.frameElement.classList.add('sakai-iframe-force-light'); } catch(e) { };
+#else
+try { if (window.frameElement) window.frameElement.classList.remove('sakai-iframe-force-light'); } catch(e) { };
+#end
 setTimeout(function(){ location.href="$forwardUrl"} , 500);
 setMainFrameHeight = function () { console.log('setMainFrameHeight suppressed'); };
 </script>

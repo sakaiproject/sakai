@@ -87,6 +87,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.foorm.SakaiFoorm;
 import org.sakaiproject.time.api.UserTimeService;
@@ -2932,6 +2933,8 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		}
 		log.debug("Forwarding frame to={}", returnUrl);
 		context.put("forwardUrl", returnUrl);
+		boolean forceLight = !IframeUrlUtil.isLocalToSakai(returnUrl, serverConfigurationService.getServerUrl());
+		context.put("forceLight", Boolean.valueOf(forceLight));
 		return "lti_content_redirect";
 	}
 
@@ -3121,6 +3124,8 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		context.put("returnUrl", returnUrl);
 		if (allowLinkSelection > 0) {
 			context.put("contentLaunch", contentLaunch);
+			boolean contentLaunchForceLight = !IframeUrlUtil.isLocalToSakai(contentLaunch, serverConfigurationService.getServerUrl());
+			context.put("contentLaunchForceLight", Boolean.valueOf(contentLaunchForceLight));
 		}
 		// If this tool only allows configuration, go straight to Content Item
 		if (allowLinkSelection > 0 && allowLaunch < 1) {
@@ -3351,6 +3356,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 					+ "&" + RequestFilter.ATTR_SESSION + "=" + URLEncoder.encode(sessionid + "." + suffix);
 			log.debug("Forwarding non CI/DL tool to {}", configUrl);
 			context.put("forwardUrl", configUrl);
+			context.put("forceLight", Boolean.FALSE);
 			return "lti_content_redirect";
 		}
 
@@ -3400,6 +3406,7 @@ public List<LtiToolBean> getAvailableToolsAsBeans(String ourSite, String context
 		contentLaunch = ContentItem.buildLaunch(contentLaunch, contentReturn, contentData);
 		log.debug("Redirecting to DL/CI launch to={}", contentLaunch);
 		context.put("forwardUrl", contentLaunch);
+		context.put("forceLight", Boolean.TRUE);
 		return "lti_content_redirect";
 	}
 

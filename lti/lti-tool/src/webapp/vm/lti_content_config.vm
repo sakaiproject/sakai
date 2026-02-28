@@ -2,11 +2,23 @@
 #if ( $autoLaunch ) 
 <p>$tlang.getString("content.redirecting")</p>
 <script type="text/javascript"><!--
+try {
+  if (window.frameElement) {
+    if ($contentLaunchForceLight) {
+      window.frameElement.classList.add('sakai-iframe-force-light');
+    } else {
+      window.frameElement.classList.remove('sakai-iframe-force-light');
+    }
+  }
+} catch(e) { };
 setTimeout('window.location="$autoLaunch";', 1500);
 setTimeout(function() { alert('$tlang.getString("error.submit.timeout")'); }, 5000);
 // -->
 </script>
 #else
+<script type="text/javascript">
+try { if (window.frameElement) window.frameElement.classList.remove('sakai-iframe-force-light'); } catch(e) { };
+</script>
 <script type="text/javascript" src="/library/js/headscripts.js"></script>
 <script>
 	includeLatestJQuery('lti_content_config.vm');
@@ -27,7 +39,11 @@ setTimeout(function() { alert('$tlang.getString("error.submit.timeout")'); }, 50
 $tlang.getString("contentitem.detail")
 </p>
 <p>
-<a href="$contentLaunch">$tlang.getString("contentitem.link")</a>
+#if ( $contentLaunchForceLight )
+<a href="$contentLaunch" onclick="try { if (window.frameElement) window.frameElement.classList.add('sakai-iframe-force-light'); } catch(e) { }">$tlang.getString("contentitem.link")</a>
+#else
+<a href="$contentLaunch" onclick="try { if (window.frameElement) window.frameElement.classList.remove('sakai-iframe-force-light'); } catch(e) { }">$tlang.getString("contentitem.link")</a>
+#end
 </p>
 </p>
 #end
