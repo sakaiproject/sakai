@@ -30,9 +30,10 @@ test.describe('Assignments', () => {
     await page.locator('div.act input.active').first().click({ force: true });
 
     await page.locator('.itemAction a').last().click({ force: true });
-    await page.waitForTimeout(5000);
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
 
     const newGraderToggle = page.locator('sakai-grader-toggle input').first();
+    await newGraderToggle.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
     const studentSubmissionLink = page.locator('#submissionList a').filter({ hasText: 'student0011' }).first();
 
     if (await newGraderToggle.count() && await studentSubmissionLink.count()) {
@@ -49,7 +50,8 @@ test.describe('Assignments', () => {
     }
 
     await page.locator('.itemAction a').last().click({ force: true });
-    await page.waitForTimeout(5000);
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
+    await newGraderToggle.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
 
     if (await newGraderToggle.count() && await studentSubmissionLink.count()) {
       await newGraderToggle.uncheck({ force: true });
@@ -196,9 +198,10 @@ test.describe('Assignments', () => {
     await sakai.toolClick('Assignments');
 
     await page.locator('.itemAction a').filter({ hasText: 'Grade' }).first().click({ force: true });
-    await page.waitForTimeout(5000);
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
 
     const newGraderToggle = page.locator('sakai-grader-toggle input').first();
+    await newGraderToggle.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
     if (await newGraderToggle.count()) {
       await newGraderToggle.check({ force: true });
     }
@@ -243,9 +246,10 @@ test.describe('Assignments', () => {
     await page.locator('div.act input.active').first().click({ force: true });
 
     await page.locator('.itemAction a').last().click({ force: true });
-    await page.waitForTimeout(5000);
+    await page.waitForLoadState('domcontentloaded').catch(() => {});
 
     const newGraderToggle = page.locator('sakai-grader-toggle input').first();
+    await newGraderToggle.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
     if (await newGraderToggle.count()) {
       await newGraderToggle.uncheck({ force: true });
     }

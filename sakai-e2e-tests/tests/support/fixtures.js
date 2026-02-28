@@ -70,6 +70,10 @@ function createSakaiHelpers(page, baseURL) {
     },
 
     async login(username) {
+      // Ensure each login starts from a clean browser session.
+      await page.context().clearCookies();
+      await page.goto('about:blank');
+
       await page.request.get(absoluteUrl(baseURL, '/portal/xlogin'), { failOnStatusCode: false });
 
       const response = await page.request.post(absoluteUrl(baseURL, '/portal/xlogin'), {
@@ -84,6 +88,12 @@ function createSakaiHelpers(page, baseURL) {
 
       await helpers.goto('/portal/');
       await page.evaluate(async () => {
+        try {
+          sessionStorage.clear();
+          localStorage.clear();
+        } catch (error) {
+          // Ignore storage clear failures in restrictive browser contexts.
+        }
         sessionStorage.setItem('tutorialFlagSet', 'true');
         localStorage.setItem('tutorialFlagSet', 'true');
         if (window.portal && window.portal.user && window.portal.user.id) {

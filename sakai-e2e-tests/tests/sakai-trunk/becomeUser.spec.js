@@ -8,9 +8,13 @@ test.describe('Become User', () => {
     await page.goto('/portal/site/!admin');
 
     await expect(page.getByRole('link', { name: /Administration Workspace/i }).first()).toBeVisible();
-    await page.getByRole('link', { name: /^Become User$/i }).first().click({ force: true });
+    await sakai.toolClick(/Become User/i);
 
-    await page.locator('#su input[type="text"]').fill('instructor1');
+    const becomeUserForm = page.locator('#su').first();
+    await expect(becomeUserForm).toBeVisible();
+    const becomeUserInput = becomeUserForm.locator('input[type="text"]').first();
+    await expect(becomeUserInput).toBeVisible();
+    await becomeUserInput.fill('instructor1');
     await page.locator('#su\\:become').click();
 
     await page.goto('/portal/site/!admin');

@@ -19,7 +19,18 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
-          cache: maven
+
+      - name: Cache Maven local repository
+        id: cache-maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Maven cache status
+        run: echo "Maven cache hit = ${{ steps.cache-maven.outputs.cache-hit }}"
 
       - name: Node 20
         uses: actions/setup-node@v4
