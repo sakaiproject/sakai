@@ -11,6 +11,27 @@ test.describe('Assignments', () => {
     'sakai\\.gradebookng',
   ];
 
+  const proceedAndSubmitAssignment = async (page) => {
+    const proceedButton = page.locator([
+      '.act input[type="submit"][value*="Proceed"]',
+      '.act input[type="button"][value*="Proceed"]',
+      '.act button:has-text("Proceed")',
+    ].join(', ')).first();
+    await expect(proceedButton).toBeVisible({ timeout: 20000 });
+    await proceedButton.scrollIntoViewIfNeeded().catch(() => {});
+    await proceedButton.click({ force: true });
+
+    const submitButton = page.locator([
+      '.act input[type="submit"][value*="Submit"]',
+      '.act input[type="button"][value*="Submit"]',
+      '.act button:has-text("Submit")',
+      '.act button:has-text("Submit for Grading")',
+    ].join(', ')).first();
+    await expect(submitButton).toBeVisible({ timeout: 20000 });
+    await submitButton.scrollIntoViewIfNeeded().catch(() => {});
+    await submitButton.click({ force: true });
+  };
+
   const ensureCourseUrl = async (sakai) => {
     if (sakaiUrl) {
       return sakaiUrl;
@@ -270,12 +291,8 @@ test.describe('Assignments', () => {
     }
 
     await sakai.typeCkEditor('Assignment.view_submission_text', '<p>This is my submission text</p>');
-    await page.locator('.act input.active').first().click({ force: true });
-
-    const submitButton = page.locator('.act input.active[value*="Submit"], .act button.active:has-text("Submit")').first();
-    await expect(submitButton).toBeVisible();
-    await submitButton.click({ force: true });
-    await expect(page.locator('h3')).toContainText('Submission Confirm');
+    await proceedAndSubmitAssignment(page);
+    await expect(page.getByRole('heading', { name: /Submission Confirmation/i })).toBeVisible();
     await page.locator('.act input.active[value*="Back to list"], .act button.active:has-text("Back to list")').first().click({ force: true });
   });
 
@@ -309,11 +326,8 @@ test.describe('Assignments', () => {
     }
 
     await sakai.typeCkEditor('Assignment.view_submission_text', '<p>This is my submission text</p>');
-    await page.locator('.act input.active').first().click({ force: true });
-    const submitButton = page.locator('.act input.active[value*="Submit"], .act button.active:has-text("Submit")').first();
-    await expect(submitButton).toBeVisible();
-    await submitButton.click({ force: true });
-    await expect(page.locator('h3')).toContainText('Submission Confirm');
+    await proceedAndSubmitAssignment(page);
+    await expect(page.getByRole('heading', { name: /Submission Confirmation/i })).toBeVisible();
     await page.locator('.act input.active[value*="Back to list"], .act button.active:has-text("Back to list")').first().click({ force: true });
   });
 
