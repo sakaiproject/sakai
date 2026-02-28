@@ -213,7 +213,31 @@ protected void init() throws Exception {
          {
             ChatEntityProducer ms = (ChatEntityProducer) ep;
             ChatMessage m = ms.getMessage(ref);
-            return m.getBody();
+            //MessageHeader mh = m.getHeader();
+            StringBuilder sb = new StringBuilder();
+            //Class c = mh.getClass();
+
+            sb.append(getMessageFromBundle("chat_header")); //$NON-NLS-1$
+            sb.append(getMessageFromBundle("chat_from"));
+            String context = m.getChatChannel().getContext();
+            SearchUtils.appendCleanString(getMessageOwnerDisplayName(m.getOwner(),context),sb); //$NON-NLS-1$
+            sb.append("\n"); //$NON-NLS-1$
+            sb.append(getMessageFromBundle("chat_body")); //$NON-NLS-1$
+            SearchUtils.appendCleanString(m.getBody(), sb);
+
+            //Chat messages do not contain html so this should be ignored...chmaurer
+            /*
+            for ( HTMLParser hp = new HTMLParser(mBody); hp.hasNext(); ) {
+               SearchUtils.appendCleanString(hp.next(), sb);
+               sb.append(" ");
+            }
+            */
+
+            sb.append("\n"); //$NON-NLS-1$
+            log.debug("Message Content for {} is {}", ref.getReference(), //$NON-NLS-1$ //$NON-NLS-2$
+                    sb.toString());
+
+            return sb.toString();
          }
          catch (IdUnusedException e)
          {
