@@ -1,8 +1,14 @@
 const { test, expect } = require('../support/fixtures');
 
 async function clickSubmit(page, label, options = {}) {
+  const timeout = Number.isFinite(options.timeout) ? options.timeout : 30000;
   const locator = page.locator(`input[type="submit"][value*="${label}"], button:has-text("${label}")`).first();
-  await locator.click({ force: true, ...options });
+  await locator.click({ force: true, timeout });
+}
+
+async function saveQuestionAndWaitForAssessment(page) {
+  await clickSubmit(page, 'Save');
+  await expect(page.locator('#assessmentForm\\:parts')).toBeVisible({ timeout: 30000 });
 }
 
 function optionMatchesPattern(label, pattern) {
@@ -112,13 +118,13 @@ test.describe('Samigo', () => {
     await page.locator('#itemForm\\:mcchoices textarea').nth(1).fill('The reduced death rate among infants and young children.');
     await page.locator('#itemForm\\:mcchoices textarea').nth(2).fill('The substitution of machines for human labor.');
     await page.locator('#itemForm\\:mcchoices input[type="radio"]').nth(1).check({ force: true });
-    await clickSubmit(page, 'Save');
+    await saveQuestionAndWaitForAssessment(page);
 
     await expect(page.locator('#assessmentForm\\:parts\\:0\\:parts\\:0\\:answerptr')).toHaveValue('99.99');
     await page.locator('#assessmentForm\\:parts\\:0\\:parts\\:0\\:modify').click({ force: true });
     await page.locator('#itemForm\\:answerptr').fill('100.00');
     await page.locator('#itemForm\\:mcchoices textarea').nth(3).fill('Safer cars.');
-    await clickSubmit(page, 'Save');
+    await saveQuestionAndWaitForAssessment(page);
 
     await selectSamigoQuestionType(page, /multiple\s*choice/i);
     await page.locator('#itemForm\\:answerptr').fill('100.00');
@@ -128,7 +134,7 @@ test.describe('Samigo', () => {
     await page.locator('#itemForm\\:mcchoices textarea').nth(2).fill('The east was preparing for a civil war.');
     await page.locator('#itemForm\\:mcchoices textarea').nth(3).fill('They wanted to establish religious settlements.');
     await page.locator('#itemForm\\:mcchoices input[type="radio"]').nth(1).check({ force: true });
-    await clickSubmit(page, 'Save');
+    await saveQuestionAndWaitForAssessment(page);
 
     await expect(page.locator('#assessmentForm\\:parts .samigo-question-callout')).toHaveCount(2);
 
@@ -160,7 +166,7 @@ test.describe('Samigo', () => {
     }
 
     await page.locator('#itemForm\\:formulas textarea').first().fill('{x} + {y} - {z}');
-    await clickSubmit(page, 'Save');
+    await saveQuestionAndWaitForAssessment(page);
     await expect(page.locator('#assessmentForm\\:parts .samigo-question-callout')).toHaveCount(2);
 
     await page.getByRole('link', { name: 'Settings' }).click({ force: true });
@@ -249,7 +255,7 @@ test.describe('Samigo', () => {
 
     await page.locator('#assessmentForm\\:parts\\:0\\:parts\\:0\\:modify').click({ force: true });
     await page.locator('#itemForm textarea').first().fill('This is edited question text');
-    await clickSubmit(page, 'Save');
+    await saveQuestionAndWaitForAssessment(page);
 
     await expect(page.locator('#assessmentForm\\:parts .samigo-question-callout')).toHaveCount(2);
     const publishOrRepublish = page.locator(
@@ -276,7 +282,7 @@ test.describe('Samigo', () => {
     await sakai.toolClick('Tests');
     const testsUrl = page.url();
 
-    await page.locator('#authorIndexForm a').filter({ hasText: 'Add' }).first().click({ force: true });
+    await openNewAssessmentForm(page);
     await page.locator('#authorIndexForm\\:title').fill(previewTitle);
     await page.locator('#authorIndexForm\\:createnew').click({ force: true });
 
@@ -286,7 +292,7 @@ test.describe('Samigo', () => {
     await page.locator('#itemForm\\:mcchoices textarea').nth(0).fill('Option A');
     await page.locator('#itemForm\\:mcchoices textarea').nth(1).fill('Option B');
     await page.locator('#itemForm\\:mcchoices input[type="radio"]').nth(0).check({ force: true });
-    await clickSubmit(page, 'Save');
+    await saveQuestionAndWaitForAssessment(page);
 
     await page.locator('.navViewAction').filter({ hasText: 'Preview' }).first().click({ force: true });
 
