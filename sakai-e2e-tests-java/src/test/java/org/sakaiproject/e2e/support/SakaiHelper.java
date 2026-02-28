@@ -478,7 +478,7 @@ public class SakaiHelper {
         return baseUrl + "/" + urlOrPath;
     }
 
-    private String passwordFor(String username) {
+    public String passwordFor(String username) {
         return "admin".equals(username) ? "admin" : "sakai";
     }
 

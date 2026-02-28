@@ -20,7 +20,6 @@ import org.sakaiproject.e2e.support.SakaiUiTestBase;
 class LoginTest extends SakaiUiTestBase {
 
     private static final String USERNAME = "instructor1";
-    private static final String PASSWORD = "sakai";
 
     private String effectiveUsername() {
         return sakai.resolveUsername(USERNAME);
@@ -38,7 +37,7 @@ class LoginTest extends SakaiUiTestBase {
     void displaysErrorsOnLogin() {
         page.navigate("/portal/");
         page.locator("input[name=\"eid\"]").fill("badusername");
-        page.locator("input[name=\"pw\"]").fill("sakai");
+        page.locator("input[name=\"pw\"]").fill(sakai.passwordFor("badusername"));
         page.locator("input[name=\"pw\"]").press("Enter");
 
         assertThat(page.locator("div.alert")).containsText("Invalid login");
@@ -51,7 +50,7 @@ class LoginTest extends SakaiUiTestBase {
         String username = effectiveUsername();
         page.navigate("/portal/");
         page.locator("input[name=\"eid\"]").fill(username);
-        page.locator("input[name=\"pw\"]").fill(PASSWORD);
+        page.locator("input[name=\"pw\"]").fill(sakai.passwordFor(username));
         page.locator("input[name=\"pw\"]").press("Enter");
 
         assertThat(page).hasURL(Pattern.compile("/portal"));
@@ -67,7 +66,7 @@ class LoginTest extends SakaiUiTestBase {
         APIResponse response = page.request().post("/portal/",
             RequestOptions.create().setForm(FormData.create()
                 .set("username", username)
-                .set("password", PASSWORD)));
+                .set("password", sakai.passwordFor(username))));
 
         int status = response.status();
         assertTrue(status == 200 || status == 302 || status == 303);

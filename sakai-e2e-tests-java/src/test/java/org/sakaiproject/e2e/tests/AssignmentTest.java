@@ -1,6 +1,7 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -164,7 +165,7 @@ class AssignmentTest extends SakaiUiTestBase {
 
         Locator gradeAction = page.locator(".itemAction a").filter(new Locator.FilterOptions().setHasText(Pattern.compile("Grade|View Submissions", Pattern.CASE_INSENSITIVE))).first();
         if (gradeAction.count() == 0) {
-            return;
+            fail("Missing grader action for assignment submission; expected Grade/View Submissions link before resubmission flow.");
         }
 
         gradeAction.click(new Locator.ClickOptions().setForce(true));
