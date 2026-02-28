@@ -20,18 +20,17 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      - name: Cache Maven local repository
-        id: cache-maven
-        uses: actions/cache@v4
+      - name: Restore Maven local repository cache
+        id: cache-maven-restore
+        uses: actions/cache/restore@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-m2-
-          save-always: true
 
       - name: Maven cache status
-        run: echo "Maven cache hit = ${{ steps.cache-maven.outputs.cache-hit }}"
+        run: echo "Maven cache hit = ${{ steps.cache-maven-restore.outputs.cache-hit }}"
 
       - name: Node 20
         uses: actions/setup-node@v4
@@ -64,6 +63,13 @@ jobs:
           mvn --batch-mode -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
           bin/catalina.sh start
+
+      - name: Save Maven local repository cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ steps.cache-maven-restore.outputs.cache-primary-key }}
 
       - name: Wait for Sakai
         run: |

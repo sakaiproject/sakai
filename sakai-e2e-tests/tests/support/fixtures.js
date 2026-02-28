@@ -69,6 +69,24 @@ function parsePortalSiteId(urlOrPath, baseURL) {
   }
 }
 
+function parseToolPath(urlOrPath, baseURL) {
+  try {
+    const parsed = new URL(urlOrPath, baseURL);
+    const match = parsed.pathname.match(/^(\/portal\/site\/[^/]+)\/tool(?:-reset)?\/([^/?#]+)/);
+    if (!match) {
+      return null;
+    }
+
+    return {
+      origin: `${parsed.protocol}//${parsed.host}`,
+      sitePath: match[1],
+      toolId: match[2],
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
 function createSakaiHelpers(page, baseURL) {
   const helpers = {
     randomId() {
@@ -101,11 +119,11 @@ function createSakaiHelpers(page, baseURL) {
         try {
           sessionStorage.clear();
           localStorage.clear();
+          sessionStorage.setItem('tutorialFlagSet', 'true');
+          localStorage.setItem('tutorialFlagSet', 'true');
         } catch (error) {
-          // Ignore storage clear failures in restrictive browser contexts.
+          // Ignore storage access failures in restrictive browser contexts.
         }
-        sessionStorage.setItem('tutorialFlagSet', 'true');
-        localStorage.setItem('tutorialFlagSet', 'true');
         if (window.portal && window.portal.user && window.portal.user.id) {
           const userId = window.portal.user.id;
           await fetch(`/direct/userPrefs/updateKey/${userId}/sakai:portal:tutorialFlag?tutorialFlag=1`, {
@@ -209,6 +227,23 @@ function createSakaiHelpers(page, baseURL) {
       }
 
       throw new Error(`Unable to click tool navigation item: ${String(labelOrRegex)}`);
+    },
+
+    async gotoCurrentToolView(view) {
+      const toolPath = parseToolPath(page.url(), baseURL);
+      if (!toolPath) {
+        return false;
+      }
+
+      const viewUrl = `${toolPath.origin}${toolPath.sitePath}/tool-reset/${toolPath.toolId}`
+        + `?view=${encodeURIComponent(view)}&sakai_action=doView`;
+      await page.goto(viewUrl);
+      await page.waitForLoadState('domcontentloaded').catch(() => {});
+      return true;
+    },
+
+    async gotoAssignmentsList() {
+      return helpers.gotoCurrentToolView('lisofass1');
     },
 
     async createCourse(username, toolIds) {
@@ -526,7 +561,10 @@ function createSakaiHelpers(page, baseURL) {
 
     async checkA11y(impacts) {
       const analysis = await new AxeBuilder({ page }).analyze();
-      const violations = analysis.violations.filter((violation) => impacts.includes(violation.impact));
+      const useImpactFilter = Array.isArray(impacts) && impacts.length > 0;
+      const violations = useImpactFilter
+        ? analysis.violations.filter((violation) => impacts.includes(violation.impact))
+        : analysis.violations;
       base.expect(
         violations,
         violations.map((violation) => `${violation.id} (${violation.impact})`).join(', '),
