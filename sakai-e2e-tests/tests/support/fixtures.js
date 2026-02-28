@@ -47,6 +47,15 @@ function toDateTimeLocal(value) {
   return `${year}-${month}-${day}T${String(hour).padStart(2, '0')}:${minute}`;
 }
 
+function formatDateTimeLocal(date) {
+  const yyyy = String(date.getFullYear());
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const hh = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+}
+
 function escapeRegex(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -397,66 +406,107 @@ function createSakaiHelpers(page, baseURL) {
     },
 
     async normalizeAssignmentFormDefaults() {
+      const now = new Date();
+      const openDate = new Date(now.getTime() - (30 * 60 * 1000));
+      const dueDate = new Date(now.getTime() + (24 * 60 * 60 * 1000));
+      const closeDate = new Date(now.getTime() + (48 * 60 * 60 * 1000));
+
+      const fillVisibleDate = async (selectors, date) => {
+        const value = formatDateTimeLocal(date);
+        for (const selector of selectors) {
+          const input = page.locator(selector).first();
+          if (!(await input.count()) || !(await input.isVisible().catch(() => false))) {
+            continue;
+          }
+
+          const type = await input.getAttribute('type');
+          if (type === 'datetime-local') {
+            await input.fill(value);
+          } else {
+            await input.fill(value);
+          }
+
+          await input.evaluate((node) => {
+            node.dispatchEvent(new Event('input', { bubbles: true }));
+            node.dispatchEvent(new Event('change', { bubbles: true }));
+            node.dispatchEvent(new Event('blur', { bubbles: true }));
+          });
+          return true;
+        }
+
+        return false;
+      };
+
+      await fillVisibleDate([
+        'input[type="datetime-local"][aria-label="Open Date"]',
+        'input[aria-label="Open Date"]',
+      ], openDate);
+
+      await fillVisibleDate([
+        'input[type="datetime-local"][aria-label="Due Date"]',
+        'input[aria-label="Due Date"]',
+      ], dueDate);
+
+      await fillVisibleDate([
+        'input[type="datetime-local"][aria-label="Accept Until"]',
+        'input[type="datetime-local"][aria-label="Close Date"]',
+        'input[aria-label="Accept Until"]',
+        'input[aria-label="Close Date"]',
+      ], closeDate);
+
+      const dateState = await page.evaluate(() => {
+        const form = document.querySelector('form#newAssignmentForm, form[name="newAssignmentForm"]');
+        if (!form) {
+          return null;
+        }
+
+        const collect = (prefix) => {
+          const parts = ['year', 'month', 'day', 'hour', 'min'];
+          const values = {};
+          let presentCount = 0;
+
+          for (const part of parts) {
+            const field = form.querySelector(`input[name="${prefix}_${part}"]`);
+            const value = field ? String(field.value || '') : '';
+            if (field) {
+              presentCount += 1;
+            }
+            values[part] = value;
+          }
+
+          return { presentCount, values };
+        };
+
+        return {
+          new_assignment_open: collect('new_assignment_open'),
+          new_assignment_due: collect('new_assignment_due'),
+          new_assignment_close: collect('new_assignment_close'),
+          allow_resubmit_close: collect('allow_resubmit_close'),
+        };
+      });
+
+      if (dateState) {
+        const requiredPrefixes = ['new_assignment_open', 'new_assignment_due', 'new_assignment_close'];
+        for (const prefix of requiredPrefixes) {
+          const state = dateState[prefix];
+          if (!state || state.presentCount === 0) {
+            throw new Error(`Assignment form is missing hidden date fields for ${prefix}`);
+          }
+
+          for (const [part, value] of Object.entries(state.values)) {
+            if (!/^\d+$/.test(value)) {
+              throw new Error(`Invalid assignment date field: ${prefix}_${part}=${JSON.stringify(value)}`);
+            }
+          }
+        }
+
+        // allow_resubmit_close is optional and may remain unset unless resubmissions are enabled.
+      }
+
       await page.evaluate(() => {
         const form = document.querySelector('form#newAssignmentForm, form[name="newAssignmentForm"]');
         if (!form) {
           return;
-        }
-
-        const formatIso = (date) => (
-          `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-          + `-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}`
-          + `:${String(date.getMinutes()).padStart(2, '0')}`
-        );
-
-        const setDateFields = (prefix, date) => {
-          const values = {
-            year: String(date.getFullYear()),
-            month: String(date.getMonth() + 1),
-            day: String(date.getDate()),
-            hour: String(date.getHours()),
-            min: String(date.getMinutes()),
-          };
-
-          for (const [part, value] of Object.entries(values)) {
-            let input = form.querySelector(`input[name="${prefix}_${part}"]`);
-            if (!input) {
-              input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = `${prefix}_${part}`;
-              form.appendChild(input);
-            }
-            input.value = value;
-          }
-        };
-
-        const hasInvalidDateFields = (prefix) => {
-          const fields = ['year', 'month', 'day', 'hour', 'min']
-            .map((part) => form.querySelector(`input[name="${prefix}_${part}"]`));
-          return fields.some((field) => !field || !/^\d+$/.test(String(field.value || '')));
-        };
-
-        const now = new Date();
-        const openDate = new Date(now.getTime() - (30 * 60 * 1000));
-        const dueDate = new Date(now.getTime() + (24 * 60 * 60 * 1000));
-        const closeDate = new Date(now.getTime() + (48 * 60 * 60 * 1000));
-
-        const ensureDate = (prefix, date, pickerId) => {
-          if (hasInvalidDateFields(prefix)) {
-            setDateFields(prefix, date);
-          }
-          const picker = document.querySelector(`sakai-date-picker#${pickerId}`);
-          if (picker) {
-            picker.setAttribute('iso-date', formatIso(date));
-          }
-        };
-
-        ensureDate('new_assignment_open', openDate, 'opendate');
-        ensureDate('new_assignment_due', dueDate, 'duedate');
-        ensureDate('new_assignment_close', closeDate, 'closedate');
-
-        if (hasInvalidDateFields('allow_resubmit_close')) {
-          setDateFields('allow_resubmit_close', closeDate);
         }
 
         const gradeAssignment = form.querySelector('#gradeAssignment');
