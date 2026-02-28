@@ -41,6 +41,7 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.api.TermFrequency;
 
 import lombok.extern.slf4j.Slf4j;
@@ -133,7 +134,7 @@ public class ElasticSearchResult implements SearchResult {
                 return "";
             }
 
-            String content = sep.getContent(reference);
+            String content = SearchUtils.stripHtml(sep.getContent(reference));
             if (content == null || content.trim().isEmpty()) {
                 return "";
             }

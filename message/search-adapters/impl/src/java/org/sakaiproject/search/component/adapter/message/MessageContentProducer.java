@@ -54,7 +54,6 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
-import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 import org.sakaiproject.site.api.SiteService;
@@ -178,7 +177,7 @@ public class MessageContentProducer implements EntityContentProducer
 				MessageService ms = (MessageService) ep;
 				Message m = ms.getMessage(ref);
 
-				return HTMLParser.stripHtml(m.getBody());
+				return m.getBody();
 			}
 			catch (IdUnusedException e)
 			{

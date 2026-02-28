@@ -40,7 +40,6 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -102,13 +101,13 @@ public class CommonsContentProducer implements EntityContentProducer {
 
         if (CommonsConstants.PostType.COMMENT == r.getType()) {
             return commonsManager.getComment(r.getCommentId())
-                    .map(c -> HTMLParser.stripHtml(c.getContent()))
+                    .map(c -> c.getContent())
                     .orElse("");
         }
 
         if (CommonsConstants.PostType.POST == r.getType()) {
             return commonsManager.getPost(r.getPostId(), false)
-                    .map(p -> HTMLParser.stripHtml(p.getContent()))
+                    .map(p -> p.getContent())
                     .orElse("");
         }
 

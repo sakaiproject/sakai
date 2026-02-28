@@ -43,7 +43,6 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchUtils;
-import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 import org.sakaiproject.site.api.SiteService;
@@ -159,7 +158,7 @@ public class LessonsEntityContentProducer implements EntityContentProducer, Enti
 		
 		SimplePageItem item = simplePageToolDao.findItem(id);
 		if (item != null) {
-			return HTMLParser.stripHtml(item.getHtml());
+			return item.getHtml();
         }
 		else {
 			log.info("Could not getContent for reference  "+id);
