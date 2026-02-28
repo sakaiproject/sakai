@@ -322,12 +322,52 @@ function createSakaiHelpers(page, baseURL) {
 
       const addCourseForm = page.locator('form[name="addCourseForm"]');
       await base.expect(addCourseForm).toBeVisible();
+      const ensureCourseSelection = async () => {
+        const selected = addCourseForm.locator('input[type="checkbox"]:checked:not([disabled])');
+        if (await selected.count()) {
+          return;
+        }
+
+        const selectable = addCourseForm.locator('input[type="checkbox"]:not([disabled]):not(:checked)');
+        const selectableCount = await selectable.count();
+        for (let index = 0; index < selectableCount; index += 1) {
+          const candidate = selectable.nth(index);
+          if (await candidate.isVisible()) {
+            await candidate.check({ force: true }).catch(async () => {
+              await candidate.click({ force: true });
+            });
+            return;
+          }
+        }
+      };
+
+      const goToSiteTitleStep = async () => {
+        const titleTextarea = page.locator('textarea').last();
+        for (let attempt = 0; attempt < 4; attempt += 1) {
+          if (await titleTextarea.isVisible().catch(() => false)) {
+            return titleTextarea;
+          }
+
+          if (await addCourseForm.isVisible().catch(() => false)) {
+            await ensureCourseSelection();
+            await clickContinue();
+            await dismissTutorial();
+            continue;
+          }
+
+          await page.waitForLoadState('domcontentloaded').catch(() => {});
+        }
+
+        throw new Error('Unable to reach course title step during site creation');
+      };
+
       const addCourseText = (await addCourseForm.textContent()) || '';
       if (addCourseText.includes('select anyway')) {
         await page.getByRole('link', { name: /select anyway/i }).first().click({ force: true });
       } else {
         await addCourseForm.locator('input[type="checkbox"]').first().check({ force: true });
       }
+      await ensureCourseSelection();
 
       const courseDesc = page.locator('form input#courseDesc1');
       if (await courseDesc.count()) {
@@ -336,7 +376,8 @@ function createSakaiHelpers(page, baseURL) {
 
       await clickContinue();
       await dismissTutorial();
-      await page.locator('textarea').last().fill('Playwright Testing');
+      const siteTitle = await goToSiteTitleStep();
+      await siteTitle.fill('Playwright Testing');
       await clickContinue();
 
       const manageToolsHeading = page.getByRole('heading', { name: /Manage Tools/i });

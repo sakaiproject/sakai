@@ -12,6 +12,20 @@ test.describe('Samigo', () => {
   const samigoTitle = `Playwright Quiz ${Date.now()}`;
   const essayTitle = `Essay with Rubric ${Date.now()}`;
 
+  const openNewAssessmentForm = async (page) => {
+    const addLink = page.locator('#authorIndexForm a').filter({ hasText: /^Add$/i }).first();
+    await expect(addLink).toBeVisible();
+
+    const href = await addLink.getAttribute('href');
+    await addLink.click({ force: true });
+
+    const titleInput = page.locator('#authorIndexForm\\:title');
+    if (!(await titleInput.isVisible({ timeout: 10000 }).catch(() => false)) && href && href !== '#') {
+      await page.goto(href);
+    }
+    await expect(titleInput).toBeVisible();
+  };
+
   test('can create a new course', async ({ sakai }) => {
     await sakai.login('instructor1');
     sakaiUrl = await sakai.createCourse('instructor1', ['sakai\\.rubrics', 'sakai\\.samigo']);
@@ -21,8 +35,9 @@ test.describe('Samigo', () => {
     await sakai.login('instructor1');
     await page.goto(sakaiUrl);
     await sakai.toolClick('Tests');
+    const testsToolUrl = page.url();
 
-    await page.locator('#authorIndexForm a').filter({ hasText: 'Add' }).first().click({ force: true });
+    await openNewAssessmentForm(page);
     await page.locator('#authorIndexForm\\:title').fill(samigoTitle);
     await page.locator('#authorIndexForm\\:createnew').click({ force: true });
 
@@ -91,11 +106,40 @@ test.describe('Samigo', () => {
       await page.locator('#assessmentSettingsAction\\:lateHandling\\:0').check({ force: true });
     }
 
-    await sakai.selectDate('#assessmentSettingsAction\\:startDate', '01/01/2025 12:30 pm');
+    await sakai.selectDate('#assessmentSettingsAction\\:startDate', '12/31/2030 12:30 pm');
     await sakai.selectDate('#assessmentSettingsAction\\:endDate', '12/31/2034 12:30 pm');
 
-    await clickSubmit(page, 'Publish');
-    await clickSubmit(page, 'Publish');
+    const availableDate = page.locator('#assessmentSettingsAction\\:startDate').first();
+    let availableDateValue = '';
+    if (await availableDate.count()) {
+      availableDateValue = (await availableDate.inputValue()).trim();
+    }
+    if (!availableDateValue) {
+      const availableDateByLabel = page.getByRole('textbox', { name: /Available Date/i }).first();
+      if (await availableDateByLabel.count()) {
+        await availableDateByLabel.click({ force: true });
+        const inputType = await availableDateByLabel.getAttribute('type');
+        if (inputType === 'datetime-local') {
+          await availableDateByLabel.fill('2030-12-31T12:30');
+        } else {
+          await availableDateByLabel.fill('12/31/2030 12:30 pm');
+        }
+        await availableDateByLabel.press('Tab').catch(() => {});
+      }
+    }
+
+    const publishButton = page.locator(
+      'button:has-text("Save Settings and Publish"), input[type="submit"][value*="Save Settings and Publish"], input[type="submit"][value*="Publish"], button:has-text("Publish")',
+    ).first();
+    await expect(publishButton).toBeEnabled({ timeout: 15000 });
+    await publishButton.click({ force: true });
+
+    const confirmPublishButton = page.locator(
+      'input[type="submit"][value*="Publish"], button:has-text("Publish"), input[type="submit"][value*="Republish"], button:has-text("Republish")',
+    ).first();
+    if ((await confirmPublishButton.count()) && (await confirmPublishButton.isVisible().catch(() => false))) {
+      await confirmPublishButton.click({ force: true });
+    }
 
     const assessmentsTable = page.locator('#authorIndexForm\\:coreAssessments');
     if (!(await assessmentsTable.isVisible({ timeout: 10000 }).catch(() => false))) {
@@ -103,7 +147,7 @@ test.describe('Samigo', () => {
       if (await assessmentsTab.count()) {
         await assessmentsTab.click({ force: true });
       } else {
-        await page.goto(sakaiUrl);
+        await page.goto(testsToolUrl);
         await sakai.toolClick(/Tests|Quizzes/i);
         const refreshedAssessmentsTab = page.getByRole('link', { name: /^Assessments$/ }).first();
         if (await refreshedAssessmentsTab.count()) {

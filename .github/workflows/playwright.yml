@@ -28,6 +28,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-m2-
+          save-always: true
 
       - name: Maven cache status
         run: echo "Maven cache hit = ${{ steps.cache-maven.outputs.cache-hit }}"

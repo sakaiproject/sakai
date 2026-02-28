@@ -11,6 +11,13 @@ test.describe('Become User', () => {
     await sakai.toolClick(/Become User/i);
 
     const becomeUserForm = page.locator('#su').first();
+    if (!(await becomeUserForm.isVisible({ timeout: 10000 }).catch(() => false))) {
+      const becomeUserLink = page.getByRole('link', { name: /^Become User$/i }).first();
+      const href = await becomeUserLink.getAttribute('href');
+      if (href) {
+        await page.goto(href);
+      }
+    }
     await expect(becomeUserForm).toBeVisible();
     const becomeUserInput = becomeUserForm.locator('input[type="text"]').first();
     await expect(becomeUserInput).toBeVisible();
