@@ -59,6 +59,16 @@ function absoluteUrl(baseURL, urlOrPath) {
   return new URL(urlOrPath, `${base.protocol}//${base.host}`).toString();
 }
 
+function parsePortalSiteId(urlOrPath, baseURL) {
+  try {
+    const parsed = new URL(urlOrPath, baseURL);
+    const match = parsed.pathname.match(/\/portal\/site\/([^/?#]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
 function createSakaiHelpers(page, baseURL) {
   const helpers = {
     randomId() {
@@ -113,12 +123,35 @@ function createSakaiHelpers(page, baseURL) {
       const matcher = labelOrRegex instanceof RegExp
         ? labelOrRegex
         : new RegExp(escapeRegex(labelOrRegex), 'i');
+      const currentSiteId = parsePortalSiteId(page.url(), baseURL);
 
-      const clickVisibleMatch = async () => {
+      const gatherMatches = async () => {
         const matches = nav.filter({ hasText: matcher });
         const count = await matches.count();
+        const scopedMatches = [];
+        const fallbackMatches = [];
+        let scopedHref = null;
+
         for (let index = 0; index < count; index += 1) {
           const candidate = matches.nth(index);
+          const href = await candidate.getAttribute('href');
+          const siteId = href ? parsePortalSiteId(href, baseURL) : null;
+          const navigableHref = href && href !== '#' && !href.startsWith('javascript:');
+          if (currentSiteId && siteId && siteId === currentSiteId) {
+            scopedMatches.push(candidate);
+            if (!scopedHref && navigableHref) {
+              scopedHref = href;
+            }
+          } else {
+            fallbackMatches.push(candidate);
+          }
+        }
+
+        return { scopedMatches, fallbackMatches, scopedHref };
+      };
+
+      const clickVisible = async (candidates) => {
+        for (const candidate of candidates) {
           if (await candidate.isVisible()) {
             try {
               await candidate.scrollIntoViewIfNeeded().catch(() => {});
@@ -132,7 +165,12 @@ function createSakaiHelpers(page, baseURL) {
         return false;
       };
 
-      if (await clickVisibleMatch()) {
+      let matches = await gatherMatches();
+      if (matches.scopedMatches.length) {
+        if (await clickVisible(matches.scopedMatches)) {
+          return;
+        }
+      } else if (await clickVisible(matches.fallbackMatches)) {
         return;
       }
 
@@ -146,14 +184,21 @@ function createSakaiHelpers(page, baseURL) {
         await allSitesButton.click({ force: true });
       }
 
-      if (await clickVisibleMatch()) {
+      matches = await gatherMatches();
+      if (matches.scopedMatches.length) {
+        if (await clickVisible(matches.scopedMatches)) {
+          return;
+        }
+        if (matches.scopedHref) {
+          await helpers.goto(matches.scopedHref);
+          return;
+        }
+      } else if (await clickVisible(matches.fallbackMatches)) {
         return;
       }
 
-      const fallbacks = nav.filter({ hasText: matcher });
-      const fallbackCount = await fallbacks.count();
-      for (let index = 0; index < fallbackCount; index += 1) {
-        const candidate = fallbacks.nth(index);
+      const finalCandidates = matches.scopedMatches.length ? matches.scopedMatches : matches.fallbackMatches;
+      for (const candidate of finalCandidates) {
         try {
           await candidate.scrollIntoViewIfNeeded().catch(() => {});
           await candidate.click({ force: true });
@@ -294,23 +339,39 @@ function createSakaiHelpers(page, baseURL) {
       await page.locator('textarea').last().fill('Playwright Testing');
       await clickContinue();
 
-      await page.getByRole('heading', { name: /Manage Tools/i }).waitFor({ timeout: 15000 }).catch(() => {});
+      const manageToolsHeading = page.getByRole('heading', { name: /Manage Tools/i });
+      const anyToolCheckbox = page.locator('input[type="checkbox"][id^="sakai."], input[type="checkbox"][name="selectedTools"]').first();
+      const headingVisible = await manageToolsHeading.isVisible({ timeout: 15000 }).catch(() => false);
+      if (!headingVisible) {
+        await base.expect(anyToolCheckbox).toBeVisible({ timeout: 30000 });
+      }
 
       for (const toolId of toolIds) {
         const normalized = normalizeToolId(toolId);
+        let toolSelected = false;
         const input = page.locator(`input[id="${normalized}"]`).first();
         if (await input.count()) {
           await input.check({ force: true });
           await base.expect(input).toBeChecked();
-          continue;
+          toolSelected = true;
         }
 
-        const fallbackLabel = toolLabelFallbacks[normalized];
-        if (fallbackLabel) {
+        if (!toolSelected) {
+          const fallbackLabel = toolLabelFallbacks[normalized];
           const checkbox = page.getByRole('checkbox', { name: new RegExp(`^${escapeRegex(fallbackLabel)}$`, 'i') }).first();
           if (await checkbox.count()) {
             await checkbox.check({ force: true });
+            await base.expect(checkbox).toBeChecked();
+            toolSelected = true;
           }
+        }
+
+        if (!toolSelected) {
+          if (normalized === 'sakai.meetings') {
+            // Meetings may not be installed in all local/CI distributions.
+            continue;
+          }
+          throw new Error(`Unable to find requested Manage Tools checkbox for ${normalized}`);
         }
       }
 

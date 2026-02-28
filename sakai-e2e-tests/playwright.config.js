@@ -1,15 +1,12 @@
 const { defineConfig } = require('@playwright/test');
 
-const requestedWorkers = Number.parseInt(process.env.PLAYWRIGHT_WORKERS || '', 10);
-const workers = Number.isFinite(requestedWorkers) && requestedWorkers > 0
-  ? requestedWorkers
-  : 1;
-
 module.exports = defineConfig({
   testDir: './tests',
   testMatch: '**/*.spec.js',
   fullyParallel: false,
-  workers,
+  // Keep workers at 1: these tests share Sakai accounts and UI/nav state,
+  // and parallel workers cause cross-test interference and flaky tool navigation.
+  workers: 1,
   timeout: 180000,
   expect: {
     timeout: 20000,

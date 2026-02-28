@@ -43,8 +43,36 @@ test.describe('Gradebook', () => {
     await page.goto(sakaiUrl);
     await sakai.toolClick('Gradebook');
 
-    await page.locator('button.gb-add-gradebook-item-button').first().click({ force: true });
     const dialog = page.locator('dialog:visible, div[role="dialog"]:visible, .wicket-modal:visible, .modal:visible').first();
+    const addButton = page.locator('button.gb-add-gradebook-item-button').first();
+
+    await page.waitForLoadState('domcontentloaded');
+
+    let dialogVisible = false;
+    for (let attempt = 0; attempt < 3 && !dialogVisible; attempt += 1) {
+      await expect(addButton).toBeVisible();
+      await page.waitForFunction(() => {
+        const button = document.querySelector('button.gb-add-gradebook-item-button');
+        return Boolean(button && window.Wicket && window.Wicket.Ajax);
+      }).catch(() => {});
+
+      await addButton.click();
+
+      try {
+        await expect(dialog).toBeVisible({ timeout: 10000 });
+        dialogVisible = true;
+      } catch (error) {
+        // If the click submitted the full form before Wicket hook-up, reload settles
+        // on /grades?0-1.-form and we can retry opening the modal.
+        if (page.url().includes('grades?0-1.-form')) {
+          await page.waitForLoadState('domcontentloaded').catch(() => {});
+          await page.waitForTimeout(250);
+        } else if (attempt === 2) {
+          throw error;
+        }
+      }
+    }
+
     await expect(dialog).toBeVisible();
 
     const cancelButton = dialog.getByRole('button', { name: /Cancel|Close/i }).first();
