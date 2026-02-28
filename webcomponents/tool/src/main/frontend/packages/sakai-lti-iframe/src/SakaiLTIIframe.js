@@ -81,7 +81,7 @@ export class SakaiLTIIframe extends SakaiElement {
         let frameId = false;
         let allowResize = false;
         Array.from(document.getElementsByTagName("iframe")).forEach(element => {
-          if ( element.contentWindow === event.source ) {
+          if ( element.contentWindow === e.source ) {
             frameId = element.id;
             allowResize = element.dataset.allowResize;
           }
