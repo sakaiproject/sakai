@@ -207,17 +207,16 @@ public class ItemHashUtil {
                 currentAvgBatchElapsedTime.set(new DecimalFormat("#.00")
                         .format(batchElapsedTimes.stream().collect(Collectors.averagingLong(l -> l))));
                 if (failure.get() == null) {
-                    log.debug("""
-                                    Item hash backfill batch flushed to database.
-                                    Type: [{}]
-                                    Batch number: [{}]
-                                    Items attempted in batch: [{}]
-                                    Items succeeded in batch: [{}]
-                                    Total items attempted: [{}]
-                                    Total items succeeded: [{}]
-                                    Total attemptable items: [{}]
-                                    Elapsed batch time: [{}ms]
-                                    Avg time/batch: [{}ms]""",
+                    log.debug("Item hash backfill batch flushed to database"
+                              + " Type: [{}]"
+                              + " Batch number: [{}]"
+                              + " Items attempted in batch: [{}]"
+                              + " Items succeeded in batch: [{}]"
+                              + " Total items attempted: [{}]"
+                              + " Total items succeeded: [{}]"
+                              + " Total attemptable items: [{}]"
+                              + " Elapsed batch time: [{}ms]"
+                              + " Avg time/batch: [{}ms]",
                             concreteType.getSimpleName(),
                             batchNumber,
                             itemsReadInBatch,
@@ -231,17 +230,16 @@ public class ItemHashUtil {
                     // yes, caller probably logs exceptions later, but probably without stack traces, and we'd
                     // like to advertise failures as quickly as possible, so we go ahead and emit an error log
                     // here.
-                    log.error("""
-                                    Item hash backfill failed.
-                                    Type: [{}]
-                                    Batch number: [{}]
-                                    Items attempted in batch: [{}]
-                                    Items flushable (but failed) in batch: [{}]
-                                    Total items attempted: [{}]
-                                    Total items succeeded: [{}]
-                                    Total attemptable items: [{}]
-                                    Elapsed batch time: [{}ms]
-                                    Avg time/batch: [{}ms]""",
+                    log.error("Item hash backfill failed"
+                              + " Type: [{}]"
+                              + " Batch number: [{}]"
+                              + " Items attempted in batch: [{}]"
+                              + " Items flushable (but failed) in batch: [{}]"
+                              + " Total items attempted: [{}]"
+                              + " Total items succeeded: [{}]"
+                              + " Total attemptable items: [{}]"
+                              + " Elapsed batch time: [{}ms]"
+                              + " Avg time/batch: [{}ms]",
                             concreteType.getSimpleName(),
                             batchNumber,
                             itemsReadInBatch,
@@ -257,14 +255,13 @@ public class ItemHashUtil {
         } // end loop over all batches
 
         final long elapsedTime = System.currentTimeMillis() - startTime;
-        log.debug("""
-                        Hash backfill completed for items of type [{}].
-                        Total items attempted: [{}]
-                        Total items succeeded: [{}]
-                        Target attemptable items: [{}]
-                        Total elapsed time: [{}ms]
-                        Total batches: [{}]
-                        Avg time/batch: [{}ms]""",
+        log.debug("Hash backfill completed for items of type [{}]"
+                  + " Total items attempted: [{}]"
+                  + " Total items succeeded: [{}]"
+                  + " Target attemptable items: [{}]"
+                  + " Total elapsed time: [{}ms]"
+                  + " Total batches: [{}]"
+                  + " Avg time/batch: [{}ms]",
                 concreteType.getSimpleName(),
                 recordsRead,
                 recordsUpdated,
