@@ -87,52 +87,111 @@ function parseToolPath(urlOrPath, baseURL) {
   }
 }
 
+const AUTH_COOKIE_CACHE = new Map();
+
+function cloneCookies(cookies) {
+  return cookies.map((cookie) => ({ ...cookie }));
+}
+
+function isTransientNetworkError(error) {
+  const message = error && error.message ? error.message : String(error || '');
+  return /(ECONNRESET|ECONNREFUSED|EHOSTUNREACH|ENETUNREACH|ETIMEDOUT|ERR_CONNECTION_RESET|ERR_CONNECTION_CLOSED|ERR_CONNECTION_TIMED_OUT|ERR_NETWORK_CHANGED|ERR_NAME_NOT_RESOLVED|ERR_INTERNET_DISCONNECTED|net::ERR_|NS_ERROR_NET|Navigation timeout)/i
+    .test(message);
+}
+
+async function withTransientRetry(run, maxAttempts = 2) {
+  let lastError;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await run();
+    } catch (error) {
+      lastError = error;
+      if (attempt === maxAttempts || !isTransientNetworkError(error)) {
+        throw error;
+      }
+      await new Promise((resolve) => {
+        setTimeout(resolve, 250 * attempt);
+      });
+    }
+  }
+  throw lastError;
+}
+
 function createSakaiHelpers(page, baseURL) {
+  const authOrigin = new URL(baseURL).origin;
   const helpers = {
     randomId() {
       return String(Date.now());
     },
 
     async goto(pathOrUrl) {
-      await page.goto(absoluteUrl(baseURL, pathOrUrl));
+      await withTransientRetry(() => page.goto(absoluteUrl(baseURL, pathOrUrl)));
     },
 
     async login(username) {
+      const cacheKey = `${authOrigin}|${username}`;
+      const cachedCookies = AUTH_COOKIE_CACHE.get(cacheKey);
+
       // Ensure each login starts from a clean browser session.
       await page.context().clearCookies();
       await page.goto('about:blank');
 
-      await page.request.get(absoluteUrl(baseURL, '/portal/xlogin'), { failOnStatusCode: false });
+      const setTutorialFlags = async () => {
+        await page.evaluate(async () => {
+          try {
+            sessionStorage.clear();
+            localStorage.clear();
+            sessionStorage.setItem('tutorialFlagSet', 'true');
+            localStorage.setItem('tutorialFlagSet', 'true');
+          } catch (error) {
+            // Ignore storage access failures in restrictive browser contexts.
+          }
+          if (window.portal && window.portal.user && window.portal.user.id) {
+            const userId = window.portal.user.id;
+            await fetch(`/direct/userPrefs/updateKey/${userId}/sakai:portal:tutorialFlag?tutorialFlag=1`, {
+              credentials: 'same-origin',
+              method: 'POST',
+            }).catch(() => {});
+          }
+        });
+      };
 
-      const response = await page.request.post(absoluteUrl(baseURL, '/portal/xlogin'), {
-        form: {
-          eid: username,
-          pw: passwordFor(username),
-        },
-        failOnStatusCode: false,
-      });
+      const loginForm = page.locator('#loginForm, form[action*="/portal/xlogin"], input[name="eid"], input[name="pw"]').first();
+      if (Array.isArray(cachedCookies) && cachedCookies.length > 0) {
+        await page.context().addCookies(cloneCookies(cachedCookies));
+        await helpers.goto('/portal/');
+
+        if (!(await loginForm.isVisible({ timeout: 3000 }).catch(() => false))) {
+          await setTutorialFlags();
+          await base.expect(page.locator('body')).toBeVisible();
+          return;
+        }
+
+        // Session cookie expired; fall through to full login.
+        await page.context().clearCookies();
+        await page.goto('about:blank');
+      }
+
+      await withTransientRetry(
+        () => page.request.get(absoluteUrl(baseURL, '/portal/xlogin'), { failOnStatusCode: false }),
+      );
+
+      const response = await withTransientRetry(
+        () => page.request.post(absoluteUrl(baseURL, '/portal/xlogin'), {
+          form: {
+            eid: username,
+            pw: passwordFor(username),
+          },
+          failOnStatusCode: false,
+        }),
+      );
 
       base.expect([200, 302, 303]).toContain(response.status());
+      AUTH_COOKIE_CACHE.set(cacheKey, cloneCookies(await page.context().cookies(authOrigin)));
 
       await helpers.goto('/portal/');
-      await page.evaluate(async () => {
-        try {
-          sessionStorage.clear();
-          localStorage.clear();
-          sessionStorage.setItem('tutorialFlagSet', 'true');
-          localStorage.setItem('tutorialFlagSet', 'true');
-        } catch (error) {
-          // Ignore storage access failures in restrictive browser contexts.
-        }
-        if (window.portal && window.portal.user && window.portal.user.id) {
-          const userId = window.portal.user.id;
-          await fetch(`/direct/userPrefs/updateKey/${userId}/sakai:portal:tutorialFlag?tutorialFlag=1`, {
-            credentials: 'same-origin',
-            method: 'POST',
-          }).catch(() => {});
-        }
-      });
-      await helpers.goto('/portal/');
+      await base.expect(loginForm).not.toBeVisible({ timeout: 10000 });
+      await setTutorialFlags();
       await base.expect(page.locator('body')).toBeVisible();
     },
 
@@ -242,8 +301,106 @@ function createSakaiHelpers(page, baseURL) {
       return true;
     },
 
+    async clickVisible(locator) {
+      const count = await locator.count();
+      for (let index = 0; index < count; index += 1) {
+        const candidate = locator.nth(index);
+        if (await candidate.isVisible().catch(() => false)) {
+          try {
+            await candidate.scrollIntoViewIfNeeded().catch(() => {});
+            await candidate.click({ force: true });
+            return true;
+          } catch (error) {
+            // Try the next visible candidate.
+          }
+        }
+      }
+
+      return false;
+    },
+
     async gotoAssignmentsList() {
-      return helpers.gotoCurrentToolView('lisofass1');
+      if (await helpers.gotoCurrentToolView('lisofass1').catch(() => false)) {
+        return true;
+      }
+
+      const inToolAssignmentsLink = page.getByRole('navigation', { name: /Tool navigation/i })
+        .getByRole('link', { name: /^Assignments$/i })
+        .first();
+      if (await inToolAssignmentsLink.count()) {
+        await inToolAssignmentsLink.click({ force: true });
+        await page.waitForLoadState('domcontentloaded').catch(() => {});
+        return true;
+      }
+
+      const navAssignmentsLink = page.locator('.navIntraTool a, .navIntraTool button')
+        .filter({ hasText: /^Assignments$/i })
+        .first();
+      if ((await navAssignmentsLink.count()) && (await navAssignmentsLink.isVisible().catch(() => false))) {
+        await navAssignmentsLink.click({ force: true });
+        await page.waitForLoadState('domcontentloaded').catch(() => {});
+        return true;
+      }
+
+      return false;
+    },
+
+    async openAddAssignmentForm() {
+      const addLink = page.locator('.navIntraTool a, .navIntraTool button').filter({ hasText: /^Add$/i }).first();
+      await base.expect(addLink).toBeVisible();
+
+      const href = await addLink.getAttribute('href');
+      await addLink.click({ force: true });
+
+      const titleInput = page.locator('#new_assignment_title').first();
+      if (!(await titleInput.isVisible({ timeout: 10000 }).catch(() => false)) && href) {
+        await helpers.goto(href);
+      }
+
+      await base.expect(titleInput).toBeVisible();
+    },
+
+    async submitAssignmentForm() {
+      const controls = [
+        page.locator('div.act button, .act button').filter({ hasText: /^Post$/i }),
+        page.locator('div.act input[type="submit"][value="Post"], .act input[type="submit"][value="Post"]'),
+        page.locator('div.act button, .act button').filter({ hasText: /^Save and Release$/i }),
+        page.locator('div.act input[type="submit"][value*="Save and Release"], .act input[type="submit"][value*="Save and Release"]'),
+        page.locator('div.act button, .act button').filter({ hasText: /^Save$/i }),
+        page.locator('div.act input[type="submit"][value="Save"], .act input[type="submit"][value="Save"]'),
+        page.locator('div.act input.active, .act input.active'),
+      ];
+
+      for (const control of controls) {
+        if (await helpers.clickVisible(control)) {
+          return;
+        }
+      }
+
+      throw new Error('Unable to find assignment form submit control');
+    },
+
+    async clickAssignmentAction(labelOrRegex) {
+      const labelRegex = labelOrRegex instanceof RegExp
+        ? labelOrRegex
+        : new RegExp(escapeRegex(String(labelOrRegex)), 'i');
+
+      const clickActionLink = async () => {
+        const candidates = page.locator('.itemAction a').filter({ hasText: labelRegex });
+        return helpers.clickVisible(candidates);
+      };
+
+      if (await clickActionLink()) {
+        return true;
+      }
+
+      if (await helpers.gotoAssignmentsList()) {
+        if (await clickActionLink()) {
+          return true;
+        }
+      }
+
+      return false;
     },
 
     async createCourse(username, toolIds) {
@@ -267,15 +424,7 @@ function createSakaiHelpers(page, baseURL) {
       };
 
       const clickVisibleLocator = async (locator) => {
-        const count = await locator.count();
-        for (let index = 0; index < count; index += 1) {
-          const candidate = locator.nth(index);
-          if (await candidate.isVisible()) {
-            await candidate.click({ force: true });
-            return true;
-          }
-        }
-        return false;
+        return helpers.clickVisible(locator);
       };
 
       const dismissTutorial = async () => {

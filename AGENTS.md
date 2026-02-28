@@ -65,6 +65,7 @@
 - **Changes**: Make minimal changes, only modifying lines needed for the fix/feature
 - **Single Issue**: One issue per pull request when possible
 - **Tests**: Include tests where sensible/possible
+- **UI Flow Changes**: When changing user-visible UI flows (navigation, forms, submissions, dialogs, or interactive behavior), add or update a Playwright test in `sakai-e2e-tests/tests` that covers the changed flow. If a Playwright test is not practical, document why in the PR description.
 - **Java Version**: Java 17 for trunk (Java 11 was used for Sakai 22 and Sakai 23)
 - **Pull Request Workflow**: "Squash and Merge" for single issues, "Rebase and Merge" for multiple issues
 - **No `var` in Java**: Do not use local variable type inference (`var`) in Java code. Always declare explicit types (e.g., `List<String> names = new ArrayList<>();` not `var names = new ArrayList<String>();`).

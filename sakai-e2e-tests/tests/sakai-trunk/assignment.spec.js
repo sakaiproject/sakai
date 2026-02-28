@@ -6,122 +6,32 @@ test.describe('Assignments', () => {
   let sakaiUrl;
   const assignTitle = `Playwright Assignment ${Date.now()}`;
 
-  const openAddAssignmentForm = async (page) => {
-    const addLink = page.locator('.navIntraTool a').filter({ hasText: /^Add$/i }).first();
-    await expect(addLink).toBeVisible();
-
-    const href = await addLink.getAttribute('href');
-    await addLink.click({ force: true });
-
-    const titleInput = page.locator('#new_assignment_title');
-    if (!(await titleInput.isVisible({ timeout: 10000 }).catch(() => false)) && href) {
-      await page.goto(href);
-    }
-    await expect(titleInput).toBeVisible();
-  };
-
-  const openAssignmentsList = async (page, sakai) => {
-    if (await sakai.gotoAssignmentsList().catch(() => false)) {
-      return;
-    }
-
-    const inToolAssignmentsLink = page.getByRole('navigation', { name: /Tool navigation/i })
-      .getByRole('link', { name: /^Assignments$/i })
-      .first();
-    if (await inToolAssignmentsLink.count()) {
-      await inToolAssignmentsLink.click({ force: true });
-      await page.waitForLoadState('domcontentloaded').catch(() => {});
-    }
-  };
-
-  const clickVisibleAssignmentAction = async (page, labelRegex) => {
-    const clickActionLink = async () => {
-      const candidates = page.locator('.itemAction a').filter({ hasText: labelRegex });
-      const count = await candidates.count();
-      for (let index = 0; index < count; index += 1) {
-        const candidate = candidates.nth(index);
-        if (await candidate.isVisible()) {
-          await candidate.click({ force: true });
-          return true;
-        }
-      }
-      return false;
-    };
-
-    if (await clickActionLink()) {
-      return true;
-    }
-
-    const assignmentsListLink = page.locator('.navIntraTool a').filter({ hasText: /^Assignments$/i }).first();
-    if ((await assignmentsListLink.count()) && (await assignmentsListLink.isVisible().catch(() => false))) {
-      await assignmentsListLink.click({ force: true });
-      await page.waitForLoadState('domcontentloaded').catch(() => {});
-      if (await clickActionLink()) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  const clickVisible = async (locator) => {
-    const count = await locator.count();
-    for (let index = 0; index < count; index += 1) {
-      const candidate = locator.nth(index);
-      if (await candidate.isVisible()) {
-        await candidate.click({ force: true });
-        return true;
-      }
-    }
-    return false;
-  };
-
-  const submitAssignmentForm = async (page) => {
-    const controls = [
-      page.locator('div.act button, .act button').filter({ hasText: /^Post$/i }),
-      page.locator('div.act input[type="submit"][value="Post"], .act input[type="submit"][value="Post"]'),
-      page.locator('div.act button, .act button').filter({ hasText: /^Save and Release$/i }),
-      page.locator('div.act input[type="submit"][value*="Save and Release"], .act input[type="submit"][value*="Save and Release"]'),
-      page.locator('div.act button, .act button').filter({ hasText: /^Save$/i }),
-      page.locator('div.act input[type="submit"][value="Save"], .act input[type="submit"][value="Save"]'),
-      page.locator('div.act input.active, .act input.active'),
-    ];
-
-    for (const control of controls) {
-      if (await clickVisible(control)) {
-        return;
-      }
-    }
-
-    throw new Error('Unable to find assignment form submit control');
-  };
-
   const ensureStudentAssignmentExists = async (page, sakai) => {
     await sakai.login('instructor1');
     await page.goto(sakaiUrl);
     await sakai.toolClick('Assignments');
-    await openAssignmentsList(page, sakai);
+    await sakai.gotoAssignmentsList();
 
     const existingAssignmentLink = page.getByRole('link', { name: assignTitle }).first();
     if (await existingAssignmentLink.count()) {
       return;
     }
 
-    await openAddAssignmentForm(page);
+    await sakai.openAddAssignmentForm();
     await page.locator('#new_assignment_title').fill(assignTitle);
     const gradeAssignmentCheckbox = page.locator('#gradeAssignment').first();
     if (await gradeAssignmentCheckbox.count()) {
       await gradeAssignmentCheckbox.uncheck({ force: true });
     }
     await sakai.typeCkEditor('new_assignment_instructions', '<p>Assignment for student submission tests.</p>');
-    await submitAssignmentForm(page);
+    await sakai.submitAssignmentForm();
 
     const postButton = page.getByRole('button', { name: /^Post$/i }).first();
     if ((await postButton.count()) && (await postButton.isVisible().catch(() => false))) {
       await postButton.click({ force: true });
     }
 
-    await openAssignmentsList(page, sakai);
+    await sakai.gotoAssignmentsList();
     return page.getByRole('link', { name: assignTitle }).first().isVisible({ timeout: 5000 }).catch(() => false);
   };
 
@@ -139,20 +49,20 @@ test.describe('Assignments', () => {
     await page.goto(sakaiUrl);
     await sakai.toolClick('Assignments');
 
-    await openAddAssignmentForm(page);
+    await sakai.openAddAssignmentForm();
     await page.locator('#new_assignment_title').fill('Letter Grades');
     await page.locator('#new_assignment_grade_type').first().selectOption({ label: 'Letter grade' }, { force: true });
 
     await sakai.typeCkEditor('new_assignment_instructions',
       '<p>What is chiefly responsible for the increase in the average length of life in the USA during the last fifty years?</p>');
 
-    await submitAssignmentForm(page);
+    await sakai.submitAssignmentForm();
 
-    let openedFirstSubmissionList = await clickVisibleAssignmentAction(page, /View Submissions|Grade/i);
+    let openedFirstSubmissionList = await sakai.clickAssignmentAction(/View Submissions|Grade/i);
     if (!openedFirstSubmissionList) {
       await page.goto(sakaiUrl);
       await sakai.toolClick('Assignments');
-      openedFirstSubmissionList = await clickVisibleAssignmentAction(page, /View Submissions|Grade/i);
+      openedFirstSubmissionList = await sakai.clickAssignmentAction(/View Submissions|Grade/i);
     }
 
     const newGraderToggle = page.locator('sakai-grader-toggle input').first();
@@ -171,15 +81,15 @@ test.describe('Assignments', () => {
         if (await gradeCell.count()) {
           await expect(gradeCell).toContainText('B');
         }
-        await page.locator('.navIntraTool a').first().click({ force: true });
+        await sakai.gotoAssignmentsList();
       }
     }
 
-    let openedSecondSubmissionList = await clickVisibleAssignmentAction(page, /View Submissions|Grade/i);
+    let openedSecondSubmissionList = await sakai.clickAssignmentAction(/View Submissions|Grade/i);
     if (!openedSecondSubmissionList) {
       await page.goto(sakaiUrl);
       await sakai.toolClick('Assignments');
-      openedSecondSubmissionList = await clickVisibleAssignmentAction(page, /View Submissions|Grade/i);
+      openedSecondSubmissionList = await sakai.clickAssignmentAction(/View Submissions|Grade/i);
     }
 
     if (openedSecondSubmissionList) {
@@ -195,7 +105,7 @@ test.describe('Assignments', () => {
         if (await gradeCell.count()) {
           await expect(gradeCell).toContainText('C');
         }
-        await page.locator('.navIntraTool a').first().click({ force: true });
+        await sakai.gotoAssignmentsList();
       }
     }
 
@@ -204,10 +114,7 @@ test.describe('Assignments', () => {
 
     let assignmentCheckbox = page.locator('input[id^="check_"]').first();
     if (!(await assignmentCheckbox.count())) {
-      const assignmentsListLink = page.locator('.navIntraTool a').filter({ hasText: /^Assignments$/i }).first();
-      if (await assignmentsListLink.count()) {
-        await assignmentsListLink.click({ force: true });
-      }
+      await sakai.gotoAssignmentsList();
       assignmentCheckbox = page.locator('input[id^="check_"]').first();
     }
 
@@ -225,12 +132,12 @@ test.describe('Assignments', () => {
     await page.goto(sakaiUrl);
     await sakai.toolClick('Assignments');
 
-    await openAddAssignmentForm(page);
+    await sakai.openAddAssignmentForm();
     await page.locator('#new_assignment_title').fill(assignTitle);
     await page.locator('#new_assignment_check_add_honor_pledge').click({ force: true });
     await page.locator('#gradeAssignment').uncheck({ force: true });
 
-    await submitAssignmentForm(page);
+    await sakai.submitAssignmentForm();
     const formAlert = page.locator('#generalAlert').first();
     if (await formAlert.count()) {
       await expect(formAlert).toContainText(/Alert|required/i);
@@ -239,13 +146,13 @@ test.describe('Assignments', () => {
     await sakai.typeCkEditor('new_assignment_instructions',
       '<p>What is chiefly responsible for the increase in the average length of life in the USA during the last fifty years?</p>');
 
-    await submitAssignmentForm(page);
+    await sakai.submitAssignmentForm();
     const postButton = page.getByRole('button', { name: /^Post$/i }).first();
     if ((await postButton.count()) && (await postButton.isVisible().catch(() => false))) {
       await postButton.click({ force: true });
     }
 
-    await openAssignmentsList(page, sakai);
+    await sakai.gotoAssignmentsList();
     await expect(page.locator('body')).toContainText(assignTitle);
   });
 
@@ -261,24 +168,13 @@ test.describe('Assignments', () => {
     await sakai.toolClick('Assignments');
     await page.locator('.navIntraTool').first().waitFor({ timeout: 15000 }).catch(() => {});
 
-    const clickVisibleEditLink = async () => {
-      const editLinks = page.getByRole('link', { name: /^Edit$/i });
-      const count = await editLinks.count();
-      for (let index = 0; index < count; index += 1) {
-        const candidate = editLinks.nth(index);
-        if (await candidate.isVisible()) {
-          await candidate.click({ force: true });
-          return true;
-        }
-      }
-      return false;
-    };
+    const clickVisibleEditLink = async () => sakai.clickVisible(page.getByRole('link', { name: /^Edit$/i }));
 
     if (!(await clickVisibleEditLink())) {
-      await openAddAssignmentForm(page);
+      await sakai.openAddAssignmentForm();
       await page.locator('#new_assignment_title').fill(`Rubric Assignment ${Date.now()}`);
       await sakai.typeCkEditor('new_assignment_instructions', '<p>Assignment for rubric association.</p>');
-      await submitAssignmentForm(page);
+      await sakai.submitAssignmentForm();
       await clickVisibleEditLink();
     }
 
@@ -305,7 +201,7 @@ test.describe('Assignments', () => {
     await sakai.login('student0011');
     await page.goto(sakaiUrl);
     await sakai.toolClick('Assignments');
-    await openAssignmentsList(page, sakai);
+    await sakai.gotoAssignmentsList();
 
     const desktopAssignmentLink = page.getByRole('link', { name: assignTitle }).first();
     if (!(await desktopAssignmentLink.isVisible({ timeout: 5000 }).catch(() => false))) {
@@ -344,7 +240,7 @@ test.describe('Assignments', () => {
     }
 
     await sakai.toolClick('Assignments');
-    await openAssignmentsList(page, sakai);
+    await sakai.gotoAssignmentsList();
     const mobileAssignmentLink = page.getByRole('link', { name: assignTitle }).first();
     if (!(await mobileAssignmentLink.isVisible({ timeout: 5000 }).catch(() => false))) {
       test.skip(true, `${assignTitle} is not visible to student0012`);
@@ -370,7 +266,7 @@ test.describe('Assignments', () => {
     await page.goto(sakaiUrl);
     await sakai.toolClick('Assignments');
 
-    const openedGradebookList = await clickVisibleAssignmentAction(page, /Grade|View Submissions/i);
+    const openedGradebookList = await sakai.clickAssignmentAction(/Grade|View Submissions/i);
     if (!openedGradebookList) {
       test.skip(true, 'No grade/view submissions action was available');
     }
@@ -411,7 +307,7 @@ test.describe('Assignments', () => {
     await page.goto(sakaiUrl);
     await sakai.toolClick('Assignments');
 
-    await openAddAssignmentForm(page);
+    await sakai.openAddAssignmentForm();
     await page.locator('#new_assignment_title').fill('Non-electronic Assignment');
     await page.locator('#gradeAssignment').uncheck({ force: true });
     await page.locator('#subType').selectOption({ label: 'Non-electronic' });
@@ -419,9 +315,9 @@ test.describe('Assignments', () => {
     await sakai.typeCkEditor('new_assignment_instructions',
       '<p>Submit a 3000 word essay on the history of the internet to my office in Swanson 201.</p>');
 
-    await submitAssignmentForm(page);
+    await sakai.submitAssignmentForm();
 
-    const openedNonElectronicSubmissionList = await clickVisibleAssignmentAction(page, /View Submissions|Grade/i);
+    const openedNonElectronicSubmissionList = await sakai.clickAssignmentAction(/View Submissions|Grade/i);
     if (!openedNonElectronicSubmissionList) {
       test.skip(true, 'No grade/view submissions action was available for non-electronic assignment');
     }
