@@ -40,11 +40,6 @@
             <groupId>org.sakaiproject.search</groupId>
             <artifactId>search-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.search</groupId>
-            <artifactId>search-util</artifactId>
-            <type>jar</type>
-        </dependency>
     </dependencies>
 
     <build>

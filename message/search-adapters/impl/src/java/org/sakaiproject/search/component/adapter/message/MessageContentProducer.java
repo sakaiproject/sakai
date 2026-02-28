@@ -55,7 +55,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.search.util.HTMLParser;
+
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
@@ -176,87 +176,8 @@ public class MessageContentProducer implements EntityContentProducer
 			{
 				MessageService ms = (MessageService) ep;
 				Message m = ms.getMessage(ref);
-				MessageHeader mh = m.getHeader();
-				StringBuilder sb = new StringBuilder();
-				Class c = mh.getClass();
-				try
-				{
-					Method getSubject = c.getMethod("getSubject", //$NON-NLS-1$
-							new Class[] {});
-					Object o = getSubject.invoke(mh, new Object[] {});
-					sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.5"));
-					SearchUtils.appendCleanString(o.toString(), sb);
-					sb.append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-				catch (Exception ex)
-				{
-					// no subject, and I dont mind
-					log.debug("Didnt get Subject  from " + mh, ex); //$NON-NLS-1$
-				}
 
-				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.3")); //$NON-NLS-1$
-				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.4"));
-				//is the user aliased in this context?
-				String displayName = null;
-				if (contextualUserDisplayService != null)
-				{
-					Reference ref1 = entityManager.newReference(m.getReference());
-					String context = siteService.siteReference(ref1.getContext());
-					displayName = contextualUserDisplayService.getUserDisplayName(mh.getFrom(), context);
-					//the service may return a null
-					if (displayName == null)
-						displayName = mh.getFrom().getDisplayName();
-				}
-				else
-				{
-					displayName = mh.getFrom().getDisplayName();
-				}
-				SearchUtils.appendCleanString(displayName, sb); //$NON-NLS-1$
-				sb.append("\n"); //$NON-NLS-1$
-				sb.append(RESOURCE_BUNDLE.getString("MessageContentProducer.11")); //$NON-NLS-1$
-				String mBody = m.getBody();
-
-				for (HTMLParser hp = new HTMLParser(mBody); hp.hasNext();)
-				{
-					SearchUtils.appendCleanString(hp.next(), sb);
-					sb.append(" ");
-				}
-
-				sb.append("\n"); //$NON-NLS-1$
-				log.debug("Message Content for " + ref.getReference() + " is " //$NON-NLS-1$ //$NON-NLS-2$
-						+ sb.toString());
-
-				// resolve attachments
-				List attachments = mh.getAttachments();
-				for (Iterator atti = attachments.iterator(); atti.hasNext();)
-				{
-					try
-					{
-						Reference attr = (Reference) atti.next();
-						String areference = attr.getReference();
-						EntityContentProducer ecp = searchIndexBuilder
-								.newEntityContentProducer(areference);
-						String attachementDigest = ecp.getContent(areference);
-						sb
-								.append(
-										RESOURCE_BUNDLE
-												.getString("MessageContentProducer.23")).append(attachementDigest) //$NON-NLS-1$
-								.append("\n"); //$NON-NLS-1$
-					}
-					catch (Exception ex)
-					{
-						log.info(" Failed to digest attachement " //$NON-NLS-1$
-								+ ex.getMessage());
-					}
-				}
-				String r = sb.toString();
-				if (log.isDebugEnabled())
-				{
-					log
-							.debug("Message." + toolName + ".getContent" + reference
-									+ ":" + r);
-				}
-				return r;
+				return m.getBody();
 			}
 			catch (IdUnusedException e)
 			{

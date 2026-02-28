@@ -21,8 +21,18 @@
 
 package org.sakaiproject.search.api;
 
+import org.jsoup.Jsoup;
+
 public class SearchUtils
 {
+	/**
+	 * Strip HTML tags from the given string, returning plain text.
+	 */
+	public static String stripHtml(String html) {
+		if (html == null || html.isEmpty()) return "";
+		return Jsoup.parse(html).text();
+	}
+
 	public static String getCleanStringXX(String text)
 	{
 		text = text.replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\ud800-\\udfff\\uffff\\ufffe]", "");
