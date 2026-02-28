@@ -4,8 +4,20 @@ test.describe('Become User', () => {
   test.describe.configure({ mode: 'serial' });
 
   test('Administration Workspace - Become User', async ({ page, sakai }) => {
+    const gotoAdminSite = async () => {
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        await page.goto('/portal/site/!admin', { waitUntil: 'domcontentloaded' }).catch(() => {});
+        if (!page.url().startsWith('chrome-error://')) {
+          return;
+        }
+        await page.goto('/portal', { waitUntil: 'domcontentloaded' }).catch(() => {});
+        await page.waitForTimeout(250);
+      }
+      throw new Error('Unable to load /portal/site/!admin without chrome-error navigation');
+    };
+
     await sakai.login('admin');
-    await page.goto('/portal/site/!admin');
+    await gotoAdminSite();
 
     await expect(page.getByRole('link', { name: /Administration Workspace/i }).first()).toBeVisible();
     await sakai.toolClick(/Become User/i);
@@ -23,14 +35,15 @@ test.describe('Become User', () => {
     await expect(becomeUserInput).toBeVisible();
     await becomeUserInput.fill('instructor1');
     await page.locator('#su\\:become').click();
+    await page.waitForURL(/\/portal(?:\/|$)/, { timeout: 30000 }).catch(() => {});
 
-    await page.goto('/portal/site/!admin');
+    await gotoAdminSite();
     await expect(page.getByRole('link', { name: /^Site Unavailable$/i }).first()).toBeVisible();
 
     await page.locator('.sak-sysInd-account').click();
     await page.locator('a#loginLink1').filter({ hasText: /Return to/i }).click();
 
-    await page.goto('/portal/site/!admin');
+    await gotoAdminSite();
     await expect(page.getByRole('link', { name: /^Administration Workspace$/i }).first()).toBeVisible();
   });
 });

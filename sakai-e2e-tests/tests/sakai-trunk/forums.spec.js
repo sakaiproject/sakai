@@ -28,6 +28,16 @@ test.describe('Forums (sakai.forums)', () => {
     await page.locator('form input[type="text"]:visible').first().fill(topicTitle);
     await page.locator('button[type="submit"]:has-text("Save"), button[type="submit"]:has-text("Create"), input[type="submit"][value*="Save"], input[type="submit"][value*="Create"], .act button:has-text("Save"), .act button:has-text("Create"), .act input[value*="Save"], .act input[value*="Create"]').first().click({ force: true });
 
-    await expect(page.getByText(topicTitle)).toBeVisible();
+    const topicVisible = await page.getByText(topicTitle).first().isVisible({ timeout: 5000 }).catch(() => false);
+    if (!topicVisible) {
+      await page.goto(sakaiUrl);
+      await sakai.toolClick(/Forum|Discussion/i);
+      const forumLink = page.getByRole('link', { name: forumTitle }).first();
+      if (await forumLink.count()) {
+        await forumLink.click({ force: true });
+      }
+    }
+
+    await expect(page.getByText(topicTitle).first()).toBeVisible();
   });
 });

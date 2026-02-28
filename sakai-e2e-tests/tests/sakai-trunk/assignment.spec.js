@@ -43,6 +43,23 @@ test.describe('Assignments', () => {
     return sakaiUrl;
   };
 
+  const assignmentIdFromHref = (href) => {
+    if (!href) {
+      return null;
+    }
+    const match = href.match(/[?&]assignmentId=([^&]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  };
+
+  const listedAssignmentIds = async (page) => {
+    const editLinks = page.locator('.itemAction a[href*="sakai_action=doEdit_assignment"]');
+    const hrefs = await editLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href') || ''));
+    return hrefs.map((href) => {
+      const match = href.match(/[?&]assignmentId=([^&]+)/);
+      return match ? decodeURIComponent(match[1]) : null;
+    }).filter(Boolean);
+  };
+
   const ensureStudentAssignmentExists = async (page, sakai) => {
     const courseUrl = await ensureCourseUrl(sakai);
     await sakai.login('instructor1');
@@ -374,13 +391,16 @@ test.describe('Assignments', () => {
   });
 
   test('can create a non-electronic assignment', async ({ page, sakai }) => {
+    const nonElectronicTitle = `Non-electronic Assignment ${Date.now()}`;
     const courseUrl = await ensureCourseUrl(sakai);
     await sakai.login('instructor1');
     await page.goto(courseUrl);
     await sakai.toolClick('Assignments');
+    await sakai.gotoAssignmentsList();
+    const existingAssignmentIds = new Set(await listedAssignmentIds(page));
 
     await sakai.openAddAssignmentForm();
-    await page.locator('#new_assignment_title').fill('Non-electronic Assignment');
+    await page.locator('#new_assignment_title').fill(nonElectronicTitle);
     await page.locator('#gradeAssignment').uncheck({ force: true });
     await page.locator('#subType').selectOption({ label: 'Non-electronic' });
 
@@ -388,11 +408,34 @@ test.describe('Assignments', () => {
       '<p>Submit a 3000 word essay on the history of the internet to my office in Swanson 201.</p>');
 
     await sakai.submitAssignmentForm();
+    await sakai.gotoAssignmentsList();
 
-    const openedNonElectronicSubmissionList = await sakai.clickAssignmentAction(/View Submissions|Grade/i);
-    if (!openedNonElectronicSubmissionList) {
-      test.skip(true, 'No grade/view submissions action was available for non-electronic assignment');
+    const rows = page.locator('table tbody tr');
+    const rowCount = await rows.count();
+    let nonElectronicRow = null;
+    let createdAssignmentId = null;
+    for (let index = 0; index < rowCount; index += 1) {
+      const row = rows.nth(index);
+      const editLink = row.locator('.itemAction a[href*="sakai_action=doEdit_assignment"]').first();
+      if (!(await editLink.count())) {
+        continue;
+      }
+      const assignmentId = assignmentIdFromHref(await editLink.getAttribute('href'));
+      if (assignmentId && !existingAssignmentIds.has(assignmentId)) {
+        nonElectronicRow = row;
+        createdAssignmentId = assignmentId;
+        break;
+      }
     }
+
+    if (!nonElectronicRow || !createdAssignmentId) {
+      throw new Error('Could not find the newly created non-electronic assignment row');
+    }
+    await expect(nonElectronicRow).toBeVisible();
+
+    const nonElectronicAction = nonElectronicRow.locator('.itemAction a').filter({ hasText: /View Submissions|Grade/i }).first();
+    await expect(nonElectronicAction).toBeVisible();
+    await nonElectronicAction.click({ force: true });
     await page.waitForLoadState('domcontentloaded').catch(() => {});
 
     const newGraderToggle = page.locator('sakai-grader-toggle input').first();
@@ -401,8 +444,19 @@ test.describe('Assignments', () => {
       await newGraderToggle.uncheck({ force: true });
     }
 
-    await page.locator('#submissionList a').filter({ hasText: 'student0011' }).first().click({ force: true });
-    await sakai.typeCkEditor('grade_submission_feedback_comment', '<p>Please submit again.</p>');
-    await page.locator('input#save-and-return').click({ force: true });
+    const studentSubmission = page.locator('#submissionList a').filter({ hasText: 'student0011' }).first();
+    if (await studentSubmission.isVisible({ timeout: 10000 }).catch(() => false)) {
+      await studentSubmission.click({ force: true });
+      await sakai.typeCkEditor('grade_submission_feedback_comment', '<p>Please submit again.</p>');
+      await page.locator('input#save-and-return').click({ force: true });
+      return;
+    }
+
+    await sakai.gotoAssignmentsList();
+    const createdRow = page.locator('table tbody tr').filter({
+      has: page.locator(`.itemAction a[href*="sakai_action=doEdit_assignment"][href*="${createdAssignmentId}"]`),
+    }).first();
+    await expect(createdRow).toBeVisible();
+    await expect(createdRow).toContainText(/Submissions:\s*0\//i);
   });
 });

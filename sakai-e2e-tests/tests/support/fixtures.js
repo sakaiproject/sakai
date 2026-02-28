@@ -584,7 +584,8 @@ function createSakaiHelpers(page, baseURL) {
         const count = await targets.count();
         for (let index = 0; index < count; index += 1) {
           const candidate = targets.nth(index);
-          if (await candidate.isVisible()) {
+          const disabled = await candidate.isDisabled().catch(() => false);
+          if (!disabled && await candidate.isVisible()) {
             await candidate.click({ force: true });
             return true;
           }
@@ -615,19 +616,36 @@ function createSakaiHelpers(page, baseURL) {
         }
       };
 
-      const clickContinue = async () => {
+      const waitAfterContinue = async () => {
+        await page.waitForLoadState('domcontentloaded').catch(() => {});
+        await page.waitForTimeout(250);
+      };
+
+      const clickContinue = async (scope = null) => {
         for (let attempt = 0; attempt < 6; attempt += 1) {
           await dismissTutorial();
 
+          if (scope && await scope.isVisible().catch(() => false)) {
+            const scopedControls = scope.locator('input#continueButton, button#continueButton, input[name=\"Continue\"], button[name=\"Continue\"], input[name=\"continue\"], button[name=\"continue\"], input[type=\"submit\"][value*=\"Continue\"], button:has-text(\"Continue\")');
+            const scopedCount = await scopedControls.count();
+            for (let index = 0; index < scopedCount; index += 1) {
+              const control = scopedControls.nth(index);
+              const disabled = await control.isDisabled().catch(() => false);
+              if (!disabled && await control.isVisible().catch(() => false)) {
+                await control.click({ force: true });
+                await waitAfterContinue();
+                return true;
+              }
+            }
+          }
+
           if (await clickVisibleLocator(page.getByRole('button', { name: /^Continue$/i }))) {
-            await page.waitForLoadState('domcontentloaded').catch(() => {});
-            await page.waitForTimeout(250);
+            await waitAfterContinue();
             return true;
           }
 
           if (await clickFirstVisible('input#continueButton, button#continueButton, .act input[name=\"Continue\"], .act button[name=\"Continue\"], .act input[name=\"continue\"], .act button[name=\"continue\"], .act input[value*=\"Continue\"], .act button:has-text(\"Continue\"), input[type=\"submit\"][value*=\"Continue\"], button:has-text(\"Continue\")')) {
-            await page.waitForLoadState('domcontentloaded').catch(() => {});
-            await page.waitForTimeout(250);
+            await waitAfterContinue();
             return true;
           }
 
@@ -657,53 +675,171 @@ function createSakaiHelpers(page, baseURL) {
         'sakai.meetings': 'Meetings',
       };
 
-      await helpers.goto(`/portal/site/~${username}`);
-      await dismissTutorial();
-      await page.getByRole('link', { name: /Worksite Setup/i }).first().click({ force: true });
-      await page.getByRole('link', { name: /Create New Site/i }).first().click({ force: true });
-      await page.locator('input#course').click({ force: true });
+      const addCourseForm = page.locator('form[name="addCourseForm"]');
+      const openAddCourseForm = async () => {
+        const courseRadio = page.locator('input#course');
+        const buildOwnButton = page.locator('input#submitBuildOwn');
 
-      const termSelect = page.locator('select#selectTerm');
-      if (await termSelect.count()) {
-        const values = await termSelect.locator('option').evaluateAll((options) => options.map((option) => option.value));
-        if (values.length > 1) {
-          await termSelect.selectOption(values[1]);
+        const onCourseSelectionStep = async () => {
+          return courseRadio.isVisible({ timeout: 1500 }).catch(() => false);
+        };
+
+        const onAddCourseStep = async () => {
+          return addCourseForm.isVisible({ timeout: 1500 }).catch(() => false);
+        };
+
+        const waitForSiteSetupStep = async () => {
+          for (let attempt = 0; attempt < 12; attempt += 1) {
+            if (await onAddCourseStep()) {
+              return true;
+            }
+            if (await onCourseSelectionStep()) {
+              return true;
+            }
+
+            const createNewSiteVisible = await page.locator(
+              '.navIntraTool a:has-text("Create New Site"), .navIntraTool button:has-text("Create New Site"), a[href*="sakai_action=doNew_site"]',
+            ).first().isVisible().catch(() => false);
+            if (createNewSiteVisible) {
+              return true;
+            }
+
+            await page.waitForLoadState('domcontentloaded').catch(() => {});
+            await page.waitForTimeout(250);
+          }
+          return false;
+        };
+
+        const worksiteSetupLink = page.getByRole('link', { name: /^Worksite Setup$/i }).first();
+
+        await helpers.goto(`/portal/site/~${username}`);
+        await dismissTutorial();
+
+        await base.expect(worksiteSetupLink).toBeVisible({ timeout: 15000 });
+        const worksiteSetupHref = await worksiteSetupLink.getAttribute('href');
+        await worksiteSetupLink.click({ force: true });
+        await page.waitForLoadState('domcontentloaded').catch(() => {});
+
+        await waitForSiteSetupStep();
+        await dismissTutorial();
+
+        if (await onAddCourseStep()) {
+          return true;
+        }
+
+        const openCreateNewSiteStep = async () => {
+          const directCreateLink = page.locator('a[href*="sakai_action=doNew_site"]').first();
+          if (await directCreateLink.count()) {
+            const href = await directCreateLink.getAttribute('href');
+            if (href) {
+              await helpers.goto(href);
+              await page.waitForLoadState('domcontentloaded').catch(() => {});
+              await dismissTutorial();
+              return true;
+            }
+          }
+
+          const worksitePath = parseToolPath(worksiteSetupHref || page.url(), baseURL);
+          if (worksitePath) {
+            const directActionUrl = `${worksitePath.origin}${worksitePath.sitePath}/tool-reset/${worksitePath.toolId}`
+              + '?sakai_action=doNew_site';
+            await helpers.goto(directActionUrl);
+            await page.waitForLoadState('domcontentloaded').catch(() => {});
+            await dismissTutorial();
+            if (await onCourseSelectionStep() || await onAddCourseStep()) {
+              return true;
+            }
+          }
+
+          const createNewSiteClicked = await clickVisibleLocator(page.getByRole('link', { name: /^Create New Site$/i }).first())
+            || await clickVisibleLocator(page.getByRole('button', { name: /^Create New Site$/i }).first())
+            || await clickFirstVisible('.navIntraTool a:has-text("Create New Site"), .navIntraTool button:has-text("Create New Site"), a:has-text("Create New Site"), button:has-text("Create New Site")');
+          if (createNewSiteClicked) {
+            await page.waitForLoadState('domcontentloaded').catch(() => {});
+            await dismissTutorial();
+          }
+
+          return createNewSiteClicked;
+        };
+
+        if (!(await onCourseSelectionStep())) {
+          await openCreateNewSiteStep();
+        }
+
+        if (await onAddCourseStep()) {
+          return true;
+        }
+
+        if (!(await onCourseSelectionStep())) {
+          return onAddCourseStep();
+        }
+
+        await courseRadio.click({ force: true });
+
+        const termSelect = page.locator('select#selectTerm');
+        if (await termSelect.count()) {
+          const values = await termSelect.locator('option').evaluateAll((options) => options.map((option) => option.value));
+          if (values.length > 1) {
+            await termSelect.selectOption(values[1]);
+          }
+        }
+
+        await base.expect(buildOwnButton).toBeVisible({ timeout: 10000 });
+        await buildOwnButton.click({ force: true });
+        await page.waitForLoadState('domcontentloaded').catch(() => {});
+        return addCourseForm.isVisible({ timeout: 20000 }).catch(() => false);
+      };
+
+      let addCourseReady = false;
+      for (let attempt = 0; attempt < 3 && !addCourseReady; attempt += 1) {
+        addCourseReady = await openAddCourseForm();
+        if (!addCourseReady && page.url().startsWith('chrome-error://')) {
+          await page.goto('/portal', { waitUntil: 'domcontentloaded' }).catch(() => {});
         }
       }
-
-      await page.locator('input#submitBuildOwn').click({ force: true });
-
-      const addCourseForm = page.locator('form[name="addCourseForm"]');
-      await base.expect(addCourseForm).toBeVisible();
+      if (!addCourseReady) {
+        throw new Error(`Unable to reach addCourseForm during site creation (url: ${page.url()})`);
+      }
       const ensureCourseSelection = async () => {
         const selected = addCourseForm.locator('input[type="checkbox"]:checked:not([disabled])');
-        if (await selected.count()) {
-          return;
+        const selectedCount = await selected.count();
+        for (let index = 0; index < selectedCount; index += 1) {
+          if (await selected.nth(index).isVisible().catch(() => false)) {
+            return true;
+          }
         }
 
         const selectable = addCourseForm.locator('input[type="checkbox"]:not([disabled]):not(:checked)');
         const selectableCount = await selectable.count();
         for (let index = 0; index < selectableCount; index += 1) {
           const candidate = selectable.nth(index);
-          if (await candidate.isVisible()) {
+          if (await candidate.isVisible().catch(() => false)) {
             await candidate.check({ force: true }).catch(async () => {
               await candidate.click({ force: true });
             });
-            return;
+            if (await candidate.isChecked().catch(() => false)) {
+              return true;
+            }
           }
         }
+
+        return false;
       };
 
       const goToSiteTitleStep = async () => {
         const titleTextarea = page.locator('textarea').last();
-        for (let attempt = 0; attempt < 4; attempt += 1) {
+        for (let attempt = 0; attempt < 6; attempt += 1) {
           if (await titleTextarea.isVisible().catch(() => false)) {
             return titleTextarea;
           }
 
           if (await addCourseForm.isVisible().catch(() => false)) {
-            await ensureCourseSelection();
-            await clickContinue();
+            const hasSelection = await ensureCourseSelection();
+            if (!hasSelection) {
+              await page.waitForTimeout(250);
+              continue;
+            }
+            await clickContinue(addCourseForm);
             await dismissTutorial();
             continue;
           }
@@ -711,23 +847,26 @@ function createSakaiHelpers(page, baseURL) {
           await page.waitForLoadState('domcontentloaded').catch(() => {});
         }
 
-        throw new Error('Unable to reach course title step during site creation');
+        throw new Error(`Unable to reach course title step during site creation (url: ${page.url()})`);
       };
 
       const addCourseText = (await addCourseForm.textContent()) || '';
       if (addCourseText.includes('select anyway')) {
         await page.getByRole('link', { name: /select anyway/i }).first().click({ force: true });
-      } else {
+      }
+      if (!(await ensureCourseSelection())) {
         await addCourseForm.locator('input[type="checkbox"]').first().check({ force: true });
       }
-      await ensureCourseSelection();
+      if (!(await ensureCourseSelection())) {
+        throw new Error('Unable to select a visible course/section during site creation');
+      }
 
       const courseDesc = page.locator('form input#courseDesc1');
       if (await courseDesc.count()) {
         await courseDesc.first().click({ force: true });
       }
 
-      await clickContinue();
+      await clickContinue(addCourseForm);
       await dismissTutorial();
       const siteTitle = await goToSiteTitleStep();
       await siteTitle.fill('Playwright Testing');

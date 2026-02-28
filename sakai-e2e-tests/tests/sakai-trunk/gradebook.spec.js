@@ -27,10 +27,10 @@ test.describe('Gradebook', () => {
 
     await expect(page.locator('#settingsCategories input[type="radio"]:visible')).toHaveCount(3);
 
-    const catWeightLabel = page.locator('#settingsCategories label').filter({ hasText: 'Categories & weighting' }).first();
-    await catWeightLabel.click({ force: true });
-
-    await expect(page.locator('#settingsCategories input[name="categoryPanel:settingsCategoriesPanel:categoryType"]:checked')).toHaveValue('radio4');
+    const weightedCategoryOption = page.locator('#settingsCategories input[name="categoryPanel:settingsCategoriesPanel:categoryType"][value="radio4"]').first();
+    await expect(weightedCategoryOption).toBeVisible();
+    await weightedCategoryOption.check({ force: true });
+    await expect(weightedCategoryOption).toBeChecked();
 
     await page.locator('.gb-category-row input[name$="name"]').first().fill(categories[0].letter);
     await page.locator('.gb-category-weight input[name$="weight"]').first().fill('100');
