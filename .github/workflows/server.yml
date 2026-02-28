@@ -1,6 +1,7 @@
-# This workflow deploys Sakai to Tomcat and runs browser E2E tests.
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Playwright E2E Browser Tests
+name: Cypress E2E Browser Tests
 
 on:
   pull_request:
@@ -13,21 +14,12 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
-
       - name: JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: temurin
           cache: maven
-
-      - name: Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: sakai-e2e-tests/package-lock.json
-
       - name: Build with Maven
         env:
           MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
@@ -47,49 +39,41 @@ jobs:
           cp -f sakai/context.xml conf/context.xml
           cp -f sakai/catalina.properties conf/catalina.properties
           sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
-          mysql -u root -proot -e "create database sakai";
+          mysql -u root -proot -e "create database sakai"; 
           cd ..
           mvn --batch-mode -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
           cd $TOMCAT_DIR
           bin/catalina.sh start
-
-      - name: Wait for Sakai
+          sleep 500s
+          grep "Server startup in" logs/catalina.out
+      - name: Start cloudflared
         run: |
-          for i in {1..180}; do
-            if curl -fsS http://127.0.0.1:8080/portal/ > /dev/null; then
-              grep "Server startup in" tomcat/logs/catalina.out || true
-              exit 0
-            fi
-            sleep 10
-          done
-          echo "Sakai did not become ready in time"
-          tail -n 200 tomcat/logs/catalina.out || true
-          exit 1
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
+          curl -sL -o cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i cloudflared.deb
+          cloudflared tunnel --url http://localhost:8443 &
+      - name: Cypress Checkout
+        uses: actions/checkout@v4
         with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('sakai-e2e-tests/package-lock.json') }}
-
-      - name: Install Playwright dependencies
-        working-directory: sakai-e2e-tests
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
-
-      - name: Run Playwright tests
-        working-directory: sakai-e2e-tests
+          repository: sakaicontrib/cypress-sakai
+          path: './cypress-sakai'
+      - name: Cypress Run
+        uses: cypress-io/github-action@v6
+        with:
+          browser: chrome
+          config: baseUrl=http://localhost:8080
+          working-directory: cypress-sakai
+          wait-on: 'http://localhost:8080/portal/'
+          wait-on-timeout: 1800
+          record: true
         env:
-          PLAYWRIGHT_BASE_URL: http://127.0.0.1:8080
-        run: npx playwright test
-
+          CYPRESS_RECORD_KEY: f2049235-3f10-4142-a26c-fc017211a776
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
       - name: Check number of MySQL statements
         if: always()
         run: |
           export QUERIES=$(grep StandardClient.debug tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
           echo "::notice title={MySQL Queries}::$QUERIES"
-
       - name: Upload Tomcat log for review
         if: always()
         uses: actions/upload-artifact@v4
@@ -97,13 +81,6 @@ jobs:
           name: tomcat-log
           path: tomcat/logs/catalina.out
           retention-days: 5
-
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: |
-            sakai-e2e-tests/playwright-report
-            sakai-e2e-tests/test-results
-          retention-days: 5
+      - name: Sleep fifteen minutes to allow testing
+        if: ${{ always() }}
+        run: sleep 15m
