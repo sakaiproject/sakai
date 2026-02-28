@@ -5,10 +5,27 @@ test.describe('Assignments', () => {
 
   let sakaiUrl;
   const assignTitle = `Playwright Assignment ${Date.now()}`;
+  const assignmentToolIds = [
+    'sakai\\.rubrics',
+    'sakai\\.assignment\\.grades',
+    'sakai\\.gradebookng',
+  ];
+
+  const ensureCourseUrl = async (sakai) => {
+    if (sakaiUrl) {
+      return sakaiUrl;
+    }
+
+    await sakai.login('instructor1');
+    sakaiUrl = await sakai.createCourse('instructor1', assignmentToolIds);
+    expect(sakaiUrl).toContain('/portal/site/');
+    return sakaiUrl;
+  };
 
   const ensureStudentAssignmentExists = async (page, sakai) => {
+    const courseUrl = await ensureCourseUrl(sakai);
     await sakai.login('instructor1');
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
     await sakai.toolClick('Assignments');
     await sakai.gotoAssignmentsList();
 
@@ -36,17 +53,14 @@ test.describe('Assignments', () => {
   };
 
   test('can create a new course', async ({ sakai }) => {
-    await sakai.login('instructor1');
-    sakaiUrl = await sakai.createCourse('instructor1', [
-      'sakai\\.rubrics',
-      'sakai\\.assignment\\.grades',
-      'sakai\\.gradebookng',
-    ]);
+    const courseUrl = await ensureCourseUrl(sakai);
+    expect(courseUrl).toContain('/portal/site/');
   });
 
   test('can create a letter grade assignment', async ({ page, sakai }) => {
+    const courseUrl = await ensureCourseUrl(sakai);
     await sakai.login('instructor1');
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
     await sakai.toolClick('Assignments');
 
     await sakai.openAddAssignmentForm();
@@ -60,7 +74,7 @@ test.describe('Assignments', () => {
 
     let openedFirstSubmissionList = await sakai.clickAssignmentAction(/View Submissions|Grade/i);
     if (!openedFirstSubmissionList) {
-      await page.goto(sakaiUrl);
+      await page.goto(courseUrl);
       await sakai.toolClick('Assignments');
       openedFirstSubmissionList = await sakai.clickAssignmentAction(/View Submissions|Grade/i);
     }
@@ -87,7 +101,7 @@ test.describe('Assignments', () => {
 
     let openedSecondSubmissionList = await sakai.clickAssignmentAction(/View Submissions|Grade/i);
     if (!openedSecondSubmissionList) {
-      await page.goto(sakaiUrl);
+      await page.goto(courseUrl);
       await sakai.toolClick('Assignments');
       openedSecondSubmissionList = await sakai.clickAssignmentAction(/View Submissions|Grade/i);
     }
@@ -109,7 +123,7 @@ test.describe('Assignments', () => {
       }
     }
 
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
     await sakai.toolClick('Assignments');
 
     let assignmentCheckbox = page.locator('input[id^="check_"]').first();
@@ -128,8 +142,9 @@ test.describe('Assignments', () => {
   });
 
   test('can create a points assignment', async ({ page, sakai }) => {
+    const courseUrl = await ensureCourseUrl(sakai);
     await sakai.login('instructor1');
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
     await sakai.toolClick('Assignments');
 
     await sakai.openAddAssignmentForm();
@@ -157,38 +172,77 @@ test.describe('Assignments', () => {
   });
 
   test('can associate a rubric with an assignment', async ({ page, sakai }) => {
-    await sakai.createRubric('instructor1', sakaiUrl);
+    const courseUrl = await ensureCourseUrl(sakai);
+    const rubricAssignmentTitle = `Rubric Assignment ${Date.now()}`;
+
+    await sakai.createRubric('instructor1', courseUrl);
 
     await page.locator('.modal-footer button:visible, div.popover button:visible, button:visible')
       .filter({ hasText: /Save/i })
       .first()
       .click({ force: true });
 
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
     await sakai.toolClick('Assignments');
-    await page.locator('.navIntraTool').first().waitFor({ timeout: 15000 }).catch(() => {});
+    await sakai.gotoAssignmentsList();
+    await sakai.openAddAssignmentForm();
 
-    const clickVisibleEditLink = async () => sakai.clickVisible(page.getByRole('link', { name: /^Edit$/i }));
+    const titleInput = page.locator('#new_assignment_title').first();
+    await expect(titleInput).toBeVisible({ timeout: 15000 });
+    await titleInput.fill(rubricAssignmentTitle);
+    await expect(titleInput).toHaveValue(rubricAssignmentTitle);
 
-    if (!(await clickVisibleEditLink())) {
-      await sakai.openAddAssignmentForm();
-      await page.locator('#new_assignment_title').fill(`Rubric Assignment ${Date.now()}`);
-      await sakai.typeCkEditor('new_assignment_instructions', '<p>Assignment for rubric association.</p>');
-      await sakai.submitAssignmentForm();
-      await clickVisibleEditLink();
-    }
+    const gradeAssignmentCheckbox = page.locator('#gradeAssignment').first();
+    await expect(gradeAssignmentCheckbox).toBeVisible({ timeout: 15000 });
+    await gradeAssignmentCheckbox.check({ force: true });
+    await expect(gradeAssignmentCheckbox).toBeChecked();
 
-    await page.locator('#gradeAssignment').check({ force: true });
     await page.locator('#new_assignment_grade_points').fill('55.13');
+    await expect(page.locator('#new_assignment_grade_points')).toHaveValue('55.13');
     await page.locator('input[name="rbcs-associate"][value="1"]').check({ force: true });
+    await expect(page.locator('input[name="rbcs-associate"][value="1"]')).toBeChecked();
 
     await sakai.typeCkEditor('new_assignment_instructions',
       '<p>What is chiefly responsible for the increase in the average length of life in the USA during the last fifty years?</p>');
 
-    await page.locator('.act input.active').first().click({ force: true });
+    await sakai.normalizeAssignmentFormDefaults();
 
-    await expect(page.locator('body')).toContainText('Grade');
-    await expect(page.locator('body')).toContainText(/Rubric|Assignment/i);
+    const dateParts = await page.evaluate(() => {
+      const prefixes = ['new_assignment_open', 'new_assignment_due', 'new_assignment_close'];
+      const parts = ['year', 'month', 'day', 'hour', 'min'];
+      const output = {};
+      for (const prefix of prefixes) {
+        output[prefix] = {};
+        for (const part of parts) {
+          const field = document.querySelector(`input[name="${prefix}_${part}"]`);
+          output[prefix][part] = field ? String(field.value || '') : '';
+        }
+      }
+      return output;
+    });
+
+    for (const prefix of Object.keys(dateParts)) {
+      for (const part of Object.keys(dateParts[prefix])) {
+        expect(dateParts[prefix][part], `${prefix}_${part} should be numeric`).toMatch(/^\d+$/);
+      }
+    }
+
+    await sakai.submitAssignmentForm();
+    await sakai.gotoAssignmentsList();
+
+    const rubricRow = page.locator('tr').filter({ hasText: rubricAssignmentTitle }).first();
+    await expect(rubricRow).toBeVisible();
+    await expect(rubricRow).toContainText(/55\.13|55/);
+    await expect(rubricRow).not.toContainText(/No Grade/i);
+
+    const editLink = rubricRow.locator('a').filter({ hasText: /^Edit\b/i }).first();
+    await expect(editLink).toBeVisible();
+    await editLink.click({ force: true });
+
+    await expect(page.locator('#new_assignment_title')).toHaveValue(rubricAssignmentTitle);
+    await expect(page.locator('#gradeAssignment')).toBeChecked();
+    await expect(page.locator('#new_assignment_grade_points')).toHaveValue('55.13');
+    await expect(page.locator('input[name="rbcs-associate"][value="1"]')).toBeChecked();
   });
 
   test('can submit as student on desktop', async ({ page, sakai }) => {
@@ -197,9 +251,10 @@ test.describe('Assignments', () => {
       test.skip(true, `${assignTitle} was not published/listed for student flows in this run`);
     }
 
+    const courseUrl = await ensureCourseUrl(sakai);
     await page.setViewportSize({ width: 1280, height: 800 });
     await sakai.login('student0011');
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
     await sakai.toolClick('Assignments');
     await sakai.gotoAssignmentsList();
 
@@ -230,9 +285,10 @@ test.describe('Assignments', () => {
       test.skip(true, `${assignTitle} was not published/listed for student flows in this run`);
     }
 
+    const courseUrl = await ensureCourseUrl(sakai);
     await page.setViewportSize({ width: 375, height: 812 });
     await sakai.login('student0012');
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
 
     const allSitesButton = page.locator('button.responsive-allsites-button').first();
     if (await allSitesButton.count()) {
@@ -262,8 +318,9 @@ test.describe('Assignments', () => {
   });
 
   test('can allow a student to resubmit', async ({ page, sakai }) => {
+    const courseUrl = await ensureCourseUrl(sakai);
     await sakai.login('instructor1');
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
     await sakai.toolClick('Assignments');
 
     const openedGradebookList = await sakai.clickAssignmentAction(/Grade|View Submissions/i);
@@ -303,8 +360,9 @@ test.describe('Assignments', () => {
   });
 
   test('can create a non-electronic assignment', async ({ page, sakai }) => {
+    const courseUrl = await ensureCourseUrl(sakai);
     await sakai.login('instructor1');
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
     await sakai.toolClick('Assignments');
 
     await sakai.openAddAssignmentForm();

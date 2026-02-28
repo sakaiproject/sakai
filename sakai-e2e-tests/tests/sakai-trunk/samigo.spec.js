@@ -5,12 +5,65 @@ async function clickSubmit(page, label, options = {}) {
   await locator.click({ force: true, ...options });
 }
 
+function optionMatchesPattern(label, pattern) {
+  if (pattern instanceof RegExp) {
+    const flags = pattern.flags.replace(/g/g, '');
+    return new RegExp(pattern.source, flags).test(label);
+  }
+  return label.toLowerCase().includes(String(pattern).toLowerCase());
+}
+
+async function selectByLabelPattern(selectLocator, pattern) {
+  let matchedValue = null;
+
+  await expect.poll(async () => {
+    const options = await selectLocator.locator('option').evaluateAll((items) => items.map((item) => ({
+      label: (item.textContent || '').trim(),
+      value: item.value,
+    })));
+    const match = options.find((option) => optionMatchesPattern(option.label, pattern));
+    matchedValue = match?.value || null;
+    return Boolean(matchedValue);
+  }, {
+    timeout: 30000,
+    intervals: [250, 500, 1000],
+  }).toBe(true);
+
+  await selectLocator.selectOption(String(matchedValue));
+}
+
+async function selectSamigoQuestionType(page, pattern) {
+  const candidates = [
+    page.locator('#assessmentForm\\:parts\\:0\\:changeQType').first(),
+    page.locator('select[id$=":changeQType"]').first(),
+    page.locator('select[name$="changeQType"]').first(),
+    page.locator('select:visible').filter({ hasText: pattern }).first(),
+  ];
+
+  let selectLocator = null;
+  for (const candidate of candidates) {
+    if (await candidate.isVisible({ timeout: 5000 }).catch(() => false)) {
+      selectLocator = candidate;
+      break;
+    }
+  }
+
+  if (!selectLocator) {
+    selectLocator = page.locator('select:visible').filter({ hasText: pattern }).first();
+    await expect(selectLocator).toBeVisible({ timeout: 30000 });
+  }
+
+  await expect(selectLocator).toBeEnabled({ timeout: 30000 });
+  await selectByLabelPattern(selectLocator, pattern);
+}
+
 test.describe('Samigo', () => {
   test.describe.configure({ mode: 'serial' });
 
   let sakaiUrl;
   const samigoTitle = `Playwright Quiz ${Date.now()}`;
   const essayTitle = `Essay with Rubric ${Date.now()}`;
+  const samigoToolIds = ['sakai\\.rubrics', 'sakai\\.samigo'];
 
   const openNewAssessmentForm = async (page) => {
     const addLink = page.locator('#authorIndexForm a').filter({ hasText: /^Add$/i }).first();
@@ -26,14 +79,25 @@ test.describe('Samigo', () => {
     await expect(titleInput).toBeVisible();
   };
 
-  test('can create a new course', async ({ sakai }) => {
+  const ensureCourseUrl = async (sakai) => {
+    if (sakaiUrl) {
+      return sakaiUrl;
+    }
+
     await sakai.login('instructor1');
-    sakaiUrl = await sakai.createCourse('instructor1', ['sakai\\.rubrics', 'sakai\\.samigo']);
+    sakaiUrl = await sakai.createCourse('instructor1', samigoToolIds);
+    expect(sakaiUrl).toContain('/portal/site/');
+    return sakaiUrl;
+  };
+
+  test('can create a new course', async ({ sakai }) => {
+    await ensureCourseUrl(sakai);
   });
 
   test('can create a quiz from scratch', async ({ page, sakai }) => {
+    const courseUrl = await ensureCourseUrl(sakai);
     await sakai.login('instructor1');
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
     await sakai.toolClick('Tests');
     const testsToolUrl = page.url();
 
@@ -41,7 +105,7 @@ test.describe('Samigo', () => {
     await page.locator('#authorIndexForm\\:title').fill(samigoTitle);
     await page.locator('#authorIndexForm\\:createnew').click({ force: true });
 
-    await page.locator('#assessmentForm\\:parts\\:0\\:changeQType').selectOption({ label: 'Multiple Choice' });
+    await selectSamigoQuestionType(page, /multiple\s*choice/i);
     await page.locator('#itemForm\\:answerptr').fill('99.99');
     await page.locator('#itemForm textarea').first().fill('What is chiefly responsible for the increase in the average length of life in the USA during the last fifty years?');
     await page.locator('#itemForm\\:mcchoices textarea').nth(0).fill('Compulsory health and physical education courses in public schools.');
@@ -56,7 +120,7 @@ test.describe('Samigo', () => {
     await page.locator('#itemForm\\:mcchoices textarea').nth(3).fill('Safer cars.');
     await clickSubmit(page, 'Save');
 
-    await page.locator('#assessmentForm\\:parts\\:0\\:changeQType').selectOption({ label: 'Multiple Choice' });
+    await selectSamigoQuestionType(page, /multiple\s*choice/i);
     await page.locator('#itemForm\\:answerptr').fill('100.00');
     await page.locator('#itemForm textarea').first().fill('What is the main reason so many people moved to California in 1849?');
     await page.locator('#itemForm\\:mcchoices textarea').nth(0).fill('California land was fertile, plentiful, and inexpensive.');
@@ -82,7 +146,7 @@ test.describe('Samigo', () => {
     await clickSubmit(page, 'Remove');
     await expect(page.locator('#assessmentForm\\:parts .samigo-question-callout')).toHaveCount(1);
 
-    await page.locator('#assessmentForm\\:parts\\:0\\:changeQType').selectOption({ label: 'Calculated Question' });
+    await selectSamigoQuestionType(page, /calculated/i);
     await page.locator('#itemForm\\:answerptr').fill('10.00');
     await page.locator('#itemForm textarea.simple_text_area').first().fill(
       'Kevin has {x} apples. He buys {y} more. Now Kevin has [[{x}+{y}]]. Jane eats {z} apples. Kevin now has {{w}} apples.',
@@ -206,8 +270,9 @@ test.describe('Samigo', () => {
   test('can preview a draft assessment without leaving extra assessments behind', async ({ page, sakai }) => {
     const previewTitle = `Playwright Preview ${Math.floor(Math.random() * 1_000_000)}`;
 
+    const courseUrl = await ensureCourseUrl(sakai);
     await sakai.login('instructor1');
-    await page.goto(sakaiUrl);
+    await page.goto(courseUrl);
     await sakai.toolClick('Tests');
     const testsUrl = page.url();
 
@@ -215,7 +280,7 @@ test.describe('Samigo', () => {
     await page.locator('#authorIndexForm\\:title').fill(previewTitle);
     await page.locator('#authorIndexForm\\:createnew').click({ force: true });
 
-    await page.locator('#assessmentForm\\:parts\\:0\\:changeQType').selectOption({ label: 'Multiple Choice' });
+    await selectSamigoQuestionType(page, /multiple\s*choice/i);
     await page.locator('#itemForm\\:answerptr').fill('10.00');
     await page.locator('#itemForm textarea').first().fill('Preview flow smoke question');
     await page.locator('#itemForm\\:mcchoices textarea').nth(0).fill('Option A');

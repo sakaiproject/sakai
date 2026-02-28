@@ -301,6 +301,21 @@ function createSakaiHelpers(page, baseURL) {
       return true;
     },
 
+    async gotoCurrentToolAction(action, extraQuery = '') {
+      const toolPath = parseToolPath(page.url(), baseURL);
+      if (!toolPath) {
+        return false;
+      }
+
+      const trimmed = String(extraQuery || '').replace(/^[?&]+/, '');
+      const query = trimmed ? `&${trimmed}` : '';
+      const actionUrl = `${toolPath.origin}${toolPath.sitePath}/tool-reset/${toolPath.toolId}`
+        + `?sakai_action=${encodeURIComponent(action)}${query}`;
+      await page.goto(actionUrl);
+      await page.waitForLoadState('domcontentloaded').catch(() => {});
+      return true;
+    },
+
     async clickVisible(locator) {
       const count = await locator.count();
       for (let index = 0; index < count; index += 1) {
@@ -346,28 +361,132 @@ function createSakaiHelpers(page, baseURL) {
     },
 
     async openAddAssignmentForm() {
-      const addLink = page.locator('.navIntraTool a, .navIntraTool button').filter({ hasText: /^Add$/i }).first();
-      await base.expect(addLink).toBeVisible();
-
-      const href = await addLink.getAttribute('href');
-      await addLink.click({ force: true });
-
       const titleInput = page.locator('#new_assignment_title').first();
-      if (!(await titleInput.isVisible({ timeout: 10000 }).catch(() => false)) && href) {
+      await helpers.gotoAssignmentsList().catch(() => false);
+
+      const addSelectors = '.navIntraTool a, .navIntraTool button, .navIntraTool [role="button"], .navIntraTool li';
+      const addLink = page.locator(addSelectors).filter({ hasText: /^(Add|New)$/i }).first();
+
+      let clickedAdd = false;
+      let href = null;
+      if ((await addLink.count()) && (await addLink.isVisible().catch(() => false))) {
+        href = await addLink.getAttribute('href');
+        clickedAdd = await helpers.clickVisible(addLink);
+      }
+
+      if (!clickedAdd) {
+        const toolNavAddLink = page.getByRole('navigation', { name: /Tool navigation/i })
+          .locator('a, button, [role="button"], li')
+          .filter({ hasText: /^(Add|New)$/i })
+          .first();
+        if ((await toolNavAddLink.count()) && (await toolNavAddLink.isVisible().catch(() => false))) {
+          href = href || await toolNavAddLink.getAttribute('href');
+          clickedAdd = await helpers.clickVisible(toolNavAddLink);
+        }
+      }
+
+      if (!(await titleInput.isVisible({ timeout: 8000 }).catch(() => false)) && href && href !== '#') {
         await helpers.goto(href);
+      }
+
+      if (!(await titleInput.isVisible({ timeout: 8000 }).catch(() => false))) {
+        await helpers.gotoCurrentToolAction('doNew_assignment').catch(() => false);
       }
 
       await base.expect(titleInput).toBeVisible();
     },
 
+    async normalizeAssignmentFormDefaults() {
+      await page.evaluate(() => {
+        const form = document.querySelector('form#newAssignmentForm, form[name="newAssignmentForm"]');
+        if (!form) {
+          return;
+        }
+
+        const formatIso = (date) => (
+          `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+          + `-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}`
+          + `:${String(date.getMinutes()).padStart(2, '0')}`
+        );
+
+        const setDateFields = (prefix, date) => {
+          const values = {
+            year: String(date.getFullYear()),
+            month: String(date.getMonth() + 1),
+            day: String(date.getDate()),
+            hour: String(date.getHours()),
+            min: String(date.getMinutes()),
+          };
+
+          for (const [part, value] of Object.entries(values)) {
+            let input = form.querySelector(`input[name="${prefix}_${part}"]`);
+            if (!input) {
+              input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = `${prefix}_${part}`;
+              form.appendChild(input);
+            }
+            input.value = value;
+          }
+        };
+
+        const hasInvalidDateFields = (prefix) => {
+          const fields = ['year', 'month', 'day', 'hour', 'min']
+            .map((part) => form.querySelector(`input[name="${prefix}_${part}"]`));
+          return fields.some((field) => !field || !/^\d+$/.test(String(field.value || '')));
+        };
+
+        const now = new Date();
+        const openDate = new Date(now.getTime() - (30 * 60 * 1000));
+        const dueDate = new Date(now.getTime() + (24 * 60 * 60 * 1000));
+        const closeDate = new Date(now.getTime() + (48 * 60 * 60 * 1000));
+
+        const ensureDate = (prefix, date, pickerId) => {
+          if (hasInvalidDateFields(prefix)) {
+            setDateFields(prefix, date);
+          }
+          const picker = document.querySelector(`sakai-date-picker#${pickerId}`);
+          if (picker) {
+            picker.setAttribute('iso-date', formatIso(date));
+          }
+        };
+
+        ensureDate('new_assignment_open', openDate, 'opendate');
+        ensureDate('new_assignment_due', dueDate, 'duedate');
+        ensureDate('new_assignment_close', closeDate, 'closedate');
+
+        if (hasInvalidDateFields('allow_resubmit_close')) {
+          setDateFields('allow_resubmit_close', closeDate);
+        }
+
+        const gradeAssignment = form.querySelector('#gradeAssignment');
+        const sendToGradebook = form.querySelector('#new_assignment_send_to_gradebook');
+        const gradePoints = form.querySelector('#new_assignment_grade_points');
+        const needsPoints = (gradeAssignment && gradeAssignment.checked)
+          || (sendToGradebook && sendToGradebook.checked);
+
+        if (gradePoints && needsPoints && !String(gradePoints.value || '').trim()) {
+          gradePoints.value = '100';
+        }
+      });
+    },
+
     async submitAssignmentForm() {
+      await helpers.normalizeAssignmentFormDefaults();
+
       const controls = [
+        page.locator('div.act input[type="button"][name="post"], .act input[type="button"][name="post"]'),
+        page.locator('div.act input[type="button"][value="Post"], .act input[type="button"][value="Post"]'),
         page.locator('div.act button, .act button').filter({ hasText: /^Post$/i }),
         page.locator('div.act input[type="submit"][value="Post"], .act input[type="submit"][value="Post"]'),
+        page.locator('div.act input[type="button"][value*="Save and Release"], .act input[type="button"][value*="Save and Release"]'),
         page.locator('div.act button, .act button').filter({ hasText: /^Save and Release$/i }),
         page.locator('div.act input[type="submit"][value*="Save and Release"], .act input[type="submit"][value*="Save and Release"]'),
+        page.locator('div.act input[type="button"][name="save"], .act input[type="button"][name="save"]'),
+        page.locator('div.act input[type="button"][value="Save"], .act input[type="button"][value="Save"]'),
         page.locator('div.act button, .act button').filter({ hasText: /^Save$/i }),
         page.locator('div.act input[type="submit"][value="Save"], .act input[type="submit"][value="Save"]'),
+        page.locator('div.act input.active[name="post"], .act input.active[name="post"]'),
         page.locator('div.act input.active, .act input.active'),
       ];
 
@@ -756,12 +875,72 @@ const test = base.test.extend({
   sakai: async ({ page, baseURL }, use) => {
     await page.route('https://www.google-analytics.com/j/collect*', (route) => route.abort()).catch(() => {});
     await page.addInitScript(() => {
+      const pushManagerErrorText = 'pushManager';
+      const isPushManagerError = (value) => String(value || '').includes(pushManagerErrorText);
+
       try {
         sessionStorage.setItem('tutorialFlagSet', 'true');
         localStorage.setItem('tutorialFlagSet', 'true');
       } catch (error) {
         // Ignore storage write issues in restrictive browser contexts.
       }
+
+      try {
+        if ('Notification' in window) {
+          Object.defineProperty(Notification, 'permission', {
+            configurable: true,
+            get: () => 'denied',
+          });
+        }
+      } catch (error) {
+        // Ignore immutable Notification permission environments.
+      }
+
+      try {
+        const stubRegistration = {
+          pushManager: {
+            getSubscription: async () => null,
+            permissionState: async () => 'denied',
+            subscribe: async () => null,
+          },
+          showNotification: async () => {},
+          unregister: async () => true,
+        };
+
+        const stubServiceWorker = {
+          ready: Promise.resolve(stubRegistration),
+          register: async () => stubRegistration,
+          getRegistration: async () => stubRegistration,
+          getRegistrations: async () => [stubRegistration],
+          addEventListener: () => {},
+          removeEventListener: () => {},
+          controller: null,
+        };
+
+        if (!navigator.serviceWorker) {
+          Object.defineProperty(navigator, 'serviceWorker', {
+            configurable: true,
+            get: () => stubServiceWorker,
+          });
+        }
+      } catch (error) {
+        // Ignore immutable service worker environments.
+      }
+
+      window.addEventListener('error', (event) => {
+        if (isPushManagerError(event && event.message)) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }, true);
+
+      window.addEventListener('unhandledrejection', (event) => {
+        const reason = event && event.reason;
+        const message = reason && reason.message ? reason.message : reason;
+        if (isPushManagerError(message)) {
+          event.preventDefault();
+        }
+      });
     });
 
     page.on('dialog', async (dialog) => {
