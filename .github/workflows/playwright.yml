@@ -104,13 +104,15 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:8080
         run: |
+          set -o pipefail
+          mkdir -p sakai-e2e-tests-java/target
           mvn --batch-mode -f sakai-e2e-tests-java/pom.xml \
             -Djunit.jupiter.execution.parallel.enabled=true \
             -Djunit.jupiter.execution.parallel.mode.default=same_thread \
             -Djunit.jupiter.execution.parallel.mode.classes.default=concurrent \
             -Djunit.jupiter.execution.parallel.config.strategy=fixed \
             -Djunit.jupiter.execution.parallel.config.fixed.parallelism=${PLAYWRIGHT_WORKERS} \
-            test
+            test 2>&1 | tee sakai-e2e-tests-java/target/playwright-java-run.log
 
       - name: Check number of MySQL statements
         if: always()
@@ -126,12 +128,29 @@ jobs:
           path: tomcat/logs/catalina.out
           retention-days: 5
 
+      - name: Collect Playwright Java artifacts
+        if: always()
+        run: |
+          mkdir -p playwright-java-artifacts
+          if [ -d sakai-e2e-tests-java/target/playwright-artifacts ]; then
+            cp -R sakai-e2e-tests-java/target/playwright-artifacts playwright-java-artifacts/
+          fi
+          if [ -d sakai-e2e-tests-java/target/surefire-reports ]; then
+            cp -R sakai-e2e-tests-java/target/surefire-reports playwright-java-artifacts/
+          fi
+          if [ -f sakai-e2e-tests-java/target/playwright-java-run.log ]; then
+            cp sakai-e2e-tests-java/target/playwright-java-run.log playwright-java-artifacts/
+          fi
+          if [ ! -e playwright-java-artifacts/playwright-artifacts ] \
+            && [ ! -e playwright-java-artifacts/surefire-reports ] \
+            && [ ! -f playwright-java-artifacts/playwright-java-run.log ]; then
+            echo "No Playwright Java artifacts were produced in this run." > playwright-java-artifacts/README.txt
+          fi
+
       - name: Upload Playwright Java artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-java-artifacts
-          path: |
-            sakai-e2e-tests-java/target/playwright-artifacts
-            sakai-e2e-tests-java/target/surefire-reports
+          path: playwright-java-artifacts
           retention-days: 5
