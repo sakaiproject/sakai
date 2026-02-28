@@ -81,10 +81,6 @@
             <artifactId>search-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.search</groupId>
-            <artifactId>search-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.tags</groupId>
             <artifactId>tags-api</artifactId>
         </dependency>

@@ -37,8 +37,6 @@ import org.sakaiproject.tool.assessment.entity.impl.ItemEntityProviderImpl;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
-import org.sakaiproject.search.util.HTMLParser;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -180,7 +178,7 @@ public class ItemContentProducer implements EntityContentProducer, EntityContent
 
         try {
             ItemFacade item = (ItemFacade)qhp.getEntity(er);
-            return HTMLParser.stripHtml(qhp.content(item));
+            return qhp.content(item);
         } catch (Exception e) {
             throw new RuntimeException(" Failed to get item content ", e);
         }

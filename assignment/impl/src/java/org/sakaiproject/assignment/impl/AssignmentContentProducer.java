@@ -33,7 +33,6 @@ import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
@@ -41,7 +40,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.EntityContentProducerEvents;
 import org.sakaiproject.search.api.SearchIndexBuilder;
-import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -102,7 +100,7 @@ public class AssignmentContentProducer implements EntityContentProducer, EntityC
     public String getContent(String ref) {
 
         return getAssignment(AssignmentReferenceReckoner.reckoner().reference(ref).reckon())
-                .map(a -> HTMLParser.stripHtml(a.getInstructions()))
+                .map(a -> a.getTitle() + " " + a.getInstructions())
                 .orElse("");
     }
 

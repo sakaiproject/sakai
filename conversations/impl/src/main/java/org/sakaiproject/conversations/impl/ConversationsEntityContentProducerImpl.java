@@ -20,8 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.sakaiproject.search.util.HTMLParser;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conversations.api.ConversationsEvents;
 import org.sakaiproject.conversations.api.ConversationsReferenceReckoner;
@@ -257,7 +255,7 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
                 ConversationsTopic topic = topicRepository.findById(ref.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid topic reference: " + reference));
                 if (!topic.getDraft() && !topic.getHidden()) {
-                    sb.append(HTMLParser.stripHtml(topic.getMessage()));
+                    sb.append(topic.getMessage());
                     topic.getTagIds().forEach(tagId -> {
                         tagRepository.findById(tagId).ifPresent(t -> sb.append(" ").append(t.getLabel()));
                     });
@@ -267,13 +265,13 @@ public class ConversationsEntityContentProducerImpl implements EntityContentProd
                 ConversationsPost post = postRepository.findById(ref.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid post reference: " + reference));
                 if (!post.getDraft() && !post.getHidden()) {
-                    sb.append(HTMLParser.stripHtml(post.getMessage()));
+                    sb.append(post.getMessage());
                 }
                 break;
             case "c":
                 ConversationsComment comment = commentRepository.findById(ref.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid comment reference: " + reference));
-                sb.append(HTMLParser.stripHtml(comment.getMessage()));
+                sb.append(comment.getMessage());
                 break;
             default:
         }

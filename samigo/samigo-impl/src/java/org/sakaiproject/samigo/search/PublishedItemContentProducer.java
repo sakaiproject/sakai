@@ -36,8 +36,6 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
-import org.sakaiproject.search.util.HTMLParser;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -152,7 +150,7 @@ public class PublishedItemContentProducer implements EntityContentProducer, Enti
         PublishedItemEntityProviderImpl qhp= (PublishedItemEntityProviderImpl)entityProviderManager.getProviderByPrefix(er.getPrefix());
         try {
             PublishedItemFacade item = (PublishedItemFacade)qhp.getEntity(er);
-            return HTMLParser.stripHtml(qhp.content(item));
+            return qhp.content(item);
         } catch (Exception e) {
             throw new RuntimeException(" Failed to get item content ", e);
         }

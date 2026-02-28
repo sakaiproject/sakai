@@ -43,7 +43,6 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
-import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 import org.sakaiproject.site.api.Site;
@@ -294,6 +293,10 @@ public class SiteContentProducer implements EntityContentProducer
 				Site s = ss.getSite(ref.getId());
 
 				StringBuilder sb = new StringBuilder();
+				if (s.getTitle() != null) {
+					sb.append(s.getTitle());
+					sb.append(" ");
+				}
 				if (s.getShortDescription() != null) {
 					sb.append(s.getShortDescription());
 					sb.append(" ");
@@ -301,7 +304,7 @@ public class SiteContentProducer implements EntityContentProducer
 				if (s.getDescription() != null) {
 					sb.append(s.getDescription());
 				}
-				return HTMLParser.stripHtml(sb.toString());
+				return sb.toString();
 
 			}
 			catch (IdUnusedException e)

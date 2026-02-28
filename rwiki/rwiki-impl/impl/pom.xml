@@ -115,10 +115,6 @@
 			<artifactId>search-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject.search</groupId>
-			<artifactId>search-util</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.sakaiproject.edu-services.sections</groupId>
 			<artifactId>sections-api</artifactId>
 		</dependency>

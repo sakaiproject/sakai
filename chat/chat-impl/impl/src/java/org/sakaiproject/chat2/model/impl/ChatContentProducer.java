@@ -44,7 +44,6 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.User;
@@ -214,7 +213,7 @@ protected void init() throws Exception {
          {
             ChatEntityProducer ms = (ChatEntityProducer) ep;
             ChatMessage m = ms.getMessage(ref);
-            return HTMLParser.stripHtml(m.getBody());
+            return m.getBody();
          }
          catch (IdUnusedException e)
          {
