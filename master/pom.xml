@@ -237,10 +237,14 @@
   </profiles>
 
   <repositories>
-    <!--
-      Apache Maven retrieves all components from the Central Repository by default.
-      Starting with Maven 3.2.3 the default access is via HTTPS and no further configuration is required.
-    -->
+    <repository>
+      <id>central</id>
+      <name>Maven Central</name>
+      <url>https://repo.maven.apache.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
     <repository>
       <id>sakai-maven</id>
       <name>Sakai Maven Repo</name>

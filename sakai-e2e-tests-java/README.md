@@ -10,11 +10,34 @@ export PLAYWRIGHT_BASE_URL=https://sakai.example
 mvn -f sakai-e2e-tests-java/pom.xml test
 ```
 
+Run headed (watch browser):
+
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+export PLAYWRIGHT_BASE_URL=https://sakai.example
+export PLAYWRIGHT_HEADLESS=false
+mvn -f sakai-e2e-tests-java/pom.xml test
+```
+
 Run a single class:
 
 ```bash
 mvn -f sakai-e2e-tests-java/pom.xml -Dtest=AssignmentTest test
 ```
+
+Run a single test method:
+
+```bash
+mvn -f sakai-e2e-tests-java/pom.xml -Dtest=AssignmentTest#canCreatePointsAssignment test
+```
+
+Optional browser override:
+
+```bash
+export PLAYWRIGHT_BROWSER=chromium  # default, or firefox/webkit
+```
+
+Artifacts (trace/video/final screenshot) are written to `target/playwright-artifacts/`.
 
 ## Parallel runs (class-level)
 
