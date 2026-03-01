@@ -130,6 +130,7 @@
                         </goals>
                         <phase>test</phase>
                         <configuration>
+                            <skip>${sakai.skip.webcomponents.tests}</skip>
                             <arguments>run test</arguments>
                         </configuration>
                     </execution>
