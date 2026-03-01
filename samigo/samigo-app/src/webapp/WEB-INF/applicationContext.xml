@@ -12,6 +12,15 @@
 		<property name="basename" value="classpath:org/sakaiproject/tool/assessment/bundle/DeliveryMessages"/>
 	</bean>
 
+	<!-- Question Search Service -->
+	<bean id="org.sakaiproject.tool.assessment.services.question.QuestionSearchService"
+		  class="org.sakaiproject.tool.assessment.services.question.QuestionSearchServiceImpl">
+		<property name="elasticSearchService"><ref bean="org.sakaiproject.search.elasticsearch.ElasticSearchService" /></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+		<property name="questionPoolService"><ref bean="org.sakaiproject.tool.assessment.services.QuestionPoolService" /></property>
+		<property name="assessmentService"><ref bean="org.sakaiproject.tool.assessment.services.assessment.AssessmentService" /></property>
+	</bean>
+
 	<context:component-scan base-package="org.sakaiproject.tool.assessment"/>
 </beans>
  
