@@ -1082,8 +1082,46 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       log.debug("setForumManager(DiscussionForum" + forum + ")");
     }
+    Long forumId = forum == null ? null : forum.getId();
+    DiscussionForum forumWithTopics = null;
+    String contextId = null;
+    List<Long> topicIds = new ArrayList<>();
+    if (forumId != null)
+    {
+      forumWithTopics = (DiscussionForum) forumManager.getForumByIdWithTopics(forumId);
+      if (forumWithTopics != null && forumWithTopics.getTopics() != null)
+      {
+        for (Iterator iter = forumWithTopics.getTopics().iterator(); iter.hasNext();)
+        {
+          DiscussionTopic topic = (DiscussionTopic) Hibernate.unproxy(iter.next());
+          if (topic != null && topic.getId() != null)
+          {
+            topicIds.add(topic.getId());
+          }
+        }
+      }
+      if (forumWithTopics != null && forumWithTopics.getArea() != null)
+      {
+        contextId = forumWithTopics.getArea().getContextId();
+      }
+    }
     forumManager.deleteDiscussionForum(forum);
     flagAreaCacheForClearing(forum);
+    if (contextId == null)
+    {
+      contextId = getCurrentContext();
+    }
+    if (forumId != null && contextId != null)
+    {
+      TaskService taskService = (TaskService) ComponentManager.get("org.sakaiproject.tasks.api.TaskService");
+      String referenceForum = DiscussionForumService.REFERENCE_ROOT + "/" + contextId + "/" + forumId;
+      taskService.removeTaskByReference(referenceForum);
+      for (Long topicId : topicIds)
+      {
+        String referenceTopic = referenceForum + "/topic/" + topicId;
+        taskService.removeTaskByReference(referenceTopic);
+      }
+    }
   }
 
   /*
@@ -1252,8 +1290,33 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       log.debug("deleteTopic(DiscussionTopic " + topic + ")");
     }
+    Long forumId = null;
+    Long topicId = null;
+    String contextId = null;
+    if (topic != null)
+    {
+      topicId = topic.getId();
+      if (topic.getBaseForum() != null)
+      {
+        forumId = topic.getBaseForum().getId();
+        if (topic.getBaseForum().getArea() != null)
+        {
+          contextId = topic.getBaseForum().getArea().getContextId();
+        }
+      }
+    }
     forumManager.deleteDiscussionForumTopic(topic);
     flagAreaCacheForClearing(topic);
+    if (contextId == null)
+    {
+      contextId = getCurrentContext();
+    }
+    if (forumId != null && topicId != null && contextId != null)
+    {
+      TaskService taskService = (TaskService) ComponentManager.get("org.sakaiproject.tasks.api.TaskService");
+      String referenceTopic = DiscussionForumService.REFERENCE_ROOT + "/" + contextId + "/" + forumId + "/topic/" + topicId;
+      taskService.removeTaskByReference(referenceTopic);
+    }
   }
 
   /*

@@ -61,6 +61,7 @@ public class DiscussionForumBean
   private String gradeAssign;
   private Boolean nonePermission = null;
   private boolean createTask = false;
+  private boolean selected = false;
   
   private boolean newTopic = false;
   private boolean changeSettings = false;
