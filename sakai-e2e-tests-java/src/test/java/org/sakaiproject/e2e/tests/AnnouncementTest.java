@@ -3,6 +3,7 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.assertions.LocatorAssertions;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -33,6 +34,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         sakai.login("instructor1");
         sakai.gotoPath(sakaiUrl);
         sakai.toolClick("Announcements");
+        ensureViewAll();
 
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Add")).first().click(new Locator.ClickOptions().setForce(true));
         page.locator("#subject").fill(FUTURE_ANNOUNCEMENT_TITLE);
@@ -55,6 +57,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         sakai.login("instructor1");
         sakai.gotoPath(sakaiUrl);
         sakai.toolClick("Announcements");
+        ensureViewAll();
 
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Add")).first().click(new Locator.ClickOptions().setForce(true));
         page.locator("#subject").fill(PAST_ANNOUNCEMENT_TITLE);
@@ -79,6 +82,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         sakai.login("instructor1");
         sakai.gotoPath(sakaiUrl);
         sakai.toolClick("Announcements");
+        ensureViewAll();
 
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Add")).first().click(new Locator.ClickOptions().setForce(true));
         page.locator("#subject").fill(CURRENT_ANNOUNCEMENT_TITLE);
@@ -100,6 +104,7 @@ class AnnouncementTest extends SakaiUiTestBase {
         sakai.gotoPath(sakaiUrl);
 
         sakai.toolClick("Announcements");
+        ensureViewAll();
         Locator announcementRows = announcementRows();
         assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(CURRENT_ANNOUNCEMENT_TITLE))).hasCount(1,
             new LocatorAssertions.HasCountOptions().setTimeout(20_000));
@@ -134,5 +139,21 @@ class AnnouncementTest extends SakaiUiTestBase {
         submit.click(new Locator.ClickOptions().setForce(true));
         page.waitForLoadState();
         assertThat(page.locator("body")).containsText(Pattern.compile("Announcements", Pattern.CASE_INSENSITIVE));
+    }
+
+    private void ensureViewAll() {
+        Locator viewSelect = page.locator("#viewFilter_viewFilterForm, select[name=\"view\"]").first();
+        if (viewSelect.count() == 0 || !viewSelect.isVisible()) {
+            return;
+        }
+
+        try {
+            if (!"view.all".equals(viewSelect.inputValue())) {
+                viewSelect.selectOption("view.all");
+                page.waitForLoadState();
+            }
+        } catch (PlaywrightException ignored) {
+            // Not all Announcements contexts expose the same view filter controls.
+        }
     }
 }
