@@ -388,26 +388,21 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			lessonEntity.preShowItem(item);
 		}
 
-	    UIComponent iframe = UIOutput.make(tofill, "iframe1")
-				.decorate(new UIFreeAttributeDecorator("src", source))
-				.decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
+		boolean isBlti = item != null && item.getType() == SimplePageItem.BLTI;
+		String allow = ServerConfigurationService.getBrowserFeatureAllowString();
+		String allowEscaped = StringEscapeUtils.escapeHtml4(allow);
+		String sourceEscaped = StringEscapeUtils.escapeHtml4(source);
 
-		// Non LTI URLs
-		if (!IframeUrlUtil.isLocalToSakai(source, ServerConfigurationService.getServerUrl())) {
-			iframe.decorate(new UIFreeAttributeDecorator("class", "sakai-iframe-force-light"));
-		// All LTI Urls go to /access so they seem local but should be treated as non local
-		} else if (item != null && item.getType() == SimplePageItem.BLTI) {
-			iframe.decorate(new UIFreeAttributeDecorator("class", "sakai-iframe-force-light"));
+		if (isBlti) {
+			String rawHeight = item.getHeight();
+			String height = (rawHeight == null || rawHeight.isEmpty() || !rawHeight.matches("\\d+")) ? "1200" : rawHeight;
+			String iframeHtml = "<sakai-lti-iframe launch-url=\"" + sourceEscaped + "\" allow=\"" + allowEscaped + "\" height=\"" + height + "\" allow-resize=\"yes\"></sakai-lti-iframe>";
+			UIVerbatim.make(tofill, "iframe1-container", iframeHtml);
+		} else {
+			String classAttr = !IframeUrlUtil.isLocalToSakai(source, ServerConfigurationService.getServerUrl()) ? " class=\"sakai-iframe-force-light\"" : "";
+			String iframeHtml = "<iframe id=\"iframe1\" name=\"iframe1\" role=\"main\" src=\"" + sourceEscaped + "\" allow=\"" + allowEscaped + "\" height=\"350\" width=\"100%\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\"" + classAttr + " onload=\"resizeiframe1()\"></iframe>";
+			UIVerbatim.make(tofill, "iframe1-container", iframeHtml);
 		}
-
-	    if (item != null && item.getType() == SimplePageItem.BLTI) {
-		String height = item.getHeight();
-		if (height == null || height.equals(""))
-			iframe.decorate(new UIFreeAttributeDecorator("height", "1200"));
-		else
-		    iframe.decorate(new UIFreeAttributeDecorator("height", height));
-		iframe.decorate(new UIFreeAttributeDecorator("onload", ""));
-	    }
 	}
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {

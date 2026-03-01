@@ -3862,23 +3862,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    LessonEntity lessonEntity = (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
 		    if ("inline".equals(i.getFormat())) {
                 // no availability
-                String height=null;
+                String height = null;
                 if (i.getHeight() != null && !i.getHeight().equals(""))
-                    height = i.getHeight().replace("px","");  // just in case
-
-                UIComponent iframe = UIOutput.make(container, "blti-iframe")
-                        .decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()));
-                if (lessonEntity != null)
-                    iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
-                // LTI: always force light (URLs go through /access so appear local but are cross-origin)
-                iframe.decorate(new UIFreeAttributeDecorator("class", "portletMainIframe multimedia sakai-iframe-force-light"));
+                    height = i.getHeight().replace("px", "");  // just in case
 
                 String h = "300";
                 if (height != null && !height.trim().equals(""))
                     h = height;
 
-                iframe.decorate(new UIFreeAttributeDecorator("height", h));
-                iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
+                String launchUrl = (lessonEntity != null) ? lessonEntity.getUrl() : "about:blank";
+                UIComponent ltiIframe = UIOutput.make(container, "blti-iframe")
+                    .decorate(new UIFreeAttributeDecorator("launch-url", launchUrl))
+                    .decorate(new UIFreeAttributeDecorator("allow", ServerConfigurationService.getBrowserFeatureAllowString()))
+                    .decorate(new UIFreeAttributeDecorator("height", h));
+
                 // normally we get the name from the link text, but there's no link text here
                 UIOutput.make(container, "item-name", i.getName());
             } else if (!"window".equals(i.getFormat()) && (i.getFormat() != null)) {
