@@ -34,6 +34,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.springframework.data.PersistableEntity;
 
 import lombok.Getter;
@@ -85,6 +86,12 @@ public abstract class AbstractGradeRecord implements PersistableEntity<Long>, Se
 
     @Column(name = "POINTS_EARNED")
     protected Double pointsEarned;
+
+    @Column(name = "LETTER_EARNED")
+    protected String letterEarned;
+
+    @Column(name = "GRADE_TYPE", nullable = false)
+    protected GradeType gradeType = GradeType.POINTS;
 
     public abstract Double getGradeAsPercentage();
 

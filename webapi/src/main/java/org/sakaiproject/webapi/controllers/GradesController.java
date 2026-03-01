@@ -26,8 +26,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingAuthz;
-import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.samigo.api.SamigoReferenceReckoner;
@@ -143,7 +143,7 @@ public class GradesController extends AbstractSakaiApiController {
                     if (canGrade) {
                         double total = 0;
                         for (GradeDefinition d : gd) {
-                            if (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, d.getGradeEntryType())) {
+                            if (GradeType.POINTS == d.getGradeEntryType()) {
                                 String grade = d.getGrade();
                                 if (!StringUtils.isBlank(grade)) {
                                     total += Double.parseDouble(grade);

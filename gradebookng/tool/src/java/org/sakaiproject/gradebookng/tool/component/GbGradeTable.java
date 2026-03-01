@@ -40,6 +40,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.grading.api.GradingService;
 import org.sakaiproject.gradebookng.tool.actions.Action;
 import org.sakaiproject.gradebookng.tool.actions.ActionResponse;
 import org.sakaiproject.gradebookng.tool.model.GbGradeTableData;
@@ -50,6 +51,9 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 
 	@SpringBean(name = "org.sakaiproject.component.api.ServerConfigurationService")
 	protected ServerConfigurationService serverConfigService;
+
+	@SpringBean(name = "org.sakaiproject.grading.api.GradingService")
+	protected GradingService gradingService;
 
 	private Component component;
 
@@ -130,7 +134,7 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		response.render(
 				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-gbgrade-table.js%s", version)));
 
-		final GbGradebookData gradebookData = new GbGradebookData(gbGradeTableData, this);
+		final GbGradebookData gradebookData = new GbGradebookData(gbGradeTableData, this, gradingService);
 
 		response.render(OnDomReadyHeaderItem.forScript(String.format("var tableData = %s", gradebookData.toScript())));
 

@@ -28,16 +28,21 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Assert;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
 import org.sakaiproject.grading.api.CommentDefinition;
 import org.sakaiproject.grading.api.CourseGradeTransferBean;
 import org.sakaiproject.grading.api.GradebookInformation;
 import org.sakaiproject.grading.api.GradeDefinition;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingAuthz;
 import org.sakaiproject.grading.api.GradingConstants;
+import org.sakaiproject.grading.api.GradingPermission;
+import org.sakaiproject.grading.api.GradingPermissionService;
 import org.sakaiproject.grading.api.GradingSecurityException;
 import org.sakaiproject.grading.api.GradingService;
+import org.sakaiproject.grading.api.PermissionDefinition;
 import org.sakaiproject.grading.api.model.CourseGrade;
 import org.sakaiproject.grading.api.model.Gradebook;
 import org.sakaiproject.grading.api.model.GradingEvent;
@@ -47,6 +52,9 @@ import org.sakaiproject.grading.api.repository.LetterGradePercentMappingReposito
 import org.sakaiproject.grading.api.SortType;
 import org.sakaiproject.grading.impl.GradingServiceImpl;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -73,9 +81,12 @@ import org.springframework.test.util.AopTestUtils;
 public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired private CourseGradeRepository courseGradeRepository;
+    @Autowired private GradingPermissionService gradingPermissionService;
     @Autowired private GradingService gradingService;
     @Autowired private LetterGradePercentMappingRepository letterGradePercentMappingRepository;
+    @Autowired private SectionAwareness sectionAwareness;
     @Autowired private SecurityService securityService;
+    @Autowired private ServerConfigurationService serverConfigurationService;
     @Autowired private SessionManager sessionManager;
     @Autowired private SiteService siteService;
     @Autowired private UserDirectoryService userDirectoryService;
@@ -128,12 +139,20 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         when(instructorUser.getDisplayName()).thenReturn(instructor);
 
         user1User = mock(User.class);
+        when(user1User.getId()).thenReturn(user1);
         when(user1User.getDisplayName()).thenReturn(user1);
 
         user2User = mock(User.class);
+        when(user2User.getId()).thenReturn(user2);
         when(user2User.getDisplayName()).thenReturn(user2);
 
         when(siteService.siteReference(siteId)).thenReturn("/site/" + siteId);
+
+        Site site = mock(Site.class);
+        try {
+            when(siteService.getSite(siteId)).thenReturn(site);
+        } catch (Exception e) {
+        }
 
         resourceLoader = mock(ResourceLoader.class);
         when(resourceLoader.getLocale()).thenReturn(Locale.ENGLISH);
@@ -458,7 +477,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         def1.setDateRecorded(new Date());
         def1.setGrade("16.4");
         def1.setGradeComment("Great");
-        def1.setGradeEntryType(GradingConstants.GRADE_TYPE_POINTS);
+        def1.setGradeEntryType(GradeType.POINTS);
 
         GradeDefinition def2 = new GradeDefinition();
         def2.setStudentUid(user2);
@@ -466,7 +485,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         def2.setDateRecorded(new Date());
         def2.setGrade("12.5");
         def2.setGradeComment("Good");
-        def2.setGradeEntryType(GradingConstants.GRADE_TYPE_POINTS);
+        def2.setGradeEntryType(GradeType.POINTS);
 
         gradingService.saveGradesAndComments(gradebook.getUid(), siteId, id, List.<GradeDefinition>of(def1, def2));
 
@@ -641,7 +660,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
 
         // Update the gradebook to use percentage mode
         GradebookInformation gbInfo = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
-        gbInfo.setGradeType(GradingConstants.GRADE_TYPE_PERCENTAGE);
+        gbInfo.setGradeType(GradeType.PERCENTAGE);
         gradingService.updateGradebookSettings(gradebook.getUid(), siteId, gbInfo);
 
         // Create an assignment with weight 20
@@ -664,6 +683,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         // Get the grade definition and verify the percentage is 50%
         GradeDefinition gradeDef = gradingService.getGradeDefinitionForStudentForItem(gradebook.getUid(), siteId, assignmentId, user1);
 
+
         // Let's try to calculate the percentage ourselves
         // Get the assignment grade record
         String scoreString = gradingService.getAssignmentScoreString(gradebook.getUid(), siteId, assignmentId, user1);
@@ -674,7 +694,7 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         double percentage = (score / points) * 100;
 
         // Update the grade definition with our calculated percentage
-        gradeDef.setGrade(String.valueOf((int)percentage));
+        gradeDef.setGrade(String.valueOf((int) percentage));
 
         // The percentage should be 50% (10/20 = 0.5 = 50%)
         // Since GradeDefinition doesn't have a percentGrade property, we need to calculate it ourselves
@@ -757,14 +777,89 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
         assertEquals(grade, defs.get(0).getGrade());
         assertEquals(user1, defs.get(0).getStudentUid());
         assertEquals(instructor, defs.get(0).getGraderUid());
-        assertEquals(GradingConstants.GRADE_TYPE_POINTS, defs.get(0).getGradeEntryType());
+        assertTrue(GradeType.POINTS == defs.get(0).getGradeEntryType());
         assertNull(defs.get(0).getGradeComment());
+    }
+
+    @Test
+    public void letterGrading() {
+
+        // First, create a gradebook with holistic grading
+        Gradebook gradebook = createGradebook();
+
+        when(serverConfigurationService.getBoolean("gradebook.settings.gradeEntry.showToNonAdmins", true)).thenReturn(true);
+        GradebookInformation gradebookInformation = gradingService.getGradebookInformation(gradebook.getUid(), siteId);
+        gradebookInformation.setGradeType(GradeType.LETTER);
+        gradingService.updateGradebookSettings(gradebook.getUid(), siteId, gradebookInformation);
+
+        // Set up some user permissions
+        PermissionDefinition permissionDefinition = new PermissionDefinition();
+        permissionDefinition.setFunctionName(GradingPermission.GRADE.toString());
+        PermissionDefinition viewDefinition = new PermissionDefinition();
+        viewDefinition.setFunctionName(GradingPermission.VIEW.toString());
+        gradingPermissionService.updatePermissionsForUser(gradebook.getUid(), user1, List.of(viewDefinition));
+        gradingPermissionService.updatePermissionsForUser(gradebook.getUid(), user2, List.of(viewDefinition));
+        gradingPermissionService.updatePermissionsForUser(gradebook.getUid(), instructor, List.of(viewDefinition, permissionDefinition));
+
+        Assignment a1 = new Assignment();
+        a1.setName(ass1Name);
+        a1.setUngraded(false);
+        a1.setDueDate(new Date());
+        a1.setCounted(true);
+
+        Long a1Id = gradingService.addAssignment(gradebook.getUid(), siteId, a1);
+
+        List<Assignment> assignments = gradingService.getAssignments(gradebook.getUid(), siteId, SortType.SORT_BY_SORTING);
+        assertEquals(1, assignments.size());
+
+        assertEquals("A+", assignments.get(0).getMaxLetterGrade());
+
+        String grade1 = "B";
+        String comment1 = "Great";
+        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, a1Id, user1, grade1, comment1);
+
+        String grade2 = "C";
+        String comment2 = "Needs improvement";
+        gradingService.saveGradeAndCommentForStudent(gradebook.getUid(), siteId, a1Id, user2, grade2, comment2);
+
+        GradeDefinition gradeDef1 = gradingService.getGradeDefinitionForStudentForItem(gradebook.getUid(), siteId, a1Id, user1);
+        assertEquals(grade1, gradeDef1.getGrade());
+        assertEquals(comment1, gradeDef1.getGradeComment());
+
+        GradeDefinition gradeDef2 = gradingService.getGradeDefinitionForStudentForItem(gradebook.getUid(), siteId, a1Id, user2);
+        assertEquals(grade2, gradeDef2.getGrade());
+        assertEquals(comment2, gradeDef2.getGradeComment());
+
+        EnrollmentRecord rec1 = mock(EnrollmentRecord.class);
+        org.sakaiproject.section.api.coursemanagement.User user1RecUser = mock(org.sakaiproject.section.api.coursemanagement.User.class);
+        when(user1RecUser.getUserUid()).thenReturn(user1);
+        when(rec1.getUser()).thenReturn(user1RecUser);
+
+        EnrollmentRecord rec2 = mock(EnrollmentRecord.class);
+        org.sakaiproject.section.api.coursemanagement.User user2RecUser = mock(org.sakaiproject.section.api.coursemanagement.User.class);
+        when(user2RecUser.getUserUid()).thenReturn(user2);
+        when(rec2.getUser()).thenReturn(user2RecUser);
+        when(sectionAwareness.getSiteMembersInRole(gradebook.getUid(), Role.STUDENT)).thenReturn(List.of(rec1, rec2));
+
+        List<GradeDefinition> gradeDefs = gradingService.getGradesForStudentsForItem(gradebook.getUid(), siteId, a1Id, List.of(user1, user2));
+
+        assertEquals(2, gradeDefs.size());
+
+        assertTrue(gradeDefs.stream().anyMatch(gd -> gd.getStudentUid().equals(user1) && gd.getGrade().equals(grade1)));
+        assertTrue(gradeDefs.stream().anyMatch(gd -> gd.getStudentUid().equals(user2) && gd.getGrade().equals(grade2)));
+
+        Map<String, CourseGradeTransferBean> courseGrades
+            = gradingService.getCourseGradeForStudents(gradebook.getUid(), siteId, List.of(user1, user2));
+
+        assertEquals(Double.valueOf(83.0D), courseGrades.get(user1).getPointsEarned());
+        assertEquals(Double.valueOf(100.0D), courseGrades.get(user1).getTotalPointsPossible());
+        assertEquals(Double.valueOf(73.0D), courseGrades.get(user2).getPointsEarned());
+        assertEquals(Double.valueOf(100.0D), courseGrades.get(user2).getTotalPointsPossible());
     }
 
     private Long createAssignment1(Gradebook gradebook) {
 
         when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + gradebook.getUid())).thenReturn(true);
-        //when(siteService.siteReference(gradebook.getUid())).thenReturn("/site/" + gradebook.getUid());
 
         return gradingService.addAssignment(gradebook.getUid(), siteId, ass1);
     }
@@ -772,7 +867,6 @@ public class GradingServiceTests extends AbstractTransactionalJUnit4SpringContex
     private Long createAssignment2(Gradebook gradebook) {
 
         when(securityService.unlock(GradingAuthz.PERMISSION_EDIT_ASSIGNMENTS, "/site/" + gradebook.getUid())).thenReturn(true);
-        //when(siteService.siteReference(gradebook.getUid())).thenReturn("/site/" + gradebook.getUid());
 
         return gradingService.addAssignment(gradebook.getUid(), siteId, ass2);
     }

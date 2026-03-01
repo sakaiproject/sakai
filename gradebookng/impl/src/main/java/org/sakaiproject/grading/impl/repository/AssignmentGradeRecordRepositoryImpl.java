@@ -18,6 +18,7 @@ package org.sakaiproject.grading.impl.repository;
 import org.hibernate.Session;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,6 +67,22 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
         Join<AssignmentGradeRecord, GradableObject> go = agr.join("gradableObject");
         query.where(cb.and(cb.equal(go.get("id"), gradableObjectId), cb.equal(go.get("removed"), removed)))
             .orderBy(cb.asc(agr.get("pointsEarned")));
+        return session.createQuery(query).list();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AssignmentGradeRecord> findByGradableObject_IdAndGradableObject_Removed(Long gradableObjectId, Boolean removed) {
+
+        if (gradableObjectId == null || removed == null) {
+            return Collections.emptyList();
+        }
+
+        Session session = sessionFactory.getCurrentSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<AssignmentGradeRecord> query = cb.createQuery(AssignmentGradeRecord.class);
+        Root<AssignmentGradeRecord> agr = query.from(AssignmentGradeRecord.class);
+        Join<AssignmentGradeRecord, GradableObject> go = agr.join("gradableObject");
+        query.where(cb.and(cb.equal(go.get("id"), gradableObjectId), cb.equal(go.get("removed"), removed)));
         return session.createQuery(query).list();
     }
 
@@ -150,7 +167,6 @@ public class AssignmentGradeRecordRepositoryImpl extends SpringCrudRepositoryImp
         query.where(cb.and(cb.equal(agr.get("gradableObject"), assignment), studentIdPredicate));
         return session.createQuery(query).list();
     }
-
 
     @Transactional
     public int deleteByGradableObject(GradebookAssignment assignment) {

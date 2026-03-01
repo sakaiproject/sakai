@@ -24,6 +24,7 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.grading.api.Assignment;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.SortType;
 
 /**
@@ -54,12 +55,14 @@ public class ZeroUngradedItemsPanel extends BasePanel {
 			@Override
 			public void onSubmit(final AjaxRequestTarget target) {
 
+				GradeType gradeType = ZeroUngradedItemsPanel.this.businessService.getGradebook(currentGradebookUid, currentSiteId).getGradeType();
+
 				// fetch all assignments
 				final List<Assignment> assignments = ZeroUngradedItemsPanel.this.businessService.getGradebookAssignments(currentGradebookUid, currentSiteId, SortType.SORT_BY_SORTING);
 
 				for (final Assignment assignment : assignments) {
 					final long assignmentId = assignment.getId().longValue();
-					ZeroUngradedItemsPanel.this.businessService.updateUngradedItems(currentGradebookUid, currentSiteId, assignmentId, FormatHelper.formatGradeForDisplay(ZERO_GRADE), null);
+					ZeroUngradedItemsPanel.this.businessService.updateUngradedItems(currentGradebookUid, currentSiteId, assignmentId, FormatHelper.formatGradeForDisplay(ZERO_GRADE, gradeType), null);
 				}
 
 				ZeroUngradedItemsPanel.this.window.close(target);

@@ -49,8 +49,10 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.UiMode;
 import org.sakaiproject.grading.api.Assignment;
 import org.sakaiproject.grading.api.CategoryDefinition;
+import org.sakaiproject.grading.api.GradeType;
 import org.sakaiproject.grading.api.GradingConstants;
 import org.sakaiproject.grading.api.model.Gradebook;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.api.RubricsConstants;
 import org.sakaiproject.rubrics.api.beans.AssociationTransferBean;
@@ -88,7 +90,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
     public void onInitialize() {
 		super.onInitialize();
 		final Gradebook gradebook = this.businessService.getGradebook(currentGradebookUid, currentSiteId);
-		final Integer gradingType = gradebook.getGradeType();
+		final GradeType gradingType = gradebook.getGradeType();
 
 		final Assignment assignment = assignmentModel.getObject();
         this.categoriesEnabled = !Objects.equals(GradingConstants.CATEGORY_TYPE_NO_CATEGORY, gradebook.getCategoryType());
@@ -97,7 +99,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		this.existingPoints = assignment.getPoints();
 
 		// title
-		final TextField<String> title = new TextField<String>("title",
+		final TextField<String> title = new TextField<>("title",
 				new PropertyModel<String>(assignmentModel, "name")) {
 			private static final long serialVersionUID = 1L;
 
@@ -121,12 +123,15 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		// points
 		final Label pointsLabel = new Label("pointsLabel");
-		if (Objects.equals(GradingConstants.GRADE_TYPE_PERCENTAGE, gradingType)) {
+		if (gradingType == GradeType.PERCENTAGE) {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.percentage"));
-		} else {
+		} else if (gradingType == GradeType.POINTS) {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.points"));
+		} else {
+			pointsLabel.setVisible(false);
 		}
 		add(pointsLabel);
+
 		final TextField<Double> points = new TextField<Double>("points",
 				new PropertyModel<Double>(assignmentModel, "points")) {
 			private static final long serialVersionUID = 1L;
@@ -148,29 +153,33 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 			}
 		};
 
-		// onchange, might want to scale
-		points.add(new OnChangeAjaxBehavior() {
-			private static final long serialVersionUID = 1L;
+		points.setVisible(gradingType != GradeType.LETTER);
 
-			@Override
-			protected void onUpdate(final AjaxRequestTarget target) {
+		if (gradingType != GradeType.LETTER) {
+			// onchange, might want to scale
+			points.add(new OnChangeAjaxBehavior() {
+				private static final long serialVersionUID = 1L;
 
-				// conditional option to scale
-				if (Objects.equals(GradingConstants.GRADE_TYPE_POINTS, gradingType)) {
+				@Override
+				protected void onUpdate(final AjaxRequestTarget target) {
 
-					final Double existing = AddOrEditGradeItemPanelContent.this.existingPoints;
-					final Double current = points.getModelObject();
+					// conditional option to scale
+					if (gradingType == GradeType.POINTS) {
 
-                    log.debug("existingPoints: {}", existing);
-                    log.debug("currentPoints: {}", current);
-                    AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = existing != null && !existing.equals(current);
+						final Double existing = AddOrEditGradeItemPanelContent.this.existingPoints;
+						final Double current = points.getModelObject();
 
-                    log.debug("scaleGradesTriggered: {}", AddOrEditGradeItemPanelContent.this.scaleGradesTriggered);
+						log.debug("existingPoints: {}", existing);
+						log.debug("currentPoints: {}", current);
+						AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = existing != null && !existing.equals(current);
 
-					target.add(AddOrEditGradeItemPanelContent.this.scaleGradesContainer);
+						log.debug("scaleGradesTriggered: {}", AddOrEditGradeItemPanelContent.this.scaleGradesTriggered);
+
+						target.add(AddOrEditGradeItemPanelContent.this.scaleGradesContainer);
+					}
 				}
-			}
-		});
+			});
+		}
 
 		add(points);
 
@@ -185,6 +194,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		};
 		this.scaleGradesContainer.setOutputMarkupPlaceholderTag(true);
 		this.scaleGradesContainer.add(new CheckBox("scaleGrades", new PropertyModel<Boolean>(assignmentModel, "scaleGrades")));
+		this.scaleGradesContainer.setVisible(gradingType != GradeType.LETTER);
 		add(this.scaleGradesContainer);
 
 		final SakaiDateTimeField dueDateField = new SakaiDateTimeField("duedate", new PropertyModel<ZonedDateTime>(this, "dueDate"), ZoneId.systemDefault()) {
@@ -282,21 +292,21 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		sakaiRubricAssociation.add(AttributeModifier.append("hide-student-preview", new ResourceModel("rubrics.option_studentpreview")));
 		sakaiRubricAssociation.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_GRADEBOOKNG));
 
-		if (StringUtils.equals(assignment.getExternalAppName(), RubricsConstants.RBCS_TOOL_LESSONBUILDERTOOL)) {
+		if (gradingType == GradeType.LETTER || StringUtils.equals(assignment.getExternalAppName(), LessonBuilderConstants.TOOL_ID)) {
 			sakaiRubricAssociation.setVisible(false);
-		}
+		} else {
+			if (assignment.getId() != null) {
+				sakaiRubricAssociation.add(AttributeModifier.append("entity-id", assignment.getId()));
 
-		if (assignment.getId() != null) {
-			sakaiRubricAssociation.add(AttributeModifier.append("entity-id", assignment.getId()));
-
-			try {
-				Optional<AssociationTransferBean> optAssociation
-					= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
-				if (optAssociation.isPresent()) {
-					sakaiRubricAssociation.add(AttributeModifier.append("association", (new ObjectMapper()).writeValueAsString(optAssociation.get())));
+				try {
+					Optional<AssociationTransferBean> optAssociation
+						= rubricsService.getAssociationForToolAndItem(RubricsConstants.RBCS_TOOL_GRADEBOOKNG, assignment.getId().toString(), getCurrentSiteId());
+					if (optAssociation.isPresent()) {
+						sakaiRubricAssociation.add(AttributeModifier.append("association", (new ObjectMapper()).writeValueAsString(optAssociation.get())));
+					}
+				} catch (Exception e) {
+					log.warn("Failed to get rubric association for gradebook assignment {}", assignment.getId(), e);
 				}
-			} catch (Exception e) {
-				log.warn("Failed to get rubric association for gradebook assignment {}: {}", assignment.getId(), e.toString());
 			}
 		}
 		add(sakaiRubricAssociation);
