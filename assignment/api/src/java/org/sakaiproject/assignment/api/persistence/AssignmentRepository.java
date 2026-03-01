@@ -96,4 +96,26 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
 
     Collection<String> findGroupsForAssignmentById(String assignmentId);
 
+    /**
+     * Finds assignments that are set to auto-submit based on the current time.
+     * @param siteId the id of the site
+     * @param now the current time to filter closeDate
+     * @return list of Assignment entities with auto-submit enabled
+     */
+    List<Assignment> findAutoSubmitAssignmentsBySite(String siteId, java.time.Instant now);
+
+    /**
+     * Finds draft submissions for a given assignment.
+     * @param assignmentId the id of the assignment
+     * @return a list of AssignmentSubmission entities that are drafts
+     */
+    List<AssignmentSubmission> findDraftSubmissionsForAssignment(String assignmentId);
+
+    /**
+     * Finds draft submissions that are eligible for auto-submit across all sites.
+     * @param limit maximum number of results to return
+     * @param offset number of results to skip
+     * @return a list of eligible AssignmentSubmission entities bounded by limit and offset
+     */
+    List<AssignmentSubmission> findAllEligibleDraftSubmissions(int limit, int offset);
 }

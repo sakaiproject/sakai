@@ -544,6 +544,18 @@ function printView(url) {
 							</td>
 							<td headers="status">
 								$!service.getSubmissionStatus($!submissionId, true)
+
+								#if ($submission && $submission.Properties)
+									#set($isAutoSubmitted = "false")
+									#set($isAutoSubmitted = $submission.Properties.get("auto_submitted"))
+									#if ($isAutoSubmitted.equalsIgnoreCase("true"))
+										<br/>
+										<span class="badge bg-info" title="$tlang.getString('auto.submit.indicator')">
+											<span class="bi bi-clock-history me-1" aria-hidden="true"></span>
+											$tlang.getString("auto.submit.indicator")
+										</span>
+									#end
+								#end
 							</td>
 							#if ($assignment.AllowPeerAssessment)
 								<td>
