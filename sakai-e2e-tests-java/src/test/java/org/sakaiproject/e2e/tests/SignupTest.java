@@ -3,7 +3,6 @@ package org.sakaiproject.e2e.tests;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.SelectOption;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -83,6 +82,7 @@ class SignupTest extends SakaiUiTestBase {
         page.locator("button:has-text(\"Next\"), input[type=\"submit\"][value*=\"Next\"], .act button:has-text(\"Next\"), .act input[value*=\"Next\"]").first().click(new Locator.ClickOptions().setForce(true));
         page.locator("button:has-text(\"Publish\"), input[type=\"submit\"][value*=\"Publish\"], .act button:has-text(\"Publish\"), .act input[value*=\"Publish\"]").first().click(new Locator.ClickOptions().setForce(true));
 
-        assertThat(page.getByRole(AriaRole.LINK, new com.microsoft.playwright.Page.GetByRoleOptions().setName(TITLE)).first()).isVisible();
+        sakai.toolClick("Sign-up");
+        assertThat(page.locator("#items\\:meetinglist")).containsText(TITLE);
     }
 }
