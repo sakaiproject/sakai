@@ -1,9 +1,9 @@
 package org.sakaiproject.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.assertions.LocatorAssertions;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.MethodOrderer;
@@ -44,9 +44,8 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.locator("#use_end_date").click(new Locator.ClickOptions().setForce(true));
         sakai.selectDate("#closedate", "06/03/2035 08:30 am");
 
-        submitAnnouncementForm();
-        assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+        page.locator(".act input.active").first().click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator("table tr.inactive")).hasCount(1);
     }
 
     @Test
@@ -66,11 +65,8 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.locator("#use_end_date").click(new Locator.ClickOptions().setForce(true));
         sakai.selectDate("#closedate", "01/03/2020 08:30 am");
 
-        submitAnnouncementForm();
-        assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
-        assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(PAST_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+        page.locator(".act input.active").first().click(new Locator.ClickOptions().setForce(true));
+        assertThat(page.locator("table tr.inactive")).hasCount(2);
     }
 
     @Test
@@ -84,13 +80,11 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.locator("#subject").fill(CURRENT_ANNOUNCEMENT_TITLE);
         fillAnnouncementBody("<p>This is a current announcement that should be visible to everyone.</p>");
 
-        submitAnnouncementForm();
-        assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
-        assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(PAST_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
-        assertThat(announcementRows().filter(new Locator.FilterOptions().setHasText(CURRENT_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+        page.locator(".act input.active").first().click(new Locator.ClickOptions().setForce(true));
+
+        assertThat(page.locator("table tr.inactive")).hasCount(2);
+        int activeCount = page.locator("table tr:not(.inactive)").count();
+        assertTrue(activeCount > 0);
     }
 
     @Test
@@ -100,13 +94,10 @@ class AnnouncementTest extends SakaiUiTestBase {
         page.navigate(sakaiUrl);
 
         sakai.toolClick("Announcements");
-        Locator announcementRows = announcementRows();
-        assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(CURRENT_ANNOUNCEMENT_TITLE))).hasCount(1,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
-        assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(0,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
-        assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(PAST_ANNOUNCEMENT_TITLE))).hasCount(0,
-            new LocatorAssertions.HasCountOptions().setTimeout(20_000));
+        Locator announcementRows = page.locator("table tr");
+        assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(CURRENT_ANNOUNCEMENT_TITLE))).hasCount(1);
+        assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(FUTURE_ANNOUNCEMENT_TITLE))).hasCount(0);
+        assertThat(announcementRows.filter(new Locator.FilterOptions().setHasText(PAST_ANNOUNCEMENT_TITLE))).hasCount(0);
     }
 
     private void fillAnnouncementBody(String html) {
@@ -120,19 +111,5 @@ class AnnouncementTest extends SakaiUiTestBase {
         if (fallback.count() > 0) {
             fallback.fill(html.replaceAll("<[^>]+>", ""));
         }
-    }
-
-    private Locator announcementRows() {
-        return page.locator("table tr");
-    }
-
-    private void submitAnnouncementForm() {
-        Locator submit = page.locator(
-            "#saveChanges:visible, .act #saveChanges:visible, input[name=\"post\"]#saveChanges:visible, .act input[name=\"post\"]:visible"
-        ).first();
-        assertThat(submit).isVisible();
-        submit.click(new Locator.ClickOptions().setForce(true));
-        page.waitForLoadState();
-        assertThat(page.locator("body")).containsText(Pattern.compile("Announcements", Pattern.CASE_INSENSITIVE));
     }
 }

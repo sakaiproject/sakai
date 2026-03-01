@@ -362,36 +362,6 @@ public class SakaiHelper {
     private boolean clickToolByText(String label) {
         Locator nav = page.locator(".site-list-item-collapse.collapse.show a.btn-nav, ul.site-page-list a.btn-nav");
         int count = nav.count();
-
-        String currentSitePrefix = null;
-        Matcher currentSiteMatcher = Pattern.compile("/portal/site/([^/?#]+)").matcher(page.url());
-        if (currentSiteMatcher.find()) {
-            currentSitePrefix = "/portal/site/" + currentSiteMatcher.group(1);
-        }
-
-        if (currentSitePrefix != null) {
-            for (int index = 0; index < count; index++) {
-                Locator candidate = nav.nth(index);
-                if (!candidate.isVisible()) {
-                    continue;
-                }
-
-                String text = text(candidate);
-                if (!text.toLowerCase().contains(label.toLowerCase())) {
-                    continue;
-                }
-
-                String href = candidate.getAttribute("href");
-                if (href == null || href.isBlank() || !href.startsWith(currentSitePrefix)) {
-                    continue;
-                }
-
-                candidate.click(new Locator.ClickOptions().setForce(true));
-                page.waitForLoadState();
-                return true;
-            }
-        }
-
         for (int index = 0; index < count; index++) {
             Locator candidate = nav.nth(index);
             String text = text(candidate);
