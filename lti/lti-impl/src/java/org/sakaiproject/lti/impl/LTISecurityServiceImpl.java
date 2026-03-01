@@ -63,6 +63,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.util.IframeUrlUtil;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.exception.IdUnusedException;
@@ -261,6 +262,14 @@ public class LTISecurityServiceImpl implements EntityProducer {
 		org.tsugi.lti.LTIUtil.sendHTMLPage(res, body);
 	}
 
+	/**
+	 * Returns JavaScript to add or remove sakai-iframe-force-light based on destination.
+	 */
+	private String forceLightJsSnippet(boolean addClass) {
+		String op = addClass ? "add" : "remove";
+		return "try { if (window.frameElement) window.frameElement.classList." + op + "('sakai-iframe-force-light'); } catch(e) { }";
+	}
+
 	// Do a redirect in HTML + JavaScript instead of with a 302 so we have some recovery options inside an iframe
 	private void doRedirect(HttpServletRequest req, HttpServletResponse res, String redirectUrl, ResourceLoader rb)
 	{
@@ -272,8 +281,13 @@ public class LTISecurityServiceImpl implements EntityProducer {
 		body.append(rb.getString("error.redirect.timeout", "Having problems reaching remote tool"));
 		body.append("</p>\n");
 
+		// Add or remove force-light based on redirect destination
+		boolean forceLight = !IframeUrlUtil.isLocalToSakai(redirectUrl, ServerConfigurationService.getServerUrl());
+		String forceLightJs = forceLightJsSnippet(forceLight);
+
 		// We give this three chances - try to submit right away - submit 1/2 second from now and show the link 5 seconds from now
 		body.append("<script>\n");
+		body.append(forceLightJs);
 		body.append("parent.postMessage('{ \"subject\": \"org.sakailms.lti.prelaunch\" }', '*');console.log('access.doRedirect prelaunch request');");
 		body.append("setTimeout(function() {document.getElementById('lti-message-"+hash+"').style.display='block';}, 5000);\n");
 		body.append("setTimeout(function() {window.location='"+redirectUrl+"';}, 500);\n");
@@ -603,7 +617,10 @@ public class LTISecurityServiceImpl implements EntityProducer {
 				try
 				{
 					if (retval != null) {
-						org.tsugi.lti.LTIUtil.sendHTMLPage(res, retval[0]);
+						String launchUrl = (retval.length > 1) ? (String) retval[1] : null;
+						boolean forceLight = launchUrl != null && !IframeUrlUtil.isLocalToSakai(launchUrl, ServerConfigurationService.getServerUrl());
+						String forceLightScript = "<script>" + forceLightJsSnippet(forceLight) + "</script>";
+						org.tsugi.lti.LTIUtil.sendHTMLPage(res, forceLightScript + retval[0]);
 					}
 					String refstring = ref.getReference();
 					if ( retval != null && retval.length > 1 ) refstring = retval[1];
