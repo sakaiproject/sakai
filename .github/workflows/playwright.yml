@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
+      NODE_OPTIONS: "--disable-warning=DEP0169"
       PLAYWRIGHT_BROWSER: "chromium"
       PLAYWRIGHT_WORKERS: "3"
       PLAYWRIGHT_INSTRUCTOR_POOL: "instructor,instructor1,instructor2"
@@ -98,11 +99,22 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-java-${{ steps.playwright-version.outputs.value }}
 
+      - name: Install Playwright CLI package
+        run: |
+          mkdir -p .playwright-cli
+          cat > .playwright-cli/package.json <<'EOF'
+          {
+            "name": "playwright-cli-bootstrap",
+            "private": true
+          }
+          EOF
+          npm --prefix .playwright-cli install --no-audit --no-fund --save-exact playwright@${{ steps.playwright-version.outputs.value }}
+
       - name: Install Playwright system dependencies
-        run: npx --yes playwright@${{ steps.playwright-version.outputs.value }} install-deps
+        run: ./.playwright-cli/node_modules/.bin/playwright install-deps
 
       - name: Install Playwright browser
-        run: npx --yes playwright@${{ steps.playwright-version.outputs.value }} install chromium
+        run: ./.playwright-cli/node_modules/.bin/playwright install chromium
 
       - name: Run Playwright Java tests
         env:
