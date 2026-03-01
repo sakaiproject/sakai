@@ -12,7 +12,6 @@ jobs:
       JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
       NODE_OPTIONS: "--disable-warning=DEP0169"
       PLAYWRIGHT_BROWSER: "chromium"
-      PLAYWRIGHT_WORKERS: "3"
       PLAYWRIGHT_INSTRUCTOR_POOL: "instructor,instructor1,instructor2"
       PLAYWRIGHT_ISOLATE_INSTRUCTORS: "true"
     steps:
@@ -123,11 +122,6 @@ jobs:
           set -o pipefail
           mkdir -p sakai-e2e-tests-java/target
           mvn -B -ntp -V -f sakai-e2e-tests-java/pom.xml \
-            -Djunit.jupiter.execution.parallel.enabled=true \
-            -Djunit.jupiter.execution.parallel.mode.default=same_thread \
-            -Djunit.jupiter.execution.parallel.mode.classes.default=concurrent \
-            -Djunit.jupiter.execution.parallel.config.strategy=fixed \
-            -Djunit.jupiter.execution.parallel.config.fixed.parallelism=${PLAYWRIGHT_WORKERS} \
             test 2>&1 | tee sakai-e2e-tests-java/target/playwright-java-run.log
 
       - name: Check number of MySQL statements
@@ -149,7 +143,10 @@ jobs:
         run: |
           mkdir -p playwright-java-artifacts
           if [ -d sakai-e2e-tests-java/target/playwright-artifacts ]; then
-            cp -R sakai-e2e-tests-java/target/playwright-artifacts playwright-java-artifacts/
+            mkdir -p playwright-java-artifacts/playwright-artifacts
+            rsync -a --prune-empty-dirs --exclude 'video/' \
+              sakai-e2e-tests-java/target/playwright-artifacts/ \
+              playwright-java-artifacts/playwright-artifacts/
           fi
           if [ -d sakai-e2e-tests-java/target/surefire-reports ]; then
             cp -R sakai-e2e-tests-java/target/surefire-reports playwright-java-artifacts/
@@ -157,6 +154,47 @@ jobs:
           if [ -f sakai-e2e-tests-java/target/playwright-java-run.log ]; then
             cp sakai-e2e-tests-java/target/playwright-java-run.log playwright-java-artifacts/
           fi
+
+          FAILED_KEYS=""
+          if [ -d sakai-e2e-tests-java/target/surefire-reports ]; then
+            FAILED_KEYS=$(awk '
+              /<testcase / {
+                current = "";
+                className = "";
+                methodName = "";
+                if (match($0, /classname="[^"]+"/)) {
+                  className = substr($0, RSTART + 11, RLENGTH - 12);
+                }
+                if (match($0, /name="[^"]+"/)) {
+                  methodName = substr($0, RSTART + 6, RLENGTH - 7);
+                }
+                if (className != "" && methodName != "") {
+                  split(className, parts, "\\.");
+                  current = parts[length(parts)] "-" methodName;
+                }
+              }
+              /<failure / || /<error / {
+                if (current != "") {
+                  print current;
+                }
+              }
+            ' sakai-e2e-tests-java/target/surefire-reports/TEST-*.xml | sort -u)
+          fi
+
+          if [ -n "$FAILED_KEYS" ] && [ -d sakai-e2e-tests-java/target/playwright-artifacts ]; then
+            while IFS= read -r key; do
+              [ -z "$key" ] && continue
+              while IFS= read -r test_dir; do
+                [ -z "$test_dir" ] && continue
+                if [ -d "$test_dir/video" ]; then
+                  rel_dir=${test_dir#sakai-e2e-tests-java/target/playwright-artifacts/}
+                  mkdir -p "playwright-java-artifacts/playwright-artifacts/$rel_dir"
+                  cp -R "$test_dir/video" "playwright-java-artifacts/playwright-artifacts/$rel_dir/"
+                fi
+              done < <(find sakai-e2e-tests-java/target/playwright-artifacts -mindepth 1 -maxdepth 1 -type d -name "${key}-*" 2>/dev/null)
+            done <<< "$FAILED_KEYS"
+          fi
+
           if [ ! -e playwright-java-artifacts/playwright-artifacts ] \
             && [ ! -e playwright-java-artifacts/surefire-reports ] \
             && [ ! -f playwright-java-artifacts/playwright-java-run.log ]; then

@@ -362,9 +362,6 @@ public class SakaiHelper {
 
     private boolean clickToolByText(String label) {
         Locator nav = page.locator("li.site-list-item.is-current-site .site-list-item-collapse.collapse.show a.btn-nav");
-        if (nav.count() == 0) {
-            nav = page.locator(".site-list-item-collapse.collapse.show a.btn-nav");
-        }
         int count = nav.count();
 
         String currentSitePrefix = null;

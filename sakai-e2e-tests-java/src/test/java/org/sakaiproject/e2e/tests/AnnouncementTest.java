@@ -115,16 +115,20 @@ class AnnouncementTest extends SakaiUiTestBase {
     }
 
     private void fillAnnouncementBody(String html) {
-        boolean hasCkEditor = Boolean.TRUE.equals(page.evaluate("() => Boolean(window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances.body)"));
-        if (hasCkEditor) {
-            sakai.typeCkEditor("body", html);
+        String plainText = html.replaceAll("<[^>]+>", "").trim();
+
+        if (tryFillBodyWithCkEditor(html)) {
             return;
         }
 
         Locator fallback = page.locator("textarea#body, textarea:visible, [contenteditable=\"true\"]:visible").first();
-        if (fallback.count() > 0) {
-            fallback.fill(html.replaceAll("<[^>]+>", ""));
-        }
+        assertThat(fallback).isVisible();
+        fallback.fill(plainText);
+        fallback.dispatchEvent("input");
+        fallback.dispatchEvent("change");
+        fallback.dispatchEvent("blur");
+
+        assertBodyPopulated();
     }
 
     private Locator announcementRows() {
@@ -132,6 +136,12 @@ class AnnouncementTest extends SakaiUiTestBase {
     }
 
     private void submitAnnouncementForm() {
+        page.evaluate("() => {"
+            + "const editor = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances.body;"
+            + "if (editor) { editor.updateElement(); }"
+            + "}");
+        assertBodyPopulated();
+
         Locator submit = page.locator(
             "#saveChanges:visible, .act #saveChanges:visible, input[name=\"post\"]#saveChanges:visible, .act input[name=\"post\"]:visible"
         ).first();
@@ -154,6 +164,41 @@ class AnnouncementTest extends SakaiUiTestBase {
             }
         } catch (PlaywrightException ignored) {
             // Not all Announcements contexts expose the same view filter controls.
+        }
+    }
+
+    private boolean tryFillBodyWithCkEditor(String html) {
+        try {
+            page.waitForFunction(
+                "() => Boolean(window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances.body && window.CKEDITOR.instances.body.status === 'ready')"
+            );
+            sakai.typeCkEditor("body", html);
+            page.evaluate("() => {"
+                + "const editor = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances.body;"
+                + "if (editor) { editor.updateElement(); }"
+                + "}");
+            assertBodyPopulated();
+            return true;
+        } catch (PlaywrightException ignored) {
+            return false;
+        }
+    }
+
+    private void assertBodyPopulated() {
+        Boolean hasBody = (Boolean) page.evaluate("() => {"
+            + "const editor = window.CKEDITOR && window.CKEDITOR.instances && window.CKEDITOR.instances.body;"
+            + "if (editor) {"
+            + "const text = editor.getData().replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();"
+            + "if (text.length > 0) { return true; }"
+            + "editor.updateElement();"
+            + "}"
+            + "const textarea = document.querySelector('#body');"
+            + "if (!textarea) { return false; }"
+            + "return textarea.value && textarea.value.trim().length > 0;"
+            + "}");
+
+        if (!Boolean.TRUE.equals(hasBody)) {
+            throw new IllegalStateException("Announcement body is empty before submit");
         }
     }
 }
