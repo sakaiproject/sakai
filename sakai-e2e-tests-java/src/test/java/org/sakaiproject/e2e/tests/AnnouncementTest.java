@@ -31,7 +31,7 @@ class AnnouncementTest extends SakaiUiTestBase {
     @Order(2)
     void canCreateFutureAnnouncement() {
         sakai.login("instructor1");
-        page.navigate(sakaiUrl);
+        sakai.gotoPath(sakaiUrl);
         sakai.toolClick("Announcements");
 
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Add")).first().click(new Locator.ClickOptions().setForce(true));
@@ -53,7 +53,7 @@ class AnnouncementTest extends SakaiUiTestBase {
     @Order(3)
     void canCreatePastAnnouncement() {
         sakai.login("instructor1");
-        page.navigate(sakaiUrl);
+        sakai.gotoPath(sakaiUrl);
         sakai.toolClick("Announcements");
 
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Add")).first().click(new Locator.ClickOptions().setForce(true));
@@ -77,7 +77,7 @@ class AnnouncementTest extends SakaiUiTestBase {
     @Order(4)
     void canCreateCurrentAnnouncement() {
         sakai.login("instructor1");
-        page.navigate(sakaiUrl);
+        sakai.gotoPath(sakaiUrl);
         sakai.toolClick("Announcements");
 
         page.locator(".navIntraTool a").filter(new Locator.FilterOptions().setHasText("Add")).first().click(new Locator.ClickOptions().setForce(true));
@@ -97,7 +97,7 @@ class AnnouncementTest extends SakaiUiTestBase {
     @Order(5)
     void studentCanOnlySeeCurrentAnnouncement() {
         sakai.login("student0011");
-        page.navigate(sakaiUrl);
+        sakai.gotoPath(sakaiUrl);
 
         sakai.toolClick("Announcements");
         Locator announcementRows = announcementRows();

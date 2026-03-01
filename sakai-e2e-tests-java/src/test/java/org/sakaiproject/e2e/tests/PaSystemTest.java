@@ -14,7 +14,7 @@ class PaSystemTest extends SakaiUiTestBase {
     void administrationWorkspacePaSystem() {
         sakai.login("admin");
 
-        page.navigate("/portal/site/!admin");
+        sakai.gotoPath("/portal/site/!admin");
         assertThat(page.getByRole(AriaRole.LINK,
             new Page.GetByRoleOptions().setName(Pattern.compile("^Administration Workspace$", Pattern.CASE_INSENSITIVE))).first()).isVisible();
 

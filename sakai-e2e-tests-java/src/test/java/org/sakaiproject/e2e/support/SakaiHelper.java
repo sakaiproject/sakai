@@ -8,6 +8,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.WaitForSelectorState;
+import com.microsoft.playwright.options.WaitUntilState;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -49,7 +50,7 @@ public class SakaiHelper {
 
     public void gotoPath(String pathOrUrl) {
         String url = absoluteUrl(pathOrUrl);
-        withTransientRetry(() -> page.navigate(url));
+        withTransientRetry(() -> page.navigate(url, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED)));
     }
 
     public void login(String username) {
@@ -360,7 +361,10 @@ public class SakaiHelper {
     }
 
     private boolean clickToolByText(String label) {
-        Locator nav = page.locator(".site-list-item-collapse.collapse.show a.btn-nav, ul.site-page-list a.btn-nav");
+        Locator nav = page.locator("li.site-list-item.is-current-site .site-list-item-collapse.collapse.show a.btn-nav");
+        if (nav.count() == 0) {
+            nav = page.locator(".site-list-item-collapse.collapse.show a.btn-nav");
+        }
         int count = nav.count();
 
         String currentSitePrefix = null;
