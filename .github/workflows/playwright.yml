@@ -1,0 +1,172 @@
+# This workflow deploys Sakai to Tomcat and runs browser E2E tests.
+
+name: Playwright E2E Browser Tests
+
+on:
+  pull_request:
+
+jobs:
+  sakai-deploy:
+    runs-on: ubuntu-22.04
+    env:
+      JAVA_OPTS: "-Dhttp.agent=Sakai -Xms2512m -Xmx2512m -Dsakai.cookieName=SAKAIID -Dsakai.demo=true"
+      NODE_OPTIONS: "--disable-warning=DEP0169"
+      PLAYWRIGHT_BROWSER: "chromium"
+      PLAYWRIGHT_WORKERS: "3"
+      PLAYWRIGHT_INSTRUCTOR_POOL: "instructor,instructor1,instructor2"
+      PLAYWRIGHT_ISOLATE_INSTRUCTORS: "true"
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Restore Maven local repository cache
+        id: cache-maven-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Maven cache status
+        run: echo "Maven cache hit = ${{ steps.cache-maven-restore.outputs.cache-hit }}"
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Resolve Playwright Java version
+        id: playwright-version
+        run: |
+          PLAYWRIGHT_VERSION=$(mvn -B -ntp -q -f sakai-e2e-tests-java/pom.xml help:evaluate -Dexpression=playwright.version -DforceStdout | tail -n1)
+          echo "value=$PLAYWRIGHT_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build with Maven
+        env:
+          MAVEN_OPTS: -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true -Dmaven.wagon.http.retryHandler.count=2 -Dmaven.wagon.http.pool=true
+        run: |
+          sudo systemctl start mysql.service
+          echo "127.0.0.1 repository.dev.java.net" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 maven-repository.dev.java.net" | sudo tee -a /etc/hosts
+          echo "127.0.0.1 maven2-repository.dev.java.net" | sudo tee -a /etc/hosts
+          export TOMCAT_DIR=$PWD/tomcat
+          mkdir $TOMCAT_DIR
+          cd $TOMCAT_DIR
+          curl -s -o tomcat.tar.gz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.115/bin/apache-tomcat-9.0.115.tar.gz
+          tar --strip-components=1 -xzf tomcat.tar.gz
+          git clone https://github.com/sakaiproject/nightly-config.git sakai
+          cp sakai/setenv.sh bin/setenv.sh
+          cp sakai/cypress.properties sakai/sakai.properties
+          cp -f sakai/context.xml conf/context.xml
+          cp -f sakai/catalina.properties conf/catalina.properties
+          sed -i 's:<Service name="Catalina">:<Service name="Catalina"><Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" scheme="https" secure="true" />:g' conf/server.xml
+          mysql -u root -proot -e "create database sakai";
+          cd ..
+          mvn -B -ntp -V -DskipTests -Denforcer.skip -Dmaven.source.skip install sakai:deploy-exploded -Dmaven.tomcat.home=$TOMCAT_DIR
+          cd $TOMCAT_DIR
+          bin/catalina.sh start
+
+      - name: Save Maven local repository cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ steps.cache-maven-restore.outputs.cache-primary-key }}
+
+      - name: Wait for Sakai
+        run: |
+          for i in {1..180}; do
+            if curl -fsS http://127.0.0.1:8080/portal/ > /dev/null; then
+              grep "Server startup in" tomcat/logs/catalina.out || true
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Sakai did not become ready in time"
+          tail -n 200 tomcat/logs/catalina.out || true
+          exit 1
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-java-${{ steps.playwright-version.outputs.value }}
+
+      - name: Install Playwright CLI package
+        run: |
+          mkdir -p .playwright-cli
+          cat > .playwright-cli/package.json <<'EOF'
+          {
+            "name": "playwright-cli-bootstrap",
+            "private": true
+          }
+          EOF
+          npm --prefix .playwright-cli install --no-audit --no-fund --save-exact playwright@${{ steps.playwright-version.outputs.value }}
+
+      - name: Install Playwright system dependencies
+        run: ./.playwright-cli/node_modules/.bin/playwright install-deps
+
+      - name: Install Playwright browser
+        run: ./.playwright-cli/node_modules/.bin/playwright install chromium
+
+      - name: Run Playwright Java tests
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:8080
+        run: |
+          set -o pipefail
+          mkdir -p sakai-e2e-tests-java/target
+          mvn -B -ntp -V -f sakai-e2e-tests-java/pom.xml \
+            -Djunit.jupiter.execution.parallel.enabled=true \
+            -Djunit.jupiter.execution.parallel.mode.default=same_thread \
+            -Djunit.jupiter.execution.parallel.mode.classes.default=concurrent \
+            -Djunit.jupiter.execution.parallel.config.strategy=fixed \
+            -Djunit.jupiter.execution.parallel.config.fixed.parallelism=${PLAYWRIGHT_WORKERS} \
+            test 2>&1 | tee sakai-e2e-tests-java/target/playwright-java-run.log
+
+      - name: Check number of MySQL statements
+        if: always()
+        run: |
+          export QUERIES=$(grep StandardClient.debug tomcat/logs/catalina.out|grep -v ROLLBACK|grep -v COMMIT | wc -l)
+          echo "::notice title={MySQL Queries}::$QUERIES"
+
+      - name: Upload Tomcat log for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tomcat-log
+          path: tomcat/logs/catalina.out
+          retention-days: 5
+
+      - name: Collect Playwright Java artifacts
+        if: always()
+        run: |
+          mkdir -p playwright-java-artifacts
+          if [ -d sakai-e2e-tests-java/target/playwright-artifacts ]; then
+            cp -R sakai-e2e-tests-java/target/playwright-artifacts playwright-java-artifacts/
+          fi
+          if [ -d sakai-e2e-tests-java/target/surefire-reports ]; then
+            cp -R sakai-e2e-tests-java/target/surefire-reports playwright-java-artifacts/
+          fi
+          if [ -f sakai-e2e-tests-java/target/playwright-java-run.log ]; then
+            cp sakai-e2e-tests-java/target/playwright-java-run.log playwright-java-artifacts/
+          fi
+          if [ ! -e playwright-java-artifacts/playwright-artifacts ] \
+            && [ ! -e playwright-java-artifacts/surefire-reports ] \
+            && [ ! -f playwright-java-artifacts/playwright-java-run.log ]; then
+            echo "No Playwright Java artifacts were produced in this run." > playwright-java-artifacts/README.txt
+          fi
+
+      - name: Upload Playwright Java artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-java-artifacts
+          path: playwright-java-artifacts
+          retention-days: 5
