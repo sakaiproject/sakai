@@ -945,7 +945,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       // no need to create
         log.info("init() site " + this.m_adminSiteName + " already exists");
     }
-    else if(!m_serverConfigurationService.getBoolean("citationsAdmin.autocreate", true)) {
+    else if(!m_serverConfigurationService.getBoolean("citationsAdmin.autocreate", false)) {
      	//do not autocreate
      	log.info("init() skipping autocreate of citationsAdmin site");
     }
