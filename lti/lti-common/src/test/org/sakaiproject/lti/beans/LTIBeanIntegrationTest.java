@@ -104,7 +104,7 @@ public class LTIBeanIntegrationTest {
         // 3. Create new content bean
         // 4. Insert content
         
-        // Create a list of tool beans (simulating what would come from ltiService.getToolBeans())
+        // Create a list of tool beans (simulating what would come from ltiService.getToolsAsBeans())
         List<LtiToolBean> tools = new ArrayList<>();
         
         LtiToolBean tool1 = new LtiToolBean();

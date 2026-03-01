@@ -15,7 +15,7 @@
         <p class="shorttext">
         	$tlang.getString("bl_launch"):
         	#set($tool=false)
-			#set($tool=$ltiService.getToolBean($tool_id_long, $content.siteId))
+			#set($tool=$ltiService.getToolAsBean($tool_id_long, $content.siteId))
 			#if ($!tool)
 				$formattedText.escapeHtml($tool.launch)
 			#end
